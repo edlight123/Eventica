@@ -48,11 +48,11 @@ export default function SignupScreen({ navigation }: any) {
         <View style={styles.content}>
           <View style={styles.logoContainer}>
             <Image
-              source={require('../../assets/event_haiti_logo_primary.png')}
+              source={require('../../assets/eventica_logo_primary.png')}
               style={styles.logo}
               resizeMode="contain"
             />
-            <Text style={styles.logoText}>EventHaiti</Text>
+            <Text style={styles.logoText}>Eventica</Text>
           </View>
           <Text style={styles.title}>{t('auth.signup.title')}</Text>
 

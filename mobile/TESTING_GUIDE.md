@@ -1,4 +1,4 @@
-# 🧪 EventHaiti Mobile App - Testing Guide
+# 🧪 Eventica Mobile App - Testing Guide
 
 ## ✅ Server Status: RUNNING
 
@@ -6,7 +6,7 @@ Your Expo server is live with:
 - **Tunnel Mode:** Connected via ngrok
 - **QR Code:** Visible in terminal (scan with Expo Go)
 - **Account:** Logged in as edlight123
-- **Firebase:** Connected to event-haiti project
+- **Firebase:** Connected to eventica project
 
 ## 📱 Quick Test Steps
 
@@ -17,7 +17,7 @@ On your iPhone in Expo Go:
 
 ### 2️⃣ Test Google Sign-In
 1. On the login screen, tap **"🌐 Continue with Google (Web)"**
-2. Browser should open to eventhaiti.vercel.app
+2. Browser should open to joineventica.com
 3. Sign in with Google on the web
 4. When done, switch back to Expo Go app
 5. **You should be logged in!**
@@ -57,7 +57,7 @@ On your iPhone in Expo Go:
 - ✅ Event image/banner
 
 ### Data Sources:
-All data comes from your **event-haiti** Firebase:
+All data comes from your **eventica** Firebase:
 - Events from `events` collection
 - Categories from `categories` collection
 - User info from `users` collection

@@ -411,10 +411,10 @@ export default function AppNavigator() {
   const linking = {
     prefixes: [
       ExpoLinking.createURL('/'),
-      'eventhaiti://',
-      'https://eventhaiti.vercel.app',
-      'https://eventhaiti.com',
-      'https://www.eventhaiti.com',
+      'eventica://',
+      'https://joineventica.com',
+      'https://joineventica.com',
+      'https://www.joineventica.com',
     ],
     config: {
       screens: {

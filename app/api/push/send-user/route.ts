@@ -67,9 +67,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'No subscriptions for user' }, { status: 404 })
   }
 
-  webpush.setVapidDetails('mailto:support@eventhaiti.com', process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY)
+  webpush.setVapidDetails('mailto:support@joineventica.com', process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY)
 
-  const title = payload.title || 'EventHaiti'
+  const title = payload.title || 'Eventica'
   const body = payload.body || 'Notification'
   const url = payload.url || '/'
   const notificationPayload = JSON.stringify({ title, body, data: { url, userId, ...payload.data } })

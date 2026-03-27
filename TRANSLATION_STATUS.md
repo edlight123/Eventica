@@ -121,7 +121,7 @@ The following component files have translation keys available but still contain 
    Example:
    ```tsx
    export const metadata = {
-     title: 'Event Disbursements | Admin | EventHaiti', // Could use i18n
+     title: 'Event Disbursements | Admin | Eventica', // Could use i18n
      description: 'Track event end dates and manage organizer payouts',
    }
    ```

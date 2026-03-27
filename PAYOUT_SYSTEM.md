@@ -6,7 +6,7 @@ The payout system allows event organizers to configure how they receive payments
 
 ## Prefunding (Instant MonCash Payouts)
 
-EventHaiti supports (optional) **instant mobile money payouts** using Digicel MonCash **prefunded** REST API.
+Eventica supports (optional) **instant mobile money payouts** using Digicel MonCash **prefunded** REST API.
 
 How it works:
 - The platform maintains a prefunded MonCash balance (funded in the Digicel business portal).

@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     return new NextResponse(buffer, {
       headers: {
         'Content-Type': 'application/json',
-        'Content-Disposition': `attachment; filename="eventhaiti-data-${user.id}-${Date.now()}.json"`,
+        'Content-Disposition': `attachment; filename="eventica-data-${user.id}-${Date.now()}.json"`,
       },
     });
   } catch (error) {

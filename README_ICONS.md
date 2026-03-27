@@ -1,4 +1,4 @@
-# App Icon Setup for EventHaiti
+# App Icon Setup for Eventica
 
 ## Overview
 This guide explains how to use your `favicon-color.svg` as the app icon for mobile devices (PWA - Progressive Web App).
@@ -104,7 +104,7 @@ After generating icons, verify they work:
 
 ---
 
-**Need help?** The SVG should contain your EventHaiti logo/icon design. If you need to create one from scratch, consider using:
+**Need help?** The SVG should contain your Eventica logo/icon design. If you need to create one from scratch, consider using:
 - Figma (free online)
 - Inkscape (free desktop app)
 - Adobe Illustrator (paid)

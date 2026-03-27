@@ -1,8 +1,8 @@
-# 🎉 EventHaiti - Production-Ready Event Ticketing Platform
+# 🎉 Eventica - Production-Ready Event Ticketing Platform
 
 ## 🎯 Project Status: ✅ COMPLETE & READY FOR DEPLOYMENT
 
-**EventHaiti** is a fully functional, production-quality web application for discovering events and buying tickets in Haiti. Built with modern web technologies and best practices.
+**Eventica** is a fully functional, production-quality web application for discovering events and buying tickets in Haiti. Built with modern web technologies and best practices.
 
 ---
 
@@ -75,7 +75,7 @@ vercel
 ## 📁 Project Structure
 
 ```
-EventHaiti/
+Eventica/
 │
 ├── 📄 Documentation
 │   ├── README.md              # Main documentation
@@ -194,15 +194,15 @@ EventHaiti/
 
 ## 🌐 Multi-Tenant Architecture
 
-EventHaiti is designed to support multiple brands:
+Eventica is designed to support multiple brands:
 
 ```typescript
-// Current: EventHaiti
+// Current: Eventica
 // Future: HaitiPass, HaitiEvents
 
 export const BRANDS = {
-  eventhaiti: {
-    name: 'EventHaiti',
+  eventica: {
+    name: 'Eventica',
     primaryColor: '#0F766E',
     secondaryColor: '#F97316',
   },
@@ -364,7 +364,7 @@ See [FEATURES.md](./FEATURES.md) for complete roadmap.
 - Verify environment variables
 
 ### Community
-- Share your EventHaiti deployment!
+- Share your Eventica deployment!
 - Contribute improvements
 - Report bugs
 
@@ -389,7 +389,7 @@ Built with:
 
 ## 🎉 You're All Set!
 
-EventHaiti is **production-ready** and waiting for you to deploy it!
+Eventica is **production-ready** and waiting for you to deploy it!
 
 ### Next Steps:
 1. Follow [QUICKSTART.md](./QUICKSTART.md) to get it running locally

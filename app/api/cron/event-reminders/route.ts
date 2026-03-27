@@ -191,7 +191,7 @@ export async function GET(request: Request) {
                   </div>
                   
                   <div style="padding: 20px; text-align: center; color: #6b7280; font-size: 12px;">
-                    <p>EventHaiti - Experience Haiti's Best Events</p>
+                    <p>Eventica - Experience Haiti's Best Events</p>
                   </div>
                 </div>
               `,

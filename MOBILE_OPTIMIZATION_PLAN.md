@@ -1,4 +1,4 @@
-# 📱 EventHaiti Mobile Optimization Plan
+# 📱 Eventica Mobile Optimization Plan
 **Complete Mobile-First Transformation**
 
 ## 📊 Platform Pages Inventory (40 Pages)

@@ -1,6 +1,6 @@
 export const BRAND = {
-  name: 'EventHaiti',
-  logoText: '🎭 EventHaiti',
+  name: 'Eventica',
+  logoText: '🎭 Eventica',
   tagline: 'Discover Amazing Events in Haiti',
   primaryColor: '#0F766E',
   secondaryColor: '#F97316',

@@ -24,7 +24,7 @@ export interface Order {
   
   // Pricing (all in cents)
   subtotal: number               // Sum of all item totals
-  platformFee: number            // EventHaiti's fee
+  platformFee: number            // Eventica's fee
   processingFee: number          // Stripe processing fee (estimated)
   total: number                  // Final amount charged
   currency: 'HTG' | 'USD' | 'CAD'

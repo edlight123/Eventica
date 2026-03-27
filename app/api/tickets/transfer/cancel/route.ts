@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
             'Ticket transfer cancelled',
             `${user.name || user.email || 'The sender'} cancelled the ticket transfer for "${eventTitle}".`,
             '/notifications',
-            { type: 'ticket_transfer', deepLink: 'eventhaiti://notifications' }
+            { type: 'ticket_transfer', deepLink: 'eventica://notifications' }
           )
         }
       } catch (notifyError) {

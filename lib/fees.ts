@@ -1,13 +1,13 @@
 /**
  * Fee Calculation Utilities
  * 
- * Handles all fee calculations for the EventHaiti payment system
+ * Handles all fee calculations for the Eventica payment system
  */
 
 import { FEE_CONFIG, type FeeCalculation } from '@/types/earnings'
 
 /**
- * Calculate platform fee (EventHaiti's commission)
+ * Calculate platform fee (Eventica's commission)
  * 
  * @param grossAmount - Total ticket sales in cents
  * @returns Platform fee in cents

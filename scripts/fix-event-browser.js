@@ -1,5 +1,5 @@
 /**
- * Run this in browser console while logged in as admin on eventhaiti.vercel.app
+ * Run this in browser console while logged in as admin on joineventica.com
  * to fix ticket tiers for event P7wuJ16W1eZ2MdZl0SHK
  */
 

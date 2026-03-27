@@ -1,6 +1,6 @@
-# Deployment Guide - EventHaiti
+# Deployment Guide - Eventica
 
-This guide will walk you through deploying EventHaiti to production on Vercel.
+This guide will walk you through deploying Eventica to production on Vercel.
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ This guide will walk you through deploying EventHaiti to production on Vercel.
 1. **Commit all changes to Git**
    ```bash
    git add .
-   git commit -m "Initial EventHaiti deployment"
+   git commit -m "Initial Eventica deployment"
    ```
 
 2. **Push to GitHub**
@@ -60,7 +60,7 @@ This guide will walk you through deploying EventHaiti to production on Vercel.
 
 2. **Import Git Repository**
    - Connect your GitHub account
-   - Select your EventHaiti repository
+   - Select your Eventica repository
    - Click "Import"
 
 3. **Configure Project**
@@ -96,7 +96,7 @@ This guide will walk you through deploying EventHaiti to production on Vercel.
 ## Step 4: Custom Domain (Optional)
 
 1. **Purchase a domain**
-   - Recommended: `eventhaiti.ht` or `eventhaiti.com`
+   - Recommended: `eventhaiti.ht` or `joineventica.com`
 
 2. **Add domain in Vercel**
    - Go to Project Settings → Domains

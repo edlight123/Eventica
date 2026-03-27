@@ -73,7 +73,7 @@ export async function POST(request: Request) {
     // Send confirmation email
     try {
       await resend.emails.send({
-        from: 'EventHaiti <noreply@eventhaiti.com>',
+        from: 'Eventica <noreply@joineventica.com>',
         to: user.email,
         subject: `You're on the waitlist for ${event.title}`,
         html: `
@@ -107,7 +107,7 @@ export async function POST(request: Request) {
                   </ul>
                 </div>
                 <div style="text-align: center;">
-                  <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://eventhaiti.com'}/events/${eventId}" class="button">
+                  <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://joineventica.com'}/events/${eventId}" class="button">
                     View Event Details
                   </a>
                 </div>

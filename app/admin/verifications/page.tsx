@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 
 export const metadata = {
-  title: 'Verifications | Admin | EventHaiti',
+  title: 'Verifications | Admin | Eventica',
   description: 'Redirecting to organizer verification management',
 }
 

@@ -185,7 +185,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `${t('eventDetail.share.checkOut')} ${event.title}!\n\n${event.description?.substring(0, 100)}...\n\n${t('eventDetail.share.date')}: ${event.start_datetime && format(event.start_datetime, 'EEEE, MMMM dd, yyyy')}\n${t('eventDetail.share.venue')}: ${event.venue_name}\n${t('eventDetail.share.organizer')}: ${event.users?.full_name || event.organizer_name || t('eventDetail.organizerFallback')}\n\nhttps://eventhaiti.vercel.app/events/${eventId}`,
+        message: `${t('eventDetail.share.checkOut')} ${event.title}!\n\n${event.description?.substring(0, 100)}...\n\n${t('eventDetail.share.date')}: ${event.start_datetime && format(event.start_datetime, 'EEEE, MMMM dd, yyyy')}\n${t('eventDetail.share.venue')}: ${event.venue_name}\n${t('eventDetail.share.organizer')}: ${event.users?.full_name || event.organizer_name || t('eventDetail.organizerFallback')}\n\nhttps://joineventica.com/events/${eventId}`,
         title: event.title,
       });
     } catch (error) {

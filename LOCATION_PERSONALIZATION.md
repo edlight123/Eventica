@@ -147,7 +147,7 @@ const countryName = LOCATION_CONFIG[userCountry]?.name || 'Haiti'
 1. **Personalized Discovery**: Users see events most relevant to their location
 2. **Better User Experience**: No need to filter by country every time
 3. **Increased Engagement**: Users more likely to attend events near them
-4. **Multi-Country Support**: Seamlessly supports EventHaiti's expansion
+4. **Multi-Country Support**: Seamlessly supports Eventica's expansion
 5. **Cascading Selection**: Intuitive UI that prevents invalid selections
 6. **Default Values**: Sensible defaults (Haiti) for existing users
 

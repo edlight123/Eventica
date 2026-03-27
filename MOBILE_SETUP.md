@@ -1,4 +1,4 @@
-# EventHaiti Mobile App - Quick Start Guide
+# Eventica Mobile App - Quick Start Guide
 
 ## ✅ What's Been Set Up
 
@@ -42,7 +42,7 @@ mobile/
 1. Install **Expo Go** app from App Store (iOS) or Play Store (Android)
 2. Navigate to mobile directory:
    ```bash
-   cd /workspaces/EventHaiti/mobile
+   cd /workspaces/Eventica/mobile
    ```
 3. Create `.env` file with your Firebase config:
    ```bash
@@ -173,7 +173,7 @@ Edit `mobile/app.json`:
 ```json
 {
   "expo": {
-    "name": "EventHaiti",
+    "name": "Eventica",
     "slug": "eventhaiti-mobile",
     ...
   }

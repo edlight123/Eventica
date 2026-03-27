@@ -75,7 +75,7 @@
     "success_title": "Request Submitted!",
     "success_message": "We've received your support request and will respond within 24 hours. Check your email for confirmation.",
     "error_title": "Submission Failed",
-    "error_message": "There was an error submitting your request. Please try again or email us directly at support@eventhaiti.com",
+    "error_message": "There was an error submitting your request. Please try again or email us directly at support@joineventica.com",
     "try_again": "Try Again",
     "back_to_support": "Back to Help Center"
   },
@@ -123,11 +123,11 @@
             },
             {
               "question": "What happens if I lose my ticket?",
-              "answer": "Your tickets stay in your EventHaiti account. Log in and go to \"My Tickets\" to view and download them again. You can also check your email confirmation."
+              "answer": "Your tickets stay in your Eventica account. Log in and go to \"My Tickets\" to view and download them again. You can also check your email confirmation."
             },
             {
               "question": "Can I buy tickets without creating an account?",
-              "answer": "You need an EventHaiti account to purchase tickets. This keeps tickets secure and lets you manage transfers, refunds, and support requests. Creating an account only takes a minute."
+              "answer": "You need an Eventica account to purchase tickets. This keeps tickets secure and lets you manage transfers, refunds, and support requests. Creating an account only takes a minute."
             }
           ]
         },
@@ -137,7 +137,7 @@
           "faqs": [
             {
               "question": "How do I get into an event?",
-              "answer": "Present your ticket QR code at the entrance. Staff will scan it using EventHaiti tools. Keep your phone charged and have your ticket ready in the app or email."
+              "answer": "Present your ticket QR code at the entrance. Staff will scan it using Eventica tools. Keep your phone charged and have your ticket ready in the app or email."
             },
             {
               "question": "Can I enter with a screenshot of my ticket?",
@@ -252,7 +252,7 @@
               "answer": "Payouts are deposited to your verified payout method. After your event ends, you can request a payout from your organizer dashboard."
             },
             {
-              "question": "What fees does EventHaiti charge?",
+              "question": "What fees does Eventica charge?",
               "answer": "Fees depend on payment method and configuration. You’ll always see a transparent breakdown in your dashboard and during setup."
             },
             {

@@ -2,7 +2,7 @@
 
 ## Overview
 
-EventHaiti now uses **Firebase** (Firestore + Firebase Auth) instead of Supabase. This guide explains the database structure and how to set up your Firebase project.
+Eventica now uses **Firebase** (Firestore + Firebase Auth) instead of Supabase. This guide explains the database structure and how to set up your Firebase project.
 
 ## Firebase Setup
 
@@ -35,7 +35,7 @@ EventHaiti now uses **Firebase** (Firestore + Firebase Auth) instead of Supabase
 
 1. Go to **Project Settings** (gear icon)
 2. Under "Your apps", click the web icon `</>`
-3. Register your app with a nickname (e.g., "EventHaiti Web")
+3. Register your app with a nickname (e.g., "Eventica Web")
 4. Copy the configuration object values:
    - `apiKey` → `NEXT_PUBLIC_FIREBASE_API_KEY`
    - `authDomain` → `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`

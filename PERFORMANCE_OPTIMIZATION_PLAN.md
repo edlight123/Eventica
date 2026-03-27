@@ -1,4 +1,4 @@
-# ⚡ EventHaiti Performance Optimization Plan
+# ⚡ Eventica Performance Optimization Plan
 ## Goal: Make the app feel instant and blazing fast
 
 ---

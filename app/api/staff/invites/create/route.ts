@@ -169,9 +169,9 @@ export async function POST(request: NextRequest) {
           <!doctype html>
           <html>
             <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">
-              <h2>EventHaiti staff invitation</h2>
+              <h2>Eventica staff invitation</h2>
               <p>You have been invited to join <strong>${eventTitle}</strong> as staff.</p>
-              <p><a href="${inviteDeepLink}">Open in the EventHaiti app</a></p>
+              <p><a href="${inviteDeepLink}">Open in the Eventica app</a></p>
               <p><a href="${inviteUrl}">Accept your invite</a></p>
               <p style="color:#6b7280;font-size:12px;">This invite expires in 48 hours.</p>
             </body>
@@ -193,7 +193,7 @@ export async function POST(request: NextRequest) {
             ? String((eventSnap.data() as any)?.title || (eventSnap.data() as any)?.name || 'an event')
             : 'an event'
 
-          const message = `EventHaiti staff invite: ${eventTitle}. Open in app: ${inviteDeepLink} (or web: ${inviteUrl})`
+          const message = `Eventica staff invite: ${eventTitle}. Open in app: ${inviteDeepLink} (or web: ${inviteUrl})`
           await sendSms({ to, message })
         }
       } catch (smsError) {

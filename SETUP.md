@@ -1,13 +1,13 @@
-# EventHaiti - Feature Setup Guide
+# Eventica - Feature Setup Guide
 
-This guide will help you set up and configure all the features of EventHaiti.
+This guide will help you set up and configure all the features of Eventica.
 
 ## 🚀 Quick Start
 
 1. **Clone and Install**
    ```bash
    git clone <your-repo>
-   cd EventHaiti
+   cd Eventica
    npm install
    ```
 

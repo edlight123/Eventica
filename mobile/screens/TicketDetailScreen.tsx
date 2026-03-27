@@ -160,7 +160,7 @@ export default function TicketDetailScreen({ route }: any) {
                 size={220}
                 backgroundColor="white"
                 color={COLORS.primary}
-                logo={require('../assets/event_haiti_logo_color.png')}
+                logo={require('../assets/eventica_logo_color.png')}
                 logoSize={48}
                 logoBackgroundColor="white"
                 logoBorderRadius={6}

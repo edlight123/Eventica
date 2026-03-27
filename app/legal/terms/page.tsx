@@ -20,7 +20,7 @@ export default async function TermsOfServicePage() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 md:p-6 lg:p-8 prose prose-sm sm:prose prose-teal max-w-none">
           <h2>1. Acceptance of Terms</h2>
           <p>
-            By accessing and using EventHaiti (&quot;the Platform&quot;), you accept and agree to be bound by the terms and provision of this agreement.
+            By accessing and using Eventica (&quot;the Platform&quot;), you accept and agree to be bound by the terms and provision of this agreement.
           </p>
 
           <h2>2. Use License</h2>
@@ -58,12 +58,12 @@ export default async function TermsOfServicePage() {
             <li>Tickets are non-transferable unless otherwise stated</li>
             <li>Refund policies are set by individual event organizers</li>
             <li>You are responsible for checking event details before purchase</li>
-            <li>EventHaiti acts as an intermediary and is not liable for event cancellations or changes</li>
+            <li>Eventica acts as an intermediary and is not liable for event cancellations or changes</li>
           </ul>
 
           <h2>5. User Content</h2>
           <p>
-            Users may post reviews, comments, and other content. By posting content, you grant EventHaiti a non-exclusive, royalty-free, perpetual license to use, reproduce, modify, and display such content.
+            Users may post reviews, comments, and other content. By posting content, you grant Eventica a non-exclusive, royalty-free, perpetual license to use, reproduce, modify, and display such content.
           </p>
 
           <h2>6. Prohibited Activities</h2>
@@ -79,12 +79,12 @@ export default async function TermsOfServicePage() {
 
           <h2>7. Payment Processing</h2>
           <p>
-            Payments are processed securely through third-party payment processors. EventHaiti does not store credit card information. A service fee may be applied to ticket purchases.
+            Payments are processed securely through third-party payment processors. Eventica does not store credit card information. A service fee may be applied to ticket purchases.
           </p>
 
           <h2>8. Limitation of Liability</h2>
           <p>
-            EventHaiti shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of the Platform or any events listed on it.
+            Eventica shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of the Platform or any events listed on it.
           </p>
 
           <h2>9. Account Termination</h2>
@@ -94,7 +94,7 @@ export default async function TermsOfServicePage() {
 
           <h2>10. Modifications to Terms</h2>
           <p>
-            EventHaiti reserves the right to revise these terms at any time. Continued use of the Platform after changes constitutes acceptance of modified terms.
+            Eventica reserves the right to revise these terms at any time. Continued use of the Platform after changes constitutes acceptance of modified terms.
           </p>
 
           <h2>11. Governing Law</h2>
@@ -106,7 +106,7 @@ export default async function TermsOfServicePage() {
           <p>
             For questions about these Terms of Service, please contact us at:
             <br />
-            <strong>Email:</strong> legal@eventhaiti.com
+            <strong>Email:</strong> legal@joineventica.com
             <br />
             <strong>Address:</strong> Port-au-Prince, Haiti
           </p>

@@ -1,4 +1,4 @@
-# Testing the EventHaiti Mobile App
+# Testing the Eventica Mobile App
 
 ## 🚀 Quick Start Testing
 
@@ -10,7 +10,7 @@
 
 #### Step 2: Start the Development Server
 ```bash
-cd /workspaces/EventHaiti/mobile
+cd /workspaces/Eventica/mobile
 npm start
 ```
 
@@ -38,7 +38,7 @@ sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
 #### Run iOS Simulator
 ```bash
-cd /workspaces/EventHaiti/mobile
+cd /workspaces/Eventica/mobile
 npm run ios
 ```
 
@@ -70,7 +70,7 @@ This will:
 
 #### Run Android Emulator
 ```bash
-cd /workspaces/EventHaiti/mobile
+cd /workspaces/Eventica/mobile
 npm run android
 ```
 
@@ -91,7 +91,7 @@ npm run android
 ### Option 4: Test in Web Browser (Limited)
 
 ```bash
-cd /workspaces/EventHaiti/mobile
+cd /workspaces/Eventica/mobile
 npm run web
 ```
 
@@ -486,7 +486,7 @@ Before deploying to production:
 
 **Quick start**:
 ```bash
-cd /workspaces/EventHaiti/mobile
+cd /workspaces/Eventica/mobile
 npm start
 ```
 

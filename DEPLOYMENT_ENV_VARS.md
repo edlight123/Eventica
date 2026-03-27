@@ -69,7 +69,7 @@ NEXTAUTH_URL=https://your-domain.com
 
 ### Via Vercel Dashboard:
 1. Go to https://vercel.com/dashboard
-2. Select your EventHaiti project
+2. Select your Eventica project
 3. Click **Settings** tab
 4. Click **Environment Variables** in sidebar
 5. Add each variable:
@@ -103,7 +103,7 @@ Once deployed, test the cron endpoint:
 
 ```bash
 # Replace with your actual domain and CRON_SECRET
-curl -X GET https://eventhaiti.com/api/cron/update-settlement-status \
+curl -X GET https://joineventica.com/api/cron/update-settlement-status \
   -H "Authorization: Bearer SDhk0LptE2CEchml2DKJl5pFONQrzi+/SjDl9bHv9lg="
 ```
 
@@ -125,7 +125,7 @@ Expected response:
 
 ✅ **Firestore Indexes:** Deployed successfully
 - Event: December 18, 2024
-- Project: event-haiti
+- Project: eventica
 - Database: (default)
 - Indexes: 6 new composite indexes for earnings system
 
@@ -137,7 +137,7 @@ Expected response:
 5. `withdrawal_requests`: organizerId + status + createdAt
 6. `withdrawal_requests`: eventId + createdAt
 
-Check status: https://console.firebase.google.com/project/event-haiti/firestore/indexes
+Check status: https://console.firebase.google.com/project/eventica/firestore/indexes
 
 ---
 
@@ -167,7 +167,7 @@ git push origin main
 Add your email to admin list in `lib/admin.ts`:
 ```typescript
 const adminEmails = [
-  'admin@eventhaiti.com',
+  'admin@joineventica.com',
   'info@edlight.org'  // Your email
 ]
 ```
@@ -208,8 +208,8 @@ const adminEmails = [
 
 ## Contact
 
-**Project:** EventHaiti  
-**Firebase Project:** event-haiti  
+**Project:** Eventica  
+**Firebase Project:** eventica  
 **Account:** info@edlight.org  
 
 For support, check:

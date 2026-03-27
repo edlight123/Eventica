@@ -658,7 +658,7 @@ Route (app)                              Size     First Load JS
 
 **All 5 priority features are fully implemented and tested!**
 
-The EventHaiti platform is now production-ready with:
+The Eventica platform is now production-ready with:
 - ✅ Real payment processing (Stripe)
 - ✅ Professional email confirmations (Resend)
 - ✅ QR code generation and embedding

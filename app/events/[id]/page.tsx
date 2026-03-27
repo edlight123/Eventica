@@ -37,14 +37,14 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   })
 
   return {
-    title: `${event.title} | EventHaiti`,
+    title: `${event.title} | Eventica`,
     description: event.description || `Join us for ${event.title} at ${event.venue_name}, ${event.city}`,
     openGraph: {
       title: event.title,
       description: event.description || `Join us for ${event.title}`,
       images: event.banner_image_url ? [event.banner_image_url] : [],
       type: 'website',
-      siteName: 'EventHaiti',
+      siteName: 'Eventica',
     },
     twitter: {
       card: 'summary_large_image',

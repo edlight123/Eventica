@@ -98,7 +98,7 @@ export async function GET(request: Request) {
             })
 
             await resend.emails.send({
-              from: 'EventHaiti <noreply@eventhaiti.com>',
+              from: 'Eventica <noreply@joineventica.com>',
               to: user.email,
               subject: `Reminder: ${event.title} is Tomorrow! 🎉`,
               html: `
@@ -173,7 +173,7 @@ export async function GET(request: Request) {
                       </div>
                       
                       <div style="text-align: center;">
-                        <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://eventhaiti.com'}/tickets" class="button">
+                        <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://joineventica.com'}/tickets" class="button">
                           View My Tickets
                         </a>
                       </div>
@@ -182,7 +182,7 @@ export async function GET(request: Request) {
                     </div>
                     
                     <div class="footer">
-                      <p>EventHaiti - Discover Events in Haiti</p>
+                      <p>Eventica - Discover Events in Haiti</p>
                       <p style="font-size: 12px;">
                         This is an automated reminder. You're receiving this because you have tickets for this event.
                       </p>

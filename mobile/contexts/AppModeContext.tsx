@@ -17,7 +17,7 @@ const AppModeContext = createContext<AppModeContextType>({
 
 export const useAppMode = () => useContext(AppModeContext);
 
-const MODE_STORAGE_KEY = '@EventHaiti:appMode';
+const MODE_STORAGE_KEY = '@Eventica:appMode';
 
 export const AppModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [mode, setModeState] = useState<AppMode>('attendee');

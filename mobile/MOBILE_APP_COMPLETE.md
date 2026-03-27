@@ -1,4 +1,4 @@
-# EventHaiti Mobile App - Full Feature Status
+# Eventica Mobile App - Full Feature Status
 
 ## ✅ COMPLETED & WORKING
 
@@ -54,13 +54,13 @@
 
 ### 🎨 UI/UX
 - ✅ **5-Tab Navigation** - Home, Discover, Favorites, Tickets, Profile
-- ✅ **Consistent Branding** - EventHaiti colors and logo
+- ✅ **Consistent Branding** - Eventica colors and logo
 - ✅ **Loading States** - Spinners and skeleton screens
 - ✅ **Empty States** - Helpful messages when no data
 - ✅ **Error Handling** - User-friendly error messages
 
 ### 🔥 Firebase Integration
-- ✅ **Real Firebase Connection** - Connected to `event-haiti` project
+- ✅ **Real Firebase Connection** - Connected to `eventica` project
 - ✅ **Firestore Queries** - All data from your database
 - ✅ **Authentication** - Firebase Auth enabled
 - ✅ **Shared Backend** - Same data as web app
@@ -77,7 +77,7 @@ The mobile app pulls ALL events from your Firestore database:
 
 ### Google Sign-In Flow
 1. User taps "🌐 Continue with Google (Web)"
-2. Opens browser to https://eventhaiti.vercel.app/auth/login
+2. Opens browser to https://joineventica.com/auth/login
 3. User signs in with Google on web
 4. Session syncs automatically when returning to app
 5. User is logged in on mobile!
@@ -140,9 +140,9 @@ The mobile app pulls ALL events from your Firestore database:
 ### Environment (.env)
 ```env
 EXPO_PUBLIC_FIREBASE_API_KEY=AIzaSyBzqR3BIaplOIJh0iPI9SYFbgSoTfV0rWs
-EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=event-haiti.firebaseapp.com
-EXPO_PUBLIC_FIREBASE_PROJECT_ID=event-haiti
-EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=event-haiti.firebasestorage.app
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=eventica.firebaseapp.com
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=eventica
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=eventica.firebasestorage.app
 EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=71580084056
 EXPO_PUBLIC_FIREBASE_APP_ID=1:71580084056:ios:c0b9fe7183cb8790d3a72d
 EXPO_PUBLIC_DEMO_MODE=false

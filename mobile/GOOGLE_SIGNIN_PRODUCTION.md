@@ -11,7 +11,7 @@ Google Sign-In is now properly implemented and **will work when you release the 
 Your existing web client ID already works for the mobile app. Expo handles the OAuth flow automatically using your web configuration.
 
 ### Why It Works:
-- ✅ Your web OAuth is already set up at `eventhaiti.vercel.app`
+- ✅ Your web OAuth is already set up at `joineventica.com`
 - ✅ Expo uses your web client ID
 - ✅ The OAuth flow happens through Google's servers
 - ✅ No custom schemes or mobile-specific redirects needed
@@ -67,8 +67,8 @@ The production build will have:
 
 ## 📋 Redirect URI Explanation
 
-**Why `eventhaiti://redirect`?**
-- `eventhaiti://` is your app's custom scheme (from app.json)
+**Why `eventica://redirect`?**
+- `eventica://` is your app's custom scheme (from app.json)
 - `redirect` is the path for OAuth callbacks
 - This tells Google where to send users after sign-in
 - Works on both iOS and Android
@@ -81,7 +81,7 @@ The production build will have:
 - ✅ Firebase credential handling
 - ✅ User profile creation
 - ✅ Session persistence
-- ✅ App scheme configured (`eventhaiti://`)
+- ✅ App scheme configured (`eventica://`)
 
 ## 🎯 Current State
 
@@ -102,4 +102,4 @@ Your app is **production-ready** with proper Google Sign-In!
 - **Now:** Test with email/password (Expo Go limitation)
 - **Released:** Google Sign-In works perfectly (native builds)
 
-Just add `eventhaiti://redirect` to Google Console and you're all set! 🎉
+Just add `eventica://redirect` to Google Console and you're all set! 🎉

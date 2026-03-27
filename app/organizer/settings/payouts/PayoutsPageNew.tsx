@@ -1719,7 +1719,7 @@ export default function PayoutsPageNew({
                       </div>
                     ) : (
                       <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700">
-                        Stripe Connect will collect your bank details securely. You don&apos;t need to enter any bank information on EventHaiti.
+                        Stripe Connect will collect your bank details securely. You don&apos;t need to enter any bank information on Eventica.
                       </div>
                     )}
 

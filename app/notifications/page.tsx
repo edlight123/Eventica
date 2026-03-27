@@ -7,7 +7,7 @@ import { getUserNotificationsServer, getUnreadCountServer } from '@/lib/notifica
 import { NotificationsClient } from '@/components/NotificationsClient'
 
 export const metadata = {
-  title: 'Notifications | EventHaiti',
+  title: 'Notifications | Eventica',
   description: 'View your notifications'
 }
 

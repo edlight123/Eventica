@@ -32,11 +32,11 @@ export function generateICSFile(event: Event): string {
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//EventHaiti//Event Calendar//EN',
+    'PRODID:-//Eventica//Event Calendar//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
-    `UID:${event.id}@eventhaiti.com`,
+    `UID:${event.id}@joineventica.com`,
     `DTSTAMP:${formatICSDate(new Date())}`,
     `DTSTART:${formatICSDate(startDate)}`,
     `DTEND:${formatICSDate(endDate)}`,

@@ -98,7 +98,7 @@ export default function TransferTicketModal({
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Recipient must have an EventHaiti account
+                  Recipient must have an Eventica account
                 </p>
               </div>
 

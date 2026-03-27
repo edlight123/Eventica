@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide provides a complete implementation of the end-to-end payment and payout system for EventHaiti, from customer ticket purchase to organizer payouts. The system is built on the existing Firebase/Firestore infrastructure and extends it with new collections and enhanced workflows.
+This guide provides a complete implementation of the end-to-end payment and payout system for Eventica, from customer ticket purchase to organizer payouts. The system is built on the existing Firebase/Firestore infrastructure and extends it with new collections and enhanced workflows.
 
 ## Architecture Overview
 
@@ -127,7 +127,7 @@ interface EventEarnings {
   ticketsSold: number            // Count of tickets
   
   // Fee breakdown
-  platformFee: number            // EventHaiti's cut (e.g., 10%)
+  platformFee: number            // Eventica's cut (e.g., 10%)
   processingFees: number         // Stripe fees
   netAmount: number              // grossSales - fees
   

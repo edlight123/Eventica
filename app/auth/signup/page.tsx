@@ -127,8 +127,8 @@ export default function SignupPage() {
         <div className="text-center">
           <div className="flex justify-center mb-4">
             <Image 
-              src="/event_haiti_logo_color.png" 
-              alt="EventHaiti" 
+              src="/eventica_logo_color.png" 
+              alt="Eventica" 
               width={80} 
               height={80}
               className="drop-shadow-md"

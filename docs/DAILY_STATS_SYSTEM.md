@@ -2,7 +2,7 @@
 
 ## Overview
 
-The EventHaiti platform uses a daily rollup system to efficiently track platform metrics without querying all tickets every time. Stats are pre-calculated daily and stored in the `platform_stats_daily` Firestore collection.
+The Eventica platform uses a daily rollup system to efficiently track platform metrics without querying all tickets every time. Stats are pre-calculated daily and stored in the `platform_stats_daily` Firestore collection.
 
 ## Architecture
 
@@ -99,7 +99,7 @@ You can manually trigger the daily stats calculation:
 
 ```bash
 # Using curl with authentication
-curl -X POST https://eventhaiti.vercel.app/api/cron/daily-stats \
+curl -X POST https://joineventica.com/api/cron/daily-stats \
   -H "Authorization: Bearer YOUR_CRON_SECRET"
 
 # Response

@@ -31,7 +31,7 @@ const firebaseConfig = {
 
 ### Step 2: Update Mobile App Configuration
 
-1. Open `/workspaces/EventHaiti/mobile/.env`
+1. Open `/workspaces/Eventica/mobile/.env`
 
 2. Replace the placeholder values with your real Firebase config:
 ```env
@@ -58,7 +58,7 @@ In Firebase Console:
 ### Step 4: Restart the App
 
 ```bash
-cd /workspaces/EventHaiti/mobile
+cd /workspaces/Eventica/mobile
 npx expo start --tunnel --clear
 ```
 

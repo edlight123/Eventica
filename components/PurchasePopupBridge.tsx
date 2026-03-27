@@ -19,7 +19,7 @@ export default function PurchasePopupBridge(props: PurchasePopupBridgeProps) {
     try {
       ;(window as any)?.ReactNativeWebView?.postMessage?.(
         JSON.stringify({
-          source: 'eventhaiti',
+          source: 'eventica',
           type: 'purchase_result',
           ...props,
         })
@@ -34,7 +34,7 @@ export default function PurchasePopupBridge(props: PurchasePopupBridgeProps) {
     try {
       window.opener.postMessage(
         {
-          source: 'eventhaiti',
+          source: 'eventica',
           type: 'purchase_result',
           ...props,
         },

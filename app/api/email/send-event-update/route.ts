@@ -103,7 +103,7 @@ export async function POST(request: Request) {
     for (const attendee of attendees) {
       try {
         await resend.emails.send({
-          from: 'EventHaiti <noreply@eventhaiti.com>',
+          from: 'Eventica <noreply@joineventica.com>',
           to: attendee.email,
           subject: `${updateIcon} ${updateTitle}: ${event.title}`,
           html: `
@@ -168,7 +168,7 @@ export async function POST(request: Request) {
                   ` : ''}
                   
                   <div style="text-align: center;">
-                    <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://eventhaiti.com'}/events/${eventId}" class="button">
+                    <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://joineventica.com'}/events/${eventId}" class="button">
                       View Event Details
                     </a>
                   </div>
@@ -177,7 +177,7 @@ export async function POST(request: Request) {
                 </div>
                 
                 <div class="footer">
-                  <p>EventHaiti - Discover Events in Haiti</p>
+                  <p>Eventica - Discover Events in Haiti</p>
                   <p style="font-size: 12px;">
                     You're receiving this because you have tickets for this event.
                   </p>

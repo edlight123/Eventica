@@ -3,7 +3,7 @@
 ## Overview
 Successfully implemented a mobile event detail screen that **mirrors the PWA event detail page** design and functionality.
 
-Reference PWA: `https://eventhaiti.vercel.app/events/[id]`
+Reference PWA: `https://joineventica.com/events/[id]`
 
 ---
 
@@ -204,7 +204,7 @@ Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComp
 ### 2. **Share Integration**
 ```typescript
 Share.share({
-  message: `Check out ${event.title}!...\n\nhttps://eventhaiti.vercel.app/events/${eventId}`,
+  message: `Check out ${event.title}!...\n\nhttps://joineventica.com/events/${eventId}`,
   title: event.title
 })
 ```

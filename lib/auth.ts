@@ -34,7 +34,7 @@ export async function getCurrentUser() {
       return {
         id: demoUser.id,
         email: demoUser.email,
-        full_name: demoUser.email === 'demo-organizer@eventhaiti.com' ? 'Demo Organizer' : 'Demo Attendee',
+        full_name: demoUser.email === 'demo-organizer@joineventica.com' ? 'Demo Organizer' : 'Demo Attendee',
         role: demoUser.role as UserRole,
         phone_number: null,
         created_at: new Date().toISOString(),

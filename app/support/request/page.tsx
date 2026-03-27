@@ -6,7 +6,7 @@ import { I18nProvider } from '@/components/I18nProvider'
 import SupportRequestForm from './SupportRequestForm'
 
 export const metadata = {
-  title: 'Submit Support Request - EventHaiti',
+  title: 'Submit Support Request - Eventica',
   description: 'Submit a detailed support request and our team will get back to you within 24 hours.',
 }
 

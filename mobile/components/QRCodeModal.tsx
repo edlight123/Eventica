@@ -49,7 +49,7 @@ export default function QRCodeModal({ visible, onClose, ticketId, ticketNumber }
                 value={ticketId}
                 size={Math.min(width - 80, 320)}
                 backgroundColor="#FFF"
-                logo={require('../assets/event_haiti_logo_color.png')}
+                logo={require('../assets/eventica_logo_color.png')}
                 logoSize={60}
                 logoBackgroundColor="white"
                 logoBorderRadius={8}

@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-// Generate SVG icons with EventHaiti branding
+// Generate SVG icons with Eventica branding
 function generateSVGIcon(size) {
   const fontSize = size * 0.55;
   const rx = size * 0.225; // 22.5% border radius for modern look

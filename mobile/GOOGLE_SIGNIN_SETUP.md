@@ -8,7 +8,7 @@ I've implemented native Google Sign-In just like standard apps use. Now you need
 
 ### Step 1: Get Google Web Client ID
 
-1. Go to **Firebase Console**: https://console.firebase.google.com/project/event-haiti/authentication/providers
+1. Go to **Firebase Console**: https://console.firebase.google.com/project/eventica/authentication/providers
 
 2. Click on **Google** under Sign-in providers
 
@@ -20,7 +20,7 @@ I've implemented native Google Sign-In just like standard apps use. Now you need
 
 ### Step 2: Update Mobile App Configuration
 
-1. Open `/workspaces/EventHaiti/mobile/.env`
+1. Open `/workspaces/Eventica/mobile/.env`
 
 2. Find this line:
 ```env
@@ -43,7 +43,7 @@ EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=71580084056-YOUR_WEB_CLIENT_ID.apps.googleuserc
 
 4. Click **Download GoogleService-Info.plist**
 
-5. Save it to `/workspaces/EventHaiti/mobile/GoogleService-Info.plist`
+5. Save it to `/workspaces/Eventica/mobile/GoogleService-Info.plist`
 
 #### For Android (optional, for future builds):
 
@@ -53,12 +53,12 @@ EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=71580084056-YOUR_WEB_CLIENT_ID.apps.googleuserc
 
 3. Download **google-services.json**
 
-4. Save to `/workspaces/EventHaiti/mobile/google-services.json`
+4. Save to `/workspaces/Eventica/mobile/google-services.json`
 
 ### Step 4: Restart the App
 
 ```bash
-cd /workspaces/EventHaiti/mobile
+cd /workspaces/Eventica/mobile
 pkill -f expo
 npx expo start --tunnel --clear
 ```
@@ -117,7 +117,7 @@ Scan the QR code again!
 I need from you:
 
 1. **Google Web Client ID** from Firebase Console
-   - Go to: https://console.firebase.google.com/project/event-haiti/authentication/providers
+   - Go to: https://console.firebase.google.com/project/eventica/authentication/providers
    - Click Google provider
    - Copy the Web client ID (under Web SDK configuration)
    - Tell me what it is, and I'll update the `.env` file

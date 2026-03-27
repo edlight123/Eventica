@@ -21,7 +21,7 @@ const messaging = firebase.messaging()
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] Received background message:', payload)
   
-  const notificationTitle = payload.notification?.title || 'EventHaiti'
+  const notificationTitle = payload.notification?.title || 'Eventica'
   const notificationOptions = {
     body: payload.notification?.body || '',
     icon: '/icon-192x192.png',

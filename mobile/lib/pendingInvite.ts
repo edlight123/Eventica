@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-const KEY = '@EventHaiti:pendingInvite'
+const KEY = '@Eventica:pendingInvite'
 
 export type PendingInvite = {
   eventId: string

@@ -26,8 +26,8 @@ export async function generateMetadata({ params }: { params: Promise<{ organizer
   }
 
   return {
-    title: `${organizer.full_name} | EventHaiti Organizer`,
-    description: `View all events organized by ${organizer.full_name} on EventHaiti`,
+    title: `${organizer.full_name} | Eventica Organizer`,
+    description: `View all events organized by ${organizer.full_name} on Eventica`,
   }
 }
 

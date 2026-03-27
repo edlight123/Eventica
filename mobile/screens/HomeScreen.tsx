@@ -273,11 +273,11 @@ export default function HomeScreen({ navigation }: any) {
       >
         <View style={styles.headerLeft}>
           <Image
-            source={require('../assets/event_haiti_logo_white.png')}
+            source={require('../assets/eventica_logo_white.png')}
             style={styles.logo}
             resizeMode="contain"
           />
-          <Text style={styles.logoText}>EventHaiti</Text>
+          <Text style={styles.logoText}>Eventica</Text>
         </View>
         <View style={styles.headerRight}>
           <TouchableOpacity 

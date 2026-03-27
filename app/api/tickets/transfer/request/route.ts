@@ -198,7 +198,7 @@ export async function POST(request: NextRequest) {
             'Ticket transfer request',
             `${sender?.full_name || sender?.name || 'Someone'} wants to transfer you a ticket for "${event?.title || 'an event'}".`,
             '/notifications',
-            { type: 'ticket_transfer', deepLink: 'eventhaiti://notifications', eventId: ticket.event_id, ticketId }
+            { type: 'ticket_transfer', deepLink: 'eventica://notifications', eventId: ticket.event_id, ticketId }
           )
         } catch (notifyError) {
           console.error('Failed to create transfer notification:', notifyError)

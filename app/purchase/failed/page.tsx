@@ -87,8 +87,8 @@ export default function PurchaseFailedPage({
             <div className="mt-5 p-3.5 md:p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
               <p className="text-[13px] md:text-sm text-yellow-800">
                 <strong>Important:</strong> Your payment was processed. Please contact support at{' '}
-                <a href="mailto:support@eventhaiti.com" className="underline font-semibold">
-                  support@eventhaiti.com
+                <a href="mailto:support@joineventica.com" className="underline font-semibold">
+                  support@joineventica.com
                 </a>{' '}
                 to resolve this issue.
               </p>

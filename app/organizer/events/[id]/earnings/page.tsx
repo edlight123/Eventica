@@ -9,7 +9,7 @@ import { isAdmin } from '@/lib/admin'
 export const revalidate = 30
 
 export const metadata = {
-  title: 'Event Earnings - EventHaiti',
+  title: 'Event Earnings - Eventica',
   description: 'View earnings and request withdrawal for your event'
 }
 

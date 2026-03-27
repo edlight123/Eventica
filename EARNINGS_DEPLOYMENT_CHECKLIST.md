@@ -142,7 +142,7 @@ Or use the admin check in `lib/admin.ts`:
 export function isAdmin(email?: string | null): boolean {
   if (!email) return false
   const adminEmails = [
-    'admin@eventhaiti.com',
+    'admin@joineventica.com',
     'your-email@example.com'  // Add yours here
   ]
   return adminEmails.includes(email.toLowerCase())

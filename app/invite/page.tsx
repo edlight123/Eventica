@@ -14,7 +14,7 @@ export default function InvitePage() {
   const token = useMemo(() => searchParams.get('token') || '', [searchParams])
   const appInviteUrl = useMemo(() => {
     if (!eventId || !token) return ''
-    return `eventhaiti://invite?eventId=${encodeURIComponent(eventId)}&token=${encodeURIComponent(token)}`
+    return `eventica://invite?eventId=${encodeURIComponent(eventId)}&token=${encodeURIComponent(token)}`
   }, [eventId, token])
 
   const isMobile = useMemo(() => {

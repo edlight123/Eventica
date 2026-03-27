@@ -65,7 +65,7 @@ export function PayoutStatusHero({ status, reason }: PayoutStatusHeroProps) {
           description: reason || t('settings.payout_settings.status_hold_desc'),
           showCta: true,
           ctaText: t('settings.payout_settings.contact_support'),
-          ctaHref: 'mailto:support@eventhaiti.com',
+          ctaHref: 'mailto:support@joineventica.com',
           ctaColor: 'bg-red-600 hover:bg-red-700'
         }
     }

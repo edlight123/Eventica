@@ -7,7 +7,7 @@ Google is blocking the sign-in because your OAuth app needs to be configured wit
 
 ### Step 1: Go to Google Cloud Console
 1. Visit: https://console.cloud.google.com/apis/credentials
-2. Select your project: **event-haiti**
+2. Select your project: **eventica**
 
 ### Step 2: Find Your OAuth Client ID
 1. Look for the OAuth 2.0 Client ID that matches: `71580084056-sngjoi0agfg6ro6ben71eo2taghe6t2n`
@@ -18,7 +18,7 @@ Add these redirect URIs to the "Authorized redirect URIs" section:
 
 ```
 https://auth.expo.io/@anonymous/eventhaiti-mobile
-eventhaiti://
+eventica://
 ```
 
 **Note:** Google doesn't allow underscores in redirect URIs, so we use the generic Expo redirect.

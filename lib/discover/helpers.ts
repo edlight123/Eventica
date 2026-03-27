@@ -87,7 +87,7 @@ export function getEventCue(event: Event): { label: string; variant: 'popular' |
 /**
  * Bookmark storage utilities (localStorage)
  */
-const BOOKMARKS_KEY = 'eventhaiti_bookmarks'
+const BOOKMARKS_KEY = 'eventica_bookmarks'
 
 export function getBookmarkedEvents(): string[] {
   if (typeof window === 'undefined') return []

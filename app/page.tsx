@@ -200,7 +200,7 @@ export default async function HomePage({
             <div className="flex items-center gap-2 text-warning-800">
               <span className="text-lg">🎭</span>
               <p className="text-sm font-medium">
-                <strong>Demo Mode:</strong> You&apos;re viewing sample events. Login with <code className="bg-warning-100 px-1.5 py-0.5 rounded">demo-organizer@eventhaiti.com</code> or <code className="bg-warning-100 px-1.5 py-0.5 rounded">demo-attendee@eventhaiti.com</code> (password: <code className="bg-warning-100 px-1.5 py-0.5 rounded">demo123</code>)
+                <strong>Demo Mode:</strong> You&apos;re viewing sample events. Login with <code className="bg-warning-100 px-1.5 py-0.5 rounded">demo-organizer@joineventica.com</code> or <code className="bg-warning-100 px-1.5 py-0.5 rounded">demo-attendee@joineventica.com</code> (password: <code className="bg-warning-100 px-1.5 py-0.5 rounded">demo123</code>)
               </p>
             </div>
           </div>

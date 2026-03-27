@@ -75,7 +75,7 @@
     "success_title": "Demande soumise!",
     "success_message": "Nous avons reçu votre demande de support et vous répondrons dans les 24 heures. Vérifiez votre email pour confirmation.",
     "error_title": "Échec de la soumission",
-    "error_message": "Une erreur s'est produite lors de la soumission de votre demande. Veuillez réessayer ou nous envoyer un email directement à support@eventhaiti.com",
+    "error_message": "Une erreur s'est produite lors de la soumission de votre demande. Veuillez réessayer ou nous envoyer un email directement à support@joineventica.com",
     "try_again": "Réessayer",
     "back_to_support": "Retour au centre d'aide"
   },
@@ -123,11 +123,11 @@
             },
             {
               "question": "Que se passe-t-il si je perds mon billet ?",
-              "answer": "Vos billets restent dans votre compte EventHaiti. Connectez-vous et allez dans \"Mes billets\" pour les consulter et les télécharger à nouveau. Vous pouvez aussi vérifier l’email de confirmation."
+              "answer": "Vos billets restent dans votre compte Eventica. Connectez-vous et allez dans \"Mes billets\" pour les consulter et les télécharger à nouveau. Vous pouvez aussi vérifier l’email de confirmation."
             },
             {
               "question": "Puis-je acheter des billets sans créer de compte ?",
-              "answer": "Un compte EventHaiti est nécessaire pour acheter des billets. Cela sécurise vos billets et vous permet de gérer transferts, remboursements et demandes de support. La création de compte prend une minute."
+              "answer": "Un compte Eventica est nécessaire pour acheter des billets. Cela sécurise vos billets et vous permet de gérer transferts, remboursements et demandes de support. La création de compte prend une minute."
             }
           ]
         },
@@ -137,7 +137,7 @@
           "faqs": [
             {
               "question": "Comment entrer à un événement ?",
-              "answer": "Présentez le QR code de votre billet à l’entrée. Le personnel le scannera avec les outils EventHaiti. Assurez-vous que votre téléphone est chargé et que le billet est prêt dans l’app ou l’email."
+              "answer": "Présentez le QR code de votre billet à l’entrée. Le personnel le scannera avec les outils Eventica. Assurez-vous que votre téléphone est chargé et que le billet est prêt dans l’app ou l’email."
             },
             {
               "question": "Puis-je entrer avec une capture d’écran de mon billet ?",
@@ -252,7 +252,7 @@
               "answer": "Les versements sont déposés sur votre méthode de paiement vérifiée. Après la fin de l’événement, vous pouvez demander un versement depuis votre tableau de bord."
             },
             {
-              "question": "Quels frais EventHaiti facture-t-il ?",
+              "question": "Quels frais Eventica facture-t-il ?",
               "answer": "Les frais dépendent du moyen de paiement et de la configuration. Vous verrez toujours une répartition transparente dans votre tableau de bord et pendant la configuration."
             },
             {

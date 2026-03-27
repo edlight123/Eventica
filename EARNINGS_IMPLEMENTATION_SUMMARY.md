@@ -343,7 +343,7 @@ For organizers in US/Canada, implement automatic payouts via Stripe Connect:
 
 ## 👨‍💻 Developer Notes
 
-This implementation follows EventHaiti's existing patterns:
+This implementation follows Eventica's existing patterns:
 - Server components for data fetching
 - Client components for interactivity
 - Firebase Firestore for data storage

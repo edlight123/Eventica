@@ -1,6 +1,6 @@
-# EventHaiti Mobile App
+# Eventica Mobile App
 
-React Native mobile application for EventHaiti built with Expo.
+React Native mobile application for Eventica built with Expo.
 
 ## Features
 
@@ -122,8 +122,8 @@ Run on multiple devices and screen sizes to ensure responsive design.
 
 ## Contributing
 
-This mobile app is part of the EventHaiti ecosystem. See main README for contribution guidelines.
+This mobile app is part of the Eventica ecosystem. See main README for contribution guidelines.
 
 ## License
 
-Same as the main EventHaiti project.
+Same as the main Eventica project.

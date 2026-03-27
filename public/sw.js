@@ -1,7 +1,7 @@
-// Basic service worker for EventHaiti PWA
+// Basic service worker for Eventica PWA
 // Extensible: add caching strategies or push handlers later
-const STATIC_CACHE = 'eventhaiti-static-v4'
-const NAV_CACHE = 'eventhaiti-nav-v3'
+const STATIC_CACHE = 'eventica-static-v4'
+const NAV_CACHE = 'eventica-nav-v3'
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -90,7 +90,7 @@ self.addEventListener('fetch', (event) => {
 // Placeholder push handler (extend later)
 self.addEventListener('push', (event) => {
   console.log('[SW] Push event received:', event)
-  const data = event.data ? event.data.json() : { title: 'EventHaiti', body: 'New update available.', data: { url: '/' } }
+  const data = event.data ? event.data.json() : { title: 'Eventica', body: 'New update available.', data: { url: '/' } }
   console.log('[SW] Push data:', data)
   const actions = [
     { action: 'open-tickets', title: 'Tickets' },
@@ -100,7 +100,7 @@ self.addEventListener('push', (event) => {
     body: data.body,
     icon: '/icon-192.svg',
     badge: '/icon-192.svg',
-    tag: 'eventhaiti-general',
+    tag: 'eventica-general',
     renotify: false,
     timestamp: Date.now(),
     actions,

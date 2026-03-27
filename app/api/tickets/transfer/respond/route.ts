@@ -213,7 +213,7 @@ export async function POST(request: NextRequest) {
         status === 'accepted' ? 'Ticket transfer accepted' : 'Ticket transfer declined',
         `${recipientLabel} has ${status === 'accepted' ? 'accepted' : 'declined'} your ticket transfer for "${eventTitle}".`,
         '/notifications',
-        { type: 'ticket_transfer', deepLink: 'eventhaiti://notifications', eventId: ticketEventId, ticketId, transferStatus: status }
+        { type: 'ticket_transfer', deepLink: 'eventica://notifications', eventId: ticketEventId, ticketId, transferStatus: status }
       )
 
       if (status === 'accepted') {
@@ -231,7 +231,7 @@ export async function POST(request: NextRequest) {
           'Ticket received',
           `You accepted a ticket transfer for "${eventTitle}" from ${senderLabel}.`,
           `/tickets/${ticketId}`,
-          { type: 'ticket_transfer', deepLink: `eventhaiti://tickets/${ticketId}`, eventId: ticketEventId, ticketId, transferStatus: status }
+          { type: 'ticket_transfer', deepLink: `eventica://tickets/${ticketId}`, eventId: ticketEventId, ticketId, transferStatus: status }
         )
       }
     } catch (notifyError) {

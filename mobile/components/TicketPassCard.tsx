@@ -77,7 +77,7 @@ export default function TicketPassCard({
             value={ticket.id || 'no-ticket-id'}
             size={200}
             backgroundColor="#FFF"
-            logo={require('../assets/event_haiti_logo_color.png')}
+            logo={require('../assets/eventica_logo_color.png')}
             logoSize={45}
             logoBackgroundColor="white"
             logoBorderRadius={5}

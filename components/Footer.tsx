@@ -11,8 +11,8 @@ export default function Footer() {
           <div className="col-span-1 md:col-span-2">
             <Link href="/" className="flex items-center gap-3 mb-4 group w-fit">
               <Image 
-                src="/event_haiti_logo_white.png" 
-                alt="EventHaiti" 
+                src="/eventica_logo_white.png" 
+                alt="Eventica" 
                 width={50} 
                 height={50}
                 className="transition-transform duration-200 group-hover:scale-105"
@@ -71,12 +71,12 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="mailto:support@eventhaiti.com" className="hover:text-white transition-colors">
+                <a href="mailto:support@joineventica.com" className="hover:text-white transition-colors">
                   Contact Support
                 </a>
               </li>
               <li>
-                <a href="mailto:legal@eventhaiti.com" className="hover:text-white transition-colors">
+                <a href="mailto:legal@joineventica.com" className="hover:text-white transition-colors">
                   Legal Inquiries
                 </a>
               </li>

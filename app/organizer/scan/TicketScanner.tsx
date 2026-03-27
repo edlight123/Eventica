@@ -69,7 +69,7 @@ export default function TicketScanner({ organizerId }: TicketScannerProps) {
         setResult({
           success: true,
           message: '✅ Valid ticket! (Demo mode - ticket not actually marked as used)',
-          ticket: { ...demoTicket, users: { full_name: 'Demo Attendee', email: 'demo-attendee@eventhaiti.com' } },
+          ticket: { ...demoTicket, users: { full_name: 'Demo Attendee', email: 'demo-attendee@joineventica.com' } },
           event: demoEvent
         })
         setLoading(false)

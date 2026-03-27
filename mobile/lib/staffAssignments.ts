@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-const KEY = 'eventhaiti:staffEventIds'
+const KEY = 'eventica:staffEventIds'
 
 export async function getStaffEventIds(): Promise<string[]> {
   const raw = await AsyncStorage.getItem(KEY)

@@ -1,7 +1,7 @@
 # Payment, Wallet, and Notifications Implementation
 
 ## Overview
-This document summarizes the complete implementation of payment modal, wallet integration, and notifications system for the Event Haiti React Native mobile app, matching the PWA functionality.
+This document summarizes the complete implementation of payment modal, wallet integration, and notifications system for the Eventica React Native mobile app, matching the PWA functionality.
 
 ## Features Implemented
 

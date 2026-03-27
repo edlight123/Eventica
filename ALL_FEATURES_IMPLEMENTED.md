@@ -2,7 +2,7 @@
 
 ## ✅ Implementation Complete - 12 Major Features Added
 
-This update transforms EventHaiti into a **complete, enterprise-grade event platform** with all missing features now implemented.
+This update transforms Eventica into a **complete, enterprise-grade event platform** with all missing features now implemented.
 
 ---
 
@@ -373,7 +373,7 @@ price_tiers (
 **How Affiliates Work:**
 1. User signs up as affiliate
 2. Gets code like "ABC123DEF"
-3. Shares link: eventhaiti.com?ref=ABC123DEF
+3. Shares link: joineventica.com?ref=ABC123DEF
 4. Tracks conversions
 5. Earns commission
 6. Requests payout
@@ -398,7 +398,7 @@ price_tiers (
 **Right to Erasure (Article 17):**
 - Account deletion endpoint
 - Anonymization (not hard delete for integrity)
-- Email becomes `deleted_[id]@eventhaiti.com`
+- Email becomes `deleted_[id]@joineventica.com`
 - Personal data cleared
 - Can't delete with upcoming events/tickets
 
@@ -565,7 +565,7 @@ GOOGLE_WALLET_ISSUER_ID=your_issuer_id
 
 ## 🎉 Platform is Now COMPLETE!
 
-EventHaiti now has **ALL** the features of major event platforms like Eventbrite, but optimized for the Haiti market with:
+Eventica now has **ALL** the features of major event platforms like Eventbrite, but optimized for the Haiti market with:
 - MonCash payment integration
 - Haitian Gourde (HTG) support
 - Creole-friendly design

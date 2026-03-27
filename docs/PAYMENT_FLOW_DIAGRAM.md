@@ -550,7 +550,7 @@ Percentage to Organizer: 86.9%
 ## 🔄 Complete System Overview
 
 ```
-                         EventHaiti Payment System
+                         Eventica Payment System
                                     │
     ┌───────────────────────────────┴───────────────────────────────┐
     │                                                                │

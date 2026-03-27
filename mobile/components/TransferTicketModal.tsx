@@ -68,7 +68,7 @@ export default function TransferTicketModal({
     setLoading(true);
 
     try {
-      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL || 'https://eventhaiti.com'}/api/tickets/transfer/request`, {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL || 'https://joineventica.com'}/api/tickets/transfer/request`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ export default function TransferTicketModal({
 
       // Show transfer link if available
       if (data.transfer?.transferToken) {
-        const link = `https://eventhaiti.com/tickets/transfer/${data.transfer.transferToken}`;
+        const link = `https://joineventica.com/tickets/transfer/${data.transfer.transferToken}`;
         setTransferLink(link);
         setShowLink(true);
         

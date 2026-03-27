@@ -219,7 +219,7 @@ export async function POST(req: NextRequest) {
         const result = await moncashPrefundedTransfer({
           amount: payoutAmount,
           receiver: String(moncashNumber),
-          desc: `EventHaiti instant withdrawal (${eventId})`,
+          desc: `Eventica instant withdrawal (${eventId})`,
           reference: withdrawalRef.id,
         })
 

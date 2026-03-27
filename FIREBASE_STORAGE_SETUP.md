@@ -7,7 +7,7 @@ Permission errors blocking file uploads from the web application to Firebase Sto
 
 ### Step 1: Go to Firebase Console
 1. Visit [Firebase Console](https://console.firebase.google.com/)
-2. Select your project: **event-haiti**
+2. Select your project: **eventica**
 3. Navigate to: **Storage** → **Rules**
 
 ### Step 2: Copy and Apply These Rules
@@ -82,7 +82,7 @@ If still having issues:
    - Ensure Storage is activated for your project
 
 2. **Verify bucket name**:
-   - Should be: `event-haiti.firebasestorage.app`
+   - Should be: `eventica.firebasestorage.app`
 
 3. **Check browser console** for any new errors
 

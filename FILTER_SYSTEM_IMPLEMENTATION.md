@@ -1,7 +1,7 @@
 # Filter System Implementation Summary
 
 ## Overview
-Redesigned EventHaiti event filtering UX with a modern, mobile-first approach featuring a hidden-by-default filter panel that opens as a full-screen overlay on mobile and a side drawer on desktop.
+Redesigned Eventica event filtering UX with a modern, mobile-first approach featuring a hidden-by-default filter panel that opens as a full-screen overlay on mobile and a side drawer on desktop.
 
 ## Files Changed
 

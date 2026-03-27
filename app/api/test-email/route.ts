@@ -11,7 +11,7 @@ export async function GET() {
     <!DOCTYPE html>
     <html>
       <head>
-        <title>Test Email - EventHaiti</title>
+        <title>Test Email - Eventica</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
@@ -234,7 +234,7 @@ export async function POST(request: Request) {
 
     const result = await sendEmail({
       to: recipient,
-      subject: 'Test Email from EventHaiti',
+      subject: 'Test Email from Eventica',
       html: `
         <!DOCTYPE html>
         <html>
@@ -256,7 +256,7 @@ export async function POST(request: Request) {
                       <td style="padding: 40px;">
                         <h2 style="margin: 0 0 16px; color: #111827; font-size: 24px;">Email System Test</h2>
                         <p style="margin: 0 0 24px; color: #6b7280; font-size: 16px; line-height: 1.6;">
-                          This is a test email from EventHaiti. If you're receiving this, the email notification system is working correctly! 🎉
+                          This is a test email from Eventica. If you're receiving this, the email notification system is working correctly! 🎉
                         </p>
                         
                         <div style="background: #f3f4f6; border-radius: 12px; padding: 24px; margin: 24px 0;">
@@ -290,7 +290,7 @@ export async function POST(request: Request) {
                     <tr>
                       <td style="padding: 24px 40px; background-color: #f9fafb; border-top: 1px solid #e5e7eb;">
                         <p style="margin: 0; color: #6b7280; font-size: 14px; text-align: center;">
-                          EventHaiti - Experience Haiti's Best Events 🇭🇹
+                          Eventica - Experience Haiti's Best Events 🇭🇹
                         </p>
                       </td>
                     </tr>

@@ -1,7 +1,7 @@
 # Testing Implementation Guide
 
 ## Overview
-Comprehensive guide for adding unit and integration tests to the EventHaiti payout system.
+Comprehensive guide for adding unit and integration tests to the Eventica payout system.
 
 ---
 

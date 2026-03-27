@@ -146,7 +146,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return
       const data: any = event.data
-      if (!data || data.source !== 'eventhaiti' || data.type !== 'purchase_result') return
+      if (!data || data.source !== 'eventica' || data.type !== 'purchase_result') return
 
       // Payment completed in the popup; remove blurred backdrop.
       setIsMonCashPopupOpen(false)

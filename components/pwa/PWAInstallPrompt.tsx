@@ -81,7 +81,7 @@ export function PWAInstallPrompt() {
           <div className="flex items-start gap-3">
             <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-brand-600 to-accent-600" />
             <div className="flex-1">
-              <p className="text-sm font-semibold">Install EventHaiti</p>
+              <p className="text-sm font-semibold">Install Eventica</p>
               <p className="text-xs text-gray-600 mt-0.5">Get faster access and offline support.</p>
             </div>
           </div>
@@ -96,7 +96,7 @@ export function PWAInstallPrompt() {
           <div className="flex items-start gap-3">
             <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-brand-600 to-accent-600" />
             <div className="flex-1">
-              <p className="text-sm font-semibold">Add EventHaiti to Home Screen</p>
+              <p className="text-sm font-semibold">Add Eventica to Home Screen</p>
               <p className="text-xs text-gray-600 mt-0.5">Tap the Share icon, then Add to Home Screen.</p>
             </div>
           </div>

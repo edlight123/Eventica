@@ -1,6 +1,6 @@
 # Payment System - What's Already Built vs What's New
 
-This document shows what you can reuse from your existing EventHaiti codebase versus what needs to be added.
+This document shows what you can reuse from your existing Eventica codebase versus what needs to be added.
 
 ## ✅ Already Implemented (Reuse As-Is)
 

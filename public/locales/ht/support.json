@@ -75,7 +75,7 @@
     "success_title": "Demann soumèt!",
     "success_message": "Nou resevwa demann sipò ou epi n ap reponn nan 24 èdtan. Gade email ou pou konfimasyon.",
     "error_title": "Echèk nan soumisyon",
-    "error_message": "Te gen yon erè nan soumèt demann ou. Tanpri eseye ankò oswa voye nou yon email dirèkteman nan support@eventhaiti.com",
+    "error_message": "Te gen yon erè nan soumèt demann ou. Tanpri eseye ankò oswa voye nou yon email dirèkteman nan support@joineventica.com",
     "try_again": "Eseye ankò",
     "back_to_support": "Retounen nan sant èd"
   },
@@ -123,11 +123,11 @@
             },
             {
               "question": "Kisa k ap pase si mwen pèdi tikè mwen?",
-              "answer": "Tikè ou yo rete nan kont EventHaiti ou. Antre nan kont ou epi ale nan \"Tikè mwen\" pou wè epi telechaje yo ankò. Ou ka tcheke imel konfimasyon an tou."
+              "answer": "Tikè ou yo rete nan kont Eventica ou. Antre nan kont ou epi ale nan \"Tikè mwen\" pou wè epi telechaje yo ankò. Ou ka tcheke imel konfimasyon an tou."
             },
             {
               "question": "Èske mwen ka achte tikè san mwen pa kreye kont?",
-              "answer": "Ou bezwen yon kont EventHaiti pou achte tikè. Sa kenbe tikè yo an sekirite epi li pèmèt ou jere transfè, ranbousman, ak demann sipò. Kreye kont lan pran yon minit."
+              "answer": "Ou bezwen yon kont Eventica pou achte tikè. Sa kenbe tikè yo an sekirite epi li pèmèt ou jere transfè, ranbousman, ak demann sipò. Kreye kont lan pran yon minit."
             }
           ]
         },
@@ -137,7 +137,7 @@
           "faqs": [
             {
               "question": "Kijan pou mwen antre nan evènman an?",
-              "answer": "Montre QR code tikè ou a nan antre a. Ekip la ap eskane l ak zouti EventHaiti. Kenbe telefòn ou chaje epi pare pou montre tikè a nan app la oswa nan imel."
+              "answer": "Montre QR code tikè ou a nan antre a. Ekip la ap eskane l ak zouti Eventica. Kenbe telefòn ou chaje epi pare pou montre tikè a nan app la oswa nan imel."
             },
             {
               "question": "Èske mwen ka antre ak yon screenshot tikè a?",
@@ -252,7 +252,7 @@
               "answer": "Retrè yo ale sou metòd peman ou verifye a. Apre evènman an fini, ou ka mande yon retrè nan dashboard òganizatè a."
             },
             {
-              "question": "Ki frè EventHaiti chaje?",
+              "question": "Ki frè Eventica chaje?",
               "answer": "Frè yo depann de metòd peman an ak konfigirasyon an. Ou ap toujou wè yon detay klè nan dashboard la ak pandan konfigirasyon an."
             },
             {

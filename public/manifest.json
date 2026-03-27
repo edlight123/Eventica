@@ -1,7 +1,7 @@
 {
-  "name": "EventHaiti - Discover Events in Haiti",
-  "short_name": "EventHaiti",
-  "description": "Discover and buy tickets for events in Haiti",
+  "name": "Eventica - Discover Events",
+  "short_name": "Eventica",
+  "description": "Discover and buy tickets for events",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -15,7 +15,7 @@
       "purpose": "any"
     },
     {
-      "src": "/event_haiti_logo_color.png",
+      "src": "/eventica_logo_color.png",
       "sizes": "500x500",
       "type": "image/png",
       "purpose": "any"

@@ -1,4 +1,4 @@
-# EventHaiti - Premium Event Ticketing Platform ✨
+# Eventica - Premium Event Ticketing Platform ✨
 
 A **production-quality, premium web application** for discovering events and buying tickets in Haiti. Built with **Next.js 14**, **TypeScript**, **Tailwind CSS**, and **Firebase**, featuring an **Eventbrite/Posh-like premium experience** with advanced animations, modern UI components, and comprehensive features.
 
@@ -80,7 +80,7 @@ A **production-quality, premium web application** for discovering events and buy
 ## 📦 Project Structure
 
 ```
-EventHaiti/
+Eventica/
 ├── app/                          # Next.js App Router
 │   ├── page.tsx                 # Premium home page with carousel
 │   ├── loading.tsx              # App-wide loading skeleton
@@ -199,7 +199,7 @@ EventHaiti/
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd EventHaiti
+   cd Eventica
    ```
 
 2. **Install dependencies**
@@ -252,7 +252,7 @@ Also see [SETUP.md](./SETUP.md) for:
 ## 🗂️ Project Structure
 
 ```
-EventHaiti/
+Eventica/
 ├── app/                      # Next.js app router pages
 │   ├── api/                  # API routes
 │   │   ├── create-checkout-session/  # Stripe checkout
@@ -403,7 +403,7 @@ The platform uses **Firebase (Firestore)** as its primary database with a Supaba
 
 ---
 
-**EventHaiti** - Experience Haiti's Best Events 🇭🇹
+**Eventica** - Experience Haiti's Best Events 🇭🇹
    ```
 
 5. **Run the development server**
@@ -418,7 +418,7 @@ The platform uses **Firebase (Firestore)** as its primary database with a Supaba
 ## 📁 Project Structure
 
 ```
-EventHaiti/
+Eventica/
 ├── app/                          # Next.js App Router pages
 │   ├── auth/                     # Authentication pages
 │   ├── events/                   # Event pages
@@ -435,7 +435,7 @@ EventHaiti/
 
 ## 🎨 Multi-Tenant Architecture
 
-EventHaiti is designed with multi-tenancy in mind for future expansion to HaitiPass and HaitiEvents brands.
+Eventica is designed with multi-tenancy in mind for future expansion to HaitiPass and HaitiEvents brands.
 
 ## 🚢 Deployment
 
@@ -497,7 +497,7 @@ Generate with the `web-push` library or existing tooling.
 3. For quick smoke tests without loading the UI, call the secured GET helper: `https://<your-app>.vercel.app/api/push/test?secret=<PUSH_TEST_SECRET>`.
 4. Example curl command:
    ```bash
-   curl "https://eventhaiti.vercel.app/api/push/test?secret=$PUSH_TEST_SECRET"
+   curl "https://joineventica.com/api/push/test?secret=$PUSH_TEST_SECRET"
    ```
    Successful responses include `sent` and `pruned` arrays. A `401 Invalid secret` error means the query parameter or Vercel env is incorrect; `404 No valid subscriptions` means nobody is currently subscribed on that environment.
 

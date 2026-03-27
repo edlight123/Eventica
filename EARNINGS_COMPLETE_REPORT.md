@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-Successfully implemented a complete payment and earnings tracking system for EventHaiti, enabling:
+Successfully implemented a complete payment and earnings tracking system for Eventica, enabling:
 - **Automatic earnings tracking** for every ticket sale
 - **Transparent fee calculations** (10% platform + 2.9% + $0.30 Stripe)
 - **Withdrawal system** for Haiti (MonCash/Bank transfers)
@@ -287,7 +287,7 @@ export const FEE_CONFIG = {
   organizerId: string           // Foreign key to users
   grossSales: number            // Total revenue in cents
   ticketsSold: number           // Number of tickets
-  platformFee: number           // EventHaiti fee in cents
+  platformFee: number           // Eventica fee in cents
   processingFees: number        // Stripe fee in cents
   netAmount: number             // After all fees in cents
   availableToWithdraw: number   // Available now in cents
@@ -771,7 +771,7 @@ A: Currently, each withdrawal is for the full available balance per event. Parti
 
 ## 📄 License & Usage
 
-This implementation is part of the EventHaiti platform. All code is proprietary to EventHaiti.
+This implementation is part of the Eventica platform. All code is proprietary to Eventica.
 
 For questions or issues, contact the development team.
 

@@ -138,7 +138,7 @@ export default function PaymentWebViewScreen() {
             const raw = event?.nativeEvent?.data
             if (!raw) return
             const parsed = JSON.parse(String(raw))
-            if (parsed?.source !== 'eventhaiti' || parsed?.type !== 'purchase_result') return
+            if (parsed?.source !== 'eventica' || parsed?.type !== 'purchase_result') return
 
             if (parsed?.status === 'success') {
               finishWithSuccess()

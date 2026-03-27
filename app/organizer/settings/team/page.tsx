@@ -135,7 +135,7 @@ export default async function TeamSettingsPage({
                 Our support team can help onboard large teams and set up access.
               </p>
               <Link
-                href="mailto:support@eventhaiti.com"
+                href="mailto:support@joineventica.com"
                 className="inline-flex items-center text-sm font-semibold text-indigo-700 hover:text-indigo-900"
               >
                 Contact Support →

@@ -1,6 +1,6 @@
-# EventHaiti User Guide
+# Eventica User Guide
 
-Welcome to EventHaiti! This comprehensive guide will help you navigate the platform whether you're an attendee looking to discover and attend events, or an organizer creating and managing your own events.
+Welcome to Eventica! This comprehensive guide will help you navigate the platform whether you're an attendee looking to discover and attend events, or an organizer creating and managing your own events.
 
 ---
 
@@ -17,7 +17,7 @@ Welcome to EventHaiti! This comprehensive guide will help you navigate the platf
 
 ### Creating an Account
 
-1. **Visit EventHaiti**: Navigate to the homepage at your EventHaiti URL
+1. **Visit Eventica**: Navigate to the homepage at your Eventica URL
 2. **Click "Sign Up"**: Located in the top-right corner of the navigation bar
 3. **Choose Your Role**:
    - **Attendee**: Browse and buy tickets for events
@@ -36,14 +36,14 @@ Welcome to EventHaiti! This comprehensive guide will help you navigate the platf
 
 ### Demo Mode
 
-EventHaiti offers demo accounts for testing:
+Eventica offers demo accounts for testing:
 
 **Demo Attendee:**
-- Email: `demo-attendee@eventhaiti.com`
+- Email: `demo-attendee@joineventica.com`
 - Password: `demo123`
 
 **Demo Organizer:**
-- Email: `demo-organizer@eventhaiti.com`
+- Email: `demo-organizer@joineventica.com`
 - Password: `demo123`
 
 ---
@@ -157,7 +157,7 @@ Click any ticket card to view:
 
 ### Transferring Tickets
 
-EventHaiti allows you to transfer tickets to others with a 24-hour claim window.
+Eventica allows you to transfer tickets to others with a 24-hour claim window.
 
 #### How to Transfer a Ticket
 
@@ -220,7 +220,7 @@ As a recipient:
 
 ### Requesting Refunds
 
-EventHaiti offers refund requests for eligible tickets:
+Eventica offers refund requests for eligible tickets:
 
 1. **Go to Ticket Details**: Navigate to the ticket you want to refund
 2. **Click "Request Refund"**
@@ -263,7 +263,7 @@ After attending an event:
 
 **Required Before Creating Events**
 
-EventHaiti requires organizer verification to maintain platform trust and safety.
+Eventica requires organizer verification to maintain platform trust and safety.
 
 #### Verification Process
 
@@ -448,7 +448,7 @@ View detailed analytics for each event:
 
 ### Scanning Tickets at Your Event
 
-EventHaiti provides a built-in QR scanner:
+Eventica provides a built-in QR scanner:
 
 #### Using the Scanner
 
@@ -503,7 +503,7 @@ Share event photos with attendees:
 
 ### Payment Methods
 
-EventHaiti supports multiple payment options:
+Eventica supports multiple payment options:
 
 #### Credit/Debit Cards (Stripe)
 - Visa, Mastercard, American Express
@@ -591,7 +591,7 @@ Understanding ticket states:
 
 ### Security & Safety
 
-EventHaiti prioritizes security:
+Eventica prioritizes security:
 
 **For Attendees:**
 - Secure payment processing (PCI compliant)
@@ -607,7 +607,7 @@ EventHaiti prioritizes security:
 
 ### Mobile Experience
 
-EventHaiti is fully responsive:
+Eventica is fully responsive:
 - Works on all devices (desktop, tablet, mobile)
 - Mobile-optimized event browsing
 - Easy QR code display on phones
@@ -634,7 +634,7 @@ Platform features for all users:
 - Video tutorials (coming soon)
 
 **Contact Support:**
-- Email: support@eventhaiti.com
+- Email: support@joineventica.com
 - Response time: 24-48 hours
 - Priority support for verified organizers
 
@@ -768,8 +768,8 @@ Profile (/profile)
 
 ## Conclusion
 
-EventHaiti is your complete platform for event discovery and management in Haiti. Whether you're looking to attend amazing events or create your own, we've built features to make the experience seamless and enjoyable.
+Eventica is your complete platform for event discovery and management in Haiti. Whether you're looking to attend amazing events or create your own, we've built features to make the experience seamless and enjoyable.
 
-**Questions?** Contact support@eventhaiti.com
+**Questions?** Contact support@joineventica.com
 
 **Happy Eventing! 🎉**

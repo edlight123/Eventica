@@ -85,7 +85,7 @@ export async function POST(_request: NextRequest) {
 
     const emailResult = await sendEmail({
       to: email,
-      subject: 'EventHaiti — Confirm payout details change',
+      subject: 'Eventica — Confirm payout details change',
       html,
     })
 

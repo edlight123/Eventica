@@ -85,7 +85,7 @@ export default async function PayoutFeesPage() {
             </h2>
             <div className="space-y-3 text-gray-700">
               <p>
-                EventHaiti charges a <strong>2.5% platform fee</strong> on all ticket sales.
+                Eventica charges a <strong>2.5% platform fee</strong> on all ticket sales.
                 This helps us maintain and improve the platform, provide customer support,
                 and continue developing new features.
               </p>

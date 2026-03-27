@@ -17,7 +17,7 @@ export default function MobileAuthCallback() {
         const token = await user.getIdToken()
         
         // Redirect back to mobile app with the token
-        const deepLink = `eventhaiti://auth/callback?token=${token}&userId=${user.uid}`
+        const deepLink = `eventica://auth/callback?token=${token}&userId=${user.uid}`
         
         // Try to open the deep link
         window.location.href = deepLink
@@ -27,7 +27,7 @@ export default function MobileAuthCallback() {
           document.body.innerHTML = `
             <div style="text-align: center; padding: 40px; font-family: system-ui;">
               <h1>✅ Signed In!</h1>
-              <p>Return to the EventHaiti mobile app.</p>
+              <p>Return to the Eventica mobile app.</p>
               <p style="margin-top: 20px;">
                 <a href="${deepLink}" style="color: #8B5CF6; text-decoration: none; font-weight: 600;">
                   Tap here to open the app

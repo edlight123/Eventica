@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
           userId,
           'verification',
           '✅ Verification Approved!',
-          'Congratulations! Your EventHaiti account has been verified. You can now create and publish events.',
+          'Congratulations! Your Eventica account has been verified. You can now create and publish events.',
           '/organizer/verify',
           { status: 'approved' }
         )
@@ -155,9 +155,9 @@ export async function POST(request: NextRequest) {
       try {
         if (normalizedStatus === 'approved') {
           await resend.emails.send({
-            from: 'EventHaiti <noreply@eventhaiti.com>',
+            from: 'Eventica <noreply@joineventica.com>',
             to: (organizer as any).email,
-            subject: '✅ Your EventHaiti Account is Verified!',
+            subject: '✅ Your Eventica Account is Verified!',
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                 <h1 style="color: #059669;">🎉 Congratulations!</h1>
@@ -175,15 +175,15 @@ export async function POST(request: NextRequest) {
                     Create Your First Event
                   </a>
                 </p>
-                <p style="margin-top: 40px;">Thank you for being part of the EventHaiti community!</p>
+                <p style="margin-top: 40px;">Thank you for being part of the Eventica community!</p>
               </div>
             `,
           })
         } else {
           await resend.emails.send({
-            from: 'EventHaiti <noreply@eventhaiti.com>',
+            from: 'Eventica <noreply@joineventica.com>',
             to: (organizer as any).email,
-            subject: 'EventHaiti Verification Update',
+            subject: 'Eventica Verification Update',
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                 <h1 style="color: #DC2626;">Verification Not Approved</h1>

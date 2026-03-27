@@ -20,7 +20,7 @@ export interface EventEarnings {
   ticketsSold: number            // Number of tickets sold
   
   // Fee breakdown (all in cents)
-  platformFee: number            // EventHaiti's commission (typically 10%)
+  platformFee: number            // Eventica's commission (typically 10%)
   processingFees: number         // Stripe/payment processor fees
   netAmount: number              // grossSales - platformFee - processingFees
   

@@ -1,8 +1,8 @@
-# EventHaiti Internationalization (i18n) Implementation
+# Eventica Internationalization (i18n) Implementation
 
 ## 🌍 Overview
 
-EventHaiti is now fully internationalized supporting three languages:
+Eventica is now fully internationalized supporting three languages:
 - **English (en)** - Default language
 - **French (fr)** - Français
 - **Haitian Creole (ht)** - Kreyòl Ayisyen
@@ -293,7 +293,7 @@ console.log(i18n.language) // 'en', 'fr', or 'ht'
 
 ## 🎉 Success Metrics
 
-EventHaiti i18n is **production-ready**:
+Eventica i18n is **production-ready**:
 - ✅ 100% of core user flows translated
 - ✅ Language switcher functional
 - ✅ Translations persist across sessions
@@ -301,4 +301,4 @@ EventHaiti i18n is **production-ready**:
 - ✅ Zero TypeScript errors
 - ✅ Professional-quality translations
 
-Users can now experience EventHaiti in their preferred language! 🌍🎊
+Users can now experience Eventica in their preferred language! 🌍🎊

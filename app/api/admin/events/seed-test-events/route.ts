@@ -86,17 +86,17 @@ export async function POST(request: NextRequest) {
     // Create 3 organizer accounts (HT/US/CA) to mimic real routing.
     const [htOrganizerId, usOrganizerId, caOrganizerId] = await Promise.all([
       ensureOrganizerUser({
-        email: 'test-organizer-ht@eventhaiti.local',
+        email: 'test-organizer-ht@eventica.local',
         fullName: 'Test Organizer (Haiti)',
         default_country: 'HT',
       }),
       ensureOrganizerUser({
-        email: 'test-organizer-us@eventhaiti.local',
+        email: 'test-organizer-us@eventica.local',
         fullName: 'Test Organizer (USA)',
         default_country: 'US',
       }),
       ensureOrganizerUser({
-        email: 'test-organizer-ca@eventhaiti.local',
+        email: 'test-organizer-ca@eventica.local',
         fullName: 'Test Organizer (Canada)',
         default_country: 'CA',
       }),

@@ -1,6 +1,6 @@
 # Payment Integration Setup Guide
 
-This guide will help you set up Stripe, MonCash (NatCash), and CashApp for accepting payments on EventHaiti.
+This guide will help you set up Stripe, MonCash (NatCash), and CashApp for accepting payments on Eventica.
 
 ## 1. Stripe Setup (International Credit/Debit Cards)
 
@@ -109,7 +109,7 @@ MonCash also supports a **prefunded** balance that can be used to **pay out** cu
 Important notes:
 - This is **not automatic** just because you can accept MonCash payments.
 - Digicel must enable the prefunded feature on your business account and you must **fund** the prefunded balance in the portal.
-- EventHaiti uses the same `MONCASH_CLIENT_ID` / `MONCASH_SECRET_KEY` OAuth token to call the prefunded endpoints.
+- Eventica uses the same `MONCASH_CLIENT_ID` / `MONCASH_SECRET_KEY` OAuth token to call the prefunded endpoints.
 
 Admin-only API endpoints (server-to-server):
 - `GET /api/admin/moncash-prefunded/balance`
@@ -171,7 +171,7 @@ Stripe now supports CashApp Pay! To enable:
 
 ## 4. Complete Environment Variables
 
-Create or update `/workspaces/EventHaiti/.env.local` with all keys:
+Create or update `/workspaces/Eventica/.env.local` with all keys:
 
 ```bash
 # Firebase (Already configured)
@@ -198,13 +198,13 @@ MONCASH_MODE=sandbox
 
 # CashApp (Manual Verification)
 CASHAPP_BUSINESS_TAG=$YourCashTag
-CASHAPP_DISPLAY_NAME=EventHaiti
+CASHAPP_DISPLAY_NAME=Eventica
 
 # Email (Optional)
 RESEND_API_KEY=re_...
 
 # Admin
-ADMIN_EMAILS=info@edlight.org,admin@eventhaiti.com
+ADMIN_EMAILS=info@edlight.org,admin@joineventica.com
 ```
 
 ---
@@ -307,4 +307,4 @@ ADMIN_EMAILS=info@edlight.org,admin@eventhaiti.com
 For issues:
 - Stripe: https://support.stripe.com
 - MonCash: https://moncashbutton.digicelgroup.com/support
-- EventHaiti: info@edlight.org
+- Eventica: info@edlight.org

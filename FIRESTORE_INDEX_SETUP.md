@@ -7,7 +7,7 @@ The admin revenue analytics feature requires a Firestore composite index on the 
 ### Create Index via Firebase Console
 
 1. **Visit the Firebase Console:**
-   - Go to https://console.firebase.google.com/project/event-haiti/firestore/indexes
+   - Go to https://console.firebase.google.com/project/eventica/firestore/indexes
 
 2. **Click "Create Index"**
 
@@ -27,7 +27,7 @@ The index will take a few minutes to build.
 When you see the error in the logs, Firebase provides a direct link to create the index. Copy the URL that looks like:
 
 ```
-https://console.firebase.google.com/v1/r/project/event-haiti/firestore/indexes?create_composite=...
+https://console.firebase.google.com/v1/r/project/eventica/firestore/indexes?create_composite=...
 ```
 
 Click this link and it will pre-configure the index for you.

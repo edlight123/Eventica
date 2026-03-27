@@ -1,4 +1,4 @@
-# Firestore Security Rules for EventHaiti
+# Firestore Security Rules for Eventica
 
 Update these rules in Firebase Console → Firestore Database → Rules
 

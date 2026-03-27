@@ -256,7 +256,7 @@ export default function SupportContent() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
             {/* Email Support */}
             <a
-              href="mailto:support@eventhaiti.com"
+              href="mailto:support@joineventica.com"
               className="bg-white p-6 rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all group"
             >
               <div className="flex items-center justify-between mb-3">

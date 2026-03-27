@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
         // Send test email
         const emailResult = await sendEmail({
           to: user.email || '',
-          subject: 'Test Email from EventHaiti',
+          subject: 'Test Email from Eventica',
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%); padding: 40px 20px; text-align: center;">
@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
                   <p style="font-size: 18px; color: #111827; margin-bottom: 10px;">Hi ${user.user_metadata?.full_name || user.email}!</p>
                   
                   <p style="font-size: 16px; color: #374151; line-height: 1.6;">
-                    This is a <strong>test email</strong> from EventHaiti. If you're seeing this, email notifications are working correctly! 🎉
+                    This is a <strong>test email</strong> from Eventica. If you're seeing this, email notifications are working correctly! 🎉
                   </p>
                   
                   <div style="background: #f3f4f6; border-radius: 8px; padding: 20px; margin: 20px 0;">
@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
               </div>
               
               <div style="padding: 20px; text-align: center; color: #6b7280; font-size: 12px;">
-                <p>EventHaiti - Experience Haiti's Best Events</p>
+                <p>Eventica - Experience Haiti's Best Events</p>
               </div>
             </div>
           `,

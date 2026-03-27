@@ -1,7 +1,7 @@
-# EventHaiti - Feature Implementation Summary
+# Eventica - Feature Implementation Summary
 
 ## 🎯 Overview
-EventHaiti is a comprehensive event management platform for Haiti with advanced ticketing, social features, security, and analytics capabilities.
+Eventica is a comprehensive event management platform for Haiti with advanced ticketing, social features, security, and analytics capabilities.
 
 ## ✅ Completed Features (9 Major Phases)
 
@@ -212,10 +212,10 @@ EventHaiti is a comprehensive event management platform for Haiti with advanced 
   - Dispute resolution
 
 **Contact Information:**
-- legal@eventhaiti.com
-- privacy@eventhaiti.com
-- dpo@eventhaiti.com (Data Protection Officer)
-- refunds@eventhaiti.com
+- legal@joineventica.com
+- privacy@joineventica.com
+- dpo@joineventica.com (Data Protection Officer)
+- refunds@joineventica.com
 
 **Files:**
 - `app/legal/terms/page.tsx`
@@ -593,11 +593,11 @@ Where:
 
 ## 📞 Support & Contact
 
-- **General Support:** support@eventhaiti.com
-- **Legal Inquiries:** legal@eventhaiti.com
-- **Privacy Concerns:** privacy@eventhaiti.com
-- **Data Protection Officer:** dpo@eventhaiti.com
-- **Refunds:** refunds@eventhaiti.com
+- **General Support:** support@joineventica.com
+- **Legal Inquiries:** legal@joineventica.com
+- **Privacy Concerns:** privacy@joineventica.com
+- **Data Protection Officer:** dpo@joineventica.com
+- **Refunds:** refunds@joineventica.com
 
 ---
 

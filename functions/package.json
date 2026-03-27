@@ -1,5 +1,5 @@
 {
-  "name": "eventhaiti-functions",
+  "name": "eventica-functions",
   "private": true,
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

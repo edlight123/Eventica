@@ -24,7 +24,7 @@ export function ScanViewport({ onScan, isProcessing }: ScanViewportProps) {
     isProcessingRef.current = isProcessing
   }, [isProcessing])
 
-  const openInAppUrl = 'eventhaiti://'
+  const openInAppUrl = 'eventica://'
 
   const isMobile = (() => {
     if (typeof navigator === 'undefined') return false
@@ -67,7 +67,7 @@ export function ScanViewport({ onScan, isProcessing }: ScanViewportProps) {
     }
 
     if (!allowCamera) {
-      setError('Camera access is not available in this browser. Please use the EventHaiti app.')
+      setError('Camera access is not available in this browser. Please use the Eventica app.')
       setShowOpenInApp(true)
       return
     }
@@ -180,7 +180,7 @@ export function ScanViewport({ onScan, isProcessing }: ScanViewportProps) {
                   href={openInAppUrl}
                   className="inline-block px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
                 >
-                  Open EventHaiti app
+                  Open Eventica app
                 </a>
               </div>
             ) : null}

@@ -1,6 +1,6 @@
-# 🚀 Quick Start Guide - EventHaiti
+# 🚀 Quick Start Guide - Eventica
 
-Get EventHaiti running in 5 minutes!
+Get Eventica running in 5 minutes!
 
 ## Prerequisites
 
@@ -11,7 +11,7 @@ Get EventHaiti running in 5 minutes!
 
 ```bash
 # Clone the repository
-cd EventHaiti
+cd Eventica
 
 # Install dependencies
 npm install

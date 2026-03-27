@@ -222,21 +222,21 @@ export async function POST(request: NextRequest) {
     // Send confirmation email to user
     try {
       await resend.emails.send({
-        from: 'EventHaiti <noreply@eventhaiti.com>',
+        from: 'Eventica <noreply@joineventica.com>',
         to: user.email || '',
         subject: 'Verification Request Received',
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h1 style="color: #0F766E;">Verification Request Received</h1>
             <p>Hello ${user.user_metadata?.full_name || 'there'},</p>
-            <p>We've received your identity verification request for EventHaiti.</p>
+            <p>We've received your identity verification request for Eventica.</p>
             <p><strong>What happens next?</strong></p>
             <ul>
               <li>Our team will review your submission within 24-48 hours</li>
               <li>You'll receive an email once your verification is complete</li>
               <li>Once verified, you'll be able to create events</li>
             </ul>
-            <p>Thank you for helping us keep EventHaiti safe and trustworthy!</p>
+            <p>Thank you for helping us keep Eventica safe and trustworthy!</p>
             <p style="color: #666; font-size: 12px; margin-top: 40px;">
               If you didn't request this verification, please contact support immediately.
             </p>
@@ -251,8 +251,8 @@ export async function POST(request: NextRequest) {
     // Send notification to admin team
     try {
       await resend.emails.send({
-        from: 'EventHaiti <noreply@eventhaiti.com>',
-        to: process.env.ADMIN_EMAIL || 'admin@eventhaiti.com',
+        from: 'Eventica <noreply@joineventica.com>',
+        to: process.env.ADMIN_EMAIL || 'admin@joineventica.com',
         subject: 'New Verification Request',
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

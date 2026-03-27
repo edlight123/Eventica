@@ -9,7 +9,7 @@ export type Language = 'en' | 'fr' | 'ht'
 
 type Dict = Record<string, any>
 
-const STORAGE_KEY = 'eventhaiti:language'
+const STORAGE_KEY = 'eventica:language'
 
 const DICTS: Record<Language, Dict> = { en: en as any, fr: fr as any, ht: ht as any }
 

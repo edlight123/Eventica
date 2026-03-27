@@ -151,7 +151,7 @@ export default function TieredTicketSelector({
       const apiUrl = (
         process.env.EXPO_PUBLIC_API_URL ||
         process.env.EXPO_PUBLIC_WEB_URL ||
-        'https://eventhaiti.vercel.app'
+        'https://joineventica.com'
       ).replace(/\/$/, '');
       const response = await fetch(
         `${apiUrl}/api/promo-codes?eventId=${eventId}&code=${encodeURIComponent(promoCode)}`

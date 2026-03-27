@@ -61,7 +61,7 @@ export async function GET(request: Request) {
     return new Response(JSON.stringify(userData, null, 2), {
       headers: {
         'Content-Type': 'application/json',
-        'Content-Disposition': `attachment; filename="eventhaiti_data_export_${user.id}.json"`
+        'Content-Disposition': `attachment; filename="eventica_data_export_${user.id}.json"`
       }
     })
   } catch (error) {
@@ -119,7 +119,7 @@ export async function DELETE(request: Request) {
     }
 
     // Anonymize user data instead of hard delete (to preserve referential integrity)
-    const anonymousEmail = `deleted_${user.id}@eventhaiti.com`
+    const anonymousEmail = `deleted_${user.id}@joineventica.com`
     
     await supabase
       .from('users')

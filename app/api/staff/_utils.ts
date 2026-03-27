@@ -23,11 +23,11 @@ export function randomToken(bytes: number = 32): string {
 }
 
 export function inviteUrlFor(eventId: string, token: string): string {
-  return `https://eventhaiti.vercel.app/invite?eventId=${encodeURIComponent(eventId)}&token=${encodeURIComponent(token)}`
+  return `https://joineventica.com/invite?eventId=${encodeURIComponent(eventId)}&token=${encodeURIComponent(token)}`
 }
 
 export function inviteDeepLinkFor(eventId: string, token: string): string {
-  return `eventhaiti://invite?eventId=${encodeURIComponent(eventId)}&token=${encodeURIComponent(token)}`
+  return `eventica://invite?eventId=${encodeURIComponent(eventId)}&token=${encodeURIComponent(token)}`
 }
 
 export async function assertEventOwner(params: { eventId: string; uid: string }): Promise<void> {

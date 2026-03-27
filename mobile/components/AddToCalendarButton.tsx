@@ -74,7 +74,7 @@ export default function AddToCalendarButton({ event, style }: AddToCalendarButto
 
   const addToAppleCalendar = () => {
     // Generate ICS file URL from backend
-    const baseUrl = process.env.EXPO_PUBLIC_API_URL || process.env.EXPO_PUBLIC_WEB_URL || 'https://eventhaiti.vercel.app';
+    const baseUrl = process.env.EXPO_PUBLIC_API_URL || process.env.EXPO_PUBLIC_WEB_URL || 'https://joineventica.com';
     const icsUrl = `${baseUrl}/api/events/${event.id}/calendar`;
     
     Linking.openURL(icsUrl);

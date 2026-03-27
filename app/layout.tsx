@@ -20,7 +20,7 @@ export const metadata: Metadata = {
       { url: '/icon-512.svg', type: 'image/svg+xml' },
     ],
     apple: [
-      { url: '/event_haiti_logo_color.png', sizes: '500x500', type: 'image/png' },
+      { url: '/eventica_logo_color.png', sizes: '500x500', type: 'image/png' },
     ],
   },
   appleWebApp: {

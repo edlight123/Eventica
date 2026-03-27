@@ -6,7 +6,7 @@ import { I18nProvider } from '@/components/I18nProvider'
 import SupportContent from './SupportContent'
 
 export const metadata = {
-  title: 'Support - EventHaiti Help Center',
+  title: 'Support - Eventica Help Center',
   description: 'Get help with tickets, events, and your organizer account. Browse FAQs and contact support.',
 }
 

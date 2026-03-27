@@ -1023,7 +1023,7 @@ export default {
     hostingSinceLabel: 'Ap òganize depi:',
     connectTitle: 'Konekte',
     reviewsTitle: 'Revizyon',
-    reviewsComingSoon: 'Revizyon ap vini byento sou Event Haiti.',
+    reviewsComingSoon: 'Revizyon ap vini byento sou Eventica.',
   },
 
   staffScan: {

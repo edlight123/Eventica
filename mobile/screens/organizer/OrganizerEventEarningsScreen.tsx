@@ -140,7 +140,7 @@ export default function OrganizerEventEarningsScreen() {
     return `${symbol}${(cents / 100).toFixed(2)}`
   }
 
-  const webBaseUrl = process.env.EXPO_PUBLIC_WEB_URL || 'https://eventhaiti.vercel.app'
+  const webBaseUrl = process.env.EXPO_PUBLIC_WEB_URL || 'https://joineventica.com'
 
   const loadPayoutRail = useCallback(async () => {
     if (!user?.uid) {
