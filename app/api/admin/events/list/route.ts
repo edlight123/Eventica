@@ -89,6 +89,19 @@ export async function POST(request: NextRequest) {
           .where('status', '!=', 'cancelled')
           .get()
 
+        // Get report count (gracefully returns 0 if collection doesn't exist yet)
+        let reports_count = 0
+        try {
+          const reportsSnap = await adminDb
+            .collection('event_reports')
+            .where('event_id', '==', doc.id)
+            .count()
+            .get()
+          reports_count = reportsSnap.data().count || 0
+        } catch {
+          reports_count = 0
+        }
+
         return {
           id: doc.id,
           title: data.title,
@@ -107,7 +120,7 @@ export async function POST(request: NextRequest) {
           organizer_email: organizer.email,
           organizer_verified: organizer.verified,
           tickets_sold: ticketsSnapshot.size,
-          reports_count: 0, // TODO: Implement reports collection
+          reports_count,
           rejected: data.rejected || false
         }
       })

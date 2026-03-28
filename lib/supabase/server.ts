@@ -339,14 +339,31 @@ export async function createClient() {
     storage: {
       from: (bucket: string) => ({
         upload: async (path: string, file: any) => {
-          // TODO: Implement Firebase Storage
-          return { data: null, error: new Error('Storage not implemented') }
+          try {
+            const { adminStorage } = await import('@/lib/firebase/admin')
+            const storageBucket = adminStorage.bucket()
+            const buffer = Buffer.isBuffer(file) ? file : Buffer.from(await (file as Blob).arrayBuffer())
+            const fileRef = storageBucket.file(path)
+            await fileRef.save(buffer, { contentType: 'application/octet-stream' })
+            await fileRef.makePublic()
+            const publicUrl = `https://storage.googleapis.com/${storageBucket.name}/${path}`
+            return { data: { path, publicUrl }, error: null }
+          } catch (err: any) {
+            return { data: null, error: err }
+          }
         },
         getPublicUrl: (path: string) => {
           return { data: { publicUrl: path } }
         },
         remove: async (paths: string[]) => {
-          return { data: null, error: null }
+          try {
+            const { adminStorage } = await import('@/lib/firebase/admin')
+            const storageBucket = adminStorage.bucket()
+            await Promise.all(paths.map(p => storageBucket.file(p).delete({ ignoreNotFound: true })))
+            return { data: null, error: null }
+          } catch (err: any) {
+            return { data: null, error: err }
+          }
         }
       })
     }

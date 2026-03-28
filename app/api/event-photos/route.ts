@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
+import { adminStorage } from '@/lib/firebase/admin'
 import { createClient } from '@/lib/firebase-db/server'
 
 /**
@@ -89,8 +90,24 @@ export async function DELETE(req: NextRequest) {
       )
     }
 
-    // Delete photo
-    // TODO: Also delete from cloud storage
+    // Delete from Firebase Storage if the URL is a GCS URL
+    if (photo.photo_url) {
+      try {
+        const url = String(photo.photo_url)
+        const bucket = adminStorage.bucket()
+        // URL format: https://storage.googleapis.com/<bucket>/<path>
+        const prefix = `https://storage.googleapis.com/${bucket.name}/`
+        if (url.startsWith(prefix)) {
+          const storagePath = decodeURIComponent(url.slice(prefix.length))
+          await bucket.file(storagePath).delete({ ignoreNotFound: true })
+        }
+      } catch (storageErr) {
+        // Log but don't block DB deletion
+        console.error('Error deleting photo from Storage:', storageErr)
+      }
+    }
+
+    // Delete photo record from database
     const { error: deleteError } = await supabase
       .from('event_photos')
       .delete()

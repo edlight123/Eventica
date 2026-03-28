@@ -20,8 +20,16 @@ async function getOrganizerStats(organizerId: string) {
 
     const draftEvents = draftEventsSnap.data().count || 0
 
-    // TODO: Add pending payouts count when needed
-    const pendingPayouts = 0
+    // Get pending payout requests count
+    const pendingPayoutsSnap = await adminDb
+      .collection('organizers')
+      .doc(organizerId)
+      .collection('payouts')
+      .where('status', '==', 'pending')
+      .count()
+      .get()
+
+    const pendingPayouts = pendingPayoutsSnap.data().count || 0
 
     return { draftEvents, pendingPayouts }
   } catch (error) {
