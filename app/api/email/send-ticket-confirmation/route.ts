@@ -41,13 +41,13 @@ export async function POST(request: Request) {
       return Response.json({ error: 'Event not found' }, { status: 404 })
     }
 
-    const { data: user, error: userError } = await supabase
+    const { data: attendeeProfile, error: userError } = await supabase
       .from('users')
       .select('*')
       .eq('id', userId)
       .single()
 
-    if (userError || !user) {
+    if (userError || !attendeeProfile) {
       console.error('Error fetching user:', userError)
       return Response.json({ error: 'User not found' }, { status: 404 })
     }
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
     const qrCodeDataURL = await generateTicketQRCode(qrPayload)
 
     const html = getTicketConfirmationEmail({
-      attendeeName: user.full_name || 'Guest',
+      attendeeName: attendeeProfile.full_name || 'Guest',
       eventTitle: event.title,
       eventDate: `${formattedDate} • ${formattedTime}`,
       eventVenue: `${event.venue_name}, ${event.city}`,
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
 
     const ticketWord = 'ticket'
     const result = await sendEmail({
-      to: user.email,
+      to: attendeeProfile.email,
       subject: `Your ${ticketWord} for ${event.title}`,
       html,
     })
