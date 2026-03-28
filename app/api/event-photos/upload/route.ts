@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
+import { adminStorage } from '@/lib/firebase/admin'
 import { createClient } from '@/lib/firebase-db/server'
 
 /**
@@ -24,12 +25,26 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // In production, upload to cloud storage (Firebase Storage, Cloudinary, S3, etc.)
-    // For now, using a placeholder URL
-    // TODO: Implement actual file upload to storage service
-    
-    const photoUrl = `https://placehold.co/800x600/teal/white?text=${encodeURIComponent(file.name)}`
-    
+    // Upload to Firebase Storage
+    let photoUrl: string
+    try {
+      const bucket = adminStorage.bucket()
+      const bytes = await file.arrayBuffer()
+      const buffer = Buffer.from(bytes)
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase()
+      const storagePath = `event-photos/${eventId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+      const fileRef = bucket.file(storagePath)
+      await fileRef.save(buffer, {
+        contentType: file.type || 'image/jpeg',
+        metadata: { cacheControl: 'public, max-age=31536000' },
+      })
+      await fileRef.makePublic()
+      photoUrl = `https://storage.googleapis.com/${bucket.name}/${storagePath}`
+    } catch (storageError) {
+      console.error('Firebase Storage upload error:', storageError)
+      return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 })
+    }
+
     const supabase = await createClient()
 
     // Verify event exists

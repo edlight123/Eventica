@@ -4,6 +4,7 @@ import { adminDb } from '@/lib/firebase/admin'
 import { getCurrentUser } from '@/lib/auth'
 import { sendEmail, getTicketConfirmationEmail } from '@/lib/email'
 import { generateTicketQRCode } from '@/lib/qrcode'
+import { processStripeRefund, processMonCashRefund } from '@/lib/refunds'
 import { revalidatePath } from 'next/cache'
 
 // ---------------------------------------------------------------------------
@@ -139,10 +140,27 @@ export async function refundTicket(ticketId: string, eventId: string) {
       return { success: false, error: 'Cannot refund a checked-in ticket' }
     }
 
-    // Mark as refunded in the database.
-    // NOTE: This records the intent only. Actual payment processor refund
-    // (Stripe / MonCash) must be initiated separately until payment processor
-    // integration is wired here.
+    // Attempt payment processor refund first
+    const paymentMethod = ticketData.payment_method as string | undefined
+    const paymentId = (ticketData.payment_id || ticketData.payment_intent_id) as string | undefined
+
+    if (paymentMethod === 'stripe' || paymentMethod === 'stripe_connect') {
+      if (!paymentId) {
+        return { success: false, error: 'No payment ID found for this ticket — cannot issue Stripe refund' }
+      }
+      const stripeResult = await processStripeRefund(paymentId)
+      if (!stripeResult.success) {
+        return { success: false, error: stripeResult.error || 'Stripe refund failed' }
+      }
+    } else if (paymentMethod === 'moncash' || paymentMethod === 'moncash_button') {
+      const moncashResult = await processMonCashRefund(paymentId || '', ticketData.price_paid || 0)
+      // MonCash refunds are always manual — we surface the note but continue
+      if (!moncashResult.success) {
+        return { success: false, error: moncashResult.error || 'MonCash refund failed' }
+      }
+    }
+    // Free tickets or unknown payment methods: no refund call needed
+
     await ticketDoc.ref.update({
       status: 'refunded',
       refunded_at: new Date(),

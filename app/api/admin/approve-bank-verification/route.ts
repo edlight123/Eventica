@@ -3,6 +3,7 @@ import { adminDb } from '@/lib/firebase/admin'
 import { requireAdmin } from '@/lib/auth'
 import { adminError, adminOk } from '@/lib/api/admin-response'
 import { logAdminAction } from '@/lib/admin/audit-log'
+import { sendEmail, getBankVerificationDecisionEmail } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   try {
@@ -132,8 +133,27 @@ export async function POST(request: NextRequest) {
       }).catch(() => {})
     }
 
-    // TODO: Send email notification to organizer
-    // In production, you would notify the organizer of the decision
+    // Notify the organizer of the decision (non-blocking — don't fail the request if email fails)
+    try {
+      const organizerDoc = await adminDb.collection('users').doc(organizerId).get()
+      const organizerData = organizerDoc.data()
+      if (organizerData?.email) {
+        const html = getBankVerificationDecisionEmail({
+          organizerName: organizerData.full_name || organizerData.email,
+          decision,
+          reason: decision === 'reject' ? reason : undefined,
+        })
+        await sendEmail({
+          to: organizerData.email,
+          subject: decision === 'approve'
+            ? 'Your bank account has been verified — Eventica'
+            : 'Bank verification update — Eventica',
+          html,
+        })
+      }
+    } catch (emailErr) {
+      console.error('[approve-bank-verification] Failed to send notification email:', emailErr)
+    }
 
     return adminOk({
       message: `Bank verification ${decision}d successfully`,

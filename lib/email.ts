@@ -932,3 +932,87 @@ export function getEventUpdateEmail(params: {
     </html>
   `
 }
+
+export function getBankVerificationDecisionEmail(params: {
+  organizerName: string
+  decision: 'approve' | 'reject'
+  reason?: string
+}) {
+  const isApproved = params.decision === 'approve'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://joineventica.com'
+  const payoutUrl = `${appUrl}/organizer/payout-settings`
+
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Bank Verification ${isApproved ? 'Approved' : 'Update'}</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: ${emailStyles.fontFamily}; background-color: #0f172a; -webkit-font-smoothing: antialiased;">
+        <table role="presentation" style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td align="center" style="padding: 48px 16px;">
+              <table role="presentation" style="width: 600px; max-width: 100%; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+
+                <!-- Header -->
+                <tr>
+                  <td style="padding: 0;">
+                    <div style="background: linear-gradient(135deg, ${isApproved ? '#10b981 0%, #059669 50%, #047857 100%' : '#ef4444 0%, #dc2626 50%, #b91c1c 100%'}); padding: 50px 40px; text-align: center;">
+                      <div style="font-size: 64px; line-height: 1;">${isApproved ? '✅' : '⚠️'}</div>
+                      <div style="margin-top: 20px; font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">
+                        Bank Account ${isApproved ? 'Verified' : 'Verification Update'}
+                      </div>
+                      <div style="margin-top: 8px; font-size: 14px; color: rgba(255, 255, 255, 0.85);">Eventica</div>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Content -->
+                <tr>
+                  <td style="padding: 40px;">
+                    <div style="font-size: 22px; font-weight: 800; color: #0f172a; margin-bottom: 12px;">
+                      Hi ${params.organizerName},
+                    </div>
+                    ${isApproved ? `
+                    <div style="font-size: 16px; color: #64748b; line-height: 1.7; margin-bottom: 28px;">
+                      Great news! Your bank account has been verified. You can now receive payouts directly to your bank account for tickets sold on Eventica.
+                    </div>
+                    <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 14px; padding: 20px; border-left: 4px solid #10b981; margin-bottom: 28px;">
+                      <div style="font-size: 14px; font-weight: 700; color: #166534; margin-bottom: 8px;">✓ What this means for you</div>
+                      <ul style="margin: 0; padding-left: 18px; font-size: 14px; color: #15803d; line-height: 1.9;">
+                        <li>Payouts will be processed to your verified bank account</li>
+                        <li>Funds settle within 2–5 business days after withdrawal</li>
+                        <li>You can request a payout from your organizer dashboard</li>
+                      </ul>
+                    </div>
+                    <div style="text-align: center;">
+                      ${getButton('Go to Payout Settings', payoutUrl, '#10b981')}
+                    </div>
+                    ` : `
+                    <div style="font-size: 16px; color: #64748b; line-height: 1.7; margin-bottom: 28px;">
+                      We were unable to verify your bank account at this time. Please review the details below and resubmit your verification.
+                    </div>
+                    ${params.reason ? `
+                    <div style="background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border-radius: 14px; padding: 20px; border-left: 4px solid #ef4444; margin-bottom: 28px;">
+                      <div style="font-size: 14px; font-weight: 700; color: #991b1b; margin-bottom: 8px;">Reason</div>
+                      <div style="font-size: 14px; color: #b91c1c;">${params.reason}</div>
+                    </div>
+                    ` : ''}
+                    <div style="text-align: center;">
+                      ${getButton('Resubmit Verification', payoutUrl, '#ef4444')}
+                    </div>
+                    `}
+                  </td>
+                </tr>
+
+                ${getEmailFooter()}
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `
+}

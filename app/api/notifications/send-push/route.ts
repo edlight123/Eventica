@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getMessaging } from 'firebase-admin/messaging'
 import { getCurrentUser } from '@/lib/auth'
+import app from '@/lib/firebase/admin'
 
-// This is a placeholder - actual FCM admin implementation would go here
-// For now, this just logs the request
+export const runtime = 'nodejs'
+
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser()
-    
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -17,36 +18,36 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No tokens provided' }, { status: 400 })
     }
 
-    // TODO: Implement Firebase Admin SDK push notification sending
-    // For now, we'll log it
-    console.log('Push notification request:', {
-      tokens: tokens.length,
-      title,
-      body,
-      data
-    })
-
-    // In production, you would use Firebase Admin SDK:
-    /*
-    const admin = require('firebase-admin')
-    const messaging = admin.messaging()
-    
-    const message = {
-      notification: {
-        title,
-        body
-      },
-      data: data || {},
-      tokens
+    if (!app) {
+      return NextResponse.json({ error: 'Firebase not initialized' }, { status: 500 })
     }
-    
-    const response = await messaging.sendMulticast(message)
-    console.log('Push notification sent:', response)
-    */
 
-    return NextResponse.json({ 
+    const messaging = getMessaging(app)
+
+    // FCM data payloads require all values to be strings
+    const stringData: Record<string, string> = {}
+    if (data && typeof data === 'object') {
+      for (const [k, v] of Object.entries(data)) {
+        stringData[k] = String(v)
+      }
+    }
+
+    const message = {
+      notification: { title: String(title || ''), body: String(body || '') },
+      ...(Object.keys(stringData).length ? { data: stringData } : {}),
+      tokens: tokens as string[],
+    }
+
+    const response = await messaging.sendEachForMulticast(message)
+
+    const successCount = response.responses.filter((r) => r.success).length
+    const failureCount = response.responses.length - successCount
+
+    return NextResponse.json({
       success: true,
-      message: 'Push notification queued (demo mode)'
+      successCount,
+      failureCount,
+      total: tokens.length,
     })
   } catch (error: any) {
     console.error('Error sending push notification:', error)

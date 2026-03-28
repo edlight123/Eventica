@@ -22,10 +22,15 @@ export async function checkInTicket(params: CheckInParams): Promise<CheckInResul
 
   try {
     const ticketRef = adminDb.collection('tickets').doc(ticketId)
+    const eventRef = adminDb.collection('events').doc(eventId)
 
     // Run in transaction to prevent race conditions
     const result = await adminDb.runTransaction(async (transaction: any) => {
-      const ticketDoc = await transaction.get(ticketRef)
+      const [ticketDoc, eventDoc] = await Promise.all([
+        transaction.get(ticketRef),
+        transaction.get(eventRef),
+      ])
+      const allowReentry = Boolean(eventDoc.exists && eventDoc.data()?.allow_reentry)
 
       // Check if ticket exists
       if (!ticketDoc.exists) {
@@ -82,9 +87,6 @@ export async function checkInTicket(params: CheckInParams): Promise<CheckInResul
             attendeeName = userDoc.data()?.full_name || userDoc.data()?.email || 'Guest'
           }
         }
-
-        // Check if event allows re-entry (could be event setting)
-        const allowReentry = false // TODO: fetch from event settings
 
         return {
           success: false,
