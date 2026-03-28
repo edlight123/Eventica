@@ -564,23 +564,30 @@ export default function VerificationRequestReview({ request, user }: Props) {
           </div>
         ) : null}
 
-        {/* Action Buttons */}
-        <div className="flex gap-2 sm:gap-3">
-          <button
-            onClick={handleApprove}
-            disabled={reviewing}
-            className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-[13px] sm:text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
-          >
-            {reviewing ? 'Processing...' : '✅ Approve'}
-          </button>
-          <button
-            onClick={() => setShowRejectModal(true)}
-            disabled={reviewing}
-            className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-[13px] sm:text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
-          >
-            ✍️ Request changes
-          </button>
-        </div>
+        {/* Action Buttons — only show for pending/in-review/changes_requested */}
+        {(() => {
+          const s = (request.status || 'pending').toLowerCase()
+          const isActionable = s === 'pending' || s === 'pending_review' || s === 'in_review' || s === 'changes_requested'
+          if (!isActionable) return null
+          return (
+            <div className="flex gap-2 sm:gap-3">
+              <button
+                onClick={handleApprove}
+                disabled={reviewing}
+                className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-[13px] sm:text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+              >
+                {reviewing ? 'Processing...' : '✅ Approve'}
+              </button>
+              <button
+                onClick={() => setShowRejectModal(true)}
+                disabled={reviewing}
+                className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-[13px] sm:text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+              >
+                ✍️ Request changes
+              </button>
+            </div>
+          )
+        })()}
       </div>
 
       {/* Image Lightbox */}

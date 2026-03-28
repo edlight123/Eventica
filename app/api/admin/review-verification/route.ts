@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
     try {
       // Keep the user/organizer docs in sync without overwriting unrelated fields.
       const approved = normalizedStatus === 'approved'
-      const userVerificationStatus = approved ? 'approved' : 'pending'
+      const userVerificationStatus = normalizedStatus
 
       await adminDb.collection('users').doc(userId).set(
         {

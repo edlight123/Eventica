@@ -96,7 +96,7 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
 
   const handleBulkAction = async (action: 'publish' | 'unpublish' | 'delete') => {
     try {
-      await fetch('/api/admin/events/bulk-action', {
+      const response = await fetch('/api/admin/events/bulk-action', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -106,10 +106,15 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
           adminEmail: userEmail
         })
       })
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error((data as any).error || `Action failed (${response.status})`)
+      }
       setSelectedIds(new Set())
       void loadEvents()
     } catch (error) {
       console.error('Bulk action failed:', error)
+      alert(`Bulk action failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 
@@ -117,7 +122,7 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
     if (!selectedEvent) return
 
     try {
-      await fetch('/api/admin/events/action', {
+      const response = await fetch('/api/admin/events/action', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -128,10 +133,15 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
           adminEmail: userEmail
         })
       })
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error((data as any).error || `Action failed (${response.status})`)
+      }
       setSelectedEvent(null)
       void loadEvents()
     } catch (error) {
       console.error('Action failed:', error)
+      alert(`Action failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 

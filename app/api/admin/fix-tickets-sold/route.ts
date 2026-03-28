@@ -3,12 +3,18 @@
  * POST /api/admin/fix-tickets-sold
  */
 
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { adminDb } from '@/lib/firebase/admin'
+import { requireAdmin } from '@/lib/auth'
+import { adminError } from '@/lib/api/admin-response'
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    // Optional: Add authentication check here
+    const { user, error } = await requireAdmin()
+    if (error || !user) {
+      return adminError(error || 'Unauthorized', error === 'Not authenticated' ? 401 : 403)
+    }
+
     const { eventId } = await request.json()
     
     console.log('🔄 Fixing tickets_sold counts...')
