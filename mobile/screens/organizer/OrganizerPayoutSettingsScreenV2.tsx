@@ -16,7 +16,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import * as ImagePicker from 'expo-image-picker'
 import { collection, getDocs } from 'firebase/firestore'
 
-import { COLORS } from '../../config/brand'
+import { useTheme } from '../../contexts/ThemeContext';
 import { db } from '../../config/firebase'
 import { useAuth } from '../../contexts/AuthContext'
 import { useI18n } from '../../contexts/I18nContext'
@@ -51,6 +51,7 @@ type MoncashDestination = {
 type PayoutDestination = BankDestination | MoncashDestination
 
 export default function OrganizerPayoutSettingsScreenV2() {
+  const { colors } = useTheme();
   const navigation = useNavigation<any>()
   const insets = useSafeAreaInsets()
   const { t } = useI18n()
@@ -100,15 +101,15 @@ export default function OrganizerPayoutSettingsScreenV2() {
 
   const statusPill = useCallback((status?: VerificationStatus) => {
     if (status === 'verified') {
-      return { backgroundColor: `${COLORS.success}20`, textColor: COLORS.success, label: 'Verified', icon: 'checkmark-circle' }
+      return { backgroundColor: `${colors.success}20`, textColor: colors.success, label: 'Verified', icon: 'checkmark-circle' }
     }
     if (status === 'pending') {
-      return { backgroundColor: `${COLORS.primary}20`, textColor: COLORS.primary, label: 'Under Review', icon: 'time' }
+      return { backgroundColor: `${colors.primary}20`, textColor: colors.primary, label: 'Under Review', icon: 'time' }
     }
     if (status === 'failed') {
-      return { backgroundColor: `${COLORS.error}20`, textColor: COLORS.error, label: 'Needs Attention', icon: 'alert-circle' }
+      return { backgroundColor: `${colors.error}20`, textColor: colors.error, label: 'Needs Attention', icon: 'alert-circle' }
     }
-    return { backgroundColor: `${COLORS.textSecondary}20`, textColor: COLORS.textSecondary, label: 'Not Verified', icon: 'close-circle' }
+    return { backgroundColor: `${colors.textSecondary}20`, textColor: colors.textSecondary, label: 'Not Verified', icon: 'close-circle' }
   }, [])
 
   const loadDestinations = useCallback(async () => {
@@ -321,7 +322,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>Loading payout settings...</Text>
       </View>
     )
@@ -331,7 +332,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={COLORS.text} />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Payout Settings</Text>
         <View style={{ width: 40 }} />
@@ -340,11 +341,11 @@ export default function OrganizerPayoutSettingsScreenV2() {
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}>
         {/* Identity Verification Status */}
         {!identityVerified && (
-          <View style={[styles.card, { backgroundColor: `${COLORS.primary}10` }]}>
+          <View style={[styles.card, { backgroundColor: `${colors.primary}10` }]}>
             <View style={styles.row}>
-              <Ionicons name="shield-checkmark-outline" size={20} color={COLORS.primary} />
+              <Ionicons name="shield-checkmark-outline" size={20} color={colors.primary} />
               <View style={{ flex: 1, marginLeft: 10 }}>
-                <Text style={[styles.cardTitle, { color: COLORS.primary }]}>Identity Verification Required</Text>
+                <Text style={[styles.cardTitle, { color: colors.primary }]}>Identity Verification Required</Text>
                 <Text style={styles.metaText}>Complete identity verification to add payout methods.</Text>
               </View>
             </View>
@@ -360,13 +361,13 @@ export default function OrganizerPayoutSettingsScreenV2() {
         {/* Destinations List */}
         {destinations.length === 0 ? (
           <View style={styles.emptyState}>
-            <Ionicons name="wallet-outline" size={64} color={COLORS.textSecondary} />
+            <Ionicons name="wallet-outline" size={64} color={colors.textSecondary} />
             <Text style={styles.emptyTitle}>No Payout Methods</Text>
             <Text style={styles.emptyText}>
               Add a bank account or mobile money to receive payments from your events.
             </Text>
             <TouchableOpacity style={styles.primaryButton} onPress={() => setShowAddModal(true)}>
-              <Ionicons name="add" size={20} color={COLORS.white} />
+              <Ionicons name="add" size={20} color={colors.white} />
               <Text style={styles.primaryButtonText}>Add Payout Method</Text>
             </TouchableOpacity>
           </View>
@@ -375,7 +376,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Payout Methods</Text>
               <TouchableOpacity style={styles.addButton} onPress={() => setShowAddModal(true)}>
-                <Ionicons name="add" size={18} color={COLORS.primary} />
+                <Ionicons name="add" size={18} color={colors.primary} />
                 <Text style={styles.addButtonText}>Add</Text>
               </TouchableOpacity>
             </View>
@@ -390,7 +391,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
                     <Ionicons
                       name={isBank ? 'card-outline' : 'phone-portrait-outline'}
                       size={24}
-                      color={COLORS.text}
+                      color={colors.text}
                     />
                     <View style={{ flex: 1, marginLeft: 12 }}>
                       <Text style={styles.destinationTitle}>
@@ -449,12 +450,12 @@ export default function OrganizerPayoutSettingsScreenV2() {
               onPress={() => handleAddMethodSelect('bank')}
               activeOpacity={0.7}
             >
-              <Ionicons name="card-outline" size={32} color={COLORS.primary} />
+              <Ionicons name="card-outline" size={32} color={colors.primary} />
               <View style={{ flex: 1, marginLeft: 16 }}>
                 <Text style={styles.methodTitle}>Bank Account</Text>
                 <Text style={styles.methodDescription}>Receive payments directly to your bank account</Text>
               </View>
-              <Ionicons name="chevron-forward" size={24} color={COLORS.textSecondary} />
+              <Ionicons name="chevron-forward" size={24} color={colors.textSecondary} />
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -462,12 +463,12 @@ export default function OrganizerPayoutSettingsScreenV2() {
               onPress={() => handleAddMethodSelect('moncash')}
               activeOpacity={0.7}
             >
-              <Ionicons name="phone-portrait-outline" size={32} color={COLORS.primary} />
+              <Ionicons name="phone-portrait-outline" size={32} color={colors.primary} />
               <View style={{ flex: 1, marginLeft: 16 }}>
                 <Text style={styles.methodTitle}>MonCash / NatCash</Text>
                 <Text style={styles.methodDescription}>Receive payments to your mobile money account</Text>
               </View>
-              <Ionicons name="chevron-forward" size={24} color={COLORS.textSecondary} />
+              <Ionicons name="chevron-forward" size={24} color={colors.textSecondary} />
             </TouchableOpacity>
 
             <TouchableOpacity style={[styles.secondaryButton, { marginTop: 16 }]} onPress={() => setShowAddModal(false)}>
@@ -482,7 +483,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
         <View style={[styles.container, { paddingTop: insets.top }]}>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => setShowBankForm(false)} style={styles.backButton}>
-              <Ionicons name="close" size={24} color={COLORS.text} />
+              <Ionicons name="close" size={24} color={colors.text} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Add Bank Account</Text>
             <View style={{ width: 40 }} />
@@ -495,7 +496,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
               value={bankForm.accountName}
               onChangeText={(v) => setBankForm((s) => ({ ...s, accountName: v }))}
               placeholder="Full legal name"
-              placeholderTextColor={COLORS.textSecondary}
+              placeholderTextColor={colors.textSecondary}
             />
 
             <Text style={styles.label}>Bank Name *</Text>
@@ -504,7 +505,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
               value={bankForm.bankName}
               onChangeText={(v) => setBankForm((s) => ({ ...s, bankName: v }))}
               placeholder="Your bank name"
-              placeholderTextColor={COLORS.textSecondary}
+              placeholderTextColor={colors.textSecondary}
             />
 
             <Text style={styles.label}>Account Number *</Text>
@@ -513,7 +514,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
               value={bankForm.accountNumber}
               onChangeText={(v) => setBankForm((s) => ({ ...s, accountNumber: v }))}
               placeholder="Account number"
-              placeholderTextColor={COLORS.textSecondary}
+              placeholderTextColor={colors.textSecondary}
               keyboardType="number-pad"
             />
 
@@ -523,7 +524,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
               value={bankForm.routingNumber}
               onChangeText={(v) => setBankForm((s) => ({ ...s, routingNumber: v }))}
               placeholder="Routing number"
-              placeholderTextColor={COLORS.textSecondary}
+              placeholderTextColor={colors.textSecondary}
             />
 
             <Text style={styles.label}>SWIFT Code (optional)</Text>
@@ -532,7 +533,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
               value={bankForm.swift}
               onChangeText={(v) => setBankForm((s) => ({ ...s, swift: v }))}
               placeholder="SWIFT code"
-              placeholderTextColor={COLORS.textSecondary}
+              placeholderTextColor={colors.textSecondary}
               autoCapitalize="characters"
             />
 
@@ -542,7 +543,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
               disabled={savingBank}
             >
               {savingBank ? (
-                <ActivityIndicator color={COLORS.white} />
+                <ActivityIndicator color={colors.white} />
               ) : (
                 <Text style={styles.primaryButtonText}>Save Bank Account</Text>
               )}
@@ -556,7 +557,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
         <View style={[styles.container, { paddingTop: insets.top }]}>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => setShowMoncashForm(false)} style={styles.backButton}>
-              <Ionicons name="close" size={24} color={COLORS.text} />
+              <Ionicons name="close" size={24} color={colors.text} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Add Mobile Money</Text>
             <View style={{ width: 40 }} />
@@ -589,7 +590,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
               value={moncashForm.accountName}
               onChangeText={(v) => setMoncashForm((s) => ({ ...s, accountName: v }))}
               placeholder="Full legal name"
-              placeholderTextColor={COLORS.textSecondary}
+              placeholderTextColor={colors.textSecondary}
             />
 
             <Text style={styles.label}>Phone Number *</Text>
@@ -598,7 +599,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
               value={moncashForm.phoneNumber}
               onChangeText={(v) => setMoncashForm((s) => ({ ...s, phoneNumber: v }))}
               placeholder="+509..."
-              placeholderTextColor={COLORS.textSecondary}
+              placeholderTextColor={colors.textSecondary}
               keyboardType="phone-pad"
             />
 
@@ -608,7 +609,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
               disabled={savingMoncash}
             >
               {savingMoncash ? (
-                <ActivityIndicator color={COLORS.white} />
+                <ActivityIndicator color={colors.white} />
               ) : (
                 <Text style={styles.primaryButtonText}>Save Mobile Money</Text>
               )}
@@ -626,14 +627,14 @@ export default function OrganizerPayoutSettingsScreenV2() {
         <View style={[styles.container, { paddingTop: insets.top }]}>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => setShowVerificationModal(false)} style={styles.backButton}>
-              <Ionicons name="close" size={24} color={COLORS.text} />
+              <Ionicons name="close" size={24} color={colors.text} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Verify Bank Account</Text>
             <View style={{ width: 40 }} />
           </View>
 
           <ScrollView contentContainerStyle={{ padding: 16 }}>
-            <View style={[styles.card, { backgroundColor: `${COLORS.primary}10` }]}>
+            <View style={[styles.card, { backgroundColor: `${colors.primary}10` }]}>
               <Text style={styles.cardTitle}>Verification Required</Text>
               <Text style={styles.metaText}>
                 To receive payouts to this account, upload a document that shows:
@@ -677,16 +678,16 @@ export default function OrganizerPayoutSettingsScreenV2() {
               style={[styles.secondaryButton, { marginTop: 16 }]}
               onPress={pickVerificationDocument}
             >
-              <Ionicons name="document-attach-outline" size={20} color={COLORS.text} />
+              <Ionicons name="document-attach-outline" size={20} color={colors.text} />
               <Text style={styles.secondaryButtonText}>
                 {verificationAsset ? 'Change Document' : 'Choose Document'}
               </Text>
             </TouchableOpacity>
 
             {verificationAsset && (
-              <View style={[styles.card, { marginTop: 12, backgroundColor: `${COLORS.success}10` }]}>
-                <Ionicons name="checkmark-circle" size={20} color={COLORS.success} />
-                <Text style={[styles.metaText, { marginLeft: 10, color: COLORS.success }]}>
+              <View style={[styles.card, { marginTop: 12, backgroundColor: `${colors.success}10` }]}>
+                <Ionicons name="checkmark-circle" size={20} color={colors.success} />
+                <Text style={[styles.metaText, { marginLeft: 10, color: colors.success }]}>
                   Document selected: {verificationAsset.fileName || 'Image'}
                 </Text>
               </View>
@@ -702,7 +703,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
               disabled={submittingVerification || !verificationAsset}
             >
               {submittingVerification ? (
-                <ActivityIndicator color={COLORS.white} />
+                <ActivityIndicator color={colors.white} />
               ) : (
                 <Text style={styles.primaryButtonText}>Submit for Review</Text>
               )}
@@ -722,26 +723,26 @@ export default function OrganizerPayoutSettingsScreenV2() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingText: {
     marginTop: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   header: {
     paddingHorizontal: 16,
     paddingBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   backButton: {
     width: 40,
@@ -754,10 +755,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   card: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -765,19 +766,19 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   metaText: {
     marginTop: 6,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontSize: 14,
   },
   metaHint: {
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontSize: 12,
   },
   bulletPoint: {
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontSize: 14,
     marginLeft: 8,
     marginTop: 4,
@@ -790,7 +791,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   emptyState: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 32,
     alignItems: 'center',
@@ -799,12 +800,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginTop: 16,
   },
   emptyText: {
     marginTop: 8,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     fontSize: 14,
   },
@@ -818,7 +819,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   addButton: {
     flexDirection: 'row',
@@ -827,15 +828,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 999,
-    backgroundColor: `${COLORS.primary}15`,
+    backgroundColor: `${colors.primary}15`,
   },
   addButtonText: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
     fontSize: 14,
   },
   destinationCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -847,16 +848,16 @@ const styles = StyleSheet.create({
   destinationTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   destinationSubtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 2,
   },
   destinationMeta: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 4,
     fontFamily: 'monospace',
   },
@@ -873,7 +874,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   primaryButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingVertical: 14,
     borderRadius: 10,
     alignItems: 'center',
@@ -885,12 +886,12 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   primaryButtonText: {
-    color: COLORS.white,
+    color: colors.white,
     fontWeight: '700',
     fontSize: 16,
   },
   secondaryButton: {
-    backgroundColor: COLORS.borderLight,
+    backgroundColor: colors.borderLight,
     paddingVertical: 12,
     borderRadius: 10,
     alignItems: 'center',
@@ -899,7 +900,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   secondaryButtonText: {
-    color: COLORS.text,
+    color: colors.text,
     fontWeight: '600',
     fontSize: 14,
   },
@@ -911,7 +912,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContent: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 16,
     padding: 24,
     width: '100%',
@@ -920,12 +921,12 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     textAlign: 'center',
   },
   modalSubtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 8,
     marginBottom: 24,
@@ -935,51 +936,51 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderRadius: 12,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     marginBottom: 12,
   },
   methodTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   methodDescription: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 4,
   },
   label: {
     marginTop: 16,
     marginBottom: 8,
-    color: COLORS.text,
+    color: colors.text,
     fontWeight: '600',
     fontSize: 14,
   },
   input: {
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    color: COLORS.text,
-    backgroundColor: COLORS.white,
+    color: colors.text,
+    backgroundColor: colors.white,
     fontSize: 16,
   },
   chip: {
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 999,
-    backgroundColor: COLORS.borderLight,
+    backgroundColor: colors.borderLight,
   },
   chipActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   chipText: {
-    color: COLORS.text,
+    color: colors.text,
     fontWeight: '600',
     fontSize: 14,
   },
   chipTextActive: {
-    color: COLORS.white,
+    color: colors.white,
   },
 })

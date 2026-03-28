@@ -4,7 +4,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { collectionGroup, getDoc, doc, getDocs, query, where } from 'firebase/firestore';
 import { db, auth } from '../../config/firebase';
-import { COLORS } from '../../config/brand';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { getStaffEventIds } from '../../lib/staffAssignments';
 
@@ -24,6 +24,7 @@ type EventSummary = {
 };
 
 export default function StaffEventsScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { t } = useI18n();
@@ -175,7 +176,7 @@ export default function StaffEventsScreen() {
         ListEmptyComponent={
           <View style={styles.center}>
             {loading ? (
-              <ActivityIndicator color={COLORS.primary} />
+              <ActivityIndicator color={colors.primary} />
             ) : (
               <Text style={styles.empty}>{emptyText}</Text>
             )}
@@ -202,10 +203,10 @@ export default function StaffEventsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   cameraSection: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   cameraPlaceholder: {
     flex: 1,
@@ -217,12 +218,12 @@ const styles = StyleSheet.create({
     marginTop: 0,
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.white,
+    color: colors.white,
   },
   cameraSubtext: {
     marginTop: 6,
     fontSize: 13,
-    color: COLORS.white,
+    color: colors.white,
     opacity: 0.95,
   },
   header: {
@@ -233,12 +234,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   subtitle: {
     marginTop: 6,
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   center: {
     flex: 1,
@@ -248,7 +249,7 @@ const styles = StyleSheet.create({
   },
   empty: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   list: {
     padding: 16,
@@ -258,26 +259,26 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   card: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   cardTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   cardMeta: {
     marginTop: 6,
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   cardAction: {
     marginTop: 12,
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
 });

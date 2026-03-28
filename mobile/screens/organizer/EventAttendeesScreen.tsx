@@ -13,7 +13,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
-import { COLORS } from '../../config/brand';
+import { useTheme } from '../../contexts/ThemeContext';
 import { db } from '../../config/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useI18n } from '../../contexts/I18nContext';
@@ -38,6 +38,7 @@ interface Attendee {
 }
 
 export default function EventAttendeesScreen() {
+  const { colors } = useTheme();
   const route = useRoute<RouteProp<RouteParams, 'EventAttendees'>>();
   const navigation = useNavigation();
   const { eventId } = route.params;
@@ -133,7 +134,7 @@ export default function EventAttendeesScreen() {
             <Ionicons
               name={checkedIn ? 'checkmark-circle' : 'time-outline'}
               size={16}
-              color={checkedIn ? COLORS.success : COLORS.warning}
+              color={checkedIn ? colors.success : colors.warning}
             />
             <Text
               style={[styles.statusText, checkedIn && styles.statusTextCheckedIn]}
@@ -145,17 +146,17 @@ export default function EventAttendeesScreen() {
 
         <View style={styles.attendeeDetails}>
           <View style={styles.detailRow}>
-            <Ionicons name="ticket-outline" size={16} color={COLORS.textSecondary} />
+            <Ionicons name="ticket-outline" size={16} color={colors.textSecondary} />
             <Text style={styles.detailText}>{item.tier_name || t('common.general')}</Text>
           </View>
           <View style={styles.detailRow}>
-            <Ionicons name="cash-outline" size={16} color={COLORS.textSecondary} />
+            <Ionicons name="cash-outline" size={16} color={colors.textSecondary} />
             <Text style={styles.detailText}>
               ${item.price_paid?.toFixed(2) || '0.00'}
             </Text>
           </View>
           <View style={styles.detailRow}>
-            <Ionicons name="calendar-outline" size={16} color={COLORS.textSecondary} />
+            <Ionicons name="calendar-outline" size={16} color={colors.textSecondary} />
             <Text style={styles.detailText}>
               {purchaseDate.toLocaleDateString(locale)}
             </Text>
@@ -164,7 +165,7 @@ export default function EventAttendeesScreen() {
 
         {checkedIn && item.checked_in_at && (
           <View style={styles.checkedInInfo}>
-            <Ionicons name="checkmark-circle" size={14} color={COLORS.success} />
+            <Ionicons name="checkmark-circle" size={14} color={colors.success} />
             <Text style={styles.checkedInText}>
               {t('organizerAttendees.checkedInPrefix')}{
                 item.checked_in_at.toDate
@@ -181,7 +182,7 @@ export default function EventAttendeesScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>{t('organizerAttendees.loading')}</Text>
       </View>
     );
@@ -191,12 +192,12 @@ export default function EventAttendeesScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={COLORS.white} />
+      <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
 
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={COLORS.text} />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('organizerAttendees.headerTitle')}</Text>
         <View style={styles.headerActions}>
@@ -213,17 +214,17 @@ export default function EventAttendeesScreen() {
 
       {/* Search */}
       <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color={COLORS.textSecondary} />
+        <Ionicons name="search" size={20} color={colors.textSecondary} />
         <TextInput
           style={styles.searchInput}
           placeholder={t('organizerAttendees.searchPlaceholder')}
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholderTextColor={COLORS.textSecondary}
+          placeholderTextColor={colors.textSecondary}
         />
         {searchQuery.length > 0 && (
           <TouchableOpacity onPress={() => setSearchQuery('')}>
-            <Ionicons name="close-circle" size={20} color={COLORS.textSecondary} />
+            <Ionicons name="close-circle" size={20} color={colors.textSecondary} />
           </TouchableOpacity>
         )}
       </View>
@@ -287,12 +288,12 @@ export default function EventAttendeesScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={COLORS.primary}
+            tintColor={colors.primary}
           />
         }
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Ionicons name="people-outline" size={64} color={COLORS.textSecondary} />
+            <Ionicons name="people-outline" size={64} color={colors.textSecondary} />
             <Text style={styles.emptyStateText}>
               {searchQuery ? t('organizerAttendees.empty.filtered') : t('organizerAttendees.empty.default')}
             </Text>
@@ -306,18 +307,18 @@ export default function EventAttendeesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   header: {
     flexDirection: 'row',
@@ -325,9 +326,9 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 16,
     paddingHorizontal: 16,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   backButton: {
     marginRight: 12,
@@ -336,10 +337,10 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
   },
   headerStats: {
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: colors.primaryLight,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
@@ -347,7 +348,7 @@ const styles = StyleSheet.create({
   headerStatsText: {
     fontSize: 12,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   headerActions: {
     flexDirection: 'row',
@@ -357,31 +358,31 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: colors.primaryLight,
     paddingVertical: 8,
     paddingHorizontal: 16,
   },
   statsBarText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     margin: 16,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   searchInput: {
     flex: 1,
     marginLeft: 8,
     fontSize: 16,
-    color: COLORS.text,
+    color: colors.text,
   },
   filterTabs: {
     flexDirection: 'row',
@@ -394,34 +395,34 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     marginHorizontal: 4,
     borderRadius: 8,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   filterTabActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   filterTabText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   filterTabTextActive: {
-    color: COLORS.white,
+    color: colors.white,
   },
   listContent: {
     paddingHorizontal: 16,
     paddingBottom: 20,
   },
   attendeeCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   attendeeHeader: {
     flexDirection: 'row',
@@ -435,12 +436,12 @@ const styles = StyleSheet.create({
   attendeeName: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   attendeeEmail: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   statusBadge: {
     flexDirection: 'row',
@@ -448,19 +449,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
-    backgroundColor: COLORS.warningLight,
+    backgroundColor: colors.warningLight,
   },
   statusBadgeCheckedIn: {
-    backgroundColor: COLORS.successLight,
+    backgroundColor: colors.successLight,
   },
   statusText: {
     fontSize: 12,
     fontWeight: '600',
-    color: COLORS.warning,
+    color: colors.warning,
     marginLeft: 4,
   },
   statusTextCheckedIn: {
-    color: COLORS.success,
+    color: colors.success,
   },
   attendeeDetails: {
     flexDirection: 'row',
@@ -473,7 +474,7 @@ const styles = StyleSheet.create({
   },
   detailText: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginLeft: 4,
   },
   checkedInInfo: {
@@ -482,11 +483,11 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
   },
   checkedInText: {
     fontSize: 12,
-    color: COLORS.success,
+    color: colors.success,
     marginLeft: 4,
   },
   emptyState: {
@@ -495,7 +496,7 @@ const styles = StyleSheet.create({
   },
   emptyStateText: {
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 12,
   },
 });

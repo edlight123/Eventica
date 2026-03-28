@@ -13,7 +13,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebase';
-import { COLORS } from '../../config/brand';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { backendFetch } from '../../lib/api/backend';
@@ -32,6 +32,7 @@ interface RefundRequest {
 }
 
 export default function OrganizerRefundsScreen({ navigation }: any) {
+  const { colors } = useTheme();
   const { userProfile } = useAuth();
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
@@ -186,7 +187,7 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.loadingText}>{t('refunds.loading') || 'Loading refund requests...'}</Text>
         </View>
       </SafeAreaView>
@@ -232,12 +233,12 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
         }
       >
         {filteredRequests.length === 0 ? (
           <View style={styles.emptyState}>
-            <Ionicons name="receipt-outline" size={64} color={COLORS.textSecondary} />
+            <Ionicons name="receipt-outline" size={64} color={colors.textSecondary} />
             <Text style={styles.emptyTitle}>
               {filter === 'pending' 
                 ? (t('refunds.noPending') || 'No pending requests')
@@ -268,15 +269,15 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
 
               <View style={styles.requestDetails}>
                 <View style={styles.detailRow}>
-                  <Ionicons name="person-outline" size={16} color={COLORS.textSecondary} />
+                  <Ionicons name="person-outline" size={16} color={colors.textSecondary} />
                   <Text style={styles.detailText}>{request.attendee_name || request.attendee_email}</Text>
                 </View>
                 <View style={styles.detailRow}>
-                  <Ionicons name="cash-outline" size={16} color={COLORS.textSecondary} />
+                  <Ionicons name="cash-outline" size={16} color={colors.textSecondary} />
                   <Text style={styles.detailText}>${request.amount.toFixed(2)}</Text>
                 </View>
                 <View style={styles.detailRow}>
-                  <Ionicons name="time-outline" size={16} color={COLORS.textSecondary} />
+                  <Ionicons name="time-outline" size={16} color={colors.textSecondary} />
                   <Text style={styles.detailText}>
                     {request.requested_at && format(new Date(request.requested_at), 'MMM dd, yyyy h:mm a')}
                   </Text>
@@ -296,10 +297,10 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
                     disabled={processing === request.ticket_id}
                   >
                     {processing === request.ticket_id ? (
-                      <ActivityIndicator size="small" color={COLORS.error} />
+                      <ActivityIndicator size="small" color={colors.error} />
                     ) : (
                       <>
-                        <Ionicons name="close-circle" size={18} color={COLORS.error} />
+                        <Ionicons name="close-circle" size={18} color={colors.error} />
                         <Text style={styles.denyButtonText}>{t('refunds.deny') || 'Deny'}</Text>
                       </>
                     )}
@@ -333,7 +334,7 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -342,7 +343,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 12,
   },
   header: {
@@ -351,7 +352,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 16,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   backButton: {
     padding: 8,
@@ -366,7 +367,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   badge: {
-    backgroundColor: COLORS.error,
+    backgroundColor: colors.error,
     borderRadius: 10,
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -382,22 +383,22 @@ const styles = StyleSheet.create({
     gap: 8,
     backgroundColor: '#FFF',
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   filterButton: {
     flex: 1,
     paddingVertical: 10,
     borderRadius: 8,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     alignItems: 'center',
   },
   filterButtonActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   filterText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   filterTextActive: {
     color: '#FFF',
@@ -412,12 +413,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginTop: 16,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 8,
     textAlign: 'center',
   },
@@ -443,7 +444,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginRight: 8,
   },
   statusBadge: {
@@ -473,24 +474,24 @@ const styles = StyleSheet.create({
   },
   detailText: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginLeft: 8,
   },
   reasonBox: {
     marginTop: 12,
     padding: 12,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderRadius: 8,
   },
   reasonLabel: {
     fontSize: 12,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 4,
   },
   reasonText: {
     fontSize: 14,
-    color: COLORS.text,
+    color: colors.text,
     lineHeight: 20,
   },
   actionButtons: {
@@ -508,17 +509,17 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   denyButton: {
-    backgroundColor: COLORS.error + '15',
+    backgroundColor: colors.error + '15',
     borderWidth: 1,
-    borderColor: COLORS.error + '30',
+    borderColor: colors.error + '30',
   },
   denyButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.error,
+    color: colors.error,
   },
   approveButton: {
-    backgroundColor: COLORS.success,
+    backgroundColor: colors.success,
   },
   approveButtonText: {
     fontSize: 14,

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useI18n } from '../contexts/I18nContext';
 import { getCategoryLabel } from '../lib/categories';
+import { useTheme } from '../contexts/ThemeContext';
 
 export const CATEGORIES = [
   'Music',
@@ -36,15 +37,9 @@ interface CategoryChipsProps {
   onCategoryToggle: (category: string) => void;
 }
 
-const COLORS = {
-  primary: '#000000',
-  secondary: '#666666',
-  background: '#F5F5F5',
-  white: '#FFFFFF',
-  border: '#E0E0E0',
-};
 
 export function CategoryChips({ selectedCategories, onCategoryToggle }: CategoryChipsProps) {
+  const { colors } = useTheme();
   const { t } = useI18n();
   return (
     <View style={styles.container}>
@@ -95,13 +90,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   chipActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   emoji: {
     fontSize: 14,
@@ -109,9 +104,9 @@ const styles = StyleSheet.create({
   chipText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.secondary,
+    color: colors.secondary,
   },
   chipTextActive: {
-    color: COLORS.white,
+    color: colors.white,
   },
 });

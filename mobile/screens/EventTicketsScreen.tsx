@@ -18,7 +18,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import { ArrowLeft } from 'lucide-react-native';
 import TicketPassCard from '../components/TicketPassCard';
 import QRCodeModal from '../components/QRCodeModal';
@@ -27,6 +27,7 @@ import TransferTicketModal from '../components/TransferTicketModal';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function EventTicketsScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
   const { eventId } = route.params;
   const { user } = useAuth();
   const { t } = useI18n();
@@ -113,7 +114,7 @@ export default function EventTicketsScreen({ route, navigation }: any) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </SafeAreaView>
     );
@@ -124,7 +125,7 @@ export default function EventTicketsScreen({ route, navigation }: any) {
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <ArrowLeft size={24} color={COLORS.text} />
+            <ArrowLeft size={24} color={colors.text} />
           </TouchableOpacity>
         </View>
         <View style={styles.emptyContainer}>

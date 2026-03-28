@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 
 export interface TicketAvailabilityBarProps {
@@ -14,6 +14,7 @@ export default function TicketAvailabilityBar({
   ticketsSold,
   style,
 }: TicketAvailabilityBarProps) {
+  const { colors } = useTheme();
   const { t } = useI18n();
   const remainingTickets = Math.max(0, totalTickets - ticketsSold);
   const percentageSold = totalTickets > 0 ? (ticketsSold / totalTickets) * 100 : 0;
@@ -24,10 +25,10 @@ export default function TicketAvailabilityBar({
   if (totalTickets === 0) return null;
 
   const getBarColor = () => {
-    if (isSoldOut) return COLORS.error;
-    if (isAlmostSoldOut) return COLORS.warning;
-    if (percentageSold > 70) return COLORS.secondary;
-    return COLORS.success;
+    if (isSoldOut) return colors.error;
+    if (isAlmostSoldOut) return colors.warning;
+    if (percentageSold > 70) return colors.secondary;
+    return colors.success;
   };
 
   const getStatusText = () => {
@@ -84,7 +85,7 @@ const styles = StyleSheet.create({
   },
   barBackground: {
     height: 6,
-    backgroundColor: COLORS.borderLight,
+    backgroundColor: colors.borderLight,
     borderRadius: 3,
     overflow: 'hidden',
   },
@@ -104,6 +105,6 @@ const styles = StyleSheet.create({
   },
   soldText: {
     fontSize: 11,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
 });

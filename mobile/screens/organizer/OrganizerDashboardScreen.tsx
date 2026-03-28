@@ -12,7 +12,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect, CommonActions } from '@react-navigation/native';
-import { COLORS } from '../../config/brand';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import {
@@ -23,6 +23,7 @@ import {
 } from '../../lib/api/organizer';
 
 export default function OrganizerDashboardScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation<any>();
   const { userProfile } = useAuth();
   const { t } = useI18n();
@@ -70,7 +71,7 @@ export default function OrganizerDashboardScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>{t('organizerDashboard.loading')}</Text>
       </View>
     );
@@ -78,7 +79,7 @@ export default function OrganizerDashboardScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
       {/* Fixed Header */}
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <Text style={styles.headerTitle}>{t('organizerDashboard.title')}</Text>
@@ -93,7 +94,7 @@ export default function OrganizerDashboardScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={COLORS.primary}
+            tintColor={colors.primary}
           />
         }
       >
@@ -102,7 +103,7 @@ export default function OrganizerDashboardScreen() {
         <Text style={styles.sectionTitle}>{t('organizerDashboard.todaysEvents')}</Text>
         {todayEvents.length === 0 ? (
           <View style={styles.emptyState}>
-            <Ionicons name="calendar-outline" size={48} color={COLORS.textSecondary} />
+            <Ionicons name="calendar-outline" size={48} color={colors.textSecondary} />
             <Text style={styles.emptyText}>{t('organizerDashboard.noEventsToday')}</Text>
           </View>
         ) : (
@@ -128,18 +129,18 @@ export default function OrganizerDashboardScreen() {
                       navigation.navigate('TicketScanner', { eventId: event.id });
                     }}
                   >
-                    <Ionicons name="qr-code-outline" size={20} color={COLORS.primary} />
+                    <Ionicons name="qr-code-outline" size={20} color={colors.primary} />
                     <Text style={styles.scanButtonText}>{t('tabs.scan')}</Text>
                   </TouchableOpacity>
                 </View>
                 
                 <View style={styles.eventDetails}>
                   <View style={styles.eventDetailRow}>
-                    <Ionicons name="time-outline" size={16} color={COLORS.textSecondary} />
+                    <Ionicons name="time-outline" size={16} color={colors.textSecondary} />
                     <Text style={styles.eventDetailText}>{eventTime}</Text>
                   </View>
                   <View style={styles.eventDetailRow}>
-                    <Ionicons name="location-outline" size={16} color={COLORS.textSecondary} />
+                    <Ionicons name="location-outline" size={16} color={colors.textSecondary} />
                     <Text style={styles.eventDetailText}>{event.location}</Text>
                   </View>
                 </View>
@@ -169,7 +170,7 @@ export default function OrganizerDashboardScreen() {
             onPress={() => navigation.navigate('OrganizerAnalytics')}
             activeOpacity={0.7}
           >
-            <Ionicons name="ticket-outline" size={32} color={COLORS.primary} />
+            <Ionicons name="ticket-outline" size={32} color={colors.primary} />
             <Text style={styles.statCardValue}>{stats?.ticketsSold || 0}</Text>
             <Text style={styles.statCardLabel}>{t('organizerDashboard.ticketsSold')}</Text>
           </TouchableOpacity>
@@ -178,7 +179,7 @@ export default function OrganizerDashboardScreen() {
             onPress={() => navigation.getParent()?.navigate('MyEvents')}
             activeOpacity={0.7}
           >
-            <Ionicons name="checkmark-circle-outline" size={32} color={COLORS.success} />
+            <Ionicons name="checkmark-circle-outline" size={32} color={colors.success} />
             <Text style={styles.statCardValue}>{stats?.upcomingEvents || 0}</Text>
             <Text style={styles.statCardLabel}>{t('organizerDashboard.upcomingEvents')}</Text>
           </TouchableOpacity>
@@ -187,7 +188,7 @@ export default function OrganizerDashboardScreen() {
             onPress={() => navigation.navigate('OrganizerAnalytics')}
             activeOpacity={0.7}
           >
-            <Ionicons name="cash-outline" size={32} color={COLORS.primary} />
+            <Ionicons name="cash-outline" size={32} color={colors.primary} />
             <Text style={styles.statCardValue}>${(stats?.revenue || 0).toFixed(2)}</Text>
             <Text style={styles.statCardLabel}>{t('organizerDashboard.revenue')}</Text>
           </TouchableOpacity>
@@ -196,7 +197,7 @@ export default function OrganizerDashboardScreen() {
             onPress={() => navigation.getParent()?.navigate('MyEvents')}
             activeOpacity={0.7}
           >
-            <Ionicons name="document-text-outline" size={32} color={COLORS.textSecondary} />
+            <Ionicons name="document-text-outline" size={32} color={colors.textSecondary} />
             <Text style={styles.statCardValue}>{stats?.draftEvents || 0}</Text>
             <Text style={styles.statCardLabel}>{t('organizerDashboard.drafts')}</Text>
           </TouchableOpacity>
@@ -211,28 +212,28 @@ export default function OrganizerDashboardScreen() {
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('OrganizerAnalytics')}
           >
-            <Ionicons name="bar-chart-outline" size={24} color={COLORS.primary} />
+            <Ionicons name="bar-chart-outline" size={24} color={colors.primary} />
             <Text style={styles.quickActionText}>{t('organizerDashboard.analytics') || 'Analytics'}</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('OrganizerRefunds')}
           >
-            <Ionicons name="refresh-outline" size={24} color={COLORS.primary} />
+            <Ionicons name="refresh-outline" size={24} color={colors.primary} />
             <Text style={styles.quickActionText}>{t('organizerDashboard.refunds') || 'Refunds'}</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('OrganizerPayoutSettings')}
           >
-            <Ionicons name="wallet-outline" size={24} color={COLORS.primary} />
+            <Ionicons name="wallet-outline" size={24} color={colors.primary} />
             <Text style={styles.quickActionText}>{t('organizerDashboard.payouts') || 'Payouts'}</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('CreateEvent')}
           >
-            <Ionicons name="add-circle-outline" size={24} color={COLORS.primary} />
+            <Ionicons name="add-circle-outline" size={24} color={colors.primary} />
             <Text style={styles.quickActionText}>{t('organizerDashboard.createEvent') || 'Create'}</Text>
           </TouchableOpacity>
         </View>
@@ -245,7 +246,7 @@ export default function OrganizerDashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   scrollContent: {
     flex: 1,
@@ -254,27 +255,27 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   header: {
     padding: 20,
     paddingTop: 16,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: COLORS.white,
+    color: colors.white,
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: COLORS.white,
+    color: colors.white,
     opacity: 0.9,
   },
   section: {
@@ -283,7 +284,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 16,
   },
   emptyState: {
@@ -292,11 +293,11 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 12,
   },
   eventCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -315,19 +316,19 @@ const styles = StyleSheet.create({
   eventTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     flex: 1,
   },
   scanButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: colors.primaryLight,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
   },
   scanButtonText: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
     marginLeft: 4,
   },
@@ -341,7 +342,7 @@ const styles = StyleSheet.create({
   },
   eventDetailText: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginLeft: 6,
   },
   eventStats: {
@@ -349,7 +350,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
   },
   statItem: {
     alignItems: 'center',
@@ -357,11 +358,11 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
   },
   statLabel: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 2,
   },
   statsGrid: {
@@ -371,7 +372,7 @@ const styles = StyleSheet.create({
   },
   statCard: {
     width: '48%',
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
     margin: '1%',
@@ -385,12 +386,12 @@ const styles = StyleSheet.create({
   statCardValue: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginTop: 8,
   },
   statCardLabel: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 4,
     textAlign: 'center',
   },
@@ -401,7 +402,7 @@ const styles = StyleSheet.create({
   },
   quickActionButton: {
     width: '48%',
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
     margin: '1%',
@@ -417,7 +418,7 @@ const styles = StyleSheet.create({
   quickActionText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginLeft: 8,
   },
 });

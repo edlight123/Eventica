@@ -12,7 +12,7 @@ import {
   Share,
 } from 'react-native';
 import { X, Send, Copy, AlertCircle } from 'lucide-react-native';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface TransferTicketModalProps {
   visible: boolean;
@@ -31,6 +31,7 @@ export default function TransferTicketModal({
   transferCount = 0,
   onTransferSuccess,
 }: TransferTicketModalProps) {
+  const { colors } = useTheme();
   const [toEmail, setToEmail] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -153,7 +154,7 @@ export default function TransferTicketModal({
           <View style={styles.header}>
             <Text style={styles.title}>Transfer Ticket</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <X size={24} color={COLORS.text} />
+              <X size={24} color={colors.text} />
             </TouchableOpacity>
           </View>
 
@@ -199,7 +200,7 @@ export default function TransferTicketModal({
                       emailError && styles.inputError
                     ]}
                     placeholder="friend@example.com"
-                    placeholderTextColor={COLORS.textSecondary}
+                    placeholderTextColor={colors.textSecondary}
                     value={toEmail}
                     onChangeText={(text) => {
                       setToEmail(text);
@@ -221,7 +222,7 @@ export default function TransferTicketModal({
                   <TextInput
                     style={[styles.input, styles.textArea]}
                     placeholder="Add a personal message..."
-                    placeholderTextColor={COLORS.textSecondary}
+                    placeholderTextColor={colors.textSecondary}
                     value={message}
                     onChangeText={setMessage}
                     multiline
@@ -284,7 +285,7 @@ export default function TransferTicketModal({
                     {transferLink}
                   </Text>
                   <TouchableOpacity onPress={handleCopyLink} style={styles.copyButton}>
-                    <Copy size={20} color={COLORS.primary} />
+                    <Copy size={20} color={colors.primary} />
                   </TouchableOpacity>
                 </View>
 
@@ -331,7 +332,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '90%',
@@ -342,12 +343,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   title: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   closeButton: {
     padding: 4,
@@ -357,13 +358,13 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 16,
     lineHeight: 20,
   },
   bold: {
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   infoBox: {
     backgroundColor: '#EFF6FF',
@@ -401,18 +402,18 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 15,
-    color: COLORS.text,
+    color: colors.text,
   },
   inputError: {
     borderColor: '#DC2626',
@@ -453,17 +454,17 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   cancelButton: {
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   cancelButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   transferButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   transferButtonText: {
     fontSize: 16,
@@ -485,20 +486,20 @@ const styles = StyleSheet.create({
   successTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   successText: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   linkBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderRadius: 12,
     padding: 12,
     marginBottom: 16,
@@ -507,7 +508,7 @@ const styles = StyleSheet.create({
   linkText: {
     flex: 1,
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   copyButton: {
     padding: 8,
@@ -525,7 +526,7 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   doneButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   doneButtonText: {
     fontSize: 16,

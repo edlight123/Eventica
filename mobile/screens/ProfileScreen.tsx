@@ -22,7 +22,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useAppMode } from '../contexts/AppModeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useFilters } from '../contexts/FiltersContext';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import { db, isDemoMode, storage } from '../config/firebase';
 import { getStaffEventIds } from '../lib/staffAssignments';
 import { getVerificationRequest, type VerificationRequest } from '../lib/verification';
@@ -32,6 +32,7 @@ import { CITIES_BY_COUNTRY, COUNTRIES } from '../types/filters';
 const WEBSITE_BASE_URL = 'https://joineventica.com';
 
 export default function ProfileScreen() {
+  const { colors } = useTheme();
   const navigation: any = useNavigation();
   const { user, userProfile, signOut, updateUserProfile, refreshUserProfile } = useAuth();
   const { mode, setMode } = useAppMode();
@@ -336,7 +337,7 @@ export default function ProfileScreen() {
   if (!user) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
-        <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
+        <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
         <View style={styles.centerEmpty}>
           <Text style={styles.emptyTitle}>{t('auth.loginRequiredTitle')}</Text>
           <Text style={styles.emptyBody}>{t('tickets.loginRequiredBody')}</Text>
@@ -347,7 +348,7 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={[]}>
-      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
+      <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
 
       <View
         style={[styles.header, { top: insets.top, paddingTop: 8 }]}
@@ -362,7 +363,7 @@ export default function ProfileScreen() {
           onPress={() => setIsEditing((v) => !v)}
           accessibilityLabel={t('profile.edit')}
         >
-          <Settings size={22} color={COLORS.text} />
+          <Settings size={22} color={colors.text} />
         </TouchableOpacity>
       </View>
 
@@ -390,7 +391,7 @@ export default function ProfileScreen() {
                 <Image source={{ uri: userProfile.photo_url }} style={styles.avatarImage} />
               ) : (
                 <View style={styles.avatarFallback}>
-                  <User size={30} color={COLORS.textSecondary} />
+                  <User size={30} color={colors.textSecondary} />
                 </View>
               )}
             </TouchableOpacity>
@@ -408,7 +409,7 @@ export default function ProfileScreen() {
               </View>
 
               <View style={styles.locationRow}>
-                <MapPin size={14} color={COLORS.textSecondary} />
+                <MapPin size={14} color={colors.textSecondary} />
                 <Text style={styles.locationText} numberOfLines={1}>
                   {locationLabel}
                 </Text>
@@ -443,7 +444,7 @@ export default function ProfileScreen() {
                 value={editedName}
                 onChangeText={setEditedName}
                 placeholder={t('profile.placeholders.name')}
-                placeholderTextColor={COLORS.textTertiary}
+                placeholderTextColor={colors.textTertiary}
               />
 
               <Text style={styles.fieldLabel}>{t('profile.phone')}</Text>
@@ -468,7 +469,7 @@ export default function ProfileScreen() {
                   value={phoneDigits}
                   onChangeText={(value) => setPhoneDigits(value.replace(/\D/g, ''))}
                   placeholder={t('profile.placeholders.phone')}
-                  placeholderTextColor={COLORS.textTertiary}
+                  placeholderTextColor={colors.textTertiary}
                   keyboardType="phone-pad"
                 />
               </View>
@@ -481,7 +482,7 @@ export default function ProfileScreen() {
                 <Text style={styles.countrySelectorText}>
                   {COUNTRIES.find(c => c.code === editedCountry)?.name || 'Select Country'}
                 </Text>
-                <ChevronDown size={20} color={COLORS.textSecondary} />
+                <ChevronDown size={20} color={colors.textSecondary} />
               </TouchableOpacity>
               
               {showCountryPicker && (
@@ -524,7 +525,7 @@ export default function ProfileScreen() {
                   setTimeout(() => setShowCitySuggestions(false), 120);
                 }}
                 placeholder={t('profile.placeholders.city')}
-                placeholderTextColor={COLORS.textTertiary}
+                placeholderTextColor={colors.textTertiary}
               />
 
               {showCitySuggestions && filteredCities.length ? (
@@ -590,18 +591,18 @@ export default function ProfileScreen() {
           {canUseOrganizerMode ? (
             <TouchableOpacity style={styles.rowButton} onPress={() => navigation.navigate('CreateEvent')}>
               <View style={styles.rowLeft}>
-                <Briefcase size={18} color={COLORS.primary} />
+                <Briefcase size={18} color={colors.primary} />
                 <Text style={styles.rowText}>{t('profile.createEvent')}</Text>
               </View>
-              <ExternalLink size={18} color={COLORS.textSecondary} />
+              <ExternalLink size={18} color={colors.textSecondary} />
             </TouchableOpacity>
           ) : (
             <TouchableOpacity style={styles.rowButton} onPress={() => navigation.navigate('OrganizerVerification')}>
               <View style={styles.rowLeft}>
-                <Briefcase size={18} color={COLORS.primary} />
+                <Briefcase size={18} color={colors.primary} />
                 <Text style={styles.rowText}>{t('profile.becomeOrganizer')}</Text>
               </View>
-              <ExternalLink size={18} color={COLORS.textSecondary} />
+              <ExternalLink size={18} color={colors.textSecondary} />
             </TouchableOpacity>
           )}
 
@@ -635,10 +636,10 @@ export default function ProfileScreen() {
 
           <TouchableOpacity style={styles.rowButton} onPress={() => openWebUrl(`${WEBSITE_BASE_URL}/support`)}>
             <View style={styles.rowLeft}>
-              <ExternalLink size={18} color={COLORS.primary} />
+              <ExternalLink size={18} color={colors.primary} />
               <Text style={styles.rowText}>{t('profile.helpCenter')}</Text>
             </View>
-            <ExternalLink size={18} color={COLORS.textSecondary} />
+            <ExternalLink size={18} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
 
@@ -647,26 +648,26 @@ export default function ProfileScreen() {
 
           <TouchableOpacity style={styles.rowButton} onPress={() => openWebUrl(`${WEBSITE_BASE_URL}/legal/terms`)}>
             <View style={styles.rowLeft}>
-              <ExternalLink size={18} color={COLORS.primary} />
+              <ExternalLink size={18} color={colors.primary} />
               <Text style={styles.rowText}>{t('profile.terms')}</Text>
             </View>
-            <ExternalLink size={18} color={COLORS.textSecondary} />
+            <ExternalLink size={18} color={colors.textSecondary} />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.rowButton} onPress={() => openWebUrl(`${WEBSITE_BASE_URL}/legal/privacy`)}>
             <View style={styles.rowLeft}>
-              <ExternalLink size={18} color={COLORS.primary} />
+              <ExternalLink size={18} color={colors.primary} />
               <Text style={styles.rowText}>{t('profile.privacy')}</Text>
             </View>
-            <ExternalLink size={18} color={COLORS.textSecondary} />
+            <ExternalLink size={18} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
 
         <View style={styles.sectionCard}>
           <TouchableOpacity style={styles.rowButton} onPress={confirmSignOut}>
             <View style={styles.rowLeft}>
-              <LogOut size={18} color={COLORS.error} />
-              <Text style={[styles.rowText, { color: COLORS.error }]}>{t('profile.signOut')}</Text>
+              <LogOut size={18} color={colors.error} />
+              <Text style={[styles.rowText, { color: colors.error }]}>{t('profile.signOut')}</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -680,7 +681,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   header: {
     position: 'absolute',
@@ -690,9 +691,9 @@ const styles = StyleSheet.create({
     zIndex: 20,
     paddingHorizontal: 16,
     paddingBottom: 10,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderLight,
+    borderBottomColor: colors.borderLight,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -700,7 +701,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   headerIconButton: {
     padding: 8,
@@ -730,20 +731,20 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: COLORS.borderLight,
-    backgroundColor: COLORS.surface,
+    borderColor: colors.borderLight,
+    backgroundColor: colors.surface,
   },
   prefixPillActive: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.primary,
+    borderColor: colors.primary,
+    backgroundColor: colors.primary,
   },
   prefixPillText: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   prefixPillTextActive: {
-    color: COLORS.surface,
+    color: colors.surface,
   },
   phoneInput: {
     flex: 1,
@@ -753,26 +754,26 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: COLORS.borderLight,
-    backgroundColor: COLORS.surface,
+    borderColor: colors.borderLight,
+    backgroundColor: colors.surface,
   },
   suggestionRow: {
     paddingHorizontal: 12,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderLight,
+    borderBottomColor: colors.borderLight,
   },
   suggestionText: {
     fontSize: 14,
-    color: COLORS.text,
+    color: colors.text,
   },
   countrySelector: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: COLORS.borderLight,
+    borderColor: colors.borderLight,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 14,
@@ -780,39 +781,39 @@ const styles = StyleSheet.create({
   },
   countrySelectorText: {
     fontSize: 15,
-    color: COLORS.text,
+    color: colors.text,
   },
   countryList: {
     marginBottom: 12,
     borderRadius: 12,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: COLORS.borderLight,
-    backgroundColor: COLORS.surface,
+    borderColor: colors.borderLight,
+    backgroundColor: colors.surface,
   },
   countryOption: {
     paddingHorizontal: 14,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderLight,
+    borderBottomColor: colors.borderLight,
   },
   countryOptionActive: {
-    backgroundColor: `${COLORS.primary}15`,
+    backgroundColor: `${colors.primary}15`,
   },
   countryOptionText: {
     fontSize: 15,
-    color: COLORS.text,
+    color: colors.text,
   },
   countryOptionTextActive: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
   },
   card: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: COLORS.borderLight,
+    borderColor: colors.borderLight,
   },
   profileRow: {
     flexDirection: 'row',
@@ -824,8 +825,8 @@ const styles = StyleSheet.create({
     borderRadius: 36,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: COLORS.borderLight,
-    backgroundColor: COLORS.borderLight,
+    borderColor: colors.borderLight,
+    backgroundColor: colors.borderLight,
     marginRight: 12,
   },
   avatarImage: {
@@ -836,7 +837,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.borderLight,
+    backgroundColor: colors.borderLight,
   },
   profileMeta: {
     flex: 1,
@@ -851,18 +852,18 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   badge: {
-    backgroundColor: COLORS.successLight,
+    backgroundColor: colors.successLight,
     borderRadius: 999,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderWidth: 1,
-    borderColor: COLORS.success,
+    borderColor: colors.success,
   },
   badgeText: {
-    color: COLORS.success,
+    color: colors.success,
     fontSize: 12,
     fontWeight: '700',
   },
@@ -875,12 +876,12 @@ const styles = StyleSheet.create({
   locationText: {
     flex: 1,
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   editHint: {
     marginTop: 8,
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   statsRow: {
     marginTop: 16,
@@ -888,7 +889,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderTopWidth: 1,
-    borderTopColor: COLORS.borderLight,
+    borderTopColor: colors.borderLight,
     paddingTop: 14,
   },
   statItem: {
@@ -898,17 +899,17 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 18,
     fontWeight: '800',
-    color: COLORS.text,
+    color: colors.text,
   },
   statLabel: {
     marginTop: 2,
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   statDivider: {
     width: 1,
     height: 30,
-    backgroundColor: COLORS.borderLight,
+    backgroundColor: colors.borderLight,
   },
   editForm: {
     marginTop: 16,
@@ -918,16 +919,16 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   input: {
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    color: COLORS.text,
-    backgroundColor: COLORS.white,
+    color: colors.text,
+    backgroundColor: colors.white,
   },
   editActionsRow: {
     marginTop: 14,
@@ -941,28 +942,28 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: 'center',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   primaryButtonText: {
-    color: COLORS.white,
+    color: colors.white,
     fontWeight: '700',
   },
   secondaryButton: {
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: 'center',
-    backgroundColor: COLORS.borderLight,
+    backgroundColor: colors.borderLight,
   },
   secondaryButtonText: {
-    color: COLORS.text,
+    color: colors.text,
     fontWeight: '700',
   },
   sectionCard: {
     marginTop: 12,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: COLORS.borderLight,
+    borderColor: colors.borderLight,
     overflow: 'hidden',
   },
   sectionTitle: {
@@ -971,7 +972,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     fontSize: 14,
     fontWeight: '800',
-    color: COLORS.text,
+    color: colors.text,
   },
   languageRow: {
     flexDirection: 'row',
@@ -984,25 +985,25 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.white,
+    borderColor: colors.border,
+    backgroundColor: colors.white,
   },
   pillActive: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.primaryLight,
+    borderColor: colors.primary,
+    backgroundColor: colors.primaryLight,
   },
   pillText: {
     fontWeight: '800',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   pillTextActive: {
-    color: COLORS.white,
+    color: colors.white,
   },
   rowButton: {
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderTopWidth: 1,
-    borderTopColor: COLORS.borderLight,
+    borderTopColor: colors.borderLight,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -1015,7 +1016,7 @@ const styles = StyleSheet.create({
   rowText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   centerEmpty: {
     flex: 1,
@@ -1026,13 +1027,13 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
     textAlign: 'center',
   },
   emptyBody: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
 });

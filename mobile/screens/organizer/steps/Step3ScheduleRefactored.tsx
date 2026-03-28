@@ -26,7 +26,7 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '../../../config/brand';
+import { useTheme } from '../../../contexts/ThemeContext';
 import { useI18n } from '../../../contexts/I18nContext';
 import type { EventDraft } from '../CreateEventFlowRefactored';
 
@@ -36,6 +36,7 @@ interface Props {
 }
 
 export default function Step3ScheduleRefactored({ draft, updateDraft }: Props) {
+  const { colors } = useTheme();
   const { t } = useI18n();
 
   // Picker visibility state
@@ -225,7 +226,7 @@ export default function Step3ScheduleRefactored({ draft, updateDraft }: Props) {
                   mode="date"
                   display="spinner"
                   onChange={onChange}
-                  textColor={COLORS.text}
+                  textColor={colors.text}
                   minimumDate={minimumDate}
                 />
               </View>
@@ -304,7 +305,7 @@ export default function Step3ScheduleRefactored({ draft, updateDraft }: Props) {
                   is24Hour={false}
                   display="spinner"
                   onChange={onChange}
-                  textColor={COLORS.text}
+                  textColor={colors.text}
                 />
               </View>
             </View>
@@ -330,7 +331,7 @@ export default function Step3ScheduleRefactored({ draft, updateDraft }: Props) {
               setShowStartDate(true);
             }}
           >
-            <Ionicons name="calendar-outline" size={20} color={COLORS.primary} />
+            <Ionicons name="calendar-outline" size={20} color={colors.primary} />
             <Text style={styles.inputText}>
               {draft.start_date || t('organizerCreateEvent.schedule.selectDate')}
             </Text>
@@ -354,7 +355,7 @@ export default function Step3ScheduleRefactored({ draft, updateDraft }: Props) {
               setShowStartTime(true);
             }}
           >
-            <Ionicons name="time-outline" size={20} color={COLORS.primary} />
+            <Ionicons name="time-outline" size={20} color={colors.primary} />
             <Text style={styles.inputText}>
               {draft.start_time || t('organizerCreateEvent.schedule.selectTime')}
             </Text>
@@ -382,7 +383,7 @@ export default function Step3ScheduleRefactored({ draft, updateDraft }: Props) {
               setShowEndDate(true);
             }}
           >
-            <Ionicons name="calendar-outline" size={20} color={COLORS.primary} />
+            <Ionicons name="calendar-outline" size={20} color={colors.primary} />
             <Text style={styles.inputText}>
               {draft.end_date || t('organizerCreateEvent.schedule.selectDate')}
             </Text>
@@ -407,7 +408,7 @@ export default function Step3ScheduleRefactored({ draft, updateDraft }: Props) {
               setShowEndTime(true);
             }}
           >
-            <Ionicons name="time-outline" size={20} color={COLORS.primary} />
+            <Ionicons name="time-outline" size={20} color={colors.primary} />
             <Text style={styles.inputText}>
               {draft.end_time || t('organizerCreateEvent.schedule.selectTime')}
             </Text>
@@ -427,14 +428,14 @@ export default function Step3ScheduleRefactored({ draft, updateDraft }: Props) {
       {/* Error message */}
       {errorKey && (
         <View style={styles.errorCard}>
-          <Ionicons name="alert-circle" size={20} color={COLORS.error} />
+          <Ionicons name="alert-circle" size={20} color={colors.error} />
           <Text style={styles.errorText}>{t(errorKey)}</Text>
         </View>
       )}
 
       {/* Timezone info */}
       <View style={styles.infoCard}>
-        <Ionicons name="information-circle-outline" size={20} color={COLORS.primary} />
+        <Ionicons name="information-circle-outline" size={20} color={colors.primary} />
         <Text style={styles.infoText}>
           {t('organizerCreateEvent.schedule.timezone')}: {draft.timezone}
         </Text>
@@ -484,11 +485,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   subtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: -8,
   },
   row: {
@@ -501,52 +502,52 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   inputButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderRadius: 12,
     padding: 14,
   },
   inputText: {
     flex: 1,
     fontSize: 15,
-    color: COLORS.text,
+    color: colors.text,
   },
   errorCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: COLORS.error + '10',
+    backgroundColor: colors.error + '10',
     padding: 12,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.error + '30',
+    borderColor: colors.error + '30',
   },
   errorText: {
     flex: 1,
     fontSize: 14,
-    color: COLORS.error,
+    color: colors.error,
     fontWeight: '500',
   },
   infoCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: COLORS.primary + '10',
+    backgroundColor: colors.primary + '10',
     padding: 12,
     borderRadius: 12,
   },
   infoText: {
     flex: 1,
     fontSize: 13,
-    color: COLORS.text,
+    color: colors.text,
   },
   
   // iOS Modal styles - CRITICAL for picker to work
@@ -559,7 +560,7 @@ const styles = StyleSheet.create({
     // SafeArea ensures content isn't cut off by notch/home indicator
   },
   modalContent: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     // No flex here - we want fixed height for picker container
@@ -571,25 +572,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   modalTitle: {
     fontSize: 17,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   modalButton: {
     fontSize: 17,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   modalButtonDone: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
   },
   // CRITICAL: Fixed height for picker - without this, picker has 0 height and is invisible/unresponsive
   pickerContainer: {
     height: 240, // Fixed height ensures picker renders properly
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     paddingBottom: Platform.OS === 'ios' ? 20 : 0,
   },
 });

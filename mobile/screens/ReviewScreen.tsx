@@ -13,13 +13,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import { format } from 'date-fns';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { backendFetch } from '../lib/api/backend';
 
 export default function ReviewScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
   const { ticketId, eventId, eventTitle } = route.params;
   const { user } = useAuth();
   const { t } = useI18n();
@@ -121,7 +122,7 @@ export default function ReviewScreen({ route, navigation }: any) {
             <Ionicons
               name={star <= currentRating ? 'star' : 'star-outline'}
               size={36}
-              color={star <= currentRating ? '#FFB800' : COLORS.border}
+              color={star <= currentRating ? '#FFB800' : colors.border}
             />
           </TouchableOpacity>
         ))}
@@ -139,7 +140,7 @@ export default function ReviewScreen({ route, navigation }: any) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </SafeAreaView>
     );
@@ -151,7 +152,7 @@ export default function ReviewScreen({ route, navigation }: any) {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color={COLORS.text} />
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>
             {existingReview ? (t('review.editTitle') || 'Edit Review') : (t('review.title') || 'Leave a Review')}
@@ -189,7 +190,7 @@ export default function ReviewScreen({ route, navigation }: any) {
               <Ionicons
                 name="thumbs-up"
                 size={24}
-                color={wouldRecommend === true ? '#FFF' : COLORS.success}
+                color={wouldRecommend === true ? '#FFF' : colors.success}
               />
               <Text style={[
                 styles.recommendButtonText,
@@ -208,7 +209,7 @@ export default function ReviewScreen({ route, navigation }: any) {
               <Ionicons
                 name="thumbs-down"
                 size={24}
-                color={wouldRecommend === false ? '#FFF' : COLORS.error}
+                color={wouldRecommend === false ? '#FFF' : colors.error}
               />
               <Text style={[
                 styles.recommendButtonText,
@@ -226,7 +227,7 @@ export default function ReviewScreen({ route, navigation }: any) {
           <TextInput
             style={styles.commentInput}
             placeholder={t('review.commentPlaceholder') || 'What did you enjoy? Any suggestions?'}
-            placeholderTextColor={COLORS.textSecondary}
+            placeholderTextColor={colors.textSecondary}
             value={comment}
             onChangeText={setComment}
             multiline
@@ -262,7 +263,7 @@ export default function ReviewScreen({ route, navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   scrollView: {
     flex: 1,
@@ -279,7 +280,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   backButton: {
     padding: 8,
@@ -287,7 +288,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   eventCard: {
     margin: 16,
@@ -303,11 +304,11 @@ const styles = StyleSheet.create({
   eventTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   eventDate: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 4,
   },
   ratingSection: {
@@ -321,7 +322,7 @@ const styles = StyleSheet.create({
   ratingLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 16,
     textAlign: 'center',
   },
@@ -335,7 +336,7 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 8,
   },
   recommendSection: {
@@ -357,21 +358,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     gap: 8,
   },
   recommendButtonSelected: {
-    backgroundColor: COLORS.success,
-    borderColor: COLORS.success,
+    backgroundColor: colors.success,
+    borderColor: colors.success,
   },
   recommendButtonSelectedNo: {
-    backgroundColor: COLORS.error,
-    borderColor: COLORS.error,
+    backgroundColor: colors.error,
+    borderColor: colors.error,
   },
   recommendButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   recommendButtonTextSelected: {
     color: '#FFF',
@@ -385,14 +386,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     fontSize: 15,
-    color: COLORS.text,
+    color: colors.text,
     minHeight: 120,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   charCount: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'right',
     marginTop: 4,
   },
@@ -403,7 +404,7 @@ const styles = StyleSheet.create({
     margin: 16,
     marginTop: 8,
     padding: 16,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 12,
   },
   submitButtonDisabled: {

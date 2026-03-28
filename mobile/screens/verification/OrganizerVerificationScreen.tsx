@@ -12,7 +12,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS } from '../../config/brand';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import {
@@ -25,6 +25,7 @@ import {
 type Step = 'overview' | 'organizerInfo' | 'governmentId' | 'selfie' | 'review';
 
 export default function OrganizerVerificationScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation();
   const { userProfile } = useAuth();
   const { t } = useI18n();
@@ -92,17 +93,17 @@ export default function OrganizerVerificationScreen() {
   const renderStepIcon = (stepId: keyof VerificationRequest['steps']) => {
     const status = getStepStatus(stepId);
     if (status === 'complete') {
-      return <Ionicons name="checkmark-circle" size={24} color={COLORS.success} />;
+      return <Ionicons name="checkmark-circle" size={24} color={colors.success} />;
     } else if (status === 'needs_attention') {
-      return <Ionicons name="alert-circle" size={24} color={COLORS.warning} />;
+      return <Ionicons name="alert-circle" size={24} color={colors.warning} />;
     }
-    return <Ionicons name="ellipse-outline" size={24} color={COLORS.textSecondary} />;
+    return <Ionicons name="ellipse-outline" size={24} color={colors.textSecondary} />;
   };
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>{t('verification.organizerVerification.loading')}</Text>
       </View>
     );
@@ -111,7 +112,7 @@ export default function OrganizerVerificationScreen() {
   if (!request) {
     return (
       <View style={styles.errorContainer}>
-        <Ionicons name="alert-circle-outline" size={64} color={COLORS.error} />
+        <Ionicons name="alert-circle-outline" size={64} color={colors.error} />
         <Text style={styles.errorText}>{t('verification.organizerVerification.alerts.failedToLoad')}</Text>
         <TouchableOpacity style={styles.retryButton} onPress={loadVerificationRequest}>
           <Text style={styles.retryButtonText}>{t('common.retry')}</Text>
@@ -123,7 +124,7 @@ export default function OrganizerVerificationScreen() {
   if (currentStep === 'overview') {
     return (
       <ScrollView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor={COLORS.white} />
+        <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
 
         {/* Header */}
         <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
@@ -131,7 +132,7 @@ export default function OrganizerVerificationScreen() {
             style={styles.backButton}
             onPress={() => navigation.goBack()}
           >
-            <Ionicons name="arrow-back" size={24} color={COLORS.text} />
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{t('verification.organizerVerification.title')}</Text>
           <View style={{ width: 40 }} />
@@ -150,14 +151,14 @@ export default function OrganizerVerificationScreen() {
           </View>
           {request.status === 'pending' && (
             <View style={styles.statusBadge}>
-              <Ionicons name="time-outline" size={16} color={COLORS.warning} />
+              <Ionicons name="time-outline" size={16} color={colors.warning} />
               <Text style={styles.statusBadgeText}>{t('verification.organizerVerification.status.underReview')}</Text>
             </View>
           )}
           {request.status === 'approved' && (
-            <View style={[styles.statusBadge, { backgroundColor: COLORS.success + '20' }]}>
-              <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
-              <Text style={[styles.statusBadgeText, { color: COLORS.success }]}>
+            <View style={[styles.statusBadge, { backgroundColor: colors.success + '20' }]}>
+              <Ionicons name="checkmark-circle" size={16} color={colors.success} />
+              <Text style={[styles.statusBadgeText, { color: colors.success }]}>
                 {t('verification.organizerVerification.status.approved')}
               </Text>
             </View>
@@ -181,7 +182,7 @@ export default function OrganizerVerificationScreen() {
                 {t('verification.organizerVerification.steps.organizerInfo.description')}
               </Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
+            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -197,7 +198,7 @@ export default function OrganizerVerificationScreen() {
                 {t('verification.organizerVerification.steps.governmentId.description')}
               </Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
+            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -213,7 +214,7 @@ export default function OrganizerVerificationScreen() {
                 {t('verification.organizerVerification.steps.selfie.description')}
               </Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
+            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
 
@@ -256,7 +257,7 @@ export default function OrganizerVerificationScreen() {
 
         {request.status === 'pending' && (
           <View style={styles.pendingNotice}>
-            <Ionicons name="time-outline" size={24} color={COLORS.warning} />
+            <Ionicons name="time-outline" size={24} color={colors.warning} />
             <Text style={styles.pendingText}>
               {t('verification.organizerVerification.pendingNotice')}
             </Text>
@@ -281,30 +282,30 @@ export default function OrganizerVerificationScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     padding: 20,
   },
   errorText: {
     marginTop: 16,
     fontSize: 18,
-    color: COLORS.error,
+    color: colors.error,
     fontWeight: '600',
     textAlign: 'center',
   },
@@ -312,11 +313,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingHorizontal: 24,
     paddingVertical: 12,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 8,
   },
   retryButtonText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -326,9 +327,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     paddingTop: 16,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   backButton: {
     width: 40,
@@ -339,12 +340,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   statusCard: {
     margin: 16,
     padding: 20,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -361,22 +362,22 @@ const styles = StyleSheet.create({
   statusTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   statusPercentage: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   progressBar: {
     height: 8,
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
     borderRadius: 4,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 4,
   },
   statusBadge: {
@@ -384,14 +385,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 8,
-    backgroundColor: COLORS.warning + '20',
+    backgroundColor: colors.warning + '20',
     borderRadius: 8,
   },
   statusBadgeText: {
     marginLeft: 6,
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.warning,
+    color: colors.warning,
   },
   section: {
     margin: 16,
@@ -399,14 +400,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   stepCard: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     marginBottom: 12,
     shadowColor: '#000',
@@ -424,31 +425,31 @@ const styles = StyleSheet.create({
   stepTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   stepDescription: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   submitSection: {
     padding: 16,
   },
   submitButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
   },
   submitButtonText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: 16,
     fontWeight: '600',
   },
   pendingNotice: {
     margin: 16,
     padding: 16,
-    backgroundColor: COLORS.warning + '20',
+    backgroundColor: colors.warning + '20',
     borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
@@ -457,6 +458,6 @@ const styles = StyleSheet.create({
     marginLeft: 12,
     flex: 1,
     fontSize: 14,
-    color: COLORS.warning,
+    color: colors.warning,
   },
 });

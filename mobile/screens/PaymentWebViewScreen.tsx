@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { WebView } from 'react-native-webview'
-import { COLORS } from '../config/brand'
+import { useTheme } from '../contexts/ThemeContext';
 import { auth } from '../config/firebase'
 import { clearPendingPayment, setPendingPayment } from '../lib/pendingPayment'
 import { setTicketsRefreshHint } from '../lib/ticketsRefreshHint'
@@ -16,6 +16,7 @@ type Params = {
 }
 
 export default function PaymentWebViewScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation<any>()
   const route = useRoute<any>()
   const { url, authToken, title, eventId } = (route.params || {}) as Params
@@ -117,7 +118,7 @@ export default function PaymentWebViewScreen() {
   if (needsAuthHeader && !resolvedAuthToken) {
     return (
       <View style={styles.loadingOverlay}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     )
   }
@@ -159,7 +160,7 @@ export default function PaymentWebViewScreen() {
 
       {loading ? (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : null}
     </View>
@@ -169,11 +170,11 @@ export default function PaymentWebViewScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   center: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingOverlay: {
     position: 'absolute',
@@ -183,6 +184,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
 })

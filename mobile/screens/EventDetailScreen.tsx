@@ -36,7 +36,7 @@ import { doc, getDoc, collection, addDoc, Timestamp, query, where, getDocs, dele
 import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import { format } from 'date-fns';
 import EventStatusBadge from '../components/EventStatusBadge';
 import TicketAvailabilityBar from '../components/TicketAvailabilityBar';
@@ -47,6 +47,7 @@ import FreeTicketModal from '../components/FreeTicketModal';
 import AddToCalendarButton from '../components/AddToCalendarButton';
 import JoinWaitlistButton from '../components/JoinWaitlistButton';
 import FollowButton from '../components/FollowButton';
+import CountdownTimer from '../components/CountdownTimer';
 
 const { width } = Dimensions.get('window');
 
@@ -54,6 +55,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
   const { eventId } = route.params;
   const { user, userProfile } = useAuth();
   const { t } = useI18n();
+  const { colors } = useTheme();
   const [event, setEvent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(false);
@@ -272,7 +274,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.loadingText}>{t('eventDetail.loading')}</Text>
         </View>
       </SafeAreaView>
@@ -329,7 +331,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
             />
           ) : (
             <View style={styles.heroPlaceholder}>
-              <Tag size={48} color={COLORS.primary + '40'} />
+              <Tag size={48} color={colors.primary + '40'} />
             </View>
           )}
           
@@ -383,6 +385,11 @@ export default function EventDetailScreen({ route, navigation }: any) {
         <View style={styles.content}>
           {/* Event Details Section */}
           <Text style={styles.sectionTitleMain}>{t('eventDetail.sections.details')}</Text>
+
+          {/* Countdown to event */}
+          {event.start_datetime && new Date(event.start_datetime) > new Date() && (
+            <CountdownTimer targetDate={new Date(event.start_datetime)} />
+          )}
           
           <View style={styles.infoCards}>
             {/* Date & Time Card */}
@@ -408,7 +415,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
               onPress={openInMaps}
               activeOpacity={0.7}
             >
-              <View style={[styles.infoCardIcon, { backgroundColor: COLORS.primary }]}>
+              <View style={[styles.infoCardIcon, { backgroundColor: colors.primary }]}>
                 <MapPin size={20} color="#FFF" />
               </View>
               <View style={styles.infoCardContent}>
@@ -418,7 +425,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
                   {event.address || ''}{event.address && ', '}{event.city}
                 </Text>
               </View>
-              <ExternalLink size={16} color={COLORS.primary} />
+              <ExternalLink size={16} color={colors.primary} />
             </TouchableOpacity>
 
             {/* Tickets Availability Card with Progress Bar */}
@@ -517,7 +524,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
                     </View>
                   )}
                 </View>
-                <ChevronRight size={16} color={COLORS.textSecondary} />
+                <ChevronRight size={16} color={colors.textSecondary} />
               </TouchableOpacity>
               {event.organizer_id && (
                 <FollowButton 
@@ -531,7 +538,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
           {/* Venue Details Section */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <MapPin size={20} color={COLORS.primary} />
+              <MapPin size={20} color={colors.primary} />
               <Text style={styles.sectionTitle}>{t('eventDetail.sections.venueInfo')}</Text>
             </View>
             <View style={styles.venueDetails}>
@@ -553,7 +560,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
                   style={styles.mapLink}
                   onPress={() => Linking.openURL(`http://maps.apple.com/?q=${encodeURIComponent(event.address || `${event.venue_name}, ${event.city}`)}`)}
                 >
-                  <MapPin size={14} color={COLORS.primary} />
+                  <MapPin size={14} color={colors.primary} />
                   <Text style={styles.mapLinkText}>{t('eventDetail.maps.apple')}</Text>
                 </TouchableOpacity>
                 <Text style={styles.mapSeparator}>|</Text>
@@ -561,7 +568,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
                   style={styles.mapLink}
                   onPress={() => Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address || `${event.venue_name}, ${event.city}`)}`)}
                 >
-                  <MapPin size={14} color={COLORS.primary} />
+                  <MapPin size={14} color={colors.primary} />
                   <Text style={styles.mapLinkText}>{t('eventDetail.maps.google')}</Text>
                 </TouchableOpacity>
               </View>
@@ -571,7 +578,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
           {/* Date & Time Details Section */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Clock size={20} color={COLORS.primary} />
+              <Clock size={20} color={colors.primary} />
               <Text style={styles.sectionTitle}>{t('eventDetail.sections.dateAndTime')}</Text>
             </View>
             <View style={styles.dateDetails}>
@@ -722,7 +729,7 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -730,16 +737,16 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   errorText: {
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 20,
   },
   retryButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
@@ -763,7 +770,7 @@ const styles = StyleSheet.create({
   heroPlaceholder: {
     width: '100%',
     height: '100%',
-    backgroundColor: COLORS.primary + '15',
+    backgroundColor: colors.primary + '15',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -812,7 +819,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   categoryTextHero: {
-    color: COLORS.text,
+    color: colors.text,
     fontWeight: '600',
     fontSize: 12,
   },
@@ -833,7 +840,7 @@ const styles = StyleSheet.create({
   sectionTitleMain: {
     fontSize: 22,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 16,
     marginTop: 4,
   },
@@ -846,11 +853,11 @@ const styles = StyleSheet.create({
   infoCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     padding: 12,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -870,7 +877,7 @@ const styles = StyleSheet.create({
   },
   infoCardLabel: {
     fontSize: 10,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '600',
     marginBottom: 4,
     letterSpacing: 0.5,
@@ -878,38 +885,38 @@ const styles = StyleSheet.create({
   infoCardValue: {
     fontSize: 15,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 2,
   },
   infoCardSubvalue: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   
   // Ticket Availability Enhancements
   ticketsAvailable: {
     fontSize: 14,
-    color: COLORS.text,
+    color: colors.text,
     marginTop: 4,
   },
   ticketsAvailableBold: {
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   ticketsSold: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 2,
   },
 
   // Sections
   section: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     padding: 16,
     borderRadius: 12,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -920,11 +927,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   description: {
     fontSize: 15,
-    color: COLORS.text,
+    color: colors.text,
     lineHeight: 23,
   },
   
@@ -933,12 +940,12 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
   },
   tagsTitle: {
     fontSize: 12,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 8,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -951,13 +958,13 @@ const styles = StyleSheet.create({
   tag: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: COLORS.primary + '15',
+    backgroundColor: colors.primary + '15',
     borderRadius: 16,
   },
   tagText: {
     fontSize: 13,
     fontWeight: '500',
-    color: COLORS.primary,
+    color: colors.primary,
   },
 
   // Hosted By Section
@@ -970,7 +977,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -986,7 +993,7 @@ const styles = StyleSheet.create({
   hostedByName: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   verifiedBadgeInline: {
@@ -1006,7 +1013,7 @@ const styles = StyleSheet.create({
   },
   viewProfileText: {
     fontSize: 14,
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
   },
   hostedByMain: {
@@ -1036,13 +1043,13 @@ const styles = StyleSheet.create({
   venueLabel: {
     fontSize: 12,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   venueValue: {
     fontSize: 15,
-    color: COLORS.text,
+    color: colors.text,
     lineHeight: 22,
   },
   mapLinksRow: {
@@ -1058,11 +1065,11 @@ const styles = StyleSheet.create({
   },
   mapLinkText: {
     fontSize: 14,
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
   },
   mapSeparator: {
-    color: COLORS.border,
+    color: colors.border,
     fontSize: 14,
   },
 
@@ -1076,18 +1083,18 @@ const styles = StyleSheet.create({
   dateLabel: {
     fontSize: 12,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   dateValue: {
     fontSize: 15,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   dateTime: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
 
   // Floating Bottom CTA Pill Card
@@ -1120,25 +1127,25 @@ const styles = StyleSheet.create({
   floatingPriceMain: {
     fontSize: 26,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
     marginBottom: 2,
   },
   floatingSecondaryText: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   soldOutMainText: {
     fontSize: 22,
     fontWeight: '700',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 2,
   },
   
   // Floating Button (Pill-shaped CTA)
   floatingButton: {
     flexDirection: 'row',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 24,
@@ -1146,7 +1153,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
     minWidth: 140,
-    shadowColor: COLORS.primary,
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
     shadowRadius: 8,
@@ -1161,7 +1168,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   floatingButtonDisabled: {
-    backgroundColor: COLORS.textSecondary + '25',
+    backgroundColor: colors.textSecondary + '25',
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 24,
@@ -1170,7 +1177,7 @@ const styles = StyleSheet.create({
     minWidth: 140,
   },
   floatingButtonDisabledText: {
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontSize: 15,
     fontWeight: '600',
   },

@@ -13,12 +13,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import { format } from 'date-fns';
 import { useI18n } from '../contexts/I18nContext';
 import { backendFetch } from '../lib/api/backend';
 
 export default function RefundRequestScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
   const { ticketId } = route.params;
   const { t } = useI18n();
   const [ticket, setTicket] = useState<any>(null);
@@ -103,7 +104,7 @@ export default function RefundRequestScreen({ route, navigation }: any) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </SafeAreaView>
     );
@@ -132,7 +133,7 @@ export default function RefundRequestScreen({ route, navigation }: any) {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={24} color={COLORS.text} />
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{t('refund.title') || 'Request Refund'}</Text>
           <View style={{ width: 40 }} />
@@ -142,13 +143,13 @@ export default function RefundRequestScreen({ route, navigation }: any) {
         <View style={styles.ticketCard}>
           <Text style={styles.eventTitle}>{ticket.event_title}</Text>
           <View style={styles.ticketRow}>
-            <Ionicons name="calendar-outline" size={16} color={COLORS.textSecondary} />
+            <Ionicons name="calendar-outline" size={16} color={colors.textSecondary} />
             <Text style={styles.ticketInfo}>
               {ticket.event_date && format(new Date(ticket.event_date), 'EEEE, MMMM dd, yyyy')}
             </Text>
           </View>
           <View style={styles.ticketRow}>
-            <Ionicons name="ticket-outline" size={16} color={COLORS.textSecondary} />
+            <Ionicons name="ticket-outline" size={16} color={colors.textSecondary} />
             <Text style={styles.ticketInfo}>
               {ticket.tier_name || t('refund.generalAdmission') || 'General Admission'}
             </Text>
@@ -163,7 +164,7 @@ export default function RefundRequestScreen({ route, navigation }: any) {
 
         {!canRefund ? (
           <View style={styles.warningCard}>
-            <Ionicons name="warning" size={24} color={COLORS.error} />
+            <Ionicons name="warning" size={24} color={colors.error} />
             <Text style={styles.warningText}>
               {t('refund.deadlinePassed') || 'Refund deadline has passed. Refunds must be requested at least 24 hours before the event.'}
             </Text>
@@ -205,7 +206,7 @@ export default function RefundRequestScreen({ route, navigation }: any) {
                 <TextInput
                   style={styles.textInput}
                   placeholder={t('refund.reasonPlaceholder') || 'Please explain your reason...'}
-                  placeholderTextColor={COLORS.textSecondary}
+                  placeholderTextColor={colors.textSecondary}
                   value={reason}
                   onChangeText={setReason}
                   multiline
@@ -217,7 +218,7 @@ export default function RefundRequestScreen({ route, navigation }: any) {
 
             {/* Policy Note */}
             <View style={styles.policyCard}>
-              <Ionicons name="information-circle-outline" size={20} color={COLORS.primary} />
+              <Ionicons name="information-circle-outline" size={20} color={colors.primary} />
               <Text style={styles.policyText}>
                 {t('refund.policyNote') || 'Refund requests are reviewed by the event organizer. You will receive an email notification once your request has been processed.'}
               </Text>
@@ -248,7 +249,7 @@ export default function RefundRequestScreen({ route, navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   scrollView: {
     flex: 1,
@@ -260,7 +261,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   header: {
     flexDirection: 'row',
@@ -269,7 +270,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   backButton: {
     padding: 8,
@@ -277,7 +278,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   ticketCard: {
     margin: 16,
@@ -293,7 +294,7 @@ const styles = StyleSheet.create({
   eventTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   ticketRow: {
@@ -303,7 +304,7 @@ const styles = StyleSheet.create({
   },
   ticketInfo: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginLeft: 8,
   },
   priceRow: {
@@ -313,31 +314,31 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
   },
   priceLabel: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   priceValue: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   warningCard: {
     flexDirection: 'row',
     alignItems: 'center',
     margin: 16,
     padding: 16,
-    backgroundColor: COLORS.error + '10',
+    backgroundColor: colors.error + '10',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.error + '30',
+    borderColor: colors.error + '30',
   },
   warningText: {
     flex: 1,
     fontSize: 14,
-    color: COLORS.error,
+    color: colors.error,
     marginLeft: 12,
     lineHeight: 20,
   },
@@ -348,7 +349,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   reasonOption: {
@@ -362,58 +363,58 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   reasonOptionSelected: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.primary + '08',
+    borderColor: colors.primary,
+    backgroundColor: colors.primary + '08',
   },
   radioCircle: {
     width: 22,
     height: 22,
     borderRadius: 11,
     borderWidth: 2,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
   radioCircleSelected: {
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
   },
   radioInner: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   reasonText: {
     fontSize: 15,
-    color: COLORS.text,
+    color: colors.text,
   },
   reasonTextSelected: {
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   textInput: {
     backgroundColor: '#FFF',
     borderRadius: 12,
     padding: 16,
     fontSize: 15,
-    color: COLORS.text,
+    color: colors.text,
     minHeight: 120,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   policyCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     margin: 16,
     padding: 16,
-    backgroundColor: COLORS.primary + '10',
+    backgroundColor: colors.primary + '10',
     borderRadius: 12,
   },
   policyText: {
     flex: 1,
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginLeft: 12,
     lineHeight: 18,
   },
@@ -424,7 +425,7 @@ const styles = StyleSheet.create({
     margin: 16,
     marginTop: 8,
     padding: 16,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 12,
   },
   submitButtonDisabled: {

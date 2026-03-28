@@ -15,7 +15,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { COLORS } from '../../config/brand';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import {
@@ -30,6 +30,7 @@ type RouteParams = {
 };
 
 export default function OrganizerInfoFormScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation();
   const route = useRoute<RouteProp<RouteParams, 'OrganizerInfoForm'>>();
   const { userProfile } = useAuth();
@@ -129,7 +130,7 @@ export default function OrganizerInfoFormScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -140,10 +141,10 @@ export default function OrganizerInfoFormScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       {/* Header */}
-      <StatusBar barStyle="dark-content" backgroundColor={COLORS.white} />
+      <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={COLORS.text} />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('verification.organizerInfo.title')}</Text>
         <View style={{ width: 40 }} />
@@ -164,7 +165,7 @@ export default function OrganizerInfoFormScreen() {
             value={fullName}
             onChangeText={setFullName}
             placeholder={t('verification.organizerInfo.placeholders.fullName')}
-            placeholderTextColor={COLORS.textSecondary}
+            placeholderTextColor={colors.textSecondary}
           />
         </View>
 
@@ -178,7 +179,7 @@ export default function OrganizerInfoFormScreen() {
             value={phone}
             onChangeText={setPhone}
             placeholder={t('verification.organizerInfo.placeholders.phone')}
-            placeholderTextColor={COLORS.textSecondary}
+            placeholderTextColor={colors.textSecondary}
             keyboardType="phone-pad"
           />
         </View>
@@ -193,7 +194,7 @@ export default function OrganizerInfoFormScreen() {
             value={organizationName}
             onChangeText={setOrganizationName}
             placeholder={t('verification.organizerInfo.placeholders.organizationName')}
-            placeholderTextColor={COLORS.textSecondary}
+            placeholderTextColor={colors.textSecondary}
           />
         </View>
 
@@ -236,7 +237,7 @@ export default function OrganizerInfoFormScreen() {
             value={description}
             onChangeText={setDescription}
             placeholder={t('verification.organizerInfo.placeholders.description')}
-            placeholderTextColor={COLORS.textSecondary}
+            placeholderTextColor={colors.textSecondary}
             multiline
             numberOfLines={4}
             textAlignVertical="top"
@@ -252,7 +253,7 @@ export default function OrganizerInfoFormScreen() {
           disabled={saving}
         >
           {saving ? (
-            <ActivityIndicator size="small" color={COLORS.white} />
+            <ActivityIndicator size="small" color={colors.white} />
           ) : (
             <Text style={styles.saveButtonText}>{t('verification.common.saveAndContinue')}</Text>
           )}
@@ -265,13 +266,13 @@ export default function OrganizerInfoFormScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -279,9 +280,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     paddingTop: 16,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   backButton: {
     width: 40,
@@ -292,7 +293,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   content: {
     flex: 1,
@@ -300,7 +301,7 @@ const styles = StyleSheet.create({
   },
   sectionDescription: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 24,
   },
   fieldGroup: {
@@ -309,20 +310,20 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   required: {
-    color: COLORS.error,
+    color: colors.error,
   },
   input: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    color: COLORS.text,
+    color: colors.text,
   },
   textArea: {
     height: 100,
@@ -336,22 +337,22 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderRadius: 8,
     padding: 12,
   },
   radioButtonSelected: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.primaryLight,
+    borderColor: colors.primary,
+    backgroundColor: colors.primaryLight,
   },
   radio: {
     width: 20,
     height: 20,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
     marginRight: 8,
     justifyContent: 'center',
     alignItems: 'center',
@@ -360,20 +361,20 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   radioLabel: {
     fontSize: 14,
-    color: COLORS.text,
+    color: colors.text,
   },
   footer: {
     padding: 16,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
   },
   saveButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -382,7 +383,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   saveButtonText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: 16,
     fontWeight: '600',
   },

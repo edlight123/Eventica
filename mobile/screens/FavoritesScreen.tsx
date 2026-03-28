@@ -19,10 +19,11 @@ import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { getCategoryLabel } from '../lib/categories';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import { format } from 'date-fns';
 
 export default function FavoritesScreen({ navigation }: any) {
+  const { colors } = useTheme();
   const { user } = useAuth();
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
@@ -140,7 +141,7 @@ export default function FavoritesScreen({ navigation }: any) {
   if (!user) {
     return (
       <View style={styles.emptyContainer}>
-        <Heart size={64} color={COLORS.textSecondary} />
+        <Heart size={64} color={colors.textSecondary} />
         <Text style={styles.emptyTitle}>{t('auth.loginRequiredTitle')}</Text>
         <Text style={styles.emptyText}>{t('favorites.loginRequiredBody')}</Text>
       </View>
@@ -150,14 +151,14 @@ export default function FavoritesScreen({ navigation }: any) {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <Text style={styles.headerTitle}>{t('favorites.title')}</Text>
       </View>
@@ -170,7 +171,7 @@ export default function FavoritesScreen({ navigation }: any) {
       >
         {favoriteEvents.length === 0 ? (
           <View style={styles.emptyState}>
-            <Heart size={64} color={COLORS.textSecondary} />
+            <Heart size={64} color={colors.textSecondary} />
             <Text style={styles.emptyTitle}>{t('favorites.emptyTitle')}</Text>
             <Text style={styles.emptyText}>
               {t('favorites.emptyBody')}
@@ -212,13 +213,13 @@ export default function FavoritesScreen({ navigation }: any) {
 
                 <View style={styles.eventDetails}>
                   <View style={styles.eventDetailRow}>
-                    <Calendar size={16} color={COLORS.primary} />
+                    <Calendar size={16} color={colors.primary} />
                     <Text style={styles.eventDetailText}>
                       {event.start_datetime && format(event.start_datetime, 'MMM dd, yyyy • h:mm a')}
                     </Text>
                   </View>
                   <View style={styles.eventDetailRow}>
-                    <MapPin size={16} color={COLORS.primary} />
+                    <MapPin size={16} color={colors.primary} />
                     <Text style={styles.eventDetailText} numberOfLines={1}>
                       {event.venue_name}, {event.city}
                     </Text>
@@ -253,7 +254,7 @@ export default function FavoritesScreen({ navigation }: any) {
                         handleShare(event);
                       }}
                     >
-                      <Share2 size={18} color={COLORS.primary} />
+                      <Share2 size={18} color={colors.primary} />
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={styles.favoriteButton}
@@ -262,7 +263,7 @@ export default function FavoritesScreen({ navigation }: any) {
                         removeFavorite(event.id);
                       }}
                     >
-                      <Heart size={18} color={COLORS.error} fill={COLORS.error} />
+                      <Heart size={18} color={colors.error} fill={colors.error} />
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -278,27 +279,27 @@ export default function FavoritesScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     justifyContent: 'center',
     alignItems: 'center',
   },
   header: {
     padding: 20,
     paddingTop: 16,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: COLORS.surface,
+    color: colors.surface,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: COLORS.surface,
+    color: colors.surface,
     marginTop: 4,
     opacity: 0.9,
   },
@@ -306,13 +307,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   eventCard: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     marginHorizontal: 16,
     marginTop: 16,
     borderRadius: 16,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
@@ -322,20 +323,20 @@ const styles = StyleSheet.create({
   eventImage: {
     width: '100%',
     height: 180,
-    backgroundColor: COLORS.borderLight,
+    backgroundColor: colors.borderLight,
   },
   categoryBadgeOverlay: {
     position: 'absolute',
     top: 12,
     left: 12,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
     zIndex: 1,
   },
   categoryBadgeText: {
-    color: COLORS.surface,
+    color: colors.surface,
     fontSize: 12,
     fontWeight: '600',
   },
@@ -348,7 +349,7 @@ const styles = StyleSheet.create({
   eventTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     lineHeight: 24,
   },
   eventDetails: {
@@ -362,7 +363,7 @@ const styles = StyleSheet.create({
   },
   eventDetailText: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     flex: 1,
   },
   eventFooter: {
@@ -371,7 +372,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: COLORS.borderLight,
+    borderTopColor: colors.borderLight,
   },
   priceSection: {
     flexDirection: 'row',
@@ -381,20 +382,20 @@ const styles = StyleSheet.create({
   eventPrice: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   ticketsSold: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   freeBadge: {
-    backgroundColor: COLORS.secondary + '20',
+    backgroundColor: colors.secondary + '20',
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
   },
   freeBadgeText: {
-    color: COLORS.secondary,
+    color: colors.secondary,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -406,7 +407,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: COLORS.primaryLight + '20',
+    backgroundColor: colors.primaryLight + '20',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -414,13 +415,13 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: COLORS.error + '15',
+    backgroundColor: colors.error + '15',
     justifyContent: 'center',
     alignItems: 'center',
   },
   emptyContainer: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -435,30 +436,30 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginTop: 24,
     marginBottom: 8,
   },
   emptyText: {
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 32,
     lineHeight: 24,
   },
   exploreButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 32,
     paddingVertical: 14,
     borderRadius: 12,
-    shadowColor: COLORS.primary,
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
   },
   exploreButtonText: {
-    color: COLORS.surface,
+    color: colors.surface,
     fontSize: 16,
     fontWeight: '700',
   },

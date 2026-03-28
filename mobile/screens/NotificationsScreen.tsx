@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Bell, Check, CheckCheck, Trash2, ExternalLink } from 'lucide-react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useAppMode } from '../contexts/AppModeContext';
 import { useI18n } from '../contexts/I18nContext';
@@ -29,6 +29,7 @@ import { backendJson } from '../lib/api/backend';
 import type { Notification } from '../types/notifications';
 
 export default function NotificationsScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation();
   const { user } = useAuth();
   const { setMode } = useAppMode();
@@ -368,7 +369,7 @@ export default function NotificationsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </SafeAreaView>
     );
@@ -386,7 +387,7 @@ export default function NotificationsScreen() {
             activeOpacity={0.7}
           >
             {isClearing ? (
-              <ActivityIndicator size="small" color={COLORS.error} />
+              <ActivityIndicator size="small" color={colors.error} />
             ) : (
               <Text style={styles.clearAllText}>{t('notifications.clearAllButton')}</Text>
             )}
@@ -399,12 +400,12 @@ export default function NotificationsScreen() {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor={COLORS.primary} />
+          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor={colors.primary} />
         }
       >
         {notifications.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Bell size={64} color={COLORS.textSecondary} strokeWidth={1.5} />
+            <Bell size={64} color={colors.textSecondary} strokeWidth={1.5} />
             <Text style={styles.emptyTitle}>{t('notifications.emptyTitle')}</Text>
             <Text style={styles.emptySubtitle}>
               {t('notifications.emptyBody')}
@@ -512,7 +513,7 @@ export default function NotificationsScreen() {
                     {getNotificationLink(notification) && (
                       <View style={styles.viewDetailsContainer}>
                         <Text style={styles.viewDetailsText}>{t('notifications.viewDetails')}</Text>
-                        <ExternalLink size={12} color={COLORS.primary} />
+                        <ExternalLink size={12} color={colors.primary} />
                       </View>
                     )}
                   </View>
@@ -528,7 +529,7 @@ export default function NotificationsScreen() {
                     style={styles.markReadButton}
                     activeOpacity={0.7}
                   >
-                    <Check size={20} color={COLORS.textSecondary} />
+                    <Check size={20} color={colors.textSecondary} />
                   </TouchableOpacity>
                 )}
               </TouchableOpacity>
@@ -543,7 +544,7 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -551,24 +552,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12, // Reduced from 16 for minimal spacing
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   clearAllButton: {
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 6,
-    backgroundColor: COLORS.errorLight || COLORS.background,
+    backgroundColor: colors.errorLight || colors.background,
   },
   clearAllText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.error,
+    color: colors.error,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 2,
   },
   headerActions: {
@@ -581,7 +582,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -604,12 +605,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginTop: 16,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 8,
   },
@@ -621,7 +622,7 @@ const styles = StyleSheet.create({
   },
   notificationCard: {
     flexDirection: 'row',
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 16,
     gap: 12,
@@ -634,7 +635,7 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   notificationCardUnread: {
-    borderLeftColor: COLORS.primary,
+    borderLeftColor: colors.primary,
   },
   iconContainer: {
     width: 40,
@@ -659,14 +660,14 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   notificationTitleUnread: {
-    color: COLORS.text,
+    color: colors.text,
   },
   notificationMessage: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     lineHeight: 20,
   },
   notificationFooter: {
@@ -684,7 +685,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 10,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   staffInviteAcceptText: {
     color: '#fff',
@@ -695,18 +696,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 10,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   staffInviteDeclineText: {
-    color: COLORS.text,
+    color: colors.text,
     fontSize: 13,
     fontWeight: '600',
   },
   notificationTime: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   viewDetailsContainer: {
     flexDirection: 'row',
@@ -715,14 +716,14 @@ const styles = StyleSheet.create({
   },
   viewDetailsText: {
     fontSize: 12,
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '500',
   },
   unreadDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     marginTop: 4,
   },
   markReadButton: {

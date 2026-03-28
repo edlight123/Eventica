@@ -15,7 +15,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
-import { COLORS } from '../../config/brand';
+import { useTheme } from '../../contexts/ThemeContext';
 import { db } from '../../config/firebase';
 import { collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { useI18n } from '../../contexts/I18nContext';
@@ -28,6 +28,7 @@ type RouteParams = {
 };
 
 export default function SendEventUpdateScreen() {
+  const { colors } = useTheme();
   const route = useRoute<RouteProp<RouteParams, 'SendEventUpdate'>>();
   const navigation = useNavigation();
   const { eventId, eventTitle } = route.params;
@@ -128,11 +129,11 @@ export default function SendEventUpdateScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <StatusBar barStyle="dark-content" backgroundColor={COLORS.white} />
+      <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
 
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="close" size={28} color={COLORS.text} />
+          <Ionicons name="close" size={28} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('organizerSendUpdate.headerTitle')}</Text>
         <TouchableOpacity
@@ -144,7 +145,7 @@ export default function SendEventUpdateScreen() {
           ]}
         >
           {sending ? (
-            <ActivityIndicator size="small" color={COLORS.white} />
+            <ActivityIndicator size="small" color={colors.white} />
           ) : (
             <Text style={styles.sendButtonText}>{t('common.send')}</Text>
           )}
@@ -153,12 +154,12 @@ export default function SendEventUpdateScreen() {
 
       <ScrollView style={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.eventInfo}>
-          <Ionicons name="calendar" size={20} color={COLORS.primary} />
+          <Ionicons name="calendar" size={20} color={colors.primary} />
           <Text style={styles.eventTitle}>{eventTitle}</Text>
         </View>
 
         <View style={styles.infoBox}>
-          <Ionicons name="information-circle" size={20} color={COLORS.primary} />
+          <Ionicons name="information-circle" size={20} color={colors.primary} />
           <Text style={styles.infoText}>
             {t('organizerSendUpdate.infoText')}
           </Text>
@@ -172,7 +173,7 @@ export default function SendEventUpdateScreen() {
             value={title}
             onChangeText={setTitle}
             maxLength={100}
-            placeholderTextColor={COLORS.textSecondary}
+            placeholderTextColor={colors.textSecondary}
           />
           <Text style={styles.charCount}>{title.length}/100</Text>
 
@@ -186,7 +187,7 @@ export default function SendEventUpdateScreen() {
             numberOfLines={10}
             textAlignVertical="top"
             maxLength={500}
-            placeholderTextColor={COLORS.textSecondary}
+            placeholderTextColor={colors.textSecondary}
           />
           <Text style={styles.charCount}>{message.length}/500</Text>
         </View>
@@ -244,7 +245,7 @@ export default function SendEventUpdateScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -253,9 +254,9 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 16,
     paddingHorizontal: 16,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   backButton: {
     padding: 4,
@@ -264,11 +265,11 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginLeft: 12,
   },
   sendButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 8,
@@ -276,10 +277,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sendButtonDisabled: {
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
   },
   sendButtonText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -289,7 +290,7 @@ const styles = StyleSheet.create({
   eventInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: colors.primaryLight,
     padding: 16,
     margin: 16,
     borderRadius: 12,
@@ -298,23 +299,23 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
     marginLeft: 8,
   },
   infoBox: {
     flexDirection: 'row',
-    backgroundColor: COLORS.infoLight,
+    backgroundColor: colors.infoLight,
     padding: 12,
     marginHorizontal: 16,
     marginBottom: 24,
     borderRadius: 8,
     borderLeftWidth: 4,
-    borderLeftColor: COLORS.primary,
+    borderLeftColor: colors.primary,
   },
   infoText: {
     flex: 1,
     fontSize: 14,
-    color: COLORS.text,
+    color: colors.text,
     marginLeft: 8,
   },
   form: {
@@ -323,17 +324,17 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    color: COLORS.text,
+    color: colors.text,
   },
   textArea: {
     height: 120,
@@ -341,7 +342,7 @@ const styles = StyleSheet.create({
   },
   charCount: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'right',
     marginTop: 4,
     marginBottom: 20,
@@ -353,26 +354,26 @@ const styles = StyleSheet.create({
   examplesTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 12,
     textTransform: 'uppercase',
   },
   exampleCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 8,
     padding: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   exampleTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   exampleText: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
 });

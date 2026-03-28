@@ -3,7 +3,7 @@ import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Alert, Touchable
 import { Calendar, MapPin, User as UserIcon, Ticket as TicketIcon, Send, Star, RotateCcw } from 'lucide-react-native';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import { format } from 'date-fns';
 import QRCode from 'react-native-qrcode-svg';
 import TransferTicketModal from '../components/TransferTicketModal';
@@ -12,6 +12,7 @@ import { useI18n } from '../contexts/I18nContext';
 import { useNavigation } from '@react-navigation/native';
 
 export default function TicketDetailScreen({ route }: any) {
+  const { colors } = useTheme();
   const { ticketId } = route.params;
   const { t } = useI18n();
   const navigation = useNavigation<any>();
@@ -104,7 +105,7 @@ export default function TicketDetailScreen({ route }: any) {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -159,7 +160,7 @@ export default function TicketDetailScreen({ route }: any) {
                 value={ticket.qr_code || ticketId}
                 size={220}
                 backgroundColor="white"
-                color={COLORS.primary}
+                color={colors.primary}
                 logo={require('../assets/eventica_logo_color.png')}
                 logoSize={48}
                 logoBackgroundColor="white"
@@ -226,7 +227,7 @@ export default function TicketDetailScreen({ route }: any) {
           <View style={styles.infoCards}>
             <View style={styles.infoCard}>
               <View style={styles.infoCardIcon}>
-                <Calendar size={20} color={COLORS.primary} />
+                <Calendar size={20} color={colors.primary} />
               </View>
               <View style={styles.infoCardContent}>
                 <Text style={styles.infoCardLabel}>{t('ticketDetail.labels.dateTime')}</Text>
@@ -241,7 +242,7 @@ export default function TicketDetailScreen({ route }: any) {
 
             <View style={styles.infoCard}>
               <View style={styles.infoCardIcon}>
-                <MapPin size={20} color={COLORS.primary} />
+                <MapPin size={20} color={colors.primary} />
               </View>
               <View style={styles.infoCardContent}>
                 <Text style={styles.infoCardLabel}>{t('ticketDetail.labels.venue')}</Text>
@@ -252,7 +253,7 @@ export default function TicketDetailScreen({ route }: any) {
 
             <View style={styles.infoCard}>
               <View style={styles.infoCardIcon}>
-                <UserIcon size={20} color={COLORS.primary} />
+                <UserIcon size={20} color={colors.primary} />
               </View>
               <View style={styles.infoCardContent}>
                 <Text style={styles.infoCardLabel}>{t('ticketDetail.labels.attendee')}</Text>
@@ -265,7 +266,7 @@ export default function TicketDetailScreen({ route }: any) {
           {/* Ticket Details Card */}
           <View style={styles.detailsCard}>
             <View style={styles.detailsHeader}>
-              <TicketIcon size={20} color={COLORS.primary} />
+              <TicketIcon size={20} color={colors.primary} />
               <Text style={styles.detailsTitle}>{t('ticketDetail.details.title')}</Text>
             </View>
             <View style={styles.detailRow}>
@@ -318,8 +319,8 @@ export default function TicketDetailScreen({ route }: any) {
                 style={styles.actionButton}
                 onPress={() => navigation.navigate('RefundRequest', { ticketId: ticket.id })}
               >
-                <View style={[styles.actionButtonIcon, { backgroundColor: COLORS.error + '15' }]}>
-                  <RotateCcw size={20} color={COLORS.error} />
+                <View style={[styles.actionButtonIcon, { backgroundColor: colors.error + '15' }]}>
+                  <RotateCcw size={20} color={colors.error} />
                 </View>
                 <View style={styles.actionButtonText}>
                   <Text style={styles.actionButtonTitle}>{t('ticketDetail.actions.requestRefund') || 'Request Refund'}</Text>
@@ -336,12 +337,12 @@ export default function TicketDetailScreen({ route }: any) {
                 ticket.refund_status === 'denied' && styles.refundStatusDenied,
               ]}>
                 <RotateCcw size={16} color={
-                  ticket.refund_status === 'approved' ? COLORS.success :
-                  ticket.refund_status === 'denied' ? COLORS.error : '#B45309'
+                  ticket.refund_status === 'approved' ? colors.success :
+                  ticket.refund_status === 'denied' ? colors.error : '#B45309'
                 } />
                 <Text style={[styles.refundStatusText,
-                  ticket.refund_status === 'approved' && { color: COLORS.success },
-                  ticket.refund_status === 'denied' && { color: COLORS.error },
+                  ticket.refund_status === 'approved' && { color: colors.success },
+                  ticket.refund_status === 'denied' && { color: colors.error },
                 ]}>
                   {ticket.refund_status === 'requested' ? (t('ticketDetail.refund.pending') || 'Refund Pending') :
                    ticket.refund_status === 'approved' ? (t('ticketDetail.refund.approved') || 'Refund Approved') :
@@ -400,14 +401,14 @@ export default function TicketDetailScreen({ route }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   scrollView: {
     flex: 1,
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -423,7 +424,7 @@ const styles = StyleSheet.create({
   eventTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     lineHeight: 30,
   },
   statusBadge: {
@@ -432,19 +433,19 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignSelf: 'center',
     marginBottom: 24,
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
   },
   statusConfirmed: {
     backgroundColor: '#10B981',
   },
   statusUsed: {
-    backgroundColor: COLORS.textSecondary,
+    backgroundColor: colors.textSecondary,
   },
   statusExpired: {
     backgroundColor: '#FF8C00', // Orange color for expired
   },
   statusText: {
-    color: COLORS.surface,
+    color: colors.surface,
     fontSize: 12,
     fontWeight: '700',
     letterSpacing: 0.5,
@@ -454,7 +455,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   qrContainer: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     padding: 24,
     borderRadius: 20,
     marginBottom: 16,
@@ -464,14 +465,14 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 6,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   qrContainerDimmed: {
     opacity: 0.5, // Dim the QR code for expired tickets
   },
   qrInstruction: {
     fontSize: 15,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     fontWeight: '500',
   },
@@ -481,11 +482,11 @@ const styles = StyleSheet.create({
   },
   infoCard: {
     flexDirection: 'row',
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -496,7 +497,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: COLORS.primary + '15',
+    backgroundColor: colors.primary + '15',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -506,7 +507,7 @@ const styles = StyleSheet.create({
   },
   infoCardLabel: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '600',
     marginBottom: 4,
     textTransform: 'uppercase',
@@ -515,19 +516,19 @@ const styles = StyleSheet.create({
   infoCardValue: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 2,
   },
   infoCardSubvalue: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   detailsCard: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     padding: 20,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -542,12 +543,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderLight,
+    borderBottomColor: colors.borderLight,
   },
   detailsTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   detailRow: {
     flexDirection: 'row',
@@ -555,16 +556,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderLight,
+    borderBottomColor: colors.borderLight,
   },
   detailLabel: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   detailValue: {
     fontSize: 14,
-    color: COLORS.text,
+    color: colors.text,
     fontWeight: '600',
     textAlign: 'right',
     maxWidth: '60%',
@@ -574,23 +575,23 @@ const styles = StyleSheet.create({
     fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
   },
   footer: {
-    backgroundColor: COLORS.primary + '10',
+    backgroundColor: colors.primary + '10',
     padding: 20,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.primary + '30',
+    borderColor: colors.primary + '30',
     marginBottom: 40,
   },
   footerText: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
     textAlign: 'center',
     marginBottom: 6,
   },
   footerSubtext: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -650,11 +651,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   transferButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     padding: 18,
     borderRadius: 16,
     marginBottom: 32,
-    shadowColor: COLORS.primary,
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.35,
     shadowRadius: 12,
@@ -690,7 +691,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   actionButtonsSection: {
     marginBottom: 24,
@@ -703,7 +704,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   actionButtonIcon: {
     width: 44,
@@ -719,11 +720,11 @@ const styles = StyleSheet.create({
   actionButtonTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   actionButtonSubtitle: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 2,
   },
   refundStatusBadge: {

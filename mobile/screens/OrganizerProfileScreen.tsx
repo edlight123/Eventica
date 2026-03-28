@@ -33,7 +33,7 @@ import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { getCategoryLabel } from '../lib/categories';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import { format } from 'date-fns';
 
 const { width } = Dimensions.get('window');
@@ -47,6 +47,7 @@ interface SocialLink {
 }
 
 export default function OrganizerProfileScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { organizerId } = route.params;
   const { user } = useAuth();
@@ -299,7 +300,7 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
         />
       ) : (
         <View style={[isCompact ? styles.eventImageCompact : styles.eventImage, styles.eventImagePlaceholder]}>
-          <Calendar size={isCompact ? 20 : 32} color={COLORS.primary + '40'} />
+          <Calendar size={isCompact ? 20 : 32} color={colors.primary + '40'} />
         </View>
       )}
 
@@ -357,7 +358,7 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.loadingText}>{t('organizerProfile.loading')}</Text>
         </View>
       </SafeAreaView>
@@ -509,7 +510,7 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
               </View>
             ) : (
               <View style={styles.emptyState}>
-                <Calendar size={48} color={COLORS.textSecondary} />
+                <Calendar size={48} color={colors.textSecondary} />
                 <Text style={styles.emptyStateTitle}>{t('organizerProfile.noUpcomingTitle')}</Text>
                 <Text style={styles.emptyStateText}>
                   {isFollowing 
@@ -539,9 +540,9 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
                   </Text>
                 </View>
                 {showPastEvents ? (
-                  <ChevronUp size={24} color={COLORS.text} />
+                  <ChevronUp size={24} color={colors.text} />
                 ) : (
-                  <ChevronDown size={24} color={COLORS.text} />
+                  <ChevronDown size={24} color={colors.text} />
                 )}
               </TouchableOpacity>
 
@@ -564,7 +565,7 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
             <View style={styles.aboutDetails}>
               {organizer.city && organizer.country && (
                 <View style={styles.aboutRow}>
-                  <MapPin size={18} color={COLORS.textSecondary} />
+                  <MapPin size={18} color={colors.textSecondary} />
                   <Text style={styles.aboutLabel}>{t('organizerProfile.locationLabel')}</Text>
                   <Text style={styles.aboutValue}>
                     {organizer.city}, {organizer.country}
@@ -574,7 +575,7 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
 
               {organizer.languages && organizer.languages.length > 0 && (
                 <View style={styles.aboutRow}>
-                  <Globe size={18} color={COLORS.textSecondary} />
+                  <Globe size={18} color={colors.textSecondary} />
                   <Text style={styles.aboutLabel}>{t('organizerProfile.languagesLabel')}</Text>
                   <Text style={styles.aboutValue}>
                     {organizer.languages.join(', ')}
@@ -584,7 +585,7 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
 
               {hostingSince && (
                 <View style={styles.aboutRow}>
-                  <Calendar size={18} color={COLORS.textSecondary} />
+                  <Calendar size={18} color={colors.textSecondary} />
                   <Text style={styles.aboutLabel}>{t('organizerProfile.hostingSinceLabel')}</Text>
                   <Text style={styles.aboutValue}>{hostingSince}</Text>
                 </View>
@@ -614,7 +615,7 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{t('organizerProfile.reviewsTitle')}</Text>
             <View style={styles.reviewsPlaceholder}>
-              <Star size={40} color={COLORS.textSecondary} />
+              <Star size={40} color={colors.textSecondary} />
               <Text style={styles.reviewsPlaceholderText}>
                 {t('organizerProfile.reviewsComingSoon')}
               </Text>
@@ -643,15 +644,15 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   errorText: {
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 16,
   },
   retryButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
@@ -666,7 +667,7 @@ const styles = StyleSheet.create({
   hero: {
     height: HERO_HEIGHT,
     justifyContent: 'flex-start',
-    backgroundColor: COLORS.primary, // Fallback color
+    backgroundColor: colors.primary, // Fallback color
   },
   heroScrim: {
     ...StyleSheet.absoluteFillObject,
@@ -703,7 +704,7 @@ const styles = StyleSheet.create({
   followButtonSmallText: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   followingButtonSmallText: {
     color: '#FFF',
@@ -737,7 +738,7 @@ const styles = StyleSheet.create({
   avatarText: {
     fontSize: 28,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   nameRow: {
     flexDirection: 'row',
@@ -828,7 +829,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderLight,
+    borderBottomColor: colors.borderLight,
   },
   statColumn: {
     flex: 1,
@@ -836,18 +837,18 @@ const styles = StyleSheet.create({
   },
   statDivider: {
     width: 1,
-    backgroundColor: COLORS.borderLight,
+    backgroundColor: colors.borderLight,
     marginHorizontal: 8,
   },
   statValue: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   ratingRow: {
@@ -865,14 +866,14 @@ const styles = StyleSheet.create({
   // Follow Prompt
   followPrompt: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     paddingVertical: 16,
     paddingHorizontal: 20,
     lineHeight: 20,
   },
   followLink: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
   },
 
@@ -883,12 +884,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 6,
   },
   sectionSubtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 16,
   },
   collapsibleHeader: {
@@ -903,11 +904,11 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   eventCard: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -915,22 +916,22 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   eventCardCompact: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     flexDirection: 'row',
   },
   eventImage: {
     width: '100%',
     height: 180,
-    backgroundColor: COLORS.borderLight,
+    backgroundColor: colors.borderLight,
   },
   eventImageCompact: {
     width: 100,
     height: 100,
-    backgroundColor: COLORS.borderLight,
+    backgroundColor: colors.borderLight,
   },
   eventImagePlaceholder: {
     justifyContent: 'center',
@@ -948,7 +949,7 @@ const styles = StyleSheet.create({
   categoryText: {
     fontSize: 11,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   eventCardContent: {
     padding: 12,
@@ -957,14 +958,14 @@ const styles = StyleSheet.create({
   eventTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
     lineHeight: 22,
   },
   eventTitleCompact: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 6,
     lineHeight: 20,
   },
@@ -974,12 +975,12 @@ const styles = StyleSheet.create({
   },
   eventDate: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   eventLocation: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   eventFooter: {
     flexDirection: 'row',
@@ -988,7 +989,7 @@ const styles = StyleSheet.create({
   eventPrice: {
     fontSize: 15,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   freeBadge: {
     backgroundColor: '#10B981',
@@ -1002,23 +1003,23 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   emptyState: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 40,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   emptyStateTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginTop: 16,
     marginBottom: 8,
   },
   emptyStateText: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -1027,7 +1028,7 @@ const styles = StyleSheet.create({
   aboutText: {
     fontSize: 15,
     lineHeight: 24,
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 16,
   },
   aboutDetails: {
@@ -1041,11 +1042,11 @@ const styles = StyleSheet.create({
   aboutLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   aboutValue: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     flex: 1,
   },
 
@@ -1062,21 +1063,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
 
   // Reviews Placeholder
   reviewsPlaceholder: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 40,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   reviewsPlaceholderText: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 12,
   },

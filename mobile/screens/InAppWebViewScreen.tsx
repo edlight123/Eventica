@@ -3,13 +3,14 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { useRoute } from '@react-navigation/native'
 import { WebView } from 'react-native-webview'
 
-import { COLORS } from '../config/brand'
+import { useTheme } from '../contexts/ThemeContext';
 
 type Params = {
   url: string
 }
 
 export default function InAppWebViewScreen() {
+  const { colors } = useTheme();
   const route = useRoute<any>()
   const { url } = (route.params || {}) as Params
 
@@ -31,7 +32,7 @@ export default function InAppWebViewScreen() {
       <WebView ref={webViewRef} source={source} onLoadEnd={onLoadEnd} />
       {loading ? (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : null}
     </View>
@@ -41,11 +42,11 @@ export default function InAppWebViewScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
   },
   center: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
   },
   loadingOverlay: {
     position: 'absolute',

@@ -10,7 +10,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { Calendar, MapPin } from 'lucide-react-native';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import EventStatusBadge from './EventStatusBadge';
 import { useI18n } from '../contexts/I18nContext';
 import { getCategoryLabel } from '../lib/categories';
@@ -84,14 +84,14 @@ const ThisWeekEventCard = ({ event, onPress }: { event: any; onPress: () => void
 
           <View style={styles.cardDetails}>
             <View style={styles.cardDetailRow}>
-              <Calendar size={14} color={COLORS.textSecondary} />
+              <Calendar size={14} color={colors.textSecondary} />
               <Text style={styles.cardDetailText}>
                 {event.start_datetime &&
                   formatDateForLanguage(new Date(event.start_datetime), 'EEE, MMM dd • h:mm a', language)}
               </Text>
             </View>
             <View style={styles.cardDetailRow}>
-              <MapPin size={14} color={COLORS.textSecondary} />
+              <MapPin size={14} color={colors.textSecondary} />
               <Text style={styles.cardDetailText} numberOfLines={1}>
                 {event.venue_name}
               </Text>
@@ -123,6 +123,7 @@ export default function ThisWeekSection({
   onEventPress,
   onViewAll,
 }: ThisWeekSectionProps) {
+  const { colors } = useTheme();
   const { t } = useI18n();
   if (events.length === 0) return null;
 
@@ -170,17 +171,17 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   viewAll: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   scrollView: {
     marginHorizontal: -16,
@@ -191,11 +192,11 @@ const styles = StyleSheet.create({
   },
   card: {
     width: CARD_WIDTH,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 16,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
@@ -205,7 +206,7 @@ const styles = StyleSheet.create({
   cardImage: {
     width: '100%',
     height: 140,
-    backgroundColor: COLORS.borderLight,
+    backgroundColor: colors.borderLight,
   },
   badgesContainer: {
     position: 'absolute',
@@ -220,7 +221,7 @@ const styles = StyleSheet.create({
   cardCategory: {
     fontSize: 11,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 6,
@@ -228,7 +229,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 17,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 10,
     lineHeight: 22,
   },
@@ -242,7 +243,7 @@ const styles = StyleSheet.create({
   },
   cardDetailText: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginLeft: 6,
     flex: 1,
   },
@@ -252,21 +253,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: COLORS.borderLight,
+    borderTopColor: colors.borderLight,
   },
   cardPrice: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   cardFree: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.success,
+    color: colors.success,
   },
   ticketsSold: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '600',
   },
 });

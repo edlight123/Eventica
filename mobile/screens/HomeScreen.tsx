@@ -19,7 +19,8 @@ import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useFilters } from '../contexts/FiltersContext';
-import { COLORS, BRAND } from '../config/brand';
+import { BRAND } from ''../config/brand'';
+import { useTheme } from '../contexts/ThemeContext';
 import { Bell } from 'lucide-react-native';
 import FeaturedCarousel from '../components/FeaturedCarousel';
 import LocationDetectionBanner from '../components/LocationDetectionBanner';
@@ -30,6 +31,7 @@ import ThisWeekSection from '../components/ThisWeekSection';
 import AllEventsPreview from '../components/AllEventsPreview';
 
 export default function HomeScreen({ navigation }: any) {
+  const { colors } = useTheme();
   const { user, userProfile } = useAuth();
   const { t } = useI18n();
   const { userCountry } = useFilters();
@@ -249,7 +251,7 @@ export default function HomeScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
       
       {/* Location Detection Banner */}
       <LocationDetectionBanner />
@@ -381,10 +383,10 @@ export default function HomeScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   header: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -437,7 +439,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   section: {
     marginBottom: 24,
@@ -452,14 +454,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
     letterSpacing: 0.3,
   },
   sectionTitleBase: {
     fontSize: 22,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     letterSpacing: 0.3,
   },
   sectionTitleGradient1: {
@@ -500,18 +502,18 @@ const styles = StyleSheet.create({
   },
   sectionSubtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   categoryContainer: {
   },
   eventCard: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 16,
     marginBottom: 16,
     marginHorizontal: 16,
     borderWidth: 1,
-    borderColor: COLORS.borderLight,
+    borderColor: colors.borderLight,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
@@ -522,7 +524,7 @@ const styles = StyleSheet.create({
   eventImage: {
     width: '100%',
     height: 180,
-    backgroundColor: COLORS.borderLight,
+    backgroundColor: colors.borderLight,
   },
   categoryBadge: {
     position: 'absolute',
@@ -554,7 +556,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     lineHeight: 24,
     marginRight: 8,
   },
@@ -563,13 +565,13 @@ const styles = StyleSheet.create({
   },
   eventDate: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 6,
     fontWeight: '500',
   },
   eventLocation: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 12,
     lineHeight: 20,
   },
@@ -579,21 +581,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: COLORS.borderLight,
+    borderTopColor: colors.borderLight,
   },
   eventPrice: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   eventFree: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.success,
+    color: colors.success,
   },
   ticketsSold: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '600',
   },
   loadingContainer: {
@@ -602,7 +604,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     textAlign: 'center',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontSize: 16,
   },
   emptyContainer: {
@@ -617,13 +619,13 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     textAlign: 'center',
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
 });

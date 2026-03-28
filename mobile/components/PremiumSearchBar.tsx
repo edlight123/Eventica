@@ -7,7 +7,7 @@ import {
   Platform,
 } from 'react-native';
 import { Search } from 'lucide-react-native';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface PremiumSearchBarProps {
   onPress: () => void;
@@ -21,11 +21,11 @@ export default function PremiumSearchBar({ onPress }: PremiumSearchBarProps) {
       activeOpacity={0.7}
     >
       <View style={styles.searchBar}>
-        <Search size={20} color={COLORS.textSecondary} style={styles.icon} />
+        <Search size={20} color={colors.textSecondary} style={styles.icon} />
         <TextInput
           style={styles.input}
           placeholder="Search events, organizers, or cities"
-          placeholderTextColor={COLORS.textSecondary}
+          placeholderTextColor={colors.textSecondary}
           editable={false}
           pointerEvents="none"
         />
@@ -34,11 +34,12 @@ export default function PremiumSearchBar({ onPress }: PremiumSearchBarProps) {
   );
 }
 
+  const { colors } = useTheme();
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   searchBar: {
     flexDirection: 'row',
@@ -59,7 +60,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: COLORS.text,
+    color: colors.text,
     fontWeight: '500',
   },
 });

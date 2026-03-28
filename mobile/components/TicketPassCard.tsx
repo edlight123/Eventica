@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { Calendar, MapPin, User, Wallet, Send, ExternalLink } from 'lucide-react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import { format } from 'date-fns';
 
 interface TicketPassCardProps {
@@ -31,6 +31,7 @@ export default function TicketPassCard({
   onViewEvent,
   onTransferPress,
 }: TicketPassCardProps) {
+  const { colors } = useTheme();
   const isUsed = !!ticket.checked_in_at;
   const orderNumber = `EH-${ticket.id?.slice(0, 8).toUpperCase() || 'XXXXXXXX'}`;
 
@@ -59,7 +60,7 @@ export default function TicketPassCard({
 
       {user && (
         <View style={styles.holderRow}>
-          <User size={14} color={COLORS.textSecondary} />
+          <User size={14} color={colors.textSecondary} />
           <Text style={styles.holderText}>
             Admit: {user.displayName || user.email}
           </Text>
@@ -123,7 +124,7 @@ export default function TicketPassCard({
               onPress={onTransferPress}
               activeOpacity={0.8}
             >
-              <Send size={18} color={COLORS.primary} />
+              <Send size={18} color={colors.primary} />
               <Text style={styles.secondaryButtonText}>Transfer</Text>
             </TouchableOpacity>
           )}
@@ -133,7 +134,7 @@ export default function TicketPassCard({
             onPress={onViewEvent}
             activeOpacity={0.8}
           >
-            <ExternalLink size={18} color={COLORS.primary} />
+            <ExternalLink size={18} color={colors.primary} />
             <Text style={styles.secondaryButtonText}>Event Details</Text>
           </TouchableOpacity>
         </View>
@@ -145,7 +146,7 @@ export default function TicketPassCard({
 const styles = StyleSheet.create({
   card: {
     width: '100%',
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 24,
     overflow: 'visible',
     shadowColor: '#000',
@@ -234,7 +235,7 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
     borderStyle: 'dashed',
   },
   statusLeft: {
@@ -243,12 +244,12 @@ const styles = StyleSheet.create({
   ticketNumberText: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 2,
   },
   ticketType: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   statusBadge: {
     paddingHorizontal: 14,
@@ -277,7 +278,7 @@ const styles = StyleSheet.create({
   },
   holderText: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   qrSection: {
     padding: 24,
@@ -297,13 +298,13 @@ const styles = StyleSheet.create({
   qrInstruction: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginTop: 16,
     textAlign: 'center',
   },
   tapToEnlarge: {
     fontSize: 12,
-    color: COLORS.primary,
+    color: colors.primary,
     marginTop: 4,
     textAlign: 'center',
   },
@@ -315,12 +316,12 @@ const styles = StyleSheet.create({
   orderLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   ticketIdLabel: {
     fontSize: 11,
     fontFamily: 'monospace',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   usedBanner: {
     backgroundColor: '#ECFDF5',
@@ -343,10 +344,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingVertical: 14,
     borderRadius: 12,
-    shadowColor: COLORS.primary,
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -370,12 +371,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 12,
     borderWidth: 1.5,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
     backgroundColor: 'transparent',
   },
   secondaryButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
 });

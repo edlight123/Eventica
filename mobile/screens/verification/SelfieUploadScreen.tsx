@@ -15,7 +15,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { COLORS } from '../../config/brand';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import SelfieCameraWithGuide from '../../components/SelfieCameraWithGuide';
@@ -34,6 +34,7 @@ type RouteParams = {
 };
 
 export default function SelfieUploadScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation();
   const route = useRoute<RouteProp<RouteParams, 'SelfieUpload'>>();
   const { userProfile } = useAuth();
@@ -211,12 +212,12 @@ export default function SelfieUploadScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={COLORS.white} />
+      <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
 
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={COLORS.text} />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('verification.selfie.title')}</Text>
         <View style={{ width: 40 }} />
@@ -235,7 +236,7 @@ export default function SelfieUploadScreen() {
               <Ionicons 
                 name="person" 
                 size={80} 
-                color={COLORS.primary} 
+                color={colors.primary} 
                 style={styles.personIcon}
               />
             </View>
@@ -245,7 +246,7 @@ export default function SelfieUploadScreen() {
 
         {/* Instructions */}
         <View style={styles.instructionsCard}>
-          <Ionicons name="camera" size={32} color={COLORS.primary} />
+          <Ionicons name="camera" size={32} color={colors.primary} />
           <Text style={styles.instructionsTitle}>{t('verification.selfie.instructions.title')}</Text>
           <View style={styles.tipsList}>
             <Text style={styles.tipItem}>✓ {t('verification.selfie.tips.selfieMode')}</Text>
@@ -269,7 +270,7 @@ export default function SelfieUploadScreen() {
                 onPress={showUploadOptions}
                 disabled={uploading}
               >
-                <Ionicons name="camera" size={20} color={COLORS.primary} />
+                <Ionicons name="camera" size={20} color={colors.primary} />
                 <Text style={styles.changeButtonText}>{t('verification.selfie.buttons.retake')}</Text>
               </TouchableOpacity>
             </View>
@@ -280,10 +281,10 @@ export default function SelfieUploadScreen() {
               disabled={uploading}
             >
               {uploading ? (
-                <ActivityIndicator size="small" color={COLORS.primary} />
+                <ActivityIndicator size="small" color={colors.primary} />
               ) : (
                 <>
-                  <Ionicons name="camera-outline" size={64} color={COLORS.primary} />
+                  <Ionicons name="camera-outline" size={64} color={colors.primary} />
                   <Text style={styles.uploadButtonText}>{t('verification.selfie.buttons.takeSelfieWithId')}</Text>
                   <Text style={styles.uploadButtonSubtext}>
                     {t('verification.selfie.uploadHint')}
@@ -296,7 +297,7 @@ export default function SelfieUploadScreen() {
 
         {/* Example */}
         <View style={styles.exampleCard}>
-          <Ionicons name="checkmark-circle" size={24} color={COLORS.success} />
+          <Ionicons name="checkmark-circle" size={24} color={colors.success} />
           <View style={styles.exampleText}>
             <Text style={styles.exampleTitle}>{t('verification.selfie.example.goodTitle')}</Text>
             <Text style={styles.exampleDescription}>
@@ -317,7 +318,7 @@ export default function SelfieUploadScreen() {
           disabled={!selfiePath || uploading || saving}
         >
           {saving ? (
-            <ActivityIndicator size="small" color={COLORS.white} />
+            <ActivityIndicator size="small" color={colors.white} />
           ) : (
             <Text style={styles.continueButtonText}>{t('verification.common.saveAndContinue')}</Text>
           )}
@@ -342,7 +343,7 @@ export default function SelfieUploadScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -350,9 +351,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     paddingTop: 16,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   backButton: {
     width: 40,
@@ -363,14 +364,14 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   content: {
     flex: 1,
     padding: 16,
   },
   guideVisual: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 20,
     marginBottom: 16,
@@ -379,7 +380,7 @@ const styles = StyleSheet.create({
   guideTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 16,
   },
   ovalContainer: {
@@ -392,7 +393,7 @@ const styles = StyleSheet.create({
     height: Dimensions.get('window').width * 0.65,
     borderRadius: (Dimensions.get('window').width * 0.5) / 2,
     borderWidth: 3,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
     borderStyle: 'dashed',
     justifyContent: 'center',
     alignItems: 'center',
@@ -402,14 +403,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '60%',
     height: 2,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     opacity: 0.4,
   },
   verticalLine: {
     position: 'absolute',
     width: 2,
     height: '60%',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     opacity: 0.4,
   },
   personIcon: {
@@ -417,13 +418,13 @@ const styles = StyleSheet.create({
   },
   guideSubtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 8,
   },
   instructionsCard: {
     padding: 16,
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: colors.primaryLight,
     borderRadius: 12,
     marginBottom: 24,
     alignItems: 'center',
@@ -431,7 +432,7 @@ const styles = StyleSheet.create({
   instructionsTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
     marginTop: 8,
     marginBottom: 12,
   },
@@ -440,7 +441,7 @@ const styles = StyleSheet.create({
   },
   tipItem: {
     fontSize: 14,
-    color: COLORS.primary,
+    color: colors.primary,
     marginBottom: 4,
   },
   uploadSection: {
@@ -449,13 +450,13 @@ const styles = StyleSheet.create({
   uploadLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   uploadButton: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderWidth: 2,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderStyle: 'dashed',
     borderRadius: 12,
     padding: 48,
@@ -465,17 +466,17 @@ const styles = StyleSheet.create({
   uploadButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginTop: 16,
   },
   uploadButtonSubtext: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 4,
     textAlign: 'center',
   },
   previewContainer: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     overflow: 'hidden',
     shadowColor: '#000',
@@ -495,21 +496,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 12,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
   },
   changeButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
     marginLeft: 8,
   },
   exampleCard: {
     flexDirection: 'row',
     padding: 16,
-    backgroundColor: COLORS.success + '10',
+    backgroundColor: colors.success + '10',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.success + '30',
+    borderColor: colors.success + '30',
   },
   exampleText: {
     flex: 1,
@@ -518,32 +519,32 @@ const styles = StyleSheet.create({
   exampleTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.success,
+    color: colors.success,
     marginBottom: 4,
   },
   exampleDescription: {
     fontSize: 13,
-    color: COLORS.success,
+    color: colors.success,
     lineHeight: 18,
   },
   footer: {
     padding: 16,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
   },
   continueButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
   },
   continueButtonDisabled: {
-    backgroundColor: COLORS.textSecondary,
+    backgroundColor: colors.textSecondary,
     opacity: 0.5,
   },
   continueButtonText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: 16,
     fontWeight: '600',
   },

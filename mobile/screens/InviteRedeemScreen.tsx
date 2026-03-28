@@ -9,7 +9,7 @@ import { clearPendingInvite, setPendingInvite } from '../lib/pendingInvite'
 import { deleteStaffInviteNotificationsByEvent, deleteStaffInviteNotificationsByToken } from '../lib/notifications'
 import { addStaffEventId } from '../lib/staffAssignments'
 import { backendJson } from '../lib/api/backend'
-import { COLORS } from '../config/brand'
+import { useTheme } from '../contexts/ThemeContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'InviteRedeem'>
 
@@ -27,6 +27,7 @@ function getFriendlyError(message: string) {
 }
 
 export default function InviteRedeemScreen({ route, navigation }: Props) {
+  const { colors } = useTheme();
   const { user } = useAuth()
   const { setMode } = useAppMode()
 
@@ -108,29 +109,29 @@ export default function InviteRedeemScreen({ route, navigation }: Props) {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background || '#fff' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background || '#fff' }}>
       <View style={{ flex: 1, padding: 20, justifyContent: 'center' }}>
         <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E5E7EB' }}>
-          <Text style={{ fontSize: 22, fontWeight: '700', color: COLORS.text, marginBottom: 8 }}>
+          <Text style={{ fontSize: 22, fontWeight: '700', color: colors.text, marginBottom: 8 }}>
             Accept Staff Invite
           </Text>
-          <Text style={{ fontSize: 14, color: COLORS.textSecondary, marginBottom: 16 }}>
+          <Text style={{ fontSize: 14, color: colors.textSecondary, marginBottom: 16 }}>
             This will grant event-scoped check-in access.
           </Text>
 
           {status === 'working' ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <ActivityIndicator />
-              <Text style={{ color: COLORS.textSecondary }}>{message}</Text>
+              <Text style={{ color: colors.textSecondary }}>{message}</Text>
             </View>
           ) : (
-            <Text style={{ color: status === 'error' ? '#B91C1C' : COLORS.textSecondary, marginBottom: 16 }}>{message}</Text>
+            <Text style={{ color: status === 'error' ? '#B91C1C' : colors.textSecondary, marginBottom: 16 }}>{message}</Text>
           )}
 
           {!user && (
             <TouchableOpacity
               onPress={goToLogin}
-              style={{ backgroundColor: COLORS.primary, paddingVertical: 12, borderRadius: 12, alignItems: 'center' }}
+              style={{ backgroundColor: colors.primary, paddingVertical: 12, borderRadius: 12, alignItems: 'center' }}
             >
               <Text style={{ color: '#fff', fontWeight: '700' }}>Log in</Text>
             </TouchableOpacity>
@@ -145,7 +146,7 @@ export default function InviteRedeemScreen({ route, navigation }: Props) {
               }}
               style={{ marginTop: 10, paddingVertical: 10, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: '#E5E7EB' }}
             >
-              <Text style={{ color: COLORS.text, fontWeight: '600' }}>Close</Text>
+              <Text style={{ color: colors.text, fontWeight: '600' }}>Close</Text>
             </TouchableOpacity>
           ) : null}
         </View>

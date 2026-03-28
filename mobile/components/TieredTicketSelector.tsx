@@ -14,6 +14,7 @@ import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useI18n } from '../contexts/I18nContext';
 import { normalizePromoValidationResponse } from '../lib/promoCodes';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface TicketTier {
   id: string;
@@ -52,16 +53,6 @@ interface TierQuantity {
   [tierId: string]: number;
 }
 
-const COLORS = {
-  primary: '#000000',
-  secondary: '#666666',
-  background: '#F5F5F5',
-  white: '#FFFFFF',
-  border: '#E0E0E0',
-  success: '#10B981',
-  error: '#EF4444',
-  warning: '#F59E0B',
-};
 
 export default function TieredTicketSelector({
   eventId,
@@ -70,6 +61,7 @@ export default function TieredTicketSelector({
   onPurchase,
   currency,
 }: TieredTicketSelectorProps) {
+  const { colors } = useTheme();
   const { t } = useI18n();
   const displayCurrency = String(currency || 'HTG').toUpperCase();
   const [tiers, setTiers] = useState<TicketTier[]>([]);
@@ -280,13 +272,13 @@ export default function TieredTicketSelector({
         <View style={styles.header}>
           <Text style={styles.headerTitle}>{t('ticketSelector.title')}</Text>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <X size={24} color={COLORS.primary} />
+            <X size={24} color={colors.primary} />
           </TouchableOpacity>
         </View>
 
         {loading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={COLORS.primary} />
+            <ActivityIndicator size="large" color={colors.primary} />
           </View>
         ) : (
           <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -345,7 +337,7 @@ export default function TieredTicketSelector({
                             quantity === 0 && styles.quantityButtonDisabled
                           ]}
                         >
-                          <Minus size={20} color={quantity === 0 ? COLORS.secondary : COLORS.primary} />
+                          <Minus size={20} color={quantity === 0 ? colors.secondary : colors.primary} />
                         </TouchableOpacity>
                         
                         <Text style={styles.quantityText}>{quantity}</Text>
@@ -358,7 +350,7 @@ export default function TieredTicketSelector({
                             (quantity >= available || quantity >= 10) && styles.quantityButtonDisabled
                           ]}
                         >
-                          <Plus size={20} color={(quantity >= available || quantity >= 10) ? COLORS.secondary : COLORS.primary} />
+                          <Plus size={20} color={(quantity >= available || quantity >= 10) ? colors.secondary : colors.primary} />
                         </TouchableOpacity>
                       </View>
                     )}
@@ -373,7 +365,7 @@ export default function TieredTicketSelector({
                 <Text style={styles.sectionTitle}>{t('ticketSelector.promoTitle')}</Text>
                 <View style={styles.promoContainer}>
                   <View style={styles.promoInputContainer}>
-                    <Tag size={20} color={COLORS.secondary} />
+                    <Tag size={20} color={colors.secondary} />
                     <TextInput
                       style={styles.promoInput}
                       placeholder={t('ticketSelector.promoPlaceholder')}
@@ -389,7 +381,7 @@ export default function TieredTicketSelector({
                     disabled={!promoCode.trim() || validatingPromo}
                   >
                     {validatingPromo ? (
-                      <ActivityIndicator size="small" color={COLORS.white} />
+                      <ActivityIndicator size="small" color={colors.white} />
                     ) : (
                       <Text style={styles.promoApplyButtonText}>{t('ticketSelector.apply')}</Text>
                     )}
@@ -399,11 +391,11 @@ export default function TieredTicketSelector({
                 {promoValidation && (
                   <View style={[
                     styles.promoResult,
-                    { backgroundColor: promoValidation.valid ? COLORS.success + '20' : COLORS.error + '20' }
+                    { backgroundColor: promoValidation.valid ? colors.success + '20' : colors.error + '20' }
                   ]}>
                     <Text style={[
                       styles.promoResultText,
-                      { color: promoValidation.valid ? COLORS.success : COLORS.error }
+                      { color: promoValidation.valid ? colors.success : colors.error }
                     ]}>
                       {promoValidation.valid 
                         ? promoValidation.discount_percentage
@@ -459,7 +451,7 @@ export default function TieredTicketSelector({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
   },
   header: {
     flexDirection: 'row',
@@ -468,12 +460,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   closeButton: {
     padding: 4,
@@ -489,28 +481,28 @@ const styles = StyleSheet.create({
   section: {
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
     marginBottom: 12,
   },
   tierCard: {
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   tierCardDisabled: {
     opacity: 0.5,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   tierInfo: {
     flex: 1,
@@ -525,34 +517,34 @@ const styles = StyleSheet.create({
   tierName: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   tierNameDisabled: {
-    color: COLORS.secondary,
+    color: colors.secondary,
   },
   tierPrice: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   tierDescription: {
     fontSize: 13,
-    color: COLORS.secondary,
+    color: colors.secondary,
     marginTop: 4,
     marginBottom: 4,
   },
   tierAvailability: {
     fontSize: 12,
-    color: COLORS.success,
+    color: colors.success,
     fontWeight: '500',
   },
   tierSoldOut: {
-    color: COLORS.error,
+    color: colors.error,
   },
   quantitySelector: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderRadius: 8,
     padding: 4,
   },
@@ -560,7 +552,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 6,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -570,7 +562,7 @@ const styles = StyleSheet.create({
   quantityText: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
     marginHorizontal: 16,
     minWidth: 24,
     textAlign: 'center',
@@ -579,7 +571,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     textAlign: 'center',
     fontSize: 14,
-    color: COLORS.success,
+    color: colors.success,
     fontWeight: '600',
   },
   promoContainer: {
@@ -592,7 +584,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderRadius: 8,
     paddingHorizontal: 12,
     height: 48,
@@ -600,10 +592,10 @@ const styles = StyleSheet.create({
   promoInput: {
     flex: 1,
     fontSize: 16,
-    color: COLORS.primary,
+    color: colors.primary,
   },
   promoApplyButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 8,
     paddingHorizontal: 20,
     height: 48,
@@ -612,7 +604,7 @@ const styles = StyleSheet.create({
     minWidth: 80,
   },
   promoApplyButtonText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -628,8 +620,8 @@ const styles = StyleSheet.create({
   footer: {
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-    backgroundColor: COLORS.white,
+    borderTopColor: colors.border,
+    backgroundColor: colors.white,
   },
   totalContainer: {
     flexDirection: 'row',
@@ -640,11 +632,11 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   discountLabel: {
     fontSize: 12,
-    color: COLORS.success,
+    color: colors.success,
     marginTop: 2,
   },
   priceContainer: {
@@ -653,16 +645,16 @@ const styles = StyleSheet.create({
   totalPrice: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   purchaseButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
   },
   purchaseButtonText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: 18,
     fontWeight: 'bold',
   },

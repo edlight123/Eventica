@@ -12,7 +12,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { COLORS } from '../../config/brand';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import {
@@ -30,6 +30,7 @@ type RouteParams = {
 };
 
 export default function GovernmentIDUploadScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation();
   const route = useRoute<RouteProp<RouteParams, 'GovernmentIDUpload'>>();
   const { userProfile } = useAuth();
@@ -214,12 +215,12 @@ export default function GovernmentIDUploadScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={COLORS.white} />
+      <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
 
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={COLORS.text} />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('verification.governmentId.title')}</Text>
         <View style={{ width: 40 }} />
@@ -228,7 +229,7 @@ export default function GovernmentIDUploadScreen() {
       <View style={styles.content}>
         {/* Instructions */}
         <View style={styles.instructionsCard}>
-          <Ionicons name="information-circle" size={32} color={COLORS.primary} />
+          <Ionicons name="information-circle" size={32} color={colors.primary} />
           <Text style={styles.instructionsTitle}>{t('verification.governmentId.photoTipsTitle')}</Text>
           <View style={styles.tipsList}>
             <Text style={styles.tipItem}>✓ {t('verification.governmentId.tips.readable')}</Text>
@@ -249,7 +250,7 @@ export default function GovernmentIDUploadScreen() {
                 onPress={() => showUploadOptions('front')}
                 disabled={uploading}
               >
-                <Ionicons name="camera" size={20} color={COLORS.primary} />
+                <Ionicons name="camera" size={20} color={colors.primary} />
                 <Text style={styles.changeButtonText}>{t('verification.common.changePhoto')}</Text>
               </TouchableOpacity>
             </View>
@@ -260,10 +261,10 @@ export default function GovernmentIDUploadScreen() {
               disabled={uploading}
             >
               {uploading ? (
-                <ActivityIndicator size="small" color={COLORS.primary} />
+                <ActivityIndicator size="small" color={colors.primary} />
               ) : (
                 <>
-                  <Ionicons name="cloud-upload-outline" size={48} color={COLORS.primary} />
+                  <Ionicons name="cloud-upload-outline" size={48} color={colors.primary} />
                   <Text style={styles.uploadButtonText}>{t('verification.governmentId.buttons.uploadFront')}</Text>
                   <Text style={styles.uploadButtonSubtext}>
                     {t('verification.common.uploadHint')}
@@ -285,7 +286,7 @@ export default function GovernmentIDUploadScreen() {
                 onPress={() => showUploadOptions('back')}
                 disabled={uploading}
               >
-                <Ionicons name="camera" size={20} color={COLORS.primary} />
+                <Ionicons name="camera" size={20} color={colors.primary} />
                 <Text style={styles.changeButtonText}>{t('verification.common.changePhoto')}</Text>
               </TouchableOpacity>
             </View>
@@ -296,10 +297,10 @@ export default function GovernmentIDUploadScreen() {
               disabled={uploading}
             >
               {uploading ? (
-                <ActivityIndicator size="small" color={COLORS.primary} />
+                <ActivityIndicator size="small" color={colors.primary} />
               ) : (
                 <>
-                  <Ionicons name="cloud-upload-outline" size={48} color={COLORS.primary} />
+                  <Ionicons name="cloud-upload-outline" size={48} color={colors.primary} />
                   <Text style={styles.uploadButtonText}>{t('verification.governmentId.buttons.uploadBack')}</Text>
                   <Text style={styles.uploadButtonSubtext}>
                     {t('verification.common.uploadHint')}
@@ -322,7 +323,7 @@ export default function GovernmentIDUploadScreen() {
           disabled={!frontPath || !backPath || uploading || saving}
         >
           {saving ? (
-            <ActivityIndicator size="small" color={COLORS.white} />
+            <ActivityIndicator size="small" color={colors.white} />
           ) : (
             <Text style={styles.continueButtonText}>{t('verification.common.saveAndContinue')}</Text>
           )}
@@ -335,7 +336,7 @@ export default function GovernmentIDUploadScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -343,9 +344,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     paddingTop: 16,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   backButton: {
     width: 40,
@@ -356,7 +357,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   content: {
     flex: 1,
@@ -364,7 +365,7 @@ const styles = StyleSheet.create({
   },
   instructionsCard: {
     padding: 16,
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: colors.primaryLight,
     borderRadius: 12,
     marginBottom: 24,
     alignItems: 'center',
@@ -372,7 +373,7 @@ const styles = StyleSheet.create({
   instructionsTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
     marginTop: 8,
     marginBottom: 12,
   },
@@ -381,7 +382,7 @@ const styles = StyleSheet.create({
   },
   tipItem: {
     fontSize: 14,
-    color: COLORS.primary,
+    color: colors.primary,
     marginBottom: 4,
   },
   uploadSection: {
@@ -390,13 +391,13 @@ const styles = StyleSheet.create({
   uploadLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   uploadButton: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderWidth: 2,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderStyle: 'dashed',
     borderRadius: 12,
     padding: 32,
@@ -406,16 +407,16 @@ const styles = StyleSheet.create({
   uploadButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginTop: 12,
   },
   uploadButtonSubtext: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 4,
   },
   previewContainer: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     overflow: 'hidden',
     shadowColor: '#000',
@@ -435,32 +436,32 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 12,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
   },
   changeButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
     marginLeft: 8,
   },
   footer: {
     padding: 16,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
   },
   continueButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
   },
   continueButtonDisabled: {
-    backgroundColor: COLORS.textSecondary,
+    backgroundColor: colors.textSecondary,
     opacity: 0.5,
   },
   continueButtonText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: 16,
     fontWeight: '600',
   },

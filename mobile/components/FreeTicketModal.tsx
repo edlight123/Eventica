@@ -9,7 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { Ticket, X, Plus, Minus } from 'lucide-react-native';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import { collection, addDoc, doc, getDoc, updateDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
@@ -36,6 +36,7 @@ export default function FreeTicketModal({
   event,
   onSuccess,
 }: FreeTicketModalProps) {
+  const { colors } = useTheme();
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
 
@@ -174,12 +175,12 @@ export default function FreeTicketModal({
           <View style={styles.header}>
             <View style={styles.headerLeft}>
               <View style={styles.iconCircle}>
-                <Ticket size={24} color={COLORS.primary} />
+                <Ticket size={24} color={colors.primary} />
               </View>
               <Text style={styles.headerTitle}>Claim Free Ticket</Text>
             </View>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <X size={24} color={COLORS.text} />
+              <X size={24} color={colors.text} />
             </TouchableOpacity>
           </View>
 
@@ -206,7 +207,7 @@ export default function FreeTicketModal({
                 disabled={quantity <= 1 || loading}
                 style={[styles.quantityButton, (quantity <= 1 || loading) && styles.quantityButtonDisabled]}
               >
-                <Minus size={20} color={quantity <= 1 || loading ? COLORS.textSecondary : COLORS.primary} />
+                <Minus size={20} color={quantity <= 1 || loading ? colors.textSecondary : colors.primary} />
               </TouchableOpacity>
               
               <View style={styles.quantityDisplay}>
@@ -221,7 +222,7 @@ export default function FreeTicketModal({
                 disabled={quantity >= maxQuantity || loading}
                 style={[styles.quantityButton, (quantity >= maxQuantity || loading) && styles.quantityButtonDisabled]}
               >
-                <Plus size={20} color={quantity >= maxQuantity || loading ? COLORS.textSecondary : COLORS.primary} />
+                <Plus size={20} color={quantity >= maxQuantity || loading ? colors.textSecondary : colors.primary} />
               </TouchableOpacity>
             </View>
 
@@ -277,7 +278,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingTop: 20,
@@ -301,21 +302,21 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: COLORS.primary + '15',
+    backgroundColor: colors.primary + '15',
     justifyContent: 'center',
     alignItems: 'center',
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     flex: 1,
   },
   closeButton: {
     padding: 4,
   },
   eventInfo: {
-    backgroundColor: COLORS.primary + '10',
+    backgroundColor: colors.primary + '10',
     padding: 16,
     borderRadius: 12,
     marginBottom: 24,
@@ -323,13 +324,13 @@ const styles = StyleSheet.create({
   eventTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   freeLabel: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   quantitySection: {
     marginBottom: 24,
@@ -343,11 +344,11 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   availabilityText: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   quantityControls: {
     flexDirection: 'row',
@@ -359,14 +360,14 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderWidth: 2,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
   quantityButtonDisabled: {
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     opacity: 0.5,
   },
   quantityDisplay: {
@@ -376,21 +377,21 @@ const styles = StyleSheet.create({
   quantityNumber: {
     fontSize: 32,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   quantityLabel: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   limitText: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 12,
   },
   summary: {
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     padding: 16,
     borderRadius: 12,
     marginBottom: 24,
@@ -403,12 +404,12 @@ const styles = StyleSheet.create({
   summaryLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   summaryValue: {
     fontSize: 24,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   actions: {
     flexDirection: 'row',
@@ -418,21 +419,21 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 14,
     borderRadius: 12,
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
     alignItems: 'center',
   },
   cancelButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   claimButton: {
     flex: 2,
     paddingVertical: 14,
     borderRadius: 12,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     alignItems: 'center',
-    shadowColor: COLORS.primary,
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

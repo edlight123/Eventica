@@ -5,13 +5,14 @@ import { useNavigation, useRoute } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
 import { WebView } from 'react-native-webview'
 
-import { COLORS } from '../config/brand'
+import { useTheme } from '../contexts/ThemeContext';
 
 type Params = {
   url: string
 }
 
 export default function StripeConnectWebViewScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation<any>()
   const route = useRoute<any>()
   const insets = useSafeAreaInsets()
@@ -41,7 +42,7 @@ export default function StripeConnectWebViewScreen() {
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerButton}>
-          <Ionicons name="close" size={24} color={COLORS.text} />
+          <Ionicons name="close" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Stripe Connect</Text>
         <View style={{ width: 44 }} />
@@ -63,7 +64,7 @@ export default function StripeConnectWebViewScreen() {
 
       {loading ? (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : null}
     </View>
@@ -73,17 +74,17 @@ export default function StripeConnectWebViewScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   header: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     paddingHorizontal: 12,
     paddingBottom: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   headerButton: {
     width: 44,
@@ -94,7 +95,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   loadingOverlay: {
     position: 'absolute',
@@ -104,6 +105,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
 })

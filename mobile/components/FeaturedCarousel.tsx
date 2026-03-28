@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Image, TouchableOpacity, Dimensions, StyleSheet, ScrollView, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Calendar, MapPin, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react-native';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import PaginationDots from './PaginationDots';
 import { useI18n } from '../contexts/I18nContext';
 import { getCategoryLabel } from '../lib/categories';
@@ -30,6 +30,7 @@ interface FeaturedCarouselProps {
 const { width } = Dimensions.get('window');
 
 export default function FeaturedCarousel({ events, onEventPress }: FeaturedCarouselProps) {
+  const { colors } = useTheme();
   const { t, language } = useI18n();
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollX = useRef(new Animated.Value(0)).current;
@@ -116,14 +117,14 @@ export default function FeaturedCarousel({ events, onEventPress }: FeaturedCarou
 
               <View style={styles.details}>
                 <View style={styles.detailRow}>
-                  <Calendar size={16} color={COLORS.primaryLight} />
+                  <Calendar size={16} color={colors.primaryLight} />
                   <Text style={styles.detailText}>
                     {formatDateForLanguage(new Date(event.start_datetime), 'MMM d, yyyy', language)}
                   </Text>
                 </View>
                 <Text style={styles.separator}>•</Text>
                 <View style={styles.detailRow}>
-                  <MapPin size={16} color={COLORS.primaryLight} />
+                  <MapPin size={16} color={colors.primaryLight} />
                   <Text style={styles.detailText} numberOfLines={1}>
                     {event.venue_name}, {event.city}
                   </Text>
@@ -159,7 +160,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     borderRadius: 20,
     overflow: 'hidden',
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
   },
   image: {
     width: '100%',
@@ -187,7 +188,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
@@ -247,7 +248,7 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     flex: 1,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingVertical: 14,
     borderRadius: 12,
     alignItems: 'center',
@@ -282,10 +283,10 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
   },
   activeDot: {
     width: 24,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
 });

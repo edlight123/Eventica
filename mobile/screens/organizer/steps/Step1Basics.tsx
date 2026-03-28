@@ -3,7 +3,7 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView } from 
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { Image } from 'expo-image';
-import { COLORS } from '../../../config/brand';
+import { useTheme } from '../../../contexts/ThemeContext';
 import { useI18n } from '../../../contexts/I18nContext';
 import type { EventDraft } from '../CreateEventFlowRefactored';
 
@@ -31,6 +31,7 @@ interface Props {
 }
 
 export default function Step1Basics({ draft, updateDraft }: Props) {
+  const { colors } = useTheme();
   const { t } = useI18n();
 
   const getCategoryLabel = (categoryId: string) => {
@@ -64,13 +65,13 @@ export default function Step1Basics({ draft, updateDraft }: Props) {
             <View style={styles.imagePreviewContainer}>
               <Image source={{ uri: draft.banner_image_url }} style={styles.imagePreview} />
               <View style={styles.imageOverlay}>
-                <Ionicons name="camera" size={32} color={COLORS.white} />
+                <Ionicons name="camera" size={32} color={colors.white} />
                 <Text style={styles.imageOverlayText}>{t('organizerCreateEvent.basics.changeImage')}</Text>
               </View>
             </View>
           ) : (
             <>
-              <Ionicons name="image-outline" size={48} color={COLORS.primary} />
+              <Ionicons name="image-outline" size={48} color={colors.primary} />
               <Text style={styles.imageUploadText}>{t('organizerCreateEvent.basics.uploadImage')}</Text>
               <Text style={styles.imageUploadSubtext}>{t('organizerCreateEvent.basics.aspectRatio')}</Text>
             </>
@@ -153,11 +154,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   subtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: -12,
   },
   formGroup: {
@@ -166,19 +167,19 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   required: {
-    color: COLORS.error,
+    color: colors.error,
   },
   input: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderRadius: 12,
     padding: 14,
     fontSize: 15,
-    color: COLORS.text,
+    color: colors.text,
   },
   textArea: {
     minHeight: 120,
@@ -186,7 +187,7 @@ const styles = StyleSheet.create({
   },
   charCount: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'right',
   },
   categoryScroll: {
@@ -197,31 +198,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   categoryChipActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   categoryChipText: {
     fontSize: 14,
     fontWeight: '500',
-    color: COLORS.text,
+    color: colors.text,
   },
   categoryChipTextActive: {
-    color: COLORS.white,
+    color: colors.white,
   },
   imageUploadButton: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
     gap: 8,
     borderWidth: 2,
     borderStyle: 'dashed',
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   imagePreviewContainer: {
     width: '100%',
@@ -245,7 +246,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   imageOverlayText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: 14,
     fontWeight: '600',
     marginTop: 8,
@@ -253,10 +254,10 @@ const styles = StyleSheet.create({
   imageUploadText: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   imageUploadSubtext: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
 });

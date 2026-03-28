@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
-import { COLORS } from '../../../config/brand';
+import { useTheme } from '../../../contexts/ThemeContext';
 import { useI18n } from '../../../contexts/I18nContext';
 import type { EventDraft } from '../CreateEventFlowRefactored';
 
@@ -13,6 +13,7 @@ interface Props {
 }
 
 export default function Step5Preview({ draft, updateDraft }: Props) {
+  const { colors } = useTheme();
   const { t } = useI18n();
   const [viewMode, setViewMode] = useState<'card' | 'page'>('card');
 
@@ -40,14 +41,14 @@ export default function Step5Preview({ draft, updateDraft }: Props) {
             style={[styles.toggleButton, styles.toggleButtonActive]}
             onPress={() => setViewMode('card')}
           >
-            <Ionicons name="card-outline" size={20} color={COLORS.white} />
+            <Ionicons name="card-outline" size={20} color={colors.white} />
             <Text style={styles.toggleButtonTextActive}>{t('organizerCreateEvent.preview.cardView')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.toggleButton}
             onPress={() => setViewMode('page')}
           >
-            <Ionicons name="document-text-outline" size={20} color={COLORS.text} />
+            <Ionicons name="document-text-outline" size={20} color={colors.text} />
             <Text style={styles.toggleButtonText}>{t('organizerCreateEvent.preview.pageView')}</Text>
           </TouchableOpacity>
         </View>
@@ -57,7 +58,7 @@ export default function Step5Preview({ draft, updateDraft }: Props) {
             <Image source={{ uri: draft.banner_image_url }} style={styles.cardImage} />
           ) : (
             <View style={styles.cardImagePlaceholder}>
-              <Ionicons name="image-outline" size={40} color={COLORS.textSecondary} />
+              <Ionicons name="image-outline" size={40} color={colors.textSecondary} />
             </View>
           )}
           <View style={styles.cardContent}>
@@ -68,11 +69,11 @@ export default function Step5Preview({ draft, updateDraft }: Props) {
               {draft.title || t('organizerCreateEvent.preview.eventTitlePlaceholder')}
             </Text>
             <View style={styles.cardInfo}>
-              <Ionicons name="calendar-outline" size={14} color={COLORS.textSecondary} />
+              <Ionicons name="calendar-outline" size={14} color={colors.textSecondary} />
               <Text style={styles.cardInfoText}>{draft.start_date || t('organizerCreateEvent.preview.dateTbd')}</Text>
             </View>
             <View style={styles.cardInfo}>
-              <Ionicons name="location-outline" size={14} color={COLORS.textSecondary} />
+              <Ionicons name="location-outline" size={14} color={colors.textSecondary} />
               <Text style={styles.cardInfoText}>{draft.city || t('organizerCreateEvent.preview.locationTbd')}</Text>
             </View>
             <View style={styles.cardFooter}>
@@ -87,7 +88,7 @@ export default function Step5Preview({ draft, updateDraft }: Props) {
         </View>
 
         <TouchableOpacity style={styles.changeImageButton} onPress={pickImage}>
-          <Ionicons name="camera-outline" size={20} color={COLORS.primary} />
+          <Ionicons name="camera-outline" size={20} color={colors.primary} />
           <Text style={styles.changeImageText}>{t('organizerCreateEvent.preview.changeEventImage')}</Text>
         </TouchableOpacity>
       </View>
@@ -101,14 +102,14 @@ export default function Step5Preview({ draft, updateDraft }: Props) {
           style={styles.toggleButton}
           onPress={() => setViewMode('card')}
         >
-          <Ionicons name="card-outline" size={20} color={COLORS.text} />
+          <Ionicons name="card-outline" size={20} color={colors.text} />
           <Text style={styles.toggleButtonText}>{t('organizerCreateEvent.preview.cardView')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.toggleButton, styles.toggleButtonActive]}
           onPress={() => setViewMode('page')}
         >
-          <Ionicons name="document-text-outline" size={20} color={COLORS.white} />
+          <Ionicons name="document-text-outline" size={20} color={colors.white} />
           <Text style={styles.toggleButtonTextActive}>{t('organizerCreateEvent.preview.pageView')}</Text>
         </TouchableOpacity>
       </View>
@@ -119,12 +120,12 @@ export default function Step5Preview({ draft, updateDraft }: Props) {
           <Image source={{ uri: draft.banner_image_url }} style={styles.pageHeroImage} />
         ) : (
           <View style={styles.pageHeroPlaceholder}>
-            <Ionicons name="image-outline" size={60} color={COLORS.textSecondary} />
+            <Ionicons name="image-outline" size={60} color={colors.textSecondary} />
             <Text style={styles.placeholderText}>{t('organizerCreateEvent.preview.noImageSelected')}</Text>
           </View>
         )}
         <TouchableOpacity style={styles.editImageButton} onPress={pickImage}>
-          <Ionicons name="camera" size={20} color={COLORS.white} />
+          <Ionicons name="camera" size={20} color={colors.white} />
         </TouchableOpacity>
       </View>
 
@@ -138,14 +139,14 @@ export default function Step5Preview({ draft, updateDraft }: Props) {
 
         <View style={styles.pageInfoRow}>
           <View style={styles.pageInfoItem}>
-            <Ionicons name="calendar" size={20} color={COLORS.primary} />
+            <Ionicons name="calendar" size={20} color={colors.primary} />
             <View style={styles.pageInfoTextContainer}>
               <Text style={styles.pageInfoLabel}>{t('organizerCreateEvent.preview.date')}</Text>
               <Text style={styles.pageInfoValue}>{draft.start_date || t('organizerCreateEvent.preview.tbd')}</Text>
             </View>
           </View>
           <View style={styles.pageInfoItem}>
-            <Ionicons name="time" size={20} color={COLORS.primary} />
+            <Ionicons name="time" size={20} color={colors.primary} />
             <View style={styles.pageInfoTextContainer}>
               <Text style={styles.pageInfoLabel}>{t('organizerCreateEvent.preview.time')}</Text>
               <Text style={styles.pageInfoValue}>{draft.start_time || t('organizerCreateEvent.preview.tbd')}</Text>
@@ -155,7 +156,7 @@ export default function Step5Preview({ draft, updateDraft }: Props) {
 
         <View style={styles.pageInfoRow}>
           <View style={styles.pageInfoItem}>
-            <Ionicons name="location" size={20} color={COLORS.primary} />
+            <Ionicons name="location" size={20} color={colors.primary} />
             <View style={styles.pageInfoTextContainer}>
               <Text style={styles.pageInfoLabel}>{t('organizerCreateEvent.preview.location')}</Text>
               <Text style={styles.pageInfoValue}>{draft.venue_name || t('organizerCreateEvent.preview.tbd')}</Text>
@@ -191,7 +192,7 @@ export default function Step5Preview({ draft, updateDraft }: Props) {
         ))}
 
         <View style={styles.helpCard}>
-          <Ionicons name="checkmark-circle" size={20} color={COLORS.success} />
+          <Ionicons name="checkmark-circle" size={20} color={colors.success} />
           <Text style={styles.helpText}>
             {t('organizerCreateEvent.preview.helpText')}
           </Text>
@@ -218,26 +219,26 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 12,
     borderRadius: 12,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   toggleButtonActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   toggleButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   toggleButtonTextActive: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.white,
+    color: colors.white,
   },
   eventCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 16,
     overflow: 'hidden',
     marginBottom: 16,
@@ -249,7 +250,7 @@ const styles = StyleSheet.create({
   cardImagePlaceholder: {
     width: '100%',
     height: 180,
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -258,7 +259,7 @@ const styles = StyleSheet.create({
   },
   cardCategory: {
     alignSelf: 'flex-start',
-    backgroundColor: COLORS.primary + '15',
+    backgroundColor: colors.primary + '15',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 6,
@@ -267,12 +268,12 @@ const styles = StyleSheet.create({
   cardCategoryText: {
     fontSize: 12,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   cardTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   cardInfo: {
@@ -283,7 +284,7 @@ const styles = StyleSheet.create({
   },
   cardInfoText: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   cardFooter: {
     flexDirection: 'row',
@@ -292,16 +293,16 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
   },
   cardPrice: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   cardTickets: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   changeImageButton: {
     flexDirection: 'row',
@@ -310,14 +311,14 @@ const styles = StyleSheet.create({
     gap: 8,
     padding: 16,
     borderRadius: 12,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   changeImageText: {
     fontSize: 15,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   eventPageHero: {
     height: 220,
@@ -331,13 +332,13 @@ const styles = StyleSheet.create({
   pageHeroPlaceholder: {
     width: '100%',
     height: '100%',
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
     justifyContent: 'center',
     alignItems: 'center',
   },
   placeholderText: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 8,
   },
   editImageButton: {
@@ -347,18 +348,18 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
   eventPageContent: {
     padding: 16,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 16,
   },
   pageCategory: {
     alignSelf: 'flex-start',
-    backgroundColor: COLORS.primary + '15',
+    backgroundColor: colors.primary + '15',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 6,
@@ -367,12 +368,12 @@ const styles = StyleSheet.create({
   pageCategoryText: {
     fontSize: 12,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   pageTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 16,
   },
   pageInfoRow: {
@@ -390,32 +391,32 @@ const styles = StyleSheet.create({
   },
   pageInfoLabel: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 2,
   },
   pageInfoValue: {
     fontSize: 15,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   pageInfoSubtext: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   pageDivider: {
     height: 1,
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
     marginVertical: 16,
   },
   pageSectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   pageDescription: {
     fontSize: 15,
-    color: COLORS.text,
+    color: colors.text,
     lineHeight: 22,
   },
   pageTicketTier: {
@@ -424,7 +425,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   pageTicketInfo: {
     flex: 1,
@@ -432,23 +433,23 @@ const styles = StyleSheet.create({
   pageTicketName: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   pageTicketAvailable: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   pageTicketPrice: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   helpCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: COLORS.success + '15',
+    backgroundColor: colors.success + '15',
     padding: 12,
     borderRadius: 12,
     marginTop: 16,
@@ -456,6 +457,6 @@ const styles = StyleSheet.create({
   helpText: {
     flex: 1,
     fontSize: 13,
-    color: COLORS.text,
+    color: colors.text,
   },
 });

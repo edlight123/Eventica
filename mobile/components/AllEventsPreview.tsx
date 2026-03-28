@@ -8,7 +8,7 @@ import {
   Animated,
 } from 'react-native';
 import { Calendar, MapPin, ChevronRight } from 'lucide-react-native';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import EventStatusBadge from './EventStatusBadge';
 import { useI18n } from '../contexts/I18nContext';
 import { getCategoryLabel } from '../lib/categories';
@@ -84,14 +84,14 @@ const CompactEventCard = ({ event, onPress }: { event: any; onPress: () => void 
 
           <View style={styles.details}>
             <View style={styles.detailRow}>
-              <Calendar size={12} color={COLORS.textSecondary} />
+              <Calendar size={12} color={colors.textSecondary} />
               <Text style={styles.detailText}>
                 {event.start_datetime &&
                   formatDateForLanguage(new Date(event.start_datetime), 'MMM dd', language)}
               </Text>
             </View>
             <View style={styles.detailRow}>
-              <MapPin size={12} color={COLORS.textSecondary} />
+              <MapPin size={12} color={colors.textSecondary} />
               <Text style={styles.detailText} numberOfLines={1} ellipsizeMode="tail">
                 {event.venue_name}
               </Text>
@@ -109,7 +109,7 @@ const CompactEventCard = ({ event, onPress }: { event: any; onPress: () => void 
           </View>
         </View>
 
-        <ChevronRight size={20} color={COLORS.textTertiary} />
+        <ChevronRight size={20} color={colors.textTertiary} />
       </TouchableOpacity>
     </Animated.View>
   );
@@ -120,6 +120,7 @@ export default function AllEventsPreview({
   onEventPress,
   onViewAll,
 }: AllEventsPreviewProps) {
+  const { colors } = useTheme();
   const { t } = useI18n();
   const displayEvents = events.slice(0, 6);
 
@@ -142,7 +143,7 @@ export default function AllEventsPreview({
 
       <TouchableOpacity style={styles.viewAllButton} onPress={onViewAll}>
         <Text style={styles.viewAllText}>{t('home.viewAllEvents')}</Text>
-        <ChevronRight size={20} color={COLORS.primary} />
+        <ChevronRight size={20} color={colors.primary} />
       </TouchableOpacity>
     </View>
   );
@@ -157,12 +158,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   list: {
     gap: 12,
@@ -170,11 +171,11 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 12,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
@@ -189,13 +190,13 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 8,
-    backgroundColor: COLORS.borderLight,
+    backgroundColor: colors.borderLight,
   },
   cardImagePlaceholder: {
     width: 80,
     height: 80,
     borderRadius: 8,
-    backgroundColor: COLORS.primaryLight + '20',
+    backgroundColor: colors.primaryLight + '20',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -214,7 +215,7 @@ const styles = StyleSheet.create({
   category: {
     fontSize: 10,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 4,
@@ -222,7 +223,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 15,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 6,
     lineHeight: 20,
   },
@@ -240,7 +241,7 @@ const styles = StyleSheet.create({
   },
   detailText: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     flex: 1,
   },
   footer: {
@@ -249,22 +250,22 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   free: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.success,
+    color: colors.success,
   },
   viewAllButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingVertical: 14,
     borderRadius: 12,
     marginTop: 16,
-    shadowColor: COLORS.primary,
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,

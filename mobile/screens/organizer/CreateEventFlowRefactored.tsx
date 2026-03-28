@@ -25,7 +25,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS } from '../../config/brand';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { createEvent, updateEvent } from '../../lib/api/events';
@@ -85,6 +85,7 @@ const STEPS = [
 ];
 
 export default function CreateEventFlowRefactored() {
+  const { colors } = useTheme();
   const navigation = useNavigation();
   const route = useRoute<RouteProp<RouteParams, 'EditEvent'>>();
   const insets = useSafeAreaInsets();
@@ -348,7 +349,7 @@ export default function CreateEventFlowRefactored() {
   if (loadingEvent) {
     return (
       <View style={[styles.container, styles.loadingContainer]}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>{t('organizerCreateEventFlow.loadingEvent')}</Text>
       </View>
     );
@@ -372,7 +373,7 @@ export default function CreateEventFlowRefactored() {
                 ]);
               }}
             >
-              <Ionicons name="close" size={24} color={COLORS.text} />
+              <Ionicons name="close" size={24} color={colors.text} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>
               {isEditMode ? t('organizerCreateEventFlow.headerEdit') : t('organizerCreateEventFlow.headerCreate')}
@@ -431,7 +432,7 @@ export default function CreateEventFlowRefactored() {
             <View style={styles.footer}>
               {currentStep > 1 && (
                 <TouchableOpacity style={[styles.button, styles.buttonSecondary]} onPress={handleBack}>
-                  <Ionicons name="arrow-back" size={20} color={COLORS.primary} />
+                  <Ionicons name="arrow-back" size={20} color={colors.primary} />
                   <Text style={styles.buttonSecondaryText}>{t('common.back')}</Text>
                 </TouchableOpacity>
               )}
@@ -445,7 +446,7 @@ export default function CreateEventFlowRefactored() {
                     ? (isEditMode ? t('organizerCreateEventFlow.updateEvent') : t('organizerCreateEventFlow.createEvent'))
                     : t('common.continue')}
                 </Text>
-                {currentStep < 5 && <Ionicons name="arrow-forward" size={20} color={COLORS.white} />}
+                {currentStep < 5 && <Ionicons name="arrow-forward" size={20} color={colors.white} />}
               </TouchableOpacity>
             </View>
           )}
@@ -458,7 +459,7 @@ export default function CreateEventFlowRefactored() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingContainer: {
     justifyContent: 'center',
@@ -467,7 +468,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   safeArea: {
     flex: 1,
@@ -482,21 +483,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 12,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   progressWrapper: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   progressContainer: {
     flexDirection: 'row',
@@ -511,41 +512,41 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 4,
   },
   stepCircleActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   stepNumber: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   stepNumberActive: {
-    color: COLORS.white,
+    color: colors.white,
   },
   stepLabel: {
     fontSize: 9,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     maxWidth: 50,
   },
   stepLabelActive: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
   },
   line: {
     flex: 1,
     height: 2,
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
     marginHorizontal: 4,
     marginBottom: 20,
   },
   lineActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   content: {
     flex: 1,
@@ -554,9 +555,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 16,
     gap: 12,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
     paddingBottom: Platform.OS === 'ios' ? 32 : 16,
   },
   button: {
@@ -572,21 +573,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   buttonSecondary: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderWidth: 2,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
   },
   buttonSecondaryText: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   buttonPrimary: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   buttonPrimaryText: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.white,
+    color: colors.white,
   },
 });

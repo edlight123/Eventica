@@ -11,7 +11,7 @@ import {
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
-import { COLORS } from '../../config/brand';
+import { useTheme } from '../../contexts/ThemeContext';
 import { db } from '../../config/firebase';
 import { doc, updateDoc, getDoc, Timestamp, serverTimestamp } from 'firebase/firestore';
 import { auth } from '../../config/firebase';
@@ -33,6 +33,7 @@ type ScanResult = {
 };
 
 export default function TicketScannerScreen() {
+  const { colors } = useTheme();
   const route = useRoute<RouteProp<RouteParams, 'TicketScanner'>>();
   const navigation = useNavigation();
   const { eventId } = route.params;
@@ -240,7 +241,7 @@ export default function TicketScannerScreen() {
   if (!permission.granted) {
     return (
       <View style={styles.container}>
-        <Ionicons name="camera-outline" size={64} color={COLORS.textSecondary} />
+        <Ionicons name="camera-outline" size={64} color={colors.textSecondary} />
         <Text style={styles.message}>{t('organizerTicketScanner.permissions.required')}</Text>
         <TouchableOpacity style={styles.button} onPress={requestPermission}>
           <Text style={styles.buttonText}>{t('organizerTicketScanner.permissions.grant')}</Text>
@@ -285,11 +286,11 @@ export default function TicketScannerScreen() {
       {/* Header below camera */}
       <View style={styles.belowHeader}>
         <TouchableOpacity style={styles.belowHeaderButton} onPress={() => navigation.goBack()}>
-          <Ionicons name="close" size={26} color={COLORS.text} />
+          <Ionicons name="close" size={26} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.belowHeaderTitle}>{t('organizerTicketScanner.headerTitle')}</Text>
         <TouchableOpacity style={styles.belowHeaderButton} onPress={() => setFlashOn(!flashOn)}>
-          <Ionicons name={flashOn ? 'flash' : 'flash-off'} size={22} color={COLORS.text} />
+          <Ionicons name={flashOn ? 'flash' : 'flash-off'} size={22} color={colors.text} />
         </TouchableOpacity>
       </View>
 
@@ -318,10 +319,10 @@ export default function TicketScannerScreen() {
                 size={64}
                 color={
                   scanResult?.status === 'VALID'
-                    ? COLORS.success
+                    ? colors.success
                     : scanResult?.status === 'ALREADY_CHECKED_IN'
-                    ? COLORS.info
-                    : COLORS.error
+                    ? colors.info
+                    : colors.error
                 }
               />
             </View>
@@ -339,7 +340,7 @@ export default function TicketScannerScreen() {
               )}
               
               {isProcessing && scanResult?.status === 'VALID' && (
-                <ActivityIndicator size="large" color={COLORS.primary} style={styles.loader} />
+                <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
               )}
             </View>
 
@@ -379,26 +380,26 @@ export default function TicketScannerScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     justifyContent: 'center',
     alignItems: 'center',
   },
   message: {
     fontSize: 16,
-    color: COLORS.text,
+    color: colors.text,
     textAlign: 'center',
     marginVertical: 20,
     paddingHorizontal: 40,
   },
   button: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
     marginTop: 16,
   },
   buttonText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -413,9 +414,9 @@ const styles = StyleSheet.create({
   belowHeader: {
     height: 64,
     width: '100%',
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -430,7 +431,7 @@ const styles = StyleSheet.create({
   belowHeaderTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   overlay: {
     flex: 1,
@@ -453,7 +454,7 @@ const styles = StyleSheet.create({
   topBarTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.white,
+    color: colors.white,
   },
   scanFrame: {
     flex: 1,
@@ -464,7 +465,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 60,
     height: 60,
-    borderColor: COLORS.white,
+    borderColor: colors.white,
   },
   cornerTopLeft: {
     top: '30%',
@@ -499,7 +500,7 @@ const styles = StyleSheet.create({
   },
   instruction: {
     fontSize: 16,
-    color: COLORS.white,
+    color: colors.white,
     textAlign: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     paddingVertical: 12,
@@ -516,7 +517,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bottomSheet: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingTop: 24,
@@ -535,13 +536,13 @@ const styles = StyleSheet.create({
   attendeeName: {
     fontSize: 24,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
     textAlign: 'center',
   },
   tierName: {
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 16,
     textAlign: 'center',
   },
@@ -557,20 +558,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   primaryButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   primaryButtonText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: 16,
     fontWeight: '600',
   },
   secondaryButton: {
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   secondaryButtonText: {
-    color: COLORS.text,
+    color: colors.text,
     fontSize: 16,
     fontWeight: '600',
   },

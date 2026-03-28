@@ -12,6 +12,7 @@ import { X, Minus, Plus } from 'lucide-react-native';
 import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useI18n } from '../contexts/I18nContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface TicketTier {
   id: string;
@@ -36,17 +37,6 @@ interface EventbriteStyleTicketSelectorProps {
   currency?: string;
 }
 
-const COLORS = {
-  primary: '#0D9488',
-  secondary: '#666666',
-  background: '#F5F5F5',
-  white: '#FFFFFF',
-  border: '#E0E0E0',
-  success: '#10B981',
-  error: '#EF4444',
-  textPrimary: '#111827',
-  textSecondary: '#6B7280',
-};
 
 export default function EventbriteStyleTicketSelector({
   eventId,
@@ -55,6 +45,7 @@ export default function EventbriteStyleTicketSelector({
   onPurchase,
   currency,
 }: EventbriteStyleTicketSelectorProps) {
+  const { colors } = useTheme();
   const { t } = useI18n();
   const displayCurrency = String(currency || 'HTG').toUpperCase();
   const [tiers, setTiers] = useState<TicketTier[]>([]);
@@ -171,13 +162,13 @@ export default function EventbriteStyleTicketSelector({
           <View style={styles.header}>
             <Text style={styles.headerTitle}>{t('ticketSelector.title')}</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <X size={24} color={COLORS.textSecondary} />
+              <X size={24} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
 
           {loading ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={COLORS.primary} />
+              <ActivityIndicator size="large" color={colors.primary} />
             </View>
           ) : tiers.length === 0 ? (
             <View style={styles.emptyContainer}>
@@ -231,7 +222,7 @@ export default function EventbriteStyleTicketSelector({
                                 quantity === 0 && styles.quantityButtonDisabled,
                               ]}
                             >
-                              <Minus size={18} color={quantity === 0 ? COLORS.border : COLORS.textPrimary} />
+                              <Minus size={18} color={quantity === 0 ? colors.border : colors.textPrimary} />
                             </TouchableOpacity>
                             <Text style={styles.quantityText}>{quantity}</Text>
                             <TouchableOpacity
@@ -242,7 +233,7 @@ export default function EventbriteStyleTicketSelector({
                                 quantity >= available && styles.quantityButtonDisabled,
                               ]}
                             >
-                              <Plus size={18} color={quantity >= available ? COLORS.border : COLORS.textPrimary} />
+                              <Plus size={18} color={quantity >= available ? colors.border : colors.textPrimary} />
                             </TouchableOpacity>
                           </View>
                         )}
@@ -313,7 +304,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     maxHeight: '90%',
@@ -324,12 +315,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   closeButton: {
     padding: 4,
@@ -347,7 +338,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   tiersList: {
     padding: 20,
@@ -355,7 +346,7 @@ const styles = StyleSheet.create({
   },
   tierCard: {
     borderWidth: 2,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderRadius: 12,
     padding: 16,
     flexDirection: 'row',
@@ -363,7 +354,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   tierCardSelected: {
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
     backgroundColor: '#F0FDF9',
   },
   tierInfo: {
@@ -373,12 +364,12 @@ const styles = StyleSheet.create({
   tierName: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     marginBottom: 4,
   },
   tierDescription: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 8,
   },
   tierMeta: {
@@ -389,14 +380,14 @@ const styles = StyleSheet.create({
   tierPrice: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   tierAvailability: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   tierSoldOut: {
-    color: COLORS.error,
+    color: colors.error,
   },
   quantitySelector: {
     flexDirection: 'row',
@@ -408,10 +399,10 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: 8,
     borderWidth: 2,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
   },
   quantityButtonDisabled: {
     opacity: 0.3,
@@ -419,7 +410,7 @@ const styles = StyleSheet.create({
   quantityText: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     minWidth: 32,
     textAlign: 'center',
   },
@@ -427,13 +418,13 @@ const styles = StyleSheet.create({
     margin: 20,
     marginTop: 8,
     padding: 16,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderRadius: 12,
   },
   summaryTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     marginBottom: 12,
   },
   summaryItem: {
@@ -443,11 +434,11 @@ const styles = StyleSheet.create({
   },
   summaryItemText: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   summaryItemPrice: {
     fontSize: 14,
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     fontWeight: '500',
   },
   summaryTotal: {
@@ -455,35 +446,35 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
     marginTop: 4,
   },
   summaryTotalLabel: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
   },
   summaryTotalPrice: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   footer: {
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
   },
   checkoutButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
   },
   checkoutButtonDisabled: {
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
   },
   checkoutButtonText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: 16,
     fontWeight: '700',
   },

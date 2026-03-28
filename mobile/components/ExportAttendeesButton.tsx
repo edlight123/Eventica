@@ -9,7 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 
 interface Attendee {
@@ -31,6 +31,7 @@ interface ExportAttendeesButtonProps {
 }
 
 export default function ExportAttendeesButton({ eventId, attendees, style }: ExportAttendeesButtonProps) {
+  const { colors } = useTheme();
   const { t } = useI18n();
   const [exporting, setExporting] = useState(false);
 
@@ -117,10 +118,10 @@ export default function ExportAttendeesButton({ eventId, attendees, style }: Exp
       disabled={exporting}
     >
       {exporting ? (
-        <ActivityIndicator size="small" color={COLORS.primary} />
+        <ActivityIndicator size="small" color={colors.primary} />
       ) : (
         <>
-          <Ionicons name="download-outline" size={18} color={COLORS.primary} />
+          <Ionicons name="download-outline" size={18} color={colors.primary} />
           <Text style={styles.buttonText}>{t('export.exportCSV') || 'Export CSV'}</Text>
         </>
       )}
@@ -136,14 +137,14 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 8,
-    backgroundColor: COLORS.primary + '10',
+    backgroundColor: colors.primary + '10',
     borderWidth: 1,
-    borderColor: COLORS.primary + '30',
+    borderColor: colors.primary + '30',
     gap: 6,
   },
   buttonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
 });

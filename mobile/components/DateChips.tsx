@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 
 export type DateFilter = 'any' | 'today' | 'tomorrow' | 'this-week' | 'this-weekend';
@@ -21,6 +21,7 @@ const DATE_OPTIONS: { value: DateFilter; labelKey: string }[] = [
 
 export function DateChips({ currentDate, onDateChange }: DateChipsProps) {
   const { t } = useI18n();
+  const { colors } = useTheme();
 
   return (
     <View style={styles.container}>
@@ -67,20 +68,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: COLORS.borderLight,
+    backgroundColor: colors.borderLight,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   chipActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   chipText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   chipTextActive: {
-    color: COLORS.white,
+    color: colors.white,
   },
 });

@@ -7,7 +7,7 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { backendFetch } from '../lib/api/backend';
@@ -22,6 +22,7 @@ interface FollowButtonProps {
 }
 
 export default function FollowButton({ organizerId, style, compact = false, onFollowChange }: FollowButtonProps) {
+  const { colors } = useTheme();
   const { user, userProfile } = useAuth();
   const { t } = useI18n();
   const [isFollowing, setIsFollowing] = useState(false);
@@ -112,7 +113,7 @@ export default function FollowButton({ organizerId, style, compact = false, onFo
   if (loading) {
     return (
       <TouchableOpacity style={[styles.button, styles.loadingButton, style]} disabled>
-        <ActivityIndicator size="small" color={COLORS.primary} />
+        <ActivityIndicator size="small" color={colors.primary} />
       </TouchableOpacity>
     );
   }
@@ -129,12 +130,12 @@ export default function FollowButton({ organizerId, style, compact = false, onFo
         disabled={toggling}
       >
         {toggling ? (
-          <ActivityIndicator size="small" color={isFollowing ? COLORS.primary : '#FFF'} />
+          <ActivityIndicator size="small" color={isFollowing ? colors.primary : '#FFF'} />
         ) : (
           <Ionicons
             name={isFollowing ? 'checkmark' : 'add'}
             size={18}
-            color={isFollowing ? COLORS.primary : '#FFF'}
+            color={isFollowing ? colors.primary : '#FFF'}
           />
         )}
       </TouchableOpacity>
@@ -152,13 +153,13 @@ export default function FollowButton({ organizerId, style, compact = false, onFo
       disabled={toggling}
     >
       {toggling ? (
-        <ActivityIndicator size="small" color={isFollowing ? COLORS.primary : '#FFF'} />
+        <ActivityIndicator size="small" color={isFollowing ? colors.primary : '#FFF'} />
       ) : (
         <>
           <Ionicons
             name={isFollowing ? 'checkmark-circle' : 'person-add'}
             size={18}
-            color={isFollowing ? COLORS.primary : '#FFF'}
+            color={isFollowing ? colors.primary : '#FFF'}
           />
           <Text style={[styles.buttonText, isFollowing && styles.buttonTextFollowing]}>
             {isFollowing ? (t('follow.following') || 'Following') : (t('follow.follow') || 'Follow')}
@@ -180,18 +181,18 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   loadingButton: {
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     minWidth: 100,
   },
   buttonNotFollowing: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   buttonFollowing: {
-    backgroundColor: COLORS.primary + '10',
+    backgroundColor: colors.primary + '10',
     borderWidth: 1,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
   },
   buttonText: {
     fontSize: 14,
@@ -199,19 +200,19 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   buttonTextFollowing: {
-    color: COLORS.primary,
+    color: colors.primary,
   },
   compactButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   compactButtonFollowing: {
-    backgroundColor: COLORS.primary + '15',
+    backgroundColor: colors.primary + '15',
     borderWidth: 1,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
   },
 });

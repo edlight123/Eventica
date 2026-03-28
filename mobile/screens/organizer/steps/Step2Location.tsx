@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '../../../config/brand';
+import { useTheme } from '../../../contexts/ThemeContext';
 import { useI18n } from '../../../contexts/I18nContext';
 import { COUNTRIES, CITIES_BY_COUNTRY } from '../../../types/filters';
 import type { EventDraft } from '../CreateEventFlowRefactored';
@@ -12,6 +12,7 @@ interface Props {
 }
 
 export default function Step2Location({ draft, updateDraft }: Props) {
+  const { colors } = useTheme();
   const { t } = useI18n();
   const selectedCountry = (draft as any).country || 'HT';
   const cities = CITIES_BY_COUNTRY[selectedCountry] || [];
@@ -68,7 +69,7 @@ export default function Step2Location({ draft, updateDraft }: Props) {
           {t('organizerCreateEvent.location.venueName')} <Text style={styles.required}>*</Text>
         </Text>
         <View style={styles.inputContainer}>
-          <Ionicons name="business-outline" size={20} color={COLORS.textSecondary} />
+          <Ionicons name="business-outline" size={20} color={colors.textSecondary} />
           <TextInput
             style={styles.input}
             placeholder={t('organizerCreateEvent.location.venuePlaceholder')}
@@ -114,7 +115,7 @@ export default function Step2Location({ draft, updateDraft }: Props) {
       <View style={styles.formGroup}>
         <Text style={styles.label}>{t('organizerCreateEvent.location.communeOptional')}</Text>
         <View style={styles.inputContainer}>
-          <Ionicons name="map-outline" size={20} color={COLORS.textSecondary} />
+          <Ionicons name="map-outline" size={20} color={colors.textSecondary} />
           <TextInput
             style={styles.input}
             placeholder={t('organizerCreateEvent.location.communePlaceholder')}
@@ -130,7 +131,7 @@ export default function Step2Location({ draft, updateDraft }: Props) {
           {t('organizerCreateEvent.location.streetAddress')} <Text style={styles.required}>*</Text>
         </Text>
         <View style={styles.inputContainer}>
-          <Ionicons name="location-outline" size={20} color={COLORS.textSecondary} />
+          <Ionicons name="location-outline" size={20} color={colors.textSecondary} />
           <TextInput
             style={styles.input}
             placeholder={t('organizerCreateEvent.location.addressPlaceholder')}
@@ -142,7 +143,7 @@ export default function Step2Location({ draft, updateDraft }: Props) {
 
       {/* Info Card */}
       <View style={styles.infoCard}>
-        <Ionicons name="information-circle-outline" size={20} color={COLORS.primary} />
+        <Ionicons name="information-circle-outline" size={20} color={colors.primary} />
         <Text style={styles.infoText}>
           {t('organizerCreateEvent.location.infoText')}
         </Text>
@@ -158,11 +159,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   subtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: -12,
   },
   formGroup: {
@@ -171,18 +172,18 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   required: {
-    color: COLORS.error,
+    color: colors.error,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: 14,
   },
@@ -190,7 +191,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 14,
     fontSize: 15,
-    color: COLORS.text,
+    color: colors.text,
   },
   cityScroll: {
     gap: 8,
@@ -200,33 +201,33 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   cityChipActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   cityChipText: {
     fontSize: 14,
     fontWeight: '500',
-    color: COLORS.text,
+    color: colors.text,
   },
   cityChipTextActive: {
-    color: COLORS.white,
+    color: colors.white,
   },
   infoCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: COLORS.primary + '10',
+    backgroundColor: colors.primary + '10',
     padding: 12,
     borderRadius: 12,
   },
   infoText: {
     flex: 1,
     fontSize: 13,
-    color: COLORS.text,
+    color: colors.text,
   },
 });

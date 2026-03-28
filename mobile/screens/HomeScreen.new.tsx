@@ -13,7 +13,8 @@ import {
 import { collection, query, where, getDocs, orderBy, limit, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { COLORS, BRAND } from '../config/brand';
+import { BRAND } from ''../config/brand'';
+import { useTheme } from '../contexts/ThemeContext';
 import { Bell, Settings } from 'lucide-react-native';
 import FeaturedCarousel from '../components/FeaturedCarousel';
 import PremiumSearchBar from '../components/PremiumSearchBar';
@@ -23,6 +24,7 @@ import ThisWeekSection from '../components/ThisWeekSection';
 import AllEventsPreview from '../components/AllEventsPreview';
 
 export default function HomeScreen({ navigation }: any) {
+  const { colors } = useTheme();
   const { userProfile } = useAuth();
   const [events, setEvents] = useState<any[]>([]);
   const [featuredEvents, setFeaturedEvents] = useState<any[]>([]);
@@ -133,7 +135,7 @@ export default function HomeScreen({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
 
       {/* Compact Header */}
       <View style={styles.header}>
@@ -238,13 +240,13 @@ export default function HomeScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 16,
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     paddingBottom: 12,
@@ -260,7 +262,7 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.surface,
+    color: colors.surface,
     letterSpacing: 0.3,
     marginBottom: 2,
   },
@@ -294,12 +296,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   sectionSubtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   loadingContainer: {
@@ -308,7 +310,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   emptyContainer: {
@@ -323,12 +325,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   emptyText: {
     fontSize: 15,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   bottomSpacing: {

@@ -1,12 +1,14 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { AppState, Alert } from 'react-native';
+import { AppState, Alert, View, TouchableOpacity, Text, StyleSheet, Platform, Animated } from 'react-native';
 import * as ExpoLinking from 'expo-linking';
 import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { useAuth } from '../contexts/AuthContext';
 import { useAppMode } from '../contexts/AppModeContext';
+import { ThemeProvider, useTheme } from '../contexts/ThemeContext';
 import { COLORS } from '../config/brand';
 import { getVerificationRequest } from '../lib/verification';
 import { getPendingInvite } from '../lib/pendingInvite';
@@ -142,105 +144,170 @@ function AuthNavigator() {
   );
 }
 
+// ─── Custom Animated Tab Bar ───────────────────────────────────────────────
+
+interface TabBarProps {
+  state: any;
+  descriptors: any;
+  navigation: any;
+  tabs: Array<{ name: string; label: string; icon: string; activeIcon: string }>;
+}
+
+function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
+  const { colors, isDark } = useTheme();
+  const anims = useRef(tabs.map((_, i) => new Animated.Value(state.index === i ? 1 : 0))).current;
+
+  useEffect(() => {
+    tabs.forEach((_, i) => {
+      Animated.spring(anims[i], {
+        toValue: state.index === i ? 1 : 0,
+        tension: 80,
+        friction: 10,
+        useNativeDriver: true,
+      }).start();
+    });
+  }, [state.index]);
+
+  return (
+    <View style={[tabBarStyles.container, {
+      backgroundColor: isDark ? colors.surface : '#FFFFFF',
+      borderTopColor: colors.border,
+      paddingBottom: Platform.OS === 'ios' ? 20 : 8,
+    }]}>
+      {tabs.map((tab, index) => {
+        const isFocused = state.index === index;
+        const scale = anims[index].interpolate({ inputRange: [0, 1], outputRange: [1, 1.12] });
+        const iconColor = isFocused ? colors.primary : colors.textSecondary;
+
+        const onPress = () => {
+          if (!isFocused) {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            navigation.navigate(tab.name);
+          }
+        };
+
+        return (
+          <TouchableOpacity
+            key={tab.name}
+            onPress={onPress}
+            style={tabBarStyles.tab}
+            accessibilityRole="button"
+            accessibilityState={{ selected: isFocused }}
+            accessibilityLabel={tab.label}
+          >
+            {isFocused && (
+              <Animated.View style={[tabBarStyles.activePill, { backgroundColor: colors.primary + '18' }]} />
+            )}
+            <Animated.View style={{ transform: [{ scale }] }}>
+              <Ionicons
+                name={(isFocused ? tab.activeIcon : tab.icon) as any}
+                size={24}
+                color={iconColor}
+              />
+            </Animated.View>
+            <Text style={[tabBarStyles.label, { color: iconColor, fontWeight: isFocused ? '700' : '400' }]}>
+              {tab.label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
+
+const tabBarStyles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    paddingTop: 10,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  tab: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 4,
+    position: 'relative',
+  },
+  activePill: {
+    position: 'absolute',
+    top: -4,
+    borderRadius: 20,
+    width: 52,
+    height: 36,
+  },
+  label: {
+    fontSize: 10,
+    marginTop: 3,
+    letterSpacing: 0.2,
+  },
+});
+
+// ─── Tab Navigators ────────────────────────────────────────────────────────
+
 function AttendeeTabNavigator() {
   const { t } = useI18n();
+  const attendeeTabs = [
+    { name: 'Home', label: t('tabs.home'), icon: 'home-outline', activeIcon: 'home' },
+    { name: 'Discover', label: t('tabs.discover'), icon: 'search-outline', activeIcon: 'search' },
+    { name: 'Favorites', label: t('tabs.favorites'), icon: 'heart-outline', activeIcon: 'heart' },
+    { name: 'Tickets', label: t('tabs.tickets'), icon: 'ticket-outline', activeIcon: 'ticket' },
+    { name: 'Profile', label: t('tabs.profile'), icon: 'person-outline', activeIcon: 'person' },
+  ];
   return (
     <AttendeeTab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName: keyof typeof Ionicons.glyphMap = 'home';
-
-          if (route.name === 'Home') {
-            iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Discover') {
-            iconName = focused ? 'search' : 'search-outline';
-          } else if (route.name === 'Favorites') {
-            iconName = focused ? 'heart' : 'heart-outline';
-          } else if (route.name === 'Tickets') {
-            iconName = focused ? 'ticket' : 'ticket-outline';
-          } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline';
-          }
-
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.textSecondary,
-        headerShown: false,
-      })}
+      tabBar={(props) => <CustomTabBar {...props} tabs={attendeeTabs} />}
+      screenOptions={{ headerShown: false }}
     >
-      <AttendeeTab.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: t('tabs.home') }} />
-      <AttendeeTab.Screen name="Discover" component={DiscoverScreen} options={{ tabBarLabel: t('tabs.discover') }} />
-      <AttendeeTab.Screen name="Favorites" component={FavoritesScreen} options={{ tabBarLabel: t('tabs.favorites') }} />
-      <AttendeeTab.Screen name="Tickets" component={TicketsScreen} options={{ tabBarLabel: t('tabs.tickets') }} />
-      <AttendeeTab.Screen name="Profile" component={ProfileScreen} options={{ tabBarLabel: t('tabs.profile') }} />
+      <AttendeeTab.Screen name="Home" component={HomeScreen} />
+      <AttendeeTab.Screen name="Discover" component={DiscoverScreen} />
+      <AttendeeTab.Screen name="Favorites" component={FavoritesScreen} />
+      <AttendeeTab.Screen name="Tickets" component={TicketsScreen} />
+      <AttendeeTab.Screen name="Profile" component={ProfileScreen} />
     </AttendeeTab.Navigator>
   );
 }
 
 function OrganizerTabNavigator() {
   const { t } = useI18n();
+  const organizerTabs = [
+    { name: 'Dashboard', label: t('tabs.dashboard'), icon: 'stats-chart-outline', activeIcon: 'stats-chart' },
+    { name: 'MyEvents', label: t('tabs.myEvents'), icon: 'calendar-outline', activeIcon: 'calendar' },
+    { name: 'Scan', label: t('tabs.scan'), icon: 'qr-code-outline', activeIcon: 'qr-code' },
+    { name: 'Profile', label: t('tabs.profile'), icon: 'person-outline', activeIcon: 'person' },
+  ];
   return (
     <OrganizerTab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName: keyof typeof Ionicons.glyphMap = 'home';
-
-          if (route.name === 'Dashboard') {
-            iconName = focused ? 'stats-chart' : 'stats-chart-outline';
-          } else if (route.name === 'MyEvents') {
-            iconName = focused ? 'calendar' : 'calendar-outline';
-          } else if (route.name === 'Scan') {
-            iconName = focused ? 'qr-code' : 'qr-code-outline';
-          } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline';
-          }
-
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.textSecondary,
-        headerShown: false,
-      })}
+      tabBar={(props) => <CustomTabBar {...props} tabs={organizerTabs} />}
+      screenOptions={{ headerShown: false }}
     >
-      <OrganizerTab.Screen name="Dashboard" component={OrganizerDashboardScreen} options={{ tabBarLabel: t('tabs.dashboard') }} />
-      <OrganizerTab.Screen 
-        name="MyEvents" 
-        component={OrganizerEventsScreen}
-        options={{ title: t('tabs.myEvents'), tabBarLabel: t('tabs.myEvents') }}
-      />
-      <OrganizerTab.Screen name="Scan" component={OrganizerScanScreen} options={{ tabBarLabel: t('tabs.scan') }} />
-      <OrganizerTab.Screen name="Profile" component={ProfileScreen} options={{ tabBarLabel: t('tabs.profile') }} />
+      <OrganizerTab.Screen name="Dashboard" component={OrganizerDashboardScreen} />
+      <OrganizerTab.Screen name="MyEvents" component={OrganizerEventsScreen} options={{ title: t('tabs.myEvents') }} />
+      <OrganizerTab.Screen name="Scan" component={OrganizerScanScreen} />
+      <OrganizerTab.Screen name="Profile" component={ProfileScreen} />
     </OrganizerTab.Navigator>
   );
 }
 
 function StaffTabNavigator() {
   const { t } = useI18n();
+  const staffTabs = [
+    { name: 'Events', label: t('tabs.events'), icon: 'calendar-outline', activeIcon: 'calendar' },
+    { name: 'Scan', label: t('tabs.scan'), icon: 'qr-code-outline', activeIcon: 'qr-code' },
+    { name: 'Profile', label: t('tabs.profile'), icon: 'person-outline', activeIcon: 'person' },
+  ];
   return (
     <StaffTab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName: keyof typeof Ionicons.glyphMap = 'home';
-
-          if (route.name === 'Events') {
-            iconName = focused ? 'calendar' : 'calendar-outline';
-          } else if (route.name === 'Scan') {
-            iconName = focused ? 'qr-code' : 'qr-code-outline';
-          } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline';
-          }
-
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.textSecondary,
-        headerShown: false,
-      })}
+      tabBar={(props) => <CustomTabBar {...props} tabs={staffTabs} />}
+      screenOptions={{ headerShown: false }}
     >
-      <StaffTab.Screen name="Events" component={StaffEventsScreen} options={{ tabBarLabel: t('tabs.events') }} />
-      <StaffTab.Screen name="Scan" component={StaffScanScreen} options={{ tabBarLabel: t('tabs.scan') }} />
-      <StaffTab.Screen name="Profile" component={ProfileScreen} options={{ tabBarLabel: t('tabs.profile') }} />
+      <StaffTab.Screen name="Events" component={StaffEventsScreen} />
+      <StaffTab.Screen name="Scan" component={StaffScanScreen} />
+      <StaffTab.Screen name="Profile" component={ProfileScreen} />
     </StaffTab.Navigator>
   );
 }
@@ -427,6 +494,7 @@ export default function AppNavigator() {
   };
 
   return (
+    <ThemeProvider>
     <NavigationContainer ref={navigationRef} linking={linking as any}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!user ? (
@@ -506,5 +574,6 @@ export default function AppNavigator() {
         )}
       </Stack.Navigator>
     </NavigationContainer>
+    </ThemeProvider>
   );
 }

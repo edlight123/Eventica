@@ -16,7 +16,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Calendar, MapPin, Search, X, SlidersHorizontal } from 'lucide-react-native';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import { format } from 'date-fns';
 import FeaturedCarousel from '../components/FeaturedCarousel';
 import EventFiltersSheet from '../components/EventFiltersSheet';
@@ -37,6 +37,7 @@ const HEADER_EXPANDED_HEIGHT = 145;
 const HEADER_COLLAPSED_HEIGHT = 70;
 
 export default function DiscoverScreen({ navigation, route }: any) {
+  const { colors } = useTheme();
   const { appliedFilters, openFiltersModal, hasActiveFilters, countActiveFilters, applyFiltersDirectly, resetFilters } = useFilters();
   const { t } = useI18n();
   
@@ -396,13 +397,13 @@ export default function DiscoverScreen({ navigation, route }: any) {
             
             <View style={styles.eventDetails}>
               <View style={styles.eventDetailRow}>
-                <Calendar size={14} color={COLORS.textSecondary} />
+                <Calendar size={14} color={colors.textSecondary} />
                 <Text style={styles.eventDetailText}>
                   {event.start_datetime && format(event.start_datetime, 'MMM dd, yyyy')}
                 </Text>
               </View>
               <View style={styles.eventDetailRow}>
-                <MapPin size={14} color={COLORS.textSecondary} />
+                <MapPin size={14} color={colors.textSecondary} />
                 <Text style={styles.eventDetailText} numberOfLines={1}>
                   {event.venue_name}
                 </Text>
@@ -477,13 +478,13 @@ export default function DiscoverScreen({ navigation, route }: any) {
         
         <View style={styles.carouselDetails}>
           <View style={styles.carouselDetailRow}>
-            <Calendar size={12} color={COLORS.textSecondary} />
+            <Calendar size={12} color={colors.textSecondary} />
             <Text style={styles.carouselDetailText}>
               {event.start_datetime && format(event.start_datetime, 'MMM dd')}
             </Text>
           </View>
           <View style={styles.carouselDetailRow}>
-            <MapPin size={12} color={COLORS.textSecondary} />
+            <MapPin size={12} color={colors.textSecondary} />
             <Text style={styles.carouselDetailText} numberOfLines={1}>
               {event.city}
             </Text>
@@ -524,7 +525,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -556,17 +557,17 @@ export default function DiscoverScreen({ navigation, route }: any) {
           ]}
         >
           <View style={styles.searchInputContainer}>
-            <Search size={20} color={COLORS.textSecondary} />
+            <Search size={20} color={colors.textSecondary} />
             <TextInput
               style={styles.searchInput}
               placeholder={t('discover.searchPlaceholder')}
-              placeholderTextColor={COLORS.textSecondary}
+              placeholderTextColor={colors.textSecondary}
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
             {searchQuery !== '' && (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <X size={20} color={COLORS.textSecondary} />
+                <X size={20} color={colors.textSecondary} />
               </TouchableOpacity>
             )}
           </View>
@@ -574,7 +575,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
             style={styles.filterButton}
             onPress={openFiltersModal}
           >
-            <SlidersHorizontal size={20} color={COLORS.text} />
+            <SlidersHorizontal size={20} color={colors.text} />
             {hasActiveFilters() && (
               <View style={styles.filterBadge}>
                 <Text style={styles.filterBadgeText}>
@@ -594,7 +595,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
               <View style={styles.activeFilterChip}>
                 <Text style={styles.activeFilterText}>{t('discover.searchActive')}: {searchQuery}</Text>
                 <TouchableOpacity onPress={() => setSearchQuery('')}>
-                  <X size={14} color={COLORS.text} />
+                  <X size={14} color={colors.text} />
                 </TouchableOpacity>
               </View>
             )}
@@ -604,7 +605,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
                   {countActiveFilters()} {countActiveFilters() === 1 ? t('discover.filter') : t('discover.filters')} {countActiveFilters() === 1 ? t('discover.appliedSingular') : t('discover.appliedPlural')}
                 </Text>
                 <TouchableOpacity onPress={openFiltersModal}>
-                  <SlidersHorizontal size={14} color={COLORS.text} />
+                  <SlidersHorizontal size={14} color={colors.text} />
                 </TouchableOpacity>
               </View>
             )}
@@ -625,8 +626,8 @@ export default function DiscoverScreen({ navigation, route }: any) {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={COLORS.primary}
-            colors={[COLORS.primary]}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
           />
         }
       >
@@ -712,21 +713,21 @@ export default function DiscoverScreen({ navigation, route }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   animatedHeader: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     paddingHorizontal: 16,
     paddingTop: 50,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
@@ -739,12 +740,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 15,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   searchSection: {
     flexDirection: 'row',
@@ -755,7 +756,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 12,
@@ -764,10 +765,10 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 15,
-    color: COLORS.text,
+    color: colors.text,
   },
   filterButton: {
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderRadius: 12,
     padding: 12,
     position: 'relative',
@@ -776,7 +777,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 6,
     right: 6,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 10,
     minWidth: 18,
     height: 18,
@@ -785,21 +786,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   filterBadgeText: {
-    color: COLORS.surface,
+    color: colors.surface,
     fontSize: 10,
     fontWeight: 'bold',
   },
   activeFiltersContainer: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   activeFilterChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.primaryLight + '20',
+    backgroundColor: colors.primaryLight + '20',
     borderRadius: 20,
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -808,7 +809,7 @@ const styles = StyleSheet.create({
   },
   activeFilterText: {
     fontSize: 13,
-    color: COLORS.text,
+    color: colors.text,
     fontWeight: '500',
   },
   content: {
@@ -832,12 +833,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   sectionSubtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   horizontalScrollView: {
     marginHorizontal: -16,
@@ -848,7 +849,7 @@ const styles = StyleSheet.create({
   carouselCard: {
     width: 180,
     marginRight: 12,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     overflow: 'hidden',
     shadowColor: '#000',
@@ -860,7 +861,7 @@ const styles = StyleSheet.create({
   carouselImage: {
     width: '100%',
     height: 120,
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
   },
   carouselCategoryBadge: {
     position: 'absolute',
@@ -882,7 +883,7 @@ const styles = StyleSheet.create({
   carouselTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   carouselDetails: {
@@ -896,7 +897,7 @@ const styles = StyleSheet.create({
   },
   carouselDetailText: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     flex: 1,
   },
   carouselFooter: {
@@ -907,10 +908,10 @@ const styles = StyleSheet.create({
   carouselPrice: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   carouselFreeBadge: {
-    backgroundColor: COLORS.success + '20',
+    backgroundColor: colors.success + '20',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
@@ -918,10 +919,10 @@ const styles = StyleSheet.create({
   carouselFreeBadgeText: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: COLORS.success,
+    color: colors.success,
   },
   eventCard: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     marginBottom: 16,
     overflow: 'hidden',
@@ -933,12 +934,12 @@ const styles = StyleSheet.create({
   },
   eventCardPremium: {
     borderWidth: 1.5,
-    borderColor: COLORS.primaryLight + '30',
+    borderColor: colors.primaryLight + '30',
   },
   eventImage: {
     width: '100%',
     height: 180,
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
   },
   badgesTopLeft: {
     position: 'absolute',
@@ -968,7 +969,7 @@ const styles = StyleSheet.create({
   eventTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   eventDetails: {
@@ -982,7 +983,7 @@ const styles = StyleSheet.create({
   },
   eventDetailText: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     flex: 1,
   },
   eventFooter: {
@@ -993,10 +994,10 @@ const styles = StyleSheet.create({
   eventPrice: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   freeBadge: {
-    backgroundColor: COLORS.success + '20',
+    backgroundColor: colors.success + '20',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
@@ -1004,7 +1005,7 @@ const styles = StyleSheet.create({
   freeBadgeText: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: COLORS.success,
+    color: colors.success,
   },
   chipsSection: {
     marginTop: 1,
@@ -1013,7 +1014,7 @@ const styles = StyleSheet.create({
   chipsSectionTitle: {
     fontSize: 12,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     letterSpacing: 0.5,
     marginLeft: 16,
     marginBottom: 4,
@@ -1030,12 +1031,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   emptyText: {
     fontSize: 15,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     maxWidth: 280,
   },

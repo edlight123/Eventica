@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, Dimensions, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { getCategoryLabel } from '../lib/categories';
 
@@ -130,6 +130,7 @@ export default function CategoryGrid({ onCategoryPress }: CategoryGridProps) {
   );
 }
 
+  const { colors } = useTheme();
 const styles = StyleSheet.create({
   grid: {
     flexDirection: 'row',
@@ -142,7 +143,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
     position: 'relative',
-    backgroundColor: COLORS.borderLight,
+    backgroundColor: colors.borderLight,
   },
   image: {
     width: '100%',
@@ -159,7 +160,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   categoryText: {
-    color: COLORS.surface,
+    color: colors.surface,
     fontSize: 13,
     fontWeight: '700',
     textAlign: 'center',

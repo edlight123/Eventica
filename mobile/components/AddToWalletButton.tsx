@@ -10,7 +10,7 @@ import {
   Linking,
 } from 'react-native';
 import { Wallet, Download } from 'lucide-react-native';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface AddToWalletButtonProps {
   ticketId: string;
@@ -31,6 +31,7 @@ export default function AddToWalletButton({
   ticketNumber,
   totalTickets,
 }: AddToWalletButtonProps) {
+  const { colors } = useTheme();
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleAddToWallet = async () => {
@@ -142,7 +143,7 @@ export default function AddToWalletButton({
         activeOpacity={0.7}
       >
         <View style={styles.buttonContent}>
-          <Download size={18} color={COLORS.text} />
+          <Download size={18} color={colors.text} />
           <Text style={styles.downloadButtonText}>Save Image</Text>
         </View>
       </TouchableOpacity>
@@ -155,15 +156,15 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   walletButton: {
-    backgroundColor: COLORS.text,
+    backgroundColor: colors.text,
     borderRadius: 12,
     padding: 16,
   },
   downloadButton: {
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     padding: 16,
   },
   buttonContent: {
@@ -180,6 +181,6 @@ const styles = StyleSheet.create({
   downloadButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
 });

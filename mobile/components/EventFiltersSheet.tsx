@@ -27,9 +27,10 @@ import {
   PriceFilter,
   EventTypeFilter
 } from '../types/filters';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function EventFiltersSheet() {
+  const { colors } = useTheme();
   const { t } = useI18n();
   const {
     draftFilters,
@@ -136,7 +137,7 @@ export default function EventFiltersSheet() {
             style={styles.closeButton}
             onPress={closeFiltersModal}
           >
-            <X size={24} color={COLORS.text} />
+            <X size={24} color={colors.text} />
           </TouchableOpacity>
         </View>
 
@@ -270,9 +271,9 @@ export default function EventFiltersSheet() {
                   step={50}
                   value={draftFilters.customPriceRange?.min || 0}
                   onValueChange={(value) => handleCustomPriceChange('min', value)}
-                  minimumTrackTintColor={COLORS.primary}
+                  minimumTrackTintColor={colors.primary}
                   maximumTrackTintColor="#D1D5DB"
-                  thumbTintColor={COLORS.primary}
+                  thumbTintColor={colors.primary}
                 />
                 
                 <Text style={styles.sliderLabel}>{t('filters.maximumPrice')}</Text>
@@ -283,9 +284,9 @@ export default function EventFiltersSheet() {
                   step={100}
                   value={draftFilters.customPriceRange?.max || 2000}
                   onValueChange={(value) => handleCustomPriceChange('max', value)}
-                  minimumTrackTintColor={COLORS.primary}
+                  minimumTrackTintColor={colors.primary}
                   maximumTrackTintColor="#D1D5DB"
-                  thumbTintColor={COLORS.primary}
+                  thumbTintColor={colors.primary}
                 />
               </View>
             )}
@@ -404,7 +405,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -414,10 +415,10 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   activeBadge: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 12,
@@ -439,12 +440,12 @@ const styles = StyleSheet.create({
   section: {
     paddingVertical: 20,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderLight,
+    borderBottomColor: colors.borderLight,
   },
   sectionLabel: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 12,
     letterSpacing: 0.5,
   },
@@ -458,17 +459,17 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     backgroundColor: '#FFF',
   },
   chipActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   chipText: {
     fontSize: 14,
     fontWeight: '500',
-    color: COLORS.text,
+    color: colors.text,
   },
   chipTextActive: {
     color: '#FFF',
@@ -506,10 +507,10 @@ const styles = StyleSheet.create({
   segmentText: {
     fontSize: 14,
     fontWeight: '500',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   segmentTextActive: {
-    color: COLORS.text,
+    color: colors.text,
     fontWeight: '600',
   },
   footer: {
@@ -519,7 +520,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: Platform.OS === 'ios' ? 24 : 16,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
     backgroundColor: '#FFF',
   },
   resetButton: {
@@ -527,20 +528,20 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
   resetButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   applyButton: {
     flex: 2,
     paddingVertical: 16,
     borderRadius: 12,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -559,12 +560,12 @@ const styles = StyleSheet.create({
   selectedDateText: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   selectedDateHint: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   priceSliderContainer: {
     marginTop: 16,
@@ -580,12 +581,12 @@ const styles = StyleSheet.create({
   priceRangeLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   sliderLabel: {
     fontSize: 14,
     fontWeight: '500',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 8,
     marginTop: 8,
   },

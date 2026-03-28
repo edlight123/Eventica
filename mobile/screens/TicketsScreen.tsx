@@ -14,12 +14,13 @@ import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import { format } from 'date-fns';
 import { useFocusEffect } from '@react-navigation/native';
 import { consumeTicketsRefreshHint } from '../lib/ticketsRefreshHint';
 
 export default function TicketsScreen({ navigation }: any) {
+  const { colors } = useTheme();
   const { user } = useAuth();
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
@@ -164,7 +165,7 @@ export default function TicketsScreen({ navigation }: any) {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -173,7 +174,7 @@ export default function TicketsScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <Text style={styles.headerTitle}>{t('tickets.title')}</Text>
       </View>
@@ -257,18 +258,18 @@ export default function TicketsScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     justifyContent: 'center',
     alignItems: 'center',
   },
   header: {
     padding: 20,
     paddingTop: 16,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -278,19 +279,19 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: COLORS.surface,
+    color: colors.surface,
   },
   headerSubtitle: {
     fontSize: 15,
-    color: COLORS.surface,
+    color: colors.surface,
     opacity: 0.95,
     fontWeight: '500',
   },
   tabs: {
     flexDirection: 'row',
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   tab: {
     flex: 1,
@@ -300,27 +301,27 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   tabActive: {
-    borderBottomColor: COLORS.primary,
+    borderBottomColor: colors.primary,
   },
   tabText: {
     fontSize: 15,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   tabTextActive: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '700',
   },
   content: {
     flex: 1,
   },
   ticketCard: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     margin: 16,
     padding: 18,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: COLORS.borderLight,
+    borderColor: colors.borderLight,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
@@ -340,7 +341,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     lineHeight: 24,
   },
   ticketCountBadge: {
@@ -356,27 +357,27 @@ const styles = StyleSheet.create({
   },
   ticketDate: {
     fontSize: 14,
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 6,
   },
   ticketVenue: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 12,
   },
   ticketFooter: {
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
   },
   viewTicketsText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   emptyContainer: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -395,12 +396,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   emptyText: {
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
 });

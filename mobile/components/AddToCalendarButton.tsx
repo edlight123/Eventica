@@ -10,7 +10,7 @@ import {
   Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import { format } from 'date-fns';
 import { useI18n } from '../contexts/I18nContext';
 
@@ -29,6 +29,7 @@ interface AddToCalendarButtonProps {
 }
 
 export default function AddToCalendarButton({ event, style }: AddToCalendarButtonProps) {
+  const { colors } = useTheme();
   const { t } = useI18n();
   const [showModal, setShowModal] = React.useState(false);
 
@@ -111,7 +112,7 @@ export default function AddToCalendarButton({ event, style }: AddToCalendarButto
         style={[styles.button, style]} 
         onPress={() => setShowModal(true)}
       >
-        <Ionicons name="calendar-outline" size={20} color={COLORS.primary} />
+        <Ionicons name="calendar-outline" size={20} color={colors.primary} />
         <Text style={styles.buttonText}>{t('calendar.addToCalendar') || 'Add to Calendar'}</Text>
       </TouchableOpacity>
 
@@ -130,7 +131,7 @@ export default function AddToCalendarButton({ event, style }: AddToCalendarButto
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{t('calendar.addToCalendar') || 'Add to Calendar'}</Text>
               <TouchableOpacity onPress={() => setShowModal(false)}>
-                <Ionicons name="close" size={24} color={COLORS.text} />
+                <Ionicons name="close" size={24} color={colors.text} />
               </TouchableOpacity>
             </View>
 
@@ -150,7 +151,7 @@ export default function AddToCalendarButton({ event, style }: AddToCalendarButto
                     <Ionicons name={option.icon as any} size={24} color={option.color} />
                   </View>
                   <Text style={styles.optionLabel}>{option.label}</Text>
-                  <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
+                  <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
                 </TouchableOpacity>
               ))}
             </View>
@@ -168,15 +169,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 12,
     paddingHorizontal: 16,
-    backgroundColor: COLORS.primary + '10',
+    backgroundColor: colors.primary + '10',
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: COLORS.primary + '30',
+    borderColor: colors.primary + '30',
   },
   buttonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
     marginLeft: 8,
   },
   modalOverlay: {
@@ -201,17 +202,17 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   eventPreview: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   datePreview: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 20,
   },
   optionsContainer: {
@@ -221,7 +222,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderRadius: 12,
   },
   optionIcon: {
@@ -236,6 +237,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: '500',
-    color: COLORS.text,
+    color: colors.text,
   },
 });

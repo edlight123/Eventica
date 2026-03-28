@@ -9,7 +9,7 @@ import {
   Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { backendFetch } from '../lib/api/backend';
@@ -31,6 +31,7 @@ export default function JoinWaitlistButton({
   style,
   onJoined 
 }: JoinWaitlistButtonProps) {
+  const { colors } = useTheme();
   const { user } = useAuth();
   const { t } = useI18n();
   const [isOnWaitlist, setIsOnWaitlist] = useState(false);
@@ -115,7 +116,7 @@ export default function JoinWaitlistButton({
   if (loading) {
     return (
       <TouchableOpacity style={[styles.button, styles.loadingButton, style]} disabled>
-        <ActivityIndicator size="small" color={COLORS.primary} />
+        <ActivityIndicator size="small" color={colors.primary} />
       </TouchableOpacity>
     );
   }
@@ -127,11 +128,11 @@ export default function JoinWaitlistButton({
           style={[styles.button, styles.onWaitlistButton, style]}
           onPress={() => setShowInfoModal(true)}
         >
-          <Ionicons name="hourglass-outline" size={18} color={COLORS.primary} />
+          <Ionicons name="hourglass-outline" size={18} color={colors.primary} />
           <Text style={styles.onWaitlistText}>
             {t('waitlist.onWaitlist') || 'On Waitlist'} #{position}
           </Text>
-          <Ionicons name="information-circle-outline" size={18} color={COLORS.primary} />
+          <Ionicons name="information-circle-outline" size={18} color={colors.primary} />
         </TouchableOpacity>
 
         <Modal
@@ -147,7 +148,7 @@ export default function JoinWaitlistButton({
           >
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
-                <Ionicons name="hourglass" size={32} color={COLORS.primary} />
+                <Ionicons name="hourglass" size={32} color={colors.primary} />
                 <Text style={styles.modalTitle}>{t('waitlist.yourPosition') || 'Your Position'}</Text>
               </View>
 
@@ -203,12 +204,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   loadingButton: {
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   joinButton: {
-    backgroundColor: COLORS.secondary,
+    backgroundColor: colors.secondary,
   },
   joinButtonText: {
     fontSize: 16,
@@ -216,15 +217,15 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   onWaitlistButton: {
-    backgroundColor: COLORS.primary + '15',
+    backgroundColor: colors.primary + '15',
     borderWidth: 1,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
   },
   onWaitlistText: {
     flex: 1,
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
     textAlign: 'center',
   },
   modalOverlay: {
@@ -249,11 +250,11 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginTop: 12,
   },
   positionBadge: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingVertical: 16,
     paddingHorizontal: 32,
     borderRadius: 16,
@@ -266,13 +267,13 @@ const styles = StyleSheet.create({
   },
   modalText: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: 20,
   },
   closeButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingVertical: 12,
     paddingHorizontal: 32,
     borderRadius: 10,

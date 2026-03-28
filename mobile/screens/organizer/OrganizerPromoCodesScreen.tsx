@@ -25,7 +25,7 @@ import {
   where,
 } from 'firebase/firestore';
 import { db } from '../../config/firebase';
-import { COLORS } from '../../config/brand';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { getEventById } from '../../lib/api/organizer';
@@ -70,6 +70,7 @@ function normalizeNumber(value: string): number | null {
 }
 
 export default function OrganizerPromoCodesScreen() {
+  const { colors } = useTheme();
   const route = useRoute<RouteProp<RouteParams, 'OrganizerPromoCodes'>>();
   const { eventId } = route.params;
 
@@ -246,7 +247,7 @@ export default function OrganizerPromoCodesScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>{t('organizerPromoCodes.loading')}</Text>
       </View>
     );
@@ -267,12 +268,12 @@ export default function OrganizerPromoCodesScreen() {
         <View style={styles.section}>
           <TouchableOpacity style={styles.createToggle} onPress={() => setShowForm((v) => !v)} activeOpacity={0.8}>
             <View style={styles.createToggleLeft}>
-              <Ionicons name="pricetag-outline" size={20} color={COLORS.primary} />
+              <Ionicons name="pricetag-outline" size={20} color={colors.primary} />
               <Text style={styles.createToggleText}>
                 {showForm ? t('organizerPromoCodes.create.hide') : t('organizerPromoCodes.create.show')}
               </Text>
             </View>
-            <Ionicons name={showForm ? 'chevron-up' : 'chevron-down'} size={18} color={COLORS.textSecondary} />
+            <Ionicons name={showForm ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textSecondary} />
           </TouchableOpacity>
 
           {showForm && (
@@ -286,7 +287,7 @@ export default function OrganizerPromoCodesScreen() {
                 onChangeText={setCode}
                 autoCapitalize="characters"
                 placeholder={t('organizerPromoCodes.placeholders.code')}
-                placeholderTextColor={COLORS.textSecondary}
+                placeholderTextColor={colors.textSecondary}
               />
 
               <Text style={styles.label}>{t('organizerPromoCodes.fields.discountType')}</Text>
@@ -316,7 +317,7 @@ export default function OrganizerPromoCodesScreen() {
                 onChangeText={setDiscountValue}
                 keyboardType="numeric"
                 placeholder={t('organizerPromoCodes.placeholders.discountValue')}
-                placeholderTextColor={COLORS.textSecondary}
+                placeholderTextColor={colors.textSecondary}
               />
 
               <Text style={styles.label}>{t('organizerPromoCodes.fields.maxUses')}</Text>
@@ -326,7 +327,7 @@ export default function OrganizerPromoCodesScreen() {
                 onChangeText={setMaxUses}
                 keyboardType="numeric"
                 placeholder={t('organizerPromoCodes.placeholders.maxUses')}
-                placeholderTextColor={COLORS.textSecondary}
+                placeholderTextColor={colors.textSecondary}
               />
 
               <Text style={styles.label}>{t('organizerPromoCodes.fields.expiresAt')}</Text>
@@ -335,7 +336,7 @@ export default function OrganizerPromoCodesScreen() {
                 value={expiresAt}
                 onChangeText={setExpiresAt}
                 placeholder={t('organizerPromoCodes.placeholders.expiresAt')}
-                placeholderTextColor={COLORS.textSecondary}
+                placeholderTextColor={colors.textSecondary}
               />
 
               <View style={styles.formActions}>
@@ -368,7 +369,7 @@ export default function OrganizerPromoCodesScreen() {
 
           {promoCodes.length === 0 ? (
             <View style={styles.emptyState}>
-              <Ionicons name="pricetag-outline" size={48} color={COLORS.textSecondary} />
+              <Ionicons name="pricetag-outline" size={48} color={colors.textSecondary} />
               <Text style={styles.emptyText}>{t('organizerPromoCodes.list.empty')}</Text>
             </View>
           ) : (
@@ -389,17 +390,17 @@ export default function OrganizerPromoCodesScreen() {
                       <View
                         style={[
                           styles.statusPill,
-                          { backgroundColor: promo.is_active ? `${COLORS.success}20` : `${COLORS.textSecondary}20` },
+                          { backgroundColor: promo.is_active ? `${colors.success}20` : `${colors.textSecondary}20` },
                         ]}
                       >
-                        <Text style={[styles.statusText, { color: promo.is_active ? COLORS.success : COLORS.textSecondary }]}>
+                        <Text style={[styles.statusText, { color: promo.is_active ? colors.success : colors.textSecondary }]}>
                           {promo.is_active ? t('organizerPromoCodes.list.active') : t('organizerPromoCodes.list.inactive')}
                         </Text>
                       </View>
                     </View>
 
                     <TouchableOpacity style={styles.iconButton} onPress={() => handleDelete(promo)}>
-                      <Ionicons name="trash-outline" size={18} color={COLORS.error} />
+                      <Ionicons name="trash-outline" size={18} color={colors.error} />
                     </TouchableOpacity>
                   </View>
 
@@ -437,7 +438,7 @@ export default function OrganizerPromoCodesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   scrollContent: {
     padding: 20,
@@ -447,12 +448,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   header: {
     marginBottom: 12,
@@ -460,12 +461,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
   },
   subtitle: {
     marginTop: 6,
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   section: {
     marginTop: 16,
@@ -473,11 +474,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   createToggle: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 14,
     flexDirection: 'row',
@@ -491,11 +492,11 @@ const styles = StyleSheet.create({
   },
   createToggleText: {
     fontSize: 15,
-    color: COLORS.text,
+    color: colors.text,
     fontWeight: '600',
   },
   formCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 14,
     marginTop: 12,
@@ -503,7 +504,7 @@ const styles = StyleSheet.create({
   formTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 10,
   },
   label: {
@@ -511,14 +512,14 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     fontSize: 12,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   input: {
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    color: COLORS.text,
+    color: colors.text,
   },
   toggleRow: {
     flexDirection: 'row',
@@ -529,17 +530,17 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 10,
     alignItems: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   toggleButtonActive: {
-    backgroundColor: `${COLORS.primary}20`,
+    backgroundColor: `${colors.primary}20`,
   },
   toggleButtonText: {
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '600',
   },
   toggleButtonTextActive: {
-    color: COLORS.primary,
+    color: colors.primary,
   },
   formActions: {
     flexDirection: 'row',
@@ -551,25 +552,25 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 12,
     paddingHorizontal: 14,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     minWidth: 110,
     alignItems: 'center',
   },
   formButtonSecondary: {
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   formButtonDisabled: {
     opacity: 0.6,
   },
   formButtonText: {
-    color: COLORS.white,
+    color: colors.white,
     fontWeight: '700',
   },
   formButtonTextSecondary: {
-    color: COLORS.text,
+    color: colors.text,
   },
   emptyState: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 24,
     alignItems: 'center',
@@ -577,11 +578,11 @@ const styles = StyleSheet.create({
   emptyText: {
     marginTop: 10,
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   promoCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 14,
     marginBottom: 10,
@@ -602,7 +603,7 @@ const styles = StyleSheet.create({
   promoCode: {
     fontSize: 16,
     fontWeight: '800',
-    color: COLORS.text,
+    color: colors.text,
   },
   statusPill: {
     paddingHorizontal: 10,
@@ -618,13 +619,13 @@ const styles = StyleSheet.create({
   },
   promoDetail: {
     fontSize: 14,
-    color: COLORS.text,
+    color: colors.text,
     fontWeight: '600',
   },
   promoMeta: {
     marginTop: 6,
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   promoActions: {
     marginTop: 12,
@@ -637,18 +638,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
   },
   actionButtonPrimary: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   actionButtonSecondary: {
-    backgroundColor: `${COLORS.primary}20`,
+    backgroundColor: `${colors.primary}20`,
   },
   actionButtonText: {
     fontWeight: '700',
   },
   actionButtonTextPrimary: {
-    color: COLORS.white,
+    color: colors.white,
   },
   actionButtonTextSecondary: {
-    color: COLORS.primary,
+    color: colors.primary,
   },
 });

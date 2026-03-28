@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -22,6 +22,7 @@ export default function SelfieCameraWithGuide({
   onCapture,
   onCancel,
 }: SelfieCameraWithGuideProps) {
+  const { colors } = useTheme();
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState<CameraType>('front');
   const cameraRef = useRef<any>(null);
@@ -33,7 +34,7 @@ export default function SelfieCameraWithGuide({
   if (!permission.granted) {
     return (
       <View style={styles.permissionContainer}>
-        <Ionicons name="camera-outline" size={80} color={COLORS.primary} />
+        <Ionicons name="camera-outline" size={80} color={colors.primary} />
         <Text style={styles.permissionTitle}>Camera Permission Required</Text>
         <Text style={styles.permissionText}>
           We need access to your camera to take a selfie with your ID
@@ -112,7 +113,7 @@ export default function SelfieCameraWithGuide({
         <View style={styles.controls}>
           {/* Cancel button */}
           <TouchableOpacity style={styles.controlButton} onPress={onCancel}>
-            <Ionicons name="close" size={30} color={COLORS.white} />
+            <Ionicons name="close" size={30} color={colors.white} />
           </TouchableOpacity>
 
           {/* Capture button */}
@@ -122,7 +123,7 @@ export default function SelfieCameraWithGuide({
 
           {/* Flip camera button */}
           <TouchableOpacity style={styles.controlButton} onPress={toggleCameraFacing}>
-            <Ionicons name="camera-reverse" size={30} color={COLORS.white} />
+            <Ionicons name="camera-reverse" size={30} color={colors.white} />
           </TouchableOpacity>
         </View>
       </CameraView>
@@ -166,7 +167,7 @@ const styles = StyleSheet.create({
     height: OVAL_HEIGHT,
     borderRadius: OVAL_WIDTH / 2,
     borderWidth: 3,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'transparent',
@@ -175,14 +176,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '70%',
     height: 2,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     opacity: 0.6,
   },
   verticalLine: {
     position: 'absolute',
     width: 2,
     height: '70%',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     opacity: 0.6,
   },
   topInstructions: {
@@ -200,7 +201,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   instructionText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -226,21 +227,21 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 4,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
   },
   captureButtonInner: {
     width: 68,
     height: 68,
     borderRadius: 34,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   permissionContainer: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 32,
@@ -248,25 +249,25 @@ const styles = StyleSheet.create({
   permissionTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginTop: 24,
     marginBottom: 12,
   },
   permissionText: {
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 32,
   },
   permissionButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 32,
     paddingVertical: 16,
     borderRadius: 8,
     marginBottom: 12,
   },
   permissionButtonText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -274,7 +275,7 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   cancelButtonText: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontSize: 16,
   },
 });

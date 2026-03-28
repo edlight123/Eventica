@@ -17,7 +17,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native'
 import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore'
 
-import { COLORS } from '../../config/brand'
+import { useTheme } from '../../contexts/ThemeContext';
 import { db } from '../../config/firebase'
 import { useAuth } from '../../contexts/AuthContext'
 import { useI18n } from '../../contexts/I18nContext'
@@ -54,6 +54,7 @@ type EventEarnings = {
 }
 
 export default function OrganizerEventEarningsScreen() {
+  const { colors } = useTheme();
   const route = useRoute<RouteProp<RouteParams, 'OrganizerEventEarnings'>>()
   const navigation = useNavigation<any>()
   const { eventId } = route.params
@@ -528,7 +529,7 @@ export default function OrganizerEventEarningsScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>{t('organizerEarnings.loading')}</Text>
       </View>
     )
@@ -536,11 +537,11 @@ export default function OrganizerEventEarningsScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
 
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={24} color={COLORS.white} />
+          <Ionicons name="chevron-back" size={24} color={colors.white} />
         </TouchableOpacity>
         <View style={styles.headerTextWrap}>
           <Text style={styles.headerTitle}>{t('organizerEarnings.headerTitle')}</Text>
@@ -564,16 +565,16 @@ export default function OrganizerEventEarningsScreen() {
 
         {requiresStripeConnect ? (
           <View style={styles.notice}>
-            <Ionicons name="card-outline" size={18} color={COLORS.textSecondary} />
+            <Ionicons name="card-outline" size={18} color={colors.textSecondary} />
             <View style={{ flex: 1 }}>
               <Text style={styles.noticeText}>
                 {t('organizerEarnings.stripeNotice')}
               </Text>
               <TouchableOpacity
                 onPress={() => navigation.navigate('OrganizerPayoutSettings')}
-                style={[styles.actionButton, { backgroundColor: COLORS.primary, marginTop: 10 }]}
+                style={[styles.actionButton, { backgroundColor: colors.primary, marginTop: 10 }]}
               >
-                <Ionicons name="settings-outline" size={20} color={COLORS.white} />
+                <Ionicons name="settings-outline" size={20} color={colors.white} />
                 <Text style={styles.actionButtonText}>{t('organizerEarnings.openPayoutSettings')}</Text>
               </TouchableOpacity>
             </View>
@@ -581,22 +582,22 @@ export default function OrganizerEventEarningsScreen() {
         ) : (
           <>
             <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: COLORS.primary }]}
+              style={[styles.actionButton, { backgroundColor: colors.primary }]}
               onPress={() => openWithdraw('moncash')}
               activeOpacity={0.85}
             >
-              <Ionicons name="phone-portrait-outline" size={20} color={COLORS.white} />
+              <Ionicons name="phone-portrait-outline" size={20} color={colors.white} />
               <Text style={styles.actionButtonText}>{t('organizerEarnings.withdrawViaMoncash')}</Text>
             </TouchableOpacity>
 
             <View style={{ height: 12 }} />
 
             <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: COLORS.text }]}
+              style={[styles.actionButton, { backgroundColor: colors.text }]}
               onPress={() => openWithdraw('bank')}
               activeOpacity={0.85}
             >
-              <Ionicons name="business-outline" size={20} color={COLORS.white} />
+              <Ionicons name="business-outline" size={20} color={colors.white} />
               <Text style={styles.actionButtonText}>{t('organizerEarnings.withdrawToBank')}</Text>
             </TouchableOpacity>
           </>
@@ -604,12 +605,12 @@ export default function OrganizerEventEarningsScreen() {
 
         {!earnings ? (
           <View style={styles.notice}>
-            <Ionicons name="alert-circle-outline" size={18} color={COLORS.textSecondary} />
+            <Ionicons name="alert-circle-outline" size={18} color={colors.textSecondary} />
             <Text style={styles.noticeText}>{t('organizerEarnings.notices.noEarnings')}</Text>
           </View>
         ) : earnings?.settlementStatus !== 'ready' ? (
           <View style={styles.notice}>
-            <Ionicons name="lock-closed-outline" size={18} color={COLORS.textSecondary} />
+            <Ionicons name="lock-closed-outline" size={18} color={colors.textSecondary} />
             <Text style={styles.noticeText}>{t('organizerEarnings.notices.notReady')}</Text>
           </View>
         ) : null}
@@ -625,7 +626,7 @@ export default function OrganizerEventEarningsScreen() {
                   : t('organizerEarnings.modal.titleBank')}
               </Text>
               <TouchableOpacity onPress={() => setShowWithdraw(false)}>
-                <Ionicons name="close" size={24} color={COLORS.textSecondary} />
+                <Ionicons name="close" size={24} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
 
@@ -739,7 +740,7 @@ export default function OrganizerEventEarningsScreen() {
                           <Ionicons
                             name={selectedBankDestinationId === d.id ? 'checkmark-circle' : 'ellipse-outline'}
                             size={20}
-                            color={selectedBankDestinationId === d.id ? COLORS.primary : COLORS.textSecondary}
+                            color={selectedBankDestinationId === d.id ? colors.primary : colors.textSecondary}
                           />
                         </TouchableOpacity>
                       ))}
@@ -785,7 +786,7 @@ export default function OrganizerEventEarningsScreen() {
                         <Ionicons
                           name={saveNewBankDestination ? 'checkbox' : 'square-outline'}
                           size={20}
-                          color={saveNewBankDestination ? COLORS.primary : COLORS.textSecondary}
+                          color={saveNewBankDestination ? colors.primary : colors.textSecondary}
                         />
                         <Text style={styles.checkboxText}>{t('organizerEarnings.bank.saveSecondAccount')}</Text>
                       </TouchableOpacity>
@@ -825,13 +826,13 @@ export default function OrganizerEventEarningsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   header: {
     paddingTop: 16,
     paddingBottom: 16,
     paddingHorizontal: 16,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
@@ -845,12 +846,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: COLORS.white,
+    color: colors.white,
   },
   headerSubtitle: {
     marginTop: 4,
     fontSize: 13,
-    color: COLORS.white,
+    color: colors.white,
     opacity: 0.9,
   },
   scroll: {
@@ -860,26 +861,26 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingText: {
     marginTop: 10,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   card: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
   },
   cardLabel: {
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontSize: 13,
   },
   amountText: {
     marginTop: 8,
     fontSize: 34,
     fontWeight: '800',
-    color: COLORS.text,
+    color: colors.text,
   },
   rowBetween: {
     flexDirection: 'row',
@@ -887,7 +888,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   metaText: {
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontSize: 13,
   },
   actionButton: {
@@ -900,7 +901,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   actionButtonText: {
-    color: COLORS.white,
+    color: colors.white,
     fontWeight: '700',
     fontSize: 15,
   },
@@ -911,7 +912,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   noticeText: {
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   modalBackdrop: {
     flex: 1,
@@ -919,7 +920,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     padding: 16,
@@ -933,7 +934,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: COLORS.text,
+    color: colors.text,
   },
   summaryBox: {
     marginTop: 12,
@@ -944,11 +945,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 6,
   },
   sectionHelp: {
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontSize: 12,
     marginBottom: 10,
   },
@@ -959,7 +960,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     marginBottom: 10,
-    color: COLORS.text,
+    color: colors.text,
   },
   modalFooter: {
     flexDirection: 'row',
@@ -968,13 +969,13 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     flex: 1,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: 'center',
   },
   primaryButtonText: {
-    color: COLORS.white,
+    color: colors.white,
     fontWeight: '700',
   },
   secondaryButton: {
@@ -985,7 +986,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   secondaryButtonText: {
-    color: COLORS.text,
+    color: colors.text,
     fontWeight: '700',
   },
   buttonDisabled: {
@@ -1007,7 +1008,7 @@ const styles = StyleSheet.create({
   radioChipText: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   destinationRow: {
     flexDirection: 'row',
@@ -1020,15 +1021,15 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   destinationRowActive: {
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
     backgroundColor: '#F2FBFA',
   },
   destinationTitle: {
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   destinationSubtitle: {
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontSize: 12,
     marginTop: 2,
   },
@@ -1039,7 +1040,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   checkboxText: {
-    color: COLORS.text,
+    color: colors.text,
     fontWeight: '600',
   },
 })

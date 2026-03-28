@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { X } from 'lucide-react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 
 const { width } = Dimensions.get('window');
 

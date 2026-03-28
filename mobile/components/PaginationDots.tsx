@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface PaginationDotsProps {
   total: number;
@@ -8,6 +8,7 @@ interface PaginationDotsProps {
 }
 
 export default function PaginationDots({ total, activeIndex }: PaginationDotsProps) {
+  const { colors } = useTheme();
   const animations = useRef(
     Array.from({ length: total }, () => new Animated.Value(0))
   ).current;
@@ -43,7 +44,7 @@ export default function PaginationDots({ total, activeIndex }: PaginationDotsPro
               {
                 transform: [{ scale }],
                 opacity,
-                backgroundColor: COLORS.primary,
+                backgroundColor: colors.primary,
               },
             ]}
           />

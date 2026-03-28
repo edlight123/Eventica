@@ -13,7 +13,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebase';
-import { COLORS } from '../../config/brand';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { backendFetch } from '../../lib/api/backend';
@@ -41,6 +41,7 @@ interface RevenueByBurrency {
 }
 
 export default function OrganizerAnalyticsScreen({ navigation }: any) {
+  const { colors } = useTheme();
   const { userProfile } = useAuth();
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
@@ -263,7 +264,7 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.loadingText}>{t('analytics.loading') || 'Loading analytics...'}</Text>
         </View>
       </SafeAreaView>
@@ -285,7 +286,7 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={COLORS.primary} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
         }
       >
         {/* Time Range Selector */}
@@ -321,27 +322,27 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
             onPress={() => navigation.goBack()}
             activeOpacity={0.7}
           >
-            <Ionicons name="ticket-outline" size={24} color={COLORS.primary} />
-            <Text style={[styles.statValue, { color: COLORS.text }]}>{stats.totalTicketsSold}</Text>
-            <Text style={[styles.statLabel, { color: COLORS.textSecondary }]}>{t('analytics.ticketsSold') || 'Tickets Sold'}</Text>
+            <Ionicons name="ticket-outline" size={24} color={colors.primary} />
+            <Text style={[styles.statValue, { color: colors.text }]}>{stats.totalTicketsSold}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('analytics.ticketsSold') || 'Tickets Sold'}</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.statCard}
             onPress={() => navigation.goBack()}
             activeOpacity={0.7}
           >
-            <Ionicons name="calendar-outline" size={24} color={COLORS.primary} />
-            <Text style={[styles.statValue, { color: COLORS.text }]}>{stats.totalEvents}</Text>
-            <Text style={[styles.statLabel, { color: COLORS.textSecondary }]}>{t('analytics.totalEvents') || 'Total Events'}</Text>
+            <Ionicons name="calendar-outline" size={24} color={colors.primary} />
+            <Text style={[styles.statValue, { color: colors.text }]}>{stats.totalEvents}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('analytics.totalEvents') || 'Total Events'}</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.statCard}
             onPress={() => navigation.goBack()}
             activeOpacity={0.7}
           >
-            <Ionicons name="eye-outline" size={24} color={COLORS.primary} />
-            <Text style={[styles.statValue, { color: COLORS.text }]}>{stats.publishedEvents}</Text>
-            <Text style={[styles.statLabel, { color: COLORS.textSecondary }]}>{t('analytics.published') || 'Published'}</Text>
+            <Ionicons name="eye-outline" size={24} color={colors.primary} />
+            <Text style={[styles.statValue, { color: colors.text }]}>{stats.publishedEvents}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('analytics.published') || 'Published'}</Text>
           </TouchableOpacity>
         </View>
 
@@ -370,7 +371,7 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
           <Text style={styles.sectionTitle}>{t('analytics.topEvents') || 'Top Performing Events'}</Text>
           {topEvents.length === 0 ? (
             <View style={styles.emptyState}>
-              <Ionicons name="bar-chart-outline" size={48} color={COLORS.textSecondary} />
+              <Ionicons name="bar-chart-outline" size={48} color={colors.textSecondary} />
               <Text style={styles.emptyText}>{t('analytics.noData') || 'No ticket sales yet'}</Text>
             </View>
           ) : (
@@ -389,7 +390,7 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
                     {event.ticketCount} {t('analytics.tickets') || 'tickets'} • {formatMoney(event.revenueCents / 100, event.currency)}
                   </Text>
                 </View>
-                <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
+                <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
               </TouchableOpacity>
             ))
           )}
@@ -404,7 +405,7 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -413,7 +414,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 12,
   },
   header: {
@@ -422,7 +423,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 16,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   backButton: {
     padding: 8,
@@ -447,16 +448,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   timeRangeButtonActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   timeRangeText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   timeRangeTextActive: {
     color: '#FFF',
@@ -475,7 +476,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statCardPrimary: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   statValue: {
     fontSize: 24,
@@ -498,7 +499,7 @@ const styles = StyleSheet.create({
   chartTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 20,
   },
   chartContainer: {
@@ -517,13 +518,13 @@ const styles = StyleSheet.create({
   },
   chartBar: {
     width: 24,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 4,
     minHeight: 4,
   },
   chartLabel: {
     fontSize: 10,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 8,
   },
   sectionCard: {
@@ -536,7 +537,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 16,
   },
   emptyState: {
@@ -545,7 +546,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 12,
   },
   eventRow: {
@@ -553,13 +554,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   eventRank: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: COLORS.primary + '15',
+    backgroundColor: colors.primary + '15',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -567,7 +568,7 @@ const styles = StyleSheet.create({
   eventRankText: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   eventInfo: {
     flex: 1,
@@ -575,11 +576,11 @@ const styles = StyleSheet.create({
   eventTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   eventStats: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 2,
   },
 });

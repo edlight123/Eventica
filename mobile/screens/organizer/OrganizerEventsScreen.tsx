@@ -17,7 +17,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/AppNavigator';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-import { COLORS } from '../../config/brand';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { getOrganizerEvents, OrganizerEvent } from '../../lib/api/organizer';
@@ -25,6 +25,7 @@ import { getOrganizerEvents, OrganizerEvent } from '../../lib/api/organizer';
 type EventStatus = 'draft' | 'published' | 'sold_out' | 'completed' | 'cancelled';
 
 export default function OrganizerEventsScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation<NavigationProp>();
   const { userProfile } = useAuth();
   const { t } = useI18n();
@@ -83,17 +84,17 @@ export default function OrganizerEventsScreen() {
   const getStatusColor = (status: EventStatus) => {
     switch (status) {
       case 'draft':
-        return COLORS.warning;
+        return colors.warning;
       case 'published':
-        return COLORS.success;
+        return colors.success;
       case 'sold_out':
-        return COLORS.error;
+        return colors.error;
       case 'completed':
-        return COLORS.textSecondary;
+        return colors.textSecondary;
       case 'cancelled':
-        return COLORS.error;
+        return colors.error;
       default:
-        return COLORS.textSecondary;
+        return colors.textSecondary;
     }
   };
 
@@ -117,7 +118,7 @@ export default function OrganizerEventsScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>{t('organizerEvents.loading')}</Text>
       </View>
     );
@@ -128,7 +129,7 @@ export default function OrganizerEventsScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={COLORS.white} />
+      <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
 
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
@@ -137,7 +138,7 @@ export default function OrganizerEventsScreen() {
           style={styles.createButton}
           onPress={() => (navigation as any).navigate('CreateEvent')}
         >
-          <Ionicons name="add-circle" size={20} color={COLORS.primary} />
+          <Ionicons name="add-circle" size={20} color={colors.primary} />
           <Text style={styles.createButtonText}>{t('organizerEvents.create')}</Text>
         </TouchableOpacity>
       </View>
@@ -169,13 +170,13 @@ export default function OrganizerEventsScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={COLORS.primary}
+            tintColor={colors.primary}
           />
         }
       >
         {events.length === 0 ? (
           <View style={styles.emptyState}>
-            <Ionicons name="calendar-outline" size={64} color={COLORS.textSecondary} />
+            <Ionicons name="calendar-outline" size={64} color={colors.textSecondary} />
             <Text style={styles.emptyTitle}>
               {eventTab === 'upcoming' ? t('organizerEvents.emptyUpcomingTitle') : t('organizerEvents.emptyPastTitle')}
             </Text>
@@ -219,7 +220,7 @@ export default function OrganizerEventsScreen() {
                 )}
                 {!event.cover_image_url && (
                   <View style={[styles.eventImage, styles.placeholderImage]}>
-                    <Ionicons name="image-outline" size={48} color={COLORS.textSecondary} />
+                    <Ionicons name="image-outline" size={48} color={colors.textSecondary} />
                   </View>
                 )}
                 <View style={styles.eventContent}>
@@ -234,13 +235,13 @@ export default function OrganizerEventsScreen() {
 
                   <View style={styles.eventDetails}>
                     <View style={styles.detailRow}>
-                      <Ionicons name="calendar-outline" size={16} color={COLORS.textSecondary} />
+                      <Ionicons name="calendar-outline" size={16} color={colors.textSecondary} />
                       <Text style={styles.detailText}>{formattedDate}</Text>
-                      <Ionicons name="time-outline" size={16} color={COLORS.textSecondary} style={styles.detailIcon} />
+                      <Ionicons name="time-outline" size={16} color={colors.textSecondary} style={styles.detailIcon} />
                       <Text style={styles.detailText}>{formattedTime}</Text>
                     </View>
                     <View style={styles.detailRow}>
-                      <Ionicons name="location-outline" size={16} color={COLORS.textSecondary} />
+                      <Ionicons name="location-outline" size={16} color={colors.textSecondary} />
                       <Text style={styles.detailText} numberOfLines={1}>
                         {event.location}
                       </Text>
@@ -249,7 +250,7 @@ export default function OrganizerEventsScreen() {
 
                   <View style={styles.eventFooter}>
                     <View style={styles.ticketInfo}>
-                      <Ionicons name="ticket-outline" size={16} color={COLORS.primary} />
+                      <Ionicons name="ticket-outline" size={16} color={colors.primary} />
                       <Text style={styles.ticketText}>
                         {event.tickets_sold || 0} / {event.total_tickets || 0} {t('common.sold')}
                       </Text>
@@ -259,7 +260,7 @@ export default function OrganizerEventsScreen() {
                       onPress={() => navigation.navigate('OrganizerEventManagement', { eventId: event.id })}
                     >
                       <Text style={styles.manageButtonText}>{t('organizerEvents.manage')}</Text>
-                      <Ionicons name="chevron-forward" size={16} color={COLORS.primary} />
+                      <Ionicons name="chevron-forward" size={16} color={colors.primary} />
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -275,18 +276,18 @@ export default function OrganizerEventsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   header: {
     flexDirection: 'row',
@@ -295,25 +296,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 16,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
   },
   createButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: colors.primaryLight,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 8,
   },
   createButtonText: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
     fontSize: 14,
     marginLeft: 4,
@@ -321,7 +322,7 @@ const styles = StyleSheet.create({
   segmentedControl: {
     flexDirection: 'row',
     margin: 16,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 8,
     padding: 4,
     shadowColor: '#000',
@@ -337,15 +338,15 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   segmentActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   segmentText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   segmentTextActive: {
-    color: COLORS.white,
+    color: colors.white,
   },
   scrollView: {
     flex: 1,
@@ -359,18 +360,18 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginTop: 16,
     marginBottom: 8,
   },
   emptyText: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
   },
   eventCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     marginBottom: 16,
     shadowColor: '#000',
@@ -383,12 +384,12 @@ const styles = StyleSheet.create({
   eventImage: {
     width: '100%',
     height: 160,
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
   },
   placeholderImage: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
   },
   eventContent: {
     padding: 16,
@@ -402,7 +403,7 @@ const styles = StyleSheet.create({
   eventTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     flex: 1,
     marginRight: 12,
   },
@@ -412,7 +413,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   statusText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: 11,
     fontWeight: '600',
     textTransform: 'uppercase',
@@ -430,7 +431,7 @@ const styles = StyleSheet.create({
   },
   detailText: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginLeft: 6,
     flex: 1,
   },
@@ -440,7 +441,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
   },
   ticketInfo: {
     flexDirection: 'row',
@@ -449,7 +450,7 @@ const styles = StyleSheet.create({
   ticketText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginLeft: 6,
   },
   manageButton: {
@@ -459,7 +460,7 @@ const styles = StyleSheet.create({
   manageButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
     marginRight: 4,
   },
 });

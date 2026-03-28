@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -36,6 +36,7 @@ export default function FacialGuideOverlay() {
 const OVAL_WIDTH = width * 0.6;
 const OVAL_HEIGHT = height * 0.35;
 
+  const { colors } = useTheme();
 const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
@@ -62,7 +63,7 @@ const styles = StyleSheet.create({
     height: OVAL_HEIGHT,
     borderRadius: OVAL_WIDTH / 2,
     borderWidth: 3,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
     borderStyle: 'dashed',
     justifyContent: 'center',
     alignItems: 'center',
@@ -72,14 +73,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '70%',
     height: 2,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     opacity: 0.5,
   },
   verticalLine: {
     position: 'absolute',
     width: 2,
     height: '70%',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     opacity: 0.5,
   },
 });

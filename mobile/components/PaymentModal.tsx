@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { X, CreditCard, Lock, Smartphone, AlertCircle } from 'lucide-react-native';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import { auth } from '../config/firebase';
 import { backendJson } from '../lib/api/backend';
 import { useI18n } from '../contexts/I18nContext';
@@ -66,6 +66,7 @@ function PaymentForm({
   onSuccess,
   onClose,
 }: Omit<PaymentModalProps, 'visible'>) {
+  const { colors } = useTheme();
   const navigation = useNavigation<any>();
   const { t } = useI18n();
   // Only use Stripe hooks if available
@@ -258,7 +259,7 @@ function PaymentForm({
           </Text>
         </View>
         <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-          <X size={24} color={COLORS.textSecondary} />
+          <X size={24} color={colors.textSecondary} />
         </TouchableOpacity>
       </View>
 
@@ -277,7 +278,7 @@ function PaymentForm({
               onPress={() => setPaymentMethod('stripe')}
             >
               <View style={styles.methodIcon}>
-                <CreditCard size={24} color={paymentMethod === 'stripe' ? COLORS.primary : COLORS.textSecondary} />
+                <CreditCard size={24} color={paymentMethod === 'stripe' ? colors.primary : colors.textSecondary} />
               </View>
               <View style={styles.methodContent}>
                 <Text style={styles.methodTitle}>{t('paymentModal.methods.card')}</Text>
@@ -296,7 +297,7 @@ function PaymentForm({
               onPress={() => setPaymentMethod('sogepay')}
             >
               <View style={styles.methodIcon}>
-                <CreditCard size={24} color={paymentMethod === 'sogepay' ? COLORS.primary : COLORS.textSecondary} />
+                <CreditCard size={24} color={paymentMethod === 'sogepay' ? colors.primary : colors.textSecondary} />
               </View>
               <View style={styles.methodContent}>
                 <Text style={styles.methodTitle}>{t('paymentModal.methods.card')}</Text>
@@ -308,7 +309,7 @@ function PaymentForm({
           {/* Show message if in Expo Go */}
           {isExpoGo && (
             <View style={styles.expoGoWarning}>
-              <AlertCircle size={18} color={COLORS.warning} />
+              <AlertCircle size={18} color={colors.warning} />
               <Text style={styles.expoGoWarningText}>
                 {t('paymentModal.expoGo.base')}
                 {isHaitiEvent ? ` ${t('paymentModal.expoGo.haitiSuffix')}` : ''}
@@ -326,7 +327,7 @@ function PaymentForm({
               onPress={() => setPaymentMethod('moncash')}
             >
               <View style={styles.methodIcon}>
-                <Smartphone size={24} color={paymentMethod === 'moncash' ? COLORS.primary : COLORS.textSecondary} />
+                <Smartphone size={24} color={paymentMethod === 'moncash' ? colors.primary : colors.textSecondary} />
               </View>
               <View style={styles.methodContent}>
                 <Text style={styles.methodTitle}>{t('paymentModal.methods.moncash')}</Text>
@@ -345,7 +346,7 @@ function PaymentForm({
               onPress={() => setPaymentMethod('natcash')}
             >
               <View style={styles.methodIcon}>
-                <Smartphone size={24} color={paymentMethod === 'natcash' ? COLORS.primary : COLORS.textSecondary} />
+                <Smartphone size={24} color={paymentMethod === 'natcash' ? colors.primary : colors.textSecondary} />
               </View>
               <View style={styles.methodContent}>
                 <Text style={styles.methodTitle}>{t('paymentModal.methods.natcash')}</Text>
@@ -371,7 +372,7 @@ function PaymentForm({
               }}
             />
             <View style={styles.testCardHint}>
-              <AlertCircle size={14} color={COLORS.textSecondary} />
+              <AlertCircle size={14} color={colors.textSecondary} />
               <Text style={styles.testCardHintText}>
                 {t('paymentModal.testCardHint')}
               </Text>
@@ -383,7 +384,7 @@ function PaymentForm({
         {(paymentMethod === 'moncash' || paymentMethod === 'natcash') && (
           <View style={styles.section}>
             <View style={styles.infoBox}>
-              <AlertCircle size={18} color={COLORS.primary} />
+              <AlertCircle size={18} color={colors.primary} />
               <Text style={styles.infoText}>
                 {t('paymentModal.info.redirectPrefix')}
                 {paymentMethod === 'moncash'
@@ -414,7 +415,7 @@ function PaymentForm({
 
         {/* Security Badge */}
         <View style={styles.securityBadge}>
-          <Lock size={14} color={COLORS.textSecondary} />
+          <Lock size={14} color={colors.textSecondary} />
           <Text style={styles.securityText}>{t('paymentModal.securedBy')}</Text>
         </View>
       </ScrollView>
@@ -476,7 +477,7 @@ export default function PaymentModal(props: PaymentModalProps) {
       >
         <View style={styles.container}>
           <View style={styles.errorContainer}>
-            <AlertCircle size={48} color={COLORS.error} />
+            <AlertCircle size={48} color={colors.error} />
             <Text style={styles.errorText}>
               {t('paymentModal.stripeMissingKey')}
             </Text>
@@ -524,12 +525,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   closeButton: {
     padding: 4,
@@ -544,7 +545,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   methodButton: {
@@ -558,7 +559,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   methodButtonActive: {
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
     backgroundColor: '#F0FDFA',
   },
   methodIcon: {
@@ -576,12 +577,12 @@ const styles = StyleSheet.create({
   methodTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 2,
   },
   methodSubtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   cardFieldContainer: {
     height: 50,
@@ -600,7 +601,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
-    color: COLORS.text,
+    color: colors.text,
     backgroundColor: '#FFFFFF',
     marginBottom: 12,
   },
@@ -612,7 +613,7 @@ const styles = StyleSheet.create({
   },
   testCardHintText: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   infoBox: {
     flexDirection: 'row',
@@ -622,12 +623,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0FDFA',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
   },
   infoText: {
     flex: 1,
     fontSize: 14,
-    color: COLORS.text,
+    color: colors.text,
     lineHeight: 20,
   },
   errorContainer: {
@@ -655,12 +656,12 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   totalAmount: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   securityBadge: {
     flexDirection: 'row',
@@ -672,7 +673,7 @@ const styles = StyleSheet.create({
   },
   securityText: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   actions: {
     flexDirection: 'row',
@@ -693,13 +694,13 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   payButton: {
     flex: 2,
     paddingVertical: 16,
     borderRadius: 12,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },

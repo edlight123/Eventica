@@ -1,7 +1,7 @@
 export const BRAND = {
   name: 'Eventica',
   logoText: '🎭 Eventica',
-  tagline: 'Discover Amazing Events in Haiti',
+  tagline: 'Discover Amazing Events',
   primaryColor: '#0F766E',
   secondaryColor: '#F97316',
 };
@@ -14,7 +14,7 @@ export const COLORS = {
   secondaryLight: '#FB923C',
   background: '#F9FAFB',
   surface: '#FFFFFF',
-  white: '#FFFFFF', // Alias for surface
+  white: '#FFFFFF',
   text: '#111827',
   textSecondary: '#6B7280',
   textTertiary: '#9CA3AF',
@@ -28,7 +28,32 @@ export const COLORS = {
   warningLight: '#FEF3C7',
   info: '#3B82F6',
   infoLight: '#DBEAFE',
-  // Gradient colors
   gradientStart: '#EFF6FF',
   gradientEnd: '#FFEDD5',
+};
+
+export const DARK_COLORS: typeof COLORS = {
+  primary: '#14B8A6',
+  primaryLight: '#2DD4BF',
+  primaryDark: '#0F766E',
+  secondary: '#FB923C',
+  secondaryLight: '#FDBA74',
+  background: '#0F172A',
+  surface: '#1E293B',
+  white: '#FFFFFF',
+  text: '#F1F5F9',
+  textSecondary: '#94A3B8',
+  textTertiary: '#64748B',
+  border: '#334155',
+  borderLight: '#1E293B',
+  error: '#F87171',
+  errorLight: '#450A0A',
+  success: '#34D399',
+  successLight: '#064E3B',
+  warning: '#FCD34D',
+  warningLight: '#451A03',
+  info: '#60A5FA',
+  infoLight: '#1E3A5F',
+  gradientStart: '#0F172A',
+  gradientEnd: '#1E293B',
 };

@@ -14,7 +14,7 @@ import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navig
 import { Ionicons } from '@expo/vector-icons'
 import { collection, doc, getDoc, getDocs, orderBy, query } from 'firebase/firestore'
 
-import { COLORS } from '../../config/brand'
+import { useTheme } from '../../contexts/ThemeContext';
 import { db } from '../../config/firebase'
 import { backendJson } from '../../lib/api/backend'
 import { useI18n } from '../../contexts/I18nContext'
@@ -49,6 +49,7 @@ type ApiMember = {
 }
 
 export default function OrganizerEventStaffScreen() {
+  const { colors } = useTheme();
   const route = useRoute<RouteProp<RouteParams, 'OrganizerEventStaff'>>()
   const navigation = useNavigation<any>()
   const { eventId } = route.params
@@ -264,7 +265,7 @@ export default function OrganizerEventStaffScreen() {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     )
   }
@@ -279,7 +280,7 @@ export default function OrganizerEventStaffScreen() {
             onPress={() => setShowInviteModal(true)}
             disabled={authLoading}
           >
-            <Ionicons name="add" size={18} color={COLORS.white} />
+            <Ionicons name="add" size={18} color={colors.white} />
             <Text style={styles.inviteButtonText}>{t('organizerStaff.inviteButton')}</Text>
           </TouchableOpacity>
         </View>
@@ -353,7 +354,7 @@ export default function OrganizerEventStaffScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{t('organizerStaff.createInviteTitle')}</Text>
               <TouchableOpacity onPress={() => setShowInviteModal(false)}>
-                <Ionicons name="close" size={22} color={COLORS.text} />
+                <Ionicons name="close" size={22} color={colors.text} />
               </TouchableOpacity>
             </View>
 
@@ -385,7 +386,7 @@ export default function OrganizerEventStaffScreen() {
                   autoCapitalize="none"
                   keyboardType="email-address"
                   placeholder={t('organizerStaff.emailPlaceholder')}
-                  placeholderTextColor={COLORS.textSecondary}
+                  placeholderTextColor={colors.textSecondary}
                 />
               </>
             ) : null}
@@ -399,7 +400,7 @@ export default function OrganizerEventStaffScreen() {
                   onChangeText={setTargetPhone}
                   keyboardType="phone-pad"
                   placeholder={t('organizerStaff.phonePlaceholder')}
-                  placeholderTextColor={COLORS.textSecondary}
+                  placeholderTextColor={colors.textSecondary}
                 />
               </>
             ) : null}
@@ -412,7 +413,7 @@ export default function OrganizerEventStaffScreen() {
               <Ionicons
                 name={viewAttendees ? 'checkbox' : 'square-outline'}
                 size={22}
-                color={viewAttendees ? COLORS.primary : COLORS.textSecondary}
+                color={viewAttendees ? colors.primary : colors.textSecondary}
               />
               <Text style={styles.checkboxText}>{t('organizerStaff.viewAttendees')}</Text>
             </TouchableOpacity>
@@ -443,50 +444,50 @@ export default function OrganizerEventStaffScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
+  container: { flex: 1, backgroundColor: colors.background },
   content: { padding: 16, paddingBottom: 32 },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.background },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },
 
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
-  title: { fontSize: 20, fontWeight: '700', color: COLORS.text },
+  title: { fontSize: 20, fontWeight: '700', color: colors.text },
 
   inviteButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 10,
     gap: 6,
   },
-  inviteButtonText: { color: COLORS.white, fontWeight: '700' },
+  inviteButtonText: { color: colors.white, fontWeight: '700' },
 
   buttonDisabled: { opacity: 0.6 },
 
   section: { marginTop: 12 },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: COLORS.text, marginBottom: 8 },
-  emptyText: { color: COLORS.textSecondary },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: colors.text, marginBottom: 8 },
+  emptyText: { color: colors.textSecondary },
 
   card: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 12,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   cardRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   cardTextWrap: { flex: 1 },
-  cardTitle: { fontWeight: '700', color: COLORS.text },
-  cardSubtitle: { marginTop: 2, color: COLORS.textSecondary, fontSize: 12 },
+  cardTitle: { fontWeight: '700', color: colors.text },
+  cardSubtitle: { marginTop: 2, color: colors.textSecondary, fontSize: 12 },
 
   dangerButton: {
     paddingHorizontal: 10,
     paddingVertical: 8,
     borderRadius: 10,
-    backgroundColor: COLORS.errorLight,
+    backgroundColor: colors.errorLight,
   },
-  dangerButtonText: { color: COLORS.error, fontWeight: '700', fontSize: 12 },
+  dangerButtonText: { color: colors.error, fontWeight: '700', fontSize: 12 },
 
   modalOverlay: {
     flex: 1,
@@ -498,21 +499,21 @@ const styles = StyleSheet.create({
   modalCard: {
     width: '100%',
     maxWidth: 520,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 16,
     padding: 16,
   },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  modalTitle: { fontSize: 16, fontWeight: '700', color: COLORS.text },
+  modalTitle: { fontSize: 16, fontWeight: '700', color: colors.text },
 
-  label: { marginTop: 12, marginBottom: 6, fontWeight: '700', color: COLORS.text },
+  label: { marginTop: 12, marginBottom: 6, fontWeight: '700', color: colors.text },
   input: {
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    color: COLORS.text,
+    color: colors.text,
   },
 
   methodRow: { flexDirection: 'row', gap: 8, marginTop: 4 },
@@ -521,15 +522,15 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.background,
+    borderColor: colors.border,
+    backgroundColor: colors.background,
   },
-  methodPillActive: { borderColor: COLORS.primary, backgroundColor: COLORS.infoLight },
-  methodText: { color: COLORS.textSecondary, fontWeight: '700', fontSize: 12 },
-  methodTextActive: { color: COLORS.primary },
+  methodPillActive: { borderColor: colors.primary, backgroundColor: colors.infoLight },
+  methodText: { color: colors.textSecondary, fontWeight: '700', fontSize: 12 },
+  methodTextActive: { color: colors.primary },
 
   checkboxRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 14 },
-  checkboxText: { color: COLORS.text, fontWeight: '600' },
+  checkboxText: { color: colors.text, fontWeight: '600' },
 
   modalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 10, marginTop: 16 },
   secondaryButton: {
@@ -537,17 +538,17 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.background,
+    borderColor: colors.border,
+    backgroundColor: colors.background,
   },
-  secondaryButtonText: { color: COLORS.text, fontWeight: '700' },
+  secondaryButtonText: { color: colors.text, fontWeight: '700' },
 
   primaryButton: {
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 12,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   primaryButtonDisabled: { opacity: 0.6 },
-  primaryButtonText: { color: COLORS.white, fontWeight: '700' },
+  primaryButtonText: { color: colors.white, fontWeight: '700' },
 })

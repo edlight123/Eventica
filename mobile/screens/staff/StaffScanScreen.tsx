@@ -17,7 +17,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { collectionGroup, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { auth, db } from '../../config/firebase';
-import { COLORS } from '../../config/brand';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { getStaffEventIds } from '../../lib/staffAssignments';
 
@@ -37,6 +37,7 @@ type EventSummary = {
 };
 
 export default function StaffScanScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation();
   const uid = auth.currentUser?.uid || null;
   const insets = useSafeAreaInsets();
@@ -180,7 +181,7 @@ export default function StaffScanScreen() {
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={COLORS.primary} />
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />
         }
       >
         {/* Camera section (visual anchor) */}
@@ -208,7 +209,7 @@ export default function StaffScanScreen() {
 
         {loading ? (
           <View style={styles.center}>
-            <ActivityIndicator color={COLORS.primary} />
+            <ActivityIndicator color={colors.primary} />
           </View>
         ) : events.length === 0 ? (
           <View style={styles.center}>
@@ -230,7 +231,7 @@ export default function StaffScanScreen() {
                 ) : (
                   <Text style={styles.selectorPlaceholder}>{t('staffScan.selectEventPlaceholder')}</Text>
                 )}
-                <Ionicons name="chevron-down" size={22} color={COLORS.textSecondary} />
+                <Ionicons name="chevron-down" size={22} color={colors.textSecondary} />
               </View>
             </TouchableOpacity>
 
@@ -239,7 +240,7 @@ export default function StaffScanScreen() {
               onPress={handleStartScanning}
               disabled={!selectedEvent}
             >
-              <Ionicons name="camera-outline" size={22} color={COLORS.white} />
+              <Ionicons name="camera-outline" size={22} color={colors.white} />
               <Text style={styles.startButtonText}>{t('staffScan.startScanning')}</Text>
             </TouchableOpacity>
           </View>
@@ -257,7 +258,7 @@ export default function StaffScanScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{t('staffScan.selectEvent')}</Text>
               <TouchableOpacity onPress={() => setShowEventSelector(false)}>
-                <Ionicons name="close" size={22} color={COLORS.text} />
+                <Ionicons name="close" size={22} color={colors.text} />
               </TouchableOpacity>
             </View>
 
@@ -280,7 +281,7 @@ export default function StaffScanScreen() {
                     </Text>
                   </View>
                   {selectedEvent?.id === item.id && (
-                    <Ionicons name="checkmark-circle" size={22} color={COLORS.primary} />
+                    <Ionicons name="checkmark-circle" size={22} color={colors.primary} />
                   )}
                 </TouchableOpacity>
               )}
@@ -295,7 +296,7 @@ export default function StaffScanScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   scroll: {
     flex: 1,
@@ -305,7 +306,7 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   cameraSection: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   cameraPlaceholder: {
     flex: 1,
@@ -317,12 +318,12 @@ const styles = StyleSheet.create({
     marginTop: 0,
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.white,
+    color: colors.white,
   },
   cameraSubtext: {
     marginTop: 6,
     fontSize: 13,
-    color: COLORS.white,
+    color: colors.white,
     opacity: 0.95,
   },
   header: {
@@ -333,12 +334,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   subtitle: {
     marginTop: 6,
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   center: {
     flex: 1,
@@ -348,7 +349,7 @@ const styles = StyleSheet.create({
   },
   empty: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   content: {
@@ -357,15 +358,15 @@ const styles = StyleSheet.create({
   },
   selectorLabel: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 8,
     marginLeft: 4,
   },
   selectorButton: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     paddingVertical: 14,
     paddingHorizontal: 14,
   },
@@ -381,20 +382,20 @@ const styles = StyleSheet.create({
   selectorTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   selectorSubtitle: {
     marginTop: 6,
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   selectorPlaceholder: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   startButton: {
     marginTop: 14,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 16,
@@ -407,7 +408,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   startButtonText: {
-    color: COLORS.white,
+    color: colors.white,
     fontSize: 15,
     fontWeight: '700',
   },
@@ -417,7 +418,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     maxHeight: '70%',
@@ -426,7 +427,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -434,7 +435,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   eventItem: {
     paddingHorizontal: 16,
@@ -443,10 +444,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   eventItemSelected: {
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   eventItemContent: {
     flex: 1,
@@ -455,11 +456,11 @@ const styles = StyleSheet.create({
   eventItemTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
   },
   eventItemSubtitle: {
     marginTop: 6,
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
 });

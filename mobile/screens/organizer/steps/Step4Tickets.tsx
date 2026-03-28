@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '../../../config/brand';
+import { useTheme } from '../../../contexts/ThemeContext';
 import { useI18n } from '../../../contexts/I18nContext';
 import type { EventDraft } from '../CreateEventFlowRefactored';
 
@@ -11,6 +11,7 @@ interface Props {
 }
 
 export default function Step4Tickets({ draft, updateDraft }: Props) {
+  const { colors } = useTheme();
   const { t } = useI18n();
 
   const addTier = () => {
@@ -88,7 +89,7 @@ export default function Step4Tickets({ draft, updateDraft }: Props) {
             </Text>
             {draft.ticket_tiers.length > 1 && (
               <TouchableOpacity onPress={() => removeTier(index)}>
-                <Ionicons name="trash-outline" size={20} color={COLORS.error} />
+                <Ionicons name="trash-outline" size={20} color={colors.error} />
               </TouchableOpacity>
             )}
           </View>
@@ -132,13 +133,13 @@ export default function Step4Tickets({ draft, updateDraft }: Props) {
 
       {/* Add Tier Button */}
       <TouchableOpacity style={styles.addTierButton} onPress={addTier}>
-        <Ionicons name="add-circle-outline" size={24} color={COLORS.primary} />
+        <Ionicons name="add-circle-outline" size={24} color={colors.primary} />
         <Text style={styles.addTierText}>{t('organizerCreateEvent.tickets.addTier')}</Text>
       </TouchableOpacity>
 
       {/* Info Card */}
       <View style={styles.infoCard}>
-        <Ionicons name="information-circle-outline" size={20} color={COLORS.primary} />
+        <Ionicons name="information-circle-outline" size={20} color={colors.primary} />
         <Text style={styles.infoText}>
           {t('organizerCreateEvent.tickets.infoText')}
         </Text>
@@ -154,12 +155,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 20,
   },
   formGroup: {
@@ -168,11 +169,11 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   required: {
-    color: COLORS.error,
+    color: colors.error,
   },
   currencyRow: {
     flexDirection: 'row',
@@ -183,30 +184,30 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 12,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     alignItems: 'center',
   },
   currencyButtonActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   currencyButtonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   currencyButtonTextActive: {
-    color: COLORS.white,
+    color: colors.white,
   },
   tierCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   tierHeader: {
     flexDirection: 'row',
@@ -217,7 +218,7 @@ const styles = StyleSheet.create({
   tierTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   tierFormGroup: {
     marginBottom: 12,
@@ -228,17 +229,17 @@ const styles = StyleSheet.create({
   tierLabel: {
     fontSize: 14,
     fontWeight: '500',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 6,
   },
   tierInput: {
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     borderRadius: 8,
     padding: 12,
     fontSize: 15,
-    color: COLORS.text,
+    color: colors.text,
   },
   tierRow: {
     flexDirection: 'row',
@@ -253,20 +254,20 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     borderStyle: 'dashed',
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.primary + '10',
+    borderColor: colors.primary,
+    backgroundColor: colors.primary + '10',
     marginBottom: 12,
   },
   addTierText: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   infoCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: COLORS.primary + '10',
+    backgroundColor: colors.primary + '10',
     padding: 12,
     borderRadius: 12,
     marginBottom: 20,
@@ -274,6 +275,6 @@ const styles = StyleSheet.create({
   infoText: {
     flex: 1,
     fontSize: 13,
-    color: COLORS.text,
+    color: colors.text,
   },
 });

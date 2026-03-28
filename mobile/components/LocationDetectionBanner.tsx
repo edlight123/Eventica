@@ -16,13 +16,14 @@ import { MapPin, X, Check } from 'lucide-react-native';
 import { useAuth } from '../contexts/AuthContext';
 import { useFilters } from '../contexts/FiltersContext';
 import { getDeviceLocationInfo, COUNTRY_NAMES, DEFAULT_CITIES } from '../utils/deviceLocation';
-import { COLORS } from '../config/brand';
+import { useTheme } from '../contexts/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const BANNER_DISMISSED_KEY = 'location_banner_dismissed';
 const BANNER_DISMISSED_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export default function LocationDetectionBanner() {
+  const { colors } = useTheme();
   const { user, userProfile, updateUserProfile } = useAuth();
   const { userCountry, setUserCountry, applyFiltersDirectly, appliedFilters } = useFilters();
   
@@ -144,7 +145,7 @@ export default function LocationDetectionBanner() {
     >
       <View style={styles.content}>
         <View style={styles.iconContainer}>
-          <MapPin size={20} color={COLORS.primary} />
+          <MapPin size={20} color={colors.primary} />
         </View>
         
         <View style={styles.textContainer}>
@@ -162,7 +163,7 @@ export default function LocationDetectionBanner() {
             onPress={handleDismiss}
             disabled={updating}
           >
-            <X size={20} color={COLORS.textSecondary} />
+            <X size={20} color={colors.textSecondary} />
           </TouchableOpacity>
           
           <TouchableOpacity
@@ -189,9 +190,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 1000,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -208,7 +209,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: `${COLORS.primary}15`,
+    backgroundColor: `${colors.primary}15`,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -219,11 +220,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   subtitle: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 2,
   },
   actions: {
@@ -237,7 +238,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   acceptButton: {
     width: 36,
@@ -245,7 +246,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   acceptButtonText: {
     color: '#fff',

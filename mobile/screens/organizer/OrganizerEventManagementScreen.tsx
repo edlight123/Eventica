@@ -14,7 +14,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute, RouteProp, useNavigation, useFocusEffect } from '@react-navigation/native';
-import { COLORS } from '../../config/brand';
+import { useTheme } from '../../contexts/ThemeContext';
 import {
   getEventById,
   getEventTicketBreakdown,
@@ -33,6 +33,7 @@ type RouteParams = {
 };
 
 export default function OrganizerEventManagementScreen() {
+  const { colors } = useTheme();
   const route = useRoute<RouteProp<RouteParams, 'OrganizerEventManagement'>>();
   const navigation = useNavigation<any>();
   const { eventId } = route.params;
@@ -192,7 +193,7 @@ export default function OrganizerEventManagementScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>{t('organizerEventManagement.loading')}</Text>
       </View>
     );
@@ -201,7 +202,7 @@ export default function OrganizerEventManagementScreen() {
   if (!event || !ticketData) {
     return (
       <View style={styles.loadingContainer}>
-        <Ionicons name="alert-circle-outline" size={64} color={COLORS.error} />
+        <Ionicons name="alert-circle-outline" size={64} color={colors.error} />
         <Text style={styles.errorText}>{t('organizerEventManagement.notFound')}</Text>
       </View>
     );
@@ -225,7 +226,7 @@ export default function OrganizerEventManagementScreen() {
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
-          tintColor={COLORS.primary}
+          tintColor={colors.primary}
         />
       }
     >
@@ -244,13 +245,13 @@ export default function OrganizerEventManagementScreen() {
         <View style={[styles.headerContent, { paddingTop: insets.top + 16 }]}>
           <Text style={styles.headerTitle}>{event.title}</Text>
           <View style={styles.headerInfo}>
-            <Ionicons name="calendar-outline" size={16} color={COLORS.white} />
+            <Ionicons name="calendar-outline" size={16} color={colors.white} />
             <Text style={styles.headerInfoText}>
               {formattedDate} • {formattedTime}
             </Text>
           </View>
           <View style={styles.headerInfo}>
-            <Ionicons name="location-outline" size={16} color={COLORS.white} />
+            <Ionicons name="location-outline" size={16} color={colors.white} />
             <Text style={styles.headerInfoText}>{event.location}</Text>
           </View>
         </View>
@@ -261,27 +262,27 @@ export default function OrganizerEventManagementScreen() {
         <Text style={styles.sectionTitle}>{t('organizerEventManagement.sections.quickActions')}</Text>
         <View style={styles.actionGrid}>
           <TouchableOpacity style={styles.actionCard} onPress={handleScanTickets}>
-            <Ionicons name="qr-code-outline" size={32} color={COLORS.primary} />
+            <Ionicons name="qr-code-outline" size={32} color={colors.primary} />
             <Text style={styles.actionText}>{t('organizerEventManagement.actions.scanTickets')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionCard} onPress={handleManageStaff}>
-            <Ionicons name="people-outline" size={32} color={COLORS.primary} />
+            <Ionicons name="people-outline" size={32} color={colors.primary} />
             <Text style={styles.actionText}>{t('organizerEventManagement.actions.staff')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionCard} onPress={handleViewAttendees}>
-            <Ionicons name="people-outline" size={32} color={COLORS.primary} />
+            <Ionicons name="people-outline" size={32} color={colors.primary} />
             <Text style={styles.actionText}>{t('organizerEventManagement.actions.viewAttendees')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionCard} onPress={handleViewEarnings}>
-            <Ionicons name="cash-outline" size={32} color={COLORS.primary} />
+            <Ionicons name="cash-outline" size={32} color={colors.primary} />
             <Text style={styles.actionText}>{t('organizerEventManagement.actions.earnings')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionCard} onPress={handleEditEvent}>
-            <Ionicons name="create-outline" size={32} color={COLORS.primary} />
+            <Ionicons name="create-outline" size={32} color={colors.primary} />
             <Text style={styles.actionText}>{t('organizerEventManagement.actions.editEvent')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionCard} onPress={handleViewPublicPage}>
-            <Ionicons name="eye-outline" size={32} color={COLORS.primary} />
+            <Ionicons name="eye-outline" size={32} color={colors.primary} />
             <Text style={styles.actionText}>{t('organizerEventManagement.actions.viewPublicPage')}</Text>
           </TouchableOpacity>
         </View>
@@ -358,25 +359,25 @@ export default function OrganizerEventManagementScreen() {
           <Ionicons 
             name={isPaused ? "play-circle-outline" : "pause-circle-outline"} 
             size={24} 
-            color={isPaused ? COLORS.success : COLORS.warning} 
+            color={isPaused ? colors.success : colors.warning} 
           />
           <Text style={styles.controlButtonText}>
             {isPaused
               ? t('organizerEventManagement.controls.resumeTicketSales')
               : t('organizerEventManagement.controls.pauseTicketSales')}
           </Text>
-          <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
+          <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.controlButton} onPress={handleSendUpdate}>
-          <Ionicons name="notifications-outline" size={24} color={COLORS.primary} />
+          <Ionicons name="notifications-outline" size={24} color={colors.primary} />
           <Text style={styles.controlButtonText}>{t('organizerEventManagement.controls.sendUpdate')}</Text>
-          <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
+          <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
         </TouchableOpacity>
         {event?.status !== 'cancelled' && (
           <TouchableOpacity style={[styles.controlButton, styles.dangerButton]} onPress={handleCancelEvent}>
-            <Ionicons name="close-circle-outline" size={24} color={COLORS.error} />
+            <Ionicons name="close-circle-outline" size={24} color={colors.error} />
             <Text style={[styles.controlButtonText, styles.dangerText]}>{t('organizerEventManagement.controls.cancelEvent')}</Text>
-            <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
+            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
           </TouchableOpacity>
         )}
       </View>
@@ -387,23 +388,23 @@ export default function OrganizerEventManagementScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   errorText: {
     marginTop: 12,
     fontSize: 18,
-    color: COLORS.error,
+    color: colors.error,
     fontWeight: '600',
   },
   header: {
@@ -439,7 +440,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.white,
+    color: colors.white,
     marginBottom: 8,
   },
   headerInfo: {
@@ -449,7 +450,7 @@ const styles = StyleSheet.create({
   },
   headerInfoText: {
     fontSize: 14,
-    color: COLORS.white,
+    color: colors.white,
     marginLeft: 6,
     opacity: 0.9,
   },
@@ -459,7 +460,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 16,
   },
   actionGrid: {
@@ -469,7 +470,7 @@ const styles = StyleSheet.create({
   },
   actionCard: {
     width: '48%',
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
     margin: '1%',
@@ -483,12 +484,12 @@ const styles = StyleSheet.create({
   actionText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginTop: 8,
     textAlign: 'center',
   },
   performanceCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -507,32 +508,32 @@ const styles = StyleSheet.create({
   performanceTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   performanceValue: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   progressBar: {
     height: 8,
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
     borderRadius: 4,
     overflow: 'hidden',
     marginBottom: 8,
   },
   progressFill: {
     height: '100%',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 4,
   },
   progressText: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'right',
   },
   ticketBreakdown: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
     shadowColor: '#000',
@@ -544,7 +545,7 @@ const styles = StyleSheet.create({
   breakdownTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 12,
     textTransform: 'uppercase',
   },
@@ -558,28 +559,28 @@ const styles = StyleSheet.create({
   },
   ticketTypeName: {
     fontSize: 14,
-    color: COLORS.text,
+    color: colors.text,
   },
   ticketTypeStats: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   miniProgressBar: {
     height: 4,
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
     borderRadius: 2,
     overflow: 'hidden',
   },
   miniProgressFill: {
     height: '100%',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 2,
   },
   controlButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.white,
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -592,14 +593,14 @@ const styles = StyleSheet.create({
   controlButtonText: {
     flex: 1,
     fontSize: 16,
-    color: COLORS.text,
+    color: colors.text,
     marginLeft: 12,
   },
   dangerButton: {
     borderWidth: 1,
-    borderColor: COLORS.error,
+    borderColor: colors.error,
   },
   dangerText: {
-    color: COLORS.error,
+    color: colors.error,
   },
 });
