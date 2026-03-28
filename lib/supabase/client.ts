@@ -314,16 +314,38 @@ export const supabase = {
   },
 
   storage: {
-    from: (bucket: string) => ({
+    from: (_bucket: string) => ({
       upload: async (path: string, file: File, options?: any) => {
-        // TODO: Implement Firebase Storage
-        return { data: null, error: new Error('Storage not implemented') }
+        try {
+          const { ref, uploadBytes, getDownloadURL } = await import('firebase/storage')
+          const { storage } = await import('../firebase/client')
+          const storageRef = ref(storage, path)
+          const snapshot = await uploadBytes(storageRef, file, options)
+          const publicUrl = await getDownloadURL(snapshot.ref)
+          return { data: { path: snapshot.ref.fullPath, publicUrl }, error: null }
+        } catch (err: any) {
+          return { data: null, error: err }
+        }
       },
-      getPublicUrl: (path: string) => {
-        return { data: { publicUrl: path } }
+      getPublicUrl: async (path: string) => {
+        try {
+          const { ref, getDownloadURL } = await import('firebase/storage')
+          const { storage } = await import('../firebase/client')
+          const publicUrl = await getDownloadURL(ref(storage, path))
+          return { data: { publicUrl } }
+        } catch {
+          return { data: { publicUrl: '' } }
+        }
       },
       remove: async (paths: string[]) => {
-        return { data: null, error: null }
+        try {
+          const { ref, deleteObject } = await import('firebase/storage')
+          const { storage } = await import('../firebase/client')
+          await Promise.all(paths.map(p => deleteObject(ref(storage, p)).catch(() => {})))
+          return { data: null, error: null }
+        } catch (err: any) {
+          return { data: null, error: err }
+        }
       }
     })
   }
