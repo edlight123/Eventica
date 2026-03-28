@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { adminDb } from '@/lib/firebase/admin'
+import { requireAdmin } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(req: NextRequest) {
   try {
+    const { user, error: authError } = await requireAdmin()
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Admin access required' }, { status: 401 })
+    }
+
     const { searchParams } = new URL(req.url)
     const eventId = searchParams.get('eventId')
 

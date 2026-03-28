@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 // @ts-expect-error no types
 import webpush from 'web-push'
 import { adminDb } from '@/lib/firebase/admin'
+import { requireAdmin } from '@/lib/auth'
 import { createHash } from 'crypto'
 
 function encodeEndpoint(endpoint: string): string {
@@ -47,6 +48,10 @@ async function runTestSend() {
 }
 
 export async function POST() {
+  const { user, error: authError } = await requireAdmin()
+  if (authError || !user) {
+    return NextResponse.json({ error: 'Admin access required' }, { status: 401 })
+  }
   return runTestSend()
 }
 

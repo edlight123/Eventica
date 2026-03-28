@@ -1,9 +1,15 @@
 import { createClient } from '@/lib/firebase-db/server'
 import { sendEmail, getTicketConfirmationEmail } from '@/lib/email'
 import { generateTicketQRCode } from '@/lib/qrcode'
+import { requireAdmin } from '@/lib/auth'
 
 export async function POST(request: Request) {
   try {
+    const { user, error: authError } = await requireAdmin()
+    if (authError || !user) {
+      return Response.json({ error: 'Admin access required' }, { status: 401 })
+    }
+
     const { ticketId, userId } = await request.json()
 
     if (!ticketId || !userId) {
