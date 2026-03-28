@@ -23,6 +23,7 @@ export default function SelfieCameraWithGuide({
   onCancel,
 }: SelfieCameraWithGuideProps) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState<CameraType>('front');
   const cameraRef = useRef<any>(null);
@@ -134,7 +135,7 @@ export default function SelfieCameraWithGuide({
 const OVAL_WIDTH = width * 0.6;
 const OVAL_HEIGHT = height * 0.35;
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'black',

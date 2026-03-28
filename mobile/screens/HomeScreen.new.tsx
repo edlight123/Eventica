@@ -25,6 +25,7 @@ import AllEventsPreview from '../components/AllEventsPreview';
 
 export default function HomeScreen({ navigation }: any) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { userProfile } = useAuth();
   const [events, setEvents] = useState<any[]>([]);
   const [featuredEvents, setFeaturedEvents] = useState<any[]>([]);
@@ -237,7 +238,7 @@ export default function HomeScreen({ navigation }: any) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

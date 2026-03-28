@@ -30,6 +30,7 @@ interface AddToCalendarButtonProps {
 
 export default function AddToCalendarButton({ event, style }: AddToCalendarButtonProps) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { t } = useI18n();
   const [showModal, setShowModal] = React.useState(false);
 
@@ -162,7 +163,7 @@ export default function AddToCalendarButton({ event, style }: AddToCalendarButto
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   button: {
     flexDirection: 'row',
     alignItems: 'center',

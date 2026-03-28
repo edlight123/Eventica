@@ -23,6 +23,7 @@ interface FollowButtonProps {
 
 export default function FollowButton({ organizerId, style, compact = false, onFollowChange }: FollowButtonProps) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { user, userProfile } = useAuth();
   const { t } = useI18n();
   const [isFollowing, setIsFollowing] = useState(false);
@@ -170,7 +171,7 @@ export default function FollowButton({ organizerId, style, compact = false, onFo
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   button: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -37,7 +37,8 @@ const OVAL_WIDTH = width * 0.6;
 const OVAL_HEIGHT = height * 0.35;
 
   const { colors } = useTheme();
-const styles = StyleSheet.create({
+  const styles = getStyles(colors);
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',

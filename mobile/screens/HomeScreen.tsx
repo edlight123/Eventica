@@ -32,6 +32,7 @@ import AllEventsPreview from '../components/AllEventsPreview';
 
 export default function HomeScreen({ navigation }: any) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { user, userProfile } = useAuth();
   const { t } = useI18n();
   const { userCountry } = useFilters();
@@ -380,7 +381,7 @@ export default function HomeScreen({ navigation }: any) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

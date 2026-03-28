@@ -34,7 +34,8 @@ type RouteParams = {
 };
 
 export default function SelfieUploadScreen() {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors);
   const navigation = useNavigation();
   const route = useRoute<RouteProp<RouteParams, 'SelfieUpload'>>();
   const { userProfile } = useAuth();
@@ -212,7 +213,7 @@ export default function SelfieUploadScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? colors.surface : colors.white} />
 
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
@@ -340,7 +341,7 @@ export default function SelfieUploadScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

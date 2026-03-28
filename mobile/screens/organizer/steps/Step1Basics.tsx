@@ -32,6 +32,7 @@ interface Props {
 
 export default function Step1Basics({ draft, updateDraft }: Props) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { t } = useI18n();
 
   const getCategoryLabel = (categoryId: string) => {
@@ -147,7 +148,7 @@ export default function Step1Basics({ draft, updateDraft }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     gap: 20,
   },

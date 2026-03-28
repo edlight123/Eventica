@@ -67,6 +67,7 @@ function PaymentForm({
   onClose,
 }: Omit<PaymentModalProps, 'visible'>) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const navigation = useNavigation<any>();
   const { t } = useI18n();
   // Only use Stripe hooks if available
@@ -504,7 +505,7 @@ export default function PaymentModal(props: PaymentModalProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',

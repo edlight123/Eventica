@@ -34,6 +34,7 @@ type ScanResult = {
 
 export default function TicketScannerScreen() {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const route = useRoute<RouteProp<RouteParams, 'TicketScanner'>>();
   const navigation = useNavigation();
   const { eventId } = route.params;
@@ -377,7 +378,7 @@ export default function TicketScannerScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

@@ -32,7 +32,8 @@ import { CITIES_BY_COUNTRY, COUNTRIES } from '../types/filters';
 const WEBSITE_BASE_URL = 'https://joineventica.com';
 
 export default function ProfileScreen() {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors);
   const navigation: any = useNavigation();
   const { user, userProfile, signOut, updateUserProfile, refreshUserProfile } = useAuth();
   const { mode, setMode } = useAppMode();
@@ -337,7 +338,7 @@ export default function ProfileScreen() {
   if (!user) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
-        <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
+        <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
         <View style={styles.centerEmpty}>
           <Text style={styles.emptyTitle}>{t('auth.loginRequiredTitle')}</Text>
           <Text style={styles.emptyBody}>{t('tickets.loginRequiredBody')}</Text>
@@ -348,7 +349,7 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={[]}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
 
       <View
         style={[styles.header, { top: insets.top, paddingTop: 8 }]}
@@ -678,7 +679,7 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

@@ -32,6 +32,7 @@ interface ExportAttendeesButtonProps {
 
 export default function ExportAttendeesButton({ eventId, attendees, style }: ExportAttendeesButtonProps) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { t } = useI18n();
   const [exporting, setExporting] = useState(false);
 
@@ -129,7 +130,7 @@ export default function ExportAttendeesButton({ eventId, attendees, style }: Exp
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   button: {
     flexDirection: 'row',
     alignItems: 'center',

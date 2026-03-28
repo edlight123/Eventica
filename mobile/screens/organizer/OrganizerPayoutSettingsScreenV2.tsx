@@ -52,6 +52,7 @@ type PayoutDestination = BankDestination | MoncashDestination
 
 export default function OrganizerPayoutSettingsScreenV2() {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const navigation = useNavigation<any>()
   const insets = useSafeAreaInsets()
   const { t } = useI18n()
@@ -720,7 +721,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
   )
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

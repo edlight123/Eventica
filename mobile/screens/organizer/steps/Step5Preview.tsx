@@ -14,6 +14,7 @@ interface Props {
 
 export default function Step5Preview({ draft, updateDraft }: Props) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { t } = useI18n();
   const [viewMode, setViewMode] = useState<'card' | 'page'>('card');
 
@@ -202,7 +203,7 @@ export default function Step5Preview({ draft, updateDraft }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
   },

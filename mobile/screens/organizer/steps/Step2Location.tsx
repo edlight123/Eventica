@@ -13,6 +13,7 @@ interface Props {
 
 export default function Step2Location({ draft, updateDraft }: Props) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { t } = useI18n();
   const selectedCountry = (draft as any).country || 'HT';
   const cities = CITIES_BY_COUNTRY[selectedCountry] || [];
@@ -152,7 +153,7 @@ export default function Step2Location({ draft, updateDraft }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     gap: 20,
   },

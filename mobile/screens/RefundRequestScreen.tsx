@@ -20,6 +20,7 @@ import { backendFetch } from '../lib/api/backend';
 
 export default function RefundRequestScreen({ route, navigation }: any) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { ticketId } = route.params;
   const { t } = useI18n();
   const [ticket, setTicket] = useState<any>(null);
@@ -246,7 +247,7 @@ export default function RefundRequestScreen({ route, navigation }: any) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

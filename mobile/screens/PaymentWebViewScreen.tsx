@@ -17,6 +17,7 @@ type Params = {
 
 export default function PaymentWebViewScreen() {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const navigation = useNavigation<any>()
   const route = useRoute<any>()
   const { url, authToken, title, eventId } = (route.params || {}) as Params
@@ -167,7 +168,7 @@ export default function PaymentWebViewScreen() {
   )
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

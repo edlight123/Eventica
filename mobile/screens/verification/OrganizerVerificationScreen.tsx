@@ -22,17 +22,18 @@ import {
   type VerificationRequest,
 } from '../../lib/verification';
 
-type Step = 'overview' | 'organizerInfo' | 'governmentId' | 'selfie' | 'review';
+const SUBMITTED_STATUSES = ['pending', 'pending_review', 'in_review', 'approved'] as const;
+const LOCKED_STATUSES = ['pending', 'pending_review', 'in_review'] as const;
 
 export default function OrganizerVerificationScreen() {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors);
   const navigation = useNavigation();
   const { userProfile } = useAuth();
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
   const [request, setRequest] = useState<VerificationRequest | null>(null);
-  const [currentStep, setCurrentStep] = useState<Step>('overview');
 
   useEffect(() => {
     loadVerificationRequest();
@@ -86,9 +87,13 @@ export default function OrganizerVerificationScreen() {
 
   const canSubmit = () => {
     if (!request) return false;
+    if ((LOCKED_STATUSES as readonly string[]).includes(request.status)) return false;
     const requiredSteps = Object.values(request.steps).filter((s: any) => s.required);
     return requiredSteps.every((s: any) => s.status === 'complete');
   };
+
+  const isLocked = request ? (LOCKED_STATUSES as readonly string[]).includes(request.status) : false;
+  const isRejected = request?.status === 'rejected' || request?.status === 'changes_requested';
 
   const renderStepIcon = (stepId: keyof VerificationRequest['steps']) => {
     const status = getStepStatus(stepId);
@@ -121,10 +126,9 @@ export default function OrganizerVerificationScreen() {
     );
   }
 
-  if (currentStep === 'overview') {
-    return (
+  return (
       <ScrollView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
+        <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? colors.surface : colors.white} />
 
         {/* Header */}
         <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
@@ -149,7 +153,7 @@ export default function OrganizerVerificationScreen() {
               style={[styles.progressFill, { width: `${calculateProgress()}%` }]}
             />
           </View>
-          {request.status === 'pending' && (
+          {isLocked && (
             <View style={styles.statusBadge}>
               <Ionicons name="time-outline" size={16} color={colors.warning} />
               <Text style={styles.statusBadgeText}>{t('verification.organizerVerification.status.underReview')}</Text>
@@ -160,6 +164,16 @@ export default function OrganizerVerificationScreen() {
               <Ionicons name="checkmark-circle" size={16} color={colors.success} />
               <Text style={[styles.statusBadgeText, { color: colors.success }]}>
                 {t('verification.organizerVerification.status.approved')}
+              </Text>
+            </View>
+          )}
+          {isRejected && (
+            <View style={[styles.statusBadge, { backgroundColor: colors.error + '20' }]}>
+              <Ionicons name="close-circle" size={16} color={colors.error} />
+              <Text style={[styles.statusBadgeText, { color: colors.error }]}>
+                {request.status === 'changes_requested'
+                  ? t('verification.organizerVerification.status.changesRequested')
+                  : t('verification.organizerVerification.status.rejected')}
               </Text>
             </View>
           )}
@@ -219,7 +233,21 @@ export default function OrganizerVerificationScreen() {
         </View>
 
         {/* Submit Button */}
-        {canSubmit() && request.status !== 'pending' && (
+        {isRejected && request.reviewNotes ? (
+          <View style={[styles.pendingNotice, { backgroundColor: colors.error + '15', borderColor: colors.error + '30' }]}>
+            <Ionicons name="alert-circle-outline" size={24} color={colors.error} />
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={[styles.pendingText, { color: colors.error, fontWeight: '600' }]}>
+                {t('verification.organizerVerification.status.reviewNotes')}
+              </Text>
+              <Text style={[styles.pendingText, { color: colors.error, marginTop: 4 }]}>
+                {request.reviewNotes}
+              </Text>
+            </View>
+          </View>
+        ) : null}
+
+        {canSubmit() && !isLocked && (
           <View style={styles.submitSection}>
             <TouchableOpacity
               style={styles.submitButton}
@@ -255,7 +283,7 @@ export default function OrganizerVerificationScreen() {
           </View>
         )}
 
-        {request.status === 'pending' && (
+        {isLocked && (
           <View style={styles.pendingNotice}>
             <Ionicons name="time-outline" size={24} color={colors.warning} />
             <Text style={styles.pendingText}>
@@ -264,22 +292,10 @@ export default function OrganizerVerificationScreen() {
           </View>
         )}
       </ScrollView>
-    );
-  }
-
-  // Render specific step screens
-  if (currentStep === 'organizerInfo') {
-    return (
-      <View style={styles.container}>
-        <Text>{t('verification.organizerVerification.comingSoon')}</Text>
-      </View>
-    );
-  }
-
-  return null;
+  );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

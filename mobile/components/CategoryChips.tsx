@@ -40,6 +40,7 @@ interface CategoryChipsProps {
 
 export function CategoryChips({ selectedCategories, onCategoryToggle }: CategoryChipsProps) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { t } = useI18n();
   return (
     <View style={styles.container}>
@@ -75,7 +76,7 @@ export function CategoryChips({ selectedCategories, onCategoryToggle }: Category
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     marginVertical: 8,
   },

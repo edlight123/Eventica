@@ -30,7 +30,8 @@ type RouteParams = {
 };
 
 export default function OrganizerInfoFormScreen() {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors);
   const navigation = useNavigation();
   const route = useRoute<RouteProp<RouteParams, 'OrganizerInfoForm'>>();
   const { userProfile } = useAuth();
@@ -108,7 +109,7 @@ export default function OrganizerInfoFormScreen() {
         missingFields: [],
       });
 
-      Alert.alert('Success', 'Organizer information saved successfully', [
+      Alert.alert(t('common.success'), t('verification.organizerInfo.savedSuccessfully'), [
         {
           text: t('common.ok'),
           onPress: () => {
@@ -141,7 +142,7 @@ export default function OrganizerInfoFormScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       {/* Header */}
-      <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? colors.surface : colors.white} />
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color={colors.text} />
@@ -263,7 +264,7 @@ export default function OrganizerInfoFormScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

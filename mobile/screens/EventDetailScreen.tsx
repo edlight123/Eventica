@@ -56,6 +56,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
   const { user, userProfile } = useAuth();
   const { t } = useI18n();
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const [event, setEvent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(false);
@@ -719,7 +720,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F9FAFB',

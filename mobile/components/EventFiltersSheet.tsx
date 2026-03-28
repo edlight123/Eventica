@@ -31,6 +31,7 @@ import { useTheme } from '../contexts/ThemeContext';
 
 export default function EventFiltersSheet() {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { t } = useI18n();
   const {
     draftFilters,
@@ -393,7 +394,7 @@ export default function EventFiltersSheet() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',

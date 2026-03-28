@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 
 export default function TicketDetailScreen({ route }: any) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { ticketId } = route.params;
   const { t } = useI18n();
   const navigation = useNavigation<any>();
@@ -398,7 +399,7 @@ export default function TicketDetailScreen({ route }: any) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

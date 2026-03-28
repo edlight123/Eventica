@@ -15,6 +15,7 @@ export default function TicketAvailabilityBar({
   style,
 }: TicketAvailabilityBarProps) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { t } = useI18n();
   const remainingTickets = Math.max(0, totalTickets - ticketsSold);
   const percentageSold = totalTickets > 0 ? (ticketsSold / totalTickets) * 100 : 0;
@@ -76,7 +77,7 @@ export default function TicketAvailabilityBar({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     paddingVertical: 8,
   },

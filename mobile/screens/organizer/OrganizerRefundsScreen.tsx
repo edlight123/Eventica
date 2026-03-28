@@ -33,6 +33,7 @@ interface RefundRequest {
 
 export default function OrganizerRefundsScreen({ navigation }: any) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { userProfile } = useAuth();
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
@@ -331,7 +332,7 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

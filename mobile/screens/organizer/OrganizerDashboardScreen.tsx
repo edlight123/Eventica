@@ -24,6 +24,7 @@ import {
 
 export default function OrganizerDashboardScreen() {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const navigation = useNavigation<any>();
   const { userProfile } = useAuth();
   const { t } = useI18n();
@@ -243,7 +244,7 @@ export default function OrganizerDashboardScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

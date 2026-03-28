@@ -131,7 +131,8 @@ export default function CategoryGrid({ onCategoryPress }: CategoryGridProps) {
 }
 
   const { colors } = useTheme();
-const styles = StyleSheet.create({
+  const styles = getStyles(colors);
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',

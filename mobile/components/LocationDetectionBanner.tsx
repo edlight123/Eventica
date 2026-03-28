@@ -24,6 +24,7 @@ const BANNER_DISMISSED_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export default function LocationDetectionBanner() {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { user, userProfile, updateUserProfile } = useAuth();
   const { userCountry, setUserCountry, applyFiltersDirectly, appliedFilters } = useFilters();
   
@@ -183,7 +184,7 @@ export default function LocationDetectionBanner() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     position: 'absolute',
     top: 0,

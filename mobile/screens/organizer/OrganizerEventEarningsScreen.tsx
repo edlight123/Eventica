@@ -55,6 +55,7 @@ type EventEarnings = {
 
 export default function OrganizerEventEarningsScreen() {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const route = useRoute<RouteProp<RouteParams, 'OrganizerEventEarnings'>>()
   const navigation = useNavigation<any>()
   const { eventId } = route.params
@@ -823,7 +824,7 @@ export default function OrganizerEventEarningsScreen() {
   )
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

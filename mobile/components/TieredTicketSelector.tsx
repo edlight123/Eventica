@@ -62,6 +62,7 @@ export default function TieredTicketSelector({
   currency,
 }: TieredTicketSelectorProps) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { t } = useI18n();
   const displayCurrency = String(currency || 'HTG').toUpperCase();
   const [tiers, setTiers] = useState<TicketTier[]>([]);
@@ -448,7 +449,7 @@ export default function TieredTicketSelector({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.white,

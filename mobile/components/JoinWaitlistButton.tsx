@@ -32,6 +32,7 @@ export default function JoinWaitlistButton({
   onJoined 
 }: JoinWaitlistButtonProps) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { user } = useAuth();
   const { t } = useI18n();
   const [isOnWaitlist, setIsOnWaitlist] = useState(false);
@@ -193,7 +194,7 @@ export default function JoinWaitlistButton({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   button: {
     flexDirection: 'row',
     alignItems: 'center',

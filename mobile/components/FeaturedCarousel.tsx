@@ -31,6 +31,7 @@ const { width } = Dimensions.get('window');
 
 export default function FeaturedCarousel({ events, onEventPress }: FeaturedCarouselProps) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { t, language } = useI18n();
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollX = useRef(new Animated.Value(0)).current;
@@ -150,7 +151,7 @@ export default function FeaturedCarousel({ events, onEventPress }: FeaturedCarou
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     marginBottom: 16,
   },

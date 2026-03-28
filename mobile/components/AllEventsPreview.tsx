@@ -121,6 +121,7 @@ export default function AllEventsPreview({
   onViewAll,
 }: AllEventsPreviewProps) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { t } = useI18n();
   const displayEvents = events.slice(0, 6);
 
@@ -149,7 +150,7 @@ export default function AllEventsPreview({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   section: {
   },
   header: {

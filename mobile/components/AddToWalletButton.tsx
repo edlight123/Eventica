@@ -32,6 +32,7 @@ export default function AddToWalletButton({
   totalTickets,
 }: AddToWalletButtonProps) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleAddToWallet = async () => {
@@ -151,7 +152,7 @@ export default function AddToWalletButton({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     gap: 12,
   },

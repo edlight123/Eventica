@@ -48,6 +48,7 @@ interface SocialLink {
 
 export default function OrganizerProfileScreen({ route, navigation }: any) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const insets = useSafeAreaInsets();
   const { organizerId } = route.params;
   const { user } = useAuth();
@@ -627,7 +628,7 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F9FAFB',

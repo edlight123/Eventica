@@ -115,6 +115,7 @@ export default function TrendingSection({
   onViewAll,
 }: TrendingSectionProps) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { t } = useI18n();
   if (events.length === 0) return null;
 
@@ -150,7 +151,7 @@ export default function TrendingSection({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   section: {
   },
   header: {

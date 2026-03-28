@@ -46,6 +46,7 @@ export default function EventbriteStyleTicketSelector({
   currency,
 }: EventbriteStyleTicketSelectorProps) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { t } = useI18n();
   const displayCurrency = String(currency || 'HTG').toUpperCase();
   const [tiers, setTiers] = useState<TicketTier[]>([]);
@@ -297,7 +298,7 @@ export default function EventbriteStyleTicketSelector({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',

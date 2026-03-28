@@ -50,6 +50,7 @@ type ApiMember = {
 
 export default function OrganizerEventStaffScreen() {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const route = useRoute<RouteProp<RouteParams, 'OrganizerEventStaff'>>()
   const navigation = useNavigation<any>()
   const { eventId } = route.params
@@ -443,7 +444,7 @@ export default function OrganizerEventStaffScreen() {
   )
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   content: { padding: 16, paddingBottom: 32 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },

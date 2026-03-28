@@ -124,6 +124,7 @@ export default function ThisWeekSection({
   onViewAll,
 }: ThisWeekSectionProps) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { t } = useI18n();
   if (events.length === 0) return null;
 
@@ -159,7 +160,7 @@ export default function ThisWeekSection({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   section: {
   },
   header: {

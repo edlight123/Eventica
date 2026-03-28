@@ -35,7 +35,8 @@ export default function PremiumSearchBar({ onPress }: PremiumSearchBarProps) {
 }
 
   const { colors } = useTheme();
-const styles = StyleSheet.create({
+  const styles = getStyles(colors);
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     paddingVertical: 12,

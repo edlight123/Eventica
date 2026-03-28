@@ -51,7 +51,8 @@ function getLegacyCategoryLabel(t: (key: string) => string, category: string) {
 }
 
 export default function CreateEventScreen() {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors);
   const navigation = useNavigation();
   const { userProfile } = useAuth();
   const { t } = useI18n();
@@ -324,7 +325,7 @@ export default function CreateEventScreen() {
       keyboardVerticalOffset={0}
     >
       {/* Header */}
-      <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? colors.surface : colors.white} />
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <TouchableOpacity
           style={styles.backButton}
@@ -1151,7 +1152,7 @@ function Step5Details({ formData, updateField }: any) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

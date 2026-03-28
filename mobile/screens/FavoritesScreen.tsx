@@ -24,6 +24,7 @@ import { format } from 'date-fns';
 
 export default function FavoritesScreen({ navigation }: any) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { user } = useAuth();
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
@@ -276,7 +277,7 @@ export default function FavoritesScreen({ navigation }: any) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

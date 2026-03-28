@@ -32,6 +32,7 @@ export default function TicketPassCard({
   onTransferPress,
 }: TicketPassCardProps) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const isUsed = !!ticket.checked_in_at;
   const orderNumber = `EH-${ticket.id?.slice(0, 8).toUpperCase() || 'XXXXXXXX'}`;
 
@@ -143,7 +144,7 @@ export default function TicketPassCard({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   card: {
     width: '100%',
     backgroundColor: colors.surface,

@@ -37,6 +37,7 @@ interface Props {
 
 export default function Step3ScheduleRefactored({ draft, updateDraft }: Props) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { t } = useI18n();
 
   // Picker visibility state
@@ -478,7 +479,7 @@ export default function Step3ScheduleRefactored({ draft, updateDraft }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     gap: 16,
   },

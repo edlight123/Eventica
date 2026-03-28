@@ -30,6 +30,7 @@ import type { Notification } from '../types/notifications';
 
 export default function NotificationsScreen() {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const navigation = useNavigation();
   const { user } = useAuth();
   const { setMode } = useAppMode();
@@ -541,7 +542,7 @@ export default function NotificationsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

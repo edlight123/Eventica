@@ -28,7 +28,8 @@ type RouteParams = {
 };
 
 export default function SendEventUpdateScreen() {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors);
   const route = useRoute<RouteProp<RouteParams, 'SendEventUpdate'>>();
   const navigation = useNavigation();
   const { eventId, eventTitle } = route.params;
@@ -129,7 +130,7 @@ export default function SendEventUpdateScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? colors.surface : colors.white} />
 
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
@@ -242,7 +243,7 @@ export default function SendEventUpdateScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

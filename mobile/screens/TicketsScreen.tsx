@@ -21,6 +21,7 @@ import { consumeTicketsRefreshHint } from '../lib/ticketsRefreshHint';
 
 export default function TicketsScreen({ navigation }: any) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { user } = useAuth();
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
@@ -255,7 +256,7 @@ export default function TicketsScreen({ navigation }: any) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

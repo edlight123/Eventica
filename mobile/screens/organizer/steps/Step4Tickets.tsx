@@ -12,6 +12,7 @@ interface Props {
 
 export default function Step4Tickets({ draft, updateDraft }: Props) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { t } = useI18n();
 
   const addTier = () => {
@@ -148,7 +149,7 @@ export default function Step4Tickets({ draft, updateDraft }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
   },

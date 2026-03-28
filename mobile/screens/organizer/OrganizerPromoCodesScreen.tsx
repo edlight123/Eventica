@@ -71,6 +71,7 @@ function normalizeNumber(value: string): number | null {
 
 export default function OrganizerPromoCodesScreen() {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const route = useRoute<RouteProp<RouteParams, 'OrganizerPromoCodes'>>();
   const { eventId } = route.params;
 
@@ -435,7 +436,7 @@ export default function OrganizerPromoCodesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

@@ -31,6 +31,7 @@ const HEADER_COLLAPSED_HEIGHT = 70;
 
 export default function DiscoverScreen({ navigation, route }: any) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { appliedFilters, openFiltersModal, hasActiveFilters, countActiveFilters, applyFiltersDirectly } = useFilters();
   
   const [allEvents, setAllEvents] = useState<any[]>([]);
@@ -600,7 +601,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

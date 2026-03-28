@@ -37,6 +37,7 @@ export default function FreeTicketModal({
   onSuccess,
 }: FreeTicketModalProps) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
 
@@ -271,7 +272,7 @@ export default function FreeTicketModal({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',

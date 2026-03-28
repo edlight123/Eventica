@@ -13,6 +13,7 @@ type Params = {
 
 export default function StripeConnectWebViewScreen() {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const navigation = useNavigation<any>()
   const route = useRoute<any>()
   const insets = useSafeAreaInsets()
@@ -71,7 +72,7 @@ export default function StripeConnectWebViewScreen() {
   )
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

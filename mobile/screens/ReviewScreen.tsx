@@ -21,6 +21,7 @@ import { backendFetch } from '../lib/api/backend';
 
 export default function ReviewScreen({ route, navigation }: any) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const { ticketId, eventId, eventTitle } = route.params;
   const { user } = useAuth();
   const { t } = useI18n();
@@ -260,7 +261,7 @@ export default function ReviewScreen({ route, navigation }: any) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

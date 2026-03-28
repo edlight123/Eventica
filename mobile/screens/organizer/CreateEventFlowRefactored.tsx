@@ -86,6 +86,7 @@ const STEPS = [
 
 export default function CreateEventFlowRefactored() {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const navigation = useNavigation();
   const route = useRoute<RouteProp<RouteParams, 'EditEvent'>>();
   const insets = useSafeAreaInsets();
@@ -456,7 +457,7 @@ export default function CreateEventFlowRefactored() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

@@ -22,6 +22,7 @@ const DATE_OPTIONS: { value: DateFilter; labelKey: string }[] = [
 export function DateChips({ currentDate, onDateChange }: DateChipsProps) {
   const { t } = useI18n();
   const { colors } = useTheme();
+  const styles = getStyles(colors);
 
   return (
     <View style={styles.container}>
@@ -56,7 +57,7 @@ export function DateChips({ currentDate, onDateChange }: DateChipsProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     marginVertical: 8,
   },

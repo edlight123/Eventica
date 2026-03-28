@@ -32,6 +32,7 @@ export default function TransferTicketModal({
   onTransferSuccess,
 }: TransferTicketModalProps) {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const [toEmail, setToEmail] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -325,7 +326,7 @@ export default function TransferTicketModal({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',

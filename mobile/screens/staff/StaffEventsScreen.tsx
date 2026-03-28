@@ -25,6 +25,7 @@ type EventSummary = {
 
 export default function StaffEventsScreen() {
   const { colors } = useTheme();
+  const styles = getStyles(colors);
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { t } = useI18n();
@@ -200,7 +201,7 @@ export default function StaffEventsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
