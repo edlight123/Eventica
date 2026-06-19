@@ -14,7 +14,7 @@
 4. Scroll to "Your apps" section
 5. Add an iOS app if you don't have one:
    - Click "Add app" → iOS
-   - Bundle ID: `com.eventhaiti.mobile` (or your custom ID)
+   - Bundle ID: `co.tikem.mobile` (or your custom ID)
    - Register app
 
 6. You'll see your Firebase configuration like this:

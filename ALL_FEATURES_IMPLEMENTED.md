@@ -484,7 +484,7 @@ Update `.env` with these new variables:
 ```bash
 # Apple Wallet (Optional)
 APPLE_TEAM_ID=your_team_id
-APPLE_PASS_TYPE_ID=pass.com.eventhaiti.ticket
+APPLE_PASS_TYPE_ID=pass.co.tikem.ticket
 APPLE_WALLET_KEY_PASSPHRASE=your_passphrase
 
 # Google Wallet (Optional)

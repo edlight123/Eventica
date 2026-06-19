@@ -39,7 +39,7 @@ EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=71580084056-YOUR_WEB_CLIENT_ID.apps.googleuserc
 
 2. Scroll to **Your apps** section
 
-3. Find your iOS app (`com.eventhaiti.mobile`)
+3. Find your iOS app (`co.tikem.mobile`)
 
 4. Click **Download GoogleService-Info.plist**
 
