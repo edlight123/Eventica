@@ -61,6 +61,20 @@ const nextConfig = {
       },
     ]
   },
+
+  // Serve mobile deep-link association files from /.well-known (env-driven routes)
+  async rewrites() {
+    return [
+      {
+        source: '/.well-known/apple-app-site-association',
+        destination: '/api/well-known/aasa',
+      },
+      {
+        source: '/.well-known/assetlinks.json',
+        destination: '/api/well-known/assetlinks',
+      },
+    ]
+  },
   
   images: {
     remotePatterns: [

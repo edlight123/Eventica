@@ -14,7 +14,11 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "co.tikem.mobile"
+      "bundleIdentifier": "co.tikem.mobile",
+      "associatedDomains": [
+        "applinks:tikem.co",
+        "applinks:www.tikem.co"
+      ]
     },
     "android": {
       "adaptiveIcon": {
@@ -23,15 +27,23 @@
       },
       "package": "co.tikem.mobile",
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            { "scheme": "https", "host": "tikem.co", "pathPrefix": "/events" },
+            { "scheme": "https", "host": "tikem.co", "pathPrefix": "/tickets" },
+            { "scheme": "https", "host": "tikem.co", "pathPrefix": "/invite" },
+            { "scheme": "https", "host": "tikem.co", "pathPrefix": "/notifications" }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "tikem-mobile"
-      }
     },
     "scheme": "tikem"
   }
