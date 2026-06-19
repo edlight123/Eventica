@@ -119,7 +119,7 @@ export async function DELETE(request: Request) {
     }
 
     // Anonymize user data instead of hard delete (to preserve referential integrity)
-    const anonymousEmail = `deleted_${user.id}@joineventica.com`
+    const anonymousEmail = `deleted_${user.id}@tikem.co`
     
     await supabase
       .from('users')

@@ -3,13 +3,13 @@
 // Demo user credentials
 export const DEMO_USERS = {
   organizer: {
-    email: 'demo-organizer@joineventica.com',
+    email: 'demo-organizer@tikem.co',
     password: 'demo123',
     name: 'Demo Organizer',
     id: 'demo-organizer-id'
   },
   attendee: {
-    email: 'demo-attendee@joineventica.com',
+    email: 'demo-attendee@tikem.co',
     password: 'demo123',
     name: 'Demo Attendee',
     id: 'demo-attendee-id'

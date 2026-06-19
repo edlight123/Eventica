@@ -459,7 +459,7 @@ vercel --prod
 ### 3. Verify Caching
 ```bash
 # Check cache headers
-curl -I https://joineventica.com/
+curl -I https://tikem.co/
 
 # Should see:
 # Cache-Control: s-maxage=60, stale-while-revalidate

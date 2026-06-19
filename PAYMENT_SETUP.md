@@ -204,7 +204,7 @@ CASHAPP_DISPLAY_NAME=Tikèm
 RESEND_API_KEY=re_...
 
 # Admin
-ADMIN_EMAILS=info@edlight.org,admin@joineventica.com
+ADMIN_EMAILS=info@edlight.org,admin@tikem.co
 ```
 
 ---

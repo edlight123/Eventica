@@ -11,7 +11,7 @@ Google Sign-In is now properly implemented and **will work when you release the 
 Your existing web client ID already works for the mobile app. Expo handles the OAuth flow automatically using your web configuration.
 
 ### Why It Works:
-- ✅ Your web OAuth is already set up at `joineventica.com`
+- ✅ Your web OAuth is already set up at `tikem.co`
 - ✅ Expo uses your web client ID
 - ✅ The OAuth flow happens through Google's servers
 - ✅ No custom schemes or mobile-specific redirects needed

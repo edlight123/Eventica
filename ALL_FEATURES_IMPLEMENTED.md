@@ -373,7 +373,7 @@ price_tiers (
 **How Affiliates Work:**
 1. User signs up as affiliate
 2. Gets code like "ABC123DEF"
-3. Shares link: joineventica.com?ref=ABC123DEF
+3. Shares link: tikem.co?ref=ABC123DEF
 4. Tracks conversions
 5. Earns commission
 6. Requests payout
@@ -398,7 +398,7 @@ price_tiers (
 **Right to Erasure (Article 17):**
 - Account deletion endpoint
 - Anonymization (not hard delete for integrity)
-- Email becomes `deleted_[id]@joineventica.com`
+- Email becomes `deleted_[id]@tikem.co`
 - Personal data cleared
 - Can't delete with upcoming events/tickets
 

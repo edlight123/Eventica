@@ -77,7 +77,7 @@ The mobile app pulls ALL events from your Firestore database:
 
 ### Google Sign-In Flow
 1. User taps "🌐 Continue with Google (Web)"
-2. Opens browser to https://joineventica.com/auth/login
+2. Opens browser to https://tikem.co/auth/login
 3. User signs in with Google on web
 4. Session syncs automatically when returning to app
 5. User is logged in on mobile!

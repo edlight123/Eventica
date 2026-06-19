@@ -24,7 +24,7 @@ import { Share } from 'react-native';
 const shareEvent = async () => {
   await Share.share({
     message: `Check out ${event.title}!\n${event.start_datetime}\n${event.venue_name}`,
-    url: `https://joineventica.com/events/${eventId}`,
+    url: `https://tikem.co/events/${eventId}`,
     title: event.title
   });
 };

@@ -212,10 +212,10 @@ Tikèm is a comprehensive event management platform for Haiti with advanced tick
   - Dispute resolution
 
 **Contact Information:**
-- legal@joineventica.com
-- privacy@joineventica.com
-- dpo@joineventica.com (Data Protection Officer)
-- refunds@joineventica.com
+- legal@tikem.co
+- privacy@tikem.co
+- dpo@tikem.co (Data Protection Officer)
+- refunds@tikem.co
 
 **Files:**
 - `app/legal/terms/page.tsx`
@@ -593,11 +593,11 @@ Where:
 
 ## 📞 Support & Contact
 
-- **General Support:** support@joineventica.com
-- **Legal Inquiries:** legal@joineventica.com
-- **Privacy Concerns:** privacy@joineventica.com
-- **Data Protection Officer:** dpo@joineventica.com
-- **Refunds:** refunds@joineventica.com
+- **General Support:** support@tikem.co
+- **Legal Inquiries:** legal@tikem.co
+- **Privacy Concerns:** privacy@tikem.co
+- **Data Protection Officer:** dpo@tikem.co
+- **Refunds:** refunds@tikem.co
 
 ---
 

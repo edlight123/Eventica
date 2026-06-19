@@ -30,7 +30,7 @@ const emailStyles = {
 
 // Premium footer component
 function getEmailFooter() {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://joineventica.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tikem.co'
   return `
     <tr>
       <td style="padding: 32px 40px; background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%); border-top: 1px solid #e2e8f0;">
@@ -150,7 +150,7 @@ export function getTicketConfirmationEmail(params: {
   currency?: string
 }) {
   const ticketCode = String(params.ticketId || '').slice(0, 12).toUpperCase()
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://joineventica.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tikem.co'
   const ticketsUrl = `${appUrl}/tickets`
   const tier = params.ticketTier || 'General Admission'
   const price = params.ticketPrice ? `${params.currency || 'HTG'} ${params.ticketPrice.toLocaleString()}` : 'Free'
@@ -309,7 +309,7 @@ export function getEventCreatedEmail(params: {
   eventDate: string
   eventId: string
 }) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://joineventica.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tikem.co'
   const manageUrl = `${appUrl}/organizer/events/${params.eventId}`
   
   return `
@@ -391,7 +391,7 @@ export function getRefundRequestEmail(params: {
   ticketId: string
   amount: number
 }) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://joineventica.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tikem.co'
   
   return `
     <!DOCTYPE html>
@@ -471,7 +471,7 @@ export function getRefundProcessedEmail(params: {
   ticketId: string
 }) {
   const isApproved = params.status === 'approved'
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://joineventica.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tikem.co'
   
   return `
     <!DOCTYPE html>
@@ -557,7 +557,7 @@ export function getWaitlistNotificationEmail(params: {
   quantity: number
   eventId: string
 }) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://joineventica.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tikem.co'
   const eventUrl = `${appUrl}/events/${params.eventId}`
   
   return `
@@ -643,7 +643,7 @@ export function getTicketTransferRequestEmail(params: {
   transferToken: string
   expiresAt: string
 }) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://joineventica.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tikem.co'
   const acceptUrl = `${appUrl}/tickets/transfer/${params.transferToken}`
   const declineUrl = `${appUrl}/tickets/transfer/${params.transferToken}?action=reject`
   
@@ -741,7 +741,7 @@ export function getTicketTransferResponseEmail(params: {
   ticketId: string
 }) {
   const isAccepted = params.action === 'accepted'
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://joineventica.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tikem.co'
   
   return `
     <!DOCTYPE html>
@@ -870,7 +870,7 @@ export function getEventUpdateEmail(params: {
   updateMessage: string
   eventId: string
 }) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://joineventica.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tikem.co'
   const eventUrl = `${appUrl}/events/${params.eventId}`
   
   return `
@@ -939,7 +939,7 @@ export function getBankVerificationDecisionEmail(params: {
   reason?: string
 }) {
   const isApproved = params.decision === 'approve'
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://joineventica.com'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tikem.co'
   const payoutUrl = `${appUrl}/organizer/payout-settings`
 
   return `

@@ -222,7 +222,7 @@ export async function POST(request: NextRequest) {
     // Send confirmation email to user
     try {
       await resend.emails.send({
-        from: 'Tikem <noreply@joineventica.com>',
+        from: 'Tikem <noreply@tikem.co>',
         to: user.email || '',
         subject: 'Verification Request Received',
         html: `
@@ -251,8 +251,8 @@ export async function POST(request: NextRequest) {
     // Send notification to admin team
     try {
       await resend.emails.send({
-        from: 'Tikem <noreply@joineventica.com>',
-        to: process.env.ADMIN_EMAIL || 'admin@joineventica.com',
+        from: 'Tikem <noreply@tikem.co>',
+        to: process.env.ADMIN_EMAIL || 'admin@tikem.co',
         subject: 'New Verification Request',
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

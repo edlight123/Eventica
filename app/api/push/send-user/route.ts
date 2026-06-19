@@ -73,7 +73,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'No subscriptions for user' }, { status: 404 })
   }
 
-  webpush.setVapidDetails('mailto:support@joineventica.com', process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY)
+  webpush.setVapidDetails('mailto:support@tikem.co', process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY)
 
   const title = payload.title || 'Tikèm'
   const body = payload.body || 'Notification'

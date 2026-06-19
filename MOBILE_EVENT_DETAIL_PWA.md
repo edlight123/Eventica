@@ -1,7 +1,7 @@
 # PWA Event Detail Page - Complete Feature Documentation
 
 ## Reference URL
-https://joineventica.com/events/OxkfukuQX4T8E2UQ2Jrf
+https://tikem.co/events/OxkfukuQX4T8E2UQ2Jrf
 
 ---
 

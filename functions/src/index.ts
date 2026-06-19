@@ -8,7 +8,7 @@ initializeApp()
 const db = getFirestore()
 
 const cors = [
-  'https://joineventica.com',
+  'https://tikem.co',
   'http://localhost:3000',
 ]
 
@@ -107,7 +107,7 @@ export const createEventInvite = onCall({ cors }, async (request) => {
     createdBy: uid,
   })
 
-  const inviteUrl = `https://joineventica.com/invite?eventId=${encodeURIComponent(eventId)}&token=${encodeURIComponent(token)}`
+  const inviteUrl = `https://tikem.co/invite?eventId=${encodeURIComponent(eventId)}&token=${encodeURIComponent(token)}`
 
   return {
     inviteId: inviteRef.id,

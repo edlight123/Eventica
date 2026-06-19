@@ -71,12 +71,12 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="mailto:support@joineventica.com" className="hover:text-white transition-colors">
+                <a href="mailto:support@tikem.co" className="hover:text-white transition-colors">
                   Contact Support
                 </a>
               </li>
               <li>
-                <a href="mailto:legal@joineventica.com" className="hover:text-white transition-colors">
+                <a href="mailto:legal@tikem.co" className="hover:text-white transition-colors">
                   Legal Inquiries
                 </a>
               </li>

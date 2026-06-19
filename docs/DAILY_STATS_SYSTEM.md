@@ -99,7 +99,7 @@ You can manually trigger the daily stats calculation:
 
 ```bash
 # Using curl with authentication
-curl -X POST https://joineventica.com/api/cron/daily-stats \
+curl -X POST https://tikem.co/api/cron/daily-stats \
   -H "Authorization: Bearer YOUR_CRON_SECRET"
 
 # Response

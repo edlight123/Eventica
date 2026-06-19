@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
       try {
         if (normalizedStatus === 'approved') {
           await resend.emails.send({
-            from: 'Tikem <noreply@joineventica.com>',
+            from: 'Tikem <noreply@tikem.co>',
             to: (organizer as any).email,
             subject: '✅ Your Tikèm Account is Verified!',
             html: `
@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
           })
         } else {
           await resend.emails.send({
-            from: 'Tikem <noreply@joineventica.com>',
+            from: 'Tikem <noreply@tikem.co>',
             to: (organizer as any).email,
             subject: 'Tikèm Verification Update',
             html: `

@@ -29,7 +29,7 @@ import { getVerificationRequest, type VerificationRequest } from '../lib/verific
 import { useNavigation } from '@react-navigation/native';
 import { CITIES_BY_COUNTRY, COUNTRIES } from '../types/filters';
 
-const WEBSITE_BASE_URL = 'https://joineventica.com';
+const WEBSITE_BASE_URL = 'https://tikem.co';
 
 export default function ProfileScreen() {
   const { colors, isDark } = useTheme();

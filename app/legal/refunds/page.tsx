@@ -138,8 +138,8 @@ export default async function RefundPolicyPage() {
             For refund-related questions:
           </p>
           <ul>
-            <li><strong>Email:</strong> refunds@joineventica.com</li>
-            <li><strong>Support:</strong> support@joineventica.com</li>
+            <li><strong>Email:</strong> refunds@tikem.co</li>
+            <li><strong>Support:</strong> support@tikem.co</li>
             <li><strong>Response Time:</strong> Within 24-48 hours</li>
           </ul>
 

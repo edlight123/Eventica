@@ -106,7 +106,7 @@ export default async function TermsOfServicePage() {
           <p>
             For questions about these Terms of Service, please contact us at:
             <br />
-            <strong>Email:</strong> legal@joineventica.com
+            <strong>Email:</strong> legal@tikem.co
             <br />
             <strong>Address:</strong> Port-au-Prince, Haiti
           </p>

@@ -23,7 +23,7 @@ export function randomToken(bytes: number = 32): string {
 }
 
 export function inviteUrlFor(eventId: string, token: string): string {
-  return `https://joineventica.com/invite?eventId=${encodeURIComponent(eventId)}&token=${encodeURIComponent(token)}`
+  return `https://tikem.co/invite?eventId=${encodeURIComponent(eventId)}&token=${encodeURIComponent(token)}`
 }
 
 export function inviteDeepLinkFor(eventId: string, token: string): string {

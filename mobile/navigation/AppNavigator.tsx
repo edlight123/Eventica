@@ -479,9 +479,9 @@ export default function AppNavigator() {
     prefixes: [
       ExpoLinking.createURL('/'),
       'tikem://',
-      'https://joineventica.com',
-      'https://joineventica.com',
-      'https://www.joineventica.com',
+      'https://tikem.co',
+      'https://tikem.co',
+      'https://www.tikem.co',
     ],
     config: {
       screens: {

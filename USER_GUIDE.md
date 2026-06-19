@@ -39,11 +39,11 @@ Welcome to Tikèm! This comprehensive guide will help you navigate the platform 
 Tikèm offers demo accounts for testing:
 
 **Demo Attendee:**
-- Email: `demo-attendee@joineventica.com`
+- Email: `demo-attendee@tikem.co`
 - Password: `demo123`
 
 **Demo Organizer:**
-- Email: `demo-organizer@joineventica.com`
+- Email: `demo-organizer@tikem.co`
 - Password: `demo123`
 
 ---
@@ -634,7 +634,7 @@ Platform features for all users:
 - Video tutorials (coming soon)
 
 **Contact Support:**
-- Email: support@joineventica.com
+- Email: support@tikem.co
 - Response time: 24-48 hours
 - Priority support for verified organizers
 
@@ -770,6 +770,6 @@ Profile (/profile)
 
 Tikèm is your complete platform for event discovery and management in Haiti. Whether you're looking to attend amazing events or create your own, we've built features to make the experience seamless and enjoyable.
 
-**Questions?** Contact support@joineventica.com
+**Questions?** Contact support@tikem.co
 
 **Happy Eventing! 🎉**

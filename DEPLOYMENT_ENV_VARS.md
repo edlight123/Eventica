@@ -103,7 +103,7 @@ Once deployed, test the cron endpoint:
 
 ```bash
 # Replace with your actual domain and CRON_SECRET
-curl -X GET https://joineventica.com/api/cron/update-settlement-status \
+curl -X GET https://tikem.co/api/cron/update-settlement-status \
   -H "Authorization: Bearer SDhk0LptE2CEchml2DKJl5pFONQrzi+/SjDl9bHv9lg="
 ```
 
@@ -167,7 +167,7 @@ git push origin main
 Add your email to admin list in `lib/admin.ts`:
 ```typescript
 const adminEmails = [
-  'admin@joineventica.com',
+  'admin@tikem.co',
   'info@edlight.org'  // Your email
 ]
 ```

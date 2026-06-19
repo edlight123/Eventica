@@ -21,7 +21,7 @@ async function runTestSend() {
     return NextResponse.json({ error: 'VAPID keys not set' }, { status: 500 })
   }
   if (!subs.length) return NextResponse.json({ error: 'No valid subscriptions (keys missing)' }, { status: 404 })
-  webpush.setVapidDetails('mailto:support@joineventica.com', process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY)
+  webpush.setVapidDetails('mailto:support@tikem.co', process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY)
   const payload = JSON.stringify({ title: 'Tikèm', body: 'Test notification', data: { url: '/tickets' } })
   type SendResult = { endpoint: string; ok: boolean; error?: string; statusCode?: number }
   const results: SendResult[] = await Promise.all(subs.map(s => webpush

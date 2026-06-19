@@ -98,7 +98,7 @@ export async function GET(request: Request) {
             })
 
             await resend.emails.send({
-              from: 'Tikem <noreply@joineventica.com>',
+              from: 'Tikem <noreply@tikem.co>',
               to: user.email,
               subject: `Reminder: ${event.title} is Tomorrow! 🎉`,
               html: `
@@ -173,7 +173,7 @@ export async function GET(request: Request) {
                       </div>
                       
                       <div style="text-align: center;">
-                        <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://joineventica.com'}/tickets" class="button">
+                        <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://tikem.co'}/tickets" class="button">
                           View My Tickets
                         </a>
                       </div>

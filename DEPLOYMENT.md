@@ -96,7 +96,7 @@ This guide will walk you through deploying Tikèm to production on Vercel.
 ## Step 4: Custom Domain (Optional)
 
 1. **Purchase a domain**
-   - Recommended: `eventhaiti.ht` or `joineventica.com`
+   - Recommended: `eventhaiti.ht` or `tikem.co`
 
 2. **Add domain in Vercel**
    - Go to Project Settings → Domains

@@ -1,5 +1,5 @@
 /**
- * Run this in browser console while logged in as admin on joineventica.com
+ * Run this in browser console while logged in as admin on tikem.co
  * to fix ticket tiers for event P7wuJ16W1eZ2MdZl0SHK
  */
 

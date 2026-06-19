@@ -139,8 +139,8 @@ export default async function PrivacyPolicyPage() {
             For privacy-related questions or to exercise your rights:
           </p>
           <ul>
-            <li><strong>Email:</strong> privacy@joineventica.com</li>
-            <li><strong>Data Protection Officer:</strong> dpo@joineventica.com</li>
+            <li><strong>Email:</strong> privacy@tikem.co</li>
+            <li><strong>Data Protection Officer:</strong> dpo@tikem.co</li>
             <li><strong>Address:</strong> Port-au-Prince, Haiti</li>
           </ul>
 

@@ -17,7 +17,7 @@ On your iPhone in Expo Go:
 
 ### 2️⃣ Test Google Sign-In
 1. On the login screen, tap **"🌐 Continue with Google (Web)"**
-2. Browser should open to joineventica.com
+2. Browser should open to tikem.co
 3. Sign in with Google on the web
 4. When done, switch back to Expo Go app
 5. **You should be logged in!**

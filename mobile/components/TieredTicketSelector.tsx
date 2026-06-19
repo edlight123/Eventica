@@ -144,7 +144,7 @@ export default function TieredTicketSelector({
       const apiUrl = (
         process.env.EXPO_PUBLIC_API_URL ||
         process.env.EXPO_PUBLIC_WEB_URL ||
-        'https://joineventica.com'
+        'https://tikem.co'
       ).replace(/\/$/, '');
       const response = await fetch(
         `${apiUrl}/api/promo-codes?eventId=${eventId}&code=${encodeURIComponent(promoCode)}`

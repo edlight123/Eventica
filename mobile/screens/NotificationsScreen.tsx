@@ -52,7 +52,7 @@ export default function NotificationsScreen() {
     try {
       const full = actionUrl.startsWith('http')
         ? actionUrl
-        : `https://joineventica.com${actionUrl.startsWith('/') ? '' : '/'}${actionUrl}`;
+        : `https://tikem.co${actionUrl.startsWith('/') ? '' : '/'}${actionUrl}`;
       const url = new URL(full);
       const parts = url.pathname.split('/').filter(Boolean);
       const idx = parts.findIndex((p) => p === 'transfer');
@@ -87,7 +87,7 @@ export default function NotificationsScreen() {
       try {
         const full = actionUrl.startsWith('http')
           ? actionUrl
-          : `https://joineventica.com${actionUrl.startsWith('/') ? '' : '/'}${actionUrl}`;
+          : `https://tikem.co${actionUrl.startsWith('/') ? '' : '/'}${actionUrl}`;
         const url = new URL(full);
         const parsedEventId = url.searchParams.get('eventId') || '';
         const parsedToken = url.searchParams.get('token') || '';

@@ -497,7 +497,7 @@ Generate with the `web-push` library or existing tooling.
 3. For quick smoke tests without loading the UI, call the secured GET helper: `https://<your-app>.vercel.app/api/push/test?secret=<PUSH_TEST_SECRET>`.
 4. Example curl command:
    ```bash
-   curl "https://joineventica.com/api/push/test?secret=$PUSH_TEST_SECRET"
+   curl "https://tikem.co/api/push/test?secret=$PUSH_TEST_SECRET"
    ```
    Successful responses include `sent` and `pruned` arrays. A `401 Invalid secret` error means the query parameter or Vercel env is incorrect; `404 No valid subscriptions` means nobody is currently subscribed on that environment.
 
