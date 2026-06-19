@@ -17,7 +17,7 @@ Google is blocking the sign-in because your OAuth app needs to be configured wit
 Add these redirect URIs to the "Authorized redirect URIs" section:
 
 ```
-https://auth.expo.io/@anonymous/eventhaiti-mobile
+https://auth.expo.io/@anonymous/tikem-mobile
 tikem://
 ```
 

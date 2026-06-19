@@ -10,7 +10,7 @@ Tikèm now uses **Firebase** (Firestore + Firebase Auth) instead of Supabase. Th
 
 1. Go to [Firebase Console](https://console.firebase.google.com/)
 2. Click "Add project"
-3. Enter project name: `eventhaiti` (or your preferred name)
+3. Enter project name: `tikem` (or your preferred name)
 4. Disable Google Analytics (optional)
 5. Click "Create project"
 
@@ -54,7 +54,7 @@ Tikèm now uses **Firebase** (Firestore + Firebase Auth) instead of Supabase. Th
 
 **Example:**
 ```bash
-FIREBASE_SERVICE_ACCOUNT_KEY='{"type":"service_account","project_id":"eventhaiti-12345",...}'
+FIREBASE_SERVICE_ACCOUNT_KEY='{"type":"service_account","project_id":"tikem-12345",...}'
 ```
 
 ### 5. Add Environment Variables
@@ -64,9 +64,9 @@ Create a `.env.local` file:
 ```bash
 # Firebase Client Configuration
 NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyB...
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=eventhaiti-12345.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=eventhaiti-12345
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=eventhaiti-12345.appspot.com
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=tikem-12345.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=tikem-12345
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=tikem-12345.appspot.com
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789
 NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789:web:abcdef
 

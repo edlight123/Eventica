@@ -20,7 +20,7 @@ Add these to your Vercel project to enable rate limiting:
 
 #### Option A: Via Vercel Dashboard (Recommended)
 
-1. Go to [https://vercel.com/edlight123/eventhaiti/settings/environment-variables](https://vercel.com)
+1. Go to [https://vercel.com/edlight123/tikem/settings/environment-variables](https://vercel.com)
 2. Navigate to: Project → Settings → Environment Variables
 3. Add these variables:
 

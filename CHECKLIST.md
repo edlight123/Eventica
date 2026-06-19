@@ -16,7 +16,7 @@ Use this checklist to ensure Tikèm is properly set up and ready to run.
 
 ### Create Project
 - [ ] Signed up at [supabase.com](https://supabase.com)
-- [ ] Created new project named "eventhaiti"
+- [ ] Created new project named "tikem"
 - [ ] Saved database password securely
 - [ ] Selected region (US East recommended)
 - [ ] Waited for project to finish provisioning (~2 minutes)

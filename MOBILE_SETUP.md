@@ -174,7 +174,7 @@ Edit `mobile/app.json`:
 {
   "expo": {
     "name": "Tikèm",
-    "slug": "eventhaiti-mobile",
+    "slug": "tikem-mobile",
     ...
   }
 }

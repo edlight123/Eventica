@@ -37,7 +37,7 @@ Successfully migrated Tikèm from **Supabase** (PostgreSQL) to **Firebase** (Fir
 
 1. Go to https://console.firebase.google.com/
 2. Click "Add project"
-3. Name: `eventhaiti` (or your choice)
+3. Name: `tikem` (or your choice)
 4. Disable Google Analytics (optional)
 5. Click "Create"
 

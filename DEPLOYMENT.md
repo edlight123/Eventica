@@ -82,7 +82,7 @@ This guide will walk you through deploying Tikèm to production on Vercel.
 ## Step 3: Verify Deployment
 
 1. **Visit your deployment URL**
-   - Vercel will provide a URL like `eventhaiti-xxx.vercel.app`
+   - Vercel will provide a URL like `tikem-xxx.vercel.app`
 
 2. **Test critical flows**
    - [ ] Homepage loads
@@ -96,7 +96,7 @@ This guide will walk you through deploying Tikèm to production on Vercel.
 ## Step 4: Custom Domain (Optional)
 
 1. **Purchase a domain**
-   - Recommended: `eventhaiti.ht` or `tikem.co`
+   - Recommended: `tikem.co`
 
 2. **Add domain in Vercel**
    - Go to Project Settings → Domains

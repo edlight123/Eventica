@@ -24,7 +24,7 @@ npm install
 1. Go to [supabase.com](https://supabase.com) and sign in
 2. Click "New Project"
 3. Fill in:
-   - Name: `eventhaiti`
+   - Name: `tikem`
    - Database Password: (generate and save it)
    - Region: US East (closest to Haiti)
 4. Click "Create new project" and wait ~2 minutes

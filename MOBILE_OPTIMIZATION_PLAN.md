@@ -355,7 +355,7 @@ const handleAction = () => {
 // public/sw.js
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open('eventhaiti-v1').then((cache) => {
+    caches.open('tikem-v1').then((cache) => {
       return cache.addAll([
         '/',
         '/discover',
@@ -840,7 +840,7 @@ Build Validation: Ran `npm run build` after tuning — compiled successfully. Dy
 ### Offline Fallback
 - Added `public/offline.html` lightweight fallback surfaced when navigation requests fail with no cache.
 - Enhanced `public/sw.js`:
-  - Versioned caches (`eventhaiti-static-v2`, `eventhaiti-nav-v1`).
+  - Versioned caches (`tikem-static-v2`, `tikem-nav-v1`).
   - Precache offline assets + icons + manifest.
   - Navigation network-first strategy with offline fallback.
   - Retains runtime caching for static GET requests.
