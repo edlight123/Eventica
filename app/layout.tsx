@@ -9,9 +9,14 @@ import { I18nProvider } from '@/components/I18nProvider'
 // Force rebuild 2024-01-XX - Fix Suspense errors cascading from discover page
 const inter = Inter({ subsets: ['latin'] })
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tikem.co'
+const siteDescription = `Discover and buy tickets for events in Haiti - ${BRAND.name}`
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: BRAND.name,
-  description: `Discover and buy tickets for events in Haiti - ${BRAND.name}`,
+  description: siteDescription,
+  applicationName: BRAND.name,
   manifest: '/manifest.json',
   icons: {
     icon: [
@@ -22,6 +27,28 @@ export const metadata: Metadata = {
     apple: [
       { url: '/tikem_logo_color.png', sizes: '500x500', type: 'image/png' },
     ],
+  },
+  openGraph: {
+    type: 'website',
+    siteName: BRAND.name,
+    title: BRAND.name,
+    description: siteDescription,
+    url: siteUrl,
+    locale: 'en_US',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: `${BRAND.name} — ${BRAND.tagline ?? 'Discover Events in Haiti'}`,
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: BRAND.name,
+    description: siteDescription,
+    images: ['/og-image.png'],
   },
   appleWebApp: {
     capable: true,
