@@ -18,6 +18,8 @@ export type NotificationType =
   | 'verification_approved'
   | 'verification_rejected'
   | 'verification_info_needed'
+  | 'connection_request'
+  | 'connection_accepted'
 
 export interface Database {
   public: {

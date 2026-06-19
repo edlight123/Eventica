@@ -115,6 +115,14 @@ service cloud.firestore {
         allow write: if isOwner(userId);
       }
     }
+
+    // Connections (friendships) - one document per user pair.
+    // Participants may read; all writes go through server APIs (Admin SDK),
+    // so client writes are disabled.
+    match /connections/{connectionId} {
+      allow read: if isSignedIn() && request.auth.uid in resource.data.users;
+      allow create, update, delete: if false;
+    }
     
     // Events collection - public read, authenticated write for organizers
     match /events/{eventId} {

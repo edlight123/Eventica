@@ -35,6 +35,9 @@ import { useI18n } from '../contexts/I18nContext';
 import { getCategoryLabel } from '../lib/categories';
 import { useTheme } from '../contexts/ThemeContext';
 import { format } from 'date-fns';
+import ConnectButton from '../components/ConnectButton';
+import { fetchConnections } from '../lib/api/social';
+import { socialUrlFor, type FriendshipState, type SocialPlatform } from '../types/social';
 
 const { width } = Dimensions.get('window');
 const HERO_HEIGHT = 300;
@@ -69,6 +72,36 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
   });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [friendship, setFriendship] = useState<FriendshipState>('none');
+  const [friendshipLoaded, setFriendshipLoaded] = useState(false);
+
+  // Resolve the viewer's friendship with this profile (drives connect button + privacy gating)
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      if (!user) {
+        if (active) { setFriendship('none'); setFriendshipLoaded(true); }
+        return;
+      }
+      if (user.uid === organizerId) {
+        if (active) { setFriendship('self'); setFriendshipLoaded(true); }
+        return;
+      }
+      try {
+        const { friends, incoming, outgoing } = await fetchConnections();
+        if (!active) return;
+        if (friends.some((f) => f.uid === organizerId)) setFriendship('friends');
+        else if (outgoing.some((f) => f.uid === organizerId)) setFriendship('request_sent');
+        else if (incoming.some((f) => f.uid === organizerId)) setFriendship('request_received');
+        else setFriendship('none');
+      } catch {
+        if (active) setFriendship('none');
+      } finally {
+        if (active) setFriendshipLoaded(true);
+      }
+    })();
+    return () => { active = false; };
+  }, [user, organizerId]);
 
   useEffect(() => {
     fetchOrganizerProfile();
@@ -391,6 +424,27 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
     : null;
   const subtitle = getSubtitle();
 
+  // Friend-graph: personal social handles + bio, gated by the profile owner's privacy.
+  const isSelf = !!user && user.uid === organizerId;
+  const personalSocial: { platform: SocialPlatform; handle: string }[] = (
+    ['instagram', 'tiktok', 'twitter', 'facebook'] as SocialPlatform[]
+  )
+    .map((platform) => ({ platform, handle: String(organizer?.social_links?.[platform] || '').trim() }))
+    .filter((item) => item.handle.length > 0);
+  const personalBio = String(organizer?.bio || '').trim();
+  const profileIsPublic = (organizer?.privacy?.profile_visibility || 'private') === 'public';
+  const canSeeSocial = isSelf || friendship === 'friends' || profileIsPublic;
+  const showConnect = friendshipLoaded && !isSelf && friendship !== 'self';
+  const showSocialCard =
+    showConnect || (canSeeSocial && (personalBio.length > 0 || personalSocial.length > 0));
+
+  const SOCIAL_META: Record<SocialPlatform, { label: string; color: string }> = {
+    instagram: { label: 'Instagram', color: '#E4405F' },
+    tiktok: { label: 'TikTok', color: colors.text },
+    twitter: { label: 'X', color: colors.text },
+    facebook: { label: 'Facebook', color: '#1877F2' },
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView
@@ -492,6 +546,47 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
         </ImageBackground>
 
         <View style={styles.content}>
+
+          {/* Friend connection + personal social */}
+          {showSocialCard ? (
+            <View style={styles.socialCard}>
+              {showConnect ? (
+                <View style={styles.connectRow}>
+                  <ConnectButton
+                    targetUserId={organizerId}
+                    initialState={friendship}
+                    size="md"
+                    onChange={setFriendship}
+                    onRequireAuth={() => navigation.navigate('Auth')}
+                  />
+                </View>
+              ) : null}
+
+              {canSeeSocial && personalBio.length > 0 ? (
+                <Text style={styles.socialBio}>{personalBio}</Text>
+              ) : null}
+
+              {canSeeSocial && personalSocial.length > 0 ? (
+                <View style={styles.socialChipsRow}>
+                  {personalSocial.map(({ platform, handle }) => {
+                    const meta = SOCIAL_META[platform];
+                    return (
+                      <TouchableOpacity
+                        key={platform}
+                        style={[styles.socialChip, { borderColor: meta.color }]}
+                        onPress={() => Linking.openURL(socialUrlFor(platform, handle))}
+                        activeOpacity={0.7}
+                      >
+                        <Text style={[styles.socialChipText, { color: meta.color }]} numberOfLines={1}>
+                          {meta.label} @{handle.replace(/^@+/, '')}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              ) : null}
+            </View>
+          ) : null}
 
           {/* Upcoming Events */}
           <View style={styles.section}>
@@ -862,6 +957,43 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   content: {
     padding: 16,
     paddingTop: 48,
+  },
+
+  // Friend connection + personal social
+  socialCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    padding: 16,
+    marginBottom: 24,
+    gap: 12,
+  },
+  connectRow: {
+    alignItems: 'flex-start',
+  },
+  socialBio: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: colors.text,
+  },
+  socialChipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  socialChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    maxWidth: '100%',
+  },
+  socialChipText: {
+    fontSize: 13,
+    fontWeight: '600',
   },
 
   // Follow Prompt

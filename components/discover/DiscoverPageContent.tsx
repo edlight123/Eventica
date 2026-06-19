@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { DateFilter } from '@/lib/filters/types'
 import { DateChips } from './DateChips'
@@ -7,6 +8,7 @@ import { CategoryChips } from './CategoryChips'
 import { EventsSection } from './EventsSection'
 import { EmptyState } from './EmptyState'
 import { FeaturedCarousel } from './FeaturedCarousel'
+import { FriendsGoingProvider } from './FriendsGoingContext'
 import { LOCATION_CONFIG } from '@/lib/filters/config'
 
 interface DiscoverPageContentProps {
@@ -43,7 +45,36 @@ export function DiscoverPageContent({
   const { t } = useTranslation('common')
   const countryName = LOCATION_CONFIG[userCountry]?.name || 'Haiti'
 
+  // Union of every event id currently rendered, so the provider can batch the
+  // "friends going" counts in a single request.
+  const allEventIds = useMemo(() => {
+    const ids: string[] = []
+    for (const list of [
+      featuredEvents,
+      upcomingEvents,
+      countryEvents,
+      nearYouEvents,
+      budgetEvents,
+      onlineEvents,
+      filteredEvents,
+    ]) {
+      if (Array.isArray(list)) {
+        for (const e of list) if (e?.id) ids.push(e.id)
+      }
+    }
+    return Array.from(new Set(ids))
+  }, [
+    featuredEvents,
+    upcomingEvents,
+    countryEvents,
+    nearYouEvents,
+    budgetEvents,
+    onlineEvents,
+    filteredEvents,
+  ])
+
   return (
+    <FriendsGoingProvider eventIds={allEventIds}>
     <div className="space-y-8">
       {/* Date Strip */}
       <div className="space-y-3">
@@ -158,5 +189,6 @@ export function DiscoverPageContent({
         </>
       )}
     </div>
+    </FriendsGoingProvider>
   )
 }

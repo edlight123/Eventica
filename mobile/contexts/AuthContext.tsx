@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import { makeRedirectUri } from 'expo-auth-session';
+import type { SocialLinks, PrivacySettings } from '../types/social';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -20,6 +21,9 @@ interface UserProfile {
   default_subarea?: string; // State/region within country
   is_verified?: boolean;
   photo_url?: string;
+  bio?: string;
+  social_links?: SocialLinks;
+  privacy?: PrivacySettings;
 }
 
 type UserProfilePatch = Partial<Pick<UserProfile, 'full_name' | 'phone_number' | 'default_city' | 'default_country' | 'default_subarea' | 'photo_url'>>;

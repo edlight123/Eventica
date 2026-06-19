@@ -10,6 +10,7 @@ import ShareButtonInline from './ShareButtonInline'
 import MobileHero from './MobileHero'
 import MobileKeyFacts from './MobileKeyFacts'
 import MobileAccordions from './MobileAccordions'
+import WhosGoing from '@/components/events/WhosGoing'
 import { Shield, Calendar, MapPin, Clock, Users, TrendingUp, Star, Sparkles } from 'lucide-react'
 import { format } from 'date-fns'
 import Image from 'next/image'
@@ -452,6 +453,11 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
               )}
             </div>
           </div>
+        </div>
+
+        {/* Who's Going - social attendance */}
+        <div className="mt-8 px-4 md:px-0">
+          <WhosGoing eventId={event.id} currentUserId={user?.id || null} />
         </div>
 
         {/* Related Events Section */}

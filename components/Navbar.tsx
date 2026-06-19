@@ -100,6 +100,14 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                     {t('nav.favorites')}
                   </Link>
                   <Link
+                    href="/connections"
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      pathname?.startsWith('/connections') ? 'bg-gradient-to-r from-teal-50 to-teal-100 text-teal-700 shadow-sm' : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    Friends
+                  </Link>
+                  <Link
                     href="/organizer"
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       pathname?.startsWith('/organizer') ? 'bg-gradient-to-r from-teal-50 to-teal-100 text-teal-700 shadow-sm' : 'text-gray-700 hover:bg-gray-50'
@@ -218,6 +226,15 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                     }`}
                   >
                     {t('nav.favorites')}
+                  </Link>
+                  <Link
+                    href="/connections"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+                      pathname?.startsWith('/connections') ? 'bg-teal-50 text-teal-700' : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    Friends
                   </Link>
                   <Link
                     href="/organizer/events"

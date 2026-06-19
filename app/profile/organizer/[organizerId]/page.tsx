@@ -1,5 +1,8 @@
 import { createClient } from '@/lib/firebase-db/server'
 import { getCurrentUser } from '@/lib/auth'
+import { adminDb } from '@/lib/firebase/admin'
+import { getFriendshipState } from '@/lib/firestore/connections'
+import { DEFAULT_PRIVACY } from '@/types/social'
 import Navbar from '@/components/Navbar'
 import MobileNavWrapper from '@/components/MobileNavWrapper'
 import { notFound } from 'next/navigation'
@@ -145,6 +148,28 @@ export default async function OrganizerProfilePage({ params }: { params: Promise
     isFollowing = !!followData
   }
 
+  // Social profile + friendship state (privacy-gated).
+  const userDoc = await adminDb.collection('users').doc(organizerId).get()
+  const userData = userDoc.exists ? userDoc.data() : {}
+  const privacy = { ...DEFAULT_PRIVACY, ...(userData?.privacy || {}) }
+  const isSelf = !!user && user.id === organizerId
+
+  let friendshipState: string = 'none'
+  if (user && !isSelf) {
+    try {
+      friendshipState = await getFriendshipState(user.id, organizerId)
+    } catch {
+      friendshipState = 'none'
+    }
+  } else if (isSelf) {
+    friendshipState = 'self'
+  }
+
+  const canViewSocial =
+    privacy.profile_visibility === 'public' || friendshipState === 'friends' || isSelf
+  const socialLinks = canViewSocial ? userData?.social_links || {} : {}
+  const bio = canViewSocial ? userData?.bio || '' : ''
+
   return (
     <div className="min-h-screen bg-gray-50 pb-mobile-nav">
       <Navbar user={user} />
@@ -158,6 +183,10 @@ export default async function OrganizerProfilePage({ params }: { params: Promise
         totalTicketsSold={totalTicketsSold}
         isFollowing={isFollowing}
         userId={user?.id}
+        socialLinks={socialLinks}
+        bio={bio}
+        friendshipState={friendshipState as any}
+        isAuthenticated={!!user}
       />
 
       <MobileNavWrapper user={user} />

@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Bookmark, MapPin, Calendar } from 'lucide-react'
+import { Bookmark, MapPin, Calendar, Users } from 'lucide-react'
 import type { Database } from '@/types/database'
 import { formatEventDate, getPriceLabel, getLocationSummary, getEventCue, isEventBookmarked, toggleBookmark as toggleBookmarkHelper } from '@/lib/discover/helpers'
+import { useFriendsGoingCount } from './FriendsGoingContext'
 
 type Event = Database['public']['Tables']['events']['Row']
 
@@ -16,6 +17,7 @@ interface DiscoverEventCardProps {
 export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
+  const friendsGoing = useFriendsGoingCount(event.id)
 
   useEffect(() => {
     setIsBookmarked(isEventBookmarked(event.id))
@@ -83,6 +85,16 @@ export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
         <h3 className="font-bold text-gray-900 line-clamp-2 text-lg group-hover:text-brand-600 transition-colors">
           {event.title}
         </h3>
+
+        {/* Friends going - social proof */}
+        {friendsGoing > 0 && (
+          <div className="flex items-center gap-1.5 text-sm font-semibold text-brand-600">
+            <Users className="w-4 h-4 flex-shrink-0" />
+            <span>
+              {friendsGoing} {friendsGoing === 1 ? 'friend' : 'friends'} going
+            </span>
+          </div>
+        )}
 
         {/* Date */}
         <div className="flex items-center gap-2 text-sm text-gray-600">

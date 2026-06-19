@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Compass, Ticket, User, Briefcase, Shield } from 'lucide-react'
+import { Home, Compass, Ticket, User, Briefcase, Shield, Users } from 'lucide-react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -25,6 +25,7 @@ export default function MobileBottomNav({ isLoggedIn, isOrganizer = false, isAdm
     { href: '/', label: t('nav.home'), icon: Home, show: true },
     { href: '/discover', label: t('nav.discover'), icon: Compass, show: true },
     { href: '/tickets', label: t('nav.myTickets'), icon: Ticket, show: isLoggedIn },
+    { href: '/connections', label: t('nav.friends', { defaultValue: 'Friends' }), icon: Users, show: isLoggedIn },
     { href: '/profile', label: t('nav.profile'), icon: User, show: isLoggedIn },
     { href: isAdmin ? '/admin' : '/organizer', label: isAdmin ? t('nav.admin') : t('nav.organizer'), icon: isAdmin ? Shield : Briefcase, show: isLoggedIn && (isOrganizer || isAdmin) },
   ].filter(tab => tab.show), [isLoggedIn, isOrganizer, isAdmin, t])
@@ -36,7 +37,7 @@ export default function MobileBottomNav({ isLoggedIn, isOrganizer = false, isAdm
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-inset-bottom will-change-contents" style={{ minHeight: '65px' }}>
-      <div className="flex items-center justify-around px-2 py-2">
+      <div className="flex items-center justify-around px-1 py-2">
         {tabs.map((tab) => {
           const Icon = tab.icon
           const active = isActive(tab.href)
@@ -46,14 +47,14 @@ export default function MobileBottomNav({ isLoggedIn, isOrganizer = false, isAdm
               key={tab.href}
               href={tab.href}
               prefetch={true}
-              className={`flex flex-col items-center justify-center min-w-[64px] py-2 px-3 rounded-xl transition-colors will-change-auto ${
+              className={`flex flex-1 flex-col items-center justify-center min-w-0 py-2 px-1 rounded-xl transition-colors will-change-auto ${
                 active
                   ? 'text-brand-600'
                   : 'text-gray-600 active:text-gray-900 active:bg-gray-50'
               }`}
             >
               <Icon className={`w-6 h-6 mb-1 ${active ? 'scale-110' : ''}`} strokeWidth={active ? 2.5 : 2} />
-              <span className={`text-xs font-medium ${active ? 'text-brand-600' : ''}`}>
+              <span className={`text-[11px] font-medium truncate max-w-full ${active ? 'text-brand-600' : ''}`}>
                 {tab.label}
               </span>
             </Link>

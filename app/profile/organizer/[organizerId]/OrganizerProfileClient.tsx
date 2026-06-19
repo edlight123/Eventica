@@ -1,8 +1,10 @@
 'use client'
 
 import FollowButton from '@/components/FollowButton'
+import ConnectButton from '@/components/connections/ConnectButton'
 import EventCard from '@/components/EventCard'
-import { Shield, Calendar, Users, Star } from 'lucide-react'
+import { Shield, Calendar, Users, Star, Instagram, Music2, Twitter, Facebook } from 'lucide-react'
+import { socialUrlFor, type SocialLinks, type FriendshipState } from '@/types/social'
 
 interface OrganizerProfileClientProps {
   organizer: {
@@ -19,7 +21,18 @@ interface OrganizerProfileClientProps {
   totalTicketsSold: number
   isFollowing: boolean
   userId?: string
+  socialLinks?: SocialLinks
+  bio?: string
+  friendshipState?: FriendshipState
+  isAuthenticated?: boolean
 }
+
+const SOCIAL_META: Array<{ key: keyof SocialLinks; Icon: typeof Instagram; label: string }> = [
+  { key: 'instagram', Icon: Instagram, label: 'Instagram' },
+  { key: 'tiktok', Icon: Music2, label: 'TikTok' },
+  { key: 'twitter', Icon: Twitter, label: 'X' },
+  { key: 'facebook', Icon: Facebook, label: 'Facebook' },
+]
 
 export default function OrganizerProfileClient({
   organizer,
@@ -29,8 +42,13 @@ export default function OrganizerProfileClient({
   totalEvents,
   totalTicketsSold,
   isFollowing,
-  userId
+  userId,
+  socialLinks = {},
+  bio = '',
+  friendshipState = 'none',
+  isAuthenticated = false,
 }: OrganizerProfileClientProps) {
+  const socialEntries = SOCIAL_META.filter(({ key }) => (socialLinks?.[key] || '').trim())
   return (
     <>
       {/* ORGANIZER HERO SECTION */}
@@ -76,9 +94,39 @@ export default function OrganizerProfileClient({
                 </div>
               </div>
 
-              {/* Follow Button */}
+              {/* Bio */}
+              {bio.trim() && (
+                <p className="text-white/90 text-sm md:text-base mb-4 max-w-2xl line-clamp-3 whitespace-pre-line">
+                  {bio}
+                </p>
+              )}
+
+              {/* Social links */}
+              {socialEntries.length > 0 && (
+                <div className="flex items-center gap-2 mb-4">
+                  {socialEntries.map(({ key, Icon, label }) => (
+                    <a
+                      key={key}
+                      href={socialUrlFor(key, socialLinks[key] as string)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={label}
+                      className="w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur flex items-center justify-center text-white transition-colors"
+                    >
+                      <Icon className="w-4 h-4" />
+                    </a>
+                  ))}
+                </div>
+              )}
+
+              {/* Action Buttons */}
               {userId && userId !== organizer.id && (
-                <div className="max-w-xs">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <ConnectButton
+                    targetUserId={organizer.id}
+                    initialState={friendshipState}
+                    isAuthenticated={isAuthenticated}
+                  />
                   <FollowButton organizerId={organizer.id} userId={userId} initialIsFollowing={isFollowing} />
                 </div>
               )}

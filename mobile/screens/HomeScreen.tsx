@@ -19,9 +19,9 @@ import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useFilters } from '../contexts/FiltersContext';
-import { BRAND } from ''../config/brand'';
+import { BRAND } from '../config/brand';
 import { useTheme } from '../contexts/ThemeContext';
-import { Bell } from 'lucide-react-native';
+import { Bell, Users } from 'lucide-react-native';
 import FeaturedCarousel from '../components/FeaturedCarousel';
 import LocationDetectionBanner from '../components/LocationDetectionBanner';
 
@@ -283,6 +283,15 @@ export default function HomeScreen({ navigation }: any) {
           <Text style={styles.logoText}>Tikèm</Text>
         </View>
         <View style={styles.headerRight}>
+          {user ? (
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={() => navigation.navigate('Connections')}
+              activeOpacity={0.7}
+            >
+              <Users size={24} color="white" />
+            </TouchableOpacity>
+          ) : null}
           <TouchableOpacity 
             style={styles.iconButton}
             onPress={() => navigation.navigate('Notifications', { userId: user?.uid || '' })}

@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { type UserProfile } from '@/lib/firestore/user-profile'
 import { ProfileHeaderCard } from '@/components/profile/ProfileHeaderCard'
+import { SocialLinksCard } from '@/components/profile/SocialLinksCard'
+import { PrivacyCard } from '@/components/profile/PrivacyCard'
 import { PreferencesCard } from '@/components/profile/PreferencesCard'
 import { NotificationsCard } from '@/components/profile/NotificationsCard'
 import { AccountCard } from '@/components/profile/AccountCard'
@@ -79,6 +81,12 @@ export default function ProfileClient({ initialProfile, userId, isVerifiedOrgani
       <div className="space-y-3 sm:space-y-6">
         {/* Profile Header */}
         <ProfileHeaderCard profile={profile} onUpdate={handleUpdateProfile} />
+
+        {/* Social & Bio */}
+        <SocialLinksCard profile={profile} onUpdate={handleUpdateProfile} />
+
+        {/* Privacy */}
+        <PrivacyCard profile={profile} onUpdate={handleUpdateProfile} />
 
         {/* Preferences */}
         <PreferencesCard profile={profile} onUpdate={handleUpdateProfile} />

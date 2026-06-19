@@ -53,6 +53,7 @@ import EventTicketsScreen from '../screens/EventTicketsScreen';
 import TicketDetailScreen from '../screens/TicketDetailScreen';
 import OrganizerProfileScreen from '../screens/OrganizerProfileScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
+import ConnectionsScreen from '../screens/ConnectionsScreen';
 import PaymentWebViewScreen from '../screens/PaymentWebViewScreen';
 import StripeConnectWebViewScreen from '../screens/StripeConnectWebViewScreen';
 import InAppWebViewScreen from '../screens/InAppWebViewScreen';
@@ -82,6 +83,7 @@ export type RootStackParamList = {
   TicketDetail: { ticketId: string };
   OrganizerProfile: { organizerId: string };
   Notifications: { userId: string };
+  Connections: undefined;
   OrganizerEventManagement: { eventId: string };
   OrganizerEventEarnings: { eventId: string };
   OrganizerPayoutSettings: undefined;
@@ -527,6 +529,7 @@ export default function AppNavigator() {
             <Stack.Screen name="EventTickets" component={EventTicketsScreen} />
             <Stack.Screen name="TicketDetail" component={TicketDetailScreen} />
             <Stack.Screen name="OrganizerProfile" component={OrganizerProfileScreen} />
+            <Stack.Screen name="Connections" component={ConnectionsScreen} />
             <Stack.Screen
               name="Notifications"
               component={NotificationsScreen}

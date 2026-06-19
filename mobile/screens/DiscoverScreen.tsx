@@ -13,7 +13,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { Calendar, MapPin, Search, X, SlidersHorizontal } from 'lucide-react-native';
+import { Calendar, MapPin, Search, X, SlidersHorizontal, Users } from 'lucide-react-native';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useTheme } from '../contexts/ThemeContext';
@@ -30,6 +30,7 @@ import { isBudgetFriendlyTicketPrice } from '../lib/pricing';
 import { applyFilters } from '../utils/filterUtils';
 import { DEFAULT_FILTERS } from '../types/filters';
 import { getDateRange } from '../utils/filters';
+import { fetchFriendsGoingCounts } from '../lib/api/social';
 
 const { width } = Dimensions.get('window');
 
@@ -48,6 +49,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
   const [budgetEvents, setBudgetEvents] = useState<any[]>([]);
   const [onlineEvents, setOnlineEvents] = useState<any[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<any[]>([]);
+  const [friendsGoingCounts, setFriendsGoingCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -222,6 +224,24 @@ export default function DiscoverScreen({ navigation, route }: any) {
     fetchEvents();
   };
 
+  // Load "friends going" counts whenever the visible event set changes.
+  useEffect(() => {
+    const ids = allEvents.map((e) => e?.id).filter(Boolean);
+    if (ids.length === 0) {
+      setFriendsGoingCounts({});
+      return;
+    }
+    let active = true;
+    fetchFriendsGoingCounts(ids)
+      .then((counts) => {
+        if (active) setFriendsGoingCounts(counts);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [allEvents]);
+
   const filterBySearch = (events: any[]) => {
     if (!searchQuery.trim()) return events;
     const query = searchQuery.toLowerCase();
@@ -395,6 +415,15 @@ export default function DiscoverScreen({ navigation, route }: any) {
 
           <View style={styles.eventCardContent}>
             <Text style={styles.eventTitle} numberOfLines={2}>{event.title}</Text>
+
+            {friendsGoingCounts[event.id] > 0 && (
+              <View style={styles.friendsGoingRow}>
+                <Users size={14} color={colors.primary} />
+                <Text style={styles.friendsGoingText}>
+                  {friendsGoingCounts[event.id]} {friendsGoingCounts[event.id] === 1 ? t('social.friendGoingSuffix') : t('social.friendsGoingSuffix')}
+                </Text>
+              </View>
+            )}
             
             <View style={styles.eventDetails}>
               <View style={styles.eventDetailRow}>
@@ -476,6 +505,15 @@ export default function DiscoverScreen({ navigation, route }: any) {
 
       <View style={styles.carouselCardContent}>
         <Text style={styles.carouselTitle} numberOfLines={2}>{event.title}</Text>
+
+        {friendsGoingCounts[event.id] > 0 && (
+          <View style={styles.friendsGoingRow}>
+            <Users size={12} color={colors.primary} />
+            <Text style={styles.friendsGoingTextSmall}>
+              {friendsGoingCounts[event.id]} {friendsGoingCounts[event.id] === 1 ? t('social.friend') : t('social.friends')}
+            </Text>
+          </View>
+        )}
         
         <View style={styles.carouselDetails}>
           <View style={styles.carouselDetailRow}>
@@ -972,6 +1010,22 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: 'bold',
     color: colors.text,
     marginBottom: 12,
+  },
+  friendsGoingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 10,
+  },
+  friendsGoingText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.primary,
+  },
+  friendsGoingTextSmall: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.primary,
   },
   eventDetails: {
     gap: 8,

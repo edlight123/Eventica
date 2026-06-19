@@ -13,7 +13,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Briefcase, ChevronDown, ExternalLink, LogOut, MapPin, Settings, User } from 'lucide-react-native';
+import { Briefcase, ChevronDown, ExternalLink, LogOut, MapPin, Settings, User, Users } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { getDownloadURL, ref as storageRef, uploadBytes } from 'firebase/storage';
@@ -28,6 +28,13 @@ import { getStaffEventIds } from '../lib/staffAssignments';
 import { getVerificationRequest, type VerificationRequest } from '../lib/verification';
 import { useNavigation } from '@react-navigation/native';
 import { CITIES_BY_COUNTRY, COUNTRIES } from '../types/filters';
+import { updateSocialProfile } from '../lib/api/social';
+import {
+  DEFAULT_PRIVACY,
+  normalizeSocialHandle,
+  type AttendanceVisibility,
+  type ProfileVisibility,
+} from '../types/social';
 
 const WEBSITE_BASE_URL = 'https://tikem.co';
 
@@ -50,6 +57,22 @@ export default function ProfileScreen() {
   const [editedCity, setEditedCity] = useState(userProfile?.default_city || '');
   const [editedCountry, setEditedCountry] = useState(userProfile?.default_country || 'HT');
   const [showCountryPicker, setShowCountryPicker] = useState(false);
+
+  // Social profile + privacy (edited together with the rest of the profile form)
+  const [editedBio, setEditedBio] = useState(userProfile?.bio || '');
+  const [editedInstagram, setEditedInstagram] = useState(userProfile?.social_links?.instagram || '');
+  const [editedTiktok, setEditedTiktok] = useState(userProfile?.social_links?.tiktok || '');
+  const [editedTwitter, setEditedTwitter] = useState(userProfile?.social_links?.twitter || '');
+  const [editedFacebook, setEditedFacebook] = useState(userProfile?.social_links?.facebook || '');
+  const [profileVisibility, setProfileVisibility] = useState<ProfileVisibility>(
+    userProfile?.privacy?.profile_visibility || DEFAULT_PRIVACY.profile_visibility
+  );
+  const [attendanceVisibility, setAttendanceVisibility] = useState<AttendanceVisibility>(
+    userProfile?.privacy?.attendance_visibility || DEFAULT_PRIVACY.attendance_visibility
+  );
+  const [discoverableByPhone, setDiscoverableByPhone] = useState<boolean>(
+    userProfile?.privacy?.discoverable_by_phone ?? DEFAULT_PRIVACY.discoverable_by_phone
+  );
 
   const [phonePrefix, setPhonePrefix] = useState<'+509' | '+1'>('+509');
   const [phoneDigits, setPhoneDigits] = useState('');
@@ -211,8 +234,16 @@ export default function ProfileScreen() {
       setEditedCity(userProfile?.default_city || '');
       setEditedCountry(userProfile?.default_country || 'HT');
       parsePhone(userProfile?.phone_number || '');
+      setEditedBio(userProfile?.bio || '');
+      setEditedInstagram(userProfile?.social_links?.instagram || '');
+      setEditedTiktok(userProfile?.social_links?.tiktok || '');
+      setEditedTwitter(userProfile?.social_links?.twitter || '');
+      setEditedFacebook(userProfile?.social_links?.facebook || '');
+      setProfileVisibility(userProfile?.privacy?.profile_visibility || DEFAULT_PRIVACY.profile_visibility);
+      setAttendanceVisibility(userProfile?.privacy?.attendance_visibility || DEFAULT_PRIVACY.attendance_visibility);
+      setDiscoverableByPhone(userProfile?.privacy?.discoverable_by_phone ?? DEFAULT_PRIVACY.discoverable_by_phone);
     }
-  }, [isEditing, parsePhone, userProfile?.default_city, userProfile?.default_country, userProfile?.full_name, userProfile?.phone_number]);
+  }, [isEditing, parsePhone, userProfile?.default_city, userProfile?.default_country, userProfile?.full_name, userProfile?.phone_number, userProfile?.bio, userProfile?.social_links?.instagram, userProfile?.social_links?.tiktok, userProfile?.social_links?.twitter, userProfile?.social_links?.facebook, userProfile?.privacy?.profile_visibility, userProfile?.privacy?.attendance_visibility, userProfile?.privacy?.discoverable_by_phone]);
 
   // Get cities for selected country
   const citiesForCountry = useMemo(() => {
@@ -297,7 +328,24 @@ export default function ProfileScreen() {
         default_city: editedCity,
         default_country: editedCountry,
       });
-      
+
+      // Persist social handles + bio + privacy via the shared backend endpoint.
+      await updateSocialProfile({
+        bio: editedBio.trim(),
+        socialLinks: {
+          instagram: normalizeSocialHandle(editedInstagram),
+          tiktok: normalizeSocialHandle(editedTiktok),
+          twitter: normalizeSocialHandle(editedTwitter),
+          facebook: normalizeSocialHandle(editedFacebook),
+        },
+        privacy: {
+          profile_visibility: profileVisibility,
+          attendance_visibility: attendanceVisibility,
+          discoverable_by_phone: discoverableByPhone,
+        },
+      });
+      await refreshUserProfile();
+
       // Update filters to use new country
       setUserCountry(editedCountry);
       applyFiltersDirectly({
@@ -313,7 +361,7 @@ export default function ProfileScreen() {
     } finally {
       setSaving(false);
     }
-  }, [appliedFilters, applyFiltersDirectly, editedCity, editedCountry, editedName, phoneDigits, phonePrefix, setUserCountry, t, updateUserProfile, user?.uid]);
+  }, [appliedFilters, applyFiltersDirectly, editedBio, editedCity, editedCountry, editedFacebook, editedInstagram, editedName, editedTiktok, editedTwitter, attendanceVisibility, discoverableByPhone, profileVisibility, phoneDigits, phonePrefix, refreshUserProfile, setUserCountry, t, updateUserProfile, user?.uid]);
 
   const confirmSignOut = useCallback(() => {
     Alert.alert(t('profile.signOutTitle'), t('profile.signOutBody'), [
@@ -546,6 +594,126 @@ export default function ProfileScreen() {
                 </View>
               ) : null}
 
+              {/* Social handles + bio */}
+              <View style={styles.formDivider} />
+              <Text style={styles.formSubsectionTitle}>{t('profile.social.sectionTitle')}</Text>
+
+              <Text style={styles.fieldLabel}>{t('profile.social.bio')}</Text>
+              <TextInput
+                style={[styles.input, styles.bioInput]}
+                value={editedBio}
+                onChangeText={(value) => setEditedBio(value.slice(0, 280))}
+                placeholder={t('profile.social.bioPlaceholder')}
+                placeholderTextColor={colors.textTertiary}
+                multiline
+                maxLength={280}
+              />
+              <Text style={styles.charCount}>{editedBio.length}/280</Text>
+
+              <Text style={styles.helperText}>{t('profile.social.handlesHint')}</Text>
+
+              <Text style={styles.fieldLabel}>Instagram</Text>
+              <TextInput
+                style={styles.input}
+                value={editedInstagram}
+                onChangeText={setEditedInstagram}
+                placeholder="@username"
+                placeholderTextColor={colors.textTertiary}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+
+              <Text style={styles.fieldLabel}>TikTok</Text>
+              <TextInput
+                style={styles.input}
+                value={editedTiktok}
+                onChangeText={setEditedTiktok}
+                placeholder="@username"
+                placeholderTextColor={colors.textTertiary}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+
+              <Text style={styles.fieldLabel}>X / Twitter</Text>
+              <TextInput
+                style={styles.input}
+                value={editedTwitter}
+                onChangeText={setEditedTwitter}
+                placeholder="@username"
+                placeholderTextColor={colors.textTertiary}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+
+              <Text style={styles.fieldLabel}>Facebook</Text>
+              <TextInput
+                style={styles.input}
+                value={editedFacebook}
+                onChangeText={setEditedFacebook}
+                placeholder="username"
+                placeholderTextColor={colors.textTertiary}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+
+              {/* Privacy */}
+              <View style={styles.formDivider} />
+              <Text style={styles.formSubsectionTitle}>{t('profile.social.privacyTitle')}</Text>
+
+              <Text style={styles.fieldLabel}>{t('profile.social.profileVisibility')}</Text>
+              <View style={styles.segmentRow}>
+                {([
+                  { value: 'private' as ProfileVisibility, label: t('profile.social.profilePrivate') },
+                  { value: 'public' as ProfileVisibility, label: t('profile.social.profilePublic') },
+                ]).map((opt) => {
+                  const active = profileVisibility === opt.value;
+                  return (
+                    <TouchableOpacity
+                      key={opt.value}
+                      style={[styles.segmentBtn, active && styles.segmentBtnActive]}
+                      onPress={() => setProfileVisibility(opt.value)}
+                    >
+                      <Text style={[styles.segmentBtnText, active && styles.segmentBtnTextActive]}>{opt.label}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+              <Text style={styles.helperText}>{t('profile.social.profileHint')}</Text>
+
+              <Text style={styles.fieldLabel}>{t('profile.social.attendanceTitle')}</Text>
+              <View style={styles.segmentRow}>
+                {([
+                  { value: 'nobody' as AttendanceVisibility, label: t('profile.social.attNobody') },
+                  { value: 'friends' as AttendanceVisibility, label: t('profile.social.attFriends') },
+                  { value: 'everyone' as AttendanceVisibility, label: t('profile.social.attEveryone') },
+                ]).map((opt) => {
+                  const active = attendanceVisibility === opt.value;
+                  return (
+                    <TouchableOpacity
+                      key={opt.value}
+                      style={[styles.segmentBtn, active && styles.segmentBtnActive]}
+                      onPress={() => setAttendanceVisibility(opt.value)}
+                    >
+                      <Text style={[styles.segmentBtnText, active && styles.segmentBtnTextActive]}>{opt.label}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              <TouchableOpacity
+                style={styles.toggleRow}
+                onPress={() => setDiscoverableByPhone((v) => !v)}
+                activeOpacity={0.7}
+              >
+                <View style={styles.toggleTextWrap}>
+                  <Text style={styles.toggleLabel}>{t('profile.social.discoverable')}</Text>
+                  <Text style={styles.toggleHint}>{t('profile.social.discoverableHint')}</Text>
+                </View>
+                <View style={[styles.switchTrack, discoverableByPhone && styles.switchTrackOn]}>
+                  <View style={[styles.switchThumb, discoverableByPhone && styles.switchThumbOn]} />
+                </View>
+              </TouchableOpacity>
+
               <View style={styles.editActionsRow}>
                 <TouchableOpacity
                   style={[styles.secondaryButton, styles.actionButtonHalf]}
@@ -588,6 +756,14 @@ export default function ProfileScreen() {
 
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>{t('profile.actions')}</Text>
+
+          <TouchableOpacity style={styles.rowButton} onPress={() => navigation.navigate('Connections')}>
+            <View style={styles.rowLeft}>
+              <Users size={18} color={colors.primary} />
+              <Text style={styles.rowText}>{t('profile.friends')}</Text>
+            </View>
+            <ExternalLink size={18} color={colors.textSecondary} />
+          </TouchableOpacity>
 
           {canUseOrganizerMode ? (
             <TouchableOpacity style={styles.rowButton} onPress={() => navigation.navigate('CreateEvent')}>
@@ -930,6 +1106,102 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingVertical: 10,
     color: colors.text,
     backgroundColor: colors.white,
+  },
+  bioInput: {
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+  charCount: {
+    marginTop: 4,
+    fontSize: 11,
+    color: colors.textTertiary,
+    textAlign: 'right',
+  },
+  helperText: {
+    marginTop: 8,
+    fontSize: 12,
+    lineHeight: 16,
+    color: colors.textSecondary,
+  },
+  formDivider: {
+    height: 1,
+    backgroundColor: colors.borderLight,
+    marginTop: 18,
+    marginBottom: 4,
+  },
+  formSubsectionTitle: {
+    marginTop: 6,
+    marginBottom: 2,
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  segmentRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  segmentBtn: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 10,
+    paddingVertical: 9,
+    alignItems: 'center',
+    backgroundColor: colors.white,
+  },
+  segmentBtnActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  segmentBtnText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.textSecondary,
+  },
+  segmentBtnTextActive: {
+    color: colors.white,
+  },
+  toggleRow: {
+    marginTop: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  toggleTextWrap: {
+    flex: 1,
+  },
+  toggleLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  toggleHint: {
+    marginTop: 2,
+    fontSize: 12,
+    lineHeight: 16,
+    color: colors.textSecondary,
+  },
+  switchTrack: {
+    width: 48,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.border,
+    padding: 3,
+    justifyContent: 'center',
+  },
+  switchTrackOn: {
+    backgroundColor: colors.primary,
+  },
+  switchThumb: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: colors.white,
+    alignSelf: 'flex-start',
+  },
+  switchThumbOn: {
+    alignSelf: 'flex-end',
   },
   editActionsRow: {
     marginTop: 14,

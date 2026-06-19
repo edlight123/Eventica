@@ -45,6 +45,14 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "scheme": "tikem"
+    "scheme": "tikem",
+    "plugins": [
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "Allow Tikèm to access your contacts to find friends who are already on Tikèm. Your contacts are only used to match and are never stored."
+        }
+      ]
+    ]
   }
 }

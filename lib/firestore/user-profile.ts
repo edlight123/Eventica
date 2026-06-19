@@ -1,5 +1,12 @@
 import { db } from '@/lib/firebase/client'
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
+import {
+  type SocialLinks,
+  type PrivacySettings,
+  DEFAULT_PRIVACY,
+  sanitizeSocialLinks,
+  sanitizePrivacy,
+} from '@/types/social'
 
 export interface UserProfile {
   uid: string
@@ -7,6 +14,9 @@ export interface UserProfile {
   email: string
   photoURL?: string
   phone?: string
+  bio?: string
+  socialLinks?: SocialLinks
+  privacy?: PrivacySettings
   defaultCountry?: string
   defaultCity?: string
   subareaType?: 'COMMUNE' | 'NEIGHBORHOOD'
@@ -43,6 +53,9 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
       email: data.email || '',
       photoURL: data.photo_url || data.photoURL || '',
       phone: data.phone_number || data.phone || '',
+      bio: data.bio || '',
+      socialLinks: data.social_links || {},
+      privacy: { ...DEFAULT_PRIVACY, ...(data.privacy || {}) },
       defaultCountry: data.default_country || data.defaultCountry || 'HT',
       defaultCity: data.default_city || data.defaultCity || '',
       subareaType: data.subarea_type || data.subareaType || 'COMMUNE',
@@ -119,6 +132,9 @@ export async function updateUserProfile(uid: string, updates: Partial<UserProfil
       updateData.phone = updates.phone // Keep both for compatibility
     }
     if (updates.photoURL !== undefined) updateData.photo_url = updates.photoURL
+    if (updates.bio !== undefined) updateData.bio = String(updates.bio).slice(0, 280)
+    if (updates.socialLinks !== undefined) updateData.social_links = sanitizeSocialLinks(updates.socialLinks)
+    if (updates.privacy !== undefined) updateData.privacy = sanitizePrivacy(updates.privacy)
     if (updates.defaultCountry !== undefined) updateData.default_country = updates.defaultCountry
     if (updates.defaultCity !== undefined) updateData.default_city = updates.defaultCity
     if (updates.subareaType !== undefined) updateData.subarea_type = updates.subareaType

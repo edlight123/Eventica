@@ -48,7 +48,7 @@ import AddToCalendarButton from '../components/AddToCalendarButton';
 import JoinWaitlistButton from '../components/JoinWaitlistButton';
 import FollowButton from '../components/FollowButton';
 import CountdownTimer from '../components/CountdownTimer';
-
+import WhosGoing from '../components/WhosGoing';
 const { width } = Dimensions.get('window');
 
 export default function EventDetailScreen({ route, navigation }: any) {
@@ -535,6 +535,9 @@ export default function EventDetailScreen({ route, navigation }: any) {
               )}
             </View>
           </View>
+
+          {/* Who's Going - social attendance */}
+          <WhosGoing eventId={eventId} />
 
           {/* Venue Details Section */}
           <View style={styles.section}>
