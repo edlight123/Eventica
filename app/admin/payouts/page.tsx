@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 
 export const metadata = {
-  title: 'Payout Operations | Admin | Eventica',
+  title: 'Payout Operations | Admin | Tikèm',
   description: 'Redirecting to consolidated payout operations',
 }
 

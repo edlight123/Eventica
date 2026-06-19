@@ -98,7 +98,7 @@ export async function GET(request: Request) {
             })
 
             await resend.emails.send({
-              from: 'Eventica <noreply@joineventica.com>',
+              from: 'Tikem <noreply@joineventica.com>',
               to: user.email,
               subject: `Reminder: ${event.title} is Tomorrow! 🎉`,
               html: `
@@ -182,7 +182,7 @@ export async function GET(request: Request) {
                     </div>
                     
                     <div class="footer">
-                      <p>Eventica - Discover Events in Haiti</p>
+                      <p>Tikèm - Discover Events in Haiti</p>
                       <p style="font-size: 12px;">
                         This is an automated reminder. You're receiving this because you have tickets for this event.
                       </p>

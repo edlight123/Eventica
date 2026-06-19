@@ -1043,7 +1043,7 @@ export default {
     hostingSinceLabel: 'Hosting events since:',
     connectTitle: 'Connect',
     reviewsTitle: 'Reviews',
-    reviewsComingSoon: 'Reviews are coming soon to Eventica.',
+    reviewsComingSoon: 'Reviews are coming soon to Tikèm.',
   },
 
   staffScan: {

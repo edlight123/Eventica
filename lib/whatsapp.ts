@@ -68,7 +68,7 @@ export function getTicketConfirmationWhatsApp(
   venue: string,
   ticketCode: string
 ): string {
-  return `🎟️ *Ticket Confirmation - Eventica*
+  return `🎟️ *Ticket Confirmation - Tikèm*
 
 Hi ${userName}! 
 
@@ -86,7 +86,7 @@ Show this code or your QR code at the entrance.
 See you there! 🎉
 
 ---
-Eventica - Experience Haiti's Best Events`
+Tikèm - Experience Haiti's Best Events`
 }
 
 export function getEventReminderWhatsApp(
@@ -95,7 +95,7 @@ export function getEventReminderWhatsApp(
   hoursUntil: number,
   venue: string
 ): string {
-  return `⏰ *Event Reminder - Eventica*
+  return `⏰ *Event Reminder - Tikèm*
 
 Hi ${userName}!
 
@@ -106,19 +106,19 @@ Hi ${userName}!
 Don't forget your ticket! Have a great time! 🎉
 
 ---
-Eventica`
+Tikèm`
 }
 
 export function getEventUpdateWhatsApp(
   eventTitle: string,
   updateMessage: string
 ): string {
-  return `📢 *Event Update - Eventica*
+  return `📢 *Event Update - Tikèm*
 
 *${eventTitle}*
 
 ${updateMessage}
 
 ---
-Eventica - Experience Haiti's Best Events`
+Tikèm - Experience Haiti's Best Events`
 }

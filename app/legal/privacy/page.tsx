@@ -21,7 +21,7 @@ export default async function PrivacyPolicyPage() {
           <h2>1. Information We Collect</h2>
           
           <h3>Personal Information</h3>
-          <p>When you use Eventica, we may collect:</p>
+          <p>When you use Tikèm, we may collect:</p>
           <ul>
             <li>Name and email address</li>
             <li>Phone number</li>
@@ -116,7 +116,7 @@ export default async function PrivacyPolicyPage() {
 
           <h2>8. Children&apos;s Privacy</h2>
           <p>
-            Eventica is not intended for children under 13. We do not knowingly collect personal information from children under 13.
+            Tikèm is not intended for children under 13. We do not knowingly collect personal information from children under 13.
           </p>
 
           <h2>9. International Data Transfers</h2>

@@ -11,8 +11,8 @@ export default function Footer() {
           <div className="col-span-1 md:col-span-2">
             <Link href="/" className="flex items-center gap-3 mb-4 group w-fit">
               <Image 
-                src="/eventica_logo_white.png" 
-                alt="Eventica" 
+                src="/tikem_logo_white.png" 
+                alt="Tikèm" 
                 width={50} 
                 height={50}
                 className="transition-transform duration-200 group-hover:scale-105"

@@ -32,7 +32,7 @@ export function generateICSFile(event: Event): string {
   const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Eventica//Event Calendar//EN',
+    'PRODID:-//Tikèm//Event Calendar//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',

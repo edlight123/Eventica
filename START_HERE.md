@@ -1,8 +1,8 @@
-# 🎉 Eventica - Production-Ready Event Ticketing Platform
+# 🎉 Tikèm - Production-Ready Event Ticketing Platform
 
 ## 🎯 Project Status: ✅ COMPLETE & READY FOR DEPLOYMENT
 
-**Eventica** is a fully functional, production-quality web application for discovering events and buying tickets in Haiti. Built with modern web technologies and best practices.
+**Tikèm** is a fully functional, production-quality web application for discovering events and buying tickets in Haiti. Built with modern web technologies and best practices.
 
 ---
 
@@ -75,7 +75,7 @@ vercel
 ## 📁 Project Structure
 
 ```
-Eventica/
+Tikèm/
 │
 ├── 📄 Documentation
 │   ├── README.md              # Main documentation
@@ -194,15 +194,15 @@ Eventica/
 
 ## 🌐 Multi-Tenant Architecture
 
-Eventica is designed to support multiple brands:
+Tikèm is designed to support multiple brands:
 
 ```typescript
-// Current: Eventica
+// Current: Tikèm
 // Future: HaitiPass, HaitiEvents
 
 export const BRANDS = {
-  eventica: {
-    name: 'Eventica',
+  tikem: {
+    name: 'Tikèm',
     primaryColor: '#0F766E',
     secondaryColor: '#F97316',
   },
@@ -364,7 +364,7 @@ See [FEATURES.md](./FEATURES.md) for complete roadmap.
 - Verify environment variables
 
 ### Community
-- Share your Eventica deployment!
+- Share your Tikèm deployment!
 - Contribute improvements
 - Report bugs
 
@@ -389,7 +389,7 @@ Built with:
 
 ## 🎉 You're All Set!
 
-Eventica is **production-ready** and waiting for you to deploy it!
+Tikèm is **production-ready** and waiting for you to deploy it!
 
 ### Next Steps:
 1. Follow [QUICKSTART.md](./QUICKSTART.md) to get it running locally

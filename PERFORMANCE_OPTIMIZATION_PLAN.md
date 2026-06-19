@@ -1,4 +1,4 @@
-# ⚡ Eventica Performance Optimization Plan
+# ⚡ Tikèm Performance Optimization Plan
 ## Goal: Make the app feel instant and blazing fast
 
 ---

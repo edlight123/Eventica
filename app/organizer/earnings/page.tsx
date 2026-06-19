@@ -6,7 +6,7 @@ import { getOrganizerEarningsSummary } from '@/lib/earnings'
 import EarningsView from './EarningsView'
 
 export const metadata = {
-  title: 'Earnings | Eventica',
+  title: 'Earnings | Tikèm',
   description: 'View your event earnings and manage payouts',
 }
 

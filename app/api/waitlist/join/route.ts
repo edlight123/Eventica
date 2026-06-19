@@ -73,7 +73,7 @@ export async function POST(request: Request) {
     // Send confirmation email
     try {
       await resend.emails.send({
-        from: 'Eventica <noreply@joineventica.com>',
+        from: 'Tikem <noreply@joineventica.com>',
         to: user.email,
         subject: `You're on the waitlist for ${event.title}`,
         html: `

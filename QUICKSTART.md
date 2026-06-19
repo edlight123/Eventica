@@ -1,6 +1,6 @@
-# 🚀 Quick Start Guide - Eventica
+# 🚀 Quick Start Guide - Tikèm
 
-Get Eventica running in 5 minutes!
+Get Tikèm running in 5 minutes!
 
 ## Prerequisites
 
@@ -11,7 +11,7 @@ Get Eventica running in 5 minutes!
 
 ```bash
 # Clone the repository
-cd Eventica
+cd Tikèm
 
 # Install dependencies
 npm install

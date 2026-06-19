@@ -1,6 +1,6 @@
-# Deployment Guide - Eventica
+# Deployment Guide - Tikèm
 
-This guide will walk you through deploying Eventica to production on Vercel.
+This guide will walk you through deploying Tikèm to production on Vercel.
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ This guide will walk you through deploying Eventica to production on Vercel.
 1. **Commit all changes to Git**
    ```bash
    git add .
-   git commit -m "Initial Eventica deployment"
+   git commit -m "Initial Tikèm deployment"
    ```
 
 2. **Push to GitHub**
@@ -60,7 +60,7 @@ This guide will walk you through deploying Eventica to production on Vercel.
 
 2. **Import Git Repository**
    - Connect your GitHub account
-   - Select your Eventica repository
+   - Select your Tikèm repository
    - Click "Import"
 
 3. **Configure Project**

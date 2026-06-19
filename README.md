@@ -1,4 +1,4 @@
-# Eventica - Premium Event Ticketing Platform ✨
+# Tikèm - Premium Event Ticketing Platform ✨
 
 A **production-quality, premium web application** for discovering events and buying tickets in Haiti. Built with **Next.js 14**, **TypeScript**, **Tailwind CSS**, and **Firebase**, featuring an **Eventbrite/Posh-like premium experience** with advanced animations, modern UI components, and comprehensive features.
 
@@ -80,7 +80,7 @@ A **production-quality, premium web application** for discovering events and buy
 ## 📦 Project Structure
 
 ```
-Eventica/
+Tikèm/
 ├── app/                          # Next.js App Router
 │   ├── page.tsx                 # Premium home page with carousel
 │   ├── loading.tsx              # App-wide loading skeleton
@@ -199,7 +199,7 @@ Eventica/
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd Eventica
+   cd Tikèm
    ```
 
 2. **Install dependencies**
@@ -252,7 +252,7 @@ Also see [SETUP.md](./SETUP.md) for:
 ## 🗂️ Project Structure
 
 ```
-Eventica/
+Tikèm/
 ├── app/                      # Next.js app router pages
 │   ├── api/                  # API routes
 │   │   ├── create-checkout-session/  # Stripe checkout
@@ -403,7 +403,7 @@ The platform uses **Firebase (Firestore)** as its primary database with a Supaba
 
 ---
 
-**Eventica** - Experience Haiti's Best Events 🇭🇹
+**Tikèm** - Experience Haiti's Best Events 🇭🇹
    ```
 
 5. **Run the development server**
@@ -418,7 +418,7 @@ The platform uses **Firebase (Firestore)** as its primary database with a Supaba
 ## 📁 Project Structure
 
 ```
-Eventica/
+Tikèm/
 ├── app/                          # Next.js App Router pages
 │   ├── auth/                     # Authentication pages
 │   ├── events/                   # Event pages
@@ -435,7 +435,7 @@ Eventica/
 
 ## 🎨 Multi-Tenant Architecture
 
-Eventica is designed with multi-tenancy in mind for future expansion to HaitiPass and HaitiEvents brands.
+Tikèm is designed with multi-tenancy in mind for future expansion to HaitiPass and HaitiEvents brands.
 
 ## 🚢 Deployment
 

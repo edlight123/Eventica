@@ -27,7 +27,7 @@ export function inviteUrlFor(eventId: string, token: string): string {
 }
 
 export function inviteDeepLinkFor(eventId: string, token: string): string {
-  return `eventica://invite?eventId=${encodeURIComponent(eventId)}&token=${encodeURIComponent(token)}`
+  return `tikem://invite?eventId=${encodeURIComponent(eventId)}&token=${encodeURIComponent(token)}`
 }
 
 export async function assertEventOwner(params: { eventId: string; uid: string }): Promise<void> {

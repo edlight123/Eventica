@@ -1,4 +1,4 @@
-# Eventica Mobile App - Quick Start Guide
+# Tikèm Mobile App - Quick Start Guide
 
 ## ✅ What's Been Set Up
 
@@ -42,7 +42,7 @@ mobile/
 1. Install **Expo Go** app from App Store (iOS) or Play Store (Android)
 2. Navigate to mobile directory:
    ```bash
-   cd /workspaces/Eventica/mobile
+   cd /workspaces/Tikèm/mobile
    ```
 3. Create `.env` file with your Firebase config:
    ```bash
@@ -173,7 +173,7 @@ Edit `mobile/app.json`:
 ```json
 {
   "expo": {
-    "name": "Eventica",
+    "name": "Tikèm",
     "slug": "eventhaiti-mobile",
     ...
   }

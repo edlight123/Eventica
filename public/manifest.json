@@ -1,6 +1,6 @@
 {
-  "name": "Eventica - Discover Events",
-  "short_name": "Eventica",
+  "name": "Tikèm - Discover Events",
+  "short_name": "Tikèm",
   "description": "Discover and buy tickets for events",
   "start_url": "/",
   "display": "standalone",
@@ -15,7 +15,7 @@
       "purpose": "any"
     },
     {
-      "src": "/eventica_logo_color.png",
+      "src": "/tikem_logo_color.png",
       "sizes": "500x500",
       "type": "image/png",
       "purpose": "any"

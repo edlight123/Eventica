@@ -75,7 +75,7 @@ export async function POST(req: Request) {
 
   webpush.setVapidDetails('mailto:support@joineventica.com', process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY)
 
-  const title = payload.title || 'Eventica'
+  const title = payload.title || 'Tikèm'
   const body = payload.body || 'Notification'
   const url = payload.url || '/'
   const notificationPayload = JSON.stringify({ title, body, data: { url, userId, ...payload.data } })

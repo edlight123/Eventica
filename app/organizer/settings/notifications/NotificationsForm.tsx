@@ -148,7 +148,7 @@ export default function NotificationsForm({ userId, initialData }: Notifications
           />
         </div>
         <p className="text-xs text-gray-500 mt-3">
-          Push notifications require the Eventica mobile app.
+          Push notifications require the Tikèm mobile app.
         </p>
       </div>
 

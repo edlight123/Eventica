@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const title = payload.title || 'Eventica'
+  const title = payload.title || 'Tikèm'
   const body = payload.body || 'Notification'
   const url = payload.url || '/'
   const topicsFilter = Array.isArray(payload.topics) && payload.topics.length ? payload.topics : null

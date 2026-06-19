@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Eventica platform uses a daily rollup system to efficiently track platform metrics without querying all tickets every time. Stats are pre-calculated daily and stored in the `platform_stats_daily` Firestore collection.
+The Tikèm platform uses a daily rollup system to efficiently track platform metrics without querying all tickets every time. Stats are pre-calculated daily and stored in the `platform_stats_daily` Firestore collection.
 
 ## Architecture
 

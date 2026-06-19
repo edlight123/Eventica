@@ -54,8 +54,8 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2 group">
               <Image 
-                src="/eventica_logo_color.png" 
-                alt="Eventica" 
+                src="/tikem_logo_color.png" 
+                alt="Tikèm" 
                 width={40} 
                 height={40}
                 className="transition-transform duration-200 group-hover:scale-105"

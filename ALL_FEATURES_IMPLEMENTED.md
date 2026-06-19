@@ -2,7 +2,7 @@
 
 ## ✅ Implementation Complete - 12 Major Features Added
 
-This update transforms Eventica into a **complete, enterprise-grade event platform** with all missing features now implemented.
+This update transforms Tikèm into a **complete, enterprise-grade event platform** with all missing features now implemented.
 
 ---
 
@@ -565,7 +565,7 @@ GOOGLE_WALLET_ISSUER_ID=your_issuer_id
 
 ## 🎉 Platform is Now COMPLETE!
 
-Eventica now has **ALL** the features of major event platforms like Eventbrite, but optimized for the Haiti market with:
+Tikèm now has **ALL** the features of major event platforms like Eventbrite, but optimized for the Haiti market with:
 - MonCash payment integration
 - Haitian Gourde (HTG) support
 - Creole-friendly design

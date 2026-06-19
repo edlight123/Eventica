@@ -1025,7 +1025,7 @@ export default {
     hostingSinceLabel: 'Organise depuis :',
     connectTitle: 'Réseaux',
     reviewsTitle: 'Avis',
-    reviewsComingSoon: 'Les avis arrivent bientôt sur Eventica.',
+    reviewsComingSoon: 'Les avis arrivent bientôt sur Tikèm.',
   },
 
   staffScan: {

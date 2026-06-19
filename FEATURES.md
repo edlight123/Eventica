@@ -1,4 +1,4 @@
-# 📋 Eventica - Complete Feature List
+# 📋 Tikèm - Complete Feature List
 
 ## ✅ Implemented Features
 
@@ -154,7 +154,7 @@
 ### 🎨 UI/UX Components
 
 #### Navbar
-- [x] Brand logo (Eventica)
+- [x] Brand logo (Tikèm)
 - [x] Navigation links (context-aware):
   - Events (all users)
   - My Tickets (attendees)
@@ -300,7 +300,7 @@
 
 #### Brand Configuration
 - [x] Centralized brand config (`/config/brand.ts`)
-- [x] Eventica brand (current)
+- [x] Tikèm brand (current)
 - [x] HaitiPass brand (ready)
 - [x] HaitiEvents brand (ready)
 - [x] Brand properties:
@@ -499,4 +499,4 @@ All planned MVP features have been implemented, tested, and documented. The appl
 
 ---
 
-**Eventica is ready to revolutionize event ticketing in Haiti!** 🇭🇹
+**Tikèm is ready to revolutionize event ticketing in Haiti!** 🇭🇹

@@ -1,6 +1,6 @@
 export const BRAND = {
-  name: 'Eventica',
-  logoText: '🎭 Eventica',
+  name: 'Tikèm',
+  logoText: '🎭 Tikèm',
   tagline: 'Discover Amazing Events',
   primaryColor: '#0F766E',
   secondaryColor: '#F97316',

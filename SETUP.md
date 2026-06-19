@@ -1,13 +1,13 @@
-# Eventica - Feature Setup Guide
+# Tikèm - Feature Setup Guide
 
-This guide will help you set up and configure all the features of Eventica.
+This guide will help you set up and configure all the features of Tikèm.
 
 ## 🚀 Quick Start
 
 1. **Clone and Install**
    ```bash
    git clone <your-repo>
-   cd Eventica
+   cd Tikèm
    npm install
    ```
 

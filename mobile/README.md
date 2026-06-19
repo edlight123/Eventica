@@ -1,6 +1,6 @@
-# Eventica Mobile App
+# Tikèm Mobile App
 
-React Native mobile application for Eventica built with Expo.
+React Native mobile application for Tikèm built with Expo.
 
 ## Features
 
@@ -122,8 +122,8 @@ Run on multiple devices and screen sizes to ensure responsive design.
 
 ## Contributing
 
-This mobile app is part of the Eventica ecosystem. See main README for contribution guidelines.
+This mobile app is part of the Tikèm ecosystem. See main README for contribution guidelines.
 
 ## License
 
-Same as the main Eventica project.
+Same as the main Tikèm project.

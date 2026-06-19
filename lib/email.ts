@@ -39,7 +39,7 @@ function getEmailFooter() {
             <td align="center">
               <div style="margin-bottom: 16px;">
                 <a href="${appUrl}" style="text-decoration: none;">
-                  <span style="font-size: 20px; font-weight: 800; background: linear-gradient(135deg, #f97316 0%, #ec4899 50%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Eventica</span>
+                  <span style="font-size: 20px; font-weight: 800; background: linear-gradient(135deg, #f97316 0%, #ec4899 50%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Tikèm</span>
                 </a>
               </div>
               <div style="margin-bottom: 20px;">
@@ -50,12 +50,12 @@ function getEmailFooter() {
                 <a href="${appUrl}/support" style="display: inline-block; margin: 0 8px; color: #64748b; text-decoration: none; font-size: 13px; font-weight: 500;">Help</a>
               </div>
               <div style="margin-bottom: 16px;">
-                <a href="https://instagram.com/eventica" style="display: inline-block; margin: 0 6px; width: 32px; height: 32px; background-color: #e2e8f0; border-radius: 8px; text-align: center; line-height: 32px; text-decoration: none; color: #64748b; font-size: 14px;">📷</a>
-                <a href="https://facebook.com/eventica" style="display: inline-block; margin: 0 6px; width: 32px; height: 32px; background-color: #e2e8f0; border-radius: 8px; text-align: center; line-height: 32px; text-decoration: none; color: #64748b; font-size: 14px;">📘</a>
-                <a href="https://twitter.com/eventica" style="display: inline-block; margin: 0 6px; width: 32px; height: 32px; background-color: #e2e8f0; border-radius: 8px; text-align: center; line-height: 32px; text-decoration: none; color: #64748b; font-size: 14px;">🐦</a>
+                <a href="https://instagram.com/tikem" style="display: inline-block; margin: 0 6px; width: 32px; height: 32px; background-color: #e2e8f0; border-radius: 8px; text-align: center; line-height: 32px; text-decoration: none; color: #64748b; font-size: 14px;">📷</a>
+                <a href="https://facebook.com/tikem" style="display: inline-block; margin: 0 6px; width: 32px; height: 32px; background-color: #e2e8f0; border-radius: 8px; text-align: center; line-height: 32px; text-decoration: none; color: #64748b; font-size: 14px;">📘</a>
+                <a href="https://twitter.com/tikem" style="display: inline-block; margin: 0 6px; width: 32px; height: 32px; background-color: #e2e8f0; border-radius: 8px; text-align: center; line-height: 32px; text-decoration: none; color: #64748b; font-size: 14px;">🐦</a>
               </div>
               <p style="margin: 0; font-size: 12px; color: #94a3b8; line-height: 1.6;">
-                © ${new Date().getFullYear()} Eventica. All rights reserved.<br>
+                © ${new Date().getFullYear()} Tikèm. All rights reserved.<br>
                 <a href="${appUrl}/privacy" style="color: #94a3b8; text-decoration: underline;">Privacy Policy</a> · <a href="${appUrl}/terms" style="color: #94a3b8; text-decoration: underline;">Terms of Service</a>
               </p>
             </td>
@@ -115,7 +115,7 @@ export async function sendEmail({ to, subject, html }: EmailParams) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: process.env.EMAIL_FROM || 'Eventica <onboarding@resend.dev>',
+        from: process.env.EMAIL_FROM || 'Tikem <onboarding@resend.dev>',
         to,
         subject,
         html,
@@ -163,7 +163,7 @@ export function getTicketConfirmationEmail(params: {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="color-scheme" content="light">
         <meta name="supported-color-schemes" content="light">
-        <title>Your Eventica Ticket</title>
+        <title>Your Tikèm Ticket</title>
       </head>
       <body style="margin: 0; padding: 0; font-family: ${emailStyles.fontFamily}; background-color: #0f172a; -webkit-font-smoothing: antialiased;">
         <table role="presentation" style="width: 100%; border-collapse: collapse;">
@@ -184,7 +184,7 @@ export function getTicketConfirmationEmail(params: {
                       <table role="presentation" style="width: 100%; border-collapse: collapse;">
                         <tr>
                           <td>
-                            <div style="font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">Eventica</div>
+                            <div style="font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">Tikèm</div>
                           </td>
                           <td align="right">
                             <div style="display: inline-block; padding: 8px 14px; background: rgba(255, 255, 255, 0.2); border-radius: 20px; backdrop-filter: blur(10px);">
@@ -332,7 +332,7 @@ export function getEventCreatedEmail(params: {
                     <div style="background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%); padding: 50px 40px; text-align: center;">
                       <div style="font-size: 64px; line-height: 1;">🎊</div>
                       <div style="margin-top: 20px; font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">Your Event is Live!</div>
-                      <div style="margin-top: 8px; font-size: 14px; color: rgba(255, 255, 255, 0.85);">Eventica</div>
+                      <div style="margin-top: 8px; font-size: 14px; color: rgba(255, 255, 255, 0.85);">Tikèm</div>
                     </div>
                   </td>
                 </tr>
@@ -344,7 +344,7 @@ export function getEventCreatedEmail(params: {
                       Félicitations, ${params.organizerName}! 🎉
                     </div>
                     <div style="font-size: 16px; color: #64748b; line-height: 1.7; margin-bottom: 28px;">
-                      Your event has been published and is now visible to thousands of potential attendees on Eventica.
+                      Your event has been published and is now visible to thousands of potential attendees on Tikèm.
                     </div>
                     
                     <!-- Event Card -->
@@ -964,7 +964,7 @@ export function getBankVerificationDecisionEmail(params: {
                       <div style="margin-top: 20px; font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">
                         Bank Account ${isApproved ? 'Verified' : 'Verification Update'}
                       </div>
-                      <div style="margin-top: 8px; font-size: 14px; color: rgba(255, 255, 255, 0.85);">Eventica</div>
+                      <div style="margin-top: 8px; font-size: 14px; color: rgba(255, 255, 255, 0.85);">Tikèm</div>
                     </div>
                   </td>
                 </tr>
@@ -977,7 +977,7 @@ export function getBankVerificationDecisionEmail(params: {
                     </div>
                     ${isApproved ? `
                     <div style="font-size: 16px; color: #64748b; line-height: 1.7; margin-bottom: 28px;">
-                      Great news! Your bank account has been verified. You can now receive payouts directly to your bank account for tickets sold on Eventica.
+                      Great news! Your bank account has been verified. You can now receive payouts directly to your bank account for tickets sold on Tikèm.
                     </div>
                     <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 14px; padding: 20px; border-left: 4px solid #10b981; margin-bottom: 28px;">
                       <div style="font-size: 14px; font-weight: 700; color: #166534; margin-bottom: 8px;">✓ What this means for you</div>

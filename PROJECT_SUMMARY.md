@@ -1,4 +1,4 @@
-# Eventica - Project Summary
+# Tikèm - Project Summary
 
 ## ✅ Completed MVP Features
 
@@ -55,7 +55,7 @@
 ## 📂 Project Structure
 
 ```
-Eventica/
+Tikèm/
 ├── app/                          # Next.js pages
 │   ├── auth/                     # Authentication
 │   │   ├── login/page.tsx
@@ -203,7 +203,7 @@ The app is built with multi-tenancy in mind:
 ```typescript
 // config/brand.ts
 export const BRANDS = {
-  eventica: { ... },
+  tikem: { ... },
   haitipass: { ... },
   haitievents: { ... }
 }
@@ -299,6 +299,6 @@ vercel
 
 ---
 
-**Eventica is ready for production deployment!** 🇭🇹
+**Tikèm is ready for production deployment!** 🇭🇹
 
 All core MVP features are implemented, tested, and documented. The application is built with scalability, security, and multi-tenancy in mind for future expansion.

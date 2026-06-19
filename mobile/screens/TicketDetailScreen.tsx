@@ -162,7 +162,7 @@ export default function TicketDetailScreen({ route }: any) {
                 size={220}
                 backgroundColor="white"
                 color={colors.primary}
-                logo={require('../assets/eventica_logo_color.png')}
+                logo={require('../assets/tikem_logo_color.png')}
                 logoSize={48}
                 logoBackgroundColor="white"
                 logoBorderRadius={6}

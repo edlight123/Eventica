@@ -1,6 +1,6 @@
-# Eventica User Guide
+# Tikèm User Guide
 
-Welcome to Eventica! This comprehensive guide will help you navigate the platform whether you're an attendee looking to discover and attend events, or an organizer creating and managing your own events.
+Welcome to Tikèm! This comprehensive guide will help you navigate the platform whether you're an attendee looking to discover and attend events, or an organizer creating and managing your own events.
 
 ---
 
@@ -17,7 +17,7 @@ Welcome to Eventica! This comprehensive guide will help you navigate the platfor
 
 ### Creating an Account
 
-1. **Visit Eventica**: Navigate to the homepage at your Eventica URL
+1. **Visit Tikèm**: Navigate to the homepage at your Tikèm URL
 2. **Click "Sign Up"**: Located in the top-right corner of the navigation bar
 3. **Choose Your Role**:
    - **Attendee**: Browse and buy tickets for events
@@ -36,7 +36,7 @@ Welcome to Eventica! This comprehensive guide will help you navigate the platfor
 
 ### Demo Mode
 
-Eventica offers demo accounts for testing:
+Tikèm offers demo accounts for testing:
 
 **Demo Attendee:**
 - Email: `demo-attendee@joineventica.com`
@@ -157,7 +157,7 @@ Click any ticket card to view:
 
 ### Transferring Tickets
 
-Eventica allows you to transfer tickets to others with a 24-hour claim window.
+Tikèm allows you to transfer tickets to others with a 24-hour claim window.
 
 #### How to Transfer a Ticket
 
@@ -220,7 +220,7 @@ As a recipient:
 
 ### Requesting Refunds
 
-Eventica offers refund requests for eligible tickets:
+Tikèm offers refund requests for eligible tickets:
 
 1. **Go to Ticket Details**: Navigate to the ticket you want to refund
 2. **Click "Request Refund"**
@@ -263,7 +263,7 @@ After attending an event:
 
 **Required Before Creating Events**
 
-Eventica requires organizer verification to maintain platform trust and safety.
+Tikèm requires organizer verification to maintain platform trust and safety.
 
 #### Verification Process
 
@@ -448,7 +448,7 @@ View detailed analytics for each event:
 
 ### Scanning Tickets at Your Event
 
-Eventica provides a built-in QR scanner:
+Tikèm provides a built-in QR scanner:
 
 #### Using the Scanner
 
@@ -503,7 +503,7 @@ Share event photos with attendees:
 
 ### Payment Methods
 
-Eventica supports multiple payment options:
+Tikèm supports multiple payment options:
 
 #### Credit/Debit Cards (Stripe)
 - Visa, Mastercard, American Express
@@ -591,7 +591,7 @@ Understanding ticket states:
 
 ### Security & Safety
 
-Eventica prioritizes security:
+Tikèm prioritizes security:
 
 **For Attendees:**
 - Secure payment processing (PCI compliant)
@@ -607,7 +607,7 @@ Eventica prioritizes security:
 
 ### Mobile Experience
 
-Eventica is fully responsive:
+Tikèm is fully responsive:
 - Works on all devices (desktop, tablet, mobile)
 - Mobile-optimized event browsing
 - Easy QR code display on phones
@@ -768,7 +768,7 @@ Profile (/profile)
 
 ## Conclusion
 
-Eventica is your complete platform for event discovery and management in Haiti. Whether you're looking to attend amazing events or create your own, we've built features to make the experience seamless and enjoyable.
+Tikèm is your complete platform for event discovery and management in Haiti. Whether you're looking to attend amazing events or create your own, we've built features to make the experience seamless and enjoyable.
 
 **Questions?** Contact support@joineventica.com
 

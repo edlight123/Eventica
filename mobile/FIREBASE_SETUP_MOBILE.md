@@ -31,7 +31,7 @@ const firebaseConfig = {
 
 ### Step 2: Update Mobile App Configuration
 
-1. Open `/workspaces/Eventica/mobile/.env`
+1. Open `/workspaces/Tikèm/mobile/.env`
 
 2. Replace the placeholder values with your real Firebase config:
 ```env
@@ -58,7 +58,7 @@ In Firebase Console:
 ### Step 4: Restart the App
 
 ```bash
-cd /workspaces/Eventica/mobile
+cd /workspaces/Tikèm/mobile
 npx expo start --tunnel --clear
 ```
 

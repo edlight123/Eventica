@@ -69,7 +69,7 @@ NEXTAUTH_URL=https://your-domain.com
 
 ### Via Vercel Dashboard:
 1. Go to https://vercel.com/dashboard
-2. Select your Eventica project
+2. Select your Tikèm project
 3. Click **Settings** tab
 4. Click **Environment Variables** in sidebar
 5. Add each variable:
@@ -125,7 +125,7 @@ Expected response:
 
 ✅ **Firestore Indexes:** Deployed successfully
 - Event: December 18, 2024
-- Project: eventica
+- Project: tikem
 - Database: (default)
 - Indexes: 6 new composite indexes for earnings system
 
@@ -137,7 +137,7 @@ Expected response:
 5. `withdrawal_requests`: organizerId + status + createdAt
 6. `withdrawal_requests`: eventId + createdAt
 
-Check status: https://console.firebase.google.com/project/eventica/firestore/indexes
+Check status: https://console.firebase.google.com/project/tikem/firestore/indexes
 
 ---
 
@@ -208,8 +208,8 @@ const adminEmails = [
 
 ## Contact
 
-**Project:** Eventica  
-**Firebase Project:** eventica  
+**Project:** Tikèm  
+**Firebase Project:** tikem  
 **Account:** info@edlight.org  
 
 For support, check:

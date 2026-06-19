@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-const KEY = '@Eventica:pendingPayment'
+const KEY = '@Tikem:pendingPayment'
 
 export type PendingPayment = {
   url: string

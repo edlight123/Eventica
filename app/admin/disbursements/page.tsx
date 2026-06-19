@@ -6,7 +6,7 @@ import { adminDb } from '@/lib/firebase/admin'
 import AdminPayoutQueue from '@/app/admin/payouts/AdminPayoutQueue'
 
 export const metadata = {
-  title: 'Payout Operations | Admin | Eventica',
+  title: 'Payout Operations | Admin | Tikèm',
   description: 'Manage event disbursements, pending requests, and withdrawals',
 }
 

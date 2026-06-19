@@ -2,7 +2,7 @@
 
 ## ✅ What Was Done
 
-Successfully migrated Eventica from **Supabase** (PostgreSQL) to **Firebase** (Firestore + Firebase Auth).
+Successfully migrated Tikèm from **Supabase** (PostgreSQL) to **Firebase** (Firestore + Firebase Auth).
 
 ### Major Changes
 
@@ -59,7 +59,7 @@ Successfully migrated Eventica from **Supabase** (PostgreSQL) to **Firebase** (F
 **Client Config:**
 1. Go to Project Settings (gear icon)
 2. Under "Your apps", click Web icon `</>`
-3. Register app: "Eventica Web"
+3. Register app: "Tikèm Web"
 4. Copy config values:
    - `apiKey` → `NEXT_PUBLIC_FIREBASE_API_KEY`
    - `authDomain` → `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`

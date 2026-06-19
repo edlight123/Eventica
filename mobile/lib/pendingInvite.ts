@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-const KEY = '@Eventica:pendingInvite'
+const KEY = '@Tikem:pendingInvite'
 
 export type PendingInvite = {
   eventId: string

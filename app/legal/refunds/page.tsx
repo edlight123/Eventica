@@ -20,7 +20,7 @@ export default async function RefundPolicyPage() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 md:p-6 lg:p-8 prose prose-sm sm:prose prose-teal max-w-none">
           <h2>1. General Refund Policy</h2>
           <p>
-            Refund policies for events are set by individual event organizers. Eventica acts as a ticketing platform and facilitates refunds according to the organizer&apos;s stated policy.
+            Refund policies for events are set by individual event organizers. Tikèm acts as a ticketing platform and facilitates refunds according to the organizer&apos;s stated policy.
           </p>
 
           <h2>2. Event Cancellation by Organizer</h2>
@@ -59,7 +59,7 @@ export default async function RefundPolicyPage() {
 
           <h2>5. Service Fees</h2>
           <p>
-            Eventica service fees:
+            Tikèm service fees:
           </p>
           <ul>
             <li>Are non-refundable in most cases</li>
@@ -96,7 +96,7 @@ export default async function RefundPolicyPage() {
 
           <h2>8. How to Request a Refund</h2>
           <ol>
-            <li>Log in to your Eventica account</li>
+            <li>Log in to your Tikèm account</li>
             <li>Go to &quot;My Tickets&quot;</li>
             <li>Select the ticket you wish to refund</li>
             <li>Click &quot;Request Refund&quot;</li>
@@ -110,7 +110,7 @@ export default async function RefundPolicyPage() {
           </p>
           <ul>
             <li>Event organizers (for organizer policy-based refunds)</li>
-            <li>Eventica support team (for platform issues)</li>
+            <li>Tikèm support team (for platform issues)</li>
             <li>Review typically completed within 2-3 business days</li>
             <li>You will receive an email with the decision</li>
           </ul>

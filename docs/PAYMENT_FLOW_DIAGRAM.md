@@ -550,7 +550,7 @@ Percentage to Organizer: 86.9%
 ## 🔄 Complete System Overview
 
 ```
-                         Eventica Payment System
+                         Tikèm Payment System
                                     │
     ┌───────────────────────────────┴───────────────────────────────┐
     │                                                                │

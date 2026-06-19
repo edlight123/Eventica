@@ -1,4 +1,4 @@
-# Firestore Security Rules for Eventica
+# Firestore Security Rules for Tikèm
 
 Update these rules in Firebase Console → Firestore Database → Rules
 

@@ -193,7 +193,7 @@ Try these in order:
 ## 📸 What You Should See
 
 ### Successful Deployment:
-- ✅ Eventica logo/branding
+- ✅ Tikèm logo/branding
 - ✅ Hero section with "Discover Events in Haiti"
 - ✅ "Sign in" and "Sign up" buttons in navbar
 - ✅ "No events yet" message (if no events created)
@@ -254,7 +254,7 @@ Get these values from:
 Your deployment is successful when:
 - [ ] Vercel build shows green checkmark
 - [ ] Environment variables are set in Vercel
-- [ ] Homepage loads and shows Eventica branding
+- [ ] Homepage loads and shows Tikèm branding
 - [ ] Can navigate to /auth/login
 - [ ] Can navigate to /auth/signup
 - [ ] No errors in browser console

@@ -1,4 +1,4 @@
-# Eventica Mobile App - Full Feature Status
+# Tikèm Mobile App - Full Feature Status
 
 ## ✅ COMPLETED & WORKING
 
@@ -54,13 +54,13 @@
 
 ### 🎨 UI/UX
 - ✅ **5-Tab Navigation** - Home, Discover, Favorites, Tickets, Profile
-- ✅ **Consistent Branding** - Eventica colors and logo
+- ✅ **Consistent Branding** - Tikèm colors and logo
 - ✅ **Loading States** - Spinners and skeleton screens
 - ✅ **Empty States** - Helpful messages when no data
 - ✅ **Error Handling** - User-friendly error messages
 
 ### 🔥 Firebase Integration
-- ✅ **Real Firebase Connection** - Connected to `eventica` project
+- ✅ **Real Firebase Connection** - Connected to `tikem` project
 - ✅ **Firestore Queries** - All data from your database
 - ✅ **Authentication** - Firebase Auth enabled
 - ✅ **Shared Backend** - Same data as web app
@@ -140,9 +140,9 @@ The mobile app pulls ALL events from your Firestore database:
 ### Environment (.env)
 ```env
 EXPO_PUBLIC_FIREBASE_API_KEY=AIzaSyBzqR3BIaplOIJh0iPI9SYFbgSoTfV0rWs
-EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=eventica.firebaseapp.com
-EXPO_PUBLIC_FIREBASE_PROJECT_ID=eventica
-EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=eventica.firebasestorage.app
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=tikem.firebaseapp.com
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=tikem
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=tikem.firebasestorage.app
 EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=71580084056
 EXPO_PUBLIC_FIREBASE_APP_ID=1:71580084056:ios:c0b9fe7183cb8790d3a72d
 EXPO_PUBLIC_DEMO_MODE=false

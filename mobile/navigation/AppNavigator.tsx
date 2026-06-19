@@ -478,7 +478,7 @@ export default function AppNavigator() {
   const linking = {
     prefixes: [
       ExpoLinking.createURL('/'),
-      'eventica://',
+      'tikem://',
       'https://joineventica.com',
       'https://joineventica.com',
       'https://www.joineventica.com',

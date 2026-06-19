@@ -11,18 +11,18 @@ export interface BrandConfig {
   tagline?: string
 }
 
-// Current brand: Eventica
+// Current brand: Tikèm
 export const BRAND: BrandConfig = {
-  name: 'Eventica',
+  name: 'Tikèm',
   primaryColor: '#0F766E',
   secondaryColor: '#F97316',
-  logoText: 'Eventica',
+  logoText: 'Tikèm',
   tagline: 'Discover Events in Haiti',
 }
 
 // Future brands can be added here:
 export const BRANDS = {
-  eventica: BRAND,
+  tikem: BRAND,
   haitipass: {
     name: 'HaitiPass',
     primaryColor: '#7C3AED',
@@ -40,6 +40,6 @@ export const BRANDS = {
 }
 
 // Helper to get brand by key (useful for multi-tenant setup)
-export function getBrand(brandKey: string = 'eventica'): BrandConfig {
+export function getBrand(brandKey: string = 'tikem'): BrandConfig {
   return BRANDS[brandKey as keyof typeof BRANDS] || BRAND
 }

@@ -1,4 +1,4 @@
-# 🧪 Eventica Mobile App - Testing Guide
+# 🧪 Tikèm Mobile App - Testing Guide
 
 ## ✅ Server Status: RUNNING
 
@@ -6,7 +6,7 @@ Your Expo server is live with:
 - **Tunnel Mode:** Connected via ngrok
 - **QR Code:** Visible in terminal (scan with Expo Go)
 - **Account:** Logged in as edlight123
-- **Firebase:** Connected to eventica project
+- **Firebase:** Connected to tikem project
 
 ## 📱 Quick Test Steps
 
@@ -57,7 +57,7 @@ On your iPhone in Expo Go:
 - ✅ Event image/banner
 
 ### Data Sources:
-All data comes from your **eventica** Firebase:
+All data comes from your **tikem** Firebase:
 - Events from `events` collection
 - Categories from `categories` collection
 - User info from `users` collection

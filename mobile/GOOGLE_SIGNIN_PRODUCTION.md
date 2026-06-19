@@ -67,8 +67,8 @@ The production build will have:
 
 ## 📋 Redirect URI Explanation
 
-**Why `eventica://redirect`?**
-- `eventica://` is your app's custom scheme (from app.json)
+**Why `tikem://redirect`?**
+- `tikem://` is your app's custom scheme (from app.json)
 - `redirect` is the path for OAuth callbacks
 - This tells Google where to send users after sign-in
 - Works on both iOS and Android
@@ -81,7 +81,7 @@ The production build will have:
 - ✅ Firebase credential handling
 - ✅ User profile creation
 - ✅ Session persistence
-- ✅ App scheme configured (`eventica://`)
+- ✅ App scheme configured (`tikem://`)
 
 ## 🎯 Current State
 
@@ -102,4 +102,4 @@ Your app is **production-ready** with proper Google Sign-In!
 - **Now:** Test with email/password (Expo Go limitation)
 - **Released:** Google Sign-In works perfectly (native builds)
 
-Just add `eventica://redirect` to Google Console and you're all set! 🎉
+Just add `tikem://redirect` to Google Console and you're all set! 🎉

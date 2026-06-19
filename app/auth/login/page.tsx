@@ -146,8 +146,8 @@ export default function LoginPage() {
         <div className="text-center">
           <div className="flex justify-center mb-4">
             <Image 
-              src="/eventica_logo_color.png" 
-              alt="Eventica" 
+              src="/tikem_logo_color.png" 
+              alt="Tikèm" 
               width={80} 
               height={80}
               className="drop-shadow-md"

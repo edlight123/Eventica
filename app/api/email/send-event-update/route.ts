@@ -103,7 +103,7 @@ export async function POST(request: Request) {
     for (const attendee of attendees) {
       try {
         await resend.emails.send({
-          from: 'Eventica <noreply@joineventica.com>',
+          from: 'Tikem <noreply@joineventica.com>',
           to: attendee.email,
           subject: `${updateIcon} ${updateTitle}: ${event.title}`,
           html: `
@@ -177,7 +177,7 @@ export async function POST(request: Request) {
                 </div>
                 
                 <div class="footer">
-                  <p>Eventica - Discover Events in Haiti</p>
+                  <p>Tikèm - Discover Events in Haiti</p>
                   <p style="font-size: 12px;">
                     You're receiving this because you have tickets for this event.
                   </p>

@@ -231,7 +231,7 @@ While the app is fully functional, you could add:
 
 ### 🎉 Summary
 
-Your Eventica mobile app is **production-ready** with:
+Your Tikèm mobile app is **production-ready** with:
 - ✅ Complete authentication
 - ✅ Event browsing and search
 - ✅ Ticket purchasing
@@ -246,7 +246,7 @@ Your Eventica mobile app is **production-ready** with:
 2. `c04076d` - Complete mobile app with full features
 3. `fba330e` - Add comprehensive mobile setup documentation
 
-All changes pushed to GitHub: https://github.com/edlight123/Eventica
+All changes pushed to GitHub: https://github.com/edlight123/Tikèm
 
 ---
 

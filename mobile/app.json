@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Eventica",
-    "slug": "eventica-mobile",
+    "name": "Tikèm",
+    "slug": "tikem-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -30,9 +30,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "eventica-mobile"
+        "projectId": "tikem-mobile"
       }
     },
-    "scheme": "eventica"
+    "scheme": "tikem"
   }
 }

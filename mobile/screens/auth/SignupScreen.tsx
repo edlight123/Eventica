@@ -76,11 +76,11 @@ export default function SignupScreen({ navigation }: any) {
           <View style={styles.content}>
             <Animated.View style={[styles.logoContainer, { transform: [{ scale: logoScale }], opacity: logoOpacity }]}>
               <Image
-                source={require('../../assets/eventica_logo_primary.png')}
+                source={require('../../assets/tikem_logo_primary.png')}
                 style={styles.logo}
                 resizeMode="contain"
               />
-              <Text style={styles.logoText}>Eventica</Text>
+              <Text style={styles.logoText}>Tikèm</Text>
               <Text style={styles.subtitle}>{t('auth.signup.title')}</Text>
             </Animated.View>
 

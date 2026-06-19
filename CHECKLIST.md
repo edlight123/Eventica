@@ -1,6 +1,6 @@
 # ✅ Installation & Setup Checklist
 
-Use this checklist to ensure Eventica is properly set up and ready to run.
+Use this checklist to ensure Tikèm is properly set up and ready to run.
 
 ## 📋 Pre-Installation
 
@@ -43,7 +43,7 @@ Use this checklist to ensure Eventica is properly set up and ready to run.
 ### Clone/Download Project
 - [ ] Downloaded project or cloned repository
 - [ ] Opened terminal/command prompt
-- [ ] Navigated to Eventica folder (`cd Eventica`)
+- [ ] Navigated to Tikèm folder (`cd Tikèm`)
 
 ### Install Dependencies
 - [ ] Ran `npm install`
@@ -75,7 +75,7 @@ Use this checklist to ensure Eventica is properly set up and ready to run.
 
 ### Verify Homepage
 - [ ] Homepage loaded successfully
-- [ ] Saw Eventica logo/branding
+- [ ] Saw Tikèm logo/branding
 - [ ] Saw "Sign in" and "Sign up" buttons
 - [ ] Saw "Discover Events in Haiti" or similar text
 - [ ] No console errors in browser DevTools
@@ -223,7 +223,7 @@ If any checks failed, refer to:
 
 ## ✅ All Checks Passed?
 
-Congratulations! Eventica is fully installed and working! 🎉
+Congratulations! Tikèm is fully installed and working! 🎉
 
 ### Next Steps:
 1. **Explore all features** as both attendee and organizer

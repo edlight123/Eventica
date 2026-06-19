@@ -4,7 +4,7 @@ import Constants from 'expo-constants'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { backendJson } from './api/backend'
 
-const STORAGE_KEY = 'eventica:expo_push_token'
+const STORAGE_KEY = 'tikem:expo_push_token'
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -98,11 +98,11 @@ export function addPushNotificationListeners(onUrl?: (url: string) => void) {
 
     // Prefer in-app routing. Convert relative paths to the app scheme.
     const url =
-      raw.startsWith('eventica://') || raw.startsWith('http://') || raw.startsWith('https://')
+      raw.startsWith('tikem://') || raw.startsWith('http://') || raw.startsWith('https://')
         ? raw
         : raw.startsWith('/')
-          ? `eventica://${raw.slice(1)}`
-          : `eventica://${raw}`
+          ? `tikem://${raw.slice(1)}`
+          : `tikem://${raw}`
 
     onUrl(url)
   })

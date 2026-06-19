@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-Completed comprehensive audit and refactor of Eventica's Firebase/Firestore implementation to optimize database connections, eliminate redundant queries, implement caching, and improve mobile performance.
+Completed comprehensive audit and refactor of Tikèm's Firebase/Firestore implementation to optimize database connections, eliminate redundant queries, implement caching, and improve mobile performance.
 
 **Status:** ✅ Build successful, all optimizations deployed  
 **Date:** Current session  
@@ -444,7 +444,7 @@ import { getOrganizerEventsClient } from '@/lib/data/events.client' // Uses db
 
 ### 1. Deploy Firestore Indexes
 ```bash
-cd /workspaces/Eventica
+cd /workspaces/Tikèm
 firebase deploy --only firestore:indexes
 ```
 

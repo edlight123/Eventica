@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-const KEY = '@Eventica:ticketsRefreshHint'
+const KEY = '@Tikem:ticketsRefreshHint'
 
 export type TicketsRefreshHint = {
   reason: 'payment'

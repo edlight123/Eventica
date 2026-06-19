@@ -61,7 +61,7 @@ export async function GET(request: Request) {
     return new Response(JSON.stringify(userData, null, 2), {
       headers: {
         'Content-Type': 'application/json',
-        'Content-Disposition': `attachment; filename="eventica_data_export_${user.id}.json"`
+        'Content-Disposition': `attachment; filename="tikem_data_export_${user.id}.json"`
       }
     })
   } catch (error) {
