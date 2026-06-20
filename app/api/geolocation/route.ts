@@ -47,7 +47,11 @@ export async function GET(request: NextRequest) {
       displayName
     })
   } catch (error) {
-    console.error('Geolocation API error:', error)
+    // Don't log Next.js's dynamic-rendering signal (fired during build) as an error.
+    const digest = (error as { digest?: string })?.digest || ''
+    if (digest !== 'DYNAMIC_SERVER_USAGE') {
+      console.error('Geolocation API error:', error)
+    }
     return NextResponse.json({ 
       detected: false,
       error: 'Internal server error'

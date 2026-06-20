@@ -21,7 +21,23 @@ export async function GET() {
       }
     })
   } catch (error) {
-    console.error('Session verification error:', error)
+    // Expired / revoked / malformed session cookies are an expected, everyday
+    // condition (e.g. a returning visitor with a stale cookie). Treat these as
+    // "logged out" silently instead of logging them as errors, which floods the
+    // runtime logs. Only surface genuinely unexpected failures.
+    const code = (error as { code?: string })?.code || ''
+    const digest = (error as { digest?: string })?.digest || ''
+    const isExpectedAuthState =
+      code === 'auth/session-cookie-expired' ||
+      code === 'auth/session-cookie-revoked' ||
+      code === 'auth/invalid-session-cookie' ||
+      code === 'auth/argument-error'
+    const isDynamicRenderSignal = digest === 'DYNAMIC_SERVER_USAGE'
+
+    if (!isExpectedAuthState && !isDynamicRenderSignal) {
+      console.error('Session verification error:', error)
+    }
+
     return NextResponse.json({ user: null }, { status: 200 })
   }
 }

@@ -63,8 +63,6 @@ export default async function HomePage({
 
   // Apply filters and sorting using new filter system
   events = applyFiltersAndSort(events, filters)
-  
-  console.log('[HomePage] Events after applyFiltersAndSort:', events.length)
 
   // Filter out events that have definitively ended
   // Be lenient: show events that are ongoing or haven't started yet
@@ -90,30 +88,15 @@ export default async function HomePage({
     return true
   }
 
-  console.log('[HomePage] Sample events before date filter:', events.slice(0, 3).map(e => ({
-    id: e.id,
-    title: e.title?.substring(0, 20),
-    start: e.start_datetime,
-    end: e.end_datetime,
-    country: e.country
-  })))
-
   events = events.filter(notDefinitelyEnded)
-  
-  // DEBUG: Log event countries to understand what data we have
-  console.log('[HomePage] Total events after date filter:', events.length)
-  console.log('[HomePage] User country:', userCountry)
-  console.log('[HomePage] Event countries:', events.slice(0, 10).map(e => ({ id: e.id, title: e.title?.substring(0, 30), country: e.country })))
-  
+
   // STRICT country filtering - ONLY show events from user's country
   // Events without a country field are assumed to be in Haiti (HT)
   events = events.filter(e => {
     const eventCountry = e.country || 'HT' // Default to Haiti if no country set
     return eventCountry === userCountry
   })
-  
-  console.log('[HomePage] Events after country filter:', events.length)
-  
+
   // Prioritize events by user's city first, then rest of country
   const eventsInUserCity = userCity ? events.filter(e => e.city === userCity) : []
   const eventsInOtherCities = userCity ? events.filter(e => e.city !== userCity) : events

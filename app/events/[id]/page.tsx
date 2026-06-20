@@ -82,16 +82,12 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
       // Fetch from Firestore with timeout handling
       const eventData = await getEventById(id)
 
-      console.log('Event query result:', { eventData, id })
-
       if (!eventData) {
-        console.log('Event not found, returning 404')
         notFound()
       }
 
       const isPubliclyPublished = Boolean(eventData.is_published || eventData.status === 'published')
       if (!isPubliclyPublished && eventData.organizer_id !== user?.id) {
-        console.log('Event not published and user is not organizer, returning 404')
         notFound()
       }
 
@@ -102,7 +98,6 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
       ])
       
       const organizerData = organizerDoc.exists ? organizerDoc.data() : null
-      console.log('Organizer query result:', { organizerData, organizerId: eventData.organizer_id })
 
       // Calculate total capacity from tiers
       const totalFromTiers = tiersSnapshot.docs.reduce((sum: number, doc: any) => {

@@ -56,7 +56,27 @@ export async function getServerSession() {
       error: null,
     }
   } catch (error) {
-    console.error('Session verification error:', error)
+    // Most "failures" here are expected, everyday conditions: an expired or
+    // revoked session cookie, a stale token, or Next.js signalling dynamic
+    // rendering during build. Logging these as errors floods the runtime logs.
+    // Only surface genuinely unexpected failures.
+    const code = (error as { code?: string })?.code || ''
+    const digest = (error as { digest?: string })?.digest || ''
+    const isExpectedAuthState =
+      code === 'auth/session-cookie-expired' ||
+      code === 'auth/session-cookie-revoked' ||
+      code === 'auth/invalid-session-cookie' ||
+      code === 'auth/id-token-expired' ||
+      code === 'auth/id-token-revoked' ||
+      code === 'auth/invalid-id-token' ||
+      code === 'auth/user-not-found' ||
+      code === 'auth/argument-error'
+    const isDynamicRenderSignal = digest === 'DYNAMIC_SERVER_USAGE'
+
+    if (!isExpectedAuthState && !isDynamicRenderSignal) {
+      console.error('Session verification error:', error)
+    }
+
     return { user: null, error: 'Invalid session' }
   }
 }

@@ -327,18 +327,7 @@ export async function getDiscoverEvents(
       // Lenient filter: show events that are upcoming, ongoing, or recently started
       // Events that started within the past week could still be ongoing (multi-day events)
       const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-      
-      console.log('[getDiscoverEvents] Before date filter:', events.length, 'events')
-      console.log('[getDiscoverEvents] Current time:', now.toISOString())
-      console.log('[getDiscoverEvents] One week ago:', oneWeekAgo.toISOString())
-      if (events.length > 0) {
-        console.log('[getDiscoverEvents] Sample event dates:', events.slice(0, 3).map((e: Event) => ({
-          title: e.title?.substring(0, 20),
-          start: e.start_datetime,
-          end: e.end_datetime
-        })))
-      }
-      
+
       events = events.filter((event: Event) => {
         const start = new Date(event.start_datetime)
         const end = event.end_datetime ? new Date(event.end_datetime) : null
@@ -357,8 +346,6 @@ export async function getDiscoverEvents(
         // If no valid dates, show it anyway
         return true
       })
-      
-      console.log('[getDiscoverEvents] After date filter:', events.length, 'events')
 
       // Return soonest upcoming first (query is already ASC, but keep this deterministic)
       events = events
