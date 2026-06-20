@@ -2,11 +2,11 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { format } from 'date-fns'
-import Badge from './ui/Badge'
-import { TrendingUp, Heart, Share2 } from 'lucide-react'
+import { format, isValid } from 'date-fns'
+import { Heart } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { getPosterTheme, getAvatarColors } from '@/lib/posterGradient'
 
 interface Event {
   id: string
@@ -32,142 +32,131 @@ interface EventCardHorizontalProps {
   event: Event
 }
 
+/**
+ * Compact editorial "list row" card used in vertical mobile lists.
+ * A poster thumbnail (image or deterministic gradient) sits beside the
+ * serif title, metadata and price — matching the home / discover aesthetic.
+ */
 export default function EventCardHorizontal({ event }: EventCardHorizontalProps) {
   const { t } = useTranslation('common')
-  const remainingTickets = event.total_tickets - event.tickets_sold
-  const isSoldOut = remainingTickets <= 0
-  const isFree = !event.ticket_price || event.ticket_price === 0
-  
-  // Premium badge logic
-  const isVIP = (event.ticket_price || 0) > 100
-  const isTrending = (event.tickets_sold || 0) > 10
-  const isNew = new Date(event.start_datetime).getTime() - new Date().getTime() < 7 * 24 * 60 * 60 * 1000
-  const selloutSoon = !isSoldOut && remainingTickets < 10
+  const [liked, setLiked] = useState(false)
 
-  const [isLiked, setIsLiked] = useState(false)
+  const totalTickets = Number(event.total_tickets) || 0
+  const ticketsSold = Number(event.tickets_sold) || 0
+  const remainingTickets = totalTickets > 0 ? Math.max(0, totalTickets - ticketsSold) : null
+  const isSoldOut = totalTickets > 0 && remainingTickets === 0
+  const isFree = !event.ticket_price || event.ticket_price === 0
+  const isTrending = ticketsSold > 10
+  const selloutSoon = !isSoldOut && remainingTickets !== null && remainingTickets < 10
+
+  const startDate = new Date(event.start_datetime)
+  const validDate = isValid(startDate)
+  const theme = getPosterTheme(event.id || event.title, event.category)
+  const hasImage = Boolean(event.banner_image_url)
+  const avatarColors = getAvatarColors(event.id || event.title, Math.min(ticketsSold, 3))
 
   const handleLike = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    setIsLiked(!isLiked)
+    setLiked((v) => !v)
   }
 
-  const handleShare = async (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: event.title,
-          text: `Check out ${event.title}`,
-          url: `/events/${event.id}`
-        })
-      } catch (err) {
-        // User cancelled or share failed
-      }
-    }
-  }
+  const statusLabel = isSoldOut
+    ? t('ticket.sold_out_caps')
+    : selloutSoon
+    ? t('ticket.remaining_short', { count: remainingTickets })
+    : isTrending
+    ? `🔥 ${t('events.trending')}`
+    : null
 
   return (
-    <div className="group">
-      <div className="rounded-xl overflow-hidden transition-all duration-300">
-        
-        <Link href={`/events/${event.id}`} prefetch={true} className="block">
-        
-        {/* Image - reduced height by 25% */}
-        <div className="relative w-full aspect-[2/1] bg-gray-200">
-          {event.banner_image_url ? (
-            <Image
-              src={event.banner_image_url}
-              alt={event.title}
-              fill
-              className="object-cover"
-              sizes="(max-width: 640px) 100vw, (max-width: 768px) 90vw, 50vw"
-              quality={75}
-              loading="lazy"
-              placeholder="blur"
-              blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VmZjZmZiIvPjwvc3ZnPg=="
-            />
+    <Link href={`/events/${event.id}`} prefetch={true} className="group block">
+      <article className="hover-lift flex gap-3 rounded-2xl border border-gray-200/80 bg-white p-2.5 shadow-poster-sm group-hover:border-brand-200">
+        {/* Poster thumbnail */}
+        <div
+          className="relative aspect-[3/4] w-[88px] shrink-0 overflow-hidden rounded-xl"
+          style={hasImage ? undefined : { backgroundImage: theme.bg }}
+        >
+          {hasImage ? (
+            <>
+              <Image
+                src={event.banner_image_url as string}
+                alt={event.title}
+                fill
+                className="object-cover"
+                sizes="88px"
+                quality={70}
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
+            </>
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-brand-100 to-accent-100 flex items-center justify-center">
-              <span className="text-4xl">🎉</span>
+            <div className="absolute inset-0 flex items-center justify-center p-2 text-center">
+              <span className="font-display text-[15px] leading-[0.95] text-white line-clamp-3 drop-shadow">
+                {event.title}
+              </span>
             </div>
           )}
-          
-          {/* Status badges */}
-          <div className="absolute top-2 left-2 flex flex-col gap-1">
-            {isSoldOut && (
-              <Badge variant="error" size="sm">{t('events.soldOut')}</Badge>
-            )}
-            {isTrending && !isSoldOut && (
-              <Badge variant="trending" size="sm">
-                <TrendingUp className="w-3 h-3" />
-              </Badge>
-            )}
-          </div>
+          <span className="eyebrow absolute left-1.5 top-1.5 rounded bg-black/35 px-1.5 py-1 text-[8px] tracking-[0.1em] text-white backdrop-blur-md">
+            {event.category}
+          </span>
         </div>
 
         {/* Content */}
-        <div className="p-3">
-          {/* Category */}
-          <span className="px-1.5 py-0.5 text-[7px] sm:text-[9px] bg-gray-100 text-gray-600 rounded font-medium uppercase tracking-wide inline-block mb-1.5">
-            {event.category}
-          </span>
+        <div className="flex min-w-0 flex-1 flex-col py-0.5">
+          <div className="flex items-start justify-between gap-2">
+            <div className="eyebrow text-[10px] tracking-[0.08em] text-brand-600">
+              {validDate ? `${format(startDate, 'EEE, MMM d')} · ${format(startDate, 'h a')}` : ''}
+            </div>
+            <button
+              type="button"
+              onClick={handleLike}
+              aria-label={liked ? 'Unlike' : 'Like'}
+              className="-mr-1 -mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full transition-colors hover:bg-gray-100"
+            >
+              <Heart className={`h-4 w-4 ${liked ? 'fill-rose-500 text-rose-500' : 'text-gray-300'}`} />
+            </button>
+          </div>
 
-          {/* Title */}
-          <h3 className="font-extrabold text-gray-900 mb-1.5 text-sm sm:text-base group-hover:text-brand-700 transition-colors line-clamp-1">
+          <h3 className="mt-0.5 font-display text-[18px] leading-[1.05] text-gray-900 line-clamp-2">
             {event.title}
           </h3>
 
-          {/* Description - 2 lines */}
-          <p className="text-[11px] sm:text-xs text-gray-600 mb-2 line-clamp-2">
-            {event.description}
-          </p>
+          <p className="mt-0.5 truncate text-xs text-gray-500">{event.venue_name || event.city}</p>
 
-          {/* Date, Time & Venue - Single Line */}
-          <div className="flex items-center text-[10px] sm:text-xs text-gray-600 mb-2 overflow-hidden">
-            <span className="truncate">
-              {format(new Date(event.start_datetime), 'EEE, MMM d')} • {format(new Date(event.start_datetime), 'h a')} • {event.venue_name || event.city}
-            </span>
-          </div>
-
-          {/* Price with Share & Like Buttons */}
-          <div className="pt-2 border-t border-gray-100 flex justify-between items-center">
-            <div>
-              {isFree ? (
-                <span className="text-sm sm:text-base font-bold text-success-600">
-                  {t('common.free')}
-                </span>
-              ) : (
-                <span className="text-sm sm:text-base font-bold text-gray-900">
-                  {t('common.from')} {event.ticket_price} <span className="text-xs font-normal">{event.currency}</span>
-                </span>
+          <div className="mt-auto flex items-center justify-between gap-2 pt-2">
+            <div className="flex items-center">
+              {ticketsSold > 0 && (
+                <div className="flex">
+                  {avatarColors.map((c, i) => (
+                    <span
+                      key={i}
+                      className="h-[18px] w-[18px] rounded-full ring-2 ring-white"
+                      style={{ background: c, marginLeft: i === 0 ? 0 : -6 }}
+                    />
+                  ))}
+                </div>
               )}
+              {statusLabel ? (
+                <span className="text-[11px] font-semibold text-gray-500">{statusLabel}</span>
+              ) : ticketsSold > 0 ? (
+                <span className="ml-1.5 text-[11px] text-gray-400">{ticketsSold} {t('events.going', { defaultValue: 'going' })}</span>
+              ) : null}
             </div>
 
-            {/* Share & Like Buttons */}
-            <div className="flex gap-1 flex-shrink-0">
-              <button 
-                onClick={handleLike}
-                className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
-                aria-label="Like event"
-              >
-                <Heart 
-                  className={`w-4 h-4 ${isLiked ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} 
-                />
-              </button>
-              <button 
-                onClick={handleShare}
-                className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
-                aria-label="Share event"
-              >
-                <Share2 className="w-4 h-4 text-gray-400" />
-              </button>
+            <div className="shrink-0 font-grotesk text-sm font-bold text-brand-700">
+              {isFree ? (
+                t('common.free')
+              ) : (
+                <>
+                  <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">{t('common.from')} </span>
+                  {Number(event.ticket_price).toLocaleString()} <span className="text-[11px] font-medium text-gray-400">{event.currency}</span>
+                </>
+              )}
             </div>
           </div>
         </div>
-        </Link>
-      </div>
-    </div>
+      </article>
+    </Link>
   )
 }

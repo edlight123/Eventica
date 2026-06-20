@@ -57,7 +57,9 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-        display: ['var(--font-display)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-serif-display)', 'Instrument Serif', 'Georgia', 'serif'],
+        serif: ['var(--font-serif-display)', 'Instrument Serif', 'Georgia', 'serif'],
+        grotesk: ['var(--font-grotesk)', 'Space Grotesk', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         'xs': ['0.75rem', { lineHeight: '1rem' }],
@@ -86,6 +88,13 @@ const config: Config = {
         'hard': '0 8px 30px rgba(0, 0, 0, 0.16)',
         'glow': '0 0 20px rgba(15, 118, 110, 0.3)',
         'glow-orange': '0 0 20px rgba(249, 115, 22, 0.3)',
+        // Editorial / poster depth used across the public experience
+        'poster': '0 24px 50px -24px rgba(12, 35, 33, 0.55)',
+        'poster-sm': '0 12px 28px -16px rgba(12, 35, 33, 0.45)',
+        'card-hover': '0 30px 60px -28px rgba(15, 118, 110, 0.45)',
+      },
+      letterSpacing: {
+        eyebrow: '0.18em',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',

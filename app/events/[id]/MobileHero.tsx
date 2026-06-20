@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import Image from 'next/image'
 import Badge from '@/components/ui/Badge'
 import { Shield, Star, TrendingUp } from 'lucide-react'
+import { getPosterTheme } from '@/lib/posterGradient'
 
 interface MobileHeroProps {
   title: string
@@ -31,7 +32,8 @@ export default function MobileHero({
   selloutSoon
 }: MobileHeroProps) {
   const { t } = useTranslation('common')
-  
+  const posterTheme = getPosterTheme(title, category)
+
   return (
     <div className="md:hidden">
       {/* Hero Image - 16:9 aspect ratio */}
@@ -49,8 +51,12 @@ export default function MobileHero({
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           </>
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-800 via-brand-700 to-accent-600 flex items-center justify-center">
-            <span className="text-6xl opacity-30">🎉</span>
+          <div className="poster-vignette absolute inset-0" style={{ backgroundImage: posterTheme.bg }}>
+            <div className="absolute inset-0 flex items-center justify-center px-6 text-center">
+              <span className="font-display text-[28px] leading-[0.98] text-white/90 drop-shadow line-clamp-3">
+                {title}
+              </span>
+            </div>
           </div>
         )}
 
@@ -87,7 +93,7 @@ export default function MobileHero({
         </Badge>
 
         {/* Title */}
-        <h1 className="text-2xl font-bold text-gray-900 mb-3 leading-tight break-words">
+        <h1 className="font-display text-[26px] text-gray-900 mb-3 leading-[1.05] break-words">
           {title}
         </h1>
 

@@ -15,6 +15,7 @@ import { Shield, Calendar, MapPin, Clock, Users, TrendingUp, Star, Sparkles } fr
 import { format } from 'date-fns'
 import Image from 'next/image'
 import Badge from '@/components/ui/Badge'
+import { getPosterTheme } from '@/lib/posterGradient'
 
 interface EventDetailsClientProps {
   event: any
@@ -36,6 +37,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
   const isVIP = (event.ticket_price || 0) > 100
   const isTrending = (event.tickets_sold || 0) > 10
   const selloutSoon = !isSoldOut && ticketsRemaining !== null && ticketsRemaining < 10
+  const posterTheme = getPosterTheme(event.id || event.title, event.category)
 
   return (
     <div className="min-h-screen bg-gray-50 pb-mobile-nav md:pb-8">
@@ -69,7 +71,14 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/30" />
           </div>
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-800 via-brand-700 to-accent-600" />
+          <div className="poster-vignette absolute inset-0" style={{ backgroundImage: posterTheme.bg }}>
+            <div className="absolute inset-0 flex items-center justify-center px-8 text-center">
+              <span className="font-display text-[clamp(40px,7vw,84px)] leading-[0.95] text-white/15">
+                {event.title}
+              </span>
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/25" />
+          </div>
         )}
 
         {/* Hero Content */}
@@ -77,9 +86,9 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
           <div className="max-w-4xl">
             {/* Premium Badges */}
             <div className="flex flex-wrap items-center gap-2 mb-6">
-              <Badge variant="neutral" size="md">
+              <span className="eyebrow rounded-lg bg-white/15 px-3 py-1.5 text-[11px] text-white backdrop-blur-md">
                 {event.category}
-              </Badge>
+              </span>
               {isVIP && (
                 <Badge variant="vip" size="md" icon={<Star className="w-4 h-4" />}>
                   {t('events.vip_event')}
@@ -103,7 +112,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
             </div>
 
             {/* Title */}
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-2 sm:mb-3 md:mb-4 leading-tight">
+            <h1 className="font-display text-[clamp(30px,5vw,56px)] leading-[1.02] text-white mb-3 md:mb-4">
               {event.title}
             </h1>
 

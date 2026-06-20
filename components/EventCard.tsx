@@ -1,9 +1,12 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
-import { format } from 'date-fns'
-import Badge from './ui/Badge'
-import { TrendingUp, Star, Sparkles } from 'lucide-react'
+import { format, isValid } from 'date-fns'
+import { Heart, ShieldCheck } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { getPosterTheme, getAvatarColors } from '@/lib/posterGradient'
 
 interface Event {
   id: string
@@ -19,6 +22,7 @@ interface Event {
   tickets_sold: number
   banner_image_url?: string | null
   tags?: string[] | null
+  organizer_id?: string
   users?: {
     full_name: string
     is_verified: boolean
@@ -33,6 +37,7 @@ interface EventCardProps {
 
 export default function EventCard({ event, priority = false, index = 0 }: EventCardProps) {
   const { t } = useTranslation('common')
+  const [liked, setLiked] = useState(false)
 
   const toFiniteNumber = (value: unknown, fallback = 0) => {
     const num = typeof value === 'number' ? value : Number(value)
@@ -46,182 +51,162 @@ export default function EventCard({ event, priority = false, index = 0 }: EventC
 
   const ticketPrice = toFiniteNumber((event as any).ticket_price, 0)
   const isFree = ticketPrice === 0
-  
-  // Premium badge logic
-  const isVIP = ticketPrice > 100
+
+  const startDate = new Date(event.start_datetime)
+  const validDate = isValid(startDate)
   const isTrending = ticketsSold > 10
-  const isNew = new Date(event.start_datetime).getTime() - new Date().getTime() < 7 * 24 * 60 * 60 * 1000 // Within 7 days
+  const isNew = validDate && startDate.getTime() - Date.now() < 7 * 24 * 60 * 60 * 1000
   const selloutSoon = !isSoldOut && remainingTickets !== null && remainingTickets < 10
 
-  return (
-    <Link href={`/events/${event.id}`} prefetch={true} className="group">
-      <div className="bg-white rounded-xl sm:rounded-2xl shadow-soft hover:shadow-hard transition-all duration-300 overflow-hidden border border-gray-100 group-hover:-translate-y-1.5 group-hover:border-brand-200 relative">
-        
-        {/* Image Container with Gradient Overlay */}
-        {event.banner_image_url ? (
-          <div className="h-24 sm:h-36 md:h-48 lg:h-52 bg-gray-200 overflow-hidden relative">
-            <Image
-              src={event.banner_image_url}
-              alt={event.title}
-              fill
-              className="object-cover group-hover:scale-110 transition-transform duration-700"
-              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              quality={75}
-              priority={priority || index < 3}
-              loading={priority || index < 3 ? 'eager' : 'lazy'}
-              placeholder="blur"
-              blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2VmZjZmZiIvPjwvc3ZnPg=="
-            />
-            {/* Premium gradient overlay for better text contrast */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            
-            {/* Top-left premium badges */}
-            <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
-              {isVIP && (
-                <Badge variant="vip" size="sm" icon={<Star className="w-3 h-3" />}>
-                  VIP
-                </Badge>
-              )}
-              {isTrending && (
-                <Badge variant="trending" size="sm" icon={<TrendingUp className="w-3 h-3" />}>
-                  {t('events.trending')}
-                </Badge>
-              )}
-              {isNew && (
-                <Badge variant="new" size="sm" icon={<Sparkles className="w-3 h-3" />}>
-                  {t('events.new')}
-                </Badge>
-              )}
-            </div>
-            
-            {/* Top-right status badges */}
-            <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
-              {isSoldOut && (
-                <Badge variant="error" size="sm">
-                  {t('ticket.sold_out_caps')}
-                </Badge>
-              )}
-              {selloutSoon && !isSoldOut && (
-                <Badge variant="warning" size="sm">
-                  {t('ticket.remaining_short', { count: remainingTickets })}
-                </Badge>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className="h-24 sm:h-36 md:h-48 lg:h-52 bg-gradient-to-br from-brand-100 via-brand-50 to-accent-100 flex items-center justify-center relative group-hover:from-brand-200 group-hover:to-accent-200 transition-all duration-500">
-            <span className="text-2xl sm:text-3xl md:text-5xl group-hover:scale-110 transition-transform duration-500">🎉</span>
-            
-            {/* Badges for placeholder images too */}
-            <div className="absolute top-3 left-3 flex flex-col gap-2">
-              {isVIP && (
-                <Badge variant="vip" size="sm" icon={<Star className="w-3 h-3" />}>
-                  VIP
-                </Badge>
-              )}
-              {isTrending && (
-                <Badge variant="trending" size="sm" icon={<TrendingUp className="w-3 h-3" />}>
-                  {t('events.trending')}
-                </Badge>
-              )}
-              {isNew && (
-                <Badge variant="new" size="sm" icon={<Sparkles className="w-3 h-3" />}>
-                  {t('events.new')}
-                </Badge>
-              )}
-            </div>
-            
-            <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
-              {isSoldOut && (
-                <Badge variant="error" size="sm">
-                  {t('ticket.sold_out_caps')}
-                </Badge>
-              )}
-              {selloutSoon && !isSoldOut && (
-                <Badge variant="warning" size="sm">
-                  {t('ticket.remaining_short', { count: remainingTickets })}
-                </Badge>
-              )}
-            </div>
-          </div>
-        )}
+  const theme = getPosterTheme(event.id || event.title, event.category)
+  const hasImage = Boolean(event.banner_image_url)
+  const organizerName = event.users?.full_name?.trim()
+  const avatarColors = getAvatarColors(event.id || event.title, Math.min(ticketsSold, 4))
 
-        <div className="p-2 sm:p-3 md:p-4 lg:p-5">
-          <div className="flex items-start justify-between mb-1 sm:mb-1.5 md:mb-2 gap-2">
-            <span className="px-1.5 py-0.5 text-[7px] sm:text-[9px] bg-gray-100 text-gray-600 rounded font-medium uppercase tracking-wide">
+  // A single, most-important status chip keeps the poster calm and editorial.
+  const statusChip = isSoldOut
+    ? { label: t('ticket.sold_out_caps'), tone: 'bg-red-500/90 text-white' }
+    : selloutSoon
+    ? { label: t('ticket.remaining_short', { count: remainingTickets }), tone: 'bg-amber-400/90 text-amber-950' }
+    : isTrending
+    ? { label: `🔥 ${t('events.trending')}`, tone: 'bg-black/35 text-white' }
+    : isNew
+    ? { label: t('events.new'), tone: 'bg-white/85 text-gray-900' }
+    : null
+
+  const dayLabel = validDate ? format(startDate, 'EEE').toUpperCase() : ''
+  const timeLabel = validDate ? format(startDate, 'h:mm a') : ''
+
+  const handleLike = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setLiked((v) => !v)
+  }
+
+  return (
+    <Link href={`/events/${event.id}`} prefetch={true} className="group block h-full">
+      <article className="hover-lift flex h-full flex-col overflow-hidden rounded-[20px] border border-gray-200/80 bg-white shadow-poster-sm group-hover:border-brand-200 group-hover:shadow-card-hover">
+        {/* ---------- Poster ---------- */}
+        <div
+          className="poster-vignette relative flex aspect-[4/5] flex-col justify-between overflow-hidden p-3.5 text-white"
+          style={hasImage ? undefined : { backgroundImage: theme.bg }}
+        >
+          {hasImage && (
+            <>
+              <Image
+                src={event.banner_image_url as string}
+                alt={event.title}
+                fill
+                className="object-cover transition-transform duration-[1.1s] ease-out group-hover:scale-[1.06]"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
+                quality={78}
+                priority={priority || index < 3}
+                loading={priority || index < 3 ? 'eager' : 'lazy'}
+                placeholder="blur"
+                blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjUwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjUwMCIgZmlsbD0iIzBmNDc0MyIvPjwvc3ZnPg=="
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-black/35" />
+            </>
+          )}
+
+          {/* Top row: category + like */}
+          <div className="relative z-10 flex items-start justify-between">
+            <span className="eyebrow rounded-lg bg-black/30 px-2.5 py-1.5 text-[10px] tracking-[0.12em] text-white backdrop-blur-md">
               {event.category}
             </span>
-            {event.users?.is_verified && (
-              <div className="inline-flex items-center gap-0.5 text-blue-600 bg-blue-50 px-1 py-0.5 rounded" title="Verified Organizer">
-                <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-              </div>
-            )}
+            <button
+              type="button"
+              onClick={handleLike}
+              aria-label={liked ? 'Unlike' : 'Like'}
+              className="grid h-8 w-8 place-items-center rounded-full bg-black/30 backdrop-blur-md transition-transform duration-200 active:scale-90"
+            >
+              <Heart className={`h-[15px] w-[15px] ${liked ? 'fill-rose-500 text-rose-500' : 'text-white'}`} />
+            </button>
           </div>
 
-          <h3 className="text-base sm:text-base md:text-lg font-extrabold text-gray-900 mb-1.5 sm:mb-2 line-clamp-2 group-hover:text-brand-700 transition-colors duration-300 leading-tight">
-            {event.title}
-          </h3>
-
-          {/* Tags - hidden on mobile */}
-          {event.tags && event.tags.length > 0 && (
-            <div className="hidden sm:flex flex-wrap gap-1.5 mb-3 overflow-hidden max-h-7">
-              {event.tags.slice(0, 3).map(tag => (
-                <span
-                  key={tag}
-                  className="px-2 py-0.5 text-[10px] bg-gray-50 text-gray-600 rounded border border-gray-200 font-medium"
-                >
-                  {tag}
-                </span>
-              ))}
-              {event.tags.length > 3 && (
-                <span className="px-2 py-0.5 text-[10px] text-gray-500 font-medium">
-                  +{event.tags.length - 3}
+          {/* Center title — poster treatment used when there is no banner image */}
+          {!hasImage && (
+            <div className="pointer-events-none absolute inset-0 z-[5] flex flex-col items-center justify-center px-5 text-center">
+              {organizerName && (
+                <span className="eyebrow mb-2 text-[9px] tracking-[0.22em] text-white/70">
+                  {organizerName}
                 </span>
               )}
+              <h3 className="font-display text-[26px] leading-[0.98] text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.45)] line-clamp-4">
+                {event.title}
+              </h3>
             </div>
           )}
 
-          <div className="mb-2 sm:mb-2.5 md:mb-3">
-            <div className="flex items-center gap-1 text-[11px] sm:text-sm md:text-base text-gray-700 font-medium">
-              <svg className="w-3 h-3 sm:w-4 sm:h-4 text-accent-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <span className="truncate">{format(new Date(event.start_datetime), 'MMM d, yyyy')}</span>
-            </div>
-            <div className="flex items-center gap-1 text-[11px] sm:text-sm md:text-base text-gray-700 font-medium mt-1">
-              <svg className="w-3 h-3 sm:w-4 sm:h-4 text-accent-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <span className="truncate">{event.venue_name || event.city}</span>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between pt-2 sm:pt-2.5 md:pt-3 border-t border-gray-100">
-            <div className="flex-1 min-w-0">
-              {isFree ? (
-                <p className="text-2xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-success-600 to-success-700 bg-clip-text text-transparent">{t('common.free')}</p>
-              ) : (
-                <div className="flex items-baseline gap-1 flex-wrap">
-                  <span className="text-xs sm:text-sm font-medium text-gray-600 whitespace-nowrap">{t('common.from')}</span>
-                  <span className="text-2xl sm:text-2xl md:text-3xl font-bold text-gray-900 whitespace-nowrap">
-                    {ticketPrice.toLocaleString()} <span className="text-sm sm:text-sm font-normal text-gray-600">{event.currency}</span>
-                  </span>
+          {/* Bottom row */}
+          <div className="relative z-10 flex items-end justify-between gap-2">
+            <div className="min-w-0">
+              {hasImage && (
+                <h3 className="font-display text-[22px] leading-[1.02] text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.5)] line-clamp-2">
+                  {event.title}
+                </h3>
+              )}
+              {(dayLabel || timeLabel) && (
+                <div className="eyebrow mt-1.5 text-[10px] tracking-[0.08em] text-white/85">
+                  {dayLabel}
+                  {timeLabel && <span className="opacity-60"> · </span>}
+                  {timeLabel}
                 </div>
               )}
             </div>
-            {!isSoldOut && remainingTickets !== null && (
-              <div className="text-right flex-shrink-0">
-                <p className={`text-sm sm:text-sm font-bold ${selloutSoon ? 'text-warning-600' : 'text-brand-700'}`}>
-                  {t('ticket.remaining', { count: remainingTickets })}
-                </p>
-              </div>
+            {statusChip && (
+              <span className={`eyebrow shrink-0 rounded-md px-2 py-1 text-[9px] tracking-[0.1em] backdrop-blur-md ${statusChip.tone}`}>
+                {statusChip.label}
+              </span>
             )}
           </div>
         </div>
-      </div>
+
+        {/* ---------- Body ---------- */}
+        <div className="flex flex-1 flex-col px-3.5 pb-3.5 pt-3">
+          <div className="flex items-center gap-1.5 text-[12.5px] font-medium text-gray-500">
+            <span className="truncate">{event.venue_name || event.city}</span>
+            {event.users?.is_verified && (
+              <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-brand-500" />
+            )}
+          </div>
+
+          <div className="mt-auto flex items-center justify-between gap-2 pt-3">
+            {ticketsSold > 0 ? (
+              <div className="flex items-center">
+                <div className="flex">
+                  {avatarColors.map((c, i) => (
+                    <span
+                      key={i}
+                      className="h-[21px] w-[21px] rounded-full ring-2 ring-white"
+                      style={{ background: c, marginLeft: i === 0 ? 0 : -7 }}
+                    />
+                  ))}
+                </div>
+                <span className="ml-2 text-[11.5px] text-gray-400">
+                  {ticketsSold} {t('events.going', { defaultValue: 'going' })}
+                </span>
+              </div>
+            ) : (
+              <span className="text-[11.5px] text-gray-400">{event.city}</span>
+            )}
+
+            <div className="shrink-0 text-right">
+              {isFree ? (
+                <span className="font-grotesk text-sm font-bold text-brand-700">{t('common.free')}</span>
+              ) : (
+                <span className="font-grotesk text-sm font-bold text-brand-700">
+                  <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+                    {t('common.from')}{' '}
+                  </span>
+                  {ticketPrice.toLocaleString()}{' '}
+                  <span className="text-[11px] font-medium text-gray-400">{event.currency}</span>
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </article>
     </Link>
   )
 }

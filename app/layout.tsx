@@ -1,13 +1,33 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Instrument_Serif, Space_Grotesk } from 'next/font/google'
 import './globals.css'
 import { BRAND } from '@/config/brand'
 import { ToastProvider } from '@/components/ui/Toast'
 import PWAInstallPrompt from '@/components/pwa/PWAInstallPrompt'
 import { I18nProvider } from '@/components/I18nProvider'
 
-// Force rebuild 2024-01-XX - Fix Suspense errors cascading from discover page
-const inter = Inter({ subsets: ['latin'] })
+// Body / UI typeface
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
+
+// Editorial display typeface (headlines, wordmark) — gives the public site its poster feel
+const instrumentSerif = Instrument_Serif({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-serif-display',
+  display: 'swap',
+})
+
+// Mono-ish grotesk for eyebrows, labels and metadata
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  weight: ['500', '600', '700'],
+  variable: '--font-grotesk',
+  display: 'swap',
+})
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tikem.co'
 const siteDescription = `Discover and buy tickets for events in Haiti - ${BRAND.name}`
@@ -74,7 +94,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${instrumentSerif.variable} ${spaceGrotesk.variable}`}>
       <head>
         {/* DNS Prefetch for faster external resource loading */}
         <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com" />

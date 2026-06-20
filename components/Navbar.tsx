@@ -48,7 +48,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
   }
 
   return (
-    <nav className="bg-white/80 backdrop-blur-lg shadow-sm border-b border-gray-200/50 sticky top-0 z-50">
+    <nav className="sticky top-0 z-50 border-b border-gray-200/70 bg-white/70 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-14 sm:h-16">
           <div className="flex items-center">
@@ -60,7 +60,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                 height={40}
                 className="transition-transform duration-200 group-hover:scale-105"
               />
-              <span className="text-xl sm:text-2xl font-bold transition-colors duration-200 group-hover:opacity-80" style={{ color: BRAND.primaryColor }}>
+              <span className="font-display text-[26px] sm:text-[28px] leading-none transition-opacity duration-200 group-hover:opacity-80" style={{ color: BRAND.primaryColor }}>
                 {BRAND.logoText}
               </span>
             </Link>
@@ -156,13 +156,13 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
               <>
                 <Link
                   href={`/auth/login?redirect=${encodeURIComponent(redirectTarget)}`}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-200"
+                  className="hidden sm:inline-flex items-center rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50"
                 >
                   {t('nav.signIn')}
                 </Link>
                 <Link
                   href={`/auth/signup?redirect=${encodeURIComponent(redirectTarget)}`}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 shadow-md hover:shadow-lg transition-all duration-200"
+                  className="inline-flex items-center rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-700"
                 >
                   {t('auth:signup.submit')}
                 </Link>
