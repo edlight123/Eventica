@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { BRAND } from '@/config/brand'
 
 const QUICK_LINKS = [
@@ -31,15 +30,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-10 md:grid-cols-4 md:gap-8">
           {/* Brand */}
           <div className="md:col-span-2">
-            <Link href="/" className="group flex w-fit items-center gap-3">
-              <Image
-                src="/tikem_logo_white.png"
-                alt="Tikèm"
-                width={46}
-                height={46}
-                className="transition-transform duration-200 group-hover:scale-105"
-              />
-              <span className="font-display text-[30px] leading-none text-white transition-opacity group-hover:opacity-80">
+            <Link href="/" className="group flex w-fit items-center">
+              <span className="font-display text-[32px] leading-none tracking-tight text-white transition-opacity group-hover:opacity-80">
                 {BRAND.logoText}
               </span>
             </Link>

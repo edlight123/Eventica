@@ -67,8 +67,8 @@ export function FilterChipsRow({ filters, onRemoveFilter, onClearAll }: FilterCh
   if (chips.length === 0) return null
 
   return (
-    <div className="flex flex-wrap items-center gap-2 p-4 bg-gray-50 rounded-lg border border-gray-200">
-      <span className="text-sm font-medium text-gray-700">{t('filters.active_filters')}:</span>
+    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-gray-200/80 bg-white p-3.5 shadow-poster-sm">
+      <span className="eyebrow text-[11px] text-gray-500">{t('filters.active_filters')}</span>
       {chips.map((chip, index) => (
         <FilterChip
           key={`${chip.key}-${chip.value || index}`}
@@ -78,7 +78,7 @@ export function FilterChipsRow({ filters, onRemoveFilter, onClearAll }: FilterCh
       ))}
       <button
         onClick={onClearAll}
-        className="text-sm text-gray-600 hover:text-gray-900 underline ml-2"
+        className="ml-1 text-sm font-semibold text-brand-600 transition-colors hover:text-brand-700"
       >
         {t('filters.clear_all')}
       </button>

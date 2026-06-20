@@ -14,8 +14,8 @@ export function FilterChip({ label, active, onClick, onRemove, className = '' }:
     return (
       <button
         onClick={onRemove}
-        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors
-          bg-black text-white hover:bg-black/80 ${className}`}
+        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition-colors
+          bg-brand-600 text-white hover:bg-brand-700 ${className}`}
       >
         {label}
         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -29,10 +29,10 @@ export function FilterChip({ label, active, onClick, onRemove, className = '' }:
   return (
     <button
       onClick={onClick}
-      className={`rounded-full px-3 py-1.5 text-sm font-medium transition-all
+      className={`rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all
         ${active 
-          ? 'bg-black text-white shadow-sm' 
-          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          ? 'border-brand-500 bg-brand-50 text-brand-700' 
+          : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:text-gray-900'
         } ${className}`}
     >
       {label}

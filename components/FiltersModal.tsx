@@ -111,29 +111,30 @@ export function FiltersModal({
     <>
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 transition-opacity"
+        className="fixed inset-0 bg-black/50 backdrop-blur-md z-50 transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal/Sheet */}
       <div className="fixed inset-0 z-50 flex items-end md:items-center md:justify-center p-0 md:p-4 pointer-events-none">
         <div 
-          className="pointer-events-auto bg-white w-full h-full md:h-auto md:max-h-[90vh] md:max-w-[640px] md:rounded-2xl md:shadow-2xl md:border flex flex-col overflow-hidden animate-in slide-in-from-bottom md:slide-in-from-bottom-0 md:zoom-in-95 duration-200"
+          className="pointer-events-auto bg-white w-full h-full md:h-auto md:max-h-[90vh] md:max-w-[600px] rounded-t-3xl md:rounded-3xl shadow-poster md:border md:border-gray-200/80 flex flex-col overflow-hidden animate-in slide-in-from-bottom md:slide-in-from-bottom-0 md:zoom-in-95 duration-200"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-5 border-b bg-white sticky top-0 z-10">
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-semibold">{t('filters.filters')}</h2>
+          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200/80 bg-white sticky top-0 z-10">
+            <div className="flex items-baseline gap-2.5">
+              <h2 className="font-display text-2xl leading-none text-gray-900">{t('filters.filters')}</h2>
               {activeCount > 0 && (
-                <span className="text-sm text-gray-500">({activeCount} {t('filters.active')})</span>
+                <span className="eyebrow text-[11px] text-brand-600">{activeCount} {t('filters.active')}</span>
               )}
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              aria-label={t('common.close', { defaultValue: 'Close' })}
+              className="grid h-9 w-9 place-items-center rounded-full border border-gray-200 text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900"
             >
-              <X className="w-5 h-5" />
+              <X className="w-[18px] h-[18px]" />
             </button>
           </div>
 
@@ -141,7 +142,7 @@ export function FiltersModal({
           <div className="flex-1 overflow-y-auto p-5 space-y-6">
             {/* Date Filter */}
             <div className="space-y-3">
-              <label className="text-sm font-medium text-gray-700">{t('filters.date')}</label>
+              <label className="eyebrow text-[11px] text-gray-500">{t('filters.date')}</label>
               <div className="flex flex-wrap gap-2">
                 {DATE_OPTIONS.map(option => (
                   <FilterChip
@@ -157,23 +158,23 @@ export function FiltersModal({
                   type="date"
                   value={draftFilters.pickedDate || ''}
                   onChange={(e) => onDraftChange({ ...draftFilters, pickedDate: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
                 />
               )}
             </div>
 
             {/* Event Type - Segmented Control */}
             <div className="space-y-3">
-              <label className="text-sm font-medium text-gray-700">{t('filters.event_type')}</label>
-              <div className="inline-flex rounded-lg border border-gray-200 p-1 bg-gray-50">
+              <label className="eyebrow text-[11px] text-gray-500">{t('filters.event_type')}</label>
+              <div className="inline-flex rounded-xl border border-gray-200 p-1 bg-gray-50">
                 {EVENT_TYPE_OPTIONS.map(option => (
                   <button
                     key={option.value}
                     onClick={() => onDraftChange({ ...draftFilters, eventType: option.value })}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all
+                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all
                       ${draftFilters.eventType === option.value
-                        ? 'bg-white text-black shadow-sm'
-                        : 'text-gray-600 hover:text-gray-900'
+                        ? 'bg-white text-brand-700 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-900'
                       }`}
                   >
                     {option.label}
@@ -184,7 +185,7 @@ export function FiltersModal({
 
             {/* Price Filter */}
             <div className="space-y-3">
-              <label className="text-sm font-medium text-gray-700">{t('filters.price')}</label>
+              <label className="eyebrow text-[11px] text-gray-500">{t('filters.price')}</label>
               <div className="flex flex-wrap gap-2">
                 {priceFilters.map(option => (
                   <FilterChip
@@ -199,7 +200,7 @@ export function FiltersModal({
 
             {/* Category Filter */}
             <div className="space-y-3">
-              <label className="text-sm font-medium text-gray-700">{t('filters.categories')}</label>
+              <label className="eyebrow text-[11px] text-gray-500">{t('filters.categories')}</label>
               <div className="flex flex-wrap gap-2">
                 {CATEGORIES.map(category => (
                   <FilterChip
@@ -214,13 +215,13 @@ export function FiltersModal({
 
             {/* Location Filter */}
             <div className="space-y-3">
-              <label className="text-sm font-medium text-gray-700">{t('filters.location')}</label>
+              <label className="eyebrow text-[11px] text-gray-500">{t('filters.location')}</label>
               <div className="space-y-3">
                 {/* City Dropdown */}
                 <select
                   value={draftFilters.city}
                   onChange={(e) => handleCityChange(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
                 >
                   <option value="">{t('filters.all_cities')}</option>
                   {cities.map(city => (
@@ -231,11 +232,11 @@ export function FiltersModal({
                 {/* Commune/Neighborhood Dropdown */}
                 {hasLocation && (
                   <div className="space-y-2">
-                    <label className="text-xs font-medium text-gray-600">{locationLabel}</label>
+                    <label className="eyebrow text-[10px] text-gray-400">{locationLabel}</label>
                     <select
                       value={draftFilters.commune || ''}
                       onChange={(e) => handleCommuneChange(e.target.value)}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white"
+                      className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
                     >
                       <option value="">{t('filters.all_areas')} {locationLabel.toLowerCase()}s</option>
                       {subdivisions.map(subdivision => (
@@ -249,19 +250,19 @@ export function FiltersModal({
           </div>
 
           {/* Footer - Sticky */}
-          <div className="sticky bottom-0 bg-white/80 backdrop-blur border-t p-4 flex items-center justify-between gap-3">
+          <div className="sticky bottom-0 bg-white/85 backdrop-blur border-t border-gray-200/80 p-4 flex items-center justify-between gap-3">
             <button
               onClick={onReset}
-              className="px-4 py-2.5 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
+              className="px-4 py-2.5 text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors"
             >
               {t('filters.reset')}
             </button>
             <button
               onClick={onApply}
               disabled={!hasChanges}
-              className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all
+              className={`px-7 py-3 rounded-xl text-sm font-semibold transition-all duration-200
                 ${hasChanges
-                  ? 'bg-black text-white hover:bg-black/90 shadow-sm'
+                  ? 'bg-brand-600 text-white shadow-sm hover:-translate-y-0.5 hover:bg-brand-700'
                   : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 }`}
             >
