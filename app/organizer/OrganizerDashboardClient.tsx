@@ -221,7 +221,7 @@ export default function OrganizerDashboardClient({
       <div>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <h2 className="text-xl md:text-2xl font-bold text-gray-900">{t('organizer.your_events')}</h2>
+            <h2 className="font-display text-[clamp(22px,3.4vw,30px)] leading-[1.04] text-gray-900">{t('organizer.your_events')}</h2>
             <Link
               href="/organizer/events"
               className="text-sm text-teal-600 hover:text-teal-700 font-medium hover:underline"

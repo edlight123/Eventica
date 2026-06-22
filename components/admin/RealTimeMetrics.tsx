@@ -179,7 +179,8 @@ export function RealTimeMetrics({
     <div className="mb-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">
+          <p className="eyebrow text-brand-600">Live</p>
+          <h2 className="mt-1.5 font-display text-[clamp(20px,3vw,26px)] leading-[1.04] text-gray-900">
             Real-time Metrics
           </h2>
           <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">

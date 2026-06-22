@@ -75,7 +75,10 @@ export function SalesSnapshot({ data, currency = 'HTG' }: SalesSnapshotProps) {
     <div className="bg-white rounded-2xl shadow-soft border border-gray-100 p-6">
       {/* Header with Toggle */}
       <div className="flex items-center justify-between mb-6">
-        <h3 className="font-bold text-gray-900 text-lg">{t('sales_snapshot.title')}</h3>
+        <div>
+          <p className="eyebrow text-brand-600">Overview</p>
+          <h3 className="mt-1 font-display text-[clamp(20px,3vw,26px)] leading-[1.04] text-gray-900">{t('sales_snapshot.title')}</h3>
+        </div>
         <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
           {(['7d', '30d', 'lifetime'] as TimeRange[]).map((r) => (
             <button

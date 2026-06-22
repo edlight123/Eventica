@@ -121,10 +121,11 @@ export function AdminDashboardQuickActions({
     <div className="mb-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">
+          <p className="eyebrow text-brand-600">Operations</p>
+          <h2 className="mt-1.5 font-display text-[clamp(20px,3vw,26px)] leading-[1.04] text-gray-900">
             Quick Actions
           </h2>
-          <p className="text-gray-600 text-sm mt-1">
+          <p className="text-gray-500 text-sm mt-1">
             Fast access to common admin tasks
           </p>
         </div>
