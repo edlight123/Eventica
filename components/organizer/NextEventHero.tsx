@@ -123,33 +123,33 @@ export function NextEventHero({ event }: NextEventHeroProps) {
 
         {/* KPIs Grid */}
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-blue-50 rounded-xl p-4">
+          <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
             <div className="flex items-center gap-2 mb-1">
-              <Users className="w-4 h-4 text-blue-600" />
-              <p className="text-xs font-medium text-blue-900">{t('next_event.tickets_sold')}</p>
+              <Users className="w-4 h-4 text-brand-700" />
+              <p className="text-xs font-medium text-gray-500">{t('next_event.tickets_sold')}</p>
             </div>
-            <p className="text-2xl font-bold text-blue-700">{event.ticketsSold}</p>
-            <p className="text-xs text-blue-600">{t('next_event.of')} {event.capacity}</p>
+            <p className="text-2xl font-bold text-gray-900">{event.ticketsSold}</p>
+            <p className="text-xs text-gray-500">{t('next_event.of')} {event.capacity}</p>
           </div>
 
-          <div className="bg-purple-50 rounded-xl p-4">
+          <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
             <div className="flex items-center gap-2 mb-1">
-              <DollarSign className="w-4 h-4 text-purple-600" />
-              <p className="text-xs font-medium text-purple-900">{t('next_event.revenue')}</p>
+              <DollarSign className="w-4 h-4 text-brand-700" />
+              <p className="text-xs font-medium text-gray-500">{t('next_event.revenue')}</p>
             </div>
-            <p className="text-2xl font-bold text-purple-700 truncate" title={revenueText}>
+            <p className="text-2xl font-bold text-gray-900 truncate" title={revenueText}>
               {revenueText}
             </p>
-            <p className="text-xs text-purple-600">{t('next_event.earned')}</p>
+            <p className="text-xs text-gray-500">{t('next_event.earned')}</p>
           </div>
 
-          <div className="bg-teal-50 rounded-xl p-4">
+          <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
             <div className="flex items-center gap-2 mb-1">
-              <Calendar className="w-4 h-4 text-teal-600" />
-              <p className="text-xs font-medium text-teal-900">{t('next_event.capacity')}</p>
+              <Calendar className="w-4 h-4 text-brand-700" />
+              <p className="text-xs font-medium text-gray-500">{t('next_event.capacity')}</p>
             </div>
-            <p className="text-2xl font-bold text-teal-700">{progress.toFixed(0)}%</p>
-            <p className="text-xs text-teal-600">{t('next_event.filled')}</p>
+            <p className="text-2xl font-bold text-gray-900">{progress.toFixed(0)}%</p>
+            <p className="text-xs text-gray-500">{t('next_event.filled')}</p>
           </div>
         </div>
 
@@ -183,7 +183,7 @@ export function NextEventHero({ event }: NextEventHeroProps) {
           
           <Link
             href={`/organizer/scan/${event.id}`}
-            className="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-200 text-gray-700 rounded-xl font-semibold hover:border-purple-500 hover:text-purple-600 transition-colors text-sm"
+            className="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-200 text-gray-700 rounded-xl font-semibold hover:border-brand-500 hover:text-brand-600 transition-colors text-sm"
           >
             <QrCode className="w-4 h-4" />
             <span className="hidden sm:inline">{t('next_event.check_in')}</span>

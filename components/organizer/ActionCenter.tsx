@@ -58,7 +58,7 @@ export function ActionCenter({ alerts }: ActionCenterProps) {
       case 'low-sales':
         return { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-900', icon: 'text-orange-600', btn: 'bg-orange-600 hover:bg-orange-700' }
       case 'payout':
-        return { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-900', icon: 'text-purple-600', btn: 'bg-purple-600 hover:bg-purple-700' }
+        return { bg: 'bg-brand-50', border: 'border-brand-100', text: 'text-brand-900', icon: 'text-brand-600', btn: 'bg-brand-600 hover:bg-brand-700' }
       case 'verification':
         return { bg: 'bg-yellow-50', border: 'border-yellow-200', text: 'text-yellow-900', icon: 'text-yellow-600', btn: 'bg-yellow-600 hover:bg-yellow-700' }
       default:
