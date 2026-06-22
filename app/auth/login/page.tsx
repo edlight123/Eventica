@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState, FormEvent } from 'react'
+import { useState, useEffect, FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { auth, db } from '@/lib/firebase/client'
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
@@ -29,20 +29,24 @@ export default function LoginPage() {
     return target
   }
 
-  // Check for redirect parameter (from mobile app)
-  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null
-  const redirectToFromQuery = sanitizeRedirectTarget(searchParams?.get('redirect') || null)
-  const redirectTo = (() => {
-    if (redirectToFromQuery && redirectToFromQuery !== '/') return redirectToFromQuery
-    try {
-      if (typeof window === 'undefined') return redirectToFromQuery
-      const pending = window.localStorage.getItem('eh:pendingRedirect')
-      const sanitized = sanitizeRedirectTarget(pending)
-      return sanitized || redirectToFromQuery
-    } catch {
-      return redirectToFromQuery
+  // Resolve the redirect target AFTER mount. Reading window.location/localStorage
+  // during render makes the server (always '/') and client markup diverge, which
+  // triggers a hydration mismatch on the signup link. Defaulting to '/' keeps the
+  // initial client render identical to the server, then we update post-hydration.
+  const [redirectTo, setRedirectTo] = useState('/')
+  useEffect(() => {
+    const fromQuery = sanitizeRedirectTarget(new URLSearchParams(window.location.search).get('redirect'))
+    if (fromQuery && fromQuery !== '/') {
+      setRedirectTo(fromQuery)
+      return
     }
-  })()
+    try {
+      const sanitized = sanitizeRedirectTarget(window.localStorage.getItem('eh:pendingRedirect'))
+      if (sanitized && sanitized !== '/') setRedirectTo(sanitized)
+    } catch {
+      // ignore
+    }
+  }, [])
 
   async function handleLogin(e: FormEvent) {
     e.preventDefault()
