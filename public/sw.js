@@ -9,8 +9,7 @@ self.addEventListener('install', (event) => {
       return cache.addAll([
         '/',
         '/manifest.json',
-        '/icon-192.svg',
-        '/icon-512.svg',
+        '/tikem-mark.svg',
         '/offline.html'
       ])
     })
@@ -98,8 +97,8 @@ self.addEventListener('push', (event) => {
   ]
   const notificationPromise = self.registration.showNotification(data.title, {
     body: data.body,
-    icon: '/icon-192.svg',
-    badge: '/icon-192.svg',
+    icon: '/tikem-mark.svg',
+    badge: '/tikem-mark.svg',
     tag: 'tikem-general',
     renotify: false,
     timestamp: Date.now(),

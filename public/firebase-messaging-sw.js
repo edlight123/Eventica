@@ -24,8 +24,8 @@ messaging.onBackgroundMessage((payload) => {
   const notificationTitle = payload.notification?.title || 'Tikèm'
   const notificationOptions = {
     body: payload.notification?.body || '',
-    icon: '/icon-192x192.png',
-    badge: '/badge-72x72.png',
+    icon: '/tikem-mark.svg',
+    badge: '/tikem-mark.svg',
     tag: payload.data?.notificationId || 'default',
     data: payload.data,
     requireInteraction: false,
