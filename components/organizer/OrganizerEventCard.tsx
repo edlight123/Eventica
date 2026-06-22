@@ -1,6 +1,7 @@
 'use client'
 
 import { useTranslation } from 'react-i18next'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Calendar, DollarSign, Edit, Eye, QrCode, Share2, Sparkles } from 'lucide-react'
@@ -26,6 +27,8 @@ interface OrganizerEventCardProps {
 
 export function OrganizerEventCard({ event }: OrganizerEventCardProps) {
   const { t } = useTranslation('common')
+  const router = useRouter()
+  const manageHref = `/organizer/events/${event.id}`
   const safeCapacity = Number.isFinite(event.capacity) ? event.capacity : Number(event.capacity || 0)
   const safeTicketsSold = Number.isFinite(event.ticketsSold) ? event.ticketsSold : Number(event.ticketsSold || 0)
   const progress = safeCapacity > 0 ? (safeTicketsSold / safeCapacity) * 100 : 0
@@ -44,7 +47,18 @@ export function OrganizerEventCard({ event }: OrganizerEventCardProps) {
   })()
 
   return (
-    <Link href={`/organizer/events/${event.id}`} className="block bg-white rounded-xl shadow-soft border border-gray-100 overflow-hidden hover:shadow-medium transition-all group">
+    <div
+      role="link"
+      tabIndex={0}
+      onClick={() => router.push(manageHref)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          router.push(manageHref)
+        }
+      }}
+      className="block bg-white rounded-xl shadow-soft border border-gray-100 overflow-hidden hover:shadow-medium transition-all group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+    >
       {/* Thumbnail */}
       <div className="relative h-48 bg-gradient-to-br from-brand-100 to-accent-100">
         {event.banner_image_url ? (
@@ -168,6 +182,6 @@ export function OrganizerEventCard({ event }: OrganizerEventCardProps) {
           </Link>
         </div>
       </div>
-    </Link>
+    </div>
   )
 }
