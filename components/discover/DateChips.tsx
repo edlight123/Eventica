@@ -9,9 +9,11 @@ import { X } from 'lucide-react'
 
 interface DateChipsProps {
   currentDate: DateFilter
+  /** When true, render only the chip row (no horizontal-scroll wrapper) for embedding in a shared strip. */
+  bare?: boolean
 }
 
-export function DateChips({ currentDate }: DateChipsProps) {
+export function DateChips({ currentDate, bare = false }: DateChipsProps) {
   const { t } = useTranslation('common')
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -60,7 +62,7 @@ export function DateChips({ currentDate }: DateChipsProps) {
 
   return (
     <>
-      <div className="overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div className={bare ? 'flex gap-2 min-w-max' : 'scrollbar-hide overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0'}>
         <div className="flex gap-2 min-w-max">
           {DATE_OPTIONS.map(option => {
             // Format picked date label safely
@@ -104,7 +106,7 @@ export function DateChips({ currentDate }: DateChipsProps) {
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
                 min={new Date().toISOString().split('T')[0]}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               />
               
               <div className="flex gap-3">
@@ -117,7 +119,7 @@ export function DateChips({ currentDate }: DateChipsProps) {
                 <button
                   onClick={handleDatePickerSubmit}
                   disabled={!selectedDate}
-                  className="flex-1 px-4 py-3 bg-black text-white rounded-lg font-medium hover:bg-black/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-3 bg-brand-700 text-white rounded-lg font-medium hover:bg-brand-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Apply
                 </button>

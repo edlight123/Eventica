@@ -90,7 +90,7 @@ export function FeaturedCarousel({ events }: FeaturedCarouselProps) {
                 key={index}
                 onClick={() => setCurrentIndex(index)}
                 className={`h-2 rounded-full transition-all ${
-                  index === currentIndex ? 'bg-black w-6' : 'bg-gray-300 w-2'
+                  index === currentIndex ? 'bg-brand-600 w-6' : 'bg-gray-300 w-2'
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
               />

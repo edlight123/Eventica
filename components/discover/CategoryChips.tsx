@@ -9,6 +9,8 @@ import { Music, Trophy, Palette, Briefcase, Utensils, GraduationCap, Laptop, Hea
 
 interface CategoryChipsProps {
   selectedCategories: string[]
+  /** When true, render only the chip row (no horizontal-scroll wrapper) for embedding in a shared strip. */
+  bare?: boolean
 }
 
 // Category icon mapping
@@ -26,7 +28,7 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   'Other': <Sparkles className="w-3.5 h-3.5" />
 }
 
-export function CategoryChips({ selectedCategories }: CategoryChipsProps) {
+export function CategoryChips({ selectedCategories, bare = false }: CategoryChipsProps) {
   const { t } = useTranslation('common')
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -49,16 +51,16 @@ export function CategoryChips({ selectedCategories }: CategoryChipsProps) {
   }
 
   return (
-    <div className="overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+    <div className={bare ? 'flex gap-2 min-w-max' : 'scrollbar-hide overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0'}>
       <div className="flex gap-2 min-w-max">
         {CATEGORIES.map(category => (
           <button
             key={category}
             onClick={() => handleCategoryToggle(category)}
-            className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-all whitespace-nowrap
+            className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-all whitespace-nowrap
               ${selectedCategories.includes(category)
-                ? 'bg-black text-white shadow-sm' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'border-brand-500 bg-brand-50 text-brand-700 shadow-sm'
+                : 'border-transparent bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
           >
             {CATEGORY_ICONS[category]}

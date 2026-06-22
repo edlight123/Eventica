@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { DiscoverTopBar } from './discover/DiscoverTopBar'
+import { DiscoverFilterChipsStrip } from './discover/DiscoverFilterChipsStrip'
 import { FiltersModal } from './FiltersModal'
 import { FilterChipsRow } from './FilterChipsRow'
 import type { EventFilters, DEFAULT_FILTERS } from '@/lib/filters/types'
@@ -94,14 +95,24 @@ export function DiscoverFilterManager({ userCountry = 'HT' }: DiscoverFilterMana
   
   return (
     <>
-      <DiscoverTopBar 
-        filters={appliedFilters}
-        onOpenFilters={handleOpenFilters}
-        userCountry={userCountry}
-      />
+      {/* Sticky discover header: search + location + always-reachable quick filters.
+          Pins directly below the navbar (h-14 / sm:h-16). */}
+      <div className="sticky top-14 sm:top-16 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
+        <DiscoverTopBar 
+          filters={appliedFilters}
+          onOpenFilters={handleOpenFilters}
+          userCountry={userCountry}
+        />
+        <div className="border-t border-gray-100">
+          <DiscoverFilterChipsStrip
+            currentDate={appliedFilters.date}
+            selectedCategories={appliedFilters.categories}
+          />
+        </div>
+      </div>
       
       {hasActiveFilters && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <FilterChipsRow
             filters={appliedFilters}
             onRemoveFilter={handleRemoveFilter}

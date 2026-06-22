@@ -58,7 +58,7 @@ export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
           className="absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md hover:bg-white transition-all duration-200 z-10"
         >
           <Bookmark 
-            className={`w-4 h-4 transition-colors ${isBookmarked ? 'fill-black text-black' : 'text-gray-700'}`}
+            className={`w-4 h-4 transition-colors ${isBookmarked ? 'fill-brand-600 text-brand-600' : 'text-gray-700'}`}
           />
         </button>
 

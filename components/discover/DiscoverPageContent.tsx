@@ -2,9 +2,6 @@
 
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { DateFilter } from '@/lib/filters/types'
-import { DateChips } from './DateChips'
-import { CategoryChips } from './CategoryChips'
 import { EventsSection } from './EventsSection'
 import { EmptyState } from './EmptyState'
 import { FeaturedCarousel } from './FeaturedCarousel'
@@ -12,8 +9,6 @@ import { FriendsGoingProvider } from './FriendsGoingContext'
 import { LOCATION_CONFIG } from '@/lib/filters/config'
 
 interface DiscoverPageContentProps {
-  currentDate: DateFilter
-  selectedCategories: string[]
   hasActiveFilters: boolean
   featuredEvents: any[]
   upcomingEvents: any[]
@@ -28,8 +23,6 @@ interface DiscoverPageContentProps {
 }
 
 export function DiscoverPageContent({
-  currentDate,
-  selectedCategories,
   hasActiveFilters,
   featuredEvents,
   upcomingEvents,
@@ -76,14 +69,6 @@ export function DiscoverPageContent({
   return (
     <FriendsGoingProvider eventIds={allEventIds}>
     <div className="space-y-8">
-      {/* Date Strip */}
-      <div className="space-y-3">
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-          {t('common.when')}
-        </h3>
-        <DateChips currentDate={currentDate} />
-      </div>
-
       {/* Featured Carousel (only if no active filters and has featured) */}
       {!hasActiveFilters && featuredEvents.length > 0 && (
         <div className="space-y-4">
@@ -98,14 +83,6 @@ export function DiscoverPageContent({
           <FeaturedCarousel events={featuredEvents} />
         </div>
       )}
-
-      {/* Category Shortcuts */}
-      <div className="space-y-3">
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-          {t('common.categories')}
-        </h3>
-        <CategoryChips selectedCategories={selectedCategories} />
-      </div>
 
       {/* Show sections only if no active filters */}
       {!hasActiveFilters ? (

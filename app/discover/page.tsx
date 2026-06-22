@@ -12,6 +12,7 @@ import { parseFiltersFromURL } from '@/lib/filters/utils'
 import { applyFiltersAndSort } from '@/lib/filters/apply'
 import { DiscoverFilterManager } from '@/components/DiscoverFilterManager'
 import { DiscoverPageContent } from '@/components/discover/DiscoverPageContent'
+import { DiscoverFilterBarSkeleton, DiscoverContentSkeleton } from '@/components/discover/DiscoverSkeleton'
 import { LocationBannerWrapper } from '@/components/LocationBannerWrapper'
 import { 
   getFeaturedEvents, 
@@ -186,16 +187,14 @@ export default async function DiscoverPage({
       />
 
       {/* Top Bar with Filter Manager (includes ActiveFiltersRow) */}
-      <Suspense fallback={<div className="h-16 bg-white border-b border-gray-200" />}>
+      <Suspense fallback={<DiscoverFilterBarSkeleton />}>
         <DiscoverFilterManager userCountry={userCountry} />
       </Suspense>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <Suspense fallback={<div className="h-96 bg-gray-100 animate-pulse rounded-lg" />}>
+        <Suspense fallback={<DiscoverContentSkeleton />}>
           <DiscoverPageContent
-            currentDate={filters.date}
-            selectedCategories={filters.categories}
             hasActiveFilters={hasActiveFilters}
             featuredEvents={serializedFeaturedEvents}
             upcomingEvents={serializedUpcomingEvents}

@@ -92,7 +92,7 @@ export function EmptyState({ hasFilters, countryName = 'your area' }: EmptyState
       
       <button
         onClick={() => router.push('/discover')}
-        className="mt-8 px-6 py-3 bg-black text-white rounded-lg hover:bg-black/90 transition-colors font-semibold"
+        className="mt-8 px-6 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 transition-colors font-semibold"
       >
         {t('common.clear_all_filters')}
       </button>

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { Database } from '@/types/database'
-import { DiscoverEventCard } from './DiscoverEventCard'
+import { EventRail } from './EventRail'
 
 type Event = Database['public']['Tables']['events']['Row']
 
@@ -45,10 +45,10 @@ export function EventsSection({
             <p className="text-gray-600 text-sm sm:text-base mt-1">{description}</p>
           )}
         </div>
-        {seeAllLink && events.length >= 8 && (
+        {seeAllLink && events.length >= 6 && (
           <Link
             href={seeAllLink}
-            className="flex items-center gap-1 text-brand-600 hover:text-brand-700 font-semibold text-sm sm:text-base transition-colors"
+            className="flex items-center gap-1 text-brand-600 hover:text-brand-700 font-semibold text-sm sm:text-base transition-colors whitespace-nowrap"
           >
             {seeAllLabel || t('common.seeAll')}
             <ChevronRight className="w-4 h-4" />
@@ -56,24 +56,8 @@ export function EventsSection({
         )}
       </div>
 
-      {/* Events Grid - Mobile: Horizontal scroll, Desktop: Grid */}
-      {/* Mobile */}
-      <div className="md:hidden overflow-x-auto -mx-4 px-4 pb-2">
-        <div className="flex gap-4 min-w-max">
-          {events.slice(0, 8).map(event => (
-            <div key={event.id} className="w-[280px]">
-              <DiscoverEventCard event={event} />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Desktop */}
-      <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {events.slice(0, 8).map(event => (
-          <DiscoverEventCard key={event.id} event={event} />
-        ))}
-      </div>
+      {/* Horizontal rail: native scroll on mobile, chevron controls on desktop */}
+      <EventRail events={events} />
     </section>
   )
 }
