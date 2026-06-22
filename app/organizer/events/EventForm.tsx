@@ -283,7 +283,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
                   <FileText className="w-6 h-6 text-brand-700" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Basic Information</h2>
+                  <h2 className="font-display text-2xl text-gray-900">Basic Information</h2>
                   <p className="text-gray-600">Tell us about your event</p>
                 </div>
               </div>
@@ -360,7 +360,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
                   <MapPin className="w-6 h-6 text-accent-700" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Location Details</h2>
+                  <h2 className="font-display text-2xl text-gray-900">Location Details</h2>
                   <p className="text-gray-600">Where will your event take place?</p>
                 </div>
               </div>
@@ -440,7 +440,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
                   <Clock className="w-6 h-6 text-purple-700" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Event Schedule</h2>
+                  <h2 className="font-display text-2xl text-gray-900">Event Schedule</h2>
                   <p className="text-gray-600">When will your event happen?</p>
                 </div>
               </div>
@@ -505,7 +505,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
                   <Ticket className="w-6 h-6 text-success-700" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Ticket Information</h2>
+                  <h2 className="font-display text-2xl text-gray-900">Ticket Information</h2>
                   <p className="text-gray-600">Set your pricing and capacity</p>
                 </div>
               </div>
@@ -698,7 +698,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
                   <Tag className="w-6 h-6 text-orange-700" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Tags & Publishing</h2>
+                  <h2 className="font-display text-2xl text-gray-900">Tags & Publishing</h2>
                   <p className="text-gray-600">Help people discover your event</p>
                 </div>
               </div>

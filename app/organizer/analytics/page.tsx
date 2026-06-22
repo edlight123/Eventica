@@ -246,7 +246,7 @@ export default async function AnalyticsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Sales Chart */}
           <div className="bg-white rounded-2xl shadow-soft border border-gray-100 p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <h2 className="font-display text-xl text-gray-900 mb-6 flex items-center gap-2">
               <TrendingUp className="w-6 h-6 text-brand-600" />
               Sales Trend (Last 7 Days)
             </h2>
@@ -265,7 +265,7 @@ export default async function AnalyticsPage() {
 
           {/* Category Distribution */}
           <div className="bg-white rounded-2xl shadow-soft border border-gray-100 p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <h2 className="font-display text-xl text-gray-900 mb-6 flex items-center gap-2">
               <Calendar className="w-6 h-6 text-accent-600" />
               Events by Category
             </h2>
@@ -281,14 +281,14 @@ export default async function AnalyticsPage() {
 
         {/* Top Performing Events */}
         <div className="bg-white rounded-2xl shadow-soft border border-gray-100 p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+          <h2 className="font-display text-2xl text-gray-900 mb-6 flex items-center gap-2">
             <TrendingUp className="w-7 h-7 text-brand-600" />
             Top Performing Events
           </h2>
           {eventsWithSales.length === 0 ? (
             <div className="text-center py-16">
               <div className="text-7xl mb-4">📊</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">No Events Yet</h3>
+              <h3 className="font-display text-xl text-gray-900 mb-2">No Events Yet</h3>
               <p className="text-gray-600 mb-6">Create your first event to see analytics!</p>
               <Link
                 href="/organizer/events/new"

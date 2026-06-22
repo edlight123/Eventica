@@ -110,7 +110,7 @@ export default function AdminUsersClient({
       </div>
 
       <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('users.title')}</h1>
+        <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">{t('users.title')}</h1>
         <p className="text-[13px] sm:text-base text-gray-600 mt-1 sm:mt-2">{t('users.subtitle')}</p>
       </div>
 

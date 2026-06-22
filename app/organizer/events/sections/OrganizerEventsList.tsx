@@ -57,7 +57,7 @@ export default async function OrganizerEventsList({ events }: { events: any[] })
               </div>
 
               {/* Event Title */}
-              <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-teal-700 transition-colors">
+              <h3 className="font-display text-xl text-gray-900 mb-3 line-clamp-2 group-hover:text-teal-700 transition-colors">
                 {event.title}
               </h3>
 

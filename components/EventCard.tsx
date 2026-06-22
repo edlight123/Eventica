@@ -85,7 +85,7 @@ export default function EventCard({ event, priority = false, index = 0 }: EventC
 
   return (
     <Link href={`/events/${event.id}`} prefetch={true} className="group block h-full">
-      <article className="hover-lift flex h-full flex-col overflow-hidden rounded-[20px] border border-gray-200/80 bg-white shadow-poster-sm group-hover:border-brand-200 group-hover:shadow-card-hover">
+      <article className="hover-lift flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-poster-sm group-hover:border-brand-200 group-hover:shadow-card-hover">
         {/* ---------- Poster ---------- */}
         <div
           className="poster-vignette relative flex aspect-[4/5] flex-col justify-between overflow-hidden p-3.5 text-white"

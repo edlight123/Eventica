@@ -215,7 +215,7 @@ export default function DangerZone({ userId }: DangerZoneProps) {
           <div className="bg-white rounded-xl max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
               <AlertTriangle className="w-6 h-6 text-yellow-600" />
-              <h3 className="text-xl font-bold text-gray-900">Deactivate Account?</h3>
+              <h3 className="font-display text-xl text-gray-900">Deactivate Account?</h3>
             </div>
             <p className="text-gray-600 mb-6">
               Your account will be deactivated and your events will be hidden. You can reactivate within 30 days by logging in again.
@@ -246,7 +246,7 @@ export default function DangerZone({ userId }: DangerZoneProps) {
           <div className="bg-white rounded-xl max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
               <AlertTriangle className="w-6 h-6 text-red-600" />
-              <h3 className="text-xl font-bold text-gray-900">Delete Account Forever?</h3>
+              <h3 className="font-display text-xl text-gray-900">Delete Account Forever?</h3>
             </div>
             <p className="text-gray-600 mb-4">
               This action is <strong>permanent and irreversible</strong>. All your data will be permanently deleted.

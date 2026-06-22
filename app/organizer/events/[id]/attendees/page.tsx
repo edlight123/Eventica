@@ -56,7 +56,7 @@ export default async function AttendeesPage({ params }: { params: Promise<{ id: 
     return (
       <div className="bg-gray-50">        <div className="flex items-center justify-center py-16 px-4">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">Unauthorized</h2>
+            <h2 className="font-display text-2xl text-gray-900 mb-3">Unauthorized</h2>
             <p className="text-sm text-gray-600">You don&apos;t have permission to manage this event&apos;s attendees.</p>
           </div>
         </div>      </div>
@@ -153,7 +153,7 @@ export default async function AttendeesPage({ params }: { params: Promise<{ id: 
           </Link>
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1 truncate">
+              <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900 mb-1 truncate">
                 {event.title}
               </h1>
               <p className="text-sm text-gray-600">Attendee Management</p>

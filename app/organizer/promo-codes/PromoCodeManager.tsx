@@ -267,7 +267,7 @@ export default function PromoCodeManager({
       {/* Promo Codes List */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-4 md:p-6 border-b border-gray-200">
-          <h2 className="text-lg md:text-xl font-bold text-gray-900">Active Promo Codes</h2>
+          <h2 className="font-display text-lg md:text-xl text-gray-900">Active Promo Codes</h2>
         </div>
         
         {promoCodes.length === 0 ? (

@@ -73,7 +73,7 @@ export default function BankVerificationsClient() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Bank Verifications</h1>
+        <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">Bank Verifications</h1>
         <p className="text-gray-600 mt-2">
           Review and approve bank account verification documents
         </p>

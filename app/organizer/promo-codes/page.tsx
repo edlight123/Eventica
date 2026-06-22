@@ -109,7 +109,7 @@ export default async function PromoCodesPage({
             >
               ← Back to Events
             </Link>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Promo Codes</h1>
+            <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">Promo Codes</h1>
             <p className="text-[13px] md:text-sm text-gray-600 mt-1">Create and manage discounts for your events</p>
           </div>
 

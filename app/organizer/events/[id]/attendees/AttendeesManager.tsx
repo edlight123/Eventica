@@ -401,7 +401,7 @@ function AttendeeDetailSheet({ ticket, eventId, onClose }: AttendeeDetailSheetPr
       <div className="bg-white h-full w-full md:w-[500px] overflow-y-auto shadow-2xl animate-slide-in-right">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b-2 border-gray-200 p-6 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-900">Attendee Details</h2>
+          <h2 className="font-display text-xl text-gray-900">Attendee Details</h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"

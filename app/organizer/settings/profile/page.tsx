@@ -43,7 +43,7 @@ export default async function ProfileSettingsPage() {
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Profile Settings</h1>
+          <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">Profile Settings</h1>
           <p className="text-gray-600 mt-2">
             Manage your personal information and contact details
           </p>

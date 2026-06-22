@@ -218,7 +218,7 @@ export default function SecurityDashboardClient() {
     <>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-mobile-nav">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Security Dashboard</h1>
+          <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">Security Dashboard</h1>
           <p className="mt-1 sm:mt-2 text-[13px] sm:text-base text-gray-600">
             Monitor and review suspicious activities
           </p>

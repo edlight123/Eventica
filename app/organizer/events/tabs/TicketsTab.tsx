@@ -58,7 +58,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
     <div className="space-y-6 animate-fadeIn">
       {/* Section Header */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Ticket Information</h2>
+        <h2 className="font-display text-2xl text-gray-900 mb-2">Ticket Information</h2>
         <p className="text-gray-600">Set your pricing and capacity</p>
       </div>
 

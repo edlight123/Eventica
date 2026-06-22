@@ -53,7 +53,7 @@ export default async function EarningsPage() {
               <span className="text-gray-900 font-medium">Earnings</span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Earnings</h1>
+            <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900 mb-2">Earnings</h1>
             <p className="text-gray-600">Track your event revenue and settlement status.</p>
 
             <div className="mt-4 flex flex-wrap items-center gap-2">

@@ -65,7 +65,7 @@ export default async function PayoutFeesPage() {
           </div>
 
           {/* Title */}
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900 mb-2">
             Fees & Rules
           </h1>
           <p className="text-gray-600">

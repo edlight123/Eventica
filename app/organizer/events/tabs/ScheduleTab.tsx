@@ -28,7 +28,7 @@ export function ScheduleTab({ formData, onChange, validation }: ScheduleTabProps
     <div className="space-y-6 animate-fadeIn">
       {/* Section Header */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Event Schedule</h2>
+        <h2 className="font-display text-2xl text-gray-900 mb-2">Event Schedule</h2>
         <p className="text-gray-600">When will your event happen?</p>
       </div>
 
