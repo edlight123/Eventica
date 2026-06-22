@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
+import { StatTile, EmptyState } from '@/components/ui/kit'
+import { Users, UserCheck, BadgeCheck } from 'lucide-react'
 
 type AdminOrganizersClientProps = {
   counts: {
@@ -78,30 +80,29 @@ export default function AdminOrganizersClient({
       </div>
 
       <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('organizers.title')}</h1>
+        <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">{t('organizers.title')}</h1>
         <p className="text-[13px] sm:text-base text-gray-600 mt-1 sm:mt-2">{t('organizers.subtitle')}</p>
       </div>
 
       <div className="flex overflow-x-auto gap-3 sm:gap-6 mb-6 sm:mb-8 pb-2 snap-x snap-mandatory md:grid md:grid-cols-3 scrollbar-hide">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 min-w-[180px] snap-start flex-shrink-0">
-          <div className="text-[11px] sm:text-sm font-medium text-gray-600 uppercase tracking-wide">{t('users.total_users')}</div>
-          <div className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">{counts.total}</div>
+        <div className="min-w-[180px] snap-start flex-shrink-0">
+          <StatTile icon={Users} label={t('users.total_users')} value={counts.total} />
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 min-w-[180px] snap-start flex-shrink-0">
-          <div className="text-[11px] sm:text-sm font-medium text-gray-600 uppercase tracking-wide">{t('users.organizers')}</div>
-          <div className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">{counts.organizers}</div>
+        <div className="min-w-[180px] snap-start flex-shrink-0">
+          <StatTile icon={UserCheck} label={t('users.organizers')} value={counts.organizers} />
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 min-w-[180px] snap-start flex-shrink-0">
-          <div className="text-[11px] sm:text-sm font-medium text-gray-600 uppercase tracking-wide">{t('users.verified_organizers')}</div>
-          <div className="text-2xl sm:text-3xl font-bold text-teal-600 mt-1 sm:mt-2">{counts.verified}</div>
+        <div className="min-w-[180px] snap-start flex-shrink-0">
+          <StatTile icon={BadgeCheck} label={t('users.verified_organizers')} value={counts.verified} />
         </div>
       </div>
 
       <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
         {users.length === 0 ? (
-          <div className="p-8 sm:p-12 text-center">
-            <p className="text-[13px] sm:text-base text-gray-500">{t('organizers.no_organizers_found')}</p>
-          </div>
+          <EmptyState
+            icon={Users}
+            title={t('organizers.no_organizers_found')}
+            className="border-0"
+          />
         ) : (
           <>
             <div className="sm:hidden divide-y divide-gray-100">
@@ -118,13 +119,13 @@ export default function AdminOrganizersClient({
                       <div className="text-[13px] text-gray-500 truncate">{u.email}</div>
                       <Link
                         href={`/admin/organizers/${u.id}`}
-                        className="mt-1 inline-block text-[13px] font-medium text-purple-700 hover:text-purple-800"
+                        className="mt-1 inline-block text-[13px] font-medium text-brand-700 hover:text-brand-800"
                       >
                         {t('users.open_organizer_admin')}
                       </Link>
                     </div>
                     <div>
-                      <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                      <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-brand-50 text-brand-700">
                         {u.role || 'organizer'}
                       </span>
                     </div>
@@ -177,14 +178,14 @@ export default function AdminOrganizersClient({
                           <div className="text-[13px] text-gray-500 truncate">{u.email}</div>
                           <Link
                             href={`/admin/organizers/${u.id}`}
-                            className="mt-1 inline-block text-[13px] font-medium text-purple-700 hover:text-purple-800"
+                            className="mt-1 inline-block text-[13px] font-medium text-brand-700 hover:text-brand-800"
                           >
                             {t('users.open_organizer_admin')}
                           </Link>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-brand-50 text-brand-700">
                           {u.role || 'organizer'}
                         </span>
                       </td>

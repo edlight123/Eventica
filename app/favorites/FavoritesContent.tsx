@@ -7,6 +7,7 @@ import EventCardHorizontal from '@/components/EventCardHorizontal'
 import PullToRefresh from '@/components/PullToRefresh'
 import EmptyState from '@/components/EmptyState'
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton'
+import { EditorialHeader } from '@/components/ui/EditorialHeader'
 import type { Database } from '@/types/database'
 import { Heart, TrendingUp } from 'lucide-react'
 import { db } from '@/lib/firebase/client'
@@ -161,10 +162,7 @@ export default function FavoritesContent({ userId }: FavoritesContentProps) {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1>
-          <p className="text-gray-600 mt-2">{t('subtitle')}</p>
-        </div>
+        <EditorialHeader eyebrow="Favorites" title={t('title')} subtitle={t('subtitle')} className="mb-8" />
         <LoadingSkeleton rows={8} animated />
       </div>
     )
@@ -173,10 +171,7 @@ export default function FavoritesContent({ userId }: FavoritesContentProps) {
   return (
     <PullToRefresh onRefresh={loadFavorites}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1>
-          <p className="text-gray-600 mt-2">{t('subtitle')}</p>
-        </div>
+        <EditorialHeader eyebrow="Favorites" title={t('title')} subtitle={t('subtitle')} className="mb-8" />
 
         {favoriteEvents.length === 0 ? (
           <EmptyState

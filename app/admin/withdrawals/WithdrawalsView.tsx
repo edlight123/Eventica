@@ -125,7 +125,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
     <div className={containerClassName}>
       {showHeader && (
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Withdrawal Management</h1>
+          <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900 mb-2">Withdrawal Management</h1>
           <p className="text-gray-600">Review and process organizer withdrawal requests</p>
         </div>
       )}
@@ -158,7 +158,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
       ) : visibleWithdrawals.length === 0 ? (
         <div className="bg-white rounded-xl p-12 text-center">
           <span className="text-6xl mb-4 block">📭</span>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">No Withdrawals</h3>
+          <h3 className="font-display text-xl text-gray-900 mb-2">No Withdrawals</h3>
           <p className="text-gray-600">No {filter !== 'all' ? filter : ''} withdrawal requests found</p>
         </div>
       ) : (
@@ -261,7 +261,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
             <div className="flex justify-between items-start mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Withdrawal Details</h2>
+              <h2 className="font-display text-2xl text-gray-900">Withdrawal Details</h2>
               <button
                 onClick={() => {
                   setSelectedWithdrawal(null)

@@ -15,7 +15,7 @@ export default async function AdminOrdersPage() {
       />
       
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Orders Management</h1>
+        <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">Orders Management</h1>
         <p className="text-sm text-gray-600 mt-1">
           View and manage all ticket orders across events
         </p>

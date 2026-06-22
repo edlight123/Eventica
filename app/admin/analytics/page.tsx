@@ -15,7 +15,7 @@ export default async function AdminAnalyticsPage() {
       <AdminBreadcrumbs items={[{ label: 'Analytics' }]} />
       
       <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Platform Analytics</h1>
+        <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">Platform Analytics</h1>
         <p className="text-sm text-gray-600 mt-2">Comprehensive insights and performance metrics</p>
       </div>
 

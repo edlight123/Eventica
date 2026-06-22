@@ -362,7 +362,7 @@ export default function CreateTestDataClient() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
           <div className="text-6xl mb-4">🔒</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Authentication Required</h1>
+          <h1 className="font-display text-2xl text-gray-900 mb-4">Authentication Required</h1>
           <p className="text-gray-600 mb-6">
             You must be logged in to access this page.
           </p>
@@ -384,7 +384,7 @@ export default function CreateTestDataClient() {
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
             {/* Header */}
             <div className="bg-gradient-to-r from-teal-600 to-teal-700 px-4 sm:px-8 py-4 sm:py-6">
-              <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1 sm:mb-2">
+              <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-white mb-1 sm:mb-2">
                 🧪 Create Test Events
               </h1>
               <p className="text-[13px] sm:text-base text-teal-50">

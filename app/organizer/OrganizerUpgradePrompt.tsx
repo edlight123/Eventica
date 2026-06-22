@@ -21,7 +21,7 @@ export default function OrganizerUpgradePrompt({ redirectTo }: { redirectTo?: st
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Become an Organizer</h1>
+        <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">Become an Organizer</h1>
         <p className="mt-2 text-gray-600">
           Create events, manage tickets, and request payouts. You can start with draft events anytime. Publishing paid events requires verification.
         </p>

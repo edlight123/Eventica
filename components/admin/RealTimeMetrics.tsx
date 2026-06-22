@@ -163,24 +163,16 @@ export function RealTimeMetrics({
     setIsRefreshing(false)
   }
 
-  const getColorClasses = (color: string) => {
-    const colors = {
-      blue: 'bg-blue-50 text-blue-600 ring-blue-200',
-      green: 'bg-green-50 text-green-600 ring-green-200',
-      purple: 'bg-purple-50 text-purple-600 ring-purple-200',
-      teal: 'bg-teal-50 text-teal-600 ring-teal-200',
-      orange: 'bg-orange-50 text-orange-600 ring-orange-200',
-      red: 'bg-red-50 text-red-600 ring-red-200'
-    }
-    return colors[color as keyof typeof colors] || colors.blue
-  }
+  // All KPI icon chips share one brand-tinted style for a calm, cohesive strip.
+  // (The per-metric trend arrows below remain semantic green/red.)
+  const getColorClasses = (_color: string) => 'bg-brand-50 text-brand-700 ring-brand-100'
 
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <Zap className="w-5 h-5 text-yellow-500" />
+          <p className="eyebrow text-brand-600">Live</p>
+          <h2 className="mt-1.5 font-display text-[clamp(20px,3vw,26px)] leading-[1.04] text-gray-900">
             Real-time Metrics
           </h2>
           <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">

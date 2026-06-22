@@ -9,16 +9,10 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/color.svg",
+      "src": "/tikem-mark.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "/tikem_logo_color.png",
-      "sizes": "500x500",
-      "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
   ],
   "screenshots": [

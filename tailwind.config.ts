@@ -78,9 +78,16 @@ const config: Config = {
         '128': '32rem',
         '144': '36rem',
       },
+      // Tightened, crisp corners across the platform (Posh-like). rounded-full is
+      // untouched so avatars/pills stay round. Overriding lg→3xl sharpens the
+      // cards, buttons, inputs and modals app-wide without per-file edits.
       borderRadius: {
-        '4xl': '2rem',
-        '5xl': '2.5rem',
+        'lg': '0.375rem',   // 6px  (was 8)
+        'xl': '0.5rem',     // 8px  (was 12)
+        '2xl': '0.625rem',  // 10px (was 16)
+        '3xl': '0.75rem',   // 12px (was 24)
+        '4xl': '0.875rem',  // 14px
+        '5xl': '1rem',      // 16px
       },
       boxShadow: {
         'soft': '0 2px 15px rgba(0, 0, 0, 0.08)',

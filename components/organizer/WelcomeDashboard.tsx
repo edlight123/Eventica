@@ -29,7 +29,7 @@ export default function WelcomeDashboard({
         <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl mb-4">
           <Sparkles className="w-8 h-8 text-primary-600" />
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.02] text-gray-900 mb-2">
           {t('organizer.welcome.greeting', 'Welcome, {{name}}!', { name: firstName })}
         </h1>
         <p className="text-gray-600 max-w-md mx-auto">

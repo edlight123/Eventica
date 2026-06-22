@@ -28,7 +28,7 @@ export function ActionCenter({ alerts }: ActionCenterProps) {
             <ShieldCheck className="w-6 h-6 text-green-600" />
           </div>
           <div>
-            <h3 className="font-bold text-green-900 text-lg mb-1">{t('organizer.action_center.all_caught_up')}</h3>
+            <h3 className="font-display text-xl text-green-900 mb-1">{t('organizer.action_center.all_caught_up')}</h3>
             <p className="text-sm text-green-700">{t('organizer.action_center.no_action_items')}</p>
           </div>
         </div>
@@ -58,7 +58,7 @@ export function ActionCenter({ alerts }: ActionCenterProps) {
       case 'low-sales':
         return { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-900', icon: 'text-orange-600', btn: 'bg-orange-600 hover:bg-orange-700' }
       case 'payout':
-        return { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-900', icon: 'text-purple-600', btn: 'bg-purple-600 hover:bg-purple-700' }
+        return { bg: 'bg-brand-50', border: 'border-brand-100', text: 'text-brand-900', icon: 'text-brand-600', btn: 'bg-brand-600 hover:bg-brand-700' }
       case 'verification':
         return { bg: 'bg-yellow-50', border: 'border-yellow-200', text: 'text-yellow-900', icon: 'text-yellow-600', btn: 'bg-yellow-600 hover:bg-yellow-700' }
       default:
@@ -73,7 +73,7 @@ export function ActionCenter({ alerts }: ActionCenterProps) {
           <AlertCircle className="w-5 h-5 text-red-600" />
         </div>
         <div>
-          <h3 className="font-bold text-gray-900 text-lg">{t('organizer.action_center.title')}</h3>
+          <h3 className="font-display text-xl text-gray-900">{t('organizer.action_center.title')}</h3>
           <p className="text-sm text-gray-600">
             {alerts.length} {alerts.length !== 1 ? t('organizer.action_center.action_items_plural') : t('organizer.action_center.action_items')}
           </p>

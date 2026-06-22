@@ -1,14 +1,14 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState, FormEvent } from 'react'
+import { useState, useEffect, FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { auth, db } from '@/lib/firebase/client'
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import Link from 'next/link'
-import Image from 'next/image'
 import { BRAND } from '@/config/brand'
+import { TikemMark, TikemWordmark } from '@/components/ui/TikemLogo'
 import { isDemoMode, isDemoEmail } from '@/lib/demo'
 import { demoLogin } from '../actions'
 
@@ -29,20 +29,24 @@ export default function LoginPage() {
     return target
   }
 
-  // Check for redirect parameter (from mobile app)
-  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null
-  const redirectToFromQuery = sanitizeRedirectTarget(searchParams?.get('redirect') || null)
-  const redirectTo = (() => {
-    if (redirectToFromQuery && redirectToFromQuery !== '/') return redirectToFromQuery
-    try {
-      if (typeof window === 'undefined') return redirectToFromQuery
-      const pending = window.localStorage.getItem('eh:pendingRedirect')
-      const sanitized = sanitizeRedirectTarget(pending)
-      return sanitized || redirectToFromQuery
-    } catch {
-      return redirectToFromQuery
+  // Resolve the redirect target AFTER mount. Reading window.location/localStorage
+  // during render makes the server (always '/') and client markup diverge, which
+  // triggers a hydration mismatch on the signup link. Defaulting to '/' keeps the
+  // initial client render identical to the server, then we update post-hydration.
+  const [redirectTo, setRedirectTo] = useState('/')
+  useEffect(() => {
+    const fromQuery = sanitizeRedirectTarget(new URLSearchParams(window.location.search).get('redirect'))
+    if (fromQuery && fromQuery !== '/') {
+      setRedirectTo(fromQuery)
+      return
     }
-  })()
+    try {
+      const sanitized = sanitizeRedirectTarget(window.localStorage.getItem('eh:pendingRedirect'))
+      if (sanitized && sanitized !== '/') setRedirectTo(sanitized)
+    } catch {
+      // ignore
+    }
+  }, [])
 
   async function handleLogin(e: FormEvent) {
     e.preventDefault()
@@ -145,18 +149,10 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-6 bg-white p-6 md:p-8 rounded-2xl shadow-lg">
         <div className="text-center">
           <div className="flex justify-center mb-4">
-            <Image 
-              src="/tikem_logo_color.png" 
-              alt="Tikèm" 
-              width={80} 
-              height={80}
-              className="drop-shadow-md"
-            />
+            <TikemMark size={72} className="shadow-md" />
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900" style={{ color: BRAND.primaryColor }}>
-            {BRAND.logoText}
-          </h1>
-          <p className="mt-1.5 text-sm text-gray-600">{BRAND.tagline}</p>
+          <TikemWordmark className="text-3xl md:text-4xl text-brand-700" />
+          <p className="mt-2 text-sm text-gray-600">{BRAND.tagline}</p>
           <h2 className="mt-5 text-xl md:text-2xl font-semibold text-gray-900">
             {t('login.title')}
           </h2>

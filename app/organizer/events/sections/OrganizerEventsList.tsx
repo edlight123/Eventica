@@ -1,8 +1,28 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { format } from 'date-fns'
+import { EmptyState } from '@/components/ui/kit'
+import { Calendar } from 'lucide-react'
 
 export default async function OrganizerEventsList({ events }: { events: any[] }) {
+  if (!events || events.length === 0) {
+    return (
+      <EmptyState
+        icon={Calendar}
+        title="No events yet"
+        description="Create your first event to get started."
+        action={
+          <Link
+            href="/organizer/events/new"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-700 text-white font-semibold hover:bg-brand-800 transition-colors"
+          >
+            Create Event
+          </Link>
+        }
+      />
+    )
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {events.map((event) => {
@@ -57,15 +77,15 @@ export default async function OrganizerEventsList({ events }: { events: any[] })
               </div>
 
               {/* Event Title */}
-              <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-teal-700 transition-colors">
+              <h3 className="font-display text-xl text-gray-900 mb-3 line-clamp-2 group-hover:text-teal-700 transition-colors">
                 {event.title}
               </h3>
 
               {/* Event Details */}
               <div className="space-y-3 mb-5">
                 <div className="flex items-center text-sm text-gray-700">
-                  <div className="w-9 h-9 rounded-lg bg-orange-50 flex items-center justify-center mr-3">
-                    <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-9 h-9 rounded-lg bg-brand-50 flex items-center justify-center mr-3">
+                    <svg className="w-5 h-5 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
@@ -73,8 +93,8 @@ export default async function OrganizerEventsList({ events }: { events: any[] })
                 </div>
 
                 <div className="flex items-center text-sm text-gray-700">
-                  <div className="w-9 h-9 rounded-lg bg-orange-50 flex items-center justify-center mr-3">
-                    <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-9 h-9 rounded-lg bg-brand-50 flex items-center justify-center mr-3">
+                    <svg className="w-5 h-5 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>

@@ -82,7 +82,7 @@ export function PayoutsWidget({ status, pendingBalance = 0, currency = 'HTG', la
           </div>
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-gray-900 text-lg mb-1">{statusInfo.title}</h3>
+          <h3 className="font-display text-xl text-gray-900 mb-0.5">{statusInfo.title}</h3>
           <p className="text-sm text-gray-600">{statusInfo.description}</p>
         </div>
       </div>

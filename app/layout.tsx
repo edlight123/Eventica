@@ -39,14 +39,8 @@ export const metadata: Metadata = {
   applicationName: BRAND.name,
   manifest: '/manifest.json',
   icons: {
-    icon: [
-      { url: '/color.svg?v=1', type: 'image/svg+xml' },
-      { url: '/icon-192.svg', type: 'image/svg+xml' },
-      { url: '/icon-512.svg', type: 'image/svg+xml' },
-    ],
-    apple: [
-      { url: '/tikem_logo_color.png', sizes: '500x500', type: 'image/png' },
-    ],
+    icon: [{ url: '/tikem-mark.svg', type: 'image/svg+xml' }],
+    apple: [{ url: '/tikem-mark.svg', type: 'image/svg+xml' }],
   },
   openGraph: {
     type: 'website',

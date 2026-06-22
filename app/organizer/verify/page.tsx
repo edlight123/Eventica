@@ -359,7 +359,7 @@ export default function VerifyOrganizerPage() {
             <span className="text-gray-400">/</span>
             <span className="text-gray-900 font-medium">Verification</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Verification</h1>
+          <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">Verification</h1>
           <p className="text-gray-600 mt-1">
             Verify your identity to publish paid events and receive payouts.
           </p>

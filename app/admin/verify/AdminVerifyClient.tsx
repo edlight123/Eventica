@@ -233,7 +233,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
 
       {/* Verification Requests Section */}
       <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-8 mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">
+        <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900 mb-1 sm:mb-2">
           {t('verify.title')}
         </h1>
         <p className="text-[13px] sm:text-base text-gray-600 mb-6 sm:mb-8">
@@ -383,7 +383,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
       <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-8">
         <details>
           <summary className="cursor-pointer select-none">
-            <h2 className="inline text-xl sm:text-2xl font-bold text-gray-900">
+            <h2 className="inline font-display text-xl sm:text-2xl text-gray-900">
               {t('verify.quick_toggle_title')}
             </h2>
             <p className="text-[13px] sm:text-base text-gray-600 mt-1 sm:mt-2">

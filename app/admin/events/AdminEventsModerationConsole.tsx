@@ -188,7 +188,7 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
             <ArrowLeft className="w-4 h-4" />
             Back to Admin Dashboard
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Events Moderation</h1>
+          <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">Events Moderation</h1>
           <p className="text-gray-600 mt-2">Review and manage all events on the platform</p>
         </div>
       </div>

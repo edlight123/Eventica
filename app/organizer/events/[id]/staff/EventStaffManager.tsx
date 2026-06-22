@@ -366,7 +366,7 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
       {showInviteModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl max-w-md w-full p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Invite Staff</h3>
+            <h3 className="font-display text-xl text-gray-900 mb-4">Invite Staff</h3>
 
             <div className="space-y-4">
               <div>

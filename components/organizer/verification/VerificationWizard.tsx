@@ -12,7 +12,8 @@ import {
   AlertCircle,
   Loader2,
   Upload,
-  Sparkles
+  Sparkles,
+  ClipboardCheck
 } from 'lucide-react'
 import { 
   VerificationRequest, 
@@ -58,7 +59,35 @@ const STEPS = [
     icon: Building2,
     required: false,
   },
+  {
+    id: 'review',
+    title: 'Review & Submit',
+    description: 'Confirm everything looks right',
+    icon: ClipboardCheck,
+    required: false,
+  },
 ]
+
+function ReviewRow({ label, value }: { label: string; value?: string }) {
+  return (
+    <div>
+      <dt className="text-gray-500">{label}</dt>
+      <dd className="text-gray-900">{value && value.trim() ? value : '—'}</dd>
+    </div>
+  )
+}
+
+function ReviewDoc({ ok, label }: { ok: boolean; label: string }) {
+  return (
+    <li className="flex items-center gap-2">
+      <span className={`grid h-5 w-5 place-items-center rounded-full ${ok ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}`}>
+        {ok ? <Check className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
+      </span>
+      <span className={ok ? 'text-gray-900' : 'text-gray-500'}>{label}</span>
+      {!ok && <span className="text-xs font-medium text-amber-600">Missing</span>}
+    </li>
+  )
+}
 
 export default function VerificationWizard({
   request,
@@ -334,7 +363,7 @@ export default function VerificationWizard({
         {/* Current Step Info */}
         <div className="mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-blue-600 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center">
               <currentStep.icon className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -352,6 +381,21 @@ export default function VerificationWizard({
             </div>
           </div>
         </div>
+
+        {/* What you'll need — shown on the first step so organizers don't bail mid-flow */}
+        {currentStepIndex === 0 && (
+          <div className="mb-6 bg-brand-50 border border-brand-100 rounded-xl p-4">
+            <h4 className="text-sm font-semibold text-brand-800 mb-1.5">Before you start</h4>
+            <p className="text-sm text-brand-700/90 mb-2">
+              Have these ready — it takes about 5 minutes, and your progress saves as you go:
+            </p>
+            <ul className="text-sm text-brand-700/90 space-y-1 ml-5 list-disc">
+              <li>A government-issued ID (front &amp; back)</li>
+              <li>Your phone or webcam for a quick selfie holding your ID</li>
+              <li>Your organization name and contact details</li>
+            </ul>
+          </div>
+        )}
 
         {/* Error Message */}
         {error && (
@@ -647,6 +691,62 @@ export default function VerificationWizard({
               </div>
             </div>
           )}
+
+          {currentStep.id === 'review' && (
+            <div className="p-5 md:p-6 space-y-4">
+              <p className="text-sm text-gray-600">
+                Please confirm everything is correct before submitting. You can edit any section.
+              </p>
+
+              {/* Personal information */}
+              <div className="rounded-xl border border-gray-200 p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <h3 className="font-display text-lg text-gray-900">Personal information</h3>
+                  <button type="button" onClick={() => setCurrentStepIndex(0)} className="text-sm font-medium text-brand-700 hover:text-brand-800">Edit</button>
+                </div>
+                <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+                  <ReviewRow label="Full name" value={organizerForm.full_name} />
+                  <ReviewRow label="Phone" value={organizerForm.phone} />
+                  <ReviewRow label="Email" value={organizerForm.email} />
+                  <ReviewRow label="Organization" value={organizerForm.organization_name} />
+                  <ReviewRow label="Type" value={organizerForm.organization_type} />
+                  <ReviewRow label="Location" value={[organizerForm.address, organizerForm.city, organizerForm.country].filter(Boolean).join(', ')} />
+                </dl>
+              </div>
+
+              {/* Documents */}
+              <div className="rounded-xl border border-gray-200 p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <h3 className="font-display text-lg text-gray-900">Identity documents</h3>
+                  <button type="button" onClick={() => setCurrentStepIndex(1)} className="text-sm font-medium text-brand-700 hover:text-brand-800">Edit</button>
+                </div>
+                <ul className="space-y-2 text-sm">
+                  <ReviewDoc ok={!!idFrontPath} label="Government ID — front" />
+                  <ReviewDoc ok={!!idBackPath} label="Government ID — back" />
+                  <ReviewDoc ok={!!selfiePath} label="Selfie with ID" />
+                </ul>
+              </div>
+
+              {/* Business (only if provided) */}
+              {(businessForm.business_registration_number || businessForm.tax_id || businessForm.business_type) && (
+                <div className="rounded-xl border border-gray-200 p-4">
+                  <div className="mb-3 flex items-center justify-between">
+                    <h3 className="font-display text-lg text-gray-900">Business details</h3>
+                    <button type="button" onClick={() => setCurrentStepIndex(3)} className="text-sm font-medium text-brand-700 hover:text-brand-800">Edit</button>
+                  </div>
+                  <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+                    <ReviewRow label="Reg. number" value={businessForm.business_registration_number} />
+                    <ReviewRow label="Tax ID" value={businessForm.tax_id} />
+                    <ReviewRow label="Type" value={businessForm.business_type} />
+                  </dl>
+                </div>
+              )}
+
+              <div className="rounded-xl border border-brand-100 bg-brand-50 p-4 text-sm text-brand-800">
+                By submitting, you confirm this information is accurate. Our team typically reviews within 1–2 business days, and you&apos;ll be notified once approved — unlocking paid events.
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Navigation Footer */}
@@ -681,13 +781,13 @@ export default function VerificationWizard({
               <button
                 onClick={onComplete}
                 disabled={saving}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-teal-600 to-blue-600 text-white hover:from-teal-700 hover:to-blue-700 transition-all shadow-sm"
+                className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold bg-brand-700 text-white hover:bg-brand-800 transition-all shadow-sm"
               >
                 {saving ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <>
-                    Review & Submit
+                    Submit for review
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
@@ -696,7 +796,7 @@ export default function VerificationWizard({
               <button
                 onClick={handleSaveCurrentStep}
                 disabled={saving}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-teal-600 to-blue-600 text-white hover:from-teal-700 hover:to-blue-700 transition-all shadow-sm"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold bg-brand-700 text-white hover:bg-brand-800 transition-all shadow-sm"
               >
                 {saving ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

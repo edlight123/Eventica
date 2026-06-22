@@ -21,7 +21,7 @@ export function BasicInfoTab({ formData, onChange, validation }: BasicInfoTabPro
     <div className="space-y-6 animate-fadeIn">
       {/* Section Header */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Basic Information</h2>
+        <h2 className="font-display text-2xl text-gray-900 mb-2">Basic Information</h2>
         <p className="text-gray-600">Tell attendees what your event is about</p>
       </div>
 

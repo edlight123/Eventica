@@ -13,8 +13,7 @@ import {
   FileText,
   CreditCard,
   Settings,
-  Activity,
-  Zap
+  Activity
 } from 'lucide-react'
 
 interface QuickAction {
@@ -42,22 +41,25 @@ export function AdminDashboardQuickActions({
 }: AdminDashboardQuickActionsProps) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
+  // Icon chips use one cohesive brand palette (soft teal) rather than 8 saturated
+  // hues. Red is reserved for the one genuinely "danger" surface (Security) and a
+  // neutral tint for Settings — keeping the dashboard on-brand and calm.
   const quickActions: QuickAction[] = [
     {
       title: 'Review Verifications',
       description: 'Process organizer identity verifications',
       href: '/admin/verify',
       icon: CheckCircle,
-      color: 'from-green-500 to-green-600',
+      color: 'bg-brand-50 text-brand-700',
       badge: pendingVerifications,
       urgent: pendingVerifications > 0
     },
     {
       title: 'Bank Verifications',
       description: 'Review bank account verifications',
-      href: '/admin/bank-verifications', 
+      href: '/admin/bank-verifications',
       icon: CreditCard,
-      color: 'from-blue-500 to-blue-600',
+      color: 'bg-brand-50 text-brand-700',
       badge: pendingBankVerifications,
       urgent: pendingBankVerifications > 5
     },
@@ -66,43 +68,42 @@ export function AdminDashboardQuickActions({
       description: 'Manage event settlements and withdrawals',
       href: '/admin/disbursements',
       icon: DollarSign,
-      color: 'from-teal-500 to-teal-600',
-      badge: pendingPayouts
+      color: 'bg-brand-50 text-brand-700'
     },
     {
       title: 'Revenue Analytics',
       description: 'View platform performance metrics',
       href: '/admin/analytics',
       icon: TrendingUp,
-      color: 'from-purple-500 to-purple-600'
+      color: 'bg-brand-50 text-brand-700'
     },
     {
       title: 'User Management',
       description: 'Manage platform users and organizers',
       href: '/admin/users',
       icon: Users,
-      color: 'from-orange-500 to-orange-600'
+      color: 'bg-brand-50 text-brand-700'
     },
     {
       title: 'Event Moderation',
       description: 'Review and moderate events',
       href: '/admin/events',
       icon: Calendar,
-      color: 'from-pink-500 to-pink-600'
+      color: 'bg-brand-50 text-brand-700'
     },
     {
       title: 'Security Dashboard',
       description: 'Monitor platform security and threats',
       href: '/admin/security',
       icon: AlertTriangle,
-      color: 'from-red-500 to-red-600'
+      color: 'bg-red-50 text-red-600'
     },
     {
       title: 'Platform Settings',
       description: 'Configure system settings',
       href: '/admin/settings',
       icon: Settings,
-      color: 'from-gray-500 to-gray-600'
+      color: 'bg-gray-100 text-gray-600'
     }
   ]
 
@@ -120,11 +121,11 @@ export function AdminDashboardQuickActions({
     <div className="mb-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <Zap className="w-5 h-5 text-yellow-500" />
+          <p className="eyebrow text-brand-600">Operations</p>
+          <h2 className="mt-1.5 font-display text-[clamp(20px,3vw,26px)] leading-[1.04] text-gray-900">
             Quick Actions
           </h2>
-          <p className="text-gray-600 text-sm mt-1">
+          <p className="text-gray-500 text-sm mt-1">
             Fast access to common admin tasks
           </p>
         </div>
@@ -184,11 +185,11 @@ export function AdminDashboardQuickActions({
                   </div>
                 )}
 
-                <div className={`w-12 h-12 bg-gradient-to-br ${action.color} rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                  <Icon className="w-6 h-6 text-white" />
+                <div className={`w-12 h-12 ${action.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-105 transition-transform`}>
+                  <Icon className="w-6 h-6" />
                 </div>
-                
-                <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+
+                <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-brand-700 transition-colors">
                   {action.title}
                 </h3>
                 
@@ -209,13 +210,13 @@ export function AdminDashboardQuickActions({
                 href={action.href}
                 className="group flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors"
               >
-                <div className={`w-10 h-10 bg-gradient-to-br ${action.color} rounded-lg flex items-center justify-center flex-shrink-0`}>
-                  <Icon className="w-5 h-5 text-white" />
+                <div className={`w-10 h-10 ${action.color} rounded-xl flex items-center justify-center flex-shrink-0`}>
+                  <Icon className="w-5 h-5" />
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                    <h3 className="font-medium text-gray-900 group-hover:text-brand-700 transition-colors">
                       {action.title}
                     </h3>
                     {action.urgent && (

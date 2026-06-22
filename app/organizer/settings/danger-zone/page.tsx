@@ -33,7 +33,7 @@ export default async function DangerZoneSettingsPage() {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <AlertTriangle className="w-8 h-8 text-red-600" />
-            <h1 className="text-3xl font-bold text-gray-900">Danger Zone</h1>
+            <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">Danger Zone</h1>
           </div>
           <p className="text-gray-600">
             Permanent actions that cannot be easily undone

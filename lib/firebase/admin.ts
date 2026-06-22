@@ -12,6 +12,31 @@ function getStorageBucketFromEnv(): string | undefined {
   return raw.startsWith('gs://') ? raw.slice('gs://'.length) : raw
 }
 
+/**
+ * Parse the service-account JSON from an env var, tolerating the two most common
+ * ways it gets corrupted when stored in a .env file or pulled from Vercel:
+ *   1. The PEM `private_key` contains LITERAL newlines, which makes JSON.parse throw
+ *      "Bad control character in string literal in JSON" — we escape control chars and retry.
+ *   2. `private_key` uses escaped "\\n" sequences that must be turned back into real
+ *      newlines before firebase-admin's cert() will accept the credential.
+ */
+function parseServiceAccount(raw: string): Record<string, any> {
+  let parsed: Record<string, any>
+  try {
+    parsed = JSON.parse(raw)
+  } catch {
+    const sanitized = raw
+      .replace(/\r/g, '')
+      .replace(/\n/g, '\\n')
+      .replace(/\t/g, '\\t')
+    parsed = JSON.parse(sanitized)
+  }
+  if (parsed && typeof parsed.private_key === 'string') {
+    parsed.private_key = parsed.private_key.replace(/\\n/g, '\n')
+  }
+  return parsed
+}
+
 // Don't initialize during build time (when VERCEL_ENV is not set or when in build phase)
 const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build'
 
@@ -19,7 +44,7 @@ if (!isBuildTime && !getApps().length) {
   // Initialize with service account or Application Default Credentials
   if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
     try {
-      const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY)
+      const serviceAccount = parseServiceAccount(process.env.FIREBASE_SERVICE_ACCOUNT_KEY)
       const storageBucket = getStorageBucketFromEnv()
       app = initializeApp({
         credential: cert(serviceAccount),

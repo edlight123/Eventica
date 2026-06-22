@@ -37,7 +37,7 @@ export default function DevToolsPage() {
       />
 
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Development Tools</h1>
+        <h1 className="font-display text-2xl text-gray-900 mb-2">Development Tools</h1>
         <p className="text-gray-600">
           Tools for debugging, testing, and development. Only visible to authorized developers.
         </p>

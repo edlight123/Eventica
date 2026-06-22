@@ -624,7 +624,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
       {showRejectModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl p-4 sm:p-6 max-w-md w-full">
-            <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">Request Changes</h3>
+            <h3 className="font-display text-lg sm:text-xl text-gray-900 mb-3 sm:mb-4">Request Changes</h3>
             <p className="text-[13px] sm:text-sm text-gray-600 mb-3 sm:mb-4">
               Please describe what needs to be fixed. The organizer will receive this in an email and can resubmit.
             </p>

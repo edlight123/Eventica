@@ -27,7 +27,7 @@ export default function HeroSection({ hasActiveFilters }: HeroSectionProps) {
   const SearchForm = (
     <form
       onSubmit={handleSearch}
-      className="reveal reveal-3 mt-6 flex w-full max-w-2xl flex-wrap items-center gap-2 rounded-[18px] border border-gray-200/90 bg-white/90 p-2 shadow-poster-sm backdrop-blur-md"
+      className="reveal reveal-3 mt-6 flex w-full max-w-2xl flex-wrap items-center gap-2 rounded-2xl border border-gray-200/90 bg-white/90 p-2 shadow-poster-sm backdrop-blur-md"
     >
       <div className="flex select-none items-center gap-1.5 rounded-xl bg-gray-50 px-3 py-2.5 text-[13.5px] font-medium text-gray-700">
         <MapPin className="h-[15px] w-[15px] text-brand-600" />

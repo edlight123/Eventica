@@ -78,7 +78,7 @@ export default function SeedEventsClient() {
     <div className="container max-w-4xl mx-auto py-8 px-4">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold mb-2">Seed Template Events</h1>
+          <h1 className="font-display text-2xl mb-2">Seed Template Events</h1>
           <p className="text-gray-600 dark:text-gray-400">
             Create 30 template events across Haiti, USA, and Canada under the info@edlight.org organizer account.
           </p>

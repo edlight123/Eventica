@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { EmptyState } from '@/components/ui/kit'
+import { Ticket } from 'lucide-react'
 
 type Event = {
   id: string
@@ -139,7 +141,7 @@ export default function PromoCodeManager({
       <div className="hidden md:flex justify-end">
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-5 py-2.5 rounded-lg bg-orange-600 text-white font-semibold text-sm hover:bg-orange-700 transition"
+          className="px-5 py-2.5 rounded-lg bg-brand-700 text-white font-semibold text-sm hover:bg-brand-800 transition"
         >
           {showForm ? 'Cancel' : '+ Create Promo Code'}
         </button>
@@ -149,7 +151,7 @@ export default function PromoCodeManager({
       <div className="fixed bottom-24 right-4 z-40 md:hidden">
         <button
           onClick={() => setShowForm(!showForm)}
-          className="shadow-lg px-4 py-2 rounded-full bg-orange-600 text-white font-semibold text-sm hover:bg-orange-700 active:scale-95 transition"
+          className="shadow-lg px-4 py-2 rounded-full bg-brand-700 text-white font-semibold text-sm hover:bg-brand-800 active:scale-95 transition"
         >
           {showForm ? 'Close' : 'Create'}
         </button>
@@ -161,7 +163,7 @@ export default function PromoCodeManager({
           onSubmit={handleCreate}
           className="relative z-10 bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6"
         >
-          <h3 className="text-base md:text-lg font-bold text-gray-900 mb-3">New Promo Code</h3>
+          <h3 className="font-display text-base md:text-lg text-gray-900 mb-3">New Promo Code</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -173,7 +175,7 @@ export default function PromoCodeManager({
                 required
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 uppercase"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-500 uppercase"
                 placeholder="SUMMER2024"
               />
             </div>
@@ -186,7 +188,7 @@ export default function PromoCodeManager({
                 required
                 value={eventId}
                 onChange={(e) => setEventId(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-orange-500"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-brand-500"
               >
                 <option value="">Select event</option>
                 {events.map(event => (
@@ -202,7 +204,7 @@ export default function PromoCodeManager({
               <select
                 value={discountType}
                 onChange={(e) => setDiscountType(e.target.value as 'percentage' | 'fixed')}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-500"
               >
                 <option value="percentage">Percentage (%)</option>
                 <option value="fixed">Fixed Amount ($)</option>
@@ -220,7 +222,7 @@ export default function PromoCodeManager({
                 step="0.01"
                 value={discountValue}
                 onChange={(e) => setDiscountValue(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-500"
                 placeholder={discountType === 'percentage' ? '10' : '5.00'}
               />
             </div>
@@ -234,7 +236,7 @@ export default function PromoCodeManager({
                 min="1"
                 value={maxUses}
                 onChange={(e) => setMaxUses(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-500"
                 placeholder="Unlimited"
               />
             </div>
@@ -247,7 +249,7 @@ export default function PromoCodeManager({
                 type="datetime-local"
                 value={expiresAt}
                 onChange={(e) => setExpiresAt(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-500"
               />
             </div>
           </div>
@@ -256,7 +258,7 @@ export default function PromoCodeManager({
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-2 rounded-lg bg-orange-600 text-white font-semibold text-sm hover:bg-orange-700 transition disabled:opacity-50"
+              className="px-5 py-2 rounded-lg bg-brand-700 text-white font-semibold text-sm hover:bg-brand-800 transition disabled:opacity-50"
             >
               {loading ? 'Creating...' : 'Create Code'}
             </button>
@@ -267,13 +269,16 @@ export default function PromoCodeManager({
       {/* Promo Codes List */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-4 md:p-6 border-b border-gray-200">
-          <h2 className="text-lg md:text-xl font-bold text-gray-900">Active Promo Codes</h2>
+          <h2 className="font-display text-lg md:text-xl text-gray-900">Active Promo Codes</h2>
         </div>
         
         {promoCodes.length === 0 ? (
-          <div className="p-10 md:p-12 text-center">
-            <p className="text-[13px] md:text-sm text-gray-600">No promo codes yet. Create one to get started!</p>
-          </div>
+          <EmptyState
+            icon={Ticket}
+            title="No promo codes yet"
+            description="Create one to get started!"
+            className="border-0"
+          />
         ) : (
           <div className="divide-y divide-gray-200">
             {promoCodes.map(promo => (
@@ -307,7 +312,7 @@ export default function PromoCodeManager({
                       onClick={() => toggleActive(promo.id, promo.is_active)}
                       className={`px-3 py-1.5 rounded-lg font-medium text-[12px] md:text-sm transition ${
                         promo.is_active
-                          ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                          ? 'bg-brand-50 text-brand-700 hover:bg-brand-100'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >

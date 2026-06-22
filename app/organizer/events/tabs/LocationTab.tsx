@@ -36,7 +36,7 @@ export function LocationTab({ formData, onChange, validation }: LocationTabProps
     <div className="space-y-6 animate-fadeIn">
       {/* Section Header */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Location Details</h2>
+        <h2 className="font-display text-2xl text-gray-900 mb-2">Location Details</h2>
         <p className="text-gray-600">Where will your event take place?</p>
       </div>
 

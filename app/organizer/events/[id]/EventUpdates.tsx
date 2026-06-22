@@ -74,7 +74,7 @@ export default function EventUpdates({ eventId, eventTitle }: EventUpdatesProps)
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Send Event Update</h2>
+            <h2 className="font-display text-2xl text-gray-900 mb-2">Send Event Update</h2>
             <p className="text-gray-600 mb-6">
               Notify all ticket holders about {eventTitle}
             </p>

@@ -13,7 +13,7 @@ export default async function AdminSettingsPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">
                 Platform Settings
               </h1>
               <p className="mt-2 text-gray-600">

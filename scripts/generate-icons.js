@@ -3,63 +3,51 @@
 const fs = require('fs');
 const path = require('path');
 
-// Generate SVG icons with Tikèm branding
+// Generate the Tikèm mark: teal rounded square + serif "T" + amber accent dot
+// (echoing the è in Tikèm). Scales cleanly from favicon to app icon.
 function generateSVGIcon(size) {
-  const fontSize = size * 0.55;
-  const rx = size * 0.225; // 22.5% border radius for modern look
-  
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+  return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="grad${size}" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0F766E;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#14B8A6;stop-opacity:1" />
+    <linearGradient id="tikemMark" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F766E"/>
+      <stop offset="1" stop-color="#0C5E57"/>
     </linearGradient>
   </defs>
-  <rect width="${size}" height="${size}" rx="${rx}" fill="url(#grad${size})"/>
-  <text x="${size/2}" y="${size/2 + fontSize/3}" font-family="system-ui, -apple-system, sans-serif" font-size="${fontSize}" font-weight="700" fill="white" text-anchor="middle">EH</text>
+  <rect width="100" height="100" rx="24" fill="url(#tikemMark)"/>
+  <text x="50" y="72" font-family="Georgia, 'Times New Roman', serif" font-size="64" font-weight="700" fill="#F8F5EE" text-anchor="middle">T</text>
+  <circle cx="69" cy="34" r="5.5" fill="#F2B705"/>
 </svg>`;
 }
 
-// Generate icons
 const publicDir = path.join(__dirname, '..', 'public');
 
-// Create 192x192 icon
-const icon192 = generateSVGIcon(192);
-fs.writeFileSync(path.join(publicDir, 'icon-192.svg'), icon192);
-console.log('✓ Created icon-192.svg');
-
-// Create 512x512 icon
-const icon512 = generateSVGIcon(512);
-fs.writeFileSync(path.join(publicDir, 'icon-512.svg'), icon512);
-console.log('✓ Created icon-512.svg');
-
-// Create favicon
-const favicon = generateSVGIcon(32);
-fs.writeFileSync(path.join(publicDir, 'favicon.svg'), favicon);
-console.log('✓ Created favicon.svg');
-
-// Update manifest.json to use SVG icons (better quality, smaller size)
-const manifestPath = path.join(publicDir, 'manifest.json');
-const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
-
-manifest.icons = [
-  {
-    src: '/icon-192.svg',
-    sizes: '192x192',
-    type: 'image/svg+xml',
-    purpose: 'any maskable'
-  },
-  {
-    src: '/icon-512.svg',
-    sizes: '512x512',
-    type: 'image/svg+xml',
-    purpose: 'any maskable'
-  }
+// Write every icon variant from the single source mark.
+const targets = [
+  ['tikem-mark.svg', 512],
+  ['icon-192.svg', 192],
+  ['icon-512.svg', 512],
+  ['favicon.svg', 32],
+  ['favicon-color.svg', 512],
+  ['color.svg', 512],
 ];
 
-fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
-console.log('✓ Updated manifest.json with SVG icons');
+for (const [file, size] of targets) {
+  fs.writeFileSync(path.join(publicDir, file), generateSVGIcon(size));
+  console.log(`✓ Wrote ${file}`);
+}
 
-console.log('\n🎉 PWA icons generated successfully!');
-console.log('Note: SVG icons provide perfect quality at any size and are smaller than PNGs.');
+// Point the PWA manifest at the scalable mark.
+const manifestPath = path.join(publicDir, 'manifest.json');
+const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+manifest.icons = [
+  {
+    src: '/tikem-mark.svg',
+    sizes: 'any',
+    type: 'image/svg+xml',
+    purpose: 'any maskable',
+  },
+];
+fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+console.log('✓ Updated manifest.json');
+
+console.log('\n🎉 Tikèm icons generated.');

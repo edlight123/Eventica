@@ -144,7 +144,7 @@ export default function DebugDBClient() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Please sign in</h1>
+          <h1 className="font-display text-2xl text-gray-900 mb-4">Please sign in</h1>
         </div>
       </div>
     )
@@ -155,7 +155,7 @@ export default function DebugDBClient() {
       <div className="min-h-screen bg-gray-50 p-4 pb-mobile-nav">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-xl shadow-lg p-4 sm:p-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Database Debug Tool</h1>
+            <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900 mb-4 sm:mb-6">Database Debug Tool</h1>
 
             <button
               onClick={checkDatabase}

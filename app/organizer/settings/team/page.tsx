@@ -65,7 +65,7 @@ export default async function TeamSettingsPage({
         </Link>
 
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Team & Permissions</h1>
+          <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">Team & Permissions</h1>
           <p className="text-gray-600 mt-2">Invite door staff and manage check-in access per event</p>
         </div>
 

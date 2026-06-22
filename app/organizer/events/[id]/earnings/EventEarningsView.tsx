@@ -184,7 +184,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
         
         <div className="bg-white rounded-xl p-8 text-center">
           <span className="text-6xl mb-4 block">💰</span>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">No Earnings Yet</h2>
+          <h2 className="font-display text-2xl text-gray-900 mb-2">No Earnings Yet</h2>
           <p className="text-gray-600 mb-6">
             This event hasn&apos;t generated any earnings yet. Earnings are recorded when attendees purchase tickets.
           </p>
@@ -370,7 +370,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
       </Link>
 
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{event.title || 'Event'}</h1>
+        <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900 mb-2">{event.title || 'Event'}</h1>
         <div className="flex items-center gap-2 text-gray-600">
           <span>📅 {eventDate ? eventDate.toLocaleDateString('en-US', { 
             month: 'long', 
@@ -417,7 +417,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
       <div className="bg-white rounded-xl p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">🎟️ Ticket Tier Breakdown</h2>
+            <h2 className="font-display text-xl text-gray-900">🎟️ Ticket Tier Breakdown</h2>
             <p className="text-sm text-gray-600">Totals use the tier’s listed price at the time of purchase (no FX, no spread).</p>
           </div>
           <div className="flex items-center gap-3">
@@ -494,7 +494,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
         <div className="bg-white rounded-xl p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">💸 Request Withdrawal</h2>
+              <h2 className="font-display text-xl text-gray-900">💸 Request Withdrawal</h2>
               <p className="text-gray-600 text-sm">Available: {formatCurrency(availableToWithdraw, earnings.currency)}</p>
             </div>
           </div>
@@ -546,7 +546,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
       {/* Withdrawal History */}
       {earnings.withdrawnAmount > 0 && (
         <div className="bg-white rounded-xl p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">📋 Withdrawal History</h2>
+          <h2 className="font-display text-xl text-gray-900 mb-4">📋 Withdrawal History</h2>
           <div className="space-y-3">
             <div className="flex justify-between items-center py-3 border-b border-gray-100">
               <div>
@@ -572,7 +572,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
       {showWithdrawModal && withdrawMethod && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
+            <h3 className="font-display text-xl text-gray-900 mb-4">
               Request {withdrawMethod === 'moncash' ? 'MonCash' : 'Bank'} Withdrawal
             </h3>
             

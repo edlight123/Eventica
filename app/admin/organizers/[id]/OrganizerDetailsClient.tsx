@@ -107,7 +107,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
       <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8 mb-6">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="flex-1">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900 mb-2">
               {user.full_name || 'No name'}
             </h1>
             <p className="text-gray-600 mb-2">{user.email}</p>

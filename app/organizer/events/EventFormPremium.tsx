@@ -25,6 +25,21 @@ interface EventFormProps {
   verificationStatus?: string
 }
 
+/**
+ * Convert a stored datetime (UTC ISO string, e.g. "2026-08-15T23:00:00.000Z")
+ * into the local wall-clock value a <input type="datetime-local"> expects
+ * ("YYYY-MM-DDTHH:mm"). Previously we just did .slice(0, 16) on the raw ISO
+ * string, which displayed the UTC time verbatim — a 7:00 PM event reloaded as
+ * 11:00 PM. This round-trips correctly with new Date(value).toISOString() on save.
+ */
+function toLocalDatetimeInput(value?: string | null): string {
+  if (!value) return ''
+  const d = new Date(value)
+  if (isNaN(d.getTime())) return ''
+  const localMs = d.getTime() - d.getTimezoneOffset() * 60000
+  return new Date(localMs).toISOString().slice(0, 16)
+}
+
 export default function EventFormPremium({ userId, event, isVerified = false, verificationStatus }: EventFormProps) {
   const router = useRouter()
   const { showToast } = useToast()
@@ -44,8 +59,8 @@ export default function EventFormPremium({ userId, event, isVerified = false, ve
     city: event?.city || 'Port-au-Prince',
     commune: event?.commune || '',
     address: event?.address || '',
-    start_datetime: event?.start_datetime ? event.start_datetime.slice(0, 16) : '',
-    end_datetime: event?.end_datetime ? event.end_datetime.slice(0, 16) : '',
+    start_datetime: toLocalDatetimeInput(event?.start_datetime),
+    end_datetime: toLocalDatetimeInput(event?.end_datetime),
     ticket_price: event?.ticket_price?.toString() || '',
     total_tickets: event?.total_tickets?.toString() || '',
     currency: event?.currency || 'USD',
@@ -133,7 +148,7 @@ export default function EventFormPremium({ userId, event, isVerified = false, ve
     }
   }, [isVerified])
 
-  const handleSave = useCallback(async (silent = false) => {
+  const handleSave = useCallback(async (silent = false, opts?: { skipNav?: boolean }): Promise<string | null> => {
     setIsSaving(true)
 
     try {
@@ -148,7 +163,7 @@ export default function EventFormPremium({ userId, event, isVerified = false, ve
           })
         }
         setHasUnsavedChanges(false)
-        return
+        return event?.id ?? null
       }
 
       const eventData = {
@@ -217,6 +232,7 @@ export default function EventFormPremium({ userId, event, isVerified = false, ve
           })
         }
         setHasUnsavedChanges(false)
+        return event.id
       } else {
         // Creating new event
         const { data, error: insertError } = await supabase
@@ -256,9 +272,13 @@ export default function EventFormPremium({ userId, event, isVerified = false, ve
           })
         }
         
-        // Navigate to edit page for the new event
-        router.push(`/organizer/events/${data.id}/edit`)
-        router.refresh()
+        setHasUnsavedChanges(false)
+        // Navigate to edit page for the new event (skipped when publishing inline)
+        if (!opts?.skipNav) {
+          router.push(`/organizer/events/${data.id}/edit`)
+          router.refresh()
+        }
+        return data.id
       }
     } catch (err: any) {
       if (!silent) {
@@ -269,9 +289,11 @@ export default function EventFormPremium({ userId, event, isVerified = false, ve
           duration: 5000
         })
       }
+      return null
     } finally {
       setIsSaving(false)
     }
+    return event?.id ?? null
   }, [event?.id, formData, router, showToast, ticketTiers, userId])
 
   // Autosave draft (debounced)
@@ -325,6 +347,24 @@ export default function EventFormPremium({ userId, event, isVerified = false, ve
         return
       }
 
+      // Ensure the draft is persisted before publishing. A never-saved draft
+      // has no id, and publishing then would run .eq('id', undefined), which the
+      // data layer turns into a Firestore where('id','==',undefined) and throws
+      // "Function where() called with invalid data. Unsupported field value: undefined".
+      let eventId = event?.id
+      if (!eventId) {
+        eventId = (await handleSave(true, { skipNav: true })) ?? undefined
+        if (!eventId) {
+          showToast({
+            type: 'error',
+            title: 'Failed to publish',
+            message: 'Could not save your event first. Please try again.',
+            duration: 5000
+          })
+          return
+        }
+      }
+
       const { error } = await supabase
         .from('events')
         .update({
@@ -332,7 +372,7 @@ export default function EventFormPremium({ userId, event, isVerified = false, ve
           country: formData.country || 'HT',
           currency: normalizeEventCurrencyForCountry(formData.country || 'HT', formData.currency),
         })
-        .eq('id', event?.id)
+        .eq('id', eventId)
 
       if (error) throw error
 
@@ -343,6 +383,10 @@ export default function EventFormPremium({ userId, event, isVerified = false, ve
         message: newPublishState ? 'Your event is now live and visible to attendees' : 'Event set back to draft',
         duration: 4000
       })
+      // Brand-new event: move to its edit page now that it has an id.
+      if (!event?.id) {
+        router.push(`/organizer/events/${eventId}/edit`)
+      }
       router.refresh()
     } catch (err: any) {
       showToast({

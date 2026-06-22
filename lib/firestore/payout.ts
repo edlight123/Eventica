@@ -795,17 +795,24 @@ export async function getOrganizerBalance(organizerId: string): Promise<{
       totalEarnings += netAmount
 
       const eventEndDate = new Date(event.end_datetime || event.start_datetime)
-      const availableDate = new Date(eventEndDate.getTime() + SETTLEMENT_DELAY_DAYS * 24 * 60 * 60 * 1000)
+      // Guard against events with a missing/invalid date — otherwise toISOString()
+      // throws "Invalid time value" and zeroes the organizer's entire balance.
+      const hasValidEnd = !isNaN(eventEndDate.getTime())
+      const availableDate = hasValidEnd
+        ? new Date(eventEndDate.getTime() + SETTLEMENT_DELAY_DAYS * 24 * 60 * 60 * 1000)
+        : null
 
-      if (now >= availableDate) {
+      if (hasValidEnd && availableDate && now >= availableDate) {
         // Event ended + settlement period passed → Available
         availableAmount += netAmount
       } else {
-        // Event hasn't ended or still in settlement period → Pending
+        // Event hasn't ended, still in settlement, or has no usable date → Pending
         pendingAmount += netAmount
-        const availableDateStr = availableDate.toISOString()
-        if (earliestPendingDateStr === null || availableDateStr < earliestPendingDateStr) {
-          earliestPendingDateStr = availableDateStr
+        if (availableDate) {
+          const availableDateStr = availableDate.toISOString()
+          if (earliestPendingDateStr === null || availableDateStr < earliestPendingDateStr) {
+            earliestPendingDateStr = availableDateStr
+          }
         }
       }
     })
