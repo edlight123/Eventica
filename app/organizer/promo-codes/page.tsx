@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import PromoCodeManager from './PromoCodeManager'
 import { adminDb } from '@/lib/firebase/admin'
+import { StatTile } from '@/components/ui/kit'
+import { Ticket, CheckCircle, Activity, XCircle } from 'lucide-react'
 
 export const revalidate = 0
 
@@ -105,7 +107,7 @@ export default async function PromoCodesPage({
           <div className="mb-6 md:mb-8">
             <Link
               href="/organizer/events"
-              className="text-orange-600 hover:text-orange-700 text-[13px] md:text-sm font-medium mb-2 inline-block"
+              className="text-brand-700 hover:text-brand-800 text-[13px] md:text-sm font-medium mb-2 inline-block"
             >
               ← Back to Events
             </Link>
@@ -115,42 +117,17 @@ export default async function PromoCodesPage({
 
           {/* Metrics - horizontal scroll on mobile */}
           <div className="flex md:grid md:grid-cols-4 gap-3 md:gap-6 overflow-x-auto -mx-4 px-4 pb-2 snap-x snap-mandatory md:overflow-visible mb-6 md:mb-8">
-            <div className="min-w-[220px] md:min-w-0 snap-start bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 flex-shrink-0">
-              <div className="flex items-center justify-between mb-2 gap-2">
-                <h3 className="text-[10px] md:text-sm font-medium text-gray-600 uppercase tracking-wide whitespace-nowrap">Total Codes</h3>
-                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M6 7V5a2 2 0 012-2h8a2 2 0 012 2v2m-2 7v5a2 2 0 01-2 2H8a2 2 0 01-2-2v-5m10 0H8" />
-                </svg>
-              </div>
-              <p className="text-2xl md:text-3xl font-bold text-gray-900">{totalCodes}</p>
+            <div className="min-w-[220px] md:min-w-0 snap-start flex-shrink-0">
+              <StatTile icon={Ticket} label="Total Codes" value={totalCodes} />
             </div>
-            <div className="min-w-[220px] md:min-w-0 snap-start bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 flex-shrink-0">
-              <div className="flex items-center justify-between mb-2 gap-2">
-                <h3 className="text-[10px] md:text-sm font-medium text-gray-600 uppercase tracking-wide whitespace-nowrap">Active Codes</h3>
-                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <p className="text-2xl md:text-3xl font-bold text-green-700">{activeCodes}</p>
-              <p className="text-[11px] md:text-sm text-gray-500 mt-1">{percentActive}% active</p>
+            <div className="min-w-[220px] md:min-w-0 snap-start flex-shrink-0">
+              <StatTile icon={CheckCircle} label="Active Codes" value={activeCodes} sublabel={`${percentActive}% active`} />
             </div>
-            <div className="min-w-[220px] md:min-w-0 snap-start bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 flex-shrink-0">
-              <div className="flex items-center justify-between mb-2 gap-2">
-                <h3 className="text-[10px] md:text-sm font-medium text-gray-600 uppercase tracking-wide whitespace-nowrap">Total Uses</h3>
-                <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
-                </svg>
-              </div>
-              <p className="text-2xl md:text-3xl font-bold text-orange-700">{totalUses}</p>
+            <div className="min-w-[220px] md:min-w-0 snap-start flex-shrink-0">
+              <StatTile icon={Activity} label="Total Uses" value={totalUses} />
             </div>
-            <div className="min-w-[220px] md:min-w-0 snap-start bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 flex-shrink-0">
-              <div className="flex items-center justify-between mb-2 gap-2">
-                <h3 className="text-[10px] md:text-sm font-medium text-gray-600 uppercase tracking-wide whitespace-nowrap">Inactive</h3>
-                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <p className="text-2xl md:text-3xl font-bold text-red-700">{totalCodes - activeCodes}</p>
+            <div className="min-w-[220px] md:min-w-0 snap-start flex-shrink-0">
+              <StatTile icon={XCircle} label="Inactive" value={totalCodes - activeCodes} />
             </div>
           </div>
 

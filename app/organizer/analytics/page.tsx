@@ -8,6 +8,7 @@ import { TrendingUp, DollarSign, Ticket, Calendar, ArrowLeft } from 'lucide-reac
 import Badge from '@/components/ui/Badge'
 import { revalidatePath } from 'next/cache'
 import { formatMoneyFromCents, normalizeCurrency } from '@/lib/money'
+import { StatTile, EmptyState } from '@/components/ui/kit'
 
 export const revalidate = 120 // Cache for 2 minutes
 
@@ -174,7 +175,7 @@ export default async function AnalyticsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 flex items-center gap-3">
+            <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900 flex items-center gap-3">
               <TrendingUp className="w-10 h-10 text-brand-600" />
               Analytics Dashboard
             </h1>
@@ -191,55 +192,33 @@ export default async function AnalyticsPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-2xl shadow-soft border border-gray-100 p-6 hover:shadow-medium transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Events</h3>
-              <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-            <p className="text-4xl font-bold text-gray-900 mb-2">{totalEvents}</p>
-            <div className="flex items-center gap-2">
-              <Badge variant="success" size="sm">{publishedEvents} Published</Badge>
-            </div>
-          </div>
+          <StatTile
+            icon={Calendar}
+            label="Total Events"
+            value={totalEvents}
+            sublabel={`${publishedEvents} Published`}
+          />
 
-          <div className="bg-white rounded-2xl shadow-soft border border-gray-100 p-6 hover:shadow-medium transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Tickets Sold</h3>
-              <div className="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center">
-                <Ticket className="w-6 h-6 text-brand-600" />
-              </div>
-            </div>
-            <p className="text-4xl font-bold text-brand-700 mb-2">{totalTicketsSold}</p>
-            <p className="text-sm text-gray-600">Across all events</p>
-          </div>
+          <StatTile
+            icon={Ticket}
+            label="Tickets Sold"
+            value={totalTicketsSold}
+            sublabel="Across all events"
+          />
 
-          <div className="bg-white rounded-2xl shadow-soft border border-gray-100 p-6 hover:shadow-medium transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Revenue</h3>
-              <div className="w-12 h-12 bg-accent-50 rounded-xl flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-accent-600" />
-              </div>
-            </div>
-            <p className="text-4xl font-bold text-accent-700 mb-2">
-              {formatMoneyFromCents(totalRevenueCents, organizerCurrency, 'en-US', { currencyDisplay: 'code' })}
-            </p>
-            <p className="text-sm text-gray-600">Lifetime earnings</p>
-          </div>
+          <StatTile
+            icon={DollarSign}
+            label="Total Revenue"
+            value={formatMoneyFromCents(totalRevenueCents, organizerCurrency, 'en-US', { currencyDisplay: 'code' })}
+            sublabel="Lifetime earnings"
+          />
 
-          <div className="bg-white rounded-2xl shadow-soft border border-gray-100 p-6 hover:shadow-medium transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Avg per Event</h3>
-              <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-purple-600" />
-              </div>
-            </div>
-            <p className="text-4xl font-bold text-purple-700 mb-2">
-              {totalEvents > 0 ? (totalTicketsSold / totalEvents).toFixed(1) : '0'}
-            </p>
-            <p className="text-sm text-gray-600">Tickets per event</p>
-          </div>
+          <StatTile
+            icon={TrendingUp}
+            label="Avg per Event"
+            value={totalEvents > 0 ? (totalTicketsSold / totalEvents).toFixed(1) : '0'}
+            sublabel="Tickets per event"
+          />
         </div>
 
         {/* Charts Section */}
@@ -286,18 +265,21 @@ export default async function AnalyticsPage() {
             Top Performing Events
           </h2>
           {eventsWithSales.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="text-7xl mb-4">📊</div>
-              <h3 className="font-display text-xl text-gray-900 mb-2">No Events Yet</h3>
-              <p className="text-gray-600 mb-6">Create your first event to see analytics!</p>
-              <Link
-                href="/organizer/events/new"
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 text-white font-bold hover:shadow-glow transition-all"
-              >
-                <Calendar className="w-5 h-5" />
-                Create Event
-              </Link>
-            </div>
+            <EmptyState
+              icon={Calendar}
+              title="No Events Yet"
+              description="Create your first event to see analytics!"
+              className="border-0"
+              action={
+                <Link
+                  href="/organizer/events/new"
+                  className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 text-white font-bold hover:shadow-glow transition-all"
+                >
+                  <Calendar className="w-5 h-5" />
+                  Create Event
+                </Link>
+              }
+            />
           ) : (
             <div className="space-y-3">
               {eventsWithSales.slice(0, 10).map((event: any, index: number) => (

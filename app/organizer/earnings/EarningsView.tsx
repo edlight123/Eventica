@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import type { EarningsSummary } from '@/types/earnings'
+import { StatTile } from '@/components/ui/kit'
+import { PayoutRequestModal } from '@/components/organizer/PayoutRequestModal'
+import { DollarSign, TrendingUp, Wallet, ArrowDownCircle } from 'lucide-react'
 
 interface EarningsViewProps {
   summary: EarningsSummary
@@ -11,6 +14,7 @@ interface EarningsViewProps {
 
 export default function EarningsView({ summary, organizerId }: EarningsViewProps) {
   const [filter, setFilter] = useState<'all' | 'ready' | 'pending' | 'locked'>('all')
+  const [payoutOpen, setPayoutOpen] = useState(false)
 
   const formatCurrency = (cents: number, currencyOverride?: 'HTG' | 'USD' | 'CAD') => {
     const amount = cents / 100
@@ -52,116 +56,121 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
     <div className="space-y-6">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
-          <div className="text-xs sm:text-sm text-gray-600 mb-1">Gross Sales</div>
-          {summary.currency === 'mixed' && summary.totalsByCurrency ? (
-            <div className="mt-2 space-y-1">
-              <div className="flex items-baseline justify-between">
-                <span className="text-xs text-gray-500">USD</span>
-                <span className="text-lg sm:text-xl font-bold text-gray-900">
-                  {formatCurrency(summary.totalsByCurrency.USD?.totalGrossSales ?? 0, 'USD')}
+        <StatTile
+          icon={DollarSign}
+          label="Gross Sales"
+          sublabel="All time"
+          value={
+            summary.currency === 'mixed' && summary.totalsByCurrency ? (
+              <span className="block space-y-1">
+                <span className="flex items-baseline justify-between">
+                  <span className="text-xs text-gray-500">USD</span>
+                  <span className="text-lg sm:text-xl font-bold text-gray-900">
+                    {formatCurrency(summary.totalsByCurrency.USD?.totalGrossSales ?? 0, 'USD')}
+                  </span>
                 </span>
-              </div>
-              <div className="flex items-baseline justify-between">
-                <span className="text-xs text-gray-500">HTG</span>
-                <span className="text-lg sm:text-xl font-bold text-gray-900">
-                  {formatCurrency(summary.totalsByCurrency.HTG?.totalGrossSales ?? 0, 'HTG')}
+                <span className="flex items-baseline justify-between">
+                  <span className="text-xs text-gray-500">HTG</span>
+                  <span className="text-lg sm:text-xl font-bold text-gray-900">
+                    {formatCurrency(summary.totalsByCurrency.HTG?.totalGrossSales ?? 0, 'HTG')}
+                  </span>
                 </span>
-              </div>
-            </div>
-          ) : (
-            <div className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">
-              {formatCurrency(summary.totalGrossSales)}
-            </div>
-          )}
-          <div className="text-xs text-gray-500 mt-1">All time</div>
-        </div>
+              </span>
+            ) : (
+              formatCurrency(summary.totalGrossSales)
+            )
+          }
+        />
 
-        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
-          <div className="text-xs sm:text-sm text-gray-600 mb-1">Net Amount</div>
-          {summary.currency === 'mixed' && summary.totalsByCurrency ? (
-            <div className="mt-2 space-y-1">
-              <div className="flex items-baseline justify-between">
-                <span className="text-xs text-gray-500">USD</span>
-                <span className="text-lg sm:text-xl font-bold text-gray-900">
-                  {formatCurrency(summary.totalsByCurrency.USD?.totalNetAmount ?? 0, 'USD')}
+        <StatTile
+          icon={TrendingUp}
+          label="Net Amount"
+          sublabel="After fees"
+          value={
+            summary.currency === 'mixed' && summary.totalsByCurrency ? (
+              <span className="block space-y-1">
+                <span className="flex items-baseline justify-between">
+                  <span className="text-xs text-gray-500">USD</span>
+                  <span className="text-lg sm:text-xl font-bold text-gray-900">
+                    {formatCurrency(summary.totalsByCurrency.USD?.totalNetAmount ?? 0, 'USD')}
+                  </span>
                 </span>
-              </div>
-              <div className="flex items-baseline justify-between">
-                <span className="text-xs text-gray-500">HTG</span>
-                <span className="text-lg sm:text-xl font-bold text-gray-900">
-                  {formatCurrency(summary.totalsByCurrency.HTG?.totalNetAmount ?? 0, 'HTG')}
+                <span className="flex items-baseline justify-between">
+                  <span className="text-xs text-gray-500">HTG</span>
+                  <span className="text-lg sm:text-xl font-bold text-gray-900">
+                    {formatCurrency(summary.totalsByCurrency.HTG?.totalNetAmount ?? 0, 'HTG')}
+                  </span>
                 </span>
-              </div>
-            </div>
-          ) : (
-            <div className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">
-              {formatCurrency(summary.totalNetAmount)}
-            </div>
-          )}
-          <div className="text-xs text-gray-500 mt-1">After fees</div>
-        </div>
+              </span>
+            ) : (
+              formatCurrency(summary.totalNetAmount)
+            )
+          }
+        />
 
-        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 border-l-4 border-green-600">
-          <div className="text-xs sm:text-sm text-gray-600 mb-1">Available</div>
-          {summary.currency === 'mixed' && summary.totalsByCurrency ? (
-            <div className="mt-2 space-y-1">
-              <div className="flex items-baseline justify-between">
-                <span className="text-xs text-gray-500">USD</span>
-                <span className="text-lg sm:text-xl font-bold text-green-600">
-                  {formatCurrency(summary.totalsByCurrency.USD?.totalAvailableToWithdraw ?? 0, 'USD')}
+        <StatTile
+          icon={Wallet}
+          label="Available"
+          sublabel="Ready to withdraw"
+          className="border-l-4 border-green-600"
+          value={
+            summary.currency === 'mixed' && summary.totalsByCurrency ? (
+              <span className="block space-y-1">
+                <span className="flex items-baseline justify-between">
+                  <span className="text-xs text-gray-500">USD</span>
+                  <span className="text-lg sm:text-xl font-bold text-green-600">
+                    {formatCurrency(summary.totalsByCurrency.USD?.totalAvailableToWithdraw ?? 0, 'USD')}
+                  </span>
                 </span>
-              </div>
-              <div className="flex items-baseline justify-between">
-                <span className="text-xs text-gray-500">HTG</span>
-                <span className="text-lg sm:text-xl font-bold text-green-600">
-                  {formatCurrency(summary.totalsByCurrency.HTG?.totalAvailableToWithdraw ?? 0, 'HTG')}
+                <span className="flex items-baseline justify-between">
+                  <span className="text-xs text-gray-500">HTG</span>
+                  <span className="text-lg sm:text-xl font-bold text-green-600">
+                    {formatCurrency(summary.totalsByCurrency.HTG?.totalAvailableToWithdraw ?? 0, 'HTG')}
+                  </span>
                 </span>
-              </div>
-            </div>
-          ) : (
-            <div className="text-xl sm:text-2xl font-bold text-green-600 mt-2">
-              {formatCurrency(summary.totalAvailableToWithdraw)}
-            </div>
-          )}
-          <div className="text-xs text-gray-500 mt-1">Ready to withdraw</div>
-        </div>
+              </span>
+            ) : (
+              <span className="text-green-600">{formatCurrency(summary.totalAvailableToWithdraw)}</span>
+            )
+          }
+        />
 
-        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
-          <div className="text-xs sm:text-sm text-gray-600 mb-1">Withdrawn</div>
-          {summary.currency === 'mixed' && summary.totalsByCurrency ? (
-            <div className="mt-2 space-y-1">
-              <div className="flex items-baseline justify-between">
-                <span className="text-xs text-gray-500">USD</span>
-                <span className="text-lg sm:text-xl font-bold text-gray-900">
-                  {formatCurrency(summary.totalsByCurrency.USD?.totalWithdrawn ?? 0, 'USD')}
+        <StatTile
+          icon={ArrowDownCircle}
+          label="Withdrawn"
+          sublabel="Total paid out"
+          value={
+            summary.currency === 'mixed' && summary.totalsByCurrency ? (
+              <span className="block space-y-1">
+                <span className="flex items-baseline justify-between">
+                  <span className="text-xs text-gray-500">USD</span>
+                  <span className="text-lg sm:text-xl font-bold text-gray-900">
+                    {formatCurrency(summary.totalsByCurrency.USD?.totalWithdrawn ?? 0, 'USD')}
+                  </span>
                 </span>
-              </div>
-              <div className="flex items-baseline justify-between">
-                <span className="text-xs text-gray-500">HTG</span>
-                <span className="text-lg sm:text-xl font-bold text-gray-900">
-                  {formatCurrency(summary.totalsByCurrency.HTG?.totalWithdrawn ?? 0, 'HTG')}
+                <span className="flex items-baseline justify-between">
+                  <span className="text-xs text-gray-500">HTG</span>
+                  <span className="text-lg sm:text-xl font-bold text-gray-900">
+                    {formatCurrency(summary.totalsByCurrency.HTG?.totalWithdrawn ?? 0, 'HTG')}
+                  </span>
                 </span>
-              </div>
-            </div>
-          ) : (
-            <div className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">
-              {formatCurrency(summary.totalWithdrawn)}
-            </div>
-          )}
-          <div className="text-xs text-gray-500 mt-1">Total paid out</div>
-        </div>
+              </span>
+            ) : (
+              formatCurrency(summary.totalWithdrawn)
+            )
+          }
+        />
       </div>
 
       {/* Fee Breakdown Info */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+      <div className="bg-brand-50 border border-brand-100 rounded-2xl p-4">
         <div className="flex items-start gap-3">
-          <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-5 h-5 text-brand-700 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div className="flex-1">
-            <h3 className="text-sm font-medium text-blue-900 mb-1">Fee Structure</h3>
-            <div className="text-xs sm:text-sm text-blue-800 space-y-1">
+            <h3 className="text-sm font-medium text-brand-900 mb-1">Fee Structure</h3>
+            <div className="text-xs sm:text-sm text-brand-800 space-y-1">
               <div className="flex justify-between">
                 <span>Platform Fee:</span>
                 <span className="font-medium">10% of ticket sales</span>
@@ -170,7 +179,7 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
                 <span>Processing Fee:</span>
                 <span className="font-medium">2.9% + $0.30 per transaction</span>
               </div>
-              <div className="flex justify-between pt-1 border-t border-blue-300">
+              <div className="flex justify-between pt-1 border-t border-brand-200">
                 <span>Total Fees Paid:</span>
                 <span className="font-semibold">
                   {summary.currency === 'mixed' && summary.totalsByCurrency ? (
@@ -205,7 +214,7 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
                   onClick={() => setFilter(status)}
                   className={`px-3 py-1.5 text-sm font-medium rounded-lg transition whitespace-nowrap ${
                     filter === status
-                      ? 'bg-teal-600 text-white'
+                      ? 'bg-brand-700 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
@@ -381,22 +390,30 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
           : formatCurrency(summary.totalAvailableToWithdraw)
 
         return (
+        <>
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Ready to Withdraw</h3>
+              <h3 className="font-display text-xl text-gray-900">Ready to Withdraw</h3>
               <p className="text-sm text-gray-600 mt-1">
                 You have {availableLabel} available to withdraw
               </p>
             </div>
-            <Link
-              href="/organizer/payouts"
-              className="w-full sm:w-auto px-6 py-3 bg-teal-600 text-white font-semibold rounded-lg hover:bg-teal-700 transition text-center"
+            <button
+              type="button"
+              onClick={() => setPayoutOpen(true)}
+              className="w-full sm:w-auto px-6 py-3 bg-brand-700 text-white font-semibold rounded-lg hover:bg-brand-800 transition text-center"
             >
               Request Payout
-            </Link>
+            </button>
           </div>
         </div>
+        <PayoutRequestModal
+          open={payoutOpen}
+          onClose={() => setPayoutOpen(false)}
+          availableLabel={availableLabel}
+        />
+        </>
         )
       })()}
     </div>

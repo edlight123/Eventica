@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Payout } from '@/lib/firestore/payout'
+import { StatTile, EmptyState } from '@/components/ui/kit'
+import { Clock, Coins, Wallet } from 'lucide-react'
 
 interface PayoutDashboardProps {
   initialBalance: {
@@ -82,8 +84,8 @@ export default function PayoutDashboard({
   const getStatusBadge = (status: string) => {
     const styles = {
       pending: 'bg-yellow-100 text-yellow-800',
-      approved: 'bg-blue-100 text-blue-800',
-      processing: 'bg-indigo-100 text-indigo-800',
+      approved: 'bg-brand-50 text-brand-700',
+      processing: 'bg-brand-100 text-brand-800',
       completed: 'bg-green-100 text-green-800',
       failed: 'bg-red-100 text-red-800',
       cancelled: 'bg-gray-100 text-gray-800',
@@ -96,9 +98,14 @@ export default function PayoutDashboard({
       {/* Balance Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         {/* Available Balance */}
-        <div className="bg-white rounded-lg shadow p-4 md:p-6 border-l-4 border-teal-600">
-          <div className="text-sm font-medium text-gray-600 mb-2">{t('payouts_page.available_balance')}</div>
-          <div className="text-2xl md:text-3xl font-bold text-gray-900">
+        <div className="bg-gray-50 rounded-2xl border border-gray-100 p-4 md:p-6 border-l-4 border-brand-600">
+          <div className="mb-2 flex items-center gap-2">
+            <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-50 text-brand-700">
+              <Wallet className="h-4 w-4" />
+            </span>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">{t('payouts_page.available_balance')}</p>
+          </div>
+          <div className="text-2xl font-bold text-gray-900">
             {formatCurrency(balance.available, balance.currency)}
           </div>
           <div className="mt-4">
@@ -108,7 +115,7 @@ export default function PayoutDashboard({
               className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
                 balance.available < 5000
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-teal-600 text-white hover:bg-teal-700'
+                  : 'bg-brand-700 text-white hover:bg-brand-800'
               }`}
             >
               {isRequesting ? t('payouts_page.processing') : t('payouts_page.request_payout')}
@@ -120,26 +127,24 @@ export default function PayoutDashboard({
         </div>
 
         {/* Pending Balance */}
-        <div className="bg-white rounded-lg shadow p-4 md:p-6">
-          <div className="text-sm font-medium text-gray-600 mb-2">{t('payouts_page.pending_balance')}</div>
-          <div className="text-2xl md:text-3xl font-bold text-gray-900">
-            {formatCurrency(balance.pending, balance.currency)}
-          </div>
-          <p className="mt-2 text-sm text-gray-500">
-            {balance.nextPayoutDate
+        <StatTile
+          icon={Clock}
+          label={t('payouts_page.pending_balance')}
+          value={formatCurrency(balance.pending, balance.currency)}
+          sublabel={
+            balance.nextPayoutDate
               ? t('payouts_page.available_on', { date: new Date(balance.nextPayoutDate).toLocaleDateString() })
-              : t('payouts_page.no_pending')}
-          </p>
-        </div>
+              : t('payouts_page.no_pending')
+          }
+        />
 
         {/* Total Earnings */}
-        <div className="bg-white rounded-lg shadow p-4 md:p-6">
-          <div className="text-sm font-medium text-gray-600 mb-2">{t('payouts_page.total_earnings')}</div>
-          <div className="text-2xl md:text-3xl font-bold text-gray-900">
-            {formatCurrency(balance.totalEarnings, balance.currency)}
-          </div>
-          <p className="mt-2 text-sm text-gray-500">{t('payouts_page.all_time')}</p>
-        </div>
+        <StatTile
+          icon={Coins}
+          label={t('payouts_page.total_earnings')}
+          value={formatCurrency(balance.totalEarnings, balance.currency)}
+          sublabel={t('payouts_page.all_time')}
+        />
       </div>
 
       {/* Messages */}
@@ -174,9 +179,9 @@ export default function PayoutDashboard({
       )}
 
       {/* Info Banner */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="text-sm font-medium text-blue-900 mb-2">{t('payouts_page.how_payouts_work')}</h3>
-        <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+      <div className="bg-brand-50 border border-brand-100 rounded-2xl p-4">
+        <h3 className="text-sm font-medium text-brand-900 mb-2">{t('payouts_page.how_payouts_work')}</h3>
+        <ul className="text-sm text-brand-800 space-y-1 list-disc list-inside">
           <li>{t('payouts_page.funds_available_7_days')}</li>
           <li>{t('payouts_page.processed_friday_5pm')}</li>
           <li>{t('payouts_page.platform_fee_10_percent')}</li>
@@ -187,27 +192,16 @@ export default function PayoutDashboard({
       {/* Payout History Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="px-4 md:px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">{t('payouts_page.payout_history')}</h2>
+          <h2 className="font-display text-lg text-gray-900">{t('payouts_page.payout_history')}</h2>
         </div>
 
         {payouts.length === 0 ? (
-          <div className="px-4 md:px-6 py-12 text-center">
-            <svg
-              className="mx-auto h-12 w-12 text-gray-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <p className="mt-2 text-gray-500">{t('payouts_page.no_payouts')}</p>
-            <p className="text-sm text-gray-400">{t('payouts_page.no_payouts_desc')}</p>
-          </div>
+          <EmptyState
+            icon={Coins}
+            title={t('payouts_page.no_payouts')}
+            description={t('payouts_page.no_payouts_desc')}
+            className="border-0"
+          />
         ) : (
           <>
             {/* Mobile Card View */}

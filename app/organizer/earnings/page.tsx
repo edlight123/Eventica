@@ -59,7 +59,7 @@ export default async function EarningsPage() {
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <a
                 href="/organizer/earnings"
-                className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-teal-600 text-white"
+                className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-brand-700 text-white"
               >
                 Earnings
               </a>

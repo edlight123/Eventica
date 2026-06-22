@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { formatCurrency, type Currency } from '@/lib/currency'
+import { StatTile } from '@/components/ui/kit'
 import {
   Search,
   Filter,
@@ -115,7 +116,7 @@ function StatusBadge({ status }: { status: string }) {
     valid: { color: 'bg-green-100 text-green-800', icon: CheckCircle, label: 'Valid' },
     pending: { color: 'bg-yellow-100 text-yellow-800', icon: Clock, label: 'Pending' },
     cancelled: { color: 'bg-red-100 text-red-800', icon: XCircle, label: 'Cancelled' },
-    refunded: { color: 'bg-purple-100 text-purple-800', icon: RefreshCw, label: 'Refunded' },
+    refunded: { color: 'bg-amber-100 text-amber-800', icon: RefreshCw, label: 'Refunded' },
   }
 
   const config = statusConfig[status?.toLowerCase()] || { color: 'bg-gray-100 text-gray-800', icon: AlertCircle, label: status || 'Unknown' }
@@ -342,51 +343,30 @@ export function AdminOrdersClient() {
       {/* Summary Cards */}
       {summary && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center">
-                <ShoppingCart className="w-5 h-5 text-white" />
-              </div>
-              <div className="text-sm font-medium text-teal-700">Total Orders</div>
-            </div>
-            <div className="text-2xl font-bold text-teal-900">{summary.totalOrders.toLocaleString()}</div>
-            <div className="text-xs text-teal-600 mt-1">Today: {summary.todayOrders}</div>
-          </div>
-
-          <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
-                <DollarSign className="w-5 h-5 text-white" />
-              </div>
-              <div className="text-sm font-medium text-green-700">Revenue (30d)</div>
-            </div>
-            <div className="text-2xl font-bold text-green-900">{formatCurrency(summary.last30Days.revenueUSD, 'USD')}</div>
-            <div className="text-xs text-green-600 mt-1">{formatCurrency(summary.last30Days.revenueHTG, 'HTG')}</div>
-          </div>
-
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-white" />
-              </div>
-              <div className="text-sm font-medium text-blue-700">Avg Order Value</div>
-            </div>
-            <div className="text-2xl font-bold text-blue-900">{formatCurrency(summary.last30Days.avgOrderValueUSD, 'USD')}</div>
-            <div className="text-xs text-blue-600 mt-1">{summary.last30Days.orders} orders (30d)</div>
-          </div>
-
-          <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
-                <CheckCircle className="w-5 h-5 text-white" />
-              </div>
-              <div className="text-sm font-medium text-purple-700">Confirmed</div>
-            </div>
-            <div className="text-2xl font-bold text-purple-900">{summary.byStatus.confirmed.toLocaleString()}</div>
-            <div className="text-xs text-purple-600 mt-1">
-              {summary.byStatus.pending} pending • {summary.byStatus.refunded} refunded
-            </div>
-          </div>
+          <StatTile
+            icon={ShoppingCart}
+            label="Total Orders"
+            value={summary.totalOrders.toLocaleString()}
+            sublabel={`Today: ${summary.todayOrders}`}
+          />
+          <StatTile
+            icon={DollarSign}
+            label="Revenue (30d)"
+            value={formatCurrency(summary.last30Days.revenueUSD, 'USD')}
+            sublabel={formatCurrency(summary.last30Days.revenueHTG, 'HTG')}
+          />
+          <StatTile
+            icon={TrendingUp}
+            label="Avg Order Value"
+            value={formatCurrency(summary.last30Days.avgOrderValueUSD, 'USD')}
+            sublabel={`${summary.last30Days.orders} orders (30d)`}
+          />
+          <StatTile
+            icon={CheckCircle}
+            label="Confirmed"
+            value={summary.byStatus.confirmed.toLocaleString()}
+            sublabel={`${summary.byStatus.pending} pending • ${summary.byStatus.refunded} refunded`}
+          />
         </div>
       )}
 
@@ -553,7 +533,7 @@ export function AdminOrdersClient() {
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
           <div>
-            <h2 className="font-semibold text-gray-900">Orders</h2>
+            <h2 className="font-display text-xl text-gray-900">Orders</h2>
             <p className="text-xs text-gray-500">
               {pagination.totalCount.toLocaleString()} total orders
               {filters.search && ` • Filtered`}
