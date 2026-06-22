@@ -8,6 +8,7 @@ import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import Link from 'next/link'
 import { BRAND } from '@/config/brand'
+import { TikemMark, TikemWordmark } from '@/components/ui/TikemLogo'
 import { isDemoMode, isDemoEmail } from '@/lib/demo'
 import { demoLogin } from '../actions'
 
@@ -148,19 +149,10 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-6 bg-white p-6 md:p-8 rounded-2xl shadow-lg">
         <div className="text-center">
           <div className="flex justify-center mb-4">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/tikem-mark.svg"
-              alt="Tikèm"
-              width={72}
-              height={72}
-              className="rounded-2xl shadow-md"
-            />
+            <TikemMark size={72} className="shadow-md" />
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900" style={{ color: BRAND.primaryColor }}>
-            {BRAND.logoText}
-          </h1>
-          <p className="mt-1.5 text-sm text-gray-600">{BRAND.tagline}</p>
+          <TikemWordmark className="text-3xl md:text-4xl text-brand-700" />
+          <p className="mt-2 text-sm text-gray-600">{BRAND.tagline}</p>
           <h2 className="mt-5 text-xl md:text-2xl font-semibold text-gray-900">
             {t('login.title')}
           </h2>

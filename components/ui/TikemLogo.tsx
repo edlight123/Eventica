@@ -1,0 +1,81 @@
+import React from 'react'
+
+/** Accent color for the "è" and the mark's dot — ties the wordmark to the icon. */
+export const TIKEM_ACCENT = '#F2B705'
+
+/**
+ * Tikèm wordmark in the brand display serif (Instrument Serif, same as the
+ * homepage) with an accent-colored "è". Base color is inherited (set via
+ * className/style) so it works on light and dark surfaces.
+ */
+export function TikemWordmark({
+  className = '',
+  style,
+}: {
+  className?: string
+  style?: React.CSSProperties
+}) {
+  return (
+    <span className={`font-display leading-none tracking-tight ${className}`} style={style}>
+      Tik<span style={{ color: TIKEM_ACCENT }}>è</span>m
+    </span>
+  )
+}
+
+/**
+ * Square app mark: teal rounded tile with a serif "T" (same Instrument Serif as
+ * the wordmark) and an accent dot. Rendered with real page fonts so the T
+ * matches the wordmark exactly.
+ */
+export function TikemMark({
+  size = 40,
+  className = '',
+}: {
+  size?: number
+  className?: string
+}) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`relative inline-flex shrink-0 items-center justify-center overflow-hidden bg-gradient-to-br from-brand-700 to-[#0C5E57] ${className}`}
+      style={{ width: size, height: size, borderRadius: size * 0.24 }}
+    >
+      <span
+        className="font-display font-bold leading-none text-[#F8F5EE]"
+        style={{ fontSize: size * 0.62 }}
+      >
+        T
+      </span>
+      <span
+        className="absolute rounded-full"
+        style={{
+          background: TIKEM_ACCENT,
+          width: size * 0.12,
+          height: size * 0.12,
+          top: size * 0.2,
+          right: size * 0.22,
+        }}
+      />
+    </span>
+  )
+}
+
+/**
+ * Mark + wordmark lockup. Used on auth screens and anywhere a full logo is needed.
+ */
+export function TikemLogo({
+  markSize = 40,
+  wordmarkClassName = 'text-[30px] text-brand-700',
+  className = '',
+}: {
+  markSize?: number
+  wordmarkClassName?: string
+  className?: string
+}) {
+  return (
+    <span className={`inline-flex items-center gap-2.5 ${className}`}>
+      <TikemMark size={markSize} />
+      <TikemWordmark className={wordmarkClassName} />
+    </span>
+  )
+}

@@ -50,7 +50,7 @@ export function WorkQueueCard({
               <Icon className={`w-5 h-5 ${iconColor}`} />
             </div>
             <div>
-              <h3 className="font-bold text-gray-900">{title}</h3>
+              <h3 className="font-display text-lg text-gray-900 leading-tight">{title}</h3>
               <p className="text-sm text-gray-500">{count} total</p>
             </div>
           </div>
