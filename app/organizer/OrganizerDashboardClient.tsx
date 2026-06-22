@@ -1,14 +1,14 @@
 'use client'
 
 import { useTranslation } from 'react-i18next'
-import { NextEventHero } from '@/components/organizer/NextEventHero'
 import { ActionCenter } from '@/components/organizer/ActionCenter'
 import { SalesSnapshot } from '@/components/organizer/SalesSnapshot'
 import { OrganizerEventCard } from '@/components/organizer/OrganizerEventCard'
 import { PayoutsWidget } from '@/components/organizer/PayoutsWidget'
 import WelcomeDashboard from '@/components/organizer/WelcomeDashboard'
+import { EditorialHeader } from '@/components/ui/EditorialHeader'
 import Link from 'next/link'
-import { CalendarPlus, DollarSign, CalendarDays, Wallet, BarChart3, QrCode, TicketPercent } from 'lucide-react'
+import { CalendarPlus } from 'lucide-react'
 
 interface Alert {
   id: string
@@ -67,22 +67,31 @@ export default function OrganizerDashboardClient({
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-      {/* Next Event Hero */}
-      {nextEvent && (
-        <div className="mb-6">
-          <NextEventHero event={nextEvent} />
-        </div>
-      )}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 space-y-6 md:space-y-8">
+      {/* Header */}
+      <EditorialHeader
+        eyebrow="Organizer"
+        title={t('organizer.dashboard_title', { defaultValue: 'Dashboard' })}
+        subtitle={t('organizer.dashboard_subtitle', { defaultValue: 'Your events, sales and payouts at a glance' })}
+        actions={
+          <Link
+            href="/organizer/events/new"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-700 hover:bg-brand-800 text-white rounded-lg font-semibold transition-colors text-sm shadow-sm"
+          >
+            <CalendarPlus className="w-4 h-4" />
+            {t('organizer.create_event')}
+          </Link>
+        }
+      />
 
-      {/* Action Center + Payouts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
-        {/* Action Center */}
+      {/* Overview — key numbers first */}
+      <SalesSnapshot data={salesData} currency={payoutCurrency} />
+
+      {/* Action items + payouts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         <div className={hasPayoutSetup ? 'lg:col-span-2' : 'lg:col-span-3'}>
           <ActionCenter alerts={alerts} />
         </div>
-
-        {/* Payouts Widget */}
         {hasPayoutSetup && (
           <div>
             <PayoutsWidget
@@ -94,146 +103,18 @@ export default function OrganizerDashboardClient({
         )}
       </div>
 
-      {/* Sales Snapshot */}
-      <div className="mb-6">
-        <SalesSnapshot data={salesData} currency={payoutCurrency} />
-      </div>
-
-      {/* Quick Actions */}
-      <div className="mb-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Link
-            href="/organizer/earnings"
-            className="bg-white p-4 rounded-xl border border-gray-200 hover:border-teal-300 hover:shadow-md transition-all group"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-teal-50 rounded-lg flex items-center justify-center group-hover:bg-teal-100 transition-colors">
-                <DollarSign className="w-5 h-5 text-teal-700" />
-              </div>
-              <div>
-                <div className="font-semibold text-gray-900">View Earnings</div>
-                <div className="text-xs text-gray-500">Track event revenue & fees</div>
-              </div>
-            </div>
-          </Link>
-
-          <Link
-            href="/organizer/events"
-            className="bg-white p-4 rounded-xl border border-gray-200 hover:border-teal-300 hover:shadow-md transition-all group"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-brand-50 rounded-lg flex items-center justify-center group-hover:bg-brand-100 transition-colors">
-                <CalendarDays className="w-5 h-5 text-brand-700" />
-              </div>
-              <div>
-                <div className="font-semibold text-gray-900">Manage Events</div>
-                <div className="text-xs text-gray-500">Edit & view all events</div>
-              </div>
-            </div>
-          </Link>
-
-          <Link
-            href="/organizer/settings/payouts"
-            className="bg-white p-4 rounded-xl border border-gray-200 hover:border-teal-300 hover:shadow-md transition-all group"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                <Wallet className="w-5 h-5 text-blue-700" />
-              </div>
-              <div>
-                <div className="font-semibold text-gray-900">Payouts</div>
-                <div className="text-xs text-gray-500">Setup & request withdrawals</div>
-              </div>
-            </div>
-          </Link>
-
-          <Link
-            href="/organizer/events/new"
-            className="bg-gradient-to-br from-brand-500 to-brand-700 p-4 rounded-xl hover:shadow-lg transition-all group"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                <CalendarPlus className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <div className="font-semibold text-white">Create Event</div>
-                <div className="text-xs text-white/80">Start selling tickets</div>
-              </div>
-            </div>
-          </Link>
-        </div>
-      </div>
-
-      {/* Discovery Links */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-bold text-gray-900">{t('organizer.tools.title')}</h2>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Link
-            href="/organizer/analytics"
-            className="bg-white p-4 rounded-xl border border-gray-200 hover:border-teal-300 hover:shadow-md transition-all group"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-teal-50 rounded-lg flex items-center justify-center group-hover:bg-teal-100 transition-colors">
-                <BarChart3 className="w-5 h-5 text-teal-700" />
-              </div>
-              <div>
-                <div className="font-semibold text-gray-900">{t('organizer.tools.analytics.title')}</div>
-                <div className="text-xs text-gray-500">{t('organizer.tools.analytics.description')}</div>
-              </div>
-            </div>
-          </Link>
-
-          <Link
-            href="/organizer/scan"
-            className="bg-white p-4 rounded-xl border border-gray-200 hover:border-teal-300 hover:shadow-md transition-all group"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-brand-50 rounded-lg flex items-center justify-center group-hover:bg-brand-100 transition-colors">
-                <QrCode className="w-5 h-5 text-brand-700" />
-              </div>
-              <div>
-                <div className="font-semibold text-gray-900">{t('organizer.tools.scan.title')}</div>
-                <div className="text-xs text-gray-500">{t('organizer.tools.scan.description')}</div>
-              </div>
-            </div>
-          </Link>
-
-          <Link
-            href="/organizer/promo-codes"
-            className="bg-white p-4 rounded-xl border border-gray-200 hover:border-teal-300 hover:shadow-md transition-all group"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                <TicketPercent className="w-5 h-5 text-blue-700" />
-              </div>
-              <div>
-                <div className="font-semibold text-gray-900">{t('organizer.tools.promoCodes.title')}</div>
-                <div className="text-xs text-gray-500">{t('organizer.tools.promoCodes.description')}</div>
-              </div>
-            </div>
-          </Link>
-        </div>
-      </div>
-
       {/* Events Grid */}
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <h2 className="font-display text-[clamp(22px,3.4vw,30px)] leading-[1.04] text-gray-900">{t('organizer.your_events')}</h2>
-            <Link
-              href="/organizer/events"
-              className="text-sm text-teal-600 hover:text-teal-700 font-medium hover:underline"
-            >
-              {t('organizer.view_all_events')} →
-            </Link>
+        <div className="mb-5 flex items-end justify-between gap-4">
+          <div>
+            <p className="eyebrow text-brand-600">Your events</p>
+            <h2 className="mt-1.5 font-display text-[clamp(22px,3.4vw,30px)] leading-[1.04] text-gray-900">{t('organizer.your_events')}</h2>
           </div>
           <Link
-            href="/organizer/events/new"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors text-sm"
+            href="/organizer/events"
+            className="eyebrow inline-flex shrink-0 items-center gap-1 text-[11px] text-brand-600 transition-colors hover:text-brand-700"
           >
-            + {t('organizer.create_event')}
+            {t('organizer.view_all_events')} →
           </Link>
         </div>
 

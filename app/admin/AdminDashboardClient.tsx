@@ -49,13 +49,6 @@ export function AdminDashboardClient({
         <RealtimeConnectionStatus />
       </div>
 
-      {/* Enhanced Quick Actions */}
-      <AdminDashboardQuickActions
-        pendingVerifications={pendingCount}
-        pendingBankVerifications={pendingBankCount}
-        urgentTasks={pendingCount + pendingBankCount}
-      />
-
       {/* Real-time Metrics */}
       <RealTimeMetrics
         usersCount={usersCount}
@@ -129,12 +122,19 @@ export function AdminDashboardClient({
             }
           })}
           icon={Calendar}
-          iconColor="text-purple-600"
-          iconBg="bg-purple-50"
+          iconColor="text-brand-700"
+          iconBg="bg-brand-50"
           viewAllHref="/admin/events"
           emptyMessage={t('dashboard.no_events_yet')}
         />
       </div>
+
+      {/* Quick Actions — secondary launchpad (primary nav lives in the sidebar) */}
+      <AdminDashboardQuickActions
+        pendingVerifications={pendingCount}
+        pendingBankVerifications={pendingBankCount}
+        urgentTasks={pendingCount + pendingBankCount}
+      />
 
       {/* Enhanced Activity and Notes */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
@@ -142,16 +142,16 @@ export function AdminDashboardClient({
         <AdminActivityFeed recentActivities={recentActivities} />
 
         {/* Notes Card */}
-        <div className="bg-blue-50 rounded-xl border border-blue-200 p-4 sm:p-6">
+        <div className="bg-brand-50 rounded-xl border border-brand-100 p-4 sm:p-6">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <AlertCircle className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-brand-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <AlertCircle className="w-5 h-5 text-brand-600" />
             </div>
             <div className="min-w-0">
-              <h3 className="font-bold text-blue-900 mb-2 text-sm sm:text-base">
+              <h3 className="font-bold text-brand-900 mb-2 text-sm sm:text-base">
                 {t('dashboard.daily_stats_title')}
               </h3>
-              <div className="text-xs sm:text-sm text-blue-800 space-y-2">
+              <div className="text-xs sm:text-sm text-brand-800 space-y-2">
                 <p className="hidden sm:block">
                   {t('dashboard.daily_stats_desc')}
                 </p>
@@ -161,7 +161,7 @@ export function AdminDashboardClient({
                   <li>{t('dashboard.daily_stats_tickets')}</li>
                   <li>{t('dashboard.daily_stats_refunds')}</li>
                 </ul>
-                <p className="text-xs text-blue-700 hidden sm:block mt-3">
+                <p className="text-xs text-brand-700 hidden sm:block mt-3">
                   {t('dashboard.daily_stats_docs')}
                 </p>
               </div>
