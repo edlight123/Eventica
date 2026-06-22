@@ -232,7 +232,7 @@ export default function EventbriteStyleTicketSelector({
                     </span>
                   </div>
                   {!isAvailable && available > 0 && (
-                    <p className="text-xs text-orange-600 mt-1">
+                    <p className="text-xs text-amber-600 mt-1">
                       {tier.sales_start && new Date(tier.sales_start) > new Date()
                         ? `${t('events.sales_start')} ${new Date(tier.sales_start).toLocaleDateString()}`
                         : `${t('events.sales_ended')} ${new Date(tier.sales_end!).toLocaleDateString()}`}

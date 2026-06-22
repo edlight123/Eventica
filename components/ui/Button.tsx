@@ -20,9 +20,9 @@ const variantStyles: Record<ButtonVariant, string> = {
     active:scale-95
   `,
   secondary: `
-    bg-gradient-to-r from-accent-500 to-accent-600 
-    text-white shadow-md hover:shadow-glow-orange
-    hover:from-accent-600 hover:to-accent-700
+    bg-gradient-to-r from-brand-500 to-brand-600 
+    text-white shadow-md hover:shadow-glow
+    hover:from-brand-600 hover:to-brand-700
     active:scale-95
   `,
   outline: `

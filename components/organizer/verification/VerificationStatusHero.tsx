@@ -45,10 +45,10 @@ export default function VerificationStatusHero({
   }> = {
     not_started: {
       icon: FileText,
-      bgColor: 'bg-blue-50',
-      borderColor: 'border-blue-200',
-      iconBgColor: 'bg-blue-100',
-      iconColor: 'text-blue-600',
+      bgColor: 'bg-brand-50',
+      borderColor: 'border-brand-200',
+      iconBgColor: 'bg-brand-100',
+      iconColor: 'text-brand-600',
       title: 'Start Verification',
       description: 'Complete identity verification to publish paid events and receive payouts.'
     },
@@ -63,10 +63,10 @@ export default function VerificationStatusHero({
     },
     pending_review: {
       icon: Eye,
-      bgColor: 'bg-yellow-50',
-      borderColor: 'border-yellow-200',
-      iconBgColor: 'bg-yellow-100',
-      iconColor: 'text-yellow-600',
+      bgColor: 'bg-amber-50',
+      borderColor: 'border-amber-200',
+      iconBgColor: 'bg-amber-100',
+      iconColor: 'text-amber-600',
       title: 'Verification Submitted',
       description: 'Your verification is pending review. Our team will review within 24-48 hours.',
       readonly: true
@@ -74,20 +74,20 @@ export default function VerificationStatusHero({
     // Legacy alias (older documents used "pending")
     pending: {
       icon: Eye,
-      bgColor: 'bg-yellow-50',
-      borderColor: 'border-yellow-200',
-      iconBgColor: 'bg-yellow-100',
-      iconColor: 'text-yellow-600',
+      bgColor: 'bg-amber-50',
+      borderColor: 'border-amber-200',
+      iconBgColor: 'bg-amber-100',
+      iconColor: 'text-amber-600',
       title: 'Verification Submitted',
       description: 'Your verification is pending review. Our team will review within 24-48 hours.',
       readonly: true
     },
     in_review: {
       icon: Eye,
-      bgColor: 'bg-purple-50',
-      borderColor: 'border-purple-200',
-      iconBgColor: 'bg-purple-100',
-      iconColor: 'text-purple-600',
+      bgColor: 'bg-amber-50',
+      borderColor: 'border-amber-200',
+      iconBgColor: 'bg-amber-100',
+      iconColor: 'text-amber-600',
       title: 'Under Review',
       description: 'Our team is currently reviewing your verification documents.',
       readonly: true
@@ -105,10 +105,10 @@ export default function VerificationStatusHero({
     },
     changes_requested: {
       icon: TriangleAlert,
-      bgColor: 'bg-orange-50',
-      borderColor: 'border-orange-200',
-      iconBgColor: 'bg-orange-100',
-      iconColor: 'text-orange-600',
+      bgColor: 'bg-amber-50',
+      borderColor: 'border-amber-200',
+      iconBgColor: 'bg-amber-100',
+      iconColor: 'text-amber-600',
       title: 'Changes Requested',
       description: 'We need some additional information. Please review the notes below and update your submission.'
     },
@@ -158,7 +158,7 @@ export default function VerificationStatusHero({
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
-                  className="bg-gradient-to-r from-amber-500 to-orange-500 h-2 rounded-full transition-all duration-300"
+                  className="bg-gradient-to-r from-amber-500 to-amber-600 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${completionPercentage}%` }}
                 />
               </div>
@@ -182,7 +182,7 @@ export default function VerificationStatusHero({
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
                 href={config.ctaHref}
-                className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white px-6 py-3 rounded-lg font-semibold text-sm md:text-base text-center transition-all shadow-md hover:shadow-lg"
+                className="bg-brand-700 hover:bg-brand-800 text-white px-6 py-3 rounded-lg font-semibold text-sm md:text-base text-center transition-all shadow-md hover:shadow-lg"
               >
                 Create Event
               </Link>
@@ -200,7 +200,7 @@ export default function VerificationStatusHero({
               <button
                 onClick={onRestart}
                 disabled={isRestarting}
-                className={`bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 ${
+                className={`bg-red-600 hover:bg-red-700 ${
                   isRestarting ? 'opacity-50 cursor-not-allowed' : ''
                 } text-white px-6 py-3 rounded-lg font-semibold text-sm md:text-base transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2`}
               >

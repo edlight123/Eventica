@@ -4,6 +4,8 @@ import { adminDb } from '@/lib/firebase/admin';
 import DefaultsForm from './DefaultsForm';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
+import { Card } from '@/components/ui/kit';
+import { EditorialHeader } from '@/components/ui/EditorialHeader';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,16 +39,15 @@ export default async function DefaultsSettingsPage() {
           Back to Settings
         </Link>
 
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">Event Defaults</h1>
-          <p className="text-gray-600 mt-2">
-            Set default preferences for new events you create
-          </p>
-        </div>
+        <EditorialHeader
+          eyebrow="Settings"
+          title="Event Defaults"
+          subtitle="Set default preferences for new events you create"
+          className="mb-8"
+        />
 
         {/* Defaults Form */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+        <Card>
           <DefaultsForm 
             userId={user.id}
             initialData={{
@@ -57,12 +58,12 @@ export default async function DefaultsSettingsPage() {
               default_categories: organizerData?.default_categories || [],
             }}
           />
-        </div>
+        </Card>
 
         {/* Info Notice */}
-        <div className="mt-6 p-4 bg-purple-50 border border-purple-200 rounded-lg">
-          <p className="text-sm text-purple-800">
-            <strong>Note:</strong> These defaults will be pre-filled when you create a new event, but you can always change them for individual events.
+        <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+          <p className="text-sm text-gray-600">
+            <strong className="text-gray-900">Note:</strong> These defaults will be pre-filled when you create a new event, but you can always change them for individual events.
           </p>
         </div>
       </div>

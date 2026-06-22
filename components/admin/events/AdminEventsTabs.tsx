@@ -26,7 +26,7 @@ export function AdminEventsTabs({ activeTab, onTabChange, tabs }: AdminEventsTab
                 className={`
                   whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2
                   ${isActive
-                    ? 'border-teal-500 text-teal-600'
+                    ? 'border-brand-500 text-brand-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }
                 `}
@@ -36,7 +36,7 @@ export function AdminEventsTabs({ activeTab, onTabChange, tabs }: AdminEventsTab
                   <span className={`
                     px-2 py-0.5 rounded-full text-xs font-bold
                     ${isActive
-                      ? 'bg-teal-100 text-teal-700'
+                      ? 'bg-brand-100 text-brand-700'
                       : 'bg-gray-100 text-gray-600'
                     }
                   `}>

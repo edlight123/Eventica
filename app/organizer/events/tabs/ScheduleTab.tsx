@@ -36,7 +36,7 @@ export function ScheduleTab({ formData, onChange, validation }: ScheduleTabProps
         {/* Start Date/Time */}
         <div>
           <label htmlFor="start_datetime" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-green-600" />
+            <Calendar className="w-4 h-4 text-brand-700" />
             Start Date & Time <span className="text-red-600">*</span>
           </label>
           <input
@@ -44,12 +44,12 @@ export function ScheduleTab({ formData, onChange, validation }: ScheduleTabProps
             id="start_datetime"
             value={formData.start_datetime}
             onChange={(e) => onChange('start_datetime', e.target.value)}
-            className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-teal-500 transition-all ${
+            className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-brand-500 transition-all ${
               startError
                 ? 'border-red-300 focus:border-red-500'
                 : formData.start_datetime
                 ? 'border-green-300 focus:border-green-500'
-                : 'border-gray-200 focus:border-teal-500'
+                : 'border-gray-200 focus:border-brand-500'
             }`}
           />
           {startError ? (
@@ -68,7 +68,7 @@ export function ScheduleTab({ formData, onChange, validation }: ScheduleTabProps
         {/* End Date/Time */}
         <div>
           <label htmlFor="end_datetime" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-            <Clock className="w-4 h-4 text-orange-600" />
+            <Clock className="w-4 h-4 text-brand-700" />
             End Date & Time <span className="text-gray-500 text-xs">(Optional)</span>
           </label>
           <input
@@ -76,10 +76,10 @@ export function ScheduleTab({ formData, onChange, validation }: ScheduleTabProps
             id="end_datetime"
             value={formData.end_datetime}
             onChange={(e) => onChange('end_datetime', e.target.value)}
-            className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-teal-500 transition-all ${
+            className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-brand-500 transition-all ${
               formData.end_datetime
                 ? 'border-green-300 focus:border-green-500'
-                : 'border-gray-200 focus:border-teal-500'
+                : 'border-gray-200 focus:border-brand-500'
             }`}
           />
           {formData.end_datetime && (
@@ -93,13 +93,13 @@ export function ScheduleTab({ formData, onChange, validation }: ScheduleTabProps
 
       {/* Event Duration Display */}
       {formData.start_datetime && formData.end_datetime && eventDuration() && (
-        <div className="bg-teal-50 border-2 border-teal-200 rounded-xl p-4">
+        <div className="bg-brand-50 border-2 border-brand-200 rounded-xl p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold text-teal-900 mb-1">Event Duration</p>
-              <p className="text-2xl font-bold text-teal-700">{eventDuration()}</p>
+              <p className="text-sm font-semibold text-brand-900 mb-1">Event Duration</p>
+              <p className="text-2xl font-bold text-brand-700">{eventDuration()}</p>
             </div>
-            <Clock className="w-12 h-12 text-teal-300" />
+            <Clock className="w-12 h-12 text-brand-300" />
           </div>
         </div>
       )}
@@ -143,28 +143,28 @@ export function ScheduleTab({ formData, onChange, validation }: ScheduleTabProps
 
       {/* Validation Warnings */}
       {validation.warnings.length > 0 && (
-        <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
-          <p className="font-semibold text-yellow-900 mb-2 flex items-center gap-2">
+        <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-4">
+          <p className="font-semibold text-amber-900 mb-2 flex items-center gap-2">
             <AlertCircle className="w-5 h-5" />
             Suggestions
           </p>
           <ul className="list-disc list-inside space-y-1">
             {validation.warnings.map((warning, index) => (
-              <li key={index} className="text-sm text-yellow-800">{warning}</li>
+              <li key={index} className="text-sm text-amber-800">{warning}</li>
             ))}
           </ul>
         </div>
       )}
 
       {/* Tips */}
-      <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+      <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-4">
         <div className="flex items-start gap-3">
-          <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-brand-700 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div>
-            <p className="font-semibold text-blue-900 mb-1">Scheduling Tips</p>
-            <ul className="text-sm text-blue-800 space-y-1">
+            <p className="font-semibold text-gray-900 mb-1">Scheduling Tips</p>
+            <ul className="text-sm text-gray-600 space-y-1">
               <li>• Choose dates/times when your target audience is available</li>
               <li>• Consider local holidays and competing events</li>
               <li>• End time is optional but helps attendees plan their day</li>

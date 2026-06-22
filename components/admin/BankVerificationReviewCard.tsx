@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Check, X, FileText, CreditCard, AlertCircle, ExternalLink } from 'lucide-react'
+import { StatusChip } from '@/components/ui/kit'
 
 interface BankVerification {
   organizerId: string
@@ -120,24 +121,21 @@ export default function BankVerificationReviewCard({ verification }: Props) {
     switch (verification.verificationDoc.status) {
       case 'verified':
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 text-sm font-semibold rounded-full">
-            <Check className="w-4 h-4" />
+          <StatusChip tone="success" icon={Check}>
             Verified
-          </span>
+          </StatusChip>
         )
       case 'failed':
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 text-sm font-semibold rounded-full">
-            <X className="w-4 h-4" />
+          <StatusChip tone="danger" icon={X}>
             Failed
-          </span>
+          </StatusChip>
         )
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-700 text-sm font-semibold rounded-full">
-            <AlertCircle className="w-4 h-4" />
+          <StatusChip tone="warning" icon={AlertCircle}>
             Pending Review
-          </span>
+          </StatusChip>
         )
     }
   }
@@ -187,10 +185,10 @@ export default function BankVerificationReviewCard({ verification }: Props) {
         <div className="border-t border-gray-200 p-6 bg-gray-50">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left: Bank Details Submitted */}
-            <div className="bg-white rounded-xl p-6 border-2 border-blue-200">
+            <div className="bg-white rounded-xl p-6 border-2 border-brand-200">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                  <CreditCard className="w-6 h-6 text-blue-600" />
+                <div className="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center">
+                  <CreditCard className="w-6 h-6 text-brand-600" />
                 </div>
                 <div>
                   <h4 className="font-bold text-gray-900">Bank Account Details</h4>
@@ -240,10 +238,10 @@ export default function BankVerificationReviewCard({ verification }: Props) {
             </div>
 
             {/* Right: Proof Document */}
-            <div className="bg-white rounded-xl p-6 border-2 border-purple-200">
+            <div className="bg-white rounded-xl p-6 border-2 border-brand-200">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                  <FileText className="w-6 h-6 text-purple-600" />
+                <div className="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center">
+                  <FileText className="w-6 h-6 text-brand-600" />
                 </div>
                 <div>
                   <h4 className="font-bold text-gray-900">Proof Document</h4>
@@ -282,7 +280,7 @@ export default function BankVerificationReviewCard({ verification }: Props) {
                 {/* In production, this would be a Firebase Storage URL */}
                 <div className="pt-3">
                   <button
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-colors"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-brand-700 hover:bg-brand-800 text-white rounded-lg font-semibold transition-colors"
                     onClick={openDocument}
                     disabled={!verification.verificationDoc.documentPath || isOpeningDocument}
                   >
@@ -300,10 +298,10 @@ export default function BankVerificationReviewCard({ verification }: Props) {
           </div>
 
           {/* Comparison Instructions */}
-          <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+          <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
             <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-yellow-900">
+              <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-amber-900">
                 <p className="font-semibold mb-2">Review Checklist:</p>
                 <ul className="list-disc list-inside space-y-1">
                   <li>Bank name matches between form and document</li>

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import DangerZone from './DangerZone';
 import Link from 'next/link';
 import { ChevronLeft, AlertTriangle } from 'lucide-react';
+import { EditorialHeader } from '@/components/ui/EditorialHeader';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,16 +30,12 @@ export default async function DangerZoneSettingsPage() {
           Back to Settings
         </Link>
 
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <AlertTriangle className="w-8 h-8 text-red-600" />
-            <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">Danger Zone</h1>
-          </div>
-          <p className="text-gray-600">
-            Permanent actions that cannot be easily undone
-          </p>
-        </div>
+        <EditorialHeader
+          eyebrow="Settings"
+          title="Danger Zone"
+          subtitle="Permanent actions that cannot be easily undone"
+          className="mb-8"
+        />
 
         {/* Warning Banner */}
         <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 mb-6">

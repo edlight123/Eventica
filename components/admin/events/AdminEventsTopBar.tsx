@@ -34,7 +34,7 @@ export function AdminEventsTopBar({
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Search events by title, city, or organizer..."
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
             />
           </div>
 
@@ -46,7 +46,7 @@ export function AdminEventsTopBar({
             <Filter className="w-4 h-4" />
             <span>Filters</span>
             {activeFiltersCount > 0 && (
-              <span className="ml-1 px-2 py-0.5 bg-teal-100 text-teal-700 rounded-full text-xs font-bold">
+              <span className="ml-1 px-2 py-0.5 bg-brand-100 text-brand-700 rounded-full text-xs font-bold">
                 {activeFiltersCount}
               </span>
             )}
@@ -57,7 +57,7 @@ export function AdminEventsTopBar({
             <div className="relative">
               <button
                 onClick={() => setShowBulkMenu(!showBulkMenu)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-teal-600 text-white rounded-lg hover:bg-teal-700 text-sm font-medium whitespace-nowrap"
+                className="flex items-center gap-2 px-4 py-2.5 bg-brand-600 text-white rounded-lg hover:bg-brand-700 text-sm font-medium whitespace-nowrap"
               >
                 <span>{selectedCount} selected</span>
                 <ChevronDown className="w-4 h-4" />
@@ -87,7 +87,7 @@ export function AdminEventsTopBar({
                       }}
                       className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                     >
-                      <Check className="w-4 h-4 text-orange-600" />
+                      <Check className="w-4 h-4 text-brand-600" />
                       Unpublish Selected
                     </button>
                     <button

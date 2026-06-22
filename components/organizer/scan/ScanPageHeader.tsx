@@ -10,7 +10,7 @@ export default function ScanPageHeader() {
     <>
       <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-2">
         {t('scan.title')}
-        <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-purple-500" />
+        <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-brand-500" />
       </h1>
       <p className="text-[13px] md:text-lg text-gray-600">
         {t('scan.subtitle')}

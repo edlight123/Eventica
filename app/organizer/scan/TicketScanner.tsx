@@ -202,7 +202,7 @@ export default function TicketScanner({ organizerId }: TicketScannerProps) {
             onChange={(e) => setQrData(e.target.value)}
             rows={3}
             placeholder="Paste QR code data here (e.g., ticket:abc123|event:xyz456)"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-600 focus:border-transparent font-mono text-sm"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent font-mono text-sm"
             required
           />
           <p className="text-xs text-gray-500 mt-1">
@@ -213,7 +213,7 @@ export default function TicketScanner({ organizerId }: TicketScannerProps) {
         <button
           type="submit"
           disabled={loading || !qrData.trim()}
-          className="w-full py-3 px-6 bg-teal-700 hover:bg-teal-800 text-white rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-3 px-6 bg-brand-700 hover:bg-brand-800 text-white rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Validating...' : 'Validate Ticket'}
         </button>

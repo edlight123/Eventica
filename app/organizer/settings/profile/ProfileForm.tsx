@@ -176,7 +176,7 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
             id="full_name"
             value={formData.full_name}
             onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             placeholder="Enter your full name"
             required
           />
@@ -215,7 +215,7 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
             id="phone_number"
             value={formData.phone_number}
             onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             placeholder="+509 1234 5678"
           />
         </div>
@@ -229,7 +229,7 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+          className="px-6 py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
         >
           {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
           {isSubmitting ? 'Saving...' : 'Save Changes'}

@@ -36,12 +36,12 @@ export function BasicInfoTab({ formData, onChange, validation }: BasicInfoTabPro
           value={formData.title}
           onChange={(e) => onChange('title', e.target.value)}
           placeholder="e.g., Summer Music Festival 2025"
-          className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-teal-500 transition-all text-lg ${
+          className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-brand-500 transition-all text-lg ${
             titleError
               ? 'border-red-300 focus:border-red-500'
               : formData.title.length >= 5
               ? 'border-green-300 focus:border-green-500'
-              : 'border-gray-200 focus:border-teal-500'
+              : 'border-gray-200 focus:border-brand-500'
           }`}
         />
         <div className="flex items-center justify-between mt-2">
@@ -58,7 +58,7 @@ export function BasicInfoTab({ formData, onChange, validation }: BasicInfoTabPro
               </span>
             ) : null}
           </div>
-          <span className={`text-sm ${formData.title.length > 100 ? 'text-orange-600 font-semibold' : 'text-gray-500'}`}>
+          <span className={`text-sm ${formData.title.length > 100 ? 'text-amber-600 font-semibold' : 'text-gray-500'}`}>
             {formData.title.length}/100
           </span>
         </div>
@@ -73,10 +73,10 @@ export function BasicInfoTab({ formData, onChange, validation }: BasicInfoTabPro
           id="category"
           value={formData.category}
           onChange={(e) => onChange('category', e.target.value)}
-          className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-teal-500 transition-all text-base ${
+          className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-brand-500 transition-all text-base ${
             categoryError
               ? 'border-red-300 focus:border-red-500'
-              : 'border-gray-200 focus:border-teal-500'
+              : 'border-gray-200 focus:border-brand-500'
           }`}
         >
           {CATEGORIES.map(cat => (
@@ -94,7 +94,7 @@ export function BasicInfoTab({ formData, onChange, validation }: BasicInfoTabPro
       {/* Banner Image */}
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-          <ImageIcon className="w-5 h-5 text-teal-600" />
+          <ImageIcon className="w-5 h-5 text-brand-700" />
           Event Banner Image <span className="text-red-600">*</span>
         </label>
         <ImageUpload
@@ -119,14 +119,14 @@ export function BasicInfoTab({ formData, onChange, validation }: BasicInfoTabPro
 
       {/* Validation Warnings */}
       {validation.warnings.length > 0 && (
-        <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
-          <p className="font-semibold text-yellow-900 mb-2 flex items-center gap-2">
+        <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-4">
+          <p className="font-semibold text-amber-900 mb-2 flex items-center gap-2">
             <AlertCircle className="w-5 h-5" />
             Suggestions
           </p>
           <ul className="list-disc list-inside space-y-1">
             {validation.warnings.map((warning, index) => (
-              <li key={index} className="text-sm text-yellow-800">{warning}</li>
+              <li key={index} className="text-sm text-amber-800">{warning}</li>
             ))}
           </ul>
         </div>

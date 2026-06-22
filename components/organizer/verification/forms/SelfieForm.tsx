@@ -78,9 +78,9 @@ export default function SelfieForm({ userId, initialData, onSave, onCancel }: Pr
         </p>
 
         {/* Instructions */}
-        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
-          <h4 className="font-semibold text-purple-900 text-sm mb-2">Instructions:</h4>
-          <ul className="text-sm text-purple-800 space-y-1 list-disc list-inside">
+        <div className="bg-brand-50 border border-brand-200 rounded-lg p-4 mb-6">
+          <h4 className="font-semibold text-brand-900 text-sm mb-2">Instructions:</h4>
+          <ul className="text-sm text-brand-800 space-y-1 list-disc list-inside">
             <li>Hold your ID next to your face</li>
             <li>Make sure your face is clearly visible</li>
             <li>Ensure the ID text is readable in the photo</li>
@@ -121,7 +121,7 @@ export default function SelfieForm({ userId, initialData, onSave, onCancel }: Pr
           type="button"
           onClick={handleContinue}
           disabled={isSaving || !selfiePath}
-          className="flex-1 px-6 py-3 bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white rounded-lg font-semibold transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 px-6 py-3 bg-brand-700 hover:bg-brand-800 text-white rounded-lg font-semibold transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSaving ? 'Saving...' : 'Save & Continue'}
         </button>

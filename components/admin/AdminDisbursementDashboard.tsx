@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { formatCurrency } from '@/lib/currency'
+import { StatusChip } from '@/components/ui/kit'
 import { 
   Calendar, 
   DollarSign, 
@@ -128,7 +129,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
               <p className="text-sm text-gray-600">Events Ended (7d)</p>
               <p className="text-2xl font-bold text-gray-900">{stats.eventsEndedLast7Days}</p>
             </div>
-            <Calendar className="w-10 h-10 text-blue-500" />
+            <Calendar className="w-10 h-10 text-brand-500" />
           </div>
         </div>
 
@@ -136,9 +137,9 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Pending Payouts</p>
-              <p className="text-2xl font-bold text-yellow-600">{stats.pendingPayouts}</p>
+              <p className="text-2xl font-bold text-amber-600">{stats.pendingPayouts}</p>
             </div>
-            <Clock className="w-10 h-10 text-yellow-500" />
+            <Clock className="w-10 h-10 text-amber-500" />
           </div>
         </div>
 
@@ -156,11 +157,11 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Pending Amount</p>
-              <p className="text-2xl font-bold text-teal-600">
+              <p className="text-2xl font-bold text-brand-600">
                 {formatCurrency(stats.totalPendingAmount, 'HTG')}
               </p>
             </div>
-            <DollarSign className="w-10 h-10 text-teal-500" />
+            <DollarSign className="w-10 h-10 text-brand-500" />
           </div>
         </div>
       </div>
@@ -172,7 +173,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
             onClick={() => setFilter('all')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               filter === 'all'
-                ? 'bg-teal-600 text-white'
+                ? 'bg-brand-700 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -182,7 +183,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
             onClick={() => setFilter('eligible')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               filter === 'eligible'
-                ? 'bg-teal-600 text-white'
+                ? 'bg-brand-700 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -192,7 +193,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
             onClick={() => setFilter('pending')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               filter === 'pending'
-                ? 'bg-teal-600 text-white'
+                ? 'bg-brand-700 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -202,7 +203,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
             onClick={() => setFilter('completed')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               filter === 'completed'
-                ? 'bg-teal-600 text-white'
+                ? 'bg-brand-700 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -306,33 +307,22 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
                     </td>
                     <td className="px-6 py-4">
                       {event.hasCompletedPayout && (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          Paid
-                        </span>
+                        <StatusChip tone="success" icon={CheckCircle}>Paid</StatusChip>
                       )}
                       {event.hasPendingPayout && !event.hasCompletedPayout && (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                          <Clock className="w-3 h-3 mr-1" />
-                          Pending
-                        </span>
+                        <StatusChip tone="warning" icon={Clock}>Pending</StatusChip>
                       )}
                       {event.payoutEligible && !event.hasPendingPayout && !event.hasCompletedPayout && (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          <AlertCircle className="w-3 h-3 mr-1" />
-                          Ready
-                        </span>
+                        <StatusChip tone="brand" icon={AlertCircle}>Ready</StatusChip>
                       )}
                       {!event.payoutEligible && !event.hasPendingPayout && !event.hasCompletedPayout && (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                          Not Eligible
-                        </span>
+                        <StatusChip tone="neutral">Not Eligible</StatusChip>
                       )}
                     </td>
                     <td className="px-6 py-4">
                       <button
                         onClick={() => viewDetails(event)}
-                        className="text-teal-600 hover:text-teal-800 font-medium text-sm mr-3"
+                        className="text-brand-700 hover:text-brand-800 font-medium text-sm mr-3"
                       >
                         <Eye className="w-4 h-4 inline mr-1" />
                         View
@@ -340,7 +330,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
                       {event.payoutEligible && !event.hasPendingPayout && !event.hasCompletedPayout && (
                         <button
                           onClick={() => initiatePayoutRequest(event)}
-                          className="text-blue-600 hover:text-blue-800 font-medium text-sm"
+                          className="text-brand-700 hover:text-brand-800 font-medium text-sm"
                         >
                           <Send className="w-4 h-4 inline mr-1" />
                           Create Payout
@@ -392,7 +382,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
                 </div>
                 <div className="flex justify-between border-t pt-2">
                   <span className="font-semibold text-gray-900">Amount to Send:</span>
-                  <span className="font-bold text-teal-600">{formatCurrency(selectedEvent.netRevenue, selectedEvent.currency as any)}</span>
+                  <span className="font-bold text-brand-700">{formatCurrency(selectedEvent.netRevenue, selectedEvent.currency as any)}</span>
                 </div>
               </div>
             </div>
@@ -419,7 +409,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
             </div>
 
             {selectedEvent.payoutMethod === 'bank_transfer' && hasBankDetails(selectedEvent.bankInfo) && (
-              <div className="bg-blue-50 rounded-lg p-4 mb-6">
+              <div className="bg-brand-50 rounded-lg p-4 mb-6">
                 <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                   <><Building2 className="w-5 h-5" /> Bank Account Details</>
                 </h4>
@@ -442,7 +432,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
                         <button
                           type="button"
                           onClick={() => copyToClipboard(value)}
-                          className="font-mono font-medium inline-flex items-center gap-2 text-teal-700 hover:text-teal-900"
+                          className="font-mono font-medium inline-flex items-center gap-2 text-brand-700 hover:text-brand-900"
                           title="Click to copy"
                         >
                           <span>{value}</span>
@@ -481,7 +471,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
             )}
 
             {selectedEvent.payoutMethod === 'mobile_money' && hasMobileDetails(selectedEvent.bankInfo) && (
-              <div className="bg-blue-50 rounded-lg p-4 mb-6">
+              <div className="bg-brand-50 rounded-lg p-4 mb-6">
                 <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                   <><Smartphone className="w-5 h-5" /> Mobile Money Details</>
                 </h4>
@@ -514,7 +504,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
               {selectedEvent.payoutEligible && !selectedEvent.hasPendingPayout && (
                 <button
                   onClick={() => initiatePayoutRequest(selectedEvent)}
-                  className="flex-1 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 font-medium"
+                  className="flex-1 px-4 py-2 bg-brand-700 text-white rounded-lg hover:bg-brand-800 font-medium"
                 >
                   Create Payout Request
                 </button>

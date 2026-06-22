@@ -102,7 +102,7 @@ export default function MobileHero({
           href={`/profile/organizer/${organizerId}`}
           className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
         >
-          <div className="w-10 h-10 bg-gradient-to-br from-brand-400 to-accent-400 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+          <div className="w-10 h-10 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
             {organizerName[0].toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
@@ -110,7 +110,7 @@ export default function MobileHero({
               {organizerName}
             </p>
             {isVerified && (
-              <div className="flex items-center gap-1 text-blue-600 text-xs">
+              <div className="flex items-center gap-1 text-brand-600 text-xs">
                 <Shield className="w-3 h-3" />
                 <span className="font-medium">Verified</span>
               </div>

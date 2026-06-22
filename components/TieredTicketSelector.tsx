@@ -216,7 +216,7 @@ export default function TieredTicketSelector({ eventId, userId, onPurchase }: Ti
                     </span>
                   </div>
                   {!isAvailable && available > 0 && (
-                    <p className="text-xs text-orange-600 mt-1">
+                    <p className="text-xs text-amber-600 mt-1">
                       {tier.sales_start && new Date(tier.sales_start) > new Date()
                         ? `${t('events.sales_start')} ${new Date(tier.sales_start).toLocaleDateString()}`
                         : `${t('events.sales_ended')} ${new Date(tier.sales_end!).toLocaleDateString()}`}
@@ -236,9 +236,9 @@ export default function TieredTicketSelector({ eventId, userId, onPurchase }: Ti
             {t('events.quantity')}
           </label>
           {groupDiscounts.length > 0 && (
-            <div className="mb-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-              <p className="text-sm font-medium text-orange-800 mb-1">🎟️ {t('events.group_discounts_available')}:</p>
-              <ul className="text-sm text-orange-700 space-y-1">
+            <div className="mb-3 p-3 bg-brand-50 border border-brand-200 rounded-lg">
+              <p className="text-sm font-medium text-brand-900 mb-1">🎟️ {t('events.group_discounts_available')}:</p>
+              <ul className="text-sm text-brand-800 space-y-1">
                 {groupDiscounts
                   .sort((a, b) => a.min_quantity - b.min_quantity)
                   .map(d => (
@@ -315,7 +315,7 @@ export default function TieredTicketSelector({ eventId, userId, onPurchase }: Ti
               </div>
             )}
             {getApplicableGroupDiscount() && !promoApplied && (
-              <div className="flex justify-between text-sm text-orange-600">
+              <div className="flex justify-between text-sm text-brand-700">
                 <span>{t('events.group_discount')} ({getApplicableGroupDiscount()?.discount_percentage}% {t('events.off')} {getApplicableGroupDiscount()?.min_quantity}+ {t('ticket.tickets')})</span>
                 <span>-{(selectedTierData.price - finalPrice).toFixed(2)} HTG</span>
               </div>

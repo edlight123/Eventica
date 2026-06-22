@@ -145,17 +145,17 @@ export function LocationDetectionBanner({
       {/* Premium frosted glass card */}
       <div className="relative overflow-hidden rounded-2xl bg-white/80 backdrop-blur-xl border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
         {/* Gradient accent line */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-400 via-purple-500 to-pink-500" />
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-400 via-brand-500 to-brand-600" />
         
         {/* Subtle background glow */}
-        <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-teal-400/20 to-purple-500/20 rounded-full blur-3xl" />
-        <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-tr from-pink-400/20 to-purple-500/20 rounded-full blur-3xl" />
+        <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-brand-400/20 to-brand-600/20 rounded-full blur-3xl" />
+        <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-tr from-brand-400/20 to-brand-600/20 rounded-full blur-3xl" />
         
         <div className="relative p-4 sm:p-5">
           <div className="flex items-start gap-4">
             {/* Animated location icon */}
             <div className="relative flex-shrink-0">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-lg shadow-teal-500/25">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center shadow-lg shadow-brand-500/25">
                 <MapPin className="w-6 h-6 text-white" />
               </div>
               {/* Pulse ring */}

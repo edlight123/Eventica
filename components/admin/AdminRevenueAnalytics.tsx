@@ -113,7 +113,7 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
       </div>
     )
   }
@@ -153,7 +153,7 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
               onClick={() => setDateRange(option.value as any)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 dateRange === option.value
-                  ? 'bg-teal-600 text-white'
+                  ? 'bg-brand-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -165,58 +165,58 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
 
       {/* Total Revenue Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-6 border border-teal-200">
+        <div className="bg-gradient-to-br from-brand-50 to-brand-100 rounded-xl p-6 border border-brand-200">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-teal-500 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-brand-600 rounded-lg flex items-center justify-center">
               <DollarSign className="w-6 h-6 text-white" />
             </div>
             {growth && <GrowthBadge value={growth.revenueGrowth7d} />}
           </div>
-          <div className="text-sm font-medium text-teal-700 mb-1">Total Revenue (USD)</div>
-          <div className="text-3xl font-bold text-teal-900">
+          <div className="text-sm font-medium text-brand-700 mb-1">Total Revenue (USD)</div>
+          <div className="text-3xl font-bold text-brand-700">
             {formatCurrency(revenue.totalRevenueUSDWithFxSpread ?? revenue.totalRevenueUSD, 'USD')}
           </div>
           {revenue.fxSpread?.ticketCount > 0 && (
-            <div className="text-xs text-teal-700 mt-2">
+            <div className="text-xs text-brand-700 mt-2">
               Includes FX spread: {formatCurrency(revenue.fxSpread.profitUSD || 0, 'USD')}
             </div>
           )}
           {growth && (
-            <div className="text-xs text-teal-600 mt-2">
+            <div className="text-xs text-brand-600 mt-2">
               7-day growth: <GrowthBadge value={growth.revenueGrowth7d} />
             </div>
           )}
         </div>
 
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+        <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-brand-600 rounded-lg flex items-center justify-center">
               <CreditCard className="w-6 h-6 text-white" />
             </div>
             {growth && <GrowthBadge value={growth.ticketsGrowth7d} />}
           </div>
-          <div className="text-sm font-medium text-blue-700 mb-1">Total Tickets Sold</div>
-          <div className="text-3xl font-bold text-blue-900">
+          <div className="text-sm font-medium text-gray-600 mb-1">Total Tickets Sold</div>
+          <div className="text-3xl font-bold text-gray-900">
             {revenue.totalTickets.toLocaleString()}
           </div>
           {growth && (
-            <div className="text-xs text-blue-600 mt-2">
+            <div className="text-xs text-gray-500 mt-2">
               7-day growth: <GrowthBadge value={growth.ticketsGrowth7d} />
             </div>
           )}
         </div>
 
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
+        <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-brand-600 rounded-lg flex items-center justify-center">
               <TrendingUp className="w-6 h-6 text-white" />
             </div>
           </div>
-          <div className="text-sm font-medium text-purple-700 mb-1">Average Ticket Price</div>
-          <div className="text-3xl font-bold text-purple-900">
+          <div className="text-sm font-medium text-gray-600 mb-1">Average Ticket Price</div>
+          <div className="text-3xl font-bold text-gray-900">
             {formatCurrency(revenue.totalRevenueUSD / revenue.totalTickets || 0, 'USD')}
           </div>
-          <div className="text-xs text-purple-600 mt-2">
+          <div className="text-xs text-gray-500 mt-2">
             Across all currencies
           </div>
         </div>
@@ -243,7 +243,7 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
               </div>
               <div>
                 <div className="text-sm text-gray-600">Converted to USD</div>
-                <div className="text-xl font-semibold text-teal-600">
+                <div className="text-xl font-semibold text-brand-600">
                   {formatCurrency(revenue.byCurrency.HTG.convertedToUSD, 'USD')}
                 </div>
               </div>
@@ -318,41 +318,41 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue by Payment Method</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Stripe */}
-          <div className="border border-indigo-200 bg-indigo-50 rounded-lg p-4">
+          <div className="border border-blue-200 bg-blue-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-3">
-              <CreditCard className="w-5 h-5 text-indigo-600" />
-              <h4 className="font-medium text-indigo-900">Stripe</h4>
+              <CreditCard className="w-5 h-5 text-blue-600" />
+              <h4 className="font-medium text-blue-900">Stripe</h4>
             </div>
             <div className="space-y-2">
               <div>
-                <div className="text-xs text-indigo-600">Revenue (USD)</div>
-                <div className="text-xl font-bold text-indigo-900">
+                <div className="text-xs text-blue-600">Revenue (USD)</div>
+                <div className="text-xl font-bold text-blue-900">
                   {formatCurrency(revenue.byPaymentMethod.stripe.revenueUSD, 'USD')}
                 </div>
               </div>
-              <div className="text-xs text-indigo-600">
+              <div className="text-xs text-blue-600">
                 {revenue.byPaymentMethod.stripe.tickets} tickets • Avg: {formatCurrency(revenue.byPaymentMethod.stripe.averagePrice, 'USD')}
               </div>
             </div>
           </div>
 
           {/* MonCash */}
-          <div className="border border-orange-200 bg-orange-50 rounded-lg p-4">
+          <div className="border border-red-200 bg-red-50 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-3">
-              <Smartphone className="w-5 h-5 text-orange-600" />
-              <h4 className="font-medium text-orange-900">MonCash</h4>
+              <Smartphone className="w-5 h-5 text-red-600" />
+              <h4 className="font-medium text-red-900">MonCash</h4>
             </div>
             <div className="space-y-2">
               <div>
-                <div className="text-xs text-orange-600">Revenue (HTG)</div>
-                <div className="text-xl font-bold text-orange-900">
+                <div className="text-xs text-red-600">Revenue (HTG)</div>
+                <div className="text-xl font-bold text-red-900">
                   {formatCurrency(revenue.byPaymentMethod.moncash.revenueHTG, 'HTG')}
                 </div>
               </div>
-              <div className="text-xs text-orange-600">
+              <div className="text-xs text-red-600">
                 USD: {formatCurrency(revenue.byPaymentMethod.moncash.revenueUSD, 'USD')}
               </div>
-              <div className="text-xs text-orange-600">
+              <div className="text-xs text-red-600">
                 {revenue.byPaymentMethod.moncash.tickets} tickets
               </div>
             </div>

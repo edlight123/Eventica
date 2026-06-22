@@ -44,8 +44,8 @@ export function EditEventHeader({
                   {isPublished ? 'Published' : 'Draft'}
                 </Badge>
                 {hasUnsavedChanges && (
-                  <span className="text-sm text-orange-600 font-medium flex items-center gap-1">
-                    <span className="w-2 h-2 bg-orange-600 rounded-full animate-pulse"></span>
+                  <span className="text-sm text-amber-600 font-medium flex items-center gap-1">
+                    <span className="w-2 h-2 bg-amber-600 rounded-full animate-pulse"></span>
                     Unsaved
                   </span>
                 )}
@@ -59,7 +59,7 @@ export function EditEventHeader({
                       {completionPercentage}% Complete
                     </span>
                     {missingItemsCount > 0 && (
-                      <span className="text-xs text-orange-600 font-medium">
+                      <span className="text-xs text-amber-600 font-medium">
                         {missingItemsCount} item{missingItemsCount !== 1 ? 's' : ''} missing
                       </span>
                     )}
@@ -70,8 +70,8 @@ export function EditEventHeader({
                         completionPercentage === 100
                           ? 'bg-green-600'
                           : completionPercentage >= 60
-                          ? 'bg-teal-600'
-                          : 'bg-orange-600'
+                          ? 'bg-brand-600'
+                          : 'bg-amber-500'
                       }`}
                       style={{ width: `${completionPercentage}%` }}
                     ></div>
@@ -84,7 +84,7 @@ export function EditEventHeader({
                     <span>Ready to publish</span>
                   </div>
                 ) : (
-                  <div className="hidden md:flex items-center gap-1.5 text-orange-600 text-sm font-medium">
+                  <div className="hidden md:flex items-center gap-1.5 text-amber-600 text-sm font-medium">
                     <AlertCircle className="w-4 h-4" />
                     <span>Complete required fields</span>
                   </div>
@@ -132,8 +132,8 @@ export function EditEventHeader({
               className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold transition-all ${
                 canPublish && !isSaving
                   ? isPublished
-                    ? 'bg-orange-600 text-white hover:bg-orange-700 shadow-md hover:shadow-lg'
-                    : 'bg-gradient-to-r from-teal-600 to-blue-600 text-white hover:from-teal-700 hover:to-blue-700 shadow-md hover:shadow-lg'
+                    ? 'bg-gray-600 text-white hover:bg-gray-700 shadow-md hover:shadow-lg'
+                    : 'bg-brand-700 text-white hover:bg-brand-800 shadow-md hover:shadow-lg'
                   : 'bg-gray-200 text-gray-400 cursor-not-allowed'
               }`}
               title={!canPublish ? `Complete ${missingItemsCount} required item${missingItemsCount !== 1 ? 's' : ''} to publish` : ''}
@@ -154,7 +154,7 @@ export function EditEventHeader({
               <span>Ready to publish</span>
             </div>
           ) : (
-            <div className="flex items-center gap-1.5 text-orange-600 text-sm font-medium">
+            <div className="flex items-center gap-1.5 text-amber-600 text-sm font-medium">
               <AlertCircle className="w-4 h-4" />
               <span>Complete {missingItemsCount} required field{missingItemsCount !== 1 ? 's' : ''}</span>
             </div>

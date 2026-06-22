@@ -3,10 +3,11 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { format } from 'date-fns'
-import { MoreVertical, Eye, Edit, Copy, Trash2, AlertCircle, CheckCircle, Users } from 'lucide-react'
+import { MoreVertical, Eye, Edit, Copy, Trash2, AlertCircle, Users, DollarSign, Calendar, MapPin } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatMoneyFromCents, formatPrimaryMoneyFromCentsByCurrency, normalizeCurrency } from '@/lib/money'
+import { StatusChip } from '@/components/ui/kit'
 
 interface EventData {
   id: string
@@ -79,9 +80,9 @@ export default function OrganizerEventCard({
   const needsAttention = missingCover || missingTickets || noSales
 
   return (
-    <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 group">
+    <div className="bg-white rounded-2xl shadow-soft hover:shadow-medium transition-all duration-300 overflow-hidden border border-gray-100 group">
       {/* Event Banner/Thumbnail */}
-      <div className="relative h-48 bg-gray-200 overflow-hidden">
+      <div className="relative h-48 bg-gray-100 overflow-hidden">
         {event.banner_image_url ? (
           <Image
             src={event.banner_image_url}
@@ -92,52 +93,30 @@ export default function OrganizerEventCard({
             priority={false}
           />
         ) : (
-          <div className="h-full bg-gradient-to-br from-gray-200 via-gray-100 to-gray-200 flex items-center justify-center">
-            <div className="text-center">
-              <span className="text-5xl opacity-30">📸</span>
-              {showNeedsAttention && (
-                <p className="text-xs text-gray-500 mt-2 font-medium">No cover image</p>
-              )}
-            </div>
+          <div className="flex h-full items-center justify-center bg-gradient-to-br from-brand-700 to-[#0C5E57]">
+            <span className="font-display text-6xl leading-none text-[#F8F5EE]">T</span>
           </div>
         )}
 
         {/* Badges Overlay */}
-        <div className="absolute top-3 right-3 flex flex-col gap-2">
+        <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
           {isSoldOut && (
-            <div className="bg-gradient-to-r from-red-600 to-red-700 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+            <StatusChip tone="danger" className="shadow-sm">
               {t('event_card_detail.sold_out')}
-            </div>
+            </StatusChip>
           )}
           {showNeedsAttention && needsAttention && (
-            <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1">
-              <AlertCircle className="w-3 h-3" />
-              <span>{t('event_card_detail.needs_attention')}</span>
-            </div>
+            <StatusChip tone="warning" icon={AlertCircle} className="shadow-sm">
+              {t('event_card_detail.needs_attention')}
+            </StatusChip>
           )}
         </div>
 
         {/* Status Pill (Bottom Left) */}
         <div className="absolute bottom-3 left-3">
-          <span
-            className={`inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-full shadow-md ${
-              event.is_published
-                ? 'bg-gradient-to-r from-green-500 to-green-600 text-white'
-                : 'bg-gradient-to-r from-gray-700 to-gray-800 text-white'
-            }`}
-          >
-            {event.is_published ? (
-              <>
-                <CheckCircle className="w-3 h-3" />
-                <span>{t('event_card_detail.published')}</span>
-              </>
-            ) : (
-              <>
-                <Edit className="w-3 h-3" />
-                <span>{t('event_card_detail.draft')}</span>
-              </>
-            )}
-          </span>
+          <StatusChip tone={event.is_published ? 'success' : 'neutral'} className="shadow-sm">
+            {event.is_published ? t('event_card_detail.published') : t('event_card_detail.draft')}
+          </StatusChip>
         </div>
       </div>
 
@@ -145,7 +124,7 @@ export default function OrganizerEventCard({
       <div className="p-5">
         {/* Category Badge */}
         <div className="mb-3">
-          <span className="inline-block px-3 py-1 text-xs font-semibold bg-gradient-to-r from-teal-50 to-teal-100 text-teal-700 rounded-full border border-teal-200">
+          <span className="inline-block px-2.5 py-1 text-xs font-semibold bg-gray-100 text-gray-600 rounded-md">
             {event.category}
           </span>
         </div>
@@ -155,7 +134,7 @@ export default function OrganizerEventCard({
           href={`/organizer/events/${event.id}`}
           className="block mb-3 group/title"
         >
-          <h3 className="text-lg font-bold text-gray-900 line-clamp-2 group-hover/title:text-teal-700 transition-colors">
+          <h3 className="font-display text-lg text-gray-900 line-clamp-2 group-hover/title:text-brand-700 transition-colors">
             {event.title}
           </h3>
         </Link>
@@ -163,10 +142,8 @@ export default function OrganizerEventCard({
         {/* Event Details */}
         <div className="space-y-2 mb-4">
           <div className="flex items-center text-sm text-gray-700">
-            <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center mr-2">
-              <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+            <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center mr-2">
+              <Calendar className="w-4 h-4 text-brand-700" />
             </div>
             <span className="font-medium text-xs">
               {format(new Date(event.start_datetime), 'MMM d, yyyy • h:mm a')}
@@ -174,11 +151,8 @@ export default function OrganizerEventCard({
           </div>
 
           <div className="flex items-center text-sm text-gray-700">
-            <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center mr-2">
-              <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
+            <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center mr-2">
+              <MapPin className="w-4 h-4 text-brand-700" />
             </div>
             <span className="font-medium text-xs line-clamp-1">
               {event.location_name || event.commune || event.city}
@@ -194,16 +168,10 @@ export default function OrganizerEventCard({
               {ticketsSold} / {totalTickets}
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+          <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
             <div
               className={`h-2 rounded-full transition-all duration-500 ${
-                salesPercentage >= 100
-                  ? 'bg-gradient-to-r from-red-500 to-red-600'
-                  : salesPercentage >= 75
-                  ? 'bg-gradient-to-r from-orange-500 to-orange-600'
-                  : salesPercentage >= 50
-                  ? 'bg-gradient-to-r from-yellow-500 to-yellow-600'
-                  : 'bg-gradient-to-r from-teal-500 to-teal-600'
+                salesPercentage >= 100 ? 'bg-red-600' : 'bg-brand-600'
               }`}
               style={{ width: `${Math.min(salesPercentage, 100)}%` }}
             />
@@ -213,26 +181,29 @@ export default function OrganizerEventCard({
 
         {/* Revenue & Check-ins */}
         <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-3 border border-green-200">
-            <p className="text-xs text-green-700 font-medium mb-0.5">{t('event_card_detail.revenue')}</p>
-            <p className="text-lg font-bold text-green-800">
+          <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <DollarSign className="w-3.5 h-3.5 text-brand-700" />
+              <p className="text-xs text-gray-500 font-medium">{t('event_card_detail.revenue')}</p>
+            </div>
+            <p className="text-base font-bold text-gray-900 truncate">
               {revenueText}
             </p>
           </div>
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-3 border border-blue-200">
-            <div className="flex items-center gap-1 mb-0.5">
-              <Users className="w-3 h-3 text-blue-700" />
-              <p className="text-xs text-blue-700 font-medium">{t('event_card_detail.check_ins')}</p>
+          <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <Users className="w-3.5 h-3.5 text-brand-700" />
+              <p className="text-xs text-gray-500 font-medium">{t('event_card_detail.check_ins')}</p>
             </div>
-            <p className="text-lg font-bold text-blue-800">{checkedIn}</p>
+            <p className="text-base font-bold text-gray-900">{checkedIn}</p>
           </div>
         </div>
 
         {/* Needs Attention Messages */}
         {showNeedsAttention && needsAttention && (
-          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-xs font-semibold text-yellow-800 mb-1">⚠️ Issues to Fix:</p>
-            <ul className="text-xs text-yellow-700 space-y-0.5">
+          <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <p className="text-xs font-semibold text-amber-800 mb-1">⚠️ Issues to Fix:</p>
+            <ul className="text-xs text-amber-700 space-y-0.5">
               {missingCover && <li>• Add a cover image</li>}
               {missingTickets && <li>• Add at least one ticket tier</li>}
               {noSales && <li>• No tickets sold yet</li>}
@@ -244,14 +215,14 @@ export default function OrganizerEventCard({
         <div className="flex gap-2">
           <Link
             href={`/organizer/events/${event.id}`}
-            className="flex-1 px-4 py-2 rounded-lg text-xs font-semibold text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-all text-center flex items-center justify-center gap-1"
+            className="flex-1 px-4 py-2 rounded-lg text-xs font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-100 transition-all text-center flex items-center justify-center gap-1"
           >
             <Eye className="w-4 h-4" />
             <span>{t('event_card_detail.view')}</span>
           </Link>
           <Link
             href={`/organizer/events/${event.id}/edit`}
-            className="flex-1 px-4 py-2 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 shadow-md hover:shadow-lg transition-all text-center flex items-center justify-center gap-1"
+            className="flex-1 px-4 py-2 rounded-lg text-xs font-semibold text-white bg-brand-700 hover:bg-brand-800 shadow-sm transition-all text-center flex items-center justify-center gap-1"
           >
             <Edit className="w-4 h-4" />
             <span>{t('event_card_detail.edit')}</span>
@@ -261,7 +232,7 @@ export default function OrganizerEventCard({
           <div className="relative">
             <button
               onClick={() => setShowActionsMenu(!showActionsMenu)}
-              className="px-3 py-2 rounded-lg text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-300 transition-all"
+              className="px-3 py-2 rounded-lg text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-200 transition-all"
               aria-label="More actions"
             >
               <MoreVertical className="w-4 h-4" />
@@ -273,7 +244,7 @@ export default function OrganizerEventCard({
                   className="fixed inset-0 z-10"
                   onClick={() => setShowActionsMenu(false)}
                 />
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-20">
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-medium border border-gray-200 py-1 z-20">
                   {onDuplicate && (
                     <button
                       onClick={() => {

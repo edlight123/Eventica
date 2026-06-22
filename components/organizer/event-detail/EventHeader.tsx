@@ -106,7 +106,7 @@ export function EventHeader({ event, onPublishToggle, isPublishing }: EventHeade
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   event.is_published
                     ? 'bg-gray-600 hover:bg-gray-700 text-white'
-                    : 'bg-teal-600 hover:bg-teal-700 text-white'
+                    : 'bg-brand-700 hover:bg-brand-800 text-white'
                 }`}
               >
                 {isPublishing ? t('organizer.processing') : event.is_published ? t('organizer.unpublish') : t('organizer.publish')}
@@ -202,11 +202,11 @@ export function EventHeader({ event, onPublishToggle, isPublishing }: EventHeade
             onClick={onPublishToggle}
             disabled={isPublishing}
             className={`flex flex-col items-center gap-1 p-2 rounded-lg ${
-              event.is_published ? 'bg-gray-100' : 'bg-teal-50'
+              event.is_published ? 'bg-gray-100' : 'bg-brand-50'
             }`}
           >
-            <div className={`w-5 h-5 rounded-full ${event.is_published ? 'bg-gray-600' : 'bg-teal-600'}`} />
-            <span className={`text-xs font-medium ${event.is_published ? 'text-gray-700' : 'text-teal-700'}`}>
+            <div className={`w-5 h-5 rounded-full ${event.is_published ? 'bg-gray-600' : 'bg-brand-700'}`} />
+            <span className={`text-xs font-medium ${event.is_published ? 'text-gray-700' : 'text-brand-700'}`}>
               {event.is_published ? t('organizer.live') : t('organizer.publish')}
             </span>
           </button>

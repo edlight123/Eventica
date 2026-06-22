@@ -41,9 +41,9 @@ export function EventActivityTimeline({ activities }: EventActivityTimelineProps
       case 'ticket_sold':
         return <DollarSign className="w-4 h-4 text-green-600" />
       case 'event_published':
-        return <Share2 className="w-4 h-4 text-blue-600" />
+        return <Share2 className="w-4 h-4 text-brand-700" />
       case 'event_updated':
-        return <Edit className="w-4 h-4 text-purple-600" />
+        return <Edit className="w-4 h-4 text-brand-700" />
       default:
         return <Activity className="w-4 h-4 text-gray-600" />
     }
@@ -54,9 +54,9 @@ export function EventActivityTimeline({ activities }: EventActivityTimelineProps
       case 'ticket_sold':
         return 'bg-green-50'
       case 'event_published':
-        return 'bg-blue-50'
+        return 'bg-brand-50'
       case 'event_updated':
-        return 'bg-purple-50'
+        return 'bg-brand-50'
       default:
         return 'bg-gray-50'
     }
@@ -88,7 +88,7 @@ export function EventActivityTimeline({ activities }: EventActivityTimelineProps
       </div>
 
       {activities.length > 10 && (
-        <button className="mt-4 text-sm text-teal-600 hover:text-teal-700 font-medium">
+        <button className="mt-4 text-sm text-brand-700 hover:text-brand-800 font-medium">
           {t('organizer.view_all_activity')}
         </button>
       )}

@@ -65,7 +65,7 @@ export default function EventUpdates({ eventId, eventTitle }: EventUpdatesProps)
     <div>
       <button
         onClick={() => setShowModal(true)}
-        className="w-full px-4 py-3 bg-orange-600 text-white font-semibold rounded-lg hover:bg-orange-700 transition"
+        className="w-full px-4 py-3 bg-brand-700 text-white font-semibold rounded-lg hover:bg-brand-800 transition"
       >
         📢 Send Update to Attendees
       </button>
@@ -89,7 +89,7 @@ export default function EventUpdates({ eventId, eventTitle }: EventUpdatesProps)
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g., Important venue change"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                   required
                   maxLength={200}
                 />
@@ -103,7 +103,7 @@ export default function EventUpdates({ eventId, eventTitle }: EventUpdatesProps)
                   value={updateMessage}
                   onChange={(e) => setUpdateMessage(e.target.value)}
                   placeholder="Write your announcement here..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                   rows={6}
                   required
                   maxLength={2000}
@@ -119,7 +119,7 @@ export default function EventUpdates({ eventId, eventTitle }: EventUpdatesProps)
                     type="checkbox"
                     checked={sendEmail}
                     onChange={(e) => setSendEmail(e.target.checked)}
-                    className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                    className="w-4 h-4 text-brand-700 border-gray-300 rounded focus:ring-brand-500"
                   />
                   <span className="ml-2 text-sm text-gray-700">
                     📧 Send via Email
@@ -131,7 +131,7 @@ export default function EventUpdates({ eventId, eventTitle }: EventUpdatesProps)
                     type="checkbox"
                     checked={sendSms}
                     onChange={(e) => setSendSms(e.target.checked)}
-                    className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                    className="w-4 h-4 text-brand-700 border-gray-300 rounded focus:ring-brand-500"
                   />
                   <span className="ml-2 text-sm text-gray-700">
                     📱 Send via SMS (for attendees with phone numbers)
@@ -149,8 +149,8 @@ export default function EventUpdates({ eventId, eventTitle }: EventUpdatesProps)
                 </div>
               )}
 
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <p className="text-sm text-yellow-800">
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                <p className="text-sm text-amber-800">
                   ⚠️ This will immediately send notifications to all active ticket holders.
                 </p>
               </div>
@@ -166,7 +166,7 @@ export default function EventUpdates({ eventId, eventTitle }: EventUpdatesProps)
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-3 bg-orange-600 text-white font-semibold rounded-lg hover:bg-orange-700 disabled:opacity-50"
+                  className="flex-1 px-4 py-3 bg-brand-700 text-white font-semibold rounded-lg hover:bg-brand-800 disabled:opacity-50"
                   disabled={loading || !title || !updateMessage || (!sendEmail && !sendSms)}
                 >
                   {loading ? 'Sending...' : 'Send Update Now'}

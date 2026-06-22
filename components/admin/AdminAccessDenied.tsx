@@ -29,7 +29,7 @@ export function AdminAccessDenied({ userEmail }: { userEmail?: string | null }) 
         </div>
         <a
           href="/"
-          className="inline-block bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700 transition-colors"
+          className="inline-block bg-brand-600 text-white px-6 py-2 rounded-lg hover:bg-brand-700 transition-colors"
         >
           {t('dashboard.return_home')}
         </a>

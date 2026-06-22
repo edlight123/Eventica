@@ -88,7 +88,7 @@ export default function OrganizerEventsFiltersModal({
       {/* Modal */}
       <div className="fixed inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-2xl z-50 flex flex-col bg-white md:rounded-2xl md:shadow-2xl md:max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-teal-600 to-teal-700 text-white">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-brand-700 text-white">
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-bold">Filters</h2>
             {activeFiltersCount > 0 && (
@@ -111,7 +111,7 @@ export default function OrganizerEventsFiltersModal({
           {/* Date Range */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Calendar className="w-5 h-5 text-teal-600" />
+              <Calendar className="w-5 h-5 text-brand-700" />
               <label className="text-sm font-semibold text-gray-900">Date Range</label>
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -129,7 +129,7 @@ export default function OrganizerEventsFiltersModal({
                       }
                     }))
                   }
-                  className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </div>
               <div>
@@ -146,14 +146,14 @@ export default function OrganizerEventsFiltersModal({
                       }
                     }))
                   }
-                  className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </div>
             </div>
             {localFilters.dateRange?.start && (
               <button
                 onClick={() => setLocalFilters((prev) => ({ ...prev, dateRange: null }))}
-                className="mt-2 text-xs text-teal-600 hover:text-teal-700 font-medium"
+                className="mt-2 text-xs text-brand-700 hover:text-brand-800 font-medium"
               >
                 Clear date range
               </button>
@@ -163,7 +163,7 @@ export default function OrganizerEventsFiltersModal({
           {/* Cities */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <MapPin className="w-5 h-5 text-teal-600" />
+              <MapPin className="w-5 h-5 text-brand-700" />
               <label className="text-sm font-semibold text-gray-900">Cities</label>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -175,7 +175,7 @@ export default function OrganizerEventsFiltersModal({
                     onClick={() => toggleCity(city)}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                       isSelected
-                        ? 'bg-teal-600 text-white shadow-md'
+                        ? 'bg-brand-700 text-white shadow-sm'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
@@ -189,7 +189,7 @@ export default function OrganizerEventsFiltersModal({
           {/* Categories */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Tag className="w-5 h-5 text-teal-600" />
+              <Tag className="w-5 h-5 text-brand-700" />
               <label className="text-sm font-semibold text-gray-900">Categories</label>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -201,7 +201,7 @@ export default function OrganizerEventsFiltersModal({
                     onClick={() => toggleCategory(category)}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                       isSelected
-                        ? 'bg-teal-600 text-white shadow-md'
+                        ? 'bg-brand-700 text-white shadow-sm'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
@@ -215,7 +215,7 @@ export default function OrganizerEventsFiltersModal({
           {/* Sales Filter */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <DollarSign className="w-5 h-5 text-teal-600" />
+              <DollarSign className="w-5 h-5 text-brand-700" />
               <label className="text-sm font-semibold text-gray-900">Sales Status</label>
             </div>
             <div className="flex gap-2">
@@ -223,7 +223,7 @@ export default function OrganizerEventsFiltersModal({
                 onClick={() => setLocalFilters((prev) => ({ ...prev, hasSales: null }))}
                 className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   localFilters.hasSales === null
-                    ? 'bg-teal-600 text-white shadow-md'
+                    ? 'bg-brand-700 text-white shadow-sm'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -233,7 +233,7 @@ export default function OrganizerEventsFiltersModal({
                 onClick={() => setLocalFilters((prev) => ({ ...prev, hasSales: true }))}
                 className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   localFilters.hasSales === true
-                    ? 'bg-teal-600 text-white shadow-md'
+                    ? 'bg-brand-700 text-white shadow-sm'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -243,7 +243,7 @@ export default function OrganizerEventsFiltersModal({
                 onClick={() => setLocalFilters((prev) => ({ ...prev, hasSales: false }))}
                 className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   localFilters.hasSales === false
-                    ? 'bg-teal-600 text-white shadow-md'
+                    ? 'bg-brand-700 text-white shadow-sm'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -255,7 +255,7 @@ export default function OrganizerEventsFiltersModal({
           {/* Sort By */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <ArrowUpDown className="w-5 h-5 text-teal-600" />
+              <ArrowUpDown className="w-5 h-5 text-brand-700" />
               <label className="text-sm font-semibold text-gray-900">Sort By</label>
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -267,7 +267,7 @@ export default function OrganizerEventsFiltersModal({
                     sortBy: e.target.value as EventFilters['sortBy']
                   }))
                 }
-                className="px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
                 <option value="date">Event Date</option>
                 <option value="sales">Ticket Sales</option>
@@ -282,7 +282,7 @@ export default function OrganizerEventsFiltersModal({
                     sortOrder: e.target.value as EventFilters['sortOrder']
                   }))
                 }
-                className="px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
                 <option value="desc">Descending</option>
                 <option value="asc">Ascending</option>
@@ -308,7 +308,7 @@ export default function OrganizerEventsFiltersModal({
             </button>
             <button
               onClick={handleApply}
-              className="px-5 py-2 bg-gradient-to-r from-teal-600 to-teal-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all"
+              className="px-5 py-2 bg-brand-700 text-white font-semibold rounded-lg shadow-sm hover:bg-brand-800 transition-all"
             >
               Apply Filters
             </button>

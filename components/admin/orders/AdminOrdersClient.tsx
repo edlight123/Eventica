@@ -4,15 +4,13 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { formatCurrency, type Currency } from '@/lib/currency'
-import { StatTile } from '@/components/ui/kit'
+import { StatTile, StatusChip } from '@/components/ui/kit'
+import { DataTable, type Column } from '@/components/ui/DataTable'
 import {
   Search,
   Filter,
   Download,
-  ChevronLeft,
-  ChevronRight,
   X,
-  Calendar,
   CreditCard,
   Smartphone,
   DollarSign,
@@ -30,6 +28,7 @@ import {
   Mail,
   Ticket,
   QrCode,
+  type LucideIcon,
 } from 'lucide-react'
 
 interface Order {
@@ -110,23 +109,21 @@ const initialFilters: Filters = {
   search: '',
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const statusConfig: Record<string, { color: string; icon: any; label: string }> = {
-    confirmed: { color: 'bg-green-100 text-green-800', icon: CheckCircle, label: 'Confirmed' },
-    valid: { color: 'bg-green-100 text-green-800', icon: CheckCircle, label: 'Valid' },
-    pending: { color: 'bg-yellow-100 text-yellow-800', icon: Clock, label: 'Pending' },
-    cancelled: { color: 'bg-red-100 text-red-800', icon: XCircle, label: 'Cancelled' },
-    refunded: { color: 'bg-amber-100 text-amber-800', icon: RefreshCw, label: 'Refunded' },
-  }
+const STATUS_ICONS: Record<string, LucideIcon> = {
+  confirmed: CheckCircle,
+  valid: CheckCircle,
+  pending: Clock,
+  cancelled: XCircle,
+  refunded: RefreshCw,
+}
 
-  const config = statusConfig[status?.toLowerCase()] || { color: 'bg-gray-100 text-gray-800', icon: AlertCircle, label: status || 'Unknown' }
-  const Icon = config.icon
+function StatusBadge({ status }: { status: string }) {
+  const Icon = STATUS_ICONS[(status || '').toLowerCase()] ?? AlertCircle
 
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
-      <Icon className="w-3 h-3" />
-      {config.label}
-    </span>
+    <StatusChip status={status} icon={Icon}>
+      {status ? undefined : 'Unknown'}
+    </StatusChip>
   )
 }
 
@@ -134,7 +131,7 @@ function PaymentMethodBadge({ method }: { method: string }) {
   const methodLower = (method || '').toLowerCase()
   if (methodLower === 'stripe') {
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
         <CreditCard className="w-3 h-3" />
         Stripe
       </span>
@@ -142,7 +139,7 @@ function PaymentMethodBadge({ method }: { method: string }) {
   }
   if (methodLower === 'moncash') {
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
         <Smartphone className="w-3 h-3" />
         MonCash
       </span>
@@ -338,6 +335,164 @@ export function AdminOrdersClient() {
     filters.dateRange !== 'all',
   ].filter(Boolean).length
 
+  const columns: Column<Order>[] = [
+    {
+      key: 'order',
+      header: 'Order',
+      render: (order) => {
+        const ticketType = order.ticket_type || order.ticketType || 'General'
+        return (
+          <div>
+            <div className="text-sm font-medium text-gray-900">{order.id.slice(0, 8)}…</div>
+            <div className="text-xs text-gray-500">{ticketType}</div>
+          </div>
+        )
+      },
+    },
+    {
+      key: 'event',
+      header: 'Event',
+      render: (order) => {
+        const eventId = order.event_id || order.eventId || ''
+        return (
+          <div>
+            <div className="text-sm text-gray-900 max-w-[200px] truncate">{order.event_name || 'Unknown'}</div>
+            {eventId && (
+              <Link
+                href={`/admin/events?selected=${eventId}`}
+                onClick={(e) => e.stopPropagation()}
+                className="text-xs text-brand-600 hover:text-brand-700"
+              >
+                View Event
+              </Link>
+            )}
+          </div>
+        )
+      },
+    },
+    {
+      key: 'attendee',
+      header: 'Attendee',
+      render: (order) => {
+        const email = order.attendee_email || order.attendeeEmail || order.email || ''
+        const name = order.attendee_name || order.attendeeName || ''
+        return (
+          <div>
+            <div className="text-sm text-gray-900">{name || 'N/A'}</div>
+            <div className="text-xs text-gray-500 truncate max-w-[180px]">{email}</div>
+          </div>
+        )
+      },
+    },
+    {
+      key: 'amount',
+      header: 'Amount',
+      render: (order) => {
+        const price = order.price_paid || order.pricePaid || 0
+        const currency = order.currency || 'USD'
+        return (
+          <div className="text-sm font-medium text-gray-900">
+            {formatCurrency(price, currency as Currency)}
+          </div>
+        )
+      },
+    },
+    {
+      key: 'payment',
+      header: 'Payment',
+      render: (order) => <PaymentMethodBadge method={order.payment_method || order.paymentMethod || ''} />,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (order) => <StatusBadge status={order.status || ''} />,
+    },
+    {
+      key: 'date',
+      header: 'Date',
+      render: (order) => {
+        const purchasedAt = order.purchased_at || order.purchasedAt || ''
+        return (
+          <div>
+            <div className="text-sm text-gray-900">
+              {purchasedAt ? new Date(purchasedAt).toLocaleDateString() : '-'}
+            </div>
+            <div className="text-xs text-gray-500">
+              {purchasedAt ? new Date(purchasedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+            </div>
+          </div>
+        )
+      },
+    },
+    {
+      key: 'actions',
+      header: 'Actions',
+      align: 'right',
+      render: (order) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            setSelectedOrder(order)
+          }}
+          className="p-1.5 text-gray-500 hover:text-brand-600 transition-colors"
+          title="View Details"
+        >
+          <Eye className="w-4 h-4" />
+        </button>
+      ),
+    },
+  ]
+
+  const renderOrderMobileCard = (order: Order) => {
+    const email = order.attendee_email || order.attendeeEmail || order.email || ''
+    const name = order.attendee_name || order.attendeeName || ''
+    const price = order.price_paid || order.pricePaid || 0
+    const currency = order.currency || 'USD'
+    const paymentMethod = order.payment_method || order.paymentMethod || ''
+    const purchasedAt = order.purchased_at || order.purchasedAt || ''
+
+    return (
+      <div className="p-4" onClick={() => setSelectedOrder(order)}>
+        <div className="flex items-start justify-between mb-2">
+          <div>
+            <div className="text-sm font-medium text-gray-900">Order {order.id.slice(0, 8)}…</div>
+            <div className="text-xs text-gray-500 truncate max-w-[200px]">{order.event_name}</div>
+          </div>
+          <StatusBadge status={order.status || ''} />
+        </div>
+        <div className="flex items-center justify-between text-sm">
+          <div className="text-gray-600">{name || email || 'Unknown'}</div>
+          <div className="font-medium text-gray-900">{formatCurrency(price, currency as Currency)}</div>
+        </div>
+        <div className="flex items-center justify-between mt-2">
+          <PaymentMethodBadge method={paymentMethod} />
+          <div className="text-xs text-gray-500">
+            {purchasedAt ? new Date(purchasedAt).toLocaleDateString() : '-'}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const ordersToolbar = (
+    <div className="flex items-center justify-between">
+      <div>
+        <h2 className="font-display text-xl text-gray-900">Orders</h2>
+        <p className="text-xs text-gray-500">
+          {pagination.totalCount.toLocaleString()} total orders
+          {filters.search && ` • Filtered`}
+        </p>
+      </div>
+      <button
+        onClick={() => fetchOrders(pagination.page)}
+        className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+        title="Refresh"
+      >
+        <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+      </button>
+    </div>
+  )
+
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
@@ -382,7 +537,7 @@ export function AdminOrdersClient() {
               value={filters.search}
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             />
           </div>
 
@@ -399,7 +554,7 @@ export function AdminOrdersClient() {
                 onClick={() => handleDateRangeChange(option.value)}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   filters.dateRange === option.value
-                    ? 'bg-teal-600 text-white'
+                    ? 'bg-brand-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -413,14 +568,14 @@ export function AdminOrdersClient() {
             onClick={() => setShowFilters(!showFilters)}
             className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               showFilters || activeFiltersCount > 0
-                ? 'bg-teal-100 text-teal-800'
+                ? 'bg-brand-50 text-brand-700'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
             <Filter className="w-4 h-4" />
             Filters
             {activeFiltersCount > 0 && (
-              <span className="bg-teal-600 text-white text-xs px-1.5 py-0.5 rounded-full">{activeFiltersCount}</span>
+              <span className="bg-brand-600 text-white text-xs px-1.5 py-0.5 rounded-full">{activeFiltersCount}</span>
             )}
           </button>
 
@@ -444,7 +599,7 @@ export function AdminOrdersClient() {
               <select
                 value={filters.status}
                 onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500"
               >
                 <option value="all">All Statuses</option>
                 <option value="confirmed">Confirmed</option>
@@ -460,7 +615,7 @@ export function AdminOrdersClient() {
               <select
                 value={filters.paymentMethod}
                 onChange={(e) => setFilters(prev => ({ ...prev, paymentMethod: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500"
               >
                 <option value="all">All Methods</option>
                 <option value="stripe">Stripe</option>
@@ -475,7 +630,7 @@ export function AdminOrdersClient() {
               <select
                 value={filters.currency}
                 onChange={(e) => setFilters(prev => ({ ...prev, currency: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500"
               >
                 <option value="all">All Currencies</option>
                 <option value="USD">USD</option>
@@ -489,7 +644,7 @@ export function AdminOrdersClient() {
               <select
                 value={filters.sortBy}
                 onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500"
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
@@ -506,7 +661,7 @@ export function AdminOrdersClient() {
                   type="date"
                   value={filters.startDate}
                   onChange={(e) => setFilters(prev => ({ ...prev, startDate: e.target.value, dateRange: 'custom' }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500"
                 />
               </div>
               <div className="flex-1">
@@ -515,7 +670,7 @@ export function AdminOrdersClient() {
                   type="date"
                   value={filters.endDate}
                   onChange={(e) => setFilters(prev => ({ ...prev, endDate: e.target.value, dateRange: 'custom' }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500"
                 />
               </div>
               <button
@@ -530,179 +685,24 @@ export function AdminOrdersClient() {
       </div>
 
       {/* Orders Table */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
-          <div>
-            <h2 className="font-display text-xl text-gray-900">Orders</h2>
-            <p className="text-xs text-gray-500">
-              {pagination.totalCount.toLocaleString()} total orders
-              {filters.search && ` • Filtered`}
-            </p>
-          </div>
-          <button
-            onClick={() => fetchOrders(pagination.page)}
-            className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
-            title="Refresh"
-          >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          </button>
-        </div>
-
-        {loading ? (
-          <div className="p-8 text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
-            <p className="mt-2 text-sm text-gray-500">Loading orders...</p>
-          </div>
-        ) : orders.length === 0 ? (
-          <div className="p-8 text-center">
+      <DataTable<Order>
+        columns={columns}
+        rows={orders}
+        rowKey={(order) => order.id}
+        toolbar={ordersToolbar}
+        loading={loading}
+        page={pagination.page}
+        totalPages={pagination.totalPages}
+        onPageChange={(p) => fetchOrders(p)}
+        renderMobileCard={renderOrderMobileCard}
+        empty={
+          <div className="text-center">
             <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
             <p className="text-gray-500">No orders found</p>
             <p className="text-sm text-gray-400 mt-1">Try adjusting your filters</p>
           </div>
-        ) : (
-          <>
-            {/* Desktop Table */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attendee</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {orders.map((order) => {
-                    const email = order.attendee_email || order.attendeeEmail || order.email || ''
-                    const name = order.attendee_name || order.attendeeName || ''
-                    const price = order.price_paid || order.pricePaid || 0
-                    const currency = order.currency || 'USD'
-                    const paymentMethod = order.payment_method || order.paymentMethod || ''
-                    const purchasedAt = order.purchased_at || order.purchasedAt || ''
-                    const ticketType = order.ticket_type || order.ticketType || 'General'
-                    const eventId = order.event_id || order.eventId || ''
-
-                    return (
-                      <tr key={order.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3">
-                          <div className="text-sm font-medium text-gray-900">{order.id.slice(0, 8)}…</div>
-                          <div className="text-xs text-gray-500">{ticketType}</div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="text-sm text-gray-900 max-w-[200px] truncate">{order.event_name || 'Unknown'}</div>
-                          {eventId && (
-                            <Link href={`/admin/events?selected=${eventId}`} className="text-xs text-teal-600 hover:text-teal-700">
-                              View Event
-                            </Link>
-                          )}
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="text-sm text-gray-900">{name || 'N/A'}</div>
-                          <div className="text-xs text-gray-500 truncate max-w-[180px]">{email}</div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="text-sm font-medium text-gray-900">
-                            {formatCurrency(price, currency as Currency)}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <PaymentMethodBadge method={paymentMethod} />
-                        </td>
-                        <td className="px-4 py-3">
-                          <StatusBadge status={order.status || ''} />
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="text-sm text-gray-900">
-                            {purchasedAt ? new Date(purchasedAt).toLocaleDateString() : '-'}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {purchasedAt ? new Date(purchasedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <button
-                            onClick={() => setSelectedOrder(order)}
-                            className="p-1.5 text-gray-500 hover:text-teal-600 transition-colors"
-                            title="View Details"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Mobile Cards */}
-            <div className="md:hidden divide-y divide-gray-100">
-              {orders.map((order) => {
-                const email = order.attendee_email || order.attendeeEmail || order.email || ''
-                const name = order.attendee_name || order.attendeeName || ''
-                const price = order.price_paid || order.pricePaid || 0
-                const currency = order.currency || 'USD'
-                const paymentMethod = order.payment_method || order.paymentMethod || ''
-                const purchasedAt = order.purchased_at || order.purchasedAt || ''
-
-                return (
-                  <div key={order.id} className="p-4" onClick={() => setSelectedOrder(order)}>
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">Order {order.id.slice(0, 8)}…</div>
-                        <div className="text-xs text-gray-500 truncate max-w-[200px]">{order.event_name}</div>
-                      </div>
-                      <StatusBadge status={order.status || ''} />
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="text-gray-600">{name || email || 'Unknown'}</div>
-                      <div className="font-medium text-gray-900">{formatCurrency(price, currency as Currency)}</div>
-                    </div>
-                    <div className="flex items-center justify-between mt-2">
-                      <PaymentMethodBadge method={paymentMethod} />
-                      <div className="text-xs text-gray-500">
-                        {purchasedAt ? new Date(purchasedAt).toLocaleDateString() : '-'}
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </>
-        )}
-
-        {/* Pagination */}
-        {pagination.totalPages > 1 && (
-          <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between">
-            <div className="text-sm text-gray-500">
-              Page {pagination.page} of {pagination.totalPages}
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => fetchOrders(pagination.page - 1)}
-                disabled={pagination.page <= 1}
-                className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                Previous
-              </button>
-              <button
-                onClick={() => fetchOrders(pagination.page + 1)}
-                disabled={!pagination.hasMore}
-                className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-              >
-                Next
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+        }
+      />
 
       {/* Order Details Modal */}
       {selectedOrder && (
@@ -745,7 +745,7 @@ export function AdminOrdersClient() {
                   <Link
                     href={`/events/${selectedOrder.event_id || selectedOrder.eventId}`}
                     target="_blank"
-                    className="inline-flex items-center gap-1 mt-2 text-sm text-teal-600 hover:text-teal-700"
+                    className="inline-flex items-center gap-1 mt-2 text-sm text-brand-600 hover:text-brand-700"
                   >
                     View Event Page <ExternalLink className="w-3 h-3" />
                   </Link>

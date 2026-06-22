@@ -3,7 +3,9 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
-import { StatTile, EmptyState } from '@/components/ui/kit'
+import { StatTile, EmptyState, StatusChip } from '@/components/ui/kit'
+import { DataTable, type Column } from '@/components/ui/DataTable'
+import { EditorialHeader } from '@/components/ui/EditorialHeader'
 import { Users, UserCheck, BadgeCheck } from 'lucide-react'
 
 type AdminOrganizersClientProps = {
@@ -71,18 +73,116 @@ export default function AdminOrganizersClient({
     }
   }
 
+  const renderVerification = (u: any) => {
+    if (u.verification_status === 'approved') {
+      return <StatusChip tone="success">{t('users.verified')}</StatusChip>
+    }
+    if (
+      u.verification_status === 'pending' ||
+      u.verification_status === 'pending_review' ||
+      u.verification_status === 'in_review'
+    ) {
+      return <StatusChip tone="warning">Pending</StatusChip>
+    }
+    return <StatusChip tone="neutral">Not Verified</StatusChip>
+  }
+
+  const columns: Column<any>[] = [
+    {
+      key: 'user',
+      header: 'User',
+      render: (u) => (
+        <div className="min-w-0">
+          <Link
+            href={`/admin/users/${u.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="text-sm font-medium text-brand-600 hover:text-brand-700 truncate block"
+          >
+            {u.full_name || 'No name'}
+          </Link>
+          <div className="text-[13px] text-gray-500 truncate">{u.email}</div>
+          <Link
+            href={`/admin/organizers/${u.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="mt-1 inline-block text-[13px] font-medium text-brand-700 hover:text-brand-800"
+          >
+            {t('users.open_organizer_admin')}
+          </Link>
+        </div>
+      ),
+    },
+    {
+      key: 'role',
+      header: 'Role',
+      render: (u) => (
+        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-brand-50 text-brand-700">
+          {u.role || 'organizer'}
+        </span>
+      ),
+    },
+    {
+      key: 'verification',
+      header: 'Verification',
+      render: (u) => renderVerification(u),
+    },
+    {
+      key: 'joined',
+      header: 'Joined',
+      render: (u) => (
+        <span className="text-[13px] text-gray-500 whitespace-nowrap">
+          {u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}
+        </span>
+      ),
+    },
+  ]
+
+  const renderOrganizerMobileCard = (u: any) => (
+    <div className="p-4">
+      <div className="flex items-start justify-between">
+        <div className="min-w-0">
+          <Link
+            href={`/admin/users/${u.id}`}
+            className="text-sm font-medium text-brand-600 hover:text-brand-700 truncate block"
+          >
+            {u.full_name || 'No name'}
+          </Link>
+          <div className="text-[13px] text-gray-500 truncate">{u.email}</div>
+          <Link
+            href={`/admin/organizers/${u.id}`}
+            className="mt-1 inline-block text-[13px] font-medium text-brand-700 hover:text-brand-800"
+          >
+            {t('users.open_organizer_admin')}
+          </Link>
+        </div>
+        <div>
+          <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-brand-50 text-brand-700">
+            {u.role || 'organizer'}
+          </span>
+        </div>
+      </div>
+      <div className="mt-3 flex items-center justify-between">
+        <div>{renderVerification(u)}</div>
+        <div className="text-[13px] text-gray-500">
+          {u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}
+        </div>
+      </div>
+    </div>
+  )
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       <div className="mb-4 sm:mb-6">
-        <Link href="/admin" className="text-teal-600 hover:text-teal-700 text-[13px] sm:text-sm font-medium">
+        <Link href="/admin" className="text-brand-600 hover:text-brand-700 text-[13px] sm:text-sm font-medium">
           {t('users.back_to_dashboard')}
         </Link>
       </div>
 
-      <div className="mb-6 sm:mb-8">
-        <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">{t('organizers.title')}</h1>
-        <p className="text-[13px] sm:text-base text-gray-600 mt-1 sm:mt-2">{t('organizers.subtitle')}</p>
-      </div>
+      <EditorialHeader
+        eyebrow="Platform"
+        title={t('organizers.title')}
+        subtitle={t('organizers.subtitle')}
+        className="mb-6 sm:mb-8"
+      />
 
       <div className="flex overflow-x-auto gap-3 sm:gap-6 mb-6 sm:mb-8 pb-2 snap-x snap-mandatory md:grid md:grid-cols-3 scrollbar-hide">
         <div className="min-w-[180px] snap-start flex-shrink-0">
@@ -96,142 +196,37 @@ export default function AdminOrganizersClient({
         </div>
       </div>
 
-      <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-        {users.length === 0 ? (
+      <DataTable<any>
+        columns={columns}
+        rows={users}
+        rowKey={(u) => String(u?.id || '')}
+        pageSize={25}
+        renderMobileCard={renderOrganizerMobileCard}
+        empty={
           <EmptyState
             icon={Users}
             title={t('organizers.no_organizers_found')}
             className="border-0"
           />
-        ) : (
-          <>
-            <div className="sm:hidden divide-y divide-gray-100">
-              {users.map((u: any) => (
-                <div key={u.id} className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="min-w-0">
-                      <Link
-                        href={`/admin/users/${u.id}`}
-                        className="text-sm font-medium text-teal-600 hover:text-teal-700 truncate block"
-                      >
-                        {u.full_name || 'No name'}
-                      </Link>
-                      <div className="text-[13px] text-gray-500 truncate">{u.email}</div>
-                      <Link
-                        href={`/admin/organizers/${u.id}`}
-                        className="mt-1 inline-block text-[13px] font-medium text-brand-700 hover:text-brand-800"
-                      >
-                        {t('users.open_organizer_admin')}
-                      </Link>
-                    </div>
-                    <div>
-                      <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-brand-50 text-brand-700">
-                        {u.role || 'organizer'}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="mt-3 flex items-center justify-between">
-                    <div>
-                      {u.verification_status === 'approved' ? (
-                        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                          ✓ {t('users.verified')}
-                        </span>
-                      ) : (
-                        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                          {u.verification_status === 'pending' ||
-                          u.verification_status === 'pending_review' ||
-                          u.verification_status === 'in_review'
-                            ? 'Pending'
-                            : 'Not Verified'}
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-[13px] text-gray-500">
-                      {u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+        }
+      />
 
-            <div className="hidden sm:block overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">User</th>
-                    <th className="px-6 py-3 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                    <th className="px-6 py-3 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Verification</th>
-                    <th className="px-6 py-3 text-left text-[11px] font-medium text-gray-500 uppercase tracking-wider">Joined</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {users.map((u: any) => (
-                    <tr key={u.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <div className="min-w-0">
-                          <Link
-                            href={`/admin/users/${u.id}`}
-                            className="text-sm font-medium text-teal-600 hover:text-teal-700 truncate block"
-                          >
-                            {u.full_name || 'No name'}
-                          </Link>
-                          <div className="text-[13px] text-gray-500 truncate">{u.email}</div>
-                          <Link
-                            href={`/admin/organizers/${u.id}`}
-                            className="mt-1 inline-block text-[13px] font-medium text-brand-700 hover:text-brand-800"
-                          >
-                            {t('users.open_organizer_admin')}
-                          </Link>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-brand-50 text-brand-700">
-                          {u.role || 'organizer'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        {u.verification_status === 'approved' ? (
-                          <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                            ✓ {t('users.verified')}
-                          </span>
-                        ) : (
-                          <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                            {u.verification_status === 'pending' ||
-                            u.verification_status === 'pending_review' ||
-                            u.verification_status === 'in_review'
-                              ? 'Pending'
-                              : 'Not Verified'}
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-[13px] text-gray-500 whitespace-nowrap">
-                        {u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {hasMore && cursor && (
-              <div className="p-4 sm:p-6 border-t border-gray-200 flex justify-center">
-                <button
-                  type="button"
-                  onClick={loadMore}
-                  disabled={isLoadingMore}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors border border-gray-300 ${
-                    isLoadingMore
-                      ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-                      : 'bg-white hover:bg-gray-50 text-gray-900'
-                  }`}
-                >
-                  {isLoadingMore ? t('users.loading') : t('users.load_more')}
-                </button>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+      {hasMore && cursor && (
+        <div className="mt-4 sm:mt-6 flex justify-center">
+          <button
+            type="button"
+            onClick={loadMore}
+            disabled={isLoadingMore}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors border border-gray-300 ${
+              isLoadingMore
+                ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                : 'bg-white hover:bg-gray-50 text-gray-900'
+            }`}
+          >
+            {isLoadingMore ? t('users.loading') : t('users.load_more')}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

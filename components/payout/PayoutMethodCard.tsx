@@ -25,7 +25,7 @@ export function PayoutMethodCard({ config, onUpdate }: PayoutMethodCardProps) {
           {hasMethod && (
             <button
               onClick={() => setShowSetup(true)}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-brand-700 hover:text-brand-800 hover:bg-brand-50 rounded-lg transition-colors"
             >
               <Edit className="w-4 h-4" />
               {t('settings.payout_settings.edit')}
@@ -45,7 +45,7 @@ export function PayoutMethodCard({ config, onUpdate }: PayoutMethodCardProps) {
             <button
               id="setup"
               onClick={() => setShowSetup(true)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-brand-700 hover:bg-brand-800 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
             >
               {t('settings.payout_settings.add_method')}
             </button>
@@ -54,8 +54,8 @@ export function PayoutMethodCard({ config, onUpdate }: PayoutMethodCardProps) {
           <div className="space-y-4">
             {config.method === 'bank_transfer' && config.bankDetails && (
               <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-                <div className="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <CreditCard className="w-6 h-6 text-teal-600" />
+                <div className="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <CreditCard className="w-6 h-6 text-brand-700" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
@@ -78,8 +78,8 @@ export function PayoutMethodCard({ config, onUpdate }: PayoutMethodCardProps) {
 
             {config.method === 'mobile_money' && config.mobileMoneyDetails && (
               <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
-                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Smartphone className="w-6 h-6 text-purple-600" />
+                <div className="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Smartphone className="w-6 h-6 text-brand-700" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">

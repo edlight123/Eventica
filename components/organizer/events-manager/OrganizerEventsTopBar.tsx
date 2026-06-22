@@ -50,7 +50,7 @@ export default function OrganizerEventsTopBar({
                 value={localQuery}
                 onChange={handleSearchChange}
                 placeholder={t('events_page.search_placeholder')}
-                className="w-full pl-10 pr-10 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                className="w-full pl-10 pr-10 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
               />
               {localQuery && (
                 <button
@@ -74,7 +74,7 @@ export default function OrganizerEventsTopBar({
                 onClick={() => onViewChange('list')}
                 className={`p-2 rounded-md transition-all ${
                   view === 'list'
-                    ? 'bg-white text-teal-600 shadow-sm'
+                    ? 'bg-white text-brand-700 shadow-sm'
                     : 'text-gray-500 hover:text-gray-700'
                 }`}
                 aria-label="List view"
@@ -85,7 +85,7 @@ export default function OrganizerEventsTopBar({
                 onClick={() => onViewChange('calendar')}
                 className={`p-2 rounded-md transition-all ${
                   view === 'calendar'
-                    ? 'bg-white text-teal-600 shadow-sm'
+                    ? 'bg-white text-brand-700 shadow-sm'
                     : 'text-gray-500 hover:text-gray-700'
                 }`}
                 aria-label="Calendar view"
@@ -102,7 +102,7 @@ export default function OrganizerEventsTopBar({
               <SlidersHorizontal className="w-4 h-4" />
               <span>{t('events_page.filters')}</span>
               {activeFiltersCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-teal-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-brand-700 text-white text-xs font-bold rounded-full flex items-center justify-center">
                   {activeFiltersCount}
                 </span>
               )}
@@ -111,7 +111,7 @@ export default function OrganizerEventsTopBar({
             {/* Create Event Button */}
             <Link
               href="/organizer/events/new"
-              className="px-5 py-2.5 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2"
+              className="px-5 py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-semibold rounded-xl shadow-sm transition-all duration-300 flex items-center gap-2"
             >
               <Plus className="w-5 h-5" />
               <span>{t('events_page.create_event')}</span>
@@ -129,7 +129,7 @@ export default function OrganizerEventsTopBar({
               value={localQuery}
               onChange={handleSearchChange}
               placeholder={t('events_page.search_placeholder_mobile')}
-              className="w-full pl-10 pr-10 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+              className="w-full pl-10 pr-10 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
             />
             {localQuery && (
               <button
@@ -152,7 +152,7 @@ export default function OrganizerEventsTopBar({
                 onClick={() => onViewChange('list')}
                 className={`p-2 rounded-md transition-all ${
                   view === 'list'
-                    ? 'bg-white text-teal-600 shadow-sm'
+                    ? 'bg-white text-brand-700 shadow-sm'
                     : 'text-gray-500 hover:text-gray-700'
                 }`}
                 aria-label="List view"
@@ -163,7 +163,7 @@ export default function OrganizerEventsTopBar({
                 onClick={() => onViewChange('calendar')}
                 className={`p-2 rounded-md transition-all ${
                   view === 'calendar'
-                    ? 'bg-white text-teal-600 shadow-sm'
+                    ? 'bg-white text-brand-700 shadow-sm'
                     : 'text-gray-500 hover:text-gray-700'
                 }`}
                 aria-label="Calendar view"
@@ -180,7 +180,7 @@ export default function OrganizerEventsTopBar({
               <SlidersHorizontal className="w-4 h-4" />
               <span>{t('events_page.filters')}</span>
               {activeFiltersCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-teal-600 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-brand-700 text-white text-xs font-bold rounded-full flex items-center justify-center">
                   {activeFiltersCount}
                 </span>
               )}
@@ -189,7 +189,7 @@ export default function OrganizerEventsTopBar({
             {/* Create Event Button */}
             <Link
               href="/organizer/events/new"
-              className="px-4 py-2.5 bg-gradient-to-r from-teal-600 to-teal-700 text-white font-semibold rounded-xl shadow-md flex items-center justify-center gap-2"
+              className="px-4 py-2.5 bg-brand-700 text-white font-semibold rounded-xl shadow-sm flex items-center justify-center gap-2"
             >
               <Plus className="w-5 h-5" />
               <span>{t('events_page.create_event')}</span>

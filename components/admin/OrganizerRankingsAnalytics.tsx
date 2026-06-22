@@ -36,7 +36,7 @@ export function OrganizerRankingsAnalytics() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
       </div>
     )
   }
@@ -56,9 +56,9 @@ export function OrganizerRankingsAnalytics() {
       case 2:
         return 'from-gray-300 to-gray-500'
       case 3:
-        return 'from-orange-400 to-orange-600'
+        return 'from-amber-400 to-amber-600'
       default:
-        return 'from-teal-400 to-teal-600'
+        return 'from-brand-400 to-brand-600'
     }
   }
 
@@ -80,8 +80,8 @@ export function OrganizerRankingsAnalytics() {
               key={organizer.id}
               className={`flex items-center gap-4 p-4 rounded-lg border transition-all ${
                 isTopThree
-                  ? 'border-yellow-200 bg-gradient-to-r from-yellow-50 to-orange-50'
-                  : 'border-gray-200 hover:border-teal-300'
+                  ? 'border-amber-200 bg-amber-50'
+                  : 'border-gray-200 hover:border-brand-300'
               }`}
             >
               {/* Rank Badge */}
@@ -98,7 +98,7 @@ export function OrganizerRankingsAnalytics() {
                 <div className="flex items-center gap-2">
                   <Link
                     href={`/organizer/profile/${organizer.id}`}
-                    className="font-semibold text-gray-900 hover:text-teal-600 transition-colors"
+                    className="font-semibold text-gray-900 hover:text-brand-600 transition-colors"
                   >
                     {organizer.name}
                   </Link>
@@ -111,14 +111,14 @@ export function OrganizerRankingsAnalytics() {
                 {/* Stats Grid */}
                 <div className="grid grid-cols-3 gap-3 mt-3">
                   <div className="flex items-center gap-1.5">
-                    <Ticket className="w-4 h-4 text-teal-600" />
+                    <Ticket className="w-4 h-4 text-brand-600" />
                     <span className="text-sm font-medium text-gray-700">
                       {organizer.totalTickets.toLocaleString()}
                     </span>
                     <span className="text-xs text-gray-500">tickets</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <Calendar className="w-4 h-4 text-blue-600" />
+                    <Calendar className="w-4 h-4 text-brand-600" />
                     <span className="text-sm font-medium text-gray-700">
                       {organizer.eventsCount}
                     </span>
@@ -138,7 +138,7 @@ export function OrganizerRankingsAnalytics() {
 
               {/* Performance Indicator */}
               <div className="flex-shrink-0 text-right">
-                <div className="text-2xl font-bold text-teal-600">
+                <div className="text-2xl font-bold text-brand-600">
                   {organizer.totalTickets.toLocaleString()}
                 </div>
                 <div className="text-xs text-gray-500">Total Sales</div>

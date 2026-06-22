@@ -120,7 +120,7 @@ export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesMana
         <div className="bg-white rounded-xl border-2 border-gray-200 p-4">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-xs font-medium text-gray-600 uppercase">Total</h3>
-            <User className="w-4 h-4 text-blue-600" />
+            <User className="w-4 h-4 text-brand-700" />
           </div>
           <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
         </div>
@@ -131,12 +131,12 @@ export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesMana
           </div>
           <p className="text-2xl font-bold text-green-700">{stats.checkedIn}</p>
         </div>
-        <div className="bg-white rounded-xl border-2 border-orange-200 p-4">
+        <div className="bg-white rounded-xl border-2 border-amber-200 p-4">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-xs font-medium text-gray-600 uppercase">Pending</h3>
-            <AlertCircle className="w-4 h-4 text-orange-600" />
+            <AlertCircle className="w-4 h-4 text-amber-600" />
           </div>
-          <p className="text-2xl font-bold text-orange-700">{stats.notCheckedIn}</p>
+          <p className="text-2xl font-bold text-amber-700">{stats.notCheckedIn}</p>
         </div>
         <div className="bg-white rounded-xl border-2 border-red-200 p-4">
           <div className="flex items-center justify-between mb-2">
@@ -158,7 +158,7 @@ export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesMana
               placeholder="Search by name, email, phone, or ticket ID..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-lg focus:border-orange-500 focus:outline-none"
+              className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none"
             />
           </div>
 
@@ -168,7 +168,7 @@ export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesMana
               onClick={() => setShowFilters(!showFilters)}
               className={`px-4 py-2.5 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors ${
                 showFilters
-                  ? 'bg-orange-600 text-white'
+                  ? 'bg-brand-700 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -184,7 +184,7 @@ export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesMana
             </button>
             <button
               onClick={handleMessageAttendees}
-              className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm flex items-center gap-2 transition-colors"
+              className="px-4 py-2.5 bg-brand-700 hover:bg-brand-800 text-white rounded-lg font-medium text-sm flex items-center gap-2 transition-colors"
             >
               <Mail className="w-4 h-4" />
               Email
@@ -208,7 +208,7 @@ export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesMana
                   onClick={() => setFilterStatus(value as FilterStatus)}
                   className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
                     filterStatus === value
-                      ? 'bg-orange-600 text-white'
+                      ? 'bg-brand-700 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
@@ -254,8 +254,8 @@ export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesMana
                   <tr key={ticket.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                          <User className="w-5 h-5 text-orange-600" />
+                        <div className="w-10 h-10 bg-brand-50 rounded-full flex items-center justify-center flex-shrink-0">
+                          <User className="w-5 h-5 text-brand-700" />
                         </div>
                         <div className="min-w-0">
                           <p className="font-semibold text-gray-900 truncate">
@@ -288,7 +288,7 @@ export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesMana
                           Cancelled
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full">
                           <AlertCircle className="w-3 h-3" />
                           Pending
                         </span>
@@ -300,7 +300,7 @@ export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesMana
                     <td className="px-4 py-4 text-right">
                       <button
                         onClick={() => setSelectedTicket(ticket)}
-                        className="text-orange-600 hover:text-orange-700 font-medium text-sm"
+                        className="text-brand-700 hover:text-brand-800 font-medium text-sm"
                       >
                         View
                       </button>
@@ -479,7 +479,7 @@ function AttendeeDetailSheet({ ticket, eventId, onClose }: AttendeeDetailSheetPr
                 {ticket.checked_in_at ? (
                   <Check className="w-5 h-5 text-green-600 mt-0.5" />
                 ) : (
-                  <AlertCircle className="w-5 h-5 text-orange-600 mt-0.5" />
+                  <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
                 )}
                 <div>
                   <p className="text-xs text-gray-500">Check-In Status</p>
@@ -491,7 +491,7 @@ function AttendeeDetailSheet({ ticket, eventId, onClose }: AttendeeDetailSheetPr
                       </p>
                     </>
                   ) : (
-                    <p className="font-semibold text-orange-700">Not Checked In</p>
+                    <p className="font-semibold text-amber-700">Not Checked In</p>
                   )}
                 </div>
               </div>
@@ -517,7 +517,7 @@ function AttendeeDetailSheet({ ticket, eventId, onClose }: AttendeeDetailSheetPr
             <button
               onClick={handleResendTicket}
               disabled={loading}
-              className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors"
+              className="w-full px-4 py-3 bg-brand-700 hover:bg-brand-800 disabled:bg-gray-300 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors"
             >
               <Mail className="w-4 h-4" />
               Resend Ticket Email

@@ -428,8 +428,8 @@ export default function EventFormPremium({ userId, event, isVerified = false, ve
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
             <div className="text-center">
-              <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
@@ -446,7 +446,7 @@ export default function EventFormPremium({ userId, event, isVerified = false, ve
                 </button>
                 <button
                   onClick={() => router.push('/organizer/verify')}
-                  className="flex-1 px-4 py-2.5 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-lg font-bold hover:shadow-lg transition-all"
+                  className="flex-1 px-4 py-2.5 bg-brand-700 hover:bg-brand-800 text-white rounded-lg font-bold transition-all"
                 >
                   Get Verified
                 </button>
@@ -472,20 +472,20 @@ export default function EventFormPremium({ userId, event, isVerified = false, ve
 
       {/* Verification banner (premium + non-blocking) */}
       {paidPublishingBlocked && (
-        <div className="bg-yellow-50 border-b border-yellow-200">
+        <div className="bg-amber-50 border-b border-amber-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <div className="flex items-start sm:items-center justify-between gap-3 flex-wrap">
-              <div className="text-sm text-yellow-900">
+              <div className="text-sm text-amber-900">
                 <span className="font-semibold">Verification required:</span>{' '}
                 You can keep editing and saving drafts, but paid events can’t be published until your identity is approved.
                 {verificationStatus ? (
-                  <span className="ml-2 text-yellow-800">Status: {verificationStatus.replace(/_/g, ' ')}</span>
+                  <span className="ml-2 text-amber-800">Status: {verificationStatus.replace(/_/g, ' ')}</span>
                 ) : null}
               </div>
               <button
                 type="button"
                 onClick={() => router.push('/organizer/verify')}
-                className="px-4 py-2 bg-white border border-yellow-300 text-yellow-900 rounded-lg font-semibold hover:bg-yellow-100 transition-colors"
+                className="px-4 py-2 bg-white border border-amber-300 text-amber-900 rounded-lg font-semibold hover:bg-amber-100 transition-colors"
               >
                 Continue Verification
               </button>
@@ -546,7 +546,7 @@ export default function EventFormPremium({ userId, event, isVerified = false, ve
                         setCurrentTab(completion.tabs[currentIndex + 1].id)
                       }
                     }}
-                    className="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-bold transition-all shadow-md hover:shadow-lg"
+                    className="px-6 py-2.5 bg-brand-700 hover:bg-brand-800 text-white rounded-lg font-bold transition-all shadow-md hover:shadow-lg"
                   >
                     Next Step →
                   </button>

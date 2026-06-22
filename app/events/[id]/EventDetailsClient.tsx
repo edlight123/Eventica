@@ -118,7 +118,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
 
             {/* Organizer */}
             <a href={`/profile/organizer/${event.organizer_id}`} className="flex items-center gap-2 md:gap-3 mb-3 sm:mb-4 md:mb-8 hover:opacity-80 transition-opacity">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-br from-brand-400 to-accent-400 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base md:text-lg">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base md:text-lg">
                 {(event.users?.full_name || 'E')[0].toUpperCase()}
               </div>
               <div>
@@ -126,7 +126,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                   {event.users?.full_name || 'Event Organizer'}
                 </p>
                 {event.users?.is_verified && (
-                  <div className="flex items-center gap-1 text-blue-300 text-xs md:text-sm">
+                  <div className="flex items-center gap-1 text-brand-300 text-xs md:text-sm">
                     <Shield className="w-3 h-3 md:w-4 md:h-4" />
                     <span>{t('events.verified')}</span>
                   </div>
@@ -138,7 +138,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-3 md:gap-6">
               {/* Date & Time */}
               <div className="flex items-start gap-2.5 bg-white/10 backdrop-blur-md rounded-xl p-3 md:p-4 border border-white/20">
-                <div className="w-8 h-8 md:w-10 md:h-10 bg-accent-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-brand-500 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Calendar className="w-4 h-4 md:w-5 md:h-5 text-white" />
                 </div>
                 <div>
@@ -170,7 +170,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
 
               {/* Tickets */}
               <div className="flex items-start gap-2.5 bg-white/10 backdrop-blur-md rounded-xl p-3 md:p-4 border border-white/20">
-                <div className="w-8 h-8 md:w-10 md:h-10 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-brand-500 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Users className="w-4 h-4 md:w-5 md:h-5 text-white" />
                 </div>
                 <div>
@@ -368,7 +368,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                 {t('events.organizer')}
               </h2>
               <a href={`/profile/organizer/${event.organizer_id}`} className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors">
-                <div className="w-14 h-14 bg-gradient-to-br from-brand-400 to-accent-400 rounded-full flex items-center justify-center text-white font-bold text-xl">
+                <div className="w-14 h-14 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
                   {(event.users?.full_name || 'E')[0].toUpperCase()}
                 </div>
                 <div>
@@ -376,7 +376,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                     {event.users?.full_name || 'Event Organizer'}
                   </p>
                   {event.users?.is_verified && (
-                    <div className="flex items-center gap-1 text-blue-600 text-sm mt-1">
+                    <div className="flex items-center gap-1 text-brand-600 text-sm mt-1">
                       <Shield className="w-4 h-4" />
                       <span>{t('events.verified_organizer')}</span>
                     </div>
@@ -456,7 +456,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                     <span className="font-semibold text-gray-900">{ticketsRemaining}</span>
                   </div>
                   {selloutSoon && (
-                    <p className="text-xs text-orange-600 font-medium mt-2">⚡ {t('events.almost_sold_out_alert')}</p>
+                    <p className="text-xs text-amber-600 font-medium mt-2">⚡ {t('events.almost_sold_out_alert')}</p>
                   )}
                 </div>
               )}

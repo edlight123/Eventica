@@ -142,19 +142,19 @@ export function PreferencesCard({ profile, onUpdate }: PreferencesCardProps) {
       <div className="space-y-6">
         {/* Default Location Pill */}
         {defaultCountry && defaultCity && defaultSubarea && (
-          <div className="bg-gradient-to-r from-teal-50 to-purple-50 border border-teal-200 rounded-xl p-4">
+          <div className="bg-brand-50 border border-brand-100 rounded-xl p-4">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center flex-shrink-0">
-                <MapPin className="w-5 h-5 text-teal-600" />
+                <MapPin className="w-5 h-5 text-brand-600" />
               </div>
               <div>
-                <p className="text-xs font-semibold text-teal-700 uppercase tracking-wide mb-1">
+                <p className="text-xs font-semibold text-brand-700 uppercase tracking-wide mb-1">
                   {t('preferences.default_location')}
                 </p>
                 <p className="text-lg font-bold text-gray-900">
                   {LOCATION_CONFIG[defaultCountry]?.name} • {defaultCity} • {defaultSubarea}
                 </p>
-                <p className="text-xs text-teal-600 mt-1">
+                <p className="text-xs text-brand-600 mt-1">
                   {t('preferences.location_note')}
                 </p>
               </div>

@@ -145,30 +145,30 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
           <div className="flex items-center justify-between max-w-md mx-auto">
             <div className="flex flex-col items-center gap-1">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold ${
-                step === 'method' ? 'bg-teal-600 text-white' : 'bg-teal-100 text-teal-600'
+                step === 'method' ? 'bg-brand-700 text-white' : 'bg-brand-100 text-brand-700'
               }`}>
                 {step !== 'method' ? <Check className="w-5 h-5" /> : '1'}
               </div>
               <span className="text-xs font-medium text-gray-600">Method</span>
             </div>
             <div className={`flex-1 h-0.5 mx-2 ${
-              step !== 'method' ? 'bg-teal-600' : 'bg-gray-300'
+              step !== 'method' ? 'bg-brand-600' : 'bg-gray-300'
             }`} />
             <div className="flex flex-col items-center gap-1">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold ${
-                step === 'review' ? 'bg-teal-100 text-teal-600' :
-                step === 'details' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-500'
+                step === 'review' ? 'bg-brand-100 text-brand-700' :
+                step === 'details' ? 'bg-brand-700 text-white' : 'bg-gray-200 text-gray-500'
               }`}>
                 {step === 'review' ? <Check className="w-5 h-5" /> : '2'}
               </div>
               <span className="text-xs font-medium text-gray-600">Details</span>
             </div>
             <div className={`flex-1 h-0.5 mx-2 ${
-              step === 'review' ? 'bg-teal-600' : 'bg-gray-300'
+              step === 'review' ? 'bg-brand-600' : 'bg-gray-300'
             }`} />
             <div className="flex flex-col items-center gap-1">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold ${
-                step === 'review' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-500'
+                step === 'review' ? 'bg-brand-700 text-white' : 'bg-gray-200 text-gray-500'
               }`}>
                 3
               </div>
@@ -196,16 +196,16 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
                 onClick={() => setMethod('bank_transfer')}
                 className={`w-full p-6 rounded-xl border-2 transition-all text-left ${
                   method === 'bank_transfer'
-                    ? 'border-teal-600 bg-teal-50'
+                    ? 'border-brand-600 bg-brand-50'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
                 <div className="flex items-start gap-4">
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                    method === 'bank_transfer' ? 'bg-teal-100' : 'bg-gray-100'
+                    method === 'bank_transfer' ? 'bg-brand-100' : 'bg-gray-100'
                   }`}>
                     <CreditCard className={`w-6 h-6 ${
-                      method === 'bank_transfer' ? 'text-teal-600' : 'text-gray-600'
+                      method === 'bank_transfer' ? 'text-brand-700' : 'text-gray-600'
                     }`} />
                   </div>
                   <div className="flex-1">
@@ -221,16 +221,16 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
                 onClick={() => setMethod('mobile_money')}
                 className={`w-full p-6 rounded-xl border-2 transition-all text-left ${
                   method === 'mobile_money'
-                    ? 'border-teal-600 bg-teal-50'
+                    ? 'border-brand-600 bg-brand-50'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
                 <div className="flex items-start gap-4">
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                    method === 'mobile_money' ? 'bg-teal-100' : 'bg-gray-100'
+                    method === 'mobile_money' ? 'bg-brand-100' : 'bg-gray-100'
                   }`}>
                     <Smartphone className={`w-6 h-6 ${
-                      method === 'mobile_money' ? 'text-teal-600' : 'text-gray-600'
+                      method === 'mobile_money' ? 'text-brand-700' : 'text-gray-600'
                     }`} />
                   </div>
                   <div className="flex-1">
@@ -256,7 +256,7 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
                   value={bankName}
                   onChange={(e) => setBankName(e.target.value)}
                   placeholder="e.g., Unibank Haiti"
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-teal-600 focus:outline-none transition-colors"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-brand-600 focus:outline-none transition-colors"
                   required
                 />
               </div>
@@ -270,7 +270,7 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
                   value={accountName}
                   onChange={(e) => setAccountName(e.target.value)}
                   placeholder="Your full name or business name"
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-teal-600 focus:outline-none transition-colors"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-brand-600 focus:outline-none transition-colors"
                   required
                 />
               </div>
@@ -284,7 +284,7 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
                   value={accountNumber}
                   onChange={(e) => setAccountNumber(e.target.value)}
                   placeholder="Enter your account number"
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-teal-600 focus:outline-none transition-colors font-mono"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-brand-600 focus:outline-none transition-colors font-mono"
                   required
                 />
                 <p className="text-xs text-gray-500 mt-1">
@@ -301,7 +301,7 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
                   value={routingNumber}
                   onChange={(e) => setRoutingNumber(e.target.value)}
                   placeholder="Optional"
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-teal-600 focus:outline-none transition-colors font-mono"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-brand-600 focus:outline-none transition-colors font-mono"
                 />
               </div>
             </div>
@@ -318,7 +318,7 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
                     onClick={() => setProvider('moncash')}
                     className={`p-4 rounded-xl border-2 font-semibold transition-all ${
                       provider === 'moncash'
-                        ? 'border-teal-600 bg-teal-50 text-teal-700'
+                        ? 'border-brand-600 bg-brand-50 text-brand-700'
                         : 'border-gray-200 hover:border-gray-300 text-gray-700'
                     }`}
                   >
@@ -328,7 +328,7 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
                     onClick={() => setProvider('natcash')}
                     className={`p-4 rounded-xl border-2 font-semibold transition-all ${
                       provider === 'natcash'
-                        ? 'border-teal-600 bg-teal-50 text-teal-700'
+                        ? 'border-brand-600 bg-brand-50 text-brand-700'
                         : 'border-gray-200 hover:border-gray-300 text-gray-700'
                     }`}
                   >
@@ -349,7 +349,7 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
                   className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none transition-colors font-mono ${
                     phoneNumber && !validatePhone(phoneNumber)
                       ? 'border-red-300 focus:border-red-600'
-                      : 'border-gray-200 focus:border-teal-600'
+                      : 'border-gray-200 focus:border-brand-600'
                   }`}
                   required
                 />
@@ -372,7 +372,7 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
                   value={mobileAccountName}
                   onChange={(e) => setMobileAccountName(e.target.value)}
                   placeholder="Your full name"
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-teal-600 focus:outline-none transition-colors"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-brand-600 focus:outline-none transition-colors"
                   required
                 />
               </div>
@@ -436,9 +436,9 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
                 )}
               </div>
 
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                <div className="text-sm text-blue-900">
+              <div className="p-4 bg-brand-50 border border-brand-200 rounded-xl flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-brand-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-brand-900">
                   <p className="font-semibold mb-1">Security Notice</p>
                   <p>Your sensitive information will be encrypted. Only the last 4 digits will be visible after saving.</p>
                 </div>
@@ -465,7 +465,7 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
             <button
               onClick={handleSave}
               disabled={loading}
-              className="px-8 py-3 bg-teal-600 hover:bg-teal-700 disabled:bg-gray-300 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all disabled:cursor-not-allowed"
+              className="px-8 py-3 bg-brand-700 hover:bg-brand-800 disabled:bg-gray-300 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all disabled:cursor-not-allowed"
             >
               {loading ? 'Saving...' : 'Save Payout Method'}
             </button>
@@ -473,7 +473,7 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
             <button
               onClick={handleNext}
               disabled={!canProceed()}
-              className="px-8 py-3 bg-teal-600 hover:bg-teal-700 disabled:bg-gray-300 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all disabled:cursor-not-allowed"
+              className="px-8 py-3 bg-brand-700 hover:bg-brand-800 disabled:bg-gray-300 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all disabled:cursor-not-allowed"
             >
               Continue
             </button>

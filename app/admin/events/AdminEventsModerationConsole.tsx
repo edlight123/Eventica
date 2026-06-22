@@ -8,6 +8,7 @@ import { AdminEventsFilters } from '@/components/admin/events/AdminEventsFilters
 import { AdminEventsTabs } from '@/components/admin/events/AdminEventsTabs'
 import { AdminEventsTable } from '@/components/admin/events/AdminEventsTable'
 import { AdminEventDetailSheet } from '@/components/admin/events/AdminEventDetailSheet'
+import { EditorialHeader } from '@/components/ui/EditorialHeader'
 
 interface FilterOptions {
   dateRange: 'any' | 'today' | 'week' | 'custom'
@@ -188,8 +189,11 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
             <ArrowLeft className="w-4 h-4" />
             Back to Admin Dashboard
           </Link>
-          <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">Events Moderation</h1>
-          <p className="text-gray-600 mt-2">Review and manage all events on the platform</p>
+          <EditorialHeader
+            eyebrow="Platform"
+            title="Events Moderation"
+            subtitle="Review and manage all events on the platform"
+          />
         </div>
       </div>
 
@@ -217,15 +221,13 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
             <p className="text-gray-500">Loading events...</p>
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-            <AdminEventsTable
-              events={filteredEvents}
-              selectedIds={selectedIds}
-              onToggleSelect={handleToggleSelect}
-              onToggleSelectAll={handleToggleSelectAll}
-              onRowClick={setSelectedEvent}
-            />
-          </div>
+          <AdminEventsTable
+            events={filteredEvents}
+            selectedIds={selectedIds}
+            onToggleSelect={handleToggleSelect}
+            onToggleSelectAll={handleToggleSelectAll}
+            onRowClick={setSelectedEvent}
+          />
         )}
 
         {/* Pagination placeholder */}

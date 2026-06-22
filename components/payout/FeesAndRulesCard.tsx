@@ -56,7 +56,7 @@ export function FeesAndRulesCard() {
   return (
     <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 md:p-8">
       <div className="flex items-center gap-2 mb-6">
-        <Info className="w-6 h-6 text-teal-600" />
+        <Info className="w-6 h-6 text-brand-600" />
         <h3 className="text-xl font-bold text-gray-900">{t('settings.payout_settings.fees_rules')}</h3>
       </div>
 
@@ -69,7 +69,7 @@ export function FeesAndRulesCard() {
               onClick={() => setCurrency('USD')}
               className={`flex-1 px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
                 currency === 'USD'
-                  ? 'bg-teal-600 text-white'
+                  ? 'bg-brand-700 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -79,7 +79,7 @@ export function FeesAndRulesCard() {
               onClick={() => setCurrency('HTG')}
               className={`flex-1 px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
                 currency === 'HTG'
-                  ? 'bg-teal-600 text-white'
+                  ? 'bg-brand-700 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -94,7 +94,7 @@ export function FeesAndRulesCard() {
               onClick={() => setLocation('haiti')}
               className={`flex-1 px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
                 location === 'haiti'
-                  ? 'bg-teal-600 text-white'
+                  ? 'bg-brand-700 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -104,7 +104,7 @@ export function FeesAndRulesCard() {
               onClick={() => setLocation('abroad')}
               className={`flex-1 px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
                 location === 'abroad'
-                  ? 'bg-teal-600 text-white'
+                  ? 'bg-brand-700 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -116,12 +116,12 @@ export function FeesAndRulesCard() {
 
       <div className="space-y-6">
         {/* Platform Fee */}
-        <div className="p-4 bg-teal-50 border border-teal-200 rounded-xl">
+        <div className="p-4 bg-brand-50 border border-brand-200 rounded-xl">
           <div className="flex items-baseline justify-between mb-2">
-            <h4 className="font-semibold text-teal-900">{t('settings.payout_settings.platform_fee')}</h4>
-            <span className="text-2xl font-bold text-teal-700">{fees.platformFee}</span>
+            <h4 className="font-semibold text-brand-900">{t('settings.payout_settings.platform_fee')}</h4>
+            <span className="text-2xl font-bold text-brand-700">{fees.platformFee}</span>
           </div>
-          <p className="text-sm text-teal-800">
+          <p className="text-sm text-brand-800">
             {location === 'abroad' 
               ? t('settings.payout_settings.platform_fee_abroad')
               : t('settings.payout_settings.platform_fee_haiti')}
@@ -144,42 +144,42 @@ export function FeesAndRulesCard() {
           <h4 className="font-semibold text-gray-900 mb-3">{t('settings.payout_settings.payout_schedule')}</h4>
           <ul className="space-y-2">
             <li className="flex items-start gap-2 text-sm text-gray-700">
-              <span className="text-teal-600 font-bold mt-0.5">•</span>
+              <span className="text-brand-600 font-bold mt-0.5">•</span>
               <span>{t('settings.payout_settings.schedule_friday')} <strong>{t('settings.payout_settings.friday_5pm')}</strong></span>
             </li>
             <li className="flex items-start gap-2 text-sm text-gray-700">
-              <span className="text-teal-600 font-bold mt-0.5">•</span>
+              <span className="text-brand-600 font-bold mt-0.5">•</span>
               <span>{t('settings.payout_settings.minimum_payout')} <strong>{currency === 'USD' ? '$50.00' : '2,500 HTG'}</strong></span>
             </li>
             <li className="flex items-start gap-2 text-sm text-gray-700">
-              <span className="text-teal-600 font-bold mt-0.5">•</span>
+              <span className="text-brand-600 font-bold mt-0.5">•</span>
               <span>{t('settings.payout_settings.bank_transfer_time')} <strong>{t('settings.payout_settings.bank_days')}</strong> {t('settings.payout_settings.bank_arrival')}</span>
             </li>
             <li className="flex items-start gap-2 text-sm text-gray-700">
-              <span className="text-teal-600 font-bold mt-0.5">•</span>
+              <span className="text-brand-600 font-bold mt-0.5">•</span>
               <span>{t('settings.payout_settings.mobile_money_time')} <strong>{t('settings.payout_settings.mobile_instant')}</strong></span>
             </li>
           </ul>
         </div>
 
         {/* Example Calculation */}
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
-          <h4 className="font-semibold text-blue-900 mb-3">{t('settings.payout_settings.example_calc')}</h4>
+        <div className="p-4 bg-brand-50 border border-brand-200 rounded-xl">
+          <h4 className="font-semibold text-brand-900 mb-3">{t('settings.payout_settings.example_calc')}</h4>
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between text-blue-800">
+            <div className="flex justify-between text-brand-800">
               <span>{t('settings.payout_settings.ticket_price')}</span>
               <span className="font-mono">{fees.ticketPrice}</span>
             </div>
-            <div className="flex justify-between text-blue-700">
+            <div className="flex justify-between text-brand-700">
               <span>{t('settings.payout_settings.platform_fee')} ({fees.platformFee}):</span>
               <span className="font-mono">{fees.platformFeeAmount}</span>
             </div>
-            <div className="flex justify-between text-blue-700">
+            <div className="flex justify-between text-brand-700">
               <span>{t('settings.payout_settings.processing_fee')} ({fees.processingFee}):</span>
               <span className="font-mono">{fees.processingFeeAmount}</span>
             </div>
-            <div className="h-px bg-blue-300 my-2" />
-            <div className="flex justify-between text-blue-900 font-bold">
+            <div className="h-px bg-brand-300 my-2" />
+            <div className="flex justify-between text-brand-900 font-bold">
               <span>{t('settings.payout_settings.your_payout')}</span>
               <span className="font-mono">{fees.payout}</span>
             </div>

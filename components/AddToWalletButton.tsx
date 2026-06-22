@@ -295,7 +295,7 @@ export default function AddToWalletButton({ ticket, event }: AddToWalletButtonPr
       <button
         onClick={() => setShowOptions(!showOptions)}
         disabled={isDownloading}
-        className="w-full inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-brand-600 to-accent-600 hover:from-brand-700 hover:to-accent-700 text-white rounded-xl font-bold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+        className="w-full inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 text-white rounded-xl font-bold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
       >
         <Wallet className="w-5 h-5" />
         {isDownloading ? 'Preparing...' : 'Save Ticket'}

@@ -133,7 +133,7 @@ export default function DebugDBClient() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading...</p>
         </div>
       </div>
@@ -160,7 +160,7 @@ export default function DebugDBClient() {
             <button
               onClick={checkDatabase}
               disabled={loading}
-              className="bg-teal-600 hover:bg-teal-700 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg text-[15px] sm:text-base font-semibold disabled:opacity-50 mb-4 sm:mb-6 min-h-[44px] w-full sm:w-auto"
+              className="bg-brand-600 hover:bg-brand-700 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg text-[15px] sm:text-base font-semibold disabled:opacity-50 mb-4 sm:mb-6 min-h-[44px] w-full sm:w-auto"
             >
               {loading ? 'Checking...' : 'Check Database'}
             </button>

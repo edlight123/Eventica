@@ -42,7 +42,7 @@ export default function EmptyState({
       {actionLabel && actionHref && (
         <Link
           href={actionHref}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-brand-600 to-accent-600 text-white rounded-xl font-bold hover:shadow-glow transition-all duration-300 hover:scale-105"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-brand-600 to-brand-700 text-white rounded-xl font-bold hover:shadow-glow transition-all duration-300 hover:scale-105"
         >
           {ActionIcon && <ActionIcon className="w-5 h-5" />}
           {actionLabel}

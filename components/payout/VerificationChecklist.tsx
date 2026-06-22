@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Check, Clock, AlertCircle, User, CreditCard, Smartphone } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { StatusChip } from '@/components/ui/kit'
 import type { PayoutConfig } from '@/lib/firestore/payout'
 import { IdentityVerificationModal } from './IdentityVerificationModal'
 import { BankVerificationModal } from './BankVerificationModal'
@@ -84,30 +85,18 @@ export function VerificationChecklist({ config }: VerificationChecklistProps) {
       case 'failed':
         return <AlertCircle className="w-5 h-5 text-red-600" />
       default:
-        return <Clock className="w-5 h-5 text-yellow-600" />
+        return <Clock className="w-5 h-5 text-amber-600" />
     }
   }
 
   const getStatusBadge = (status: VerificationItemStatus) => {
     switch (status) {
       case 'verified':
-        return (
-          <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
-            {t('settings.payout_settings.verified')}
-          </span>
-        )
+        return <StatusChip tone="success">{t('settings.payout_settings.verified')}</StatusChip>
       case 'failed':
-        return (
-          <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full">
-            {t('settings.payout_settings.failed')}
-          </span>
-        )
+        return <StatusChip tone="danger">{t('settings.payout_settings.failed')}</StatusChip>
       default:
-        return (
-          <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs font-semibold rounded-full">
-            {t('settings.payout_settings.pending')}
-          </span>
-        )
+        return <StatusChip tone="warning">{t('settings.payout_settings.pending')}</StatusChip>
     }
   }
 
@@ -118,7 +107,7 @@ export function VerificationChecklist({ config }: VerificationChecklistProps) {
       case 'failed':
         return 'border-red-200 bg-red-50'
       default:
-        return 'border-yellow-200 bg-yellow-50'
+        return 'border-amber-200 bg-amber-50'
     }
   }
 
@@ -136,8 +125,8 @@ export function VerificationChecklist({ config }: VerificationChecklistProps) {
 
       {/* Overall Status Message */}
       {!allVerified && !hasFailures && (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-          <p className="text-sm text-blue-900">
+        <div className="mb-6 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+          <p className="text-sm text-brand-900">
             <strong>{t('settings.payout_settings.action_required')}</strong> {t('settings.payout_settings.complete_verification')}
           </p>
         </div>
@@ -167,11 +156,11 @@ export function VerificationChecklist({ config }: VerificationChecklistProps) {
                 <div className="relative">
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                     item.status === 'verified' ? 'bg-green-100' :
-                    item.status === 'failed' ? 'bg-red-100' : 'bg-yellow-100'
+                    item.status === 'failed' ? 'bg-red-100' : 'bg-amber-100'
                   }`}>
                     <Icon className={`w-6 h-6 ${
                       item.status === 'verified' ? 'text-green-600' :
-                      item.status === 'failed' ? 'text-red-600' : 'text-yellow-600'
+                      item.status === 'failed' ? 'text-red-600' : 'text-amber-600'
                     }`} />
                   </div>
                   <div className="absolute -top-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-sm">
@@ -194,7 +183,7 @@ export function VerificationChecklist({ config }: VerificationChecklistProps) {
                       className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
                         item.status === 'failed'
                           ? 'bg-red-600 hover:bg-red-700 text-white'
-                          : 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                          : 'bg-amber-600 hover:bg-amber-700 text-white'
                       }`}
                     >
                       {item.action.label}

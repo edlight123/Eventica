@@ -113,7 +113,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                     <Link
                       href="/admin"
                       className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                        pathname?.startsWith('/admin') ? 'bg-gradient-to-r from-orange-50 to-orange-100 text-orange-700 shadow-sm' : 'text-gray-700 hover:bg-gray-50'
+                        pathname?.startsWith('/admin') ? 'bg-gradient-to-r from-brand-50 to-brand-100 text-brand-700 shadow-sm' : 'text-gray-700 hover:bg-gray-50'
                       }`}
                     >
                       {t('nav.admin')}
@@ -244,7 +244,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                       href="/admin"
                       onClick={() => setMobileMenuOpen(false)}
                       className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                        pathname?.startsWith('/admin') ? 'bg-orange-50 text-orange-700' : 'text-gray-700 hover:bg-gray-100'
+                        pathname?.startsWith('/admin') ? 'bg-brand-50 text-brand-700' : 'text-gray-700 hover:bg-gray-100'
                       }`}
                     >
                       {t('nav.admin')}

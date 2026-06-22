@@ -106,7 +106,7 @@ export default function AdminUsersClient({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       <div className="mb-4 sm:mb-6">
-        <Link href="/admin" className="text-teal-600 hover:text-teal-700 text-[13px] sm:text-sm font-medium">
+        <Link href="/admin" className="text-brand-600 hover:text-brand-700 text-[13px] sm:text-sm font-medium">
           {t('users.back_to_dashboard')}
         </Link>
       </div>
@@ -143,13 +143,13 @@ export default function AdminUsersClient({
                 }
               }}
               placeholder={t('users.search_users')}
-              className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
             <button
               type="button"
               onClick={() => runSearch(query)}
               disabled={isSearching || normalizedQuery.length < 2}
-              className="px-4 py-2.5 text-sm font-medium rounded-lg transition-colors bg-teal-600 hover:bg-teal-700 text-white disabled:opacity-50"
+              className="px-4 py-2.5 text-sm font-medium rounded-lg transition-colors bg-brand-600 hover:bg-brand-700 text-white disabled:opacity-50"
             >
               {isSearching ? t('users.loading') : t('users.search')}
             </button>

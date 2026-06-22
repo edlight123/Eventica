@@ -74,9 +74,9 @@ export default function PurchaseSuccessContentClient(props: Props) {
 
       {props.hasTicket && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-          <div className="bg-gradient-to-r from-orange-500 to-pink-500 p-4 md:p-6 text-white">
+          <div className="bg-gradient-to-r from-brand-600 to-brand-700 p-4 md:p-6 text-white">
             <h2 className="text-lg md:text-xl lg:text-2xl font-bold mb-1.5 md:mb-2 line-clamp-2">{props.eventTitle}</h2>
-            <p className="text-sm md:text-base text-orange-100">{startText}</p>
+            <p className="text-sm md:text-base text-brand-100">{startText}</p>
           </div>
 
           <div className="p-4 md:p-6 space-y-3 md:space-y-4">
@@ -151,7 +151,7 @@ export default function PurchaseSuccessContentClient(props: Props) {
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
         <Link
           href="/tickets"
-          className="px-6 md:px-8 py-3 md:py-3.5 rounded-lg bg-orange-600 text-white text-base font-semibold hover:bg-orange-700 transition-colors text-center shadow-md"
+          className="px-6 md:px-8 py-3 md:py-3.5 rounded-lg bg-brand-700 text-white text-base font-semibold hover:bg-brand-800 transition-colors text-center shadow-md"
         >
           {t('tickets:purchase_success.view_tickets')}
         </Link>
@@ -163,9 +163,9 @@ export default function PurchaseSuccessContentClient(props: Props) {
         </Link>
       </div>
 
-      <div className="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-4 md:p-6">
-        <h3 className="text-base md:text-lg font-semibold text-blue-900 mb-2.5">{t('tickets:purchase_success.next_steps_title')}</h3>
-        <ul className="space-y-2 text-[13px] md:text-sm text-blue-800">
+      <div className="mt-8 bg-brand-50 border border-brand-100 rounded-xl p-4 md:p-6">
+        <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-2.5">{t('tickets:purchase_success.next_steps_title')}</h3>
+        <ul className="space-y-2 text-[13px] md:text-sm text-gray-700">
           <li className="flex items-start">
             <svg className="w-4 h-4 md:w-5 md:h-5 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
               <path

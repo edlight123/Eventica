@@ -1,5 +1,6 @@
 import { ChevronRight, CheckCircle, Clock, XCircle, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
+import { StatusChip } from '@/components/ui/kit'
 import { adminAuth, adminDb } from '@/lib/firebase/admin'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
@@ -35,18 +36,18 @@ function PayoutHistoryClient({ payouts }: { payouts: PayoutHistoryItem[] }) {
   }
 
   const getStatusBadge = (status: PayoutHistoryItem['status']) => {
-    const styles = {
-      completed: 'bg-green-100 text-green-800 border-green-200',
-      processing: 'bg-blue-100 text-blue-800 border-blue-200',
-      failed: 'bg-red-100 text-red-800 border-red-200',
-      cancelled: 'bg-gray-100 text-gray-800 border-gray-200'
-    }
+    const tone = {
+      completed: 'success',
+      processing: 'warning',
+      failed: 'danger',
+      cancelled: 'neutral'
+    } as const
 
     const icons = {
-      completed: <CheckCircle className="w-3 h-3" />,
-      processing: <Clock className="w-3 h-3" />,
-      failed: <XCircle className="w-3 h-3" />,
-      cancelled: <AlertCircle className="w-3 h-3" />
+      completed: CheckCircle,
+      processing: Clock,
+      failed: XCircle,
+      cancelled: AlertCircle
     }
 
     const labels = {
@@ -57,10 +58,9 @@ function PayoutHistoryClient({ payouts }: { payouts: PayoutHistoryItem[] }) {
     }
 
     return (
-      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${styles[status]}`}>
-        {icons[status]}
+      <StatusChip tone={tone[status]} icon={icons[status]}>
         {labels[status]}
-      </span>
+      </StatusChip>
     )
   }
 
@@ -201,7 +201,7 @@ function PayoutHistoryClient({ payouts }: { payouts: PayoutHistoryItem[] }) {
         <div className="pt-6">
           <Link
             href="/organizer/settings/payouts"
-            className="inline-flex items-center gap-2 text-sm font-medium text-purple-600 hover:text-purple-700"
+            className="inline-flex items-center gap-2 text-sm font-medium text-brand-700 hover:text-brand-800"
           >
             ← Back to Payouts
           </Link>

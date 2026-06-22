@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { EditorialHeader } from '@/components/ui/EditorialHeader'
 
 interface SuspiciousActivity {
   id: string
@@ -22,8 +23,8 @@ interface SuspiciousActivity {
 
 const SEVERITY_COLORS = {
   low: 'bg-gray-100 text-gray-800',
-  medium: 'bg-yellow-100 text-yellow-800',
-  high: 'bg-orange-100 text-orange-800',
+  medium: 'bg-amber-50 text-amber-700',
+  high: 'bg-amber-100 text-amber-800',
   critical: 'bg-red-100 text-red-800',
 }
 
@@ -218,10 +219,11 @@ export default function SecurityDashboardClient() {
     <>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-mobile-nav">
         <div className="mb-6 sm:mb-8">
-          <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">Security Dashboard</h1>
-          <p className="mt-1 sm:mt-2 text-[13px] sm:text-base text-gray-600">
-            Monitor and review suspicious activities
-          </p>
+          <EditorialHeader
+            eyebrow="Platform"
+            title="Security Dashboard"
+            subtitle="Monitor and review suspicious activities"
+          />
           {unreviewedCount > 0 && (
             <div className="mt-3 sm:mt-4 bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4">
               <p className="text-[13px] sm:text-base text-red-800 font-medium">
@@ -275,7 +277,7 @@ export default function SecurityDashboardClient() {
               <select
                 value={filter.reviewed}
                 onChange={(e) => setFilter({ ...filter, reviewed: e.target.value })}
-                className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-[15px] sm:text-base min-h-[44px]"
+                className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-[15px] sm:text-base min-h-[44px]"
               >
                 <option value="">All</option>
                 <option value="false">Unreviewed</option>
@@ -290,7 +292,7 @@ export default function SecurityDashboardClient() {
               <select
                 value={filter.severity}
                 onChange={(e) => setFilter({ ...filter, severity: e.target.value })}
-                className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-[15px] sm:text-base min-h-[44px]"
+                className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-[15px] sm:text-base min-h-[44px]"
               >
                 <option value="">All</option>
                 <option value="critical">Critical</option>
@@ -307,7 +309,7 @@ export default function SecurityDashboardClient() {
               <select
                 value={filter.activityType}
                 onChange={(e) => setFilter({ ...filter, activityType: e.target.value })}
-                className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-[15px] sm:text-base min-h-[44px]"
+                className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-[15px] sm:text-base min-h-[44px]"
               >
                 <option value="">All</option>
                 <option value="rapid_purchases">Rapid Purchases</option>
@@ -397,7 +399,7 @@ export default function SecurityDashboardClient() {
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleReview(activity.id, actionText)}
-                              className="px-3 py-1 bg-teal-600 text-white text-sm rounded-lg hover:bg-teal-700"
+                              className="px-3 py-1 bg-brand-600 text-white text-sm rounded-lg hover:bg-brand-700"
                             >
                               Confirm
                             </button>
@@ -415,7 +417,7 @@ export default function SecurityDashboardClient() {
                       ) : (
                         <button
                           onClick={() => setReviewingId(activity.id)}
-                          className="px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700"
+                          className="px-4 py-2 bg-brand-600 text-white text-sm font-medium rounded-lg hover:bg-brand-700"
                         >
                           Mark Reviewed
                         </button>

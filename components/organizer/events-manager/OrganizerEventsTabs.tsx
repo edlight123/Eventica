@@ -54,46 +54,20 @@ export default function OrganizerEventsTabs({
   onTabChange,
   counts
 }: OrganizerEventsTabsProps) {
-  const getTabStyles = (tab: Tab, isActive: boolean) => {
+  const getTabStyles = (_tab: Tab, isActive: boolean) => {
     const baseStyles = 'flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 relative'
-    
     if (isActive) {
-      switch (tab.color) {
-        case 'teal':
-          return `${baseStyles} bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-md`
-        case 'gray':
-          return `${baseStyles} bg-gradient-to-r from-gray-600 to-gray-700 text-white shadow-md`
-        case 'blue':
-          return `${baseStyles} bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md`
-        case 'red':
-          return `${baseStyles} bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md`
-        default:
-          return `${baseStyles} bg-gray-800 text-white shadow-md`
-      }
+      return `${baseStyles} bg-brand-700 text-white shadow-sm`
     }
-    
     return `${baseStyles} text-gray-600 hover:bg-gray-100 hover:text-gray-900`
   }
 
-  const getCountBadgeStyles = (tab: Tab, isActive: boolean) => {
+  const getCountBadgeStyles = (_tab: Tab, isActive: boolean) => {
     const baseStyles = 'ml-2 px-2 py-0.5 text-xs font-bold rounded-full'
-    
     if (isActive) {
       return `${baseStyles} bg-white/20 text-white`
     }
-    
-    switch (tab.color) {
-      case 'teal':
-        return `${baseStyles} bg-teal-100 text-teal-700`
-      case 'gray':
-        return `${baseStyles} bg-gray-100 text-gray-700`
-      case 'blue':
-        return `${baseStyles} bg-blue-100 text-blue-700`
-      case 'red':
-        return `${baseStyles} bg-red-100 text-red-700`
-      default:
-        return `${baseStyles} bg-gray-100 text-gray-700`
-    }
+    return `${baseStyles} bg-gray-100 text-gray-700`
   }
 
   return (
@@ -129,7 +103,7 @@ export default function OrganizerEventsTabs({
           <select
             value={activeTab}
             onChange={(e) => onTabChange(e.target.value as EventTabType)}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
           >
             {tabs.map((tab) => {
               const count = counts[tab.id]

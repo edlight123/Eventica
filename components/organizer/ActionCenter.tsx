@@ -22,7 +22,7 @@ export function ActionCenter({ alerts }: ActionCenterProps) {
   
   if (alerts.length === 0) {
     return (
-      <div className="bg-gradient-to-br from-green-50 to-teal-50 rounded-2xl border border-green-200 p-6">
+      <div className="bg-gradient-to-br from-green-50 to-brand-50 rounded-2xl border border-green-200 p-6">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
             <ShieldCheck className="w-6 h-6 text-green-600" />
@@ -54,9 +54,9 @@ export function ActionCenter({ alerts }: ActionCenterProps) {
   const getColor = (type: Alert['type']) => {
     switch (type) {
       case 'draft':
-        return { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-900', icon: 'text-blue-600', btn: 'bg-blue-600 hover:bg-blue-700' }
+        return { bg: 'bg-brand-50', border: 'border-brand-100', text: 'text-brand-900', icon: 'text-brand-600', btn: 'bg-brand-600 hover:bg-brand-700' }
       case 'low-sales':
-        return { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-900', icon: 'text-orange-600', btn: 'bg-orange-600 hover:bg-orange-700' }
+        return { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-900', icon: 'text-amber-600', btn: 'bg-amber-600 hover:bg-amber-700' }
       case 'payout':
         return { bg: 'bg-brand-50', border: 'border-brand-100', text: 'text-brand-900', icon: 'text-brand-600', btn: 'bg-brand-600 hover:bg-brand-700' }
       case 'verification':

@@ -21,7 +21,7 @@ function Avatar({ user, size = 40 }: { user: PublicUserSummary; size?: number })
   const initial = (user.displayName || 'U').charAt(0).toUpperCase()
   return (
     <div
-      className="rounded-full overflow-hidden bg-gradient-to-br from-teal-400 to-accent-400 flex items-center justify-center text-white font-semibold ring-2 ring-white"
+      className="rounded-full overflow-hidden bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white font-semibold ring-2 ring-white"
       style={{ width: size, height: size, fontSize: size * 0.4 }}
       title={user.displayName}
     >

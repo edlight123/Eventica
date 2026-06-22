@@ -44,7 +44,7 @@ export function EventPerformanceAnalytics() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
       </div>
     )
   }
@@ -64,15 +64,15 @@ export function EventPerformanceAnalytics() {
             {topEvents.map((event, index) => (
               <div
                 key={event.id}
-                className="flex items-center gap-4 p-4 rounded-lg border border-gray-200 hover:border-teal-300 transition-colors"
+                className="flex items-center gap-4 p-4 rounded-lg border border-gray-200 hover:border-brand-300 transition-colors"
               >
-                <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center text-white font-bold">
+                <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-600 rounded-full flex items-center justify-center text-white font-bold">
                   #{index + 1}
                 </div>
                 <div className="flex-1 min-w-0">
                   <Link 
                     href={`/events/${event.id}`}
-                    className="font-medium text-gray-900 hover:text-teal-600 transition-colors block truncate"
+                    className="font-medium text-gray-900 hover:text-brand-600 transition-colors block truncate"
                   >
                     {event.title}
                   </Link>
@@ -83,7 +83,7 @@ export function EventPerformanceAnalytics() {
                 <div className="flex items-center gap-4">
                   <div className="text-center">
                     <div className="text-xs text-gray-500">Success Score</div>
-                    <div className="text-lg font-bold text-teal-600">{event.successScore}/100</div>
+                    <div className="text-lg font-bold text-brand-600">{event.successScore}/100</div>
                   </div>
                   <div className="w-16 h-16">
                     <svg className="transform -rotate-90" viewBox="0 0 36 36">
@@ -119,7 +119,7 @@ export function EventPerformanceAnalytics() {
       {/* Category Popularity */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center gap-2 mb-6">
-          <TrendingUp className="w-6 h-6 text-teal-500" />
+          <TrendingUp className="w-6 h-6 text-brand-500" />
           <h3 className="text-lg font-semibold text-gray-900">Popular Categories (Last 30 Days)</h3>
         </div>
         {categories.length > 0 ? (
@@ -127,14 +127,11 @@ export function EventPerformanceAnalytics() {
             {categories.map((category, index) => {
               const percentage = totalTicketsSold > 0 ? (category.count / totalTicketsSold) * 100 : 0
               const colors = [
-                'bg-teal-500',
-                'bg-blue-500',
-                'bg-purple-500',
-                'bg-orange-500',
-                'bg-pink-500',
-                'bg-green-500',
-                'bg-yellow-500',
-                'bg-red-500'
+                'bg-brand-700',
+                'bg-brand-500',
+                'bg-brand-300',
+                'bg-brand-200',
+                'bg-slate-400'
               ]
               const color = colors[index % colors.length]
 

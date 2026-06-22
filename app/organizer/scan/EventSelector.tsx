@@ -36,7 +36,7 @@ export default function EventSelector({ events, organizerId }: EventSelectorProp
           <p className="text-gray-600 mb-4">You don&apos;t have any events yet.</p>
           <Link
             href="/organizer/events/new"
-            className="inline-block px-6 py-3 bg-teal-700 hover:bg-teal-800 text-white rounded-lg font-medium"
+            className="inline-block px-6 py-3 bg-brand-700 hover:bg-brand-800 text-white rounded-lg font-medium"
           >
             Create Your First Event
           </Link>
@@ -46,7 +46,7 @@ export default function EventSelector({ events, organizerId }: EventSelectorProp
           {/* Today's Events */}
           {todayEvents.length > 0 && (
             <div>
-              <h3 className="text-sm font-semibold text-teal-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-brand-700 uppercase tracking-wide mb-3 flex items-center gap-2">
                 <span>📍</span>
                 <span>Happening Today</span>
               </h3>
@@ -55,11 +55,11 @@ export default function EventSelector({ events, organizerId }: EventSelectorProp
                   <Link
                     key={event.id}
                     href={`/organizer/scan/${event.id}`}
-                    className="block w-full text-left p-4 bg-teal-50 hover:bg-teal-100 rounded-lg border-2 border-teal-200 transition-colors group"
+                    className="block w-full text-left p-4 bg-brand-50 hover:bg-brand-100 rounded-lg border-2 border-brand-200 transition-colors group"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 group-hover:text-teal-900">{event.title}</h3>
+                        <h3 className="font-semibold text-gray-900 group-hover:text-brand-900">{event.title}</h3>
                         <p className="text-sm text-gray-600 mt-1">
                           📅 {format(new Date(event.start_datetime), 'PPP • p')}
                         </p>
@@ -71,10 +71,10 @@ export default function EventSelector({ events, organizerId }: EventSelectorProp
                         </p>
                       </div>
                       <div className="flex flex-col items-end gap-2">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-teal-600 text-white">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-brand-600 text-white">
                           Today
                         </span>
-                        <div className="flex items-center gap-1 text-teal-700 group-hover:text-teal-800">
+                        <div className="flex items-center gap-1 text-brand-700 group-hover:text-brand-800">
                           <QrCode className="w-4 h-4" />
                           <span className="text-xs font-medium">Scan</span>
                         </div>

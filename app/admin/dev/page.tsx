@@ -24,7 +24,7 @@ export default function DevToolsPage() {
       description: 'Generate sample events for testing and development',
       href: '/admin/dev/seed-events',
       icon: Code,
-      color: 'bg-purple-500'
+      color: 'bg-brand-500'
     }
   ]
 

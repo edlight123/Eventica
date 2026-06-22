@@ -4,6 +4,8 @@ import { adminDb } from '@/lib/firebase/admin';
 import OrganizationForm from './OrganizationForm';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
+import { Card } from '@/components/ui/kit';
+import { EditorialHeader } from '@/components/ui/EditorialHeader';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,16 +39,15 @@ export default async function OrganizationSettingsPage() {
           Back to Settings
         </Link>
 
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">Organization & Brand</h1>
-          <p className="text-gray-600 mt-2">
-            Manage your organization details and public branding
-          </p>
-        </div>
+        <EditorialHeader
+          eyebrow="Settings"
+          title="Organization & Brand"
+          subtitle="Manage your organization details and public branding"
+          className="mb-8"
+        />
 
         {/* Organization Form */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+        <Card>
           <OrganizationForm 
             userId={user.id}
             initialData={{
@@ -61,7 +62,7 @@ export default async function OrganizationSettingsPage() {
               linkedin: organizerData?.social_media?.linkedin || '',
             }}
           />
-        </div>
+        </Card>
       </div>
     </div>
   );

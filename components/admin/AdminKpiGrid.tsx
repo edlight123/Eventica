@@ -31,8 +31,8 @@ export function AdminKpiGrid({
         title={t('dashboard.users')}
         value={usersCount}
         icon={Users}
-        iconColor="text-blue-600"
-        iconBg="bg-blue-50"
+        iconColor="text-brand-600"
+        iconBg="bg-brand-50"
         href="/admin/users"
       />
       
@@ -40,8 +40,8 @@ export function AdminKpiGrid({
         title={t('dashboard.events')}
         value={eventsCount}
         icon={Calendar}
-        iconColor="text-purple-600"
-        iconBg="bg-purple-50"
+        iconColor="text-brand-600"
+        iconBg="bg-brand-50"
         href="/admin/events"
       />
       
@@ -50,8 +50,8 @@ export function AdminKpiGrid({
         value={tickets7d}
         subtitle={t('dashboard.last_week')}
         icon={Ticket}
-        iconColor="text-teal-600"
-        iconBg="bg-teal-50"
+        iconColor="text-brand-600"
+        iconBg="bg-brand-50"
       />
       
       <KpiCard
@@ -68,8 +68,8 @@ export function AdminKpiGrid({
         value={refunds7d}
         subtitle={`${(refundsAmount7d / 1000).toFixed(1)}k ${t('dashboard.htg')}`}
         icon={RefreshCcw}
-        iconColor="text-orange-600"
-        iconBg="bg-orange-50"
+        iconColor="text-amber-600"
+        iconBg="bg-amber-50"
       />
       
       <KpiCard
@@ -77,8 +77,8 @@ export function AdminKpiGrid({
         value={pendingCount}
         subtitle={t('dashboard.verifications')}
         icon={ShieldCheck}
-        iconColor="text-yellow-800"
-        iconBg="bg-yellow-50"
+        iconColor="text-amber-700"
+        iconBg="bg-amber-50"
         href="/admin/verify"
       />
     </div>

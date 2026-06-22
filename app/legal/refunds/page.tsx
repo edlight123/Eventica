@@ -143,8 +143,8 @@ export default async function RefundPolicyPage() {
             <li><strong>Response Time:</strong> Within 24-48 hours</li>
           </ul>
 
-          <div className="bg-blue-50 border-l-4 border-blue-500 p-6 mt-8">
-            <h3 className="text-lg font-semibold text-blue-900 mt-0">💡 Refund Tips</h3>
+          <div className="bg-brand-50 border-l-4 border-brand-500 p-6 mt-8">
+            <h3 className="text-lg font-semibold text-brand-900 mt-0">💡 Refund Tips</h3>
             <ul className="mb-0">
               <li>Always check the event&apos;s refund policy before purchasing</li>
               <li>Consider event insurance for expensive tickets</li>

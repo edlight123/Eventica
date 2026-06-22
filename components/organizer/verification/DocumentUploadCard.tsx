@@ -210,7 +210,7 @@ export default function DocumentUploadCard({
               <button
                 onClick={openFileDialog}
                 disabled={isUploading}
-                className="flex-1 px-4 py-2 text-sm font-medium text-teal-600 bg-teal-50 hover:bg-teal-100 rounded-lg transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-2 text-sm font-medium text-brand-700 bg-brand-50 hover:bg-brand-100 rounded-lg transition-colors disabled:opacity-50"
               >
                 Replace
               </button>
@@ -231,21 +231,21 @@ export default function DocumentUploadCard({
           onDragLeave={handleDragLeave}
           className={`border-2 border-dashed rounded-lg p-6 md:p-8 text-center transition-all ${
             isDragging
-              ? 'border-teal-500 bg-teal-50'
+              ? 'border-brand-500 bg-brand-50'
               : 'border-gray-300 bg-gray-50 hover:bg-gray-100'
           } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           onClick={disabled ? undefined : openFileDialog}
         >
           {isUploading ? (
             <div className="flex flex-col items-center gap-3">
-              <div className="w-12 h-12 border-4 border-teal-600 border-t-transparent rounded-full animate-spin" />
+              <div className="w-12 h-12 border-4 border-brand-600 border-t-transparent rounded-full animate-spin" />
               <p className="text-sm text-gray-600">Uploading...</p>
             </div>
           ) : (
             <>
               {/* Upload Icon */}
-              <div className="w-12 h-12 mx-auto mb-3 bg-teal-100 rounded-full flex items-center justify-center">
-                <svg className="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 mx-auto mb-3 bg-brand-100 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
               </div>
@@ -266,7 +266,7 @@ export default function DocumentUploadCard({
                     openFileDialog()
                   }}
                   disabled={disabled}
-                  className="px-4 py-2 text-sm font-medium text-teal-600 bg-white border-2 border-teal-600 rounded-lg hover:bg-teal-50 transition-colors disabled:opacity-50"
+                  className="px-4 py-2 text-sm font-medium text-brand-700 bg-white border-2 border-brand-700 rounded-lg hover:bg-brand-50 transition-colors disabled:opacity-50"
                 >
                   Choose File
                 </button>
@@ -277,7 +277,7 @@ export default function DocumentUploadCard({
                     openCameraDialog()
                   }}
                   disabled={disabled}
-                  className="px-4 py-2 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 sm:hidden"
+                  className="px-4 py-2 text-sm font-medium text-white bg-brand-700 rounded-lg hover:bg-brand-800 transition-colors disabled:opacity-50 sm:hidden"
                 >
                   📷 Take Photo
                 </button>

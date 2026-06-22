@@ -76,8 +76,8 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
             </div>
 
             <div className="pt-4">
-              <p className="text-sm text-gray-600 bg-blue-50 border border-blue-200 rounded-xl p-4">
-                <strong className="text-blue-900">{t('personal_info.note')}:</strong> {t('personal_info.note_text')}
+              <p className="text-sm text-gray-600 bg-gray-50 border border-gray-100 rounded-xl p-4">
+                <strong className="text-gray-900">{t('personal_info.note')}:</strong> {t('personal_info.note_text')}
               </p>
             </div>
           </div>
@@ -86,8 +86,8 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
         {/* Account Security */}
         <div className="bg-white rounded-2xl shadow-soft border border-gray-100 p-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
-              <Shield className="w-5 h-5 text-purple-600" />
+            <div className="w-10 h-10 rounded-xl bg-brand-100 flex items-center justify-center">
+              <Shield className="w-5 h-5 text-brand-600" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900">{t('security.title')}</h2>
@@ -111,7 +111,7 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
                     {user.role === 'organizer' && (
                       <Link
                         href="/organizer/verify"
-                        className="px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-medium transition-colors text-sm"
+                        className="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-medium transition-colors text-sm"
                       >
                         {t('security.get_verified')}
                       </Link>

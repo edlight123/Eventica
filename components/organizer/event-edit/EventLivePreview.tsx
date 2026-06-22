@@ -56,9 +56,9 @@ export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
 
   return (
     <div className="sticky top-24 space-y-4">
-      <div className="bg-gradient-to-br from-teal-50 to-blue-50 border-2 border-teal-200 rounded-xl p-4">
+      <div className="bg-brand-50 border-2 border-brand-200 rounded-xl p-4">
         <h3 className="font-bold text-gray-900 mb-1 flex items-center gap-2">
-          <span className="w-2 h-2 bg-teal-600 rounded-full animate-pulse"></span>
+          <span className="w-2 h-2 bg-brand-600 rounded-full animate-pulse"></span>
           Live Preview
         </h3>
         <p className="text-sm text-gray-600">
@@ -99,7 +99,7 @@ export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
 
           {/* Price Badge */}
           <div className="absolute top-3 right-3">
-            <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-teal-600 text-white text-xs font-bold rounded-lg shadow-md">
+            <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-brand-700 text-white text-xs font-bold rounded-lg shadow-md">
               <DollarSign className="w-3 h-3" />
               {formattedPrice()}
             </span>
@@ -116,7 +116,7 @@ export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
           {/* Date & Time */}
           <div className="space-y-2.5 mb-4">
             <div className="flex items-start gap-3">
-              <Calendar className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
+              <Calendar className="w-5 h-5 text-brand-700 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className="text-sm font-semibold text-gray-900">
                   {formattedDate()}
@@ -127,7 +127,7 @@ export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
                   </p>
                 )}
                 {eventDuration() && (
-                  <p className="text-xs text-teal-700 font-medium mt-0.5">
+                  <p className="text-xs text-brand-700 font-medium mt-0.5">
                     Duration: {eventDuration()}
                   </p>
                 )}
@@ -138,7 +138,7 @@ export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
             <div className="flex items-start gap-3">
               {data.is_online ? (
                 <>
-                  <Globe className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <Globe className="w-5 h-5 text-brand-700 flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-gray-900">Online Event</p>
                     {data.join_url ? (
@@ -154,7 +154,7 @@ export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
                 </>
               ) : (
                 <>
-                  <MapPin className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                  <MapPin className="w-5 h-5 text-brand-700 flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
                     {data.venue_name ? (
                       <>
@@ -181,7 +181,7 @@ export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
             {/* Capacity */}
             {data.total_tickets && parseInt(data.total_tickets.toString()) > 0 && (
               <div className="flex items-start gap-3">
-                <Users className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                <Users className="w-5 h-5 text-brand-700 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-gray-900">
                     Up to {data.total_tickets} attendees
@@ -224,17 +224,17 @@ export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
 
                 {/* Premium Tiers */}
                 {tiers.filter(t => t.name && t.quantity).map((tier, index) => (
-                  <div key={index} className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                  <div key={index} className="bg-brand-50 border border-brand-200 rounded-lg p-3">
                     <div className="flex items-center justify-between mb-1">
                       <p className="font-semibold text-sm text-gray-900">{tier.name}</p>
-                      <p className="font-bold text-purple-900">
+                      <p className="font-bold text-brand-900">
                         {tier.price === '0' || tier.price === 0 ? 'Free' : `${tier.price} ${data.currency || 'USD'}`}
                       </p>
                     </div>
                     <div className="flex items-center justify-between text-xs">
                       <p className="text-gray-600">{tier.quantity} available</p>
                       {tier.description && (
-                        <p className="text-purple-700 font-medium truncate ml-2">{tier.description}</p>
+                        <p className="text-brand-700 font-medium truncate ml-2">{tier.description}</p>
                       )}
                     </div>
                   </div>
@@ -251,7 +251,7 @@ export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
                 {data.tags.slice(0, 6).map((tag, index) => (
                   <span
                     key={index}
-                    className="inline-block px-2.5 py-1 bg-teal-100 text-teal-800 text-xs font-medium rounded-md"
+                    className="inline-block px-2.5 py-1 bg-brand-50 text-brand-700 text-xs font-medium rounded-md"
                   >
                     {tag}
                   </span>

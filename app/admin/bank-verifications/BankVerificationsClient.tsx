@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import BankVerificationReviewCard from '@/components/admin/BankVerificationReviewCard'
 import Link from 'next/link'
+import { EditorialHeader } from '@/components/ui/EditorialHeader'
 
 interface BankVerification {
   organizerId: string
@@ -72,12 +73,11 @@ export default function BankVerificationsClient() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">Bank Verifications</h1>
-        <p className="text-gray-600 mt-2">
-          Review and approve bank account verification documents
-        </p>
-      </div>
+      <EditorialHeader
+        title="Bank Verifications"
+        subtitle="Review and approve bank account verification documents"
+        className="mb-6"
+      />
 
       {/* Status Filter Tabs */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
@@ -88,7 +88,7 @@ export default function BankVerificationsClient() {
               onClick={() => handleStatusChange(status)}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 statusFilter === status
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-brand-700 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -101,7 +101,7 @@ export default function BankVerificationsClient() {
       {/* Loading State */}
       {loading && verifications.length === 0 && (
         <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
           <p className="mt-4 text-gray-600">Loading verifications...</p>
         </div>
       )}
@@ -149,7 +149,7 @@ export default function BankVerificationsClient() {
           <button
             onClick={() => fetchVerifications(true, cursor)}
             disabled={loading}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            className="px-6 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
             {loading ? 'Loading...' : 'Load More'}
           </button>

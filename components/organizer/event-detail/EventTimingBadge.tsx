@@ -23,7 +23,7 @@ export function EventTimingBadge({ startDateTime }: EventTimingBadgeProps) {
   // Tonight (same day, within 12 hours)
   if (isToday(startDate) && hoursUntil <= 12) {
     return (
-      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full text-sm font-semibold shadow-lg animate-pulse">
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-brand-700 text-white rounded-full text-sm font-semibold shadow-lg animate-pulse">
         <Flame className="w-4 h-4" />
         <span>Tonight</span>
         {hoursUntil > 0 && (
@@ -43,7 +43,7 @@ export function EventTimingBadge({ startDateTime }: EventTimingBadgeProps) {
   // Tomorrow
   if (isTomorrow(startDate)) {
     return (
-      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full text-sm font-semibold shadow-lg">
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-brand-700 text-white rounded-full text-sm font-semibold shadow-lg">
         <Calendar className="w-4 h-4" />
         <span>Tomorrow</span>
         <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
@@ -57,7 +57,7 @@ export function EventTimingBadge({ startDateTime }: EventTimingBadgeProps) {
   if (isThisWeek(startDate) && daysUntil <= 7) {
     const dayName = startDate.toLocaleDateString('en-US', { weekday: 'long' })
     return (
-      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-full text-sm font-semibold shadow-lg">
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-brand-700 text-white rounded-full text-sm font-semibold shadow-lg">
         <Calendar className="w-4 h-4" />
         <span>This {dayName}</span>
         <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
@@ -70,7 +70,7 @@ export function EventTimingBadge({ startDateTime }: EventTimingBadgeProps) {
   // Coming soon (within 14 days)
   if (daysUntil <= 14) {
     return (
-      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-teal-500 to-green-500 text-white rounded-full text-sm font-semibold shadow-md">
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-brand-700 text-white rounded-full text-sm font-semibold shadow-md">
         <Clock className="w-4 h-4" />
         <span>Coming Soon</span>
         <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">

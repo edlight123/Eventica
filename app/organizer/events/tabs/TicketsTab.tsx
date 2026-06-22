@@ -72,7 +72,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
           value={enforcedCurrency}
           onChange={(e) => onChange('currency', e.target.value)}
           disabled={allowedCurrencies.length === 1}
-          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 transition-all"
+          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 transition-all"
         >
           {allowedCurrencies.includes('USD') && <option value="USD">USD ($)</option>}
           {allowedCurrencies.includes('CAD') && <option value="CAD">CAD ($)</option>}
@@ -81,9 +81,9 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
       </div>
 
       {/* Base Ticket */}
-      <div className="bg-gradient-to-br from-teal-50 to-blue-50 border-2 border-teal-200 rounded-xl p-6">
+      <div className="bg-brand-50 border-2 border-brand-200 rounded-xl p-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-teal-600 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-brand-700 rounded-lg flex items-center justify-center">
             <Ticket className="w-6 h-6 text-white" />
           </div>
           <div>
@@ -108,12 +108,12 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
                 min="0"
                 step="0.01"
                 placeholder="0 for free"
-                className={`w-full pl-10 pr-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-teal-500 transition-all ${
+                className={`w-full pl-10 pr-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-brand-500 transition-all ${
                   priceError
                     ? 'border-red-300 focus:border-red-500'
                     : formData.ticket_price !== ''
                     ? 'border-green-300 focus:border-green-500'
-                    : 'border-gray-200 focus:border-teal-500'
+                    : 'border-gray-200 focus:border-brand-500'
                 }`}
               />
             </div>
@@ -147,12 +147,12 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
               onChange={(e) => onChange('total_tickets', e.target.value)}
               min="1"
               placeholder="e.g., 100"
-              className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-teal-500 transition-all ${
+              className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-brand-500 transition-all ${
                 quantityError
                   ? 'border-red-300 focus:border-red-500'
                   : formData.total_tickets
                   ? 'border-green-300 focus:border-green-500'
-                  : 'border-gray-200 focus:border-teal-500'
+                  : 'border-gray-200 focus:border-brand-500'
               }`}
             />
             {quantityError ? (
@@ -171,11 +171,11 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
       </div>
 
       {/* Premium Tiers */}
-      <div className="bg-white border-2 border-purple-200 rounded-xl p-6">
+      <div className="bg-white border-2 border-gray-200 rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="font-bold text-gray-900 flex items-center gap-2">
-              <Ticket className="w-5 h-5 text-purple-600" />
+              <Ticket className="w-5 h-5 text-brand-700" />
               Premium Ticket Tiers
             </h3>
             <p className="text-sm text-gray-600">VIP, Early Bird, or other special options</p>
@@ -183,7 +183,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
           <button
             type="button"
             onClick={addTier}
-            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-all"
+            className="flex items-center gap-2 px-4 py-2 bg-brand-700 text-white rounded-lg font-semibold hover:bg-brand-800 transition-all"
           >
             <Plus className="w-4 h-4" />
             Add Tier
@@ -197,7 +197,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
         ) : (
           <div className="space-y-4">
             {tiers.map((tier, index) => (
-              <div key={index} className="bg-purple-50 border-2 border-purple-200 rounded-lg p-4">
+              <div key={index} className="bg-gray-50 border-2 border-gray-200 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="font-semibold text-gray-900">Tier #{index + 1}</h4>
                   <button
@@ -220,7 +220,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
                       value={tier.name}
                       onChange={(e) => updateTier(index, 'name', e.target.value)}
                       placeholder="e.g., VIP"
-                      className="w-full px-3 py-2 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                      className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
                     />
                   </div>
                   <div>
@@ -234,7 +234,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
                       placeholder="0.00"
                       min="0"
                       step="0.01"
-                      className="w-full px-3 py-2 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                      className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
                     />
                   </div>
                   <div>
@@ -247,7 +247,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
                       onChange={(e) => updateTier(index, 'quantity', e.target.value)}
                       placeholder="e.g., 50"
                       min="1"
-                      className="w-full px-3 py-2 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                      className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
                     />
                   </div>
                 </div>
@@ -261,7 +261,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
                     value={tier.description || ''}
                     onChange={(e) => updateTier(index, 'description', e.target.value)}
                     placeholder="e.g., Includes backstage access"
-                    className="w-full px-3 py-2 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                    className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
                   />
                 </div>
 
@@ -274,7 +274,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
                       type="datetime-local"
                       value={toDateTimeLocalValue(tier.salesStart)}
                       onChange={(e) => updateTier(index, 'salesStart', e.target.value ? new Date(e.target.value).toISOString() : '')}
-                      className="w-full px-3 py-2 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                      className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
                     />
                   </div>
                   <div>
@@ -285,7 +285,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
                       type="datetime-local"
                       value={toDateTimeLocalValue(tier.salesEnd)}
                       onChange={(e) => updateTier(index, 'salesEnd', e.target.value ? new Date(e.target.value).toISOString() : '')}
-                      className="w-full px-3 py-2 border-2 border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                      className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
                     />
                   </div>
                 </div>
@@ -297,28 +297,28 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
 
       {/* Validation Warnings */}
       {validation.warnings.length > 0 && (
-        <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
-          <p className="font-semibold text-yellow-900 mb-2 flex items-center gap-2">
+        <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-4">
+          <p className="font-semibold text-amber-900 mb-2 flex items-center gap-2">
             <AlertCircle className="w-5 h-5" />
             Suggestions
           </p>
           <ul className="list-disc list-inside space-y-1">
             {validation.warnings.map((warning, index) => (
-              <li key={index} className="text-sm text-yellow-800">{warning}</li>
+              <li key={index} className="text-sm text-amber-800">{warning}</li>
             ))}
           </ul>
         </div>
       )}
 
       {/* Info Box */}
-      <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+      <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-4">
         <div className="flex items-start gap-3">
-          <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-brand-700 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div>
-            <p className="font-semibold text-blue-900 mb-1">How Ticket Tiers Work</p>
-            <p className="text-sm text-blue-800">
+            <p className="font-semibold text-gray-900 mb-1">How Ticket Tiers Work</p>
+            <p className="text-sm text-gray-600">
               General admission is your base ticket. Add tiers for premium options (VIP with perks at higher price) or promotions (Early Bird at lower price). Each tier sells separately.
             </p>
           </div>

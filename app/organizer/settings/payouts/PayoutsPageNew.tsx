@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { ChevronRight, AlertCircle, CheckCircle, Clock, Ban } from 'lucide-react'
 import Link from 'next/link'
+import { StatusChip, type ChipTone } from '@/components/ui/kit'
 import { updatePayoutProfileConfig } from './actions'
 import { useRouter } from 'next/navigation'
 
@@ -345,13 +346,13 @@ export default function PayoutsPageNew({
     return /^\+509\d{8}$/.test(phone)
   }
 
-  const getStripeBadge = () => {
+  const getStripeBadge = (): { label: string; tone: ChipTone } => {
     const status = String(stripeStatus?.status || '')
-    if (status === 'verified') return { label: 'Verified', tone: 'bg-green-100 text-green-800 border-green-200' }
-    if (status === 'requires_more_info') return { label: 'Needs attention', tone: 'bg-red-100 text-red-800 border-red-200' }
-    if (status === 'incomplete') return { label: 'Incomplete', tone: 'bg-yellow-100 text-yellow-800 border-yellow-200' }
-    if (status === 'in_review') return { label: 'In review', tone: 'bg-blue-100 text-blue-800 border-blue-200' }
-    return { label: 'Not connected', tone: 'bg-gray-100 text-gray-800 border-gray-200' }
+    if (status === 'verified') return { label: 'Verified', tone: 'success' }
+    if (status === 'requires_more_info') return { label: 'Needs attention', tone: 'danger' }
+    if (status === 'incomplete') return { label: 'Incomplete', tone: 'warning' }
+    if (status === 'in_review') return { label: 'In review', tone: 'warning' }
+    return { label: 'Not connected', tone: 'neutral' }
   }
 
   const startStripeOnboarding = async () => {
@@ -393,7 +394,7 @@ export default function PayoutsPageNew({
   const statusIcon = (status: 'pending' | 'verified' | 'failed') => {
     if (status === 'verified') return <CheckCircle className="w-4 h-4 text-green-600" />
     if (status === 'failed') return <AlertCircle className="w-4 h-4 text-red-600" />
-    return <Clock className="w-4 h-4 text-yellow-600" />
+    return <Clock className="w-4 h-4 text-amber-600" />
   }
 
   // List of supported banks
@@ -707,18 +708,18 @@ export default function PayoutsPageNew({
   }
 
   const getStatusPill = (status: EventPayoutSummary['payoutStatus']) => {
-    const styles = {
-      paid: 'bg-green-100 text-green-800 border-green-200',
-      pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      scheduled: 'bg-blue-100 text-blue-800 border-blue-200',
-      on_hold: 'bg-red-100 text-red-800 border-red-200'
-    }
+    const tone = {
+      paid: 'success',
+      pending: 'warning',
+      scheduled: 'warning',
+      on_hold: 'danger'
+    } as const
 
     const icons = {
-      paid: <CheckCircle className="w-3 h-3" />,
-      pending: <Clock className="w-3 h-3" />,
-      scheduled: <Clock className="w-3 h-3" />,
-      on_hold: <Ban className="w-3 h-3" />
+      paid: CheckCircle,
+      pending: Clock,
+      scheduled: Clock,
+      on_hold: Ban
     }
 
     const labels = {
@@ -729,10 +730,9 @@ export default function PayoutsPageNew({
     }
 
     return (
-      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${styles[status]}`}>
-        {icons[status]}
+      <StatusChip tone={tone[status]} icon={icons[status]}>
         {labels[status]}
-      </span>
+      </StatusChip>
     )
   }
 
@@ -956,7 +956,7 @@ export default function PayoutsPageNew({
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <Link
               href="/organizer/settings/payouts"
-              className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-purple-600 text-white"
+              className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-brand-700 text-white"
             >
               Payout profile
             </Link>
@@ -979,12 +979,12 @@ export default function PayoutsPageNew({
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {payoutChangeVerificationRequired ? (
-          <div id="payout-change-stepup" className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div id="payout-change-stepup" className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
             <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-yellow-700 flex-shrink-0 mt-0.5" />
+              <AlertCircle className="w-5 h-5 text-amber-700 flex-shrink-0 mt-0.5" />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-yellow-900">Confirm payout details change</p>
-                <p className="text-sm text-yellow-800 mt-1">
+                <p className="text-sm font-medium text-amber-900">Confirm payout details change</p>
+                <p className="text-sm text-amber-800 mt-1">
                   {payoutChangeMessage ||
                     'For your security, confirm this change with the 6-digit code sent to your email.'}
                 </p>
@@ -996,13 +996,13 @@ export default function PayoutsPageNew({
                     value={payoutChangeCode}
                     onChange={(e) => setPayoutChangeCode(e.target.value)}
                     placeholder="6-digit code"
-                    className="w-full sm:w-48 px-3 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full sm:w-48 px-3 py-2 border border-amber-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                   />
                   <button
                     type="button"
                     onClick={verifyPayoutChangeEmailCode}
                     disabled={isVerifyingPayoutChangeCode || !/^\d{6}$/.test(payoutChangeCode)}
-                    className="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    className="px-4 py-2 bg-brand-700 text-white rounded-lg font-medium hover:bg-brand-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                   >
                     {isVerifyingPayoutChangeCode ? 'Verifying…' : 'Verify & continue'}
                   </button>
@@ -1010,7 +1010,7 @@ export default function PayoutsPageNew({
                     type="button"
                     onClick={sendPayoutChangeEmailCode}
                     disabled={isSendingPayoutChangeCode}
-                    className="px-4 py-2 bg-white border border-yellow-300 text-yellow-900 rounded-lg font-medium hover:bg-yellow-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 bg-white border border-amber-300 text-amber-900 rounded-lg font-medium hover:bg-amber-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSendingPayoutChangeCode ? 'Sending…' : 'Resend code'}
                   </button>
@@ -1054,7 +1054,7 @@ export default function PayoutsPageNew({
                       onClick={() => setActiveProfile('haiti')}
                       className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
                         activeProfile === 'haiti'
-                          ? 'bg-purple-600 text-white border-purple-600'
+                          ? 'bg-brand-700 text-white border-brand-700'
                           : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-50'
                       }`}
                     >
@@ -1066,7 +1066,7 @@ export default function PayoutsPageNew({
                       onClick={() => setActiveProfile('stripe_connect')}
                       className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
                         activeProfile === 'stripe_connect'
-                          ? 'bg-purple-600 text-white border-purple-600'
+                          ? 'bg-brand-700 text-white border-brand-700'
                           : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-50'
                       }`}
                     >
@@ -1082,7 +1082,7 @@ export default function PayoutsPageNew({
                       <button
                         type="button"
                         onClick={() => setShowAdditionalProfiles(true)}
-                        className="text-sm font-medium text-purple-600 hover:text-purple-700"
+                        className="text-sm font-medium text-brand-700 hover:text-brand-800"
                       >
                         Add additional profile
                       </button>
@@ -1127,7 +1127,7 @@ export default function PayoutsPageNew({
                     </div>
                     <Link
                       href="/organizer/verify"
-                      className="text-sm font-medium text-purple-600 hover:text-purple-700"
+                      className="text-sm font-medium text-brand-700 hover:text-brand-800"
                     >
                       View
                     </Link>
@@ -1155,7 +1155,7 @@ export default function PayoutsPageNew({
                             <select
                               value={selectedBankDestinationId}
                               onChange={(e) => setSelectedBankDestinationId(e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                             >
                               {(bankDestinations || []).map((d) => (
                                 <option key={d.id} value={d.id}>
@@ -1209,7 +1209,7 @@ export default function PayoutsPageNew({
                                 <select
                                   value={bankVerificationType}
                                   onChange={(e) => setBankVerificationType(e.target.value as any)}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                                 >
                                   <option value="bank_statement">Bank statement</option>
                                   <option value="void_check">Void check</option>
@@ -1249,7 +1249,7 @@ export default function PayoutsPageNew({
                               <button
                                 type="button"
                                 onClick={() => setShowAddBankDestination((v) => !v)}
-                                className="text-sm font-medium text-purple-600 hover:text-purple-700"
+                                className="text-sm font-medium text-brand-700 hover:text-brand-800"
                               >
                                 {showAddBankDestination ? 'Cancel' : 'Add bank account'}
                               </button>
@@ -1272,7 +1272,7 @@ export default function PayoutsPageNew({
                                         customBankName: e.target.value === 'other' ? p.customBankName : '',
                                       }))
                                     }
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                                   >
                                     <option value="">Select a bank</option>
                                     {banks.map((bank) => (
@@ -1292,7 +1292,7 @@ export default function PayoutsPageNew({
                                       onChange={(e) =>
                                         setNewBankDestination((p) => ({ ...p, customBankName: e.target.value }))
                                       }
-                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                                       placeholder="Enter your bank name"
                                     />
                                   </div>
@@ -1304,7 +1304,7 @@ export default function PayoutsPageNew({
                                     type="text"
                                     value={newBankDestination.accountNumber}
                                     onChange={(e) => setNewBankDestination((p) => ({ ...p, accountNumber: e.target.value }))}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                                     placeholder="1234567890"
                                   />
                                 </div>
@@ -1315,7 +1315,7 @@ export default function PayoutsPageNew({
                                     type="text"
                                     value={newBankDestination.accountHolder}
                                     onChange={(e) => setNewBankDestination((p) => ({ ...p, accountHolder: e.target.value }))}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                                     placeholder="Your legal name"
                                   />
                                 </div>
@@ -1326,7 +1326,7 @@ export default function PayoutsPageNew({
                                     type="text"
                                     value={newBankDestination.routingNumber}
                                     onChange={(e) => setNewBankDestination((p) => ({ ...p, routingNumber: e.target.value }))}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                                     placeholder=""
                                   />
                                 </div>
@@ -1337,7 +1337,7 @@ export default function PayoutsPageNew({
                                     type="text"
                                     value={newBankDestination.swiftCode}
                                     onChange={(e) => setNewBankDestination((p) => ({ ...p, swiftCode: e.target.value }))}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                                     placeholder=""
                                   />
                                 </div>
@@ -1395,7 +1395,7 @@ export default function PayoutsPageNew({
                               value={phoneVerificationCode}
                               onChange={(e) => setPhoneVerificationCode(e.target.value)}
                               placeholder="123456"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                             />
                           </div>
 
@@ -1440,9 +1440,7 @@ export default function PayoutsPageNew({
                           Connect your Stripe account to receive payouts to your bank.
                         </p>
                       </div>
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStripeBadge().tone}`}>
-                        {getStripeBadge().label}
-                      </span>
+                      <StatusChip tone={getStripeBadge().tone}>{getStripeBadge().label}</StatusChip>
                     </div>
 
                     {stripeStatusError ? (
@@ -1453,7 +1451,7 @@ export default function PayoutsPageNew({
                       {!stripeStatus?.connected ? (
                         <button
                           onClick={startStripeOnboarding}
-                          className="px-3 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700"
+                          className="px-3 py-2 bg-brand-700 text-white rounded-lg text-sm font-medium hover:bg-brand-800"
                         >
                           Connect with Stripe
                         </button>
@@ -1527,7 +1525,7 @@ export default function PayoutsPageNew({
                             setError('Failed to update prefunding preference')
                           }
                         }}
-                        className="w-4 h-4 text-purple-600"
+                        className="w-4 h-4 text-brand-600"
                       />
                       Allow instant MonCash withdrawals when available
                     </label>
@@ -1667,7 +1665,7 @@ export default function PayoutsPageNew({
                             method: 'bank_transfer',
                           })
                         }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       >
                         {activeProfile === 'haiti' ? (
                           <option value="haiti">Haiti</option>
@@ -1700,7 +1698,7 @@ export default function PayoutsPageNew({
                               value="bank_transfer"
                               checked={formData.method === 'bank_transfer'}
                               onChange={(e) => setFormData({ ...formData, method: e.target.value as any })}
-                              className="w-4 h-4 text-purple-600"
+                              className="w-4 h-4 text-brand-600"
                             />
                             <span className="text-sm font-medium text-gray-900">Bank transfer</span>
                           </label>
@@ -1711,7 +1709,7 @@ export default function PayoutsPageNew({
                               value="mobile_money"
                               checked={formData.method === 'mobile_money'}
                               onChange={(e) => setFormData({ ...formData, method: e.target.value as any })}
-                              className="w-4 h-4 text-purple-600"
+                              className="w-4 h-4 text-brand-600"
                             />
                             <span className="text-sm font-medium text-gray-900">Mobile money</span>
                           </label>
@@ -1738,7 +1736,7 @@ export default function PayoutsPageNew({
                           <select
                             value={selectedBankDestinationId}
                             onChange={(e) => setSelectedBankDestinationId(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                           >
                             {bankDestinations.map((d) => (
                               <option key={d.id} value={d.id}>
@@ -1762,7 +1760,7 @@ export default function PayoutsPageNew({
                             const el = document.getElementById('verify-payouts')
                             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
                           }}
-                          className="mt-2 text-sm font-medium text-purple-600 hover:text-purple-700"
+                          className="mt-2 text-sm font-medium text-brand-700 hover:text-brand-800"
                         >
                           Add / manage bank accounts
                         </button>
@@ -1779,7 +1777,7 @@ export default function PayoutsPageNew({
                           <select
                             value={formData.provider}
                             onChange={(e) => setFormData({ ...formData, provider: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                           >
                             <option value="moncash">MonCash</option>
                             <option value="natcash">Natcash</option>
@@ -1795,7 +1793,7 @@ export default function PayoutsPageNew({
                             <button
                               type="button"
                               onClick={() => setIsChangingMobileNumber(true)}
-                              className="mt-2 text-sm font-medium text-purple-600 hover:text-purple-700"
+                              className="mt-2 text-sm font-medium text-brand-700 hover:text-brand-800"
                             >
                               Change number
                             </button>
@@ -1808,7 +1806,7 @@ export default function PayoutsPageNew({
                               value={formData.phoneNumber}
                               onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
                               placeholder="+50912345678"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                             />
                             {Boolean(config?.mobileMoneyDetails?.phoneNumberLast4) ? (
                               <button
@@ -1837,7 +1835,7 @@ export default function PayoutsPageNew({
                       <button
                         onClick={handleSavePayoutDetails}
                         disabled={isSaving || payoutChangeVerificationRequired}
-                        className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        className="flex-1 px-4 py-2 bg-brand-700 text-white rounded-lg font-medium hover:bg-brand-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                       >
                         {isSaving
                           ? (activeProfile === 'stripe_connect' ? 'Opening Stripe…' : 'Saving…')
@@ -1897,7 +1895,7 @@ export default function PayoutsPageNew({
                   <select
                     value={period}
                     onChange={(e) => setPeriod(e.target.value as any)}
-                    className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                   >
                     <option value="this_month">This month</option>
                     <option value="last_3_months">Last 3 months</option>
@@ -1947,7 +1945,7 @@ export default function PayoutsPageNew({
                           <td className="px-6 py-4">
                             <Link
                               href={`/organizer/events/${event.eventId}/earnings`}
-                              className="text-sm font-medium text-purple-600 hover:text-purple-700"
+                              className="text-sm font-medium text-brand-700 hover:text-brand-800"
                             >
                               {event.name}
                             </Link>
@@ -1991,7 +1989,7 @@ export default function PayoutsPageNew({
                       className="block p-6 hover:bg-gray-50"
                     >
                       <div className="flex items-start justify-between mb-2">
-                        <h3 className="text-sm font-medium text-purple-600">
+                        <h3 className="text-sm font-medium text-brand-700">
                           {event.name}
                         </h3>
                         {getStatusPill(event.payoutStatus)}
@@ -2023,13 +2021,13 @@ export default function PayoutsPageNew({
 
                 {upcomingPayout ? (
                   <div className="space-y-4">
-                    <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                      <Clock className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                    <div className="flex items-center gap-3 p-4 bg-brand-50 border border-brand-200 rounded-lg">
+                      <Clock className="w-5 h-5 text-brand-600 flex-shrink-0" />
                       <div>
-                        <div className="text-sm font-medium text-blue-900">
+                        <div className="text-sm font-medium text-brand-900">
                           Next payout: {formatCurrency(upcomingPayout.amount, upcomingPayout.currency)} · {formatDate(upcomingPayout.date)}
                         </div>
-                        <div className="text-xs text-blue-700 mt-0.5">
+                        <div className="text-xs text-brand-700 mt-0.5">
                           Includes {upcomingPayout.eventCount} {upcomingPayout.eventCount === 1 ? 'event' : 'events'}
                         </div>
                       </div>
@@ -2037,7 +2035,7 @@ export default function PayoutsPageNew({
 
                     <Link
                       href="/organizer/settings/payouts/history"
-                      className="inline-flex items-center gap-2 text-sm font-medium text-purple-600 hover:text-purple-700"
+                      className="inline-flex items-center gap-2 text-sm font-medium text-brand-700 hover:text-brand-800"
                     >
                       View payout history
                       <ChevronRight className="w-4 h-4" />
@@ -2054,7 +2052,7 @@ export default function PayoutsPageNew({
 
                     <Link
                       href="/organizer/settings/payouts/history"
-                      className="inline-flex items-center gap-2 text-sm font-medium text-purple-600 hover:text-purple-700"
+                      className="inline-flex items-center gap-2 text-sm font-medium text-brand-700 hover:text-brand-800"
                     >
                       View payout history
                       <ChevronRight className="w-4 h-4" />

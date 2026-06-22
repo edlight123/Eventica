@@ -11,7 +11,7 @@ const config: Config = {
       colors: {
         brand: {
           primary: '#0F766E',    // Teal-700
-          secondary: '#F97316',  // Orange-600
+          secondary: '#14B8A6',  // Teal-500 (unified single accent)
           // Premium color palette
           50: '#F0FDFA',   // Teal-50
           100: '#CCFBF1',  // Teal-100
@@ -24,17 +24,18 @@ const config: Config = {
           800: '#115E59',  // Teal-800
           900: '#134E4A',  // Teal-900
         },
+        // Legacy "accent" alias — unified with the teal brand (single accent).
         accent: {
-          50: '#FFF7ED',   // Orange-50
-          100: '#FFEDD5',  // Orange-100
-          200: '#FED7AA',  // Orange-200
-          300: '#FDBA74',  // Orange-300
-          400: '#FB923C',  // Orange-400
-          500: '#F97316',  // Orange-500
-          600: '#EA580C',  // Orange-600
-          700: '#C2410C',  // Orange-700
-          800: '#9A3412',  // Orange-800
-          900: '#7C2D12',  // Orange-900
+          50: '#F0FDFA',   // Teal-50
+          100: '#CCFBF1',  // Teal-100
+          200: '#99F6E4',  // Teal-200
+          300: '#5EEAD4',  // Teal-300
+          400: '#2DD4BF',  // Teal-400
+          500: '#14B8A6',  // Teal-500
+          600: '#0D9488',  // Teal-600
+          700: '#0F766E',  // Teal-700
+          800: '#115E59',  // Teal-800
+          900: '#134E4A',  // Teal-900
         },
         success: {
           50: '#F0FDF4',
@@ -94,7 +95,7 @@ const config: Config = {
         'medium': '0 4px 20px rgba(0, 0, 0, 0.12)',
         'hard': '0 8px 30px rgba(0, 0, 0, 0.16)',
         'glow': '0 0 20px rgba(15, 118, 110, 0.3)',
-        'glow-orange': '0 0 20px rgba(249, 115, 22, 0.3)',
+        'glow-orange': '0 0 20px rgba(15, 118, 110, 0.3)',  // teal (legacy alias → brand)
         // Editorial / poster depth used across the public experience
         'poster': '0 24px 50px -24px rgba(12, 35, 33, 0.55)',
         'poster-sm': '0 12px 28px -16px rgba(12, 35, 33, 0.45)',

@@ -58,11 +58,11 @@ export default async function ScanTicketPage() {
   const events = [...todayEvents, ...otherEvents]
 
   return (
-    <div className="bg-gradient-to-br from-purple-50 via-white to-brand-50">
+    <div className="bg-gradient-to-br from-brand-50 via-white to-brand-100">
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="mb-6 md:mb-8 text-center">
-          <div className="inline-flex items-center justify-center w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-purple-500 to-brand-500 rounded-xl md:rounded-2xl mb-3 md:mb-4 shadow-glow">
+          <div className="inline-flex items-center justify-center w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl md:rounded-2xl mb-3 md:mb-4 shadow-glow">
             <QrCode className="w-7 h-7 md:w-8 md:h-8 text-white" />
           </div>
           <ScanPageHeader />

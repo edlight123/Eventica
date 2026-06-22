@@ -255,7 +255,7 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
       <div className="flex justify-end">
         <button
           onClick={() => setShowInviteModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-medium rounded-lg transition-colors"
         >
           Invite Staff
         </button>
@@ -374,7 +374,7 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
                 <select
                   value={method}
                   onChange={(e) => setMethod(e.target.value as InviteMethod)}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 >
                   <option value="link">Link</option>
                   <option value="email">Email</option>
@@ -389,7 +389,7 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
                     type="email"
                     value={targetEmail}
                     onChange={(e) => setTargetEmail(e.target.value)}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                     placeholder="staff@example.com"
                   />
                 </div>
@@ -402,7 +402,7 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
                     type="tel"
                     value={targetPhone}
                     onChange={(e) => setTargetPhone(e.target.value)}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                     placeholder="+509..."
                   />
                 </div>
@@ -431,7 +431,7 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
                   type="button"
                   disabled={!canSubmit || isSubmitting}
                   onClick={handleCreateInvite}
-                  className="flex-1 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg disabled:opacity-50 transition-colors"
+                  className="flex-1 px-4 py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-medium rounded-lg disabled:opacity-50 transition-colors"
                 >
                   {isSubmitting ? 'Creating…' : 'Create Invite'}
                 </button>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { StatusChip } from '@/components/ui/kit'
 
 function isHttpUrl(value: string) {
   return /^https?:\/\//i.test(value)
@@ -80,23 +81,6 @@ function formatFieldValue(value: any): string {
     }
   }
   return String(value)
-}
-
-function statusBadgeClasses(status: string) {
-  switch (status) {
-    case 'approved':
-      return 'bg-green-100 text-green-800'
-    case 'rejected':
-      return 'bg-red-100 text-red-800'
-    case 'changes_requested':
-      return 'bg-yellow-100 text-yellow-800'
-    case 'in_review':
-      return 'bg-blue-100 text-blue-800'
-    case 'pending_review':
-    case 'pending':
-    default:
-      return 'bg-yellow-100 text-yellow-800'
-  }
 }
 
 interface Props {
@@ -272,7 +256,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
         <div className="mt-3">
           {loadingImages ? (
             <div className="text-center py-4">
-              <div className="inline-block w-6 h-6 border-4 border-teal-600 border-t-transparent rounded-full animate-spin" />
+              <div className="inline-block w-6 h-6 border-4 border-brand-600 border-t-transparent rounded-full animate-spin" />
               <p className="text-sm text-gray-600 mt-2">Loading documents...</p>
             </div>
           ) : (
@@ -290,7 +274,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
         <div className="mt-3">
           {loadingImages ? (
             <div className="text-center py-4">
-              <div className="inline-block w-6 h-6 border-4 border-teal-600 border-t-transparent rounded-full animate-spin" />
+              <div className="inline-block w-6 h-6 border-4 border-brand-600 border-t-transparent rounded-full animate-spin" />
               <p className="text-sm text-gray-600 mt-2">Loading selfie...</p>
             </div>
           ) : (
@@ -307,7 +291,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
         <div className="mt-3">
           {loadingImages ? (
             <div className="text-center py-4">
-              <div className="inline-block w-6 h-6 border-4 border-teal-600 border-t-transparent rounded-full animate-spin" />
+              <div className="inline-block w-6 h-6 border-4 border-brand-600 border-t-transparent rounded-full animate-spin" />
               <p className="text-sm text-gray-600 mt-2">Loading business documents...</p>
             </div>
           ) : (
@@ -317,7 +301,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
                   href={imageUrls.businessRegistrationUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-teal-700 hover:text-teal-800 text-[13px] sm:text-sm font-medium"
+                  className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-brand-700 hover:text-brand-800 text-[13px] sm:text-sm font-medium"
                 >
                   Open business registration
                 </a>
@@ -332,7 +316,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
                   href={imageUrls.taxIdUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-teal-700 hover:text-teal-800 text-[13px] sm:text-sm font-medium"
+                  className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-brand-700 hover:text-brand-800 text-[13px] sm:text-sm font-medium"
                 >
                   Open tax ID document
                 </a>
@@ -426,9 +410,11 @@ export default function VerificationRequestReview({ request, user }: Props) {
               )}
             </p>
           </div>
-          <span className={`px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-semibold rounded-full whitespace-nowrap ${statusBadgeClasses(request.status || 'pending')}`}>
-            {(request.status || 'pending').replaceAll('_', ' ')}
-          </span>
+          <StatusChip
+            status={request.status || 'pending'}
+            tone={(request.status || 'pending') === 'changes_requested' ? 'warning' : undefined}
+            className="whitespace-nowrap"
+          />
         </div>
 
         {/* Submission Sections */}
@@ -472,7 +458,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
                     ) : null}
 
                     {missingFields.length > 0 ? (
-                      <div className="text-[12px] sm:text-sm text-yellow-800 bg-yellow-50 border border-yellow-200 rounded p-2 mb-2">
+                      <div className="text-[12px] sm:text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded p-2 mb-2">
                         Missing: {missingFields.join(', ')}
                       </div>
                     ) : null}
@@ -513,7 +499,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
               {loadingImages ? (
                 <div className="col-span-1 sm:col-span-3 text-center py-8">
-                  <div className="inline-block w-8 h-8 border-4 border-teal-600 border-t-transparent rounded-full animate-spin" />
+                  <div className="inline-block w-8 h-8 border-4 border-brand-600 border-t-transparent rounded-full animate-spin" />
                   <p className="text-sm text-gray-600 mt-2">Loading images...</p>
                 </div>
               ) : (
@@ -534,7 +520,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
                       href={imageUrls.businessRegistrationUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-teal-700 hover:text-teal-800 text-[13px] sm:text-sm font-medium"
+                      className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-brand-700 hover:text-brand-800 text-[13px] sm:text-sm font-medium"
                     >
                       Open business registration
                     </a>
@@ -549,7 +535,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
                       href={imageUrls.taxIdUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-teal-700 hover:text-teal-800 text-[13px] sm:text-sm font-medium"
+                      className="px-3 py-2 rounded-lg border border-gray-200 bg-white text-brand-700 hover:text-brand-800 text-[13px] sm:text-sm font-medium"
                     >
                       Open tax ID document
                     </a>
@@ -581,7 +567,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
               <button
                 onClick={() => setShowRejectModal(true)}
                 disabled={reviewing}
-                className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-[13px] sm:text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+                className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[13px] sm:text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
               >
                 ✍️ Request changes
               </button>
@@ -648,7 +634,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
               <button
                 onClick={handleRequestChanges}
                 disabled={reviewing || !rejectionReason.trim()}
-                className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-[13px] sm:text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+                className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[13px] sm:text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
               >
                 {reviewing ? 'Sending...' : 'Send Request'}
               </button>

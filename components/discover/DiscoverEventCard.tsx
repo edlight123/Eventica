@@ -65,9 +65,9 @@ export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
         {/* Cue Badge */}
         {cue && (
           <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold shadow-md
-            ${cue.variant === 'popular' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' : ''}
-            ${cue.variant === 'warning' ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white' : ''}
-            ${cue.variant === 'verified' ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white' : ''}
+            ${cue.variant === 'popular' ? 'bg-brand-600 text-white' : ''}
+            ${cue.variant === 'warning' ? 'bg-amber-500 text-white' : ''}
+            ${cue.variant === 'verified' ? 'bg-brand-600 text-white' : ''}
           `}>
             {cue.label}
           </div>

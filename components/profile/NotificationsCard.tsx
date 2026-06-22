@@ -38,8 +38,8 @@ export function NotificationsCard({ profile, onUpdate }: NotificationsCardProps)
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
-        <div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center flex-shrink-0">
-          <Bell className="w-5 h-5 text-purple-600" />
+        <div className="w-10 h-10 bg-brand-50 rounded-lg flex items-center justify-center flex-shrink-0">
+          <Bell className="w-5 h-5 text-brand-600" />
         </div>
         <div>
           <h2 className="text-xl font-bold text-gray-900 mb-1">{t('notifications.title')}</h2>
@@ -60,8 +60,8 @@ export function NotificationsCard({ profile, onUpdate }: NotificationsCardProps)
           <button
             onClick={() => handleToggle('reminders')}
             disabled={isUpdating}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50 ${
-              notify.reminders ? 'bg-teal-600' : 'bg-gray-200'
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 ${
+              notify.reminders ? 'bg-brand-600' : 'bg-gray-200'
             }`}
           >
             <span
@@ -83,8 +83,8 @@ export function NotificationsCard({ profile, onUpdate }: NotificationsCardProps)
           <button
             onClick={() => handleToggle('updates')}
             disabled={isUpdating}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50 ${
-              notify.updates ? 'bg-teal-600' : 'bg-gray-200'
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 ${
+              notify.updates ? 'bg-brand-600' : 'bg-gray-200'
             }`}
           >
             <span
@@ -106,8 +106,8 @@ export function NotificationsCard({ profile, onUpdate }: NotificationsCardProps)
           <button
             onClick={() => handleToggle('promos')}
             disabled={isUpdating}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50 ${
-              notify.promos ? 'bg-teal-600' : 'bg-gray-200'
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 ${
+              notify.promos ? 'bg-brand-600' : 'bg-gray-200'
             }`}
           >
             <span
@@ -120,8 +120,8 @@ export function NotificationsCard({ profile, onUpdate }: NotificationsCardProps)
       </div>
 
       {/* Info */}
-      <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <p className="text-xs text-blue-800">
+      <div className="mt-6 bg-gray-50 border border-gray-100 rounded-lg p-4">
+        <p className="text-xs text-gray-600">
           {t('notifications.note')}
         </p>
       </div>

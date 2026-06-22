@@ -22,7 +22,7 @@ export default function Loading() {
       </div>
 
       {/* Hero Skeleton */}
-      <div className="relative bg-gradient-to-br from-brand-600 via-brand-700 to-accent-600 overflow-hidden">
+      <div className="relative bg-gradient-to-br from-brand-600 via-brand-700 to-brand-800 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center mb-12">
             <div className="h-16 w-3/4 bg-white/20 rounded-lg mx-auto mb-6 animate-pulse"></div>

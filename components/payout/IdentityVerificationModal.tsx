@@ -71,8 +71,8 @@ export function IdentityVerificationModal({ onClose, onComplete }: IdentityVerif
         <div className="p-6">
           {step === 'info' && (
             <div className="space-y-6">
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                <p className="text-sm text-blue-900">
+              <div className="p-4 bg-brand-50 border border-brand-200 rounded-xl">
+                <p className="text-sm text-brand-900">
                   <strong>Why we need this:</strong> We verify your identity to comply with financial 
                   regulations and protect your account. Your information is encrypted and secure.
                 </p>
@@ -82,15 +82,15 @@ export function IdentityVerificationModal({ onClose, onComplete }: IdentityVerif
                 <h3 className="font-semibold text-gray-900 mb-4">What you&apos;ll need:</h3>
                 <ul className="space-y-2">
                   <li className="flex items-start gap-2 text-sm text-gray-700">
-                    <span className="text-teal-600 font-bold mt-0.5">•</span>
+                    <span className="text-brand-600 font-bold mt-0.5">•</span>
                     <span>A government-issued photo ID (National ID, Passport, or Driver&apos;s License)</span>
                   </li>
                   <li className="flex items-start gap-2 text-sm text-gray-700">
-                    <span className="text-teal-600 font-bold mt-0.5">•</span>
+                    <span className="text-brand-600 font-bold mt-0.5">•</span>
                     <span>Clear photos of both sides of your ID (if applicable)</span>
                   </li>
                   <li className="flex items-start gap-2 text-sm text-gray-700">
-                    <span className="text-teal-600 font-bold mt-0.5">•</span>
+                    <span className="text-brand-600 font-bold mt-0.5">•</span>
                     <span>All information must be clearly visible and match your account details</span>
                   </li>
                 </ul>
@@ -98,7 +98,7 @@ export function IdentityVerificationModal({ onClose, onComplete }: IdentityVerif
 
               <button
                 onClick={() => setStep('upload')}
-                className="w-full px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
+                className="w-full px-6 py-3 bg-brand-700 hover:bg-brand-800 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
               >
                 Continue
               </button>
@@ -116,7 +116,7 @@ export function IdentityVerificationModal({ onClose, onComplete }: IdentityVerif
                     onClick={() => setIdType('national_id')}
                     className={`p-3 rounded-xl border-2 text-sm font-semibold transition-all ${
                       idType === 'national_id'
-                        ? 'border-teal-600 bg-teal-50 text-teal-700'
+                        ? 'border-brand-600 bg-brand-50 text-brand-700'
                         : 'border-gray-200 hover:border-gray-300 text-gray-700'
                     }`}
                   >
@@ -126,7 +126,7 @@ export function IdentityVerificationModal({ onClose, onComplete }: IdentityVerif
                     onClick={() => setIdType('passport')}
                     className={`p-3 rounded-xl border-2 text-sm font-semibold transition-all ${
                       idType === 'passport'
-                        ? 'border-teal-600 bg-teal-50 text-teal-700'
+                        ? 'border-brand-600 bg-brand-50 text-brand-700'
                         : 'border-gray-200 hover:border-gray-300 text-gray-700'
                     }`}
                   >
@@ -136,7 +136,7 @@ export function IdentityVerificationModal({ onClose, onComplete }: IdentityVerif
                     onClick={() => setIdType('drivers_license')}
                     className={`p-3 rounded-xl border-2 text-sm font-semibold transition-all ${
                       idType === 'drivers_license'
-                        ? 'border-teal-600 bg-teal-50 text-teal-700'
+                        ? 'border-brand-600 bg-brand-50 text-brand-700'
                         : 'border-gray-200 hover:border-gray-300 text-gray-700'
                     }`}
                   >
@@ -160,7 +160,7 @@ export function IdentityVerificationModal({ onClose, onComplete }: IdentityVerif
                   />
                   <label
                     htmlFor="front-upload"
-                    className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-xl hover:border-teal-600 cursor-pointer transition-colors"
+                    className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-xl hover:border-brand-600 cursor-pointer transition-colors"
                   >
                     {frontImage ? (
                       <div className="text-center">
@@ -195,7 +195,7 @@ export function IdentityVerificationModal({ onClose, onComplete }: IdentityVerif
                     />
                     <label
                       htmlFor="back-upload"
-                      className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-xl hover:border-teal-600 cursor-pointer transition-colors"
+                      className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-xl hover:border-brand-600 cursor-pointer transition-colors"
                     >
                       {backImage ? (
                         <div className="text-center">
@@ -215,9 +215,9 @@ export function IdentityVerificationModal({ onClose, onComplete }: IdentityVerif
                 </div>
               )}
 
-              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-xl flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                <div className="text-sm text-yellow-900">
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-amber-900">
                   <p className="font-semibold mb-1">Important</p>
                   <p>Make sure all corners are visible and text is clearly readable. Verification typically takes 1-2 business days.</p>
                 </div>
@@ -234,7 +234,7 @@ export function IdentityVerificationModal({ onClose, onComplete }: IdentityVerif
                 <button
                   onClick={handleSubmit}
                   disabled={!frontImage || (idType !== 'passport' && !backImage) || uploading}
-                  className="flex-1 px-6 py-3 bg-teal-600 hover:bg-teal-700 disabled:bg-gray-300 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all disabled:cursor-not-allowed"
+                  className="flex-1 px-6 py-3 bg-brand-700 hover:bg-brand-800 disabled:bg-gray-300 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all disabled:cursor-not-allowed"
                 >
                   {uploading ? 'Uploading...' : 'Submit for Verification'}
                 </button>
@@ -257,7 +257,7 @@ export function IdentityVerificationModal({ onClose, onComplete }: IdentityVerif
                   onComplete()
                   onClose()
                 }}
-                className="px-8 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
+                className="px-8 py-3 bg-brand-700 hover:bg-brand-800 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
               >
                 Done
               </button>

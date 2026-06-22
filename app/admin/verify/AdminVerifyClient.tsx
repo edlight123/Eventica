@@ -6,6 +6,7 @@ import { useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import VerificationRequestReview from './VerificationRequestReview'
 import VerifyOrganizerForm from './VerifyOrganizerForm'
+import { EditorialHeader } from '@/components/ui/EditorialHeader'
 
 type AdminVerifyClientProps = {
   requestsWithUsers: any[]
@@ -202,7 +203,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       {/* Breadcrumb */}
       <div className="mb-4 sm:mb-6">
-        <Link href="/admin" className="text-teal-600 hover:text-teal-700 text-[13px] sm:text-sm font-medium">
+        <Link href="/admin" className="text-brand-700 hover:text-brand-800 text-[13px] sm:text-sm font-medium">
           {t('verify.back_to_dashboard')}
         </Link>
       </div>
@@ -211,7 +212,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
           <p className="text-[11px] sm:text-xs text-gray-500 uppercase font-medium">Pending</p>
-          <p className="text-xl sm:text-2xl font-bold text-yellow-600 mt-1">{analytics.pending}</p>
+          <p className="text-xl sm:text-2xl font-bold text-amber-600 mt-1">{analytics.pending}</p>
         </div>
         <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
           <p className="text-[11px] sm:text-xs text-gray-500 uppercase font-medium">Approved</p>
@@ -219,7 +220,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
         </div>
         <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
           <p className="text-[11px] sm:text-xs text-gray-500 uppercase font-medium">Changes Req.</p>
-          <p className="text-xl sm:text-2xl font-bold text-orange-600 mt-1">{analytics.changesRequested}</p>
+          <p className="text-xl sm:text-2xl font-bold text-amber-600 mt-1">{analytics.changesRequested}</p>
         </div>
         <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
           <p className="text-[11px] sm:text-xs text-gray-500 uppercase font-medium">Total</p>
@@ -227,18 +228,17 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
         </div>
         <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 col-span-2">
           <p className="text-[11px] sm:text-xs text-gray-500 uppercase font-medium">Approval Rate</p>
-          <p className="text-xl sm:text-2xl font-bold text-teal-600 mt-1">{analytics.approvalRate}%</p>
+          <p className="text-xl sm:text-2xl font-bold text-brand-600 mt-1">{analytics.approvalRate}%</p>
         </div>
       </div>
 
       {/* Verification Requests Section */}
       <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-8 mb-6 sm:mb-8">
-        <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900 mb-1 sm:mb-2">
-          {t('verify.title')}
-        </h1>
-        <p className="text-[13px] sm:text-base text-gray-600 mb-6 sm:mb-8">
-          {t('verify.subtitle')}
-        </p>
+        <EditorialHeader
+          title={t('verify.title')}
+          subtitle={t('verify.subtitle')}
+          className="mb-6 sm:mb-8"
+        />
 
         {/* Status tabs */}
         <div className="flex flex-wrap gap-2 mb-6">
@@ -251,7 +251,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
                 onClick={() => setStatus(tab.key)}
                 className={
                   active
-                    ? 'px-3 py-1.5 rounded-full text-[13px] sm:text-sm font-semibold bg-teal-600 text-white'
+                    ? 'px-3 py-1.5 rounded-full text-[13px] sm:text-sm font-semibold bg-brand-700 text-white'
                     : 'px-3 py-1.5 rounded-full text-[13px] sm:text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }
               >
@@ -271,7 +271,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
                 placeholder="Search by name, email, or country..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-600 focus:border-transparent text-[15px]"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent text-[15px]"
               />
             </div>
             
@@ -291,7 +291,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
             <button
               onClick={() => toggleSort('date')}
               className={`px-3 py-1 rounded-full text-[12px] sm:text-xs font-medium ${
-                sortField === 'date' ? 'bg-teal-100 text-teal-700' : 'bg-gray-100 text-gray-700'
+                sortField === 'date' ? 'bg-brand-100 text-brand-700' : 'bg-gray-100 text-gray-700'
               }`}
             >
               Date {sortField === 'date' && (sortDirection === 'asc' ? '↑' : '↓')}
@@ -299,7 +299,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
             <button
               onClick={() => toggleSort('name')}
               className={`px-3 py-1 rounded-full text-[12px] sm:text-xs font-medium ${
-                sortField === 'name' ? 'bg-teal-100 text-teal-700' : 'bg-gray-100 text-gray-700'
+                sortField === 'name' ? 'bg-brand-100 text-brand-700' : 'bg-gray-100 text-gray-700'
               }`}
             >
               Name {sortField === 'name' && (sortDirection === 'asc' ? '↑' : '↓')}
@@ -307,7 +307,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
             <button
               onClick={() => toggleSort('email')}
               className={`px-3 py-1 rounded-full text-[12px] sm:text-xs font-medium ${
-                sortField === 'email' ? 'bg-teal-100 text-teal-700' : 'bg-gray-100 text-gray-700'
+                sortField === 'email' ? 'bg-brand-100 text-brand-700' : 'bg-gray-100 text-gray-700'
               }`}
             >
               Email {sortField === 'email' && (sortDirection === 'asc' ? '↑' : '↓')}
@@ -315,7 +315,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
             <button
               onClick={() => toggleSort('country')}
               className={`px-3 py-1 rounded-full text-[12px] sm:text-xs font-medium ${
-                sortField === 'country' ? 'bg-teal-100 text-teal-700' : 'bg-gray-100 text-gray-700'
+                sortField === 'country' ? 'bg-brand-100 text-brand-700' : 'bg-gray-100 text-gray-700'
               }`}
             >
               Country {sortField === 'country' && (sortDirection === 'asc' ? '↑' : '↓')}
@@ -329,7 +329,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
                 type="checkbox"
                 checked={selectedIds.size === filteredRequests.length && filteredRequests.length > 0}
                 onChange={toggleSelectAll}
-                className="w-4 h-4 text-teal-600 rounded focus:ring-teal-600"
+                className="w-4 h-4 text-brand-600 rounded focus:ring-brand-600"
               />
               <span className="text-[13px] text-gray-600">
                 {selectedIds.size > 0 ? `${selectedIds.size} selected` : 'Select all'}
@@ -361,7 +361,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
                       type="checkbox"
                       checked={selectedIds.has(request.id)}
                       onChange={() => toggleSelect(request.id)}
-                      className="w-5 h-5 text-teal-600 rounded focus:ring-teal-600 cursor-pointer"
+                      className="w-5 h-5 text-brand-600 rounded focus:ring-brand-600 cursor-pointer"
                       onClick={(e) => e.stopPropagation()}
                     />
                   </div>

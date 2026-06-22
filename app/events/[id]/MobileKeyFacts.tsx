@@ -46,8 +46,8 @@ export default function MobileKeyFacts({
         {/* Date/Time */}
         <div className="bg-gray-50 rounded-xl p-3 border border-gray-200">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-              <Calendar className="w-4 h-4 text-orange-600" />
+            <div className="w-8 h-8 bg-brand-100 rounded-lg flex items-center justify-center">
+              <Calendar className="w-4 h-4 text-brand-600" />
             </div>
             <span className="text-xs font-semibold text-gray-500">{t('date')}</span>
           </div>
@@ -62,8 +62,8 @@ export default function MobileKeyFacts({
         {/* Location */}
         <div className="bg-gray-50 rounded-xl p-3 border border-gray-200">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-              <MapPin className="w-4 h-4 text-blue-600" />
+            <div className="w-8 h-8 bg-brand-100 rounded-lg flex items-center justify-center">
+              <MapPin className="w-4 h-4 text-brand-600" />
             </div>
             <span className="text-xs font-semibold text-gray-500">{t('location')}</span>
           </div>
@@ -103,16 +103,16 @@ export default function MobileKeyFacts({
         {/* Availability */}
         <div className="bg-gray-50 rounded-xl p-3 border border-gray-200">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-              <Users className="w-4 h-4 text-purple-600" />
+            <div className="w-8 h-8 bg-brand-100 rounded-lg flex items-center justify-center">
+              <Users className="w-4 h-4 text-brand-600" />
             </div>
             <span className="text-xs font-semibold text-gray-500">{t('ticket.tickets')}</span>
           </div>
-          <p className={`text-sm font-bold ${isSoldOut ? 'text-red-600' : remainingTickets < 10 ? 'text-orange-600' : 'text-gray-900'}`}>
+          <p className={`text-sm font-bold ${isSoldOut ? 'text-red-600' : remainingTickets < 10 ? 'text-amber-600' : 'text-gray-900'}`}>
             {isSoldOut ? t('ticket.sold_out') : t('ticket.remaining', { count: remainingTickets })}
           </p>
           {!isSoldOut && remainingTickets < 10 && (
-            <p className="text-xs text-orange-600 font-medium">{t('ticket.almost_gone')}</p>
+            <p className="text-xs text-amber-600 font-medium">{t('ticket.almost_gone')}</p>
           )}
         </div>
       </div>

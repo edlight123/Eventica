@@ -18,6 +18,7 @@ import {
   HelpCircle,
   ChevronRight
 } from 'lucide-react'
+import { EditorialHeader } from '@/components/ui/EditorialHeader'
 
 interface SettingsContentProps {
   isVerified: boolean
@@ -42,12 +43,11 @@ export default function SettingsContent({
       <div className="mb-6 md:mb-8">
         <Link
           href="/organizer/events"
-          className="text-teal-600 hover:text-teal-700 text-sm font-medium mb-2 inline-block"
+          className="text-brand-700 hover:text-brand-800 text-sm font-medium mb-3 inline-block"
         >
           {t('settings.back_to_events')}
         </Link>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{t('settings.title')}</h1>
-        <p className="text-sm text-gray-600 mt-1">{t('settings.subtitle')}</p>
+        <EditorialHeader eyebrow={t('settings.eyebrow', 'Organizer')} title={t('settings.title')} subtitle={t('settings.subtitle')} />
       </div>
 
       {/* Summary Cards */}
@@ -56,12 +56,12 @@ export default function SettingsContent({
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <div className="flex items-center gap-3 mb-2">
             <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-              isVerified ? 'bg-green-100' : isPending ? 'bg-yellow-100' : 'bg-gray-100'
+              isVerified ? 'bg-green-100' : isPending ? 'bg-amber-100' : 'bg-gray-100'
             }`}>
               {isVerified ? (
                 <CheckCircle className="w-5 h-5 text-green-600" />
               ) : isPending ? (
-                <Clock className="w-5 h-5 text-yellow-600" />
+                <Clock className="w-5 h-5 text-amber-600" />
               ) : (
                 <ShieldCheck className="w-5 h-5 text-gray-400" />
               )}
@@ -69,7 +69,7 @@ export default function SettingsContent({
           </div>
           <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t('settings.verification')}</p>
           <p className={`text-sm font-semibold mt-1 ${
-            isVerified ? 'text-green-600' : isPending ? 'text-yellow-600' : 'text-gray-600'
+            isVerified ? 'text-green-600' : isPending ? 'text-amber-600' : 'text-gray-600'
           }`}>
             {isVerified ? t('settings.verified') : isPending ? t('settings.pending') : t('settings.not_verified')}
           </p>
@@ -79,13 +79,13 @@ export default function SettingsContent({
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <div className="flex items-center gap-3 mb-2">
             <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-              hasPayoutSetup ? 'bg-teal-100' : 'bg-gray-100'
+              hasPayoutSetup ? 'bg-brand-50' : 'bg-gray-100'
             }`}>
-              <CreditCard className={`w-5 h-5 ${hasPayoutSetup ? 'text-teal-600' : 'text-gray-400'}`} />
+              <CreditCard className={`w-5 h-5 ${hasPayoutSetup ? 'text-brand-700' : 'text-gray-400'}`} />
             </div>
           </div>
           <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t('settings.payouts')}</p>
-          <p className={`text-sm font-semibold mt-1 ${hasPayoutSetup ? 'text-teal-600' : 'text-gray-600'}`}>
+          <p className={`text-sm font-semibold mt-1 ${hasPayoutSetup ? 'text-brand-700' : 'text-gray-600'}`}>
             {hasPayoutSetup ? t('settings.configured') : t('settings.not_setup')}
           </p>
         </div>
@@ -93,8 +93,8 @@ export default function SettingsContent({
         {/* Default Location */}
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <MapPin className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-brand-50 rounded-lg flex items-center justify-center">
+              <MapPin className="w-5 h-5 text-brand-700" />
             </div>
           </div>
           <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t('settings.location')}</p>
@@ -106,15 +106,15 @@ export default function SettingsContent({
         {/* Support */}
         <Link
           href="/support"
-          className="bg-white rounded-xl border border-gray-200 p-4 hover:border-teal-300 hover:bg-teal-50 transition-colors"
+          className="bg-white rounded-xl border border-gray-200 p-4 hover:border-brand-300 hover:bg-brand-50 transition-colors"
         >
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <HelpCircle className="w-5 h-5 text-purple-600" />
+            <div className="w-10 h-10 bg-brand-50 rounded-lg flex items-center justify-center">
+              <HelpCircle className="w-5 h-5 text-brand-700" />
             </div>
           </div>
           <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t('settings.need_help')}</p>
-          <p className="text-sm font-semibold mt-1 text-purple-600">{t('settings.contact_support')}</p>
+          <p className="text-sm font-semibold mt-1 text-brand-700">{t('settings.contact_support')}</p>
         </Link>
       </div>
 
@@ -125,11 +125,11 @@ export default function SettingsContent({
         {/* Profile */}
         <Link
           href="/organizer/settings/profile"
-          className="block bg-white rounded-xl border border-gray-200 p-4 hover:border-teal-300 hover:shadow-sm transition-all"
+          className="block bg-white rounded-xl border border-gray-200 p-4 hover:border-brand-300 hover:shadow-sm transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <User className="w-6 h-6 text-teal-600" />
+            <div className="w-12 h-12 bg-brand-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <User className="w-6 h-6 text-brand-700" />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-gray-900">{t('settings.profile')}</h3>
@@ -142,11 +142,11 @@ export default function SettingsContent({
         {/* Organization/Brand */}
         <Link
           href="/organizer/settings/organization"
-          className="block bg-white rounded-xl border border-gray-200 p-4 hover:border-teal-300 hover:shadow-sm transition-all"
+          className="block bg-white rounded-xl border border-gray-200 p-4 hover:border-brand-300 hover:shadow-sm transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <Building2 className="w-6 h-6 text-blue-600" />
+            <div className="w-12 h-12 bg-brand-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Building2 className="w-6 h-6 text-brand-700" />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-gray-900">{t('settings.organization_brand')}</h3>
@@ -159,11 +159,11 @@ export default function SettingsContent({
         {/* Event Defaults */}
         <Link
           href="/organizer/settings/defaults"
-          className="block bg-white rounded-xl border border-gray-200 p-4 hover:border-teal-300 hover:shadow-sm transition-all"
+          className="block bg-white rounded-xl border border-gray-200 p-4 hover:border-brand-300 hover:shadow-sm transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <SettingsIcon className="w-6 h-6 text-purple-600" />
+            <div className="w-12 h-12 bg-brand-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <SettingsIcon className="w-6 h-6 text-brand-700" />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-gray-900">{t('settings.event_defaults')}</h3>
@@ -176,11 +176,11 @@ export default function SettingsContent({
         {/* Payments & Payouts */}
         <Link
           href="/organizer/settings/payouts"
-          className="block bg-white rounded-xl border border-gray-200 p-4 hover:border-teal-300 hover:shadow-sm transition-all"
+          className="block bg-white rounded-xl border border-gray-200 p-4 hover:border-brand-300 hover:shadow-sm transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <CreditCard className="w-6 h-6 text-green-600" />
+            <div className="w-12 h-12 bg-brand-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <CreditCard className="w-6 h-6 text-brand-700" />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-gray-900">{t('settings.payments_payouts')}</h3>
@@ -193,17 +193,17 @@ export default function SettingsContent({
         {/* Verification */}
         <Link
           href="/organizer/verify"
-          className="block bg-white rounded-xl border border-gray-200 p-4 hover:border-teal-300 hover:shadow-sm transition-all"
+          className="block bg-white rounded-xl border border-gray-200 p-4 hover:border-brand-300 hover:shadow-sm transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <ShieldCheck className="w-6 h-6 text-yellow-600" />
+            <div className="w-12 h-12 bg-brand-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <ShieldCheck className="w-6 h-6 text-brand-700" />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-gray-900 flex items-center gap-2">
                 {t('settings.verification_title')}
                 {!isVerified && (
-                  <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">
+                  <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
                     {t('settings.action_needed')}
                   </span>
                 )}
@@ -217,11 +217,11 @@ export default function SettingsContent({
         {/* Team & Permissions */}
         <Link
           href="/organizer/settings/team"
-          className="block bg-white rounded-xl border border-gray-200 p-4 hover:border-teal-300 hover:shadow-sm transition-all"
+          className="block bg-white rounded-xl border border-gray-200 p-4 hover:border-brand-300 hover:shadow-sm transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <Users className="w-6 h-6 text-indigo-600" />
+            <div className="w-12 h-12 bg-brand-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Users className="w-6 h-6 text-brand-700" />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-gray-900">{t('settings.team_permissions')}</h3>
@@ -234,11 +234,11 @@ export default function SettingsContent({
         {/* Notifications */}
         <Link
           href="/organizer/settings/notifications"
-          className="block bg-white rounded-xl border border-gray-200 p-4 hover:border-teal-300 hover:shadow-sm transition-all"
+          className="block bg-white rounded-xl border border-gray-200 p-4 hover:border-brand-300 hover:shadow-sm transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <Bell className="w-6 h-6 text-orange-600" />
+            <div className="w-12 h-12 bg-brand-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Bell className="w-6 h-6 text-brand-700" />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-gray-900">{t('settings.notifications')}</h3>
@@ -251,11 +251,11 @@ export default function SettingsContent({
         {/* Security */}
         <Link
           href="/organizer/settings/security"
-          className="block bg-white rounded-xl border border-gray-200 p-4 hover:border-teal-300 hover:shadow-sm transition-all"
+          className="block bg-white rounded-xl border border-gray-200 p-4 hover:border-brand-300 hover:shadow-sm transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <Lock className="w-6 h-6 text-red-600" />
+            <div className="w-12 h-12 bg-brand-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Lock className="w-6 h-6 text-brand-700" />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-gray-900">{t('settings.security')}</h3>

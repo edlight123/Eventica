@@ -135,7 +135,7 @@ export default function InvitePage() {
           <div className="mt-5 space-y-3">
             <a
               href={appInviteUrl}
-              className="block w-full text-center px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
+              className="block w-full text-center px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg transition-colors"
             >
               Open in app
             </a>

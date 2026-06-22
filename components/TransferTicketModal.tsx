@@ -61,7 +61,7 @@ export default function TransferTicketModal({
         disabled={!canTransfer}
         className={`px-4 py-2 text-sm font-medium rounded-lg ${
           canTransfer
-            ? 'bg-teal-600 text-white hover:bg-teal-700'
+            ? 'bg-brand-600 text-white hover:bg-brand-700'
             : 'bg-gray-300 text-gray-500 cursor-not-allowed'
         }`}
         title={!canTransfer ? 'Ticket has been transferred maximum times' : undefined}
@@ -95,7 +95,7 @@ export default function TransferTicketModal({
                   onChange={(e) => setToEmail(e.target.value)}
                   placeholder="recipient@example.com"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Recipient must have an Tikèm account
@@ -111,7 +111,7 @@ export default function TransferTicketModal({
                   onChange={(e) => setReason(e.target.value)}
                   placeholder="Why are you transferring this ticket?"
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 />
               </div>
 
@@ -121,8 +121,8 @@ export default function TransferTicketModal({
                 </div>
               )}
 
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <p className="text-xs text-blue-800">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                <p className="text-xs text-gray-700">
                   ⓘ Once transferred, you will lose access to this ticket. 
                   The transfer cannot be undone.
                 </p>
@@ -132,7 +132,7 @@ export default function TransferTicketModal({
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 bg-teal-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-teal-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  className="flex-1 bg-brand-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-brand-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
                   {loading ? 'Transferring...' : 'Transfer Ticket'}
                 </button>

@@ -86,29 +86,29 @@ export function BalanceRow({ availableBalance, pendingBalance, nextPayoutDate }:
       </div>
 
       {/* Pending Balance */}
-      <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl border-2 border-yellow-200 p-6">
+      <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl border-2 border-amber-200 p-6">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 bg-yellow-600 rounded-xl flex items-center justify-center">
+          <div className="w-10 h-10 bg-amber-600 rounded-xl flex items-center justify-center">
             <Clock className="w-5 h-5 text-white" />
           </div>
-          <h3 className="text-sm font-semibold text-yellow-900 uppercase tracking-wide">{t('settings.payout_settings.pending_balance')}</h3>
+          <h3 className="text-sm font-semibold text-amber-900 uppercase tracking-wide">{t('settings.payout_settings.pending_balance')}</h3>
         </div>
-        <p className="text-3xl font-bold text-yellow-700">{formatCurrency(pendingBalance)}</p>
-        <p className="text-sm text-yellow-600 mt-1">{t('settings.payout_settings.processing')}</p>
+        <p className="text-3xl font-bold text-amber-700">{formatCurrency(pendingBalance)}</p>
+        <p className="text-sm text-amber-600 mt-1">{t('settings.payout_settings.processing')}</p>
       </div>
 
       {/* Next Payout */}
-      <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border-2 border-blue-200 p-6">
+      <div className="bg-gradient-to-br from-brand-50 to-brand-100 rounded-2xl border-2 border-brand-200 p-6">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
+          <div className="w-10 h-10 bg-brand-600 rounded-xl flex items-center justify-center">
             <Calendar className="w-5 h-5 text-white" />
           </div>
-          <h3 className="text-sm font-semibold text-blue-900 uppercase tracking-wide">{t('settings.payout_settings.next_payout')}</h3>
+          <h3 className="text-sm font-semibold text-brand-900 uppercase tracking-wide">{t('settings.payout_settings.next_payout')}</h3>
         </div>
-        <p className="text-3xl font-bold text-blue-700">
+        <p className="text-3xl font-bold text-brand-700">
           {nextPayoutDate ? formatDate(nextPayoutDate).split(',')[0] : '—'}
         </p>
-        <p className="text-sm text-blue-600 mt-1">{formatDate(nextPayoutDate)}</p>
+        <p className="text-sm text-brand-600 mt-1">{formatDate(nextPayoutDate)}</p>
       </div>
     </div>
 
@@ -118,7 +118,7 @@ export function BalanceRow({ availableBalance, pendingBalance, nextPayoutDate }:
         <button
           onClick={handleRequestPayout}
           disabled={requesting}
-          className="w-full md:w-auto px-8 py-4 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 disabled:from-gray-400 disabled:to-gray-500 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:cursor-not-allowed flex items-center justify-center gap-3"
+          className="w-full md:w-auto px-8 py-4 bg-brand-700 hover:bg-brand-800 disabled:bg-gray-400 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all disabled:cursor-not-allowed flex items-center justify-center gap-3"
         >
           <ArrowDownToLine className="w-5 h-5" />
           {requesting ? t('settings.payout_settings.requesting') : t('settings.payout_settings.request_payout')}

@@ -35,7 +35,7 @@ export function WorkQueueCard({
 }: WorkQueueCardProps) {
   const badgeColors = {
     success: 'bg-green-100 text-green-800',
-    warning: 'bg-yellow-100 text-yellow-800',
+    warning: 'bg-amber-100 text-amber-800',
     neutral: 'bg-gray-100 text-gray-800',
     error: 'bg-red-100 text-red-800'
   }
@@ -56,7 +56,7 @@ export function WorkQueueCard({
           </div>
           <Link
             href={viewAllHref}
-            className="text-teal-600 hover:text-teal-700 font-medium text-sm flex items-center gap-1"
+            className="text-brand-600 hover:text-brand-700 font-medium text-sm flex items-center gap-1"
           >
             View all
             <ArrowRight className="w-4 h-4" />

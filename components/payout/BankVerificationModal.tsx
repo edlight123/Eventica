@@ -77,8 +77,8 @@ export function BankVerificationModal({ onClose, onComplete }: BankVerificationM
         <div className="p-6">
           {step === 'info' && (
             <div className="space-y-6">
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                <p className="text-sm text-blue-900">
+              <div className="p-4 bg-brand-50 border border-brand-200 rounded-xl">
+                <p className="text-sm text-brand-900">
                   <strong>Why we need this:</strong> We need to verify that you own the bank account 
                   to ensure payouts go to the correct account. This protects both you and our platform.
                 </p>
@@ -92,7 +92,7 @@ export function BankVerificationModal({ onClose, onComplete }: BankVerificationM
                       key={option.value}
                       className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl"
                     >
-                      <FileText className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
+                      <FileText className="w-5 h-5 text-brand-600 flex-shrink-0 mt-0.5" />
                       <div>
                         <p className="font-semibold text-gray-900">{option.label}</p>
                         <p className="text-sm text-gray-600">{option.description}</p>
@@ -102,9 +102,9 @@ export function BankVerificationModal({ onClose, onComplete }: BankVerificationM
                 </div>
               </div>
 
-              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-xl flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                <div className="text-sm text-yellow-900">
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-amber-900">
                   <p className="font-semibold mb-1">Requirements</p>
                   <ul className="list-disc list-inside space-y-1">
                     <li>Document must show your name matching your account</li>
@@ -117,7 +117,7 @@ export function BankVerificationModal({ onClose, onComplete }: BankVerificationM
 
               <button
                 onClick={() => setStep('upload')}
-                className="w-full px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
+                className="w-full px-6 py-3 bg-brand-700 hover:bg-brand-800 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
               >
                 Continue
               </button>
@@ -137,7 +137,7 @@ export function BankVerificationModal({ onClose, onComplete }: BankVerificationM
                       onClick={() => setVerificationType(option.value)}
                       className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
                         verificationType === option.value
-                          ? 'border-teal-600 bg-teal-50'
+                          ? 'border-brand-600 bg-brand-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
@@ -163,7 +163,7 @@ export function BankVerificationModal({ onClose, onComplete }: BankVerificationM
                   />
                   <label
                     htmlFor="proof-upload"
-                    className="flex flex-col items-center justify-center w-full h-56 border-2 border-dashed border-gray-300 rounded-xl hover:border-teal-600 cursor-pointer transition-colors"
+                    className="flex flex-col items-center justify-center w-full h-56 border-2 border-dashed border-gray-300 rounded-xl hover:border-brand-600 cursor-pointer transition-colors"
                   >
                     {proofDocument ? (
                       <div className="text-center">
@@ -196,7 +196,7 @@ export function BankVerificationModal({ onClose, onComplete }: BankVerificationM
                 <button
                   onClick={handleSubmit}
                   disabled={!proofDocument || uploading}
-                  className="flex-1 px-6 py-3 bg-teal-600 hover:bg-teal-700 disabled:bg-gray-300 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all disabled:cursor-not-allowed"
+                  className="flex-1 px-6 py-3 bg-brand-700 hover:bg-brand-800 disabled:bg-gray-300 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all disabled:cursor-not-allowed"
                 >
                   {uploading ? 'Uploading...' : 'Submit for Verification'}
                 </button>
@@ -219,7 +219,7 @@ export function BankVerificationModal({ onClose, onComplete }: BankVerificationM
                   onComplete()
                   onClose()
                 }}
-                className="px-8 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
+                className="px-8 py-3 bg-brand-700 hover:bg-brand-800 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
               >
                 Done
               </button>

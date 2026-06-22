@@ -79,7 +79,7 @@ export function PWAInstallPrompt() {
       {showChromePrompt && (
         <div className={base} role="alert" aria-label="Install app prompt">
           <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-brand-600 to-accent-600" />
+            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-brand-600 to-brand-700" />
             <div className="flex-1">
               <p className="text-sm font-semibold">Install Tikèm</p>
               <p className="text-xs text-gray-600 mt-0.5">Get faster access and offline support.</p>
@@ -94,7 +94,7 @@ export function PWAInstallPrompt() {
       {showIosPrompt && (
         <div className={base} role="alert" aria-label="Add to Home Screen instructions">
           <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-brand-600 to-accent-600" />
+            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-brand-600 to-brand-700" />
             <div className="flex-1">
               <p className="text-sm font-semibold">Add Tikèm to Home Screen</p>
               <p className="text-xs text-gray-600 mt-0.5">Tap the Share icon, then Add to Home Screen.</p>

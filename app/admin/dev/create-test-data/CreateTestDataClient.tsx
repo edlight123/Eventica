@@ -350,7 +350,7 @@ export default function CreateTestDataClient() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading...</p>
         </div>
       </div>
@@ -368,7 +368,7 @@ export default function CreateTestDataClient() {
           </p>
           <button
             onClick={() => router.push('/auth/login?redirect=/admin/create-test-data')}
-            className="w-full px-6 py-3 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700 transition"
+            className="w-full px-6 py-3 bg-brand-600 text-white rounded-lg font-semibold hover:bg-brand-700 transition"
           >
             Go to Login
           </button>
@@ -383,11 +383,11 @@ export default function CreateTestDataClient() {
         <div className="max-w-4xl mx-auto px-4 py-6 sm:py-12">
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
             {/* Header */}
-            <div className="bg-gradient-to-r from-teal-600 to-teal-700 px-4 sm:px-8 py-4 sm:py-6">
+            <div className="bg-gradient-to-r from-brand-600 to-brand-700 px-4 sm:px-8 py-4 sm:py-6">
               <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-white mb-1 sm:mb-2">
                 🧪 Create Test Events
               </h1>
-              <p className="text-[13px] sm:text-base text-teal-50">
+              <p className="text-[13px] sm:text-base text-brand-50">
                 Generate 7 sample events with images for testing
               </p>
             </div>
@@ -395,11 +395,11 @@ export default function CreateTestDataClient() {
             {/* Content */}
             <div className="p-4 sm:p-8">
               {/* User Info */}
-              <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 mb-6">
-                <p className="text-sm text-teal-800">
+              <div className="bg-brand-50 border border-brand-200 rounded-lg p-4 mb-6">
+                <p className="text-sm text-brand-800">
                   <span className="font-semibold">Logged in as:</span> {user.email}
                 </p>
-                <p className="text-sm text-teal-600 mt-1">
+                <p className="text-sm text-brand-600 mt-1">
                   Events will be created under this account
                 </p>
               </div>
@@ -413,7 +413,7 @@ export default function CreateTestDataClient() {
                   <ul className="space-y-2 text-sm text-gray-700">
                     {testEvents.map((event, index) => (
                       <li key={index} className="flex items-start">
-                        <span className="text-teal-600 mr-2">•</span>
+                        <span className="text-brand-600 mr-2">•</span>
                         <div>
                           <span className="font-medium">{event.title}</span>
                           <span className="text-gray-500 ml-2">
@@ -434,7 +434,7 @@ export default function CreateTestDataClient() {
                   className={`px-6 py-4 rounded-lg font-semibold text-white transition-all transform ${
                     creating || deleting
                       ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-teal-600 hover:bg-teal-700 hover:scale-[1.02] active:scale-[0.98]'
+                      : 'bg-brand-600 hover:bg-brand-700 hover:scale-[1.02] active:scale-[0.98]'
                   }`}
                 >
                   {creating ? (
@@ -456,7 +456,7 @@ export default function CreateTestDataClient() {
                   className={`px-6 py-4 rounded-lg font-semibold text-white transition-all transform ${
                     creating || deleting
                       ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-orange-600 hover:bg-orange-700 hover:scale-[1.02] active:scale-[0.98]'
+                      : 'bg-brand-600 hover:bg-brand-700 hover:scale-[1.02] active:scale-[0.98]'
                   }`}
                 >
                   {deleting ? (
@@ -509,7 +509,7 @@ export default function CreateTestDataClient() {
                   </button>
                   <button
                     onClick={() => router.push('/organizer/events')}
-                    className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
+                    className="flex-1 px-6 py-3 bg-brand-600 text-white rounded-lg font-semibold hover:bg-brand-700 transition"
                   >
                     Manage Events
                   </button>

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { format } from 'date-fns'
-import { EmptyState } from '@/components/ui/kit'
+import { EmptyState, StatusChip } from '@/components/ui/kit'
 import { Calendar } from 'lucide-react'
 
 export default async function OrganizerEventsList({ events }: { events: any[] }) {
@@ -45,16 +45,16 @@ export default async function OrganizerEventsList({ events }: { events: any[] })
                   priority={false}
                 />
                 {isSoldOut && (
-                  <div className="absolute top-3 right-3 bg-gradient-to-r from-red-600 to-red-700 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                  <div className="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
                     SOLD OUT
                   </div>
                 )}
               </div>
             ) : (
-              <div className="h-48 bg-gradient-to-br from-teal-100 via-teal-50 to-orange-100 flex items-center justify-center relative">
-                <span className="text-5xl">🎉</span>
+              <div className="h-48 flex items-center justify-center relative bg-gradient-to-br from-brand-700 to-[#0C5E57]">
+                <span className="font-display text-6xl leading-none text-[#F8F5EE]">T</span>
                 {isSoldOut && (
-                  <div className="absolute top-3 right-3 bg-gradient-to-r from-red-600 to-red-700 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                  <div className="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
                     SOLD OUT
                   </div>
                 )}
@@ -64,20 +64,16 @@ export default async function OrganizerEventsList({ events }: { events: any[] })
             <div className="p-6">
               {/* Status Badge & Category */}
               <div className="flex items-center justify-between mb-3">
-                <span className="inline-block px-3 py-1.5 text-xs font-semibold bg-gradient-to-r from-teal-50 to-teal-100 text-teal-700 rounded-full border border-teal-200">
+                <span className="inline-block px-2.5 py-1 text-xs font-semibold bg-gray-100 text-gray-600 rounded-md">
                   {event.category}
                 </span>
-                <span className={`inline-flex px-3 py-1.5 text-xs font-bold rounded-full ${
-                  event.is_published
-                    ? 'bg-gradient-to-r from-green-50 to-green-100 text-green-700 border border-green-200'
-                    : 'bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 border border-gray-200'
-                }`}>
-                  {event.is_published ? '✓ Published' : '○ Draft'}
-                </span>
+                <StatusChip tone={event.is_published ? 'success' : 'neutral'}>
+                  {event.is_published ? 'Published' : 'Draft'}
+                </StatusChip>
               </div>
 
               {/* Event Title */}
-              <h3 className="font-display text-xl text-gray-900 mb-3 line-clamp-2 group-hover:text-teal-700 transition-colors">
+              <h3 className="font-display text-xl text-gray-900 mb-3 line-clamp-2 group-hover:text-brand-700 transition-colors">
                 {event.title}
               </h3>
 
@@ -112,10 +108,7 @@ export default async function OrganizerEventsList({ events }: { events: any[] })
                 <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
                   <div
                     className={`h-2.5 rounded-full transition-all duration-500 ${
-                      salesPercentage >= 100 ? 'bg-gradient-to-r from-red-500 to-red-600' :
-                      salesPercentage >= 75 ? 'bg-gradient-to-r from-orange-500 to-orange-600' :
-                      salesPercentage >= 50 ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' :
-                      'bg-gradient-to-r from-teal-500 to-teal-600'
+                      salesPercentage >= 100 ? 'bg-red-600' : 'bg-brand-600'
                     }`}
                     style={{ width: `${Math.min(salesPercentage, 100)}%` }}
                   ></div>
@@ -127,13 +120,13 @@ export default async function OrganizerEventsList({ events }: { events: any[] })
               <div className="flex gap-3">
                 <Link
                   href={`/organizer/events/${event.id}`}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-teal-700 bg-teal-50 hover:bg-teal-100 border-2 border-teal-200 transition-all duration-300 text-center"
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100 border-2 border-brand-100 transition-all duration-300 text-center"
                 >
                   View Details
                 </Link>
                 <Link
                   href={`/organizer/events/${event.id}/edit`}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 shadow-md hover:shadow-lg transition-all duration-300 text-center"
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-brand-700 hover:bg-brand-800 shadow-md hover:shadow-lg transition-all duration-300 text-center"
                 >
                   Edit Event
                 </Link>

@@ -42,7 +42,7 @@ export function RecentActivityTimeline({ activities }: RecentActivityTimelinePro
           {activities.map((activity, index) => (
             <div key={activity.id} className="flex gap-3">
               <div className="relative">
-                <div className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center text-xs">
+                <div className="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center text-xs">
                   {activity.icon || '👤'}
                 </div>
                 {index < activities.length - 1 && (

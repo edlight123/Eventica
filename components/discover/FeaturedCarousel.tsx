@@ -113,7 +113,7 @@ function FeaturedEventCard({ event }: { event: Event }) {
       className="group block bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 border-2 border-brand-500/20 hover:border-brand-500"
     >
       {/* Image */}
-      <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-brand-100 to-accent-100">
+      <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-brand-100 to-brand-200">
         <Image
           src={event.banner_image_url || '/placeholder-event.jpg'}
           alt={event.title}
@@ -123,7 +123,7 @@ function FeaturedEventCard({ event }: { event: Event }) {
         />
         
         {/* Featured Badge */}
-        <div className="absolute top-4 left-4 px-3 py-1.5 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full text-xs font-bold text-white shadow-lg flex items-center gap-1">
+        <div className="absolute top-4 left-4 px-3 py-1.5 bg-brand-600 rounded-full text-xs font-bold text-white shadow-lg flex items-center gap-1">
           ⭐ Featured
         </div>
 

@@ -149,7 +149,7 @@ export default function ReviewForm({ eventId, ticketId, eventTitle, onSuccess }:
             onClick={() => setWouldRecommend(false)}
             className={`px-6 py-2 rounded-lg border-2 transition-colors ${
               wouldRecommend === false
-                ? 'border-orange-600 bg-orange-50 text-orange-700'
+                ? 'border-brand-600 bg-brand-50 text-brand-700'
                 : 'border-gray-300 text-gray-700 hover:border-gray-400'
             }`}
           >

@@ -4,6 +4,8 @@ import { adminDb } from '@/lib/firebase/admin';
 import ProfileForm from './ProfileForm';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
+import { Card } from '@/components/ui/kit';
+import { EditorialHeader } from '@/components/ui/EditorialHeader';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,16 +43,15 @@ export default async function ProfileSettingsPage() {
           Back to Settings
         </Link>
 
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">Profile Settings</h1>
-          <p className="text-gray-600 mt-2">
-            Manage your personal information and contact details
-          </p>
-        </div>
+        <EditorialHeader
+          eyebrow="Settings"
+          title="Profile Settings"
+          subtitle="Manage your personal information and contact details"
+          className="mb-8"
+        />
 
         {/* Profile Form */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+        <Card>
           <ProfileForm 
             userId={user.id}
             initialData={{
@@ -60,12 +61,12 @@ export default async function ProfileSettingsPage() {
               photo_url: userProfile.photo_url || user.photo_url || '',
             }}
           />
-        </div>
+        </Card>
 
         {/* Info Notice */}
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800">
-            <strong>Note:</strong> Your email address is managed through your authentication provider and cannot be changed here. Contact support if you need to update your email.
+        <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+          <p className="text-sm text-gray-600">
+            <strong className="text-gray-900">Note:</strong> Your email address is managed through your authentication provider and cannot be changed here. Contact support if you need to update your email.
           </p>
         </div>
       </div>

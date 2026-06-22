@@ -96,8 +96,8 @@ export function PhoneVerificationModal({ onClose, onComplete }: PhoneVerificatio
           {step === 'info' && (
             <div className="space-y-6">
               <div className="flex justify-center">
-                <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center">
-                  <Smartphone className="w-10 h-10 text-purple-600" />
+                <div className="w-20 h-20 bg-brand-100 rounded-full flex items-center justify-center">
+                  <Smartphone className="w-10 h-10 text-brand-600" />
                 </div>
               </div>
 
@@ -110,8 +110,8 @@ export function PhoneVerificationModal({ onClose, onComplete }: PhoneVerificatio
                 </p>
               </div>
 
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                <p className="text-sm text-blue-900">
+              <div className="p-4 bg-brand-50 border border-brand-200 rounded-xl">
+                <p className="text-sm text-brand-900">
                   <strong>Note:</strong> Make sure you have access to your mobile money account to receive the verification code.
                 </p>
               </div>
@@ -126,7 +126,7 @@ export function PhoneVerificationModal({ onClose, onComplete }: PhoneVerificatio
               <button
                 onClick={handleSendCode}
                 disabled={sending}
-                className="w-full px-6 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all disabled:cursor-not-allowed"
+                className="w-full px-6 py-3 bg-brand-700 hover:bg-brand-800 disabled:bg-gray-300 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all disabled:cursor-not-allowed"
               >
                 {sending ? 'Sending Code...' : 'Send Verification Code'}
               </button>
@@ -136,8 +136,8 @@ export function PhoneVerificationModal({ onClose, onComplete }: PhoneVerificatio
           {step === 'code' && (
             <div className="space-y-6">
               <div className="flex justify-center">
-                <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center">
-                  <Smartphone className="w-10 h-10 text-purple-600" />
+                <div className="w-20 h-20 bg-brand-100 rounded-full flex items-center justify-center">
+                  <Smartphone className="w-10 h-10 text-brand-600" />
                 </div>
               </div>
 
@@ -151,8 +151,8 @@ export function PhoneVerificationModal({ onClose, onComplete }: PhoneVerificatio
               </div>
 
               {debugCode && (
-                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
-                  <p className="text-sm text-yellow-900">
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                  <p className="text-sm text-amber-900">
                     <strong>Development Mode:</strong> Your verification code is <span className="font-mono font-bold">{debugCode}</span>
                   </p>
                 </div>
@@ -169,7 +169,7 @@ export function PhoneVerificationModal({ onClose, onComplete }: PhoneVerificatio
                   onChange={(e) => handleCodeInput(e.target.value)}
                   placeholder="000000"
                   maxLength={6}
-                  className="w-full px-6 py-4 text-center text-2xl font-mono font-bold border-2 border-gray-200 rounded-xl focus:border-purple-600 focus:outline-none transition-colors tracking-widest"
+                  className="w-full px-6 py-4 text-center text-2xl font-mono font-bold border-2 border-gray-200 rounded-xl focus:border-brand-600 focus:outline-none transition-colors tracking-widest"
                   autoFocus
                 />
                 <p className="text-xs text-gray-500 text-center mt-2">
@@ -188,7 +188,7 @@ export function PhoneVerificationModal({ onClose, onComplete }: PhoneVerificatio
                 <button
                   onClick={handleVerifyCode}
                   disabled={verifying || verificationCode.length !== 6}
-                  className="w-full px-6 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all disabled:cursor-not-allowed"
+                  className="w-full px-6 py-3 bg-brand-700 hover:bg-brand-800 disabled:bg-gray-300 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all disabled:cursor-not-allowed"
                 >
                   {verifying ? 'Verifying...' : 'Verify Code'}
                 </button>
@@ -196,7 +196,7 @@ export function PhoneVerificationModal({ onClose, onComplete }: PhoneVerificatio
                 <button
                   onClick={handleSendCode}
                   disabled={sending}
-                  className="text-sm text-purple-600 hover:text-purple-700 font-semibold"
+                  className="text-sm text-brand-700 hover:text-brand-800 font-semibold"
                 >
                   {sending ? 'Sending...' : 'Didn&apos;t receive the code? Resend'}
                 </button>
@@ -218,7 +218,7 @@ export function PhoneVerificationModal({ onClose, onComplete }: PhoneVerificatio
                   onComplete()
                   onClose()
                 }}
-                className="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
+                className="px-8 py-3 bg-brand-700 hover:bg-brand-800 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
               >
                 Done
               </button>

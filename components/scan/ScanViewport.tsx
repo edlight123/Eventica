@@ -147,10 +147,10 @@ export function ScanViewport({ onScan, isProcessing }: ScanViewportProps) {
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="relative">
             {/* Corner brackets */}
-            <div className="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-orange-500 rounded-tl-xl" />
-            <div className="absolute top-0 right-0 w-12 h-12 border-t-4 border-r-4 border-orange-500 rounded-tr-xl" />
-            <div className="absolute bottom-0 left-0 w-12 h-12 border-b-4 border-l-4 border-orange-500 rounded-bl-xl" />
-            <div className="absolute bottom-0 right-0 w-12 h-12 border-b-4 border-r-4 border-orange-500 rounded-br-xl" />
+            <div className="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-brand-500 rounded-tl-xl" />
+            <div className="absolute top-0 right-0 w-12 h-12 border-t-4 border-r-4 border-brand-500 rounded-tr-xl" />
+            <div className="absolute bottom-0 left-0 w-12 h-12 border-b-4 border-l-4 border-brand-500 rounded-bl-xl" />
+            <div className="absolute bottom-0 right-0 w-12 h-12 border-b-4 border-r-4 border-brand-500 rounded-br-xl" />
           </div>
         </div>
       )}
@@ -178,7 +178,7 @@ export function ScanViewport({ onScan, isProcessing }: ScanViewportProps) {
               <div className="mt-4">
                 <a
                   href={openInAppUrl}
-                  className="inline-block px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
+                  className="inline-block px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg transition-colors"
                 >
                   Open Tikèm app
                 </a>

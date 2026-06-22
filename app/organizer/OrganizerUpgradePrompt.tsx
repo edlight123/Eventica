@@ -48,7 +48,7 @@ export default function OrganizerUpgradePrompt({ redirectTo }: { redirectTo?: st
                 }
               })
             }}
-            className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isPending ? 'Upgrading…' : 'Continue as Organizer'}
           </button>

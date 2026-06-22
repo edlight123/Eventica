@@ -134,23 +134,23 @@ export function AdminActivityFeed({
 
   const getActivityColor = (type: string, severity?: string) => {
     if (severity === 'critical') return 'text-red-600 bg-red-50'
-    if (severity === 'high') return 'text-orange-600 bg-orange-50'
+    if (severity === 'high') return 'text-amber-600 bg-amber-50'
     
     switch (type) {
       case 'verification':
-        return 'text-blue-600 bg-blue-50'
+        return 'text-brand-700 bg-brand-50'
       case 'payment':
         return 'text-green-600 bg-green-50'
       case 'event':
-        return 'text-purple-600 bg-purple-50'
+        return 'text-brand-700 bg-brand-50'
       case 'security':
         return 'text-red-600 bg-red-50'
       case 'user_action':
-        return 'text-yellow-600 bg-yellow-50'
+        return 'text-brand-700 bg-brand-50'
       case 'system':
         return 'text-gray-600 bg-gray-50'
       default:
-        return 'text-blue-600 bg-blue-50'
+        return 'text-brand-700 bg-brand-50'
     }
   }
 
@@ -191,7 +191,7 @@ export function AdminActivityFeed({
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <Activity className="w-5 h-5 text-blue-500" />
+              <Activity className="w-5 h-5 text-brand-600" />
               Admin Activity Feed
             </h3>
             <p className="text-sm text-gray-500 mt-1">
@@ -226,14 +226,14 @@ export function AdminActivityFeed({
               onClick={() => setFilter(option.value)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 filter === option.value
-                  ? 'bg-blue-100 text-blue-700'
+                  ? 'bg-brand-50 text-brand-700'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
               {option.label}
               {option.count > 0 && (
                 <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-xs ${
-                  filter === option.value ? 'bg-blue-200' : 'bg-gray-200'
+                  filter === option.value ? 'bg-brand-100' : 'bg-gray-200'
                 }`}>
                   {option.count}
                 </span>
@@ -279,7 +279,7 @@ export function AdminActivityFeed({
                           {activity.link && (
                             <Link
                               href={activity.link}
-                              className="text-blue-500 hover:text-blue-600"
+                              className="text-brand-600 hover:text-brand-700"
                             >
                               <ChevronRight className="w-4 h-4" />
                             </Link>
@@ -308,7 +308,7 @@ export function AdminActivityFeed({
                               activity.metadata.severity === 'critical' 
                                 ? 'bg-red-100 text-red-700'
                                 : activity.metadata.severity === 'high'
-                                ? 'bg-orange-100 text-orange-700'
+                                ? 'bg-amber-100 text-amber-700'
                                 : 'bg-gray-100 text-gray-700'
                             }`}>
                               {activity.metadata.severity}

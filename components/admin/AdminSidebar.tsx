@@ -176,13 +176,13 @@ export function AdminSidebar({ userEmail }: AdminSidebarProps) {
                         className={`
                           flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-all
                           ${active 
-                            ? 'bg-gradient-to-r from-teal-50 to-teal-100 text-teal-700 shadow-sm' 
+                            ? 'bg-gradient-to-r from-brand-50 to-brand-100 text-brand-700 shadow-sm' 
                             : 'text-gray-700 hover:bg-gray-50'
                           }
                         `}
                       >
                         <div className="flex items-center gap-3">
-                          <Icon className={`w-5 h-5 ${active ? 'text-teal-600' : 'text-gray-400'}`} />
+                          <Icon className={`w-5 h-5 ${active ? 'text-brand-600' : 'text-gray-400'}`} />
                           <span>{item.label}</span>
                         </div>
                         {item.badge && item.badge > 0 && (

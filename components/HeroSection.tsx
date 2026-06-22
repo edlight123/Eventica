@@ -74,7 +74,7 @@ export default function HeroSection({ hasActiveFilters }: HeroSectionProps) {
       {/* Warm paper canvas + soft brand glows */}
       <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-[#f8f5ee] via-white to-white" />
       <div aria-hidden className="absolute right-[-12%] top-[-30%] -z-10 h-[460px] w-[460px] rounded-full bg-brand-300/25 blur-[130px]" />
-      <div aria-hidden className="absolute left-[-10%] top-[-8%] -z-10 h-[320px] w-[320px] rounded-full bg-accent-200/30 blur-[120px]" />
+      <div aria-hidden className="absolute left-[-10%] top-[-8%] -z-10 h-[320px] w-[320px] rounded-full bg-brand-200/30 blur-[120px]" />
 
       <div className="mx-auto max-w-6xl px-5 pb-10 pt-10 sm:px-6 sm:pb-14 sm:pt-16 lg:px-8">
         <p className="eyebrow reveal reveal-1 text-brand-600">{t('events.hero_eyebrow')}</p>

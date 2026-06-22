@@ -184,7 +184,7 @@ export function PlatformSettingsForm() {
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0">
-                <AlertTriangle className="w-6 h-6 text-yellow-600" />
+                <AlertTriangle className="w-6 h-6 text-amber-600" />
               </div>
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -240,7 +240,7 @@ export function PlatformSettingsForm() {
                   <button
                     onClick={confirmSave}
                     disabled={saving}
-                    className="flex-1 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 font-medium disabled:opacity-50"
+                    className="flex-1 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 font-medium disabled:opacity-50"
                   >
                     {saving ? 'Saving...' : 'Confirm'}
                   </button>
@@ -255,12 +255,12 @@ export function PlatformSettingsForm() {
         {/* Main Form - Left Column */}
         <div className="lg:col-span-2 space-y-6">
           {/* Info Banner */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="bg-gray-50 border border-gray-100 rounded-lg p-4">
             <div className="flex gap-3">
-              <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-blue-900">
+              <Info className="w-5 h-5 text-gray-500 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-gray-900">
                 <p className="font-medium mb-1">Important Information</p>
-                <p className="text-blue-800">
+                <p className="text-gray-700">
                   These settings apply to all future transactions. Changes take effect immediately and will be applied to new ticket sales and earnings calculations.
                 </p>
               </div>
@@ -308,7 +308,7 @@ export function PlatformSettingsForm() {
                         step="0.01"
                         min="0"
                         max="100"
-                        className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500"
+                        className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-brand-500 focus:border-brand-500"
                         required
                       />
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -330,7 +330,7 @@ export function PlatformSettingsForm() {
                       value={haitiSettlementDays}
                       onChange={(e) => setHaitiSettlementDays(e.target.value)}
                       min="0"
-                      className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500"
+                      className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-brand-500 focus:border-brand-500"
                       required
                     />
                     <p className="mt-1 text-xs text-gray-500">
@@ -368,7 +368,7 @@ export function PlatformSettingsForm() {
                         step="0.01"
                         min="0"
                         max="100"
-                        className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500"
+                        className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-brand-500 focus:border-brand-500"
                         required
                       />
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -390,7 +390,7 @@ export function PlatformSettingsForm() {
                       value={usCanadaSettlementDays}
                       onChange={(e) => setUsCanadaSettlementDays(e.target.value)}
                       min="0"
-                      className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500"
+                      className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-brand-500 focus:border-brand-500"
                       required
                     />
                     <p className="mt-1 text-xs text-gray-500">
@@ -430,7 +430,7 @@ export function PlatformSettingsForm() {
                         onChange={(e) => setMinimumPayout(e.target.value)}
                         step="0.01"
                         min="0"
-                        className="block w-full pl-7 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500"
+                        className="block w-full pl-7 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-brand-500 focus:border-brand-500"
                         required
                       />
                     </div>
@@ -446,7 +446,7 @@ export function PlatformSettingsForm() {
             <div className="flex items-center justify-between pt-4">
               <p className="text-sm text-gray-500">
                 {hasChanges ? (
-                  <span className="text-yellow-600 font-medium">● Unsaved changes</span>
+                  <span className="text-amber-600 font-medium">● Unsaved changes</span>
                 ) : (
                   <span className="text-gray-400">No changes</span>
                 )}
@@ -454,7 +454,7 @@ export function PlatformSettingsForm() {
               <button
                 type="submit"
                 disabled={saving || !hasChanges}
-                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? (
                   <>
@@ -491,9 +491,9 @@ export function PlatformSettingsForm() {
         {/* Preview Panel - Right Column */}
         <div className="lg:col-span-1 space-y-6">
           {/* Live Preview Card */}
-          <div className="bg-gradient-to-br from-teal-50 to-blue-50 border border-teal-200 rounded-lg p-6 sticky top-6">
+          <div className="bg-gradient-to-br from-brand-50 to-brand-100 border border-brand-200 rounded-lg p-6 sticky top-6">
             <div className="flex items-center gap-2 mb-4">
-              <TrendingUp className="w-5 h-5 text-teal-600" />
+              <TrendingUp className="w-5 h-5 text-brand-600" />
               <h3 className="text-lg font-semibold text-gray-900">Live Preview</h3>
             </div>
             <p className="text-sm text-gray-600 mb-6">

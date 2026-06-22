@@ -33,7 +33,7 @@ export function ConversionFunnelAnalytics() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
       </div>
     )
   }
@@ -51,32 +51,32 @@ export function ConversionFunnelAnalytics() {
       label: 'Event Views',
       value: data.views,
       icon: Eye,
-      color: 'blue',
-      bgColor: 'bg-blue-50',
-      borderColor: 'border-blue-200',
-      textColor: 'text-blue-900',
-      iconBg: 'bg-blue-500'
+      color: 'brand',
+      bgColor: 'bg-brand-50',
+      borderColor: 'border-brand-200',
+      textColor: 'text-brand-700',
+      iconBg: 'bg-brand-700'
     },
     {
       label: 'Favorites',
       value: data.favorites,
       icon: Heart,
-      color: 'purple',
-      bgColor: 'bg-purple-50',
-      borderColor: 'border-purple-200',
-      textColor: 'text-purple-900',
-      iconBg: 'bg-purple-500',
+      color: 'brand',
+      bgColor: 'bg-brand-50',
+      borderColor: 'border-brand-200',
+      textColor: 'text-brand-700',
+      iconBg: 'bg-brand-600',
       conversionRate: data.favoriteRate
     },
     {
       label: 'Purchases',
       value: data.purchases,
       icon: ShoppingCart,
-      color: 'teal',
-      bgColor: 'bg-teal-50',
-      borderColor: 'border-teal-200',
-      textColor: 'text-teal-900',
-      iconBg: 'bg-teal-500',
+      color: 'brand',
+      bgColor: 'bg-brand-50',
+      borderColor: 'border-brand-200',
+      textColor: 'text-brand-700',
+      iconBg: 'bg-brand-500',
       conversionRate: data.purchaseRate
     }
   ]
@@ -84,14 +84,14 @@ export function ConversionFunnelAnalytics() {
   return (
     <div className="space-y-6">
       {/* Overall Conversion Rate */}
-      <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-6 border border-teal-200">
+      <div className="bg-gradient-to-br from-brand-50 to-brand-100 rounded-xl p-6 border border-brand-200">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-sm font-medium text-teal-700 mb-1">Overall Conversion Rate</div>
-            <div className="text-4xl font-bold text-teal-900">{data.overallConversion.toFixed(2)}%</div>
-            <div className="text-sm text-teal-600 mt-2">Views to Purchases (Last 30 Days)</div>
+            <div className="text-sm font-medium text-brand-700 mb-1">Overall Conversion Rate</div>
+            <div className="text-4xl font-bold text-brand-700">{data.overallConversion.toFixed(2)}%</div>
+            <div className="text-sm text-brand-600 mt-2">Views to Purchases (Last 30 Days)</div>
           </div>
-          <div className="w-20 h-20 bg-teal-500 rounded-full flex items-center justify-center">
+          <div className="w-20 h-20 bg-brand-500 rounded-full flex items-center justify-center">
             <TrendingUp className="w-10 h-10 text-white" />
           </div>
         </div>

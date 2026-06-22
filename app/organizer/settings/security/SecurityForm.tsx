@@ -89,7 +89,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
       {/* Change Password */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
         <div className="flex items-center gap-2 mb-6">
-          <Key className="w-5 h-5 text-red-600" />
+          <Key className="w-5 h-5 text-brand-700" />
           <h3 className="text-lg font-semibold text-gray-900">Change Password</h3>
         </div>
         <form onSubmit={handlePasswordChange} className="space-y-4 max-w-md">
@@ -104,7 +104,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
                 id="current_password"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 placeholder="Enter current password"
                 required
               />
@@ -121,7 +121,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
                 id="new_password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 placeholder="Enter new password"
                 required
                 minLength={8}
@@ -139,7 +139,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
                 id="confirm_password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 placeholder="Confirm new password"
                 required
               />
@@ -148,7 +148,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
           <button
             type="submit"
             disabled={isChangingPassword}
-            className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+            className="px-6 py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
           >
             {isChangingPassword && <Loader2 className="w-4 h-4 animate-spin" />}
             {isChangingPassword ? 'Updating...' : 'Update Password'}
@@ -163,7 +163,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-red-600" />
+            <Shield className="w-5 h-5 text-brand-700" />
             <div>
               <h3 className="text-lg font-semibold text-gray-900">Two-Factor Authentication</h3>
               <p className="text-sm text-gray-600 mt-1">
@@ -181,7 +181,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center gap-2">
-            <Monitor className="w-5 h-5 text-red-600" />
+            <Monitor className="w-5 h-5 text-brand-700" />
             <h3 className="text-lg font-semibold text-gray-900">Recent Login Activity</h3>
           </div>
           <p className="text-sm text-gray-600 mt-1">

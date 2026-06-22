@@ -116,7 +116,7 @@ export default function DefaultsForm({ userId, initialData }: DefaultsFormProps)
               id="default_country"
               value={formData.default_country}
               onChange={(e) => handleCountryChange(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent appearance-none"
             >
               <option value="">Select a country</option>
               {countries.map((country) => (
@@ -139,7 +139,7 @@ export default function DefaultsForm({ userId, initialData }: DefaultsFormProps)
               id="default_city"
               value={formData.default_city}
               onChange={(e) => setFormData({ ...formData, default_city: e.target.value })}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent appearance-none"
               disabled={!formData.default_country}
             >
               <option value="">Select a city</option>
@@ -167,7 +167,7 @@ export default function DefaultsForm({ userId, initialData }: DefaultsFormProps)
             id="default_timezone"
             value={formData.default_timezone}
             onChange={(e) => setFormData({ ...formData, default_timezone: e.target.value })}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent appearance-none"
           >
             {TIMEZONES.map((tz) => (
               <option key={tz.value} value={tz.value}>
@@ -189,7 +189,7 @@ export default function DefaultsForm({ userId, initialData }: DefaultsFormProps)
             id="default_currency"
             value={formData.default_currency}
             onChange={(e) => setFormData({ ...formData, default_currency: e.target.value })}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent appearance-none"
           >
             {CURRENCIES.map((currency) => (
               <option key={currency.value} value={currency.value}>
@@ -214,7 +214,7 @@ export default function DefaultsForm({ userId, initialData }: DefaultsFormProps)
               onClick={() => handleCategoryToggle(category)}
               className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
                 formData.default_categories.includes(category)
-                  ? 'border-purple-500 bg-purple-50 text-purple-700'
+                  ? 'border-brand-500 bg-brand-50 text-brand-700'
                   : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
               }`}
             >
@@ -232,7 +232,7 @@ export default function DefaultsForm({ userId, initialData }: DefaultsFormProps)
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+          className="px-6 py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
         >
           {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
           {isSubmitting ? 'Saving...' : 'Save Defaults'}

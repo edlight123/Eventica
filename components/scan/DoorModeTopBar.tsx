@@ -51,7 +51,7 @@ export function DoorModeTopBar({
           <select
             value={entryPoint}
             onChange={(e) => onEntryPointChange(e.target.value)}
-            className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
             {entryPoints.map((point) => (
               <option key={point} value={point}>
@@ -70,11 +70,11 @@ export function DoorModeTopBar({
               </div>
             </div>
 
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-orange-900/30 border border-orange-700/50 rounded-lg">
-              <Users className="w-4 h-4 text-orange-400" />
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-brand-900/30 border border-brand-700/50 rounded-lg">
+              <Users className="w-4 h-4 text-brand-400" />
               <div className="text-right">
-                <div className="text-xs text-orange-400 font-medium">Remaining</div>
-                <div className="text-lg font-bold text-orange-300">{remainingCount}</div>
+                <div className="text-xs text-brand-400 font-medium">Remaining</div>
+                <div className="text-lg font-bold text-brand-300">{remainingCount}</div>
               </div>
             </div>
           </div>

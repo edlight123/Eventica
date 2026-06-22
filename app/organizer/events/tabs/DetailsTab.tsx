@@ -58,12 +58,12 @@ export function DetailsTab({ formData, onChange, validation }: DetailsTabProps) 
           onChange={(e) => onChange('description', e.target.value)}
           rows={8}
           placeholder="Describe your event in detail... What makes it special? What should attendees expect? Include schedule, activities, amenities, and any other important information."
-          className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-teal-500 transition-all resize-none ${
+          className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-brand-500 transition-all resize-none ${
             descriptionError
               ? 'border-red-300 focus:border-red-500'
               : formData.description.length >= minDescLength
               ? 'border-green-300 focus:border-green-500'
-              : 'border-gray-200 focus:border-teal-500'
+              : 'border-gray-200 focus:border-brand-500'
           }`}
         />
         
@@ -80,7 +80,7 @@ export function DetailsTab({ formData, onChange, validation }: DetailsTabProps) 
                 Great description!
               </p>
             ) : formData.description.length > 0 ? (
-              <p className="text-sm text-orange-600 font-medium">
+              <p className="text-sm text-amber-600 font-medium">
                 {minDescLength - formData.description.length} more characters needed
               </p>
             ) : null}
@@ -122,8 +122,8 @@ export function DetailsTab({ formData, onChange, validation }: DetailsTabProps) 
                 disabled={formData.tags?.includes(tag)}
                 className={`px-3 py-1.5 text-sm font-medium rounded-lg border-2 transition-all ${
                   formData.tags?.includes(tag)
-                    ? 'bg-teal-100 text-teal-700 border-teal-300 cursor-not-allowed'
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-teal-500 hover:bg-teal-50 hover:text-teal-700'
+                    ? 'bg-brand-100 text-brand-700 border-brand-300 cursor-not-allowed'
+                    : 'bg-white text-gray-700 border-gray-200 hover:border-brand-500 hover:bg-brand-50 hover:text-brand-700'
                 }`}
               >
                 {tag}
@@ -140,7 +140,7 @@ export function DetailsTab({ formData, onChange, validation }: DetailsTabProps) 
             onChange={(e) => setTagInput(e.target.value)}
             onKeyPress={handleTagInputKeyPress}
             placeholder="Add custom tag (press Enter)"
-            className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+            className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all"
           />
           <button
             type="button"
@@ -150,7 +150,7 @@ export function DetailsTab({ formData, onChange, validation }: DetailsTabProps) 
                 setTagInput('')
               }
             }}
-            className="px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-semibold transition-all"
+            className="px-6 py-3 bg-brand-700 hover:bg-brand-800 text-white rounded-xl font-semibold transition-all"
           >
             Add
           </button>
@@ -158,13 +158,13 @@ export function DetailsTab({ formData, onChange, validation }: DetailsTabProps) 
 
         {/* Selected Tags */}
         {formData.tags && formData.tags.length > 0 && (
-          <div className="bg-teal-50 border-2 border-teal-200 rounded-xl p-4">
+          <div className="bg-brand-50 border-2 border-brand-200 rounded-xl p-4">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-bold text-teal-900 uppercase tracking-wide">
+              <p className="text-xs font-bold text-brand-900 uppercase tracking-wide">
                 Selected tags ({formData.tags.length})
               </p>
               {formData.tags.length > 10 && (
-                <p className="text-xs text-orange-600 font-medium">
+                <p className="text-xs text-amber-600 font-medium">
                   Consider using fewer tags for better targeting
                 </p>
               )}
@@ -173,13 +173,13 @@ export function DetailsTab({ formData, onChange, validation }: DetailsTabProps) 
               {formData.tags.map(tag => (
                 <div
                   key={tag}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-teal-600 text-white font-medium rounded-lg shadow-sm group hover:bg-teal-700 transition-colors"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-brand-700 text-white font-medium rounded-lg shadow-sm group hover:bg-brand-800 transition-colors"
                 >
                   <span className="text-sm">{tag}</span>
                   <button
                     type="button"
                     onClick={() => removeTag(tag)}
-                    className="hover:bg-teal-800 rounded-full p-0.5 transition-colors"
+                    className="hover:bg-brand-900 rounded-full p-0.5 transition-colors"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -192,28 +192,28 @@ export function DetailsTab({ formData, onChange, validation }: DetailsTabProps) 
 
       {/* Validation Warnings */}
       {validation.warnings.length > 0 && (
-        <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
-          <p className="font-semibold text-yellow-900 mb-2 flex items-center gap-2">
+        <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-4">
+          <p className="font-semibold text-amber-900 mb-2 flex items-center gap-2">
             <AlertCircle className="w-5 h-5" />
             Suggestions
           </p>
           <ul className="list-disc list-inside space-y-1">
             {validation.warnings.map((warning, index) => (
-              <li key={index} className="text-sm text-yellow-800">{warning}</li>
+              <li key={index} className="text-sm text-amber-800">{warning}</li>
             ))}
           </ul>
         </div>
       )}
 
       {/* Writing Tips */}
-      <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+      <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-4">
         <div className="flex items-start gap-3">
-          <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-brand-700 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
           </svg>
           <div>
-            <p className="font-semibold text-blue-900 mb-1">Writing a Great Description</p>
-            <ul className="text-sm text-blue-800 space-y-1">
+            <p className="font-semibold text-gray-900 mb-1">Writing a Great Description</p>
+            <ul className="text-sm text-gray-600 space-y-1">
               <li>• Start with an exciting hook that grabs attention</li>
               <li>• Describe the experience, not just the facts</li>
               <li>• Include lineup, schedule, food/drinks, parking info</li>

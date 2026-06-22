@@ -112,7 +112,7 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
                 onFocus={() => searchQuery && setShowResults(true)}
                 onBlur={() => setTimeout(() => setShowResults(false), 200)}
                 placeholder={t('nav.search_placeholder')}
-                className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm"
+                className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
               />
               {isSearching && (
                 <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 animate-spin" />
@@ -124,7 +124,7 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
               <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
                 {isSearching ? (
                   <div className="p-8 text-center">
-                    <Loader2 className="w-6 h-6 text-teal-600 animate-spin mx-auto mb-2" />
+                    <Loader2 className="w-6 h-6 text-brand-600 animate-spin mx-auto mb-2" />
                     <p className="text-sm text-gray-500">Searching...</p>
                   </div>
                 ) : searchResults.length === 0 ? (
@@ -143,16 +143,14 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
                       >
                         {/* Icon */}
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                          result.type === 'event' ? 'bg-purple-100' :
-                          result.type === 'user' ? 'bg-blue-100' :
+                          result.type === 'event' ? 'bg-brand-50' :
+                          result.type === 'user' ? 'bg-brand-50' :
                           'bg-green-100'
                         }`}>
                           {result.type === 'event' ? (
-                            <Calendar className={`w-4 h-4 ${
-                              result.type === 'event' ? 'text-purple-600' : ''
-                            }`} />
+                            <Calendar className="w-4 h-4 text-brand-600" />
                           ) : result.type === 'user' ? (
-                            <User className="w-4 h-4 text-blue-600" />
+                            <User className="w-4 h-4 text-brand-600" />
                           ) : (
                             <DollarSign className="w-4 h-4 text-green-600" />
                           )}
@@ -165,7 +163,7 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
                             {result.metadata?.status && (
                               <span className={`px-2 py-0.5 text-xs font-medium rounded ${
                                 result.metadata.status === 'published' || result.metadata.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                                result.metadata.status === 'draft' || result.metadata.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                result.metadata.status === 'draft' || result.metadata.status === 'pending' ? 'bg-amber-100 text-amber-800' :
                                 'bg-gray-100 text-gray-800'
                               }`}>
                                 {result.metadata.status}
@@ -205,7 +203,7 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
           {pendingVerifications > 0 && (
             <Link
               href="/admin/verify"
-              className="relative flex items-center gap-2 px-3 py-2 bg-yellow-50 text-yellow-800 rounded-lg hover:bg-yellow-100 transition-colors"
+              className="relative flex items-center gap-2 px-3 py-2 bg-amber-50 text-amber-800 rounded-lg hover:bg-amber-100 transition-colors"
             >
               <Bell className="w-4 h-4" />
               <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">

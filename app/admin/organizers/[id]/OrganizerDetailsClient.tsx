@@ -91,7 +91,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       {/* Breadcrumb */}
       <div className="mb-4 sm:mb-6">
-        <Link href="/admin/organizers" className="text-teal-600 hover:text-teal-700 text-[13px] sm:text-sm font-medium">
+        <Link href="/admin/organizers" className="text-brand-600 hover:text-brand-700 text-[13px] sm:text-sm font-medium">
           ← Back to Organizers
         </Link>
       </div>
@@ -112,7 +112,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
             </h1>
             <p className="text-gray-600 mb-2">{user.email}</p>
             <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
+              <span className="px-3 py-1 text-xs font-semibold rounded-full bg-brand-50 text-brand-700">
                 {user.role}
               </span>
               {user.verification_status === 'approved' && (
@@ -126,7 +126,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                 </span>
               )}
               {!canPost && (
-                <span className="px-3 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">
+                <span className="px-3 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800">
                   ⚠ Posting Disabled
                 </span>
               )}
@@ -165,7 +165,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
               <button
                 onClick={() => handleToggleStatus('enable_posting')}
                 disabled={isUpdating}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-lg transition-colors disabled:opacity-50"
               >
                 Enable Event Posting
               </button>
@@ -178,8 +178,8 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-3 bg-brand-50 rounded-lg">
+              <svg className="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
@@ -206,8 +206,8 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-3 bg-brand-50 rounded-lg">
+              <svg className="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
               </svg>
             </div>
@@ -290,12 +290,12 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                     Payout Destinations ({payoutDestinations.length})
                   </p>
                   {payoutDestinations.map((dest, index) => (
-                    <div key={dest.id || index} className="p-4 bg-gray-50 rounded-lg border-l-4 border-teal-500">
+                    <div key={dest.id || index} className="p-4 bg-gray-50 rounded-lg border-l-4 border-brand-500">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
-                            dest.type === 'bank' ? 'bg-blue-100 text-blue-800' :
-                            dest.type === 'mobile_money' ? 'bg-purple-100 text-purple-800' :
+                            dest.type === 'bank' ? 'bg-brand-50 text-brand-700' :
+                            dest.type === 'mobile_money' ? 'bg-gray-100 text-gray-800' :
                             'bg-gray-100 text-gray-800'
                           }`}>
                             {safeString(dest.type || 'bank').replace(/_/g, ' ')}
@@ -308,7 +308,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                           {dest.status && (
                             <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
                               dest.status === 'active' || dest.status === 'verified' ? 'bg-green-100 text-green-800' :
-                              dest.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                              dest.status === 'pending' ? 'bg-amber-100 text-amber-800' :
                               'bg-red-100 text-red-800'
                             }`}>
                               {safeString(dest.status)}
@@ -421,7 +421,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                           className={`px-2 py-1 text-xs font-semibold rounded-full ${
                             status === 'verified' ? 'bg-green-100 text-green-800' :
                             status === 'failed' ? 'bg-red-100 text-red-800' :
-                            'bg-yellow-100 text-yellow-800'
+                            'bg-amber-100 text-amber-800'
                           }`}
                         >
                           {type}: {status}
@@ -438,7 +438,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                   <p className="text-sm font-medium text-gray-900">Payout Status</p>
                   <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                     payoutConfig.status === 'active' ? 'bg-green-100 text-green-800' :
-                    payoutConfig.status === 'pending_verification' ? 'bg-yellow-100 text-yellow-800' :
+                    payoutConfig.status === 'pending_verification' ? 'bg-amber-100 text-amber-800' :
                     payoutConfig.status === 'on_hold' ? 'bg-red-100 text-red-800' :
                     'bg-gray-100 text-gray-800'
                   }`}>
@@ -513,7 +513,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                   <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
                     safeString(verificationRequest.status) === 'approved' ? 'bg-green-100 text-green-800' :
                     safeString(verificationRequest.status) === 'rejected' ? 'bg-red-100 text-red-800' :
-                    'bg-yellow-100 text-yellow-800'
+                    'bg-amber-100 text-amber-800'
                   }`}>
                     {safeString(verificationRequest.status, 'pending')}
                   </span>
@@ -583,13 +583,13 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                          docType === 'identity' ? 'bg-blue-100' :
+                          docType === 'identity' ? 'bg-brand-50' :
                           docType === 'bank' ? 'bg-green-100' :
-                          docType === 'phone' ? 'bg-purple-100' :
+                          docType === 'phone' ? 'bg-gray-100' :
                           'bg-gray-100'
                         }`}>
                           {docType === 'identity' && (
-                            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
                             </svg>
                           )}
@@ -599,7 +599,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                             </svg>
                           )}
                           {docType === 'phone' && (
-                            <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                             </svg>
                           )}
@@ -627,7 +627,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                           status === 'verified' || status === 'approved' ? 'bg-green-100 text-green-800' :
                           status === 'rejected' || status === 'failed' ? 'bg-red-100 text-red-800' :
-                          'bg-yellow-100 text-yellow-800'
+                          'bg-amber-100 text-amber-800'
                         }`}>
                           {status}
                         </span>
@@ -646,7 +646,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                                 }
                               }
                             }}
-                            className="text-xs text-teal-600 hover:text-teal-700 font-medium"
+                            className="text-xs text-brand-600 hover:text-brand-700 font-medium"
                           >
                             View
                           </button>
@@ -684,7 +684,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                 <div>
                   <dt className="text-sm font-medium text-gray-500">Website</dt>
                   <dd className="text-sm text-gray-900 mt-1">
-                    <a href={organizer.website} target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:underline">
+                    <a href={organizer.website} target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline">
                       {organizer.website}
                     </a>
                   </dd>

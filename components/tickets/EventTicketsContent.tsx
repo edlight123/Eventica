@@ -27,7 +27,9 @@ interface EventTicketsContentProps {
 
 export default function EventTicketsContent({ event, tickets }: EventTicketsContentProps) {
   const { t } = useTranslation('tickets')
-  
+
+  const cleanTitle = String(event.title || 'Event').replace(/^\[[^\]]*\]\s*/, '')
+
   const validTickets = tickets.filter(t => t && !t.checked_in_at && t.status === 'valid')
   const usedTickets = tickets.filter(t => t && t.checked_in_at)
 
@@ -37,10 +39,10 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
       <div className="relative bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6">
         {/* Banner Image */}
         {event.banner_image_url ? (
-          <div className="relative h-32 sm:h-48 md:h-56 bg-gradient-to-br from-brand-600 to-accent-500">
+          <div className="relative h-32 sm:h-48 md:h-56 bg-gradient-to-br from-brand-700 to-[#0C5E57]">
             <Image
               src={event.banner_image_url}
-              alt={event.title}
+              alt={cleanTitle}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 768px) 100vw, (max-width: 1024px) 80vw, 60vw"
               className="object-cover"
@@ -48,9 +50,10 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
           </div>
         ) : (
-          <div className="h-32 sm:h-48 md:h-56 bg-gradient-to-br from-brand-600 via-brand-500 to-accent-500 relative overflow-hidden">
+          <div className="h-32 sm:h-48 md:h-56 bg-gradient-to-br from-brand-700 to-[#0C5E57] relative overflow-hidden flex items-center justify-center">
             <div className="absolute top-10 right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
             <div className="absolute bottom-10 left-20 w-80 h-80 bg-white/10 rounded-full blur-3xl" />
+            <span className="relative font-display text-5xl md:text-6xl text-[#F8F5EE]">T</span>
           </div>
         )}
 
@@ -71,7 +74,7 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
                   </Badge>
                 )}
               </div>
-              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 line-clamp-2">{String(event.title || 'Event')}</h1>
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 line-clamp-2">{cleanTitle}</h1>
               <p className="text-[13px] md:text-sm text-gray-600">{t('event_tickets.ready')}</p>
             </div>
           </div>
@@ -105,12 +108,12 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
               </div>
             </div>
 
-            <div className="flex items-start gap-3 p-3 md:p-4 bg-gradient-to-br from-accent-50 to-accent-100 rounded-lg border border-accent-200">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-accent-500 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="flex items-start gap-3 p-3 md:p-4 bg-gradient-to-br from-brand-50 to-brand-100 rounded-lg border border-brand-200">
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-brand-500 rounded-lg flex items-center justify-center flex-shrink-0">
                 <MapPin className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] md:text-xs font-semibold text-accent-600 uppercase tracking-wider mb-1">{t('event_tickets.venue')}</p>
+                <p className="text-[10px] md:text-xs font-semibold text-brand-600 uppercase tracking-wider mb-1">{t('event_tickets.venue')}</p>
                 <p className="text-sm md:text-base font-bold text-gray-900 truncate">{String(event.venue_name || t('event_tickets.venue_tba'))}</p>
                 <p className="text-[13px] text-gray-600 truncate">{String(event.commune || t('event_tickets.location_tba'))}, {String(event.city || t('event_tickets.location_tba'))}</p>
               </div>
@@ -145,7 +148,7 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
                   </div>
                 </div>
 
-                <div className="relative h-1.5 bg-gradient-to-r from-brand-500 via-accent-500 to-brand-500" />
+                <div className="relative h-1.5 bg-gradient-to-r from-brand-500 to-brand-600" />
 
                 {/* QR Code Section */}
                 <div className="p-4 md:p-6 text-center">
@@ -263,53 +266,53 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
 
       {/* Help & Instructions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4">
+        <div className="bg-brand-50 border border-brand-100 rounded-xl p-4">
           <div className="flex items-start gap-3 mb-3">
-            <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 bg-brand-600 rounded-lg flex items-center justify-center flex-shrink-0">
               <QrCode className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-blue-900 mb-0.5">{t('event_tickets.how_to_use.title')}</h3>
-              <p className="text-[13px] text-blue-700">{t('event_tickets.how_to_use.subtitle')}</p>
+              <h3 className="text-base font-bold text-gray-900 mb-0.5">{t('event_tickets.how_to_use.title')}</h3>
+              <p className="text-[13px] text-gray-600">{t('event_tickets.how_to_use.subtitle')}</p>
             </div>
           </div>
-          <ul className="space-y-1.5 text-[13px] text-blue-800">
+          <ul className="space-y-1.5 text-[13px] text-gray-700">
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-blue-600" />
+              <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-brand-600" />
               <span>{t('event_tickets.how_to_use.unique_qr')}</span>
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-blue-600" />
+              <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-brand-600" />
               <span>{t('event_tickets.how_to_use.scan_once')}</span>
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-blue-600" />
+              <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-brand-600" />
               <span>{t('event_tickets.how_to_use.digital_print')}</span>
             </li>
           </ul>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-4">
+        <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
           <div className="flex items-start gap-3 mb-3">
-            <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 bg-brand-600 rounded-lg flex items-center justify-center flex-shrink-0">
               <Wallet className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-purple-900 mb-0.5">{t('event_tickets.save_wallet.title')}</h3>
-              <p className="text-[13px] text-purple-700">{t('event_tickets.save_wallet.subtitle')}</p>
+              <h3 className="text-base font-bold text-gray-900 mb-0.5">{t('event_tickets.save_wallet.title')}</h3>
+              <p className="text-[13px] text-gray-600">{t('event_tickets.save_wallet.subtitle')}</p>
             </div>
           </div>
-          <ul className="space-y-1.5 text-[13px] text-purple-800">
+          <ul className="space-y-1.5 text-[13px] text-gray-700">
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-purple-600" />
+              <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-brand-600" />
               <span>{t('event_tickets.save_wallet.add_wallet')}</span>
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-purple-600" />
+              <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-brand-600" />
               <span>{t('event_tickets.save_wallet.access_offline')}</span>
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-purple-600" />
+              <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-brand-600" />
               <span>{t('event_tickets.save_wallet.auto_reminders')}</span>
             </li>
           </ul>

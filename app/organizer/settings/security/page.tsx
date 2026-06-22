@@ -4,6 +4,7 @@ import { adminDb } from '@/lib/firebase/admin';
 import SecurityForm from './SecurityForm';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
+import { EditorialHeader } from '@/components/ui/EditorialHeader';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,13 +48,12 @@ export default async function SecuritySettingsPage() {
           Back to Settings
         </Link>
 
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">Security</h1>
-          <p className="text-gray-600 mt-2">
-            Manage your password and monitor account activity
-          </p>
-        </div>
+        <EditorialHeader
+          eyebrow="Settings"
+          title="Security"
+          subtitle="Manage your password and monitor account activity"
+          className="mb-8"
+        />
 
         {/* Security Form */}
         <SecurityForm 

@@ -19,6 +19,8 @@ interface TicketDetailContentProps {
 export default function TicketDetailContent({ ticket, event, user }: TicketDetailContentProps) {
   const { t } = useTranslation('tickets')
 
+  const cleanTitle = (event?.title || '').replace(/^\[[^\]]*\]\s*/, '')
+
   const getStatusBadge = () => {
     if (ticket.checked_in_at) {
       return (
@@ -107,21 +109,25 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
         <div className="space-y-4 sm:space-y-6">
           {/* Event Banner Card */}
           <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-            {event.banner && (
+            {event.banner_image_url ? (
               <div className="relative w-full h-40 sm:h-48">
                 <Image
-                  src={event.banner}
-                  alt={event.title}
+                  src={event.banner_image_url}
+                  alt={cleanTitle}
                   fill
                   sizes="(max-width: 640px) 100vw, 50vw"
                   className="object-cover"
                   unoptimized
                 />
               </div>
+            ) : (
+              <div className="relative w-full h-40 sm:h-48 bg-gradient-to-br from-brand-700 to-[#0C5E57] flex items-center justify-center">
+                <span className="font-display text-5xl text-[#F8F5EE]">T</span>
+              </div>
             )}
             
             <div className="p-4 sm:p-6">
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{event.title}</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{cleanTitle}</h1>
               <a
                 href={`/events/${event.id}`}
                 className="text-sm text-brand-600 hover:text-brand-700 font-medium inline-flex items-center gap-1"
@@ -148,8 +154,8 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-accent-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-5 h-5 text-accent-600" />
+                  <div className="w-10 h-10 bg-brand-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-5 h-5 text-brand-600" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
@@ -164,7 +170,7 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
                         href={`https://maps.apple.com/?q=${encodeURIComponent(event.address || `${event.venue_name || event.location}, ${event.commune}, ${event.city}`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs text-accent-600 hover:text-accent-700 font-medium flex items-center gap-1"
+                        className="text-xs text-brand-600 hover:text-brand-700 font-medium flex items-center gap-1"
                       >
                         <MapPin className="w-3 h-3" />
                         {t('detail.apple_maps')}
@@ -174,7 +180,7 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
                         href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address || `${event.venue_name || event.location}, ${event.commune}, ${event.city}`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs text-accent-600 hover:text-accent-700 font-medium flex items-center gap-1"
+                        className="text-xs text-brand-600 hover:text-brand-700 font-medium flex items-center gap-1"
                       >
                         <MapPin className="w-3 h-3" />
                         {t('detail.google_maps')}
@@ -184,8 +190,8 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <User className="w-5 h-5 text-purple-600" />
+                  <div className="w-10 h-10 bg-brand-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <User className="w-5 h-5 text-brand-600" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
@@ -196,8 +202,8 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Clock className="w-5 h-5 text-blue-600" />
+                  <div className="w-10 h-10 bg-brand-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Clock className="w-5 h-5 text-brand-600" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
@@ -216,33 +222,33 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
           </div>
 
           {/* Instructions Card */}
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-2xl p-4 sm:p-6">
+          <div className="bg-brand-50 border border-brand-100 rounded-2xl p-4 sm:p-6">
             <div className="flex items-start gap-3 mb-3 sm:mb-4">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-brand-600 rounded-lg flex items-center justify-center flex-shrink-0">
                 <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
               <div>
-                <h3 className="text-base sm:text-lg font-bold text-blue-900 mb-1">
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1">
                   {t('detail.how_to_use_title')}
                 </h3>
-                <p className="text-xs sm:text-sm text-blue-700">{t('detail.how_to_use_subtitle')}</p>
+                <p className="text-xs sm:text-sm text-gray-600">{t('detail.how_to_use_subtitle')}</p>
               </div>
             </div>
-            <ul className="space-y-2 text-xs sm:text-sm text-blue-800">
+            <ul className="space-y-2 text-xs sm:text-sm text-gray-700">
               <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-600" />
+                <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0 text-brand-600" />
                 <span>{t('detail.how_to_use_steps.show_qr')}</span>
               </li>
               <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-600" />
+                <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0 text-brand-600" />
                 <span>{t('detail.how_to_use_steps.save_wallet')}</span>
               </li>
               <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-600" />
+                <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0 text-brand-600" />
                 <span>{t('detail.how_to_use_steps.one_entry')}</span>
               </li>
               <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-600" />
+                <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0 text-brand-600" />
                 <span>{t('detail.how_to_use_steps.digital_print')}</span>
               </li>
             </ul>

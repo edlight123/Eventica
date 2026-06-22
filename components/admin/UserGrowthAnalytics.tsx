@@ -52,7 +52,7 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
       </div>
     )
   }
@@ -75,7 +75,7 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
             onClick={() => setSelectedDays(period)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               selectedDays === period
-                ? 'bg-teal-600 text-white'
+                ? 'bg-brand-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -86,45 +86,45 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+        <div className="bg-gradient-to-br from-brand-50 to-brand-100 rounded-xl p-6 border border-brand-200">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-brand-600 rounded-lg flex items-center justify-center">
               <Users className="w-6 h-6 text-white" />
             </div>
             <div>
-              <div className="text-sm font-medium text-blue-700">Total Users</div>
-              <div className="text-2xl font-bold text-blue-900">{data.totalUsers.toLocaleString()}</div>
+              <div className="text-sm font-medium text-brand-700">Total Users</div>
+              <div className="text-2xl font-bold text-brand-700">{data.totalUsers.toLocaleString()}</div>
             </div>
           </div>
-          <div className="text-xs text-blue-600">Last {selectedDays} days</div>
+          <div className="text-xs text-brand-600">Last {selectedDays} days</div>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
+        <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-brand-600 rounded-lg flex items-center justify-center">
               <UserPlus className="w-6 h-6 text-white" />
             </div>
             <div>
-              <div className="text-sm font-medium text-purple-700">Attendees</div>
-              <div className="text-2xl font-bold text-purple-900">{data.attendeeCount.toLocaleString()}</div>
+              <div className="text-sm font-medium text-gray-600">Attendees</div>
+              <div className="text-2xl font-bold text-gray-900">{data.attendeeCount.toLocaleString()}</div>
             </div>
           </div>
-          <div className="text-xs text-purple-600">
+          <div className="text-xs text-gray-500">
             {((data.attendeeCount / data.totalUsers) * 100).toFixed(1)}% of total
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200">
+        <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-brand-600 rounded-lg flex items-center justify-center">
               <Briefcase className="w-6 h-6 text-white" />
             </div>
             <div>
-              <div className="text-sm font-medium text-orange-700">Organizers</div>
-              <div className="text-2xl font-bold text-orange-900">{data.organizerCount.toLocaleString()}</div>
+              <div className="text-sm font-medium text-gray-600">Organizers</div>
+              <div className="text-2xl font-bold text-gray-900">{data.organizerCount.toLocaleString()}</div>
             </div>
           </div>
-          <div className="text-xs text-orange-600">
+          <div className="text-xs text-gray-500">
             {((data.organizerCount / data.totalUsers) * 100).toFixed(1)}% of total
           </div>
         </div>
@@ -153,21 +153,21 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
               <Line 
                 type="monotone" 
                 dataKey="total" 
-                stroke="#14b8a6" 
+                stroke="#0F766E" 
                 strokeWidth={2}
                 name="Total"
               />
               <Line 
                 type="monotone" 
                 dataKey="attendees" 
-                stroke="#8b5cf6" 
+                stroke="#14B8A6" 
                 strokeWidth={2}
                 name="Attendees"
               />
               <Line 
                 type="monotone" 
                 dataKey="organizers" 
-                stroke="#f97316" 
+                stroke="#5EEAD4" 
                 strokeWidth={2}
                 name="Organizers"
               />

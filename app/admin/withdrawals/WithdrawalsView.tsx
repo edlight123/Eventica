@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { formatCurrency } from '@/lib/fees'
+import { StatusChip } from '@/components/ui/kit'
 
 interface Withdrawal {
   id: string
@@ -99,18 +100,8 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
   }
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium">✓ Completed</span>
-      case 'processing':
-        return <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">⚙️ Processing</span>
-      case 'pending':
-        return <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-medium">⏳ Pending</span>
-      case 'failed':
-        return <span className="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-medium">✗ Failed</span>
-      default:
-        return null
-    }
+    if (!['completed', 'processing', 'pending', 'failed'].includes(status)) return null
+    return <StatusChip status={status} />
   }
 
   const getMethodIcon = (method: string) => {
@@ -138,7 +129,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
             onClick={() => setFilter(tab as any)}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               filter === tab
-                ? 'bg-teal-600 text-white'
+                ? 'bg-brand-700 text-white'
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
@@ -215,7 +206,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                     <td className="px-4 py-4">
                       <button
                         onClick={() => setSelectedWithdrawal(withdrawal)}
-                        className="text-teal-600 hover:text-teal-700 font-medium text-sm"
+                        className="text-brand-700 hover:text-brand-800 font-medium text-sm"
                       >
                         View Details →
                       </button>
@@ -413,7 +404,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                   value={actionNote}
                   onChange={(e) => setActionNote(e.target.value)}
                   placeholder="Add a note about this action..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                   rows={3}
                 />
               </div>
@@ -444,7 +435,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                   <button
                     onClick={() => handleAction(selectedWithdrawal.id, 'complete')}
                     disabled={processing}
-                    className="flex-1 px-4 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium disabled:bg-gray-300"
+                    className="flex-1 px-4 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 transition-colors font-medium disabled:bg-gray-300"
                   >
                     ✓ Mark Complete
                   </button>

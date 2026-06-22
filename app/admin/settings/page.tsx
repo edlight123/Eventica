@@ -1,5 +1,6 @@
 import { PlatformSettingsForm } from './PlatformSettingsForm'
 import { AdminBreadcrumbs } from '@/components/admin/AdminBreadcrumbs'
+import { EditorialHeader } from '@/components/ui/EditorialHeader'
 
 export const revalidate = 30
 
@@ -10,18 +11,12 @@ export default async function AdminSettingsPage() {
         <AdminBreadcrumbs items={[{ label: 'Platform Settings' }]} />
         
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">
-                Platform Settings
-              </h1>
-              <p className="mt-2 text-gray-600">
-                Configure platform fees and settlement times for different regions
-              </p>
-            </div>
-          </div>
-        </div>
+        <EditorialHeader
+          eyebrow="Platform"
+          title="Platform Settings"
+          subtitle="Configure platform fees and settlement times for different regions"
+          className="mb-8"
+        />
 
         {/* Settings Form */}
         <PlatformSettingsForm />

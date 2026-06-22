@@ -99,7 +99,7 @@ export default function AttendanceWithCameraExample() {
             onClick={() => setScanMode('upload')}
             className={`px-4 sm:px-6 py-2 rounded-lg text-[13px] sm:text-base font-medium transition-colors min-h-[44px] ${
               scanMode === 'upload'
-                ? 'bg-orange-600 text-white'
+                ? 'bg-brand-600 text-white'
                 : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
             }`}
           >
@@ -109,7 +109,7 @@ export default function AttendanceWithCameraExample() {
             onClick={() => setScanMode('camera')}
             className={`px-4 sm:px-6 py-2 rounded-lg text-[13px] sm:text-base font-medium transition-colors min-h-[44px] ${
               scanMode === 'camera'
-                ? 'bg-orange-600 text-white'
+                ? 'bg-brand-600 text-white'
                 : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
             }`}
           >
@@ -195,9 +195,9 @@ export default function AttendanceWithCameraExample() {
         </div>
 
         {/* Instructions */}
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="font-medium text-blue-900 mb-2">💡 How to use:</h3>
-          <ul className="text-sm text-blue-800 space-y-1">
+        <div className="mt-6 bg-brand-50 border border-brand-200 rounded-lg p-4">
+          <h3 className="font-medium text-brand-900 mb-2">💡 How to use:</h3>
+          <ul className="text-sm text-brand-800 space-y-1">
             <li>• Switch to <strong>Live Camera</strong> mode for real-time scanning</li>
             <li>• Point your camera at the attendee&apos;s QR code</li>
             <li>• The system will automatically detect and check them in</li>

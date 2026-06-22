@@ -133,7 +133,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
               />
             </div>
           ) : (
-            <div className="w-full h-48 bg-gradient-to-br from-teal-100 to-purple-100 flex items-center justify-center">
+            <div className="w-full h-48 bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center">
               <span className="text-6xl">🎉</span>
             </div>
           )}
@@ -146,7 +146,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
                 <span className={`flex-shrink-0 px-3 py-1 text-sm font-semibold rounded-full ${
                   event.is_published
                     ? 'bg-green-100 text-green-800'
-                    : 'bg-yellow-100 text-yellow-800'
+                    : 'bg-amber-100 text-amber-800'
                 }`}>
                   {event.is_published ? t('admin.published') : t('admin.draft')}
                 </span>
@@ -220,7 +220,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
                 </div>
                 <a
                   href={`/admin/users?search=${event.organizer_email}`}
-                  className="text-teal-600 hover:text-teal-700 text-sm font-medium flex items-center gap-1"
+                  className="text-brand-600 hover:text-brand-700 text-sm font-medium flex items-center gap-1"
                 >
                   View
                   <ExternalLink className="w-3 h-3" />
@@ -298,7 +298,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
               <>
                 <button
                   onClick={handleUnpublish}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-medium text-sm"
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 font-medium text-sm"
                 >
                   <XCircle className="w-4 h-4" />
                   {t('admin.unpublish')}
@@ -348,7 +348,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
             <button
               onClick={() => downloadCsv('full')}
               disabled={isExporting !== null}
-              className="flex-1 px-4 py-2.5 border border-teal-300 text-teal-700 rounded-lg hover:bg-teal-50 font-medium text-sm disabled:opacity-60"
+              className="flex-1 px-4 py-2.5 border border-brand-300 text-brand-700 rounded-lg hover:bg-brand-50 font-medium text-sm disabled:opacity-60"
             >
               {isExporting === 'full' ? 'Downloading…' : 'Download Financials CSV'}
             </button>
@@ -365,7 +365,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
             href={`/events/${event.id}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="block text-center px-4 py-2 text-teal-600 hover:text-teal-700 font-medium text-sm"
+            className="block text-center px-4 py-2 text-brand-600 hover:text-brand-700 font-medium text-sm"
           >
             {t('admin.view_public')} →
           </a>

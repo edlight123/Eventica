@@ -118,9 +118,9 @@ export default function GovernmentIDForm({ userId, initialData, onSave, onCancel
         </p>
 
         {/* Tips */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-          <h4 className="font-semibold text-blue-900 text-sm mb-2">📸 Photo Tips:</h4>
-          <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+        <div className="bg-brand-50 border border-brand-200 rounded-lg p-4 mb-6">
+          <h4 className="font-semibold text-brand-900 text-sm mb-2">📸 Photo Tips:</h4>
+          <ul className="text-sm text-brand-800 space-y-1 list-disc list-inside">
             <li>Ensure all text is clearly readable</li>
             <li>Use good lighting (avoid glare)</li>
             <li>Place ID on a contrasting background</li>
@@ -171,7 +171,7 @@ export default function GovernmentIDForm({ userId, initialData, onSave, onCancel
           type="button"
           onClick={handleContinue}
           disabled={isSaving || !frontPath || !backPath}
-          className="flex-1 px-6 py-3 bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white rounded-lg font-semibold transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 px-6 py-3 bg-brand-700 hover:bg-brand-800 text-white rounded-lg font-semibold transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSaving ? 'Saving...' : 'Save & Continue'}
         </button>

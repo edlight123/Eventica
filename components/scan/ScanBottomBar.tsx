@@ -41,7 +41,7 @@ export function ScanBottomBar({ onManualLookup }: ScanBottomBarProps) {
             onClick={toggleFlashlight}
             className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
               flashlightOn
-                ? 'bg-orange-500 text-white'
+                ? 'bg-brand-600 text-white'
                 : 'bg-white/10 text-white hover:bg-white/20'
             }`}
           >
@@ -52,7 +52,7 @@ export function ScanBottomBar({ onManualLookup }: ScanBottomBarProps) {
           {/* Manual Lookup */}
           <button
             onClick={onManualLookup}
-            className="flex flex-col items-center gap-1 px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-xl transition-colors"
+            className="flex flex-col items-center gap-1 px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl transition-colors"
           >
             <Search className="w-6 h-6" />
             <span className="text-xs font-medium">Manual</span>

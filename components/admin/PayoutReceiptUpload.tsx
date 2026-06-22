@@ -131,7 +131,7 @@ export default function PayoutReceiptUpload({
               href={currentReceiptUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
+              className="flex items-center gap-2 text-sm text-brand-700 hover:text-brand-800"
             >
               <Download className="w-4 h-4" />
               View Receipt
@@ -186,7 +186,7 @@ export default function PayoutReceiptUpload({
             className={`flex items-center justify-center gap-2 border-2 border-dashed rounded-lg p-6 cursor-pointer transition-colors ${
               uploading
                 ? 'bg-gray-50 border-gray-300 cursor-not-allowed'
-                : 'hover:bg-gray-50 border-gray-300 hover:border-blue-400'
+                : 'hover:bg-gray-50 border-gray-300 hover:border-brand-400'
             }`}
           >
             <Upload className="w-5 h-5 text-gray-400" />
@@ -199,7 +199,7 @@ export default function PayoutReceiptUpload({
         {/* Selected File Preview */}
         {selectedFile && (
           <div className="mt-4 space-y-3">
-            <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-brand-50 border border-brand-200 rounded-lg">
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 {selectedFile.type.startsWith('image/') ? (
                   previewUrl && (
@@ -226,7 +226,7 @@ export default function PayoutReceiptUpload({
               </div>
               <button
                 onClick={handleRemoveFile}
-                className="ml-2 p-1 hover:bg-blue-100 rounded transition-colors"
+                className="ml-2 p-1 hover:bg-brand-100 rounded transition-colors"
                 disabled={uploading}
               >
                 <X className="w-4 h-4 text-gray-500" />
@@ -237,7 +237,7 @@ export default function PayoutReceiptUpload({
             <button
               onClick={handleUpload}
               disabled={uploading}
-              className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-brand-700 text-white px-4 py-2 rounded-lg hover:bg-brand-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
             >
               {uploading ? (
                 <>

@@ -51,7 +51,7 @@ export default async function TransferAcceptPage({ params }: { params: Promise<{
             </p>
             <a
               href="/tickets"
-              className="inline-block px-5 sm:px-6 py-2.5 sm:py-3 bg-teal-600 text-white text-[15px] sm:text-base font-semibold rounded-lg hover:bg-teal-700 min-h-[44px]"
+              className="inline-block px-5 sm:px-6 py-2.5 sm:py-3 bg-brand-600 text-white text-[15px] sm:text-base font-semibold rounded-lg hover:bg-brand-700 min-h-[44px]"
             >
               View My Tickets
             </a>
@@ -98,7 +98,7 @@ export default async function TransferAcceptPage({ params }: { params: Promise<{
             </p>
             <a
               href="/tickets"
-              className="inline-block px-5 sm:px-6 py-2.5 sm:py-3 bg-teal-600 text-white text-[15px] sm:text-base font-semibold rounded-lg hover:bg-teal-700 min-h-[44px]"
+              className="inline-block px-5 sm:px-6 py-2.5 sm:py-3 bg-brand-600 text-white text-[15px] sm:text-base font-semibold rounded-lg hover:bg-brand-700 min-h-[44px]"
             >
               View My Tickets
             </a>
@@ -127,7 +127,7 @@ export default async function TransferAcceptPage({ params }: { params: Promise<{
             </p>
             <a
               href="/tickets"
-              className="inline-block px-5 sm:px-6 py-2.5 sm:py-3 bg-teal-600 text-white text-[15px] sm:text-base font-semibold rounded-lg hover:bg-teal-700 min-h-[44px]"
+              className="inline-block px-5 sm:px-6 py-2.5 sm:py-3 bg-brand-600 text-white text-[15px] sm:text-base font-semibold rounded-lg hover:bg-brand-700 min-h-[44px]"
             >
               View My Tickets
             </a>

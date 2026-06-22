@@ -162,11 +162,11 @@ export default function DangerZone({ userId }: DangerZoneProps) {
       </div>
 
       {/* Deactivate Account */}
-      <div className="bg-white rounded-xl border-2 border-yellow-300 p-6">
+      <div className="bg-white rounded-xl border-2 border-amber-300 p-6">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <XCircle className="w-5 h-5 text-yellow-600" />
+              <XCircle className="w-5 h-5 text-amber-600" />
               <h3 className="font-semibold text-gray-900">Deactivate Account</h3>
             </div>
             <p className="text-sm text-gray-600">
@@ -175,7 +175,7 @@ export default function DangerZone({ userId }: DangerZoneProps) {
           </div>
           <button
             onClick={() => setShowDeactivateModal(true)}
-            className="px-4 py-2 border-2 border-yellow-400 hover:border-yellow-500 text-yellow-700 font-medium rounded-lg transition-colors"
+            className="px-4 py-2 border-2 border-amber-400 hover:border-amber-500 text-amber-700 font-medium rounded-lg transition-colors"
           >
             Deactivate
           </button>
@@ -214,7 +214,7 @@ export default function DangerZone({ userId }: DangerZoneProps) {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
-              <AlertTriangle className="w-6 h-6 text-yellow-600" />
+              <AlertTriangle className="w-6 h-6 text-amber-600" />
               <h3 className="font-display text-xl text-gray-900">Deactivate Account?</h3>
             </div>
             <p className="text-gray-600 mb-6">
@@ -230,7 +230,7 @@ export default function DangerZone({ userId }: DangerZoneProps) {
               <button
                 onClick={handleDeactivate}
                 disabled={isDeactivating}
-                className="flex-1 px-4 py-2.5 bg-yellow-600 hover:bg-yellow-700 text-white font-medium rounded-lg disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-lg disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isDeactivating && <Loader2 className="w-4 h-4 animate-spin" />}
                 {isDeactivating ? 'Deactivating...' : 'Deactivate'}

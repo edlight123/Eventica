@@ -16,6 +16,7 @@ import {
   Calendar
 } from 'lucide-react'
 import Link from 'next/link'
+import { StatusChip } from '@/components/ui/kit'
 
 interface PayoutMethod {
   type: 'bank_transfer' | 'mobile_money' | 'stripe'
@@ -74,27 +75,12 @@ export default function PayoutsSummaryDashboard({
     switch (status) {
       case 'active':
       case 'verified':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-            <CheckCircle className="w-3.5 h-3.5" />
-            Active
-          </span>
-        )
+        return <StatusChip tone="success" icon={CheckCircle}>Active</StatusChip>
       case 'pending':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
-            <Clock className="w-3.5 h-3.5" />
-            Pending
-          </span>
-        )
+        return <StatusChip tone="warning" icon={Clock}>Pending</StatusChip>
       case 'needs_attention':
       case 'failed':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
-            <AlertCircle className="w-3.5 h-3.5" />
-            Needs Attention
-          </span>
-        )
+        return <StatusChip tone="danger" icon={AlertCircle}>Needs Attention</StatusChip>
       default:
         return null
     }
@@ -114,11 +100,7 @@ export default function PayoutsSummaryDashboard({
   }
 
   const renderPayoutMethod = (method: PayoutMethod, profile: 'haiti' | 'stripe_connect') => {
-    const iconBgColor = method.type === 'stripe' 
-      ? 'bg-purple-100 text-purple-600'
-      : method.type === 'mobile_money'
-        ? 'bg-green-100 text-green-600'
-        : 'bg-blue-100 text-blue-600'
+    const iconBgColor = 'bg-brand-100 text-brand-700'
 
     return (
       <div 
@@ -157,7 +139,7 @@ export default function PayoutsSummaryDashboard({
                 <span className="text-gray-600">Identity</span>
                 <span className={`font-medium ${
                   method.verificationStatus.identity === 'verified' ? 'text-green-600' : 
-                  method.verificationStatus.identity === 'failed' ? 'text-red-600' : 'text-yellow-600'
+                  method.verificationStatus.identity === 'failed' ? 'text-red-600' : 'text-amber-600'
                 }`}>
                   {method.verificationStatus.identity === 'verified' ? '✓ Verified' : 
                    method.verificationStatus.identity === 'failed' ? '✗ Failed' : '○ Pending'}
@@ -169,7 +151,7 @@ export default function PayoutsSummaryDashboard({
                 <span className="text-gray-600">Bank Account</span>
                 <span className={`font-medium ${
                   method.verificationStatus.bank === 'verified' ? 'text-green-600' : 
-                  method.verificationStatus.bank === 'failed' ? 'text-red-600' : 'text-yellow-600'
+                  method.verificationStatus.bank === 'failed' ? 'text-red-600' : 'text-amber-600'
                 }`}>
                   {method.verificationStatus.bank === 'verified' ? '✓ Verified' : 
                    method.verificationStatus.bank === 'failed' ? '✗ Failed' : '○ Pending'}
@@ -181,7 +163,7 @@ export default function PayoutsSummaryDashboard({
                 <span className="text-gray-600">Phone</span>
                 <span className={`font-medium ${
                   method.verificationStatus.phone === 'verified' ? 'text-green-600' : 
-                  method.verificationStatus.phone === 'failed' ? 'text-red-600' : 'text-yellow-600'
+                  method.verificationStatus.phone === 'failed' ? 'text-red-600' : 'text-amber-600'
                 }`}>
                   {method.verificationStatus.phone === 'verified' ? '✓ Verified' : 
                    method.verificationStatus.phone === 'failed' ? '✗ Failed' : '○ Pending'}
@@ -207,8 +189,8 @@ export default function PayoutsSummaryDashboard({
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Upcoming Payout */}
-        <div className="bg-gradient-to-br from-teal-500 to-blue-600 rounded-xl p-5 text-white">
-          <div className="flex items-center gap-2 text-teal-100 text-sm mb-2">
+        <div className="bg-brand-700 rounded-xl p-5 text-white">
+          <div className="flex items-center gap-2 text-brand-100 text-sm mb-2">
             <Calendar className="w-4 h-4" />
             Next Payout
           </div>
@@ -217,7 +199,7 @@ export default function PayoutsSummaryDashboard({
               <div className="text-3xl font-bold mb-1">
                 {formatCurrency(upcomingPayout.amount, upcomingPayout.currency)}
               </div>
-              <div className="text-sm text-teal-100">
+              <div className="text-sm text-brand-100">
                 {upcomingPayout.eventCount} event{upcomingPayout.eventCount !== 1 ? 's' : ''} • 
                 Expected {new Date(upcomingPayout.date).toLocaleDateString()}
               </div>
@@ -225,7 +207,7 @@ export default function PayoutsSummaryDashboard({
           ) : (
             <>
               <div className="text-2xl font-bold mb-1">No pending payouts</div>
-              <div className="text-sm text-teal-100">
+              <div className="text-sm text-brand-100">
                 Payouts appear here after your events
               </div>
             </>
@@ -243,7 +225,7 @@ export default function PayoutsSummaryDashboard({
           </div>
           <Link 
             href="/organizer/earnings"
-            className="text-sm text-teal-600 hover:text-teal-700 flex items-center gap-1"
+            className="text-sm text-brand-700 hover:text-brand-800 flex items-center gap-1"
           >
             View earnings details
             <ChevronRight className="w-4 h-4" />
@@ -258,7 +240,7 @@ export default function PayoutsSummaryDashboard({
           {hasAnyMethod && (
             <button
               onClick={onSetupNew}
-              className="text-sm font-medium text-teal-600 hover:text-teal-700"
+              className="text-sm font-medium text-brand-700 hover:text-brand-800"
             >
               + Add another method
             </button>
@@ -281,7 +263,7 @@ export default function PayoutsSummaryDashboard({
             </p>
             <button
               onClick={onSetupNew}
-              className="px-6 py-2.5 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-lg font-semibold hover:from-teal-700 hover:to-blue-700 transition-all"
+              className="px-6 py-2.5 bg-brand-700 text-white rounded-lg font-semibold hover:bg-brand-800 transition-all"
             >
               Set Up Payouts
             </button>
@@ -297,8 +279,8 @@ export default function PayoutsSummaryDashboard({
             href="/organizer/earnings"
             className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
           >
-            <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 rounded-lg bg-brand-100 flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-brand-700" />
             </div>
             <div className="flex-1">
               <div className="font-medium text-gray-900">Earnings & Reports</div>

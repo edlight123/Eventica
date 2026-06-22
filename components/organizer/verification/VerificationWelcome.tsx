@@ -34,7 +34,7 @@ export default function VerificationWelcome({ onStart, userName }: Props) {
       <div className="max-w-2xl w-full">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-teal-500 to-blue-600 rounded-2xl mb-6 shadow-lg">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-brand-700 rounded-2xl mb-6 shadow-lg">
             <Shield className="w-10 h-10 text-white" />
           </div>
           
@@ -54,8 +54,8 @@ export default function VerificationWelcome({ onStart, userName }: Props) {
               key={index}
               className="bg-white border border-gray-200 rounded-xl p-6 text-center hover:shadow-md transition-shadow"
             >
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-teal-50 rounded-xl mb-4">
-                <benefit.icon className="w-6 h-6 text-teal-600" />
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-brand-50 rounded-xl mb-4">
+                <benefit.icon className="w-6 h-6 text-brand-600" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">{benefit.title}</h3>
               <p className="text-sm text-gray-600">{benefit.description}</p>
@@ -68,8 +68,8 @@ export default function VerificationWelcome({ onStart, userName }: Props) {
           <h2 className="font-semibold text-gray-900 mb-4">What you&apos;ll need</h2>
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-xs font-bold text-teal-700">1</span>
+              <div className="w-6 h-6 bg-brand-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-xs font-bold text-brand-700">1</span>
               </div>
               <div>
                 <p className="font-medium text-gray-900 text-sm">Government-issued ID</p>
@@ -77,8 +77,8 @@ export default function VerificationWelcome({ onStart, userName }: Props) {
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-xs font-bold text-teal-700">2</span>
+              <div className="w-6 h-6 bg-brand-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-xs font-bold text-brand-700">2</span>
               </div>
               <div>
                 <p className="font-medium text-gray-900 text-sm">A clear selfie</p>
@@ -95,8 +95,8 @@ export default function VerificationWelcome({ onStart, userName }: Props) {
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-xs font-bold text-teal-700">~5</span>
+              <div className="w-6 h-6 bg-brand-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-xs font-bold text-brand-700">~5</span>
               </div>
               <div>
                 <p className="font-medium text-gray-900 text-sm">About 5 minutes</p>
@@ -110,7 +110,7 @@ export default function VerificationWelcome({ onStart, userName }: Props) {
         <div className="text-center">
           <button
             onClick={onStart}
-            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all text-lg"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-brand-700 hover:bg-brand-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all text-lg"
           >
             Start Verification
             <ArrowRight className="w-5 h-5" />

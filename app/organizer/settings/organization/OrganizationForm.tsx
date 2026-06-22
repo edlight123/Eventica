@@ -174,7 +174,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
           id="organization_name"
           value={formData.organization_name}
           onChange={(e) => setFormData({ ...formData, organization_name: e.target.value })}
-          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
           placeholder="e.g., Haiti Music Festival"
           required
         />
@@ -189,7 +189,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
           id="organization_type"
           value={formData.organization_type}
           onChange={(e) => setFormData({ ...formData, organization_type: e.target.value })}
-          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
         >
           <option value="">Select type</option>
           <option value="individual">Individual</option>
@@ -210,7 +210,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
           value={formData.organization_description}
           onChange={(e) => setFormData({ ...formData, organization_description: e.target.value })}
           rows={4}
-          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
           placeholder="Tell people about your organization..."
         />
         <p className="text-xs text-gray-500 mt-1">
@@ -230,7 +230,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
             id="website"
             value={formData.website}
             onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             placeholder="https://example.com"
           />
         </div>
@@ -247,7 +247,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
             type="text"
             value={formData.facebook}
             onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             placeholder="Facebook username or URL"
           />
         </div>
@@ -259,7 +259,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
             type="text"
             value={formData.instagram}
             onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             placeholder="Instagram username or URL"
           />
         </div>
@@ -271,7 +271,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
             type="text"
             value={formData.twitter}
             onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             placeholder="Twitter/X username or URL"
           />
         </div>
@@ -283,7 +283,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
             type="text"
             value={formData.linkedin}
             onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             placeholder="LinkedIn profile URL"
           />
         </div>
@@ -294,7 +294,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+          className="px-6 py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
         >
           {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
           {isSubmitting ? 'Saving...' : 'Save Changes'}

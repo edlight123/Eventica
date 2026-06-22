@@ -65,7 +65,7 @@ export default function NotificationsForm({ userId, initialData }: Notifications
       {/* Email Notifications */}
       <div>
         <div className="flex items-center gap-2 mb-4">
-          <Mail className="w-5 h-5 text-orange-600" />
+          <Mail className="w-5 h-5 text-brand-700" />
           <h3 className="text-lg font-semibold text-gray-900">Email Notifications</h3>
         </div>
         <div className="space-y-4">
@@ -105,7 +105,7 @@ export default function NotificationsForm({ userId, initialData }: Notifications
       {/* SMS Notifications */}
       <div className="pt-6 border-t border-gray-200">
         <div className="flex items-center gap-2 mb-4">
-          <MessageSquare className="w-5 h-5 text-orange-600" />
+          <MessageSquare className="w-5 h-5 text-brand-700" />
           <h3 className="text-lg font-semibold text-gray-900">SMS Notifications</h3>
         </div>
         <div className="space-y-4">
@@ -130,7 +130,7 @@ export default function NotificationsForm({ userId, initialData }: Notifications
       {/* Push Notifications */}
       <div className="pt-6 border-t border-gray-200">
         <div className="flex items-center gap-2 mb-4">
-          <Smartphone className="w-5 h-5 text-orange-600" />
+          <Smartphone className="w-5 h-5 text-brand-700" />
           <h3 className="text-lg font-semibold text-gray-900">Push Notifications</h3>
         </div>
         <div className="space-y-4">
@@ -157,7 +157,7 @@ export default function NotificationsForm({ userId, initialData }: Notifications
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-6 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+          className="px-6 py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
         >
           {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
           {isSubmitting ? 'Saving...' : 'Save Preferences'}
@@ -188,7 +188,7 @@ function ToggleItem({
         type="button"
         onClick={onChange}
         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-          checked ? 'bg-orange-600' : 'bg-gray-200'
+          checked ? 'bg-brand-700' : 'bg-gray-200'
         }`}
       >
         <span

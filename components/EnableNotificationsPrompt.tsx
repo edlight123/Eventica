@@ -59,7 +59,7 @@ export function EnableNotificationsPrompt({
   }
 
   return (
-    <div className="bg-gradient-to-r from-brand-50 to-accent-50 border border-brand-200 rounded-lg p-4 shadow-sm">
+    <div className="bg-gradient-to-r from-brand-50 to-brand-100 border border-brand-200 rounded-lg p-4 shadow-sm">
       <div className="flex items-start gap-3">
         {/* Icon */}
         <div className="flex-shrink-0 w-10 h-10 bg-brand-500 rounded-full flex items-center justify-center">

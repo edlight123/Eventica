@@ -17,27 +17,27 @@ export function PayoutStatusHero({ status, reason, onContinueSetup }: PayoutStat
       case 'not_setup':
         return {
           icon: <AlertCircle className="w-8 h-8" />,
-          iconBg: 'bg-orange-100',
-          iconColor: 'text-orange-600',
-          bgGradient: 'from-orange-50 to-amber-50',
-          borderColor: 'border-orange-200',
+          iconBg: 'bg-brand-100',
+          iconColor: 'text-brand-600',
+          bgGradient: 'from-brand-50 to-brand-100',
+          borderColor: 'border-brand-200',
           title: 'Set up payouts to receive earnings',
           description: reason || 'Complete your payout setup to start receiving payments from ticket sales. This takes just a few minutes.',
           ctaText: 'Start Setup',
-          ctaColor: 'bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700',
+          ctaColor: 'bg-brand-700 hover:bg-brand-800',
           showCta: true
         }
       case 'pending_verification':
         return {
           icon: <Clock className="w-8 h-8" />,
-          iconBg: 'bg-blue-100',
-          iconColor: 'text-blue-600',
-          bgGradient: 'from-blue-50 to-indigo-50',
-          borderColor: 'border-blue-200',
+          iconBg: 'bg-amber-100',
+          iconColor: 'text-amber-600',
+          bgGradient: 'from-amber-50 to-amber-100',
+          borderColor: 'border-amber-200',
           title: 'Verification in progress',
           description: reason || 'We\'re verifying your payout information. This usually takes 1-2 business days. We\'ll notify you once approved.',
           ctaText: 'View Status',
-          ctaColor: 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700',
+          ctaColor: 'bg-amber-600 hover:bg-amber-700',
           showCta: false
         }
       case 'active':
@@ -45,12 +45,12 @@ export function PayoutStatusHero({ status, reason, onContinueSetup }: PayoutStat
           icon: <CheckCircle className="w-8 h-8" />,
           iconBg: 'bg-green-100',
           iconColor: 'text-green-600',
-          bgGradient: 'from-green-50 to-emerald-50',
+          bgGradient: 'from-green-50 to-green-100',
           borderColor: 'border-green-200',
           title: 'Payouts are active',
           description: reason || 'Your payout method is verified and ready. You\'ll receive payments according to the schedule below.',
           ctaText: 'Manage Settings',
-          ctaColor: 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700',
+          ctaColor: 'bg-green-600 hover:bg-green-700',
           showCta: false
         }
       case 'on_hold':
@@ -58,12 +58,12 @@ export function PayoutStatusHero({ status, reason, onContinueSetup }: PayoutStat
           icon: <XCircle className="w-8 h-8" />,
           iconBg: 'bg-red-100',
           iconColor: 'text-red-600',
-          bgGradient: 'from-red-50 to-rose-50',
+          bgGradient: 'from-red-50 to-red-100',
           borderColor: 'border-red-200',
           title: 'Payouts on hold',
           description: reason || 'Your payouts have been temporarily paused. Please contact support to resolve this issue.',
           ctaText: 'Contact Support',
-          ctaColor: 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700',
+          ctaColor: 'bg-red-600 hover:bg-red-700',
           showCta: true
         }
     }

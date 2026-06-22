@@ -51,7 +51,7 @@ export default function SuccessCelebration({
               <CheckCircle className="w-16 h-16 text-white" strokeWidth={2.5} />
             </div>
             <div className="absolute -top-2 -right-2">
-              <Sparkles className="w-8 h-8 text-accent-500 animate-pulse" />
+              <Sparkles className="w-8 h-8 text-brand-600 animate-pulse" />
             </div>
           </div>
 

@@ -70,7 +70,7 @@ export default function CheckInScanner({ eventId }: { eventId: string }) {
           onClick={() => setScanMode('camera')}
           className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
             scanMode === 'camera'
-              ? 'bg-orange-600 text-white'
+              ? 'bg-brand-700 text-white'
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
@@ -80,7 +80,7 @@ export default function CheckInScanner({ eventId }: { eventId: string }) {
           onClick={() => setScanMode('manual')}
           className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
             scanMode === 'manual'
-              ? 'bg-orange-600 text-white'
+              ? 'bg-brand-700 text-white'
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
@@ -126,7 +126,7 @@ export default function CheckInScanner({ eventId }: { eventId: string }) {
           value={ticketId}
           onChange={(e) => setTicketId(e.target.value)}
           placeholder="Enter ticket ID"
-          className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
         />
 
         {message && (
@@ -142,7 +142,7 @@ export default function CheckInScanner({ eventId }: { eventId: string }) {
         <button
           type="submit"
           disabled={loading || !ticketId}
-          className="w-full px-6 py-3 rounded-xl bg-orange-600 text-white font-semibold hover:bg-orange-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-6 py-3 rounded-xl bg-brand-700 text-white font-semibold hover:bg-brand-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Checking in...' : 'Check In'}
         </button>

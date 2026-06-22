@@ -29,14 +29,14 @@ export function TicketTiersCard({ eventId, tiers, currency }: TicketTiersCardPro
     <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-purple-50 rounded-lg">
-            <Ticket className="w-5 h-5 text-purple-600" />
+          <div className="p-2 bg-brand-50 rounded-lg">
+            <Ticket className="w-5 h-5 text-brand-700" />
           </div>
           <h3 className="text-lg font-bold text-gray-900">{t('organizer.ticket_tiers')}</h3>
         </div>
         <Link
           href={`/organizer/events/${eventId}/edit#tickets`}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-50 rounded-lg transition-colors"
         >
           {hasTiers ? <Edit2 className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
           {hasTiers ? t('organizer.edit') : t('organizer.add_tiers')}
@@ -49,7 +49,7 @@ export function TicketTiersCard({ eventId, tiers, currency }: TicketTiersCardPro
           <p className="text-sm text-gray-600 mb-3">{t('organizer.no_ticket_tiers_configured')}</p>
           <Link
             href={`/organizer/events/${eventId}/edit#tickets`}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-lg transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-brand-700 hover:bg-brand-800 text-white text-sm font-medium rounded-lg transition-colors"
           >
             <Plus className="w-4 h-4" />
             {t('organizer.create_ticket_tiers')}
@@ -65,7 +65,7 @@ export function TicketTiersCard({ eventId, tiers, currency }: TicketTiersCardPro
             return (
               <div
                 key={tier.id}
-                className="border border-gray-200 rounded-lg p-4 hover:border-purple-200 transition-colors"
+                className="border border-gray-200 rounded-lg p-4 hover:border-brand-200 transition-colors"
               >
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1">
@@ -108,7 +108,7 @@ export function TicketTiersCard({ eventId, tiers, currency }: TicketTiersCardPro
                 <div className="w-full bg-gray-100 rounded-full h-2 mt-2 overflow-hidden">
                   <div 
                     className={`h-full rounded-full transition-all duration-500 ${
-                      isSoldOut ? 'bg-red-500' : isLowStock ? 'bg-amber-500' : 'bg-purple-500'
+                      isSoldOut ? 'bg-red-500' : isLowStock ? 'bg-amber-500' : 'bg-brand-600'
                     }`}
                     style={{ width: `${Math.min(soldPercentage, 100)}%` }}
                   />

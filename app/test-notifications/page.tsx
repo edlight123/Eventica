@@ -48,7 +48,7 @@ export default function TestNotificationsPage() {
             <button
               onClick={() => sendTest('ticket_purchase')}
               disabled={loading}
-              className="flex flex-col items-start p-6 bg-teal-50 hover:bg-teal-100 border-2 border-teal-200 rounded-lg transition disabled:opacity-50"
+              className="flex flex-col items-start p-6 bg-brand-50 hover:bg-brand-100 border-2 border-brand-200 rounded-lg transition disabled:opacity-50"
             >
               <span className="text-2xl mb-2">🎫</span>
               <span className="font-semibold text-gray-900">Ticket Purchase</span>
@@ -68,7 +68,7 @@ export default function TestNotificationsPage() {
             <button
               onClick={() => sendTest('event_reminder')}
               disabled={loading}
-              className="flex flex-col items-start p-6 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 rounded-lg transition disabled:opacity-50"
+              className="flex flex-col items-start p-6 bg-gray-50 hover:bg-gray-100 border-2 border-gray-200 rounded-lg transition disabled:opacity-50"
             >
               <span className="text-2xl mb-2">⏰</span>
               <span className="font-semibold text-gray-900">Event Reminder</span>
@@ -78,7 +78,7 @@ export default function TestNotificationsPage() {
             <button
               onClick={() => sendTest('new_event')}
               disabled={loading}
-              className="flex flex-col items-start p-6 bg-purple-50 hover:bg-purple-100 border-2 border-purple-200 rounded-lg transition disabled:opacity-50"
+              className="flex flex-col items-start p-6 bg-gray-50 hover:bg-gray-100 border-2 border-gray-200 rounded-lg transition disabled:opacity-50"
             >
               <span className="text-2xl mb-2">📅</span>
               <span className="font-semibold text-gray-900">New Event</span>
@@ -88,7 +88,7 @@ export default function TestNotificationsPage() {
             <button
               onClick={() => sendTest('email')}
               disabled={loading}
-              className="flex flex-col items-start p-6 bg-orange-50 hover:bg-orange-100 border-2 border-orange-200 rounded-lg transition disabled:opacity-50"
+              className="flex flex-col items-start p-6 bg-gray-50 hover:bg-gray-100 border-2 border-gray-200 rounded-lg transition disabled:opacity-50"
             >
               <span className="text-2xl mb-2">📧</span>
               <span className="font-semibold text-gray-900">Email Test</span>
@@ -106,8 +106,8 @@ export default function TestNotificationsPage() {
           </div>
 
           {loading && (
-            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-blue-800">Sending notification...</p>
+            <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+              <p className="text-gray-700">Sending notification...</p>
             </div>
           )}
 

@@ -8,7 +8,8 @@ import { TrendingUp, DollarSign, Ticket, Calendar, ArrowLeft } from 'lucide-reac
 import Badge from '@/components/ui/Badge'
 import { revalidatePath } from 'next/cache'
 import { formatMoneyFromCents, normalizeCurrency } from '@/lib/money'
-import { StatTile, EmptyState } from '@/components/ui/kit'
+import { StatTile, EmptyState, Card } from '@/components/ui/kit'
+import { EditorialHeader, EditorialSectionHeading } from '@/components/ui/EditorialHeader'
 
 export const revalidate = 120 // Cache for 2 minutes
 
@@ -169,26 +170,23 @@ export default async function AnalyticsPage() {
   }
 
   return (
-    
-      <div className="bg-gray-50">
-
+    <div className="bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900 flex items-center gap-3">
-              <TrendingUp className="w-10 h-10 text-brand-600" />
-              Analytics Dashboard
-            </h1>
-            <p className="text-gray-600 mt-2 text-lg">Track your event performance and insights</p>
-          </div>
-          <Link
-            href="/organizer/events"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 rounded-xl hover:border-brand-500 hover:shadow-medium transition-all font-semibold text-gray-700 hover:text-brand-700"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            Back to Events
-          </Link>
-        </div>
+        <EditorialHeader
+          eyebrow="Organizer"
+          title="Analytics"
+          subtitle="Track your event performance and insights"
+          className="mb-8"
+          actions={
+            <Link
+              href="/organizer/events"
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:border-brand-300 hover:text-brand-700"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Events
+            </Link>
+          }
+        />
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -224,30 +222,24 @@ export default async function AnalyticsPage() {
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Sales Chart */}
-          <div className="bg-white rounded-2xl shadow-soft border border-gray-100 p-6">
-            <h2 className="font-display text-xl text-gray-900 mb-6 flex items-center gap-2">
-              <TrendingUp className="w-6 h-6 text-brand-600" />
-              Sales Trend (Last 7 Days)
-            </h2>
+          <Card className="p-6">
+            <EditorialSectionHeading eyebrow="Last 7 days" title="Sales trend" className="mb-5" />
             <SalesChart data={salesChartData} currency={organizerCurrency} />
             <div className="flex items-center justify-center gap-6 mt-4">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-brand-600 rounded-full"></div>
+                <div className="w-3 h-3 bg-brand-700 rounded-full"></div>
                 <span className="text-sm text-gray-600">Tickets Sold</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-accent-600 rounded-full"></div>
+                <div className="w-3 h-3 bg-brand-500 rounded-full"></div>
                 <span className="text-sm text-gray-600">Revenue</span>
               </div>
             </div>
-          </div>
+          </Card>
 
           {/* Category Distribution */}
-          <div className="bg-white rounded-2xl shadow-soft border border-gray-100 p-6">
-            <h2 className="font-display text-xl text-gray-900 mb-6 flex items-center gap-2">
-              <Calendar className="w-6 h-6 text-accent-600" />
-              Events by Category
-            </h2>
+          <Card className="p-6">
+            <EditorialSectionHeading title="Events by category" className="mb-5" />
             {categoryChartData.length > 0 ? (
               <CategoryChart data={categoryChartData} />
             ) : (
@@ -255,15 +247,12 @@ export default async function AnalyticsPage() {
                 No category data available
               </div>
             )}
-          </div>
+          </Card>
         </div>
 
         {/* Top Performing Events */}
-        <div className="bg-white rounded-2xl shadow-soft border border-gray-100 p-8">
-          <h2 className="font-display text-2xl text-gray-900 mb-6 flex items-center gap-2">
-            <TrendingUp className="w-7 h-7 text-brand-600" />
-            Top Performing Events
-          </h2>
+        <Card className="p-8">
+          <EditorialSectionHeading eyebrow="Leaderboard" title="Top performing events" className="mb-6" />
           {eventsWithSales.length === 0 ? (
             <EmptyState
               icon={Calendar}
@@ -273,7 +262,7 @@ export default async function AnalyticsPage() {
               action={
                 <Link
                   href="/organizer/events/new"
-                  className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 text-white font-bold hover:shadow-glow transition-all"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-brand-700 text-white font-semibold hover:bg-brand-800 transition-colors"
                 >
                   <Calendar className="w-5 h-5" />
                   Create Event
@@ -284,7 +273,7 @@ export default async function AnalyticsPage() {
             <div className="space-y-3">
               {eventsWithSales.slice(0, 10).map((event: any, index: number) => (
                 <div key={event.id} className="flex items-center gap-4 p-5 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors border border-gray-100">
-                  <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-accent-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
+                  <div className="w-10 h-10 bg-brand-700 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
                     #{index + 1}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -302,7 +291,7 @@ export default async function AnalyticsPage() {
                     </div>
                     <div className="text-center">
                       <p className="text-xs text-gray-500 font-semibold uppercase mb-1">Revenue</p>
-                      <p className="text-2xl font-bold text-accent-700">
+                      <p className="text-2xl font-bold text-gray-900">
                         {formatMoneyFromCents(event.revenueCents, organizerCurrency, 'en-US', { currencyDisplay: 'code' })}
                       </p>
                     </div>
@@ -314,10 +303,8 @@ export default async function AnalyticsPage() {
               ))}
             </div>
           )}
-        </div>
+        </Card>
       </div>
-      
     </div>
-    
   )
 }

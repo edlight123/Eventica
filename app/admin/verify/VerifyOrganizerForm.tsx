@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { StatusChip } from '@/components/ui/kit'
 
 interface Organizer {
   id: string
@@ -81,7 +82,7 @@ export default function VerifyOrganizerForm({ organizers }: Props) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t('verify.override_search_placeholder')}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-600 focus:border-transparent text-[15px] sm:text-base"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent text-[15px] sm:text-base"
         />
         <p className="text-[12px] sm:text-sm text-gray-500">{t('verify.override_search_hint')}</p>
       </div>
@@ -100,7 +101,7 @@ export default function VerifyOrganizerForm({ organizers }: Props) {
               <div className="flex items-center gap-2">
                 <h3 className="font-semibold text-gray-900">{organizer.full_name}</h3>
                 {organizer.verification_status === 'approved' && (
-                  <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5 text-brand-600" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                 )}
@@ -111,16 +112,10 @@ export default function VerifyOrganizerForm({ organizers }: Props) {
                   Joined {new Date(organizer.created_at).toLocaleDateString()}
                 </p>
                 {organizer.verification_status && organizer.verification_status !== 'none' && (
-                  <span className={`px-2 py-0.5 text-xs font-medium rounded ${
-                    organizer.verification_status === 'approved' ? 'bg-green-100 text-green-700' :
-                    organizer.verification_status === 'pending' || organizer.verification_status === 'pending_review' || organizer.verification_status === 'in_review'
-                      ? 'bg-yellow-100 text-yellow-700'
-                      :
-                    organizer.verification_status === 'rejected' ? 'bg-red-100 text-red-700' :
-                    'bg-gray-100 text-gray-700'
-                  }`}>
-                    {organizer.verification_status}
-                  </span>
+                  <StatusChip
+                    status={organizer.verification_status}
+                    tone={organizer.verification_status === 'changes_requested' ? 'warning' : undefined}
+                  />
                 )}
               </div>
             </div>
@@ -131,7 +126,7 @@ export default function VerifyOrganizerForm({ organizers }: Props) {
               className={`px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                 organizer.verification_status === 'approved'
                   ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
+                  : 'bg-brand-700 text-white hover:bg-brand-800'
               }`}
             >
               {updating === organizer.id

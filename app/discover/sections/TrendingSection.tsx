@@ -22,7 +22,7 @@ export default async function TrendingSection() {
         {trendingEvents.map((event: any, index: number) => (
           <div key={event.id} className="relative animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
             {index < 3 && (
-              <div className="absolute top-2 left-2 z-10 w-10 h-10 bg-gradient-to-br from-yellow-400 via-accent-500 to-accent-600 rounded-full flex items-center justify-center text-white font-bold shadow-hard text-sm">
+              <div className="absolute top-2 left-2 z-10 w-10 h-10 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full flex items-center justify-center text-white font-bold shadow-hard text-sm">
                 #{index + 1}
               </div>
             )}
@@ -36,7 +36,7 @@ export default async function TrendingSection() {
         {trendingEvents.map((event: any, index: number) => (
           <div key={event.id} className="relative animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
             {index < 3 && (
-              <div className="absolute -top-3 -left-3 z-10 w-12 h-12 bg-gradient-to-br from-yellow-400 via-accent-500 to-accent-600 rounded-full flex items-center justify-center text-white font-bold shadow-hard ring-4 ring-white">
+              <div className="absolute -top-3 -left-3 z-10 w-12 h-12 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full flex items-center justify-center text-white font-bold shadow-hard ring-4 ring-white">
                 #{index + 1}
               </div>
             )}

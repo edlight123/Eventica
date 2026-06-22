@@ -24,11 +24,11 @@ export function VenueCard({ eventId, venue }: VenueCardProps) {
     <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className={`p-2 rounded-lg ${venue.is_online ? 'bg-blue-50' : 'bg-orange-50'}`}>
+          <div className="p-2 rounded-lg bg-brand-50">
             {venue.is_online ? (
-              <Globe className="w-5 h-5 text-blue-600" />
+              <Globe className="w-5 h-5 text-brand-700" />
             ) : (
-              <MapPin className="w-5 h-5 text-orange-600" />
+              <MapPin className="w-5 h-5 text-brand-700" />
             )}
           </div>
           <h3 className="text-lg font-bold text-gray-900">
@@ -37,7 +37,7 @@ export function VenueCard({ eventId, venue }: VenueCardProps) {
         </div>
         <Link
           href={`/organizer/events/${eventId}/edit#venue`}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-50 rounded-lg transition-colors"
         >
           <Edit2 className="w-4 h-4" />
           {t('organizer.edit')}
@@ -50,7 +50,7 @@ export function VenueCard({ eventId, venue }: VenueCardProps) {
           <p className="text-sm text-gray-600 mb-3">{t('organizer.no_venue_info')}</p>
           <Link
             href={`/organizer/events/${eventId}/edit#venue`}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-lg transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-brand-700 hover:bg-brand-800 text-white text-sm font-medium rounded-lg transition-colors"
           >
             <Edit2 className="w-4 h-4" />
             {t('organizer.add_venue_details')}
@@ -58,8 +58,8 @@ export function VenueCard({ eventId, venue }: VenueCardProps) {
         </div>
       ) : venue.is_online ? (
         <div className="space-y-3">
-          <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
-            <Globe className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+          <div className="flex items-start gap-3 p-3 bg-brand-50 rounded-lg">
+            <Globe className="w-5 h-5 text-brand-700 mt-0.5 flex-shrink-0" />
             <div>
               <p className="text-sm font-medium text-gray-900 mb-1">{t('organizer.virtual_event')}</p>
               {venue.meeting_url ? (
@@ -67,7 +67,7 @@ export function VenueCard({ eventId, venue }: VenueCardProps) {
                   href={venue.meeting_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-blue-600 hover:underline break-all"
+                  className="text-sm text-brand-700 hover:underline break-all"
                 >
                   {venue.meeting_url}
                 </a>

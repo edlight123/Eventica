@@ -52,7 +52,7 @@ export function EventTabs({ activeTab, onTabChange, eventId, ticketCount }: Even
                   href={tab.href}
                   className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                     activeTab === tab.id
-                      ? 'border-teal-600 text-teal-600'
+                      ? 'border-brand-700 text-brand-700'
                       : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
                   }`}
                 >
@@ -60,7 +60,7 @@ export function EventTabs({ activeTab, onTabChange, eventId, ticketCount }: Even
                   {tab.count !== undefined && (
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
                       activeTab === tab.id
-                        ? 'bg-teal-100 text-teal-700'
+                        ? 'bg-brand-50 text-brand-700'
                         : 'bg-gray-100 text-gray-600'
                     }`}>
                       {tab.count}
@@ -76,7 +76,7 @@ export function EventTabs({ activeTab, onTabChange, eventId, ticketCount }: Even
                 onClick={() => onTabChange(tab.id)}
                 className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === tab.id
-                    ? 'border-teal-600 text-teal-600'
+                    ? 'border-brand-700 text-brand-700'
                     : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
                 }`}
               >
@@ -84,7 +84,7 @@ export function EventTabs({ activeTab, onTabChange, eventId, ticketCount }: Even
                 {tab.count !== undefined && (
                   <span className={`text-xs px-2 py-0.5 rounded-full ${
                     activeTab === tab.id
-                      ? 'bg-teal-100 text-teal-700'
+                      ? 'bg-brand-50 text-brand-700'
                       : 'bg-gray-100 text-gray-600'
                   }`}>
                     {tab.count}

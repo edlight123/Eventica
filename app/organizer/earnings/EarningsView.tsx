@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import type { EarningsSummary } from '@/types/earnings'
-import { StatTile } from '@/components/ui/kit'
+import { StatTile, Card, StatusChip, type ChipTone } from '@/components/ui/kit'
 import { PayoutRequestModal } from '@/components/organizer/PayoutRequestModal'
 import { DollarSign, TrendingUp, Wallet, ArrowDownCircle } from 'lucide-react'
 
@@ -39,14 +39,16 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
     }).format(amount)
   }
 
-  const getStatusBadge = (status: string) => {
-    const styles = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      ready: 'bg-green-100 text-green-800',
-      locked: 'bg-gray-100 text-gray-800',
-    }
-    return styles[status as keyof typeof styles] || styles.pending
+  const settlementTone: Record<string, ChipTone> = {
+    ready: 'success',
+    pending: 'warning',
+    locked: 'neutral',
   }
+
+  // Net funds that are neither available to withdraw yet nor already withdrawn
+  // (i.e. held until settlement). Used to surface the available-vs-pending split.
+  const heldBack = (net: number, avail: number, withdrawn: number) =>
+    Math.max(0, net - avail - withdrawn)
 
   const filteredEvents = filter === 'all' 
     ? summary.events 
@@ -198,7 +200,7 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
 
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-soft overflow-hidden">
         {/* Filter Tabs */}
         <div className="border-b border-gray-200 px-4 sm:px-6 py-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -249,13 +251,12 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
                       {new Date(event.eventDate).toLocaleDateString()}
                     </p>
                   </div>
-                  <span
-                    className={`ml-2 px-2 py-1 text-xs font-semibold rounded-full whitespace-nowrap ${getStatusBadge(
-                      event.settlementStatus
-                    )}`}
+                  <StatusChip
+                    tone={settlementTone[event.settlementStatus] ?? 'neutral'}
+                    className="ml-2 whitespace-nowrap"
                   >
                     {event.settlementStatus}
-                  </span>
+                  </StatusChip>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-3 mt-3 text-sm">
@@ -280,7 +281,7 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
                   <div className="flex items-end justify-end">
                     <Link
                       href={`/organizer/events/${event.eventId}/earnings`}
-                      className="text-teal-600 hover:text-teal-800 font-medium"
+                      className="text-brand-700 hover:text-brand-800 font-medium"
                     >
                       View Details →
                     </Link>
@@ -353,18 +354,14 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
                       {formatCurrency(event.availableToWithdraw, event.currency || undefined)}
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(
-                          event.settlementStatus
-                        )}`}
-                      >
+                      <StatusChip tone={settlementTone[event.settlementStatus] ?? 'neutral'}>
                         {event.settlementStatus}
-                      </span>
+                      </StatusChip>
                     </td>
                     <td className="px-6 py-4 text-center">
                       <Link
                         href={`/organizer/events/${event.eventId}/earnings`}
-                        className="text-teal-600 hover:text-teal-800 text-sm font-medium"
+                        className="text-brand-700 hover:text-brand-800 text-sm font-medium"
                       >
                         View Details
                       </Link>
@@ -379,35 +376,49 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
 
       {/* Quick Actions */}
       {(() => {
-        const anyCurrencyAboveMinimum = summary.currency === 'mixed' && summary.totalsByCurrency
-          ? (summary.totalsByCurrency.USD?.totalAvailableToWithdraw ?? 0) > 5000 || (summary.totalsByCurrency.HTG?.totalAvailableToWithdraw ?? 0) > 5000
+        const isMixed = summary.currency === 'mixed' && !!summary.totalsByCurrency
+        const usd = summary.totalsByCurrency?.USD
+        const htg = summary.totalsByCurrency?.HTG
+
+        const anyCurrencyAboveMinimum = isMixed
+          ? (usd?.totalAvailableToWithdraw ?? 0) > 5000 || (htg?.totalAvailableToWithdraw ?? 0) > 5000
           : summary.totalAvailableToWithdraw > 5000
 
         if (!anyCurrencyAboveMinimum) return null
 
-        const availableLabel = summary.currency === 'mixed' && summary.totalsByCurrency
-          ? `${formatCurrency(summary.totalsByCurrency.USD?.totalAvailableToWithdraw ?? 0, 'USD')} • ${formatCurrency(summary.totalsByCurrency.HTG?.totalAvailableToWithdraw ?? 0, 'HTG')}`
+        const availableLabel = isMixed
+          ? `${formatCurrency(usd?.totalAvailableToWithdraw ?? 0, 'USD')} • ${formatCurrency(htg?.totalAvailableToWithdraw ?? 0, 'HTG')}`
           : formatCurrency(summary.totalAvailableToWithdraw)
+
+        const pendingLabel = isMixed
+          ? `${formatCurrency(heldBack(usd?.totalNetAmount ?? 0, usd?.totalAvailableToWithdraw ?? 0, usd?.totalWithdrawn ?? 0), 'USD')} • ${formatCurrency(heldBack(htg?.totalNetAmount ?? 0, htg?.totalAvailableToWithdraw ?? 0, htg?.totalWithdrawn ?? 0), 'HTG')}`
+          : formatCurrency(heldBack(summary.totalNetAmount, summary.totalAvailableToWithdraw, summary.totalWithdrawn))
 
         return (
         <>
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <h3 className="font-display text-xl text-gray-900">Ready to Withdraw</h3>
-              <p className="text-sm text-gray-600 mt-1">
-                You have {availableLabel} available to withdraw
-              </p>
+        <Card className="p-6">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3">
+                <p className="eyebrow text-green-700">Available</p>
+                <p className="mt-1 font-display text-2xl leading-none text-gray-900">{availableLabel}</p>
+                <p className="mt-1 text-xs text-gray-500">Ready to withdraw now</p>
+              </div>
+              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+                <p className="eyebrow text-amber-700">Pending</p>
+                <p className="mt-1 font-display text-2xl leading-none text-gray-900">{pendingLabel}</p>
+                <p className="mt-1 text-xs text-gray-500">Held until settlement</p>
+              </div>
             </div>
             <button
               type="button"
               onClick={() => setPayoutOpen(true)}
-              className="w-full sm:w-auto px-6 py-3 bg-brand-700 text-white font-semibold rounded-lg hover:bg-brand-800 transition text-center"
+              className="w-full lg:w-auto px-6 py-3 bg-brand-700 text-white font-semibold rounded-lg hover:bg-brand-800 transition text-center"
             >
               Request Payout
             </button>
           </div>
-        </div>
+        </Card>
         <PayoutRequestModal
           open={payoutOpen}
           onClose={() => setPayoutOpen(false)}

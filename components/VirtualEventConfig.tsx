@@ -87,7 +87,7 @@ export default function VirtualEventConfig({
               type="radio"
               checked={currentType === 'physical'}
               onChange={() => handleEventTypeChange('physical')}
-              className="text-teal-600 focus:ring-teal-500"
+              className="text-brand-600 focus:ring-brand-500"
             />
             <div>
               <div className="font-medium text-gray-900">In-Person Only</div>
@@ -102,7 +102,7 @@ export default function VirtualEventConfig({
               type="radio"
               checked={currentType === 'virtual'}
               onChange={() => handleEventTypeChange('virtual')}
-              className="text-teal-600 focus:ring-teal-500"
+              className="text-brand-600 focus:ring-brand-500"
             />
             <div>
               <div className="font-medium text-gray-900">Virtual Only</div>
@@ -117,7 +117,7 @@ export default function VirtualEventConfig({
               type="radio"
               checked={currentType === 'hybrid'}
               onChange={() => handleEventTypeChange('hybrid')}
-              className="text-teal-600 focus:ring-teal-500"
+              className="text-brand-600 focus:ring-brand-500"
             />
             <div>
               <div className="font-medium text-gray-900">Hybrid</div>
@@ -141,7 +141,7 @@ export default function VirtualEventConfig({
               <select
                 value={settings.platform}
                 onChange={(e) => setSettings({ ...settings, platform: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-brand-500 focus:border-brand-500"
               >
                 <option value="">Select platform</option>
                 <option value="zoom">Zoom</option>
@@ -162,7 +162,7 @@ export default function VirtualEventConfig({
                 type="url"
                 value={settings.streamingUrl}
                 onChange={(e) => setSettings({ ...settings, streamingUrl: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-brand-500 focus:border-brand-500"
                 placeholder="https://example.com/stream"
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -178,7 +178,7 @@ export default function VirtualEventConfig({
                 type="url"
                 value={settings.meetingLink}
                 onChange={(e) => setSettings({ ...settings, meetingLink: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-brand-500 focus:border-brand-500"
                 placeholder="https://zoom.us/j/123456789"
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -194,20 +194,20 @@ export default function VirtualEventConfig({
                 rows={4}
                 value={settings.accessInstructions}
                 onChange={(e) => setSettings({ ...settings, accessInstructions: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-brand-500 focus:border-brand-500"
                 placeholder="Provide instructions for accessing the virtual event...&#10;&#10;Examples:&#10;- Password or meeting ID&#10;- Required software or apps&#10;- How to join&#10;- Technical requirements"
               />
             </div>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="bg-brand-50 border border-brand-200 rounded-lg p-4">
             <div className="flex items-start space-x-3">
-              <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-brand-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <div className="text-sm text-blue-900">
+              <div className="text-sm text-brand-900">
                 <p className="font-medium mb-1">Virtual Event Tips</p>
-                <ul className="list-disc list-inside space-y-1 text-blue-800">
+                <ul className="list-disc list-inside space-y-1 text-brand-800">
                   <li>Test your streaming setup before the event</li>
                   <li>Provide meeting links only to ticket holders</li>
                   <li>Include timezone information in event details</li>
@@ -223,7 +223,7 @@ export default function VirtualEventConfig({
         <button
           onClick={handleSave}
           disabled={saving}
-          className="w-full px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          className="w-full px-4 py-2 bg-brand-600 text-white rounded-md hover:bg-brand-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
           {saving ? 'Saving...' : 'Save Virtual Event Settings'}
         </button>

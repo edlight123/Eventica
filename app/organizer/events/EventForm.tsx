@@ -356,8 +356,8 @@ export default function EventForm({ userId, event }: EventFormProps) {
           {currentStep === 2 && (
             <div className="space-y-6 animate-fadeIn">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-accent-100 rounded-xl flex items-center justify-center">
-                  <MapPin className="w-6 h-6 text-accent-700" />
+                <div className="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center">
+                  <MapPin className="w-6 h-6 text-brand-700" />
                 </div>
                 <div>
                   <h2 className="font-display text-2xl text-gray-900">Location Details</h2>
@@ -436,8 +436,8 @@ export default function EventForm({ userId, event }: EventFormProps) {
           {currentStep === 3 && (
             <div className="space-y-6 animate-fadeIn">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                  <Clock className="w-6 h-6 text-purple-700" />
+                <div className="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center">
+                  <Clock className="w-6 h-6 text-brand-700" />
                 </div>
                 <div>
                   <h2 className="font-display text-2xl text-gray-900">Event Schedule</h2>
@@ -448,7 +448,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="start_datetime" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-success-600" />
+                    <Calendar className="w-4 h-4 text-brand-700" />
                     Start Date & Time *
                   </label>
                   <input
@@ -464,7 +464,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
 
                 <div>
                   <label htmlFor="end_datetime" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-error-600" />
+                    <Calendar className="w-4 h-4 text-brand-700" />
                     End Date & Time *
                   </label>
                   <input
@@ -530,7 +530,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
 
                 <div>
                   <label htmlFor="ticket_price" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                    <DollarSign className="w-4 h-4 text-accent-600" />
+                    <DollarSign className="w-4 h-4 text-brand-700" />
                     Base Ticket Price *
                   </label>
                   <Input
@@ -570,21 +570,21 @@ export default function EventForm({ userId, event }: EventFormProps) {
               </div>
 
               {/* Ticket Tiers Section */}
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-6">
+              <div className="bg-brand-50 border-2 border-brand-200 rounded-xl p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="font-bold text-purple-900 mb-1 flex items-center gap-2">
+                    <h3 className="font-bold text-brand-900 mb-1 flex items-center gap-2">
                       <Ticket className="w-5 h-5" />
                       Premium Ticket Tiers (Optional)
                     </h3>
-                    <p className="text-sm text-purple-700">
+                    <p className="text-sm text-brand-700">
                       Offer VIP, Early Bird, or other special ticket types with different prices
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={addTicketTier}
-                    className="px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-all flex items-center gap-2"
+                    className="px-4 py-2 bg-brand-700 text-white rounded-lg font-semibold hover:bg-brand-800 transition-all flex items-center gap-2"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -596,7 +596,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
                 {ticketTiers.length > 0 && (
                   <div className="space-y-4 mt-4">
                     {ticketTiers.map((tier, index) => (
-                      <div key={index} className="bg-white rounded-lg p-4 border-2 border-purple-100">
+                      <div key={index} className="bg-white rounded-lg p-4 border-2 border-gray-200">
                         <div className="flex items-center justify-between mb-3">
                           <h4 className="font-semibold text-gray-900">Tier #{index + 1}</h4>
                           <button
@@ -617,7 +617,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
                               value={tier.name}
                               onChange={(e) => updateTicketTier(index, 'name', e.target.value)}
                               placeholder="e.g., VIP, Early Bird"
-                              className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                              className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                             />
                           </div>
                           <div>
@@ -631,7 +631,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
                               placeholder="0.00"
                               min="0"
                               step="0.01"
-                              className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                              className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                             />
                           </div>
                           <div>
@@ -644,7 +644,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
                               onChange={(e) => updateTicketTier(index, 'quantity', e.target.value)}
                               placeholder="e.g., 50"
                               min="1"
-                              className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                              className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                             />
                           </div>
                         </div>
@@ -657,7 +657,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
                             value={tier.description}
                             onChange={(e) => updateTicketTier(index, 'description', e.target.value)}
                             placeholder="e.g., Includes backstage access and drinks"
-                            className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                            className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                           />
                         </div>
                       </div>
@@ -666,22 +666,22 @@ export default function EventForm({ userId, event }: EventFormProps) {
                 )}
 
                 {ticketTiers.length === 0 && (
-                  <div className="text-center py-6 text-purple-700">
+                  <div className="text-center py-6 text-gray-500">
                     <p className="text-sm">No tiers added yet. Click &quot;Add Tier&quot; to create special ticket types.</p>
                   </div>
                 )}
               </div>
 
-              <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
+              <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-6">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 bg-brand-700 rounded-lg flex items-center justify-center flex-shrink-0">
                     <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-bold text-blue-900 mb-1">How Ticket Tiers Work</h3>
-                    <p className="text-sm text-blue-700">
+                    <h3 className="font-bold text-gray-900 mb-1">How Ticket Tiers Work</h3>
+                    <p className="text-sm text-gray-600">
                       The base ticket is your general admission. Add tiers for premium options like VIP (higher price, special perks) or Early Bird (lower price, limited quantity). Each tier is sold separately alongside general admission.
                     </p>
                   </div>
@@ -694,8 +694,8 @@ export default function EventForm({ userId, event }: EventFormProps) {
           {currentStep === 5 && (
             <div className="space-y-6 animate-fadeIn">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                  <Tag className="w-6 h-6 text-orange-700" />
+                <div className="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center">
+                  <Tag className="w-6 h-6 text-brand-700" />
                 </div>
                 <div>
                   <h2 className="font-display text-2xl text-gray-900">Tags & Publishing</h2>
@@ -798,7 +798,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
                 )}
               </div>
 
-              <div className="bg-gradient-to-r from-brand-50 to-accent-50 border-2 border-brand-200 rounded-xl p-6">
+              <div className="bg-brand-50 border-2 border-brand-200 rounded-xl p-6">
                 <div className="flex items-start gap-4">
                   <input
                     type="checkbox"
@@ -862,7 +862,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-8 py-3 bg-gradient-to-r from-brand-600 to-accent-600 hover:from-brand-700 hover:to-accent-700 text-white rounded-xl font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-glow"
+                className="px-8 py-3 bg-brand-700 hover:bg-brand-800 text-white rounded-xl font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-medium"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">

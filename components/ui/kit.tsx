@@ -108,3 +108,76 @@ export function EmptyState({
     </div>
   )
 }
+
+/** Status chip tone. One accent (brand teal) + semantic green/red/amber/neutral. */
+export type ChipTone = 'brand' | 'neutral' | 'success' | 'warning' | 'danger'
+
+const toneStyles: Record<ChipTone, string> = {
+  brand: 'bg-brand-50 text-brand-700 border border-brand-100',
+  neutral: 'bg-gray-100 text-gray-700 border border-gray-200',
+  success: 'bg-green-50 text-green-700 border border-green-200',
+  warning: 'bg-amber-50 text-amber-700 border border-amber-200',
+  danger: 'bg-red-50 text-red-700 border border-red-200',
+}
+
+/**
+ * Maps a free-form status string to a semantic tone so tables/cards stay
+ * consistent. Unknown statuses fall back to neutral. Keep this the single
+ * source of truth for status coloring across admin + organizer.
+ */
+export function statusTone(status: string): ChipTone {
+  const s = (status || '').toLowerCase().replace(/[\s-]+/g, '_')
+  if (
+    [
+      'paid', 'completed', 'complete', 'approved', 'published', 'active', 'valid',
+      'success', 'succeeded', 'verified', 'confirmed', 'settled', 'live',
+    ].includes(s)
+  )
+    return 'success'
+  if (
+    [
+      'pending', 'pending_review', 'in_review', 'processing', 'in_progress',
+      'awaiting', 'requested', 'on_hold', 'hold', 'draft', 'scheduled', 'queued',
+    ].includes(s)
+  )
+    return 'warning'
+  if (
+    [
+      'failed', 'error', 'denied', 'rejected', 'cancelled', 'canceled',
+      'refunded', 'expired', 'declined', 'disputed', 'suspended', 'blocked',
+    ].includes(s)
+  )
+    return 'danger'
+  return 'neutral'
+}
+
+/**
+ * Status pill. Pass a `tone` directly, or a `status` string to auto-map via
+ * statusTone(). The label defaults to a humanized status. Use across all tables.
+ */
+export function StatusChip({
+  status,
+  tone,
+  icon: Icon,
+  children,
+  className = '',
+}: {
+  status?: string
+  tone?: ChipTone
+  icon?: IconType
+  children?: React.ReactNode
+  className?: string
+}) {
+  const resolved: ChipTone = tone ?? statusTone(status ?? '')
+  const label =
+    children ??
+    (status ? status.replace(/[_-]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : '')
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${toneStyles[resolved]} ${className}`}
+    >
+      {Icon && <Icon className="h-3 w-3" />}
+      {label}
+    </span>
+  )
+}

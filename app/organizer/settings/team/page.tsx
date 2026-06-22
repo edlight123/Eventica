@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { ChevronLeft, CalendarDays, ShieldCheck, Users } from 'lucide-react'
 import { createClient } from '@/lib/firebase-db/server'
 import EventStaffHub from './EventStaffHub'
+import { EditorialHeader } from '@/components/ui/EditorialHeader'
 
 export const revalidate = 0
 
@@ -64,15 +65,17 @@ export default async function TeamSettingsPage({
           Back to Settings
         </Link>
 
-        <div className="mb-8">
-          <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">Team & Permissions</h1>
-          <p className="text-gray-600 mt-2">Invite door staff and manage check-in access per event</p>
-        </div>
+        <EditorialHeader
+          eyebrow="Settings"
+          title="Team & Permissions"
+          subtitle="Invite door staff and manage check-in access per event"
+          className="mb-8"
+        />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
           <div className="bg-white border border-gray-200 rounded-xl p-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-lg bg-brand-50 text-brand-700 flex items-center justify-center">
                 <CalendarDays className="w-5 h-5" />
               </div>
               <div>
@@ -83,7 +86,7 @@ export default async function TeamSettingsPage({
           </div>
           <div className="bg-white border border-gray-200 rounded-xl p-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-lg bg-brand-50 text-brand-700 flex items-center justify-center">
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
@@ -94,7 +97,7 @@ export default async function TeamSettingsPage({
           </div>
           <div className="bg-white border border-gray-200 rounded-xl p-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-lg bg-brand-50 text-brand-700 flex items-center justify-center">
                 <Users className="w-5 h-5" />
               </div>
               <div>
@@ -115,28 +118,28 @@ export default async function TeamSettingsPage({
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Guidelines</h3>
               <ul className="space-y-3 text-sm text-gray-600">
                 <li className="flex gap-2">
-                  <span className="text-indigo-500">•</span>
+                  <span className="text-brand-600">•</span>
                   Invite staff for a specific event
                 </li>
                 <li className="flex gap-2">
-                  <span className="text-indigo-500">•</span>
+                  <span className="text-brand-600">•</span>
                   Use one-time invite links for quick onboarding
                 </li>
                 <li className="flex gap-2">
-                  <span className="text-indigo-500">•</span>
+                  <span className="text-brand-600">•</span>
                   Remove access immediately if a device is lost
                 </li>
               </ul>
             </div>
 
-            <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-5">
-              <h3 className="text-base font-semibold text-indigo-900 mb-2">Need help?</h3>
-              <p className="text-sm text-indigo-800 mb-4">
+            <div className="bg-brand-50 border border-brand-100 rounded-xl p-5">
+              <h3 className="text-base font-semibold text-brand-900 mb-2">Need help?</h3>
+              <p className="text-sm text-brand-800 mb-4">
                 Our support team can help onboard large teams and set up access.
               </p>
               <Link
                 href="mailto:support@tikem.co"
-                className="inline-flex items-center text-sm font-semibold text-indigo-700 hover:text-indigo-900"
+                className="inline-flex items-center text-sm font-semibold text-brand-700 hover:text-brand-800"
               >
                 Contact Support →
               </Link>

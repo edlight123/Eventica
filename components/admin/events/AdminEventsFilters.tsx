@@ -83,7 +83,7 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
                     value={range}
                     checked={localFilters.dateRange === range}
                     onChange={(e) => setLocalFilters({ ...localFilters, dateRange: e.target.value as any })}
-                    className="w-4 h-4 text-teal-600 focus:ring-teal-500"
+                    className="w-4 h-4 text-brand-600 focus:ring-brand-500"
                   />
                   <span className="text-sm text-gray-700 capitalize">
                     {range === 'any' ? 'Any time' : range === 'week' ? 'This week' : range === 'today' ? 'Today' : 'Custom range'}
@@ -174,7 +174,7 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
                     value={price.value}
                     checked={localFilters.priceRange === price.value}
                     onChange={(e) => setLocalFilters({ ...localFilters, priceRange: e.target.value as any })}
-                    className="w-4 h-4 text-teal-600 focus:ring-teal-500"
+                    className="w-4 h-4 text-brand-600 focus:ring-brand-500"
                   />
                   <span className="text-sm text-gray-700">{price.label}</span>
                 </label>
@@ -202,7 +202,7 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
                     value={risk.value}
                     checked={localFilters.riskLevel === risk.value}
                     onChange={(e) => setLocalFilters({ ...localFilters, riskLevel: e.target.value as any })}
-                    className="w-4 h-4 text-teal-600 focus:ring-teal-500"
+                    className="w-4 h-4 text-brand-600 focus:ring-brand-500"
                   />
                   <span className="text-sm text-gray-700">{risk.label}</span>
                 </label>
@@ -229,7 +229,7 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
                     value={sort.value}
                     checked={localFilters.sortBy === sort.value}
                     onChange={(e) => setLocalFilters({ ...localFilters, sortBy: e.target.value as any })}
-                    className="w-4 h-4 text-teal-600 focus:ring-teal-500"
+                    className="w-4 h-4 text-brand-600 focus:ring-brand-500"
                   />
                   <span className="text-sm text-gray-700">{sort.label}</span>
                 </label>
@@ -248,7 +248,7 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
           </button>
           <button
             onClick={handleApply}
-            className="flex-1 px-4 py-2.5 bg-teal-600 text-white rounded-lg hover:bg-teal-700 font-medium text-sm"
+            className="flex-1 px-4 py-2.5 bg-brand-600 text-white rounded-lg hover:bg-brand-700 font-medium text-sm"
           >
             Apply Filters
           </button>

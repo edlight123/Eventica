@@ -9,7 +9,8 @@ interface CategoryChartProps {
   }>;
 }
 
-const COLORS = ['#0F766E', '#F97316', '#8B5CF6', '#EC4899', '#10B981', '#F59E0B', '#3B82F6', '#EF4444'];
+// Restrained brand teal ramp + neutral (one accent, no rainbow).
+const COLORS = ['#0F766E', '#14B8A6', '#5EEAD4', '#99F6E4', '#94A3B8'];
 
 export default function CategoryChart({ data }: CategoryChartProps) {
   return (
@@ -22,7 +23,7 @@ export default function CategoryChart({ data }: CategoryChartProps) {
           labelLine={false}
           label={({ name, percent }) => `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`}
           outerRadius={80}
-          fill="#8884d8"
+          fill="#0F766E"
           dataKey="value"
         >
           {data.map((entry, index) => (

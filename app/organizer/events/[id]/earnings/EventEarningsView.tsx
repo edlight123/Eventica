@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { formatCurrency, calculateSettlementDate } from '@/lib/fees'
 import type { EventEarnings } from '@/types/earnings'
 import type { EventTierSalesBreakdownRow } from '@/lib/earnings'
+import { StatTile, StatusChip, type ChipTone } from '@/components/ui/kit'
+import { DollarSign, TrendingUp, Wallet } from 'lucide-react'
 
 interface EventEarningsViewProps {
   event: any
@@ -178,7 +180,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
   if (!earnings) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <Link href="/organizer/earnings" className="text-teal-600 hover:underline mb-4 inline-block">
+        <Link href="/organizer/earnings" className="text-brand-700 hover:underline mb-4 inline-block">
           ← Back to All Earnings
         </Link>
         
@@ -190,7 +192,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
           </p>
           <Link 
             href={`/events/${event.id}`}
-            className="inline-block px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+            className="inline-block px-6 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 transition-colors"
           >
             View Event Page
           </Link>
@@ -208,17 +210,16 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
       ? calculateSettlementDate(eventDate)
       : null
 
+  const settlementTone: Record<string, ChipTone> = {
+    ready: 'success',
+    pending: 'warning',
+    locked: 'neutral',
+  }
+
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'ready':
-        return <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">✓ Ready</span>
-      case 'pending':
-        return <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">⏳ Pending</span>
-      case 'locked':
-        return <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium">🔒 Locked</span>
-      default:
-        return null
-    }
+    if (!settlementTone[status]) return null
+    const label = status === 'ready' ? '✓ Ready' : status === 'pending' ? '⏳ Pending' : '🔒 Locked'
+    return <StatusChip tone={settlementTone[status]}>{label}</StatusChip>
   }
 
   const handleWithdraw = (method: 'moncash' | 'bank') => {
@@ -365,7 +366,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       {/* Header */}
-      <Link href="/organizer/earnings" className="text-teal-600 hover:underline mb-4 inline-block">
+      <Link href="/organizer/earnings" className="text-brand-700 hover:underline mb-4 inline-block">
         ← Back to All Earnings
       </Link>
 
@@ -386,31 +387,27 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
         </div>
       </div>
 
-      {/* Earnings Summary Card */}
-      <div className="bg-gradient-to-br from-teal-500 to-purple-600 rounded-xl p-6 text-white mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <div className="text-teal-100 text-sm font-medium mb-1">Gross Revenue</div>
-            <div className="text-3xl font-bold">{formatCurrency(earnings.grossSales, earnings.currency)}</div>
-            <div className="text-teal-100 text-sm mt-1">{earnings.ticketsSold} tickets sold</div>
-          </div>
-
-          <div>
-            <div className="text-teal-100 text-sm font-medium mb-1">Net Earnings</div>
-            <div className="text-3xl font-bold">{formatCurrency(earnings.netAmount, earnings.currency)}</div>
-            <div className="text-teal-100 text-sm mt-1">
-              {earnings.withdrawnAmount > 0 ? `${formatCurrency(earnings.withdrawnAmount, earnings.currency)} withdrawn` : 'Not withdrawn yet'}
-            </div>
-          </div>
-
-          <div>
-            <div className="text-teal-100 text-sm font-medium mb-1">Available to Withdraw</div>
-            <div className="text-3xl font-bold">{formatCurrency(availableToWithdraw, earnings.currency)}</div>
-            <div className="text-teal-100 text-sm mt-1">
-              {earnings.settlementStatus === 'ready' ? 'Ready now' : 'After settlement'}
-            </div>
-          </div>
-        </div>
+      {/* Earnings Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <StatTile
+          icon={DollarSign}
+          label="Gross Revenue"
+          value={formatCurrency(earnings.grossSales, earnings.currency)}
+          sublabel={`${earnings.ticketsSold} tickets sold`}
+        />
+        <StatTile
+          icon={TrendingUp}
+          label="Net Earnings"
+          value={formatCurrency(earnings.netAmount, earnings.currency)}
+          sublabel={earnings.withdrawnAmount > 0 ? `${formatCurrency(earnings.withdrawnAmount, earnings.currency)} withdrawn` : 'Not withdrawn yet'}
+        />
+        <StatTile
+          icon={Wallet}
+          label="Available to Withdraw"
+          className="border-l-4 border-green-600"
+          value={<span className="text-green-700">{formatCurrency(availableToWithdraw, earnings.currency)}</span>}
+          sublabel={earnings.settlementStatus === 'ready' ? 'Ready now' : 'After settlement'}
+        />
       </div>
 
       {/* Ticket Tier Breakdown */}
@@ -423,7 +420,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
           <div className="flex items-center gap-3">
             <a
               href={`/api/organizer/events/${event.id}/earnings/audit?format=csv`}
-              className="text-sm text-teal-600 hover:underline"
+              className="text-sm text-brand-700 hover:underline"
             >
               Download audit (CSV)
             </a>
@@ -463,20 +460,20 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
 
       {/* Settlement Status */}
       {earnings.settlementStatus !== 'ready' && (
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-6">
           <div className="flex items-start gap-3">
             <span className="text-2xl">ℹ️</span>
             <div>
-              <h3 className="font-bold text-blue-900 mb-1">
+              <h3 className="font-bold text-amber-900 mb-1">
                 {earnings.settlementStatus === 'pending' ? 'Settlement Pending' : 'Funds Locked'}
               </h3>
-              <p className="text-blue-800 text-sm mb-2">
+              <p className="text-amber-800 text-sm mb-2">
                 {earnings.settlementStatus === 'pending'
                   ? 'Funds are held for 7 days after your event to allow for refunds and disputes.'
                   : 'Funds will become available 7 days after your event ends.'}
               </p>
               {settlementDate && (
-                <p className="text-blue-700 text-sm font-medium">
+                <p className="text-amber-700 text-sm font-medium">
                   Available for withdrawal: {settlementDate.toLocaleDateString('en-US', {
                     month: 'long',
                     day: 'numeric',
@@ -503,10 +500,10 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <button
                 onClick={() => handleWithdraw('moncash')}
-                className="border-2 border-teal-200 rounded-xl p-4 hover:border-teal-400 hover:shadow-md transition-all text-left group"
+                className="border-2 border-brand-200 rounded-xl p-4 hover:border-brand-400 hover:shadow-md transition-all text-left group"
               >
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200 transition-colors">
+                  <div className="w-12 h-12 bg-brand-100 rounded-lg flex items-center justify-center group-hover:bg-brand-200 transition-colors">
                     <span className="text-2xl">📱</span>
                   </div>
                   <div>
@@ -519,10 +516,10 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
 
               <button
                 onClick={() => handleWithdraw('bank')}
-                className="border-2 border-teal-200 rounded-xl p-4 hover:border-teal-400 hover:shadow-md transition-all text-left group"
+                className="border-2 border-brand-200 rounded-xl p-4 hover:border-brand-400 hover:shadow-md transition-all text-left group"
               >
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                  <div className="w-12 h-12 bg-brand-50 rounded-lg flex items-center justify-center group-hover:bg-brand-100 transition-colors">
                     <span className="text-2xl">🏦</span>
                   </div>
                   <div>
@@ -534,8 +531,8 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
               </button>
             </div>
           ) : (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <p className="text-yellow-800 text-sm">
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+              <p className="text-amber-800 text-sm">
                 ⚠️ Minimum withdrawal amount is $50.00. Current available balance: {formatCurrency(availableToWithdraw, earnings.currency)}
               </p>
             </div>
@@ -561,7 +558,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                   <div className="font-medium text-gray-900">Remaining Balance</div>
                   <div className="text-sm text-gray-500">Available {earnings.settlementStatus === 'ready' ? 'now' : 'after settlement'}</div>
                 </div>
-                <span className="font-bold text-teal-600">{formatCurrency(earnings.netAmount - earnings.withdrawnAmount, earnings.currency)}</span>
+                <span className="font-bold text-brand-700">{formatCurrency(earnings.netAmount - earnings.withdrawnAmount, earnings.currency)}</span>
               </div>
             )}
           </div>
@@ -602,7 +599,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                       value={moncashNumber}
                       onChange={(e) => setMoncashNumber(e.target.value)}
                       placeholder="+509 1234 5678"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       required
                     />
                   </div>
@@ -610,14 +607,14 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                     <div
                       className={
                         moncashQuote.instantAvailable
-                          ? 'bg-purple-50 border border-purple-200 rounded-lg p-3'
+                          ? 'bg-brand-50 border border-brand-100 rounded-lg p-3'
                           : 'bg-gray-50 border border-gray-200 rounded-lg p-3'
                       }
                     >
                       <p
                         className={
                           moncashQuote.instantAvailable
-                            ? 'text-sm font-medium text-purple-900'
+                            ? 'text-sm font-medium text-brand-900'
                             : 'text-sm font-medium text-gray-900'
                         }
                       >
@@ -626,7 +623,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                       <p
                         className={
                           moncashQuote.instantAvailable
-                            ? 'text-xs text-purple-800 mt-1'
+                            ? 'text-xs text-brand-800 mt-1'
                             : 'text-xs text-gray-600 mt-1'
                         }
                       >
@@ -638,7 +635,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                       <div
                         className={
                           moncashQuote.instantAvailable
-                            ? 'mt-2 text-xs text-purple-900 space-y-1'
+                            ? 'mt-2 text-xs text-brand-900 space-y-1'
                             : 'mt-2 text-xs text-gray-800 space-y-1'
                         }
                       >
@@ -663,12 +660,12 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                       </div>
                     </div>
                   ) : isInstantPrefundingAvailable ? (
-                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                      <p className="text-sm font-medium text-purple-900">Instant MonCash (prefunding)</p>
-                      <p className="text-xs text-purple-800 mt-1">
+                    <div className="bg-brand-50 border border-brand-100 rounded-lg p-3">
+                      <p className="text-sm font-medium text-brand-900">Instant MonCash (prefunding)</p>
+                      <p className="text-xs text-brand-800 mt-1">
                         This withdrawal will be sent instantly using platform prefunding.
                       </p>
-                      <div className="mt-2 text-xs text-purple-900 space-y-1">
+                      <div className="mt-2 text-xs text-brand-900 space-y-1">
                         <div className="flex justify-between">
                           <span>Prefunding fee (3%)</span>
                           <span>-{formatCurrency(prefundingFeeCents, earnings.currency)}</span>
@@ -691,7 +688,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
               {withdrawMethod === 'bank' && (
                 <div className="space-y-4">
                   {bankDestinationsError ? (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800">
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-800">
                       {bankDestinationsError}
                     </div>
                   ) : null}
@@ -780,9 +777,9 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
 
                   {bankMode === 'new' ? (
                     <div className="space-y-3">
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                        <p className="text-sm text-blue-900 font-medium">Verification required</p>
-                        <p className="text-xs text-blue-800 mt-1">
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                        <p className="text-sm text-gray-900 font-medium">Verification required</p>
+                        <p className="text-xs text-gray-600 mt-1">
                           Adding a new bank account requires email verification. The account holder name should match your organizer name.
                         </p>
                       </div>
@@ -804,7 +801,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                           value={bankDetails.accountHolder}
                           onChange={(e) => setBankDetails({ ...bankDetails, accountHolder: e.target.value })}
                           placeholder="Full name on account"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                           required
                         />
                       </div>
@@ -816,7 +813,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                           value={bankDetails.bankName}
                           onChange={(e) => setBankDetails({ ...bankDetails, bankName: e.target.value })}
                           placeholder="e.g., Unibank"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                           required
                         />
                       </div>
@@ -828,7 +825,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                           value={bankDetails.accountNumber}
                           onChange={(e) => setBankDetails({ ...bankDetails, accountNumber: e.target.value })}
                           placeholder="Account number"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                           required
                         />
                       </div>
@@ -840,7 +837,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                           value={bankDetails.routingNumber}
                           onChange={(e) => setBankDetails({ ...bankDetails, routingNumber: e.target.value })}
                           placeholder="For international transfers"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                         />
                       </div>
 
@@ -851,7 +848,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                           value={bankDetails.swiftCode}
                           onChange={(e) => setBankDetails({ ...bankDetails, swiftCode: e.target.value })}
                           placeholder="For international transfers"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                         />
                       </div>
                     </div>
@@ -864,14 +861,14 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
               )}
 
               {payoutChangeVerificationRequired ? (
-                <div className="mt-4 border border-purple-200 bg-purple-50 rounded-lg p-3">
-                  <p className="text-sm font-semibold text-purple-900">Email verification</p>
-                  <p className="text-xs text-purple-800 mt-1">
+                <div className="mt-4 border border-brand-100 bg-brand-50 rounded-lg p-3">
+                  <p className="text-sm font-semibold text-brand-900">Email verification</p>
+                  <p className="text-xs text-brand-800 mt-1">
                     {verificationMessage || 'For your security, confirm this change with the code we email you.'}
                   </p>
 
                   {debugVerificationCode ? (
-                    <p className="text-xs text-purple-900 mt-2">Dev code: {debugVerificationCode}</p>
+                    <p className="text-xs text-brand-900 mt-2">Dev code: {debugVerificationCode}</p>
                   ) : null}
 
                   <div className="mt-3 flex gap-2">
@@ -879,7 +876,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                       type="button"
                       onClick={sendVerificationCode}
                       disabled={isSendingVerificationCode}
-                      className="px-3 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium disabled:bg-purple-300"
+                      className="px-3 py-2 bg-brand-700 text-white rounded-lg text-sm font-medium disabled:bg-brand-300"
                     >
                       {isSendingVerificationCode ? 'Sending…' : 'Send code'}
                     </button>
@@ -887,13 +884,13 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                       value={verificationCode}
                       onChange={(e) => setVerificationCode(e.target.value)}
                       placeholder="6-digit code"
-                      className="flex-1 px-3 py-2 border border-purple-200 rounded-lg text-sm"
+                      className="flex-1 px-3 py-2 border border-brand-200 rounded-lg text-sm"
                     />
                     <button
                       type="button"
                       onClick={verifyCode}
                       disabled={isVerifyingVerificationCode || !/^\d{6}$/.test(verificationCode)}
-                      className="px-3 py-2 bg-white border border-purple-300 text-purple-900 rounded-lg text-sm font-medium disabled:opacity-50"
+                      className="px-3 py-2 bg-white border border-brand-300 text-brand-900 rounded-lg text-sm font-medium disabled:opacity-50"
                     >
                       {isVerifyingVerificationCode ? 'Verifying…' : 'Verify'}
                     </button>
@@ -922,7 +919,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                     ((bankMode === 'new' && (!bankDetails.accountHolder || !bankDetails.bankName || !bankDetails.accountNumber)) ||
                       (bankMode !== 'new' && !selectedBankDestinationId)))
                 }
-                className="flex-1 px-4 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 transition-colors font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Submitting...' : 'Confirm Withdrawal'}
               </button>

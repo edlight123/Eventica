@@ -18,10 +18,10 @@ export function PayoutStatusHero({ status, reason }: PayoutStatusHeroProps) {
       case 'not_setup':
         return {
           icon: <AlertCircle className="w-8 h-8" />,
-          iconBg: 'bg-orange-100',
-          iconColor: 'text-orange-600',
-          bg: 'from-orange-50 to-orange-100',
-          border: 'border-orange-200',
+          iconBg: 'bg-brand-100',
+          iconColor: 'text-brand-600',
+          bg: 'from-brand-50 to-brand-100',
+          border: 'border-brand-200',
           title: t('settings.payout_settings.status_not_setup'),
           description: t('settings.payout_settings.status_not_setup_desc'),
           showCta: false
@@ -29,16 +29,16 @@ export function PayoutStatusHero({ status, reason }: PayoutStatusHeroProps) {
       case 'pending_verification':
         return {
           icon: <Clock className="w-8 h-8" />,
-          iconBg: 'bg-blue-100',
-          iconColor: 'text-blue-600',
-          bg: 'from-blue-50 to-blue-100',
-          border: 'border-blue-200',
+          iconBg: 'bg-amber-100',
+          iconColor: 'text-amber-600',
+          bg: 'from-amber-50 to-amber-100',
+          border: 'border-amber-200',
           title: t('settings.payout_settings.status_pending'),
           description: reason || t('settings.payout_settings.status_pending_desc'),
           showCta: true,
           ctaText: t('settings.payout_settings.view_status'),
           ctaHref: '#verification',
-          ctaColor: 'bg-blue-600 hover:bg-blue-700'
+          ctaColor: 'bg-amber-600 hover:bg-amber-700'
         }
       case 'active':
         return {

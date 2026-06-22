@@ -183,7 +183,7 @@ export default function EventReviews({ eventId, userId, hasAttended }: EventRevi
           {reviews.map(review => (
             <div key={review.id} className="border-b border-gray-200 pb-4 last:border-0">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-orange-500 flex items-center justify-center text-white font-bold">
+                <div className="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center text-white font-bold">
                   {review.user.full_name.charAt(0).toUpperCase()}
                 </div>
                 <div>

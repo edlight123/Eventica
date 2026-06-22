@@ -27,7 +27,7 @@ export function NextEventHero({ event }: NextEventHeroProps) {
   
   if (!event) {
     return (
-      <div className="bg-gradient-to-br from-brand-50 to-accent-50 rounded-2xl border border-gray-200 p-8 text-center">
+      <div className="bg-gradient-to-br from-brand-50 to-brand-100 rounded-2xl border border-gray-200 p-8 text-center">
         <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
           <Calendar className="w-8 h-8 text-gray-400" />
         </div>
@@ -35,7 +35,7 @@ export function NextEventHero({ event }: NextEventHeroProps) {
         <p className="text-gray-600 mb-6">{t('next_event.no_upcoming_desc')}</p>
         <Link
           href="/organizer/events/new"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-brand-600 to-accent-600 text-white rounded-xl font-bold hover:shadow-glow transition-all"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-brand-600 to-brand-700 text-white rounded-xl font-bold hover:shadow-glow transition-all"
         >
           <Calendar className="w-5 h-5" />
           {t('next_event.create_event')}
@@ -72,7 +72,7 @@ export function NextEventHero({ event }: NextEventHeroProps) {
   return (
     <div className="bg-white rounded-2xl shadow-soft border border-gray-100 overflow-hidden">
       {/* Banner Section */}
-      <div className="relative h-48 md:h-64 bg-gradient-to-br from-brand-600 to-accent-600">
+      <div className="relative h-48 md:h-64 bg-gradient-to-br from-brand-600 to-brand-700">
         {event.banner_image_url ? (
           <Image
             src={event.banner_image_url}
@@ -157,7 +157,7 @@ export function NextEventHero({ event }: NextEventHeroProps) {
         <div className="mb-6">
           <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-gradient-to-r from-brand-500 to-accent-500 rounded-full transition-all duration-500"
+              className="h-full bg-gradient-to-r from-brand-500 to-brand-600 rounded-full transition-all duration-500"
               style={{ width: `${Math.min(progress, 100)}%` }}
             />
           </div>
@@ -200,7 +200,7 @@ export function NextEventHero({ event }: NextEventHeroProps) {
                 navigator.clipboard.writeText(`${window.location.origin}/events/${event.id}`)
               }
             }}
-            className="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-200 text-gray-700 rounded-xl font-semibold hover:border-teal-500 hover:text-teal-600 transition-colors text-sm"
+            className="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-gray-200 text-gray-700 rounded-xl font-semibold hover:border-brand-500 hover:text-brand-600 transition-colors text-sm"
           >
             <Share2 className="w-4 h-4" />
             <span className="hidden sm:inline">{t('next_event.share')}</span>

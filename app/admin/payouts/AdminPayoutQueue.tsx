@@ -215,7 +215,7 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
           <button
             onClick={exportCSV}
             disabled={payouts.length === 0}
-            className="px-6 py-3 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 transition-colors disabled:bg-gray-300"
+            className="px-6 py-3 bg-brand-700 text-white rounded-lg font-medium hover:bg-brand-800 transition-colors disabled:bg-gray-300"
           >
             Export CSV
           </button>
@@ -277,7 +277,7 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
                       </button>
                       <button
                         onClick={() => openModal(payout, 'mark-paid')}
-                        className="text-blue-600 hover:text-blue-800 font-medium"
+                        className="text-brand-700 hover:text-brand-800 font-medium"
                       >
                         Mark Paid
                       </button>
@@ -395,7 +395,7 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
                 className={`flex-1 px-4 py-2 rounded-lg text-white font-medium ${
                   modalMode === 'decline'
                     ? 'bg-red-600 hover:bg-red-700'
-                    : 'bg-teal-600 hover:bg-teal-700'
+                    : 'bg-brand-700 hover:bg-brand-800'
                 }`}
               >
                 {isProcessing ? 'Processing...' : modalMode === 'approve' ? 'Approve' : modalMode === 'decline' ? 'Decline' : 'Mark Paid'}

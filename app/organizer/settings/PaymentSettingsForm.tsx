@@ -86,7 +86,7 @@ export default function PaymentSettingsForm({
             onClick={() => setPaymentMethod('moncash')}
             className={`p-4 rounded-xl border-2 transition ${
               paymentMethod === 'moncash'
-                ? 'border-orange-500 bg-orange-50'
+                ? 'border-brand-500 bg-brand-50'
                 : 'border-gray-200 hover:border-gray-300'
             }`}
           >
@@ -99,7 +99,7 @@ export default function PaymentSettingsForm({
             onClick={() => setPaymentMethod('bank_transfer')}
             className={`p-4 rounded-xl border-2 transition ${
               paymentMethod === 'bank_transfer'
-                ? 'border-orange-500 bg-orange-50'
+                ? 'border-brand-500 bg-brand-50'
                 : 'border-gray-200 hover:border-gray-300'
             }`}
           >
@@ -112,7 +112,7 @@ export default function PaymentSettingsForm({
             onClick={() => setPaymentMethod('paypal')}
             className={`p-4 rounded-xl border-2 transition ${
               paymentMethod === 'paypal'
-                ? 'border-orange-500 bg-orange-50'
+                ? 'border-brand-500 bg-brand-50'
                 : 'border-gray-200 hover:border-gray-300'
             }`}
           >
@@ -135,7 +135,7 @@ export default function PaymentSettingsForm({
               required
               value={moncashNumber}
               onChange={(e) => setMoncashNumber(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               placeholder="+509 1234 5678"
             />
           </div>
@@ -155,7 +155,7 @@ export default function PaymentSettingsForm({
               required
               value={bankName}
               onChange={(e) => setBankName(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               placeholder="e.g., Unibank Haiti"
             />
           </div>
@@ -170,7 +170,7 @@ export default function PaymentSettingsForm({
               required
               value={accountHolder}
               onChange={(e) => setAccountHolder(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               placeholder="Full name on account"
             />
           </div>
@@ -185,7 +185,7 @@ export default function PaymentSettingsForm({
               required
               value={accountNumber}
               onChange={(e) => setAccountNumber(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               placeholder="Account number"
             />
           </div>
@@ -205,7 +205,7 @@ export default function PaymentSettingsForm({
               required
               value={paypalEmail}
               onChange={(e) => setPaypalEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               placeholder="your@email.com"
             />
           </div>
@@ -230,7 +230,7 @@ export default function PaymentSettingsForm({
         <button
           type="submit"
           disabled={loading}
-          className="w-full px-6 py-3 rounded-xl bg-orange-600 text-white font-semibold hover:bg-orange-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-6 py-3 rounded-xl bg-brand-700 text-white font-semibold hover:bg-brand-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Saving...' : 'Save Payment Settings'}
         </button>

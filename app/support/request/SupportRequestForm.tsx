@@ -96,7 +96,7 @@ export default function SupportRequestForm() {
                 onClick={() => setFormData({ ...formData, userType: 'attendee' })}
                 className={`flex-1 px-4 py-3 rounded-lg border-2 font-medium transition-all ${
                   formData.userType === 'attendee'
-                    ? 'border-purple-500 bg-purple-50 text-purple-700'
+                    ? 'border-brand-500 bg-brand-50 text-brand-700'
                     : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -110,7 +110,7 @@ export default function SupportRequestForm() {
                 onClick={() => setFormData({ ...formData, userType: 'organizer' })}
                 className={`flex-1 px-4 py-3 rounded-lg border-2 font-medium transition-all ${
                   formData.userType === 'organizer'
-                    ? 'border-purple-500 bg-purple-50 text-purple-700'
+                    ? 'border-brand-500 bg-brand-50 text-brand-700'
                     : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -133,7 +133,7 @@ export default function SupportRequestForm() {
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               placeholder={t('request_form.name_placeholder')}
             />
           </div>
@@ -149,7 +149,7 @@ export default function SupportRequestForm() {
               required
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               placeholder={t('request_form.email_placeholder')}
             />
           </div>
@@ -164,7 +164,7 @@ export default function SupportRequestForm() {
               required
               value={formData.topic}
               onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent appearance-none"
             >
               <option value="">{t('request_form.select_category')}</option>
               {TOPICS.map(topic => (
@@ -184,7 +184,7 @@ export default function SupportRequestForm() {
               required
               value={formData.subject}
               onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               placeholder={t('request_form.subject_placeholder')}
             />
           </div>
@@ -200,7 +200,7 @@ export default function SupportRequestForm() {
               rows={6}
               value={formData.message}
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
               placeholder={t('request_form.message_placeholder')}
             />
             <p className="text-xs text-gray-500 mt-1">
@@ -213,7 +213,7 @@ export default function SupportRequestForm() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              className="px-8 py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
               {isSubmitting ? (
                 <>
@@ -231,14 +231,14 @@ export default function SupportRequestForm() {
         </form>
 
         {/* Info Box */}
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800">
+        <div className="mt-6 p-4 bg-gray-50 border border-gray-100 rounded-lg">
+          <p className="text-sm text-gray-600">
             <strong className="inline-flex items-center gap-2">
               <Info className="w-4 h-4" />
               {t('tip.title')}:
             </strong>{' '}
             {t('tip.body_prefix')}
-            <Link href="/support" className="underline hover:text-blue-900">
+            <Link href="/support" className="underline hover:text-gray-900">
               {t('tip.body_link')}
             </Link>
             {t('tip.body_suffix')}

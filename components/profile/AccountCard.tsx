@@ -94,14 +94,14 @@ export function AccountCard({ onDeleteAccount }: AccountCardProps) {
           {/* Help & Support */}
           <Link
             href="/support"
-            className="w-full flex items-center gap-3 px-4 py-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl transition-colors group"
+            className="w-full flex items-center gap-3 px-4 py-3 bg-brand-50 hover:bg-brand-100 border border-brand-100 rounded-xl transition-colors group"
           >
-            <div className="w-10 h-10 bg-blue-100 group-hover:bg-blue-200 rounded-lg flex items-center justify-center">
-              <HelpCircle className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-brand-100 group-hover:bg-brand-200 rounded-lg flex items-center justify-center">
+              <HelpCircle className="w-5 h-5 text-brand-600" />
             </div>
             <div className="flex-1 text-left">
-              <p className="font-semibold text-blue-900">{t('account.help_support')}</p>
-              <p className="text-sm text-blue-700">{t('account.help_support_desc')}</p>
+              <p className="font-semibold text-gray-900">{t('account.help_support')}</p>
+              <p className="text-sm text-gray-600">{t('account.help_support_desc')}</p>
             </div>
           </Link>
 

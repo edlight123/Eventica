@@ -337,7 +337,7 @@ export default function VerificationWizard({
                         ${isComplete
                           ? 'bg-green-500 text-white'
                           : isCurrent
-                            ? 'bg-teal-600 text-white ring-4 ring-teal-100'
+                            ? 'bg-brand-600 text-white ring-4 ring-brand-100'
                             : isPast
                               ? 'bg-gray-300 text-gray-600'
                               : 'bg-gray-100 text-gray-500'
@@ -425,7 +425,7 @@ export default function VerificationWizard({
                     setOrganizerForm(prev => ({ ...prev, full_name: e.target.value }))
                     if (formErrors.full_name) setFormErrors(prev => ({ ...prev, full_name: '' }))
                   }}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors ${
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors ${
                     formErrors.full_name ? 'border-red-300 bg-red-50' : 'border-gray-300'
                   }`}
                   placeholder="Your full name as it appears on your ID"
@@ -447,7 +447,7 @@ export default function VerificationWizard({
                       setOrganizerForm(prev => ({ ...prev, phone: e.target.value }))
                       if (formErrors.phone) setFormErrors(prev => ({ ...prev, phone: '' }))
                     }}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors ${
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors ${
                       formErrors.phone ? 'border-red-300 bg-red-50' : 'border-gray-300'
                     }`}
                     placeholder="+509 1234 5678"
@@ -463,7 +463,7 @@ export default function VerificationWizard({
                     id="email"
                     value={organizerForm.email}
                     onChange={(e) => setOrganizerForm(prev => ({ ...prev, email: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
                     placeholder="email@example.com"
                   />
                 </div>
@@ -482,7 +482,7 @@ export default function VerificationWizard({
                     setOrganizerForm(prev => ({ ...prev, organization_name: e.target.value }))
                     if (formErrors.organization_name) setFormErrors(prev => ({ ...prev, organization_name: '' }))
                   }}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors ${
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors ${
                     formErrors.organization_name ? 'border-red-300 bg-red-50' : 'border-gray-300'
                   }`}
                   placeholder="Your business or organization name"
@@ -499,7 +499,7 @@ export default function VerificationWizard({
                   id="organization_type"
                   value={organizerForm.organization_type}
                   onChange={(e) => setOrganizerForm(prev => ({ ...prev, organization_type: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
                 >
                   <option value="individual">Individual/Sole Proprietor</option>
                   <option value="company">Company/Corporation</option>
@@ -518,7 +518,7 @@ export default function VerificationWizard({
                   id="address"
                   value={organizerForm.address}
                   onChange={(e) => setOrganizerForm(prev => ({ ...prev, address: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
                   placeholder="Street address"
                 />
               </div>
@@ -534,7 +534,7 @@ export default function VerificationWizard({
                     id="city"
                     value={organizerForm.city}
                     onChange={(e) => setOrganizerForm(prev => ({ ...prev, city: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
                     placeholder="Port-au-Prince"
                   />
                 </div>
@@ -546,7 +546,7 @@ export default function VerificationWizard({
                     id="country"
                     value={organizerForm.country}
                     onChange={(e) => setOrganizerForm(prev => ({ ...prev, country: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
                   >
                     <option value="Haiti">Haiti</option>
                     <option value="Dominican Republic">Dominican Republic</option>
@@ -560,11 +560,11 @@ export default function VerificationWizard({
           {currentStep.id === 'governmentId' && (
             <div className="p-5 md:p-6 space-y-5">
               {/* Tips */}
-              <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
-                <h4 className="font-semibold text-blue-900 text-sm mb-2 flex items-center gap-2">
+              <div className="bg-brand-50 border border-brand-200 rounded-xl p-4">
+                <h4 className="font-semibold text-brand-900 text-sm mb-2 flex items-center gap-2">
                   <Sparkles className="w-4 h-4" /> Photo Tips
                 </h4>
-                <ul className="text-sm text-blue-800 space-y-1 ml-6 list-disc">
+                <ul className="text-sm text-brand-800 space-y-1 ml-6 list-disc">
                   <li>Ensure all text is clearly readable</li>
                   <li>Use good lighting (avoid glare)</li>
                   <li>Place ID on a contrasting background</li>
@@ -596,9 +596,9 @@ export default function VerificationWizard({
           {currentStep.id === 'selfie' && (
             <div className="p-5 md:p-6 space-y-5">
               {/* Instructions */}
-              <div className="bg-purple-50 border border-purple-100 rounded-xl p-4">
-                <h4 className="font-semibold text-purple-900 text-sm mb-2">How to take a good selfie:</h4>
-                <ul className="text-sm text-purple-800 space-y-1 ml-6 list-disc">
+              <div className="bg-brand-50 border border-brand-200 rounded-xl p-4">
+                <h4 className="font-semibold text-brand-900 text-sm mb-2">How to take a good selfie:</h4>
+                <ul className="text-sm text-brand-800 space-y-1 ml-6 list-disc">
                   <li>Hold your ID next to your face</li>
                   <li>Make sure your face is clearly visible</li>
                   <li>Ensure the ID text is readable in the photo</li>
@@ -636,7 +636,7 @@ export default function VerificationWizard({
                   id="business_registration_number"
                   value={businessForm.business_registration_number}
                   onChange={(e) => setBusinessForm(prev => ({ ...prev, business_registration_number: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
                   placeholder="e.g., RC-12345"
                 />
               </div>
@@ -651,7 +651,7 @@ export default function VerificationWizard({
                   id="tax_id"
                   value={businessForm.tax_id}
                   onChange={(e) => setBusinessForm(prev => ({ ...prev, tax_id: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
                   placeholder="e.g., NIF-123456789"
                 />
               </div>
@@ -666,7 +666,7 @@ export default function VerificationWizard({
                     id="business_type"
                     value={businessForm.business_type}
                     onChange={(e) => setBusinessForm(prev => ({ ...prev, business_type: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
                   >
                     <option value="">Select type</option>
                     <option value="sole_proprietorship">Sole Proprietorship</option>
@@ -685,7 +685,7 @@ export default function VerificationWizard({
                     id="registration_date"
                     value={businessForm.registration_date}
                     onChange={(e) => setBusinessForm(prev => ({ ...prev, registration_date: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
                   />
                 </div>
               </div>

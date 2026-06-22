@@ -289,7 +289,7 @@ export default function PayoutsSetupWizard({
                   <div
                     key={step.id}
                     className={`flex-1 h-2 rounded-full transition-colors ${
-                      idx <= currentStepIndex ? 'bg-teal-500' : 'bg-gray-200'
+                      idx <= currentStepIndex ? 'bg-brand-600' : 'bg-gray-200'
                     }`}
                   />
                 ))}
@@ -309,7 +309,7 @@ export default function PayoutsSetupWizard({
         {/* Welcome Step */}
         {currentStep === 'welcome' && (
           <div className="text-center py-12">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-teal-500/25">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-brand-700 flex items-center justify-center shadow-lg shadow-brand-500/25">
               <Wallet className="w-10 h-10 text-white" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-3">
@@ -322,22 +322,22 @@ export default function PayoutsSetupWizard({
             {/* Benefits */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               <div className="bg-white rounded-xl border border-gray-200 p-4 text-left">
-                <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center mb-3">
-                  <Shield className="w-5 h-5 text-blue-600" />
+                <div className="w-10 h-10 rounded-lg bg-brand-100 flex items-center justify-center mb-3">
+                  <Shield className="w-5 h-5 text-brand-700" />
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-1">Secure</h3>
                 <p className="text-sm text-gray-600">Bank-level encryption protects your data</p>
               </div>
               <div className="bg-white rounded-xl border border-gray-200 p-4 text-left">
-                <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center mb-3">
-                  <Sparkles className="w-5 h-5 text-green-600" />
+                <div className="w-10 h-10 rounded-lg bg-brand-100 flex items-center justify-center mb-3">
+                  <Sparkles className="w-5 h-5 text-brand-700" />
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-1">Fast</h3>
                 <p className="text-sm text-gray-600">Receive funds within 48 hours of events</p>
               </div>
               <div className="bg-white rounded-xl border border-gray-200 p-4 text-left">
-                <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center mb-3">
-                  <Globe className="w-5 h-5 text-purple-600" />
+                <div className="w-10 h-10 rounded-lg bg-brand-100 flex items-center justify-center mb-3">
+                  <Globe className="w-5 h-5 text-brand-700" />
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-1">Flexible</h3>
                 <p className="text-sm text-gray-600">Multiple payout methods available</p>
@@ -346,7 +346,7 @@ export default function PayoutsSetupWizard({
 
             <button
               onClick={handleNext}
-              className="px-8 py-3.5 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-xl font-semibold hover:from-teal-700 hover:to-blue-700 transition-all shadow-lg shadow-teal-500/25"
+              className="px-8 py-3.5 bg-brand-700 text-white rounded-xl font-semibold hover:bg-brand-800 transition-all shadow-lg shadow-brand-500/25"
             >
               Set Up Payouts
             </button>
@@ -357,7 +357,7 @@ export default function PayoutsSetupWizard({
         {currentStep === 'location' && (
           <div>
             <div className="text-center mb-8">
-              <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-gradient-to-br from-teal-500 to-blue-600 flex items-center justify-center">
+              <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-brand-700 flex items-center justify-center">
                 <MapPin className="w-7 h-7 text-white" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Where is your bank located?</h2>
@@ -371,7 +371,7 @@ export default function PayoutsSetupWizard({
                   onClick={() => setSelectedLocation(location.id)}
                   className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-4 ${
                     selectedLocation === location.id
-                      ? 'border-teal-500 bg-teal-50'
+                      ? 'border-brand-500 bg-brand-50'
                       : 'border-gray-200 hover:border-gray-300 bg-white'
                   }`}
                 >
@@ -385,7 +385,7 @@ export default function PayoutsSetupWizard({
                     </div>
                   </div>
                   {selectedLocation === location.id && (
-                    <Check className="w-5 h-5 text-teal-600" />
+                    <Check className="w-5 h-5 text-brand-600" />
                   )}
                 </button>
               ))}
@@ -400,7 +400,7 @@ export default function PayoutsSetupWizard({
               </button>
               <button
                 onClick={handleNext}
-                className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-lg font-semibold hover:from-teal-700 hover:to-blue-700 transition-all"
+                className="flex items-center gap-2 px-6 py-2.5 bg-brand-700 text-white rounded-lg font-semibold hover:bg-brand-800 transition-all"
               >
                 Continue
                 <ArrowRight className="w-4 h-4" />
@@ -413,7 +413,7 @@ export default function PayoutsSetupWizard({
         {currentStep === 'method' && (
           <div>
             <div className="text-center mb-8">
-              <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-gradient-to-br from-teal-500 to-blue-600 flex items-center justify-center">
+              <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-brand-700 flex items-center justify-center">
                 <CreditCard className="w-7 h-7 text-white" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
@@ -427,9 +427,9 @@ export default function PayoutsSetupWizard({
             </div>
 
             {isStripeLocation ? (
-              <div className="bg-white rounded-xl border-2 border-teal-500 p-6 mb-8">
+              <div className="bg-white rounded-xl border-2 border-brand-500 p-6 mb-8">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
                     <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
                       <path d="M13.976 9.15c-2.172-.806-3.234-1.354-3.234-2.31 0-.788.636-1.262 1.885-1.262 2.217 0 3.614.964 3.614.964l.667-2.524s-1.397-.89-4.238-.89c-2.888 0-4.822 1.567-4.822 3.8 0 1.973 1.419 3.178 3.586 3.938 1.85.66 2.634 1.18 2.634 2.094 0 .888-.67 1.433-1.948 1.433-2.218 0-4.08-1.18-4.08-1.18l-.69 2.547s1.866 1.28 4.72 1.28c3.044 0 4.93-1.504 4.93-3.908 0-2.016-1.51-3.17-3.024-3.982z" fill="#635BFF"/>
                     </svg>
@@ -452,19 +452,19 @@ export default function PayoutsSetupWizard({
                   onClick={() => setSelectedMethod('bank_transfer')}
                   className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-4 ${
                     selectedMethod === 'bank_transfer'
-                      ? 'border-teal-500 bg-teal-50'
+                      ? 'border-brand-500 bg-brand-50'
                       : 'border-gray-200 hover:border-gray-300 bg-white'
                   }`}
                 >
-                  <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
-                    <Building2 className="w-6 h-6 text-blue-600" />
+                  <div className="w-12 h-12 rounded-xl bg-brand-100 flex items-center justify-center">
+                    <Building2 className="w-6 h-6 text-brand-700" />
                   </div>
                   <div className="flex-1 text-left">
                     <div className="font-semibold text-gray-900">Bank Transfer</div>
                     <div className="text-sm text-gray-500">Direct deposit to your bank account</div>
                   </div>
                   {selectedMethod === 'bank_transfer' && (
-                    <Check className="w-5 h-5 text-teal-600" />
+                    <Check className="w-5 h-5 text-brand-600" />
                   )}
                 </button>
 
@@ -472,19 +472,19 @@ export default function PayoutsSetupWizard({
                   onClick={() => setSelectedMethod('mobile_money')}
                   className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-4 ${
                     selectedMethod === 'mobile_money'
-                      ? 'border-teal-500 bg-teal-50'
+                      ? 'border-brand-500 bg-brand-50'
                       : 'border-gray-200 hover:border-gray-300 bg-white'
                   }`}
                 >
-                  <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
-                    <Smartphone className="w-6 h-6 text-green-600" />
+                  <div className="w-12 h-12 rounded-xl bg-brand-100 flex items-center justify-center">
+                    <Smartphone className="w-6 h-6 text-brand-700" />
                   </div>
                   <div className="flex-1 text-left">
                     <div className="font-semibold text-gray-900">Mobile Money</div>
                     <div className="text-sm text-gray-500">MonCash or NatCash</div>
                   </div>
                   {selectedMethod === 'mobile_money' && (
-                    <Check className="w-5 h-5 text-teal-600" />
+                    <Check className="w-5 h-5 text-brand-600" />
                   )}
                 </button>
               </div>
@@ -499,7 +499,7 @@ export default function PayoutsSetupWizard({
               </button>
               <button
                 onClick={handleNext}
-                className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-lg font-semibold hover:from-teal-700 hover:to-blue-700 transition-all"
+                className="flex items-center gap-2 px-6 py-2.5 bg-brand-700 text-white rounded-lg font-semibold hover:bg-brand-800 transition-all"
               >
                 Continue
                 <ArrowRight className="w-4 h-4" />
@@ -512,7 +512,7 @@ export default function PayoutsSetupWizard({
         {currentStep === 'details' && (
           <div>
             <div className="text-center mb-8">
-              <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-gradient-to-br from-teal-500 to-blue-600 flex items-center justify-center">
+              <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-brand-700 flex items-center justify-center">
                 {selectedMethod === 'bank_transfer' ? (
                   <Building2 className="w-7 h-7 text-white" />
                 ) : (
@@ -534,7 +534,7 @@ export default function PayoutsSetupWizard({
             </div>
 
             {isStripeLocation ? (
-              <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl p-6 mb-8 text-center">
+              <div className="bg-gray-50 rounded-xl p-6 mb-8 text-center">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white shadow-md flex items-center justify-center">
                   <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none">
                     <path d="M13.976 9.15c-2.172-.806-3.234-1.354-3.234-2.31 0-.788.636-1.262 1.885-1.262 2.217 0 3.614.964 3.614.964l.667-2.524s-1.397-.89-4.238-.89c-2.888 0-4.822 1.567-4.822 3.8 0 1.973 1.419 3.178 3.586 3.938 1.85.66 2.634 1.18 2.634 2.094 0 .888-.67 1.433-1.948 1.433-2.218 0-4.08-1.18-4.08-1.18l-.69 2.547s1.866 1.28 4.72 1.28c3.044 0 4.93-1.504 4.93-3.908 0-2.016-1.51-3.17-3.024-3.982z" fill="#635BFF"/>
@@ -557,7 +557,7 @@ export default function PayoutsSetupWizard({
                   <select
                     value={bankForm.bankName}
                     onChange={(e) => setBankForm(prev => ({ ...prev, bankName: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                   >
                     {HAITI_BANKS.map((bank) => (
                       <option key={bank.value} value={bank.value}>{bank.label}</option>
@@ -575,7 +575,7 @@ export default function PayoutsSetupWizard({
                       value={bankForm.customBankName}
                       onChange={(e) => setBankForm(prev => ({ ...prev, customBankName: e.target.value }))}
                       placeholder="Enter your bank name"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                     />
                   </div>
                 )}
@@ -590,7 +590,7 @@ export default function PayoutsSetupWizard({
                     value={bankForm.accountName}
                     onChange={(e) => setBankForm(prev => ({ ...prev, accountName: e.target.value }))}
                     placeholder="Name as it appears on account"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                   />
                 </div>
 
@@ -604,7 +604,7 @@ export default function PayoutsSetupWizard({
                     value={bankForm.accountNumber}
                     onChange={(e) => setBankForm(prev => ({ ...prev, accountNumber: e.target.value }))}
                     placeholder="Your bank account number"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                   />
                 </div>
 
@@ -618,7 +618,7 @@ export default function PayoutsSetupWizard({
                     value={bankForm.routingNumber}
                     onChange={(e) => setBankForm(prev => ({ ...prev, routingNumber: e.target.value }))}
                     placeholder="If applicable"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                   />
                 </div>
               </div>
@@ -637,7 +637,7 @@ export default function PayoutsSetupWizard({
                         onClick={() => setMobileForm(prev => ({ ...prev, provider: provider.value }))}
                         className={`p-4 rounded-xl border-2 transition-all ${
                           mobileForm.provider === provider.value
-                            ? 'border-teal-500 bg-teal-50'
+                            ? 'border-brand-500 bg-brand-50'
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
@@ -658,7 +658,7 @@ export default function PayoutsSetupWizard({
                     value={mobileForm.phoneNumber}
                     onChange={(e) => setMobileForm(prev => ({ ...prev, phoneNumber: e.target.value }))}
                     placeholder="+509 1234 5678"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                   />
                   <p className="mt-1.5 text-xs text-gray-500">
                     Enter the phone number linked to your {mobileForm.provider === 'moncash' ? 'MonCash' : 'NatCash'} account
@@ -675,7 +675,7 @@ export default function PayoutsSetupWizard({
                     value={mobileForm.accountName}
                     onChange={(e) => setMobileForm(prev => ({ ...prev, accountName: e.target.value }))}
                     placeholder="Name on account"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                   />
                 </div>
               </div>
@@ -690,7 +690,7 @@ export default function PayoutsSetupWizard({
               </button>
               <button
                 onClick={handleNext}
-                className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-lg font-semibold hover:from-teal-700 hover:to-blue-700 transition-all"
+                className="flex items-center gap-2 px-6 py-2.5 bg-brand-700 text-white rounded-lg font-semibold hover:bg-brand-800 transition-all"
               >
                 Continue
                 <ArrowRight className="w-4 h-4" />
@@ -703,7 +703,7 @@ export default function PayoutsSetupWizard({
         {currentStep === 'review' && (
           <div>
             <div className="text-center mb-8">
-              <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+              <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
                 <Check className="w-7 h-7 text-white" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Review Your Setup</h2>
@@ -799,7 +799,7 @@ export default function PayoutsSetupWizard({
               <button
                 onClick={handleSubmit}
                 disabled={saving}
-                className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition-all disabled:opacity-50"
+                className="flex items-center gap-2 px-6 py-2.5 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-all disabled:opacity-50"
               >
                 {saving ? (
                   <>

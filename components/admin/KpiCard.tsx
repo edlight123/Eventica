@@ -60,7 +60,7 @@ export function KpiCard({
     return (
       <Link
         href={href}
-        className="block bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-5 hover:shadow-md hover:border-teal-300 transition-all active:scale-95"
+        className="block bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-5 hover:shadow-md hover:border-brand-300 transition-all active:scale-95"
       >
         {content}
       </Link>

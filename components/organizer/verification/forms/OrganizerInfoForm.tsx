@@ -97,7 +97,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
               name="full_name"
               value={formData.full_name}
               onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 ${
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 ${
                 errors.full_name ? 'border-red-300' : 'border-gray-300'
               }`}
               placeholder="John Doe"
@@ -118,7 +118,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 ${
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 ${
                 errors.phone ? 'border-red-300' : 'border-gray-300'
               }`}
               placeholder="+509 1234 5678"
@@ -139,7 +139,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
               placeholder="john@example.com"
             />
           </div>
@@ -155,7 +155,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
               name="organization_name"
               value={formData.organization_name}
               onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 ${
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 ${
                 errors.organization_name ? 'border-red-300' : 'border-gray-300'
               }`}
               placeholder="Your Company Name"
@@ -175,7 +175,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
               name="organization_type"
               value={formData.organization_type}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
             >
               <option value="individual">Individual/Sole Proprietor</option>
               <option value="company">Company/Corporation</option>
@@ -195,7 +195,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
               value={formData.address}
               onChange={handleChange}
               rows={2}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
               placeholder="Street address"
             />
           </div>
@@ -212,7 +212,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
                 name="city"
                 value={formData.city}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                 placeholder="Port-au-Prince"
               />
             </div>
@@ -226,7 +226,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
                 name="country"
                 value={formData.country}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
               >
                 <option value="Haiti">Haiti</option>
                 <option value="Dominican Republic">Dominican Republic</option>
@@ -257,7 +257,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
         <button
           type="submit"
           disabled={isSaving}
-          className="flex-1 px-6 py-3 bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white rounded-lg font-semibold transition-all shadow-md hover:shadow-lg disabled:opacity-50"
+          className="flex-1 px-6 py-3 bg-brand-700 hover:bg-brand-800 text-white rounded-lg font-semibold transition-all shadow-md hover:shadow-lg disabled:opacity-50"
         >
           {isSaving ? 'Saving...' : 'Save & Continue'}
         </button>

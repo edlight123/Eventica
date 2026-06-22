@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FileText, TrendingUp, Wallet } from 'lucide-react'
 import { AdminBreadcrumbs } from './AdminBreadcrumbs'
+import { EditorialHeader } from '@/components/ui/EditorialHeader'
 
 interface PayoutOperationsClientProps {
   pendingPayoutsContent: React.ReactNode
@@ -25,6 +26,23 @@ export function PayoutOperationsClient({
   withdrawalsContent,
 }: PayoutOperationsClientProps) {
   const [activeTab, setActiveTab] = useState<TabId>('settlements')
+
+  // Open the correct tab from the URL hash so deep links like
+  // `#withdrawals`, `#pending`, and `#settlements` work. Defaults to settlements.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const hash = window.location.hash.replace('#', '')
+    if (hash === 'withdrawals' || hash === 'pending' || hash === 'settlements') {
+      setActiveTab(hash)
+    }
+  }, [])
+
+  const selectTab = (id: TabId) => {
+    setActiveTab(id)
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', `#${id}`)
+    }
+  }
 
   const tabs: Tab[] = [
     {
@@ -51,10 +69,10 @@ export function PayoutOperationsClient({
       
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Payout Operations</h1>
-        <p className="mt-2 text-gray-600">
-          Manage event disbursements, pending requests, and withdrawal history
-        </p>
+        <EditorialHeader
+          title="Payout Operations"
+          subtitle="Manage event disbursements, pending requests, and withdrawal history"
+        />
       </div>
 
       {/* Tabs */}
@@ -67,17 +85,17 @@ export function PayoutOperationsClient({
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => selectTab(tab.id)}
                 className={`
                   group inline-flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm
                   transition-colors
                   ${isActive
-                    ? 'border-teal-500 text-teal-600'
+                    ? 'border-brand-600 text-brand-700'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }
                 `}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-teal-500' : 'text-gray-400 group-hover:text-gray-500'}`} />
+                <Icon className={`w-5 h-5 ${isActive ? 'text-brand-600' : 'text-gray-400 group-hover:text-gray-500'}`} />
                 <span>{tab.label}</span>
                 {tab.badge && tab.badge > 0 && (
                   <span className="ml-2 py-0.5 px-2 rounded-full text-xs font-medium bg-red-100 text-red-600">

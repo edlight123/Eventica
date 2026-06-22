@@ -4,7 +4,8 @@
  */
 
 import { type VerificationRequest, canSubmitForReview, getBlockingIssues } from '@/lib/verification'
-import { Building2, Fingerprint, IdCard, UserRound } from 'lucide-react'
+import { Building2, Check, Fingerprint, IdCard, UserRound } from 'lucide-react'
+import { Card, StatusChip } from '@/components/ui/kit'
 
 interface Props {
   request: VerificationRequest
@@ -107,18 +108,18 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
 
       {/* Submission Status */}
       {isSubmitted && (
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="mt-6 p-4 bg-brand-50 border border-brand-200 rounded-lg">
           <div className="flex items-start gap-3">
-            <div className="bg-blue-100 rounded-full p-2 flex-shrink-0">
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-brand-100 rounded-full p-2 flex-shrink-0">
+              <svg className="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-blue-900 mb-1 text-sm md:text-base">
+              <h3 className="font-semibold text-brand-900 mb-1 text-sm md:text-base">
                 Verification Submitted
               </h3>
-              <p className="text-sm text-blue-800">
+              <p className="text-sm text-brand-800">
                 Submitted on {request.submittedAt ? new Date(request.submittedAt).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
@@ -128,7 +129,7 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
                 }) : 'N/A'}
               </p>
               {request.reviewedAt && (
-                <p className="text-sm text-blue-800 mt-1">
+                <p className="text-sm text-brand-800 mt-1">
                   Reviewed on {new Date(request.reviewedAt).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
@@ -157,7 +158,7 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
             disabled={!canSubmit}
             className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all shadow-md ${
               canSubmit
-                ? 'bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white hover:shadow-lg'
+                ? 'bg-brand-700 hover:bg-brand-800 text-white hover:shadow-lg'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
           >
@@ -170,11 +171,11 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
       {!isReadOnly && canSubmit && (
         <div className="mt-4 text-xs md:text-sm text-gray-600 text-center">
           By submitting, you agree to our{' '}
-          <a href="/terms" className="text-teal-600 hover:text-teal-700 underline">
+          <a href="/terms" className="text-brand-700 hover:text-brand-800 underline">
             Terms of Service
           </a>{' '}
           and{' '}
-          <a href="/privacy" className="text-teal-600 hover:text-teal-700 underline">
+          <a href="/privacy" className="text-brand-700 hover:text-brand-800 underline">
             Privacy Policy
           </a>
         </div>
@@ -195,12 +196,15 @@ function SummarySection({ title, icon, fields }: SummarySectionProps) {
   if (entries.length === 0) return null
 
   return (
-    <div className="pb-6 border-b border-gray-200 last:border-b-0">
-      <div className="flex items-center gap-2 mb-4">
-        <span aria-hidden="true">{icon}</span>
-        <h3 className="font-semibold text-gray-900 text-base md:text-lg">
-          {title}
-        </h3>
+    <Card className="p-4 md:p-5">
+      <div className="mb-4 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span aria-hidden="true">{icon}</span>
+          <h3 className="font-semibold text-gray-900 text-base md:text-lg">
+            {title}
+          </h3>
+        </div>
+        <StatusChip tone="success" icon={Check}>Complete</StatusChip>
       </div>
 
       <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
@@ -215,7 +219,7 @@ function SummarySection({ title, icon, fields }: SummarySectionProps) {
           </div>
         ))}
       </dl>
-    </div>
+    </Card>
   )
 }
 

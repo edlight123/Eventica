@@ -17,6 +17,7 @@ import OrganizerInfoForm from '@/components/organizer/verification/forms/Organiz
 import GovernmentIDForm from '@/components/organizer/verification/forms/GovernmentIDForm'
 import SelfieForm from '@/components/organizer/verification/forms/SelfieForm'
 import BusinessDetailsForm from '@/components/organizer/verification/forms/BusinessDetailsForm'
+import { EditorialHeader } from '@/components/ui/EditorialHeader'
 import {
   getVerificationRequest,
   initializeVerificationRequest,
@@ -289,7 +290,7 @@ export default function VerifyOrganizerPage() {
     return (
       <div className="bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-teal-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="w-16 h-16 border-4 border-brand-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-600">
             {restarting ? 'Resetting verification...' : 'Loading verification...'}
           </p>
@@ -359,10 +360,10 @@ export default function VerifyOrganizerPage() {
             <span className="text-gray-400">/</span>
             <span className="text-gray-900 font-medium">Verification</span>
           </div>
-          <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">Verification</h1>
-          <p className="text-gray-600 mt-1">
-            Verify your identity to publish paid events and receive payouts.
-          </p>
+          <EditorialHeader
+            title="Verification"
+            subtitle="Verify your identity to publish paid events and receive payouts."
+          />
         </div>
 
         {/* Status Hero */}
@@ -451,7 +452,7 @@ export default function VerifyOrganizerPage() {
                 <div className="mt-4">
                   <div className="w-full bg-gray-100 rounded-full h-2">
                     <div
-                      className="bg-gradient-to-r from-teal-600 to-blue-600 h-2 rounded-full transition-all"
+                      className="bg-brand-700 h-2 rounded-full transition-all"
                       style={{ width: `${completionPercentage}%` }}
                     />
                   </div>
@@ -464,7 +465,7 @@ export default function VerifyOrganizerPage() {
                       isReadOnly
                         ? 'bg-gray-900 hover:bg-gray-800 text-white'
                         : canSubmit
-                          ? 'bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white'
+                          ? 'bg-brand-700 hover:bg-brand-800 text-white'
                           : 'bg-gray-100 text-gray-500 cursor-not-allowed'
                     }`}
                     disabled={!isReadOnly && !canSubmit}

@@ -38,8 +38,8 @@ export function QuickFacts({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {/* Date & Time */}
           <div className="flex items-start gap-3">
-            <div className="w-12 h-12 bg-accent-100 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Calendar className="w-6 h-6 text-accent-600" />
+            <div className="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Calendar className="w-6 h-6 text-brand-600" />
             </div>
             <div>
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
@@ -72,8 +72,8 @@ export function QuickFacts({
 
           {/* Price */}
           <div className="flex items-start gap-3">
-            <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
-              <DollarSign className="w-6 h-6 text-purple-600" />
+            <div className="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
+              <DollarSign className="w-6 h-6 text-brand-600" />
             </div>
             <div>
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">

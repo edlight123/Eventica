@@ -72,7 +72,7 @@ export default function BusinessDetailsForm({ initialData, onSave, onCancel, onS
               name="business_registration_number"
               value={formData.business_registration_number}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
               placeholder="e.g., RC-12345"
             />
           </div>
@@ -88,7 +88,7 @@ export default function BusinessDetailsForm({ initialData, onSave, onCancel, onS
               name="tax_id"
               value={formData.tax_id}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
               placeholder="e.g., NIF-123456789"
             />
           </div>
@@ -103,7 +103,7 @@ export default function BusinessDetailsForm({ initialData, onSave, onCancel, onS
               name="business_type"
               value={formData.business_type}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
             >
               <option value="">Select type</option>
               <option value="sole_proprietorship">Sole Proprietorship</option>
@@ -125,7 +125,7 @@ export default function BusinessDetailsForm({ initialData, onSave, onCancel, onS
               name="registration_date"
               value={formData.registration_date}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
             />
           </div>
         </div>
@@ -159,7 +159,7 @@ export default function BusinessDetailsForm({ initialData, onSave, onCancel, onS
         <button
           type="submit"
           disabled={isSaving}
-          className="flex-1 px-6 py-3 bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white rounded-lg font-semibold transition-all shadow-md hover:shadow-lg disabled:opacity-50"
+          className="flex-1 px-6 py-3 bg-brand-700 hover:bg-brand-800 text-white rounded-lg font-semibold transition-all shadow-md hover:shadow-lg disabled:opacity-50"
         >
           {isSaving ? 'Saving...' : 'Save & Continue'}
         </button>

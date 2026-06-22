@@ -1,25 +1,26 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
-import OrganizerEventsTopBar from '@/components/organizer/events-manager/OrganizerEventsTopBar'
-import OrganizerEventsTabs, { type EventTabType } from '@/components/organizer/events-manager/OrganizerEventsTabs'
 import OrganizerEventsFiltersModal, { type EventFilters } from '@/components/organizer/events-manager/OrganizerEventsFiltersModal'
 import OrganizerEventCard from '@/components/organizer/events-manager/OrganizerEventCard'
 import CalendarView from '@/components/organizer/events-manager/CalendarView'
 import EventCardSkeleton from '@/components/organizer/events-manager/EventCardSkeleton'
-import EventsEmptyState from '@/components/organizer/events-manager/EventsEmptyState'
 import QuickLinksBar from '@/components/organizer/events-manager/QuickLinksBar'
+import { EditorialHeader } from '@/components/ui/EditorialHeader'
+import { Chip, EmptyState } from '@/components/ui/kit'
+import { Search, Plus, List, Calendar, SlidersHorizontal, X, CalendarRange } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { isDemoMode, DEMO_EVENTS } from '@/lib/demo'
 import { getOrganizerEventsClient } from '@/lib/data/events.client'
-import { debounce } from '@/lib/data/utils'
 import Link from 'next/link'
 import { useOrganizerClientGuard } from '@/lib/hooks/useOrganizerClientGuard'
 
-export default function OrganizerEventsPage() {
-  const router = useRouter()
+type StatusFilter = 'all' | 'published' | 'draft' | 'past'
 
-  const { firebaseUser, navbarUser, loading: authLoading } = useOrganizerClientGuard({
+export default function OrganizerEventsPage() {
+  const { t } = useTranslation('organizer')
+
+  const { firebaseUser, loading: authLoading } = useOrganizerClientGuard({
     loginRedirectPath: '/organizer/events',
     upgradeRedirectPath: '/organizer/events',
   })
@@ -31,7 +32,7 @@ export default function OrganizerEventsPage() {
   const [hasMore, setHasMore] = useState(false)
   const [lastDoc, setLastDoc] = useState<any>(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [activeTab, setActiveTab] = useState<EventTabType>('upcoming')
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [view, setView] = useState<'list' | 'calendar'>('list')
   const [showFiltersModal, setShowFiltersModal] = useState(false)
   const [calendarMonth, setCalendarMonth] = useState(new Date())
@@ -44,14 +45,6 @@ export default function OrganizerEventsPage() {
     sortOrder: 'desc'
   })
 
-  // Debounced search handler
-  const debouncedSearch = useMemo(
-    () => debounce((value: string) => {
-      setSearchQuery(value)
-    }, 300),
-    []
-  )
-  
   // Fetch first page of events once authenticated.
   useEffect(() => {
     if (authLoading) return
@@ -121,14 +114,11 @@ export default function OrganizerEventsPage() {
     }
   }
 
-  // Filter and categorize events
-  const categorizedEvents = useMemo(() => {
-    const now = new Date()
-    
-    // First, filter by search query
+  // Filter events by search + advanced filters, then sort.
+  const filteredEvents = useMemo(() => {
     let filtered = events.filter((event) => {
       if (!searchQuery) return true
-      
+
       const searchLower = searchQuery.toLowerCase()
       return (
         event.title?.toLowerCase().includes(searchLower) ||
@@ -166,20 +156,10 @@ export default function OrganizerEventsPage() {
       filtered = filtered.filter((event) => (event.tickets_sold || 0) === 0)
     }
 
-    // Categorize by tab
-    const upcoming = filtered.filter(
-      (event) => event.is_published && new Date(event.start_datetime) >= now
-    )
-    const drafts = filtered.filter((event) => !event.is_published)
-    const past = filtered.filter(
-      (event) => event.is_published && new Date(event.start_datetime) < now && !event.is_cancelled
-    )
-    const cancelled = filtered.filter((event) => event.is_cancelled)
-
     // Apply sorting
     const sortFn = (a: any, b: any) => {
       let comparison = 0
-      
+
       switch (filters.sortBy) {
         case 'date':
           comparison = new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime()
@@ -194,28 +174,39 @@ export default function OrganizerEventsPage() {
           comparison = (a.title || '').localeCompare(b.title || '')
           break
       }
-      
+
       return filters.sortOrder === 'asc' ? comparison : -comparison
     }
 
-    upcoming.sort(sortFn)
-    drafts.sort(sortFn)
-    past.sort(sortFn)
-    cancelled.sort(sortFn)
-
-    return { upcoming, drafts, past, cancelled }
+    return [...filtered].sort(sortFn)
   }, [events, searchQuery, filters])
 
-  // Get current tab events
-  const currentEvents = categorizedEvents[activeTab]
+  // Counts per status chip (All / Published / Draft / Past).
+  const statusCounts = useMemo(() => {
+    const now = new Date()
+    const isPublished = (e: any) => e.is_published && !e.is_cancelled && new Date(e.start_datetime) >= now
+    const isDraft = (e: any) => !e.is_published
+    const isPast = (e: any) => e.is_published && new Date(e.start_datetime) < now
+    return {
+      all: filteredEvents.length,
+      published: filteredEvents.filter(isPublished).length,
+      draft: filteredEvents.filter(isDraft).length,
+      past: filteredEvents.filter(isPast).length,
+    }
+  }, [filteredEvents])
 
-  // Tab counts
-  const tabCounts = {
-    upcoming: categorizedEvents.upcoming.length,
-    drafts: categorizedEvents.drafts.length,
-    past: categorizedEvents.past.length,
-    cancelled: categorizedEvents.cancelled.length
-  }
+  // Events visible under the current status chip.
+  const currentEvents = useMemo(() => {
+    if (statusFilter === 'all') return filteredEvents
+    const now = new Date()
+    return filteredEvents.filter((e) => {
+      const start = new Date(e.start_datetime)
+      if (statusFilter === 'published') return e.is_published && !e.is_cancelled && start >= now
+      if (statusFilter === 'draft') return !e.is_published
+      if (statusFilter === 'past') return e.is_published && start < now
+      return true
+    })
+  }, [filteredEvents, statusFilter])
 
   // Available cities and categories for filters
   const availableCities = useMemo(() => {
@@ -246,27 +237,27 @@ export default function OrganizerEventsPage() {
       sortOrder: 'desc'
     })
     setSearchQuery('')
+    setStatusFilter('all')
   }
+
+  const statusChips: { id: StatusFilter; label: string; count: number }[] = [
+    { id: 'all', label: t('events_page.all', 'All'), count: statusCounts.all },
+    { id: 'published', label: t('event_card_detail.published', 'Published'), count: statusCounts.published },
+    { id: 'draft', label: t('event_card_detail.draft', 'Draft'), count: statusCounts.draft },
+    { id: 'past', label: t('events_page.past', 'Past'), count: statusCounts.past },
+  ]
 
   // Show loading state during auth or initial fetch
   if (authLoading || (loading && events.length === 0)) {
     return (
-      <div className="bg-gradient-to-br from-gray-50 to-gray-100">
-        <OrganizerEventsTopBar
-          searchQuery=""
-          onSearchChange={() => {}}
-          view={view}
-          onViewChange={setView}
-          onOpenFilters={() => {}}
-          activeFiltersCount={0}
-        />
-        <OrganizerEventsTabs
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          counts={{ upcoming: 0, drafts: 0, past: 0, cancelled: 0 }}
-        />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+          <EditorialHeader
+            eyebrow={t('events_page.eyebrow', 'Organizer')}
+            title={t('events_page.title', 'My Events')}
+            subtitle={t('events_page.subtitle', 'Create, manage, and track all of your events.')}
+          />
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <EventCardSkeleton key={i} />
             ))}
@@ -281,76 +272,185 @@ export default function OrganizerEventsPage() {
     return null
   }
 
-  const hasSearchOrFilters = Boolean(searchQuery || activeFiltersCount > 0)
+  const hasSearchOrFilters = Boolean(searchQuery || activeFiltersCount > 0 || statusFilter !== 'all')
 
   return (
-    <div className="bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Top Bar */}
-      <OrganizerEventsTopBar
-        searchQuery={searchQuery}
-        onSearchChange={debouncedSearch}
-        view={view}
-        onViewChange={setView}
-        onOpenFilters={() => setShowFiltersModal(true)}
-        activeFiltersCount={activeFiltersCount}
-      />
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+        {/* Header */}
+        <EditorialHeader
+          eyebrow={t('events_page.eyebrow', 'Organizer')}
+          title={t('events_page.title', 'My Events')}
+          subtitle={t('events_page.subtitle', 'Create, manage, and track all of your events.')}
+          actions={
+            <Link
+              href="/organizer/events/new"
+              className="inline-flex items-center gap-2 rounded-lg bg-brand-700 px-5 py-2.5 font-semibold text-white shadow-sm transition-colors hover:bg-brand-800"
+            >
+              <Plus className="h-5 w-5" />
+              <span className="hidden sm:inline">{t('events_page.create_event', 'Create Event')}</span>
+            </Link>
+          }
+        />
 
-      {/* Tabs */}
-      <OrganizerEventsTabs
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        counts={tabCounts}
-      />
+        {/* Quick Links */}
+        <div className="mt-6">
+          <QuickLinksBar />
+        </div>
 
-      {/* Quick Links Bar (below tabs) */}
-      <QuickLinksBar />
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <EventCardSkeleton key={i} />
-            ))}
+        {/* Controls: search + view toggle + advanced filters */}
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t('events_page.search_placeholder', 'Search events…')}
+              className="w-full rounded-lg border border-gray-200 bg-white py-2.5 pl-10 pr-10 text-sm transition-all focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600"
+                aria-label={t('events_page.clear_search', 'Clear search')}
+              >
+                <X className="h-5 w-5" />
+              </button>
+            )}
           </div>
-        ) : currentEvents.length === 0 ? (
-          <EventsEmptyState
-            tab={activeTab}
-            hasFilters={hasSearchOrFilters}
-            onClearFilters={handleClearFilters}
-          />
-        ) : view === 'calendar' ? (
-          <CalendarView
-            events={currentEvents}
-            currentMonth={calendarMonth}
-            onMonthChange={setCalendarMonth}
-          />
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {currentEvents.map((event) => (
-                <OrganizerEventCard
-                  key={event.id}
-                  event={event}
-                  showNeedsAttention={activeTab === 'upcoming' || activeTab === 'drafts'}
-                />
-              ))}
+
+          <div className="flex items-center gap-2">
+            {/* View toggle */}
+            <div className="flex items-center rounded-lg bg-gray-100 p-1">
+              <button
+                type="button"
+                onClick={() => setView('list')}
+                className={`rounded-md p-2 transition-all ${
+                  view === 'list' ? 'bg-white text-brand-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}
+                aria-label={t('events_page.list_view', 'List view')}
+              >
+                <List className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setView('calendar')}
+                className={`rounded-md p-2 transition-all ${
+                  view === 'calendar' ? 'bg-white text-brand-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}
+                aria-label={t('events_page.calendar_view', 'Calendar view')}
+              >
+                <Calendar className="h-5 w-5" />
+              </button>
             </div>
 
-            {hasMore && view === 'list' && !hasSearchOrFilters && (
-              <div className="flex justify-center mt-8">
-                <button
-                  type="button"
-                  onClick={handleLoadMore}
-                  disabled={loadingMore}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 text-gray-900 font-medium disabled:opacity-60"
-                >
-                  {loadingMore ? 'Loading…' : 'Load more events'}
-                </button>
+            {/* Advanced filters */}
+            <button
+              type="button"
+              onClick={() => setShowFiltersModal(true)}
+              className="relative inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              <span>{t('events_page.filters', 'Filters')}</span>
+              {activeFiltersCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-brand-700 text-xs font-bold text-white">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Status filter chips */}
+        <div className="mt-4 flex flex-wrap gap-2">
+          {statusChips.map((chip) => (
+            <Chip
+              key={chip.id}
+              active={statusFilter === chip.id}
+              onClick={() => setStatusFilter(chip.id)}
+            >
+              {chip.label}
+              <span className={statusFilter === chip.id ? 'text-white/80' : 'text-gray-400'}>{chip.count}</span>
+            </Chip>
+          ))}
+        </div>
+
+        {/* Main Content */}
+        <div className="mt-6">
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <EventCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : currentEvents.length === 0 ? (
+            <EmptyState
+              icon={CalendarRange}
+              title={
+                hasSearchOrFilters
+                  ? t('events_page.empty_filtered_title', 'No events match')
+                  : t('events_page.empty_title', 'No events yet')
+              }
+              description={
+                hasSearchOrFilters
+                  ? t('events_page.empty_filtered_desc', 'Try adjusting your search or filters to find what you’re looking for.')
+                  : t('events_page.empty_desc', 'Create your first event to start selling tickets and tracking sales.')
+              }
+              action={
+                hasSearchOrFilters ? (
+                  <button
+                    type="button"
+                    onClick={handleClearFilters}
+                    className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-5 py-2.5 font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+                  >
+                    {t('events_page.clear_filters', 'Clear filters')}
+                  </button>
+                ) : (
+                  <Link
+                    href="/organizer/events/new"
+                    className="inline-flex items-center gap-2 rounded-lg bg-brand-700 px-6 py-3 font-semibold text-white transition-colors hover:bg-brand-800"
+                  >
+                    <Plus className="h-5 w-5" />
+                    {t('events_page.create_event', 'Create Event')}
+                  </Link>
+                )
+              }
+            />
+          ) : view === 'calendar' ? (
+            <CalendarView
+              events={currentEvents}
+              currentMonth={calendarMonth}
+              onMonthChange={setCalendarMonth}
+            />
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {currentEvents.map((event) => (
+                  <OrganizerEventCard
+                    key={event.id}
+                    event={event}
+                    showNeedsAttention={statusFilter !== 'past'}
+                  />
+                ))}
               </div>
-            )}
-          </>
-        )}
+
+              {hasMore && view === 'list' && !hasSearchOrFilters && (
+                <div className="flex justify-center mt-8">
+                  <button
+                    type="button"
+                    onClick={handleLoadMore}
+                    disabled={loadingMore}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 text-gray-900 font-medium disabled:opacity-60"
+                  >
+                    {loadingMore ? t('events_page.loading', 'Loading…') : t('events_page.load_more', 'Load more events')}
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
 
       {/* Filters Modal */}

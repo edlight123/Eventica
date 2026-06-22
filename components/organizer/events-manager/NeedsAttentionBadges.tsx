@@ -67,9 +67,9 @@ export default function NeedsAttentionBadges({
   const getBadgeColor = (color: string) => {
     switch (color) {
       case 'yellow':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-300'
+        return 'bg-amber-100 text-amber-800 border-amber-300'
       case 'orange':
-        return 'bg-orange-100 text-orange-800 border-orange-300'
+        return 'bg-amber-100 text-amber-800 border-amber-300'
       case 'red':
         return 'bg-red-100 text-red-800 border-red-300'
       default:

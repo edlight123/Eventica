@@ -120,7 +120,7 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                       value={transferEmail}
                       onChange={(e) => setTransferEmail(e.target.value)}
                       placeholder="friend@example.com"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       required
                     />
                   </div>
@@ -133,7 +133,7 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                       value={transferMessage}
                       onChange={(e) => setTransferMessage(e.target.value)}
                       placeholder={t('detail.transfer_message_placeholder')}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       rows={3}
                       maxLength={500}
                     />
@@ -164,7 +164,7 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                      className="flex-1 px-4 py-2 bg-brand-600 text-white font-semibold rounded-lg hover:bg-brand-700 disabled:opacity-50"
                       disabled={loading || !transferEmail}
                     >
                       {loading ? 'Sending...' : t('detail.transfer_send')}
@@ -220,7 +220,7 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                       const text = `I'm transferring my ticket for ${eventTitle}. Accept it here: ${transferLink}`
                       window.location.href = `sms:?&body=${encodeURIComponent(text)}`
                     }}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 transition"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-800 text-white font-medium rounded-lg hover:bg-gray-900 transition"
                   >
                     💬 Share via Text Message
                   </button>

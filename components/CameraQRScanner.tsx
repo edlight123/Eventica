@@ -385,7 +385,7 @@ export function CameraQRScanner({
         <div className="absolute inset-0 flex items-center justify-center bg-gray-900/95 backdrop-blur-sm">
           <div className="text-center p-8">
             <svg
-              className="mx-auto h-16 w-16 text-orange-400"
+              className="mx-auto h-16 w-16 text-brand-400"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -408,11 +408,11 @@ export function CameraQRScanner({
               Tap the button below to enable camera scanning
             </p>
             {debugInfo && (
-              <p className="mt-2 text-xs text-blue-400 font-mono">{debugInfo}</p>
+              <p className="mt-2 text-xs text-brand-400 font-mono">{debugInfo}</p>
             )}
             <button
               onClick={startCamera}
-              className="mt-6 inline-flex items-center rounded-lg bg-orange-600 px-8 py-4 text-lg font-semibold text-white shadow-lg hover:bg-orange-500"
+              className="mt-6 inline-flex items-center rounded-lg bg-brand-600 px-8 py-4 text-lg font-semibold text-white shadow-lg hover:bg-brand-700"
             >
               📷 Start Camera
             </button>
@@ -465,7 +465,7 @@ export function CameraQRScanner({
             </p>
           </div>
           {debugInfo && (
-            <div className="rounded-lg bg-blue-500/80 px-3 py-2 text-center backdrop-blur-sm">
+            <div className="rounded-lg bg-brand-600/80 px-3 py-2 text-center backdrop-blur-sm">
               <p className="text-xs font-mono text-white">
                 {debugInfo} | Frames: {frameCount}
               </p>
@@ -473,7 +473,7 @@ export function CameraQRScanner({
           )}
           {/* Console Log Display */}
           {consoleLog.length > 0 && (
-            <div className="rounded-lg bg-purple-600/90 px-2 py-2 backdrop-blur-sm">
+            <div className="rounded-lg bg-brand-700/90 px-2 py-2 backdrop-blur-sm">
               {consoleLog.map((log, i) => (
                 <p key={i} className="text-xs font-mono text-white">
                   {log}

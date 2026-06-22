@@ -60,7 +60,7 @@ export default function EventStaffHub({
         <p className="text-gray-600 mb-6">Create an event to invite staff and manage check-in access.</p>
         <Link
           href="/organizer/events/new"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-brand-700 hover:bg-brand-800 text-white font-medium rounded-lg transition-colors"
         >
           Create Event
         </Link>
@@ -72,7 +72,7 @@ export default function EventStaffHub({
     <div className="space-y-6">
       <div className="bg-white border border-gray-200 rounded-xl p-5">
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-lg bg-brand-50 text-brand-700 flex items-center justify-center flex-shrink-0">
             <Users className="w-5 h-5" />
           </div>
           <div className="flex-1 min-w-0">
@@ -85,7 +85,7 @@ export default function EventStaffHub({
                 <select
                   value={selectedEventId}
                   onChange={(e) => handleChange(e.target.value)}
-                  className="w-full sm:w-[420px] px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full sm:w-[420px] px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 >
                   {events.map((e) => (
                     <option key={e.id} value={e.id}>
@@ -100,7 +100,7 @@ export default function EventStaffHub({
               <div className="mt-3">
                 <Link
                   href={`/organizer/events/${selectedEventId}`}
-                  className="text-sm font-medium text-indigo-700 hover:text-indigo-900"
+                  className="text-sm font-medium text-brand-700 hover:text-brand-800"
                 >
                   View event details →
                 </Link>

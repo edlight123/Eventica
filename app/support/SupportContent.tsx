@@ -69,7 +69,7 @@ export default function SupportContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-700 text-white">
+      <div className="bg-gradient-to-br from-brand-600 via-brand-700 to-brand-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
           <div className="text-center max-w-3xl mx-auto">
             {/* Pill Label */}
@@ -84,7 +84,7 @@ export default function SupportContent() {
             </h1>
 
             {/* Subtitle */}
-            <p className="text-lg sm:text-xl text-purple-100 mb-8">
+            <p className="text-lg sm:text-xl text-brand-100 mb-8">
               {t('hero.subtitle')}
             </p>
 
@@ -96,7 +96,7 @@ export default function SupportContent() {
                 placeholder={t('search.placeholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 rounded-xl border-0 shadow-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-400 focus:outline-none"
+                className="w-full pl-12 pr-4 py-4 rounded-xl border-0 shadow-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-brand-400 focus:outline-none"
               />
             </div>
           </div>
@@ -115,7 +115,7 @@ export default function SupportContent() {
               }}
               className={`px-6 py-2.5 rounded-full font-semibold transition-all ${
                 role === 'attendee'
-                  ? 'bg-purple-600 text-white shadow-md'
+                  ? 'bg-brand-600 text-white shadow-md'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -132,7 +132,7 @@ export default function SupportContent() {
               }}
               className={`px-6 py-2.5 rounded-full font-semibold transition-all ${
                 role === 'organizer'
-                  ? 'bg-purple-600 text-white shadow-md'
+                  ? 'bg-brand-600 text-white shadow-md'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -162,12 +162,12 @@ export default function SupportContent() {
                 <button
                   key={category.id}
                   onClick={() => scrollToCategory(category.id)}
-                  className="bg-white p-6 rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all text-left group"
+                  className="bg-white p-6 rounded-xl border border-gray-200 hover:border-brand-300 hover:shadow-md transition-all text-left group"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center mb-3">
-                    <category.icon className="w-5 h-5 text-purple-700" />
+                  <div className="w-10 h-10 rounded-xl bg-brand-50 border border-brand-100 flex items-center justify-center mb-3">
+                    <category.icon className="w-5 h-5 text-brand-700" />
                   </div>
-                  <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">
+                  <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-brand-600 transition-colors">
                     {category.title}
                   </h3>
                   <p className="text-sm text-gray-600">
@@ -243,7 +243,7 @@ export default function SupportContent() {
         </div>
 
         {/* Still Need Help Section */}
-        <div className="mt-20 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl border border-purple-100 p-8 sm:p-12">
+        <div className="mt-20 bg-gradient-to-br from-brand-50 to-brand-100 rounded-2xl border border-brand-100 p-8 sm:p-12">
           <div className="text-center max-w-2xl mx-auto mb-8">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
               {t('need_help.title')}
@@ -257,11 +257,11 @@ export default function SupportContent() {
             {/* Email Support */}
             <a
               href="mailto:support@tikem.co"
-              className="bg-white p-6 rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all group"
+              className="bg-white p-6 rounded-xl border border-gray-200 hover:border-brand-300 hover:shadow-md transition-all group"
             >
               <div className="flex items-center justify-between mb-3">
-                <Mail className="w-6 h-6 text-purple-600" />
-                <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-purple-600 transition-colors" />
+                <Mail className="w-6 h-6 text-brand-600" />
+                <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-brand-600 transition-colors" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-1">{t('contact_cards.email_title')}</h3>
               <p className="text-sm text-gray-600">
@@ -274,11 +274,11 @@ export default function SupportContent() {
               href="https://wa.me/50938675309"
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white p-6 rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all group"
+              className="bg-white p-6 rounded-xl border border-gray-200 hover:border-brand-300 hover:shadow-md transition-all group"
             >
               <div className="flex items-center justify-between mb-3">
                 <MessageCircle className="w-6 h-6 text-green-600" />
-                <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-purple-600 transition-colors" />
+                <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-brand-600 transition-colors" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-1">{t('contact_cards.whatsapp_title')}</h3>
               <p className="text-sm text-gray-600">
@@ -289,11 +289,11 @@ export default function SupportContent() {
             {/* Submit a Request */}
             <Link
               href="/support/request"
-              className="bg-white p-6 rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all group"
+              className="bg-white p-6 rounded-xl border border-gray-200 hover:border-brand-300 hover:shadow-md transition-all group"
             >
               <div className="flex items-center justify-between mb-3">
-                <FileText className="w-6 h-6 text-indigo-600" />
-                <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-purple-600 transition-colors" />
+                <FileText className="w-6 h-6 text-brand-600" />
+                <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-brand-600 transition-colors" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-1">{t('contact_cards.request_title')}</h3>
               <p className="text-sm text-gray-600">

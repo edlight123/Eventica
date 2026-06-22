@@ -30,7 +30,7 @@ export function EventActionsClient({
       disabled={isPending}
       className={`text-sm font-medium ${
         isPublished 
-          ? 'text-orange-600 hover:text-orange-900' 
+          ? 'text-brand-600 hover:text-brand-900' 
           : 'text-green-600 hover:text-green-900'
       } disabled:opacity-50`}
       title={isPublished ? 'Unpublish event' : 'Publish event'}

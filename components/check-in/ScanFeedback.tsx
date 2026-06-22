@@ -45,7 +45,7 @@ export function ScanFeedback({ result, onDismiss }: ScanFeedbackProps) {
         }
       default:
         return {
-          bg: 'bg-blue-500',
+          bg: 'bg-amber-500',
           icon: AlertCircle,
           iconColor: 'text-white',
         }

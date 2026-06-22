@@ -85,7 +85,7 @@ export function ProfileHeaderCard({ profile, onUpdate }: ProfileHeaderCardProps)
       <div className="flex flex-col sm:flex-row gap-6">
         {/* Avatar */}
         <div className="flex-shrink-0">
-          <div className="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-br from-teal-100 to-purple-100 flex items-center justify-center">
+          <div className="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-br from-brand-100 to-brand-50 flex items-center justify-center">
             {profile.photoURL ? (
               <Image
                 src={profile.photoURL}
