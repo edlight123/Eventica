@@ -23,16 +23,10 @@ export default function TicketCard({
   city,
   ticketCount 
 }: TicketCardProps) {
-  const handleClick = (e: React.MouseEvent) => {
-    console.log('Link clicked! Event ID:', eventId)
-    console.log('Will navigate to:', `/tickets/event/${eventId}`)
-  }
-
   return (
     <Link
       href={`/tickets/event/${eventId}`}
-      onClick={handleClick}
-      className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-100 overflow-hidden"
+      className="block bg-white rounded-xl shadow-soft hover:shadow-medium transition-shadow border border-gray-100 overflow-hidden"
     >
       <div className="flex">
         {bannerImageUrl ? (
@@ -46,8 +40,8 @@ export default function TicketCard({
             />
           </div>
         ) : (
-          <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-auto bg-gradient-to-br from-teal-100 to-orange-100 flex items-center justify-center flex-shrink-0">
-            <span className="text-2xl md:text-4xl">🎟️</span>
+          <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-auto bg-gradient-to-br from-brand-700 to-[#0C5E57] flex items-center justify-center flex-shrink-0">
+            <span className="font-display text-3xl md:text-5xl text-[#F8F5EE]">T</span>
           </div>
         )}
 
@@ -55,9 +49,9 @@ export default function TicketCard({
           <div>
             <div className="flex items-start justify-between gap-2 mb-2">
               <h3 className="text-base md:text-lg font-semibold text-gray-900 line-clamp-2 flex-1">
-                {title}
+                {title.replace(/^\[[^\]]*\]\s*/, '')}
               </h3>
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-purple-100 text-purple-800 whitespace-nowrap flex-shrink-0">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-brand-50 text-brand-700 whitespace-nowrap flex-shrink-0">
                 {ticketCount} {ticketCount === 1 ? 'Ticket' : 'Tickets'}
               </span>
             </div>
@@ -85,7 +79,7 @@ export default function TicketCard({
           </div>
 
           <div className="mt-2">
-            <span className="text-purple-600 text-[13px] md:text-sm font-medium flex items-center">
+            <span className="text-brand-700 text-[13px] md:text-sm font-medium flex items-center">
               View Tickets
               <svg className="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
