@@ -78,11 +78,29 @@ export default function ImageUpload({
         publicUrl = urlResult.data.publicUrl
       }
 
+      // Never report success without a real URL — otherwise the form thinks the
+      // banner is set while banner_image_url is empty, and publish fails later.
+      if (!publicUrl) {
+        throw new Error('Upload did not return a public URL')
+      }
+
       console.log('Final public URL:', publicUrl)
       onImageUploaded(publicUrl)
     } catch (err: any) {
       console.error('Upload error:', err)
-      setError(err.message || 'Failed to upload image')
+      const code: string = err?.code || ''
+      const rawMessage: string = err?.message || ''
+      let message = 'Failed to upload image. Please try again.'
+      if (code === 'storage/quota-exceeded' || /quota/i.test(rawMessage)) {
+        message = 'Image storage is temporarily unavailable. Your event was not saved with this image — please try again shortly or contact support.'
+      } else if (code === 'storage/unauthorized' || code === 'storage/unauthenticated') {
+        message = "You don't have permission to upload right now. Please sign in again and retry."
+      } else if (code === 'storage/retry-limit-exceeded') {
+        message = 'The upload timed out. Check your connection and try again.'
+      } else if (rawMessage) {
+        message = rawMessage
+      }
+      setError(message)
       setPreview(currentImage || null)
     } finally {
       setUploading(false)

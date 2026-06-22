@@ -95,51 +95,41 @@ export function SalesSnapshot({ data, currency = 'HTG' }: SalesSnapshotProps) {
 
       <p className="text-sm text-gray-600 mb-6">{getRangeLabel(range)}</p>
 
-      {/* Metrics Grid */}
+      {/* Metrics Grid — unified brand-chip styling (calm + on-brand, matches admin) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+        <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <Calendar className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 bg-brand-50 rounded-lg flex items-center justify-center">
+              <Calendar className="w-4 h-4 text-brand-700" />
             </div>
-            <p className="text-xs font-semibold text-blue-900 uppercase tracking-wide">{t('sales_snapshot.events')}</p>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('sales_snapshot.events')}</p>
           </div>
-          <p className="text-3xl font-bold text-blue-700 mb-1">{metrics.upcomingEvents}</p>
-          <p className="text-xs text-blue-600">{t('sales_snapshot.upcoming')}</p>
+          <p className="text-3xl font-bold text-gray-900 mb-1">{metrics.upcomingEvents}</p>
+          <p className="text-xs text-gray-500">{t('sales_snapshot.upcoming')}</p>
         </div>
 
-        <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
+        <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
-              <Users className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 bg-brand-50 rounded-lg flex items-center justify-center">
+              <Users className="w-4 h-4 text-brand-700" />
             </div>
-            <p className="text-xs font-semibold text-teal-900 uppercase tracking-wide">{t('sales_snapshot.tickets')}</p>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('sales_snapshot.tickets')}</p>
           </div>
-          <p className="text-3xl font-bold text-teal-700 mb-1">{metrics.ticketsSold}</p>
-          <p className="text-xs text-teal-600">{t('sales_snapshot.sold')}</p>
+          <p className="text-3xl font-bold text-gray-900 mb-1">{metrics.ticketsSold}</p>
+          <p className="text-xs text-gray-500">{t('sales_snapshot.sold')}</p>
         </div>
 
-        <div className={`bg-gradient-to-br rounded-xl p-4 border ${
-          metrics.revenueCents === 0
-            ? 'from-gray-50 to-gray-100 border-gray-200'
-            : 'from-purple-50 to-purple-100 border-purple-200'
-        }`}>
+        <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
           <div className="flex items-center gap-2 mb-2">
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-              metrics.revenueCents === 0 ? 'bg-gray-600' : 'bg-purple-600'
-            }`}>
-              <DollarSign className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 bg-brand-50 rounded-lg flex items-center justify-center">
+              <DollarSign className="w-4 h-4 text-brand-700" />
             </div>
-            <p className={`text-xs font-semibold uppercase tracking-wide ${
-              metrics.revenueCents === 0 ? 'text-gray-900' : 'text-purple-900'
-            }`}>{t('sales_snapshot.revenue')}</p>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('sales_snapshot.revenue')}</p>
           </div>
-          <p className={`text-3xl font-bold mb-1 ${
-            metrics.revenueCents === 0 ? 'text-gray-700 text-xl' : 'text-purple-700'
-          }`}>
+          <p className={`font-bold text-gray-900 mb-1 ${metrics.revenueCents === 0 ? 'text-xl' : 'text-3xl'}`}>
             {formatRevenue()}
           </p>
-          <p className={`text-xs ${metrics.revenueCents === 0 ? 'text-gray-600' : 'text-purple-600'}`}>
+          <p className="text-xs text-gray-500">
             {metrics.revenueCents === 0
               ? 'Start selling tickets'
               : hasMultipleCurrencies
@@ -148,17 +138,17 @@ export function SalesSnapshot({ data, currency = 'HTG' }: SalesSnapshotProps) {
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
+        <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 bg-brand-50 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-4 h-4 text-brand-700" />
             </div>
-            <p className="text-xs font-semibold text-orange-900 uppercase tracking-wide">{t('sales_snapshot.avg_event')}</p>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('sales_snapshot.avg_event')}</p>
           </div>
-          <p className="text-3xl font-bold text-orange-700 mb-1">
+          <p className="text-3xl font-bold text-gray-900 mb-1">
             {metrics.avgTicketsPerEvent.toFixed(1)}
           </p>
-          <p className="text-xs text-orange-600">{t('sales_snapshot.tickets_per_event')}</p>
+          <p className="text-xs text-gray-500">{t('sales_snapshot.tickets_per_event')}</p>
         </div>
       </div>
     </div>

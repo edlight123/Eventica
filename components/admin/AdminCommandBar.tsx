@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Search, Bell, Calendar, Users, ShieldCheck, CreditCard, Loader2, MapPin, DollarSign, User, Settings } from 'lucide-react'
+import { Search, Bell, Calendar, Loader2, MapPin, DollarSign, User } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -198,50 +198,8 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
             )}
           </div>
 
-          {/* Quick Links */}
-          <div className="hidden md:flex items-center gap-2">
-            <Link
-              href="/admin/verify"
-              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <ShieldCheck className="w-4 h-4" />
-              {t('nav.verify')}
-            </Link>
-
-            <Link
-              href="/admin/bank-verifications"
-              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <CreditCard className="w-4 h-4" />
-              Bank verifications
-              {pendingBankVerifications > 0 && (
-                <span className="ml-1 px-2 py-0.5 rounded-full bg-red-500 text-white text-xs font-bold">
-                  {pendingBankVerifications > 9 ? '9+' : pendingBankVerifications}
-                </span>
-              )}
-            </Link>
-            <Link
-              href="/admin/events"
-              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <Calendar className="w-4 h-4" />
-              {t('nav.events')}
-            </Link>
-            <Link
-              href="/admin/users"
-              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <Users className="w-4 h-4" />
-              {t('nav.users')}
-            </Link>
-            <Link
-              href="/admin/settings"
-              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <Settings className="w-4 h-4" />
-              Settings
-            </Link>
-          </div>
+          {/* Quick-nav links removed — they duplicated the left sidebar.
+              The top bar is now just global search + the alerts status badge. */}
 
           {/* Alerts Badge */}
           {pendingVerifications > 0 && (

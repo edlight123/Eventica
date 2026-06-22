@@ -334,7 +334,7 @@ export default function VerificationWizard({
         {/* Current Step Info */}
         <div className="mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-blue-600 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center">
               <currentStep.icon className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -352,6 +352,21 @@ export default function VerificationWizard({
             </div>
           </div>
         </div>
+
+        {/* What you'll need — shown on the first step so organizers don't bail mid-flow */}
+        {currentStepIndex === 0 && (
+          <div className="mb-6 bg-brand-50 border border-brand-100 rounded-xl p-4">
+            <h4 className="text-sm font-semibold text-brand-800 mb-1.5">Before you start</h4>
+            <p className="text-sm text-brand-700/90 mb-2">
+              Have these ready — it takes about 5 minutes, and your progress saves as you go:
+            </p>
+            <ul className="text-sm text-brand-700/90 space-y-1 ml-5 list-disc">
+              <li>A government-issued ID (front &amp; back)</li>
+              <li>Your phone or webcam for a quick selfie holding your ID</li>
+              <li>Your organization name and contact details</li>
+            </ul>
+          </div>
+        )}
 
         {/* Error Message */}
         {error && (
@@ -681,7 +696,7 @@ export default function VerificationWizard({
               <button
                 onClick={onComplete}
                 disabled={saving}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-teal-600 to-blue-600 text-white hover:from-teal-700 hover:to-blue-700 transition-all shadow-sm"
+                className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold bg-brand-700 text-white hover:bg-brand-800 transition-all shadow-sm"
               >
                 {saving ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -696,7 +711,7 @@ export default function VerificationWizard({
               <button
                 onClick={handleSaveCurrentStep}
                 disabled={saving}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-teal-600 to-blue-600 text-white hover:from-teal-700 hover:to-blue-700 transition-all shadow-sm"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold bg-brand-700 text-white hover:bg-brand-800 transition-all shadow-sm"
               >
                 {saving ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
