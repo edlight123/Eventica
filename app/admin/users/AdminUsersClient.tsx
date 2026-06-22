@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { StatTile } from '@/components/ui/kit'
+import { Users as UsersIcon, UserCog, ShieldCheck } from 'lucide-react'
 
 type AdminUsersClientProps = {
   counts: {
@@ -115,23 +117,10 @@ export default function AdminUsersClient({
       </div>
 
       {/* Stats */}
-      <div className="flex overflow-x-auto gap-3 sm:gap-6 mb-6 sm:mb-8 pb-2 snap-x snap-mandatory md:grid md:grid-cols-3 scrollbar-hide">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 min-w-[180px] snap-start flex-shrink-0">
-          <div className="text-[11px] sm:text-sm font-medium text-gray-600 uppercase tracking-wide">{t('users.total_users')}</div>
-          <div className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">{counts.total}</div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 min-w-[180px] snap-start flex-shrink-0">
-          <div className="text-[11px] sm:text-sm font-medium text-gray-600 uppercase tracking-wide">{t('users.organizers')}</div>
-          <div className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">
-            {counts.organizers}
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 min-w-[180px] snap-start flex-shrink-0">
-          <div className="text-[11px] sm:text-sm font-medium text-gray-600 uppercase tracking-wide">{t('users.verified_organizers')}</div>
-          <div className="text-2xl sm:text-3xl font-bold text-teal-600 mt-1 sm:mt-2">
-            {counts.verified}
-          </div>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <StatTile icon={UsersIcon} label={t('users.total_users')} value={counts.total} />
+        <StatTile icon={UserCog} label={t('users.organizers')} value={counts.organizers} />
+        <StatTile icon={ShieldCheck} label={t('users.verified_organizers')} value={counts.verified} />
       </div>
 
       <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
