@@ -32,15 +32,16 @@ import { doc, getDoc, collection, query, where, getDocs, addDoc, deleteDoc, Time
 import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
-import { getCategoryLabel } from '../lib/categories';
 import { useTheme } from '../contexts/ThemeContext';
-import { format } from 'date-fns';
 import ConnectButton from '../components/ConnectButton';
+import PosterEventCard from '../components/PosterEventCard';
 import { fetchConnections } from '../lib/api/social';
 import { socialUrlFor, type FriendshipState, type SocialPlatform } from '../types/social';
 
 const { width } = Dimensions.get('window');
 const HERO_HEIGHT = 300;
+// Two-column flyer grid inside the 16px-padded content area.
+const PROFILE_COLUMN_WIDTH = (width - 32 - 12) / 2;
 
 interface SocialLink {
   type: 'website' | 'instagram' | 'facebook' | 'tiktok' | 'whatsapp' | 'email';
@@ -320,61 +321,12 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
   };
 
   const renderEventCard = (event: any, isCompact = false) => (
-    <TouchableOpacity
+    <PosterEventCard
       key={event.id}
-      style={isCompact ? styles.eventCardCompact : styles.eventCard}
+      event={event}
+      width={PROFILE_COLUMN_WIDTH}
       onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
-      activeOpacity={0.9}
-    >
-      {event.banner_image_url ? (
-        <Image
-          source={{ uri: event.banner_image_url }}
-          style={isCompact ? styles.eventImageCompact : styles.eventImage}
-          resizeMode="cover"
-        />
-      ) : (
-        <View style={[isCompact ? styles.eventImageCompact : styles.eventImage, styles.eventImagePlaceholder]}>
-          <Calendar size={isCompact ? 20 : 32} color={colors.primary + '40'} />
-        </View>
-      )}
-
-      {event.category && (
-        <View style={styles.categoryBadge}>
-          <Text style={styles.categoryText}>{getCategoryLabel(t, event.category)}</Text>
-        </View>
-      )}
-
-      <View style={styles.eventCardContent}>
-        <Text style={isCompact ? styles.eventTitleCompact : styles.eventTitle} numberOfLines={2}>
-          {event.title}
-        </Text>
-
-        <View style={styles.eventMeta}>
-          <Text style={styles.eventDate}>
-            {format(event.start_datetime, 'MMM d, yyyy')}
-          </Text>
-          {event.city && (
-            <Text style={styles.eventLocation} numberOfLines={1}>
-              {event.city}
-            </Text>
-          )}
-        </View>
-
-        {!isCompact && (
-          <View style={styles.eventFooter}>
-            {event.ticket_price > 0 ? (
-              <Text style={styles.eventPrice}>
-                {event.currency || 'HTG'} {event.ticket_price.toLocaleString()}
-              </Text>
-            ) : (
-              <View style={styles.freeBadge}>
-                <Text style={styles.freeBadgeText}>{t('common.free')}</Text>
-              </View>
-            )}
-          </View>
-        )}
-      </View>
-    </TouchableOpacity>
+    />
   );
 
   const getSubtitle = () => {
@@ -1034,106 +986,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
 
   // Events
   eventsGrid: {
-    gap: 16,
-  },
-  eventCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: colors.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  eventCardCompact: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: colors.border,
     flexDirection: 'row',
-  },
-  eventImage: {
-    width: '100%',
-    height: 180,
-    backgroundColor: colors.borderLight,
-  },
-  eventImageCompact: {
-    width: 100,
-    height: 100,
-    backgroundColor: colors.borderLight,
-  },
-  eventImagePlaceholder: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  categoryBadge: {
-    position: 'absolute',
-    top: 12,
-    left: 12,
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-  categoryText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  eventCardContent: {
-    padding: 12,
-    flex: 1,
-  },
-  eventTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 8,
-    lineHeight: 22,
-  },
-  eventTitleCompact: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 6,
-    lineHeight: 20,
-  },
-  eventMeta: {
-    gap: 4,
-    marginBottom: 12,
-  },
-  eventDate: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  eventLocation: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-  eventFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  eventPrice: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: colors.primary,
-  },
-  freeBadge: {
-    backgroundColor: '#10B981',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  freeBadgeText: {
-    color: '#FFF',
-    fontSize: 12,
-    fontWeight: '700',
+    flexWrap: 'wrap',
+    gap: 12,
   },
   emptyState: {
     backgroundColor: colors.surface,
