@@ -8,22 +8,23 @@ import {
   RefreshControl,
   ActivityIndicator,
   Alert,
-  Image,
   Share,
-  StatusBar
+  StatusBar,
+  Dimensions
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Calendar, MapPin, Heart, Share2, Ticket, Compass } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Heart, Share2, Ticket, Compass } from 'lucide-react-native';
 import { collection, query, where, getDocs, addDoc, deleteDoc, doc, getDocs as getDocsFirestore } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
-import { getCategoryLabel } from '../lib/categories';
-import { getPosterTheme } from '../lib/posterGradient';
 import { useTheme } from '../contexts/ThemeContext';
 import EmptyState from '../components/EmptyState';
+import PosterEventCard from '../components/PosterEventCard';
 import { format } from 'date-fns';
+
+const { width } = Dimensions.get('window');
+const FAV_COLUMN_WIDTH = (width - 32 - 12) / 2;
 
 export default function FavoritesScreen({ navigation }: any) {
   const { colors } = useTheme();
@@ -184,100 +185,32 @@ export default function FavoritesScreen({ navigation }: any) {
             onAction={() => navigation.navigate('Discover')}
           />
         ) : (
-          favoriteEvents.map(event => (
-            <TouchableOpacity
-              key={event.id}
-              style={styles.eventCard}
-              onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
-            >
-              {/* Event Image with poster gradient fallback */}
-              <View style={styles.eventImage}>
-                <LinearGradient
-                  colors={getPosterTheme(event.id || event.title, event.category).colors}
-                  start={{ x: 0.1, y: 0 }}
-                  end={{ x: 0.9, y: 1 }}
-                  style={StyleSheet.absoluteFill}
-                />
-                {(event.banner_image_url || event.cover_image_url) && (
-                  <Image
-                    source={{ uri: event.banner_image_url || event.cover_image_url }}
-                    style={StyleSheet.absoluteFill}
-                    resizeMode="cover"
-                  />
-                )}
-              </View>
-
-              {/* Category Badge */}
-              {event.category && (
-                <View style={styles.categoryBadgeOverlay}>
-                  <Text style={styles.categoryBadgeText}>{getCategoryLabel(t, event.category)}</Text>
-                </View>
-              )}
-
-              <View style={styles.eventContent}>
-                <View style={styles.eventHeader}>
-                  <Text style={styles.eventTitle} numberOfLines={2}>{event.title}</Text>
-                </View>
-
-                <View style={styles.eventDetails}>
-                  <View style={styles.eventDetailRow}>
-                    <Calendar size={16} color={colors.primary} />
-                    <Text style={styles.eventDetailText}>
-                      {event.start_datetime && format(event.start_datetime, 'MMM dd, yyyy • h:mm a')}
-                    </Text>
-                  </View>
-                  <View style={styles.eventDetailRow}>
-                    <MapPin size={16} color={colors.primary} />
-                    <Text style={styles.eventDetailText} numberOfLines={1}>
-                      {event.venue_name}, {event.city}
-                    </Text>
-                  </View>
-                </View>
-
-                <View style={styles.eventFooter}>
-                  <View style={styles.priceSection}>
-                    {event.ticket_price > 0 ? (
-                      <>
-                        <Text style={styles.eventPrice}>
-                          {event.currency || 'HTG'} {event.ticket_price}
-                        </Text>
-                        {event.tickets_sold > 0 && (
-                          <Text style={styles.ticketsSold}>
-                            {event.tickets_sold} {t('common.sold')}
-                          </Text>
-                        )}
-                      </>
-                    ) : (
-                      <View style={styles.freeBadge}>
-                        <Text style={styles.freeBadgeText}>{t('common.free')}</Text>
-                      </View>
-                    )}
-                  </View>
-
-                  <View style={styles.actionButtons}>
+          <View style={styles.eventsGrid}>
+            {favoriteEvents.map(event => (
+              <PosterEventCard
+                key={event.id}
+                event={event}
+                width={FAV_COLUMN_WIDTH}
+                onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
+                overlay={
+                  <View style={styles.cardActions}>
                     <TouchableOpacity
-                      style={styles.shareButton}
-                      onPress={(e) => {
-                        e.stopPropagation();
-                        handleShare(event);
-                      }}
+                      style={styles.cardActionBtn}
+                      onPress={() => handleShare(event)}
                     >
-                      <Share2 size={18} color={colors.primary} />
+                      <Share2 size={15} color={colors.text} />
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={styles.favoriteButton}
-                      onPress={(e) => {
-                        e.stopPropagation();
-                        removeFavorite(event.id);
-                      }}
+                      style={styles.cardActionBtn}
+                      onPress={() => removeFavorite(event.id)}
                     >
-                      <Heart size={18} color={colors.error} fill={colors.error} />
+                      <Heart size={15} color={colors.error} fill={colors.error} />
                     </TouchableOpacity>
                   </View>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))
+                }
+              />
+            ))}
+          </View>
         )}
       </ScrollView>
     </View>
@@ -315,116 +248,23 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   content: {
     flex: 1,
   },
-  eventCard: {
-    backgroundColor: colors.surface,
-    marginHorizontal: 16,
-    marginTop: 16,
+  eventsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 24,
+  },
+  cardActions: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  cardActionBtn: {
+    width: 32,
+    height: 32,
     borderRadius: 16,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: colors.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  eventImage: {
-    width: '100%',
-    height: 180,
-    backgroundColor: colors.borderLight,
-  },
-  categoryBadgeOverlay: {
-    position: 'absolute',
-    top: 12,
-    left: 12,
-    backgroundColor: colors.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    zIndex: 1,
-  },
-  categoryBadgeText: {
-    color: colors.surface,
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  eventContent: {
-    padding: 16,
-  },
-  eventHeader: {
-    marginBottom: 12,
-  },
-  eventTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.text,
-    lineHeight: 24,
-  },
-  eventDetails: {
-    gap: 8,
-    marginBottom: 16,
-  },
-  eventDetailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  eventDetailText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    flex: 1,
-  },
-  eventFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: colors.borderLight,
-  },
-  priceSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  eventPrice: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.primary,
-  },
-  ticketsSold: {
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
-  freeBadge: {
-    backgroundColor: colors.secondary + '20',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  freeBadgeText: {
-    color: colors.secondary,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  shareButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.primaryLight + '20',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  favoriteButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.error + '15',
+    backgroundColor: 'rgba(0,0,0,0.45)',
     justifyContent: 'center',
     alignItems: 'center',
   },

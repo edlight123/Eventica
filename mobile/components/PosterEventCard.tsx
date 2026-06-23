@@ -32,6 +32,8 @@ interface PosterEventCardProps {
   showMeta?: boolean;
   /** Optional "N friends going" social proof shown in the footer. */
   friendsGoing?: number;
+  /** Optional node rendered over the poster's top-left (e.g. a quick action). */
+  overlay?: React.ReactNode;
 }
 
 /**
@@ -49,6 +51,7 @@ export default function PosterEventCard({
   badge,
   showMeta = true,
   friendsGoing = 0,
+  overlay,
 }: PosterEventCardProps) {
   const { colors } = useTheme();
   const { t, language } = useI18n();
@@ -125,6 +128,8 @@ export default function PosterEventCard({
               <EventStatusBadge status={status} size="small" />
             </View>
           )}
+
+          {overlay ? <View style={styles.overlayWrap}>{overlay}</View> : null}
         </View>
 
         {/* All text sits BELOW the poster so it never covers the artwork. */}
@@ -217,6 +222,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       position: 'absolute',
       top: 10,
       right: 10,
+    },
+    overlayWrap: {
+      position: 'absolute',
+      top: 10,
+      left: 10,
     },
     content: {
       paddingHorizontal: 12,
