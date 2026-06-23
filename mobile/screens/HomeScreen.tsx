@@ -386,7 +386,7 @@ export default function HomeScreen({ navigation }: any) {
             {/* Browse by Category — slim pills keep events the focus */}
             <View style={styles.categorySection}>
               <View style={styles.categoryHeader}>
-                <SectionHeader title={t('home.browseTitle')} subtitle={t('home.browseSubtitle')} />
+                <SectionHeader title={t('home.browseTitle')} />
               </View>
               <CategoryRail onCategoryPress={handleCategoryPress} />
             </View>

@@ -13,6 +13,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Calendar, MapPin, Search, X, SlidersHorizontal, Users } from 'lucide-react-native';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -65,6 +66,12 @@ const cityMatches = (eventCity: any, target: string): boolean => {
 export default function DiscoverScreen({ navigation, route }: any) {
   const { colors } = useTheme();
   const styles = getStyles(colors);
+  const insets = useSafeAreaInsets();
+  // Keep the original content heights but base the top padding on the real
+  // device inset so the search bar never sits under the status bar. The
+  // expanded→collapsed delta stays 75, so the scroll input range is unchanged.
+  const expandedHeaderHeight = HEADER_EXPANDED_HEIGHT - 50 + insets.top;
+  const collapsedHeaderHeight = HEADER_COLLAPSED_HEIGHT - 50 + insets.top;
   const { appliedFilters, openFiltersModal, hasActiveFilters, countActiveFilters, applyFiltersDirectly, resetFilters, userCountry } = useFilters();
   const { t } = useI18n();
   
@@ -90,7 +97,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
   // Interpolations for collapsing header
   const headerHeight = scrollY.interpolate({
     inputRange: [0, HEADER_EXPANDED_HEIGHT - HEADER_COLLAPSED_HEIGHT],
-    outputRange: [HEADER_EXPANDED_HEIGHT, HEADER_COLLAPSED_HEIGHT],
+    outputRange: [expandedHeaderHeight, collapsedHeaderHeight],
     extrapolate: 'clamp',
   });
 
@@ -473,7 +480,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
 
   if (loading) {
     return (
-      <View style={[styles.container, { paddingTop: 120 }]}>
+      <View style={[styles.container, { paddingTop: insets.top + 70 }]}>
         <PosterRailSkeleton />
         <View style={{ height: 28 }} />
         <PosterRailSkeleton />
@@ -491,6 +498,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
           styles.animatedHeader,
           {
             height: headerHeight,
+            paddingTop: insets.top,
             shadowOpacity: headerShadowOpacity,
           }
         ]}
@@ -699,7 +707,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   animatedHeader: {
     backgroundColor: colors.background,
     paddingHorizontal: 16,
-    paddingTop: 50,
     paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: colors.borderLight,

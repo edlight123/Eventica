@@ -164,7 +164,7 @@ export default function FavoritesScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <Text style={styles.headerTitle}>{t('favorites.title')}</Text>
       </View>
@@ -298,18 +298,19 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   header: {
     padding: 20,
     paddingTop: 16,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.background,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: colors.surface,
+    color: colors.text,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: colors.surface,
+    color: colors.textSecondary,
     marginTop: 4,
-    opacity: 0.9,
   },
   content: {
     flex: 1,

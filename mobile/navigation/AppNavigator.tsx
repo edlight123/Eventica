@@ -181,7 +181,7 @@ function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
         const a = anims[index];
         const scale = a.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] });
         const lift = a.interpolate({ inputRange: [0, 1], outputRange: [0, -1] });
-        const iconColor = isFocused ? colors.primary : colors.textSecondary;
+        const iconColor = isFocused ? colors.primary : colors.textTertiary;
 
         const onPress = () => {
           if (!isFocused) {

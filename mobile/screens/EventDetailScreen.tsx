@@ -37,6 +37,7 @@ import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { colors as T } from '../theme/tokens';
 import { format } from 'date-fns';
 import EventStatusBadge from '../components/EventStatusBadge';
 import TicketAvailabilityBar from '../components/TicketAvailabilityBar';
@@ -1201,9 +1202,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     opacity: 0.7,
   },
   floatingButtonText: {
-    color: '#FFF',
+    color: T.onTeal,
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   floatingButtonDisabled: {
     backgroundColor: colors.textSecondary + '25',

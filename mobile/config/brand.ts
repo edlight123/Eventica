@@ -1,3 +1,5 @@
+import { colors as T } from '../theme/tokens';
+
 export const BRAND = {
   name: 'Tikèm',
   logoText: '🎭 Tikèm',
@@ -20,6 +22,8 @@ export const COLORS = {
   surface: '#FFFFFF',
   // Subtle off-white surface for nested cards / inputs.
   surfaceMuted: '#F8FAFC',
+  // Raised / pressed surface (sheets, elevated cards).
+  surfaceRaised: '#FFFFFF',
   white: '#FFFFFF',
   text: '#0F172A',
   textSecondary: '#64748B',
@@ -40,35 +44,36 @@ export const COLORS = {
   gradientEnd: '#FFFFFF',
 };
 
-// Crisp, neutral near-black palette tuned to the premium Posh aesthetic:
-// true blacks for depth, zinc-grey text, and a bright teal accent that pops.
+// Crisp, near-black canvas with teal as the single platform accent. Values are
+// derived from `theme/tokens.ts` so the design system has one source of truth.
 export const DARK_COLORS: typeof COLORS = {
-  primary: '#2DD4BF',
-  primaryLight: '#5EEAD4',
+  primary: T.teal,
+  primaryLight: T.tealBright,
   primaryDark: '#0F766E',
-  secondary: '#2DD4BF',
-  secondaryLight: '#5EEAD4',
+  secondary: T.teal,
+  secondaryLight: T.tealBright,
   primarySoft: '#0E2624',
-  primarySoftText: '#5EEAD4',
-  background: '#0A0A0B',
-  surface: '#161618',
-  surfaceMuted: '#0F0F11',
+  primarySoftText: T.tealBright,
+  background: T.bg,
+  surface: T.surface,
+  surfaceMuted: '#101012',
+  surfaceRaised: T.surfaceRaised,
   white: '#FFFFFF',
-  text: '#FAFAFA',
-  textSecondary: '#A1A1AA',
-  textTertiary: '#71717A',
-  border: '#272729',
+  text: T.textPrimary,
+  textSecondary: T.textSecondary,
+  textTertiary: T.textTertiary,
+  border: T.border,
   borderLight: '#1C1C1F',
   error: '#F87171',
   errorLight: '#450A0A',
-  success: '#2DD4BF',
+  success: T.teal,
   successLight: '#0E2624',
   warning: '#FCD34D',
   warningLight: '#451A03',
-  info: '#2DD4BF',
+  info: T.teal,
   infoLight: '#0E2624',
   overlay: 'rgba(0, 0, 0, 0.7)',
-  gradientStart: '#0A0A0B',
+  gradientStart: T.bg,
   gradientEnd: '#101012',
 };
 

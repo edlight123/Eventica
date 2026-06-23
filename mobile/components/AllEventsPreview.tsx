@@ -1,9 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
-import { ChevronRight } from 'lucide-react-native';
+import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
-import { RADIUS, SHADOWS } from '../config/brand';
 import PosterEventCard from './PosterEventCard';
 import SectionHeader from './SectionHeader';
 
@@ -25,7 +23,7 @@ export default function AllEventsPreview({ events, onEventPress, onViewAll }: Al
 
   return (
     <View>
-      <SectionHeader title={t('home.allEventsTitle')} subtitle={t('home.allEventsSubtitle')} />
+      <SectionHeader title={t('home.allEventsTitle')} onViewAll={onViewAll} />
 
       <ScrollView
         horizontal
@@ -44,11 +42,6 @@ export default function AllEventsPreview({ events, onEventPress, onViewAll }: Al
           />
         ))}
       </ScrollView>
-
-      <TouchableOpacity style={styles.viewAllButton} onPress={onViewAll} activeOpacity={0.9}>
-        <Text style={styles.viewAllText}>{t('home.viewAllEvents')}</Text>
-        <ChevronRight size={18} color="#FFFFFF" />
-      </TouchableOpacity>
     </View>
   );
 }
@@ -62,22 +55,5 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     railContent: {
       paddingHorizontal: 16,
       gap: 14,
-    },
-    viewAllButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 4,
-      backgroundColor: colors.primary,
-      paddingVertical: 15,
-      borderRadius: RADIUS.md,
-      marginTop: 18,
-      ...SHADOWS.floating,
-    },
-    viewAllText: {
-      fontSize: 15,
-      fontWeight: '700',
-      color: '#FFFFFF',
-      letterSpacing: 0.2,
     },
   });

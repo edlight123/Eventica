@@ -15,6 +15,7 @@ import { getCategoryLabel } from '../lib/categories';
 import { formatDateForLanguage } from '../lib/dates';
 import { getPosterTheme } from '../lib/posterGradient';
 import { RADIUS, SHADOWS } from '../config/brand';
+import { colors as T } from '../theme/tokens';
 import EventStatusBadge from './EventStatusBadge';
 import type { BadgeStatus } from '../theme/badges';
 
@@ -129,9 +130,11 @@ export default function PosterEventCard({
         {/* All text sits BELOW the poster so it never covers the artwork. */}
         <View style={styles.content}>
           {event.category ? (
-            <Text style={styles.category} numberOfLines={1}>
-              {getCategoryLabel(t, event.category)}
-            </Text>
+            <View style={styles.categoryPill}>
+              <Text style={styles.category} numberOfLines={1}>
+                {getCategoryLabel(t, event.category)}
+              </Text>
+            </View>
           ) : null}
 
           <Text style={styles.title} numberOfLines={2}>
@@ -221,6 +224,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       paddingBottom: 12,
       gap: 5,
     },
+    categoryPill: {
+      alignSelf: 'flex-start',
+      backgroundColor: T.tealMuted,
+      borderRadius: RADIUS.full,
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+    },
     category: {
       fontSize: 11,
       fontWeight: '700',
@@ -259,7 +269,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     price: {
       fontSize: 16,
       fontWeight: '800',
-      color: colors.text,
+      color: colors.primary,
       letterSpacing: -0.2,
     },
     free: {

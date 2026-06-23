@@ -183,7 +183,7 @@ export default function TicketsScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <Text style={styles.headerTitle}>{t('tickets.title')}</Text>
       </View>
@@ -294,22 +294,18 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   header: {
     padding: 20,
     paddingTop: 16,
-    backgroundColor: colors.primary,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    backgroundColor: colors.background,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: colors.surface,
+    color: colors.text,
   },
   headerSubtitle: {
     fontSize: 15,
-    color: colors.surface,
-    opacity: 0.95,
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   tabs: {
