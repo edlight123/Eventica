@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ChevronRight, AlertCircle, CheckCircle, Clock, Ban } from 'lucide-react'
+import { ChevronRight, AlertCircle, CheckCircle, Clock, Ban, ArrowLeft, Globe, Wallet } from 'lucide-react'
 import Link from 'next/link'
 import { StatusChip, type ChipTone } from '@/components/ui/kit'
 import { updatePayoutProfileConfig } from './actions'
@@ -114,6 +114,12 @@ export default function PayoutsPageNew({
   })
 
   const config = activeProfile === 'haiti' ? haitiConfig : stripeConfig
+
+  // When the organizer arrives to edit one specific profile (?edit=haiti / ?edit=stripe_connect
+  // or the Stripe return flow), focus the page on that profile instead of the confusing
+  // Haiti vs US/Canada switcher.
+  const isFocusedEdit = Boolean(initialActiveProfile)
+  const focusedProfileLabel = activeProfile === 'stripe_connect' ? 'US & Canada' : 'Haiti'
 
   const [isEditing, setIsEditing] = useState(!config)
   const [isSaving, setIsSaving] = useState(false)
@@ -1029,18 +1035,39 @@ export default function PayoutsPageNew({
         >
           
           {/* Left Column - Payout Setup + Fees */}
-          <div className={shouldShowEarningsAndPayouts ? 'lg:col-span-1 space-y-6' : 'space-y-6'}>
+          <div className={`flex flex-col gap-6 ${shouldShowEarningsAndPayouts ? 'lg:col-span-1' : ''}`}>
 
-            <div
-              className={
-                shouldShowEarningsAndPayouts
-                  ? 'space-y-6'
-                  : 'grid grid-cols-1 lg:grid-cols-2 gap-6'
-              }
-            >
+            <div className="contents">
 
-            {/* Payout Profile Selector */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            {isFocusedEdit ? (
+              <div className="order-1">
+                <Link
+                  href="/organizer/settings/payouts"
+                  className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to payouts
+                </Link>
+                <div className="flex items-start justify-between gap-3 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-brand-100 text-brand-700">
+                      {activeProfile === 'stripe_connect' ? <Globe className="h-5 w-5" /> : <Wallet className="h-5 w-5" />}
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-900">{focusedProfileLabel} payouts</h2>
+                      <p className="mt-0.5 text-sm text-gray-600">
+                        {activeProfile === 'stripe_connect'
+                          ? 'Bank payouts via Stripe Connect.'
+                          : 'Bank transfer or mobile money (MonCash / NatCash).'}
+                      </p>
+                    </div>
+                  </div>
+                  <StatusChip tone={config ? 'success' : 'neutral'}>{config ? 'Configured' : 'Not set up'}</StatusChip>
+                </div>
+              </div>
+            ) : (
+            /* Payout Profile Selector (advanced multi-profile view) */
+            <div className="order-1 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
               <div className="p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-2">Payout profile</h2>
                 <p className="text-sm text-gray-600 mb-4">
@@ -1103,9 +1130,10 @@ export default function PayoutsPageNew({
                 ) : null}
               </div>
             </div>
+            )}
 
             {/* Verification Card */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="order-3 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
               <div className="p-6">
                 <div id="verify-payouts" />
                 <h2 className="text-lg font-semibold text-gray-900">Verify payouts</h2>
@@ -1425,7 +1453,7 @@ export default function PayoutsPageNew({
             </div>
             
             {/* Payout Setup Card */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="order-2 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
               <div className="p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">
                   Payout setup
@@ -1864,7 +1892,7 @@ export default function PayoutsPageNew({
             </div>
 
             {/* Fees & Rules Card */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="order-4 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
               <Link href="/organizer/settings/payouts/fees" className="block p-6 hover:bg-gray-50 transition-colors">
                 <div className="flex items-start justify-between">
                   <div>

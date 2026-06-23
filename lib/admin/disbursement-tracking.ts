@@ -7,6 +7,31 @@ import { adminDb } from '@/lib/firebase/admin'
 import { getPayoutProfile } from '@/lib/firestore/payout-profiles'
 import { getDecryptedBankDestination } from '@/lib/firestore/payout-destinations'
 
+/**
+ * Run an async mapper over `items` with a bounded number of concurrent workers.
+ * Preserves input order in the returned results.
+ */
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  limit: number,
+  mapper: (item: T, index: number) => Promise<R>
+): Promise<R[]> {
+  const results: R[] = new Array(items.length)
+  let nextIndex = 0
+
+  const worker = async () => {
+    while (true) {
+      const current = nextIndex++
+      if (current >= items.length) return
+      results[current] = await mapper(items[current], current)
+    }
+  }
+
+  const workerCount = Math.max(1, Math.min(limit, items.length))
+  await Promise.all(Array.from({ length: workerCount }, () => worker()))
+  return results
+}
+
 export interface EventDisbursementInfo {
   eventId: string
   eventTitle: string
@@ -55,7 +80,45 @@ export async function getEndedEventsForDisbursement(
   limit: number = 500
 ): Promise<EventDisbursementInfo[]> {
   try {
-    const decryptedPrimaryBankCache = new Map<string, Awaited<ReturnType<typeof getDecryptedBankDestination>>>()
+    // Per-organizer caches. Many events share the same organizer, so we dedupe
+    // organizer/profile/bank lookups across all events (and reuse in-flight promises).
+    const organizerCache = new Map<string, Promise<any>>()
+    const haitiProfileCache = new Map<string, Promise<any>>()
+    const primaryBankCache = new Map<
+      string,
+      Promise<Awaited<ReturnType<typeof getDecryptedBankDestination>> | null>
+    >()
+
+    const getCachedOrganizer = (organizerId: string): Promise<any> => {
+      const existing = organizerCache.get(organizerId)
+      if (existing) return existing
+      const p = adminDb
+        .collection('users')
+        .doc(organizerId)
+        .get()
+        .then((doc: any) => doc.data())
+        .catch(() => undefined)
+      organizerCache.set(organizerId, p)
+      return p
+    }
+
+    const getCachedHaitiProfile = (organizerId: string): Promise<any> => {
+      const existing = haitiProfileCache.get(organizerId)
+      if (existing) return existing
+      const p = getPayoutProfile(organizerId, 'haiti').catch(() => null)
+      haitiProfileCache.set(organizerId, p)
+      return p
+    }
+
+    const getCachedPrimaryBank = (
+      organizerId: string
+    ): Promise<Awaited<ReturnType<typeof getDecryptedBankDestination>> | null> => {
+      const existing = primaryBankCache.get(organizerId)
+      if (existing) return existing
+      const p = getDecryptedBankDestination({ organizerId, destinationId: 'bank_primary' }).catch(() => null)
+      primaryBankCache.set(organizerId, p)
+      return p
+    }
 
     const now = new Date()
     const cutoffDate = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000)
@@ -69,20 +132,19 @@ export async function getEndedEventsForDisbursement(
       .limit(limit)
       .get()
 
-    const disbursementInfo: EventDisbursementInfo[] = []
+    const ticketStatusValues = ['confirmed', 'valid']
 
-    for (const eventDoc of eventsSnapshot.docs) {
+    const processEvent = async (eventDoc: any): Promise<EventDisbursementInfo | null> => {
       const event = eventDoc.data()
       const eventId = eventDoc.id
       const organizerId = event.organizer_id
 
-      if (!organizerId) continue
+      if (!organizerId) return null
 
-      const ticketStatusValues = ['confirmed', 'valid']
-      const [organizerDoc, haitiProfile, payoutsSnapshot, ticketsByEventIdSnap, ticketsByEvent_idSnap] =
+      const [organizer, haitiProfile, payoutsSnapshot, ticketsByEventIdSnap, ticketsByEvent_idSnap] =
         await Promise.all([
-          adminDb.collection('users').doc(organizerId).get(),
-          getPayoutProfile(organizerId, 'haiti'),
+          getCachedOrganizer(organizerId),
+          getCachedHaitiProfile(organizerId),
           adminDb
             .collection('organizers')
             .doc(organizerId)
@@ -101,8 +163,6 @@ export async function getEndedEventsForDisbursement(
             .get(),
         ])
 
-      const organizer = organizerDoc.data()
-
       const ticketsById = new Map<string, any>()
       for (const doc of ticketsByEventIdSnap.docs) ticketsById.set(doc.id, doc.data())
       for (const doc of ticketsByEvent_idSnap.docs) ticketsById.set(doc.id, doc.data())
@@ -113,7 +173,7 @@ export async function getEndedEventsForDisbursement(
       // Calculate revenue
       let grossRevenue = 0
       const currency = event.currency || 'HTG'
-      
+
       for (const ticket of tickets) {
         grossRevenue += ticket.price_paid || 0
       }
@@ -137,31 +197,16 @@ export async function getEndedEventsForDisbursement(
       // 4. Organizer has payout config set up
       const endDate = event.end_datetime?.toDate?.() || new Date(event.end_datetime)
       const daysEnded = Math.floor((now.getTime() - endDate.getTime()) / (24 * 60 * 60 * 1000))
-      const payoutEligible = 
-        daysEnded >= 0 && 
-        totalTicketsSold > 0 && 
+      const payoutEligible =
+        daysEnded >= 0 &&
+        totalTicketsSold > 0 &&
         !hasCompletedPayout &&
         !!haitiProfile?.method
-
-      const getCachedPrimaryBank = async () => {
-        if (decryptedPrimaryBankCache.has(organizerId)) {
-          return decryptedPrimaryBankCache.get(organizerId) || null
-        }
-
-        try {
-          const decrypted = await getDecryptedBankDestination({ organizerId, destinationId: 'bank_primary' })
-          decryptedPrimaryBankCache.set(organizerId, decrypted)
-          return decrypted
-        } catch {
-          decryptedPrimaryBankCache.set(organizerId, null)
-          return null
-        }
-      }
 
       // Extract bank info based on payment method
       let bankInfo: EventDisbursementInfo['bankInfo'] | undefined
       if (haitiProfile?.method === 'bank_transfer') {
-        const decryptedPrimaryBank = await getCachedPrimaryBank()
+        const decryptedPrimaryBank = await getCachedPrimaryBank(organizerId)
         const last4 = decryptedPrimaryBank?.accountNumber ? decryptedPrimaryBank.accountNumber.slice(-4) : undefined
 
         bankInfo = {
@@ -182,7 +227,7 @@ export async function getEndedEventsForDisbursement(
         }
       }
 
-      disbursementInfo.push({
+      return {
         eventId,
         eventTitle: event.title || 'Untitled Event',
         organizerId,
@@ -200,9 +245,17 @@ export async function getEndedEventsForDisbursement(
         hasCompletedPayout,
         payoutEligible,
         payoutMethod: haitiProfile?.method,
-        bankInfo
-      })
+        bankInfo,
+      }
     }
+
+    // Process events with bounded concurrency. This is dramatically faster than the
+    // previous sequential loop while avoiding overwhelming Firestore with 500+ events
+    // each issuing multiple reads at once.
+    const results = await mapWithConcurrency(eventsSnapshot.docs, 12, processEvent)
+    const disbursementInfo = results.filter(
+      (info): info is EventDisbursementInfo => info !== null
+    )
 
     return disbursementInfo.sort((a, b) => b.daysEnded - a.daysEnded)
   } catch (error) {
@@ -217,26 +270,27 @@ export async function getEndedEventsForDisbursement(
 export async function getDisbursementStats() {
   try {
     const now = new Date()
-    
+
     // Events ended in last 7 days
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-    const recentEndedSnapshot = await adminDb
-      .collection('events')
-      .where('end_datetime', '<=', now)
-      .where('end_datetime', '>=', sevenDaysAgo)
-      .get()
 
-    // Pending payouts
-    const pendingPayoutsSnapshot = await adminDb
-      .collectionGroup('payouts')
-      .where('status', '==', 'pending')
-      .get()
-
-    // Approved payouts
-    const approvedPayoutsSnapshot = await adminDb
-      .collectionGroup('payouts')
-      .where('status', '==', 'approved')
-      .get()
+    const [recentEndedSnapshot, pendingPayoutsSnapshot, approvedPayoutsSnapshot] = await Promise.all([
+      adminDb
+        .collection('events')
+        .where('end_datetime', '<=', now)
+        .where('end_datetime', '>=', sevenDaysAgo)
+        .get(),
+      // Pending payouts
+      adminDb
+        .collectionGroup('payouts')
+        .where('status', '==', 'pending')
+        .get(),
+      // Approved payouts
+      adminDb
+        .collectionGroup('payouts')
+        .where('status', '==', 'approved')
+        .get(),
+    ])
 
     // Calculate total pending amount
     let totalPendingAmount = 0

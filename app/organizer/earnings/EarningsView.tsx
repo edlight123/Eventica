@@ -3,13 +3,60 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import type { EarningsSummary } from '@/types/earnings'
-import { StatTile, Card, StatusChip, type ChipTone } from '@/components/ui/kit'
+import { StatusChip, type ChipTone } from '@/components/ui/kit'
 import { PayoutRequestModal } from '@/components/organizer/PayoutRequestModal'
-import { DollarSign, TrendingUp, Wallet, ArrowDownCircle } from 'lucide-react'
+import {
+  DollarSign,
+  TrendingUp,
+  Wallet,
+  ArrowDownCircle,
+  ArrowRight,
+  Clock,
+  Receipt,
+  ChevronDown,
+} from 'lucide-react'
 
 interface EarningsViewProps {
   summary: EarningsSummary
   organizerId: string
+}
+
+// Minimum available balance (in cents) required to request a payout.
+// Mirrors FEE_CONFIG.MINIMUM_PAYOUT_AMOUNT.
+const MIN_PAYOUT_CENTS = 5000
+
+type CurrencyTotals = {
+  totalGrossSales: number
+  totalNetAmount: number
+  totalAvailableToWithdraw: number
+  totalWithdrawn: number
+  totalPlatformFees: number
+  totalProcessingFees: number
+}
+
+/** Compact KPI card with a brand-tinted icon chip. Value is supplied as children
+ * so callers control single- vs mixed-currency rendering. */
+function StatCard({
+  icon,
+  label,
+  hint,
+  children,
+}: {
+  icon: React.ReactNode
+  label: string
+  hint?: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-soft">
+      <div className="flex items-center gap-2 text-gray-500">
+        <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-50 text-brand-700">{icon}</span>
+        <span className="text-xs font-semibold uppercase tracking-wide">{label}</span>
+      </div>
+      <div className="mt-3 text-gray-900">{children}</div>
+      {hint && <p className="mt-1 text-xs text-gray-500">{hint}</p>}
+    </div>
+  )
 }
 
 export default function EarningsView({ summary, organizerId }: EarningsViewProps) {
@@ -50,155 +97,172 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
   const heldBack = (net: number, avail: number, withdrawn: number) =>
     Math.max(0, net - avail - withdrawn)
 
+  const usd = summary.totalsByCurrency?.USD
+  const htg = summary.totalsByCurrency?.HTG
+  const isMixed = summary.currency === 'mixed' && !!summary.totalsByCurrency
+
+  // Joins a USD + HTG pair into a single "$X · HTG Y" string for compact contexts.
+  const mixedInline = (pick: (t?: CurrencyTotals) => number) =>
+    `${formatCurrency(pick(usd), 'USD')} · ${formatCurrency(pick(htg), 'HTG')}`
+
+  // Renders a money value as a single bold figure, or a stacked USD/HTG pair for
+  // mixed-currency organizers. Centralizes what was previously repeated inline.
+  const renderMoney = (
+    pick: (t?: CurrencyTotals) => number,
+    single: number,
+    valueClass = 'text-gray-900',
+  ) => {
+    if (isMixed) {
+      return (
+        <span className="block space-y-1">
+          {(['USD', 'HTG'] as const).map((code) => (
+            <span key={code} className="flex items-baseline justify-between gap-3">
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">{code}</span>
+              <span className={`text-lg font-bold ${valueClass}`}>
+                {formatCurrency(pick(code === 'USD' ? usd : htg), code)}
+              </span>
+            </span>
+          ))}
+        </span>
+      )
+    }
+    return <span className={`text-2xl font-bold ${valueClass}`}>{formatCurrency(single)}</span>
+  }
+
+  const pendingPick = (t?: CurrencyTotals) =>
+    heldBack(t?.totalNetAmount ?? 0, t?.totalAvailableToWithdraw ?? 0, t?.totalWithdrawn ?? 0)
+
+  const availableLabel = isMixed
+    ? mixedInline((t) => t?.totalAvailableToWithdraw ?? 0)
+    : formatCurrency(summary.totalAvailableToWithdraw)
+
+  const pendingLabel = isMixed
+    ? mixedInline(pendingPick)
+    : formatCurrency(heldBack(summary.totalNetAmount, summary.totalAvailableToWithdraw, summary.totalWithdrawn))
+
+  const withdrawnLabel = isMixed
+    ? mixedInline((t) => t?.totalWithdrawn ?? 0)
+    : formatCurrency(summary.totalWithdrawn)
+
+  const canWithdraw = isMixed
+    ? (usd?.totalAvailableToWithdraw ?? 0) > MIN_PAYOUT_CENTS || (htg?.totalAvailableToWithdraw ?? 0) > MIN_PAYOUT_CENTS
+    : summary.totalAvailableToWithdraw > MIN_PAYOUT_CENTS
+
+  const totalFeesLabel = isMixed
+    ? mixedInline((t) => (t?.totalPlatformFees ?? 0) + (t?.totalProcessingFees ?? 0))
+    : formatCurrency(summary.totalPlatformFees + summary.totalProcessingFees)
+
   const filteredEvents = filter === 'all' 
     ? summary.events 
     : summary.events.filter(e => e.settlementStatus === filter)
 
   return (
     <div className="space-y-6">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatTile
-          icon={DollarSign}
-          label="Gross Sales"
-          sublabel="All time"
-          value={
-            summary.currency === 'mixed' && summary.totalsByCurrency ? (
-              <span className="block space-y-1">
-                <span className="flex items-baseline justify-between">
-                  <span className="text-xs text-gray-500">USD</span>
-                  <span className="text-lg sm:text-xl font-bold text-gray-900">
-                    {formatCurrency(summary.totalsByCurrency.USD?.totalGrossSales ?? 0, 'USD')}
-                  </span>
-                </span>
-                <span className="flex items-baseline justify-between">
-                  <span className="text-xs text-gray-500">HTG</span>
-                  <span className="text-lg sm:text-xl font-bold text-gray-900">
-                    {formatCurrency(summary.totalsByCurrency.HTG?.totalGrossSales ?? 0, 'HTG')}
-                  </span>
-                </span>
-              </span>
-            ) : (
-              formatCurrency(summary.totalGrossSales)
-            )
-          }
+      {/* Payout hero — available balance + primary action */}
+      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-700 via-brand-700 to-brand-800 p-6 text-white shadow-soft sm:p-8">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-white/10 blur-2xl"
         />
+        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 text-brand-100">
+              <Wallet className="h-4 w-4" />
+              <span className="eyebrow">Available to withdraw</span>
+            </div>
 
-        <StatTile
-          icon={TrendingUp}
-          label="Net Amount"
-          sublabel="After fees"
-          value={
-            summary.currency === 'mixed' && summary.totalsByCurrency ? (
-              <span className="block space-y-1">
-                <span className="flex items-baseline justify-between">
-                  <span className="text-xs text-gray-500">USD</span>
-                  <span className="text-lg sm:text-xl font-bold text-gray-900">
-                    {formatCurrency(summary.totalsByCurrency.USD?.totalNetAmount ?? 0, 'USD')}
-                  </span>
-                </span>
-                <span className="flex items-baseline justify-between">
-                  <span className="text-xs text-gray-500">HTG</span>
-                  <span className="text-lg sm:text-xl font-bold text-gray-900">
-                    {formatCurrency(summary.totalsByCurrency.HTG?.totalNetAmount ?? 0, 'HTG')}
-                  </span>
-                </span>
-              </span>
-            ) : (
-              formatCurrency(summary.totalNetAmount)
-            )
-          }
-        />
-
-        <StatTile
-          icon={Wallet}
-          label="Available"
-          sublabel="Ready to withdraw"
-          className="border-l-4 border-green-600"
-          value={
-            summary.currency === 'mixed' && summary.totalsByCurrency ? (
-              <span className="block space-y-1">
-                <span className="flex items-baseline justify-between">
-                  <span className="text-xs text-gray-500">USD</span>
-                  <span className="text-lg sm:text-xl font-bold text-green-600">
-                    {formatCurrency(summary.totalsByCurrency.USD?.totalAvailableToWithdraw ?? 0, 'USD')}
-                  </span>
-                </span>
-                <span className="flex items-baseline justify-between">
-                  <span className="text-xs text-gray-500">HTG</span>
-                  <span className="text-lg sm:text-xl font-bold text-green-600">
-                    {formatCurrency(summary.totalsByCurrency.HTG?.totalAvailableToWithdraw ?? 0, 'HTG')}
-                  </span>
-                </span>
-              </span>
-            ) : (
-              <span className="text-green-600">{formatCurrency(summary.totalAvailableToWithdraw)}</span>
-            )
-          }
-        />
-
-        <StatTile
-          icon={ArrowDownCircle}
-          label="Withdrawn"
-          sublabel="Total paid out"
-          value={
-            summary.currency === 'mixed' && summary.totalsByCurrency ? (
-              <span className="block space-y-1">
-                <span className="flex items-baseline justify-between">
-                  <span className="text-xs text-gray-500">USD</span>
-                  <span className="text-lg sm:text-xl font-bold text-gray-900">
-                    {formatCurrency(summary.totalsByCurrency.USD?.totalWithdrawn ?? 0, 'USD')}
-                  </span>
-                </span>
-                <span className="flex items-baseline justify-between">
-                  <span className="text-xs text-gray-500">HTG</span>
-                  <span className="text-lg sm:text-xl font-bold text-gray-900">
-                    {formatCurrency(summary.totalsByCurrency.HTG?.totalWithdrawn ?? 0, 'HTG')}
-                  </span>
-                </span>
-              </span>
-            ) : (
-              formatCurrency(summary.totalWithdrawn)
-            )
-          }
-        />
-      </div>
-
-      {/* Fee Breakdown Info */}
-      <div className="bg-brand-50 border border-brand-100 rounded-2xl p-4">
-        <div className="flex items-start gap-3">
-          <svg className="w-5 h-5 text-brand-700 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <div className="flex-1">
-            <h3 className="text-sm font-medium text-brand-900 mb-1">Fee Structure</h3>
-            <div className="text-xs sm:text-sm text-brand-800 space-y-1">
-              <div className="flex justify-between">
-                <span>Platform Fee:</span>
-                <span className="font-medium">10% of ticket sales</span>
+            {isMixed ? (
+              <div className="mt-3 space-y-1">
+                <div className="font-display text-3xl leading-none sm:text-4xl">
+                  {formatCurrency(usd?.totalAvailableToWithdraw ?? 0, 'USD')}
+                  <span className="ml-2 align-middle text-sm font-medium text-brand-200">USD</span>
+                </div>
+                <div className="font-display text-3xl leading-none sm:text-4xl">
+                  {formatCurrency(htg?.totalAvailableToWithdraw ?? 0, 'HTG')}
+                  <span className="ml-2 align-middle text-sm font-medium text-brand-200">HTG</span>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span>Processing Fee:</span>
-                <span className="font-medium">2.9% + $0.30 per transaction</span>
+            ) : (
+              <div className="mt-3 font-display text-[clamp(32px,6vw,52px)] leading-none">
+                {formatCurrency(summary.totalAvailableToWithdraw)}
               </div>
-              <div className="flex justify-between pt-1 border-t border-brand-200">
-                <span>Total Fees Paid:</span>
-                <span className="font-semibold">
-                  {summary.currency === 'mixed' && summary.totalsByCurrency ? (
-                    <span className="inline-flex flex-col items-end gap-0.5">
-                      <span>{formatCurrency((summary.totalsByCurrency.USD?.totalPlatformFees ?? 0) + (summary.totalsByCurrency.USD?.totalProcessingFees ?? 0), 'USD')}</span>
-                      <span>{formatCurrency((summary.totalsByCurrency.HTG?.totalPlatformFees ?? 0) + (summary.totalsByCurrency.HTG?.totalProcessingFees ?? 0), 'HTG')}</span>
-                    </span>
-                  ) : (
-                    formatCurrency(summary.totalPlatformFees + summary.totalProcessingFees)
-                  )}
-                </span>
-              </div>
+            )}
+
+            <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-brand-100">
+              <span className="inline-flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5" />
+                Pending&nbsp;<span className="font-semibold text-white">{pendingLabel}</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <ArrowDownCircle className="h-3.5 w-3.5" />
+                Withdrawn&nbsp;<span className="font-semibold text-white">{withdrawnLabel}</span>
+              </span>
             </div>
           </div>
-        </div>
 
+          <div className="shrink-0">
+            <button
+              type="button"
+              onClick={() => setPayoutOpen(true)}
+              disabled={!canWithdraw}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-brand-800 shadow-sm transition hover:bg-brand-50 disabled:cursor-not-allowed disabled:bg-white/70 disabled:text-brand-800/60 lg:w-auto"
+            >
+              Request payout
+              <ArrowRight className="h-4 w-4" />
+            </button>
+            <p className="mt-2 max-w-[14rem] text-xs text-brand-100 lg:text-right">
+              {canWithdraw
+                ? 'Paid to your configured method, batched to the next Friday.'
+                : `You need at least ${formatCurrency(MIN_PAYOUT_CENTS)} available to request a payout.`}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Secondary stats */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <StatCard icon={<DollarSign className="h-4 w-4" />} label="Gross sales" hint="All ticket revenue">
+          {renderMoney((t) => t?.totalGrossSales ?? 0, summary.totalGrossSales)}
+        </StatCard>
+        <StatCard icon={<TrendingUp className="h-4 w-4" />} label="Net amount" hint="After platform & processing fees">
+          {renderMoney((t) => t?.totalNetAmount ?? 0, summary.totalNetAmount)}
+        </StatCard>
+        <StatCard icon={<Receipt className="h-4 w-4" />} label="Fees paid" hint="Platform + processing">
+          {renderMoney(
+            (t) => (t?.totalPlatformFees ?? 0) + (t?.totalProcessingFees ?? 0),
+            summary.totalPlatformFees + summary.totalProcessingFees,
+            'text-gray-500',
+          )}
+        </StatCard>
       </div>
+
+      {/* Fee structure — compact disclosure to keep the page focused */}
+      <details className="group rounded-2xl border border-gray-100 bg-white shadow-soft">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4">
+          <span className="flex items-center gap-2 text-sm font-medium text-gray-900">
+            <Receipt className="h-4 w-4 text-brand-700" />
+            How fees are calculated
+          </span>
+          <span className="flex items-center gap-3 text-sm text-gray-500">
+            <span className="hidden sm:inline">Total fees {totalFeesLabel}</span>
+            <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+          </span>
+        </summary>
+        <div className="space-y-2 border-t border-gray-100 px-5 py-4 text-sm text-gray-600">
+          <div className="flex justify-between">
+            <span>Platform fee</span>
+            <span className="font-medium text-gray-900">10% of ticket sales</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Processing fee</span>
+            <span className="font-medium text-gray-900">2.9% + $0.30 per transaction</span>
+          </div>
+          <div className="flex justify-between border-t border-gray-100 pt-2">
+            <span>Total fees paid</span>
+            <span className="font-semibold text-gray-900">{totalFeesLabel}</span>
+          </div>
+        </div>
+      </details>
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-soft overflow-hidden">
         {/* Filter Tabs */}
@@ -374,59 +438,11 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
         </div>
       </div>
 
-      {/* Quick Actions */}
-      {(() => {
-        const isMixed = summary.currency === 'mixed' && !!summary.totalsByCurrency
-        const usd = summary.totalsByCurrency?.USD
-        const htg = summary.totalsByCurrency?.HTG
-
-        const anyCurrencyAboveMinimum = isMixed
-          ? (usd?.totalAvailableToWithdraw ?? 0) > 5000 || (htg?.totalAvailableToWithdraw ?? 0) > 5000
-          : summary.totalAvailableToWithdraw > 5000
-
-        if (!anyCurrencyAboveMinimum) return null
-
-        const availableLabel = isMixed
-          ? `${formatCurrency(usd?.totalAvailableToWithdraw ?? 0, 'USD')} • ${formatCurrency(htg?.totalAvailableToWithdraw ?? 0, 'HTG')}`
-          : formatCurrency(summary.totalAvailableToWithdraw)
-
-        const pendingLabel = isMixed
-          ? `${formatCurrency(heldBack(usd?.totalNetAmount ?? 0, usd?.totalAvailableToWithdraw ?? 0, usd?.totalWithdrawn ?? 0), 'USD')} • ${formatCurrency(heldBack(htg?.totalNetAmount ?? 0, htg?.totalAvailableToWithdraw ?? 0, htg?.totalWithdrawn ?? 0), 'HTG')}`
-          : formatCurrency(heldBack(summary.totalNetAmount, summary.totalAvailableToWithdraw, summary.totalWithdrawn))
-
-        return (
-        <>
-        <Card className="p-6">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3">
-                <p className="eyebrow text-green-700">Available</p>
-                <p className="mt-1 font-display text-2xl leading-none text-gray-900">{availableLabel}</p>
-                <p className="mt-1 text-xs text-gray-500">Ready to withdraw now</p>
-              </div>
-              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-                <p className="eyebrow text-amber-700">Pending</p>
-                <p className="mt-1 font-display text-2xl leading-none text-gray-900">{pendingLabel}</p>
-                <p className="mt-1 text-xs text-gray-500">Held until settlement</p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setPayoutOpen(true)}
-              className="w-full lg:w-auto px-6 py-3 bg-brand-700 text-white font-semibold rounded-lg hover:bg-brand-800 transition text-center"
-            >
-              Request Payout
-            </button>
-          </div>
-        </Card>
-        <PayoutRequestModal
-          open={payoutOpen}
-          onClose={() => setPayoutOpen(false)}
-          availableLabel={availableLabel}
-        />
-        </>
-        )
-      })()}
+      <PayoutRequestModal
+        open={payoutOpen}
+        onClose={() => setPayoutOpen(false)}
+        availableLabel={availableLabel}
+      />
     </div>
   )
 }

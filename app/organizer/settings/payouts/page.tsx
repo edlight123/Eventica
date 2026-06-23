@@ -74,7 +74,15 @@ export default async function PayoutsSettingsPage({
           showEarningsAndPayouts={false}
           organizerId={authUser.uid}
           organizerDefaultCountry={organizerDefaultCountry}
-          initialActiveProfile={stripeParam ? 'stripe_connect' : editParam === 'stripe_connect' ? 'stripe_connect' : undefined}
+          initialActiveProfile={
+            stripeParam
+              ? 'stripe_connect'
+              : editParam === 'stripe_connect'
+                ? 'stripe_connect'
+                : editParam === 'haiti'
+                  ? 'haiti'
+                  : undefined
+          }
         />
       </div>
     )

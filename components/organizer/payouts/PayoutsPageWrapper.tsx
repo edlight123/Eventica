@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import PayoutsSetupWizard from '@/components/organizer/payouts/PayoutsSetupWizard'
 import PayoutsSummaryDashboard from '@/components/organizer/payouts/PayoutsSummaryDashboard'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 
 // Types matching the existing PayoutsPageNew
 type PayoutConfig = {
@@ -185,9 +185,6 @@ export default function PayoutsPageWrapper({
           organizerId={organizerId}
           haitiMethod={haitiMethod}
           stripeMethod={stripeMethod}
-          upcomingPayout={null} // Would need to fetch this
-          totalEarnings={0} // Would need to fetch this
-          currency="HTG"
           onEdit={handleEditProfile}
           onSetupNew={handleSetupNew}
         />
@@ -197,9 +194,10 @@ export default function PayoutsPageWrapper({
           <div className="mt-8 pt-6 border-t border-gray-200">
             <Link 
               href="/organizer/settings/payouts?view=advanced"
-              className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
+              className="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-700"
             >
-              Advanced payout settings →
+              Advanced payout settings
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         )}

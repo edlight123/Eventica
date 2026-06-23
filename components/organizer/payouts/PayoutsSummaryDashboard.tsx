@@ -1,19 +1,18 @@
 'use client'
 
-import { useState } from 'react'
-import { 
-  CheckCircle, 
-  Clock, 
-  AlertCircle, 
-  ChevronRight, 
-  Building2, 
+import {
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  Building2,
   Smartphone,
   CreditCard,
   Settings,
-  ExternalLink,
   Wallet,
   TrendingUp,
-  Calendar
+  Plus,
+  History,
+  ShieldCheck,
 } from 'lucide-react'
 import Link from 'next/link'
 import { StatusChip } from '@/components/ui/kit'
@@ -54,22 +53,52 @@ export default function PayoutsSummaryDashboard({
   organizerId,
   haitiMethod,
   stripeMethod,
-  upcomingPayout,
-  totalEarnings = 0,
-  currency = 'HTG',
   onEdit,
   onSetupNew,
 }: PayoutsSummaryDashboardProps) {
   const hasAnyMethod = Boolean(haitiMethod || stripeMethod)
 
-  const formatCurrency = (amount: number, curr: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: curr,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount)
-  }
+  // Overall account status, derived from the configured methods. This replaces the
+  // previous hardcoded "Next payout"/"Total earnings: $0" cards which were always
+  // empty (the wrapper never fetched those numbers) and looked broken.
+  const overallStatus: 'none' | 'active' | 'pending' | 'needs_attention' = (() => {
+    if (!hasAnyMethod) return 'none'
+    const statuses = [haitiMethod?.status, stripeMethod?.status].filter(Boolean) as string[]
+    if (statuses.includes('needs_attention')) return 'needs_attention'
+    if (statuses.includes('pending')) return 'pending'
+    return 'active'
+  })()
+
+  const statusHero = {
+    none: {
+      icon: <Wallet className="h-7 w-7" />,
+      ring: 'from-brand-50 to-brand-100 border-brand-200',
+      chip: 'bg-brand-100 text-brand-700',
+      title: 'Set up payouts to get paid',
+      description: 'Add a payout method to start receiving earnings from your ticket sales. It only takes a few minutes.',
+    },
+    active: {
+      icon: <CheckCircle className="h-7 w-7" />,
+      ring: 'from-green-50 to-green-100 border-green-200',
+      chip: 'bg-green-100 text-green-700',
+      title: 'Your payouts are ready',
+      description: 'Your payout method is set up and verified. Earnings are paid out according to your schedule.',
+    },
+    pending: {
+      icon: <Clock className="h-7 w-7" />,
+      ring: 'from-amber-50 to-amber-100 border-amber-200',
+      chip: 'bg-amber-100 text-amber-700',
+      title: 'Verification in progress',
+      description: 'We’re reviewing your payout details. This usually takes 1–2 business days — we’ll notify you once it’s approved.',
+    },
+    needs_attention: {
+      icon: <AlertCircle className="h-7 w-7" />,
+      ring: 'from-red-50 to-red-100 border-red-200',
+      chip: 'bg-red-100 text-red-700',
+      title: 'Action needed on your payouts',
+      description: 'One of your payout methods needs attention before you can receive funds. Open it below to resolve.',
+    },
+  }[overallStatus]
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -186,63 +215,41 @@ export default function PayoutsSummaryDashboard({
 
   return (
     <div className="space-y-6">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Upcoming Payout */}
-        <div className="bg-brand-700 rounded-xl p-5 text-white">
-          <div className="flex items-center gap-2 text-brand-100 text-sm mb-2">
-            <Calendar className="w-4 h-4" />
-            Next Payout
+      {/* Account status — accurate, derived from configured methods */}
+      <div className={`rounded-2xl border bg-gradient-to-br ${statusHero.ring} p-5 sm:p-6`}>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-4">
+            <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl ${statusHero.chip}`}>
+              {statusHero.icon}
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-lg font-semibold text-gray-900">{statusHero.title}</h2>
+              <p className="mt-1 text-sm text-gray-600">{statusHero.description}</p>
+            </div>
           </div>
-          {upcomingPayout ? (
-            <>
-              <div className="text-3xl font-bold mb-1">
-                {formatCurrency(upcomingPayout.amount, upcomingPayout.currency)}
-              </div>
-              <div className="text-sm text-brand-100">
-                {upcomingPayout.eventCount} event{upcomingPayout.eventCount !== 1 ? 's' : ''} • 
-                Expected {new Date(upcomingPayout.date).toLocaleDateString()}
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="text-2xl font-bold mb-1">No pending payouts</div>
-              <div className="text-sm text-brand-100">
-                Payouts appear here after your events
-              </div>
-            </>
+          {overallStatus === 'none' && (
+            <button
+              onClick={onSetupNew}
+              className="inline-flex flex-shrink-0 items-center justify-center gap-2 rounded-lg bg-brand-700 px-5 py-2.5 font-semibold text-white shadow-sm transition hover:bg-brand-800"
+            >
+              <Plus className="h-4 w-4" />
+              Set up payouts
+            </button>
           )}
-        </div>
-
-        {/* Total Earnings */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <div className="flex items-center gap-2 text-gray-500 text-sm mb-2">
-            <TrendingUp className="w-4 h-4" />
-            Total Earnings
-          </div>
-          <div className="text-3xl font-bold text-gray-900 mb-1">
-            {formatCurrency(totalEarnings, currency)}
-          </div>
-          <Link 
-            href="/organizer/earnings"
-            className="text-sm text-brand-700 hover:text-brand-800 flex items-center gap-1"
-          >
-            View earnings details
-            <ChevronRight className="w-4 h-4" />
-          </Link>
         </div>
       </div>
 
       {/* Payout Methods */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Payout Methods</h2>
+          <h2 className="text-lg font-semibold text-gray-900">Payout methods</h2>
           {hasAnyMethod && (
             <button
               onClick={onSetupNew}
-              className="text-sm font-medium text-brand-700 hover:text-brand-800"
+              className="inline-flex items-center gap-1 text-sm font-medium text-brand-700 hover:text-brand-800"
             >
-              + Add another method
+              <Plus className="h-4 w-4" />
+              Add another
             </button>
           )}
         </div>
@@ -273,34 +280,45 @@ export default function PayoutsSummaryDashboard({
 
       {/* Quick Links */}
       <div className="bg-white rounded-xl border border-gray-200 p-5">
-        <h3 className="font-semibold text-gray-900 mb-4">Quick Links</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Link 
+        <h3 className="font-semibold text-gray-900 mb-4">Manage</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <Link
             href="/organizer/earnings"
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 hover:border-gray-200 transition-colors"
           >
-            <div className="w-10 h-10 rounded-lg bg-brand-100 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-brand-100 flex items-center justify-center flex-shrink-0">
               <TrendingUp className="w-5 h-5 text-brand-700" />
             </div>
-            <div className="flex-1">
-              <div className="font-medium text-gray-900">Earnings & Reports</div>
-              <div className="text-sm text-gray-500">View detailed breakdowns</div>
+            <div className="flex-1 min-w-0">
+              <div className="font-medium text-gray-900">Earnings</div>
+              <div className="text-sm text-gray-500">Balance & withdrawals</div>
             </div>
-            <ChevronRight className="w-5 h-5 text-gray-400" />
           </Link>
 
-          <Link 
-            href="/organizer/settings"
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+          <Link
+            href="/organizer/settings/payouts/history"
+            className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 hover:border-gray-200 transition-colors"
           >
-            <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
-              <Settings className="w-5 h-5 text-gray-600" />
+            <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+              <History className="w-5 h-5 text-gray-600" />
             </div>
-            <div className="flex-1">
-              <div className="font-medium text-gray-900">Account Settings</div>
-              <div className="text-sm text-gray-500">Manage your profile</div>
+            <div className="flex-1 min-w-0">
+              <div className="font-medium text-gray-900">Payout history</div>
+              <div className="text-sm text-gray-500">Past transfers</div>
             </div>
-            <ChevronRight className="w-5 h-5 text-gray-400" />
+          </Link>
+
+          <Link
+            href="/organizer/settings/payouts/fees"
+            className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 hover:border-gray-200 transition-colors"
+          >
+            <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+              <ShieldCheck className="w-5 h-5 text-gray-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-medium text-gray-900">Fees & rules</div>
+              <div className="text-sm text-gray-500">Schedule & limits</div>
+            </div>
           </Link>
         </div>
       </div>

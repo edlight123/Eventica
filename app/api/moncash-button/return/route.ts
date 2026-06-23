@@ -92,6 +92,82 @@ async function tryResolveOrderIdFromAlerts(supabase: any, transactionId: string)
   return null
 }
 
+type FulfillmentClaim =
+  | { outcome: 'claimed' }
+  | { outcome: 'already_completed'; ticketId: string | null }
+  | { outcome: 'in_progress' }
+  | { outcome: 'not_found' }
+
+// Window after which a stuck "processing" claim is considered stale and may be
+// re-claimed (e.g. if a previous fulfillment attempt crashed mid-way).
+const FULFILLMENT_CLAIM_STALE_MS = 90_000
+
+/**
+ * Atomically claim a pending transaction (looked up by order_id) for fulfillment.
+ * Uses a Firestore transaction so only ONE concurrent request creates tickets for a
+ * given paid order. This prevents duplicate tickets / double-counted earnings when the
+ * Return URL is hit more than once (browser retries, double submits, or the Alert
+ * handler's GET->Return redirect racing the real browser return).
+ */
+async function claimOrderForFulfillment(orderId: string): Promise<FulfillmentClaim> {
+  const snap = await adminDb
+    .collection('pending_transactions')
+    .where('order_id', '==', orderId)
+    .limit(1)
+    .get()
+
+  if (snap.empty) return { outcome: 'not_found' }
+  const ref = snap.docs[0].ref
+
+  return adminDb.runTransaction(async (tx: any) => {
+    const doc = await tx.get(ref)
+    if (!doc.exists) return { outcome: 'not_found' } as FulfillmentClaim
+
+    const data = doc.data() || {}
+
+    // Already fulfilled — don't create a second set of tickets.
+    if (data.status === 'completed' && data.ticket_id) {
+      return { outcome: 'already_completed', ticketId: String(data.ticket_id) } as FulfillmentClaim
+    }
+
+    // Another request is actively fulfilling this same order (and hasn't gone stale).
+    if (data.status === 'processing' && data.fulfillment_started_at) {
+      const startedAt = new Date(data.fulfillment_started_at).getTime()
+      if (Number.isFinite(startedAt) && Date.now() - startedAt < FULFILLMENT_CLAIM_STALE_MS) {
+        return { outcome: 'in_progress' } as FulfillmentClaim
+      }
+    }
+
+    tx.update(ref, {
+      status: 'processing',
+      fulfillment_started_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    return { outcome: 'claimed' } as FulfillmentClaim
+  })
+}
+
+/**
+ * Release a fulfillment claim so the order can be retried later (used when ticket
+ * creation fails after the claim was taken).
+ */
+async function releaseOrderClaim(orderId: string): Promise<void> {
+  try {
+    const snap = await adminDb
+      .collection('pending_transactions')
+      .where('order_id', '==', orderId)
+      .limit(1)
+      .get()
+    if (snap.empty) return
+    await snap.docs[0].ref.set(
+      { status: 'pending', fulfillment_started_at: null, updated_at: new Date().toISOString() },
+      { merge: true }
+    )
+  } catch (err) {
+    console.error('MonCash Button return: failed to release fulfillment claim', err)
+  }
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
@@ -271,6 +347,24 @@ export async function GET(request: Request) {
       return NextResponse.redirect(new URL('/purchase/failed?reason=payment_failed', request.url))
     }
 
+    // Payment confirmed. Atomically claim this order so only one request fulfills it.
+    // Without this, concurrent Return requests for the same order could each create a
+    // full set of tickets (and double-count earnings) for a single payment.
+    const claim = await claimOrderForFulfillment(orderId)
+    if (claim.outcome === 'already_completed') {
+      return NextResponse.redirect(
+        new URL(`/purchase/success?ticketId=${claim.ticketId || ''}`, request.url)
+      )
+    }
+    if (claim.outcome === 'in_progress') {
+      // Another request is already finalizing this exact payment; avoid duplicates.
+      return NextResponse.redirect(new URL('/purchase/success', request.url))
+    }
+    if (claim.outcome === 'not_found') {
+      return NextResponse.redirect(new URL('/purchase/failed?reason=transaction_not_found', request.url))
+    }
+    // claim.outcome === 'claimed': we own fulfillment for this order from here on.
+
     // Fetch event + attendee
     const { data: eventDetails } = await supabase
       .from('events')
@@ -356,6 +450,9 @@ export async function GET(request: Request) {
 
         if (insertResult.error) {
           console.error('Failed to create ticket:', insertResult.error)
+          // Release the claim so a later Return/Alert retry can re-attempt fulfillment
+          // for this (already paid) order instead of being blocked as "in progress".
+          await releaseOrderClaim(orderId)
           return NextResponse.redirect(new URL('/purchase/failed?reason=ticket_creation_failed', request.url))
         }
 
