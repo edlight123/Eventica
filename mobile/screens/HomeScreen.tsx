@@ -32,9 +32,37 @@ import CategoryRail from '../components/CategoryRail';
 import TrendingSection from '../components/TrendingSection';
 import ThisWeekSection from '../components/ThisWeekSection';
 import AllEventsPreview from '../components/AllEventsPreview';
+import EventRail from '../components/EventRail';
 import SectionHeader from '../components/SectionHeader';
 import EmptyState from '../components/EmptyState';
 import { Skeleton, PosterRailSkeleton } from '../components/Skeleton';
+import { isBudgetFriendlyTicketPrice } from '../lib/pricing';
+
+// Tolerant city matching (accents/case/"City, ST") so the Near You rail lines up
+// with whatever string is stored on each event's `city`.
+const normalizeCity = (s: any): string =>
+  (s ?? '')
+    .toString()
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '');
+
+const cityMatches = (eventCity: any, target: string): boolean => {
+  const e = normalizeCity(eventCity);
+  const full = normalizeCity(target);
+  if (!e || !full) return false;
+  const short = normalizeCity(target.split(',')[0]);
+  return e === full || e === short || e.includes(short) || short.includes(e);
+};
+
+const toMillis = (v: any): number => {
+  if (!v) return 0;
+  if (typeof v?.toDate === 'function') return v.toDate().getTime();
+  if (v?.seconds) return v.seconds * 1000;
+  const d = new Date(v).getTime();
+  return Number.isFinite(d) ? d : 0;
+};
 
 export default function HomeScreen({ navigation }: any) {
   const { colors, isDark } = useTheme();
@@ -47,6 +75,10 @@ export default function HomeScreen({ navigation }: any) {
   const [featuredEvents, setFeaturedEvents] = useState<any[]>([]);
   const [trendingEvents, setTrendingEvents] = useState<any[]>([]);
   const [thisWeekEvents, setThisWeekEvents] = useState<any[]>([]);
+  const [forYouEvents, setForYouEvents] = useState<any[]>([]);
+  const [nearYouEvents, setNearYouEvents] = useState<any[]>([]);
+  const [freeEvents, setFreeEvents] = useState<any[]>([]);
+  const [newEvents, setNewEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [locationSheetOpen, setLocationSheetOpen] = useState(false);
@@ -157,6 +189,31 @@ export default function HomeScreen({ navigation }: any) {
         .filter((e) => e.start_datetime <= oneWeekFromNow)
         .slice(0, 6);
       setThisWeekEvents(thisWeek);
+
+      // For You — popular picks (most tickets sold), a light personalization proxy.
+      const forYou = [...finalEvents]
+        .sort((a: any, b: any) => (b.tickets_sold || 0) - (a.tickets_sold || 0))
+        .slice(0, 8);
+      setForYouEvents(forYou);
+
+      // Near You — events in the user's chosen / default city.
+      const nearCity = selectedLocation || userProfile?.default_city || '';
+      const nearYou = nearCity
+        ? finalEvents.filter((e) => cityMatches(e.city, nearCity)).slice(0, 8)
+        : [];
+      setNearYouEvents(nearYou);
+
+      // Free & budget-friendly.
+      const free = finalEvents
+        .filter((e) => isBudgetFriendlyTicketPrice(e?.ticket_price, e?.currency))
+        .slice(0, 8);
+      setFreeEvents(free);
+
+      // Just Announced — most recently created events.
+      const recentlyAdded = [...finalEvents]
+        .sort((a: any, b: any) => toMillis(b.created_at) - toMillis(a.created_at))
+        .slice(0, 8);
+      setNewEvents(recentlyAdded);
     } catch (error) {
       console.error('Error fetching events:', error);
     } finally {
@@ -256,6 +313,14 @@ export default function HomeScreen({ navigation }: any) {
 
   const handleViewAllEvents = () => {
     navigation.navigate('Discover', { allEvents: true, timestamp: Date.now() });
+  };
+
+  const handleViewAllNearYou = () => {
+    const nearCity = selectedLocation || userProfile?.default_city || '';
+    if (nearCity) {
+      applyFiltersDirectly({ ...DEFAULT_FILTERS, country: userCountry, city: nearCity });
+    }
+    navigation.navigate('Discover', { timestamp: Date.now() });
   };
 
   const locationLabel =
@@ -361,6 +426,19 @@ export default function HomeScreen({ navigation }: any) {
               </View>
             )}
 
+            {/* For You */}
+            {forYouEvents.length > 0 && (
+              <View style={styles.section}>
+                <EventRail
+                  title={t('home.forYouTitle')}
+                  subtitle={t('home.forYouSubtitle')}
+                  events={forYouEvents}
+                  onEventPress={(eventId) => navigation.navigate('EventDetail', { eventId })}
+                  onViewAll={handleViewAllEvents}
+                />
+              </View>
+            )}
+
             {/* Trending Now */}
             {trendingEvents.length > 0 && (
               <View style={styles.section}>
@@ -368,6 +446,19 @@ export default function HomeScreen({ navigation }: any) {
                   events={trendingEvents}
                   onEventPress={(eventId) => navigation.navigate('EventDetail', { eventId })}
                   onViewAll={handleViewAllTrending}
+                />
+              </View>
+            )}
+
+            {/* Near You */}
+            {nearYouEvents.length > 0 && (
+              <View style={styles.section}>
+                <EventRail
+                  title={t('home.nearYouTitle')}
+                  subtitle={t('home.nearYouSubtitle')}
+                  events={nearYouEvents}
+                  onEventPress={(eventId) => navigation.navigate('EventDetail', { eventId })}
+                  onViewAll={handleViewAllNearYou}
                 />
               </View>
             )}
@@ -383,6 +474,19 @@ export default function HomeScreen({ navigation }: any) {
               </View>
             )}
 
+            {/* Free & Budget-Friendly */}
+            {freeEvents.length > 0 && (
+              <View style={styles.section}>
+                <EventRail
+                  title={t('home.freeTitle')}
+                  subtitle={t('home.freeSubtitle')}
+                  events={freeEvents}
+                  onEventPress={(eventId) => navigation.navigate('EventDetail', { eventId })}
+                  onViewAll={handleViewAllEvents}
+                />
+              </View>
+            )}
+
             {/* Browse by Category — slim pills keep events the focus */}
             <View style={styles.categorySection}>
               <View style={styles.categoryHeader}>
@@ -390,6 +494,20 @@ export default function HomeScreen({ navigation }: any) {
               </View>
               <CategoryRail onCategoryPress={handleCategoryPress} />
             </View>
+
+            {/* Just Announced */}
+            {newEvents.length > 0 && (
+              <View style={styles.section}>
+                <EventRail
+                  title={t('home.newTitle')}
+                  subtitle={t('home.newSubtitle')}
+                  events={newEvents}
+                  badge="New"
+                  onEventPress={(eventId) => navigation.navigate('EventDetail', { eventId })}
+                  onViewAll={handleViewAllEvents}
+                />
+              </View>
+            )}
 
             {/* All Events Preview */}
             {events.length > 0 && (

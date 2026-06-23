@@ -8,14 +8,11 @@ import {
   Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Calendar, MapPin, Users } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
-import { getCategoryLabel } from '../lib/categories';
 import { formatDateForLanguage } from '../lib/dates';
 import { getPosterTheme } from '../lib/posterGradient';
 import { RADIUS, SHADOWS } from '../config/brand';
-import { colors as T } from '../theme/tokens';
 import EventStatusBadge from './EventStatusBadge';
 import type { BadgeStatus } from '../theme/badges';
 
@@ -83,9 +80,10 @@ export default function PosterEventCard({
             : null;
 
   const dateLabel = event.start_datetime
-    ? formatDateForLanguage(new Date(event.start_datetime), 'EEE, MMM d · h:mm a', language)
+    ? formatDateForLanguage(new Date(event.start_datetime), 'EEE, MMM d', language)
     : '';
-  const location = [event.venue_name, event.city].filter(Boolean).join(', ');
+  // One quiet line, Posh-style: "Sat, Aug 15 · Port-au-Prince".
+  const metaLine = [dateLabel, event.city].filter(Boolean).join(' · ');
 
   const pressIn = () =>
     Animated.spring(scale, { toValue: 0.97, useNativeDriver: true }).start();
@@ -132,61 +130,26 @@ export default function PosterEventCard({
           {overlay ? <View style={styles.overlayWrap}>{overlay}</View> : null}
         </View>
 
-        {/* All text sits BELOW the poster so it never covers the artwork. */}
+        {/* Minimal, Posh-style content: title + one quiet meta line + price.
+            All text sits BELOW the poster so it never covers the artwork. */}
         <View style={styles.content}>
-          {event.category ? (
-            <View style={styles.categoryPill}>
-              <Text style={styles.category} numberOfLines={1}>
-                {getCategoryLabel(t, event.category)}
-              </Text>
-            </View>
-          ) : null}
-
-          <Text style={styles.title} numberOfLines={2}>
+          <Text style={styles.title} numberOfLines={1}>
             {event.title}
           </Text>
 
-          {showMeta && (
-            <View style={styles.meta}>
-              {!!dateLabel && (
-                <View style={styles.metaRow}>
-                  <Calendar size={13} color={colors.textSecondary} />
-                  <Text style={styles.metaText} numberOfLines={1}>
-                    {dateLabel}
-                  </Text>
-                </View>
-              )}
-              {!!location && (
-                <View style={styles.metaRow}>
-                  <MapPin size={13} color={colors.textSecondary} />
-                  <Text style={styles.metaText} numberOfLines={1}>
-                    {location}
-                  </Text>
-                </View>
-              )}
-            </View>
-          )}
-
-          <View style={styles.footer}>
+          <View style={styles.metaRow}>
+            {showMeta && !!metaLine && (
+              <Text style={styles.metaText} numberOfLines={1}>
+                {metaLine}
+              </Text>
+            )}
             {isFree ? (
               <Text style={styles.free}>{t('common.free').toUpperCase()}</Text>
             ) : (
-              <Text style={styles.price}>
+              <Text style={styles.price} numberOfLines={1}>
                 {event.currency || 'HTG'} {price.toLocaleString()}
               </Text>
             )}
-            {friendsGoing > 0 ? (
-              <View style={styles.friendsRow}>
-                <Users size={13} color={colors.primary} />
-                <Text style={styles.friends}>
-                  {friendsGoing} {t('common.going')}
-                </Text>
-              </View>
-            ) : event.tickets_sold !== undefined && (event.tickets_sold || 0) > 0 ? (
-              <Text style={styles.sold}>
-                {event.tickets_sold} {t('common.sold')}
-              </Text>
-            ) : null}
           </View>
         </View>
       </TouchableOpacity>
@@ -230,39 +193,22 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     content: {
       paddingHorizontal: 12,
-      paddingTop: 10,
-      paddingBottom: 12,
-      gap: 5,
-    },
-    categoryPill: {
-      alignSelf: 'flex-start',
-      backgroundColor: T.tealMuted,
-      borderRadius: RADIUS.full,
-      paddingHorizontal: 8,
-      paddingVertical: 3,
-    },
-    category: {
-      fontSize: 11,
-      fontWeight: '700',
-      color: colors.primary,
-      letterSpacing: 0.6,
-      textTransform: 'uppercase',
+      paddingTop: 9,
+      paddingBottom: 11,
+      gap: 3,
     },
     title: {
-      fontSize: 16,
-      fontWeight: '800',
+      fontSize: 15,
+      fontWeight: '700',
       color: colors.text,
-      lineHeight: 20,
+      lineHeight: 19,
       letterSpacing: -0.2,
-    },
-    meta: {
-      gap: 4,
-      marginTop: 2,
     },
     metaRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 6,
+      justifyContent: 'space-between',
+      gap: 8,
     },
     metaText: {
       color: colors.textSecondary,
@@ -270,37 +216,16 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       fontWeight: '500',
       flexShrink: 1,
     },
-    footer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      marginTop: 6,
-    },
     price: {
-      fontSize: 16,
-      fontWeight: '800',
+      fontSize: 13,
+      fontWeight: '700',
       color: colors.primary,
       letterSpacing: -0.2,
     },
     free: {
-      fontSize: 13,
+      fontSize: 12,
       fontWeight: '800',
       color: colors.primary,
       letterSpacing: 0.5,
-    },
-    sold: {
-      fontSize: 12,
-      fontWeight: '600',
-      color: colors.textTertiary,
-    },
-    friendsRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 4,
-    },
-    friends: {
-      fontSize: 12,
-      fontWeight: '700',
-      color: colors.primary,
     },
   });
