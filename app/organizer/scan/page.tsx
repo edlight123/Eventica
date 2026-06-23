@@ -22,7 +22,7 @@ export default async function ScanTicketPage() {
   const supabase = await createClient()
   const userEventsQuery = await supabase
     .from('events')
-    .select('id,title,start_datetime,venue_name,city,tickets_sold,organizer_id')
+    .select('id,title,start_datetime,venue_name,city,tickets_sold,organizer_id,banner_image_url,category')
     .eq('organizer_id', user.id)
 
   const userEvents = userEventsQuery.data || []

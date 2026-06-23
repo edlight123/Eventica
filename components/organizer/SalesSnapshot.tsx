@@ -72,22 +72,22 @@ export function SalesSnapshot({ data, currency = 'HTG' }: SalesSnapshotProps) {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-soft border border-gray-100 p-6">
+    <div className="bg-white rounded-2xl shadow-soft border border-gray-100 p-4 sm:p-5">
       {/* Header with Toggle */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <p className="eyebrow text-brand-600">Overview</p>
-          <h3 className="mt-1 font-display text-[clamp(20px,3vw,26px)] leading-[1.04] text-gray-900">{t('sales_snapshot.title')}</h3>
+      <div className="mb-3.5 flex items-center justify-between gap-3">
+        <div className="flex items-baseline gap-2.5 min-w-0">
+          <h3 className="font-display text-lg leading-none text-gray-900 sm:text-xl">{t('sales_snapshot.title')}</h3>
+          <span className="truncate text-xs text-gray-400">{getRangeLabel(range)}</span>
         </div>
-        <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+        <div className="flex shrink-0 items-center gap-0.5 rounded-lg bg-gray-100 p-0.5">
           {(['7d', '30d', 'lifetime'] as TimeRange[]).map((r) => (
             <button
               key={r}
               onClick={() => setRange(r)}
-              className={`px-3 py-1.5 rounded-md text-sm font-semibold transition-all ${
+              className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-all ${
                 range === r
                   ? 'bg-white text-brand-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  : 'text-gray-500 hover:text-gray-900'
               }`}
             >
               {r === '7d' ? '7d' : r === '30d' ? '30d' : 'Lifetime'}
@@ -96,43 +96,35 @@ export function SalesSnapshot({ data, currency = 'HTG' }: SalesSnapshotProps) {
         </div>
       </div>
 
-      <p className="text-sm text-gray-600 mb-6">{getRangeLabel(range)}</p>
-
-      {/* Metrics Grid — unified brand-chip styling (calm + on-brand, matches admin) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-brand-50 rounded-lg flex items-center justify-center">
-              <Calendar className="w-4 h-4 text-brand-700" />
-            </div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('sales_snapshot.events')}</p>
+      {/* Metrics row — compact chips (icon + label inline, value below) */}
+      <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+        <div className="rounded-xl border border-gray-100 bg-gray-50 px-3.5 py-3">
+          <div className="mb-1 flex items-center gap-1.5 text-gray-500">
+            <Calendar className="h-3.5 w-3.5 text-brand-700" />
+            <p className="text-[11px] font-semibold uppercase tracking-wide">{t('sales_snapshot.events')}</p>
           </div>
-          <p className="text-3xl font-bold text-gray-900 mb-1">{metrics.upcomingEvents}</p>
-          <p className="text-xs text-gray-500">{t('sales_snapshot.upcoming')}</p>
+          <p className="text-2xl font-bold leading-none text-gray-900">{metrics.upcomingEvents}</p>
+          <p className="mt-1 text-[11px] text-gray-400">{t('sales_snapshot.upcoming')}</p>
         </div>
 
-        <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-brand-50 rounded-lg flex items-center justify-center">
-              <Users className="w-4 h-4 text-brand-700" />
-            </div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('sales_snapshot.tickets')}</p>
+        <div className="rounded-xl border border-gray-100 bg-gray-50 px-3.5 py-3">
+          <div className="mb-1 flex items-center gap-1.5 text-gray-500">
+            <Users className="h-3.5 w-3.5 text-brand-700" />
+            <p className="text-[11px] font-semibold uppercase tracking-wide">{t('sales_snapshot.tickets')}</p>
           </div>
-          <p className="text-3xl font-bold text-gray-900 mb-1">{metrics.ticketsSold}</p>
-          <p className="text-xs text-gray-500">{t('sales_snapshot.sold')}</p>
+          <p className="text-2xl font-bold leading-none text-gray-900">{metrics.ticketsSold}</p>
+          <p className="mt-1 text-[11px] text-gray-400">{t('sales_snapshot.sold')}</p>
         </div>
 
-        <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-brand-50 rounded-lg flex items-center justify-center">
-              <DollarSign className="w-4 h-4 text-brand-700" />
-            </div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('sales_snapshot.revenue')}</p>
+        <div className="rounded-xl border border-gray-100 bg-gray-50 px-3.5 py-3">
+          <div className="mb-1 flex items-center gap-1.5 text-gray-500">
+            <DollarSign className="h-3.5 w-3.5 text-brand-700" />
+            <p className="text-[11px] font-semibold uppercase tracking-wide">{t('sales_snapshot.revenue')}</p>
           </div>
-          <p className={`font-bold text-gray-900 mb-1 ${metrics.revenueCents === 0 ? 'text-xl' : 'text-3xl'}`}>
+          <p className={`font-bold leading-tight text-gray-900 ${metrics.revenueCents === 0 ? 'text-base' : 'text-2xl leading-none'}`}>
             {formatRevenue()}
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="mt-1 text-[11px] text-gray-400">
             {metrics.revenueCents === 0
               ? 'Start selling tickets'
               : hasMultipleCurrencies
@@ -141,17 +133,13 @@ export function SalesSnapshot({ data, currency = 'HTG' }: SalesSnapshotProps) {
           </p>
         </div>
 
-        <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-brand-50 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-4 h-4 text-brand-700" />
-            </div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('sales_snapshot.avg_event')}</p>
+        <div className="rounded-xl border border-gray-100 bg-gray-50 px-3.5 py-3">
+          <div className="mb-1 flex items-center gap-1.5 text-gray-500">
+            <TrendingUp className="h-3.5 w-3.5 text-brand-700" />
+            <p className="text-[11px] font-semibold uppercase tracking-wide">{t('sales_snapshot.avg_event')}</p>
           </div>
-          <p className="text-3xl font-bold text-gray-900 mb-1">
-            {metrics.avgTicketsPerEvent.toFixed(1)}
-          </p>
-          <p className="text-xs text-gray-500">{t('sales_snapshot.tickets_per_event')}</p>
+          <p className="text-2xl font-bold leading-none text-gray-900">{metrics.avgTicketsPerEvent.toFixed(1)}</p>
+          <p className="mt-1 text-[11px] text-gray-400">{t('sales_snapshot.tickets_per_event')}</p>
         </div>
       </div>
     </div>
