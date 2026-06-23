@@ -6,22 +6,8 @@ export const runtime = 'edge'
 export const size = { width: 32, height: 32 }
 export const contentType = 'image/png'
 
-function arrayBufferToBase64(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer)
-  let binary = ''
-  for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i])
-  }
-  return btoa(binary)
-}
-
-export default async function Icon() {
-  const logoBuffer = await fetch(
-    new URL('./_assets/favicon.svg', import.meta.url)
-  ).then((res) => res.arrayBuffer())
-
-  const logoSrc = `data:image/svg+xml;base64,${arrayBufferToBase64(logoBuffer)}`
-
+// Teal "T" on a white tile — matches the static marks in /public.
+export default function Icon() {
   return new ImageResponse(
     (
       <div
@@ -31,20 +17,15 @@ export default async function Icon() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'transparent',
+          background: '#FFFFFF',
+          color: '#0F766E',
+          borderRadius: 7,
+          fontSize: 26,
+          fontWeight: 700,
+          fontFamily: 'Georgia, "Times New Roman", serif',
         }}
       >
-        <img
-          src={logoSrc}
-          alt=""
-          width={size.width}
-          height={size.height}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-          }}
-        />
+        T
       </div>
     ),
     {

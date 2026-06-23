@@ -48,7 +48,7 @@ export default function TicketsListClient({ upcomingEvents, pastEvents }: Ticket
               </p>
             </div>
           </div>
-          <div className="space-y-3 md:space-y-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {upcomingEvents.map((item) => {
               const event = item.event
               if (!event || !event.id) return null
@@ -83,7 +83,7 @@ export default function TicketsListClient({ upcomingEvents, pastEvents }: Ticket
               </p>
             </div>
           </div>
-          <div className="space-y-3 md:space-y-4 opacity-75">
+          <div className="grid grid-cols-2 gap-4 opacity-75 sm:grid-cols-3 lg:grid-cols-4">
             {pastEvents.map((item) => {
               const event = item.event
               if (!event || !event.id) return null

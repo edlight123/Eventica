@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Bookmark, MapPin, Calendar, Users } from 'lucide-react'
+import { Bookmark, Users } from 'lucide-react'
 import type { Database } from '@/types/database'
 import { formatEventDate, getPriceLabel, getLocationSummary, getEventCue, isEventBookmarked, toggleBookmark as toggleBookmarkHelper } from '@/lib/discover/helpers'
+import { getPosterTheme } from '@/lib/posterGradient'
 import { useFriendsGoingCount } from './FriendsGoingContext'
 
 type Event = Database['public']['Tables']['events']['Row']
@@ -16,7 +17,6 @@ interface DiscoverEventCardProps {
 
 export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
   const [isBookmarked, setIsBookmarked] = useState(false)
-  const [isHovered, setIsHovered] = useState(false)
   const friendsGoing = useFriendsGoingCount(event.id)
 
   useEffect(() => {
@@ -34,87 +34,98 @@ export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
   const priceLabel = getPriceLabel(event.ticket_price, event.currency)
   const locationSummary = getLocationSummary(event.city, event.commune)
   const dateLabel = formatEventDate(event.start_datetime)
+  const hasImage = Boolean(event.banner_image_url)
+  const theme = getPosterTheme(event.id || event.title, event.category)
+  const isFree = event.ticket_price === 0
 
   return (
-    <Link
-      href={`/events/${event.id}`}
-      className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-gray-200"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Image */}
-      <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
-        <Image
-          src={event.banner_image_url || '/placeholder-event.jpg'}
-          alt={event.title}
-          fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
-        
-        {/* Bookmark Button */}
-        <button
-          onClick={handleBookmarkToggle}
-          className="absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md hover:bg-white transition-all duration-200 z-10"
+    <Link href={`/events/${event.id}`} prefetch className="group block h-full">
+      <article className="hover-lift h-full overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-poster-sm transition-all duration-300 group-hover:border-brand-200 group-hover:shadow-card-hover">
+        {/* ---------- Poster ---------- */}
+        <div
+          className="poster-vignette relative flex aspect-[4/5] flex-col justify-between overflow-hidden p-3.5 text-white"
+          style={hasImage ? undefined : { backgroundImage: theme.bg }}
         >
-          <Bookmark 
-            className={`w-4 h-4 transition-colors ${isBookmarked ? 'fill-brand-600 text-brand-600' : 'text-gray-700'}`}
-          />
-        </button>
+          {hasImage && (
+            <>
+              <Image
+                src={event.banner_image_url as string}
+                alt={event.title}
+                fill
+                className="object-cover transition-transform duration-[1.1s] ease-out group-hover:scale-[1.06]"
+                sizes="(max-width: 640px) 70vw, (max-width: 1024px) 33vw, 300px"
+                quality={78}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-black/30" />
+            </>
+          )}
 
-        {/* Cue Badge */}
-        {cue && (
-          <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold shadow-md
-            ${cue.variant === 'popular' ? 'bg-brand-600 text-white' : ''}
-            ${cue.variant === 'warning' ? 'bg-amber-500 text-white' : ''}
-            ${cue.variant === 'verified' ? 'bg-brand-600 text-white' : ''}
-          `}>
-            {cue.label}
-          </div>
-        )}
-
-        {/* Category Tag */}
-        <div className="absolute bottom-3 left-3 px-3 py-1 bg-black/70 backdrop-blur-sm rounded-full text-xs font-medium text-white">
-          {event.category}
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="p-4 space-y-3">
-        {/* Title */}
-        <h3 className="font-bold text-gray-900 line-clamp-2 text-lg group-hover:text-brand-600 transition-colors">
-          {event.title}
-        </h3>
-
-        {/* Friends going - social proof */}
-        {friendsGoing > 0 && (
-          <div className="flex items-center gap-1.5 text-sm font-semibold text-brand-600">
-            <Users className="w-4 h-4 flex-shrink-0" />
-            <span>
-              {friendsGoing} {friendsGoing === 1 ? 'friend' : 'friends'} going
+          {/* Top row: category + bookmark */}
+          <div className="relative z-10 flex items-start justify-between">
+            <span className="eyebrow rounded-lg bg-black/30 px-2.5 py-1.5 text-[10px] tracking-[0.12em] text-white backdrop-blur-md">
+              {event.category}
             </span>
+            <button
+              type="button"
+              onClick={handleBookmarkToggle}
+              aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
+              className="grid h-8 w-8 place-items-center rounded-full bg-black/30 backdrop-blur-md transition-transform duration-200 active:scale-90"
+            >
+              <Bookmark className={`h-[15px] w-[15px] ${isBookmarked ? 'fill-white text-white' : 'text-white'}`} />
+            </button>
           </div>
-        )}
 
-        {/* Date */}
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Calendar className="w-4 h-4 flex-shrink-0" />
-          <span className="truncate">{dateLabel}</span>
-        </div>
+          {/* Center title — poster treatment when there is no banner image */}
+          {!hasImage && (
+            <div className="pointer-events-none absolute inset-0 z-[5] flex flex-col items-center justify-center px-5 text-center">
+              <h3 className="font-display text-[24px] leading-[0.98] text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.45)] line-clamp-4">
+                {event.title}
+              </h3>
+            </div>
+          )}
 
-        {/* Location */}
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <MapPin className="w-4 h-4 flex-shrink-0" />
-          <span className="truncate">{locationSummary}</span>
-        </div>
+          {/* Bottom: cue + title + meta + price */}
+          <div className="relative z-10 space-y-2">
+            {cue && (
+              <span
+                className={`eyebrow inline-flex rounded-md px-2 py-1 text-[9px] tracking-[0.1em] backdrop-blur-md
+                  ${cue.variant === 'warning' ? 'bg-amber-400/90 text-amber-950' : 'bg-white/85 text-gray-900'}`}
+              >
+                {cue.label}
+              </span>
+            )}
 
-        {/* Price */}
-        <div className="pt-2 border-t border-gray-100">
-          <span className={`text-sm font-semibold ${event.ticket_price === 0 ? 'text-green-600' : 'text-gray-900'}`}>
-            {priceLabel}
-          </span>
+            {hasImage && (
+              <h3 className="font-display text-[22px] leading-[1.02] text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.5)] line-clamp-2">
+                {event.title}
+              </h3>
+            )}
+
+            <div className="eyebrow text-[10px] tracking-[0.08em] text-white/85">
+              {dateLabel}
+              {locationSummary && <span className="opacity-60"> · </span>}
+              {locationSummary}
+            </div>
+
+            <div className="flex items-end justify-between gap-2 pt-0.5">
+              {friendsGoing > 0 ? (
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-white/90">
+                  <Users className="h-3.5 w-3.5" />
+                  {friendsGoing} {friendsGoing === 1 ? 'friend' : 'friends'}
+                </span>
+              ) : (
+                <span />
+              )}
+              <span
+                className={`shrink-0 rounded-md px-2 py-1 text-[11px] font-bold backdrop-blur-md
+                  ${isFree ? 'bg-brand-600/90 text-white' : 'bg-white/90 text-gray-900'}`}
+              >
+                {priceLabel}
+              </span>
+            </div>
+          </div>
         </div>
-      </div>
+      </article>
     </Link>
   )
 }

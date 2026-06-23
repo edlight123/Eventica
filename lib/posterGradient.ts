@@ -20,16 +20,19 @@ export interface PosterTheme {
 }
 
 const THEMES: Record<string, PosterTheme> = {
+  // One cohesive, on-brand family: deep teal / emerald / charcoal-teal posters.
+  // Subtle variation keeps a grid of image-less events feeling premium and
+  // editorial (never "rainbow"), always within the teal brand.
   teal: { bg: 'linear-gradient(155deg,#0f766e 0%,#06292c 100%)', accent: '#2dd4bf', light: true },
-  mint: { bg: 'linear-gradient(155deg,#0f4f4b 0%,#1ec0a4 120%)', accent: '#5eead4', light: true },
-  night: { bg: 'linear-gradient(155deg,#262436 0%,#3a2330 100%)', accent: '#c084fc', light: true },
-  violet: { bg: 'linear-gradient(155deg,#2e2440 0%,#15122b 100%)', accent: '#a78bfa', light: true },
-  sun: { bg: 'linear-gradient(155deg,#e0723f 0%,#6e2417 100%)', accent: '#fdba74', light: true },
-  ember: { bg: 'linear-gradient(155deg,#8a2d1b 0%,#2a0d08 100%)', accent: '#fb923c', light: true },
-  gold: { bg: 'linear-gradient(155deg,#3a2f18 0%,#a9772a 130%)', accent: '#fcd34d', light: true },
-  rose: { bg: 'linear-gradient(155deg,#7a2540 0%,#2a0f1c 100%)', accent: '#fb7185', light: true },
-  ocean: { bg: 'linear-gradient(155deg,#143a52 0%,#0a1626 100%)', accent: '#38bdf8', light: true },
-  forest: { bg: 'linear-gradient(155deg,#14432f 0%,#07160f 100%)', accent: '#4ade80', light: true },
+  mint: { bg: 'linear-gradient(155deg,#0f4f4b 0%,#1ec0a4 130%)', accent: '#5eead4', light: true },
+  night: { bg: 'linear-gradient(155deg,#13322f 0%,#0a1a18 100%)', accent: '#5eead4', light: true },
+  violet: { bg: 'linear-gradient(155deg,#134e4a 0%,#072420 100%)', accent: '#2dd4bf', light: true },
+  sun: { bg: 'linear-gradient(155deg,#0d9488 0%,#0a3d39 100%)', accent: '#99f6e4', light: true },
+  ember: { bg: 'linear-gradient(155deg,#115e59 0%,#04201d 100%)', accent: '#2dd4bf', light: true },
+  gold: { bg: 'linear-gradient(155deg,#0f766e 0%,#134e4a 130%)', accent: '#5eead4', light: true },
+  rose: { bg: 'linear-gradient(155deg,#0c5e57 0%,#06302c 100%)', accent: '#2dd4bf', light: true },
+  ocean: { bg: 'linear-gradient(155deg,#0f5b63 0%,#07232a 100%)', accent: '#5eead4', light: true },
+  forest: { bg: 'linear-gradient(155deg,#114b3f 0%,#06231c 100%)', accent: '#34d399', light: true },
 }
 
 export type PosterThemeKey = keyof typeof THEMES
@@ -100,14 +103,15 @@ export function getPosterGradient(seed: string | undefined | null, category?: st
  * -------------------------------------------------------------------------- */
 
 const AVATAR_COLORS = [
-  '#1ec0a4',
-  '#e0723f',
-  '#f0b429',
-  '#7b5cff',
-  '#ff5d73',
-  '#3a6b6b',
-  '#19b89f',
-  '#5e8bff',
+  // Cohesive teal stack so "going" avatar clusters stay on-brand (no rainbow).
+  '#0f766e',
+  '#14b8a6',
+  '#0d9488',
+  '#5eead4',
+  '#115e59',
+  '#2dd4bf',
+  '#0c5e57',
+  '#99f6e4',
 ]
 
 /**
