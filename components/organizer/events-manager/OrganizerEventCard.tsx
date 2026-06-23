@@ -8,6 +8,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatMoneyFromCents, formatPrimaryMoneyFromCentsByCurrency, normalizeCurrency } from '@/lib/money'
 import { StatusChip } from '@/components/ui/kit'
+import { getPosterTheme } from '@/lib/posterGradient'
 
 interface EventData {
   id: string
@@ -79,86 +80,86 @@ export default function OrganizerEventCard({
 
   const needsAttention = missingCover || missingTickets || noSales
 
+  const hasImage = Boolean(event.banner_image_url)
+  const theme = getPosterTheme(event.id || event.title, event.category)
   return (
-    <div className="bg-white rounded-2xl shadow-soft hover:shadow-medium transition-all duration-300 overflow-hidden border border-gray-100 group">
-      {/* Event Banner/Thumbnail */}
-      <div className="relative h-48 bg-gray-100 overflow-hidden">
-        {event.banner_image_url ? (
-          <Image
-            src={event.banner_image_url}
-            alt={event.title}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
-            priority={false}
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center bg-gradient-to-br from-brand-700 to-[#0C5E57]">
-            <span className="font-display text-6xl leading-none text-[#F8F5EE]">T</span>
-          </div>
-        )}
-
-        {/* Badges Overlay */}
-        <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
-          {isSoldOut && (
-            <StatusChip tone="danger" className="shadow-sm">
-              {t('event_card_detail.sold_out')}
-            </StatusChip>
-          )}
-          {showNeedsAttention && needsAttention && (
-            <StatusChip tone="warning" icon={AlertCircle} className="shadow-sm">
-              {t('event_card_detail.needs_attention')}
-            </StatusChip>
-          )}
-        </div>
-
-        {/* Status Pill (Bottom Left) */}
-        <div className="absolute bottom-3 left-3">
-          <StatusChip tone={event.is_published ? 'success' : 'neutral'} className="shadow-sm">
-            {event.is_published ? t('event_card_detail.published') : t('event_card_detail.draft')}
-          </StatusChip>
-        </div>
-      </div>
-
-      {/* Card Content */}
-      <div className="p-5">
-        {/* Category Badge */}
-        <div className="mb-3">
-          <span className="inline-block px-2.5 py-1 text-xs font-semibold bg-gray-100 text-gray-600 rounded-md">
-            {event.category}
-          </span>
-        </div>
-
-        {/* Event Title */}
-        <Link
-          href={`/organizer/events/${event.id}`}
-          className="block mb-3 group/title"
+    <div className="hover-lift group overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-poster-sm transition-all duration-300 hover:border-brand-200 hover:shadow-card-hover">
+      {/* ---------- Poster ---------- */}
+      <Link href={`/organizer/events/${event.id}`} className="block">
+        <div
+          className="poster-vignette relative flex aspect-[4/5] flex-col justify-between overflow-hidden p-3.5 text-white"
+          style={hasImage ? undefined : { backgroundImage: theme.bg }}
         >
-          <h3 className="font-display text-lg text-gray-900 line-clamp-2 group-hover/title:text-brand-700 transition-colors">
-            {event.title}
-          </h3>
-        </Link>
+          {hasImage && (
+            <>
+              <Image
+                src={event.banner_image_url as string}
+                alt={event.title}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-cover transition-transform duration-[1.1s] ease-out group-hover:scale-[1.06]"
+                priority={false}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-black/30" />
+            </>
+          )}
 
-        {/* Event Details */}
-        <div className="space-y-2 mb-4">
-          <div className="flex items-center text-sm text-gray-700">
-            <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center mr-2">
-              <Calendar className="w-4 h-4 text-brand-700" />
-            </div>
-            <span className="font-medium text-xs">
-              {format(new Date(event.start_datetime), 'MMM d, yyyy • h:mm a')}
+          {/* Top row: category + status badges */}
+          <div className="relative z-10 flex items-start justify-between gap-2">
+            <span className="eyebrow rounded-lg bg-black/35 px-2.5 py-1.5 text-[10px] tracking-[0.12em] text-white backdrop-blur-md">
+              {event.category}
             </span>
+            <div className="flex flex-col items-end gap-1.5">
+              {isSoldOut && (
+                <StatusChip tone="danger" className="shadow-sm">
+                  {t('event_card_detail.sold_out')}
+                </StatusChip>
+              )}
+              {showNeedsAttention && needsAttention && (
+                <StatusChip tone="warning" icon={AlertCircle} className="shadow-sm">
+                  {t('event_card_detail.needs_attention')}
+                </StatusChip>
+              )}
+            </div>
           </div>
 
-          <div className="flex items-center text-sm text-gray-700">
-            <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center mr-2">
-              <MapPin className="w-4 h-4 text-brand-700" />
+          {/* Center title — poster treatment when there is no banner image */}
+          {!hasImage && (
+            <div className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center px-5 text-center">
+              <h3 className="font-display text-[26px] leading-[0.98] text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.45)] line-clamp-4">
+                {event.title}
+              </h3>
             </div>
-            <span className="font-medium text-xs line-clamp-1">
-              {event.location_name || event.commune || event.city}
-            </span>
+          )}
+
+          {/* Bottom overlay: status + title + meta */}
+          <div className="relative z-10 space-y-2">
+            <StatusChip tone={event.is_published ? 'success' : 'neutral'} className="shadow-sm">
+              {event.is_published ? t('event_card_detail.published') : t('event_card_detail.draft')}
+            </StatusChip>
+
+            {hasImage && (
+              <h3 className="font-display text-[22px] leading-[1.02] text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.5)] line-clamp-2">
+                {event.title}
+              </h3>
+            )}
+
+            <div className="space-y-1">
+              <div className="eyebrow flex items-center gap-1.5 text-[10px] tracking-[0.06em] text-white/85">
+                <Calendar className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{format(new Date(event.start_datetime), 'MMM d, yyyy • h:mm a')}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-[11.5px] text-white/80">
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{event.location_name || event.commune || event.city}</span>
+              </div>
+            </div>
           </div>
         </div>
+      </Link>
+
+      {/* ---------- Management footer ---------- */}
+      <div className="p-4">
 
         {/* Ticket Sales Progress */}
         <div className="mb-4">

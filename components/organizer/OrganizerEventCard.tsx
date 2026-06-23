@@ -4,9 +4,10 @@ import { useTranslation } from 'react-i18next'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Calendar, DollarSign, Edit, Eye, QrCode, Share2 } from 'lucide-react'
+import { Calendar, DollarSign, Edit, Eye, MapPin, QrCode, Share2 } from 'lucide-react'
 import { StatusChip } from '@/components/ui/kit'
 import { formatMoneyFromCents, formatPrimaryMoneyFromCentsByCurrency } from '@/lib/money'
+import { getPosterTheme } from '@/lib/posterGradient'
 
 interface OrganizerEventCardProps {
   event: {
@@ -46,6 +47,9 @@ export function OrganizerEventCard({ event }: OrganizerEventCardProps) {
     return formatMoneyFromCents(cents, event.currency || 'HTG', 'en-US', { currencyDisplay: 'code' })
   })()
 
+  const hasImage = Boolean(event.banner_image_url)
+  const theme = getPosterTheme(event.id || event.title)
+
   return (
     <div
       role="link"
@@ -57,50 +61,66 @@ export function OrganizerEventCard({ event }: OrganizerEventCardProps) {
           router.push(manageHref)
         }
       }}
-      className="block bg-white rounded-xl shadow-soft border border-gray-100 overflow-hidden hover:shadow-medium transition-all group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+      className="hover-lift group block cursor-pointer overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-poster-sm transition-all duration-300 hover:border-brand-200 hover:shadow-card-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
     >
-      {/* Thumbnail */}
-      <div className="relative h-48 bg-gray-100">
-        {event.banner_image_url ? (
-          <Image
-            src={event.banner_image_url}
-            alt={event.title}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-brand-700 to-[#0C5E57]">
-            <span className="font-display text-6xl leading-none text-[#F8F5EE]">T</span>
-          </div>
+      {/* ---------- Poster ---------- */}
+      <div
+        className="poster-vignette relative flex aspect-[4/5] flex-col justify-between overflow-hidden p-3.5 text-white"
+        style={hasImage ? undefined : { backgroundImage: theme.bg }}
+      >
+        {hasImage && (
+          <>
+            <Image
+              src={event.banner_image_url as string}
+              alt={event.title}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover transition-transform duration-[1.1s] ease-out group-hover:scale-[1.06]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-black/30" />
+          </>
         )}
-        <div className="absolute top-3 right-3">
+
+        {/* Top row: status pill */}
+        <div className="relative z-10 flex justify-end">
           <StatusChip tone={event.status === 'published' ? 'success' : 'neutral'} className="shadow-sm">
             {event.status === 'published' ? t('event_card.published') : t('event_card.draft')}
           </StatusChip>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="p-5">
-        <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2">{event.title}</h3>
-        
-        <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-          <Calendar className="w-4 h-4" />
-          <span>
-            {startDate.toLocaleDateString('en-US', { 
-              month: 'short', 
-              day: 'numeric',
-              year: 'numeric'
-            })}
-          </span>
+        {/* Center title — poster treatment when there is no banner image */}
+        {!hasImage && (
+          <div className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center px-5 text-center">
+            <h3 className="font-display text-[26px] leading-[0.98] text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.45)] line-clamp-4">
+              {event.title}
+            </h3>
+          </div>
+        )}
+
+        {/* Bottom overlay: title + meta */}
+        <div className="relative z-10 space-y-1.5">
+          {hasImage && (
+            <h3 className="font-display text-[22px] leading-[1.02] text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.5)] line-clamp-2">
+              {event.title}
+            </h3>
+          )}
+          <div className="eyebrow flex items-center gap-1.5 text-[10px] tracking-[0.06em] text-white/85">
+            <Calendar className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">
+              {startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            </span>
+          </div>
           {(event.venue_name || event.city) && (
-            <>
-              <span>•</span>
+            <div className="flex items-center gap-1.5 text-[11.5px] text-white/80">
+              <MapPin className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate">{event.venue_name || event.city}</span>
-            </>
+            </div>
           )}
         </div>
+      </div>
+
+      {/* ---------- Management footer ---------- */}
+      <div className="p-4">
 
         {/* Progress Bar */}
         <div className="mb-4">
