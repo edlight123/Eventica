@@ -217,8 +217,8 @@ export default function SecurityDashboardClient() {
 
   return (
     <>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-mobile-nav">
-        <div className="mb-6 sm:mb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 pb-mobile-nav">
+        <div className="mb-4 sm:mb-5">
           <EditorialHeader
             eyebrow="Platform"
             title="Security Dashboard"

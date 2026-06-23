@@ -170,8 +170,8 @@ export default function AdminOrganizersClient({
   )
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
-      <div className="mb-4 sm:mb-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
+      <div className="mb-3 sm:mb-4">
         <Link href="/admin" className="text-brand-600 hover:text-brand-700 text-[13px] sm:text-sm font-medium">
           {t('users.back_to_dashboard')}
         </Link>
@@ -181,10 +181,10 @@ export default function AdminOrganizersClient({
         eyebrow="Platform"
         title={t('organizers.title')}
         subtitle={t('organizers.subtitle')}
-        className="mb-6 sm:mb-8"
+        className="mb-4 sm:mb-5"
       />
 
-      <div className="flex overflow-x-auto gap-3 sm:gap-6 mb-6 sm:mb-8 pb-2 snap-x snap-mandatory md:grid md:grid-cols-3 scrollbar-hide">
+      <div className="flex overflow-x-auto gap-3 sm:gap-4 mb-4 sm:mb-5 pb-2 snap-x snap-mandatory md:grid md:grid-cols-3 scrollbar-hide">
         <div className="min-w-[180px] snap-start flex-shrink-0">
           <StatTile icon={Users} label={t('users.total_users')} value={counts.total} />
         </div>

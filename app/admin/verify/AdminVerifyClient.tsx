@@ -200,16 +200,16 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
   ]
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
       {/* Breadcrumb */}
-      <div className="mb-4 sm:mb-6">
+      <div className="mb-3 sm:mb-4">
         <Link href="/admin" className="text-brand-700 hover:text-brand-800 text-[13px] sm:text-sm font-medium">
           {t('verify.back_to_dashboard')}
         </Link>
       </div>
 
       {/* Analytics Dashboard */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-4 sm:mb-5">
         <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
           <p className="text-[11px] sm:text-xs text-gray-500 uppercase font-medium">Pending</p>
           <p className="text-xl sm:text-2xl font-bold text-amber-600 mt-1">{analytics.pending}</p>
@@ -233,11 +233,11 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
       </div>
 
       {/* Verification Requests Section */}
-      <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-8 mb-6 sm:mb-8">
+      <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-5">
         <EditorialHeader
           title={t('verify.title')}
           subtitle={t('verify.subtitle')}
-          className="mb-6 sm:mb-8"
+          className="mb-4 sm:mb-5"
         />
 
         {/* Status tabs */}

@@ -138,7 +138,7 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Date Range Filter */}
       {showFilters && (
         <div className="flex gap-2 flex-wrap">
@@ -151,7 +151,7 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
             <button
               key={option.value}
               onClick={() => setDateRange(option.value as any)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 dateRange === option.value
                   ? 'bg-brand-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -164,92 +164,82 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
       )}
 
       {/* Total Revenue Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-brand-50 to-brand-100 rounded-xl p-6 border border-brand-200">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-brand-600 rounded-lg flex items-center justify-center">
-              <DollarSign className="w-6 h-6 text-white" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="bg-gradient-to-br from-brand-50 to-brand-100 rounded-xl p-4 border border-brand-200">
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-9 h-9 bg-brand-600 rounded-lg flex items-center justify-center">
+              <DollarSign className="w-5 h-5 text-white" />
             </div>
             {growth && <GrowthBadge value={growth.revenueGrowth7d} />}
           </div>
-          <div className="text-sm font-medium text-brand-700 mb-1">Total Revenue (USD)</div>
-          <div className="text-3xl font-bold text-brand-700">
+          <div className="text-xs font-medium text-brand-700 mb-0.5">Total Revenue (USD)</div>
+          <div className="text-2xl font-bold text-brand-700">
             {formatCurrency(revenue.totalRevenueUSDWithFxSpread ?? revenue.totalRevenueUSD, 'USD')}
           </div>
           {revenue.fxSpread?.ticketCount > 0 && (
-            <div className="text-xs text-brand-700 mt-2">
+            <div className="text-xs text-brand-700 mt-1.5">
               Includes FX spread: {formatCurrency(revenue.fxSpread.profitUSD || 0, 'USD')}
             </div>
           )}
-          {growth && (
-            <div className="text-xs text-brand-600 mt-2">
-              7-day growth: <GrowthBadge value={growth.revenueGrowth7d} />
-            </div>
-          )}
         </div>
 
-        <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-brand-600 rounded-lg flex items-center justify-center">
-              <CreditCard className="w-6 h-6 text-white" />
+        <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-9 h-9 bg-brand-600 rounded-lg flex items-center justify-center">
+              <CreditCard className="w-5 h-5 text-white" />
             </div>
             {growth && <GrowthBadge value={growth.ticketsGrowth7d} />}
           </div>
-          <div className="text-sm font-medium text-gray-600 mb-1">Total Tickets Sold</div>
-          <div className="text-3xl font-bold text-gray-900">
+          <div className="text-xs font-medium text-gray-600 mb-0.5">Total Tickets Sold</div>
+          <div className="text-2xl font-bold text-gray-900">
             {revenue.totalTickets.toLocaleString()}
           </div>
-          {growth && (
-            <div className="text-xs text-gray-500 mt-2">
-              7-day growth: <GrowthBadge value={growth.ticketsGrowth7d} />
-            </div>
-          )}
         </div>
 
-        <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-brand-600 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-white" />
+        <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-9 h-9 bg-brand-600 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-white" />
             </div>
           </div>
-          <div className="text-sm font-medium text-gray-600 mb-1">Average Ticket Price</div>
-          <div className="text-3xl font-bold text-gray-900">
+          <div className="text-xs font-medium text-gray-600 mb-0.5">Average Ticket Price</div>
+          <div className="text-2xl font-bold text-gray-900">
             {formatCurrency(revenue.totalRevenueUSD / revenue.totalTickets || 0, 'USD')}
           </div>
-          <div className="text-xs text-gray-500 mt-2">
+          <div className="text-xs text-gray-500 mt-1.5">
             Across all currencies
           </div>
         </div>
       </div>
 
       {/* Currency Breakdown */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue by Currency</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <h3 className="text-sm font-semibold text-gray-900 mb-3">Revenue by Currency</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {/* HTG Revenue */}
-          <div className="border border-gray-200 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="font-medium text-gray-700">HTG (Haitian Gourde)</h4>
-              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+          <div className="border border-gray-200 rounded-lg p-3">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-sm font-medium text-gray-700">HTG (Haitian Gourde)</h4>
+              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
                 {revenue.byCurrency.HTG.tickets} tickets
               </span>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <div>
-                <div className="text-sm text-gray-600">Total Revenue</div>
-                <div className="text-2xl font-bold text-gray-900">
+                <div className="text-xs text-gray-500">Total Revenue</div>
+                <div className="text-xl font-bold text-gray-900">
                   {formatCurrency(revenue.byCurrency.HTG.revenue, 'HTG')}
                 </div>
               </div>
               <div>
-                <div className="text-sm text-gray-600">Converted to USD</div>
-                <div className="text-xl font-semibold text-brand-600">
+                <div className="text-xs text-gray-500">Converted to USD</div>
+                <div className="text-base font-semibold text-brand-600">
                   {formatCurrency(revenue.byCurrency.HTG.convertedToUSD, 'USD')}
                 </div>
               </div>
               <div>
-                <div className="text-sm text-gray-600">Average Price</div>
-                <div className="text-lg font-medium text-gray-700">
+                <div className="text-xs text-gray-500">Average Price</div>
+                <div className="text-sm font-medium text-gray-700">
                   {formatCurrency(revenue.byCurrency.HTG.averagePrice, 'HTG')}
                 </div>
               </div>
@@ -257,23 +247,23 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
           </div>
 
           {/* USD Revenue */}
-          <div className="border border-gray-200 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="font-medium text-gray-700">USD (US Dollar)</h4>
-              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+          <div className="border border-gray-200 rounded-lg p-3">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-sm font-medium text-gray-700">USD (US Dollar)</h4>
+              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
                 {revenue.byCurrency.USD.tickets} tickets
               </span>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <div>
-                <div className="text-sm text-gray-600">Total Revenue</div>
-                <div className="text-2xl font-bold text-gray-900">
+                <div className="text-xs text-gray-500">Total Revenue</div>
+                <div className="text-xl font-bold text-gray-900">
                   {formatCurrency(revenue.byCurrency.USD.revenue, 'USD')}
                 </div>
               </div>
               <div>
-                <div className="text-sm text-gray-600">Average Price</div>
-                <div className="text-lg font-medium text-gray-700">
+                <div className="text-xs text-gray-500">Average Price</div>
+                <div className="text-sm font-medium text-gray-700">
                   {formatCurrency(revenue.byCurrency.USD.averagePrice, 'USD')}
                 </div>
               </div>
@@ -284,27 +274,27 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
 
       {/* FX Spread Profit */}
       {revenue.fxSpread?.ticketCount > 0 && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">FX Spread Profit (MonCash USD Events)</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="border border-gray-200 rounded-lg p-4">
-              <div className="text-sm text-gray-600">USD Volume</div>
-              <div className="text-xl font-semibold text-gray-900">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">FX Spread Profit (MonCash USD Events)</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="border border-gray-200 rounded-lg p-3">
+              <div className="text-xs text-gray-500">USD Volume</div>
+              <div className="text-lg font-semibold text-gray-900">
                 {formatCurrency(revenue.fxSpread.usdVolume, 'USD')}
               </div>
               <div className="text-xs text-gray-500 mt-1">{revenue.fxSpread.ticketCount} tickets</div>
             </div>
-            <div className="border border-gray-200 rounded-lg p-4">
-              <div className="text-sm text-gray-600">Spread Profit</div>
-              <div className="text-xl font-semibold text-gray-900">
+            <div className="border border-gray-200 rounded-lg p-3">
+              <div className="text-xs text-gray-500">Spread Profit</div>
+              <div className="text-lg font-semibold text-gray-900">
                 {formatCurrency(revenue.fxSpread.profitHTG, 'HTG')}
               </div>
               <div className="text-xs text-gray-500 mt-1">{formatCurrency(revenue.fxSpread.profitUSD || 0, 'USD')}</div>
               <div className="text-xs text-gray-500 mt-1">Computed from base vs effective rate</div>
             </div>
-            <div className="border border-gray-200 rounded-lg p-4">
-              <div className="text-sm text-gray-600">Avg Spread</div>
-              <div className="text-xl font-semibold text-gray-900">
+            <div className="border border-gray-200 rounded-lg p-3">
+              <div className="text-xs text-gray-500">Avg Spread</div>
+              <div className="text-lg font-semibold text-gray-900">
                 {(revenue.fxSpread.averageSpreadPercent * 100).toFixed(2)}%
               </div>
               <div className="text-xs text-gray-500 mt-1">From quote metadata</div>
@@ -314,19 +304,19 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
       )}
 
       {/* Payment Method Breakdown */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue by Payment Method</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <h3 className="text-sm font-semibold text-gray-900 mb-3">Revenue by Payment Method</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {/* Stripe */}
-          <div className="border border-blue-200 bg-blue-50 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <CreditCard className="w-5 h-5 text-blue-600" />
-              <h4 className="font-medium text-blue-900">Stripe</h4>
+          <div className="border border-blue-200 bg-blue-50 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <CreditCard className="w-4 h-4 text-blue-600" />
+              <h4 className="text-sm font-medium text-blue-900">Stripe</h4>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1">
               <div>
                 <div className="text-xs text-blue-600">Revenue (USD)</div>
-                <div className="text-xl font-bold text-blue-900">
+                <div className="text-lg font-bold text-blue-900">
                   {formatCurrency(revenue.byPaymentMethod.stripe.revenueUSD, 'USD')}
                 </div>
               </div>
@@ -337,15 +327,15 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
           </div>
 
           {/* MonCash */}
-          <div className="border border-red-200 bg-red-50 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <Smartphone className="w-5 h-5 text-red-600" />
-              <h4 className="font-medium text-red-900">MonCash</h4>
+          <div className="border border-red-200 bg-red-50 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <Smartphone className="w-4 h-4 text-red-600" />
+              <h4 className="text-sm font-medium text-red-900">MonCash</h4>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1">
               <div>
                 <div className="text-xs text-red-600">Revenue (HTG)</div>
-                <div className="text-xl font-bold text-red-900">
+                <div className="text-lg font-bold text-red-900">
                   {formatCurrency(revenue.byPaymentMethod.moncash.revenueHTG, 'HTG')}
                 </div>
               </div>
@@ -359,15 +349,15 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
           </div>
 
           {/* NatCash */}
-          <div className="border border-green-200 bg-green-50 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <Smartphone className="w-5 h-5 text-green-600" />
-              <h4 className="font-medium text-green-900">NatCash</h4>
+          <div className="border border-green-200 bg-green-50 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <Smartphone className="w-4 h-4 text-green-600" />
+              <h4 className="text-sm font-medium text-green-900">NatCash</h4>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1">
               <div>
                 <div className="text-xs text-green-600">Revenue (HTG)</div>
-                <div className="text-xl font-bold text-green-900">
+                <div className="text-lg font-bold text-green-900">
                   {formatCurrency(revenue.byPaymentMethod.natcash.revenueHTG, 'HTG')}
                 </div>
               </div>
@@ -384,30 +374,30 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
 
       {/* Exchange Rate Info */}
       {revenue.exchangeRates.averageRate > 0 && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Exchange Rate Analytics</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">Exchange Rate Analytics</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div>
-              <div className="text-sm text-gray-600">Average Rate</div>
-              <div className="text-lg font-semibold text-gray-900">
+              <div className="text-xs text-gray-500">Average Rate</div>
+              <div className="text-base font-semibold text-gray-900">
                 {revenue.exchangeRates.averageRate.toFixed(6)}
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-600">Min Rate</div>
-              <div className="text-lg font-semibold text-gray-900">
+              <div className="text-xs text-gray-500">Min Rate</div>
+              <div className="text-base font-semibold text-gray-900">
                 {revenue.exchangeRates.minRate.toFixed(6)}
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-600">Max Rate</div>
-              <div className="text-lg font-semibold text-gray-900">
+              <div className="text-xs text-gray-500">Max Rate</div>
+              <div className="text-base font-semibold text-gray-900">
                 {revenue.exchangeRates.maxRate.toFixed(6)}
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-600">Rate Spread</div>
-              <div className="text-lg font-semibold text-gray-900">
+              <div className="text-xs text-gray-500">Rate Spread</div>
+              <div className="text-base font-semibold text-gray-900">
                 {revenue.exchangeRates.rateSpread.toFixed(6)}
               </div>
             </div>

@@ -63,14 +63,14 @@ export function OrganizerRankingsAnalytics() {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <Crown className="w-6 h-6 text-yellow-500" />
-        <h3 className="text-lg font-semibold text-gray-900">Top Organizers</h3>
-        <span className="text-sm text-gray-500">(by ticket sales)</span>
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+      <div className="flex items-center gap-2 mb-4">
+        <Crown className="w-5 h-5 text-yellow-500" />
+        <h3 className="text-sm font-semibold text-gray-900">Top Organizers</h3>
+        <span className="text-xs text-gray-500">(by ticket sales)</span>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {organizers.map((organizer, index) => {
           const rank = index + 1
           const isTopThree = rank <= 3
@@ -78,18 +78,18 @@ export function OrganizerRankingsAnalytics() {
           return (
             <div
               key={organizer.id}
-              className={`flex items-center gap-4 p-4 rounded-lg border transition-all ${
+              className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
                 isTopThree
                   ? 'border-amber-200 bg-amber-50'
                   : 'border-gray-200 hover:border-brand-300'
               }`}
             >
               {/* Rank Badge */}
-              <div className={`flex-shrink-0 w-12 h-12 bg-gradient-to-br ${getMedalColor(rank)} rounded-full flex items-center justify-center shadow-lg`}>
+              <div className={`flex-shrink-0 w-10 h-10 bg-gradient-to-br ${getMedalColor(rank)} rounded-full flex items-center justify-center shadow-lg`}>
                 {isTopThree ? (
-                  <Crown className="w-6 h-6 text-white" />
+                  <Crown className="w-5 h-5 text-white" />
                 ) : (
-                  <span className="text-white font-bold text-lg">#{rank}</span>
+                  <span className="text-white font-bold text-base">#{rank}</span>
                 )}
               </div>
 
@@ -98,18 +98,18 @@ export function OrganizerRankingsAnalytics() {
                 <div className="flex items-center gap-2">
                   <Link
                     href={`/organizer/profile/${organizer.id}`}
-                    className="font-semibold text-gray-900 hover:text-brand-600 transition-colors"
+                    className="font-semibold text-sm text-gray-900 hover:text-brand-600 transition-colors truncate"
                   >
                     {organizer.name}
                   </Link>
                   {isTopThree && (
-                    <Award className="w-4 h-4 text-yellow-500" />
+                    <Award className="w-4 h-4 text-yellow-500 flex-shrink-0" />
                   )}
                 </div>
-                <div className="text-xs text-gray-500 mt-1">{organizer.email}</div>
+                <div className="text-xs text-gray-500 mt-0.5 truncate">{organizer.email}</div>
                 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-3 gap-3 mt-3">
+                <div className="grid grid-cols-3 gap-2 mt-2">
                   <div className="flex items-center gap-1.5">
                     <Ticket className="w-4 h-4 text-brand-600" />
                     <span className="text-sm font-medium text-gray-700">
@@ -138,10 +138,10 @@ export function OrganizerRankingsAnalytics() {
 
               {/* Performance Indicator */}
               <div className="flex-shrink-0 text-right">
-                <div className="text-2xl font-bold text-brand-600">
+                <div className="text-lg font-bold text-brand-600">
                   {organizer.totalTickets.toLocaleString()}
                 </div>
-                <div className="text-xs text-gray-500">Total Sales</div>
+                <div className="text-[11px] text-gray-500">Total Sales</div>
                 {organizer.eventsCount > 0 && (
                   <div className="text-xs text-gray-400 mt-1">
                     {(organizer.totalTickets / organizer.eventsCount).toFixed(0)} avg/event
@@ -154,27 +154,27 @@ export function OrganizerRankingsAnalytics() {
       </div>
 
       {/* Summary Stats */}
-      <div className="mt-6 pt-6 border-t border-gray-200 grid grid-cols-3 gap-4">
+      <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-3 gap-3">
         <div className="text-center">
-          <div className="text-2xl font-bold text-gray-900">
+          <div className="text-xl font-bold text-gray-900">
             {organizers.reduce((sum, o) => sum + o.totalTickets, 0).toLocaleString()}
           </div>
-          <div className="text-xs text-gray-500 mt-1">Total Tickets Sold</div>
+          <div className="text-[11px] text-gray-500 mt-0.5">Total Tickets Sold</div>
         </div>
         <div className="text-center">
-          <div className="text-2xl font-bold text-gray-900">
+          <div className="text-xl font-bold text-gray-900">
             {organizers.reduce((sum, o) => sum + o.eventsCount, 0).toLocaleString()}
           </div>
-          <div className="text-xs text-gray-500 mt-1">Total Events</div>
+          <div className="text-[11px] text-gray-500 mt-0.5">Total Events</div>
         </div>
         <div className="text-center">
-          <div className="text-2xl font-bold text-gray-900">
+          <div className="text-xl font-bold text-gray-900">
             {(
               organizers.reduce((sum, o) => sum + o.avgRating, 0) / 
               organizers.filter(o => o.avgRating > 0).length
             ).toFixed(1)}
           </div>
-          <div className="text-xs text-gray-500 mt-1">Avg Rating</div>
+          <div className="text-[11px] text-gray-500 mt-0.5">Avg Rating</div>
         </div>
       </div>
     </div>

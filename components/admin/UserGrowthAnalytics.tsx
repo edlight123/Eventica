@@ -66,14 +66,14 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Period Selector */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap">
         {[7, 14, 30, 60, 90].map((period) => (
           <button
             key={period}
             onClick={() => setSelectedDays(period)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               selectedDays === period
                 ? 'bg-brand-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -85,28 +85,28 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-brand-50 to-brand-100 rounded-xl p-6 border border-brand-200">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 bg-brand-600 rounded-lg flex items-center justify-center">
-              <Users className="w-6 h-6 text-white" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="bg-gradient-to-br from-brand-50 to-brand-100 rounded-xl p-4 border border-brand-200">
+          <div className="flex items-center gap-2.5 mb-2">
+            <div className="w-9 h-9 bg-brand-600 rounded-lg flex items-center justify-center">
+              <Users className="w-5 h-5 text-white" />
             </div>
             <div>
-              <div className="text-sm font-medium text-brand-700">Total Users</div>
-              <div className="text-2xl font-bold text-brand-700">{data.totalUsers.toLocaleString()}</div>
+              <div className="text-xs font-medium text-brand-700">Total Users</div>
+              <div className="text-xl font-bold text-brand-700">{data.totalUsers.toLocaleString()}</div>
             </div>
           </div>
           <div className="text-xs text-brand-600">Last {selectedDays} days</div>
         </div>
 
-        <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 bg-brand-600 rounded-lg flex items-center justify-center">
-              <UserPlus className="w-6 h-6 text-white" />
+        <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+          <div className="flex items-center gap-2.5 mb-2">
+            <div className="w-9 h-9 bg-brand-600 rounded-lg flex items-center justify-center">
+              <UserPlus className="w-5 h-5 text-white" />
             </div>
             <div>
-              <div className="text-sm font-medium text-gray-600">Attendees</div>
-              <div className="text-2xl font-bold text-gray-900">{data.attendeeCount.toLocaleString()}</div>
+              <div className="text-xs font-medium text-gray-600">Attendees</div>
+              <div className="text-xl font-bold text-gray-900">{data.attendeeCount.toLocaleString()}</div>
             </div>
           </div>
           <div className="text-xs text-gray-500">
@@ -114,14 +114,14 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
           </div>
         </div>
 
-        <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 bg-brand-600 rounded-lg flex items-center justify-center">
-              <Briefcase className="w-6 h-6 text-white" />
+        <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+          <div className="flex items-center gap-2.5 mb-2">
+            <div className="w-9 h-9 bg-brand-600 rounded-lg flex items-center justify-center">
+              <Briefcase className="w-5 h-5 text-white" />
             </div>
             <div>
-              <div className="text-sm font-medium text-gray-600">Organizers</div>
-              <div className="text-2xl font-bold text-gray-900">{data.organizerCount.toLocaleString()}</div>
+              <div className="text-xs font-medium text-gray-600">Organizers</div>
+              <div className="text-xl font-bold text-gray-900">{data.organizerCount.toLocaleString()}</div>
             </div>
           </div>
           <div className="text-xs text-gray-500">
@@ -131,10 +131,10 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
       </div>
 
       {/* Growth Chart */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Daily Signups</h3>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <h3 className="text-sm font-semibold text-gray-900 mb-3">Daily Signups</h3>
         {data.dailySignups.length > 0 ? (
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={240}>
             <LineChart data={data.dailySignups}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 

@@ -23,19 +23,19 @@ describe('Currency Utilities', () => {
 
   describe('formatCurrency', () => {
     it('should format USD correctly', () => {
-      expect(formatCurrency(100, 'USD')).toBe('$100.00 USD')
-      expect(formatCurrency(1234.56, 'USD')).toBe('$1,234.56 USD')
-      expect(formatCurrency(0.99, 'USD')).toBe('$0.99 USD')
+      expect(formatCurrency(100, 'USD')).toBe('$100.00')
+      expect(formatCurrency(1234.56, 'USD')).toBe('$1,234.56')
+      expect(formatCurrency(0.99, 'USD')).toBe('$0.99')
     })
 
     it('should format HTG correctly', () => {
-      expect(formatCurrency(100, 'HTG')).toBe('G100.00 HTG')
-      expect(formatCurrency(1234.56, 'HTG')).toBe('G1,234.56 HTG')
-      expect(formatCurrency(13158, 'HTG')).toBe('G13,158.00 HTG')
+      expect(formatCurrency(100, 'HTG')).toBe('G100.00')
+      expect(formatCurrency(1234.56, 'HTG')).toBe('G1,234.56')
+      expect(formatCurrency(13158, 'HTG')).toBe('G13,158.00')
     })
 
     it('should default to USD when no currency specified', () => {
-      expect(formatCurrency(50)).toBe('$50.00 USD')
+      expect(formatCurrency(50)).toBe('$50.00')
     })
   })
 
@@ -259,7 +259,7 @@ describe('Currency Utilities', () => {
       const priceUSD = convertCurrency(ticketPriceHTG, 'HTG', 'USD')
       
       expect(priceUSD).toBeCloseTo(3.8, 2) // ~$3.80
-      expect(formatCurrency(priceUSD, 'USD')).toBe('$3.80 USD')
+      expect(formatCurrency(priceUSD, 'USD')).toBe('$3.80')
     })
 
     it('should handle premium event pricing in HTG', () => {
@@ -267,7 +267,7 @@ describe('Currency Utilities', () => {
       const priceUSD = convertCurrency(ticketPriceHTG, 'HTG', 'USD')
       
       expect(priceUSD).toBeCloseTo(38, 2) // ~$38
-      expect(formatCurrency(ticketPriceHTG, 'HTG')).toBe('G5,000.00 HTG')
+      expect(formatCurrency(ticketPriceHTG, 'HTG')).toBe('G5,000.00')
     })
 
     it('should handle USD to HTG conversion for refunds', () => {
@@ -275,31 +275,31 @@ describe('Currency Utilities', () => {
       const refundHTG = convertCurrency(refundUSD, 'USD', 'HTG')
       
       expect(refundHTG).toBeCloseTo(3289.5, 1) // ~G3,289.50
-      expect(formatCurrency(refundHTG, 'HTG')).toBe('G3,289.50 HTG')
+      expect(formatCurrency(refundHTG, 'HTG')).toBe('G3,289.50')
     })
   })
 
   describe('Edge Cases', () => {
     it('should handle zero amounts', () => {
-      expect(formatCurrency(0, 'USD')).toBe('$0.00 USD')
+      expect(formatCurrency(0, 'USD')).toBe('$0.00')
       expect(convertCurrency(0, 'HTG', 'USD')).toBe(0)
     })
 
     it('should handle very small amounts', () => {
       const smallAmount = 0.01
-      expect(formatCurrency(smallAmount, 'USD')).toBe('$0.01 USD')
+      expect(formatCurrency(smallAmount, 'USD')).toBe('$0.01')
       expect(convertCurrency(smallAmount, 'USD', 'HTG')).toBeCloseTo(1.32, 2)
     })
 
     it('should handle very large amounts', () => {
       const largeAmount = 1000000 // 1 million
-      expect(formatCurrency(largeAmount, 'HTG')).toBe('G1,000,000.00 HTG')
+      expect(formatCurrency(largeAmount, 'HTG')).toBe('G1,000,000.00')
       const convertedUSD = convertCurrency(largeAmount, 'HTG', 'USD')
       expect(convertedUSD).toBeCloseTo(7600, 0)
     })
 
     it('should handle negative amounts (refunds)', () => {
-      expect(formatCurrency(-50, 'USD')).toBe('$-50.00 USD')
+      expect(formatCurrency(-50, 'USD')).toBe('$-50.00')
       expect(convertCurrency(-100, 'HTG', 'USD')).toBeCloseTo(-0.76, 2)
     })
   })

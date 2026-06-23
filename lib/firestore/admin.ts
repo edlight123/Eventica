@@ -211,6 +211,31 @@ export async function getRecentEvents(limit: number = 8) {
         }
       }
       
+      // Robust location extraction: events may store location either as flat
+      // fields (snake_case from the form, or camelCase) or under a nested
+      // `location` object. Online events have no venue.
+      const isOnline = isTrueish(data?.is_online) || isTrueish(data?.isOnline)
+      const loc =
+        data?.location && typeof data.location === 'object' ? data.location : {}
+
+      const venueName =
+        data.venueName || data.venue_name || loc.venueName || loc.venue_name || loc.name || ''
+      const address =
+        data.address || data.venue_address || data.venueAddress || loc.address || ''
+      const commune =
+        data.commune || loc.commune || data.quartier || loc.quartier || ''
+      const city = data.city || loc.city || data.town || loc.town || ''
+
+      const locationParts: string[] = []
+      if (venueName) locationParts.push(venueName)
+      if (commune && commune.toLowerCase() !== city.toLowerCase()) locationParts.push(commune)
+      if (city) locationParts.push(city)
+
+      let locationLabel = ''
+      if (isOnline) locationLabel = 'Online'
+      else if (locationParts.length > 0) locationLabel = locationParts.join(', ')
+      else if (address) locationLabel = address
+
       return {
         id: doc.id,
         title: data.title || 'Untitled Event',
@@ -219,9 +244,11 @@ export async function getRecentEvents(limit: number = 8) {
         currency: data.currency || 'HTG',
         createdAt: toISOSafe(data.createdAt || data.created_at),
         isPublished,
-        city: data.city || '',
-        commune: data.commune || '',
-        venueName: data.venueName || data.venue_name || data.address || '',
+        isOnline,
+        city,
+        commune,
+        venueName,
+        locationLabel,
         organizerId: data.organizerId || data.organizer_id
       }
     })

@@ -52,40 +52,40 @@ export function EventPerformanceAnalytics() {
   const totalTicketsSold = categories.reduce((sum, cat) => sum + cat.count, 0)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Top Performing Events */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center gap-2 mb-6">
-          <Trophy className="w-6 h-6 text-yellow-500" />
-          <h3 className="text-lg font-semibold text-gray-900">Top Performing Events</h3>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <div className="flex items-center gap-2 mb-4">
+          <Trophy className="w-5 h-5 text-yellow-500" />
+          <h3 className="text-sm font-semibold text-gray-900">Top Performing Events</h3>
         </div>
         {topEvents.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {topEvents.map((event, index) => (
               <div
                 key={event.id}
-                className="flex items-center gap-4 p-4 rounded-lg border border-gray-200 hover:border-brand-300 transition-colors"
+                className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-brand-300 transition-colors"
               >
-                <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-600 rounded-full flex items-center justify-center text-white font-bold">
+                <div className="flex-shrink-0 w-9 h-9 bg-gradient-to-br from-brand-500 to-brand-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
                   #{index + 1}
                 </div>
                 <div className="flex-1 min-w-0">
                   <Link 
                     href={`/events/${event.id}`}
-                    className="font-medium text-gray-900 hover:text-brand-600 transition-colors block truncate"
+                    className="font-medium text-sm text-gray-900 hover:text-brand-600 transition-colors block truncate"
                   >
                     {event.title}
                   </Link>
-                  <div className="text-sm text-gray-500 mt-1">
+                  <div className="text-xs text-gray-500 mt-0.5">
                     {new Date(event.date).toLocaleDateString()} • By {event.users?.name || 'Unknown'}
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
                   <div className="text-center">
-                    <div className="text-xs text-gray-500">Success Score</div>
-                    <div className="text-lg font-bold text-brand-600">{event.successScore}/100</div>
+                    <div className="text-[11px] text-gray-500">Score</div>
+                    <div className="text-base font-bold text-brand-600">{event.successScore}/100</div>
                   </div>
-                  <div className="w-16 h-16">
+                  <div className="w-12 h-12">
                     <svg className="transform -rotate-90" viewBox="0 0 36 36">
                       <circle
                         cx="18"
@@ -117,13 +117,13 @@ export function EventPerformanceAnalytics() {
       </div>
 
       {/* Category Popularity */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center gap-2 mb-6">
-          <TrendingUp className="w-6 h-6 text-brand-500" />
-          <h3 className="text-lg font-semibold text-gray-900">Popular Categories (Last 30 Days)</h3>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <div className="flex items-center gap-2 mb-4">
+          <TrendingUp className="w-5 h-5 text-brand-500" />
+          <h3 className="text-sm font-semibold text-gray-900">Popular Categories (Last 30 Days)</h3>
         </div>
         {categories.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {categories.map((category, index) => {
               const percentage = totalTicketsSold > 0 ? (category.count / totalTicketsSold) * 100 : 0
               const colors = [
@@ -136,16 +136,16 @@ export function EventPerformanceAnalytics() {
               const color = colors[index % colors.length]
 
               return (
-                <div key={category.category} className="space-y-2">
+                <div key={category.category} className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="font-medium text-gray-900">{category.category}</span>
-                    <span className="text-sm text-gray-600">
+                    <span className="font-medium text-sm text-gray-900">{category.category}</span>
+                    <span className="text-xs text-gray-600">
                       {category.count} tickets ({percentage.toFixed(1)}%)
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className={`${color} h-2.5 rounded-full transition-all duration-500`}
+                      className={`${color} h-2 rounded-full transition-all duration-500`}
                       style={{ width: `${percentage}%` }}
                     />
                   </div>

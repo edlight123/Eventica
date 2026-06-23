@@ -31,13 +31,16 @@ const EXCHANGE_RATES: Record<string, number> = {
 
 export function formatCurrency(amount: number, currency: Currency = 'USD'): string {
   const config = CURRENCIES[currency]
-  
+
   const formatted = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: config.decimals,
     maximumFractionDigits: config.decimals
   }).format(amount)
 
-  return `${config.symbol}${formatted} ${config.code}`
+  // Use the symbol as a prefix only. Appending the ISO code as well (e.g.
+  // "G7,000.00 HTG" / "$100.00 USD") is redundant, so we drop it. Surrounding
+  // UI already labels the currency context where needed.
+  return `${config.symbol}${formatted}`
 }
 
 export function convertCurrency(

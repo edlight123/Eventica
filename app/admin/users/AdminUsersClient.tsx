@@ -104,26 +104,26 @@ export default function AdminUsersClient({
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
-      <div className="mb-4 sm:mb-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
+      <div className="mb-3 sm:mb-4">
         <Link href="/admin" className="text-brand-600 hover:text-brand-700 text-[13px] sm:text-sm font-medium">
           {t('users.back_to_dashboard')}
         </Link>
       </div>
 
-      <div className="mb-6 sm:mb-8">
-        <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900">{t('users.title')}</h1>
-        <p className="text-[13px] sm:text-base text-gray-600 mt-1 sm:mt-2">{t('users.subtitle')}</p>
+      <div className="mb-4 sm:mb-5">
+        <h1 className="font-display text-[clamp(22px,3vw,30px)] leading-[1.06] text-gray-900">{t('users.title')}</h1>
+        <p className="text-[13px] sm:text-sm text-gray-500 mt-1">{t('users.subtitle')}</p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
+      <div className="grid grid-cols-3 gap-2.5 sm:gap-3 mb-4 sm:mb-5">
         <StatTile icon={UsersIcon} label={t('users.total_users')} value={counts.total} />
         <StatTile icon={UserCog} label={t('users.organizers')} value={counts.organizers} />
         <StatTile icon={ShieldCheck} label={t('users.verified_organizers')} value={counts.verified} />
       </div>
 
-      <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
         <div className="relative">
           <div className="flex flex-col sm:flex-row gap-3">
             <input

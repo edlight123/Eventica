@@ -198,24 +198,24 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm font-medium text-gray-600">Pending Requests</div>
-          <div className="text-3xl font-bold text-gray-900 mt-2">{payouts.length}</div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+          <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Pending Requests</div>
+          <div className="text-2xl font-bold text-gray-900 mt-1">{payouts.length}</div>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm font-medium text-gray-600">Total Amount</div>
-          <div className="text-3xl font-bold text-gray-900 mt-2">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+          <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Amount</div>
+          <div className="text-2xl font-bold text-gray-900 mt-1">
             {formatCurrency(payouts.reduce((sum, p) => sum + p.amount, 0))}
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-6 flex items-center justify-center">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex items-center justify-center">
           <button
             onClick={exportCSV}
             disabled={payouts.length === 0}
-            className="px-6 py-3 bg-brand-700 text-white rounded-lg font-medium hover:bg-brand-800 transition-colors disabled:bg-gray-300"
+            className="px-4 py-2.5 bg-brand-700 text-white rounded-lg text-sm font-medium hover:bg-brand-800 transition-colors disabled:bg-gray-300"
           >
             Export CSV
           </button>
@@ -223,9 +223,9 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
       </div>
 
       {/* Payouts Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Pending Payouts</h2>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="px-4 py-3 border-b border-gray-200">
+          <h2 className="text-base font-semibold text-gray-900">Pending Payouts</h2>
         </div>
 
         {payouts.length === 0 ? (

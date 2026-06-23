@@ -10,8 +10,7 @@ import {
   Shield,
   AlertTriangle,
   CheckCircle,
-  Clock,
-  Eye,
+  ChevronDown,
   ChevronRight,
   RefreshCw
 } from 'lucide-react'
@@ -51,57 +50,58 @@ export function AdminActivityFeed({
   const [filteredActivities, setFilteredActivities] = useState<AdminActivity[]>([])
   const [filter, setFilter] = useState<string>('all')
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const [viewMode, setViewMode] = useState<'compact' | 'detailed'>('compact')
+  const [expandedId, setExpandedId] = useState<string | null>(null)
 
   // Use real-time activities from the provider
-  const { activities: realtimeActivities, isConnected } = useAdminActivities()
+  const { activities: realtimeActivities } = useAdminActivities()
 
-  // Transform and merge real-time activities with prop activities
+  // Merge real-time activities with server-provided audit activities
   useEffect(() => {
-    const transformedActivities: AdminActivity[] = []
+    const merged: AdminActivity[] = []
+    const seen = new Set<string>()
 
-    // Add real-time activities first (prioritize them)
+    // Real-time activities take priority
     if (realtimeActivities && realtimeActivities.length > 0) {
       realtimeActivities.forEach(activity => {
-        transformedActivities.push({
+        if (seen.has(activity.id)) return
+        seen.add(activity.id)
+        merged.push({
           id: activity.id,
           type: activity.type,
           title: activity.title,
           description: activity.description,
           timestamp: activity.timestamp,
           actor: activity.actor,
-          metadata: activity.metadata
+          metadata: activity.metadata,
+          link: (activity as any).link
         })
       })
     }
 
-    // Add any prop activities that aren't duplicates
+    // Add audit-log activities (already shaped with type/title/actor/link)
     recentActivities.forEach((activity, index) => {
-      if (activity && typeof activity === 'object') {
-        const isDuplicate = transformedActivities.some(a => a.id === `prop-${index}`)
-        if (!isDuplicate) {
-          transformedActivities.push({
-            id: `prop-${index}`,
-            type: 'event',
-            title: activity.action || 'Activity',
-            description: activity.details || 'Recent platform activity',
-            timestamp: activity.timestamp || new Date().toISOString(),
-            actor: activity.actor ? {
-              name: activity.actor.name || 'Unknown',
-              email: activity.actor.email,
-              role: activity.actor.role || 'user'
-            } : undefined
-          })
-        }
-      }
+      if (!activity || typeof activity !== 'object') return
+      const id = activity.id || `audit-${index}`
+      if (seen.has(id)) return
+      seen.add(id)
+      merged.push({
+        id,
+        type: activity.type || 'system',
+        title: activity.title || activity.action || 'Activity',
+        description: activity.description || '',
+        timestamp: activity.timestamp || new Date().toISOString(),
+        actor: activity.actor,
+        metadata: activity.metadata,
+        link: activity.link
+      })
     })
 
     // Sort by timestamp (most recent first) and limit
-    transformedActivities.sort((a, b) => 
+    merged.sort((a, b) =>
       new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     )
 
-    setActivities(transformedActivities.slice(0, maxItems))
+    setActivities(merged.slice(0, maxItems))
   }, [realtimeActivities, recentActivities, maxItems])
 
   useEffect(() => {
@@ -184,46 +184,31 @@ export function AdminActivityFeed({
   ]
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 h-full lg:h-[600px] flex flex-col">
+    <div className="bg-white rounded-xl border border-gray-200 flex flex-col lg:h-[560px]">
       {/* Header */}
-      <div className="p-4 border-b border-gray-100">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <Activity className="w-5 h-5 text-brand-600" />
-              Admin Activity Feed
-            </h3>
-            <p className="text-sm text-gray-500 mt-1">
-              Recent platform activities and admin actions
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setViewMode(viewMode === 'compact' ? 'detailed' : 'compact')}
-              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
-              title={`Switch to ${viewMode === 'compact' ? 'detailed' : 'compact'} view`}
-            >
-              <Eye className="w-4 h-4" />
-            </button>
-            <button
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors disabled:opacity-50"
-              title="Refresh activities"
-            >
-              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            </button>
-          </div>
+      <div className="px-4 py-3 border-b border-gray-100">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+            <Activity className="w-4 h-4 text-brand-600" />
+            Activity Feed
+          </h3>
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors disabled:opacity-50"
+            title="Refresh activities"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          </button>
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex flex-wrap gap-2">
+        <div className="mt-2.5 flex flex-wrap gap-1.5">
           {filterOptions.map(option => (
             <button
               key={option.value}
               onClick={() => setFilter(option.value)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
                 filter === option.value
                   ? 'bg-brand-50 text-brand-700'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
@@ -231,7 +216,7 @@ export function AdminActivityFeed({
             >
               {option.label}
               {option.count > 0 && (
-                <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-xs ${
+                <span className={`px-1.5 rounded-full text-[10px] leading-4 ${
                   filter === option.value ? 'bg-brand-100' : 'bg-gray-200'
                 }`}>
                   {option.count}
@@ -245,66 +230,70 @@ export function AdminActivityFeed({
       {/* Activities List */}
       <div className="flex-1 overflow-y-auto">
         {filteredActivities.length === 0 ? (
-          <div className="p-6 text-center text-gray-500">
-            <Activity className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-            <p>No activities found</p>
+          <div className="p-8 text-center text-gray-400">
+            <Activity className="w-10 h-10 mx-auto mb-2 text-gray-200" />
+            <p className="text-sm">No activities found</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-100">
             {filteredActivities.map((activity) => {
               const Icon = getActivityIcon(activity.type, activity.metadata?.severity)
               const colorClasses = getActivityColor(activity.type, activity.metadata?.severity)
-              
+              const isExpanded = expandedId === activity.id
+              const detailText =
+                activity.description ||
+                (activity.actor
+                  ? `by ${activity.actor.name}${activity.actor.role ? ` · ${activity.actor.role}` : ''}`
+                  : '')
+              const hasDetails = !!(
+                detailText ||
+                activity.metadata?.amount != null ||
+                activity.metadata?.severity ||
+                activity.link
+              )
+
               return (
-                <div
-                  key={activity.id}
-                  className="px-4 py-3 hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${colorClasses}`}>
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <h4 className="text-sm font-medium text-gray-900 truncate">
-                          {activity.title}
-                        </h4>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <span className="text-xs text-gray-500 flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {formatTimeAgo(activity.timestamp)}
-                          </span>
-                          {activity.link && (
-                            <Link
-                              href={activity.link}
-                              className="text-brand-600 hover:text-brand-700"
-                            >
-                              <ChevronRight className="w-4 h-4" />
-                            </Link>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <p className="text-sm text-gray-600 mb-2">
-                        {activity.description}
-                      </p>
-                      
-                      {viewMode === 'detailed' && (
-                        <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
-                          {activity.actor && (
-                            <span>
-                              by {activity.actor.name} ({activity.actor.role})
-                            </span>
-                          )}
-                          {activity.metadata?.amount && (
-                            <span>
-                              {activity.metadata.amount.toLocaleString()} {activity.metadata.currency}
+                <div key={activity.id}>
+                  <button
+                    type="button"
+                    onClick={() => hasDetails && setExpandedId(isExpanded ? null : activity.id)}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors ${
+                      hasDetails ? 'hover:bg-gray-50 cursor-pointer' : 'cursor-default'
+                    }`}
+                  >
+                    <span className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${colorClasses}`}>
+                      <Icon className="w-3.5 h-3.5" />
+                    </span>
+                    <span className="flex-1 min-w-0 text-sm text-gray-900 truncate">
+                      {activity.title}
+                    </span>
+                    <span className="text-[11px] text-gray-400 whitespace-nowrap flex-shrink-0">
+                      {formatTimeAgo(activity.timestamp)}
+                    </span>
+                    {hasDetails && (
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 text-gray-300 flex-shrink-0 transition-transform ${
+                          isExpanded ? 'rotate-180' : ''
+                        }`}
+                      />
+                    )}
+                  </button>
+
+                  {isExpanded && hasDetails && (
+                    <div className="pl-[3.125rem] pr-3 pb-2.5 -mt-0.5 space-y-1.5">
+                      {detailText && (
+                        <p className="text-xs text-gray-600">{detailText}</p>
+                      )}
+                      {(activity.metadata?.amount != null || activity.metadata?.severity || activity.link) && (
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-gray-500">
+                          {activity.metadata?.amount != null && (
+                            <span className="font-medium text-gray-700">
+                              {Number(activity.metadata.amount).toLocaleString()} {activity.metadata.currency || ''}
                             </span>
                           )}
                           {activity.metadata?.severity && (
-                            <span className={`px-2 py-0.5 rounded-full ${
-                              activity.metadata.severity === 'critical' 
+                            <span className={`px-1.5 py-0.5 rounded-full font-medium ${
+                              activity.metadata.severity === 'critical'
                                 ? 'bg-red-100 text-red-700'
                                 : activity.metadata.severity === 'high'
                                 ? 'bg-amber-100 text-amber-700'
@@ -313,10 +302,18 @@ export function AdminActivityFeed({
                               {activity.metadata.severity}
                             </span>
                           )}
+                          {activity.link && (
+                            <Link
+                              href={activity.link}
+                              className="text-brand-600 hover:text-brand-700 inline-flex items-center gap-0.5 font-medium"
+                            >
+                              View <ChevronRight className="w-3 h-3" />
+                            </Link>
+                          )}
                         </div>
                       )}
                     </div>
-                  </div>
+                  )}
                 </div>
               )
             })}

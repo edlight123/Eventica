@@ -68,9 +68,9 @@ export async function GET(request: NextRequest) {
         description: data.description || '',
         timestamp: data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
         actor: data.actor ? {
-          name: data.actor.name || 'Unknown',
+          name: data.actor.name || data.actor.email?.split('@')[0] || 'System',
           email: data.actor.email,
-          role: data.actor.role || 'user'
+          role: data.actor.role || 'admin'
         } : undefined,
         metadata: data.metadata || {}
       }

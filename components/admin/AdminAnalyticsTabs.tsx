@@ -49,7 +49,7 @@ export function AdminAnalyticsTabs() {
   }, [activeTab, visitedTabs])
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Tab Navigation */}
       <div className="border-b border-gray-200 overflow-x-auto">
         <nav className="flex space-x-1 min-w-max" aria-label="Analytics tabs">
@@ -61,7 +61,7 @@ export function AdminAnalyticsTabs() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                className={`flex items-center gap-2 px-3 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                   isActive
                     ? 'border-brand-600 text-brand-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -76,40 +76,40 @@ export function AdminAnalyticsTabs() {
       </div>
 
       {/* Tab Content - Only render tabs that have been visited (lazy loading) */}
-      <div className="min-h-[500px]">
+      <div className="min-h-[360px]">
         {/* Overview Tab */}
         <div className={activeTab === 'overview' ? '' : 'hidden'}>
           {visitedTabs.has('overview') && (
-            <div className="space-y-8">
+            <div className="space-y-5">
               {/* Quick Stats Overview */}
               <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Overview</h2>
+                <h2 className="text-base font-semibold text-gray-900 mb-3">Quick Overview</h2>
                 <AdminRevenueAnalytics showFilters={false} />
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* User Growth Summary */}
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent User Growth</h2>
+                  <h2 className="text-base font-semibold text-gray-900 mb-3">Recent User Growth</h2>
                   <UserGrowthAnalytics days={7} />
                 </div>
 
                 {/* Top Events */}
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Top Events</h2>
+                  <h2 className="text-base font-semibold text-gray-900 mb-3">Top Events</h2>
                   <EventPerformanceAnalytics />
                 </div>
               </div>
 
               {/* Conversion & Organizers */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Conversion Funnel</h2>
+                  <h2 className="text-base font-semibold text-gray-900 mb-3">Conversion Funnel</h2>
                   <ConversionFunnelAnalytics />
                 </div>
                 
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Top Organizers</h2>
+                  <h2 className="text-base font-semibold text-gray-900 mb-3">Top Organizers</h2>
                   <OrganizerRankingsAnalytics />
                 </div>
               </div>
@@ -121,7 +121,7 @@ export function AdminAnalyticsTabs() {
         <div className={activeTab === 'revenue' ? '' : 'hidden'}>
           {visitedTabs.has('revenue') && (
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Revenue Analytics (Multi-Currency)</h2>
+              <h2 className="text-base font-semibold text-gray-900 mb-3">Revenue Analytics (Multi-Currency)</h2>
               <AdminRevenueAnalytics showFilters={true} />
             </div>
           )}
@@ -131,7 +131,7 @@ export function AdminAnalyticsTabs() {
         <div className={activeTab === 'users' ? '' : 'hidden'}>
           {visitedTabs.has('users') && (
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">User Growth Metrics</h2>
+              <h2 className="text-base font-semibold text-gray-900 mb-3">User Growth Metrics</h2>
               <UserGrowthAnalytics days={30} />
             </div>
           )}
@@ -141,7 +141,7 @@ export function AdminAnalyticsTabs() {
         <div className={activeTab === 'events' ? '' : 'hidden'}>
           {visitedTabs.has('events') && (
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Event Performance</h2>
+              <h2 className="text-base font-semibold text-gray-900 mb-3">Event Performance</h2>
               <EventPerformanceAnalytics />
             </div>
           )}
@@ -151,7 +151,7 @@ export function AdminAnalyticsTabs() {
         <div className={activeTab === 'conversion' ? '' : 'hidden'}>
           {visitedTabs.has('conversion') && (
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Conversion Funnel Analysis</h2>
+              <h2 className="text-base font-semibold text-gray-900 mb-3">Conversion Funnel Analysis</h2>
               <ConversionFunnelAnalytics />
             </div>
           )}
@@ -161,7 +161,7 @@ export function AdminAnalyticsTabs() {
         <div className={activeTab === 'organizers' ? '' : 'hidden'}>
           {visitedTabs.has('organizers') && (
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Organizer Performance Rankings</h2>
+              <h2 className="text-base font-semibold text-gray-900 mb-3">Organizer Performance Rankings</h2>
               <OrganizerRankingsAnalytics />
             </div>
           )}

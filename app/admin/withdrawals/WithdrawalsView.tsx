@@ -110,14 +110,14 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
 
   const containerClassName = embedded
     ? ''
-    : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'
+    : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6'
 
   return (
     <div className={containerClassName}>
       {showHeader && (
-        <div className="mb-6">
-          <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900 mb-2">Withdrawal Management</h1>
-          <p className="text-gray-600">Review and process organizer withdrawal requests</p>
+        <div className="mb-5">
+          <h1 className="font-display text-[clamp(22px,3vw,30px)] leading-[1.06] text-gray-900 mb-1">Withdrawal Management</h1>
+          <p className="text-sm text-gray-500">Review and process organizer withdrawal requests</p>
         </div>
       )}
 

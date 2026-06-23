@@ -88,9 +88,9 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
   const canPost = user.can_create_events !== false
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
       {/* Breadcrumb */}
-      <div className="mb-4 sm:mb-6">
+      <div className="mb-3 sm:mb-4">
         <Link href="/admin/organizers" className="text-brand-600 hover:text-brand-700 text-[13px] sm:text-sm font-medium">
           ← Back to Organizers
         </Link>
@@ -98,19 +98,19 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
 
       {/* Message */}
       {message && (
-        <div className={`mb-6 p-4 rounded-lg ${message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
+        <div className={`mb-5 p-3 rounded-lg text-sm ${message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
           {message.text}
         </div>
       )}
 
       {/* Header */}
-      <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8 mb-6">
+      <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-5">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="flex-1">
-            <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-gray-900 mb-2">
+            <h1 className="font-display text-[clamp(22px,3vw,30px)] leading-[1.06] text-gray-900 mb-1">
               {user.full_name || 'No name'}
             </h1>
-            <p className="text-gray-600 mb-2">{user.email}</p>
+            <p className="text-sm text-gray-500 mb-2">{user.email}</p>
             <div className="flex flex-wrap gap-2">
               <span className="px-3 py-1 text-xs font-semibold rounded-full bg-brand-50 text-brand-700">
                 {user.role}

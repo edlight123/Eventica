@@ -98,12 +98,9 @@ export function AdminDashboardClient({
                 e?.is_published === true ||
                 legacyStatus === 'published'
 
-              // Build location string
-              const locationParts = []
-              if (e.venueName) locationParts.push(e.venueName)
-              if (e.commune) locationParts.push(e.commune)
-              if (e.city) locationParts.push(e.city)
-              const location = locationParts.length > 0 ? locationParts.join(', ') : t('dashboard.location_tbd')
+              // Location is precomputed server-side (handles online events and
+              // multiple field shapes); only fall back to "TBD" when truly empty.
+              const location = e.locationLabel || t('dashboard.location_tbd')
 
               // Format price
               const currency = e.currency || 'HTG'
