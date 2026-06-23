@@ -28,6 +28,7 @@ import { db } from '../../config/firebase';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
+import { SHADOWS, RADIUS } from '../../config/brand';
 import { getEventById } from '../../lib/api/organizer';
 
 type RouteParams = {
@@ -479,12 +480,15 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 12,
   },
   createToggle: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.lg,
     padding: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   createToggleLeft: {
     flexDirection: 'row',
@@ -497,10 +501,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '600',
   },
   formCard: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.xl,
     padding: 14,
     marginTop: 12,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   formTitle: {
     fontSize: 16,
@@ -571,10 +578,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
   },
   emptyState: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.xl,
     padding: 24,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
   emptyText: {
     marginTop: 10,
@@ -583,10 +592,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     textAlign: 'center',
   },
   promoCard: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.xl,
     padding: 14,
     marginBottom: 10,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   promoHeader: {
     flexDirection: 'row',

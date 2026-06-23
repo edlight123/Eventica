@@ -220,7 +220,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 8,
     paddingVertical: 12,
     borderRadius: 12,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -239,7 +239,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.white,
   },
   eventCard: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 16,
     overflow: 'hidden',
     marginBottom: 16,
@@ -312,7 +312,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 8,
     padding: 16,
     borderRadius: 12,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -355,7 +355,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   eventPageContent: {
     padding: 16,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 16,
   },
   pageCategory: {

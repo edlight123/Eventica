@@ -17,6 +17,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { backendFetch } from '../../lib/api/backend';
+import { SHADOWS, RADIUS } from '../../config/brand';
 import { format, subDays, startOfDay } from 'date-fns';
 
 const { width } = Dimensions.get('window');
@@ -277,7 +278,7 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#FFF" />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('analytics.title') || 'Analytics'}</Text>
         <View style={{ width: 40 }} />
@@ -424,7 +425,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 16,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.background,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.borderLight,
   },
   backButton: {
     padding: 8,
@@ -432,7 +435,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#FFF',
+    color: colors.text,
   },
   scrollView: {
     flex: 1,
@@ -445,8 +448,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   timeRangeButton: {
     flex: 1,
     paddingVertical: 10,
-    borderRadius: 8,
-    backgroundColor: '#FFF',
+    borderRadius: RADIUS.md,
+    backgroundColor: colors.surface,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: colors.border,
@@ -472,12 +475,16 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   statCard: {
     width: (width - 40) / 2,
     padding: 16,
-    backgroundColor: '#FFF',
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.lg,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   statCardPrimary: {
     backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   statValue: {
     fontSize: 24,
@@ -494,8 +501,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   chartCard: {
     margin: 16,
     padding: 20,
-    backgroundColor: '#FFF',
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.xl,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   chartTitle: {
     fontSize: 16,
@@ -520,7 +530,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   chartBar: {
     width: 24,
     backgroundColor: colors.primary,
-    borderRadius: 4,
+    borderRadius: 6,
     minHeight: 4,
   },
   chartLabel: {
@@ -532,8 +542,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     margin: 16,
     marginTop: 0,
     padding: 16,
-    backgroundColor: '#FFF',
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.xl,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   sectionTitle: {
     fontSize: 16,

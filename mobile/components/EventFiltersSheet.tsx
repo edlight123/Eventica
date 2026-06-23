@@ -397,7 +397,7 @@ export default function EventFiltersSheet() {
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF',
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -432,7 +432,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   closeButton: {
     padding: 8,
     borderRadius: 20,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.surfaceMuted,
   },
   content: {
     flex: 1,
@@ -461,7 +461,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: 20,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: '#FFF',
+    backgroundColor: colors.surface,
   },
   chipActive: {
     backgroundColor: colors.primary,
@@ -478,7 +478,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   segmentedControl: {
     flexDirection: 'row',
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.surfaceMuted,
     borderRadius: 10,
     padding: 4,
   },
@@ -498,7 +498,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderBottomRightRadius: 8,
   },
   segmentActive: {
-    backgroundColor: '#FFF',
+    backgroundColor: colors.surface,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -522,7 +522,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingBottom: Platform.OS === 'ios' ? 24 : 16,
     borderTopWidth: 1,
     borderTopColor: colors.border,
-    backgroundColor: '#FFF',
+    backgroundColor: colors.surface,
   },
   resetButton: {
     flex: 1,
@@ -554,7 +554,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   selectedDateContainer: {
     marginTop: 12,
     padding: 16,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.surfaceMuted,
     borderRadius: 12,
     alignItems: 'center',
   },
@@ -571,7 +571,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   priceSliderContainer: {
     marginTop: 16,
     padding: 16,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.surfaceMuted,
     borderRadius: 12,
   },
   priceRangeHeader: {

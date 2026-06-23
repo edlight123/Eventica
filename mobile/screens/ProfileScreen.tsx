@@ -13,7 +13,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Briefcase, ChevronDown, ExternalLink, LogOut, MapPin, Settings, User, Users } from 'lucide-react-native';
+import { Briefcase, ChevronDown, ChevronRight, ExternalLink, LogOut, MapPin, Settings, User, Users } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { getDownloadURL, ref as storageRef, uploadBytes } from 'firebase/storage';
@@ -24,6 +24,7 @@ import { useI18n } from '../contexts/I18nContext';
 import { useFilters } from '../contexts/FiltersContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { db, isDemoMode, storage } from '../config/firebase';
+import { SHADOWS, RADIUS } from '../config/brand';
 import { getStaffEventIds } from '../lib/staffAssignments';
 import { getVerificationRequest, type VerificationRequest } from '../lib/verification';
 import { useNavigation } from '@react-navigation/native';
@@ -440,7 +441,7 @@ export default function ProfileScreen() {
                 <Image source={{ uri: userProfile.photo_url }} style={styles.avatarImage} />
               ) : (
                 <View style={styles.avatarFallback}>
-                  <User size={30} color={colors.textSecondary} />
+                  <User size={30} color={colors.primary} />
                 </View>
               )}
             </TouchableOpacity>
@@ -762,7 +763,7 @@ export default function ProfileScreen() {
               <Users size={18} color={colors.primary} />
               <Text style={styles.rowText}>{t('profile.friends')}</Text>
             </View>
-            <ExternalLink size={18} color={colors.textSecondary} />
+            <ChevronRight size={18} color={colors.textTertiary} />
           </TouchableOpacity>
 
           {canUseOrganizerMode ? (
@@ -771,7 +772,7 @@ export default function ProfileScreen() {
                 <Briefcase size={18} color={colors.primary} />
                 <Text style={styles.rowText}>{t('profile.createEvent')}</Text>
               </View>
-              <ExternalLink size={18} color={colors.textSecondary} />
+              <ChevronRight size={18} color={colors.textTertiary} />
             </TouchableOpacity>
           ) : (
             <TouchableOpacity style={styles.rowButton} onPress={() => navigation.navigate('OrganizerVerification')}>
@@ -779,7 +780,7 @@ export default function ProfileScreen() {
                 <Briefcase size={18} color={colors.primary} />
                 <Text style={styles.rowText}>{t('profile.becomeOrganizer')}</Text>
               </View>
-              <ExternalLink size={18} color={colors.textSecondary} />
+              <ChevronRight size={18} color={colors.textTertiary} />
             </TouchableOpacity>
           )}
 
@@ -987,10 +988,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   card: {
     backgroundColor: colors.surface,
-    borderRadius: 16,
+    borderRadius: RADIUS.xl,
     padding: 16,
     borderWidth: 1,
     borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   profileRow: {
     flexDirection: 'row',
@@ -1014,7 +1016,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.borderLight,
+    backgroundColor: colors.primarySoft,
   },
   profileMeta: {
     flex: 1,
@@ -1074,9 +1076,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
   },
   statValue: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '800',
     color: colors.text,
+    letterSpacing: -0.3,
   },
   statLabel: {
     marginTop: 2,
@@ -1105,7 +1108,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 12,
     paddingVertical: 10,
     color: colors.text,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
   },
   bioInput: {
     minHeight: 80,
@@ -1147,7 +1150,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: 10,
     paddingVertical: 9,
     alignItems: 'center',
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
   },
   segmentBtnActive: {
     backgroundColor: colors.primary,
@@ -1234,18 +1237,21 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   sectionCard: {
     marginTop: 12,
     backgroundColor: colors.surface,
-    borderRadius: 16,
+    borderRadius: RADIUS.xl,
     borderWidth: 1,
     borderColor: colors.borderLight,
     overflow: 'hidden',
+    ...SHADOWS.card,
   },
   sectionTitle: {
     paddingHorizontal: 16,
     paddingTop: 14,
     paddingBottom: 10,
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '800',
-    color: colors.text,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+    color: colors.textSecondary,
   },
   languageRow: {
     flexDirection: 'row',
@@ -1259,11 +1265,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: 999,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
   },
   pillActive: {
     borderColor: colors.primary,
-    backgroundColor: colors.primaryLight,
+    backgroundColor: colors.primarySoft,
   },
   pillText: {
     fontWeight: '800',

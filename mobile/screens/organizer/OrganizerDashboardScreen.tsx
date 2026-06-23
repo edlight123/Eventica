@@ -80,7 +80,7 @@ export default function OrganizerDashboardScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
       {/* Fixed Header */}
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <Text style={styles.headerTitle}>{t('organizerDashboard.title')}</Text>
@@ -266,18 +266,19 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   header: {
     padding: 20,
     paddingTop: 16,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.background,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.borderLight,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: colors.white,
+    color: colors.text,
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: colors.white,
-    opacity: 0.9,
+    color: colors.textSecondary,
   },
   section: {
     padding: 20,
@@ -287,6 +288,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: 'bold',
     color: colors.text,
     marginBottom: 16,
+    letterSpacing: -0.3,
   },
   emptyState: {
     alignItems: 'center',
@@ -298,15 +300,17 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 12,
   },
   eventCard: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: 18,
     padding: 16,
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.07,
+    shadowRadius: 16,
+    elevation: 4,
   },
   eventHeader: {
     flexDirection: 'row',
@@ -323,7 +327,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   scanButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.primaryLight,
+    backgroundColor: colors.primarySoft,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
@@ -373,22 +377,25 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   statCard: {
     width: '48%',
-    backgroundColor: colors.white,
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: 18,
     padding: 16,
     margin: '1%',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.07,
+    shadowRadius: 16,
+    elevation: 4,
   },
   statCardValue: {
     fontSize: 24,
     fontWeight: 'bold',
     color: colors.text,
     marginTop: 8,
+    letterSpacing: -0.3,
   },
   statCardLabel: {
     fontSize: 12,
@@ -403,18 +410,20 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   quickActionButton: {
     width: '48%',
-    backgroundColor: colors.white,
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: 18,
     padding: 16,
     margin: '1%',
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.07,
+    shadowRadius: 16,
+    elevation: 4,
   },
   quickActionText: {
     fontSize: 14,

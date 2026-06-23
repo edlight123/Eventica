@@ -24,6 +24,7 @@ import { useI18n } from '../../contexts/I18nContext'
 import { backendFetch, backendJson } from '../../lib/api/backend'
 import { getEventById } from '../../lib/api/organizer'
 import { getRequiredPayoutProfileIdForEventCountry, normalizeCountryCode } from '../../lib/payment-provider'
+import { SHADOWS, RADIUS } from '../../config/brand'
 
 type RouteParams = {
   OrganizerEventEarnings: {
@@ -542,7 +543,7 @@ export default function OrganizerEventEarningsScreen() {
 
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={24} color={colors.white} />
+          <Ionicons name="chevron-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <View style={styles.headerTextWrap}>
           <Text style={styles.headerTitle}>{t('organizerEarnings.headerTitle')}</Text>
@@ -833,7 +834,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingTop: 16,
     paddingBottom: 16,
     paddingHorizontal: 16,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.background,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.borderLight,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
@@ -847,13 +850,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: colors.white,
+    color: colors.text,
   },
   headerSubtitle: {
     marginTop: 4,
     fontSize: 13,
-    color: colors.white,
-    opacity: 0.9,
+    color: colors.textSecondary,
   },
   scroll: {
     flex: 1,
@@ -869,9 +871,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textSecondary,
   },
   card: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.xl,
     padding: 16,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   cardLabel: {
     color: colors.textSecondary,
@@ -921,9 +926,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'flex-end',
   },
   modalCard: {
-    backgroundColor: colors.white,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     padding: 16,
     maxHeight: '90%',
   },
@@ -939,8 +944,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   summaryBox: {
     marginTop: 12,
-    backgroundColor: '#F5F6F8',
-    borderRadius: 12,
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: RADIUS.lg,
     padding: 12,
   },
   sectionTitle: {
@@ -956,8 +961,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   input: {
     borderWidth: 1,
-    borderColor: '#E1E4E8',
-    borderRadius: 10,
+    borderColor: colors.border,
+    borderRadius: RADIUS.md,
     paddingHorizontal: 12,
     paddingVertical: 10,
     marginBottom: 10,
@@ -981,7 +986,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   secondaryButton: {
     flex: 1,
-    backgroundColor: '#EEF1F4',
+    backgroundColor: colors.surfaceMuted,
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: 'center',
@@ -1001,10 +1006,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingVertical: 8,
     paddingHorizontal: 10,
     borderRadius: 999,
-    backgroundColor: '#EEF1F4',
+    backgroundColor: colors.surfaceMuted,
   },
   radioChipActive: {
-    backgroundColor: '#D9F2EF',
+    backgroundColor: colors.primarySoft,
   },
   radioChipText: {
     fontSize: 12,
@@ -1018,12 +1023,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     padding: 12,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E1E4E8',
+    borderColor: colors.border,
     marginBottom: 8,
   },
   destinationRowActive: {
     borderColor: colors.primary,
-    backgroundColor: '#F2FBFA',
+    backgroundColor: colors.primarySoft,
   },
   destinationTitle: {
     fontWeight: '700',

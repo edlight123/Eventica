@@ -5,6 +5,8 @@ import { useTheme } from '../contexts/ThemeContext';
 const { width, height } = Dimensions.get('window');
 
 export default function FacialGuideOverlay() {
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
   return (
     <View style={styles.overlay}>
       {/* Top darkened area */}
@@ -36,8 +38,6 @@ export default function FacialGuideOverlay() {
 const OVAL_WIDTH = width * 0.6;
 const OVAL_HEIGHT = height * 0.35;
 
-  const { colors } = useTheme();
-  const styles = getStyles(colors);
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,

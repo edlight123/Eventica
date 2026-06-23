@@ -510,7 +510,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 12,
@@ -561,7 +561,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     // SafeArea ensures content isn't cut off by notch/home indicator
   },
   modalContent: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     // No flex here - we want fixed height for picker container
@@ -591,7 +591,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   // CRITICAL: Fixed height for picker - without this, picker has 0 height and is invisible/unresponsive
   pickerContainer: {
     height: 240, // Fixed height ensures picker renders properly
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     paddingBottom: Platform.OS === 'ios' ? 20 : 0,
   },
 });

@@ -454,6 +454,8 @@ function PaymentForm({
 
 export default function PaymentModal(props: PaymentModalProps) {
   const { t } = useI18n();
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
   // If in Expo Go or Stripe not available, render without StripeProvider
   if (isExpoGo || !StripeProvider) {
     return (
@@ -508,7 +510,7 @@ export default function PaymentModal(props: PaymentModalProps) {
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -518,7 +520,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingTop: 20,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: colors.border,
   },
   headerContent: {
     flex: 1,
@@ -555,19 +557,19 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     padding: 16,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#E5E7EB',
+    borderColor: colors.border,
     marginBottom: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
   },
   methodButtonActive: {
     borderColor: colors.primary,
-    backgroundColor: '#F0FDFA',
+    backgroundColor: colors.primarySoft,
   },
   methodIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -597,13 +599,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   phoneInput: {
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
     color: colors.text,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     marginBottom: 12,
   },
   testCardHint: {
@@ -621,7 +623,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'flex-start',
     gap: 12,
     padding: 16,
-    backgroundColor: '#F0FDFA',
+    backgroundColor: colors.primarySoft,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.primary,
@@ -635,21 +637,21 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   errorContainer: {
     marginTop: 16,
     padding: 16,
-    backgroundColor: '#FEE2E2',
+    backgroundColor: colors.error + '15',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#EF4444',
+    borderColor: colors.error,
   },
   errorText: {
     fontSize: 14,
-    color: '#DC2626',
+    color: colors.error,
     textAlign: 'center',
   },
   totalContainer: {
     marginTop: 24,
     paddingTop: 24,
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    borderTopColor: colors.border,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -681,14 +683,14 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 12,
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    borderTopColor: colors.border,
   },
   cancelButton: {
     flex: 1,
     paddingVertical: 16,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#E5E7EB',
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },

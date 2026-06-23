@@ -18,6 +18,7 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
+import { SHADOWS } from '../../config/brand';
 import SelfieCameraWithGuide from '../../components/SelfieCameraWithGuide';
 import * as ImagePicker from 'expo-image-picker';
 import {
@@ -352,7 +353,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'space-between',
     padding: 16,
     paddingTop: 16,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
@@ -372,7 +373,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     padding: 16,
   },
   guideVisual: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 20,
     marginBottom: 16,
@@ -425,7 +426,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   instructionsCard: {
     padding: 16,
-    backgroundColor: colors.primaryLight,
+    backgroundColor: colors.primarySoft,
     borderRadius: 12,
     marginBottom: 24,
     alignItems: 'center',
@@ -455,7 +456,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 12,
   },
   uploadButton: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 2,
     borderColor: colors.border,
     borderStyle: 'dashed',
@@ -477,14 +478,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     textAlign: 'center',
   },
   previewContainer: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   preview: {
     width: '100%',
@@ -530,7 +529,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   footer: {
     padding: 16,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },

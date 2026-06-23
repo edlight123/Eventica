@@ -11,6 +11,16 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BADGE_COLORS, BadgeStatus } from '../theme/badges';
 import { useI18n } from '../contexts/I18nContext';
 
+/** Maps a display status to its BADGE_COLORS key (handles spaced labels). */
+const STATUS_KEY: Record<BadgeStatus, keyof typeof BADGE_COLORS> = {
+  VIP: 'vip',
+  Trending: 'trending',
+  New: 'new',
+  Free: 'free',
+  'Last Chance': 'lastChance',
+  'Sold Out': 'soldOut',
+};
+
 export interface EventStatusBadgeProps {
   status: BadgeStatus;
   size?: 'small' | 'large';
@@ -79,7 +89,7 @@ export default function EventStatusBadge({ status, size = 'small', style }: Even
   };
 
   const getBadgeContent = () => {
-    const colors = BADGE_COLORS[status.toLowerCase().replace(' ', '') as keyof typeof BADGE_COLORS];
+    const colors = BADGE_COLORS[STATUS_KEY[status]] ?? BADGE_COLORS.new;
     const isGradient = 'gradient' in colors;
     const fontSize = size === 'small' ? 10 : 12;
     const paddingHorizontal = size === 'small' ? 8 : 12;

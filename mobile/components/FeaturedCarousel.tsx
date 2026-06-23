@@ -6,6 +6,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import PaginationDots from './PaginationDots';
 import { useI18n } from '../contexts/I18nContext';
 import { getCategoryLabel } from '../lib/categories';
+import { getPosterTheme } from '../lib/posterGradient';
 
 import { formatDateForLanguage } from '../lib/dates';
 
@@ -75,25 +76,29 @@ export default function FeaturedCarousel({ events, onEventPress }: FeaturedCarou
           setCurrentIndex(index);
         }}
       >
-        {events.map((event, index) => (
+        {events.map((event) => {
+          const theme = getPosterTheme(event.id || event.title, event.category);
+          return (
           <TouchableOpacity
             key={event.id}
             style={styles.card}
             onPress={() => onEventPress(event.id)}
             activeOpacity={0.95}
           >
-            <Image
-              source={{ uri: event.banner_image_url || 'https://via.placeholder.com/800x400' }}
+            {/* Teal poster gradient always sits behind the banner as the fallback */}
+            <LinearGradient
+              colors={theme.colors}
+              start={{ x: 0.1, y: 0 }}
+              end={{ x: 0.9, y: 1 }}
               style={styles.image}
             />
+            {event.banner_image_url && (
+              <Image source={{ uri: event.banner_image_url }} style={styles.image} />
+            )}
+            {/* Single, bottom-weighted scrim keeps the poster visible while
+                the title/meta stay readable (Posh-style poster-forward). */}
             <LinearGradient
-              colors={['rgba(0,0,0,0.7)', 'rgba(0,0,0,0.4)', 'transparent']}
-              start={{ x: 0, y: 1 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.gradientOverlay}
-            />
-            <LinearGradient
-              colors={['transparent', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.8)']}
+              colors={['transparent', 'transparent', 'rgba(0,0,0,0.45)', 'rgba(0,0,0,0.88)']}
               start={{ x: 0, y: 0 }}
               end={{ x: 0, y: 1 }}
               style={styles.gradientOverlay}
@@ -112,37 +117,25 @@ export default function FeaturedCarousel({ events, onEventPress }: FeaturedCarou
 
               <Text style={styles.title} numberOfLines={2}>{event.title}</Text>
 
-              <Text style={styles.description} numberOfLines={2}>
-                {event.description}
-              </Text>
-
               <View style={styles.details}>
                 <View style={styles.detailRow}>
-                  <Calendar size={16} color={colors.primaryLight} />
+                  <Calendar size={15} color={colors.primaryLight} />
                   <Text style={styles.detailText}>
                     {formatDateForLanguage(new Date(event.start_datetime), 'MMM d, yyyy', language)}
                   </Text>
                 </View>
                 <Text style={styles.separator}>•</Text>
                 <View style={styles.detailRow}>
-                  <MapPin size={16} color={colors.primaryLight} />
+                  <MapPin size={15} color={colors.primaryLight} />
                   <Text style={styles.detailText} numberOfLines={1}>
                     {event.venue_name}, {event.city}
                   </Text>
                 </View>
               </View>
-
-              <View style={styles.actions}>
-                <TouchableOpacity style={styles.primaryButton} onPress={() => onEventPress(event.id)}>
-                  <Text style={styles.primaryButtonText}>{t('home.getTickets')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.secondaryButton} onPress={() => onEventPress(event.id)}>
-                  <Text style={styles.secondaryButtonText}>{t('common.details')}</Text>
-                </TouchableOpacity>
-              </View>
             </View>
           </TouchableOpacity>
-        ))}
+          );
+        })}
       </ScrollView>
 
       {/* Animated Pagination Dots */}

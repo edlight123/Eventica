@@ -43,11 +43,11 @@ export default function InAppWebViewScreen() {
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: colors.background,
   },
   center: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: colors.background,
   },
   loadingOverlay: {
     position: 'absolute',

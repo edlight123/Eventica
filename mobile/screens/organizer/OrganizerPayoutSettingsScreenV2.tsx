@@ -22,6 +22,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { useI18n } from '../../contexts/I18nContext'
 import { backendFetch, backendJson } from '../../lib/api/backend'
 import { getVerificationRequest } from '../../lib/verification'
+import { SHADOWS, RADIUS } from '../../config/brand'
 
 type VerificationStatus = 'not_started' | 'pending' | 'verified' | 'failed'
 
@@ -741,7 +742,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
@@ -759,10 +760,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
   },
   card: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.xl,
     padding: 16,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   cardTitle: {
     fontSize: 16,
@@ -792,11 +796,14 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 10,
   },
   emptyState: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.xl,
     padding: 32,
     alignItems: 'center',
     marginTop: 24,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   emptyTitle: {
     fontSize: 18,
@@ -837,10 +844,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 14,
   },
   destinationCard: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.xl,
     padding: 16,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   destinationHeader: {
     flexDirection: 'row',
@@ -913,11 +923,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     padding: 20,
   },
   modalContent: {
-    backgroundColor: colors.white,
-    borderRadius: 16,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS['2xl'],
     padding: 24,
     width: '100%',
     maxWidth: 400,
+    ...SHADOWS.floating,
   },
   modalTitle: {
     fontSize: 20,
@@ -960,11 +971,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   input: {
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 10,
+    borderRadius: RADIUS.md,
     paddingHorizontal: 14,
     paddingVertical: 12,
     color: colors.text,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     fontSize: 16,
   },
   chip: {

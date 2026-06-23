@@ -17,10 +17,15 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/AppNavigator';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+import { LinearGradient } from 'expo-linear-gradient';
+import { Calendar } from 'lucide-react-native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { getOrganizerEvents, OrganizerEvent } from '../../lib/api/organizer';
+import { getPosterTheme } from '../../lib/posterGradient';
+import { SHADOWS, RADIUS } from '../../config/brand';
+import EmptyState from '../../components/EmptyState';
 
 type EventStatus = 'draft' | 'published' | 'sold_out' | 'completed' | 'cancelled';
 
@@ -176,17 +181,13 @@ export default function OrganizerEventsScreen() {
         }
       >
         {events.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Ionicons name="calendar-outline" size={64} color={colors.textSecondary} />
-            <Text style={styles.emptyTitle}>
-              {eventTab === 'upcoming' ? t('organizerEvents.emptyUpcomingTitle') : t('organizerEvents.emptyPastTitle')}
-            </Text>
-            <Text style={styles.emptyText}>
-              {eventTab === 'upcoming'
-                ? t('organizerEvents.emptyUpcomingBody')
-                : t('organizerEvents.emptyPastBody')}
-            </Text>
-          </View>
+          <EmptyState
+            icon={Calendar}
+            title={eventTab === 'upcoming' ? t('organizerEvents.emptyUpcomingTitle') : t('organizerEvents.emptyPastTitle')}
+            subtitle={eventTab === 'upcoming'
+              ? t('organizerEvents.emptyUpcomingBody')
+              : t('organizerEvents.emptyPastBody')}
+          />
         ) : (
           events.map((event) => {
             const eventDate = new Date(event.start_datetime);
@@ -216,14 +217,17 @@ export default function OrganizerEventsScreen() {
                 style={styles.eventCard}
                 onPress={() => navigation.navigate('OrganizerEventManagement', { eventId: event.id })}
               >
-                {event.cover_image_url && (
-                  <Image source={{ uri: event.cover_image_url }} style={styles.eventImage} />
-                )}
-                {!event.cover_image_url && (
-                  <View style={[styles.eventImage, styles.placeholderImage]}>
-                    <Ionicons name="image-outline" size={48} color={colors.textSecondary} />
-                  </View>
-                )}
+                <View style={styles.eventImage}>
+                  <LinearGradient
+                    colors={getPosterTheme(event.id || event.title, event.category).colors}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={StyleSheet.absoluteFill}
+                  />
+                  {!!event.cover_image_url && (
+                    <Image source={{ uri: event.cover_image_url }} style={StyleSheet.absoluteFill} />
+                  )}
+                </View>
                 <View style={styles.eventContent}>
                   <View style={styles.eventHeaderRow}>
                     <Text style={styles.eventTitle} numberOfLines={2}>
@@ -297,7 +301,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 16,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
@@ -309,7 +313,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   createButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.primaryLight,
+    backgroundColor: colors.primarySoft,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 8,
@@ -323,7 +327,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   segmentedControl: {
     flexDirection: 'row',
     margin: 16,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surfaceMuted,
     borderRadius: 8,
     padding: 4,
     shadowColor: '#000',
@@ -372,25 +376,18 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     lineHeight: 20,
   },
   eventCard: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.xl,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
     overflow: 'hidden',
   },
   eventImage: {
     width: '100%',
     height: 160,
-    backgroundColor: colors.border,
-  },
-  placeholderImage: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.border,
+    backgroundColor: colors.surfaceMuted,
   },
   eventContent: {
     padding: 16,

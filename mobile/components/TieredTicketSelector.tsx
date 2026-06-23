@@ -338,7 +338,7 @@ export default function TieredTicketSelector({
                             quantity === 0 && styles.quantityButtonDisabled
                           ]}
                         >
-                          <Minus size={20} color={quantity === 0 ? colors.secondary : colors.primary} />
+                          <Minus size={20} color={quantity === 0 ? colors.textTertiary : colors.primary} />
                         </TouchableOpacity>
                         
                         <Text style={styles.quantityText}>{quantity}</Text>
@@ -351,7 +351,7 @@ export default function TieredTicketSelector({
                             (quantity >= available || quantity >= 10) && styles.quantityButtonDisabled
                           ]}
                         >
-                          <Plus size={20} color={(quantity >= available || quantity >= 10) ? colors.secondary : colors.primary} />
+                          <Plus size={20} color={(quantity >= available || quantity >= 10) ? colors.textTertiary : colors.primary} />
                         </TouchableOpacity>
                       </View>
                     )}
@@ -452,7 +452,7 @@ export default function TieredTicketSelector({
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -496,7 +496,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -553,7 +553,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     width: 32,
     height: 32,
     borderRadius: 6,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -622,7 +622,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     padding: 20,
     borderTopWidth: 1,
     borderTopColor: colors.border,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
   },
   totalContainer: {
     flexDirection: 'row',

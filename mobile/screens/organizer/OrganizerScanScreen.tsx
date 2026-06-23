@@ -17,6 +17,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { getOrganizerEvents, OrganizerEvent, getTodayEvents, TodayEvent } from '../../lib/api/organizer';
+import { SHADOWS, RADIUS } from '../../config/brand';
 
 export default function OrganizerScanScreen() {
   const { colors } = useTheme();
@@ -77,7 +78,7 @@ export default function OrganizerScanScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
 
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
@@ -275,25 +276,26 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   header: {
     padding: 20,
     paddingTop: 16,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.background,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.borderLight,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: colors.white,
+    color: colors.text,
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: colors.white,
-    opacity: 0.9,
+    color: colors.textSecondary,
   },
   content: {
     flex: 1,
     padding: 20,
   },
   instructionsCard: {
-    backgroundColor: colors.primaryLight,
+    backgroundColor: colors.primarySoft,
     borderRadius: 12,
     padding: 20,
     alignItems: 'center',
@@ -323,14 +325,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     textTransform: 'uppercase',
   },
   selectorButton: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.lg,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   selectorContent: {
     flexDirection: 'row',
@@ -352,15 +352,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textSecondary,
   },
   noEventsCard: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.lg,
     padding: 32,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   noEventsText: {
     fontSize: 16,
@@ -374,15 +372,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   statCard: {
     flex: 1,
-    backgroundColor: colors.white,
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.lg,
     padding: 16,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   statValue: {
     fontSize: 32,
@@ -491,7 +487,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 16,
@@ -535,7 +531,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     maxHeight: '70%',
@@ -562,7 +558,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderBottomColor: colors.border,
   },
   eventItemSelected: {
-    backgroundColor: colors.primaryLight,
+    backgroundColor: colors.primarySoft,
   },
   eventItemContent: {
     flex: 1,

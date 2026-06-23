@@ -30,6 +30,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { createEvent, updateEvent } from '../../lib/api/events';
 import { getEventById } from '../../lib/api/organizer';
+import { SHADOWS, RADIUS } from '../../config/brand';
 import { db } from '../../config/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
@@ -484,7 +485,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 12,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
@@ -494,7 +495,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
   },
   progressWrapper: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
@@ -520,6 +521,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   stepCircleActive: {
     backgroundColor: colors.primary,
+    ...SHADOWS.xs,
+    shadowColor: colors.primary,
+    shadowOpacity: 0.35,
   },
   stepNumber: {
     fontSize: 14,
@@ -556,10 +560,15 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     padding: 16,
     gap: 12,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderTopColor: colors.borderLight,
     paddingBottom: Platform.OS === 'ios' ? 32 : 16,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 8,
   },
   button: {
     flex: 1,
@@ -568,13 +577,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'center',
     gap: 8,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: RADIUS.lg,
   },
   buttonFull: {
     flex: 1,
   },
   buttonSecondary: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderWidth: 2,
     borderColor: colors.primary,
   },
@@ -585,6 +594,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   buttonPrimary: {
     backgroundColor: colors.primary,
+    ...SHADOWS.floating,
   },
   buttonPrimaryText: {
     fontSize: 16,

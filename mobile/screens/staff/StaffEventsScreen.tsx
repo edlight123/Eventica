@@ -6,6 +6,7 @@ import { collectionGroup, getDoc, doc, getDocs, query, where } from 'firebase/fi
 import { db, auth } from '../../config/firebase';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useI18n } from '../../contexts/I18nContext';
+import { SHADOWS, RADIUS } from '../../config/brand';
 import { getStaffEventIds } from '../../lib/staffAssignments';
 
 type StaffMemberDoc = {
@@ -260,11 +261,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexGrow: 1,
   },
   card: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.lg,
     padding: 16,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   cardTitle: {
     fontSize: 16,

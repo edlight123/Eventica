@@ -172,13 +172,15 @@ function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
 
   return (
     <View style={[tabBarStyles.container, {
-      backgroundColor: isDark ? colors.surface : '#FFFFFF',
-      borderTopColor: colors.border,
+      backgroundColor: colors.background,
+      borderTopColor: colors.borderLight,
       paddingBottom: Platform.OS === 'ios' ? 20 : 8,
     }]}>
       {tabs.map((tab, index) => {
         const isFocused = state.index === index;
-        const scale = anims[index].interpolate({ inputRange: [0, 1], outputRange: [1, 1.12] });
+        const a = anims[index];
+        const scale = a.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] });
+        const lift = a.interpolate({ inputRange: [0, 1], outputRange: [0, -1] });
         const iconColor = isFocused ? colors.primary : colors.textSecondary;
 
         const onPress = () => {
@@ -193,21 +195,29 @@ function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
             key={tab.name}
             onPress={onPress}
             style={tabBarStyles.tab}
+            activeOpacity={0.7}
             accessibilityRole="button"
             accessibilityState={{ selected: isFocused }}
             accessibilityLabel={tab.label}
           >
-            {isFocused && (
-              <Animated.View style={[tabBarStyles.activePill, { backgroundColor: colors.primary + '18' }]} />
-            )}
-            <Animated.View style={{ transform: [{ scale }] }}>
+            {/* Crisp animated top accent indicator */}
+            <Animated.View
+              style={[
+                tabBarStyles.topAccent,
+                { backgroundColor: colors.primary, opacity: a, transform: [{ scaleX: a }] },
+              ]}
+            />
+            <Animated.View style={[tabBarStyles.iconWrap, { transform: [{ scale }, { translateY: lift }] }]}>
               <Ionicons
                 name={(isFocused ? tab.activeIcon : tab.icon) as any}
-                size={24}
+                size={25}
                 color={iconColor}
               />
             </Animated.View>
-            <Text style={[tabBarStyles.label, { color: iconColor, fontWeight: isFocused ? '700' : '400' }]}>
+            <Text
+              style={[tabBarStyles.label, { color: iconColor, fontWeight: isFocused ? '700' : '500' }]}
+              numberOfLines={1}
+            >
               {tab.label}
             </Text>
           </TouchableOpacity>
@@ -220,32 +230,36 @@ function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
 const tabBarStyles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    paddingTop: 10,
+    paddingTop: 0,
     borderTopWidth: StyleSheet.hairlineWidth,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.06,
-    shadowRadius: 8,
+    shadowRadius: 12,
     elevation: 8,
   },
   tab: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 4,
-    position: 'relative',
+    justifyContent: 'flex-start',
+    paddingTop: 7,
   },
-  activePill: {
-    position: 'absolute',
-    top: -4,
-    borderRadius: 20,
-    width: 52,
-    height: 36,
+  topAccent: {
+    width: 26,
+    height: 3,
+    borderRadius: 999,
+    marginBottom: 5,
+  },
+  iconWrap: {
+    width: 56,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   label: {
-    fontSize: 10,
-    marginTop: 3,
-    letterSpacing: 0.2,
+    fontSize: 10.5,
+    marginTop: 2,
+    letterSpacing: 0.1,
   },
 });
 

@@ -13,6 +13,7 @@ import {
   Animated,
 } from 'react-native';
 import { MapPin, X, Check } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../contexts/AuthContext';
 import { useFilters } from '../contexts/FiltersContext';
 import { getDeviceLocationInfo, COUNTRY_NAMES, DEFAULT_CITIES } from '../utils/deviceLocation';
@@ -25,6 +26,7 @@ const BANNER_DISMISSED_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days
 export default function LocationDetectionBanner() {
   const { colors } = useTheme();
   const styles = getStyles(colors);
+  const insets = useSafeAreaInsets();
   const { user, userProfile, updateUserProfile } = useAuth();
   const { userCountry, setUserCountry, applyFiltersDirectly, appliedFilters } = useFilters();
   
@@ -141,7 +143,7 @@ export default function LocationDetectionBanner() {
     <Animated.View 
       style={[
         styles.container,
-        { transform: [{ translateY: slideAnim }] }
+        { paddingTop: insets.top, transform: [{ translateY: slideAnim }] }
       ]}
     >
       <View style={styles.content}>

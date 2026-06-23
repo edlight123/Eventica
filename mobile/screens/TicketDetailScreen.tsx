@@ -639,7 +639,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 12,
   },
   cancelTransferButton: {
-    backgroundColor: '#FFF',
+    backgroundColor: colors.surface,
     padding: 12,
     borderRadius: 8,
     borderWidth: 1,
@@ -701,7 +701,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF',
+    backgroundColor: colors.surface,
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,

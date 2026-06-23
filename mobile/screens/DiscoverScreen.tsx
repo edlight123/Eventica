@@ -21,26 +21,51 @@ import { format } from 'date-fns';
 import FeaturedCarousel from '../components/FeaturedCarousel';
 import EventFiltersSheet from '../components/EventFiltersSheet';
 import EventStatusBadge from '../components/EventStatusBadge';
+import PosterEventCard from '../components/PosterEventCard';
+import EmptyState from '../components/EmptyState';
+import { PosterRailSkeleton } from '../components/Skeleton';
 import { DateChips, DateFilter } from '../components/DateChips';
 import { CategoryChips } from '../components/CategoryChips';
+import { LocationChips } from '../components/LocationChips';
 import { useFilters } from '../contexts/FiltersContext';
 import { useI18n } from '../contexts/I18nContext';
 import { getCategoryLabel } from '../lib/categories';
 import { isBudgetFriendlyTicketPrice } from '../lib/pricing';
 import { applyFilters } from '../utils/filterUtils';
-import { DEFAULT_FILTERS } from '../types/filters';
+import { DEFAULT_FILTERS, getFeaturedCities } from '../types/filters';
 import { getDateRange } from '../utils/filters';
 import { fetchFriendsGoingCounts } from '../lib/api/social';
 
 const { width } = Dimensions.get('window');
+const GRID_GAP = 12;
+const COLUMN_WIDTH = (width - 32 - GRID_GAP) / 2;
+const RAIL_WIDTH = Math.min(248, width * 0.62);
 
 const HEADER_EXPANDED_HEIGHT = 145;
 const HEADER_COLLAPSED_HEIGHT = 70;
 
+// Location matching tolerant to accents, case and "City, ST" suffixes so the
+// town rails line up with whatever string is stored on each event's `city`.
+const normalizeCity = (s: any): string =>
+  (s ?? '')
+    .toString()
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+const cityMatches = (eventCity: any, target: string): boolean => {
+  const e = normalizeCity(eventCity);
+  if (!e) return false;
+  const full = normalizeCity(target);
+  const short = normalizeCity(target.split(',')[0]);
+  return e === full || e === short || e.includes(short) || short.includes(e);
+};
+
 export default function DiscoverScreen({ navigation, route }: any) {
   const { colors } = useTheme();
   const styles = getStyles(colors);
-  const { appliedFilters, openFiltersModal, hasActiveFilters, countActiveFilters, applyFiltersDirectly, resetFilters } = useFilters();
+  const { appliedFilters, openFiltersModal, hasActiveFilters, countActiveFilters, applyFiltersDirectly, resetFilters, userCountry } = useFilters();
   const { t } = useI18n();
   
   const [allEvents, setAllEvents] = useState<any[]>([]);
@@ -55,6 +80,8 @@ export default function DiscoverScreen({ navigation, route }: any) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState<DateFilter>('any');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedCity, setSelectedCity] = useState('');
+  const [cityRails, setCityRails] = useState<{ city: string; events: any[] }[]>([]);
   
   // Animated header values
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -109,6 +136,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
         setSearchQuery('');
         setSelectedDate('any');
         setSelectedCategories([]);
+        setSelectedCity('');
         // Reset route params
         navigation.setParams({ category: undefined, trending: undefined, thisWeek: undefined });
       }
@@ -148,7 +176,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
     if (allEvents.length > 0) {
       organizeEvents();
     }
-  }, [allEvents, appliedFilters, searchQuery, selectedDate, selectedCategories, route?.params]);
+  }, [allEvents, appliedFilters, searchQuery, selectedDate, selectedCategories, selectedCity, route?.params]);
 
   const fetchEvents = async () => {
     try {
@@ -278,6 +306,11 @@ export default function DiscoverScreen({ navigation, route }: any) {
     );
   };
 
+  const filterByCity = (events: any[]) => {
+    if (!selectedCity) return events;
+    return events.filter(event => cityMatches(event.city, selectedCity));
+  };
+
   const filterByTrending = (events: any[]) => {
     return events.filter(e => (e.tickets_sold || 0) > 10);
   };
@@ -308,16 +341,25 @@ export default function DiscoverScreen({ navigation, route }: any) {
     // Apply main filters from context
     events = applyFilters(events, appliedFilters);
     console.log('[DiscoverScreen] After context filtering:', events.length, 'events');
+
+    // Graceful fallback: the auto-detected device country (e.g. "US") must never
+    // hide every event. If context filtering empties the list and the user hasn't
+    // explicitly chosen any filters, drop the silent country default and show all.
+    if (events.length === 0 && !hasActiveFilters()) {
+      events = applyFilters([...allEvents], { ...appliedFilters, country: '', city: '' });
+      console.log('[DiscoverScreen] Country fallback applied:', events.length, 'events');
+    }
     
     // Apply date and category filters
     events = filterByDate(events);
     events = filterByCategory(events);
+    events = filterByCity(events);
     console.log('[DiscoverScreen] After date/category filtering:', events.length, 'events');
     
     // Apply search filter
     events = filterBySearch(events);
 
-    const hasAnyFilters = hasActiveFilters() || searchQuery.trim() !== '' || trending || thisWeek || route?.params?.allEvents || selectedDate !== 'any' || selectedCategories.length > 0;
+    const hasAnyFilters = hasActiveFilters() || searchQuery.trim() !== '' || trending || thisWeek || route?.params?.allEvents || selectedDate !== 'any' || selectedCategories.length > 0 || selectedCity !== '';
 
     if (hasAnyFilters) {
       console.log('[DiscoverScreen] Showing filtered results:', events.length);
@@ -326,6 +368,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
       setHappeningSoonEvents([]);
       setBudgetEvents([]);
       setOnlineEvents([]);
+      setCityRails([]);
     } else {
       setFilteredEvents([]);
       
@@ -346,209 +389,76 @@ export default function DiscoverScreen({ navigation, route }: any) {
 
       const online = events.filter(e => e.event_type === 'online' || e.venue_name?.toLowerCase().includes('online')).slice(0, 6);
       setOnlineEvents(online);
+
+      // Location-first browsing: one horizontal rail per featured town that
+      // actually has events, ordered by the user's country (Haiti-first).
+      const featuredCities = getFeaturedCities(userCountry);
+      const rails = featuredCities
+        .map((city) => ({
+          city,
+          events: events.filter((e) => cityMatches(e.city, city)).slice(0, 8),
+        }))
+        .filter((rail) => rail.events.length > 0);
+      setCityRails(rails);
     }
   };
 
-  const AnimatedEventCard = ({ event, index }: { event: any; index: number }) => {
-    const scaleAnim = useRef(new Animated.Value(1)).current;
-
-    const remainingTickets = (event.total_tickets || 0) - (event.tickets_sold || 0);
-    const isSoldOut = remainingTickets <= 0 && (event.total_tickets || 0) > 0;
-    const isVIP = (event.ticket_price || 0) > 100;
-    const isTrending = (event.tickets_sold || 0) > 10;
-    const isFree = !event.ticket_price || event.ticket_price === 0;
-    const isNew = new Date(event.start_datetime).getTime() - new Date().getTime() < 7 * 24 * 60 * 60 * 1000;
-
-    const handlePressIn = () => {
-      Animated.spring(scaleAnim, {
-        toValue: 0.97,
-        useNativeDriver: true,
-      }).start();
-    };
-
-    const handlePressOut = () => {
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        friction: 3,
-        tension: 40,
-        useNativeDriver: true,
-      }).start();
-    };
-
-    return (
-      <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-        <TouchableOpacity
-          key={`${event.id}-${index}`}
-          style={[
-            styles.eventCard,
-            (isVIP || isTrending) && styles.eventCardPremium,
-          ]}
-          onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
-          onPressIn={handlePressIn}
-          onPressOut={handlePressOut}
-          activeOpacity={1}
-        >
-          {event.banner_image_url && (
-            <Image 
-              source={{ uri: event.banner_image_url }} 
-              style={styles.eventImage}
-              resizeMode="cover"
-            />
-          )}
-          
-          <View style={styles.badgesTopLeft}>
-            {event.category && (
-              <View style={styles.categoryBadgeOverlay}>
-                <Text style={styles.categoryBadgeText}>{getCategoryLabel(t, event.category)}</Text>
-              </View>
-            )}
-            {isVIP && <EventStatusBadge status="VIP" size="small" />}
-            {isTrending && <EventStatusBadge status="Trending" size="small" />}
-            {isNew && <EventStatusBadge status="New" size="small" />}
-          </View>
-
-          {isSoldOut && (
-            <View style={styles.badgesTopRight}>
-              <EventStatusBadge status="Sold Out" size="small" />
-            </View>
-          )}
-
-          <View style={styles.eventCardContent}>
-            <Text style={styles.eventTitle} numberOfLines={2}>{event.title}</Text>
-
-            {friendsGoingCounts[event.id] > 0 && (
-              <View style={styles.friendsGoingRow}>
-                <Users size={14} color={colors.primary} />
-                <Text style={styles.friendsGoingText}>
-                  {friendsGoingCounts[event.id]} {friendsGoingCounts[event.id] === 1 ? t('social.friendGoingSuffix') : t('social.friendsGoingSuffix')}
-                </Text>
-              </View>
-            )}
-            
-            <View style={styles.eventDetails}>
-              <View style={styles.eventDetailRow}>
-                <Calendar size={14} color={colors.textSecondary} />
-                <Text style={styles.eventDetailText}>
-                  {event.start_datetime && format(event.start_datetime, 'MMM dd, yyyy')}
-                </Text>
-              </View>
-              <View style={styles.eventDetailRow}>
-                <MapPin size={14} color={colors.textSecondary} />
-                <Text style={styles.eventDetailText} numberOfLines={1}>
-                  {event.venue_name}
-                </Text>
-              </View>
-            </View>
-            
-            <View style={styles.eventFooter}>
-              {!isFree && event.ticket_price > 0 ? (
-                <Text style={styles.eventPrice}>
-                  {event.currency || 'HTG'} {event.ticket_price.toLocaleString()}
-                </Text>
-              ) : (
-                <View style={styles.freeBadge}>
-                  <Text style={styles.freeBadgeText}>{t('common.free').toUpperCase()}</Text>
-                </View>
-              )}
-            </View>
-          </View>
-        </TouchableOpacity>
-      </Animated.View>
-    );
-  };
-
   const renderEventCard = (event: any, index: number) => (
-    <AnimatedEventCard event={event} index={index} key={`${event.id}-${index}`} />
+    <PosterEventCard
+      key={`${event.id}-${index}`}
+      event={event}
+      width={COLUMN_WIDTH}
+      friendsGoing={friendsGoingCounts[event.id]}
+      onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
+    />
   );
 
-  const renderSection = (title: string, subtitle: string, emoji: string, events: any[]) => {
+  const renderSection = (title: string, subtitle: string, emoji: string, events: any[], onSeeAll?: () => void) => {
     if (events.length === 0) return null;
 
     return (
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>{emoji} {title}</Text>
-          <Text style={styles.sectionSubtitle}>{subtitle}</Text>
+          <View style={styles.sectionHeaderText}>
+            <Text style={styles.sectionTitle}>{emoji} {title}</Text>
+            <Text style={styles.sectionSubtitle}>{subtitle}</Text>
+          </View>
+          {onSeeAll && (
+            <TouchableOpacity
+              onPress={onSeeAll}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Text style={styles.seeAllText}>{t('discover.seeAll')}</Text>
+            </TouchableOpacity>
+          )}
         </View>
         <ScrollView 
           horizontal 
           showsHorizontalScrollIndicator={false}
           style={styles.horizontalScrollView}
           contentContainerStyle={styles.carouselContent}
+          snapToInterval={RAIL_WIDTH + 14}
+          decelerationRate="fast"
         >
-          {events.slice(0, 8).map((event, index) => renderEventCardHorizontal(event, index))}
+          {events.slice(0, 8).map((event, index) => (
+            <PosterEventCard
+              key={`${event.id}-${index}`}
+              event={event}
+              width={RAIL_WIDTH}
+              friendsGoing={friendsGoingCounts[event.id]}
+              onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
+            />
+          ))}
         </ScrollView>
       </View>
     );
   };
 
-  const renderEventCardHorizontal = (event: any, index: number) => (
-    <TouchableOpacity
-      key={`${event.id}-${index}`}
-      style={styles.carouselCard}
-      onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
-      activeOpacity={0.9}
-    >
-      {event.banner_image_url && (
-        <Image 
-          source={{ uri: event.banner_image_url }} 
-          style={styles.carouselImage}
-          resizeMode="cover"
-        />
-      )}
-      
-      {event.category && (
-        <View style={styles.carouselCategoryBadge}>
-          <Text style={styles.categoryBadgeText}>{getCategoryLabel(t, event.category)}</Text>
-        </View>
-      )}
-
-      <View style={styles.carouselCardContent}>
-        <Text style={styles.carouselTitle} numberOfLines={2}>{event.title}</Text>
-
-        {friendsGoingCounts[event.id] > 0 && (
-          <View style={styles.friendsGoingRow}>
-            <Users size={12} color={colors.primary} />
-            <Text style={styles.friendsGoingTextSmall}>
-              {friendsGoingCounts[event.id]} {friendsGoingCounts[event.id] === 1 ? t('social.friend') : t('social.friends')}
-            </Text>
-          </View>
-        )}
-        
-        <View style={styles.carouselDetails}>
-          <View style={styles.carouselDetailRow}>
-            <Calendar size={12} color={colors.textSecondary} />
-            <Text style={styles.carouselDetailText}>
-              {event.start_datetime && format(event.start_datetime, 'MMM dd')}
-            </Text>
-          </View>
-          <View style={styles.carouselDetailRow}>
-            <MapPin size={12} color={colors.textSecondary} />
-            <Text style={styles.carouselDetailText} numberOfLines={1}>
-              {event.city}
-            </Text>
-          </View>
-        </View>
-        
-        <View style={styles.carouselFooter}>
-          {event.ticket_price > 0 ? (
-            <Text style={styles.carouselPrice}>
-              {event.currency || 'HTG'} {event.ticket_price.toLocaleString()}
-            </Text>
-          ) : (
-            <View style={styles.carouselFreeBadge}>
-              <Text style={styles.carouselFreeBadgeText}>{t('common.free').toUpperCase()}</Text>
-            </View>
-          )}
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-
   const getFilterTitle = () => {
     const { trending, thisWeek } = route?.params || {};
     if (trending) return t('discover.filterTitles.trending');
     if (thisWeek) return t('discover.filterTitles.thisWeek');
+    if (selectedCity) return `${t('discover.inArea')} ${selectedCity}`;
     if (searchQuery.trim()) return t('discover.filterTitles.search');
     if (hasActiveFilters()) return t('discover.filterTitles.filtered');
     return null;
@@ -563,13 +473,15 @@ export default function DiscoverScreen({ navigation, route }: any) {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
+      <View style={[styles.container, { paddingTop: 120 }]}>
+        <PosterRailSkeleton />
+        <View style={{ height: 28 }} />
+        <PosterRailSkeleton />
       </View>
     );
   }
 
-  const hasAnyFilters = hasActiveFilters() || searchQuery.trim() !== '' || route?.params?.trending || route?.params?.thisWeek || route?.params?.allEvents || selectedDate !== 'any' || selectedCategories.length > 0;
+  const hasAnyFilters = hasActiveFilters() || searchQuery.trim() !== '' || route?.params?.trending || route?.params?.thisWeek || route?.params?.allEvents || selectedDate !== 'any' || selectedCategories.length > 0 || selectedCity !== '';
 
   return (
     <View style={styles.container}>
@@ -670,6 +582,16 @@ export default function DiscoverScreen({ navigation, route }: any) {
           />
         }
       >
+        {/* Where Chips - location-first browsing (primary discovery axis) */}
+        <View style={styles.chipsSection}>
+          <Text style={styles.chipsSectionTitle}>{t('discover.where').toUpperCase()}</Text>
+          <LocationChips
+            cities={getFeaturedCities(userCountry)}
+            selectedCity={selectedCity}
+            onSelectCity={setSelectedCity}
+          />
+        </View>
+
         {/* When Chips - Between search and featured */}
         <View style={styles.chipsSection}>
           <Text style={styles.chipsSectionTitle}>{t('discover.when').toUpperCase()}</Text>
@@ -716,29 +638,38 @@ export default function DiscoverScreen({ navigation, route }: any) {
               <Text style={styles.sectionSubtitle}>{getFilterSubtitle()}</Text>
             </View>
             {filteredEvents.length === 0 ? (
-              <View style={styles.emptyState}>
-                <Text style={styles.emptyIcon}>🔍</Text>
-                <Text style={styles.emptyTitle}>{t('discover.noEventsFound')}</Text>
-                <Text style={styles.emptyText}>
-                  {t('discover.tryAdjusting')}
-                </Text>
-              </View>
+              <EmptyState
+                emoji="🔍"
+                title={t('discover.noEventsFound')}
+                subtitle={t('discover.tryAdjusting')}
+              />
             ) : (
-              filteredEvents.map((event, index) => renderEventCard(event, index))
+              <View style={styles.resultsGrid}>
+                {filteredEvents.map((event, index) => renderEventCard(event, index))}
+              </View>
             )}
           </View>
         ) : (
           <>
+            {cityRails.map((rail) =>
+              renderSection(
+                rail.city,
+                t('discover.cityRailSubtitle'),
+                '📍',
+                rail.events,
+                () => setSelectedCity(rail.city)
+              )
+            )}
             {renderSection(t('discover.sections.happeningSoonTitle'), t('discover.sections.happeningSoonSubtitle'), '🔥', happeningSoonEvents)}
             {renderSection(t('discover.sections.budgetTitle'), t('discover.sections.budgetSubtitle'), '💰', budgetEvents)}
             {renderSection(t('discover.sections.onlineTitle'), t('discover.sections.onlineSubtitle'), '💻', onlineEvents)}
             
             {happeningSoonEvents.length === 0 && budgetEvents.length === 0 && onlineEvents.length === 0 && (
-              <View style={styles.emptyState}>
-                <Text style={styles.emptyIcon}>📅</Text>
-                <Text style={styles.emptyTitle}>{t('discover.noEventsAvailable')}</Text>
-                <Text style={styles.emptyText}>{t('discover.checkBackSoon')}</Text>
-              </View>
+              <EmptyState
+                emoji="📅"
+                title={t('discover.noEventsAvailable')}
+                subtitle={t('discover.checkBackSoon')}
+              />
             )}
           </>
         )}
@@ -754,6 +685,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     backgroundColor: colors.background,
   },
+  resultsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: GRID_GAP,
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -761,15 +697,15 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.background,
   },
   animatedHeader: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
     paddingHorizontal: 16,
     paddingTop: 50,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: colors.borderLight,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
+    shadowRadius: 8,
     elevation: 4,
     zIndex: 10,
   },
@@ -795,8 +731,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.background,
-    borderRadius: 12,
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
     paddingHorizontal: 12,
     paddingVertical: 12,
     gap: 8,
@@ -807,8 +745,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
   },
   filterButton: {
-    backgroundColor: colors.background,
-    borderRadius: 12,
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
     padding: 12,
     position: 'relative',
   },
@@ -840,7 +780,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.primaryLight + '20',
-    borderRadius: 20,
+    borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 6,
     marginRight: 8,
@@ -867,7 +807,19 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 16,
   },
   sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
     marginBottom: 16,
+  },
+  sectionHeaderText: {
+    flex: 1,
+  },
+  seeAllText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.primary,
+    marginLeft: 12,
   },
   sectionTitle: {
     fontSize: 20,

@@ -28,7 +28,6 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(getTimeLeft(targetDate));
 
   useEffect(() => {
-  const { colors } = useTheme();
     const interval = setInterval(() => {
       setTimeLeft(getTimeLeft(targetDate));
     }, 1000);

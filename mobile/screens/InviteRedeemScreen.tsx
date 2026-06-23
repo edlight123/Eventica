@@ -10,6 +10,7 @@ import { deleteStaffInviteNotificationsByEvent, deleteStaffInviteNotificationsBy
 import { addStaffEventId } from '../lib/staffAssignments'
 import { backendJson } from '../lib/api/backend'
 import { useTheme } from '../contexts/ThemeContext';
+import { SHADOWS } from '../config/brand';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'InviteRedeem'>
 
@@ -111,7 +112,7 @@ export default function InviteRedeemScreen({ route, navigation }: Props) {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background || '#fff' }}>
       <View style={{ flex: 1, padding: 20, justifyContent: 'center' }}>
-        <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#E5E7EB' }}>
+        <View style={{ backgroundColor: colors.surface, borderRadius: 16, padding: 20, borderWidth: 1, borderColor: colors.borderLight, ...SHADOWS.card }}>
           <Text style={{ fontSize: 22, fontWeight: '700', color: colors.text, marginBottom: 8 }}>
             Accept Staff Invite
           </Text>
@@ -125,7 +126,7 @@ export default function InviteRedeemScreen({ route, navigation }: Props) {
               <Text style={{ color: colors.textSecondary }}>{message}</Text>
             </View>
           ) : (
-            <Text style={{ color: status === 'error' ? '#B91C1C' : colors.textSecondary, marginBottom: 16 }}>{message}</Text>
+            <Text style={{ color: status === 'error' ? colors.error : colors.textSecondary, marginBottom: 16 }}>{message}</Text>
           )}
 
           {!user && (
@@ -144,7 +145,7 @@ export default function InviteRedeemScreen({ route, navigation }: Props) {
                 setMessage('')
                 // trigger effect by navigating to same route? simplest: just re-run by setting message; user can reopen link.
               }}
-              style={{ marginTop: 10, paddingVertical: 10, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: '#E5E7EB' }}
+              style={{ marginTop: 10, paddingVertical: 10, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: colors.border }}
             >
               <Text style={{ color: colors.text, fontWeight: '600' }}>Close</Text>
             </TouchableOpacity>

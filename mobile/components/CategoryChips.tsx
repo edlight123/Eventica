@@ -90,7 +90,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 6,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: 8,
     backgroundColor: colors.background,
     borderWidth: 1,
     borderColor: colors.border,

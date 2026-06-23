@@ -1,28 +1,30 @@
 /**
- * Badge theme configuration matching PWA design
- * Colors and gradients from the web app's Badge component
+ * Badge theme configuration matching the web design system.
+ * De-rainbowed: VIP / Trending / New all live in the brand teal family so a
+ * grid of badges feels premium and cohesive (never rainbow). Semantic red /
+ * amber are kept only where they carry meaning (sold out / last chance).
  */
 
 export const BADGE_COLORS = {
   vip: {
-    gradient: ['#8B5CF6', '#EC4899'] as const, // purple to pink
+    gradient: ['#115E59', '#042F2C'] as const, // deep premium teal
     text: '#FFFFFF',
-    shadow: 'rgba(139, 92, 246, 0.3)',
+    shadow: 'rgba(17, 94, 89, 0.35)',
   },
   trending: {
-    gradient: ['#F97316', '#EF4444'] as const, // orange to red
+    gradient: ['#14B8A6', '#0D9488'] as const, // bright teal
     text: '#FFFFFF',
-    shadow: 'rgba(249, 115, 22, 0.3)',
+    shadow: 'rgba(13, 148, 136, 0.32)',
   },
   new: {
-    gradient: ['#3B82F6', '#06B6D4'] as const, // blue to cyan
-    text: '#FFFFFF',
-    shadow: 'rgba(59, 130, 246, 0.3)',
+    gradient: ['#2DD4BF', '#14B8A6'] as const, // mint → teal
+    text: '#053B36',
+    shadow: 'rgba(45, 212, 191, 0.32)',
   },
   free: {
-    background: '#ECFDF5',
-    text: '#047857',
-    border: '#A7F3D0',
+    background: '#F0FDFA',
+    text: '#0F766E',
+    border: '#99F6E4',
   },
   soldOut: {
     background: '#FEF2F2',

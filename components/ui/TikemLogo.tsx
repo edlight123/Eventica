@@ -4,9 +4,10 @@ import React from 'react'
 export const TIKEM_ACCENT = '#F2B705'
 
 /**
- * Tikèm wordmark in the brand display serif (Instrument Serif, same as the
- * homepage) with an accent-colored "è". Base color is inherited (set via
- * className/style) so it works on light and dark surfaces.
+ * tikèm wordmark in the brand display serif (Instrument Serif, same as the
+ * homepage) with an accent-colored "è". Rendered all lowercase to match the
+ * app. Base color is inherited (set via className/style) so it works on light
+ * and dark surfaces.
  */
 export function TikemWordmark({
   className = '',
@@ -16,8 +17,8 @@ export function TikemWordmark({
   style?: React.CSSProperties
 }) {
   return (
-    <span className={`font-display leading-none tracking-tight ${className}`} style={style}>
-      Tik<span style={{ color: TIKEM_ACCENT }}>è</span>m
+    <span className={`font-display lowercase leading-none tracking-tight ${className}`} style={style}>
+      tik<span style={{ color: TIKEM_ACCENT }}>è</span>m
     </span>
   )
 }

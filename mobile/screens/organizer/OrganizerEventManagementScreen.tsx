@@ -25,6 +25,9 @@ import {
   cancelEvent,
 } from '../../lib/api/events';
 import { useI18n } from '../../contexts/I18nContext';
+import { SHADOWS, RADIUS } from '../../config/brand';
+import { LinearGradient } from 'expo-linear-gradient';
+import { getPosterTheme } from '../../lib/posterGradient';
 
 type RouteParams = {
   OrganizerEventManagement: {
@@ -235,6 +238,12 @@ export default function OrganizerEventManagementScreen() {
 
       {/* Header with background image */}
       <View style={styles.header}>
+        <LinearGradient
+          colors={getPosterTheme(event.id || event.title, (event as any).category).colors}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.backgroundImage}
+        />
         {event.cover_image_url && (
           <Image 
             source={{ uri: event.cover_image_url }} 
@@ -471,16 +480,14 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   actionCard: {
     width: '48%',
-    backgroundColor: colors.white,
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.lg,
     padding: 16,
     margin: '1%',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   actionText: {
     fontSize: 14,
@@ -490,15 +497,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     textAlign: 'center',
   },
   performanceCard: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.lg,
     padding: 16,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   performanceHeader: {
     flexDirection: 'row',
@@ -534,14 +539,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     textAlign: 'right',
   },
   ticketBreakdown: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.lg,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   breakdownTitle: {
     fontSize: 14,
@@ -581,15 +584,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   controlButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: RADIUS.lg,
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...SHADOWS.xs,
   },
   controlButtonText: {
     flex: 1,

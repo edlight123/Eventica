@@ -43,6 +43,7 @@ import TicketAvailabilityBar from '../components/TicketAvailabilityBar';
 import PaymentModal from '../components/PaymentModal';
 import TieredTicketSelector from '../components/TieredTicketSelector';
 import { getCategoryLabel } from '../lib/categories';
+import { getPosterTheme } from '../lib/posterGradient';
 import FreeTicketModal from '../components/FreeTicketModal';
 import AddToCalendarButton from '../components/AddToCalendarButton';
 import JoinWaitlistButton from '../components/JoinWaitlistButton';
@@ -322,32 +323,31 @@ export default function EventDetailScreen({ route, navigation }: any) {
         )}
         scrollEventThrottle={16}
       >
-        {/* Hero Image with Overlay Title & Actions */}
+        {/* Poster — clean image on top; content sits underneath (text-first) */}
         <View style={styles.heroContainer}>
-          {(event.banner_image_url || event.cover_image_url) ? (
+          <LinearGradient
+            colors={getPosterTheme(event.id || event.title, event.category).colors}
+            start={{ x: 0.1, y: 0 }}
+            end={{ x: 0.9, y: 1 }}
+            style={styles.heroImage}
+          />
+          {(event.banner_image_url || event.cover_image_url) && (
             <Image 
               source={{ uri: event.banner_image_url || event.cover_image_url }} 
-              style={styles.heroImage}
+              style={[styles.heroImage, styles.heroImageAbsolute]}
               resizeMode="cover"
             />
-          ) : (
-            <View style={styles.heroPlaceholder}>
-              <Tag size={48} color={colors.primary + '40'} />
-            </View>
           )}
-          
-          {/* Dark Gradient Overlay - Bottom */}
+
+          {/* Subtle top scrim only — keeps the action buttons legible */}
           <LinearGradient
-            colors={['transparent', 'rgba(0,0,0,0.8)']}
-            style={styles.heroGradient}
+            colors={['rgba(0,0,0,0.5)', 'transparent']}
+            style={styles.heroTopScrim}
           />
-          
+
           {/* Top Right Actions: Share & Save */}
-          <View style={styles.heroActions}>
-            <TouchableOpacity
-              style={styles.iconButton}
-              onPress={handleShare}
-            >
+          <View style={[styles.heroActions, { top: insets.top + 8 }]}>
+            <TouchableOpacity style={styles.iconButton} onPress={handleShare}>
               <Share2 size={20} color="#FFF" />
             </TouchableOpacity>
             <TouchableOpacity
@@ -362,96 +362,77 @@ export default function EventDetailScreen({ route, navigation }: any) {
               />
             </TouchableOpacity>
           </View>
-          
-          {/* Bottom Left: Badges + Title */}
-          <View style={styles.heroOverlay}>
-            {/* Badges Row */}
-            <View style={styles.heroBadges}>
-              <View style={styles.categoryBadgeHero}>
-                <Text style={styles.categoryTextHero}>{getCategoryLabel(t, event.category)}</Text>
-              </View>
+        </View>
+
+        <View style={styles.content}>
+          {/* Title block — text-first, under the poster */}
+          <Text style={styles.eyebrow}>
+            {getCategoryLabel(t, event.category)}
+            {event.start_datetime ? `   ·   ${format(event.start_datetime, 'EEE, MMM d')}` : ''}
+          </Text>
+          <Text style={styles.title}>{event.title}</Text>
+          {(isVIP || isTrending || isSoldOut || selloutSoon) && (
+            <View style={styles.badgeRow}>
               {isVIP && <EventStatusBadge status="VIP" size="small" />}
               {isTrending && <EventStatusBadge status="Trending" size="small" />}
               {isSoldOut && <EventStatusBadge status="Sold Out" size="small" />}
               {selloutSoon && !isSoldOut && <EventStatusBadge status="Last Chance" size="small" />}
             </View>
-            
-            {/* Event Title - 2 lines max */}
-            <Text style={styles.heroTitle} numberOfLines={2}>
-              {event.title}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.content}>
-          {/* Event Details Section */}
-          <Text style={styles.sectionTitleMain}>{t('eventDetail.sections.details')}</Text>
+          )}
 
           {/* Countdown to event */}
           {event.start_datetime && new Date(event.start_datetime) > new Date() && (
             <CountdownTimer targetDate={new Date(event.start_datetime)} />
           )}
-          
-          <View style={styles.infoCards}>
-            {/* Date & Time Card */}
-            <View style={styles.infoCard}>
-              <View style={[styles.infoCardIcon, { backgroundColor: '#F59E0B' }]}>
-                <Calendar size={20} color="#FFF" />
-              </View>
-              <View style={styles.infoCardContent}>
-                <Text style={styles.infoCardLabel}>{t('eventDetail.labels.dateTime')}</Text>
-                <Text style={styles.infoCardValue}>
-                  {event.start_datetime && format(event.start_datetime, 'MMM d, yyyy')}
+
+          {/* Key facts — clean text rows, no tiles or fills */}
+          <View style={styles.factList}>
+            <View style={styles.factRow}>
+              <Calendar size={18} color={colors.primary} />
+              <View style={styles.factText}>
+                <Text style={styles.factValue}>
+                  {event.start_datetime && format(event.start_datetime, 'EEEE, MMMM d, yyyy')}
                 </Text>
-                <Text style={styles.infoCardSubvalue}>
+                <Text style={styles.factSub}>
                   {event.start_datetime && format(event.start_datetime, 'h:mm a')}
-                  {event.end_datetime && ` - ${format(event.end_datetime, 'h:mm a')}`}
+                  {event.end_datetime && ` – ${format(event.end_datetime, 'h:mm a')}`}
                 </Text>
               </View>
             </View>
 
-            {/* Location Card with Map Link */}
-            <TouchableOpacity 
-              style={styles.infoCard}
-              onPress={openInMaps}
-              activeOpacity={0.7}
-            >
-              <View style={[styles.infoCardIcon, { backgroundColor: colors.primary }]}>
-                <MapPin size={20} color="#FFF" />
-              </View>
-              <View style={styles.infoCardContent}>
-                <Text style={styles.infoCardLabel}>{t('eventDetail.labels.location')}</Text>
-                <Text style={styles.infoCardValue}>{event.venue_name}</Text>
-                <Text style={styles.infoCardSubvalue}>
+            <View style={styles.factDivider} />
+
+            <TouchableOpacity style={styles.factRow} onPress={openInMaps} activeOpacity={0.6}>
+              <MapPin size={18} color={colors.primary} />
+              <View style={styles.factText}>
+                <Text style={styles.factValue}>{event.venue_name}</Text>
+                <Text style={styles.factSub}>
                   {event.address || ''}{event.address && ', '}{event.city}
                 </Text>
               </View>
-              <ExternalLink size={16} color={colors.primary} />
+              <ExternalLink size={15} color={colors.textSecondary} />
             </TouchableOpacity>
 
-            {/* Tickets Availability Card with Progress Bar */}
             {(event.total_tickets > 0) && (
-              <View style={styles.infoCard}>
-                <View style={[styles.infoCardIcon, { backgroundColor: '#8B5CF6' }]}>
-                  <Users size={20} color="#FFF" />
-                </View>
-                <View style={[styles.infoCardContent, { flex: 1 }]}>
-                  <Text style={styles.infoCardLabel}>{t('eventDetail.labels.ticketAvailability')}</Text>
-                  <Text style={styles.ticketsAvailable}>
-                    <Text style={styles.ticketsAvailableBold}>
+              <>
+                <View style={styles.factDivider} />
+                <View style={styles.factRow}>
+                  <Users size={18} color={colors.primary} />
+                  <View style={[styles.factText, { flex: 1 }]}>
+                    <Text style={styles.factValue}>
                       {remainingTickets} {t('eventDetail.tickets.available')}
                     </Text>
-                  </Text>
-                  <Text style={styles.ticketsSold}>
-                    {event.tickets_sold || 0} / {event.total_tickets} {t('common.sold')}
-                  </Text>
-                  <TicketAvailabilityBar
-                    totalTickets={event.total_tickets}
-                    ticketsSold={event.tickets_sold || 0}
-                    style={{ marginTop: 8 }}
-                  />
+                    <Text style={styles.factSub}>
+                      {event.tickets_sold || 0} / {event.total_tickets} {t('common.sold')}
+                    </Text>
+                    <TicketAvailabilityBar
+                      totalTickets={event.total_tickets}
+                      ticketsSold={event.tickets_sold || 0}
+                      style={{ marginTop: 8 }}
+                    />
+                  </View>
                 </View>
-              </View>
+              </>
             )}
           </View>
 
@@ -520,7 +501,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
                   </Text>
                   {(event.users?.is_verified || event.is_verified) && (
                     <View style={styles.verifiedBadgeInline}>
-                      <Shield size={12} color="#3B82F6" />
+                      <Shield size={12} color={colors.primary} />
                       <Text style={styles.verifiedTextInline}>{t('eventDetail.verified')}</Text>
                     </View>
                   )}
@@ -726,7 +707,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.background,
   },
   scrollView: {
     flex: 1,
@@ -765,11 +746,17 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   heroContainer: {
     position: 'relative',
     width: width,
-    height: 320,
+    height: 380,
+    backgroundColor: colors.surfaceMuted,
   },
   heroImage: {
     width: '100%',
     height: '100%',
+  },
+  heroImageAbsolute: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
   },
   heroPlaceholder: {
     width: '100%',
@@ -778,12 +765,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'center',
     alignItems: 'center',
   },
-  heroGradient: {
+  heroTopScrim: {
     position: 'absolute',
-    bottom: 0,
+    top: 0,
     left: 0,
     right: 0,
-    height: 180,
+    height: 130,
   },
   
   // Top Right Actions (Share & Save)
@@ -837,9 +824,59 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     textShadowRadius: 8,
   },
 
-  // Content Area
+  // Content Area — text-first
   content: {
-    padding: 16,
+    paddingHorizontal: 18,
+    paddingTop: 18,
+  },
+  eyebrow: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.primary,
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    marginBottom: 8,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: colors.text,
+    lineHeight: 34,
+    letterSpacing: -0.4,
+  },
+  badgeRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 12,
+  },
+  factList: {
+    marginTop: 18,
+    marginBottom: 4,
+  },
+  factRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 14,
+    paddingVertical: 14,
+  },
+  factText: {
+    flex: 1,
+    gap: 2,
+  },
+  factValue: {
+    fontSize: 15.5,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  factSub: {
+    fontSize: 13.5,
+    color: colors.textSecondary,
+    lineHeight: 19,
+  },
+  factDivider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: colors.borderLight,
   },
   sectionTitleMain: {
     fontSize: 22,
@@ -915,12 +952,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
 
   // Sections
   section: {
-    backgroundColor: colors.surface,
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
+    paddingVertical: 22,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.borderLight,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -962,8 +996,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   tag: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: colors.primary + '15',
     borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   tagText: {
     fontSize: 13,
@@ -1007,7 +1042,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   verifiedTextInline: {
     fontSize: 12,
-    color: '#3B82F6',
+    color: '#0F766E',
     fontWeight: '500',
   },
   viewProfileButton: {
@@ -1106,18 +1141,17 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     position: 'absolute',
     left: 16,
     right: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.94)',
+    backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
     borderRadius: 24,
     paddingHorizontal: 16,
     paddingVertical: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.4,
     shadowRadius: 16,
     elevation: 12,
-    ...(Platform.OS === 'ios' && {
-      backdropFilter: 'blur(10px)',
-    }),
   },
   floatingContent: {
     flexDirection: 'row',

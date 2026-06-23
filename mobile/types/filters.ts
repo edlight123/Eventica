@@ -137,6 +137,52 @@ export function getCitiesForCountry(countryCode: string): string[] {
   return CITIES_BY_COUNTRY[countryCode] || CITIES_BY_COUNTRY['HT']
 }
 
+// ---------------------------------------------------------------------------
+// Featured locations for quick browsing.
+// Location — not category — is how people actually discover nearby events
+// (someone in Pétion-Ville mostly wants events in Pétion-Ville). So we surface
+// the main towns per country and prioritise the user's own country first.
+// These names must match the `city` values stored on events.
+// ---------------------------------------------------------------------------
+export const FEATURED_CITIES_BY_COUNTRY: Record<string, string[]> = {
+  'HT': [
+    'Pétion-Ville',
+    'Port-au-Prince',
+    'Cap-Haïtien',
+    'Jacmel',
+    'Les Cayes',
+    'Gonaïves',
+  ],
+  'US': [
+    'Miami, FL',
+    'New York, NY',
+    'Boston, MA',
+    'Atlanta, GA',
+    'Orlando, FL',
+  ],
+  'CA': [
+    'Montreal, QC',
+    'Toronto, ON',
+    'Ottawa, ON',
+  ],
+  'FR': [
+    'Paris',
+    'Lyon',
+    'Marseille',
+  ],
+  'DO': [
+    'Santo Domingo',
+    'Santiago',
+    'Punta Cana',
+  ],
+}
+
+// Curated featured cities for a country (falls back to Haiti's main towns).
+export function getFeaturedCities(countryCode: string = 'HT'): string[] {
+  return FEATURED_CITIES_BY_COUNTRY[countryCode] || FEATURED_CITIES_BY_COUNTRY['HT']
+}
+
+
 // Currency configuration by country
 export const CURRENCY_BY_COUNTRY: Record<string, { code: string; symbol: string; budgetThreshold: number }> = {
   'HT': { code: 'HTG', symbol: 'HTG', budgetThreshold: 500 },

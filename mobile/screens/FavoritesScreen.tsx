@@ -13,13 +13,16 @@ import {
   StatusBar
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Calendar, MapPin, Heart, Share2, Ticket } from 'lucide-react-native';
+import { Calendar, MapPin, Heart, Share2, Ticket, Compass } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { collection, query, where, getDocs, addDoc, deleteDoc, doc, getDocs as getDocsFirestore } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { getCategoryLabel } from '../lib/categories';
+import { getPosterTheme } from '../lib/posterGradient';
 import { useTheme } from '../contexts/ThemeContext';
+import EmptyState from '../components/EmptyState';
 import { format } from 'date-fns';
 
 export default function FavoritesScreen({ navigation }: any) {
@@ -142,9 +145,11 @@ export default function FavoritesScreen({ navigation }: any) {
   if (!user) {
     return (
       <View style={styles.emptyContainer}>
-        <Heart size={64} color={colors.textSecondary} />
-        <Text style={styles.emptyTitle}>{t('auth.loginRequiredTitle')}</Text>
-        <Text style={styles.emptyText}>{t('favorites.loginRequiredBody')}</Text>
+        <EmptyState
+          icon={Heart}
+          title={t('auth.loginRequiredTitle')}
+          subtitle={t('favorites.loginRequiredBody')}
+        />
       </View>
     );
   }
@@ -171,19 +176,13 @@ export default function FavoritesScreen({ navigation }: any) {
         }
       >
         {favoriteEvents.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Heart size={64} color={colors.textSecondary} />
-            <Text style={styles.emptyTitle}>{t('favorites.emptyTitle')}</Text>
-            <Text style={styles.emptyText}>
-              {t('favorites.emptyBody')}
-            </Text>
-            <TouchableOpacity
-              style={styles.exploreButton}
-              onPress={() => navigation.navigate('Discover')}
-            >
-              <Text style={styles.exploreButtonText}>{t('favorites.explore')}</Text>
-            </TouchableOpacity>
-          </View>
+          <EmptyState
+            icon={Heart}
+            title={t('favorites.emptyTitle')}
+            subtitle={t('favorites.emptyBody')}
+            actionLabel={t('favorites.explore')}
+            onAction={() => navigation.navigate('Discover')}
+          />
         ) : (
           favoriteEvents.map(event => (
             <TouchableOpacity
@@ -191,14 +190,22 @@ export default function FavoritesScreen({ navigation }: any) {
               style={styles.eventCard}
               onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
             >
-              {/* Event Image */}
-              {(event.banner_image_url || event.cover_image_url) && (
-                <Image
-                  source={{ uri: event.banner_image_url || event.cover_image_url }}
-                  style={styles.eventImage}
-                  resizeMode="cover"
+              {/* Event Image with poster gradient fallback */}
+              <View style={styles.eventImage}>
+                <LinearGradient
+                  colors={getPosterTheme(event.id || event.title, event.category).colors}
+                  start={{ x: 0.1, y: 0 }}
+                  end={{ x: 0.9, y: 1 }}
+                  style={StyleSheet.absoluteFill}
                 />
-              )}
+                {(event.banner_image_url || event.cover_image_url) && (
+                  <Image
+                    source={{ uri: event.banner_image_url || event.cover_image_url }}
+                    style={StyleSheet.absoluteFill}
+                    resizeMode="cover"
+                  />
+                )}
+              </View>
 
               {/* Category Badge */}
               {event.category && (

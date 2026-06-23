@@ -18,6 +18,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { db } from '../../config/firebase'
 import { backendJson } from '../../lib/api/backend'
 import { useI18n } from '../../contexts/I18nContext'
+import { SHADOWS } from '../../config/brand'
 import { useAuth } from '../../contexts/AuthContext'
 
 type RouteParams = {
@@ -470,12 +471,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   emptyText: { color: colors.textSecondary },
 
   card: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 12,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   cardRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   cardTextWrap: { flex: 1 },
@@ -500,7 +502,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   modalCard: {
     width: '100%',
     maxWidth: 520,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 16,
     padding: 16,
   },

@@ -21,21 +21,27 @@ import { useI18n } from '../contexts/I18nContext';
 import { useFilters } from '../contexts/FiltersContext';
 import { BRAND } from '../config/brand';
 import { useTheme } from '../contexts/ThemeContext';
-import { Bell, Users } from 'lucide-react-native';
+import { COUNTRY_NAMES } from '../utils/deviceLocation';
+import { Bell, Users, MapPin, ChevronDown } from 'lucide-react-native';
 import FeaturedCarousel from '../components/FeaturedCarousel';
 import LocationDetectionBanner from '../components/LocationDetectionBanner';
+import LocationPickerSheet from '../components/LocationPickerSheet';
+import { DEFAULT_FILTERS } from '../types/filters';
 
-import CategoryGrid from '../components/CategoryGrid';
+import CategoryRail from '../components/CategoryRail';
 import TrendingSection from '../components/TrendingSection';
 import ThisWeekSection from '../components/ThisWeekSection';
 import AllEventsPreview from '../components/AllEventsPreview';
+import SectionHeader from '../components/SectionHeader';
+import EmptyState from '../components/EmptyState';
+import { Skeleton, PosterRailSkeleton } from '../components/Skeleton';
 
 export default function HomeScreen({ navigation }: any) {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const styles = getStyles(colors);
   const { user, userProfile } = useAuth();
   const { t } = useI18n();
-  const { userCountry } = useFilters();
+  const { userCountry, applyFiltersDirectly } = useFilters();
   const insets = useSafeAreaInsets();
   const [events, setEvents] = useState<any[]>([]);
   const [featuredEvents, setFeaturedEvents] = useState<any[]>([]);
@@ -43,6 +49,8 @@ export default function HomeScreen({ navigation }: any) {
   const [thisWeekEvents, setThisWeekEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [locationSheetOpen, setLocationSheetOpen] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const scrollViewRef = React.useRef<ScrollView>(null);
 
   const headerTranslateY = useRef(new Animated.Value(0)).current;
@@ -250,20 +258,26 @@ export default function HomeScreen({ navigation }: any) {
     navigation.navigate('Discover', { allEvents: true, timestamp: Date.now() });
   };
 
+  const locationLabel =
+    selectedLocation || userProfile?.default_city || COUNTRY_NAMES[userCountry] || 'Haiti';
+
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={colors.background}
+      />
       
       {/* Location Detection Banner */}
       <LocationDetectionBanner />
 
-      {/* Compact Header */}
+      {/* Floating brand + location header */}
       <Animated.View
         style={[
           styles.header,
           {
             transform: [{ translateY: headerTranslateY }],
-            paddingTop: insets.top + 8,
+            paddingTop: insets.top + 10,
           },
         ]}
         onLayout={(e) => {
@@ -276,11 +290,25 @@ export default function HomeScreen({ navigation }: any) {
       >
         <View style={styles.headerLeft}>
           <Image
-            source={require('../assets/tikem_logo_white.png')}
-            style={styles.logo}
+            source={
+              isDark
+                ? require('../assets/tikem_wordmark_dark.png')
+                : require('../assets/tikem_wordmark_light.png')
+            }
+            style={styles.wordmark}
             resizeMode="contain"
           />
-          <Text style={styles.logoText}>Tikèm</Text>
+          <TouchableOpacity
+            style={styles.locationRow}
+            onPress={() => setLocationSheetOpen(true)}
+            activeOpacity={0.7}
+          >
+            <MapPin size={13} color={colors.primary} />
+            <Text style={styles.locationText} numberOfLines={1}>
+              {locationLabel}
+            </Text>
+            <ChevronDown size={14} color={colors.textSecondary} />
+          </TouchableOpacity>
         </View>
         <View style={styles.headerRight}>
           {user ? (
@@ -289,15 +317,15 @@ export default function HomeScreen({ navigation }: any) {
               onPress={() => navigation.navigate('Connections')}
               activeOpacity={0.7}
             >
-              <Users size={24} color="white" />
+              <Users size={21} color={colors.text} />
             </TouchableOpacity>
           ) : null}
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.iconButton}
             onPress={() => navigation.navigate('Notifications', { userId: user?.uid || '' })}
             activeOpacity={0.7}
           >
-            <Bell size={24} color="white" />
+            <Bell size={21} color={colors.text} />
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -312,12 +340,18 @@ export default function HomeScreen({ navigation }: any) {
       >
         <Animated.View style={{ height: headerSpacerHeight }} />
         {loading ? (
-          <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>{t('home.loading')}</Text>
+          <View style={{ paddingTop: 16 }}>
+            <View style={{ paddingHorizontal: 16 }}>
+              <Skeleton height={300} radius={20} />
+            </View>
+            <View style={{ height: 28 }} />
+            <PosterRailSkeleton />
+            <View style={{ height: 28 }} />
+            <PosterRailSkeleton />
           </View>
         ) : (
           <>
-            {/* Featured Carousel */}
+            {/* Featured hero */}
             {featuredEvents.length > 0 && (
               <View style={styles.firstSection}>
                 <FeaturedCarousel
@@ -326,19 +360,6 @@ export default function HomeScreen({ navigation }: any) {
                 />
               </View>
             )}
-
-            {/* Browse by Category */}
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <View>
-                  <Text style={styles.sectionTitleBase}>{t('home.browseTitle')}</Text>
-                </View>
-                <Text style={styles.sectionSubtitle}>{t('home.browseSubtitle')}</Text>
-              </View>
-              <View style={styles.categoryContainer}>
-                <CategoryGrid onCategoryPress={handleCategoryPress} />
-              </View>
-            </View>
 
             {/* Trending Now */}
             {trendingEvents.length > 0 && (
@@ -362,6 +383,14 @@ export default function HomeScreen({ navigation }: any) {
               </View>
             )}
 
+            {/* Browse by Category — slim pills keep events the focus */}
+            <View style={styles.categorySection}>
+              <View style={styles.categoryHeader}>
+                <SectionHeader title={t('home.browseTitle')} subtitle={t('home.browseSubtitle')} />
+              </View>
+              <CategoryRail onCategoryPress={handleCategoryPress} />
+            </View>
+
             {/* All Events Preview */}
             {events.length > 0 && (
               <View style={styles.section}>
@@ -374,11 +403,11 @@ export default function HomeScreen({ navigation }: any) {
             )}
 
             {events.length === 0 && (
-              <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>📭</Text>
-                <Text style={styles.emptyTitle}>{t('home.emptyTitle')}</Text>
-                <Text style={styles.emptySubtitle}>{t('home.emptySubtitle')}</Text>
-              </View>
+              <EmptyState
+                emoji="📭"
+                title={t('home.emptyTitle')}
+                subtitle={t('home.emptySubtitle')}
+              />
             )}
 
             {/* Bottom Spacing */}
@@ -386,6 +415,20 @@ export default function HomeScreen({ navigation }: any) {
           </>
         )}
       </ScrollView>
+
+      <LocationPickerSheet
+        visible={locationSheetOpen}
+        onClose={() => setLocationSheetOpen(false)}
+        selectedCity={selectedLocation || ''}
+        onSelect={(city) => {
+          setSelectedLocation(city || null);
+          setLocationSheetOpen(false);
+          if (city) {
+            applyFiltersDirectly({ ...DEFAULT_FILTERS, country: userCountry, city });
+            navigation.navigate('Discover', { timestamp: Date.now() });
+          }
+        }}
+      />
     </View>
   );
 }
@@ -396,27 +439,38 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.background,
   },
   header: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.background,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingBottom: 8,
+    paddingBottom: 12,
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     zIndex: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderLight,
   },
   headerLeft: {
     flex: 1,
+  },
+  brandRow: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 5,
+  },
+  locationText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.textSecondary,
+    maxWidth: 200,
   },
   headerRight: {
     flexDirection: 'row',
@@ -424,27 +478,23 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
   },
   iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    backgroundColor: colors.surfaceMuted,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  logo: {
-    width: 32,
-    height: 32,
-  },
-  logoText: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: 'white',
-    marginLeft: 8,
-    letterSpacing: 0.5,
+  wordmark: {
+    height: 38,
+    aspectRatio: 2.298,
+    alignSelf: 'flex-start',
   },
   greeting: {
     fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   content: {
@@ -515,7 +565,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textSecondary,
     fontWeight: '500',
   },
-  categoryContainer: {
+  categorySection: {
+    marginBottom: 24,
+  },
+  categoryHeader: {
+    paddingHorizontal: 16,
+    marginBottom: -2,
   },
   eventCard: {
     backgroundColor: colors.surface,

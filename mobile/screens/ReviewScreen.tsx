@@ -17,6 +17,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { format } from 'date-fns';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
+import { SHADOWS, RADIUS } from '../config/brand';
 import { backendFetch } from '../lib/api/backend';
 
 export default function ReviewScreen({ route, navigation }: any) {
@@ -294,13 +295,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   eventCard: {
     margin: 16,
     padding: 16,
-    backgroundColor: '#FFF',
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.xl,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   eventTitle: {
     fontSize: 18,
@@ -316,9 +315,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     margin: 16,
     marginTop: 8,
     padding: 20,
-    backgroundColor: '#FFF',
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.xl,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
   ratingLabel: {
     fontSize: 16,
@@ -344,9 +345,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     margin: 16,
     marginTop: 8,
     padding: 20,
-    backgroundColor: '#FFF',
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.xl,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
   recommendButtons: {
     flexDirection: 'row',
@@ -383,7 +386,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 8,
   },
   commentInput: {
-    backgroundColor: '#FFF',
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 16,
     fontSize: 15,

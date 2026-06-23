@@ -16,6 +16,7 @@ import { db } from '../config/firebase';
 import { useTheme } from '../contexts/ThemeContext';
 import { format } from 'date-fns';
 import { useI18n } from '../contexts/I18nContext';
+import { SHADOWS, RADIUS } from '../config/brand';
 import { backendFetch } from '../lib/api/backend';
 
 export default function RefundRequestScreen({ route, navigation }: any) {
@@ -284,13 +285,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   ticketCard: {
     margin: 16,
     padding: 16,
-    backgroundColor: '#FFF',
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.xl,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   eventTitle: {
     fontSize: 18,
@@ -357,7 +356,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#FFF',
+    backgroundColor: colors.surface,
     borderRadius: 12,
     marginBottom: 8,
     borderWidth: 2,
@@ -395,7 +394,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.primary,
   },
   textInput: {
-    backgroundColor: '#FFF',
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 16,
     fontSize: 15,

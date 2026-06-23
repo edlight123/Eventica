@@ -82,11 +82,10 @@ export default function LoginScreen({ navigation }: any) {
           {/* Logo */}
           <Animated.View style={[styles.logoContainer, { transform: [{ scale: logoScale }], opacity: logoOpacity }]}>
             <Image
-              source={require('../../assets/tikem_logo_primary.png')}
-              style={styles.logo}
+              source={require('../../assets/tikem_wordmark_dark.png')}
+              style={styles.wordmark}
               resizeMode="contain"
             />
-            <Text style={styles.logoText}>Tikèm</Text>
             <Text style={styles.tagline}>{BRAND.tagline}</Text>
           </Animated.View>
 
@@ -185,16 +184,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 32,
   },
-  logo: {
-    width: 64,
+  wordmark: {
+    width: 200,
     height: 64,
-  },
-  logoText: {
-    fontSize: 36,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    marginTop: 10,
-    letterSpacing: -0.5,
   },
   tagline: {
     fontSize: 15,

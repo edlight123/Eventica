@@ -78,7 +78,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.background,
   },
   header: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     paddingHorizontal: 12,
     paddingBottom: 10,
     flexDirection: 'row',

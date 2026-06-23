@@ -223,7 +223,7 @@ export default function EventbriteStyleTicketSelector({
                                 quantity === 0 && styles.quantityButtonDisabled,
                               ]}
                             >
-                              <Minus size={18} color={quantity === 0 ? colors.border : colors.textPrimary} />
+                              <Minus size={18} color={quantity === 0 ? colors.border : colors.text} />
                             </TouchableOpacity>
                             <Text style={styles.quantityText}>{quantity}</Text>
                             <TouchableOpacity
@@ -234,7 +234,7 @@ export default function EventbriteStyleTicketSelector({
                                 quantity >= available && styles.quantityButtonDisabled,
                               ]}
                             >
-                              <Plus size={18} color={quantity >= available ? colors.border : colors.textPrimary} />
+                              <Plus size={18} color={quantity >= available ? colors.border : colors.text} />
                             </TouchableOpacity>
                           </View>
                         )}
@@ -305,7 +305,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     maxHeight: '90%',
@@ -321,7 +321,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: colors.textPrimary,
+    color: colors.text,
   },
   closeButton: {
     padding: 4,
@@ -356,7 +356,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   tierCardSelected: {
     borderColor: colors.primary,
-    backgroundColor: '#F0FDF9',
+    backgroundColor: colors.primarySoft,
   },
   tierInfo: {
     flex: 1,
@@ -365,7 +365,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   tierName: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.textPrimary,
+    color: colors.text,
     marginBottom: 4,
   },
   tierDescription: {
@@ -403,7 +403,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
   },
   quantityButtonDisabled: {
     opacity: 0.3,
@@ -411,7 +411,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   quantityText: {
     fontSize: 18,
     fontWeight: '700',
-    color: colors.textPrimary,
+    color: colors.text,
     minWidth: 32,
     textAlign: 'center',
   },
@@ -425,7 +425,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   summaryTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.textPrimary,
+    color: colors.text,
     marginBottom: 12,
   },
   summaryItem: {
@@ -439,7 +439,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   summaryItemPrice: {
     fontSize: 14,
-    color: colors.textPrimary,
+    color: colors.text,
     fontWeight: '500',
   },
   summaryTotal: {
@@ -453,7 +453,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   summaryTotalLabel: {
     fontSize: 16,
     fontWeight: '700',
-    color: colors.textPrimary,
+    color: colors.text,
   },
   summaryTotalPrice: {
     fontSize: 18,

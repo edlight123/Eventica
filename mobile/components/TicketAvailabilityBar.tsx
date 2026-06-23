@@ -28,7 +28,7 @@ export default function TicketAvailabilityBar({
   const getBarColor = () => {
     if (isSoldOut) return colors.error;
     if (isAlmostSoldOut) return colors.warning;
-    if (percentageSold > 70) return colors.secondary;
+    if (percentageSold > 70) return colors.warning;
     return colors.success;
   };
 

@@ -14,6 +14,8 @@ interface PremiumSearchBarProps {
 }
 
 export default function PremiumSearchBar({ onPress }: PremiumSearchBarProps) {
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
   return (
     <TouchableOpacity
       style={styles.container}
@@ -34,8 +36,6 @@ export default function PremiumSearchBar({ onPress }: PremiumSearchBarProps) {
   );
 }
 
-  const { colors } = useTheme();
-  const styles = getStyles(colors);
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     paddingHorizontal: 16,

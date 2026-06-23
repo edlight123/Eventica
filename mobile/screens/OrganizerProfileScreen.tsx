@@ -302,7 +302,7 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
         type: 'email',
         url: `mailto:${organizer.email}`,
         icon: Mail,
-        color: '#EF4444',
+        color: '#0F766E',
       });
     }
     
@@ -726,7 +726,7 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.background,
   },
   scrollView: {
     flex: 1,
@@ -854,7 +854,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#0F766E',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 10,
@@ -921,7 +921,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   // Slim Stats Row
   statsRow: {
     flexDirection: 'row',
-    backgroundColor: '#FFF',
+    backgroundColor: colors.surface,
     paddingVertical: 20,
     paddingHorizontal: 16,
     borderBottomWidth: 1,

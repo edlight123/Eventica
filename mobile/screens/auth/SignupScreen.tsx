@@ -67,20 +67,19 @@ export default function SignupScreen({ navigation }: any) {
   const logoOpacity = logoAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 0.8, 1] });
 
   return (
-    <LinearGradient colors={['#0F172A', '#1a0533', '#0F766E']} style={styles.gradient}>
-      <View style={[styles.blob, { top: -60, left: -80, backgroundColor: '#7C3AED' }]} />
-      <View style={[styles.blob, { bottom: 80, right: -60, backgroundColor: '#0D9488', opacity: 0.35 }]} />
+    <LinearGradient colors={['#0F172A', '#134E4A', '#0F766E']} style={styles.gradient}>
+      <View style={[styles.blob, { top: -60, left: -80, backgroundColor: '#0D9488' }]} />
+      <View style={[styles.blob, { bottom: 80, right: -60, backgroundColor: '#14B8A6', opacity: 0.35 }]} />
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.content}>
             <Animated.View style={[styles.logoContainer, { transform: [{ scale: logoScale }], opacity: logoOpacity }]}>
               <Image
-                source={require('../../assets/tikem_logo_primary.png')}
-                style={styles.logo}
+                source={require('../../assets/tikem_wordmark_dark.png')}
+                style={styles.wordmark}
                 resizeMode="contain"
               />
-              <Text style={styles.logoText}>Tikèm</Text>
               <Text style={styles.subtitle}>{t('auth.signup.title')}</Text>
             </Animated.View>
 
@@ -183,16 +182,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 28,
   },
-  logo: {
-    width: 60,
+  wordmark: {
+    width: 190,
     height: 60,
-  },
-  logoText: {
-    fontSize: 34,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    marginTop: 10,
-    letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 15,

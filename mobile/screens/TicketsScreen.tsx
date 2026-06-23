@@ -7,14 +7,19 @@ import {
   TouchableOpacity, 
   RefreshControl,
   ActivityIndicator,
+  Image,
   StatusBar
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Calendar, MapPin, Ticket, ChevronRight } from 'lucide-react-native';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { getPosterTheme } from '../lib/posterGradient';
+import EmptyState from '../components/EmptyState';
 import { format } from 'date-fns';
 import { useFocusEffect } from '@react-navigation/native';
 import { consumeTicketsRefreshHint } from '../lib/ticketsRefreshHint';
@@ -157,8 +162,11 @@ export default function TicketsScreen({ navigation }: any) {
   if (!user) {
     return (
       <View style={styles.emptyContainer}>
-        <Text style={styles.emptyTitle}>{t('auth.loginRequiredTitle')}</Text>
-        <Text style={styles.emptyText}>{t('tickets.loginRequiredBody')}</Text>
+        <EmptyState
+          icon={Ticket}
+          title={t('auth.loginRequiredTitle')}
+          subtitle={t('tickets.loginRequiredBody')}
+        />
       </View>
     );
   }
@@ -207,17 +215,13 @@ export default function TicketsScreen({ navigation }: any) {
         }
       >
         {displayedTickets.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyIcon}>🎫</Text>
-            <Text style={styles.emptyTitle}>
-              {activeTab === 'upcoming' ? t('tickets.emptyUpcomingTitle') : t('tickets.emptyPastTitle')}
-            </Text>
-            <Text style={styles.emptyText}>
-              {activeTab === 'upcoming'
-                ? t('tickets.emptyUpcomingBody')
-                : t('tickets.emptyPastBody')}
-            </Text>
-          </View>
+          <EmptyState
+            icon={Ticket}
+            title={activeTab === 'upcoming' ? t('tickets.emptyUpcomingTitle') : t('tickets.emptyPastTitle')}
+            subtitle={activeTab === 'upcoming' ? t('tickets.emptyUpcomingBody') : t('tickets.emptyPastBody')}
+            actionLabel={activeTab === 'upcoming' ? t('favorites.explore') : undefined}
+            onAction={activeTab === 'upcoming' ? () => navigation.navigate('Discover') : undefined}
+          />
         ) : (
           displayedTickets.map(event => (
             <TouchableOpacity
@@ -226,28 +230,48 @@ export default function TicketsScreen({ navigation }: any) {
               onPress={() => navigation.navigate('EventTickets', { eventId: event.id })}
               activeOpacity={0.9}
             >
-              <View style={styles.ticketHeader}>
-                <View style={styles.ticketTitleContainer}>
-                  <Text style={styles.ticketTitle} numberOfLines={2}>{event.title}</Text>
-                  <View style={styles.ticketCountBadge}>
-                    <Text style={styles.ticketCountText}>
-                      {event.ticketCount} {event.ticketCount === 1 ? t('tickets.ticketSingular') : t('tickets.ticketPlural')}
-                    </Text>
-                  </View>
+              <View style={styles.ticketThumb}>
+                <LinearGradient
+                  colors={getPosterTheme(event.id || event.title, event.category).colors}
+                  start={{ x: 0.1, y: 0 }}
+                  end={{ x: 0.9, y: 1 }}
+                  style={StyleSheet.absoluteFill}
+                />
+                {(event.banner_image_url || event.cover_image_url) && (
+                  <Image
+                    source={{ uri: event.banner_image_url || event.cover_image_url }}
+                    style={StyleSheet.absoluteFill}
+                    resizeMode="cover"
+                  />
+                )}
+              </View>
+
+              <View style={styles.ticketBody}>
+                <Text style={styles.ticketTitle} numberOfLines={2}>{event.title}</Text>
+
+                <View style={styles.ticketMetaRow}>
+                  <Calendar size={13} color={colors.textSecondary} />
+                  <Text style={styles.ticketMetaText} numberOfLines={1}>
+                    {event.start_datetime && format(event.start_datetime, 'EEE, MMM d • h:mm a')}
+                  </Text>
+                </View>
+
+                <View style={styles.ticketMetaRow}>
+                  <MapPin size={13} color={colors.textSecondary} />
+                  <Text style={styles.ticketMetaText} numberOfLines={1}>
+                    {event.venue_name}, {event.city}
+                  </Text>
+                </View>
+
+                <View style={styles.ticketCountBadge}>
+                  <Ticket size={11} color={colors.primary} />
+                  <Text style={styles.ticketCountText}>
+                    {event.ticketCount} {event.ticketCount === 1 ? t('tickets.ticketSingular') : t('tickets.ticketPlural')}
+                  </Text>
                 </View>
               </View>
-              
-              <Text style={styles.ticketDate}>
-                📅 {event.start_datetime && format(event.start_datetime, 'EEE, MMM d, yyyy • h:mm a')}
-              </Text>
-              
-              <Text style={styles.ticketVenue}>
-                📍 {event.venue_name}, {event.city}
-              </Text>
-              
-              <View style={styles.ticketFooter}>
-                <Text style={styles.viewTicketsText}>{t('tickets.viewTickets')} →</Text>
-              </View>
+
+              <ChevronRight size={20} color={colors.textTertiary} />
             </TouchableOpacity>
           ))
         )}
@@ -317,17 +341,32 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
   },
   ticketCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
     backgroundColor: colors.surface,
-    margin: 16,
-    padding: 18,
-    borderRadius: 16,
+    marginHorizontal: 16,
+    marginTop: 14,
+    padding: 12,
+    borderRadius: 18,
     borderWidth: 1,
     borderColor: colors.borderLight,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowRadius: 16,
+    elevation: 4,
+  },
+  ticketThumb: {
+    width: 64,
+    height: 64,
+    borderRadius: 14,
+    overflow: 'hidden',
+    backgroundColor: colors.borderLight,
+  },
+  ticketBody: {
+    flex: 1,
+    gap: 5,
   },
   ticketHeader: {
     marginBottom: 14,
@@ -339,22 +378,38 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 8,
   },
   ticketTitle: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '800',
     color: colors.text,
-    lineHeight: 24,
+    lineHeight: 21,
+    letterSpacing: -0.2,
+  },
+  ticketMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  ticketMetaText: {
+    flex: 1,
+    fontSize: 13,
+    color: colors.textSecondary,
+    fontWeight: '500',
   },
   ticketCountBadge: {
-    backgroundColor: '#F3E8FF',
-    paddingHorizontal: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    alignSelf: 'flex-start',
+    backgroundColor: colors.primarySoft,
+    paddingHorizontal: 9,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: 999,
+    marginTop: 2,
   },
   ticketCountText: {
-    color: '#7C3AED',
+    color: colors.primary,
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   ticketDate: {
     fontSize: 14,

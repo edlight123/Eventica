@@ -17,6 +17,9 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { backendFetch } from '../../lib/api/backend';
+import { SHADOWS, RADIUS } from '../../config/brand';
+import EmptyState from '../../components/EmptyState';
+import { Receipt } from 'lucide-react-native';
 import { format } from 'date-fns';
 
 interface RefundRequest {
@@ -200,7 +203,7 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#FFF" />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('refunds.title') || 'Refund Requests'}</Text>
         <View style={styles.badgeContainer}>
@@ -238,17 +241,13 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
         }
       >
         {filteredRequests.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Ionicons name="receipt-outline" size={64} color={colors.textSecondary} />
-            <Text style={styles.emptyTitle}>
-              {filter === 'pending' 
-                ? (t('refunds.noPending') || 'No pending requests')
-                : (t('refunds.noRequests') || 'No refund requests')}
-            </Text>
-            <Text style={styles.emptySubtitle}>
-              {t('refunds.emptyDescription') || 'Refund requests from attendees will appear here'}
-            </Text>
-          </View>
+          <EmptyState
+            icon={Receipt}
+            title={filter === 'pending'
+              ? (t('refunds.noPending') || 'No pending requests')
+              : (t('refunds.noRequests') || 'No refund requests')}
+            subtitle={t('refunds.emptyDescription') || 'Refund requests from attendees will appear here'}
+          />
         ) : (
           filteredRequests.map((request) => (
             <View key={request.id} style={styles.requestCard}>
@@ -260,7 +259,12 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
                   request.status === 'approved' && styles.statusApproved,
                   request.status === 'denied' && styles.statusDenied,
                 ]}>
-                  <Text style={styles.statusText}>
+                  <Text style={[
+                    styles.statusText,
+                    request.status === 'requested' && styles.statusTextPending,
+                    request.status === 'approved' && styles.statusTextApproved,
+                    request.status === 'denied' && styles.statusTextDenied,
+                  ]}>
                     {request.status === 'requested' ? (t('refunds.statusPending') || 'Pending') :
                      request.status === 'approved' ? (t('refunds.statusApproved') || 'Approved') :
                      (t('refunds.statusDenied') || 'Denied')}
@@ -353,7 +357,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 16,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.background,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.borderLight,
   },
   backButton: {
     padding: 8,
@@ -361,7 +367,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#FFF',
+    color: colors.text,
   },
   badgeContainer: {
     width: 40,
@@ -382,7 +388,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     padding: 16,
     gap: 8,
-    backgroundColor: '#FFF',
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
@@ -427,13 +433,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     margin: 16,
     marginBottom: 0,
     padding: 16,
-    backgroundColor: '#FFF',
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.xl,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...SHADOWS.card,
   },
   requestHeader: {
     flexDirection: 'row',
@@ -454,17 +458,27 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: 6,
   },
   statusPending: {
-    backgroundColor: '#FFF3CD',
+    backgroundColor: colors.warning + '1A',
   },
   statusApproved: {
-    backgroundColor: '#D4EDDA',
+    backgroundColor: colors.success + '1A',
   },
   statusDenied: {
-    backgroundColor: '#F8D7DA',
+    backgroundColor: colors.error + '1A',
   },
   statusText: {
     fontSize: 12,
     fontWeight: '600',
+    color: colors.text,
+  },
+  statusTextPending: {
+    color: colors.warning,
+  },
+  statusTextApproved: {
+    color: colors.success,
+  },
+  statusTextDenied: {
+    color: colors.error,
   },
   requestDetails: {
     gap: 8,
