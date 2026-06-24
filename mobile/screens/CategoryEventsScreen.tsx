@@ -120,10 +120,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     headerTitle: {
       flex: 1,
-      fontSize: 22,
-      fontWeight: '800',
+      fontFamily: 'InstrumentSerif_400Regular',
+      fontSize: 26,
       color: colors.text,
-      letterSpacing: -0.3,
+      letterSpacing: 0,
     },
     loader: {
       flex: 1,

@@ -650,7 +650,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   heroPoster: {
     width: POSTER_W,
     aspectRatio: 4 / 5,
-    borderRadius: 16,
+    borderRadius: 8,
     overflow: 'hidden',
     backgroundColor: colors.surfaceMuted,
     shadowColor: '#000',
@@ -735,7 +735,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   // Content Area — text-first
   content: {
     paddingHorizontal: 18,
-    paddingTop: 18,
+    paddingTop: 9,
   },
   eyebrow: {
     fontSize: 12,
@@ -746,11 +746,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 8,
   },
   title: {
-    fontSize: 28,
-    fontWeight: '800',
+    fontFamily: 'InstrumentSerif_400Regular',
+    fontSize: 34,
     color: colors.text,
-    lineHeight: 34,
-    letterSpacing: -0.4,
+    lineHeight: 38,
+    letterSpacing: 0,
   },
   badgeRow: {
     flexDirection: 'row',

@@ -57,8 +57,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     title: {
       ...TYPE.sectionEyebrow,
-      fontSize: 18,
-      fontWeight: '700',
+      fontFamily: 'InstrumentSerif_400Regular',
+      fontSize: 22,
+      letterSpacing: 0,
       color: colors.text,
     },
     subtitle: {

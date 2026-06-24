@@ -91,6 +91,7 @@ export default function HomeScreen({ navigation }: any) {
   const lastScrollY = useRef(0);
   const headerHidden = useRef(false);
   const headerHeightRef = useRef(0);
+  const lastTabPressRef = useRef(0);
 
   const fetchEvents = async () => {
     try {
@@ -250,18 +251,21 @@ export default function HomeScreen({ navigation }: any) {
     fetchEvents();
   }, [userCountry]); // Refetch when country changes
 
-  // Listen for tab press to scroll to top
+  // Active-tab taps: once = scroll to top, twice (quick) = refresh.
   useEffect(() => {
-    const unsubscribe = navigation.addListener('tabPress', (e: any) => {
-      // Check if we're already on this screen
-      const state = navigation.getState();
-      const currentRoute = state.routes[state.index];
-      if (currentRoute.name === 'Home') {
-        // Scroll to top
+    const unsubscribe = navigation.addListener('tabPress', () => {
+      const navState = navigation.getState();
+      const currentRoute = navState.routes[navState.index];
+      if (currentRoute.name !== 'Home') return;
+      const now = Date.now();
+      if (now - lastTabPressRef.current < 400) {
+        setRefreshing(true);
+        fetchEvents();
+      } else {
         scrollViewRef.current?.scrollTo({ y: 0, animated: true });
       }
+      lastTabPressRef.current = now;
     });
-
     return unsubscribe;
   }, [navigation]);
 

@@ -186,9 +186,17 @@ function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
         const iconColor = isFocused ? colors.primary : colors.textTertiary;
 
         const onPress = () => {
-          if (!isFocused) {
+          const route = state.routes[index];
+          const event = navigation.emit({
+            type: 'tabPress',
+            target: route.key,
+            canPreventDefault: true,
+          });
+          if (!isFocused && !event.defaultPrevented) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             navigation.navigate(tab.name);
+          } else if (isFocused) {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           }
         };
 
