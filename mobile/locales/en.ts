@@ -58,6 +58,7 @@ export default {
   },
   common: {
     free: 'Free',
+    from: 'from',
     viewAll: 'View All',
     ok: 'OK',
     yes: 'Yes',

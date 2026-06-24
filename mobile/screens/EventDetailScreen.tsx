@@ -612,56 +612,35 @@ export default function EventDetailScreen({ route, navigation }: any) {
           }
         ]}
       >
-        <View style={styles.floatingContent}>
-          {/* Left Side: Price Info */}
-          <View style={styles.floatingPriceSection}>
-            {isSoldOut ? (
-              <>
-                <Text style={styles.soldOutMainText}>{t('badges.soldout')}</Text>
-                <Text style={styles.floatingSecondaryText}>{t('eventDetail.floating.noTicketsAvailable')}</Text>
-              </>
-            ) : isFree ? (
-              <>
-                <Text style={styles.floatingPriceMain}>{t('common.free').toUpperCase()}</Text>
-                <Text style={styles.floatingSecondaryText}>{t('eventDetail.floating.freeEntry')}</Text>
-              </>
-            ) : (
-              <>
-                <Text style={styles.floatingPriceMain}>
-                  {event.currency || 'HTG'} {(event.ticket_price || 0).toLocaleString()}
-                </Text>
-                <Text style={styles.floatingSecondaryText}>
-                  {selloutSoon ? t('eventDetail.floating.almostSoldOut') : t('eventDetail.floating.ticketsAvailable')}
-                </Text>
-              </>
-            )}
+        {isPastEvent ? (
+          <View style={styles.ctaDisabled}>
+            <Text style={styles.ctaDisabledText}>{t('eventDetail.floating.eventEnded')}</Text>
           </View>
-          
-          {/* Right Side: CTA Button */}
-          {isPastEvent ? (
-            <View style={styles.floatingButtonDisabled}>
-              <Text style={styles.floatingButtonDisabledText}>{t('eventDetail.floating.eventEnded')}</Text>
-            </View>
-          ) : isSoldOut ? (
-            <View style={styles.floatingButtonDisabled}>
-              <Text style={styles.floatingButtonDisabledText}>{t('badges.soldout')}</Text>
-            </View>
-          ) : (
-            <TouchableOpacity
-              style={[styles.floatingButton, purchasing && styles.floatingButtonProcessing]}
-              onPress={handlePurchaseTicket}
-              disabled={purchasing}
-            >
-              {purchasing ? (
-                <ActivityIndicator color="#FFF" size="small" />
-              ) : (
-                <Text style={styles.floatingButtonText}>
-                  {isFree ? t('eventDetail.floating.claimTicket') : t('eventDetail.floating.getTickets')}
-                </Text>
-              )}
-            </TouchableOpacity>
-          )}
-        </View>
+        ) : isSoldOut ? (
+          <View style={styles.ctaDisabled}>
+            <Text style={styles.ctaDisabledText}>{t('badges.soldout')}</Text>
+          </View>
+        ) : (
+          <TouchableOpacity
+            style={[styles.ctaButton, purchasing && styles.floatingButtonProcessing]}
+            onPress={handlePurchaseTicket}
+            disabled={purchasing}
+            activeOpacity={0.9}
+          >
+            {purchasing ? (
+              <ActivityIndicator color={T.onTeal} size="small" />
+            ) : (
+              <Text style={styles.ctaButtonText}>
+                {isFree ? t('eventDetail.floating.claimTicket') : t('eventDetail.floating.getTickets')}
+                {!isFree && (
+                  <Text style={styles.ctaButtonPrice}>
+                    {'  '}{t('common.from')} {event.currency || 'HTG'} {(event.ticket_price || 0).toLocaleString()}
+                  </Text>
+                )}
+              </Text>
+            )}
+          </TouchableOpacity>
+        )}
       </Animated.View>
 
       {/* Tiered Ticket Selector */}
@@ -1137,22 +1116,41 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textSecondary,
   },
 
-  // Floating Bottom CTA Pill Card
+  // Floating Bottom CTA — transparent bar, single full-width button (Posh-style)
   floatingBottomCard: {
     position: 'absolute',
     left: 16,
     right: 16,
-    backgroundColor: colors.surface,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    borderRadius: 24,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    elevation: 12,
+    backgroundColor: 'transparent',
+  },
+  ctaButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 14,
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ctaButtonText: {
+    color: T.onTeal,
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  ctaButtonPrice: {
+    color: T.onTeal,
+    opacity: 0.7,
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  ctaDisabled: {
+    backgroundColor: colors.surfaceRaised,
+    borderRadius: 14,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  ctaDisabledText: {
+    color: colors.textSecondary,
+    fontSize: 15,
+    fontWeight: '700',
   },
   floatingContent: {
     flexDirection: 'row',

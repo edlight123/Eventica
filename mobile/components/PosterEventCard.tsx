@@ -165,10 +165,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       gap: 3,
     },
     title: {
-      fontSize: 15,
+      fontSize: 14,
       fontWeight: '700',
       color: colors.text,
-      lineHeight: 19,
+      lineHeight: 18,
       letterSpacing: -0.2,
     },
     metaRow: {
@@ -176,21 +176,22 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       alignItems: 'center',
       justifyContent: 'space-between',
       gap: 8,
+      marginTop: 1,
     },
     metaText: {
       color: colors.textSecondary,
-      fontSize: 13,
+      fontSize: 12.5,
       fontWeight: '500',
       flexShrink: 1,
     },
     price: {
-      fontSize: 13,
+      fontSize: 12.5,
       fontWeight: '700',
       color: colors.primary,
       letterSpacing: -0.2,
     },
     free: {
-      fontSize: 12,
+      fontSize: 11.5,
       fontWeight: '800',
       color: colors.primary,
       letterSpacing: 0.5,

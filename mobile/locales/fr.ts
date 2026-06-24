@@ -58,6 +58,7 @@ export default {
   },
   common: {
     free: 'Gratuit',
+    from: 'à partir de',
     viewAll: 'Voir tout',
     ok: 'OK',
     yes: 'Oui',
