@@ -6,7 +6,7 @@ import SectionHeader from './SectionHeader';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = Math.min(248, width * 0.62);
-const CARD_SPACING = 14;
+const CARD_SPACING = 16;
 
 interface ThisWeekSectionProps {
   events: any[];
@@ -21,7 +21,7 @@ export default function ThisWeekSection({ events, onEventPress, onViewAll }: Thi
   return (
     <View>
       <SectionHeader
-        title={`📅 ${t('home.thisWeekTitle')}`}
+        title={t('home.thisWeekTitle')}
         subtitle={t('home.thisWeekSubtitle')}
         onViewAll={onViewAll}
       />

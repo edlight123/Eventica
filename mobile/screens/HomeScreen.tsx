@@ -22,7 +22,7 @@ import { useFilters } from '../contexts/FiltersContext';
 import { BRAND } from '../config/brand';
 import { useTheme } from '../contexts/ThemeContext';
 import { COUNTRY_NAMES } from '../utils/deviceLocation';
-import { Bell, Users, MapPin, ChevronDown } from 'lucide-react-native';
+import { Bell, Users, MapPin, ChevronDown, Inbox } from 'lucide-react-native';
 import FeaturedCarousel from '../components/FeaturedCarousel';
 import LocationDetectionBanner from '../components/LocationDetectionBanner';
 import LocationPickerSheet from '../components/LocationPickerSheet';
@@ -37,6 +37,7 @@ import SectionHeader from '../components/SectionHeader';
 import EmptyState from '../components/EmptyState';
 import { Skeleton, PosterRailSkeleton } from '../components/Skeleton';
 import { isBudgetFriendlyTicketPrice } from '../lib/pricing';
+import { getCategoryLabel } from '../lib/categories';
 
 // Tolerant city matching (accents/case/"City, ST") so the Near You rail lines up
 // with whatever string is stored on each event's `city`.
@@ -79,6 +80,7 @@ export default function HomeScreen({ navigation }: any) {
   const [nearYouEvents, setNearYouEvents] = useState<any[]>([]);
   const [freeEvents, setFreeEvents] = useState<any[]>([]);
   const [newEvents, setNewEvents] = useState<any[]>([]);
+  const [categoryRails, setCategoryRails] = useState<{ category: string; events: any[] }[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [locationSheetOpen, setLocationSheetOpen] = useState(false);
@@ -214,6 +216,18 @@ export default function HomeScreen({ navigation }: any) {
         .sort((a: any, b: any) => toMillis(b.created_at) - toMillis(a.created_at))
         .slice(0, 8);
       setNewEvents(recentlyAdded);
+
+      // One carousel per category that has events.
+      const byCategory: Record<string, any[]> = {};
+      finalEvents.forEach((e) => {
+        const c = e.category;
+        if (!c) return;
+        (byCategory[c] = byCategory[c] || []).push(e);
+      });
+      const catRails = Object.keys(byCategory)
+        .map((c) => ({ category: c, events: byCategory[c].slice(0, 10) }))
+        .filter((r) => r.events.length > 0);
+      setCategoryRails(catRails);
     } catch (error) {
       console.error('Error fetching events:', error);
     } finally {
@@ -487,13 +501,17 @@ export default function HomeScreen({ navigation }: any) {
               </View>
             )}
 
-            {/* Browse by Category — slim pills keep events the focus */}
-            <View style={styles.categorySection}>
-              <View style={styles.categoryHeader}>
-                <SectionHeader title={t('home.browseTitle')} />
+            {/* One carousel per category */}
+            {categoryRails.map((rail) => (
+              <View key={rail.category} style={styles.section}>
+                <EventRail
+                  title={getCategoryLabel(t, rail.category)}
+                  events={rail.events}
+                  onEventPress={(eventId) => navigation.navigate('EventDetail', { eventId })}
+                  onViewAll={() => navigation.navigate('Discover', { category: rail.category, timestamp: Date.now() })}
+                />
               </View>
-              <CategoryRail onCategoryPress={handleCategoryPress} />
-            </View>
+            ))}
 
             {/* Just Announced */}
             {newEvents.length > 0 && (
@@ -522,7 +540,7 @@ export default function HomeScreen({ navigation }: any) {
 
             {events.length === 0 && (
               <EmptyState
-                emoji="📭"
+                icon={Inbox}
                 title={t('home.emptyTitle')}
                 subtitle={t('home.emptySubtitle')}
               />

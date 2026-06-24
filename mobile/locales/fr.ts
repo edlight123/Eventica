@@ -460,8 +460,22 @@ export default {
     emptySubtitle: 'Revenez bientôt pour de nouveaux événements !',
   },
   discover: {
-    searchPlaceholder: 'Rechercher événements, lieux, catégories…',
+    searchPlaceholder: 'Rechercher événements, organisations, personnes…',
     searchActive: 'Recherche',
+    tabs: {
+      forYou: 'Pour vous',
+      following: 'Abonnements',
+      saved: 'Enregistrés',
+    },
+    following: {
+      emptyTitle: "Vous ne suivez encore personne.",
+      emptySubtitle: 'Synchronisez vos contacts pour voir où vont vos amis.',
+      syncContacts: 'Synchroniser les contacts',
+    },
+    saved: {
+      emptyTitle: 'Aucun événement enregistré',
+      emptySubtitle: 'Touchez le signet sur un événement pour l’enregistrer ici.',
+    },
     when: 'Quand',
     categories: 'Catégories',
     where: 'Où',

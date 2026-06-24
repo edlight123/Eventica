@@ -6,7 +6,7 @@ import type { BadgeStatus } from '../theme/badges';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = Math.min(248, width * 0.62);
-const CARD_SPACING = 14;
+const CARD_SPACING = 16;
 
 interface EventRailProps {
   title: string;
