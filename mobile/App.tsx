@@ -1,4 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts, InstrumentSerif_400Regular } from '@expo-google-fonts/instrument-serif';
 import { AuthProvider } from './contexts/AuthContext';
 import { AppModeProvider } from './contexts/AppModeContext';
@@ -14,15 +15,17 @@ export default function App() {
   }
 
   return (
-    <AuthProvider>
-      <I18nProvider>
-        <AppModeProvider>
-          <FiltersProvider>
-            <AppNavigator />
-            <StatusBar style="auto" />
-          </FiltersProvider>
-        </AppModeProvider>
-      </I18nProvider>
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <I18nProvider>
+          <AppModeProvider>
+            <FiltersProvider>
+              <AppNavigator />
+              <StatusBar style="auto" />
+            </FiltersProvider>
+          </AppModeProvider>
+        </I18nProvider>
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }
