@@ -94,21 +94,21 @@ export default function LoginScreen({ navigation }: any) {
                 <TextInput
                   style={styles.input}
                   placeholder={t('auth.login.placeholders.email')}
-                  placeholderTextColor="rgba(255,255,255,0.45)"
+                  placeholderTextColor="#000000"
                   value={email}
                   onChangeText={setEmail}
                   autoCapitalize="none"
                   keyboardType="email-address"
-                  selectionColor="#14B8A6"
+                  selectionColor="#000000"
                 />
                 <TextInput
                   style={styles.input}
                   placeholder={t('auth.login.placeholders.password')}
-                  placeholderTextColor="rgba(255,255,255,0.45)"
+                  placeholderTextColor="#000000"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry
-                  selectionColor="#14B8A6"
+                  selectionColor="#000000"
                 />
 
                 <TouchableOpacity
@@ -202,13 +202,13 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   input: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)',
+    borderColor: '#000000',
     borderRadius: 14,
     padding: 16,
     fontSize: 16,
-    color: '#FFFFFF',
+    color: '#000000',
   },
   button: {
     borderRadius: 14,
