@@ -577,8 +577,22 @@ export default {
     emptySubtitle: 'Check back soon for exciting events!',
   },
   discover: {
-    searchPlaceholder: 'Search events, venues, categories...',
+    searchPlaceholder: 'Search events, organizations, people…',
     searchActive: 'Search',
+    tabs: {
+      forYou: 'For You',
+      following: 'Following',
+      saved: 'Saved',
+    },
+    following: {
+      emptyTitle: "Looks like you're not following anyone.",
+      emptySubtitle: 'Sync your contacts and see where your friends are headed.',
+      syncContacts: 'Sync contacts',
+    },
+    saved: {
+      emptyTitle: 'No saved events yet',
+      emptySubtitle: 'Tap the bookmark on any event to save it here.',
+    },
     when: 'When',
     categories: 'Categories',
     where: 'Where',

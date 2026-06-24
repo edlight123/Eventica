@@ -54,6 +54,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     railContent: {
       paddingHorizontal: 16,
-      gap: 14,
+      gap: 16,
     },
   });

@@ -30,7 +30,9 @@ import FilterPill from '../components/FilterPill';
 import WhenPickerSheet from '../components/WhenPickerSheet';
 import LocationPickerSheet from '../components/LocationPickerSheet';
 import { useFilters } from '../contexts/FiltersContext';
+import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
+import DiscoverEventCard from '../components/DiscoverEventCard';
 import { getCategoryLabel } from '../lib/categories';
 import { isBudgetFriendlyTicketPrice } from '../lib/pricing';
 import { applyFilters } from '../utils/filterUtils';
@@ -39,7 +41,7 @@ import { getDateRange } from '../utils/filters';
 import { fetchFriendsGoingCounts } from '../lib/api/social';
 
 const { width } = Dimensions.get('window');
-const GRID_GAP = 12;
+const GRID_GAP = 16;
 const COLUMN_WIDTH = (width - 32 - GRID_GAP) / 2;
 const RAIL_WIDTH = Math.min(248, width * 0.62);
 
@@ -74,6 +76,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
   const expandedHeaderHeight = HEADER_EXPANDED_HEIGHT - 50 + insets.top;
   const collapsedHeaderHeight = HEADER_COLLAPSED_HEIGHT - 50 + insets.top;
   const { appliedFilters, openFiltersModal, hasActiveFilters, countActiveFilters, applyFiltersDirectly, resetFilters, userCountry } = useFilters();
+  const { user } = useAuth();
   const { t } = useI18n();
   
   const [allEvents, setAllEvents] = useState<any[]>([]);
@@ -92,6 +95,11 @@ export default function DiscoverScreen({ navigation, route }: any) {
   const [cityRails, setCityRails] = useState<{ city: string; events: any[] }[]>([]);
   const [whereSheetOpen, setWhereSheetOpen] = useState(false);
   const [whenSheetOpen, setWhenSheetOpen] = useState(false);
+  // Posh-style Discover: a focused feed with For You / Following / Saved tabs.
+  const [feedEvents, setFeedEvents] = useState<any[]>([]);
+  const [discoverTab, setDiscoverTab] = useState<'forYou' | 'following' | 'saved'>('forYou');
+  const [savedEvents, setSavedEvents] = useState<any[]>([]);
+  const [searchMode, setSearchMode] = useState(false);
 
   const DATE_LABEL_KEYS: Record<DateFilter, string> = {
     'any': 'filters.dateOptions.any',
@@ -271,6 +279,26 @@ export default function DiscoverScreen({ navigation, route }: any) {
     fetchEvents();
   };
 
+  // Saved tab — the user's favorited events, matched against the loaded set.
+  useEffect(() => {
+    if (discoverTab !== 'saved' || !user) return;
+    let active = true;
+    (async () => {
+      try {
+        const favs = await getDocs(
+          query(collection(db, 'event_favorites'), where('user_id', '==', user.uid))
+        );
+        const ids = new Set(favs.docs.map((d) => d.data().event_id));
+        if (active) setSavedEvents(allEvents.filter((e) => ids.has(e.id)));
+      } catch (e) {
+        console.error('[DiscoverScreen] Error loading saved events:', e);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [discoverTab, user, allEvents]);
+
   // Load "friends going" counts whenever the visible event set changes.
   useEffect(() => {
     const ids = allEvents.map((e) => e?.id).filter(Boolean);
@@ -378,6 +406,12 @@ export default function DiscoverScreen({ navigation, route }: any) {
     // Apply search filter
     events = filterBySearch(events);
 
+    // The single, filtered + chronologically sorted feed used by the "For You" tab.
+    const feed = [...events].sort(
+      (a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime()
+    );
+    setFeedEvents(feed);
+
     const hasAnyFilters = hasActiveFilters() || searchQuery.trim() !== '' || trending || thisWeek || route?.params?.allEvents || selectedDate !== 'any' || selectedCategories.length > 0 || selectedCity !== '';
 
     if (hasAnyFilters) {
@@ -432,31 +466,30 @@ export default function DiscoverScreen({ navigation, route }: any) {
     />
   );
 
-  const renderSection = (title: string, subtitle: string, emoji: string, events: any[], onSeeAll?: () => void) => {
+  const renderSection = (title: string, subtitle: string, _emoji: string, events: any[], onSeeAll?: () => void) => {
     if (events.length === 0) return null;
 
     return (
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <View style={styles.sectionHeaderText}>
-            <Text style={styles.sectionTitle}>{emoji} {title}</Text>
-            <Text style={styles.sectionSubtitle}>{subtitle}</Text>
+            <Text style={styles.sectionTitle}>{title.toLowerCase()}</Text>
           </View>
           {onSeeAll && (
             <TouchableOpacity
               onPress={onSeeAll}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <Text style={styles.seeAllText}>{t('discover.seeAll')}</Text>
+              <Text style={styles.seeAllText}>{t('discover.seeAll').toLowerCase()}</Text>
             </TouchableOpacity>
           )}
         </View>
-        <ScrollView 
-          horizontal 
+        <ScrollView
+          horizontal
           showsHorizontalScrollIndicator={false}
           style={styles.horizontalScrollView}
           contentContainerStyle={styles.carouselContent}
-          snapToInterval={RAIL_WIDTH + 14}
+          snapToInterval={RAIL_WIDTH + 16}
           decelerationRate="fast"
         >
           {events.slice(0, 8).map((event, index) => (
@@ -502,99 +535,81 @@ export default function DiscoverScreen({ navigation, route }: any) {
 
   const hasAnyFilters = hasActiveFilters() || searchQuery.trim() !== '' || route?.params?.trending || route?.params?.thisWeek || route?.params?.allEvents || selectedDate !== 'any' || selectedCategories.length > 0 || selectedCity !== '';
 
+  const dateSummary = selectedDate !== 'any' ? whenPillValue : t('filters.dateOptions.any');
+  const locationSummary = selectedCity || t('discover.allCities');
+
+  const renderFeed = (list: any[], emptyTitle: string, emptySubtitle: string) =>
+    list.length === 0 ? (
+      <EmptyState icon={Search} title={emptyTitle} subtitle={emptySubtitle} />
+    ) : (
+      list.map((event) => (
+        <DiscoverEventCard
+          key={event.id}
+          event={event}
+          onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
+        />
+      ))
+    );
+
   return (
     <View style={styles.container}>
-      {/* Animated Collapsing Header */}
-      <Animated.View 
-        style={[
-          styles.animatedHeader,
-          {
-            height: headerHeight,
-            paddingTop: insets.top,
-            shadowOpacity: headerShadowOpacity,
-          }
-        ]}
-      >
-        {/* Title and Subtitle removed per user request */}
-
-        {/* Search Bar - stays visible but scales slightly */}
-        <Animated.View 
-          style={[
-            styles.searchSection,
-            {
-              transform: [{ scale: searchBarScale }],
-              marginTop: 8,
-            }
-          ]}
-        >
-          <View style={styles.searchInputContainer}>
-            <Search size={20} color={colors.textSecondary} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder={t('discover.searchPlaceholder')}
-              placeholderTextColor={colors.textSecondary}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-            {searchQuery !== '' && (
-              <TouchableOpacity onPress={() => setSearchQuery('')}>
+      {/* Posh-style header: filter/search pill + segmented tabs */}
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <View style={styles.searchPill}>
+          {searchMode ? (
+            <>
+              <Search size={20} color={colors.textSecondary} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder={t('discover.searchPlaceholder')}
+                placeholderTextColor={colors.textSecondary}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                autoFocus
+              />
+              <TouchableOpacity onPress={() => { setSearchQuery(''); setSearchMode(false); }} hitSlop={8}>
                 <X size={20} color={colors.textSecondary} />
               </TouchableOpacity>
-            )}
-          </View>
-          <TouchableOpacity 
-            style={styles.filterButton}
-            onPress={openFiltersModal}
-          >
-            <SlidersHorizontal size={20} color={colors.text} />
-            {hasActiveFilters() && (
-              <View style={styles.filterBadge}>
-                <Text style={styles.filterBadgeText}>
-                  {countActiveFilters()}
+            </>
+          ) : (
+            <>
+              <TouchableOpacity onPress={() => setSearchMode(true)} hitSlop={8}>
+                <Search size={20} color={colors.textSecondary} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.pillCenter} onPress={openFiltersModal} activeOpacity={0.7}>
+                <Text style={styles.pillText} numberOfLines={1}>
+                  <Text style={styles.pillTextStrong}>{dateSummary}</Text>
+                  <Text>  {locationSummary}</Text>
                 </Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        </Animated.View>
-      </Animated.View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={openFiltersModal} hitSlop={8}>
+                <SlidersHorizontal size={20} color={colors.text} />
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
 
-      {/* Posh-style dropdown filter pills */}
-      <View style={styles.filterPillsBar}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.filterPillsContent}
-        >
-          <FilterPill
-            label={t('discover.where')}
-            value={selectedCity || null}
-            onPress={() => setWhereSheetOpen(true)}
-            onClear={() => setSelectedCity('')}
-          />
-          <FilterPill
-            label={t('discover.when')}
-            value={whenPillValue}
-            onPress={() => setWhenSheetOpen(true)}
-            onClear={() => setSelectedDate('any')}
-          />
-          <FilterPill
-            label={t('discover.filters')}
-            value={countActiveFilters() > 0 ? `${countActiveFilters()} ${t('discover.filters')}` : null}
-            onPress={openFiltersModal}
-            onClear={resetFilters}
-          />
-        </ScrollView>
+        <View style={styles.tabsRow}>
+          {([
+            { key: 'forYou', label: t('discover.tabs.forYou') },
+            { key: 'following', label: t('discover.tabs.following') },
+            { key: 'saved', label: t('discover.tabs.saved') },
+          ] as const).map((tab) => (
+            <TouchableOpacity key={tab.key} onPress={() => setDiscoverTab(tab.key)} hitSlop={8}>
+              <Text style={[styles.tabText, discoverTab === tab.key && styles.tabTextActive]}>
+                {tab.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
 
-      {/* Scrollable Content */}
-      <Animated.ScrollView
+      {/* Feed */}
+      <ScrollView
         ref={scrollViewRef}
         style={styles.content}
-        scrollEventThrottle={16}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: false }
-        )}
+        contentContainerStyle={styles.feedContent}
+        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -604,64 +619,22 @@ export default function DiscoverScreen({ navigation, route }: any) {
           />
         }
       >
-        {/* Featured Carousel (only when no filters) */}
-        {!hasAnyFilters && featuredEvents.length > 0 && (
-          <View style={styles.featuredSection}>
-            <View style={styles.featuredHeader}>
-              <Text style={styles.sectionTitle}>⭐ {t('discover.featuredWeekendTitle')}</Text>
-              <Text style={styles.sectionSubtitle}>{t('discover.featuredWeekendSubtitle')}</Text>
-            </View>
-            <FeaturedCarousel 
-              events={featuredEvents} 
-              onEventPress={(eventId) => navigation.navigate('EventDetail', { eventId })} 
-            />
-          </View>
+        {discoverTab === 'forYou' &&
+          renderFeed(feedEvents, t('discover.noEventsFound'), t('discover.tryAdjusting'))}
+
+        {discoverTab === 'following' && (
+          <EmptyState
+            icon={Users}
+            title={t('discover.following.emptyTitle')}
+            subtitle={t('discover.following.emptySubtitle')}
+            actionLabel={t('discover.following.syncContacts')}
+            onAction={() => navigation.navigate('Connections')}
+          />
         )}
 
-        {/* Content Sections */}
-        {hasAnyFilters ? (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>{getFilterTitle()}</Text>
-              <Text style={styles.sectionSubtitle}>{getFilterSubtitle()}</Text>
-            </View>
-            {filteredEvents.length === 0 ? (
-              <EmptyState
-                emoji="🔍"
-                title={t('discover.noEventsFound')}
-                subtitle={t('discover.tryAdjusting')}
-              />
-            ) : (
-              <View style={styles.resultsGrid}>
-                {filteredEvents.map((event, index) => renderEventCard(event, index))}
-              </View>
-            )}
-          </View>
-        ) : (
-          <>
-            {cityRails.map((rail) =>
-              renderSection(
-                rail.city,
-                t('discover.cityRailSubtitle'),
-                '📍',
-                rail.events,
-                () => setSelectedCity(rail.city)
-              )
-            )}
-            {renderSection(t('discover.sections.happeningSoonTitle'), t('discover.sections.happeningSoonSubtitle'), '🔥', happeningSoonEvents)}
-            {renderSection(t('discover.sections.budgetTitle'), t('discover.sections.budgetSubtitle'), '💰', budgetEvents)}
-            {renderSection(t('discover.sections.onlineTitle'), t('discover.sections.onlineSubtitle'), '💻', onlineEvents)}
-            
-            {happeningSoonEvents.length === 0 && budgetEvents.length === 0 && onlineEvents.length === 0 && (
-              <EmptyState
-                emoji="📅"
-                title={t('discover.noEventsAvailable')}
-                subtitle={t('discover.checkBackSoon')}
-              />
-            )}
-          </>
-        )}
-      </Animated.ScrollView>
+        {discoverTab === 'saved' &&
+          renderFeed(savedEvents, t('discover.saved.emptyTitle'), t('discover.saved.emptySubtitle'))}
+      </ScrollView>
 
       <EventFiltersSheet />
 
@@ -705,12 +678,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.background,
     paddingHorizontal: 16,
     paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 8,
-    elevation: 4,
     zIndex: 10,
   },
   headerTextContainer: {
@@ -809,6 +776,52 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   content: {
     flex: 1,
   },
+  header: {
+    backgroundColor: colors.background,
+    paddingHorizontal: 16,
+    paddingBottom: 6,
+  },
+  searchPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: colors.surface,
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  pillCenter: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  pillText: {
+    fontSize: 15,
+    color: colors.textSecondary,
+  },
+  pillTextStrong: {
+    color: colors.text,
+    fontWeight: '700',
+  },
+  tabsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 28,
+    paddingTop: 16,
+    paddingBottom: 4,
+  },
+  tabText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.textTertiary,
+  },
+  tabTextActive: {
+    color: colors.text,
+  },
+  feedContent: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 32,
+  },
   featuredSection: {
     marginTop: 16,
     marginBottom: 8,
@@ -851,6 +864,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   carouselContent: {
     paddingHorizontal: 16,
+    gap: 16,
   },
   carouselCard: {
     width: 180,

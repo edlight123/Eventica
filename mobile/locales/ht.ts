@@ -458,8 +458,22 @@ export default {
     emptySubtitle: 'Tounen byento pou nouvo evènman!',
   },
   discover: {
-    searchPlaceholder: 'Chèche evènman, kote, kategori…',
+    searchPlaceholder: 'Chèche evènman, òganizasyon, moun…',
     searchActive: 'Chèche',
+    tabs: {
+      forYou: 'Pou ou',
+      following: 'Swiv',
+      saved: 'Sere',
+    },
+    following: {
+      emptyTitle: 'Ou poko ap swiv pèsòn.',
+      emptySubtitle: 'Senkronize kontak ou yo pou wè kote zanmi w ap ale.',
+      syncContacts: 'Senkronize kontak',
+    },
+    saved: {
+      emptyTitle: 'Pa gen evènman ki sere',
+      emptySubtitle: 'Peze make a sou yon evènman pou sere l isit la.',
+    },
     when: 'Kilè',
     categories: 'Kategori',
     where: 'Kote',

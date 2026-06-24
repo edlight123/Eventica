@@ -84,42 +84,32 @@ export default function FeaturedCarousel({ events, onEventPress }: FeaturedCarou
             onPress={() => onEventPress(event.id)}
             activeOpacity={0.95}
           >
-            {/* Teal poster gradient always sits behind the banner as the fallback */}
-            <LinearGradient
-              colors={theme.colors}
-              start={{ x: 0.1, y: 0 }}
-              end={{ x: 0.9, y: 1 }}
-              style={styles.image}
-            />
-            {event.banner_image_url && (
-              <Image source={{ uri: event.banner_image_url }} style={styles.image} />
-            )}
-            {/* Single, bottom-weighted scrim keeps the poster visible while
-                the title/meta stay readable (Posh-style poster-forward). */}
-            <LinearGradient
-              colors={['transparent', 'transparent', 'rgba(0,0,0,0.45)', 'rgba(0,0,0,0.88)']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 1 }}
-              style={styles.gradientOverlay}
-            />
+            {/* Full-bleed poster — image only, no scrim */}
+            <View style={styles.poster}>
+              <LinearGradient
+                colors={theme.colors}
+                start={{ x: 0.1, y: 0 }}
+                end={{ x: 0.9, y: 1 }}
+                style={StyleSheet.absoluteFill}
+              />
+              {event.banner_image_url && (
+                <Image source={{ uri: event.banner_image_url }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+              )}
+            </View>
 
+            {/* Title + meta sit BELOW the poster on the dark canvas (no background) */}
             <View style={styles.content}>
               <Text style={styles.title} numberOfLines={2}>{event.title}</Text>
-
               <View style={styles.details}>
-                <View style={styles.detailRow}>
-                  <Calendar size={15} color={colors.primaryLight} />
-                  <Text style={styles.detailText}>
-                    {formatDateForLanguage(new Date(event.start_datetime), 'MMM d, yyyy', language)}
-                  </Text>
-                </View>
-                <Text style={styles.separator}>•</Text>
-                <View style={styles.detailRow}>
-                  <MapPin size={15} color={colors.primaryLight} />
-                  <Text style={styles.detailText} numberOfLines={1}>
-                    {event.venue_name}, {event.city}
-                  </Text>
-                </View>
+                <Calendar size={13} color={colors.textSecondary} />
+                <Text style={styles.detailText} numberOfLines={1}>
+                  {formatDateForLanguage(new Date(event.start_datetime), 'MMM d, yyyy', language)}
+                </Text>
+                <Text style={styles.separator}>·</Text>
+                <MapPin size={13} color={colors.textSecondary} />
+                <Text style={styles.detailText} numberOfLines={1}>
+                  {event.venue_name}, {event.city}
+                </Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -139,61 +129,42 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   card: {
     width: width - 32,
-    height: 440,
     marginHorizontal: 16,
-    borderRadius: 10,
-    overflow: 'hidden',
     backgroundColor: 'transparent',
   },
-  image: {
+  poster: {
     width: '100%',
-    height: '100%',
-    position: 'absolute',
-  },
-  gradientOverlay: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
+    height: 420,
+    borderRadius: 10,
+    overflow: 'hidden',
+    backgroundColor: colors.surfaceMuted,
   },
   content: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'flex-end',
+    paddingTop: 10,
   },
   title: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: '800',
-    color: 'white',
-    marginBottom: 8,
-    lineHeight: 34,
-  },
-  description: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.9)',
-    marginBottom: 12,
-    lineHeight: 20,
+    color: colors.text,
+    lineHeight: 25,
+    letterSpacing: -0.3,
   },
   details: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
-    flexWrap: 'wrap',
-  },
-  detailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
+    gap: 5,
+    marginTop: 5,
+    flexWrap: 'nowrap',
   },
   detailText: {
-    color: 'rgba(255,255,255,0.9)',
+    color: colors.textSecondary,
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '500',
+    flexShrink: 1,
   },
   separator: {
-    color: 'rgba(255,255,255,0.5)',
-    marginHorizontal: 8,
+    color: colors.textTertiary,
+    marginHorizontal: 3,
   },
   actions: {
     flexDirection: 'row',

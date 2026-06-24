@@ -200,26 +200,13 @@ function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
             accessibilityState={{ selected: isFocused }}
             accessibilityLabel={tab.label}
           >
-            {/* Crisp animated top accent indicator */}
-            <Animated.View
-              style={[
-                tabBarStyles.topAccent,
-                { backgroundColor: colors.primary, opacity: a, transform: [{ scaleX: a }] },
-              ]}
-            />
             <Animated.View style={[tabBarStyles.iconWrap, { transform: [{ scale }, { translateY: lift }] }]}>
               <Ionicons
                 name={(isFocused ? tab.activeIcon : tab.icon) as any}
-                size={25}
+                size={26}
                 color={iconColor}
               />
             </Animated.View>
-            <Text
-              style={[tabBarStyles.label, { color: iconColor, fontWeight: isFocused ? '700' : '500' }]}
-              numberOfLines={1}
-            >
-              {tab.label}
-            </Text>
           </TouchableOpacity>
         );
       })}
@@ -241,8 +228,8 @@ const tabBarStyles = StyleSheet.create({
   tab: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'flex-start',
-    paddingTop: 7,
+    justifyContent: 'center',
+    paddingTop: 10,
   },
   topAccent: {
     width: 26,
