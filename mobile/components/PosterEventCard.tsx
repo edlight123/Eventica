@@ -12,8 +12,6 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { formatDateForLanguage } from '../lib/dates';
 import { getPosterTheme } from '../lib/posterGradient';
-import { RADIUS, SHADOWS } from '../config/brand';
-import EventStatusBadge from './EventStatusBadge';
 import type { BadgeStatus } from '../theme/badges';
 
 interface PosterEventCardProps {
@@ -61,23 +59,6 @@ export default function PosterEventCard({
 
   const price = Number(event.ticket_price || 0);
   const isFree = !price || price === 0;
-  const remaining = (event.total_tickets || 0) - (event.tickets_sold || 0);
-  const isSoldOut = remaining <= 0 && (event.total_tickets || 0) > 0;
-  const isNew =
-    event.start_datetime &&
-    new Date(event.start_datetime).getTime() - Date.now() < 7 * 24 * 60 * 60 * 1000;
-
-  // Resolve which status badge to show (explicit override wins).
-  const status: BadgeStatus | null =
-    badge !== undefined
-      ? badge
-      : isSoldOut
-        ? 'Sold Out'
-        : price > 100
-          ? 'VIP'
-          : isNew
-            ? 'New'
-            : null;
 
   const dateLabel = event.start_datetime
     ? formatDateForLanguage(new Date(event.start_datetime), 'EEE, MMM d', language)
@@ -121,12 +102,6 @@ export default function PosterEventCard({
             </Text>
           )}
 
-          {status && (
-            <View style={styles.badgeWrap}>
-              <EventStatusBadge status={status} size="small" />
-            </View>
-          )}
-
           {overlay ? <View style={styles.overlayWrap}>{overlay}</View> : null}
         </View>
 
@@ -159,18 +134,17 @@ export default function PosterEventCard({
 
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
   StyleSheet.create({
+    // Posh-style: no card fill, border, or shadow — the poster sits directly
+    // on the page and the text sits beneath it on the dark canvas.
     card: {
-      borderRadius: RADIUS.lg,
-      backgroundColor: colors.surface,
-      borderWidth: 1,
-      borderColor: colors.borderLight,
-      overflow: 'hidden',
-      ...SHADOWS.card,
+      backgroundColor: 'transparent',
     },
     poster: {
       width: '100%',
       alignItems: 'center',
       justifyContent: 'center',
+      borderRadius: 8,
+      overflow: 'hidden',
       backgroundColor: colors.surfaceMuted,
     },
     imgHidden: {
@@ -181,20 +155,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       fontWeight: '800',
       color: 'rgba(255,255,255,0.28)',
     },
-    badgeWrap: {
-      position: 'absolute',
-      top: 10,
-      right: 10,
-    },
     overlayWrap: {
       position: 'absolute',
       top: 10,
       left: 10,
     },
     content: {
-      paddingHorizontal: 12,
-      paddingTop: 9,
-      paddingBottom: 11,
+      paddingTop: 8,
       gap: 3,
     },
     title: {
