@@ -795,8 +795,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 6,
   },
   organizerName: {
-    fontSize: 24,
+    fontFamily: 'InstrumentSerif_400Regular',
+    fontSize: 28,
     fontWeight: '700',
+    letterSpacing: 0,
     color: '#FFF',
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 0, height: 1 },

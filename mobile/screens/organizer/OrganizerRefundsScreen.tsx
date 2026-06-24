@@ -365,8 +365,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     padding: 8,
   },
   headerTitle: {
-    fontSize: 20,
+    fontFamily: 'InstrumentSerif_400Regular',
+    fontSize: 22,
     fontWeight: '700',
+    letterSpacing: 0,
     color: colors.text,
   },
   badgeContainer: {

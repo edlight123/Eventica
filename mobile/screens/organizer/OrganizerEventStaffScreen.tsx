@@ -451,7 +451,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },
 
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
-  title: { fontSize: 20, fontWeight: '700', color: colors.text },
+  title: { fontSize: 22, fontFamily: 'InstrumentSerif_400Regular', letterSpacing: 0, fontWeight: '700', color: colors.text },
 
   inviteButton: {
     flexDirection: 'row',

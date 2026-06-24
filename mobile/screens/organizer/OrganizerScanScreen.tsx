@@ -281,7 +281,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderBottomColor: colors.borderLight,
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 32,
+    fontFamily: 'InstrumentSerif_400Regular',
+    letterSpacing: 0,
     fontWeight: 'bold',
     color: colors.text,
     marginBottom: 4,

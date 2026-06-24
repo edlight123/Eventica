@@ -448,7 +448,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     zIndex: 1,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 28,
+    fontFamily: 'InstrumentSerif_400Regular',
+    letterSpacing: 0,
     fontWeight: 'bold',
     color: colors.white,
     marginBottom: 8,

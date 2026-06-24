@@ -755,7 +755,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   headerTitle: {
     flex: 1,
     textAlign: 'center',
-    fontSize: 18,
+    fontSize: 20,
+    fontFamily: 'InstrumentSerif_400Regular',
+    letterSpacing: 0,
     fontWeight: '700',
     color: colors.text,
   },

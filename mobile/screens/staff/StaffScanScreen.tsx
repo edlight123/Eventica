@@ -333,7 +333,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingBottom: 12,
   },
   title: {
-    fontSize: 22,
+    fontSize: 26,
+    fontFamily: 'InstrumentSerif_400Regular',
+    letterSpacing: 0,
     fontWeight: '700',
     color: colors.text,
   },

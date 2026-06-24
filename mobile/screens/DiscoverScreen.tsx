@@ -691,8 +691,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 12,
   },
   headerTitle: {
-    fontSize: 28,
+    fontFamily: 'InstrumentSerif_400Regular',
+    fontSize: 32,
     fontWeight: 'bold',
+    letterSpacing: 0,
     color: colors.text,
     marginBottom: 4,
   },

@@ -461,8 +461,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 12,
   },
   title: {
-    fontSize: 24,
+    fontFamily: 'InstrumentSerif_400Regular',
+    fontSize: 28,
     fontWeight: 'bold',
+    letterSpacing: 0,
     color: colors.text,
   },
   subtitle: {

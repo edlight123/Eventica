@@ -886,8 +886,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'space-between',
   },
   headerTitle: {
-    fontSize: 28,
+    fontFamily: 'InstrumentSerif_400Regular',
+    fontSize: 32,
     fontWeight: '700',
+    letterSpacing: 0,
     color: colors.text,
   },
   headerIconButton: {

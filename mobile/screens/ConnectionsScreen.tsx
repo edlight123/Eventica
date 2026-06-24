@@ -445,8 +445,10 @@ const getStyles = (colors: any) =>
       padding: 2,
     },
     topTitle: {
-      fontSize: 18,
+      fontFamily: 'InstrumentSerif_400Regular',
+      fontSize: 20,
       fontWeight: '700',
+      letterSpacing: 0,
       color: colors.text,
     },
     tabs: {
