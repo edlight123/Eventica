@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Image, TouchableOpacity, Dimensions, StyleSheet, ScrollView, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Calendar, MapPin, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react-native';
+import { Calendar, MapPin } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import PaginationDots from './PaginationDots';
 import { useI18n } from '../contexts/I18nContext';
-import { getCategoryLabel } from '../lib/categories';
 import { getPosterTheme } from '../lib/posterGradient';
 
 import { formatDateForLanguage } from '../lib/dates';
@@ -105,16 +104,6 @@ export default function FeaturedCarousel({ events, onEventPress }: FeaturedCarou
             />
 
             <View style={styles.content}>
-              <View style={styles.badges}>
-                <View style={styles.featuredBadge}>
-                  <Sparkles size={12} color="white" />
-                  <Text style={styles.featuredText}>{t('home.featuredBadge')}</Text>
-                </View>
-                <View style={styles.categoryBadge}>
-                  <Text style={styles.categoryText}>{getCategoryLabel(t, event.category)}</Text>
-                </View>
-              </View>
-
               <Text style={styles.title} numberOfLines={2}>{event.title}</Text>
 
               <View style={styles.details}>
@@ -150,11 +139,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   card: {
     width: width - 32,
-    height: 360,
+    height: 440,
     marginHorizontal: 16,
-    borderRadius: 20,
+    borderRadius: 10,
     overflow: 'hidden',
-    backgroundColor: colors.surface,
+    backgroundColor: 'transparent',
   },
   image: {
     width: '100%',
@@ -172,36 +161,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     padding: 20,
     justifyContent: 'flex-end',
-  },
-  badges: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 12,
-  },
-  featuredBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: colors.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-  featuredText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  categoryBadge: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-  categoryText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: '600',
   },
   title: {
     fontSize: 28,
