@@ -177,7 +177,7 @@ export default function OrganizerDashboardScreen() {
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.statCard}
-            onPress={() => navigation.getParent()?.navigate('MyEvents')}
+            onPress={() => navigation.navigate('MyEvents')}
             activeOpacity={0.7}
           >
             <Ionicons name="checkmark-circle-outline" size={32} color={colors.success} />
@@ -195,7 +195,7 @@ export default function OrganizerDashboardScreen() {
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.statCard}
-            onPress={() => navigation.getParent()?.navigate('MyEvents')}
+            onPress={() => navigation.navigate('MyEvents')}
             activeOpacity={0.7}
           >
             <Ionicons name="document-text-outline" size={32} color={colors.textSecondary} />
