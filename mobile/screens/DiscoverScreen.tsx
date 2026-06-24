@@ -25,9 +25,10 @@ import EventStatusBadge from '../components/EventStatusBadge';
 import PosterEventCard from '../components/PosterEventCard';
 import EmptyState from '../components/EmptyState';
 import { PosterRailSkeleton } from '../components/Skeleton';
-import { DateChips, DateFilter } from '../components/DateChips';
-import { CategoryChips } from '../components/CategoryChips';
-import { LocationChips } from '../components/LocationChips';
+import { DateFilter } from '../components/DateChips';
+import FilterPill from '../components/FilterPill';
+import WhenPickerSheet from '../components/WhenPickerSheet';
+import LocationPickerSheet from '../components/LocationPickerSheet';
 import { useFilters } from '../contexts/FiltersContext';
 import { useI18n } from '../contexts/I18nContext';
 import { getCategoryLabel } from '../lib/categories';
@@ -89,6 +90,17 @@ export default function DiscoverScreen({ navigation, route }: any) {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedCity, setSelectedCity] = useState('');
   const [cityRails, setCityRails] = useState<{ city: string; events: any[] }[]>([]);
+  const [whereSheetOpen, setWhereSheetOpen] = useState(false);
+  const [whenSheetOpen, setWhenSheetOpen] = useState(false);
+
+  const DATE_LABEL_KEYS: Record<DateFilter, string> = {
+    'any': 'filters.dateOptions.any',
+    'today': 'filters.dateOptions.today',
+    'tomorrow': 'filters.dateOptions.tomorrow',
+    'this-week': 'filters.dateOptions.thisWeek',
+    'this-weekend': 'filters.dateOptions.thisWeekend',
+  };
+  const whenPillValue = selectedDate !== 'any' ? t(DATE_LABEL_KEYS[selectedDate]) : null;
   
   // Animated header values
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -546,31 +558,33 @@ export default function DiscoverScreen({ navigation, route }: any) {
         </Animated.View>
       </Animated.View>
 
-      {/* Active Filters Indicator */}
-      {(hasActiveFilters() || searchQuery.trim() !== '') && (
-        <View style={styles.activeFiltersContainer}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {searchQuery.trim() !== '' && (
-              <View style={styles.activeFilterChip}>
-                <Text style={styles.activeFilterText}>{t('discover.searchActive')}: {searchQuery}</Text>
-                <TouchableOpacity onPress={() => setSearchQuery('')}>
-                  <X size={14} color={colors.text} />
-                </TouchableOpacity>
-              </View>
-            )}
-            {hasActiveFilters() && (
-              <View style={styles.activeFilterChip}>
-                <Text style={styles.activeFilterText}>
-                  {countActiveFilters()} {countActiveFilters() === 1 ? t('discover.filter') : t('discover.filters')} {countActiveFilters() === 1 ? t('discover.appliedSingular') : t('discover.appliedPlural')}
-                </Text>
-                <TouchableOpacity onPress={openFiltersModal}>
-                  <SlidersHorizontal size={14} color={colors.text} />
-                </TouchableOpacity>
-              </View>
-            )}
-          </ScrollView>
-        </View>
-      )}
+      {/* Posh-style dropdown filter pills */}
+      <View style={styles.filterPillsBar}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterPillsContent}
+        >
+          <FilterPill
+            label={t('discover.where')}
+            value={selectedCity || null}
+            onPress={() => setWhereSheetOpen(true)}
+            onClear={() => setSelectedCity('')}
+          />
+          <FilterPill
+            label={t('discover.when')}
+            value={whenPillValue}
+            onPress={() => setWhenSheetOpen(true)}
+            onClear={() => setSelectedDate('any')}
+          />
+          <FilterPill
+            label={t('discover.filters')}
+            value={countActiveFilters() > 0 ? `${countActiveFilters()} ${t('discover.filters')}` : null}
+            onPress={openFiltersModal}
+            onClear={resetFilters}
+          />
+        </ScrollView>
+      </View>
 
       {/* Scrollable Content */}
       <Animated.ScrollView
@@ -590,25 +604,6 @@ export default function DiscoverScreen({ navigation, route }: any) {
           />
         }
       >
-        {/* Where Chips - location-first browsing (primary discovery axis) */}
-        <View style={styles.chipsSection}>
-          <Text style={styles.chipsSectionTitle}>{t('discover.where').toUpperCase()}</Text>
-          <LocationChips
-            cities={getFeaturedCities(userCountry)}
-            selectedCity={selectedCity}
-            onSelectCity={setSelectedCity}
-          />
-        </View>
-
-        {/* When Chips - Between search and featured */}
-        <View style={styles.chipsSection}>
-          <Text style={styles.chipsSectionTitle}>{t('discover.when').toUpperCase()}</Text>
-          <DateChips 
-            currentDate={selectedDate} 
-            onDateChange={setSelectedDate}
-          />
-        </View>
-
         {/* Featured Carousel (only when no filters) */}
         {!hasAnyFilters && featuredEvents.length > 0 && (
           <View style={styles.featuredSection}>
@@ -622,21 +617,6 @@ export default function DiscoverScreen({ navigation, route }: any) {
             />
           </View>
         )}
-
-        {/* Category Chips - Between featured and happening soon */}
-        <View style={styles.chipsSection}>
-          <Text style={styles.chipsSectionTitle}>{t('discover.categories').toUpperCase()}</Text>
-          <CategoryChips 
-            selectedCategories={selectedCategories} 
-            onCategoryToggle={(category) => {
-              setSelectedCategories(prev => 
-                prev.includes(category) 
-                  ? prev.filter(c => c !== category)
-                  : [...prev, category]
-              );
-            }}
-          />
-        </View>
 
         {/* Content Sections */}
         {hasAnyFilters ? (
@@ -684,6 +664,23 @@ export default function DiscoverScreen({ navigation, route }: any) {
       </Animated.ScrollView>
 
       <EventFiltersSheet />
+
+      <LocationPickerSheet
+        visible={whereSheetOpen}
+        onClose={() => setWhereSheetOpen(false)}
+        selectedCity={selectedCity}
+        onSelect={(city) => {
+          setSelectedCity(city);
+          setWhereSheetOpen(false);
+        }}
+      />
+
+      <WhenPickerSheet
+        visible={whenSheetOpen}
+        onClose={() => setWhenSheetOpen(false)}
+        value={selectedDate}
+        onSelect={setSelectedDate}
+      />
     </View>
   );
 }
@@ -775,6 +772,17 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.surface,
     fontSize: 10,
     fontWeight: 'bold',
+  },
+  filterPillsBar: {
+    backgroundColor: colors.background,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderLight,
+    zIndex: 9,
+  },
+  filterPillsContent: {
+    paddingHorizontal: 16,
+    gap: 8,
   },
   activeFiltersContainer: {
     backgroundColor: colors.surface,
