@@ -34,7 +34,7 @@ import AllEventsPreview from '../components/AllEventsPreview';
 import EventRail from '../components/EventRail';
 import SectionHeader from '../components/SectionHeader';
 import EmptyState from '../components/EmptyState';
-import { Skeleton, PosterRailSkeleton } from '../components/Skeleton';
+import { HomeFeedSkeleton } from '../components/Skeleton';
 import { isBudgetFriendlyTicketPrice } from '../lib/pricing';
 import { getCategoryLabel } from '../lib/categories';
 
@@ -402,11 +402,7 @@ export default function HomeScreen({ navigation }: any) {
       >
         <Animated.View style={{ height: headerSpacerHeight }} />
         {loading ? (
-          <View style={{ paddingTop: 16 }}>
-            <PosterRailSkeleton />
-            <View style={{ height: 28 }} />
-            <PosterRailSkeleton />
-          </View>
+          <HomeFeedSkeleton />
         ) : (
           <>
             {/* For You */}

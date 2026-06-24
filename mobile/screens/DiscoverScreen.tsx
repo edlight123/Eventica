@@ -24,7 +24,7 @@ import EventFiltersSheet from '../components/EventFiltersSheet';
 import EventStatusBadge from '../components/EventStatusBadge';
 import PosterEventCard from '../components/PosterEventCard';
 import EmptyState from '../components/EmptyState';
-import { PosterRailSkeleton } from '../components/Skeleton';
+import { Skeleton, DiscoverFeedSkeleton } from '../components/Skeleton';
 import { DateFilter } from '../components/DateChips';
 import FilterPill from '../components/FilterPill';
 import WhenPickerSheet from '../components/WhenPickerSheet';
@@ -532,10 +532,16 @@ export default function DiscoverScreen({ navigation, route }: any) {
 
   if (loading) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top + 70 }]}>
-        <PosterRailSkeleton />
-        <View style={{ height: 28 }} />
-        <PosterRailSkeleton />
+      <View style={styles.container}>
+        <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+          <Skeleton height={44} radius={22} style={{ width: '100%' }} />
+          <View style={styles.tabsRow}>
+            <Skeleton width={64} height={16} radius={6} />
+            <Skeleton width={78} height={16} radius={6} />
+            <Skeleton width={52} height={16} radius={6} />
+          </View>
+        </View>
+        <DiscoverFeedSkeleton />
       </View>
     );
   }

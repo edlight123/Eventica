@@ -6,7 +6,6 @@ import {
   StyleSheet, 
   TouchableOpacity, 
   RefreshControl,
-  ActivityIndicator,
   Alert,
   Share,
   StatusBar,
@@ -21,6 +20,7 @@ import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
 import EmptyState from '../components/EmptyState';
 import PosterEventCard from '../components/PosterEventCard';
+import { GridSkeleton } from '../components/Skeleton';
 import { format } from 'date-fns';
 
 const { width } = Dimensions.get('window');
@@ -157,8 +157,12 @@ export default function FavoritesScreen({ navigation }: any) {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+          <Text style={styles.headerTitle}>{t('favorites.title')}</Text>
+        </View>
+        <GridSkeleton />
       </View>
     );
   }

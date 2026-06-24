@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, Inbox } from 'lucide-react-native';
 import { collection, query, where, getDocs } from 'firebase/firestore';
@@ -7,6 +7,7 @@ import { db } from '../config/firebase';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import EventListCard from '../components/EventListCard';
+import { ListSkeleton } from '../components/Skeleton';
 import EmptyState from '../components/EmptyState';
 import { getCategoryLabel } from '../lib/categories';
 
@@ -78,9 +79,7 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
       </View>
 
       {loading ? (
-        <View style={styles.loader}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
+        <ListSkeleton />
       ) : (
         <FlatList
           data={events}
