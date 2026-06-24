@@ -58,6 +58,7 @@ export default {
   },
   common: {
     free: 'Gratis',
+    from: 'apati',
     viewAll: 'Gade tout',
     ok: 'OK',
     yes: 'Wi',

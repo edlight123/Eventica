@@ -12,7 +12,6 @@ import {
   Image,
   Animated,
 } from 'react-native';
-import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
@@ -76,7 +75,7 @@ export default function SignupScreen({ navigation }: any) {
           <View style={styles.content}>
             <Animated.View style={[styles.logoContainer, { transform: [{ scale: logoScale }], opacity: logoOpacity }]}>
               <Image
-                source={require('../../assets/tikem_wordmark_dark.png')}
+                source={require('../../assets/tikem_wordmark_light.png')}
                 style={styles.wordmark}
                 resizeMode="contain"
               />
@@ -84,8 +83,7 @@ export default function SignupScreen({ navigation }: any) {
             </Animated.View>
 
             <Animated.View style={{ transform: [{ translateY: formAnim }], opacity: formOpacity }}>
-              <BlurView intensity={60} tint="dark" style={styles.blurCard}>
-                <View style={styles.form}>
+              <View style={styles.form}>
                   <TextInput
                     style={styles.input}
                     placeholder={t('auth.signup.placeholders.fullName')}
@@ -146,8 +144,7 @@ export default function SignupScreen({ navigation }: any) {
                       <Text style={styles.linkTextBold}>{t('auth.signup.signIn')}</Text>
                     </Text>
                   </TouchableOpacity>
-                </View>
-              </BlurView>
+              </View>
             </Animated.View>
           </View>
         </ScrollView>

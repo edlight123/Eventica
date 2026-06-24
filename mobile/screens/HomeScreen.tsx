@@ -369,11 +369,7 @@ export default function HomeScreen({ navigation }: any) {
       >
         <View style={styles.headerLeft}>
           <Image
-            source={
-              isDark
-                ? require('../assets/tikem_wordmark_dark.png')
-                : require('../assets/tikem_wordmark_light.png')
-            }
+            source={require('../assets/tikem_wordmark_light.png')}
             style={styles.wordmark}
             resizeMode="contain"
           />

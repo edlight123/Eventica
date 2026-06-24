@@ -12,7 +12,6 @@ import {
   Animated,
   Dimensions,
 } from 'react-native';
-import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../../contexts/AuthContext';
 import { BRAND } from '../../config/brand';
@@ -82,17 +81,16 @@ export default function LoginScreen({ navigation }: any) {
           {/* Logo */}
           <Animated.View style={[styles.logoContainer, { transform: [{ scale: logoScale }], opacity: logoOpacity }]}>
             <Image
-              source={require('../../assets/tikem_wordmark_dark.png')}
+              source={require('../../assets/tikem_wordmark_light.png')}
               style={styles.wordmark}
               resizeMode="contain"
             />
             <Text style={styles.tagline}>{BRAND.tagline}</Text>
           </Animated.View>
 
-          {/* Frosted form card */}
+          {/* Form — no card, sits directly on the background */}
           <Animated.View style={{ transform: [{ translateY: formAnim }], opacity: formOpacity }}>
-            <BlurView intensity={60} tint="dark" style={styles.blurCard}>
-              <View style={styles.form}>
+            <View style={styles.form}>
                 <TextInput
                   style={styles.input}
                   placeholder={t('auth.login.placeholders.email')}
@@ -152,8 +150,7 @@ export default function LoginScreen({ navigation }: any) {
                     <Text style={styles.linkTextBold}>{t('auth.login.signUp')}</Text>
                   </Text>
                 </TouchableOpacity>
-              </View>
-            </BlurView>
+            </View>
           </Animated.View>
         </View>
       </KeyboardAvoidingView>
