@@ -13,7 +13,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Briefcase, ChevronDown, ChevronRight, ExternalLink, LogOut, MapPin, Settings, User, Users } from 'lucide-react-native';
+import { Bell, Briefcase, ChevronDown, ChevronRight, ExternalLink, LogOut, MapPin, Settings, User, Users } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { getDownloadURL, ref as storageRef, uploadBytes } from 'firebase/storage';
@@ -408,13 +408,22 @@ export default function ProfileScreen() {
         }}
       >
         <Text style={styles.headerTitle}>{t('profile.account')}</Text>
-        <TouchableOpacity
-          style={styles.headerIconButton}
-          onPress={() => setIsEditing((v) => !v)}
-          accessibilityLabel={t('profile.edit')}
-        >
-          <Settings size={22} color={colors.text} />
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity
+            style={styles.headerIconButton}
+            onPress={() => navigation.navigate('Notifications', { userId: user?.uid || '' })}
+            accessibilityLabel="Notifications"
+          >
+            <Bell size={22} color={colors.text} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.headerIconButton}
+            onPress={() => setIsEditing((v) => !v)}
+            accessibilityLabel={t('profile.edit')}
+          >
+            <Settings size={22} color={colors.text} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView
@@ -885,6 +894,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     padding: 8,
     borderRadius: 20,
     backgroundColor: 'transparent',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   scroll: {
     flex: 1,

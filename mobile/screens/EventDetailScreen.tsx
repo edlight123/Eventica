@@ -47,7 +47,7 @@ import FollowButton from '../components/FollowButton';
 import CountdownTimer from '../components/CountdownTimer';
 import WhosGoing from '../components/WhosGoing';
 const { width } = Dimensions.get('window');
-const POSTER_W = width * 0.68;
+const POSTER_W = width * 0.86;
 
 export default function EventDetailScreen({ route, navigation }: any) {
   const { eventId } = route.params;
@@ -629,7 +629,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   heroContainer: {
     position: 'relative',
     width: width,
-    height: 500,
+    height: 600,
     backgroundColor: colors.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',

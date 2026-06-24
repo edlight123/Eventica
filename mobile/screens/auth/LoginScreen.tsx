@@ -71,10 +71,10 @@ export default function LoginScreen({ navigation }: any) {
   const logoOpacity = logoAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 0.8, 1] });
 
   return (
-    <LinearGradient colors={['#0F172A', '#134E4A', '#0F766E']} style={styles.gradient}>
+    <LinearGradient colors={['#0A0A0A', '#0E1413', '#0A0A0A']} style={styles.gradient}>
       {/* Decorative blurred circles */}
-      <View style={[styles.blob, { top: -80, right: -60, backgroundColor: '#14B8A6' }]} />
-      <View style={[styles.blob, { bottom: 100, left: -80, backgroundColor: '#0D9488', opacity: 0.4 }]} />
+      <View style={[styles.blob, { top: -80, right: -60, backgroundColor: '#14B8A6', opacity: 0.12 }]} />
+      <View style={[styles.blob, { bottom: 100, left: -80, backgroundColor: '#0D9488', opacity: 0.1 }]} />
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
         <View style={styles.content}>

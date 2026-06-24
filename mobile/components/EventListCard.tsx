@@ -93,13 +93,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
   StyleSheet.create({
     card: {
       flexDirection: 'row',
-      backgroundColor: colors.surface,
-      borderRadius: 16,
-      borderWidth: 1,
-      borderColor: colors.borderLight,
-      overflow: 'hidden',
-      padding: 10,
-      marginBottom: 12,
+      paddingVertical: 10,
+      marginBottom: 4,
       gap: 12,
       alignItems: 'center',
     },

@@ -22,7 +22,7 @@ import { useFilters } from '../contexts/FiltersContext';
 import { BRAND } from '../config/brand';
 import { useTheme } from '../contexts/ThemeContext';
 import { COUNTRY_NAMES } from '../utils/deviceLocation';
-import { Bell, Users, MapPin, ChevronDown, Inbox } from 'lucide-react-native';
+import { MapPin, ChevronDown, Inbox } from 'lucide-react-native';
 import LocationDetectionBanner from '../components/LocationDetectionBanner';
 import LocationPickerSheet from '../components/LocationPickerSheet';
 import { DEFAULT_FILTERS } from '../types/filters';
@@ -372,6 +372,8 @@ export default function HomeScreen({ navigation }: any) {
             style={styles.wordmark}
             resizeMode="contain"
           />
+        </View>
+        <View style={styles.headerRight}>
           <TouchableOpacity
             style={styles.locationRow}
             onPress={() => setLocationSheetOpen(true)}
@@ -382,24 +384,6 @@ export default function HomeScreen({ navigation }: any) {
               {locationLabel}
             </Text>
             <ChevronDown size={14} color={colors.textSecondary} />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.headerRight}>
-          {user ? (
-            <TouchableOpacity
-              style={styles.iconButton}
-              onPress={() => navigation.navigate('Connections')}
-              activeOpacity={0.7}
-            >
-              <Users size={21} color={colors.text} />
-            </TouchableOpacity>
-          ) : null}
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => navigation.navigate('Notifications', { userId: user?.uid || '' })}
-            activeOpacity={0.7}
-          >
-            <Bell size={21} color={colors.text} />
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -581,13 +565,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginTop: 5,
   },
   locationText: {
     fontSize: 13,
     fontWeight: '600',
     color: colors.textSecondary,
-    maxWidth: 200,
+    maxWidth: 150,
   },
   headerRight: {
     flexDirection: 'row',
