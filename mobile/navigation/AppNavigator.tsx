@@ -49,6 +49,7 @@ import InviteRedeemScreen from '../screens/InviteRedeemScreen';
 
 // Detail Screens
 import EventDetailScreen from '../screens/EventDetailScreen';
+import CategoryEventsScreen from '../screens/CategoryEventsScreen';
 import EventTicketsScreen from '../screens/EventTicketsScreen';
 import TicketDetailScreen from '../screens/TicketDetailScreen';
 import OrganizerProfileScreen from '../screens/OrganizerProfileScreen';
@@ -79,6 +80,7 @@ export type RootStackParamList = {
   StripeConnectWebView: { url: string };
   InAppWebView: { url: string; title?: string };
   EventDetail: { eventId: string };
+  CategoryEvents: { category: string; title?: string };
   EventTickets: { eventId: string };
   TicketDetail: { ticketId: string };
   OrganizerProfile: { organizerId: string };
@@ -527,6 +529,7 @@ export default function AppNavigator() {
               })}
             />
             <Stack.Screen name="EventDetail" component={EventDetailScreen} />
+            <Stack.Screen name="CategoryEvents" component={CategoryEventsScreen} />
             <Stack.Screen name="EventTickets" component={EventTicketsScreen} />
             <Stack.Screen name="TicketDetail" component={TicketDetailScreen} />
             <Stack.Screen name="OrganizerProfile" component={OrganizerProfileScreen} />

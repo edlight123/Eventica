@@ -43,7 +43,12 @@ import { fetchFriendsGoingCounts } from '../lib/api/social';
 const { width } = Dimensions.get('window');
 const GRID_GAP = 16;
 const COLUMN_WIDTH = (width - 32 - GRID_GAP) / 2;
-const RAIL_WIDTH = Math.min(248, width * 0.62);
+// Match the Home rail poster exactly (Home uses CARD_WIDTH = min(248, width*0.62), no inset).
+// Keep a side inset on Discover by widening the card by 2x the inset so the poster
+// itself ends up the same width AND height as Home, with gutters on the sides.
+const HOME_CARD_WIDTH = Math.min(248, width * 0.62);
+const RAIL_INSET = 12;
+const RAIL_WIDTH = HOME_CARD_WIDTH + RAIL_INSET * 2;
 
 const HEADER_EXPANDED_HEIGHT = 145;
 const HEADER_COLLAPSED_HEIGHT = 70;
@@ -461,7 +466,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
       key={`${event.id}-${index}`}
       event={event}
       width={COLUMN_WIDTH}
-      posterInsetX={12}
+      posterInsetX={0}
       friendsGoing={friendsGoingCounts[event.id]}
       onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
     />
@@ -498,7 +503,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
               key={`${event.id}-${index}`}
               event={event}
               width={RAIL_WIDTH}
-              posterInsetX={12}
+              posterInsetX={RAIL_INSET}
               friendsGoing={friendsGoingCounts[event.id]}
               onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
             />

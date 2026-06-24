@@ -489,7 +489,7 @@ export default function HomeScreen({ navigation }: any) {
                   title={getCategoryLabel(t, rail.category)}
                   events={rail.events}
                   onEventPress={(eventId) => navigation.navigate('EventDetail', { eventId })}
-                  onViewAll={() => navigation.navigate('Discover', { category: rail.category, timestamp: Date.now() })}
+                  onViewAll={() => navigation.navigate('CategoryEvents', { category: rail.category, title: getCategoryLabel(t, rail.category) })}
                 />
               </View>
             ))}
@@ -608,6 +608,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     height: 38,
     aspectRatio: 2.298,
     alignSelf: 'flex-start',
+    tintColor: '#FFFFFF',
   },
   greeting: {
     fontSize: 13,
@@ -624,6 +625,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   firstSection: {
     marginTop: 16,
+    marginBottom: 24,
+    paddingHorizontal: 16,
   },
   sectionHeader: {
     marginBottom: 16,

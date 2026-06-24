@@ -184,6 +184,7 @@ const styles = StyleSheet.create({
   wordmark: {
     width: 200,
     height: 64,
+    tintColor: '#FFFFFF',
   },
   tagline: {
     fontSize: 15,
