@@ -29,6 +29,9 @@ interface PosterEventCardProps {
   friendsGoing?: number;
   /** Optional node rendered over the poster's top-left (e.g. a quick action). */
   overlay?: React.ReactNode;
+  /** Horizontal (and top) inset around the poster so it sits inside the card
+   *  edges with visible gutters. Default 0 keeps the poster flush (Home/Favorites). */
+  posterInsetX?: number;
 }
 
 /**
@@ -47,6 +50,7 @@ export default function PosterEventCard({
   showMeta = true,
   friendsGoing = 0,
   overlay,
+  posterInsetX = 0,
 }: PosterEventCardProps) {
   const { colors } = useTheme();
   const { t, language } = useI18n();
@@ -80,29 +84,31 @@ export default function PosterEventCard({
         onPressOut={pressOut}
         style={styles.card}
       >
-        <View style={[styles.poster, { aspectRatio: 1 / ratio }]}>
-          {/* Poster gradient sits behind the image as the fallback art. */}
-          <LinearGradient
-            colors={theme.colors}
-            start={{ x: 0.1, y: 0 }}
-            end={{ x: 0.9, y: 1 }}
-            style={StyleSheet.absoluteFill}
-          />
-
-          {hasImage ? (
-            <Image
-              source={{ uri: event.banner_image_url }}
-              style={[StyleSheet.absoluteFill, !imgLoaded && styles.imgHidden]}
-              resizeMode="cover"
-              onLoad={() => setImgLoaded(true)}
+        <View style={{ paddingHorizontal: posterInsetX, paddingTop: posterInsetX }}>
+          <View style={[styles.poster, { aspectRatio: 1 / ratio }, posterInsetX > 0 && styles.posterInset]}>
+            {/* Poster gradient sits behind the image as the fallback art. */}
+            <LinearGradient
+              colors={theme.colors}
+              start={{ x: 0.1, y: 0 }}
+              end={{ x: 0.9, y: 1 }}
+              style={StyleSheet.absoluteFill}
             />
-          ) : (
-            <Text style={styles.monogram} numberOfLines={1}>
-              {(event.title || '?').trim().charAt(0).toUpperCase()}
-            </Text>
-          )}
 
-          {overlay ? <View style={styles.overlayWrap}>{overlay}</View> : null}
+            {hasImage ? (
+              <Image
+                source={{ uri: event.banner_image_url }}
+                style={[StyleSheet.absoluteFill, !imgLoaded && styles.imgHidden]}
+                resizeMode="cover"
+                onLoad={() => setImgLoaded(true)}
+              />
+            ) : (
+              <Text style={styles.monogram} numberOfLines={1}>
+                {(event.title || '?').trim().charAt(0).toUpperCase()}
+              </Text>
+            )}
+
+            {overlay ? <View style={styles.overlayWrap}>{overlay}</View> : null}
+          </View>
         </View>
 
         {/* Minimal, Posh-style content: title + one quiet meta line + price.
@@ -146,6 +152,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       borderRadius: 8,
       overflow: 'hidden',
       backgroundColor: colors.surfaceMuted,
+    },
+    posterInset: {
+      borderRadius: 14,
+      overflow: 'hidden',
     },
     imgHidden: {
       opacity: 0,

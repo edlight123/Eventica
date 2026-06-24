@@ -461,6 +461,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
       key={`${event.id}-${index}`}
       event={event}
       width={COLUMN_WIDTH}
+      posterInsetX={12}
       friendsGoing={friendsGoingCounts[event.id]}
       onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
     />
@@ -497,6 +498,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
               key={`${event.id}-${index}`}
               event={event}
               width={RAIL_WIDTH}
+              posterInsetX={12}
               friendsGoing={friendsGoingCounts[event.id]}
               onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
             />

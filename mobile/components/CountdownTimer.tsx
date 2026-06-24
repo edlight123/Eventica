@@ -24,7 +24,7 @@ function getTimeLeft(target: Date): TimeLeft {
 }
 
 export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(getTimeLeft(targetDate));
 
   useEffect(() => {
@@ -53,13 +53,13 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
       ];
 
   return (
-    <View style={[styles.container, { backgroundColor: isDark ? colors.surface : '#F0FDFA', borderColor: colors.primary + '33' }]}>
-      <Text style={[styles.heading, { color: colors.primary }]}>⏳ Event starts in</Text>
+    <View style={styles.container}>
+      <Text style={[styles.heading, { color: colors.textSecondary }]}>Event starts in</Text>
       <View style={styles.unitsRow}>
         {units.map((unit, idx) => (
           <React.Fragment key={unit.label}>
-            <View style={[styles.unitBox, { backgroundColor: colors.primary + '1A', borderColor: colors.primary + '40' }]}>
-              <Text style={[styles.unitValue, { color: colors.primary }]}>
+            <View style={styles.unitBox}>
+              <Text style={[styles.unitValue, { color: colors.text }]}>
                 {String(unit.value).padStart(2, '0')}
               </Text>
               <Text style={[styles.unitLabel, { color: colors.textSecondary }]}>{unit.label}</Text>
@@ -76,17 +76,15 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 16,
-    borderWidth: 1,
-    padding: 16,
-    marginBottom: 16,
-    alignItems: 'center',
+    paddingVertical: 12,
+    marginBottom: 8,
+    alignItems: 'flex-start',
   },
   heading: {
     fontSize: 13,
     fontWeight: '600',
     letterSpacing: 0.5,
-    marginBottom: 12,
+    marginBottom: 8,
     textTransform: 'uppercase',
   },
   unitsRow: {
@@ -96,12 +94,7 @@ const styles = StyleSheet.create({
   },
   unitBox: {
     alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 12,
-    borderWidth: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    minWidth: 64,
+    minWidth: 48,
   },
   unitValue: {
     fontSize: 28,

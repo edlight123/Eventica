@@ -23,9 +23,7 @@ import {
   Tag, 
   Share2, 
   Heart, 
-  Clock, 
   Ticket, 
-  Users,
   TrendingUp,
   Star,
   Shield,
@@ -39,11 +37,8 @@ import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { colors as T } from '../theme/tokens';
 import { format } from 'date-fns';
-import EventStatusBadge from '../components/EventStatusBadge';
-import TicketAvailabilityBar from '../components/TicketAvailabilityBar';
 import PaymentModal from '../components/PaymentModal';
 import TieredTicketSelector from '../components/TieredTicketSelector';
-import { getCategoryLabel } from '../lib/categories';
 import { getPosterTheme } from '../lib/posterGradient';
 import FreeTicketModal from '../components/FreeTicketModal';
 import AddToCalendarButton from '../components/AddToCalendarButton';
@@ -52,6 +47,7 @@ import FollowButton from '../components/FollowButton';
 import CountdownTimer from '../components/CountdownTimer';
 import WhosGoing from '../components/WhosGoing';
 const { width } = Dimensions.get('window');
+const POSTER_W = width * 0.62;
 
 export default function EventDetailScreen({ route, navigation }: any) {
   const { eventId } = route.params;
@@ -324,25 +320,50 @@ export default function EventDetailScreen({ route, navigation }: any) {
         )}
         scrollEventThrottle={16}
       >
-        {/* Poster — clean image on top; content sits underneath (text-first) */}
+        {/* Hero — same poster blurred as backdrop, sharp poster centered */}
         <View style={styles.heroContainer}>
           <LinearGradient
             colors={getPosterTheme(event.id || event.title, event.category).colors}
             start={{ x: 0.1, y: 0 }}
             end={{ x: 0.9, y: 1 }}
-            style={styles.heroImage}
+            style={StyleSheet.absoluteFill}
           />
           {(event.banner_image_url || event.cover_image_url) && (
-            <Image 
-              source={{ uri: event.banner_image_url || event.cover_image_url }} 
-              style={[styles.heroImage, styles.heroImageAbsolute]}
+            <Image
+              source={{ uri: event.banner_image_url || event.cover_image_url }}
+              style={StyleSheet.absoluteFill}
               resizeMode="cover"
+              blurRadius={28}
             />
           )}
+          <View style={styles.heroBackdropScrim} />
 
-          {/* Subtle top scrim only — keeps the action buttons legible */}
+          {/* Centered sharp poster */}
+          <View style={styles.heroPoster}>
+            <LinearGradient
+              colors={getPosterTheme(event.id || event.title, event.category).colors}
+              start={{ x: 0.1, y: 0 }}
+              end={{ x: 0.9, y: 1 }}
+              style={StyleSheet.absoluteFill}
+            />
+            {(event.banner_image_url || event.cover_image_url) && (
+              <Image
+                source={{ uri: event.banner_image_url || event.cover_image_url }}
+                style={StyleSheet.absoluteFill}
+                resizeMode="cover"
+              />
+            )}
+          </View>
+
+          {/* Bottom blend into page background */}
           <LinearGradient
-            colors={['rgba(0,0,0,0.5)', 'transparent']}
+            colors={['transparent', colors.background]}
+            style={styles.heroBottomBlend}
+          />
+
+          {/* Top scrim for button legibility */}
+          <LinearGradient
+            colors={['rgba(0,0,0,0.45)', 'transparent']}
             style={styles.heroTopScrim}
           />
 
@@ -367,19 +388,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
 
         <View style={styles.content}>
           {/* Title block — text-first, under the poster */}
-          <Text style={styles.eyebrow}>
-            {getCategoryLabel(t, event.category)}
-            {event.start_datetime ? `   ·   ${format(event.start_datetime, 'EEE, MMM d')}` : ''}
-          </Text>
           <Text style={styles.title}>{event.title}</Text>
-          {(isVIP || isTrending || isSoldOut || selloutSoon) && (
-            <View style={styles.badgeRow}>
-              {isVIP && <EventStatusBadge status="VIP" size="small" />}
-              {isTrending && <EventStatusBadge status="Trending" size="small" />}
-              {isSoldOut && <EventStatusBadge status="Sold Out" size="small" />}
-              {selloutSoon && !isSoldOut && <EventStatusBadge status="Last Chance" size="small" />}
-            </View>
-          )}
 
           {/* Countdown to event */}
           {event.start_datetime && new Date(event.start_datetime) > new Date() && (
@@ -413,28 +422,6 @@ export default function EventDetailScreen({ route, navigation }: any) {
               </View>
               <ExternalLink size={15} color={colors.textSecondary} />
             </TouchableOpacity>
-
-            {(event.total_tickets > 0) && (
-              <>
-                <View style={styles.factDivider} />
-                <View style={styles.factRow}>
-                  <Users size={18} color={colors.primary} />
-                  <View style={[styles.factText, { flex: 1 }]}>
-                    <Text style={styles.factValue}>
-                      {remainingTickets} {t('eventDetail.tickets.available')}
-                    </Text>
-                    <Text style={styles.factSub}>
-                      {event.tickets_sold || 0} / {event.total_tickets} {t('common.sold')}
-                    </Text>
-                    <TicketAvailabilityBar
-                      totalTickets={event.total_tickets}
-                      ticketsSold={event.tickets_sold || 0}
-                      style={{ marginTop: 8 }}
-                    />
-                  </View>
-                </View>
-              </>
-            )}
           </View>
 
           {/* Quick Actions - Calendar & Waitlist */}
@@ -466,20 +453,6 @@ export default function EventDetailScreen({ route, navigation }: any) {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{t('eventDetail.sections.about')}</Text>
             <Text style={styles.description}>{event.description}</Text>
-            
-            {/* Tags */}
-            {event.tags && event.tags.length > 0 && (
-              <View style={styles.tagsContainer}>
-                <Text style={styles.tagsTitle}>{t('eventDetail.sections.tags')}</Text>
-                <View style={styles.tagsRow}>
-                  {event.tags.map((tag: string, index: number) => (
-                    <View key={index} style={styles.tag}>
-                      <Text style={styles.tagText}>{tag}</Text>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            )}
           </View>
 
           {/* Hosted By Section */}
@@ -520,76 +493,6 @@ export default function EventDetailScreen({ route, navigation }: any) {
 
           {/* Who's Going - social attendance */}
           <WhosGoing eventId={eventId} />
-
-          {/* Venue Details Section */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <MapPin size={20} color={colors.primary} />
-              <Text style={styles.sectionTitle}>{t('eventDetail.sections.venueInfo')}</Text>
-            </View>
-            <View style={styles.venueDetails}>
-              <View style={styles.venueRow}>
-                <Text style={styles.venueLabel}>{t('eventDetail.venue.venueName')}</Text>
-                <Text style={styles.venueValue}>{event.venue_name}</Text>
-              </View>
-              <View style={styles.venueRow}>
-                <Text style={styles.venueLabel}>{t('eventDetail.venue.address')}</Text>
-                <Text style={styles.venueValue}>
-                  {event.address || t('eventDetail.venue.addressNotSpecified')}
-                </Text>
-                <Text style={styles.venueValue}>
-                  {event.commune && `${event.commune}, `}{event.city}
-                </Text>
-              </View>
-              <View style={styles.mapLinksRow}>
-                <TouchableOpacity 
-                  style={styles.mapLink}
-                  onPress={() => Linking.openURL(`http://maps.apple.com/?q=${encodeURIComponent(event.address || `${event.venue_name}, ${event.city}`)}`)}
-                >
-                  <MapPin size={14} color={colors.primary} />
-                  <Text style={styles.mapLinkText}>{t('eventDetail.maps.apple')}</Text>
-                </TouchableOpacity>
-                <Text style={styles.mapSeparator}>|</Text>
-                <TouchableOpacity 
-                  style={styles.mapLink}
-                  onPress={() => Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address || `${event.venue_name}, ${event.city}`)}`)}
-                >
-                  <MapPin size={14} color={colors.primary} />
-                  <Text style={styles.mapLinkText}>{t('eventDetail.maps.google')}</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-
-          {/* Date & Time Details Section */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Clock size={20} color={colors.primary} />
-              <Text style={styles.sectionTitle}>{t('eventDetail.sections.dateAndTime')}</Text>
-            </View>
-            <View style={styles.dateDetails}>
-              <View style={styles.dateRow}>
-                <Text style={styles.dateLabel}>{t('eventDetail.date.start')}</Text>
-                <Text style={styles.dateValue}>
-                  {event.start_datetime && format(event.start_datetime, 'EEEE, MMMM d, yyyy')}
-                </Text>
-                <Text style={styles.dateTime}>
-                  {event.start_datetime && format(event.start_datetime, 'h:mm a')}
-                </Text>
-              </View>
-              {event.end_datetime && (
-                <View style={styles.dateRow}>
-                  <Text style={styles.dateLabel}>{t('eventDetail.date.end')}</Text>
-                  <Text style={styles.dateValue}>
-                    {format(event.end_datetime, 'EEEE, MMMM d, yyyy')}
-                  </Text>
-                  <Text style={styles.dateTime}>
-                    {format(event.end_datetime, 'h:mm a')}
-                  </Text>
-                </View>
-              )}
-            </View>
-          </View>
 
           {/* Bottom padding for floating CTA */}
           <View style={{ height: 120 }} />
@@ -726,8 +629,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   heroContainer: {
     position: 'relative',
     width: width,
-    height: 380,
+    height: 470,
     backgroundColor: colors.surfaceMuted,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   heroImage: {
     width: '100%',
@@ -737,6 +642,29 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     position: 'absolute',
     top: 0,
     left: 0,
+  },
+  heroBackdropScrim: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(10,10,10,0.55)',
+  },
+  heroPoster: {
+    width: POSTER_W,
+    aspectRatio: 4 / 5,
+    borderRadius: 20,
+    overflow: 'hidden',
+    backgroundColor: colors.surfaceMuted,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.45,
+    shadowRadius: 24,
+    elevation: 12,
+  },
+  heroBottomBlend: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 140,
   },
   heroPlaceholder: {
     width: '100%',

@@ -23,7 +23,6 @@ import { BRAND } from '../config/brand';
 import { useTheme } from '../contexts/ThemeContext';
 import { COUNTRY_NAMES } from '../utils/deviceLocation';
 import { Bell, Users, MapPin, ChevronDown, Inbox } from 'lucide-react-native';
-import FeaturedCarousel from '../components/FeaturedCarousel';
 import LocationDetectionBanner from '../components/LocationDetectionBanner';
 import LocationPickerSheet from '../components/LocationPickerSheet';
 import { DEFAULT_FILTERS } from '../types/filters';
@@ -416,29 +415,15 @@ export default function HomeScreen({ navigation }: any) {
         <Animated.View style={{ height: headerSpacerHeight }} />
         {loading ? (
           <View style={{ paddingTop: 16 }}>
-            <View style={{ paddingHorizontal: 16 }}>
-              <Skeleton height={300} radius={20} />
-            </View>
-            <View style={{ height: 28 }} />
             <PosterRailSkeleton />
             <View style={{ height: 28 }} />
             <PosterRailSkeleton />
           </View>
         ) : (
           <>
-            {/* Featured hero */}
-            {featuredEvents.length > 0 && (
-              <View style={styles.firstSection}>
-                <FeaturedCarousel
-                  events={featuredEvents}
-                  onEventPress={(eventId) => navigation.navigate('EventDetail', { eventId })}
-                />
-              </View>
-            )}
-
             {/* For You */}
             {forYouEvents.length > 0 && (
-              <View style={styles.section}>
+              <View style={styles.firstSection}>
                 <EventRail
                   title={t('home.forYouTitle')}
                   subtitle={t('home.forYouSubtitle')}
