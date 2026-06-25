@@ -174,7 +174,24 @@ async function releaseOrderClaim(orderId: string): Promise<void> {
   }
 }
 
-export async function GET(request: Request) {
+export async function GET(request: Request): Promise<NextResponse> {
+  // Defense-in-depth: a payment return must NEVER be cached by the browser or a shared
+  // CDN/proxy. If it were, the gateway redirect back to this URL could be served from cache
+  // and skip fulfillment entirely (or hand one buyer another buyer's cached redirect).
+  // next.config.js already marks /api/* as no-store; we also stamp it here so the guarantee
+  // holds even if the app is served behind a proxy that ignores those headers.
+  let response: NextResponse
+  try {
+    response = await handleMonCashButtonReturn(request)
+  } catch (error: any) {
+    console.error('MonCash Button return error:', error)
+    response = NextResponse.redirect(new URL('/purchase/failed?reason=processing_error', request.url))
+  }
+  response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+  return response
+}
+
+async function handleMonCashButtonReturn(request: Request): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(request.url)
 
