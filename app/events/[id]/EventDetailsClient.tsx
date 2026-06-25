@@ -55,132 +55,157 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
         selloutSoon={selloutSoon}
       />
 
-      {/* DESKTOP HERO - Premium section */}
-      <div className="hidden md:block relative bg-gray-900 overflow-hidden">
-        {/* Background Image with Overlay */}
+      {/* DESKTOP HERO - Poster-shaped (portrait), editorial layout */}
+      <div className="hidden md:block relative overflow-hidden bg-gray-950">
+        {/* Ambient blurred backdrop from the poster */}
         {event.banner_image_url ? (
           <div className="absolute inset-0">
             <Image
               src={event.banner_image_url}
-              alt={event.title}
+              alt=""
+              aria-hidden
               fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
-              className="object-cover"
+              sizes="100vw"
+              className="object-cover scale-110 blur-2xl opacity-40"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/30" />
+            <div className="absolute inset-0 bg-gradient-to-b from-gray-950/70 via-gray-950/85 to-gray-950" />
           </div>
         ) : (
-          <div className="poster-vignette absolute inset-0" style={{ backgroundImage: posterTheme.bg }}>
-            <div className="absolute inset-0 flex items-center justify-center px-8 text-center">
-              <span className="font-display text-[clamp(40px,7vw,84px)] leading-[0.95] text-white/15">
-                {event.title}
-              </span>
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/25" />
+          <div className="absolute inset-0" style={{ backgroundImage: posterTheme.bg }}>
+            <div className="absolute inset-0 bg-gray-950/55 backdrop-blur-2xl" />
           </div>
         )}
 
         {/* Hero Content */}
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-20">
-          <div className="max-w-4xl">
-            {/* Premium Badges */}
-            <div className="flex flex-wrap items-center gap-2 mb-6">
-              <span className="eyebrow rounded-lg bg-white/15 px-3 py-1.5 text-[11px] text-white backdrop-blur-md">
-                {event.category}
-              </span>
-              {isVIP && (
-                <Badge variant="vip" size="md" icon={<Star className="w-4 h-4" />}>
-                  {t('events.vip_event')}
-                </Badge>
-              )}
-              {isTrending && (
-                <Badge variant="trending" size="md" icon={<TrendingUp className="w-4 h-4" />}>
-                  {t('events.trending')}
-                </Badge>
-              )}
-              {isSoldOut && (
-                <Badge variant="error" size="md">
-                  {t('ticket.sold_out_caps')}
-                </Badge>
-              )}
-              {selloutSoon && (
-                <Badge variant="warning" size="md">
-                  {t('ticket.almost_sold_out')}
-                </Badge>
-              )}
-            </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+          <div className="grid grid-cols-1 lg:grid-cols-[340px_minmax(0,1fr)] gap-8 lg:gap-12 items-start">
 
-            {/* Title */}
-            <h1 className="font-display text-[clamp(30px,5vw,56px)] leading-[1.02] text-white mb-3 md:mb-4">
-              {event.title}
-            </h1>
-
-            {/* Organizer */}
-            <a href={`/profile/organizer/${event.organizer_id}`} className="flex items-center gap-2 md:gap-3 mb-3 sm:mb-4 md:mb-8 hover:opacity-80 transition-opacity">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base md:text-lg">
-                {(event.users?.full_name || 'E')[0].toUpperCase()}
-              </div>
-              <div>
-                <p className="text-white font-semibold text-xs sm:text-sm md:text-base">
-                  {event.users?.full_name || 'Event Organizer'}
-                </p>
-                {event.users?.is_verified && (
-                  <div className="flex items-center gap-1 text-brand-300 text-xs md:text-sm">
-                    <Shield className="w-3 h-3 md:w-4 md:h-4" />
-                    <span>{t('events.verified')}</span>
+            {/* Poster image — portrait poster shape */}
+            <div className="mx-auto w-full max-w-[320px] lg:mx-0 lg:max-w-none">
+              <div
+                className="poster-vignette relative aspect-[4/5] overflow-hidden rounded-2xl shadow-poster ring-1 ring-white/10"
+                style={event.banner_image_url ? undefined : { backgroundImage: posterTheme.bg }}
+              >
+                {event.banner_image_url ? (
+                  <Image
+                    src={event.banner_image_url}
+                    alt={event.title}
+                    fill
+                    sizes="(max-width: 1024px) 320px, 340px"
+                    className="object-cover"
+                    priority
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center p-6 text-center">
+                    <span className="font-display text-[clamp(24px,3vw,38px)] leading-[1.0] text-white/90">
+                      {event.title}
+                    </span>
+                  </div>
+                )}
+                {/* Status chip overlaid on poster */}
+                {(isSoldOut || selloutSoon) && (
+                  <div className="absolute left-3 top-3">
+                    {isSoldOut ? (
+                      <Badge variant="error" size="md">{t('ticket.sold_out_caps')}</Badge>
+                    ) : (
+                      <Badge variant="warning" size="md">{t('ticket.almost_sold_out')}</Badge>
+                    )}
                   </div>
                 )}
               </div>
-            </a>
+            </div>
 
-            {/* Key Info Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-3 md:gap-6">
-              {/* Date & Time */}
-              <div className="flex items-start gap-2.5 bg-white/10 backdrop-blur-md rounded-xl p-3 md:p-4 border border-white/20">
-                <div className="w-8 h-8 md:w-10 md:h-10 bg-brand-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Calendar className="w-4 h-4 md:w-5 md:h-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-[11px] md:text-xs text-gray-300 mb-0.5">{t('events.date_time')}</p>
-                  <p className="text-white font-semibold text-[13px] md:text-sm">
-                    {format(new Date(event.start_datetime), 'MMM d, yyyy')}
-                  </p>
-                  <p className="text-gray-300 text-[11px] md:text-xs">
-                    {format(new Date(event.start_datetime), 'h:mm a')}
-                  </p>
-                </div>
+            {/* Details column */}
+            <div className="min-w-0 text-white">
+              {/* Premium Badges */}
+              <div className="flex flex-wrap items-center gap-2 mb-5">
+                <span className="eyebrow rounded-lg bg-white/15 px-3 py-1.5 text-[11px] text-white backdrop-blur-md">
+                  {event.category}
+                </span>
+                {isVIP && (
+                  <Badge variant="vip" size="md" icon={<Star className="w-4 h-4" />}>
+                    {t('events.vip_event')}
+                  </Badge>
+                )}
+                {isTrending && (
+                  <Badge variant="trending" size="md" icon={<TrendingUp className="w-4 h-4" />}>
+                    {t('events.trending')}
+                  </Badge>
+                )}
               </div>
 
-              {/* Location */}
-              <div className="flex items-start gap-2.5 bg-white/10 backdrop-blur-md rounded-xl p-3 md:p-4 border border-white/20">
-                <div className="w-8 h-8 md:w-10 md:h-10 bg-brand-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <MapPin className="w-4 h-4 md:w-5 md:h-5 text-white" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[11px] md:text-xs text-gray-300 mb-0.5">{t('events.venue_name')}</p>
-                  <p className="text-white font-semibold text-[13px] md:text-sm line-clamp-1">
-                    {event.venue_name}
-                  </p>
-                  <p className="text-gray-300 text-[11px] md:text-xs line-clamp-1">
-                    {event.city}
-                  </p>
-                </div>
-              </div>
+              {/* Title */}
+              <h1 className="font-display text-[clamp(30px,4vw,52px)] leading-[1.03] text-white mb-4">
+                {event.title}
+              </h1>
 
-              {/* Tickets */}
-              <div className="flex items-start gap-2.5 bg-white/10 backdrop-blur-md rounded-xl p-3 md:p-4 border border-white/20">
-                <div className="w-8 h-8 md:w-10 md:h-10 bg-brand-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Users className="w-4 h-4 md:w-5 md:h-5 text-white" />
+              {/* Organizer */}
+              <a href={`/profile/organizer/${event.organizer_id}`} className="inline-flex items-center gap-3 mb-7 hover:opacity-80 transition-opacity">
+                <div className="w-11 h-11 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full flex items-center justify-center text-white font-bold text-base">
+                  {(event.users?.full_name || 'E')[0].toUpperCase()}
                 </div>
                 <div>
-                  <p className="text-[11px] md:text-xs text-gray-300 mb-0.5">{t('events.availability')}</p>
-                  <p className="text-white font-semibold text-[13px] md:text-sm">
-                    {isSoldOut ? t('ticket.sold_out') : ticketsRemaining !== null ? t('ticket.remaining_short', { count: ticketsRemaining }) : t('ticket.available')}
+                  <p className="text-white font-semibold text-sm md:text-base">
+                    {event.users?.full_name || 'Event Organizer'}
                   </p>
-                  <p className="text-gray-300 text-[11px] md:text-xs">
-                    {event.total_tickets ? t('ticket.total_tickets', { count: event.total_tickets }) : t('ticket.unlimited')}
-                  </p>
+                  {event.users?.is_verified && (
+                    <div className="flex items-center gap-1 text-brand-300 text-xs md:text-sm">
+                      <Shield className="w-3.5 h-3.5" />
+                      <span>{t('events.verified')}</span>
+                    </div>
+                  )}
+                </div>
+              </a>
+
+              {/* Key Info Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+                {/* Date & Time */}
+                <div className="flex items-start gap-2.5 bg-white/10 backdrop-blur-md rounded-xl p-3 md:p-4 border border-white/20">
+                  <div className="w-8 h-8 md:w-10 md:h-10 bg-brand-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Calendar className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-[11px] md:text-xs text-gray-300 mb-0.5">{t('events.date_time')}</p>
+                    <p className="text-white font-semibold text-[13px] md:text-sm">
+                      {format(new Date(event.start_datetime), 'MMM d, yyyy')}
+                    </p>
+                    <p className="text-gray-300 text-[11px] md:text-xs">
+                      {format(new Date(event.start_datetime), 'h:mm a')}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Location */}
+                <div className="flex items-start gap-2.5 bg-white/10 backdrop-blur-md rounded-xl p-3 md:p-4 border border-white/20">
+                  <div className="w-8 h-8 md:w-10 md:h-10 bg-brand-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] md:text-xs text-gray-300 mb-0.5">{t('events.venue_name')}</p>
+                    <p className="text-white font-semibold text-[13px] md:text-sm line-clamp-1">
+                      {event.venue_name}
+                    </p>
+                    <p className="text-gray-300 text-[11px] md:text-xs line-clamp-1">
+                      {event.city}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Tickets */}
+                <div className="flex items-start gap-2.5 bg-white/10 backdrop-blur-md rounded-xl p-3 md:p-4 border border-white/20">
+                  <div className="w-8 h-8 md:w-10 md:h-10 bg-brand-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Users className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-[11px] md:text-xs text-gray-300 mb-0.5">{t('events.availability')}</p>
+                    <p className="text-white font-semibold text-[13px] md:text-sm">
+                      {isSoldOut ? t('ticket.sold_out') : ticketsRemaining !== null ? t('ticket.remaining_short', { count: ticketsRemaining }) : t('ticket.available')}
+                    </p>
+                    <p className="text-gray-300 text-[11px] md:text-xs">
+                      {event.total_tickets ? t('ticket.total_tickets', { count: event.total_tickets }) : t('ticket.unlimited')}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

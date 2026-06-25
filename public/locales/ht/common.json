@@ -160,6 +160,8 @@
     "eyebrow_all": "Tout pwogram nan",
     "in_country": "Evènman nan {{country}}",
     "in_country_desc": "Dekouvri evènman k ap fèt nan {{country}}",
+    "near_you_title": "Toupre w",
+    "near_you_around": "Sa k ap pase toupre {{location}}",
     "category_events": "Evènman {{category}}",
     "no_category_events": "Pa gen evènman {{category}} pou kounye a",
     "check_back_or_explore": "Tounen pi ta oswa eksplore lòt kategori",

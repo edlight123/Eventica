@@ -33,11 +33,13 @@ export default async function HomePage({
   // Get user's default country for filtering
   let userCountry = 'HT' // Default to Haiti
   let userCity = ''
+  let userSubarea = ''
   if (user?.id) {
     try {
       const profile = await getUserProfileAdmin(user.id)
       userCountry = profile?.defaultCountry || 'HT'
       userCity = profile?.defaultCity || ''
+      userSubarea = profile?.defaultSubarea || ''
     } catch (error) {
       console.error('Failed to fetch user profile:', error)
     }
@@ -213,6 +215,8 @@ export default async function HomePage({
             upcomingThisWeek={serializedUpcomingThisWeek}
             countryEvents={serializedCountryEvents}
             userCountry={userCountry}
+            userCity={userCity}
+            userSubarea={userSubarea}
           />
         </div>
       

@@ -160,6 +160,8 @@
     "eyebrow_all": "The full lineup",
     "in_country": "Events in {{country}}",
     "in_country_desc": "Discover events happening in {{country}}",
+    "near_you_title": "Near You",
+    "near_you_around": "What's happening around {{location}}",
     "category_events": "{{category}} Events",
     "no_category_events": "No {{category}} events yet",
     "check_back_or_explore": "Check back later or explore other categories",

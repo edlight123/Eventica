@@ -16,6 +16,8 @@ interface HomePageContentProps {
   upcomingThisWeek: any[]
   countryEvents?: any[]
   userCountry?: string
+  userCity?: string
+  userSubarea?: string
 }
 
 /* -------------------------------------------------------------------------- */
@@ -140,9 +142,15 @@ export default function HomePageContent({
   upcomingThisWeek,
   countryEvents = [],
   userCountry = 'HT',
+  userCity = '',
+  userSubarea = '',
 }: HomePageContentProps) {
   const { t } = useTranslation('common')
   const countryName = LOCATION_CONFIG[userCountry]?.name || 'Haiti'
+  // When the user has set a specific location (commune/neighborhood or city),
+  // the local rail becomes "Near You" with that place name instead of a
+  // generic "Events in {country}" label.
+  const nearLocation = (userSubarea || userCity || '').trim()
 
   /* ----------------------------- Filtered view ---------------------------- */
   if (hasActiveFilters) {
@@ -230,16 +238,26 @@ export default function HomePageContent({
         </section>
       )}
 
-      {/* Events in your country — editorial rail */}
+      {/* Near you (when a location is set) / Events in country — editorial rail */}
       {countryEvents.length > 0 && (
         <section>
-          <SectionHeader
-            eyebrow={t('events.eyebrow_local')}
-            title={t('events.in_country', { country: countryName, defaultValue: `Events in ${countryName}` })}
-            description={t('events.in_country_desc', { country: countryName, defaultValue: `Discover events happening in ${countryName}` })}
-            href={`/discover?country=${userCountry}`}
-            cta={t('common.viewAll')}
-          />
+          {nearLocation ? (
+            <SectionHeader
+              eyebrow={nearLocation}
+              title={t('events.near_you_title', { defaultValue: 'Near You' })}
+              description={t('events.near_you_around', { location: nearLocation, defaultValue: `What's happening around ${nearLocation}` })}
+              href={`/discover?country=${userCountry}`}
+              cta={t('common.viewAll')}
+            />
+          ) : (
+            <SectionHeader
+              eyebrow={t('events.eyebrow_local')}
+              title={t('events.in_country', { country: countryName, defaultValue: `Events in ${countryName}` })}
+              description={t('events.in_country_desc', { country: countryName, defaultValue: `Discover events happening in ${countryName}` })}
+              href={`/discover?country=${userCountry}`}
+              cta={t('common.viewAll')}
+            />
+          )}
           <Suspense fallback={<LoadingSkeleton rows={6} animated={false} />}>
             <EventRail events={countryEvents} />
           </Suspense>
@@ -262,27 +280,18 @@ export default function HomePageContent({
         </section>
       )}
 
-      {/* Browse by category — one editorial rail per category (mirrors mobile) */}
+      {/* Per-category rails (mirrors mobile) — header + carousel, no wrapper */}
       {eventsByCategory.length > 0 && (
-        <section>
-          <SectionHeader
-            eyebrow={t('events.eyebrow_browse')}
-            title={t('events.browse_categories')}
-            description={t('events.browse_categories_desc')}
-            href="/categories"
-            cta={t('common.viewAll')}
-          />
-          <div className="space-y-10 sm:space-y-12">
-            {eventsByCategory.map(({ category, events: categoryEvents }) => (
-              <CategoryRail
-                key={category}
-                label={t(`categories.${category}`, { defaultValue: category })}
-                href={`/?category=${encodeURIComponent(category)}`}
-                cta={t('common.viewAll')}
-                events={categoryEvents}
-              />
-            ))}
-          </div>
+        <section className="space-y-10 sm:space-y-12">
+          {eventsByCategory.map(({ category, events: categoryEvents }) => (
+            <CategoryRail
+              key={category}
+              label={t(`categories.${category}`, { defaultValue: category })}
+              href={`/?category=${encodeURIComponent(category)}`}
+              cta={t('common.viewAll')}
+              events={categoryEvents}
+            />
+          ))}
         </section>
       )}
 

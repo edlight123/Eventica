@@ -160,6 +160,8 @@
     "eyebrow_all": "Toute la programmation",
     "in_country": "Événements en {{country}}",
     "in_country_desc": "Découvrez les événements en {{country}}",
+    "near_you_title": "Près de vous",
+    "near_you_around": "Ce qui se passe autour de {{location}}",
     "category_events": "Événements {{category}}",
     "no_category_events": "Aucun événement {{category}} pour le moment",
     "check_back_or_explore": "Revenez plus tard ou explorez d'autres catégories",
