@@ -3,10 +3,9 @@
 import { useTranslation } from 'react-i18next'
 import EventCard from '@/components/EventCard'
 import EventCardHorizontal from '@/components/EventCardHorizontal'
-import CategoryGrid from '@/components/CategoryGrid'
 import { Suspense } from 'react'
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton'
-import { LOCATION_CONFIG } from '@/lib/filters/config'
+import { LOCATION_CONFIG, CATEGORIES } from '@/lib/filters/config'
 import Link from 'next/link'
 import { MapPin, ArrowRight, Search } from 'lucide-react'
 
@@ -69,6 +68,37 @@ function EventRail({ events }: { events: any[] }) {
           <EventCard event={event} index={index} />
         </div>
       ))}
+    </div>
+  )
+}
+
+/** A single category section: a lighter sub-header above its own poster rail. */
+function CategoryRail({
+  label,
+  href,
+  cta,
+  events,
+}: {
+  label: string
+  href: string
+  cta: string
+  events: any[]
+}) {
+  return (
+    <div>
+      <div className="mb-4 flex items-end justify-between gap-4">
+        <h3 className="font-display text-[clamp(20px,3vw,28px)] leading-tight text-gray-900">
+          {label}
+        </h3>
+        <Link
+          href={href}
+          className="eyebrow group inline-flex shrink-0 items-center gap-1 whitespace-nowrap pb-1 text-[11px] text-brand-600 transition-colors hover:text-brand-700"
+        >
+          {cta}
+          <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+        </Link>
+      </div>
+      <EventRail events={events} />
     </div>
   )
 }
@@ -163,28 +193,16 @@ export default function HomePageContent({
   }
 
   /* ------------------------------ Home view ------------------------------- */
+  // Group events into one editorial rail per category (mirrors the mobile home).
+  const eventsByCategory = CATEGORIES
+    .map((category) => ({
+      category,
+      events: events.filter((event) => event?.category === category).slice(0, 12),
+    }))
+    .filter((group) => group.events.length > 0)
+
   return (
     <div className="space-y-12 sm:space-y-16">
-      {/* Browse by Category */}
-      <section>
-        <SectionHeader
-          eyebrow={t('events.eyebrow_browse')}
-          title={t('events.browse_categories')}
-          description={t('events.browse_categories_desc')}
-        />
-        <Suspense
-          fallback={
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="h-24 animate-pulse rounded-2xl bg-gray-100 sm:h-28" />
-              ))}
-            </div>
-          }
-        >
-          <CategoryGrid />
-        </Suspense>
-      </section>
-
       {/* Trending — editorial rail */}
       {trendingEvents.length > 0 && (
         <section>
@@ -230,6 +248,30 @@ export default function HomePageContent({
           <Suspense fallback={<LoadingSkeleton rows={6} animated={false} />}>
             <EventRail events={upcomingThisWeek} />
           </Suspense>
+        </section>
+      )}
+
+      {/* Browse by category — one editorial rail per category (mirrors mobile) */}
+      {eventsByCategory.length > 0 && (
+        <section>
+          <SectionHeader
+            eyebrow={t('events.eyebrow_browse')}
+            title={t('events.browse_categories')}
+            description={t('events.browse_categories_desc')}
+            href="/categories"
+            cta={t('common.viewAll')}
+          />
+          <div className="space-y-10 sm:space-y-12">
+            {eventsByCategory.map(({ category, events: categoryEvents }) => (
+              <CategoryRail
+                key={category}
+                label={t(`categories.${category}`, { defaultValue: category })}
+                href={`/?category=${encodeURIComponent(category)}`}
+                cta={t('common.viewAll')}
+                events={categoryEvents}
+              />
+            ))}
+          </div>
         </section>
       )}
 
