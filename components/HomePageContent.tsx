@@ -193,13 +193,24 @@ export default function HomePageContent({
   }
 
   /* ------------------------------ Home view ------------------------------- */
-  // Group events into one editorial rail per category (mirrors the mobile home).
-  const eventsByCategory = CATEGORIES
-    .map((category) => ({
-      category,
-      events: events.filter((event) => event?.category === category).slice(0, 12),
-    }))
-    .filter((group) => group.events.length > 0)
+  // Group events into one editorial rail per category that actually has events
+  // (mirrors the mobile home). Group by the real category value on each event
+  // so custom / legacy categories like "Festival" or "Cultural" still appear,
+  // then order the canonical categories first with any extras after.
+  const groupedByCategory = events.reduce<Record<string, any[]>>((acc, event) => {
+    const category = (event?.category || '').toString().trim()
+    if (!category) return acc
+    ;(acc[category] = acc[category] || []).push(event)
+    return acc
+  }, {})
+
+  const eventsByCategory = [
+    ...CATEGORIES.filter((category) => groupedByCategory[category]?.length),
+    ...Object.keys(groupedByCategory).filter((category) => !CATEGORIES.includes(category)),
+  ].map((category) => ({
+    category,
+    events: groupedByCategory[category].slice(0, 12),
+  }))
 
   return (
     <div className="space-y-12 sm:space-y-16">
