@@ -3,8 +3,6 @@
 import { useTranslation } from 'react-i18next'
 import EventCard from '@/components/EventCard'
 import EventCardHorizontal from '@/components/EventCardHorizontal'
-import { Suspense } from 'react'
-import LoadingSkeleton from '@/components/ui/LoadingSkeleton'
 import { LOCATION_CONFIG, CATEGORIES } from '@/lib/filters/config'
 import Link from 'next/link'
 import { MapPin, ArrowRight, Search } from 'lucide-react'
@@ -15,6 +13,7 @@ interface HomePageContentProps {
   trendingEvents: any[]
   upcomingThisWeek: any[]
   countryEvents?: any[]
+  recentlyAddedEvents?: any[]
   userCountry?: string
   userCity?: string
   userSubarea?: string
@@ -141,6 +140,7 @@ export default function HomePageContent({
   trendingEvents,
   upcomingThisWeek,
   countryEvents = [],
+  recentlyAddedEvents = [],
   userCountry = 'HT',
   userCity = '',
   userSubarea = '',
@@ -232,9 +232,21 @@ export default function HomePageContent({
             href="/discover?sort=popular"
             cta={t('common.viewAll')}
           />
-          <Suspense fallback={<LoadingSkeleton rows={6} animated={false} />}>
-            <EventRail events={trendingEvents} />
-          </Suspense>
+          <EventRail events={trendingEvents} />
+        </section>
+      )}
+
+      {/* Recently added — newest on the platform */}
+      {recentlyAddedEvents.length > 0 && (
+        <section>
+          <SectionHeader
+            eyebrow={t('events.eyebrow_new')}
+            title={t('events.recently_added')}
+            description={t('events.recently_added_desc')}
+            href="/discover?sort=newest"
+            cta={t('common.viewAll')}
+          />
+          <EventRail events={recentlyAddedEvents} />
         </section>
       )}
 
@@ -258,9 +270,7 @@ export default function HomePageContent({
               cta={t('common.viewAll')}
             />
           )}
-          <Suspense fallback={<LoadingSkeleton rows={6} animated={false} />}>
-            <EventRail events={countryEvents} />
-          </Suspense>
+          <EventRail events={countryEvents} />
         </section>
       )}
 
@@ -274,9 +284,7 @@ export default function HomePageContent({
             href="/discover?date=week"
             cta={t('common.viewAll')}
           />
-          <Suspense fallback={<LoadingSkeleton rows={6} animated={false} />}>
-            <EventRail events={upcomingThisWeek} />
-          </Suspense>
+          <EventRail events={upcomingThisWeek} />
         </section>
       )}
 
@@ -287,7 +295,7 @@ export default function HomePageContent({
             <CategoryRail
               key={category}
               label={t(`categories.${category}`, { defaultValue: category })}
-              href={`/?category=${encodeURIComponent(category)}`}
+              href={`/categories/${encodeURIComponent(category)}`}
               cta={t('common.viewAll')}
               events={categoryEvents}
             />
@@ -307,7 +315,7 @@ export default function HomePageContent({
           }
         />
         {events.length > 0 ? (
-          <Suspense fallback={<LoadingSkeleton rows={8} animated={false} />}>
+          <>
             {/* Mobile: list rows */}
             <div className="space-y-3 md:hidden">
               {events.slice(0, 12).map((event) => (
@@ -320,7 +328,7 @@ export default function HomePageContent({
                 <EventCard key={event.id} event={event} index={index} />
               ))}
             </div>
-          </Suspense>
+          </>
         ) : (
           <NoEventsInCountry countryName={countryName} />
         )}

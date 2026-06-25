@@ -5,13 +5,13 @@ import BuyTicketButton from './BuyTicketButton'
 import FavoriteButton from '@/components/FavoriteButton'
 import FollowButton from '@/components/FollowButton'
 import EventCard from '@/components/EventCard'
-import ShareButton from './ShareButton'
+import ShareIconButton from './ShareIconButton'
 import ShareButtonInline from './ShareButtonInline'
 import MobileHero from './MobileHero'
 import MobileKeyFacts from './MobileKeyFacts'
 import MobileAccordions from './MobileAccordions'
 import WhosGoing from '@/components/events/WhosGoing'
-import { Shield, Calendar, MapPin, Clock, Users, TrendingUp, Star, Sparkles } from 'lucide-react'
+import { Shield, Calendar, MapPin, Clock, Users, TrendingUp, Star, Info } from 'lucide-react'
 import { format } from 'date-fns'
 import Image from 'next/image'
 import Badge from '@/components/ui/Badge'
@@ -66,14 +66,14 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
               aria-hidden
               fill
               sizes="100vw"
-              className="object-cover scale-110 blur-2xl opacity-40"
+              className="object-cover scale-125 blur-3xl opacity-70"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-gray-950/70 via-gray-950/85 to-gray-950" />
+            <div className="absolute inset-0 bg-gradient-to-b from-gray-950/45 via-gray-950/65 to-gray-950/90" />
           </div>
         ) : (
           <div className="absolute inset-0" style={{ backgroundImage: posterTheme.bg }}>
-            <div className="absolute inset-0 bg-gray-950/55 backdrop-blur-2xl" />
+            <div className="absolute inset-0 bg-gray-950/45 backdrop-blur-2xl" />
           </div>
         )}
 
@@ -118,21 +118,24 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
 
             {/* Details column */}
             <div className="min-w-0 text-white">
-              {/* Premium Badges */}
-              <div className="flex flex-wrap items-center gap-2 mb-5">
-                <span className="eyebrow rounded-lg bg-white/15 px-3 py-1.5 text-[11px] text-white backdrop-blur-md">
-                  {event.category}
-                </span>
-                {isVIP && (
-                  <Badge variant="vip" size="md" icon={<Star className="w-4 h-4" />}>
-                    {t('events.vip_event')}
-                  </Badge>
-                )}
-                {isTrending && (
-                  <Badge variant="trending" size="md" icon={<TrendingUp className="w-4 h-4" />}>
-                    {t('events.trending')}
-                  </Badge>
-                )}
+              {/* Premium Badges + subtle share */}
+              <div className="mb-5 flex items-start justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="eyebrow rounded-lg bg-white/15 px-3 py-1.5 text-[11px] text-white backdrop-blur-md">
+                    {event.category}
+                  </span>
+                  {isVIP && (
+                    <Badge variant="vip" size="md" icon={<Star className="w-4 h-4" />}>
+                      {t('events.vip_event')}
+                    </Badge>
+                  )}
+                  {isTrending && (
+                    <Badge variant="trending" size="md" icon={<TrendingUp className="w-4 h-4" />}>
+                      {t('events.trending')}
+                    </Badge>
+                  )}
+                </div>
+                <ShareIconButton eventId={event.id} eventTitle={event.title} tone="light" className="shrink-0" />
               </div>
 
               {/* Title */}
@@ -200,10 +203,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                   <div>
                     <p className="text-[11px] md:text-xs text-gray-300 mb-0.5">{t('events.availability')}</p>
                     <p className="text-white font-semibold text-[13px] md:text-sm">
-                      {isSoldOut ? t('ticket.sold_out') : ticketsRemaining !== null ? t('ticket.remaining_short', { count: ticketsRemaining }) : t('ticket.available')}
-                    </p>
-                    <p className="text-gray-300 text-[11px] md:text-xs">
-                      {event.total_tickets ? t('ticket.total_tickets', { count: event.total_tickets }) : t('ticket.unlimited')}
+                      {isSoldOut ? t('ticket.sold_out') : isFree ? t('common.free') : t('ticket.available')}
                     </p>
                   </div>
                 </div>
@@ -236,7 +236,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
             )}
           </div>
           <div className="flex-shrink-0">
-            <ShareButton eventId={event.id} eventTitle={event.title} />
+            <ShareIconButton eventId={event.id} eventTitle={event.title} tone="dark" />
           </div>
         </div>
         {user && (
@@ -290,26 +290,12 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
             {/* Desktop About Section */}
             <div className="hidden md:block bg-white rounded-2xl shadow-soft border border-gray-100 p-3 sm:p-4 md:p-6">
               <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-2 sm:mb-3 flex items-center gap-1.5 sm:gap-2">
-                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-brand-600" />
+                <Info className="w-4 h-4 sm:w-5 sm:h-5 text-brand-600" />
                 {t('events.about_event')}
               </h2>
               <p className="text-sm sm:text-[15px] text-gray-700 whitespace-pre-wrap leading-relaxed">
                 {event.description}
               </p>
-              
-              {/* Tags */}
-              {event.tags && event.tags.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  <h3 className="text-xs font-semibold text-gray-500 mb-2">{t('events.event_tags')}</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {event.tags.map((tag: string) => (
-                      <Badge key={tag} variant="neutral" size="sm">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Venue Details - Desktop */}
@@ -456,9 +442,6 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                       <div className="mt-4">
                         <FavoriteButton eventId={event.id} userId={user.id} initialIsFavorite={isFavorite} />
                       </div>
-                      <div className="mt-3 pt-3 border-t border-gray-100">
-                        <ShareButton eventId={event.id} eventTitle={event.title} />
-                      </div>
                     </>
                   ) : (
                     <>
@@ -472,18 +455,6 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                     </>
                   )}
                 </>
-              )}
-              
-              {ticketsRemaining !== null && ticketsRemaining > 0 && (
-                <div className="mt-6 pt-6 border-t border-gray-100">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">{t('events.tickets_remaining')}</span>
-                    <span className="font-semibold text-gray-900">{ticketsRemaining}</span>
-                  </div>
-                  {selloutSoon && (
-                    <p className="text-xs text-amber-600 font-medium mt-2">⚡ {t('events.almost_sold_out_alert')}</p>
-                  )}
-                </div>
               )}
             </div>
           </div>

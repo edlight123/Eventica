@@ -7,7 +7,6 @@ import { BRAND } from '@/config/brand'
 import { isDemoMode, DEMO_EVENTS } from '@/lib/demo'
 import { isAdmin } from '@/lib/admin'
 import type { Database } from '@/types/database'
-import FilterManager from '@/components/FilterManager'
 import { parseFiltersFromURL } from '@/lib/filters/utils'
 import { applyFiltersAndSort } from '@/lib/filters/apply'
 import { getDiscoverEvents } from '@/lib/data/events'
@@ -138,6 +137,16 @@ export default async function HomePage({
     })
     .slice(0, 6)
   const countryEvents = prioritizedEvents.slice(0, 6)
+
+  // Recently added — newest events on the platform first (by created_at).
+  const recentlyAddedEvents = [...prioritizedEvents]
+    .filter(notDefinitelyEnded)
+    .sort((a, b) => {
+      const aTime = a.created_at ? new Date(a.created_at).getTime() : 0
+      const bTime = b.created_at ? new Date(b.created_at).getTime() : 0
+      return bTime - aTime
+    })
+    .slice(0, 6)
   
   // Check if we have any active filters
   const hasActiveFilters = filters.date !== 'any' || 
@@ -166,6 +175,7 @@ export default async function HomePage({
   const serializedTrendingEvents = serializeData(trendingEvents)
   const serializedUpcomingThisWeek = serializeData(upcomingThisWeek)
   const serializedCountryEvents = serializeData(countryEvents)
+  const serializedRecentlyAdded = serializeData(recentlyAddedEvents)
 
   return (
     <div className="min-h-screen bg-gray-50 pb-mobile-nav">
@@ -199,13 +209,6 @@ export default async function HomePage({
         brandTagline={BRAND.tagline}
       />
 
-      {/* Search/Filter Bar (always visible below hero) */}
-      <div className="sticky top-0 z-30 border-b border-gray-200/70 bg-white/70 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3 md:py-4">
-          <FilterManager userCountry={userCountry} />
-        </div>
-      </div>
-
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-12">
         <HomePageContent 
@@ -214,6 +217,7 @@ export default async function HomePage({
             trendingEvents={serializedTrendingEvents}
             upcomingThisWeek={serializedUpcomingThisWeek}
             countryEvents={serializedCountryEvents}
+            recentlyAddedEvents={serializedRecentlyAdded}
             userCountry={userCountry}
             userCity={userCity}
             userSubarea={userSubarea}

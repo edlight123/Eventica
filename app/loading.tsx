@@ -1,4 +1,28 @@
-import EventCardSkeleton from '@/components/EventCardSkeleton'
+// Homepage loading skeleton — mirrors the editorial rail layout
+// (featured hero + horizontal poster rails) so there's no layout shift.
+
+function RailSkeleton({ cards = 5 }: { cards?: number }) {
+  return (
+    <div>
+      {/* Section header */}
+      <div className="mb-5 sm:mb-6 space-y-2">
+        <div className="h-3 w-24 rounded bg-gray-200 animate-pulse" />
+        <div className="h-8 w-64 rounded bg-gray-200 animate-pulse" />
+        <div className="h-4 w-80 max-w-full rounded bg-gray-100 animate-pulse" />
+      </div>
+      {/* Poster rail */}
+      <div className="flex gap-4 overflow-hidden -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+        {Array.from({ length: cards }).map((_, i) => (
+          <div key={i} className="w-[228px] shrink-0 sm:w-[248px]">
+            <div className="aspect-[4/5] rounded-2xl bg-gray-200 animate-pulse" />
+            <div className="mt-3 h-4 w-3/4 rounded bg-gray-200 animate-pulse" />
+            <div className="mt-2 h-3 w-1/2 rounded bg-gray-100 animate-pulse" />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 export default function Loading() {
   return (
@@ -8,55 +32,27 @@ export default function Loading() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <div className="flex items-center space-x-8">
-              <div className="h-8 w-32 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-8 w-32 bg-gray-200 rounded animate-pulse" />
               <div className="hidden md:flex space-x-4">
-                <div className="h-8 w-20 bg-gray-100 rounded animate-pulse"></div>
-                <div className="h-8 w-24 bg-gray-100 rounded animate-pulse"></div>
+                <div className="h-8 w-20 bg-gray-100 rounded animate-pulse" />
+                <div className="h-8 w-24 bg-gray-100 rounded animate-pulse" />
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="h-8 w-24 bg-gray-100 rounded animate-pulse"></div>
-            </div>
+            <div className="h-8 w-24 bg-gray-100 rounded animate-pulse" />
           </div>
         </div>
       </div>
 
-      {/* Hero Skeleton */}
-      <div className="relative bg-gradient-to-br from-brand-600 via-brand-700 to-brand-800 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="text-center mb-12">
-            <div className="h-16 w-3/4 bg-white/20 rounded-lg mx-auto mb-6 animate-pulse"></div>
-            <div className="h-8 w-1/2 bg-white/10 rounded-lg mx-auto animate-pulse"></div>
-          </div>
-          <div className="max-w-2xl mx-auto">
-            <div className="h-14 bg-white rounded-xl shadow-lg animate-pulse"></div>
-          </div>
-        </div>
+      {/* Featured Hero Skeleton */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 md:pt-8">
+        <div className="h-[260px] sm:h-[340px] md:h-[420px] rounded-3xl bg-gray-200 animate-pulse" />
       </div>
 
-      {/* Featured Carousel Skeleton */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-8">
-          <div className="h-10 w-64 bg-gray-200 rounded animate-pulse mb-2"></div>
-          <div className="h-6 w-96 bg-gray-100 rounded animate-pulse"></div>
-        </div>
-        <div className="h-96 bg-gray-200 rounded-2xl animate-pulse"></div>
-      </div>
-
-      {/* Event Categories Skeleton */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-8">
-          <div className="h-10 w-72 bg-gray-200 rounded animate-pulse mb-2"></div>
-          <div className="h-6 w-80 bg-gray-100 rounded animate-pulse"></div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <EventCardSkeleton />
-          <EventCardSkeleton />
-          <EventCardSkeleton />
-          <EventCardSkeleton />
-          <EventCardSkeleton />
-          <EventCardSkeleton />
-        </div>
+      {/* Editorial Rails Skeleton */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12 space-y-12 sm:space-y-16">
+        <RailSkeleton />
+        <RailSkeleton cards={4} />
+        <RailSkeleton />
       </div>
     </div>
   )
