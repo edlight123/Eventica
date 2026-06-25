@@ -21,6 +21,16 @@ export default function PurchaseFailedPage({
       title: 'Payment Failed',
       description: 'Your payment was not successful. Please check your payment method and try again.',
     },
+    sold_out: {
+      title: 'Sold Out',
+      description:
+        'This event sold out before your payment completed. If you were charged, you will be refunded automatically — no ticket was issued.',
+    },
+    amount_mismatch: {
+      title: 'Payment Amount Mismatch',
+      description:
+        'The amount paid did not match the ticket price, so we could not complete your order. If you were charged, please contact support and we will help right away.',
+    },
     ticket_creation_failed: {
       title: 'Ticket Creation Failed',
       description: 'Payment was successful but we couldn\'t create your ticket. Please contact support.',

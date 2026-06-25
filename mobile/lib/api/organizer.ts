@@ -381,11 +381,14 @@ export async function getEventTicketBreakdown(eventId: string): Promise<{
     // Group tickets by tier and get capacities from ticket_tiers
     const tierMap = new Map<string, { sold: number; capacity: number }>();
     
-    // Initialize with tier data
+    // Initialize with tier data.
+    // NOTE: ticket tiers store capacity as `total_quantity` (see /api/ticket-tiers and
+    // every sold-out check). The old `tier.quantity` field doesn't exist, which made every
+    // tier show a capacity of 0. Fall back to `quantity` only for any legacy docs.
     tiers.forEach((tier: any) => {
-      tierMap.set(tier.name, { 
-        sold: 0, 
-        capacity: tier.quantity || 0 
+      tierMap.set(tier.name, {
+        sold: 0,
+        capacity: Number(tier.total_quantity ?? tier.quantity ?? 0),
       });
     });
     

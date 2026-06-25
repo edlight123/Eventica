@@ -74,8 +74,13 @@ export async function logPurchaseAttempt(
 }
 
 /**
- * Check if purchase should be rate limited
- * Returns true if too many attempts in short time
+ * Check if purchase should be rate limited.
+ *
+ * IMPORTANT (Haiti): most users buy over Digicel/Natcom mobile data behind carrier-grade NAT,
+ * so hundreds of unrelated buyers can share a handful of public IPs. IP-based purchase limits
+ * therefore false-block legitimate buyers during a popular on-sale. Because every purchase path
+ * is authenticated, we rate-limit primarily per-USER and only fall back to a (very generous) IP
+ * ceiling for anonymous requests as a botnet backstop.
  */
 export async function shouldRateLimit(
   userId: string | null,
@@ -85,40 +90,46 @@ export async function shouldRateLimit(
   const supabase = await createClient()
   const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString()
 
-  // Check attempts by user in last 5 minutes
   if (userId) {
+    // Per-user, this event: stops one account hammering a single event, while still allowing
+    // genuine retries (gateway redirects, popup re-tries, double clicks).
+    const { data: userEventAttempts } = await supabase
+      .from('purchase_attempts')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('event_id', eventId)
+      .gte('attempted_at', fiveMinutesAgo)
+
+    if (userEventAttempts && userEventAttempts.length >= 12) {
+      return { limited: true, reason: 'Too many attempts for this event. Please wait a moment and try again.' }
+    }
+
+    // Per-user, across all events: stops a single farmed account scripting mass purchases.
     const { data: userAttempts } = await supabase
       .from('purchase_attempts')
       .select('id')
       .eq('user_id', userId)
       .gte('attempted_at', fiveMinutesAgo)
 
-    if (userAttempts && userAttempts.length >= 10) {
-      return { limited: true, reason: 'Too many purchase attempts. Please wait before trying again.' }
+    if (userAttempts && userAttempts.length >= 25) {
+      return { limited: true, reason: 'Too many purchase attempts. Please wait a moment and try again.' }
     }
+
+    // Authenticated: deliberately DO NOT apply shared-IP limits (carrier-grade NAT would cause
+    // false positives for unrelated Haitian buyers on the same mobile network).
+    return { limited: false }
   }
 
-  // Check attempts by IP in last 5 minutes
+  // Anonymous fallback (purchases normally require auth; this is defense-in-depth only). Use a
+  // very generous IP ceiling so a shared NAT isn't blocked, while still catching an egregious botnet.
   const { data: ipAttempts } = await supabase
     .from('purchase_attempts')
     .select('id')
     .eq('ip_address', ipAddress)
     .gte('attempted_at', fiveMinutesAgo)
 
-  if (ipAttempts && ipAttempts.length >= 20) {
+  if (ipAttempts && ipAttempts.length >= 100) {
     return { limited: true, reason: 'Too many purchase attempts from this network. Please wait before trying again.' }
-  }
-
-  // Check rapid purchases for same event
-  const { data: eventAttempts } = await supabase
-    .from('purchase_attempts')
-    .select('id')
-    .eq('event_id', eventId)
-    .eq('ip_address', ipAddress)
-    .gte('attempted_at', fiveMinutesAgo)
-
-  if (eventAttempts && eventAttempts.length >= 5) {
-    return { limited: true, reason: 'Too many attempts for this event. Please wait before trying again.' }
   }
 
   return { limited: false }

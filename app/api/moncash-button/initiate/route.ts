@@ -4,6 +4,7 @@ import { getCurrentUser } from '@/lib/auth'
 import { calculateDiscount } from '@/lib/promo-codes'
 import { convertUsdToHtgAmount, getUsdToHtgRateWithSpread } from '@/lib/fx/usd-htg'
 import { inferCountryFromEventText } from '@/lib/event-country'
+import { checkEventCapacity } from '@/lib/capacity'
 import {
   createMonCashButtonCheckoutToken,
   getMonCashButtonRedirectUrl,
@@ -233,6 +234,21 @@ export async function POST(request: Request) {
     const totalQuantity = normalizedSelections.reduce((sum, s) => sum + s.quantity, 0)
     const originalCurrency = String(event.currency || 'HTG').toUpperCase()
     const originalAmount = normalizedSelections.reduce((sum, s) => sum + s.quantity * s.unitPrice, 0)
+
+    // Fast-fail UX gate: reject obviously sold-out events before sending the buyer to MonCash.
+    // Best-effort only (never blocks on its own errors); the atomic reserve at fulfillment is the
+    // authoritative oversell guard.
+    try {
+      const capacity = await checkEventCapacity(String(eventId), totalQuantity)
+      if (!capacity.available) {
+        return NextResponse.json(
+          { error: capacity.isSoldOut ? 'This event is sold out.' : `Only ${capacity.remaining} ticket(s) remaining.` },
+          { status: 400 }
+        )
+      }
+    } catch (e) {
+      console.warn('[moncash_button] capacity pre-check failed (continuing)', { message: (e as any)?.message })
+    }
 
     // MonCash settles in HTG. If the event is priced in USD, convert to HTG using a live rate + spread.
     // We do NOT scrape Google; we use a proper JSON rate endpoint.

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/firebase-db/server'
 import { getCurrentUser } from '@/lib/auth'
 import { getPaymentProviderForEventCountry, normalizeCountryCode } from '@/lib/payment-provider'
+import { checkEventCapacity } from '@/lib/capacity'
 import { calculateDiscount } from '@/lib/promo-codes'
 import { resolveEventCountry } from '@/lib/event-country'
 
@@ -190,6 +191,20 @@ export async function POST(request: Request) {
     const totalQuantity = discountedSelections.reduce((sum, s) => sum + s.quantity, 0)
     const originalAmount = discountedSelections.reduce((sum, s) => sum + s.quantity * s.unitPrice, 0)
 
+    // Fast-fail UX gate: reject obviously sold-out events before redirecting to the gateway.
+    // Best-effort only; the atomic reserve at fulfillment is the authoritative oversell guard.
+    try {
+      const capacity = await checkEventCapacity(String(eventId), totalQuantity)
+      if (!capacity.available) {
+        return NextResponse.json(
+          { error: capacity.isSoldOut ? 'This event is sold out.' : `Only ${capacity.remaining} ticket(s) remaining.` },
+          { status: 400 }
+        )
+      }
+    } catch (e) {
+      console.warn('[sogepay] capacity pre-check failed (continuing)', { message: (e as any)?.message })
+    }
+
     // Store pending transaction so we can reconcile a future Sogepay callback/webhook.
     // Note: we intentionally do NOT invent a Sogepay signature/redirect format here.
     const orderId = `${Date.now() % 1_000_000_000}${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`
@@ -237,6 +252,19 @@ export async function POST(request: Request) {
     const redirectUrl = new URL(checkoutBase)
     redirectUrl.searchParams.set('orderId', String(orderId))
     redirectUrl.searchParams.set('eventId', String(eventId))
+
+    // Tell Sogepay where to send the buyer back (browser) and where to POST the authoritative
+    // server-to-server payment notification (webhook). Real Sogepay portals may instead read
+    // these from merchant settings; passing them is harmless and makes self-serve setups work.
+    const origin = new URL(request.url).origin
+    const returnUrl = `${origin}/api/sogepay/callback?orderId=${encodeURIComponent(String(orderId))}`
+    const callbackUrl = `${origin}/api/sogepay/callback`
+    for (const key of ['returnUrl', 'return_url', 'redirectUrl', 'redirect_url']) {
+      redirectUrl.searchParams.set(key, returnUrl)
+    }
+    for (const key of ['callbackUrl', 'callback_url', 'notifyUrl', 'notify_url']) {
+      redirectUrl.searchParams.set(key, callbackUrl)
+    }
 
     return NextResponse.json({ redirectUrl: redirectUrl.toString(), pendingTransactionId: pending?.id })
   } catch (error: any) {

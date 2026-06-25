@@ -12,37 +12,34 @@ export async function checkEventCapacity(
 ): Promise<CapacityCheck> {
   const supabase = await createClient()
 
-  // Get event details
+  // Read the event's capacity AND its maintained sold counter in a single cheap doc read.
+  // (Previously this scanned every ticket row for the event — too expensive to call on a hot
+  // purchase path, which is why it was left unused. The counter is the same source of truth the
+  // tier checks and the atomic reserve use.)
   const { data: event } = await supabase
     .from('events')
-    .select('max_tickets')
+    .select('*')
     .eq('id', eventId)
     .single()
 
-  // If no max_tickets set, unlimited capacity
-  if (!event || !event.max_tickets) {
+  // Capacity sources (0 / missing ⇒ unlimited).
+  const capacity = Number(event?.max_tickets ?? event?.capacity ?? event?.total_tickets ?? 0)
+  if (!event || !Number.isFinite(capacity) || capacity <= 0) {
     return {
       available: true,
       remaining: Infinity,
-      isSoldOut: false
+      isSoldOut: false,
     }
   }
 
-  // Count current tickets (excluding refunded/cancelled)
-  const { data: tickets } = await supabase
-    .from('tickets')
-    .select('*')
-    .eq('event_id', eventId)
-    .not('status', 'in', '(refunded,cancelled)')
-
-  const soldTickets = tickets?.length || 0
-  const remaining = event.max_tickets - soldTickets
+  const soldTickets = Number(event.tickets_sold || 0)
+  const remaining = capacity - soldTickets
   const available = remaining >= requestedQuantity
 
   return {
     available,
     remaining: Math.max(0, remaining),
-    isSoldOut: remaining <= 0
+    isSoldOut: remaining <= 0,
   }
 }
 

@@ -7,6 +7,19 @@ import { trackPromoCodeUsage, calculateDiscount } from '@/lib/promo-codes'
 import { notifyTicketPurchase, notifyOrganizerTicketSale } from '@/lib/notifications/helpers'
 import { addTicketToEarnings } from '@/lib/earnings'
 import { adminDb } from '@/lib/firebase/admin'
+import {
+  buildTierSoldIncrements,
+  reserveInventoryAtomic,
+  releaseInventoryReservation,
+} from '@/lib/tickets/inventory'
+import {
+  claimWebhookEvent,
+  markWebhookEventCompleted,
+  releaseWebhookEvent,
+} from '@/lib/webhooks/idempotency'
+
+// Event types this webhook actually fulfills. Only these are deduped/claimed.
+const HANDLED_EVENT_TYPES = new Set(['checkout.session.completed', 'payment_intent.succeeded'])
 
 // Lazy load Stripe to avoid build-time initialization
 function getStripe() {
@@ -17,6 +30,7 @@ function getStripe() {
 }
 
 export async function POST(request: Request) {
+  let stripeEvent: any = null
   try {
     const stripe = getStripe()
     const body = await request.text()
@@ -32,6 +46,26 @@ export async function POST(request: Request) {
       signature,
       process.env.STRIPE_WEBHOOK_SECRET
     )
+    stripeEvent = event
+
+    // Idempotency: Stripe delivers events at least once. Dedupe on the stable event id so a
+    // redelivery (or a concurrent delivery) never creates a second set of tickets, double-counts
+    // earnings, or double-increments inventory.
+    if (HANDLED_EVENT_TYPES.has(event.type)) {
+      const claim = await claimWebhookEvent({
+        provider: 'stripe',
+        eventId: event.id,
+        eventType: event.type,
+      })
+      if (claim.outcome !== 'claimed') {
+        console.log('[stripe] skipping duplicate webhook delivery', {
+          eventId: event.id,
+          type: event.type,
+          outcome: claim.outcome,
+        })
+        return NextResponse.json({ received: true, idempotent: true, outcome: claim.outcome })
+      }
+    }
 
     // Handle the event
     if (event.type === 'checkout.session.completed') {
@@ -51,7 +85,39 @@ export async function POST(request: Request) {
       const exchangeRateUsed = session.metadata.exchangeRate ? parseFloat(session.metadata.exchangeRate) : null
       const payoutProvider = String(session.metadata.payoutProvider || '').toLowerCase()
       const paymentMethod = payoutProvider === 'stripe_connect' ? 'stripe_connect' : 'stripe'
-      
+
+      // Authoritative oversell gate: atomically reserve inventory BEFORE creating tickets. If the
+      // event/tier is now full, the customer has paid but we can't honor it — auto-refund and stop.
+      const checkoutTierIncrements = buildTierSoldIncrements(
+        session.metadata.tierId ? [{ tierId: session.metadata.tierId, quantity }] : []
+      )
+      const checkoutReservation = await reserveInventoryAtomic({
+        eventId: session.metadata.eventId,
+        quantity,
+        tierIncrements: checkoutTierIncrements,
+        logPrefix: '[stripe]',
+      })
+      if (!checkoutReservation.ok) {
+        console.error('[stripe] capacity exceeded after payment — auto-refunding checkout session', {
+          sessionId: session.id,
+          paymentIntent: session.payment_intent,
+          reason: checkoutReservation.reason,
+        })
+        try {
+          if (session.payment_intent) {
+            await stripe.refunds.create({ payment_intent: session.payment_intent })
+          }
+        } catch (refundErr) {
+          console.error('[stripe] failed to auto-refund oversold checkout session', refundErr)
+        }
+        await markWebhookEventCompleted({
+          provider: 'stripe',
+          eventId: event.id,
+          metadata: { type: event.type, refunded: 'capacity_exceeded' },
+        })
+        return NextResponse.json({ received: true, refunded: 'capacity_exceeded' })
+      }
+
       // Create tickets one at a time to ensure each gets unique ID
       const createdTickets = []
       for (let i = 0; i < quantity; i++) {
@@ -79,6 +145,12 @@ export async function POST(request: Request) {
         
         if (insertResult.error) {
           console.error('Failed to create ticket:', insertResult.error)
+          await releaseInventoryReservation({
+            eventId: session.metadata.eventId,
+            quantity,
+            tierIncrements: checkoutTierIncrements,
+            logPrefix: '[stripe]',
+          })
           return NextResponse.json({ error: 'Failed to create tickets' }, { status: 500 })
         }
         
@@ -153,19 +225,8 @@ export async function POST(request: Request) {
         }
       }
 
-      // Update tickets_sold count
-      const { data: eventData } = await supabase
-        .from('events')
-        .select('tickets_sold')
-        .eq('id', session.metadata.eventId)
-        .single()
-
-      if (eventData) {
-        await supabase
-          .from('events')
-          .update({ tickets_sold: (eventData.tickets_sold || 0) + quantity })
-          .eq('id', session.metadata.eventId)
-      }
+      // NOTE: inventory was already reserved/incremented up front by reserveInventoryAtomic (the
+      // oversell gate), so we intentionally do NOT increment again here.
 
       // Update event earnings (NEW: automatic earnings tracking)
       try {
@@ -267,6 +328,22 @@ export async function POST(request: Request) {
         metadata: paymentIntent.metadata,
         amount: paymentIntent.amount,
       })
+
+      // Hosted Checkout ALSO emits payment_intent.succeeded, but those PaymentIntents carry no
+      // metadata (we set metadata on the Checkout Session, not the PI). Skip when there's no
+      // eventId so we don't create broken/duplicate tickets — checkout.session.completed handles
+      // those purchases. Embedded payments (create-payment-intent) always include eventId.
+      if (!paymentIntent.metadata?.eventId) {
+        console.log('[stripe] payment_intent.succeeded without eventId metadata; skipping (handled via checkout.session.completed)', {
+          paymentIntentId: paymentIntent.id,
+        })
+        await markWebhookEventCompleted({
+          provider: 'stripe',
+          eventId: event.id,
+          metadata: { type: event.type, skipped: 'no_event_metadata' },
+        })
+        return NextResponse.json({ received: true, skipped: 'no_event_metadata' })
+      }
       
       // Create tickets in database
       const supabase = await createClient()
@@ -282,7 +359,36 @@ export async function POST(request: Request) {
       const exchangeRateUsed = paymentIntent.metadata.exchangeRate ? parseFloat(paymentIntent.metadata.exchangeRate) : null
       const payoutProvider = String(paymentIntent.metadata.payoutProvider || '').toLowerCase()
       const paymentMethod = payoutProvider === 'stripe_connect' ? 'stripe_connect' : 'stripe'
-      
+
+      // Authoritative oversell gate: atomically reserve inventory BEFORE creating tickets. If the
+      // event/tier is now full, the customer has paid but we can't honor it — auto-refund and stop.
+      const piTierIncrements = buildTierSoldIncrements(
+        paymentIntent.metadata.tierId ? [{ tierId: paymentIntent.metadata.tierId, quantity }] : []
+      )
+      const piReservation = await reserveInventoryAtomic({
+        eventId: paymentIntent.metadata.eventId,
+        quantity,
+        tierIncrements: piTierIncrements,
+        logPrefix: '[stripe]',
+      })
+      if (!piReservation.ok) {
+        console.error('[stripe] capacity exceeded after payment — auto-refunding payment intent', {
+          paymentIntentId: paymentIntent.id,
+          reason: piReservation.reason,
+        })
+        try {
+          await stripe.refunds.create({ payment_intent: paymentIntent.id })
+        } catch (refundErr) {
+          console.error('[stripe] failed to auto-refund oversold payment intent', refundErr)
+        }
+        await markWebhookEventCompleted({
+          provider: 'stripe',
+          eventId: event.id,
+          metadata: { type: event.type, refunded: 'capacity_exceeded' },
+        })
+        return NextResponse.json({ received: true, refunded: 'capacity_exceeded' })
+      }
+
       // Create tickets
       const createdTickets = []
       for (let i = 0; i < quantity; i++) {
@@ -399,21 +505,8 @@ export async function POST(request: Request) {
         // Don't fail the webhook - log for manual reconciliation
       }
 
-      // Update tickets_sold count
-      if (createdTickets.length > 0) {
-        const { data: eventData } = await supabase
-          .from('events')
-          .select('tickets_sold')
-          .eq('id', paymentIntent.metadata.eventId)
-          .single()
-
-        if (eventData) {
-          await supabase
-            .from('events')
-            .update({ tickets_sold: (eventData.tickets_sold || 0) + quantity })
-            .eq('id', paymentIntent.metadata.eventId)
-        }
-      }
+      // NOTE: inventory was already reserved/incremented up front by reserveInventoryAtomic (the
+      // oversell gate), so we intentionally do NOT increment again here.
       
       // Send notifications (similar to checkout.session.completed)
       if (createdTickets.length > 0) {
@@ -451,9 +544,25 @@ export async function POST(request: Request) {
       }
     }
 
+    // Mark the event fully processed so any future redelivery is a no-op.
+    if (stripeEvent && HANDLED_EVENT_TYPES.has(stripeEvent.type)) {
+      await markWebhookEventCompleted({
+        provider: 'stripe',
+        eventId: stripeEvent.id,
+        metadata: { type: stripeEvent.type },
+      })
+    }
+
     return NextResponse.json({ received: true })
   } catch (error: any) {
     console.error('Webhook error:', error)
+
+    // Release the idempotency claim so Stripe's automatic retry can reprocess this event
+    // instead of being permanently blocked as "in progress".
+    if (stripeEvent && HANDLED_EVENT_TYPES.has(stripeEvent.type)) {
+      await releaseWebhookEvent({ provider: 'stripe', eventId: stripeEvent.id })
+    }
+
     return NextResponse.json(
       { error: error.message || 'Webhook handler failed' },
       { status: 400 }

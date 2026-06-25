@@ -13,6 +13,10 @@ import dynamic from 'next/dynamic'
 
 const EmbeddedStripePayment = dynamic(() => import('./EmbeddedStripePayment'), { ssr: false })
 
+// Feature flag: Sogepay (Haiti card processing) is not live yet. While disabled, Haiti events
+// show only MonCash/NatCash (no card option). Flip to true to re-enable the Sogepay card flow.
+const SOGEPAY_ENABLED = false
+
 interface BuyTicketButtonProps {
   eventId: string
   userId: string
@@ -627,7 +631,9 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
             )}
 
             <div className="space-y-3">
-              {/* Card Option (Stripe for US/CA and others; Sogepay for Haiti) */}
+              {/* Card Option (Stripe for US/CA and others; Sogepay for Haiti).
+                  Sogepay isn't live yet, so the card option is hidden for Haiti events for now. */}
+              {(!isHaitiEvent || SOGEPAY_ENABLED) && (
               <button
                 onClick={() => handlePurchase(isHaitiEvent ? 'sogepay' : 'stripe')}
                 disabled={loading}
@@ -648,6 +654,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
+              )}
 
               {/* MonCash Option (Haiti only) */}
               {isHaitiEvent && (

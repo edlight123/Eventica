@@ -38,6 +38,10 @@ if (!isExpoGo) {
 
 const STRIPE_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY!;
 
+// Feature flag: Sogepay (Haiti card processing) is not live yet. While disabled, Haiti events
+// show only MonCash/NatCash. Flip to true to re-enable the Sogepay card option.
+const SOGEPAY_ENABLED = false;
+
 interface PaymentModalProps {
   visible: boolean;
   onClose: () => void;
@@ -288,8 +292,8 @@ function PaymentForm({
             </TouchableOpacity>
           )}
 
-          {/* Sogepay Card Payment (Haiti) */}
-          {isHaitiEvent && (
+          {/* Sogepay Card Payment (Haiti) — hidden until Sogepay goes live */}
+          {isHaitiEvent && SOGEPAY_ENABLED && (
             <TouchableOpacity
               style={[
                 styles.methodButton,

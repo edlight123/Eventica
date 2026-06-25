@@ -1471,3 +1471,56 @@ export function isMonCashButtonConfigured(): boolean {
 
   return primaryOk || formOk
 }
+
+export interface MonCashButtonAmountCheck {
+  /** Whether fulfillment may proceed. */
+  ok: boolean
+  /** Whether we actually compared a gateway-reported amount (false when `cost` is missing/unusable). */
+  verified: boolean
+  /** The HTG amount we expected to charge. */
+  expected: number
+  /** The HTG amount the gateway reported as paid (null when not provided). */
+  paid: number | null
+  /** Allowed absolute difference (covers whole-HTG rounding at the gateway). */
+  tolerance: number
+}
+
+/**
+ * Defense-in-depth amount check used before issuing tickets for a MonCash Button order.
+ *
+ * MonCash settles in HTG, and we encrypt the exact HTG amount into the checkout, so the
+ * gateway's reported `cost` should match what we asked it to charge. If it doesn't, the
+ * caller should refuse fulfillment (guards against underpayment, replay against a different
+ * order, or tampering being treated as a completed sale).
+ *
+ * When the gateway omits `cost` (some Digicel responses do), we cannot verify and return
+ * `{ ok: true, verified: false }` so the caller can decide whether to proceed (we proceed
+ * but log, preserving the prior behavior).
+ */
+export function isMonCashButtonPaidAmountAcceptable(
+  expectedAmount: number,
+  cost: string | number | null | undefined
+): MonCashButtonAmountCheck {
+  const expected = Number(expectedAmount)
+  const paid =
+    typeof cost === 'number'
+      ? cost
+      : typeof cost === 'string' && cost.trim() !== ''
+        ? Number(cost)
+        : NaN
+
+  const tolerance = Math.max(1, (Number.isFinite(expected) ? expected : 0) * 0.01)
+
+  // Without a sane expected amount we have nothing to compare against; don't block.
+  if (!Number.isFinite(expected) || expected <= 0) {
+    return { ok: true, verified: false, expected, paid: Number.isFinite(paid) ? paid : null, tolerance }
+  }
+
+  // Gateway didn't return a usable cost; cannot verify.
+  if (!Number.isFinite(paid)) {
+    return { ok: true, verified: false, expected, paid: null, tolerance }
+  }
+
+  const ok = Math.abs(paid - expected) <= tolerance
+  return { ok, verified: true, expected, paid, tolerance }
+}

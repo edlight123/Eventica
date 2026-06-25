@@ -6,12 +6,18 @@ import {
   getMonCashButtonReturnDecryptConfig,
   getMonCashButtonPaymentByOrderId,
   getMonCashButtonPaymentByTransactionId,
+  isMonCashButtonPaidAmountAcceptable,
 } from '@/lib/moncash-button'
 import { notifyTicketPurchase as notifyTicketPurchaseNotification } from '@/lib/notifications/helpers'
 import { sendEmail, getTicketConfirmationEmail } from '@/lib/email'
 import { sendWhatsAppMessage, getTicketConfirmationWhatsApp } from '@/lib/whatsapp'
 import { generateTicketQRCode } from '@/lib/qrcode'
 import { adminDb } from '@/lib/firebase/admin'
+import {
+  buildTierSoldIncrements,
+  reserveInventoryAtomic,
+  releaseInventoryReservation,
+} from '@/lib/tickets/inventory'
 import { addTicketToEarnings } from '@/lib/earnings'
 
 export const runtime = 'nodejs'
@@ -347,6 +353,33 @@ export async function GET(request: Request) {
       return NextResponse.redirect(new URL('/purchase/failed?reason=payment_failed', request.url))
     }
 
+    // Defense-in-depth: verify the amount the gateway reports as paid matches what we asked
+    // it to charge (pendingTx.amount is the HTG amount we encrypted into the checkout).
+    // If Digicel reports a materially different `cost`, refuse to issue tickets. When the
+    // gateway omits `cost`, we can't verify and proceed (but log for monitoring).
+    const amountCheck = isMonCashButtonPaidAmountAcceptable(Number(pendingTx.amount), payment?.cost)
+    if (amountCheck.verified && !amountCheck.ok) {
+      console.error('[moncash_button] return: amount mismatch — refusing fulfillment', {
+        orderId,
+        expected: amountCheck.expected,
+        paid: amountCheck.paid,
+        tolerance: amountCheck.tolerance,
+      })
+      await supabase
+        .from('pending_transactions')
+        .update({ status: 'failed', failure_reason: 'amount_mismatch' })
+        .eq('order_id', orderId)
+
+      return NextResponse.redirect(new URL('/purchase/failed?reason=amount_mismatch', request.url))
+    }
+    if (!amountCheck.verified) {
+      console.warn('[moncash_button] return: payment cost missing/unverifiable; skipping amount check', {
+        orderId,
+        expected: amountCheck.expected,
+        hasCost: payment?.cost != null,
+      })
+    }
+
     // Payment confirmed. Atomically claim this order so only one request fulfills it.
     // Without this, concurrent Return requests for the same order could each create a
     // full set of tickets (and double-count earnings) for a single payment.
@@ -403,6 +436,30 @@ export async function GET(request: Request) {
     ).toLowerCase()
     const normalizedPaymentMethod = pendingPaymentMethodRaw === 'natcash' ? 'natcash' : pendingPaymentMethodRaw === 'moncash' ? 'moncash' : 'moncash_button'
 
+    // Authoritative oversell gate: atomically re-check capacity and reserve inventory BEFORE
+    // issuing tickets. Prevents overselling when many buyers complete payment near sold-out.
+    // If it refuses, the order is paid but can't be honored — flag for refund, issue no tickets.
+    const tierIncrements = buildTierSoldIncrements(tierSelections)
+    const reservation = await reserveInventoryAtomic({
+      eventId: String(pendingTx.event_id),
+      quantity: Number(pendingTx.quantity || 1),
+      tierIncrements,
+      logPrefix: '[moncash_button]',
+    })
+    if (!reservation.ok) {
+      console.error('[moncash_button] capacity exceeded after payment — refusing to issue tickets', {
+        orderId,
+        reason: reservation.reason,
+        tierId: reservation.tierId,
+        remaining: reservation.remaining,
+      })
+      await supabase
+        .from('pending_transactions')
+        .update({ status: 'failed', failure_reason: 'capacity_exceeded', needs_refund: true })
+        .eq('order_id', orderId)
+      return NextResponse.redirect(new URL('/purchase/failed?reason=sold_out', request.url))
+    }
+
     // Create tickets
     const createdTickets: any[] = []
 
@@ -450,8 +507,14 @@ export async function GET(request: Request) {
 
         if (insertResult.error) {
           console.error('Failed to create ticket:', insertResult.error)
-          // Release the claim so a later Return/Alert retry can re-attempt fulfillment
-          // for this (already paid) order instead of being blocked as "in progress".
+          // Return the inventory we reserved and release the claim so a later Return/Alert retry
+          // can re-reserve and re-attempt fulfillment for this (already paid) order.
+          await releaseInventoryReservation({
+            eventId: String(pendingTx.event_id),
+            quantity: Number(pendingTx.quantity || 1),
+            tierIncrements,
+            logPrefix: '[moncash_button]',
+          })
           await releaseOrderClaim(orderId)
           return NextResponse.redirect(new URL('/purchase/failed?reason=ticket_creation_failed', request.url))
         }
@@ -531,19 +594,8 @@ export async function GET(request: Request) {
       })
       .eq('order_id', orderId)
 
-    // Update tickets_sold count
-    const { data: eventData } = await supabase
-      .from('events')
-      .select('tickets_sold')
-      .eq('id', pendingTx.event_id)
-      .single()
-
-    if (eventData) {
-      await supabase
-        .from('events')
-        .update({ tickets_sold: (eventData.tickets_sold || 0) + (pendingTx.quantity || 1) })
-        .eq('id', pendingTx.event_id)
-    }
+    // NOTE: inventory was already incremented up front by reserveInventoryAtomic (the oversell
+    // gate), so we intentionally do NOT increment again here.
 
     // Generate QR code + notify
     if (ticket?.id) {
