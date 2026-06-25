@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Bell, Check, CheckCheck, Trash2, ExternalLink } from 'lucide-react'
+import { Bell } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
@@ -219,20 +219,18 @@ export function NotificationsClient({
                 <button
                   onClick={handleMarkAllAsRead}
                   disabled={isLoading}
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-brand-600 hover:text-brand-700 transition-colors disabled:opacity-50"
+                  className="px-3 py-2 text-sm font-medium text-brand-600 hover:text-brand-700 transition-colors disabled:opacity-50"
                 >
-                  <CheckCheck className="w-4 h-4" />
-                  <span className="hidden sm:inline">{t('mark_all_read')}</span>
+                  {t('mark_all_read')}
                 </button>
               )}
               {notifications.length > 0 && (
                 <button
                   onClick={handleClearAll}
                   disabled={isClearing}
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 transition-colors disabled:opacity-50"
+                  className="px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 transition-colors disabled:opacity-50"
                 >
-                  <Trash2 className="w-4 h-4" />
-                  <span className="hidden sm:inline">{t('clear_all')}</span>
+                  {t('clear_all')}
                 </button>
               )}
             </div>
@@ -246,23 +244,20 @@ export function NotificationsClient({
 
         {/* Notifications List */}
         {notifications.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-            <Bell className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <div className="p-12 text-center">
+            <Bell className="w-12 h-12 text-gray-300 mx-auto mb-4" strokeWidth={1.5} />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('empty.title')}</h3>
             <p className="text-gray-600">
               {t('empty.description')}
             </p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="border-t border-gray-200">
             {notifications.map((notification) => (
               <div
                 key={notification.id}
                 onClick={() => handleNotificationClick(notification)}
-                className={`
-                  bg-white rounded-lg shadow-sm p-4 cursor-pointer transition-all hover:shadow-md
-                  ${!notification.isRead ? 'border-l-4 border-brand-500' : 'border-l-4 border-transparent'}
-                `}
+                className="cursor-pointer border-b border-gray-200 px-1 py-4 transition-colors hover:bg-gray-50"
               >
                 <div className="flex items-start gap-3">
                   {/* Icon */}
@@ -320,27 +315,12 @@ export function NotificationsClient({
                       </span>
                       
                       {getNotificationLink(notification) !== '#' && (
-                        <span className="flex items-center gap-1 text-brand-600">
+                        <span className="text-brand-600">
                           {t('view_details')}
-                          <ExternalLink className="w-3 h-3" />
                         </span>
                       )}
                     </div>
                   </div>
-
-                  {/* Mark as read button */}
-                  {!notification.isRead && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleMarkAsRead(notification.id)
-                      }}
-                      className="flex-shrink-0 p-2 text-gray-400 hover:text-brand-600 transition-colors"
-                      title={t('mark_read')}
-                    >
-                      <Check className="w-5 h-5" />
-                    </button>
-                  )}
                 </div>
               </div>
             ))}
