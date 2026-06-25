@@ -17,7 +17,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { getOrganizerEvents, OrganizerEvent, getTodayEvents, TodayEvent } from '../../lib/api/organizer';
-import { SHADOWS, RADIUS } from '../../config/brand';
+import { RADIUS } from '../../config/brand';
 
 export default function OrganizerScanScreen() {
   const { colors } = useTheme();
@@ -26,7 +26,6 @@ export default function OrganizerScanScreen() {
   const { userProfile } = useAuth();
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
-  const [isScanning, setIsScanning] = useState(false);
   const [todayEvents, setTodayEvents] = useState<TodayEvent[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<TodayEvent | null>(null);
   const [loading, setLoading] = useState(true);
@@ -86,9 +85,7 @@ export default function OrganizerScanScreen() {
         <Text style={styles.headerSubtitle}>{t('organizerScan.subtitle')}</Text>
       </View>
 
-      {!isScanning ? (
-        <View style={styles.content}>
-          {/* Instructions */}
+      <View style={styles.content}>
           <View style={styles.instructionsCard}>
             <Ionicons name="information-circle-outline" size={48} color={colors.primary} />
             <Text style={styles.instructionsTitle}>{t('organizerScan.howTitle')}</Text>
@@ -157,51 +154,6 @@ export default function OrganizerScanScreen() {
             <Text style={styles.startButtonText}>{t('organizerScan.startScanning')}</Text>
           </TouchableOpacity>
         </View>
-      ) : (
-        <View style={styles.scannerContainer}>
-          {/* Camera view will go here */}
-          <View style={styles.cameraPlaceholder}>
-            <Ionicons name="camera-outline" size={80} color={colors.white} />
-            <Text style={styles.cameraText}>Camera view will be displayed here</Text>
-            <Text style={styles.cameraSubtext}>QR code scanner integration pending</Text>
-          </View>
-
-          {/* Scanner Overlay */}
-          <View style={styles.scannerOverlay}>
-            <View style={styles.scannerFrame} />
-            <Text style={styles.scannerInstructions}>
-              Position QR code within the frame
-            </Text>
-          </View>
-
-          {/* Controls */}
-          <View style={styles.scannerControls}>
-            <TouchableOpacity style={styles.controlButton}>
-              <Ionicons name="flash-outline" size={28} color={colors.white} />
-              <Text style={styles.controlLabel}>Torch</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.controlButton, styles.stopButton]}
-              onPress={() => setIsScanning(false)}
-            >
-              <Ionicons name="stop-circle-outline" size={28} color={colors.white} />
-              <Text style={styles.controlLabel}>Stop</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Recent Scans */}
-          <View style={styles.recentScans}>
-            <Text style={styles.recentTitle}>Recent Check-ins</Text>
-            <View style={styles.scanResultCard}>
-              <Ionicons name="checkmark-circle" size={24} color={colors.success} />
-              <View style={styles.scanResultInfo}>
-                <Text style={styles.scanResultName}>John Doe</Text>
-                <Text style={styles.scanResultDetails}>General Admission • Just now</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-      )}
 
       {/* Event Selector Modal */}
       <Modal
@@ -331,8 +283,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: RADIUS.lg,
     padding: 16,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   selectorContent: {
     flexDirection: 'row',
@@ -359,8 +310,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     padding: 32,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   noEventsText: {
     fontSize: 16,
@@ -379,8 +329,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     padding: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   statValue: {
     fontSize: 32,
@@ -415,117 +364,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: 'bold',
     color: colors.white,
     marginLeft: 12,
-  },
-  scannerContainer: {
-    flex: 1,
-  },
-  cameraPlaceholder: {
-    flex: 1,
-    backgroundColor: '#000',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cameraText: {
-    fontSize: 18,
-    color: colors.white,
-    marginTop: 16,
-    opacity: 0.8,
-  },
-  cameraSubtext: {
-    fontSize: 14,
-    color: colors.white,
-    marginTop: 8,
-    opacity: 0.6,
-  },
-  scannerOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 200,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  scannerFrame: {
-    width: 250,
-    height: 250,
-    borderWidth: 3,
-    borderColor: colors.white,
-    borderRadius: 20,
-    backgroundColor: 'transparent',
-  },
-  scannerInstructions: {
-    fontSize: 16,
-    color: colors.white,
-    marginTop: 20,
-    textAlign: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  scannerControls: {
-    position: 'absolute',
-    bottom: 120,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 40,
-  },
-  controlButton: {
-    alignItems: 'center',
-  },
-  stopButton: {
-    opacity: 1,
-  },
-  controlLabel: {
-    fontSize: 14,
-    color: colors.white,
-    marginTop: 8,
-  },
-  recentScans: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  recentTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.textSecondary,
-    marginBottom: 12,
-    textTransform: 'uppercase',
-  },
-  scanResultCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    backgroundColor: colors.background,
-    borderRadius: 8,
-  },
-  scanResultInfo: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  scanResultName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  scanResultDetails: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginTop: 2,
   },
   modalContainer: {
     flex: 1,

@@ -88,6 +88,7 @@ export default function Step1Basics({ draft, updateDraft }: Props) {
         <TextInput
           style={styles.input}
           placeholder={t('organizerCreateEvent.basics.eventTitlePlaceholder')}
+          placeholderTextColor={colors.textTertiary}
           value={draft.title}
           onChangeText={(text) => updateDraft({ title: text })}
           maxLength={100}
@@ -135,6 +136,7 @@ export default function Step1Basics({ draft, updateDraft }: Props) {
         <TextInput
           style={[styles.input, styles.textArea]}
           placeholder={t('organizerCreateEvent.basics.descriptionPlaceholder')}
+          placeholderTextColor={colors.textTertiary}
           value={draft.description}
           onChangeText={(text) => updateDraft({ description: text })}
           multiline

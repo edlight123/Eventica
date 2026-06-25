@@ -24,7 +24,7 @@ import { useI18n } from '../../contexts/I18nContext'
 import { backendFetch, backendJson } from '../../lib/api/backend'
 import { getEventById } from '../../lib/api/organizer'
 import { getRequiredPayoutProfileIdForEventCountry, normalizeCountryCode } from '../../lib/payment-provider'
-import { SHADOWS, RADIUS } from '../../config/brand'
+import { RADIUS } from '../../config/brand'
 
 type RouteParams = {
   OrganizerEventEarnings: {
@@ -595,12 +595,12 @@ export default function OrganizerEventEarningsScreen() {
             <View style={{ height: 12 }} />
 
             <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: colors.text }]}
+              style={[styles.actionButton, { backgroundColor: colors.surfaceRaised, borderWidth: 1, borderColor: colors.border }]}
               onPress={() => openWithdraw('bank')}
               activeOpacity={0.85}
             >
-              <Ionicons name="business-outline" size={20} color={colors.white} />
-              <Text style={styles.actionButtonText}>{t('organizerEarnings.withdrawToBank')}</Text>
+              <Ionicons name="business-outline" size={20} color={colors.text} />
+              <Text style={[styles.actionButtonText, { color: colors.text }]}>{t('organizerEarnings.withdrawToBank')}</Text>
             </TouchableOpacity>
           </>
         )}
@@ -877,8 +877,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: RADIUS.xl,
     padding: 16,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   cardLabel: {
     color: colors.textSecondary,

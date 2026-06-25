@@ -25,7 +25,8 @@ import {
   cancelEvent,
 } from '../../lib/api/events';
 import { useI18n } from '../../contexts/I18nContext';
-import { SHADOWS, RADIUS } from '../../config/brand';
+import { RADIUS } from '../../config/brand';
+import { Skeleton } from '../../components/Skeleton';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getPosterTheme } from '../../lib/posterGradient';
 
@@ -196,9 +197,18 @@ export default function OrganizerEventManagementScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={styles.loadingText}>{t('organizerEventManagement.loading')}</Text>
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" />
+        <Skeleton width="100%" height={260} radius={0} />
+        <View style={{ padding: 20, gap: 16 }}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 12 }}>
+            {[0, 1, 2, 3].map((i) => (
+              <Skeleton key={i} width="48%" height={96} radius={RADIUS.lg} />
+            ))}
+          </View>
+          <Skeleton width="100%" height={120} radius={RADIUS.lg} />
+          <Skeleton width="100%" height={160} radius={RADIUS.lg} />
+        </View>
       </View>
     );
   }
@@ -478,18 +488,17 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   actionGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginHorizontal: -6,
+    justifyContent: 'space-between',
+    rowGap: 12,
   },
   actionCard: {
     width: '48%',
     backgroundColor: colors.surface,
     borderRadius: RADIUS.lg,
     padding: 16,
-    margin: '1%',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   actionText: {
     fontSize: 14,
@@ -504,8 +513,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   performanceHeader: {
     flexDirection: 'row',
@@ -545,8 +553,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: RADIUS.lg,
     padding: 16,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   breakdownTitle: {
     fontSize: 14,
@@ -591,8 +598,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: RADIUS.lg,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.xs,
+    borderColor: colors.border,
   },
   controlButtonText: {
     flex: 1,

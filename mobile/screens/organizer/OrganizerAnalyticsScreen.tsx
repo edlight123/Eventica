@@ -17,7 +17,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { backendFetch } from '../../lib/api/backend';
-import { SHADOWS, RADIUS } from '../../config/brand';
+import { RADIUS } from '../../config/brand';
+import { Skeleton } from '../../components/Skeleton';
 import { format, subDays, startOfDay } from 'date-fns';
 
 const { width } = Dimensions.get('window');
@@ -80,6 +81,13 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
           totalTicketsSold: data.totalTicketsSold || 0,
           totalRevenue: data.totalRevenue || 0,
           currency: data.currency || 'USD',
+        });
+        // The "Total Revenue" card reads revenueByBurrency (in cents). The API returns
+        // revenueByCurrency in major units, so convert. Without this the card would show 0
+        // whenever the API path succeeds.
+        setRevenueByBurrency({
+          USD: Math.round((data.revenueByCurrency?.USD || 0) * 100),
+          HTG: Math.round((data.revenueByCurrency?.HTG || 0) * 100),
         });
         setChartData(data.chartData || []);
         setTopEvents(data.topEvents || []);
@@ -264,10 +272,22 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>{t('analytics.loading') || 'Loading analytics...'}</Text>
+      <SafeAreaView style={styles.container} edges={['bottom']}>
+        <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>{t('analytics.title') || 'Analytics'}</Text>
+          <View style={{ width: 40 }} />
+        </View>
+        <View style={{ padding: 16, gap: 16 }}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            {[0, 1, 2, 3].map((i) => (
+              <Skeleton key={i} width={(width - 40) / 2} height={104} radius={RADIUS.lg} />
+            ))}
+          </View>
+          <Skeleton width="100%" height={200} radius={RADIUS.xl} />
+          <Skeleton width="100%" height={160} radius={RADIUS.xl} />
         </View>
       </SafeAreaView>
     );
@@ -481,8 +501,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: RADIUS.lg,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   statCardPrimary: {
     backgroundColor: colors.primary,
@@ -506,8 +525,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.surface,
     borderRadius: RADIUS.xl,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   chartTitle: {
     fontSize: 16,
@@ -547,8 +565,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.surface,
     borderRadius: RADIUS.xl,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   sectionTitle: {
     fontSize: 16,

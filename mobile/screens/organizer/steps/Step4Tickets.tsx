@@ -100,6 +100,7 @@ export default function Step4Tickets({ draft, updateDraft }: Props) {
             <TextInput
               style={styles.tierInput}
               placeholder={t('organizerCreateEvent.tickets.tierNamePlaceholder')}
+              placeholderTextColor={colors.textTertiary}
               value={tier.name}
               onChangeText={(text) => updateTier(index, 'name', text)}
             />
@@ -113,6 +114,7 @@ export default function Step4Tickets({ draft, updateDraft }: Props) {
               <TextInput
                 style={styles.tierInput}
                 placeholder={t('organizerCreateEvent.tickets.pricePlaceholder')}
+                placeholderTextColor={colors.textTertiary}
                 value={tier.price}
                 onChangeText={(text) => updateTier(index, 'price', text)}
                 keyboardType="numeric"
@@ -123,6 +125,7 @@ export default function Step4Tickets({ draft, updateDraft }: Props) {
               <TextInput
                 style={styles.tierInput}
                 placeholder={t('organizerCreateEvent.tickets.quantityPlaceholder')}
+                placeholderTextColor={colors.textTertiary}
                 value={tier.quantity}
                 onChangeText={(text) => updateTier(index, 'quantity', text)}
                 keyboardType="numeric"

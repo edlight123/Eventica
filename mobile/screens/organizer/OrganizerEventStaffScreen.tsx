@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  ActivityIndicator,
   Alert,
   Modal,
   ScrollView,
@@ -18,7 +17,10 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { db } from '../../config/firebase'
 import { backendJson } from '../../lib/api/backend'
 import { useI18n } from '../../contexts/I18nContext'
-import { SHADOWS } from '../../config/brand'
+import { SPACING, RADIUS } from '../../config/brand'
+import { Skeleton } from '../../components/Skeleton'
+import EmptyState from '../../components/EmptyState'
+import { Users, Mail } from 'lucide-react-native'
 import { useAuth } from '../../contexts/AuthContext'
 
 type RouteParams = {
@@ -266,8 +268,17 @@ export default function OrganizerEventStaffScreen() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={colors.primary} />
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <View style={styles.headerRow}>
+            <Skeleton width={160} height={26} radius={7} />
+            <Skeleton width={96} height={36} radius={RADIUS.md} />
+          </View>
+          <Skeleton width={120} height={18} radius={6} style={{ marginTop: 12, marginBottom: 10 }} />
+          {[0, 1, 2].map((i) => (
+            <Skeleton key={i} width="100%" height={64} radius={RADIUS.lg} style={{ marginBottom: 10 }} />
+          ))}
+        </View>
       </View>
     )
   }
@@ -290,7 +301,7 @@ export default function OrganizerEventStaffScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('organizerStaff.membersTitle')}</Text>
           {members.length === 0 ? (
-            <Text style={styles.emptyText}>{t('organizerStaff.emptyMembers')}</Text>
+            <EmptyState icon={Users} title={t('organizerStaff.emptyMembers')} compact />
           ) : (
             members.map((m) => {
               const name = m.profile?.full_name || m.profile?.email || m.id
@@ -320,7 +331,7 @@ export default function OrganizerEventStaffScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('organizerStaff.invitesTitle')}</Text>
           {invites.length === 0 ? (
-            <Text style={styles.emptyText}>{t('organizerStaff.emptyInvites')}</Text>
+            <EmptyState icon={Mail} title={t('organizerStaff.emptyInvites')} compact />
           ) : (
             invites.map((inv) => {
               const target = inv.method === 'email' ? inv.targetEmail : inv.method === 'phone' ? inv.targetPhone : null
@@ -448,18 +459,17 @@ export default function OrganizerEventStaffScreen() {
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   content: { padding: 16, paddingBottom: 32 },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },
 
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
-  title: { fontSize: 22, fontFamily: 'InstrumentSerif_400Regular', letterSpacing: 0, fontWeight: '700', color: colors.text },
+  title: { fontSize: 26, fontFamily: 'InstrumentSerif_400Regular', letterSpacing: 0, fontWeight: '700', color: colors.text },
 
   inviteButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: RADIUS.md,
     gap: 6,
   },
   inviteButtonText: { color: colors.white, fontWeight: '700' },
@@ -468,16 +478,14 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
 
   section: { marginTop: 12 },
   sectionTitle: { fontSize: 16, fontWeight: '700', color: colors.text, marginBottom: 8 },
-  emptyText: { color: colors.textSecondary },
 
   card: {
     backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 10,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.lg,
+    marginBottom: SPACING.md,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   cardRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   cardTextWrap: { flex: 1 },
@@ -485,9 +493,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   cardSubtitle: { marginTop: 2, color: colors.textSecondary, fontSize: 12 },
 
   dangerButton: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 10,
+    borderRadius: RADIUS.sm,
     backgroundColor: colors.errorLight,
   },
   dangerButtonText: { color: colors.error, fontWeight: '700', fontSize: 12 },
@@ -503,8 +511,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     width: '100%',
     maxWidth: 520,
     backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: RADIUS.xl,
+    padding: SPACING.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   modalTitle: { fontSize: 16, fontWeight: '700', color: colors.text },
@@ -513,20 +523,21 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   input: {
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 12,
+    borderRadius: RADIUS.md,
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingVertical: 12,
     color: colors.text,
+    backgroundColor: colors.surfaceMuted,
   },
 
   methodRow: { flexDirection: 'row', gap: 8, marginTop: 4 },
   methodPill: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: 999,
+    borderRadius: RADIUS.full,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: colors.background,
+    backgroundColor: colors.surfaceMuted,
   },
   methodPillActive: { borderColor: colors.primary, backgroundColor: colors.infoLight },
   methodText: { color: colors.textSecondary, fontWeight: '700', fontSize: 12 },
@@ -537,19 +548,19 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
 
   modalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 10, marginTop: 16 },
   secondaryButton: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: RADIUS.md,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: colors.background,
+    backgroundColor: colors.surfaceMuted,
   },
   secondaryButtonText: { color: colors.text, fontWeight: '700' },
 
   primaryButton: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: RADIUS.md,
     backgroundColor: colors.primary,
   },
   primaryButtonDisabled: { opacity: 0.6 },

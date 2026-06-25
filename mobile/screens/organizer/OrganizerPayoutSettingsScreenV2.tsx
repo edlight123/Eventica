@@ -23,6 +23,7 @@ import { useI18n } from '../../contexts/I18nContext'
 import { backendFetch, backendJson } from '../../lib/api/backend'
 import { getVerificationRequest } from '../../lib/verification'
 import { SHADOWS, RADIUS } from '../../config/brand'
+import { Skeleton } from '../../components/Skeleton'
 
 type VerificationStatus = 'not_started' | 'pending' | 'verified' | 'failed'
 
@@ -323,9 +324,19 @@ export default function OrganizerPayoutSettingsScreenV2() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={styles.loadingText}>Loading payout settings...</Text>
+      <View style={styles.container}>
+        <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Payout Settings</Text>
+          <View style={{ width: 40 }} />
+        </View>
+        <View style={{ padding: 16, gap: 12 }}>
+          {[0, 1, 2].map((i) => (
+            <Skeleton key={i} width="100%" height={140} radius={RADIUS.xl} />
+          ))}
+        </View>
       </View>
     )
   }
@@ -767,8 +778,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   cardTitle: {
     fontSize: 16,
@@ -804,8 +814,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     marginTop: 24,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   emptyTitle: {
     fontSize: 18,
@@ -851,8 +860,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   destinationHeader: {
     flexDirection: 'row',

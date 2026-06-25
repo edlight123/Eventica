@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
-  ActivityIndicator,
   StatusBar,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -21,6 +20,10 @@ import {
   OrganizerStats,
   TodayEvent,
 } from '../../lib/api/organizer';
+import { SPACING, RADIUS } from '../../config/brand';
+import { Skeleton } from '../../components/Skeleton';
+import EmptyState from '../../components/EmptyState';
+import { Calendar } from 'lucide-react-native';
 
 export default function OrganizerDashboardScreen() {
   const { colors } = useTheme();
@@ -71,9 +74,25 @@ export default function OrganizerDashboardScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={styles.loadingText}>{t('organizerDashboard.loading')}</Text>
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+          <Text style={styles.headerTitle}>{t('organizerDashboard.title')}</Text>
+          <Text style={styles.headerSubtitle}>
+            {t('organizerDashboard.welcomeBack')}, {userProfile?.full_name || t('organizerDashboard.organizerFallback')}
+          </Text>
+        </View>
+        <View style={styles.section}>
+          <Skeleton width={150} height={22} radius={7} style={{ marginBottom: 16 }} />
+          <Skeleton width="100%" height={148} radius={RADIUS.lg} style={{ marginBottom: 24 }} />
+          <Skeleton width={120} height={22} radius={7} style={{ marginBottom: 16 }} />
+          <View style={styles.statsGrid}>
+            <Skeleton width="48%" height={116} radius={RADIUS.lg} />
+            <Skeleton width="48%" height={116} radius={RADIUS.lg} />
+            <Skeleton width="48%" height={116} radius={RADIUS.lg} />
+            <Skeleton width="48%" height={116} radius={RADIUS.lg} />
+          </View>
+        </View>
       </View>
     );
   }
@@ -103,10 +122,11 @@ export default function OrganizerDashboardScreen() {
         <View style={styles.section}>
         <Text style={styles.sectionTitle}>{t('organizerDashboard.todaysEvents')}</Text>
         {todayEvents.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Ionicons name="calendar-outline" size={48} color={colors.textSecondary} />
-            <Text style={styles.emptyText}>{t('organizerDashboard.noEventsToday')}</Text>
-          </View>
+          <EmptyState
+            icon={Calendar}
+            title={t('organizerDashboard.noEventsToday')}
+            compact
+          />
         ) : (
           todayEvents.map((event) => {
             const eventTime = new Date(event.start_datetime).toLocaleTimeString('en-US', {
@@ -252,17 +272,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   scrollContent: {
     flex: 1,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.background,
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: colors.textSecondary,
-  },
   header: {
     padding: 20,
     paddingTop: 16,
@@ -292,27 +301,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 16,
     letterSpacing: -0.3,
   },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 40,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    marginTop: 12,
-  },
   eventCard: {
     backgroundColor: colors.surface,
-    borderRadius: 18,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.lg,
+    marginBottom: SPACING.md,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.07,
-    shadowRadius: 16,
-    elevation: 4,
+    borderColor: colors.border,
   },
   eventHeader: {
     flexDirection: 'row',
@@ -375,22 +370,17 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginHorizontal: -6,
+    justifyContent: 'space-between',
+    rowGap: SPACING.md,
   },
   statCard: {
     width: '48%',
     backgroundColor: colors.surface,
-    borderRadius: 18,
-    padding: 16,
-    margin: '1%',
+    borderRadius: RADIUS.lg,
+    padding: SPACING.lg,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.07,
-    shadowRadius: 16,
-    elevation: 4,
+    borderColor: colors.border,
   },
   statCardValue: {
     fontSize: 24,
@@ -408,24 +398,19 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   quickActionsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginHorizontal: -6,
+    justifyContent: 'space-between',
+    rowGap: SPACING.md,
   },
   quickActionButton: {
     width: '48%',
     backgroundColor: colors.surface,
-    borderRadius: 18,
-    padding: 16,
-    margin: '1%',
+    borderRadius: RADIUS.lg,
+    padding: SPACING.lg,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.07,
-    shadowRadius: 16,
-    elevation: 4,
+    borderColor: colors.border,
   },
   quickActionText: {
     fontSize: 14,

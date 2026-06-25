@@ -6,7 +6,6 @@ import {
   FlatList,
   TextInput,
   TouchableOpacity,
-  ActivityIndicator,
   RefreshControl,
   StatusBar,
 } from 'react-native';
@@ -18,6 +17,10 @@ import { db } from '../../config/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useI18n } from '../../contexts/I18nContext';
 import ExportAttendeesButton from '../../components/ExportAttendeesButton';
+import { SPACING, RADIUS } from '../../config/brand';
+import { Skeleton } from '../../components/Skeleton';
+import EmptyState from '../../components/EmptyState';
+import { Users } from 'lucide-react-native';
 
 type RouteParams = {
   EventAttendees: {
@@ -182,9 +185,20 @@ export default function EventAttendeesScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={styles.loadingText}>{t('organizerAttendees.loading')}</Text>
+      <View style={styles.container}>
+        <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? colors.surface : colors.white} />
+        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>{t('organizerAttendees.headerTitle')}</Text>
+          <View style={styles.headerActions} />
+        </View>
+        <View style={{ padding: SPACING.lg }}>
+          {[0, 1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} width="100%" height={132} radius={RADIUS.lg} style={{ marginBottom: SPACING.md }} />
+          ))}
+        </View>
       </View>
     );
   }
@@ -293,12 +307,10 @@ export default function EventAttendeesScreen() {
           />
         }
         ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Ionicons name="people-outline" size={64} color={colors.textSecondary} />
-            <Text style={styles.emptyStateText}>
-              {searchQuery ? t('organizerAttendees.empty.filtered') : t('organizerAttendees.empty.default')}
-            </Text>
-          </View>
+          <EmptyState
+            icon={Users}
+            title={searchQuery ? t('organizerAttendees.empty.filtered') : t('organizerAttendees.empty.default')}
+          />
         }
       />
     </View>
@@ -309,17 +321,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   container: {
     flex: 1,
     backgroundColor: colors.background,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.background,
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: colors.textSecondary,
   },
   header: {
     flexDirection: 'row',
@@ -373,11 +374,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceMuted,
     margin: 16,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderRadius: 12,
+    borderRadius: RADIUS.md,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -421,11 +422,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   attendeeCard: {
     backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.lg,
+    marginBottom: SPACING.md,
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: colors.border,
   },
   attendeeHeader: {
     flexDirection: 'row',
@@ -492,14 +493,5 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 12,
     color: colors.success,
     marginLeft: 4,
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 60,
-  },
-  emptyStateText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    marginTop: 12,
   },
 });

@@ -28,7 +28,10 @@ import { db } from '../../config/firebase';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
-import { SHADOWS, RADIUS } from '../../config/brand';
+import { RADIUS } from '../../config/brand';
+import { Skeleton } from '../../components/Skeleton';
+import EmptyState from '../../components/EmptyState';
+import { Tag } from 'lucide-react-native';
 import { getEventById } from '../../lib/api/organizer';
 
 type RouteParams = {
@@ -248,9 +251,24 @@ export default function OrganizerPromoCodesScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={styles.loadingText}>{t('organizerPromoCodes.loading')}</Text>
+      <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.header}>
+            <Text style={styles.title}>{t('organizerPromoCodes.title')}</Text>
+            {!!eventTitle && (
+              <Text style={styles.subtitle} numberOfLines={2}>
+                {eventTitle}
+              </Text>
+            )}
+          </View>
+          <View style={styles.section}>
+            <Skeleton width="100%" height={52} radius={RADIUS.lg} style={{ marginBottom: 16 }} />
+            <Skeleton width={140} height={18} radius={6} style={{ marginBottom: 12 }} />
+            {[0, 1, 2].map((i) => (
+              <Skeleton key={i} width="100%" height={120} radius={RADIUS.xl} style={{ marginBottom: 10 }} />
+            ))}
+          </View>
+        </ScrollView>
       </View>
     );
   }
@@ -370,10 +388,7 @@ export default function OrganizerPromoCodesScreen() {
           <Text style={styles.sectionTitle}>{t('organizerPromoCodes.list.title')}</Text>
 
           {promoCodes.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Ionicons name="pricetag-outline" size={48} color={colors.textSecondary} />
-              <Text style={styles.emptyText}>{t('organizerPromoCodes.list.empty')}</Text>
-            </View>
+            <EmptyState icon={Tag} title={t('organizerPromoCodes.list.empty')} compact />
           ) : (
             promoCodes.map((promo) => {
               const expiry = parseExpiresAt(promo.expires_at);
@@ -489,8 +504,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   createToggleLeft: {
     flexDirection: 'row',
@@ -508,8 +522,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     padding: 14,
     marginTop: 12,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   formTitle: {
     fontSize: 16,
@@ -585,7 +598,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     padding: 24,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: colors.border,
   },
   emptyText: {
     marginTop: 10,
@@ -599,8 +612,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     padding: 14,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   promoHeader: {
     flexDirection: 'row',

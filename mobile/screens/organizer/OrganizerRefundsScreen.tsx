@@ -17,8 +17,9 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { backendFetch } from '../../lib/api/backend';
-import { SHADOWS, RADIUS } from '../../config/brand';
+import { RADIUS } from '../../config/brand';
 import EmptyState from '../../components/EmptyState';
+import { Skeleton } from '../../components/Skeleton';
 import { Receipt } from 'lucide-react-native';
 import { format } from 'date-fns';
 
@@ -189,10 +190,25 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>{t('refunds.loading') || 'Loading refund requests...'}</Text>
+      <SafeAreaView style={styles.container} edges={['bottom']}>
+        <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>{t('refunds.title') || 'Refund Requests'}</Text>
+          <View style={styles.badgeContainer} />
+        </View>
+        <View style={styles.filterContainer}>
+          {[0, 1, 2].map((i) => (
+            <View key={i} style={{ flex: 1 }}>
+              <Skeleton width="100%" height={40} radius={8} />
+            </View>
+          ))}
+        </View>
+        <View style={{ padding: 16 }}>
+          {[0, 1, 2, 3].map((i) => (
+            <Skeleton key={i} width="100%" height={180} radius={RADIUS.xl} style={{ marginBottom: 16 }} />
+          ))}
         </View>
       </SafeAreaView>
     );
@@ -438,8 +454,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.surface,
     borderRadius: RADIUS.xl,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   requestHeader: {
     flexDirection: 'row',

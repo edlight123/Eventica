@@ -16,6 +16,7 @@ import { db } from '../../config/firebase';
 import { doc, updateDoc, getDoc, Timestamp, serverTimestamp } from 'firebase/firestore';
 import { auth } from '../../config/firebase';
 import { useI18n } from '../../contexts/I18nContext';
+import { RADIUS } from '../../config/brand';
 
 type RouteParams = {
   TicketScanner: {
@@ -309,6 +310,7 @@ export default function TicketScannerScreen() {
             onPress={handleCloseSheet}
           />
           <View style={styles.bottomSheet}>
+            <View style={styles.sheetGrabber} />
             {/* Status Icon */}
             <View style={styles.sheetHeader}>
               <Ionicons
@@ -396,7 +398,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.primary,
     paddingVertical: 12,
     paddingHorizontal: 24,
-    borderRadius: 8,
+    borderRadius: RADIUS.sm,
     marginTop: 16,
   },
   buttonText: {
@@ -519,12 +521,22 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   bottomSheet: {
     backgroundColor: colors.surface,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingTop: 24,
+    borderTopLeftRadius: RADIUS['2xl'],
+    borderTopRightRadius: RADIUS['2xl'],
+    borderTopWidth: 1,
+    borderColor: colors.border,
+    paddingTop: 12,
     paddingBottom: 40,
     paddingHorizontal: 24,
     minHeight: 300,
+  },
+  sheetGrabber: {
+    alignSelf: 'center',
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.border,
+    marginBottom: 16,
   },
   sheetHeader: {
     alignItems: 'center',
@@ -555,7 +567,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   actionButton: {
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: RADIUS.md,
     alignItems: 'center',
   },
   primaryButton: {
@@ -567,7 +579,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '600',
   },
   secondaryButton: {
-    backgroundColor: colors.background,
+    backgroundColor: colors.surfaceMuted,
     borderWidth: 1,
     borderColor: colors.border,
   },

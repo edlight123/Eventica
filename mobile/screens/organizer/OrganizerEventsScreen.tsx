@@ -24,7 +24,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { getOrganizerEvents, OrganizerEvent } from '../../lib/api/organizer';
 import { getPosterTheme } from '../../lib/posterGradient';
-import { SHADOWS, RADIUS } from '../../config/brand';
+import { RADIUS } from '../../config/brand';
 import EmptyState from '../../components/EmptyState';
 
 type EventStatus = 'draft' | 'published' | 'sold_out' | 'completed' | 'cancelled';
@@ -382,8 +382,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: RADIUS.xl,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
     overflow: 'hidden',
   },
   eventImage: {

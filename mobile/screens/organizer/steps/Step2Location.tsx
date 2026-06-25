@@ -74,6 +74,7 @@ export default function Step2Location({ draft, updateDraft }: Props) {
           <TextInput
             style={styles.input}
             placeholder={t('organizerCreateEvent.location.venuePlaceholder')}
+            placeholderTextColor={colors.textTertiary}
             value={draft.venue_name}
             onChangeText={(text) => updateDraft({ venue_name: text })}
           />
@@ -120,6 +121,7 @@ export default function Step2Location({ draft, updateDraft }: Props) {
           <TextInput
             style={styles.input}
             placeholder={t('organizerCreateEvent.location.communePlaceholder')}
+            placeholderTextColor={colors.textTertiary}
             value={draft.commune}
             onChangeText={(text) => updateDraft({ commune: text })}
           />
@@ -136,6 +138,7 @@ export default function Step2Location({ draft, updateDraft }: Props) {
           <TextInput
             style={styles.input}
             placeholder={t('organizerCreateEvent.location.addressPlaceholder')}
+            placeholderTextColor={colors.textTertiary}
             value={draft.address}
             onChangeText={(text) => updateDraft({ address: text })}
           />
