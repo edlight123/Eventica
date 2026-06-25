@@ -67,8 +67,8 @@ export default function PosterEventCard({
   const dateLabel = event.start_datetime
     ? formatDateForLanguage(new Date(event.start_datetime), 'EEE, MMM d', language)
     : '';
-  // One quiet line, Posh-style: "Sat, Aug 15 · Port-au-Prince".
-  const metaLine = [dateLabel, event.city].filter(Boolean).join(' · ');
+  // Kept short so it can share a single line with the price.
+  const locationLabel = event.city || event.venue_name || '';
 
   const pressIn = () =>
     Animated.spring(scale, { toValue: 0.97, useNativeDriver: true }).start();
@@ -111,18 +111,27 @@ export default function PosterEventCard({
           </View>
         </View>
 
-        {/* Minimal, Posh-style content: title + one quiet meta line + price.
-            All text sits BELOW the poster so it never covers the artwork. */}
+        {/* Minimal content sits BELOW the poster so it never covers the artwork.
+            Two compact lines: title · date, then location · price. */}
         <View style={styles.content}>
-          <Text style={styles.title} numberOfLines={1}>
-            {event.title}
-          </Text>
-
-          <View style={styles.metaRow}>
-            {showMeta && !!metaLine && (
-              <Text style={styles.metaText} numberOfLines={1}>
-                {metaLine}
+          <View style={styles.metaLine}>
+            <Text style={styles.title} numberOfLines={1}>
+              {event.title}
+            </Text>
+            {showMeta && !!dateLabel && (
+              <Text style={styles.date} numberOfLines={1}>
+                {dateLabel}
               </Text>
+            )}
+          </View>
+
+          <View style={styles.metaLine}>
+            {showMeta && !!locationLabel ? (
+              <Text style={styles.location} numberOfLines={1}>
+                {locationLabel}
+              </Text>
+            ) : (
+              <View style={styles.spacer} />
             )}
             {isFree ? (
               <Text style={styles.free}>{t('common.free').toUpperCase()}</Text>
@@ -151,7 +160,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       justifyContent: 'center',
       borderRadius: 8,
       overflow: 'hidden',
-      backgroundColor: colors.surfaceMuted,
+      backgroundColor: 'transparent',
     },
     posterInset: {
       borderRadius: 14,
@@ -171,28 +180,37 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       left: 10,
     },
     content: {
-      paddingTop: 8,
-      gap: 3,
+      paddingTop: 6,
+      gap: 2,
+    },
+    metaLine: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 8,
+    },
+    spacer: {
+      flex: 1,
     },
     title: {
+      flexShrink: 1,
       fontSize: 14,
       fontWeight: '700',
       color: colors.text,
       lineHeight: 18,
       letterSpacing: -0.2,
     },
-    metaRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: 8,
-      marginTop: 1,
-    },
-    metaText: {
+    date: {
+      fontSize: 12,
+      fontWeight: '600',
       color: colors.textSecondary,
+      letterSpacing: -0.1,
+    },
+    location: {
+      flexShrink: 1,
       fontSize: 12.5,
       fontWeight: '500',
-      flexShrink: 1,
+      color: colors.textSecondary,
     },
     price: {
       fontSize: 12.5,
