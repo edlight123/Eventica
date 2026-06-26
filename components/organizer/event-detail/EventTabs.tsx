@@ -86,7 +86,7 @@ export function EventTabs({ eventId, ticketCount }: EventTabsProps) {
     tab.exact ? pathname === tab.href : pathname.startsWith(tab.href)
 
   return (
-    <div className="sticky top-[73px] z-20 border-b border-white/10 bg-[#141414] md:top-[89px]">
+    <div className="sticky top-14 z-20 border-b border-white/10 bg-[#141414]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <nav
           aria-label="Event sections"

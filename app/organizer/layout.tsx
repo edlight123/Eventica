@@ -63,12 +63,16 @@ export default async function OrganizerLayout({
   // Fetch organizer-specific stats for badges
   const { draftEvents, pendingPayouts } = await getOrganizerStats(user.id)
 
+  const accountInitial = (user.full_name || user.email || 'U').trim().charAt(0).toUpperCase()
+
   return (
     <div className="surface-dark min-h-screen">
-      <Navbar user={user} isAdmin={isAdmin(user?.email)} />
-
-      {/* Lean horizontal organizer nav (Posh-style) */}
-      <OrganizerTopNav draftEvents={draftEvents} pendingPayouts={pendingPayouts} />
+      {/* Single Posh-style top bar (replaces the global site navbar in /organizer) */}
+      <OrganizerTopNav
+        draftEvents={draftEvents}
+        pendingPayouts={pendingPayouts}
+        accountInitial={accountInitial}
+      />
 
       {/* Main Content */}
       <main className="pb-mobile-nav">{children}</main>
