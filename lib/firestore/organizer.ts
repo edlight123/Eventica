@@ -76,6 +76,81 @@ export async function getOrganizerEvents(organizerId: string) {
 /**
  * Get tickets sold for organizer's events
  */
+/**
+ * Aggregate the organizer's customers across all their events: a flat order
+ * list (one row per ticket) and a de-duplicated attendee list with lifetime
+ * stats. Used by the org-level Orders and Marketing pages.
+ */
+export async function getOrganizerCustomers(organizerId: string) {
+  try {
+    const events = await getOrganizerEvents(organizerId)
+    const eventTitleById = new Map<string, string>(events.map((e: any) => [e.id, e.title || 'Untitled event']))
+    const tickets = await getOrganizerTickets(organizerId)
+
+    // Resolve buyer details in batches of 10 (Firestore 'in' limit).
+    const userIds = Array.from(new Set(tickets.map((t: any) => t.user_id).filter(Boolean)))
+    const userById = new Map<string, { name: string; email: string; phone: string }>()
+    for (let i = 0; i < userIds.length; i += 10) {
+      const batch = userIds.slice(i, i + 10)
+      if (batch.length === 0) continue
+      const snap = await adminDb.collection('users').where('__name__', 'in', batch).get()
+      snap.docs.forEach((doc: any) => {
+        const d = doc.data()
+        userById.set(doc.id, {
+          name: d.full_name || d.display_name || d.displayName || 'Guest',
+          email: d.email || '',
+          phone: d.phone || d.phone_number || '',
+        })
+      })
+    }
+
+    const orders = tickets
+      .map((t: any) => {
+        const u = userById.get(t.user_id) || { name: 'Guest', email: '', phone: '' }
+        return {
+          id: t.id,
+          eventTitle: eventTitleById.get(String(t.event_id)) || 'Untitled event',
+          attendeeName: u.name,
+          attendeeEmail: u.email,
+          amount: t.price_paid || 0,
+          currency: t.currency,
+          status: t.status || 'valid',
+          purchasedAt: t.purchased_at,
+        }
+      })
+      .sort((a, b) => new Date(b.purchasedAt).getTime() - new Date(a.purchasedAt).getTime())
+
+    const attendeeMap = new Map<string, any>()
+    for (const t of tickets) {
+      const u = userById.get(t.user_id) || { name: 'Guest', email: '', phone: '' }
+      const key = t.user_id || `${u.email}-${u.name}`
+      const existing = attendeeMap.get(key)
+      const spend = existing?.spendByCurrency || {}
+      spend[t.currency] = (spend[t.currency] || 0) + (t.price_paid || 0)
+      attendeeMap.set(key, {
+        id: key,
+        name: u.name,
+        email: u.email,
+        phone: u.phone,
+        ticketCount: (existing?.ticketCount || 0) + 1,
+        spendByCurrency: spend,
+        lastPurchase:
+          !existing || new Date(t.purchased_at) > new Date(existing.lastPurchase)
+            ? t.purchased_at
+            : existing.lastPurchase,
+      })
+    }
+    const attendees = Array.from(attendeeMap.values()).sort(
+      (a, b) => new Date(b.lastPurchase).getTime() - new Date(a.lastPurchase).getTime()
+    )
+
+    return { orders, attendees }
+  } catch (error) {
+    console.error('Error aggregating organizer customers:', error)
+    return { orders: [], attendees: [] }
+  }
+}
+
 export async function getOrganizerTickets(organizerId: string) {
   try {
     // First get all event IDs for this organizer
