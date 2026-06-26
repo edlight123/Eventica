@@ -337,7 +337,7 @@ export default function VerificationWizard({
                         ${isComplete
                           ? 'bg-green-500 text-white'
                           : isCurrent
-                            ? 'bg-brand-600 text-white ring-4 ring-brand-500/20'
+                            ? 'bg-brand-600 text-white ring-4 ring-brand-100'
                             : isPast
                               ? 'bg-white/10 text-white/60'
                               : 'bg-white/5 text-white/50'
