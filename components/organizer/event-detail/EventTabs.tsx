@@ -1,96 +1,103 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
-type TabId = 'overview' | 'attendees' | 'check-in' | 'staff' | 'earnings' | 'sales' | 'updates' | 'settings'
-
 interface EventTabsProps {
-  activeTab: TabId
-  onTabChange: (tab: TabId) => void
   eventId: string
-  ticketCount: number
+  ticketCount?: number
 }
 
-export function EventTabs({ activeTab, onTabChange, eventId, ticketCount }: EventTabsProps) {
+/**
+ * Sticky horizontal tab bar for the per-event command center.
+ * Active tab is derived from the current URL — no local state needed.
+ */
+export function EventTabs({ eventId, ticketCount }: EventTabsProps) {
   const { t } = useTranslation('common')
-  
+  const pathname = usePathname()
+
   const tabs = [
-    { id: 'overview' as TabId, label: t('organizer.overview'), count: undefined, enabled: true },
-    { id: 'attendees' as TabId, label: t('organizer.attendees'), count: ticketCount, enabled: true, href: `/organizer/events/${eventId}/attendees` },
-    { id: 'check-in' as TabId, label: t('organizer.check_in'), count: undefined, enabled: true, href: `/organizer/scan/${eventId}` },
-    { id: 'staff' as TabId, label: 'Staff', count: undefined, enabled: true, href: `/organizer/events/${eventId}/staff` },
-    { id: 'earnings' as TabId, label: '💰 Earnings', count: undefined, enabled: true, href: `/organizer/events/${eventId}/earnings` },
-    { id: 'sales' as TabId, label: t('organizer.sales'), count: undefined, enabled: false },
-    { id: 'updates' as TabId, label: t('organizer.updates'), count: undefined, enabled: false },
-    { id: 'settings' as TabId, label: t('organizer_dashboard.settings'), count: undefined, enabled: false },
+    {
+      id: 'overview',
+      label: t('organizer.overview', { defaultValue: 'Overview' }),
+      href: `/organizer/events/${eventId}`,
+      exact: true,
+    },
+    {
+      id: 'analytics',
+      label: 'Analytics',
+      href: `/organizer/events/${eventId}/analytics`,
+    },
+    {
+      id: 'orders',
+      label: 'Orders',
+      href: `/organizer/events/${eventId}/orders`,
+    },
+    {
+      id: 'attendees',
+      label: t('organizer.attendees', { defaultValue: 'Attendees' }),
+      href: `/organizer/events/${eventId}/attendees`,
+      count: ticketCount,
+    },
+    {
+      id: 'marketing',
+      label: 'Marketing',
+      href: `/organizer/events/${eventId}/marketing`,
+    },
+    {
+      id: 'earnings',
+      label: t('organizer.earnings', { defaultValue: 'Earnings' }),
+      href: `/organizer/events/${eventId}/earnings`,
+    },
+    {
+      id: 'check-in',
+      label: t('organizer.check_in', { defaultValue: 'Check-in' }),
+      href: `/organizer/scan/${eventId}`,
+    },
+    {
+      id: 'staff',
+      label: 'Staff',
+      href: `/organizer/events/${eventId}/staff`,
+    },
   ]
 
+  const isActive = (tab: (typeof tabs)[number]) =>
+    tab.exact ? pathname === tab.href : pathname.startsWith(tab.href)
+
   return (
-    <div className="border-b border-white/10 bg-[#141414] sticky top-[73px] md:top-[89px] z-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <nav className="flex gap-1 overflow-x-auto scrollbar-hide -mb-px">
+    <div className="sticky top-[73px] z-20 border-b border-white/10 bg-[#141414] md:top-[89px]">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <nav
+          aria-label="Event sections"
+          className="-mb-px flex gap-1 overflow-x-auto scrollbar-none"
+        >
           {tabs.map((tab) => {
-            if (!tab.enabled) {
-              return (
-                <button
-                  key={tab.id}
-                  disabled
-                  className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-white/40 cursor-not-allowed whitespace-nowrap"
-                >
-                  {tab.label}
-                  <span className="text-xs bg-white/5 px-2 py-0.5 rounded-full">{t('organizer.coming_soon')}</span>
-                </button>
-              )
-            }
-
-            if (tab.href && tab.id !== 'overview') {
-              return (
-                <Link
-                  key={tab.id}
-                  href={tab.href}
-                  className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                    activeTab === tab.id
-                      ? 'border-brand-700 text-brand-300'
-                      : 'border-transparent text-white/60 hover:text-white hover:border-white/15'
-                  }`}
-                >
-                  {tab.label}
-                  {tab.count !== undefined && (
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      activeTab === tab.id
-                        ? 'bg-brand-500/10 text-brand-300'
-                        : 'bg-white/5 text-white/60'
-                    }`}>
-                      {tab.count}
-                    </span>
-                  )}
-                </Link>
-              )
-            }
-
+            const active = isActive(tab)
             return (
-              <button
+              <Link
                 key={tab.id}
-                onClick={() => onTabChange(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'border-brand-700 text-brand-300'
-                    : 'border-transparent text-white/60 hover:text-white hover:border-white/15'
+                href={tab.href}
+                className={`flex shrink-0 items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500 ${
+                  active
+                    ? 'border-brand-600 text-brand-300'
+                    : 'border-transparent text-white/55 hover:border-white/20 hover:text-white'
                 }`}
+                aria-current={active ? 'page' : undefined}
               >
                 {tab.label}
                 {tab.count !== undefined && (
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${
-                    activeTab === tab.id
-                      ? 'bg-brand-500/10 text-brand-300'
-                      : 'bg-white/5 text-white/60'
-                  }`}>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[11px] font-semibold tabular-nums ${
+                      active
+                        ? 'bg-brand-500/15 text-brand-300'
+                        : 'bg-white/8 text-white/55'
+                    }`}
+                  >
                     {tab.count}
                   </span>
                 )}
-              </button>
+              </Link>
             )
           })}
         </nav>

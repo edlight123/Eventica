@@ -1,11 +1,8 @@
 'use client'
 
-import { useState } from 'react'
 import Image from 'next/image'
-import { EventHeader } from '@/components/organizer/event-detail/EventHeader'
 import { EventKpis } from '@/components/organizer/event-detail/EventKpis'
 import { EventChecklist } from '@/components/organizer/event-detail/EventChecklist'
-import { EventTabs } from '@/components/organizer/event-detail/EventTabs'
 import { EventTimingBadge } from '@/components/organizer/event-detail/EventTimingBadge'
 import { TicketTiersCard } from '@/components/organizer/event-detail/TicketTiersCard'
 import { VenueCard } from '@/components/organizer/event-detail/VenueCard'
@@ -21,27 +18,6 @@ interface EventCommandCenterProps {
 }
 
 export function EventCommandCenter({ event, stats, tickets, tiers }: EventCommandCenterProps) {
-  const [activeTab, setActiveTab] = useState<'overview'>('overview')
-  const [isPublishing, setIsPublishing] = useState(false)
-
-  const handlePublishToggle = async () => {
-    setIsPublishing(true)
-    try {
-      const response = await fetch(`/api/events/${event.id}/publish`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_published: !event.is_published })
-      })
-      if (response.ok) {
-        window.location.reload()
-      }
-    } catch (error) {
-      console.error('Failed to toggle publish status:', error)
-    } finally {
-      setIsPublishing(false)
-    }
-  }
-
   // Build checklist
   const checklistItems = [
     {
@@ -91,21 +67,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
   }))
 
   return (
-    <>
-      <EventHeader 
-        event={event}
-        onPublishToggle={handlePublishToggle}
-        isPublishing={isPublishing}
-      />
-
-      <EventTabs
-        activeTab={activeTab}
-        onTabChange={setActiveTab as any}
-        eventId={event.id}
-        ticketCount={stats.ticketsSold}
-      />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-12">
         {/* Timing Badge */}
         <div className="mb-6">
           <EventTimingBadge startDateTime={event.start_datetime} />
@@ -175,7 +137,6 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
             {event.description || 'No description provided'}
           </p>
         </div>
-      </div>
-    </>
+    </div>
   )
 }

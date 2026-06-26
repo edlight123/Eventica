@@ -18,13 +18,28 @@ interface EventHeaderProps {
     is_published: boolean
     updated_at: string
   }
-  onPublishToggle?: () => void
-  isPublishing?: boolean
 }
 
-export function EventHeader({ event, onPublishToggle, isPublishing }: EventHeaderProps) {
+export function EventHeader({ event }: EventHeaderProps) {
   const { t } = useTranslation('common')
   const [showMenu, setShowMenu] = useState(false)
+  const [isPublishing, setIsPublishing] = useState(false)
+
+  const handlePublishToggle = async () => {
+    setIsPublishing(true)
+    try {
+      const response = await fetch(`/api/events/${event.id}/publish`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_published: !event.is_published }),
+      })
+      if (response.ok) window.location.reload()
+    } catch {
+      // publish toggle failed silently; user can retry
+    } finally {
+      setIsPublishing(false)
+    }
+  }
   const startDate = new Date(event.start_datetime)
   const updatedDate = new Date(event.updated_at)
 
@@ -101,7 +116,7 @@ export function EventHeader({ event, onPublishToggle, isPublishing }: EventHeade
                 {t('organizer.share')}
               </button>
               <button
-                onClick={onPublishToggle}
+                onClick={handlePublishToggle}
                 disabled={isPublishing}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   event.is_published
@@ -199,7 +214,7 @@ export function EventHeader({ event, onPublishToggle, isPublishing }: EventHeade
             <span className="text-xs text-white/70">{t('organizer.share')}</span>
           </button>
           <button
-            onClick={onPublishToggle}
+            onClick={handlePublishToggle}
             disabled={isPublishing}
             className={`flex flex-col items-center gap-1 p-2 rounded-lg ${
               event.is_published ? 'bg-white/5' : 'bg-brand-500/10'
