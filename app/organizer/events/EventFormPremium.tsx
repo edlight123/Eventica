@@ -17,6 +17,7 @@ import { LocationTab } from './tabs/LocationTab'
 import { ScheduleTab } from './tabs/ScheduleTab'
 import { TicketsTab } from './tabs/TicketsTab'
 import { DetailsTab } from './tabs/DetailsTab'
+import { UnsavedChangesPrompt } from '@/components/organizer/ui'
 
 interface EventFormProps {
   userId: string
@@ -46,6 +47,7 @@ export default function EventFormPremium({ userId, event, isVerified = false, ve
   const [loading, setLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [showLeavePrompt, setShowLeavePrompt] = useState(false)
   const [currentTab, setCurrentTab] = useState('basic')
   const [ticketTiers, setTicketTiers] = useState<TicketTier[]>([])
   const [showVerificationWarning, setShowVerificationWarning] = useState(false)
@@ -296,6 +298,17 @@ export default function EventFormPremium({ userId, event, isVerified = false, ve
     return event?.id ?? null
   }, [event?.id, formData, router, showToast, ticketTiers, userId])
 
+  // Warn before browser close/refresh when there are unsaved changes
+  useEffect(() => {
+    if (!hasUnsavedChanges) return
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = ''
+    }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [hasUnsavedChanges])
+
   // Autosave draft (debounced)
   useEffect(() => {
     if (!hasUnsavedChanges || !event?.id || formData.is_published) return
@@ -423,6 +436,13 @@ export default function EventFormPremium({ userId, event, isVerified = false, ve
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
+      {/* Leave-without-saving guard */}
+      <UnsavedChangesPrompt
+        dirty={showLeavePrompt}
+        onStay={() => setShowLeavePrompt(false)}
+        onLeave={() => { setShowLeavePrompt(false); router.back() }}
+      />
+
       {/* Verification Warning Modal */}
       {showVerificationWarning && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
@@ -515,7 +535,7 @@ export default function EventFormPremium({ userId, event, isVerified = false, ve
             <div className="flex items-center justify-between bg-[#141414] rounded-xl border-2 border-white/10 p-4 shadow-sm">
               <button
                 type="button"
-                onClick={() => router.back()}
+                onClick={() => hasUnsavedChanges ? setShowLeavePrompt(true) : router.back()}
                 className="px-4 py-2 text-white/60 hover:text-white font-medium transition-colors"
               >
                 Cancel
