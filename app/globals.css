@@ -159,6 +159,17 @@ body {
 }
 
 @layer utilities {
+  /* Strip the native calendar/clock indicators from date & time inputs so they
+     read as clean text chips (Posh-style). The field stays fully functional. */
+  .no-native-picker::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+  }
+  .no-native-picker::-webkit-inner-spin-button,
+  .no-native-picker::-webkit-clear-button {
+    display: none;
+  }
+
   .text-balance {
     text-wrap: balance;
   }

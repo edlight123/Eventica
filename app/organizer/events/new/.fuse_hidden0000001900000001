@@ -213,11 +213,11 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
   }
 
   const rowCls =
-    'flex w-full items-center gap-3 rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3.5 text-left text-[15px] text-white/70 transition-colors hover:bg-[#242424]'
+    'flex w-full items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5 text-left text-[15px] text-white/70 transition-colors hover:bg-white/[0.07]'
   const chip =
-    'no-native-picker rounded-lg bg-[#2a2a2a] px-3 py-1.5 text-sm font-semibold text-white [color-scheme:dark] focus:outline-none focus:ring-2 focus:ring-brand-400/40'
+    'rounded-lg border border-white/10 bg-white/[0.06] px-3 py-1.5 text-sm font-semibold text-white [color-scheme:dark] focus:outline-none focus:ring-2 focus:ring-brand-400/40'
   const field =
-    'w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-[15px] text-white [color-scheme:dark] placeholder:text-white/40 focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-400/40'
+    'w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-[15px] text-white [color-scheme:dark] placeholder:text-white/40 focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-400/40'
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-6 md:py-10">
@@ -225,7 +225,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
         {/* ===================== LEFT — the event ===================== */}
         <div className="order-2 min-w-0 lg:order-1">
           {/* Sell Tickets / RSVP */}
-          <div className="mx-auto mb-8 grid max-w-md grid-cols-2 rounded-full border border-white/10 bg-[#1c1c1c] p-1">
+          <div className="mx-auto mb-8 grid max-w-md grid-cols-2 rounded-full border border-white/10 bg-white/[0.04] p-1">
             {(['tickets', 'rsvp'] as const).map((m) => (
               <button
                 key={m}
@@ -264,7 +264,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
               <button
                 type="button"
                 onClick={() => setShowSummary(true)}
-                className="inline-flex items-center gap-1.5 rounded-full bg-[#1c1c1c] px-3.5 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-3.5 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
               >
                 <Plus className="h-4 w-4" /> Short Summary
               </button>
@@ -274,7 +274,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
           {/* Dates */}
           <div className="mt-8 border-t border-white/10 pt-6">
             <SectionTitle icon={CalendarDays}>Dates</SectionTitle>
-            <div className="overflow-hidden rounded-xl border border-white/10 bg-[#1c1c1c]">
+            <div className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.04]">
               <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5">
                 <span className="text-[15px] font-medium text-white">Start</span>
                 <div className="flex items-center gap-2">
@@ -294,7 +294,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
             </div>
             {startInvalid && <p className="mt-1.5 text-sm text-red-300">Pick when your event starts.</p>}
 
-            <div className="mt-3 flex items-center justify-between rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3.5">
+            <div className="mt-3 flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5">
               <span className="flex items-center gap-2 text-[15px] text-white/80">
                 <Repeat className="h-4 w-4 text-white/50" /> Recurring Series
               </span>
@@ -322,7 +322,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
               )}
 
               {/* Online toggle (kept compact) */}
-              <div className="flex items-center justify-between rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3.5">
+              <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5">
                 <span className="flex items-center gap-2 text-[15px] text-white/80">
                   <Globe className="h-[18px] w-[18px] text-white/50" /> Online event
                 </span>
@@ -331,12 +331,12 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
 
               {!isOnline && (
                 <>
-                  <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#1c1c1c] px-4">
+                  <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-4">
                     <MapPin className="h-[18px] w-[18px] shrink-0 text-white/50" />
                     <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Location / address" className="w-full bg-transparent py-3.5 text-[15px] text-white placeholder:text-white/40 focus:outline-none" />
                   </div>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#1c1c1c] px-4">
+                    <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-4">
                       <Globe className="h-[18px] w-[18px] shrink-0 text-white/50" />
                       <input value={venueName} onChange={(e) => setVenueName(e.target.value)} placeholder="Venue name" className="w-full bg-transparent py-3.5 text-[15px] text-white placeholder:text-white/40 focus:outline-none" />
                     </div>
@@ -346,7 +346,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
               )}
 
               {/* Category as a Posh-style row of chips */}
-              <div className="rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3.5">
+              <div className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5">
                 <div className="mb-2.5 flex items-center gap-2 text-[13px] font-medium text-white/50">
                   <Star className="h-4 w-4" /> Category
                 </div>
@@ -359,7 +359,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
                       className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${
                         category === cat
                           ? 'border-brand-500 bg-brand-600 text-white'
-                          : 'border-white/10 bg-[#1c1c1c] text-white/60 hover:border-white/20 hover:text-white'
+                          : 'border-white/10 bg-white/5 text-white/60 hover:border-white/20 hover:text-white'
                       }`}
                     >
                       {cat}
@@ -385,7 +385,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
               </SectionTitle>
 
               {showTicketEditor ? (
-                <div className="space-y-3 rounded-xl border border-white/10 bg-[#1c1c1c] p-4">
+                <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.04] p-4">
                   <input value={ticketName} onChange={(e) => setTicketName(e.target.value)} placeholder="Ticket name" className={field} />
                   <div className="grid grid-cols-2 gap-3">
                     <label className="block">
@@ -405,7 +405,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
                 <button
                   type="button"
                   onClick={() => setShowTicketEditor(true)}
-                  className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3.5 transition-colors hover:bg-[#242424]"
+                  className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5 transition-colors hover:bg-white/[0.07]"
                 >
                   <span className="text-left">
                     <span className="block text-[15px] font-semibold text-white">{ticketName}</span>
@@ -425,7 +425,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
             >
               Guestlist
             </SectionTitle>
-            <div className="rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-5 text-sm text-white/50">
+            <div className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-5 text-sm text-white/50">
               Your guestlist and attendee avatars will appear here as people RSVP.
             </div>
           </div>
@@ -433,7 +433,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
           {/* Event Features */}
           <div className="mt-8 border-t border-white/10 pt-6">
             <SectionTitle icon={Star}>Event Features</SectionTitle>
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-4">
               <span className="text-sm text-white/50">Showcase your event&rsquo;s performers, sponsors and more.</span>
               <span className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-sm font-semibold text-white/50">
                 Add feature <ChevronDown className="h-4 w-4" />
@@ -456,11 +456,11 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
           <div className="mt-8 border-t border-white/10 pt-6">
             <SectionTitle icon={Settings}>Page Settings</SectionTitle>
             <div className="space-y-3">
-              <div className="flex items-center justify-between rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3.5">
+              <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5">
                 <span className="text-[15px] text-white/80">Show on Explore</span>
                 <Toggle on={showOnExplore} onChange={setShowOnExplore} />
               </div>
-              <div className="flex items-center justify-between rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3.5">
+              <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3.5">
                 <span className="flex items-center gap-2 text-[15px] text-white/80">
                   <Lock className="h-4 w-4 text-white/50" /> Password Protected Event
                 </span>
@@ -474,10 +474,12 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
         <div className="order-1 lg:order-2">
           <div className="space-y-4 lg:sticky lg:top-24">
             {/* Flyer */}
-            <ImageUpload variant="flyer" currentImage={bannerUrl} onImageUploaded={(url) => setBannerUrl(url)} />
+            <div className="overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent">
+              <ImageUpload currentImage={bannerUrl} onImageUploaded={(url) => setBannerUrl(url)} />
+            </div>
 
             {/* Spotify */}
-            <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#1c1c1c] px-4">
+            <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-4">
               <Music2 className="h-[18px] w-[18px] shrink-0 text-white/50" />
               <input
                 value={spotifyUrl}
@@ -488,7 +490,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
             </div>
 
             {/* Font + accent */}
-            <div className="space-y-3 rounded-xl border border-white/10 bg-[#1c1c1c] p-4">
+            <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.04] p-4">
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2 text-sm text-white/80">
                   <Type className="h-4 w-4 text-white/50" /> Title Font
