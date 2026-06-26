@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { ChevronLeft, CalendarDays, ShieldCheck, Users } from 'lucide-react'
 import { createClient } from '@/lib/firebase-db/server'
 import EventStaffHub from './EventStaffHub'
-import { EditorialHeader } from '@/components/ui/EditorialHeader'
+import { PageHeader } from '@/components/organizer/ui'
 
 export const revalidate = 0
 
@@ -56,7 +56,8 @@ export default async function TeamSettingsPage({
   const events = await getOrganizerEvents(user.id)
 
   return (
-    <div className="bg-[#0a0a0a]">      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-[#0a0a0a]">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
         <Link
           href="/organizer/settings"
           className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white mb-6 transition-colors"
@@ -65,11 +66,10 @@ export default async function TeamSettingsPage({
           Back to Settings
         </Link>
 
-        <EditorialHeader
+        <PageHeader
           eyebrow="Settings"
           title="Team & Permissions"
           subtitle="Invite door staff and manage check-in access per event"
-          className="mb-8"
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">

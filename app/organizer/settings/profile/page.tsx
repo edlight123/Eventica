@@ -4,8 +4,7 @@ import { adminDb } from '@/lib/firebase/admin';
 import ProfileForm from './ProfileForm';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
-import { Card } from '@/components/ui/kit';
-import { EditorialHeader } from '@/components/ui/EditorialHeader';
+import { PageHeader } from '@/components/organizer/ui';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,15 +42,14 @@ export default async function ProfileSettingsPage() {
           Back to Settings
         </Link>
 
-        <EditorialHeader
+        <PageHeader
           eyebrow="Settings"
           title="Profile Settings"
           subtitle="Manage your personal information and contact details"
-          className="mb-8"
         />
 
         {/* Profile Form */}
-        <Card>
+        <div className="mt-8 rounded-2xl border border-white/10 bg-[#141414] overflow-hidden">
           <ProfileForm 
             userId={user.id}
             initialData={{
@@ -61,7 +59,7 @@ export default async function ProfileSettingsPage() {
               photo_url: userProfile.photo_url || user.photo_url || '',
             }}
           />
-        </Card>
+        </div>
 
         {/* Info Notice */}
         <div className="mt-6 p-4 bg-[#0a0a0a] border border-white/10 rounded-lg">

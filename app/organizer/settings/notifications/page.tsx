@@ -4,8 +4,7 @@ import { adminDb } from '@/lib/firebase/admin';
 import NotificationsForm from './NotificationsForm';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
-import { Card } from '@/components/ui/kit';
-import { EditorialHeader } from '@/components/ui/EditorialHeader';
+import { PageHeader } from '@/components/organizer/ui';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,15 +44,14 @@ export default async function NotificationsSettingsPage() {
           Back to Settings
         </Link>
 
-        <EditorialHeader
+        <PageHeader
           eyebrow="Settings"
           title="Notifications"
           subtitle="Manage how you receive updates about your events"
-          className="mb-8"
         />
 
         {/* Notifications Form */}
-        <Card>
+        <div className="mt-8 rounded-2xl border border-white/10 bg-[#141414] overflow-hidden">
           <NotificationsForm 
             userId={user.id}
             initialData={{
@@ -68,7 +66,7 @@ export default async function NotificationsSettingsPage() {
               push_new_reviews: preferences?.push_new_reviews ?? true,
             }}
           />
-        </Card>
+        </div>
       </div>
     </div>
   );

@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import DangerZone from './DangerZone';
 import Link from 'next/link';
 import { ChevronLeft, AlertTriangle } from 'lucide-react';
-import { EditorialHeader } from '@/components/ui/EditorialHeader';
+import { PageHeader } from '@/components/organizer/ui';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,11 +30,10 @@ export default async function DangerZoneSettingsPage() {
           Back to Settings
         </Link>
 
-        <EditorialHeader
+        <PageHeader
           eyebrow="Settings"
           title="Danger Zone"
           subtitle="Permanent actions that cannot be easily undone"
-          className="mb-8"
         />
 
         {/* Warning Banner */}

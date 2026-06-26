@@ -4,8 +4,7 @@ import { adminDb } from '@/lib/firebase/admin';
 import DefaultsForm from './DefaultsForm';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
-import { Card } from '@/components/ui/kit';
-import { EditorialHeader } from '@/components/ui/EditorialHeader';
+import { PageHeader } from '@/components/organizer/ui';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,15 +38,14 @@ export default async function DefaultsSettingsPage() {
           Back to Settings
         </Link>
 
-        <EditorialHeader
+        <PageHeader
           eyebrow="Settings"
           title="Event Defaults"
           subtitle="Set default preferences for new events you create"
-          className="mb-8"
         />
 
         {/* Defaults Form */}
-        <Card>
+        <div className="mt-8 rounded-2xl border border-white/10 bg-[#141414] overflow-hidden">
           <DefaultsForm 
             userId={user.id}
             initialData={{
@@ -58,7 +56,7 @@ export default async function DefaultsSettingsPage() {
               default_categories: organizerData?.default_categories || [],
             }}
           />
-        </Card>
+        </div>
 
         {/* Info Notice */}
         <div className="mt-6 p-4 bg-[#0a0a0a] border border-white/10 rounded-lg">

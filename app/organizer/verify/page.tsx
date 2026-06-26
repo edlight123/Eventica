@@ -17,7 +17,7 @@ import OrganizerInfoForm from '@/components/organizer/verification/forms/Organiz
 import GovernmentIDForm from '@/components/organizer/verification/forms/GovernmentIDForm'
 import SelfieForm from '@/components/organizer/verification/forms/SelfieForm'
 import BusinessDetailsForm from '@/components/organizer/verification/forms/BusinessDetailsForm'
-import { EditorialHeader } from '@/components/ui/EditorialHeader'
+import { SectionHeader } from '@/components/organizer/ui'
 import {
   getVerificationRequest,
   initializeVerificationRequest,
@@ -360,9 +360,9 @@ export default function VerifyOrganizerPage() {
             <span className="text-white/40">/</span>
             <span className="text-white font-medium">Verification</span>
           </div>
-          <EditorialHeader
+          <SectionHeader
             title="Verification"
-            subtitle="Verify your identity to publish paid events and receive payouts."
+            description="Verify your identity to publish paid events and receive payouts."
           />
         </div>
 
