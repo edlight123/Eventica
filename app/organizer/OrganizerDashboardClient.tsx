@@ -3,7 +3,7 @@
 import { useTranslation } from 'react-i18next'
 import { ActionCenter } from '@/components/organizer/ActionCenter'
 import { SalesSnapshot } from '@/components/organizer/SalesSnapshot'
-import { OrganizerEventCard } from '@/components/organizer/OrganizerEventCard'
+import { EventPosterCard } from '@/components/organizer/events-manager/EventPosterCard'
 import { PayoutsWidget } from '@/components/organizer/PayoutsWidget'
 import WelcomeDashboard from '@/components/organizer/WelcomeDashboard'
 import { EditorialHeader } from '@/components/ui/EditorialHeader'
@@ -122,19 +122,25 @@ export default function OrganizerDashboardClient({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {events.map((event: any) => {
               const stats = eventStatsById[String(event.id)]
-              const ticketsSold = stats?.ticketsSold || 0
-              const revenueByCurrencyCents = stats?.revenueByCurrencyCents || {}
-              const revenue = Object.values(revenueByCurrencyCents).reduce((sum, cents) => sum + (cents || 0), 0)
-              
+              const revenueByCurrencyCents: Record<string, number> = stats?.revenueByCurrencyCents || {}
+
               return (
-                <OrganizerEventCard
+                <EventPosterCard
                   key={event.id}
                   event={{
-                    ...event,
-                    ticketsSold,
-                    revenue,
+                    id: String(event.id),
+                    title: String(event.title || ''),
+                    banner_image_url: event.banner_image_url || undefined,
+                    start_datetime: String(event.start_datetime || ''),
+                    is_published: Boolean(event.is_published),
+                    tickets_sold: stats?.ticketsSold ?? (Number(event.tickets_sold) || 0),
+                    total_tickets: Number(event.total_tickets || event.max_attendees || 0),
+                    city: event.city || undefined,
+                    venue_name: event.venue_name || undefined,
+                    location_name: event.location_name || undefined,
+                    currency: event.currency || undefined,
                     revenueByCurrencyCents,
-                    capacity: event.total_tickets || event.max_attendees || 0
+                    category: event.category || undefined,
                   }}
                 />
               )
