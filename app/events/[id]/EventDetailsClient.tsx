@@ -40,7 +40,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
   const posterTheme = getPosterTheme(event.id || event.title, event.category)
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-mobile-nav md:pb-8">
+    <div className="min-h-screen pb-mobile-nav md:pb-8">
       {/* MOBILE HERO */}
       <MobileHero
         title={event.title}
@@ -213,7 +213,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
         </div>
       </div>
 
-      <div className="md:hidden sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-3">
+      <div className="md:hidden sticky top-0 z-40 bg-[#0a0a0a]/95 backdrop-blur border-b border-white/10 px-4 py-3">
         <div className="flex items-center gap-3">
           <div className="flex-1 min-w-0">
             {user ? (
@@ -240,7 +240,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
           </div>
         </div>
         {user && (
-          <div className="mt-3 pt-3 border-t border-gray-100">
+          <div className="mt-3 pt-3 border-t border-white/10">
             <FavoriteButton eventId={event.id} userId={user.id} initialIsFavorite={isFavorite} />
           </div>
         )}
@@ -288,50 +288,50 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
           {/* Left Column - Event Details */}
           <div className="lg:col-span-2 space-y-4">
             {/* Desktop About Section */}
-            <div className="hidden md:block bg-white rounded-2xl shadow-soft border border-gray-100 p-3 sm:p-4 md:p-6">
-              <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-2 sm:mb-3 flex items-center gap-1.5 sm:gap-2">
-                <Info className="w-4 h-4 sm:w-5 sm:h-5 text-brand-600" />
+            <div className="hidden md:block bg-white/5 rounded-2xl border border-white/10 p-3 sm:p-4 md:p-6">
+              <h2 className="text-base sm:text-lg md:text-xl font-bold text-white mb-2 sm:mb-3 flex items-center gap-1.5 sm:gap-2">
+                <Info className="w-4 h-4 sm:w-5 sm:h-5 text-brand-400" />
                 {t('events.about_event')}
               </h2>
-              <p className="text-sm sm:text-[15px] text-gray-700 whitespace-pre-wrap leading-relaxed">
+              <p className="text-sm sm:text-[15px] text-white/70 whitespace-pre-wrap leading-relaxed">
                 {event.description}
               </p>
             </div>
 
             {/* Venue Details - Desktop */}
-            <div className="hidden md:block bg-white rounded-2xl shadow-soft border border-gray-100 p-4 md:p-6">
-              <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-brand-600" />
+            <div className="hidden md:block bg-white/5 rounded-2xl border border-white/10 p-4 md:p-6">
+              <h2 className="text-lg md:text-xl font-bold text-white mb-3 flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-brand-400" />
                 {t('events.venue_information')}
               </h2>
               <div className="space-y-2.5">
                 <div>
-                  <p className="text-xs font-semibold text-gray-500 mb-1">{t('events.venue_name')}</p>
-                  <p className="text-base font-semibold text-gray-900">{event.venue_name}</p>
+                  <p className="text-xs font-semibold text-white/50 mb-1">{t('events.venue_name')}</p>
+                  <p className="text-base font-semibold text-white">{event.venue_name}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-500 mb-1">{t('events.address')}</p>
+                  <p className="text-xs font-semibold text-white/50 mb-1">{t('events.address')}</p>
                   <div className="space-y-1.5">
                     <div>
-                      <p className="text-[15px] text-gray-700">{event.address || t('events.address_not_specified')}</p>
-                      <p className="text-[15px] text-gray-700">{event.commune}, {event.city}</p>
+                      <p className="text-[15px] text-white/70">{event.address || t('events.address_not_specified')}</p>
+                      <p className="text-[15px] text-white/70">{event.commune}, {event.city}</p>
                     </div>
                     <div className="flex gap-3 pt-0.5">
                       <a
                         href={`https://maps.apple.com/?q=${encodeURIComponent(event.address || `${event.venue_name}, ${event.commune}, ${event.city}`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-brand-600 hover:text-brand-700 font-medium flex items-center gap-1"
+                        className="text-sm text-brand-400 hover:text-brand-300 font-medium flex items-center gap-1"
                       >
                         <MapPin className="w-3.5 h-3.5" />
                         {t('events.apple_maps')}
                       </a>
-                      <span className="text-gray-300">|</span>
+                      <span className="text-white/20">|</span>
                       <a
                         href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address || `${event.venue_name}, ${event.commune}, ${event.city}`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-brand-600 hover:text-brand-700 font-medium flex items-center gap-1"
+                        className="text-sm text-brand-400 hover:text-brand-300 font-medium flex items-center gap-1"
                       >
                         <MapPin className="w-4 h-4" />
                         {t('events.google_maps')}
@@ -343,28 +343,28 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
             </div>
 
             {/* Date & Time Details - Desktop */}
-            <div className="hidden md:block bg-white rounded-2xl shadow-soft border border-gray-100 p-4 md:p-6">
-              <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-brand-600" />
+            <div className="hidden md:block bg-white/5 rounded-2xl border border-white/10 p-4 md:p-6">
+              <h2 className="text-lg md:text-xl font-bold text-white mb-3 flex items-center gap-2">
+                <Clock className="w-5 h-5 text-brand-400" />
                 {t('events.date_and_time')}
               </h2>
               <div className="space-y-3">
                 <div>
-                  <p className="text-xs font-semibold text-gray-500 mb-1">{t('events.start')}</p>
-                  <p className="text-base font-semibold text-gray-900">
+                  <p className="text-xs font-semibold text-white/50 mb-1">{t('events.start')}</p>
+                  <p className="text-base font-semibold text-white">
                     {format(new Date(event.start_datetime), 'EEEE, MMMM d, yyyy')}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-white/55">
                     {format(new Date(event.start_datetime), 'h:mm a')}
                   </p>
                 </div>
                 {event.end_datetime && (
                   <div>
-                    <p className="text-xs font-semibold text-gray-500 mb-1">{t('events.end')}</p>
-                    <p className="text-base font-semibold text-gray-900">
+                    <p className="text-xs font-semibold text-white/50 mb-1">{t('events.end')}</p>
+                    <p className="text-base font-semibold text-white">
                       {format(new Date(event.end_datetime), 'EEEE, MMMM d, yyyy')}
                     </p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-white/55">
                       {format(new Date(event.end_datetime), 'h:mm a')}
                     </p>
                   </div>
@@ -373,21 +373,21 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
             </div>
 
             {/* Organizer Info - Desktop */}
-            <div className="hidden md:block bg-white rounded-2xl shadow-soft border border-gray-100 p-4 md:p-6">
-              <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <Users className="w-5 h-5 text-brand-600" />
+            <div className="hidden md:block bg-white/5 rounded-2xl border border-white/10 p-4 md:p-6">
+              <h2 className="text-lg md:text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <Users className="w-5 h-5 text-brand-400" />
                 {t('events.organizer')}
               </h2>
-              <a href={`/profile/organizer/${event.organizer_id}`} className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors">
+              <a href={`/profile/organizer/${event.organizer_id}`} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors">
                 <div className="w-14 h-14 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
                   {(event.users?.full_name || 'E')[0].toUpperCase()}
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900 text-base">
+                  <p className="font-semibold text-white text-base">
                     {event.users?.full_name || 'Event Organizer'}
                   </p>
                   {event.users?.is_verified && (
-                    <div className="flex items-center gap-1 text-brand-600 text-sm mt-1">
+                    <div className="flex items-center gap-1 text-brand-400 text-sm mt-1">
                       <Shield className="w-4 h-4" />
                       <span>{t('events.verified_organizer')}</span>
                     </div>
@@ -399,19 +399,19 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
 
           {/* Right Column - Ticket Purchase Sidebar */}
           <div className="lg:col-span-1">
-            <div className="hidden md:block sticky top-8 bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+            <div className="hidden md:block sticky top-8 bg-white/5 rounded-2xl shadow-lg border border-white/10 p-6">
               <div className="mb-6">
                 {isFree ? (
                   <div>
-                    <p className="text-3xl font-bold text-brand-600">{t('common.free')}</p>
-                    <p className="text-sm text-gray-600 mt-1">{t('events.no_ticket_required')}</p>
+                    <p className="text-3xl font-bold text-brand-400">{t('common.free')}</p>
+                    <p className="text-sm text-white/55 mt-1">{t('events.no_ticket_required')}</p>
                   </div>
                 ) : (
                   <div>
-                    <p className="text-3xl font-bold text-gray-900">
+                    <p className="text-3xl font-bold text-white">
                       {event.currency || 'HTG'} {(event.ticket_price || 0).toLocaleString()}
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">{t('events.per_ticket')}</p>
+                    <p className="text-sm text-white/55 mt-1">{t('events.per_ticket')}</p>
                   </div>
                 )}
               </div>
@@ -419,12 +419,12 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
               {isPastEvent ? (
                 <div className="text-center py-4">
                   <Badge variant="neutral" size="lg">Event Ended</Badge>
-                  <p className="text-sm text-gray-600 mt-2">This event has ended. Tickets are no longer available.</p>
+                  <p className="text-sm text-white/55 mt-2">This event has ended. Tickets are no longer available.</p>
                 </div>
               ) : isSoldOut ? (
                 <div className="text-center py-4">
                   <Badge variant="error" size="lg">{t('ticket.sold_out_caps')}</Badge>
-                  <p className="text-sm text-gray-600 mt-2">{t('events.event_reached_capacity')}</p>
+                  <p className="text-sm text-white/55 mt-2">{t('events.event_reached_capacity')}</p>
                 </div>
               ) : (
                 <>
@@ -451,7 +451,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                       >
                         {t('events.sign_in_to_get_tickets')}
                       </a>
-                      <p className="text-xs text-gray-500 text-center mt-3">{t('events.create_account_to_purchase')}</p>
+                      <p className="text-xs text-white/50 text-center mt-3">{t('events.create_account_to_purchase')}</p>
                     </>
                   )}
                 </>
@@ -468,7 +468,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
         {/* Related Events Section */}
         {relatedEvents?.length > 0 && (
           <div className="mt-12 px-4 md:px-0">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">{t('events.similar_events')}</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">{t('events.similar_events')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {relatedEvents.map((e: any) => <EventCard key={e.id} event={e} />)}
             </div>

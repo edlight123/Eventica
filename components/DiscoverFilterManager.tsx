@@ -97,13 +97,13 @@ export function DiscoverFilterManager({ userCountry = 'HT' }: DiscoverFilterMana
     <>
       {/* Sticky discover header: search + location + always-reachable quick filters.
           Pins directly below the navbar (h-14 / sm:h-16). */}
-      <div className="sticky top-14 sm:top-16 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
-        <DiscoverTopBar 
+      <div className="sticky top-14 sm:top-16 z-40 bg-[#0a0a0a]/95 backdrop-blur-sm border-b border-white/10 shadow-sm">
+        <DiscoverTopBar
           filters={appliedFilters}
           onOpenFilters={handleOpenFilters}
           userCountry={userCountry}
         />
-        <div className="border-t border-gray-100">
+        <div className="border-t border-white/10">
           <DiscoverFilterChipsStrip
             currentDate={appliedFilters.date}
             selectedCategories={appliedFilters.categories}

@@ -66,12 +66,12 @@ export default function EventCardHorizontal({ event }: EventCardHorizontalProps)
     : selloutSoon
     ? t('ticket.remaining_short', { count: remainingTickets })
     : isTrending
-    ? `🔥 ${t('events.trending')}`
+    ? t('events.trending')
     : null
 
   return (
     <Link href={`/events/${event.id}`} prefetch={true} className="group block">
-      <article className="hover-lift flex gap-3 rounded-2xl border border-gray-200/80 bg-white p-2.5 shadow-poster-sm group-hover:border-brand-200">
+      <article className="hover-lift flex gap-3 rounded-2xl border border-white/10 bg-white/5 p-2.5 shadow-poster-sm group-hover:border-brand-400/40">
         {/* Poster thumbnail */}
         <div
           className="relative aspect-[3/4] w-[88px] shrink-0 overflow-hidden rounded-xl"
@@ -105,24 +105,24 @@ export default function EventCardHorizontal({ event }: EventCardHorizontalProps)
         {/* Content */}
         <div className="flex min-w-0 flex-1 flex-col py-0.5">
           <div className="flex items-start justify-between gap-2">
-            <div className="eyebrow text-[10px] tracking-[0.08em] text-brand-600">
+            <div className="eyebrow text-[10px] tracking-[0.08em] text-brand-400">
               {validDate ? `${format(startDate, 'EEE, MMM d')} · ${format(startDate, 'h a')}` : ''}
             </div>
             <button
               type="button"
               onClick={handleLike}
               aria-label={liked ? 'Unlike' : 'Like'}
-              className="-mr-1 -mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full transition-colors hover:bg-gray-100"
+              className="-mr-1 -mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full transition-colors hover:bg-white/10"
             >
-              <Heart className={`h-4 w-4 ${liked ? 'fill-rose-500 text-rose-500' : 'text-gray-300'}`} />
+              <Heart className={`h-4 w-4 ${liked ? 'fill-rose-500 text-rose-500' : 'text-white/40'}`} />
             </button>
           </div>
 
-          <h3 className="mt-0.5 font-display text-[18px] leading-[1.05] text-gray-900 line-clamp-2">
+          <h3 className="mt-0.5 font-grotesk text-[17px] font-semibold leading-[1.05] text-white line-clamp-2">
             {event.title}
           </h3>
 
-          <p className="mt-0.5 truncate text-xs text-gray-500">{event.venue_name || event.city}</p>
+          <p className="mt-0.5 truncate text-xs text-white/55">{event.venue_name || event.city}</p>
 
           <div className="mt-auto flex items-center justify-between gap-2 pt-2">
             <div className="flex items-center">
@@ -131,26 +131,26 @@ export default function EventCardHorizontal({ event }: EventCardHorizontalProps)
                   {avatarColors.map((c, i) => (
                     <span
                       key={i}
-                      className="h-[18px] w-[18px] rounded-full ring-2 ring-white"
+                      className="h-[18px] w-[18px] rounded-full ring-2 ring-[#0a0a0a]"
                       style={{ background: c, marginLeft: i === 0 ? 0 : -6 }}
                     />
                   ))}
                 </div>
               )}
               {statusLabel ? (
-                <span className="text-[11px] font-semibold text-gray-500">{statusLabel}</span>
+                <span className="text-[11px] font-semibold text-white/55">{statusLabel}</span>
               ) : ticketsSold > 0 ? (
-                <span className="ml-1.5 text-[11px] text-gray-400">{ticketsSold} {t('events.going', { defaultValue: 'going' })}</span>
+                <span className="ml-1.5 text-[11px] text-white/40">{ticketsSold} {t('events.going', { defaultValue: 'going' })}</span>
               ) : null}
             </div>
 
-            <div className="shrink-0 font-grotesk text-sm font-bold text-brand-700">
+            <div className="shrink-0 font-grotesk text-sm font-bold text-brand-300">
               {isFree ? (
                 t('common.free')
               ) : (
                 <>
-                  <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">{t('common.from')} </span>
-                  {Number(event.ticket_price).toLocaleString()} <span className="text-[11px] font-medium text-gray-400">{event.currency}</span>
+                  <span className="text-[10px] font-semibold uppercase tracking-wide text-white/40">{t('common.from')} </span>
+                  {Number(event.ticket_price).toLocaleString()} <span className="text-[11px] font-medium text-white/40">{event.currency}</span>
                 </>
               )}
             </div>

@@ -60,7 +60,7 @@ export default async function CategoryPage({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-mobile-nav">
+    <div className="surface-dark min-h-screen pb-mobile-nav">
       <Navbar user={user} isAdmin={isAdmin(user?.email)} />
       <CategoryPageContent category={category} events={serializeData(events)} />
       <MobileNavWrapper user={user} isAdmin={isAdmin(user?.email)} />

@@ -274,7 +274,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   const serializedRelatedEvents = serializeData(relatedEvents)
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-mobile-nav md:pb-8">
+    <div className="surface-dark min-h-screen pb-mobile-nav md:pb-8">
       <Navbar user={user} isAdmin={isAdmin(user?.email)} />
       <EventDetailsClient 
         event={serializedEvent}

@@ -65,7 +65,7 @@ export function EventRail({ events, limit = 12 }: EventRailProps) {
         type="button"
         aria-label="Scroll left"
         onClick={() => scrollByViewport(-1)}
-        className={`absolute left-0 top-1/2 z-20 hidden -translate-y-1/2 md:flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white/95 text-gray-700 shadow-md backdrop-blur transition-all hover:bg-white hover:text-brand-700 ${
+        className={`absolute left-0 top-1/2 z-20 hidden -translate-y-1/2 md:flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-[#141414]/95 text-white/80 shadow-md backdrop-blur transition-all hover:bg-[#1e1e1e] hover:text-brand-300 ${
           canScrollLeft ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
       >
@@ -77,7 +77,7 @@ export function EventRail({ events, limit = 12 }: EventRailProps) {
         type="button"
         aria-label="Scroll right"
         onClick={() => scrollByViewport(1)}
-        className={`absolute right-0 top-1/2 z-20 hidden -translate-y-1/2 md:flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white/95 text-gray-700 shadow-md backdrop-blur transition-all hover:bg-white hover:text-brand-700 ${
+        className={`absolute right-0 top-1/2 z-20 hidden -translate-y-1/2 md:flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-[#141414]/95 text-white/80 shadow-md backdrop-blur transition-all hover:bg-[#1e1e1e] hover:text-brand-300 ${
           canScrollRight ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
       >

@@ -162,8 +162,8 @@ export default function FavoritesContent({ userId }: FavoritesContentProps) {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <EditorialHeader eyebrow="Favorites" title={t('title')} subtitle={t('subtitle')} className="mb-8" />
-        <LoadingSkeleton rows={8} animated />
+        <EditorialHeader eyebrow="Favorites" title={t('title')} subtitle={t('subtitle')} className="mb-8" tone="dark" />
+        <LoadingSkeleton rows={8} animated tone="dark" />
       </div>
     )
   }
@@ -171,7 +171,7 @@ export default function FavoritesContent({ userId }: FavoritesContentProps) {
   return (
     <PullToRefresh onRefresh={loadFavorites}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <EditorialHeader eyebrow="Favorites" title={t('title')} subtitle={t('subtitle')} className="mb-8" />
+        <EditorialHeader eyebrow="Favorites" title={t('title')} subtitle={t('subtitle')} className="mb-8" tone="dark" />
 
         {favoriteEvents.length === 0 ? (
           <EmptyState
@@ -181,6 +181,7 @@ export default function FavoritesContent({ userId }: FavoritesContentProps) {
             actionLabel={t('empty.action')}
             actionHref="/"
             actionIcon={TrendingUp}
+            tone="dark"
           />
         ) : (
           <>

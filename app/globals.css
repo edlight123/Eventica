@@ -91,17 +91,25 @@ body {
    ========================================================================== */
 
 :root {
-  /* Editorial palette */
-  --ink: #16140f;
-  --muted: #6c6658;
-  --faint: #9b9486;
-  --teal: #0f766e;
-  --teal-deep: #0c5e57;
-  --teal-soft: rgba(15, 118, 110, 0.1);
-  --line: rgba(20, 18, 12, 0.1);
-  --line-strong: rgba(20, 18, 12, 0.16);
-  --paper: #f6f3ec;
+  /* Editorial palette — DARK, poster-first (inspired by posh.vip) */
+  --ink: #f5f4f1;          /* primary text on dark */
+  --muted: #a8a39a;        /* secondary text */
+  --faint: #6f6a61;        /* tertiary text */
+  --teal: #2dd4bf;         /* accent (brightened for dark bg) */
+  --teal-deep: #14b8a6;
+  --teal-soft: rgba(45, 212, 191, 0.12);
+  --line: rgba(255, 255, 255, 0.1);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --paper: #0a0a0a;        /* page canvas */
+  --surface: #141414;      /* elevated surface */
   --scrim: linear-gradient(0deg, rgba(8, 9, 11, 0.92) 6%, rgba(8, 9, 11, 0.45) 40%, transparent 72%);
+}
+
+/* Public, poster-first surfaces opt into the dark canvas via this class.
+   Dashboards (admin/organizer) keep the default light body. */
+.surface-dark {
+  background-color: var(--paper);
+  color: var(--ink);
 }
 
 @layer base {

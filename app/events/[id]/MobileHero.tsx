@@ -86,14 +86,14 @@ export default function MobileHero({
       </div>
 
       {/* Title & Organizer - Below image */}
-      <div className="px-4 py-4 bg-white">
+      <div className="px-4 py-4">
         {/* Category Badge */}
         <Badge variant="neutral" size="sm" className="mb-3">
           {category}
         </Badge>
 
         {/* Title */}
-        <h1 className="font-display text-[26px] text-gray-900 mb-3 leading-[1.05] break-words">
+        <h1 className="font-display text-[26px] text-white mb-3 leading-[1.05] break-words">
           {title}
         </h1>
 
@@ -106,11 +106,11 @@ export default function MobileHero({
             {organizerName[0].toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-gray-900 truncate">
+            <p className="text-sm font-semibold text-white truncate">
               {organizerName}
             </p>
             {isVerified && (
-              <div className="flex items-center gap-1 text-brand-600 text-xs">
+              <div className="flex items-center gap-1 text-brand-400 text-xs">
                 <Shield className="w-3 h-3" />
                 <span className="font-medium">Verified</span>
               </div>

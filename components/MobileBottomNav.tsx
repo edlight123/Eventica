@@ -36,7 +36,7 @@ export default function MobileBottomNav({ isLoggedIn, isOrganizer = false, isAdm
   }
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/85 backdrop-blur-xl border-t border-gray-200/70 z-50 safe-area-inset-bottom will-change-contents" style={{ minHeight: '65px' }}>
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#0a0a0a]/90 backdrop-blur-xl border-t border-white/10 z-50 safe-area-inset-bottom will-change-contents" style={{ minHeight: '65px' }}>
       <div className="flex items-center justify-around px-1 py-2">
         {tabs.map((tab) => {
           const Icon = tab.icon
@@ -49,12 +49,12 @@ export default function MobileBottomNav({ isLoggedIn, isOrganizer = false, isAdm
               prefetch={true}
               className={`flex flex-1 flex-col items-center justify-center min-w-0 py-2 px-1 rounded-xl transition-colors will-change-auto ${
                 active
-                  ? 'text-brand-600'
-                  : 'text-gray-600 active:text-gray-900 active:bg-gray-50'
+                  ? 'text-brand-400'
+                  : 'text-white/60 active:text-white active:bg-white/5'
               }`}
             >
               <Icon className={`w-6 h-6 mb-1 ${active ? 'scale-110' : ''}`} strokeWidth={active ? 2.5 : 2} />
-              <span className={`text-[11px] font-medium truncate max-w-full ${active ? 'text-brand-600' : ''}`}>
+              <span className={`text-[11px] font-medium truncate max-w-full ${active ? 'text-brand-400' : ''}`}>
                 {tab.label}
               </span>
             </Link>

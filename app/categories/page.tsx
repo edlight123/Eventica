@@ -19,7 +19,7 @@ export default async function CategoriesPage({
   const params = await searchParams
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-mobile-nav">
+    <div className="surface-dark min-h-screen pb-mobile-nav">
       <Navbar user={user} isAdmin={isAdmin(user?.email)} />
       <CategoriesContent initialCategory={params.category} />
       <MobileNavWrapper user={user} />
