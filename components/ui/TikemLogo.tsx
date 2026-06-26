@@ -5,20 +5,35 @@ export const TIKEM_ACCENT = '#F2B705'
 
 /**
  * tikèm wordmark in the brand display serif (Instrument Serif, same as the
- * homepage) with an accent-colored "è". Rendered all lowercase to match the
- * app. Base color is inherited (set via className/style) so it works on light
- * and dark surfaces.
+ * homepage) with an accent-colored "è". Base color is inherited (set via
+ * className/style) so it works on light and dark surfaces.
+ *
+ * Defaults to the distinctive all-lowercase mark. Two optional refinements:
+ *  - `italic`   — elegant, editorial slant. Great for big hero/marketing
+ *                 placements (auth, splash). Keep it upright in dense UI
+ *                 (navbars) for maximum legibility.
+ *  - `capitalized` — render "Tikèm" with a capital T for a more conventional,
+ *                 name-like feel. Lowercase reads as more premium/editorial.
  */
 export function TikemWordmark({
   className = '',
   style,
+  italic = false,
+  capitalized = false,
 }: {
   className?: string
   style?: React.CSSProperties
+  italic?: boolean
+  capitalized?: boolean
 }) {
   return (
-    <span className={`font-display lowercase leading-none tracking-tight ${className}`} style={style}>
-      tik<span style={{ color: TIKEM_ACCENT }}>è</span>m
+    <span
+      className={`font-display leading-none tracking-tight ${italic ? 'italic' : ''} ${
+        capitalized ? '' : 'lowercase'
+      } ${className}`}
+      style={style}
+    >
+      {capitalized ? 'T' : 't'}ik<span style={{ color: TIKEM_ACCENT }}>è</span>m
     </span>
   )
 }

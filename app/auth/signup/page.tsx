@@ -127,7 +127,7 @@ export default function SignupPage() {
       <div className="relative max-w-md w-full space-y-7">
         <div className="text-center">
           <Link href="/" className="inline-flex justify-center">
-            <TikemWordmark className="text-[44px] text-white" />
+            <TikemWordmark italic className="text-[46px] text-white" />
           </Link>
           <p className="mt-1.5 text-sm text-white/55">{BRAND.tagline}</p>
           <h2 className="mt-6 font-display text-2xl md:text-3xl text-white">
