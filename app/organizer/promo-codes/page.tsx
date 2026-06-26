@@ -1,10 +1,9 @@
 import { createClient } from '@/lib/firebase-db/server'
 import { getCurrentUser } from '@/lib/auth'
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import PromoCodeManager from './PromoCodeManager'
 import { adminDb } from '@/lib/firebase/admin'
-import { StatTile } from '@/components/ui/kit'
+import { PageHeader, MetricCard } from '@/components/organizer/ui'
 import { Ticket, CheckCircle, Activity, XCircle } from 'lucide-react'
 
 export const revalidate = 0
@@ -101,43 +100,30 @@ export default async function PromoCodesPage({
   const percentActive = totalCodes > 0 ? Math.round((activeCodes / totalCodes) * 100) : 0
 
   return (
-    <div className="bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#0a0a0a]">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+        <PageHeader
+          eyebrow="Organizer"
+          title="Promo Codes"
+          subtitle="Create and manage discounts for your events."
+        />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-          <div className="mb-6 md:mb-8">
-            <Link
-              href="/organizer/events"
-              className="text-brand-300 hover:text-brand-300 text-[13px] md:text-sm font-medium mb-2 inline-block"
-            >
-              ← Back to Events
-            </Link>
-            <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-white">Promo Codes</h1>
-            <p className="text-[13px] md:text-sm text-white/60 mt-1">Create and manage discounts for your events</p>
-          </div>
+        {/* Metrics */}
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <MetricCard icon={Ticket} label="Total Codes" value={totalCodes} />
+          <MetricCard icon={CheckCircle} label="Active" value={activeCodes} sublabel={`${percentActive}% active`} />
+          <MetricCard icon={Activity} label="Total Uses" value={totalUses} />
+          <MetricCard icon={XCircle} label="Inactive" value={totalCodes - activeCodes} />
+        </div>
 
-          {/* Metrics - horizontal scroll on mobile */}
-          <div className="flex md:grid md:grid-cols-4 gap-3 md:gap-6 overflow-x-auto -mx-4 px-4 pb-2 snap-x snap-mandatory md:overflow-visible mb-6 md:mb-8">
-            <div className="min-w-[220px] md:min-w-0 snap-start flex-shrink-0">
-              <StatTile icon={Ticket} label="Total Codes" value={totalCodes} />
-            </div>
-            <div className="min-w-[220px] md:min-w-0 snap-start flex-shrink-0">
-              <StatTile icon={CheckCircle} label="Active Codes" value={activeCodes} sublabel={`${percentActive}% active`} />
-            </div>
-            <div className="min-w-[220px] md:min-w-0 snap-start flex-shrink-0">
-              <StatTile icon={Activity} label="Total Uses" value={totalUses} />
-            </div>
-            <div className="min-w-[220px] md:min-w-0 snap-start flex-shrink-0">
-              <StatTile icon={XCircle} label="Inactive" value={totalCodes - activeCodes} />
-            </div>
-          </div>
-
+        <div className="mt-8">
           <PromoCodeManager
             events={eventsData}
             promoCodes={promoCodesData}
             organizerId={user.id}
           />
         </div>
-      
+      </div>
     </div>
   )
 }

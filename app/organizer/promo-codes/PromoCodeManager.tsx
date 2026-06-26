@@ -1,9 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import { EmptyState, StatusChip, type ChipTone } from '@/components/ui/kit'
-import { DataTable, type Column } from '@/components/ui/DataTable'
-import Modal from '@/components/ui/Modal'
+import {
+  OrgEmptyState,
+  OrgDataTable,
+  Drawer,
+  ConfirmationDialog,
+  StatusChip,
+  type ChipTone,
+} from '@/components/organizer/ui'
+import type { OrgColumn } from '@/components/organizer/ui'
 import { Ticket, Plus, Trash2 } from 'lucide-react'
 
 type Event = {
@@ -38,6 +44,8 @@ export default function PromoCodeManager({
   const [promoCodes, setPromoCodes] = useState(initialPromoCodes)
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
 
   // Form state
   const [code, setCode] = useState('')
@@ -96,8 +104,8 @@ export default function PromoCodeManager({
       setMaxUses('')
       setExpiresAt('')
       setShowForm(false)
-    } catch (error: any) {
-      alert(error.message || 'Failed to create promo code')
+    } catch (error: unknown) {
+      alert(error instanceof Error ? error.message : 'Failed to create promo code')
     } finally {
       setLoading(false)
     }
@@ -116,24 +124,26 @@ export default function PromoCodeManager({
       setPromoCodes(promoCodes.map(p => 
         p.id === promoId ? { ...p, is_active: !isActive } : p
       ))
-    } catch (error: any) {
-      alert(error.message || 'Failed to update promo code')
+    } catch (error: unknown) {
+      alert(error instanceof Error ? error.message : 'Failed to update promo code')
     }
   }
 
-  async function deletePromo(promoId: string) {
-    if (!confirm('Are you sure you want to delete this promo code?')) return
-
+  async function confirmDelete() {
+    if (!deleteTarget) return
+    setDeleteLoading(true)
     try {
-      const res = await fetch(`/api/promo-codes?promoId=${encodeURIComponent(promoId)}`, {
+      const res = await fetch(`/api/promo-codes?promoId=${encodeURIComponent(deleteTarget)}`, {
         method: 'DELETE',
       })
       const json = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(json?.error || 'Failed to delete promo code')
-
-      setPromoCodes(promoCodes.filter(p => p.id !== promoId))
-    } catch (error: any) {
-      alert(error.message || 'Failed to delete promo code')
+      setPromoCodes(promoCodes.filter((p) => p.id !== deleteTarget))
+    } catch (error: unknown) {
+      alert(error instanceof Error ? error.message : 'Failed to delete promo code')
+    } finally {
+      setDeleteLoading(false)
+      setDeleteTarget(null)
     }
   }
 
@@ -157,7 +167,7 @@ export default function PromoCodeManager({
         {promo.is_active ? 'Deactivate' : 'Activate'}
       </button>
       <button
-        onClick={() => deletePromo(promo.id)}
+        onClick={() => setDeleteTarget(promo.id)}
         className="p-1.5 md:p-2 text-red-300 hover:bg-red-500/10 rounded-lg transition"
         aria-label="Delete promo code"
       >
@@ -166,7 +176,7 @@ export default function PromoCodeManager({
     </div>
   )
 
-  const columns: Column<PromoCode>[] = [
+  const columns: OrgColumn<PromoCode>[] = [
     {
       key: 'code',
       header: 'Code',
@@ -270,30 +280,27 @@ export default function PromoCodeManager({
       </div>
 
       {/* Promo Codes Table */}
-      <DataTable<PromoCode>
+      <OrgDataTable<PromoCode>
         columns={columns}
         rows={promoCodes}
         rowKey={(p) => p.id}
         pageSize={10}
         renderMobileCard={renderMobileCard}
         empty={
-          <EmptyState
+          <OrgEmptyState
             icon={Ticket}
             title="No promo codes yet"
-            description="Create one to get started!"
-            className="border-0"
+            description="Create a discount code to drive ticket sales."
           />
         }
       />
 
-      {/* Create Modal */}
-      <Modal isOpen={showForm} onClose={() => setShowForm(false)} size="lg" showCloseButton>
-        <form onSubmit={handleCreate}>
-          <h3 className="font-display text-2xl text-white mb-4">New promo code</h3>
-
+      {/* Create Drawer */}
+      <Drawer open={showForm} onClose={() => setShowForm(false)} title="New promo code" size="lg">
+        <form onSubmit={handleCreate} className="space-y-4 p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[11px] md:text-sm font-medium text-white/70 mb-2 uppercase tracking-wide">
+              <label className="block text-xs font-semibold uppercase tracking-wide text-white/60 mb-1.5">
                 Code
               </label>
               <input
@@ -301,44 +308,44 @@ export default function PromoCodeManager({
                 required
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-white/15 focus:ring-2 focus:ring-brand-500 uppercase"
+                className="w-full rounded-lg border border-white/15 bg-white/[0.05] px-4 py-2.5 uppercase text-white placeholder:text-white/30 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
                 placeholder="SUMMER2024"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] md:text-sm font-medium text-white/70 mb-2 uppercase tracking-wide">
+              <label className="block text-xs font-semibold uppercase tracking-wide text-white/60 mb-1.5">
                 Event
               </label>
               <select
                 required
                 value={eventId}
                 onChange={(e) => setEventId(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-white/15 bg-[#141414] focus:ring-2 focus:ring-brand-500"
+                className="w-full rounded-lg border border-white/15 bg-[#141414] px-4 py-2.5 text-white focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
               >
                 <option value="">Select event</option>
-                {events.map(event => (
+                {events.map((event) => (
                   <option key={event.id} value={event.id}>{event.title}</option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="block text-[11px] md:text-sm font-medium text-white/70 mb-2 uppercase tracking-wide">
+              <label className="block text-xs font-semibold uppercase tracking-wide text-white/60 mb-1.5">
                 Discount Type
               </label>
               <select
                 value={discountType}
                 onChange={(e) => setDiscountType(e.target.value as 'percentage' | 'fixed')}
-                className="w-full px-4 py-2 rounded-lg border border-white/15 focus:ring-2 focus:ring-brand-500"
+                className="w-full rounded-lg border border-white/15 bg-[#141414] px-4 py-2.5 text-white focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
               >
                 <option value="percentage">Percentage (%)</option>
-                <option value="fixed">Fixed Amount ($)</option>
+                <option value="fixed">Fixed Amount</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-[11px] md:text-sm font-medium text-white/70 mb-2 uppercase tracking-wide">
+              <label className="block text-xs font-semibold uppercase tracking-wide text-white/60 mb-1.5">
                 Discount Value
               </label>
               <input
@@ -348,56 +355,68 @@ export default function PromoCodeManager({
                 step="0.01"
                 value={discountValue}
                 onChange={(e) => setDiscountValue(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-white/15 focus:ring-2 focus:ring-brand-500"
+                className="w-full rounded-lg border border-white/15 bg-white/[0.05] px-4 py-2.5 text-white placeholder:text-white/30 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
                 placeholder={discountType === 'percentage' ? '10' : '5.00'}
               />
             </div>
 
             <div>
-              <label className="block text-[11px] md:text-sm font-medium text-white/70 mb-2 uppercase tracking-wide">
-                Max Uses (optional)
+              <label className="block text-xs font-semibold uppercase tracking-wide text-white/60 mb-1.5">
+                Max Uses <span className="normal-case font-normal">(optional)</span>
               </label>
               <input
                 type="number"
                 min="1"
                 value={maxUses}
                 onChange={(e) => setMaxUses(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-white/15 focus:ring-2 focus:ring-brand-500"
+                className="w-full rounded-lg border border-white/15 bg-white/[0.05] px-4 py-2.5 text-white placeholder:text-white/30 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
                 placeholder="Unlimited"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] md:text-sm font-medium text-white/70 mb-2 uppercase tracking-wide">
-                Expires At (optional)
+              <label className="block text-xs font-semibold uppercase tracking-wide text-white/60 mb-1.5">
+                Expires At <span className="normal-case font-normal">(optional)</span>
               </label>
               <input
                 type="datetime-local"
                 value={expiresAt}
                 onChange={(e) => setExpiresAt(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-white/15 focus:ring-2 focus:ring-brand-500"
+                className="w-full rounded-lg border border-white/15 bg-white/[0.05] px-4 py-2.5 text-white focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
               />
             </div>
           </div>
 
-          <div className="mt-6 flex justify-end gap-3">
+          <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={() => setShowForm(false)}
-              className="px-5 py-2 rounded-lg border border-white/15 text-white/70 font-semibold text-sm hover:bg-[#0a0a0a] transition"
+              className="rounded-lg border border-white/15 px-5 py-2.5 text-sm font-semibold text-white/70 hover:bg-white/[0.05] transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-2 rounded-lg bg-brand-700 text-white font-semibold text-sm hover:bg-brand-800 transition disabled:opacity-50"
+              className="rounded-lg bg-brand-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-800 transition disabled:opacity-50"
             >
-              {loading ? 'Creating...' : 'Create Code'}
+              {loading ? 'Creating…' : 'Create Code'}
             </button>
           </div>
         </form>
-      </Modal>
+      </Drawer>
+
+      {/* Delete confirmation */}
+      <ConfirmationDialog
+        open={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+        title="Delete promo code?"
+        description="This promo code will be permanently deleted and can no longer be used by attendees."
+        confirmLabel="Delete"
+        variant="danger"
+        loading={deleteLoading}
+      />
     </div>
   )
 }
