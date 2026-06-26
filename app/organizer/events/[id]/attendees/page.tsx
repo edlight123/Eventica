@@ -1,7 +1,6 @@
 import { adminAuth, adminDb } from '@/lib/firebase/admin'
 import { redirect, notFound } from 'next/navigation'
 import { cookies } from 'next/headers'
-import Link from 'next/link'
 import { AttendeesManager } from './AttendeesManager'
 import { loadTicketDocsForEvent } from '@/lib/tickets/loadTicketsForEvent'
 
@@ -133,49 +132,13 @@ export default async function AttendeesPage({ params }: { params: Promise<{ id: 
     }
   })
 
-  const navbarUser = {
-    id: authUser.uid,
-    email: authUser.email || '',
-    full_name: authUser.name || authUser.email || '',
-    role: 'organizer' as const,
-  }
-
   return (
-    <div className="bg-[#0a0a0a]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-        {/* Header */}
-        <div className="mb-6">
-          <Link
-            href={`/organizer/events/${eventId}`}
-            className="text-brand-300 hover:text-brand-300 text-sm font-medium mb-2 inline-block"
-          >
-            ← Back to Event
-          </Link>
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-white mb-1 truncate">
-                {event.title}
-              </h1>
-              <p className="text-sm text-white/60">Attendee Management</p>
-            </div>
-            <Link
-              href={`/organizer/scan/${eventId}`}
-              className="flex-shrink-0 px-4 py-2.5 bg-brand-700 hover:bg-brand-800 text-white rounded-lg font-semibold text-sm flex items-center gap-2 transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-              </svg>
-              Check-In
-            </Link>
-          </div>
-        </div>
-
-        {/* Attendees Manager */}
-        <AttendeesManager
-          eventId={eventId}
-          eventTitle={event.title}
-          tickets={tickets}
-        />
-      </div>    </div>
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+      <AttendeesManager
+        eventId={eventId}
+        eventTitle={event.title}
+        tickets={tickets}
+      />
+    </div>
   )
 }

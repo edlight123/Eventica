@@ -1,9 +1,19 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Search, Download, Mail, Filter, X, User, CreditCard, Calendar, Check, AlertCircle } from 'lucide-react'
+import { Download, Mail, User, CreditCard, Calendar, Check, AlertCircle, QrCode } from 'lucide-react'
 import { format } from 'date-fns'
 import { formatMoneyFromCents, normalizeCurrency } from '@/lib/money'
+import {
+  SearchInput,
+  FilterBar,
+  FilterChip,
+  OrgDataTable,
+  OrgEmptyState,
+  Drawer,
+  StatusChip,
+} from '@/components/organizer/ui'
+import type { OrgColumn } from '@/components/organizer/ui'
 
 interface Ticket {
   id: string
@@ -15,7 +25,7 @@ interface Ticket {
   price_paid: number
   currency?: string | null
   quantity: number
-  checked_in_at?: string
+  checked_in_at?: string | null
   purchased_at: string
   attendee?: {
     id: string
@@ -33,47 +43,112 @@ interface AttendeesManagerProps {
 
 type FilterStatus = 'all' | 'checked-in' | 'not-checked-in' | 'cancelled'
 
+const STATUS_FILTERS: { value: FilterStatus; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'checked-in', label: 'Checked In' },
+  { value: 'not-checked-in', label: 'Pending' },
+  { value: 'cancelled', label: 'Cancelled' },
+]
+
+const COLUMNS: OrgColumn<Ticket>[] = [
+  {
+    key: 'attendee',
+    header: 'Attendee',
+    sortable: true,
+    sortAccessor: (t: Ticket) => t.attendee?.full_name || '',
+    render: (t: Ticket) => (
+      <div className="flex items-center gap-3">
+        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-500/10">
+          <User className="h-4 w-4 text-brand-300" />
+        </div>
+        <div className="min-w-0">
+          <p className="truncate font-medium text-white">{t.attendee?.full_name || 'Unknown'}</p>
+          <p className="truncate text-xs text-white/50 sm:hidden">{t.attendee?.email || ''}</p>
+        </div>
+      </div>
+    ),
+  },
+  {
+    key: 'email',
+    header: 'Email',
+    sortable: true,
+    sortAccessor: (t: Ticket) => t.attendee?.email || '',
+    render: (t: Ticket) => (
+      <span className="text-sm text-white/70">{t.attendee?.email || '—'}</span>
+    ),
+    cellClassName: 'hidden sm:table-cell',
+    headerClassName: 'hidden sm:table-cell',
+  },
+  {
+    key: 'status',
+    header: 'Status',
+    render: (t: Ticket) => {
+      if (t.checked_in_at) {
+        return (
+          <div>
+            <StatusChip tone="success">Checked In</StatusChip>
+            <p className="mt-0.5 text-xs text-white/40">
+              {format(new Date(t.checked_in_at), 'MMM d, h:mm a')}
+            </p>
+          </div>
+        )
+      }
+      if (t.status === 'cancelled') return <StatusChip tone="danger">Cancelled</StatusChip>
+      return <StatusChip tone="warning">Pending</StatusChip>
+    },
+  },
+  {
+    key: 'purchased_at',
+    header: 'Purchased',
+    sortable: true,
+    sortAccessor: (t: Ticket) => t.purchased_at,
+    render: (t: Ticket) => (
+      <span className="text-sm text-white/60">
+        {format(new Date(t.purchased_at), 'MMM d, yyyy')}
+      </span>
+    ),
+    cellClassName: 'hidden lg:table-cell',
+    headerClassName: 'hidden lg:table-cell',
+  },
+]
+
 export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesManagerProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all')
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null)
-  const [showFilters, setShowFilters] = useState(false)
 
-  // Calculate stats
   const stats = useMemo(() => {
     const total = tickets.length
-    const checkedIn = tickets.filter(t => t.checked_in_at).length
-    const notCheckedIn = total - checkedIn
-    const cancelled = tickets.filter(t => t.status === 'cancelled').length
-
+    const checkedIn = tickets.filter((t) => t.checked_in_at).length
+    const notCheckedIn = tickets.filter((t) => !t.checked_in_at && t.status !== 'cancelled').length
+    const cancelled = tickets.filter((t) => t.status === 'cancelled').length
     return { total, checkedIn, notCheckedIn, cancelled }
   }, [tickets])
 
-  // Filter and search tickets
+  const statusCount: Record<FilterStatus, number> = {
+    all: stats.total,
+    'checked-in': stats.checkedIn,
+    'not-checked-in': stats.notCheckedIn,
+    cancelled: stats.cancelled,
+  }
+
   const filteredTickets = useMemo(() => {
     let filtered = tickets
 
-    // Apply status filter
-    if (filterStatus === 'checked-in') {
-      filtered = filtered.filter(t => t.checked_in_at)
-    } else if (filterStatus === 'not-checked-in') {
-      filtered = filtered.filter(t => !t.checked_in_at && t.status !== 'cancelled')
-    } else if (filterStatus === 'cancelled') {
-      filtered = filtered.filter(t => t.status === 'cancelled')
-    }
+    if (filterStatus === 'checked-in') filtered = filtered.filter((t) => t.checked_in_at)
+    else if (filterStatus === 'not-checked-in')
+      filtered = filtered.filter((t) => !t.checked_in_at && t.status !== 'cancelled')
+    else if (filterStatus === 'cancelled') filtered = filtered.filter((t) => t.status === 'cancelled')
 
-    // Apply search
     if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(t => {
-        const attendee = t.attendee
-        return (
-          attendee?.full_name?.toLowerCase().includes(query) ||
-          attendee?.email?.toLowerCase().includes(query) ||
-          attendee?.phone_number?.toLowerCase().includes(query) ||
-          t.id.toLowerCase().includes(query)
-        )
-      })
+      const q = searchQuery.toLowerCase()
+      filtered = filtered.filter(
+        (t) =>
+          t.attendee?.full_name?.toLowerCase().includes(q) ||
+          t.attendee?.email?.toLowerCase().includes(q) ||
+          t.attendee?.phone_number?.toLowerCase().includes(q) ||
+          t.id.toLowerCase().includes(q)
+      )
     }
 
     return filtered
@@ -82,16 +157,20 @@ export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesMana
   const handleExportCSV = () => {
     const csv = [
       ['Name', 'Email', 'Phone', 'Ticket ID', 'Status', 'Checked In', 'Purchase Date'],
-      ...filteredTickets.map(t => [
+      ...filteredTickets.map((t) => [
         t.attendee?.full_name || 'N/A',
         t.attendee?.email || 'N/A',
         t.attendee?.phone_number || 'N/A',
         t.id,
         t.status,
-        t.checked_in_at ? format(new Date(t.checked_in_at), 'MMM d, yyyy h:mm a') : 'Not checked in',
+        t.checked_in_at
+          ? format(new Date(t.checked_in_at), 'MMM d, yyyy h:mm a')
+          : 'Not checked in',
         format(new Date(t.purchased_at), 'MMM d, yyyy'),
-      ])
-    ].map(row => row.join(',')).join('\n')
+      ]),
+    ]
+      .map((row) => row.join(','))
+      .join('\n')
 
     const blob = new Blob([csv], { type: 'text/csv' })
     const url = window.URL.createObjectURL(blob)
@@ -104,264 +183,243 @@ export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesMana
     window.URL.revokeObjectURL(url)
   }
 
-  const handleMessageAttendees = () => {
+  const handleEmailAttendees = () => {
     const emails = filteredTickets
-      .map(t => t.attendee?.email)
+      .map((t) => t.attendee?.email)
       .filter(Boolean)
       .join(',')
-    
     window.location.href = `mailto:${emails}?subject=${encodeURIComponent(`Update: ${eventTitle}`)}`
   }
 
+  const mobileCard = (t: Ticket) => (
+    <button
+      key={t.id}
+      type="button"
+      onClick={() => setSelectedTicket(t)}
+      className="flex w-full items-center gap-3 p-4 text-left hover:bg-white/[0.03] active:bg-white/[0.05]"
+    >
+      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-500/10">
+        <User className="h-5 w-5 text-brand-300" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-medium text-white">{t.attendee?.full_name || 'Unknown'}</p>
+        <p className="truncate text-xs text-white/50">{t.attendee?.email || ''}</p>
+      </div>
+      <div>
+        {t.checked_in_at ? (
+          <StatusChip tone="success">In</StatusChip>
+        ) : t.status === 'cancelled' ? (
+          <StatusChip tone="danger">Cancelled</StatusChip>
+        ) : (
+          <StatusChip tone="warning">Pending</StatusChip>
+        )}
+      </div>
+    </button>
+  )
+
   return (
     <>
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-[#141414] rounded-xl border-2 border-white/10 p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xs font-medium text-white/60 uppercase">Total</h3>
-            <User className="w-4 h-4 text-brand-300" />
+      {/* KPI row */}
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {[
+          { label: 'Total', value: stats.total, color: 'text-white', bg: 'border-white/10' },
+          { label: 'Checked In', value: stats.checkedIn, color: 'text-emerald-300', bg: 'border-emerald-500/30' },
+          { label: 'Pending', value: stats.notCheckedIn, color: 'text-amber-300', bg: 'border-amber-500/30' },
+          { label: 'Cancelled', value: stats.cancelled, color: 'text-red-300', bg: 'border-red-500/30' },
+        ].map((k) => (
+          <div key={k.label} className={`rounded-xl border bg-[#141414] p-4 ${k.bg}`}>
+            <p className="text-xs font-medium uppercase tracking-wide text-white/50">{k.label}</p>
+            <p className={`mt-1 text-2xl font-bold ${k.color}`}>{k.value}</p>
           </div>
-          <p className="text-2xl font-bold text-white">{stats.total}</p>
-        </div>
-        <div className="bg-[#141414] rounded-xl border-2 border-emerald-500/30 p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xs font-medium text-white/60 uppercase">Checked In</h3>
-            <Check className="w-4 h-4 text-emerald-300" />
-          </div>
-          <p className="text-2xl font-bold text-emerald-300">{stats.checkedIn}</p>
-        </div>
-        <div className="bg-[#141414] rounded-xl border-2 border-amber-500/30 p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xs font-medium text-white/60 uppercase">Pending</h3>
-            <AlertCircle className="w-4 h-4 text-amber-300" />
-          </div>
-          <p className="text-2xl font-bold text-amber-300">{stats.notCheckedIn}</p>
-        </div>
-        <div className="bg-[#141414] rounded-xl border-2 border-red-500/30 p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xs font-medium text-white/60 uppercase">Cancelled</h3>
-            <X className="w-4 h-4 text-red-300" />
-          </div>
-          <p className="text-2xl font-bold text-red-300">{stats.cancelled}</p>
-        </div>
+        ))}
       </div>
 
-      {/* Search and Actions */}
-      <div className="bg-[#141414] rounded-xl border-2 border-white/10 p-6 mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          {/* Search */}
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-            <input
-              type="text"
-              placeholder="Search by name, email, phone, or ticket ID..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border-2 border-white/10 rounded-lg focus:border-brand-500 focus:outline-none"
-            />
-          </div>
-
-          {/* Actions */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`px-4 py-2.5 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors ${
-                showFilters
-                  ? 'bg-brand-700 text-white'
-                  : 'bg-white/5 text-white/70 hover:bg-white/10'
-              }`}
-            >
-              <Filter className="w-4 h-4" />
-              Filters
-            </button>
-            <button
-              onClick={handleExportCSV}
-              className="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium text-sm flex items-center gap-2 transition-colors"
-            >
-              <Download className="w-4 h-4" />
-              Export
-            </button>
-            <button
-              onClick={handleMessageAttendees}
-              className="px-4 py-2.5 bg-brand-700 hover:bg-brand-800 text-white rounded-lg font-medium text-sm flex items-center gap-2 transition-colors"
-            >
-              <Mail className="w-4 h-4" />
-              Email
-            </button>
-          </div>
-        </div>
-
-        {/* Filters */}
-        {showFilters && (
-          <div className="mt-4 pt-4 border-t-2 border-white/10">
-            <h3 className="text-sm font-semibold text-white mb-3">Filter by Status</h3>
-            <div className="flex flex-wrap gap-2">
-              {[
-                { value: 'all', label: 'All', count: stats.total },
-                { value: 'checked-in', label: 'Checked In', count: stats.checkedIn },
-                { value: 'not-checked-in', label: 'Not Checked In', count: stats.notCheckedIn },
-                { value: 'cancelled', label: 'Cancelled', count: stats.cancelled },
-              ].map(({ value, label, count }) => (
-                <button
-                  key={value}
-                  onClick={() => setFilterStatus(value as FilterStatus)}
-                  className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-                    filterStatus === value
-                      ? 'bg-brand-700 text-white'
-                      : 'bg-white/5 text-white/70 hover:bg-white/10'
-                  }`}
-                >
-                  {label} ({count})
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Results Summary */}
-      <div className="mb-4 text-sm text-white/60">
-        Showing {filteredTickets.length} of {stats.total} attendees
-      </div>
-
-      {/* Attendees Table */}
-      <div className="bg-[#141414] rounded-xl border-2 border-white/10 overflow-hidden">
-        {filteredTickets.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-white/10">
-              <thead className="bg-[#0a0a0a]">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-white/70 uppercase">
-                    Attendee
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-white/70 uppercase hidden md:table-cell">
-                    Contact
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-white/70 uppercase">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-white/70 uppercase hidden lg:table-cell">
-                    Purchased
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-white/70 uppercase">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-[#141414] divide-y divide-white/10">
-                {filteredTickets.map((ticket) => (
-                  <tr key={ticket.id} className="hover:bg-[#0a0a0a] transition-colors">
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-brand-500/10 rounded-full flex items-center justify-center flex-shrink-0">
-                          <User className="w-5 h-5 text-brand-300" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-semibold text-white truncate">
-                            {ticket.attendee?.full_name || 'Unknown'}
-                          </p>
-                          <p className="text-xs text-white/50 truncate md:hidden">
-                            {ticket.attendee?.email || 'N/A'}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 hidden md:table-cell">
-                      <p className="text-sm text-white">{ticket.attendee?.email || 'N/A'}</p>
-                      <p className="text-xs text-white/50">{ticket.attendee?.phone_number || 'N/A'}</p>
-                    </td>
-                    <td className="px-4 py-4">
-                      {ticket.checked_in_at ? (
-                        <div>
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-500/15 text-emerald-300 text-xs font-semibold rounded-full">
-                            <Check className="w-3 h-3" />
-                            Checked In
-                          </span>
-                          <p className="text-xs text-white/50 mt-1">
-                            {format(new Date(ticket.checked_in_at), 'MMM d, h:mm a')}
-                          </p>
-                        </div>
-                      ) : ticket.status === 'cancelled' ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-500/15 text-red-300 text-xs font-semibold rounded-full">
-                          <X className="w-3 h-3" />
-                          Cancelled
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-amber-500/15 text-amber-300 text-xs font-semibold rounded-full">
-                          <AlertCircle className="w-3 h-3" />
-                          Pending
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-4 text-sm text-white/60 hidden lg:table-cell">
-                      {format(new Date(ticket.purchased_at), 'MMM d, yyyy')}
-                    </td>
-                    <td className="px-4 py-4 text-right">
-                      <button
-                        onClick={() => setSelectedTicket(ticket)}
-                        className="text-brand-300 hover:text-brand-300 font-medium text-sm"
-                      >
-                        View
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <User className="w-12 h-12 text-white/40 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-white mb-2">No attendees found</h3>
-            <p className="text-sm text-white/60">
-              {searchQuery || filterStatus !== 'all'
-                ? 'Try adjusting your search or filters'
-                : 'No tickets have been sold yet'}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Attendee Detail Side Sheet */}
-      {selectedTicket && (
-        <AttendeeDetailSheet
-          ticket={selectedTicket}
-          eventId={eventId}
-          onClose={() => setSelectedTicket(null)}
+      {/* Toolbar */}
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <SearchInput
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Search by name, email, phone, or ticket ID…"
+          className="flex-1"
         />
-      )}
+        <div className="flex shrink-0 gap-2">
+          <button
+            type="button"
+            onClick={handleExportCSV}
+            className="inline-flex h-10 items-center gap-2 rounded-lg border border-white/10 bg-[#141414] px-4 text-sm font-medium text-white/70 transition-colors hover:bg-white/[0.08] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          >
+            <Download className="h-4 w-4" />
+            <span className="hidden sm:inline">Export CSV</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleEmailAttendees}
+            className="inline-flex h-10 items-center gap-2 rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          >
+            <Mail className="h-4 w-4" />
+            <span className="hidden sm:inline">Email All</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Status filter chips */}
+      <FilterBar className="mb-4">
+        {STATUS_FILTERS.map((f) => (
+          <FilterChip
+            key={f.value}
+            active={filterStatus === f.value}
+            onClick={() => setFilterStatus(f.value)}
+            count={statusCount[f.value]}
+          >
+            {f.label}
+          </FilterChip>
+        ))}
+      </FilterBar>
+
+      {/* Table */}
+      <OrgDataTable<Ticket>
+        columns={COLUMNS}
+        rows={filteredTickets}
+        rowKey={(t) => t.id}
+        onRowClick={(t) => setSelectedTicket(t)}
+        renderMobileCard={mobileCard}
+        empty={
+          <OrgEmptyState
+            icon={User}
+            title={searchQuery || filterStatus !== 'all' ? 'No attendees match' : 'No attendees yet'}
+            description={
+              searchQuery || filterStatus !== 'all'
+                ? 'Try adjusting your search or filters.'
+                : 'No tickets have been sold for this event yet.'
+            }
+          />
+        }
+      />
+
+      {/* Detail drawer */}
+      <Drawer
+        open={selectedTicket !== null}
+        onClose={() => setSelectedTicket(null)}
+        title="Attendee Details"
+        size="md"
+        footer={
+          selectedTicket && selectedTicket.status !== 'cancelled' ? (
+            <AttendeeActions ticket={selectedTicket} eventId={eventId} />
+          ) : undefined
+        }
+      >
+        {selectedTicket && <AttendeeDetail ticket={selectedTicket} />}
+      </Drawer>
     </>
   )
 }
 
-interface AttendeeDetailSheetProps {
-  ticket: Ticket
-  eventId: string
-  onClose: () => void
+function AttendeeDetail({ ticket }: { ticket: Ticket }) {
+  return (
+    <div className="space-y-6 p-6">
+      {/* Attendee info */}
+      <section>
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-white/50">
+          Attendee Information
+        </p>
+        <div className="space-y-3">
+          <InfoRow icon={<User className="h-4 w-4" />} label="Name">
+            {ticket.attendee?.full_name || '—'}
+          </InfoRow>
+          <InfoRow icon={<Mail className="h-4 w-4" />} label="Email">
+            {ticket.attendee?.email || '—'}
+          </InfoRow>
+          <InfoRow
+            icon={
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+            }
+            label="Phone"
+          >
+            {ticket.attendee?.phone_number || '—'}
+          </InfoRow>
+        </div>
+      </section>
+
+      {/* Ticket info */}
+      <section>
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-white/50">
+          Ticket Information
+        </p>
+        <div className="space-y-3">
+          <InfoRow icon={<QrCode className="h-4 w-4" />} label="Ticket ID">
+            <span className="font-mono text-sm">{ticket.id}</span>
+          </InfoRow>
+          <InfoRow icon={<Calendar className="h-4 w-4" />} label="Purchased">
+            {format(new Date(ticket.purchased_at), 'MMMM d, yyyy h:mm a')}
+          </InfoRow>
+          <InfoRow
+            icon={
+              ticket.checked_in_at ? (
+                <Check className="h-4 w-4 text-emerald-300" />
+              ) : (
+                <AlertCircle className="h-4 w-4 text-amber-300" />
+              )
+            }
+            label="Check-In"
+          >
+            {ticket.checked_in_at ? (
+              <span className="text-emerald-300">
+                {format(new Date(ticket.checked_in_at), 'MMM d, h:mm a')}
+              </span>
+            ) : (
+              <span className="text-amber-300">Not checked in</span>
+            )}
+          </InfoRow>
+          <InfoRow icon={<CreditCard className="h-4 w-4" />} label="Price Paid">
+            {formatMoneyFromCents(
+              Math.round(Number(ticket.price_paid || 0) * 100),
+              normalizeCurrency(ticket.currency, 'HTG')
+            )}
+          </InfoRow>
+        </div>
+      </section>
+    </div>
+  )
 }
 
-function AttendeeDetailSheet({ ticket, eventId, onClose }: AttendeeDetailSheetProps) {
+function InfoRow({
+  icon,
+  label,
+  children,
+}: {
+  icon: React.ReactNode
+  label: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="flex gap-3">
+      <span className="mt-0.5 shrink-0 text-white/40">{icon}</span>
+      <div>
+        <p className="text-xs text-white/40">{label}</p>
+        <p className="font-medium text-white">{children}</p>
+      </div>
+    </div>
+  )
+}
+
+function AttendeeActions({ ticket, eventId }: { ticket: Ticket; eventId: string }) {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   const handleResendTicket = async () => {
     setLoading(true)
     setMessage(null)
-
     try {
-      const response = await fetch('/api/resend-ticket', {
+      const res = await fetch('/api/resend-ticket', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ticketId: ticket.id }),
       })
-
-      if (!response.ok) {
-        throw new Error('Failed to resend ticket')
-      }
-
+      if (!res.ok) throw new Error()
       setMessage({ type: 'success', text: 'Ticket resent successfully!' })
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Failed to resend ticket' })
     } finally {
       setLoading(false)
@@ -369,27 +427,19 @@ function AttendeeDetailSheet({ ticket, eventId, onClose }: AttendeeDetailSheetPr
   }
 
   const handleRefund = async () => {
-    if (!confirm('Are you sure you want to refund this ticket? This action cannot be undone.')) {
-      return
-    }
-
+    if (!confirm('Refund this ticket? This cannot be undone.')) return
     setLoading(true)
     setMessage(null)
-
     try {
-      const response = await fetch('/api/refund-ticket', {
+      const res = await fetch('/api/refund-ticket', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ticketId: ticket.id }),
       })
-
-      if (!response.ok) {
-        throw new Error('Failed to process refund')
-      }
-
-      setMessage({ type: 'success', text: 'Refund processed successfully!' })
+      if (!res.ok) throw new Error()
+      setMessage({ type: 'success', text: 'Refund processed!' })
       setTimeout(() => window.location.reload(), 1500)
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Failed to process refund' })
     } finally {
       setLoading(false)
@@ -397,144 +447,36 @@ function AttendeeDetailSheet({ ticket, eventId, onClose }: AttendeeDetailSheetPr
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-end">
-      <div className="bg-[#141414] h-full w-full md:w-[500px] overflow-y-auto shadow-2xl animate-slide-in-right">
-        {/* Header */}
-        <div className="sticky top-0 bg-[#141414] border-b-2 border-white/10 p-6 flex items-center justify-between">
-          <h2 className="font-display text-xl text-white">Attendee Details</h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-white/5 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5 text-white/60" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="p-6 space-y-6">
-          {/* Message */}
-          {message && (
-            <div
-              className={`p-4 rounded-xl ${
-                message.type === 'success'
-                  ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300'
-                  : 'bg-red-500/10 border border-red-500/30 text-red-300'
-              }`}
-            >
-              {message.text}
-            </div>
-          )}
-
-          {/* Attendee Info */}
-          <div>
-            <h3 className="text-sm font-semibold text-white/70 uppercase mb-3">Attendee Information</h3>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <User className="w-5 h-5 text-white/40 mt-0.5" />
-                <div>
-                  <p className="text-xs text-white/50">Name</p>
-                  <p className="font-semibold text-white">{ticket.attendee?.full_name || 'N/A'}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Mail className="w-5 h-5 text-white/40 mt-0.5" />
-                <div>
-                  <p className="text-xs text-white/50">Email</p>
-                  <p className="font-semibold text-white">{ticket.attendee?.email || 'N/A'}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-white/40 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-                <div>
-                  <p className="text-xs text-white/50">Phone</p>
-                  <p className="font-semibold text-white">{ticket.attendee?.phone_number || 'N/A'}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Ticket Info */}
-          <div>
-            <h3 className="text-sm font-semibold text-white/70 uppercase mb-3">Ticket Information</h3>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <CreditCard className="w-5 h-5 text-white/40 mt-0.5" />
-                <div>
-                  <p className="text-xs text-white/50">Ticket ID</p>
-                  <p className="font-mono text-sm text-white">{ticket.id}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Calendar className="w-5 h-5 text-white/40 mt-0.5" />
-                <div>
-                  <p className="text-xs text-white/50">Purchase Date</p>
-                  <p className="font-semibold text-white">
-                    {format(new Date(ticket.purchased_at), 'MMMM d, yyyy h:mm a')}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                {ticket.checked_in_at ? (
-                  <Check className="w-5 h-5 text-emerald-300 mt-0.5" />
-                ) : (
-                  <AlertCircle className="w-5 h-5 text-amber-300 mt-0.5" />
-                )}
-                <div>
-                  <p className="text-xs text-white/50">Check-In Status</p>
-                  {ticket.checked_in_at ? (
-                    <>
-                      <p className="font-semibold text-emerald-300">Checked In</p>
-                      <p className="text-sm text-white/60">
-                        {format(new Date(ticket.checked_in_at), 'MMMM d, yyyy h:mm a')}
-                      </p>
-                    </>
-                  ) : (
-                    <p className="font-semibold text-amber-300">Not Checked In</p>
-                  )}
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-white/40 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div>
-                  <p className="text-xs text-white/50">Price Paid</p>
-                  <p className="font-semibold text-white">
-                    {formatMoneyFromCents(
-                      Math.round((Number(ticket.price_paid || 0) || 0) * 100),
-                      normalizeCurrency(ticket.currency, 'HTG')
-                    )}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="pt-4 border-t-2 border-white/10 space-y-3">
-            <button
-              onClick={handleResendTicket}
-              disabled={loading}
-              className="w-full px-4 py-3 bg-brand-700 hover:bg-brand-800 disabled:bg-white/10 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors"
-            >
-              <Mail className="w-4 h-4" />
-              Resend Ticket Email
-            </button>
-            {ticket.status !== 'cancelled' && (
-              <button
-                onClick={handleRefund}
-                disabled={loading}
-                className="w-full px-4 py-3 bg-red-600 hover:bg-red-700 disabled:bg-white/10 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors"
-              >
-                <CreditCard className="w-4 h-4" />
-                Process Refund
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
+    <div className="space-y-3 p-4">
+      {message && (
+        <p
+          className={`rounded-lg px-3 py-2 text-sm ${
+            message.type === 'success'
+              ? 'bg-emerald-500/10 text-emerald-300'
+              : 'bg-red-500/10 text-red-300'
+          }`}
+        >
+          {message.text}
+        </p>
+      )}
+      <button
+        type="button"
+        onClick={handleResendTicket}
+        disabled={loading}
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-700 px-4 py-2.5 font-semibold text-white transition-colors hover:bg-brand-800 disabled:opacity-50"
+      >
+        <Mail className="h-4 w-4" />
+        Resend Ticket Email
+      </button>
+      <button
+        type="button"
+        onClick={handleRefund}
+        disabled={loading}
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+      >
+        <CreditCard className="h-4 w-4" />
+        Process Refund
+      </button>
     </div>
   )
 }

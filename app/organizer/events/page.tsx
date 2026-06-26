@@ -6,9 +6,8 @@ import OrganizerEventCard from '@/components/organizer/events-manager/OrganizerE
 import CalendarView from '@/components/organizer/events-manager/CalendarView'
 import EventCardSkeleton from '@/components/organizer/events-manager/EventCardSkeleton'
 import QuickLinksBar from '@/components/organizer/events-manager/QuickLinksBar'
-import { EditorialHeader } from '@/components/ui/EditorialHeader'
-import { Chip, EmptyState } from '@/components/ui/kit'
-import { Search, Plus, List, Calendar, SlidersHorizontal, X, CalendarRange } from 'lucide-react'
+import { PageHeader, FilterBar, FilterChip, OrgEmptyState, SearchInput } from '@/components/organizer/ui'
+import { Plus, List, Calendar, SlidersHorizontal, CalendarRange } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { isDemoMode, DEMO_EVENTS } from '@/lib/demo'
 import { getOrganizerEventsClient } from '@/lib/data/events.client'
@@ -252,7 +251,7 @@ export default function OrganizerEventsPage() {
     return (
       <div className="min-h-screen bg-[#0a0a0a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-          <EditorialHeader
+          <PageHeader
             eyebrow={t('events_page.eyebrow', 'Organizer')}
             title={t('events_page.title', 'My Events')}
             subtitle={t('events_page.subtitle', 'Create, manage, and track all of your events.')}
@@ -278,7 +277,7 @@ export default function OrganizerEventsPage() {
     <div className="min-h-screen bg-[#0a0a0a]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
         {/* Header */}
-        <EditorialHeader
+        <PageHeader
           eyebrow={t('events_page.eyebrow', 'Organizer')}
           title={t('events_page.title', 'My Events')}
           subtitle={t('events_page.subtitle', 'Create, manage, and track all of your events.')}
@@ -300,26 +299,12 @@ export default function OrganizerEventsPage() {
 
         {/* Controls: search + view toggle + advanced filters */}
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-white/40" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t('events_page.search_placeholder', 'Search events…')}
-              className="w-full rounded-lg border border-white/10 bg-[#141414] py-2.5 pl-10 pr-10 text-sm transition-all focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 transition-colors hover:text-white/60"
-                aria-label={t('events_page.clear_search', 'Clear search')}
-              >
-                <X className="h-5 w-5" />
-              </button>
-            )}
-          </div>
+          <SearchInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder={t('events_page.search_placeholder', 'Search events…')}
+            className="flex-1"
+          />
 
           <div className="flex items-center gap-2">
             {/* View toggle */}
@@ -364,18 +349,18 @@ export default function OrganizerEventsPage() {
         </div>
 
         {/* Status filter chips */}
-        <div className="mt-4 flex flex-wrap gap-2">
+        <FilterBar className="mt-4">
           {statusChips.map((chip) => (
-            <Chip
+            <FilterChip
               key={chip.id}
               active={statusFilter === chip.id}
               onClick={() => setStatusFilter(chip.id)}
+              count={chip.count}
             >
               {chip.label}
-              <span className={statusFilter === chip.id ? 'text-white/80' : 'text-white/40'}>{chip.count}</span>
-            </Chip>
+            </FilterChip>
           ))}
-        </div>
+        </FilterBar>
 
         {/* Main Content */}
         <div className="mt-6">
@@ -386,7 +371,7 @@ export default function OrganizerEventsPage() {
               ))}
             </div>
           ) : currentEvents.length === 0 ? (
-            <EmptyState
+            <OrgEmptyState
               icon={CalendarRange}
               title={
                 hasSearchOrFilters
@@ -395,7 +380,7 @@ export default function OrganizerEventsPage() {
               }
               description={
                 hasSearchOrFilters
-                  ? t('events_page.empty_filtered_desc', 'Try adjusting your search or filters to find what you’re looking for.')
+                  ? t('events_page.empty_filtered_desc', "Try adjusting your search or filters to find what you're looking for.")
                   : t('events_page.empty_desc', 'Create your first event to start selling tickets and tracking sales.')
               }
               action={
