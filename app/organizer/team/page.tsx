@@ -1,8 +1,9 @@
+import type { QueryDocumentSnapshot } from 'firebase-admin/firestore'
 import { getCurrentUser } from '@/lib/auth'
+import { adminDb } from '@/lib/firebase/admin'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
-import { UserPlus, Users } from 'lucide-react'
-import { PageHeader, OrgEmptyState } from '@/components/organizer/ui'
+import { PageHeader } from '@/components/organizer/ui'
+import OrgTeamClient from './OrgTeamClient'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -11,54 +12,50 @@ export default async function OrganizerTeamPage() {
   const user = await getCurrentUser()
   if (!user) redirect('/auth/login?redirect=/organizer/team')
 
-  const initial = (user.full_name || user.email || 'U').trim().charAt(0).toUpperCase()
-  const displayName = user.full_name || user.email || 'You'
+  // Fetch org-level team members from organizers/{uid}/team
+  let members: Array<{
+    id: string
+    email: string
+    name: string
+    role: string
+    joined_at: string | null
+  }> = []
+
+  try {
+    const teamSnap = await adminDb
+      .collection('organizers')
+      .doc(user.id)
+      .collection('team')
+      .orderBy('joined_at', 'desc')
+      .get()
+
+    members = teamSnap.docs.map((doc: QueryDocumentSnapshot) => {
+      const d = doc.data()
+      return {
+        id: doc.id,
+        email: (d.email as string) || '',
+        name: (d.name as string) || '',
+        role: (d.role as string) || 'staff',
+        joined_at: d.joined_at?.toDate?.()?.toISOString() ?? null,
+      }
+    })
+  } catch {
+    // Collection may not exist yet for new organizers; treat as empty
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 md:py-10">
       <PageHeader
         eyebrow="Organization"
-        title="Team Members"
-        subtitle="Team members can help manage your events. Assign staff per event for check-in and scanning."
-        actions={
-          <Link
-            href="/organizer/settings/team"
-            className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-gray-900 transition-colors hover:bg-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-          >
-            <UserPlus className="h-4 w-4" />
-            Add team member
-          </Link>
-        }
+        title="Team"
+        subtitle="Invite administrators and staff. Assign event-level check-in access from each event's Staff tab."
       />
-
-      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {/* Owner card */}
-        <div className="rounded-2xl border border-white/10 bg-[#141414] p-6 text-center">
-          <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-gradient-to-br from-brand-400 to-brand-600 font-display text-2xl font-bold text-white">
-            {initial}
-          </div>
-          <p className="mt-4 text-[15px] font-semibold text-white">{displayName}</p>
-          <p className="mt-0.5 text-sm text-white/50">Owner</p>
-          <span className="mt-3 inline-block rounded-full bg-brand-500/15 px-3 py-1 text-[11px] font-semibold text-brand-300">
-            Admin
-          </span>
-        </div>
-      </div>
-
       <div className="mt-8">
-        <OrgEmptyState
-          icon={Users}
-          title="Invite teammates"
-          description="Give staff check-in or management access. Assign them to specific events from each event's Staff tab."
-          action={
-            <Link
-              href="/organizer/settings/team"
-              className="inline-flex items-center gap-2 rounded-xl bg-brand-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-            >
-              <UserPlus className="h-4 w-4" />
-              Add team member
-            </Link>
-          }
+        <OrgTeamClient
+          organizerId={user.id}
+          ownerName={user.full_name || user.email || 'You'}
+          ownerEmail={user.email || ''}
+          members={members}
         />
       </div>
     </div>
