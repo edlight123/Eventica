@@ -2,7 +2,7 @@ import { getCurrentUser } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import Navbar from '@/components/Navbar'
 import MobileNavWrapper from '@/components/MobileNavWrapper'
-import { OrganizerSidebar } from '@/components/organizer/OrganizerSidebar'
+import { OrganizerTopNav } from '@/components/organizer/OrganizerTopNav'
 import { isAdmin } from '@/lib/admin'
 import { adminDb } from '@/lib/firebase/admin'
 
@@ -66,20 +66,13 @@ export default async function OrganizerLayout({
   return (
     <div className="surface-dark min-h-screen">
       <Navbar user={user} isAdmin={isAdmin(user?.email)} />
-      
-      <div className="flex">
-        {/* Sidebar - Desktop Only */}
-        <OrganizerSidebar 
-          draftEvents={draftEvents}
-          pendingPayouts={pendingPayouts}
-        />
-        
-        {/* Main Content */}
-        <main className="flex-1 pb-mobile-nav">
-          {children}
-        </main>
-      </div>
-      
+
+      {/* Lean horizontal organizer nav (Posh-style) */}
+      <OrganizerTopNav draftEvents={draftEvents} pendingPayouts={pendingPayouts} />
+
+      {/* Main Content */}
+      <main className="pb-mobile-nav">{children}</main>
+
       {/* Mobile Bottom Navigation */}
       <MobileNavWrapper user={user} isAdmin={isAdmin(user?.email)} />
     </div>
