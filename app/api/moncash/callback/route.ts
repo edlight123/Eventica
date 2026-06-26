@@ -34,7 +34,7 @@ export async function GET(request: Request) {
     if (txError || !pendingTx) {
       // If this was actually a MonCash Button return (misconfigured portal URL),
       // route it to the Button handler which correlates via cookie/orderId.
-      const orderIdFromCookie = cookies().get('moncash_button_order_id')?.value
+      const orderIdFromCookie = (await cookies()).get('moncash_button_order_id')?.value
       if (orderIdFromCookie) {
         const url = new URL('/api/moncash-button/return', request.url)
         url.searchParams.set('transactionId', transactionId)

@@ -192,6 +192,7 @@ export async function GET(request: Request): Promise<NextResponse> {
 }
 
 async function handleMonCashButtonReturn(request: Request): Promise<NextResponse> {
+  const cookieStore = await cookies()
   try {
     const { searchParams } = new URL(request.url)
 
@@ -276,7 +277,7 @@ async function handleMonCashButtonReturn(request: Request): Promise<NextResponse
 
     // Cookie correlation fallback (set during /api/moncash-button/initiate).
     if (!orderId) {
-      const jar = cookies()
+      const jar = cookieStore
       const orderIdFromCookie =
         jar.get('moncash_button_order_id')?.value ||
         jar.get('__Host-moncash_button_order_id')?.value ||
@@ -333,9 +334,9 @@ async function handleMonCashButtonReturn(request: Request): Promise<NextResponse
         hasTransactionId: Boolean(transactionIdEncrypted),
         queryKeys: Array.from(searchParams.keys()),
         hasCookieOrder: Boolean(
-          cookies().get('moncash_button_order_id')?.value ||
-            cookies().get('__Host-moncash_button_order_id')?.value ||
-            cookies().get('moncash_button_order_id_domain')?.value
+          cookieStore.get('moncash_button_order_id')?.value ||
+            cookieStore.get('__Host-moncash_button_order_id')?.value ||
+            cookieStore.get('moncash_button_order_id_domain')?.value
         ),
       })
       return NextResponse.redirect(new URL('/purchase/failed?reason=missing_order', request.url))

@@ -14,7 +14,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "plugins": [
       {
@@ -38,6 +38,10 @@
   "exclude": [
     "node_modules",
     "mobile",
-    "functions"
+    "functions",
+    "tests",
+    "jest.config.ts",
+    "jest.setup.ts",
+    "**/__tests__/**"
   ]
 }

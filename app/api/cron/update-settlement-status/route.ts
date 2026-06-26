@@ -21,7 +21,7 @@ import { headers } from 'next/headers'
 export async function GET(req: NextRequest) {
   try {
     // Verify cron secret to prevent unauthorized access
-    const authHeader = headers().get('authorization')
+    const authHeader = (await headers()).get('authorization')
     const cronSecret = process.env.CRON_SECRET
 
     if (!cronSecret) {
