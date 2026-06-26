@@ -1,0 +1,339 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { firebaseDb } from '@/lib/firebase-db/client'
+import { isDemoMode } from '@/lib/demo'
+import { useToast } from '@/components/ui/Toast'
+import ImageUpload from '@/components/ImageUpload'
+import { normalizeEventCurrencyForCountry } from '@/lib/currency-policy'
+import {
+  ArrowRight,
+  CalendarDays,
+  Globe,
+  ImageIcon,
+  MapPin,
+  Sparkles,
+} from 'lucide-react'
+
+const CATEGORIES = [
+  'Concert',
+  'Party',
+  'Festival',
+  'Conference',
+  'Workshop',
+  'Sports',
+  'Theater',
+  'Other',
+]
+
+interface QuickCreateEventProps {
+  userId: string
+  isVerified?: boolean
+}
+
+/**
+ * Posh-style "quick create": one focused screen that captures only the
+ * essentials (flyer, name, date, place) and saves a private draft, then hands
+ * off to the full editor for tickets / description / settings. New organizers
+ * get something live in under a minute instead of wading through a 5-tab form.
+ */
+export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
+  const router = useRouter()
+  const { showToast } = useToast()
+
+  const [title, setTitle] = useState('')
+  const [category, setCategory] = useState('Concert')
+  const [bannerUrl, setBannerUrl] = useState('')
+  const [startDatetime, setStartDatetime] = useState('')
+  const [endDatetime, setEndDatetime] = useState('')
+  const [mode, setMode] = useState<'inperson' | 'online'>('inperson')
+  const [venueName, setVenueName] = useState('')
+  const [city, setCity] = useState('Port-au-Prince')
+  const [joinUrl, setJoinUrl] = useState('')
+
+  const [attempted, setAttempted] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  const titleInvalid = attempted && title.trim().length < 3
+  const startInvalid = attempted && !startDatetime
+
+  const handleCreate = async () => {
+    setAttempted(true)
+
+    if (title.trim().length < 3 || !startDatetime) {
+      showToast({
+        type: 'error',
+        title: 'Almost there',
+        message: 'Add an event name and a start date to continue.',
+        duration: 4000,
+      })
+      return
+    }
+
+    setSaving(true)
+    try {
+      const eventData = {
+        organizer_id: userId,
+        title: title.trim(),
+        description: '',
+        category,
+        venue_name: mode === 'inperson' ? venueName.trim() : '',
+        country: 'HT',
+        city: mode === 'inperson' ? city.trim() || 'Port-au-Prince' : '',
+        commune: '',
+        address: '',
+        start_datetime: startDatetime ? new Date(startDatetime).toISOString() : null,
+        end_datetime: endDatetime ? new Date(endDatetime).toISOString() : null,
+        ticket_price: 0,
+        total_tickets: 0,
+        currency: normalizeEventCurrencyForCountry('HT', 'USD'),
+        banner_image_url: bannerUrl || null,
+        is_published: false,
+        is_online: mode === 'online',
+        join_url: mode === 'online' ? joinUrl.trim() || null : null,
+        tags: [] as string[],
+        status: 'draft',
+      }
+
+      if (isDemoMode()) {
+        await new Promise((r) => setTimeout(r, 600))
+        showToast({
+          type: 'success',
+          title: 'Draft created',
+          message: 'Demo mode — opening the editor.',
+          duration: 3000,
+        })
+        router.push('/organizer/events')
+        return
+      }
+
+      const { data, error } = await firebaseDb
+        .from('events')
+        .insert(eventData)
+        .select()
+        .single()
+
+      if (error) throw error
+
+      showToast({
+        type: 'success',
+        title: 'Draft created 🎉',
+        message: 'Now add tickets and details — then publish when ready.',
+        duration: 3500,
+      })
+      router.push(`/organizer/events/${data.id}/edit`)
+      router.refresh()
+    } catch (err: any) {
+      showToast({
+        type: 'error',
+        title: 'Could not create event',
+        message: err?.message || 'Please try again.',
+        duration: 5000,
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const inputBase =
+    'w-full rounded-xl border-2 bg-[#141414] px-4 py-3 text-white transition-all placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-brand-500/60'
+
+  return (
+    <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+      {/* Header */}
+      <div className="mb-8 md:mb-10">
+        <p className="eyebrow text-brand-600">Create event</p>
+        <h1 className="mt-2 font-display text-3xl tracking-tight text-white md:text-[2.6rem] md:leading-[1.05]">
+          Let&rsquo;s get your event live
+        </h1>
+        <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-white/50">
+          Add the essentials now — you can fine-tune tickets, description and
+          settings in the next step. Nothing goes public until you hit publish.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,360px)_1fr]">
+        {/* Flyer */}
+        <div>
+          <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-white/70">
+            <ImageIcon className="h-4 w-4 text-brand-700" />
+            Event flyer
+          </label>
+          <div className="overflow-hidden rounded-2xl border-2 border-dashed border-white/10 bg-white/5 p-3 transition-colors hover:border-brand-300">
+            <ImageUpload
+              currentImage={bannerUrl}
+              onImageUploaded={(url) => setBannerUrl(url)}
+            />
+          </div>
+          <p className="mt-2 text-xs text-white/40">
+            A bold poster does the heavy lifting. 4:5 or 1200×630 works great.
+          </p>
+        </div>
+
+        {/* Essentials */}
+        <div className="space-y-7">
+          {/* Name */}
+          <div>
+            <label htmlFor="qc-title" className="mb-2 block text-sm font-semibold text-white/70">
+              Event name <span className="text-brand-600">*</span>
+            </label>
+            <input
+              id="qc-title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. Sunset Rooftop Party"
+              className={`${inputBase} text-lg ${
+                titleInvalid ? 'border-red-300 focus:ring-red-400/50' : 'border-white/10 focus:border-brand-500'
+              }`}
+            />
+            {titleInvalid && (
+              <p className="mt-1.5 text-sm text-red-600">Give your event a name (3+ characters).</p>
+            )}
+          </div>
+
+          {/* Category */}
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-white/70">Category</label>
+            <div className="flex flex-wrap gap-2">
+              {CATEGORIES.map((cat) => {
+                const active = category === cat
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setCategory(cat)}
+                    className={`rounded-full border-2 px-3.5 py-1.5 text-sm font-medium transition-all ${
+                      active
+                        ? 'border-brand-700 bg-brand-700 text-white shadow-sm'
+                        : 'border-white/10 bg-[#141414] text-white/60 hover:border-white/15 hover:text-white'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Date & time */}
+          <div>
+            <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-white/70">
+              <CalendarDays className="h-4 w-4 text-brand-700" />
+              When
+            </label>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <span className="mb-1 block text-xs font-medium text-white/50">Starts *</span>
+                <input
+                  type="datetime-local"
+                  value={startDatetime}
+                  onChange={(e) => setStartDatetime(e.target.value)}
+                  className={`${inputBase} ${
+                    startInvalid ? 'border-red-300 focus:ring-red-400/50' : 'border-white/10 focus:border-brand-500'
+                  }`}
+                />
+              </div>
+              <div>
+                <span className="mb-1 block text-xs font-medium text-white/50">Ends (optional)</span>
+                <input
+                  type="datetime-local"
+                  value={endDatetime}
+                  min={startDatetime || undefined}
+                  onChange={(e) => setEndDatetime(e.target.value)}
+                  className={`${inputBase} border-white/10 focus:border-brand-500`}
+                />
+              </div>
+            </div>
+            {startInvalid && (
+              <p className="mt-1.5 text-sm text-red-600">Pick when your event starts.</p>
+            )}
+          </div>
+
+          {/* Location */}
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-white/70">Where</label>
+            <div className="inline-flex rounded-xl border-2 border-white/10 bg-[#0a0a0a] p-1">
+              {([
+                { key: 'inperson', label: 'In person', icon: MapPin },
+                { key: 'online', label: 'Online', icon: Globe },
+              ] as const).map(({ key, label, icon: Icon }) => {
+                const active = mode === key
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setMode(key)}
+                    className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all ${
+                      active ? 'bg-[#141414] text-brand-700 shadow-sm' : 'text-white/50 hover:text-white/90'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
+
+            {mode === 'inperson' ? (
+              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <input
+                  type="text"
+                  value={venueName}
+                  onChange={(e) => setVenueName(e.target.value)}
+                  placeholder="Venue name"
+                  className={`${inputBase} border-white/10 focus:border-brand-500`}
+                />
+                <input
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="City"
+                  className={`${inputBase} border-white/10 focus:border-brand-500`}
+                />
+              </div>
+            ) : (
+              <div className="mt-3">
+                <input
+                  type="url"
+                  value={joinUrl}
+                  onChange={(e) => setJoinUrl(e.target.value)}
+                  placeholder="Stream or meeting link (optional for now)"
+                  className={`${inputBase} border-white/10 focus:border-brand-500`}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Action bar */}
+      <div className="mt-10 flex flex-col-reverse items-stretch gap-3 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
+        <button
+          type="button"
+          onClick={() => router.push('/organizer/events')}
+          className="rounded-xl px-4 py-2.5 text-sm font-medium text-white/50 transition-colors hover:text-white"
+        >
+          Cancel
+        </button>
+
+        <div className="flex items-center gap-4">
+          <span className="hidden items-center gap-1.5 text-xs text-white/40 sm:inline-flex">
+            <Sparkles className="h-3.5 w-3.5" />
+            Saved as a private draft
+          </span>
+          <button
+            type="button"
+            onClick={handleCreate}
+            disabled={saving}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-700 px-7 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-800 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {saving ? 'Creating…' : 'Create event'}
+            {!saving && <ArrowRight className="h-4 w-4" />}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}

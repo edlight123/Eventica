@@ -1,0 +1,281 @@
+'use client'
+
+import Link from 'next/link'
+import Image from 'next/image'
+import { format } from 'date-fns'
+import { MoreVertical, Eye, Edit, Copy, Trash2, AlertCircle, Users, DollarSign, Calendar, MapPin } from 'lucide-react'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { formatMoneyFromCents, formatPrimaryMoneyFromCentsByCurrency, normalizeCurrency } from '@/lib/money'
+import { StatusChip } from '@/components/ui/kit'
+import { getPosterTheme } from '@/lib/posterGradient'
+
+interface EventData {
+  id: string
+  title: string
+  start_datetime: string
+  city: string
+  commune?: string
+  category: string
+  is_published: boolean
+  banner_image_url?: string
+  tickets_sold?: number
+  total_tickets?: number
+  revenue?: number
+  revenueByCurrencyCents?: Record<string, number>
+  currency?: string
+  checked_in?: number
+  ticket_tiers?: any[]
+  location_name?: string
+  join_url?: string
+}
+
+interface OrganizerEventCardProps {
+  event: EventData
+  showNeedsAttention?: boolean
+  onDuplicate?: (eventId: string) => void
+  onDelete?: (eventId: string) => void
+}
+
+export default function OrganizerEventCard({
+  event,
+  showNeedsAttention = true,
+  onDuplicate,
+  onDelete
+}: OrganizerEventCardProps) {
+  const { t } = useTranslation('organizer')
+  const [showActionsMenu, setShowActionsMenu] = useState(false)
+
+  const ticketsSold = event.tickets_sold || 0
+  const totalTickets = event.total_tickets || 0
+  const salesPercentage = totalTickets > 0 ? (ticketsSold / totalTickets) * 100 : 0
+  const isSoldOut = ticketsSold >= totalTickets && totalTickets > 0
+  const revenue = event.revenue
+  const checkedIn = event.checked_in || 0
+
+  const revenueText = (() => {
+    const breakdown = event.revenueByCurrencyCents || {}
+    const nonZero = Object.entries(breakdown).filter(([, cents]) => (cents || 0) !== 0)
+    if (nonZero.length >= 1) {
+      return formatPrimaryMoneyFromCentsByCurrency(breakdown, event.currency, 'en-US', { currencyDisplay: 'code' })
+    }
+
+    const major = typeof revenue === 'number' ? revenue : Number(revenue || 0)
+    if (!Number.isFinite(major) || major === 0) return '—'
+    return formatMoneyFromCents(
+      Math.round(major * 100),
+      normalizeCurrency(event.currency, 'HTG'),
+      'en-US',
+      { currencyDisplay: 'code' }
+    )
+  })()
+
+  // Needs attention logic
+  const missingCover = !event.banner_image_url
+  // In Firestore-backed list views, `ticket_tiers` is often not embedded on the event.
+  // Avoid showing a false “needs attention” warning in that case.
+  const missingTickets = Array.isArray(event.ticket_tiers) ? event.ticket_tiers.length === 0 : false
+  const isDraft = !event.is_published
+  const noSales = ticketsSold === 0 && event.is_published
+
+  const needsAttention = missingCover || missingTickets || noSales
+
+  const hasImage = Boolean(event.banner_image_url)
+  const theme = getPosterTheme(event.id || event.title, event.category)
+  return (
+    <div className="hover-lift group overflow-hidden rounded-2xl border border-gray-200/80 bg-[#141414] shadow-poster-sm transition-all duration-300 hover:border-brand-200 hover:shadow-card-hover">
+      {/* ---------- Poster ---------- */}
+      <Link href={`/organizer/events/${event.id}`} className="block">
+        <div
+          className="poster-vignette relative flex aspect-[4/5] flex-col justify-between overflow-hidden p-3.5 text-white"
+          style={hasImage ? undefined : { backgroundImage: theme.bg }}
+        >
+          {hasImage && (
+            <>
+              <Image
+                src={event.banner_image_url as string}
+                alt={event.title}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-cover transition-transform duration-[1.1s] ease-out group-hover:scale-[1.06]"
+                priority={false}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-black/30" />
+            </>
+          )}
+
+          {/* Top row: category + status badges */}
+          <div className="relative z-10 flex items-start justify-between gap-2">
+            <span className="eyebrow rounded-lg bg-black/35 px-2.5 py-1.5 text-[10px] tracking-[0.12em] text-white backdrop-blur-md">
+              {event.category}
+            </span>
+            <div className="flex flex-col items-end gap-1.5">
+              {isSoldOut && (
+                <StatusChip tone="danger" className="shadow-sm">
+                  {t('event_card_detail.sold_out')}
+                </StatusChip>
+              )}
+              {showNeedsAttention && needsAttention && (
+                <StatusChip tone="warning" icon={AlertCircle} className="shadow-sm">
+                  {t('event_card_detail.needs_attention')}
+                </StatusChip>
+              )}
+            </div>
+          </div>
+
+          {/* Center title — poster treatment when there is no banner image */}
+          {!hasImage && (
+            <div className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center px-5 text-center">
+              <h3 className="font-display text-[26px] leading-[0.98] text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.45)] line-clamp-4">
+                {event.title}
+              </h3>
+            </div>
+          )}
+
+          {/* Bottom overlay: status + title + meta */}
+          <div className="relative z-10 space-y-2">
+            <StatusChip tone={event.is_published ? 'success' : 'neutral'} className="shadow-sm">
+              {event.is_published ? t('event_card_detail.published') : t('event_card_detail.draft')}
+            </StatusChip>
+
+            {hasImage && (
+              <h3 className="font-display text-[22px] leading-[1.02] text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.5)] line-clamp-2">
+                {event.title}
+              </h3>
+            )}
+
+            <div className="space-y-1">
+              <div className="eyebrow flex items-center gap-1.5 text-[10px] tracking-[0.06em] text-white/85">
+                <Calendar className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{format(new Date(event.start_datetime), 'MMM d, yyyy • h:mm a')}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-[11.5px] text-white/80">
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{event.location_name || event.commune || event.city}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Link>
+
+      {/* ---------- Management footer ---------- */}
+      <div className="p-4">
+
+        {/* Ticket Sales Progress */}
+        <div className="mb-4">
+          <div className="flex justify-between items-center mb-1.5">
+            <span className="text-xs font-medium text-white/60">{t('event_card_detail.ticket_sales')}</span>
+            <span className="text-xs font-bold text-white">
+              {ticketsSold} / {totalTickets}
+            </span>
+          </div>
+          <div className="w-full bg-white/5 rounded-full h-2 overflow-hidden">
+            <div
+              className={`h-2 rounded-full transition-all duration-500 ${
+                salesPercentage >= 100 ? 'bg-red-600' : 'bg-brand-600'
+              }`}
+              style={{ width: `${Math.min(salesPercentage, 100)}%` }}
+            />
+          </div>
+          <p className="text-xs text-white/50 mt-1">{salesPercentage.toFixed(0)}% {t('event_card_detail.sold')}</p>
+        </div>
+
+        {/* Revenue & Check-ins */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="rounded-xl border border-white/10 bg-[#0a0a0a] p-3">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <DollarSign className="w-3.5 h-3.5 text-brand-700" />
+              <p className="text-xs text-white/50 font-medium">{t('event_card_detail.revenue')}</p>
+            </div>
+            <p className="text-base font-bold text-white truncate">
+              {revenueText}
+            </p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-[#0a0a0a] p-3">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <Users className="w-3.5 h-3.5 text-brand-700" />
+              <p className="text-xs text-white/50 font-medium">{t('event_card_detail.check_ins')}</p>
+            </div>
+            <p className="text-base font-bold text-white">{checkedIn}</p>
+          </div>
+        </div>
+
+        {/* Needs Attention Messages */}
+        {showNeedsAttention && needsAttention && (
+          <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <p className="text-xs font-semibold text-amber-800 mb-1">⚠️ Issues to Fix:</p>
+            <ul className="text-xs text-amber-700 space-y-0.5">
+              {missingCover && <li>• Add a cover image</li>}
+              {missingTickets && <li>• Add at least one ticket tier</li>}
+              {noSales && <li>• No tickets sold yet</li>}
+            </ul>
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          <Link
+            href={`/organizer/events/${event.id}`}
+            className="flex-1 px-4 py-2 rounded-lg text-xs font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-100 transition-all text-center flex items-center justify-center gap-1"
+          >
+            <Eye className="w-4 h-4" />
+            <span>{t('event_card_detail.view')}</span>
+          </Link>
+          <Link
+            href={`/organizer/events/${event.id}/edit`}
+            className="flex-1 px-4 py-2 rounded-lg text-xs font-semibold text-white bg-brand-700 hover:bg-brand-800 shadow-sm transition-all text-center flex items-center justify-center gap-1"
+          >
+            <Edit className="w-4 h-4" />
+            <span>{t('event_card_detail.edit')}</span>
+          </Link>
+
+          {/* More Actions Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowActionsMenu(!showActionsMenu)}
+              className="px-3 py-2 rounded-lg text-white/70 bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
+              aria-label="More actions"
+            >
+              <MoreVertical className="w-4 h-4" />
+            </button>
+
+            {showActionsMenu && (
+              <>
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setShowActionsMenu(false)}
+                />
+                <div className="absolute right-0 mt-2 w-48 bg-[#141414] rounded-lg shadow-medium border border-white/10 py-1 z-20">
+                  {onDuplicate && (
+                    <button
+                      onClick={() => {
+                        onDuplicate(event.id)
+                        setShowActionsMenu(false)
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm text-white/70 hover:bg-[#0a0a0a] flex items-center gap-2"
+                    >
+                      <Copy className="w-4 h-4" />
+                      <span>{t('event_card_detail.duplicate')}</span>
+                    </button>
+                  )}
+                  {onDelete && (
+                    <button
+                      onClick={() => {
+                        onDelete(event.id)
+                        setShowActionsMenu(false)
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>{t('event_card_detail.delete')}</span>
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

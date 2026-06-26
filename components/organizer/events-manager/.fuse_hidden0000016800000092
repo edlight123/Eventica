@@ -1,0 +1,96 @@
+import Link from 'next/link'
+import { Plus, Calendar, FileText, History, XCircle } from 'lucide-react'
+
+export type EventTabType = 'upcoming' | 'drafts' | 'past' | 'cancelled'
+
+interface EventsEmptyStateProps {
+  tab: EventTabType
+  hasFilters?: boolean
+  onClearFilters?: () => void
+}
+
+const emptyStateConfig: Record<EventTabType, {
+  icon: React.ComponentType<{ className?: string }>
+  title: string
+  description: string
+  showCreateButton: boolean
+}> = {
+  upcoming: {
+    icon: Calendar,
+    title: 'No upcoming events',
+    description: 'Create your first event or publish your drafts to get started.',
+    showCreateButton: true
+  },
+  drafts: {
+    icon: FileText,
+    title: 'No draft events',
+    description: 'All your events are published! Create a new event to start a draft.',
+    showCreateButton: true
+  },
+  past: {
+    icon: History,
+    title: 'No past events',
+    description: 'Events that have ended will appear here.',
+    showCreateButton: false
+  },
+  cancelled: {
+    icon: XCircle,
+    title: 'No cancelled events',
+    description: 'Events that you cancel will appear here.',
+    showCreateButton: false
+  }
+}
+
+export default function EventsEmptyState({
+  tab,
+  hasFilters = false,
+  onClearFilters
+}: EventsEmptyStateProps) {
+  const config = emptyStateConfig[tab]
+  const Icon = config.icon
+
+  if (hasFilters) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+        <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+          <svg className="w-8 h-8 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <h3 className="font-display text-lg text-white mb-2">No events found</h3>
+        <p className="text-sm text-white/60 mb-6 max-w-sm">
+          Try adjusting your filters or search query to find what you&apos;re looking for.
+        </p>
+        {onClearFilters && (
+          <button
+            onClick={onClearFilters}
+            className="px-5 py-2.5 bg-brand-700 text-white font-semibold rounded-xl shadow-sm hover:bg-brand-800 transition-all"
+          >
+            Clear All Filters
+          </button>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+      <div className="w-20 h-20 rounded-full bg-brand-50 flex items-center justify-center mb-6 border-4 border-brand-100">
+        <Icon className="w-10 h-10 text-brand-700" />
+      </div>
+      <h3 className="font-display text-xl text-white mb-2">{config.title}</h3>
+      <p className="text-sm text-white/60 mb-6 max-w-md">
+        {config.description}
+      </p>
+      {config.showCreateButton && (
+        <Link
+          href="/organizer/events/new"
+          className="px-6 py-3 bg-brand-700 hover:bg-brand-800 text-white font-semibold rounded-xl shadow-sm transition-all duration-300 flex items-center gap-2"
+        >
+          <Plus className="w-5 h-5" />
+          <span>Create Your First Event</span>
+        </Link>
+      )}
+    </div>
+  )
+}

@@ -1,0 +1,99 @@
+'use client'
+
+import { Download, FileText, Calendar } from 'lucide-react'
+import Image from 'next/image'
+
+interface PayoutReceiptViewerProps {
+  receiptUrl: string
+  uploadedBy?: string
+  uploadedAt?: string
+  paymentReferenceId?: string
+  compact?: boolean
+}
+
+export default function PayoutReceiptViewer({
+  receiptUrl,
+  uploadedBy,
+  uploadedAt,
+  paymentReferenceId,
+  compact = false
+}: PayoutReceiptViewerProps) {
+  const isPDF = receiptUrl.includes('.pdf')
+
+  if (compact) {
+    return (
+      <a
+        href={receiptUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-2 text-sm text-brand-700 hover:text-brand-800 hover:underline"
+      >
+        <Download className="w-4 h-4" />
+        View Receipt
+      </a>
+    )
+  }
+
+  return (
+    <div className="border rounded-lg overflow-hidden bg-white">
+      {/* Header */}
+      <div className="bg-gray-50 px-4 py-3 border-b flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <FileText className="w-5 h-5 text-gray-600" />
+          <span className="font-medium text-gray-900">Payment Receipt</span>
+        </div>
+        <a
+          href={receiptUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 text-sm text-brand-700 hover:text-brand-800"
+        >
+          <Download className="w-4 h-4" />
+          Download
+        </a>
+      </div>
+
+      {/* Receipt Preview */}
+      <div className="p-4">
+        {isPDF ? (
+          <div className="flex items-center justify-center gap-3 p-8 bg-gray-50 rounded border-2 border-dashed border-gray-300">
+            <FileText className="w-12 h-12 text-red-500" />
+            <div>
+              <p className="font-medium text-gray-900">PDF Receipt</p>
+              <p className="text-sm text-gray-500">Click download to view</p>
+            </div>
+          </div>
+        ) : (
+          <div className="relative w-full h-96 bg-gray-100 rounded">
+            <Image
+              src={receiptUrl}
+              alt="Payment receipt"
+              fill
+              className="object-contain rounded"
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Metadata */}
+      {(uploadedAt || paymentReferenceId) && (
+        <div className="px-4 pb-4 space-y-2 text-sm">
+          {paymentReferenceId && (
+            <div className="flex items-center gap-2 text-gray-600">
+              <span className="font-medium">Reference ID:</span>
+              <span className="font-mono bg-gray-100 px-2 py-0.5 rounded">
+                {paymentReferenceId}
+              </span>
+            </div>
+          )}
+          {uploadedAt && (
+            <div className="flex items-center gap-2 text-gray-500">
+              <Calendar className="w-4 h-4" />
+              <span>Uploaded: {new Date(uploadedAt).toLocaleString()}</span>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}

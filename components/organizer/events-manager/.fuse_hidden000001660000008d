@@ -1,0 +1,30 @@
+'use client'
+
+import Link from 'next/link'
+import { BarChart3, Tag, QrCode } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+
+export default function QuickLinksBar() {
+  const { t } = useTranslation('organizer')
+
+  const links = [
+    { href: '/organizer/analytics', label: t('events_page.analytics'), icon: BarChart3 },
+    { href: '/organizer/promo-codes', label: t('events_page.promo_codes'), icon: Tag },
+    { href: '/organizer/scan', label: t('events_page.scan_tickets'), icon: QrCode },
+  ]
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {links.map(({ href, label, icon: Icon }) => (
+        <Link
+          key={href}
+          href={href}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-white/5 px-3 py-1.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/10"
+        >
+          <Icon className="h-4 w-4 text-brand-700" />
+          {label}
+        </Link>
+      ))}
+    </div>
+  )
+}

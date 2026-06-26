@@ -137,17 +137,17 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
   }
 
   const inputBase =
-    'w-full rounded-xl border-2 bg-white px-4 py-3 text-gray-900 transition-all placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/60'
+    'w-full rounded-xl border bg-white/5 px-4 py-3 text-white [color-scheme:dark] transition-all placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-brand-400/50'
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
       {/* Header */}
       <div className="mb-8 md:mb-10">
-        <p className="eyebrow text-brand-600">Create event</p>
-        <h1 className="mt-2 font-display text-3xl tracking-tight text-gray-900 md:text-[2.6rem] md:leading-[1.05]">
+        <p className="eyebrow text-brand-300">Create event</p>
+        <h1 className="mt-2 font-display text-3xl tracking-tight text-white md:text-[2.6rem] md:leading-[1.05]">
           Let&rsquo;s get your event live
         </h1>
-        <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-gray-500">
+        <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-white/50">
           Add the essentials now — you can fine-tune tickets, description and
           settings in the next step. Nothing goes public until you hit publish.
         </p>
@@ -156,17 +156,17 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,360px)_1fr]">
         {/* Flyer */}
         <div>
-          <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
-            <ImageIcon className="h-4 w-4 text-brand-700" />
+          <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-white/70">
+            <ImageIcon className="h-4 w-4 text-brand-300" />
             Event flyer
           </label>
-          <div className="overflow-hidden rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50/60 p-3 transition-colors hover:border-brand-300">
+          <div className="overflow-hidden rounded-2xl border border-dashed border-white/10 bg-white/5 p-3 transition-colors hover:border-brand-300">
             <ImageUpload
               currentImage={bannerUrl}
               onImageUploaded={(url) => setBannerUrl(url)}
             />
           </div>
-          <p className="mt-2 text-xs text-gray-400">
+          <p className="mt-2 text-xs text-white/40">
             A bold poster does the heavy lifting. 4:5 or 1200×630 works great.
           </p>
         </div>
@@ -175,8 +175,8 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
         <div className="space-y-7">
           {/* Name */}
           <div>
-            <label htmlFor="qc-title" className="mb-2 block text-sm font-semibold text-gray-700">
-              Event name <span className="text-brand-600">*</span>
+            <label htmlFor="qc-title" className="mb-2 block text-sm font-semibold text-white/70">
+              Event name <span className="text-brand-300">*</span>
             </label>
             <input
               id="qc-title"
@@ -185,17 +185,17 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Sunset Rooftop Party"
               className={`${inputBase} text-lg ${
-                titleInvalid ? 'border-red-300 focus:ring-red-400/50' : 'border-gray-200 focus:border-brand-500'
+                titleInvalid ? 'border-red-300 focus:ring-red-400/50' : 'border-white/10 focus:border-brand-500'
               }`}
             />
             {titleInvalid && (
-              <p className="mt-1.5 text-sm text-red-600">Give your event a name (3+ characters).</p>
+              <p className="mt-1.5 text-sm text-red-300">Give your event a name (3+ characters).</p>
             )}
           </div>
 
           {/* Category */}
           <div>
-            <label className="mb-2 block text-sm font-semibold text-gray-700">Category</label>
+            <label className="mb-2 block text-sm font-semibold text-white/70">Category</label>
             <div className="flex flex-wrap gap-2">
               {CATEGORIES.map((cat) => {
                 const active = category === cat
@@ -204,10 +204,10 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
                     key={cat}
                     type="button"
                     onClick={() => setCategory(cat)}
-                    className={`rounded-full border-2 px-3.5 py-1.5 text-sm font-medium transition-all ${
+                    className={`rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all ${
                       active
-                        ? 'border-brand-700 bg-brand-700 text-white shadow-sm'
-                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:text-gray-900'
+                        ? 'border-brand-500 bg-brand-600 text-white shadow-sm'
+                        : 'border-white/10 bg-white/5 text-white/60 hover:border-white/20 hover:text-white'
                     }`}
                   >
                     {cat}
@@ -219,42 +219,42 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
 
           {/* Date & time */}
           <div>
-            <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
-              <CalendarDays className="h-4 w-4 text-brand-700" />
+            <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-white/70">
+              <CalendarDays className="h-4 w-4 text-brand-300" />
               When
             </label>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <span className="mb-1 block text-xs font-medium text-gray-500">Starts *</span>
+                <span className="mb-1 block text-xs font-medium text-white/50">Starts *</span>
                 <input
                   type="datetime-local"
                   value={startDatetime}
                   onChange={(e) => setStartDatetime(e.target.value)}
                   className={`${inputBase} ${
-                    startInvalid ? 'border-red-300 focus:ring-red-400/50' : 'border-gray-200 focus:border-brand-500'
+                    startInvalid ? 'border-red-300 focus:ring-red-400/50' : 'border-white/10 focus:border-brand-500'
                   }`}
                 />
               </div>
               <div>
-                <span className="mb-1 block text-xs font-medium text-gray-500">Ends (optional)</span>
+                <span className="mb-1 block text-xs font-medium text-white/50">Ends (optional)</span>
                 <input
                   type="datetime-local"
                   value={endDatetime}
                   min={startDatetime || undefined}
                   onChange={(e) => setEndDatetime(e.target.value)}
-                  className={`${inputBase} border-gray-200 focus:border-brand-500`}
+                  className={`${inputBase} border-white/10 focus:border-brand-500`}
                 />
               </div>
             </div>
             {startInvalid && (
-              <p className="mt-1.5 text-sm text-red-600">Pick when your event starts.</p>
+              <p className="mt-1.5 text-sm text-red-300">Pick when your event starts.</p>
             )}
           </div>
 
           {/* Location */}
           <div>
-            <label className="mb-2 block text-sm font-semibold text-gray-700">Where</label>
-            <div className="inline-flex rounded-xl border-2 border-gray-200 bg-gray-50 p-1">
+            <label className="mb-2 block text-sm font-semibold text-white/70">Where</label>
+            <div className="inline-flex rounded-xl border border-white/10 bg-[#0a0a0a] p-1">
               {([
                 { key: 'inperson', label: 'In person', icon: MapPin },
                 { key: 'online', label: 'Online', icon: Globe },
@@ -266,7 +266,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
                     type="button"
                     onClick={() => setMode(key)}
                     className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all ${
-                      active ? 'bg-white text-brand-700 shadow-sm' : 'text-gray-500 hover:text-gray-800'
+                      active ? 'bg-[#141414] text-brand-300 shadow-sm' : 'text-white/50 hover:text-white/90'
                     }`}
                   >
                     <Icon className="h-4 w-4" />
@@ -283,14 +283,14 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
                   value={venueName}
                   onChange={(e) => setVenueName(e.target.value)}
                   placeholder="Venue name"
-                  className={`${inputBase} border-gray-200 focus:border-brand-500`}
+                  className={`${inputBase} border-white/10 focus:border-brand-500`}
                 />
                 <input
                   type="text"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                   placeholder="City"
-                  className={`${inputBase} border-gray-200 focus:border-brand-500`}
+                  className={`${inputBase} border-white/10 focus:border-brand-500`}
                 />
               </div>
             ) : (
@@ -300,7 +300,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
                   value={joinUrl}
                   onChange={(e) => setJoinUrl(e.target.value)}
                   placeholder="Stream or meeting link (optional for now)"
-                  className={`${inputBase} border-gray-200 focus:border-brand-500`}
+                  className={`${inputBase} border-white/10 focus:border-brand-500`}
                 />
               </div>
             )}
@@ -309,17 +309,17 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
       </div>
 
       {/* Action bar */}
-      <div className="mt-10 flex flex-col-reverse items-stretch gap-3 border-t border-gray-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-10 flex flex-col-reverse items-stretch gap-3 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
         <button
           type="button"
           onClick={() => router.push('/organizer/events')}
-          className="rounded-xl px-4 py-2.5 text-sm font-medium text-gray-500 transition-colors hover:text-gray-900"
+          className="rounded-xl px-4 py-2.5 text-sm font-medium text-white/50 transition-colors hover:text-white"
         >
           Cancel
         </button>
 
         <div className="flex items-center gap-4">
-          <span className="hidden items-center gap-1.5 text-xs text-gray-400 sm:inline-flex">
+          <span className="hidden items-center gap-1.5 text-xs text-white/40 sm:inline-flex">
             <Sparkles className="h-3.5 w-3.5" />
             Saved as a private draft
           </span>
