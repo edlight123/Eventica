@@ -68,75 +68,57 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-12">
-        {/* Timing Badge */}
-        <div className="mb-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-8">
+        {/* Left rail — the vertical flyer (matches the 4:5 poster the event page uses) */}
+        <aside className="space-y-4 lg:sticky lg:top-[104px] lg:self-start">
+          {event.banner_image_url ? (
+            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl border border-white/10">
+              <Image src={event.banner_image_url} alt={event.title} fill sizes="300px" className="object-cover" />
+            </div>
+          ) : (
+            <a
+              href={`/organizer/events/${event.id}/edit#banner`}
+              className="flex aspect-[4/5] w-full flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-[#141414] text-center text-white/50 transition-colors hover:border-brand-400/40 hover:text-white/70"
+            >
+              <ImageIcon className="mb-2 h-10 w-10" />
+              <span className="text-sm font-medium">Add a flyer</span>
+              <span className="mt-1 text-xs text-white/40">Portrait 4:5 looks best</span>
+            </a>
+          )}
           <EventTimingBadge startDateTime={event.start_datetime} />
-        </div>
+        </aside>
 
-        {/* KPIs */}
-        <div className="mb-6">
+        {/* Main column — overview */}
+        <div className="min-w-0 space-y-6">
           <EventKpis stats={stats} />
-        </div>
 
-        {/* Needs Attention Checklist */}
-        <div className="mb-6">
           <EventChecklist eventId={event.id} items={checklistItems} />
-        </div>
 
-        {/* Overview Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Column */}
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
             <TicketTiersCard eventId={event.id} tiers={tiers} currency={event?.currency} />
-            <VenueCard 
-              eventId={event.id} 
+            <VenueCard
+              eventId={event.id}
               venue={{
                 name: event.venue_name,
                 address: event.address,
                 city: event.city,
                 commune: event.commune,
                 is_online: event.is_online,
-                meeting_url: event.meeting_url
+                meeting_url: event.meeting_url,
               }}
             />
           </div>
 
-          {/* Right Column */}
-          <div className="space-y-6">
-            {/* Event Banner */}
-            <div className="bg-[#141414] rounded-xl border border-white/10 p-5 shadow-sm">
-              <h3 className="text-lg font-bold text-white mb-4">Event Banner</h3>
-              {event.banner_image_url ? (
-                <div className="relative aspect-video rounded-lg overflow-hidden">
-                  <Image 
-                    src={event.banner_image_url} 
-                    alt={event.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="aspect-video rounded-lg border border-dashed border-white/15 flex items-center justify-center">
-                  <div className="text-center">
-                    <ImageIcon className="w-12 h-12 text-white/50 mx-auto mb-2" />
-                    <p className="text-sm text-white/50">No banner image</p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Activity Timeline */}
-            <EventActivityTimeline activities={activities} />
+          <div className="rounded-xl border border-white/10 bg-[#141414] p-5 shadow-sm">
+            <h3 className="mb-3 text-lg font-bold text-white">Description</h3>
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-white/70">
+              {event.description || 'No description provided'}
+            </p>
           </div>
-        </div>
 
-        {/* Event Description */}
-        <div className="mt-6 bg-[#141414] rounded-xl border border-white/10 p-5 shadow-sm">
-          <h3 className="text-lg font-bold text-white mb-3">Description</h3>
-          <p className="text-sm text-white/70 whitespace-pre-wrap">
-            {event.description || 'No description provided'}
-          </p>
+          <EventActivityTimeline activities={activities} />
         </div>
+      </div>
     </div>
   )
 }
