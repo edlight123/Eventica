@@ -37,11 +37,9 @@ function FeatureCard({
   body: string
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition-colors duration-300 hover:border-brand-400/40">
-      <span className="mb-4 grid h-11 w-11 place-items-center rounded-xl bg-brand-500/15 text-brand-300">
-        <Icon className="h-[22px] w-[22px]" />
-      </span>
-      <h3 className="font-grotesk text-lg font-semibold text-white">{title}</h3>
+    <div>
+      <Icon className="h-7 w-7 text-brand-300" strokeWidth={1.75} />
+      <h3 className="mt-4 font-grotesk text-lg font-semibold text-white">{title}</h3>
       <p className="mt-1.5 text-[15px] leading-relaxed text-white/55">{body}</p>
     </div>
   )

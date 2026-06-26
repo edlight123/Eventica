@@ -8,7 +8,7 @@ import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import Link from 'next/link'
 import { BRAND } from '@/config/brand'
-import { TikemMark, TikemWordmark } from '@/components/ui/TikemLogo'
+import { TikemWordmark } from '@/components/ui/TikemLogo'
 import { isDemoMode, isDemoEmail } from '@/lib/demo'
 import { demoLogin } from '../actions'
 
@@ -145,29 +145,29 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-50 to-brand-100 px-4 py-8">
-      <div className="max-w-md w-full space-y-6 bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#0a0a0a] px-4 py-10">
+      <div aria-hidden className="pointer-events-none absolute left-1/2 top-[-20%] h-[460px] w-[460px] -translate-x-1/2 rounded-full bg-brand-500/15 blur-[150px]" />
+      <div className="relative max-w-md w-full space-y-7">
         <div className="text-center">
-          <div className="flex justify-center mb-4">
-            <TikemMark size={72} className="shadow-md" />
-          </div>
-          <TikemWordmark className="text-3xl md:text-4xl text-brand-700" />
-          <p className="mt-2 text-sm text-gray-600">{BRAND.tagline}</p>
-          <h2 className="mt-5 text-xl md:text-2xl font-semibold text-gray-900">
+          <Link href="/" className="inline-flex justify-center">
+            <TikemWordmark className="text-[44px] text-white" />
+          </Link>
+          <p className="mt-1.5 text-sm text-white/55">{BRAND.tagline}</p>
+          <h2 className="mt-6 font-display text-2xl md:text-3xl text-white">
             {t('login.title')}
           </h2>
         </div>
 
-        <form className="mt-6 space-y-5" onSubmit={handleLogin}>
+        <form className="space-y-5" onSubmit={handleLogin}>
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2.5 rounded-lg text-sm">
+            <div className="bg-red-500/10 border border-red-500/30 text-red-300 px-4 py-2.5 rounded-lg text-sm">
               {error}
             </div>
           )}
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-[13px] font-medium text-gray-700 mb-1.5">
+              <label htmlFor="email" className="block text-[13px] font-medium text-white/70 mb-1.5">
                 {t('login.email')}
               </label>
               <input
@@ -179,13 +179,13 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="block w-full px-4 py-3 text-base border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
+                className="block w-full px-4 py-3 text-base bg-white/5 border border-white/15 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
                 placeholder={t('login.email_placeholder')}
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-[13px] font-medium text-gray-700 mb-1.5">
+              <label htmlFor="password" className="block text-[13px] font-medium text-white/70 mb-1.5">
                 {t('login.password')}
               </label>
               <div className="relative">
@@ -197,13 +197,13 @@ export default function LoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full px-4 py-3 pr-11 text-base border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
+                  className="block w-full px-4 py-3 pr-11 text-base bg-white/5 border border-white/15 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
                   placeholder={t('login.password_placeholder')}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 p-1"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white p-1"
                   aria-label={showPassword ? t('login.hide_password') : t('login.show_password')}
                 >
                   {showPassword ? (
@@ -224,17 +224,17 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-lg shadow-sm text-white text-base font-semibold bg-teal-700 hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-full flex justify-center py-3.5 px-4 rounded-lg text-white text-base font-semibold bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0a0a0a] focus:ring-brand-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? t('login.submit_loading') : t('login.submit')}
           </button>
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
+              <div className="w-full border-t border-white/10" />
             </div>
             <div className="relative flex justify-center text-[13px]">
-              <span className="px-2 bg-white text-gray-500">{t('login.or_continue_with')}</span>
+              <span className="px-2 bg-[#0a0a0a] text-white/45">{t('login.or_continue_with')}</span>
             </div>
           </div>
 
@@ -242,7 +242,7 @@ export default function LoginPage() {
             type="button"
             onClick={handleGoogleLogin}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 py-3.5 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-gray-700 text-base font-semibold hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-lg border border-white/15 bg-white/5 text-white text-base font-semibold hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0a0a0a] focus:ring-brand-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -266,11 +266,11 @@ export default function LoginPage() {
           </button>
 
           <div className="text-center">
-            <p className="text-[13px] text-gray-600">
+            <p className="text-[13px] text-white/55">
               {t('login.no_account')}{' '}
               <Link
                 href={`/auth/signup?redirect=${encodeURIComponent(redirectTo)}`}
-                className="font-semibold text-teal-700 hover:text-teal-800"
+                className="font-semibold text-brand-300 hover:text-brand-200"
               >
                 {t('login.sign_up')}
               </Link>

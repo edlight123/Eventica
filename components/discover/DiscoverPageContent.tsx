@@ -2,9 +2,9 @@
 
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { EventsSection } from './EventsSection'
 import { EmptyState } from './EmptyState'
 import { FeaturedCarousel } from './FeaturedCarousel'
+import { DiscoverEventCard } from './DiscoverEventCard'
 import { FriendsGoingProvider } from './FriendsGoingContext'
 import { LOCATION_CONFIG } from '@/lib/filters/config'
 
@@ -22,150 +22,88 @@ interface DiscoverPageContentProps {
   userCountry?: string
 }
 
+/**
+ * Discover is intentionally NOT the homepage. The home feed is editorial —
+ * stacked, horizontally-scrolling rails. Discover is a search/browse surface:
+ * a featured carousel up top, then one big responsive grid of everything that
+ * matches the current filters. Cleaner, denser, and built for scanning.
+ */
 export function DiscoverPageContent({
   hasActiveFilters,
   featuredEvents,
-  upcomingEvents,
-  countryEvents,
-  nearYouEvents,
-  budgetEvents,
-  onlineEvents,
   filteredEvents,
-  city,
-  commune,
-  userCountry = 'HT'
+  userCountry = 'HT',
 }: DiscoverPageContentProps) {
   const { t } = useTranslation('common')
   const countryName = LOCATION_CONFIG[userCountry]?.name || 'Haiti'
 
-  // Union of every event id currently rendered, so the provider can batch the
-  // "friends going" counts in a single request.
-  const allEventIds = useMemo(() => {
-    const ids: string[] = []
-    for (const list of [
-      featuredEvents,
-      upcomingEvents,
-      countryEvents,
-      nearYouEvents,
-      budgetEvents,
-      onlineEvents,
-      filteredEvents,
-    ]) {
-      if (Array.isArray(list)) {
-        for (const e of list) if (e?.id) ids.push(e.id)
+  // De-dupe the grid (featured events can also appear in the full list).
+  const gridEvents = useMemo(() => {
+    const seen = new Set<string>()
+    const out: any[] = []
+    for (const e of filteredEvents || []) {
+      if (e?.id && !seen.has(e.id)) {
+        seen.add(e.id)
+        out.push(e)
       }
     }
-    return Array.from(new Set(ids))
-  }, [
-    featuredEvents,
-    upcomingEvents,
-    countryEvents,
-    nearYouEvents,
-    budgetEvents,
-    onlineEvents,
-    filteredEvents,
-  ])
+    return out
+  }, [filteredEvents])
+
+  const allEventIds = useMemo(() => {
+    const ids = new Set<string>()
+    for (const list of [featuredEvents, gridEvents]) {
+      if (Array.isArray(list)) for (const e of list) if (e?.id) ids.add(e.id)
+    }
+    return Array.from(ids)
+  }, [featuredEvents, gridEvents])
+
+  const showFeatured = !hasActiveFilters && featuredEvents.length > 0
 
   return (
     <FriendsGoingProvider eventIds={allEventIds}>
-    <div className="space-y-8">
-      {/* Featured Carousel (only if no active filters and has featured) */}
-      {!hasActiveFilters && featuredEvents.length > 0 && (
-        <div className="space-y-4">
-          <div>
+      <div className="space-y-10">
+        {/* Featured carousel — only on the unfiltered browse view */}
+        {showFeatured && (
+          <section className="space-y-4">
+            <div>
+              <h2 className="font-grotesk text-2xl sm:text-3xl font-bold lowercase tracking-tight text-white">
+                {t('events.featured_weekend')}
+              </h2>
+              <p className="mt-1 text-sm text-white/55 sm:text-base">
+                {t('events.featured_weekend_desc')}
+              </p>
+            </div>
+            <FeaturedCarousel events={featuredEvents} />
+          </section>
+        )}
+
+        {/* One big grid feed of everything that matches */}
+        <section className="space-y-4">
+          <div className="flex items-end justify-between gap-4">
             <h2 className="font-grotesk text-2xl sm:text-3xl font-bold lowercase tracking-tight text-white">
-              {t('events.featured_weekend')}
+              {hasActiveFilters ? t('events.filtered_results') : t('events.all_events')}
             </h2>
-            <p className="text-white/55 text-sm sm:text-base mt-1">
-              {t('events.featured_weekend_desc')}
-            </p>
+            {gridEvents.length > 0 && (
+              <span className="shrink-0 text-sm text-white/45">
+                {gridEvents.length === 1
+                  ? t('events.event_found', { count: gridEvents.length })
+                  : t('events.events_found', { count: gridEvents.length })}
+              </span>
+            )}
           </div>
-          <FeaturedCarousel events={featuredEvents} />
-        </div>
-      )}
 
-      {/* Show sections only if no active filters */}
-      {!hasActiveFilters ? (
-        <>
-          {/* Happening Soon */}
-          <EventsSection
-            title={t('common.happening_soon')}
-            description={t('common.happening_soon_desc')}
-            emoji="🔥"
-            events={upcomingEvents}
-            seeAllLink="/discover?date=this-week"
-          />
-
-          {/* Events in Your Country */}
-          {countryEvents.length > 0 && (
-            <EventsSection
-              title={`Events in ${countryName}`}
-              description={`Discover events happening in ${countryName}`}
-              emoji="🌎"
-              events={countryEvents}
-              seeAllLink={`/discover?country=${userCountry}`}
-            />
-          )}
-
-          {/* Near You (only if location set) */}
-          {nearYouEvents.length > 0 && (
-            <EventsSection
-              title={t('common.near_you')}
-              description={`${t('events.events')} ${city ? `${city}` : ''}${commune ? ` • ${commune}` : ''}`}
-              emoji="📍"
-              events={nearYouEvents}
-              seeAllLink={`/discover?city=${city}`}
-            />
-          )}
-
-          {/* Free & Budget Events */}
-          {budgetEvents.length > 0 && (
-            <EventsSection
-              title={t('events.budget_friendly')}
-              description={t('events.budget_friendly_desc')}
-              emoji="💰"
-              events={budgetEvents}
-              seeAllLink="/discover?price=%3C%3D500"
-            />
-          )}
-
-          {/* Online Events */}
-          {onlineEvents.length > 0 && (
-            <EventsSection
-              title={t('events.onlineEvents')}
-              description={t('events.online_desc')}
-              emoji="💻"
-              events={onlineEvents}
-              seeAllLink="/discover?eventType=online"
-            />
-          )}
-
-          {/* All Events Fallback */}
-          {upcomingEvents.length === 0 && 
-           countryEvents.length === 0 &&
-           nearYouEvents.length === 0 && 
-           budgetEvents.length === 0 && 
-           onlineEvents.length === 0 && (
-            <EmptyState hasFilters={false} countryName={countryName} />
-          )}
-        </>
-      ) : (
-        /* Filtered Results */
-        <>
-          {filteredEvents.length > 0 ? (
-            <EventsSection
-              title={t('events.filtered_results')}
-              description={filteredEvents.length === 1 
-                ? t('events.event_found', { count: filteredEvents.length })
-                : t('events.events_found', { count: filteredEvents.length })}
-              events={filteredEvents}
-            />
+          {gridEvents.length > 0 ? (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
+              {gridEvents.map((event) => (
+                <DiscoverEventCard key={event.id} event={event} />
+              ))}
+            </div>
           ) : (
-            <EmptyState hasFilters={true} countryName={countryName} />
+            <EmptyState hasFilters={hasActiveFilters} countryName={countryName} />
           )}
-        </>
-      )}
-    </div>
+        </section>
+      </div>
     </FriendsGoingProvider>
   )
 }

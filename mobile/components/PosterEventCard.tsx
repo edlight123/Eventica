@@ -32,6 +32,9 @@ interface PosterEventCardProps {
   /** Horizontal (and top) inset around the poster so it sits inside the card
    *  edges with visible gutters. Default 0 keeps the poster flush (Home/Favorites). */
   posterInsetX?: number;
+  /** Viewer's city. When set, shows the venue alone for local events and appends
+   *  the city only for out-of-town ones. */
+  userCity?: string;
 }
 
 /**
@@ -51,6 +54,7 @@ export default function PosterEventCard({
   friendsGoing = 0,
   overlay,
   posterInsetX = 0,
+  userCity,
 }: PosterEventCardProps) {
   const { colors } = useTheme();
   const { t, language } = useI18n();
@@ -67,8 +71,16 @@ export default function PosterEventCard({
   const dateLabel = event.start_datetime
     ? formatDateForLanguage(new Date(event.start_datetime), 'EEE, MMM d', language)
     : '';
-  // One quiet line, Posh-style: "Sat, Aug 15 · Port-au-Prince".
-  const metaLine = [dateLabel, event.city].filter(Boolean).join(' · ');
+  // One quiet line, Posh-style: "Sat, Aug 15 · Yanvalou". Venue-first — the venue
+  // is never redundant; the city only shows when the event is out of the viewer's town.
+  const venue = (event.venue_name || '').trim();
+  const city = (event.city || '').trim();
+  const place = !venue
+    ? city
+    : userCity && city && city !== userCity
+    ? `${venue} · ${city}`
+    : venue;
+  const metaLine = [dateLabel, place].filter(Boolean).join(' · ');
 
   const pressIn = () =>
     Animated.spring(scale, { toValue: 0.97, useNativeDriver: true }).start();
