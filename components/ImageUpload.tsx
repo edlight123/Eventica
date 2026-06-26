@@ -8,8 +8,8 @@ interface ImageUploadProps {
   currentImage?: string | null
   onImageUploaded: (url: string) => void
   bucket?: string
-  /** 'flyer' renders a tall portrait poster dropzone (Posh-style). */
-  variant?: 'default' | 'flyer'
+  /** 'flyer' = tall portrait poster; 'square' = square brand logo (Posh-style). */
+  variant?: 'default' | 'flyer' | 'square'
 }
 
 export default function ImageUpload({
@@ -111,7 +111,9 @@ export default function ImageUpload({
   }
 
   const isFlyer = variant === 'flyer'
-  const frame = isFlyer ? 'aspect-[4/5]' : 'h-64'
+  const isSquare = variant === 'square'
+  const frame = isFlyer ? 'aspect-[4/5]' : isSquare ? 'aspect-square' : 'h-64'
+  const ctaLabel = isFlyer ? 'Upload your flyer' : isSquare ? 'Upload logo' : 'Upload image'
 
   return (
     <div className="space-y-3">
@@ -133,7 +135,7 @@ export default function ImageUpload({
                 onClick={() => fileInputRef.current?.click()}
                 className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-gray-900 transition hover:bg-white/90"
               >
-                {isFlyer ? 'Change flyer' : 'Change image'}
+                {isFlyer ? 'Change flyer' : isSquare ? 'Change logo' : 'Change image'}
               </button>
             </div>
           </div>
@@ -144,7 +146,7 @@ export default function ImageUpload({
             className={`flex w-full ${frame} flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.03] text-white/50 transition hover:border-brand-400/50 hover:text-white/70`}
           >
             <span className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-gray-900">
-              {isFlyer ? 'Upload your flyer' : 'Upload image'}
+              {ctaLabel}
             </span>
             <span className="mt-3 text-xs text-white/40">PNG or JPG · up to 5MB</span>
           </button>

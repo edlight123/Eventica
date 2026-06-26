@@ -3,6 +3,8 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { becomeOrganizer } from './actions'
+import ImageUpload from '@/components/ImageUpload'
+import { TikemWordmark } from '@/components/ui/TikemLogo'
 
 function sanitizeRedirectTarget(target: string | undefined | null): string {
   if (!target) return '/organizer'
@@ -15,50 +17,101 @@ export default function OrganizerUpgradePrompt({ redirectTo }: { redirectTo?: st
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+  const [orgName, setOrgName] = useState('')
+  const [logoUrl, setLogoUrl] = useState('')
 
   const safeRedirect = sanitizeRedirectTarget(redirectTo)
 
+  const handleContinue = () => {
+    setError(null)
+    startTransition(async () => {
+      try {
+        await becomeOrganizer({ organizationName: orgName, organizationLogo: logoUrl })
+        router.push(safeRedirect)
+        router.refresh()
+      } catch (e: any) {
+        setError(e?.message || 'Unable to set up your organization right now')
+      }
+    })
+  }
+
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="bg-[#141414] rounded-2xl border border-white/10 shadow-sm p-6 sm:p-8">
-        <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-white">Become an Organizer</h1>
-        <p className="mt-2 text-white/60">
-          Create events, manage tickets, and request payouts. You can start with draft events anytime. Publishing paid events requires verification.
-        </p>
-
-        {error && (
-          <div className="mt-4 bg-red-500/10 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg text-sm">
-            {error}
+    <div className="grid min-h-[calc(100vh-3.5rem)] grid-cols-1 lg:grid-cols-2">
+      {/* Left — textured brand panel */}
+      <div className="relative hidden overflow-hidden lg:block">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0c2b28] via-[#0a0a0a] to-[#0a0a0a]" />
+        <div aria-hidden className="absolute left-1/3 top-1/4 h-[420px] w-[420px] rounded-full bg-brand-500/20 blur-[140px]" />
+        <div className="relative flex h-full flex-col justify-between p-10">
+          <TikemWordmark italic className="text-4xl text-white" />
+          <div>
+            <h2 className="max-w-sm font-display text-3xl leading-tight text-white">
+              Create your world on tikèm.
+            </h2>
+            <p className="mt-3 max-w-sm text-[15px] leading-relaxed text-white/55">
+              Set up your organization once — then create events, sell tickets, and get paid.
+            </p>
           </div>
-        )}
+        </div>
+      </div>
 
-        <div className="mt-6 flex flex-col sm:flex-row gap-3">
+      {/* Right — clean form */}
+      <div className="flex items-center justify-center px-5 py-12 sm:px-10">
+        <div className="w-full max-w-md">
+          <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.05] text-white">
+            Create your organization
+          </h1>
+          <p className="mt-2 text-[15px] text-white/55">
+            This is the brand attendees will see. You can change it anytime in settings.
+          </p>
+
+          {error && (
+            <div className="mt-5 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+              {error}
+            </div>
+          )}
+
+          {/* Brand name */}
+          <div className="mt-7">
+            <label htmlFor="org-name" className="mb-2 block text-sm font-semibold text-white/80">
+              What is your organization called?
+            </label>
+            <input
+              id="org-name"
+              value={orgName}
+              onChange={(e) => setOrgName(e.target.value)}
+              placeholder="Brand name"
+              className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-[15px] text-white placeholder:text-white/40 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/40"
+            />
+          </div>
+
+          {/* Square logo */}
+          <div className="mt-6">
+            <label className="mb-2 block text-sm font-semibold text-white/80">
+              Add your brand&rsquo;s logo <span className="font-normal text-white/40">(square, optional)</span>
+            </label>
+            <div className="w-40">
+              <ImageUpload variant="square" currentImage={logoUrl} onImageUploaded={setLogoUrl} />
+            </div>
+          </div>
+
+          {/* Actions */}
           <button
             type="button"
             disabled={isPending}
-            onClick={() => {
-              setError(null)
-              startTransition(async () => {
-                try {
-                  await becomeOrganizer()
-                  router.push(safeRedirect)
-                  router.refresh()
-                } catch (e: any) {
-                  setError(e?.message || 'Unable to upgrade your account right now')
-                }
-              })
-            }}
-            className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            onClick={handleContinue}
+            className="mt-8 w-full rounded-xl bg-brand-600 px-5 py-3.5 text-sm font-bold text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isPending ? 'Upgrading…' : 'Continue as Organizer'}
+            {isPending ? 'Setting up…' : 'Continue'}
           </button>
-
+          <p className="mt-3 text-center text-xs text-white/40">
+            Drafts are free. Publishing paid events requires verification.
+          </p>
           <button
             type="button"
             onClick={() => router.push('/discover')}
-            className="inline-flex items-center justify-center px-5 py-3 rounded-xl border border-white/15 text-white/70 font-semibold hover:bg-[#0a0a0a] transition-colors"
+            className="mt-2 w-full rounded-xl px-5 py-2.5 text-sm font-medium text-white/50 transition-colors hover:text-white"
           >
-            Browse Events
+            Browse events instead
           </button>
         </div>
       </div>
