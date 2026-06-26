@@ -3,7 +3,7 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { EmptyState } from './EmptyState'
-import { FeaturedCarousel } from './FeaturedCarousel'
+import { DiscoverFeaturedHero } from './DiscoverFeaturedHero'
 import { DiscoverEventCard } from './DiscoverEventCard'
 import { FriendsGoingProvider } from './FriendsGoingContext'
 import { LOCATION_CONFIG } from '@/lib/filters/config'
@@ -58,27 +58,18 @@ export function DiscoverPageContent({
     return Array.from(ids)
   }, [featuredEvents, gridEvents])
 
-  const showFeatured = !hasActiveFilters && featuredEvents.length > 0
+  // Featured hero (Posh Explore style). Use sales-based featured if present,
+  // otherwise the first events so the hero always has content to show.
+  const heroEvents = (featuredEvents.length > 0 ? featuredEvents : gridEvents).slice(0, 6)
+  const showHero = !hasActiveFilters && heroEvents.length > 0
 
   return (
     <FriendsGoingProvider eventIds={allEventIds}>
       <div className="space-y-10">
-        {/* Featured carousel — only on the unfiltered browse view */}
-        {showFeatured && (
-          <section className="space-y-4">
-            <div>
-              <h2 className="font-grotesk text-2xl sm:text-3xl font-bold lowercase tracking-tight text-white">
-                {t('events.featured_weekend')}
-              </h2>
-              <p className="mt-1 text-sm text-white/55 sm:text-base">
-                {t('events.featured_weekend_desc')}
-              </p>
-            </div>
-            <FeaturedCarousel events={featuredEvents} />
-          </section>
-        )}
+        {/* Featured hero carousel — only on the unfiltered browse view */}
+        {showHero && <DiscoverFeaturedHero events={heroEvents} />}
 
-        {/* One big grid feed of everything that matches */}
+        {/* Big poster grid of everything that matches */}
         <section className="space-y-4">
           <div className="flex items-end justify-between gap-4">
             <h2 className="font-grotesk text-2xl sm:text-3xl font-bold lowercase tracking-tight text-white">
@@ -94,7 +85,7 @@ export function DiscoverPageContent({
           </div>
 
           {gridEvents.length > 0 ? (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {gridEvents.map((event) => (
                 <DiscoverEventCard key={event.id} event={event} />
               ))}
