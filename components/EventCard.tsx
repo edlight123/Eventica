@@ -33,9 +33,11 @@ interface EventCardProps {
   event: Event
   priority?: boolean
   index?: number
+  /** Viewer's city. When set, the card shows the venue alone for local events and appends the city only for out-of-town ones. */
+  userCity?: string
 }
 
-export default function EventCard({ event, priority = false, index = 0 }: EventCardProps) {
+export default function EventCard({ event, priority = false, index = 0, userCity }: EventCardProps) {
   const { t } = useTranslation('common')
   const [liked, setLiked] = useState(false)
 
@@ -73,7 +75,15 @@ export default function EventCard({ event, priority = false, index = 0 }: EventC
     : null
 
   const dateLabel = validDate ? format(startDate, 'EEE, MMM d') : ''
-  const locationLabel = event.city || event.venue_name || ''
+  // Venue-first: the venue is never redundant, the city often is. Only append the
+  // city when the event is outside the viewer's own city.
+  const venue = (event.venue_name || '').trim()
+  const city = (event.city || '').trim()
+  const locationLabel = !venue
+    ? city
+    : userCity && city && city !== userCity
+    ? `${venue} · ${city}`
+    : venue
   const monogram = (event.title || '?').trim().charAt(0).toUpperCase()
 
   const handleLike = (e: React.MouseEvent) => {

@@ -61,12 +61,12 @@ function SectionHeader({
 }
 
 /** Horizontal, snapping rail of poster cards that bleeds to the screen edges. */
-function EventRail({ events }: { events: any[] }) {
+function EventRail({ events, userCity }: { events: any[]; userCity?: string }) {
   return (
     <div className="rail -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
       {events.map((event, index) => (
         <div key={event.id} className="w-[228px] sm:w-[248px]">
-          <EventCard event={event} index={index} />
+          <EventCard event={event} index={index} userCity={userCity} />
         </div>
       ))}
     </div>
@@ -79,11 +79,13 @@ function CategoryRail({
   href,
   cta,
   events,
+  userCity,
 }: {
   label: string
   href: string
   cta: string
   events: any[]
+  userCity?: string
 }) {
   return (
     <div>
@@ -99,7 +101,7 @@ function CategoryRail({
           <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
         </Link>
       </div>
-      <EventRail events={events} />
+      <EventRail events={events} userCity={userCity} />
     </div>
   )
 }
@@ -171,13 +173,13 @@ export default function HomePageContent({
             {/* Mobile: list rows */}
             <div className="space-y-3 md:hidden">
               {events.map((event) => (
-                <EventCardHorizontal key={event.id} event={event} />
+                <EventCardHorizontal key={event.id} event={event} userCity={userCity} />
               ))}
             </div>
             {/* Desktop: poster grid */}
             <div className="hidden gap-5 md:grid md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
               {events.map((event, index) => (
-                <EventCard key={event.id} event={event} index={index} />
+                <EventCard key={event.id} event={event} index={index} userCity={userCity} />
               ))}
             </div>
           </>
@@ -232,7 +234,7 @@ export default function HomePageContent({
             href="/discover?sort=popular"
             cta={t('common.viewAll')}
           />
-          <EventRail events={trendingEvents} />
+          <EventRail events={trendingEvents} userCity={userCity} />
         </section>
       )}
 
@@ -246,7 +248,7 @@ export default function HomePageContent({
             href="/discover?sort=newest"
             cta={t('common.viewAll')}
           />
-          <EventRail events={recentlyAddedEvents} />
+          <EventRail events={recentlyAddedEvents} userCity={userCity} />
         </section>
       )}
 
@@ -270,7 +272,7 @@ export default function HomePageContent({
               cta={t('common.viewAll')}
             />
           )}
-          <EventRail events={countryEvents} />
+          <EventRail events={countryEvents} userCity={userCity} />
         </section>
       )}
 
@@ -284,7 +286,7 @@ export default function HomePageContent({
             href="/discover?date=week"
             cta={t('common.viewAll')}
           />
-          <EventRail events={upcomingThisWeek} />
+          <EventRail events={upcomingThisWeek} userCity={userCity} />
         </section>
       )}
 
@@ -298,6 +300,7 @@ export default function HomePageContent({
               href={`/categories/${encodeURIComponent(category)}`}
               cta={t('common.viewAll')}
               events={categoryEvents}
+              userCity={userCity}
             />
           ))}
         </section>
@@ -319,13 +322,13 @@ export default function HomePageContent({
             {/* Mobile: list rows */}
             <div className="space-y-3 md:hidden">
               {events.slice(0, 12).map((event) => (
-                <EventCardHorizontal key={event.id} event={event} />
+                <EventCardHorizontal key={event.id} event={event} userCity={userCity} />
               ))}
             </div>
             {/* Desktop: poster grid */}
             <div className="hidden gap-5 md:grid md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
               {events.slice(0, 12).map((event, index) => (
-                <EventCard key={event.id} event={event} index={index} />
+                <EventCard key={event.id} event={event} index={index} userCity={userCity} />
               ))}
             </div>
           </>

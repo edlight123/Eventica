@@ -30,6 +30,8 @@ interface Event {
 
 interface EventCardHorizontalProps {
   event: Event
+  /** Viewer's city. When set, shows venue alone for local events, appends city for out-of-town ones. */
+  userCity?: string
 }
 
 /**
@@ -37,7 +39,7 @@ interface EventCardHorizontalProps {
  * A poster thumbnail (image or deterministic gradient) sits beside the
  * serif title, metadata and price — matching the home / discover aesthetic.
  */
-export default function EventCardHorizontal({ event }: EventCardHorizontalProps) {
+export default function EventCardHorizontal({ event, userCity }: EventCardHorizontalProps) {
   const { t } = useTranslation('common')
   const [liked, setLiked] = useState(false)
 
@@ -122,7 +124,14 @@ export default function EventCardHorizontal({ event }: EventCardHorizontalProps)
             {event.title}
           </h3>
 
-          <p className="mt-0.5 truncate text-xs text-white/55">{event.venue_name || event.city}</p>
+          <p className="mt-0.5 truncate text-xs text-white/55">
+            {(() => {
+              const venue = (event.venue_name || '').trim()
+              const city = (event.city || '').trim()
+              if (!venue) return city
+              return userCity && city && city !== userCity ? `${venue} · ${city}` : venue
+            })()}
+          </p>
 
           <div className="mt-auto flex items-center justify-between gap-2 pt-2">
             <div className="flex items-center">
