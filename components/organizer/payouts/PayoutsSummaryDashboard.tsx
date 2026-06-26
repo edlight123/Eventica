@@ -160,54 +160,20 @@ export default function PayoutsSummaryDashboard({
           </div>
         )}
 
-        {/* Verification Status */}
-        {method.verificationStatus && (
-          <div className="space-y-2 mb-4">
-            {method.verificationStatus.identity && (
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-white/60">Identity</span>
-                <span className={`font-medium ${
-                  method.verificationStatus.identity === 'verified' ? 'text-emerald-300' : 
-                  method.verificationStatus.identity === 'failed' ? 'text-red-300' : 'text-amber-300'
-                }`}>
-                  {method.verificationStatus.identity === 'verified' ? '✓ Verified' : 
-                   method.verificationStatus.identity === 'failed' ? '✗ Failed' : '○ Pending'}
-                </span>
-              </div>
-            )}
-            {method.verificationStatus.bank && (
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-white/60">Bank Account</span>
-                <span className={`font-medium ${
-                  method.verificationStatus.bank === 'verified' ? 'text-emerald-300' : 
-                  method.verificationStatus.bank === 'failed' ? 'text-red-300' : 'text-amber-300'
-                }`}>
-                  {method.verificationStatus.bank === 'verified' ? '✓ Verified' : 
-                   method.verificationStatus.bank === 'failed' ? '✗ Failed' : '○ Pending'}
-                </span>
-              </div>
-            )}
-            {method.verificationStatus.phone && (
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-white/60">Phone</span>
-                <span className={`font-medium ${
-                  method.verificationStatus.phone === 'verified' ? 'text-emerald-300' : 
-                  method.verificationStatus.phone === 'failed' ? 'text-red-300' : 'text-amber-300'
-                }`}>
-                  {method.verificationStatus.phone === 'verified' ? '✓ Verified' : 
-                   method.verificationStatus.phone === 'failed' ? '✗ Failed' : '○ Pending'}
-                </span>
-              </div>
-            )}
-          </div>
-        )}
-
         <button
+          type="button"
           onClick={() => onEdit(profile)}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-white/10 text-sm font-medium text-white/70 hover:bg-[#0a0a0a] transition-colors"
+          className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition-colors ${
+            method.status === 'needs_attention'
+              ? 'border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/20'
+              : 'border-white/10 text-white/70 hover:bg-[#0a0a0a]'
+          }`}
         >
-          <Settings className="w-4 h-4" />
-          Manage
+          {method.status === 'needs_attention' ? (
+            <><AlertCircle className="w-4 h-4" />Fix account</>
+          ) : (
+            <><Settings className="w-4 h-4" />Manage</>
+          )}
         </button>
       </div>
     )
@@ -229,6 +195,7 @@ export default function PayoutsSummaryDashboard({
           </div>
           {overallStatus === 'none' && (
             <button
+              type="button"
               onClick={onSetupNew}
               className="inline-flex flex-shrink-0 items-center justify-center gap-2 rounded-lg bg-brand-700 px-5 py-2.5 font-semibold text-white shadow-sm transition hover:bg-brand-800"
             >
@@ -245,6 +212,7 @@ export default function PayoutsSummaryDashboard({
           <h2 className="text-lg font-semibold text-white">Payout methods</h2>
           {hasAnyMethod && (
             <button
+              type="button"
               onClick={onSetupNew}
               className="inline-flex items-center gap-1 text-sm font-medium text-brand-300 hover:text-brand-300"
             >
@@ -269,6 +237,7 @@ export default function PayoutsSummaryDashboard({
               Set up a payout method to receive earnings from your ticket sales.
             </p>
             <button
+              type="button"
               onClick={onSetupNew}
               className="px-6 py-2.5 bg-brand-700 text-white rounded-lg font-semibold hover:bg-brand-800 transition-all"
             >

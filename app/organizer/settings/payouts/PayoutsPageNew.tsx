@@ -166,6 +166,7 @@ export default function PayoutsPageNew({
   const [prefunding, setPrefunding] = useState<{ enabled: boolean; available: boolean } | null>(null)
   const [prefundingError, setPrefundingError] = useState<string | null>(null)
   const [isChangingMobileNumber, setIsChangingMobileNumber] = useState(false)
+  const [editStep, setEditStep] = useState<'method' | 'verify' | 'done'>('method')
   const [formData, setFormData] = useState(() => ({
     accountLocation:
       activeProfile === 'stripe_connect'
@@ -414,7 +415,7 @@ export default function PayoutsPageNew({
     { value: 'other', label: 'Other (add my bank)' }
   ]
 
-  const handleSavePayoutDetails = async () => {
+  const handleSavePayoutDetails = async (onSuccess?: () => void) => {
     setIsSaving(true)
     setError(null)
     setPayoutChangeMessage(null)
@@ -585,6 +586,7 @@ export default function PayoutsPageNew({
       setPendingSensitiveUpdate(null)
       setPayoutChangeCode('')
       router.refresh()
+      onSuccess?.()
     } catch (err) {
       setError('Failed to save payout details. Please try again.')
       console.error('Error saving payout details:', err)
@@ -984,12 +986,12 @@ export default function PayoutsPageNew({
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {payoutChangeVerificationRequired ? (
+        {!isFocusedEdit && payoutChangeVerificationRequired ? (
           <div id="payout-change-stepup" className="mb-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg">
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-amber-300 flex-shrink-0 mt-0.5" />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-amber-900">Confirm payout details change</p>
+                <p className="text-sm font-medium text-amber-100">Confirm payout details change</p>
                 <p className="text-sm text-amber-300 mt-1">
                   {payoutChangeMessage ||
                     'For your security, confirm this change with the 6-digit code sent to your email.'}
@@ -1016,7 +1018,7 @@ export default function PayoutsPageNew({
                     type="button"
                     onClick={sendPayoutChangeEmailCode}
                     disabled={isSendingPayoutChangeCode}
-                    className="px-4 py-2 bg-[#141414] border border-amber-300 text-amber-900 rounded-lg font-medium hover:bg-amber-500/15 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 bg-[#141414] border border-amber-300 text-amber-300 rounded-lg font-medium hover:bg-amber-500/15 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSendingPayoutChangeCode ? 'Sending…' : 'Resend code'}
                   </button>
@@ -1037,17 +1039,10 @@ export default function PayoutsPageNew({
           {/* Left Column - Payout Setup + Fees */}
           <div className={`flex flex-col gap-6 ${shouldShowEarningsAndPayouts ? 'lg:col-span-1' : ''}`}>
 
-            <div className="contents">
-
             {isFocusedEdit ? (
-              <div className="order-1">
-                <Link
-                  href="/organizer/settings/payouts"
-                  className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-white/60 hover:text-white"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Back to payouts
-                </Link>
+              /* ── STEPPER LAYOUT (focused edit: ?edit=haiti or ?edit=stripe_connect) ── */
+              <div className="flex flex-col gap-6">
+                {/* Profile header */}
                 <div className="flex items-start justify-between gap-3 rounded-xl border border-white/10 bg-[#141414] p-6 shadow-sm">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-brand-500/15 text-brand-300">
@@ -1056,17 +1051,373 @@ export default function PayoutsPageNew({
                     <div>
                       <h2 className="text-lg font-semibold text-white">{focusedProfileLabel} payouts</h2>
                       <p className="mt-0.5 text-sm text-white/60">
-                        {activeProfile === 'stripe_connect'
-                          ? 'Bank payouts via Stripe Connect.'
-                          : 'Bank transfer or mobile money (MonCash / NatCash).'}
+                        {activeProfile === 'stripe_connect' ? 'Bank payouts via Stripe Connect.' : 'Bank transfer or mobile money (MonCash / NatCash).'}
                       </p>
                     </div>
                   </div>
                   <StatusChip tone={config ? 'success' : 'neutral'}>{config ? 'Configured' : 'Not set up'}</StatusChip>
                 </div>
+
+                {/* Step progress bar */}
+                {(() => {
+                  const steps = [{ key: 'method', label: 'Payout method' }, { key: 'verify', label: 'Verify' }, { key: 'done', label: 'Done' }] as const
+                  const currentIdx = steps.findIndex((s) => s.key === editStep)
+                  return (
+                    <div className="flex items-center gap-1">
+                      {steps.map((step, i) => {
+                        const isDone = i < currentIdx
+                        const isActive = i === currentIdx
+                        return (
+                          <div key={step.key} className={`flex items-center ${i < steps.length - 1 ? 'flex-1' : ''}`}>
+                            <div className="flex shrink-0 items-center gap-2">
+                              <div className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${isDone ? 'bg-emerald-500 text-white' : isActive ? 'bg-brand-600 text-white' : 'bg-white/10 text-white/30'}`}>
+                                {isDone ? '✓' : i + 1}
+                              </div>
+                              <span className={`whitespace-nowrap text-sm font-medium ${isActive ? 'text-white' : isDone ? 'text-white/60' : 'text-white/30'}`}>{step.label}</span>
+                            </div>
+                            {i < steps.length - 1 && <div className={`mx-3 h-px flex-1 ${isDone ? 'bg-emerald-500/40' : 'bg-white/10'}`} />}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )
+                })()}
+
+                {/* Step-up banner inline in stepper */}
+                {payoutChangeVerificationRequired ? (
+                  <div id="payout-change-stepup" className="rounded-xl border border-amber-500/30 bg-[#141414] p-4">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-300" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-amber-100">Confirm payout details change</p>
+                        <p className="text-sm text-amber-300 mt-1">{payoutChangeMessage || 'For your security, confirm this change with the 6-digit code sent to your email.'}</p>
+                        <div className="mt-3 flex flex-col sm:flex-row gap-2">
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            value={payoutChangeCode}
+                            onChange={(e) => setPayoutChangeCode(e.target.value)}
+                            placeholder="6-digit code"
+                            aria-label="6-digit verification code"
+                            className="w-full rounded-xl border border-amber-500/30 bg-[#1c1c1c] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 sm:w-48"
+                          />
+                          <button type="button" onClick={verifyPayoutChangeEmailCode} disabled={isVerifyingPayoutChangeCode || !/^\d{6}$/.test(payoutChangeCode)} className="rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 disabled:opacity-40">
+                            {isVerifyingPayoutChangeCode ? 'Verifying…' : 'Verify & continue'}
+                          </button>
+                          <button type="button" onClick={sendPayoutChangeEmailCode} disabled={isSendingPayoutChangeCode} className="rounded-xl border border-amber-500/30 bg-[#141414] px-4 py-2.5 text-sm font-semibold text-amber-300 transition-colors hover:bg-amber-500/10 disabled:opacity-50">
+                            {isSendingPayoutChangeCode ? 'Sending…' : 'Resend code'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
+                {/* Step 1 — Payout method */}
+                {editStep === 'method' && (
+                  <div className="rounded-xl border border-white/10 bg-[#141414] shadow-sm">
+                    <div className="p-6">
+                      <h2 className="mb-4 text-lg font-semibold text-white">Payout method</h2>
+
+                      {isStripeConnectSelection ? (
+                        <div className="mb-4 rounded-xl border border-white/10 bg-[#0a0a0a] p-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-semibold text-white">Stripe Connect</p>
+                              <p className="mt-1 text-sm text-white/60">Connect your Stripe account to receive payouts to your bank.</p>
+                            </div>
+                            <StatusChip tone={getStripeBadge().tone}>{getStripeBadge().label}</StatusChip>
+                          </div>
+                          {stripeStatusError ? <div className="mt-3 text-sm text-red-300">{stripeStatusError}</div> : null}
+                          <div className="mt-3 flex gap-2">
+                            {!stripeStatus?.connected ? (
+                              <button type="button" onClick={startStripeOnboarding} className="rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-800">Connect with Stripe</button>
+                            ) : (
+                              <>
+                                <button type="button" onClick={startStripeOnboarding} className="rounded-xl border border-white/10 bg-[#141414] px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-[#0a0a0a]">Continue onboarding</button>
+                                <button type="button" onClick={openStripeDashboard} className="rounded-xl border border-white/10 bg-[#141414] px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-[#0a0a0a]">Manage in Stripe</button>
+                              </>
+                            )}
+                            {isLoadingStripeStatus ? <span className="self-center text-sm text-white/50">Loading…</span> : null}
+                          </div>
+                        </div>
+                      ) : null}
+
+                      {isHaiti && String(formData.method || '').toLowerCase() === 'mobile_money' && selectedProvider === 'moncash' ? (
+                        <div className="mb-4 rounded-xl border border-white/10 bg-[#0a0a0a] p-4">
+                          <p className="text-sm font-semibold text-white">Instant MonCash (prefunding)</p>
+                          <p className="mt-1 text-sm text-white/60">Instant payouts depend on platform prefunding availability.</p>
+                          {prefundingError ? <div className="mt-2 text-sm text-red-300">{prefundingError}</div> : null}
+                          {prefunding ? (
+                            <div className="mt-2 text-sm text-white/70">Status: {prefunding.enabled && prefunding.available ? 'Available' : prefunding.enabled ? 'Temporarily unavailable' : 'Disabled'}</div>
+                          ) : <div className="mt-2 text-sm text-white/50">Loading…</div>}
+                          <label className="mt-3 flex items-center gap-2 text-sm text-white">
+                            <input type="checkbox" checked={Boolean(config?.allowInstantMoncash)} disabled={!prefunding?.enabled || !prefunding?.available}
+                              onChange={async (e) => {
+                                try {
+                                  const result = await updatePayoutProfileConfig('haiti' as any, { allowInstantMoncash: e.target.checked } as any)
+                                  if (!result?.success) {
+                                    if (result?.requiresVerification) { setPendingSensitiveUpdate({ kind: 'profile_update', updates: { allowInstantMoncash: e.target.checked } }); setPayoutChangeVerificationRequired(true); setPayoutChangeMessage('For your security, confirm this payout change with the code we email you.'); return }
+                                    throw new Error(result?.error || 'Failed to update setting')
+                                  }
+                                  router.refresh()
+                                } catch { setError('Failed to update prefunding preference') }
+                              }}
+                              className="h-4 w-4 text-brand-300"
+                            />
+                            Allow instant MonCash withdrawals when available
+                          </label>
+                        </div>
+                      ) : null}
+
+                      <div className="space-y-4">
+                        <div>
+                          <label htmlFor="step-location" className="mb-2 block text-sm font-medium text-white/70">Account location <span className="text-red-500">*</span></label>
+                          <select id="step-location" value={formData.accountLocation}
+                            onChange={(e) => {
+                              const nextLocation = e.target.value
+                              if (activeProfile === 'haiti') { setFormData({ ...formData, accountLocation: 'haiti' }); return }
+                              const wantsStripe = nextLocation === 'united_states' || nextLocation === 'canada'
+                              setFormData({ ...formData, accountLocation: wantsStripe ? nextLocation : 'united_states', method: 'bank_transfer' })
+                            }}
+                            className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                          >
+                            {activeProfile === 'haiti' ? <option value="haiti">Haiti</option> : (<><option value="united_states">United States</option><option value="canada">Canada</option></>)}
+                          </select>
+                          {activeProfile === 'stripe_connect' ? <p className="mt-1 text-xs text-white/50">US/Canada payouts are handled via Stripe Connect.</p> : null}
+                        </div>
+
+                        {activeProfile === 'haiti' ? (
+                          <div>
+                            <label className="mb-2 block text-sm font-medium text-white/70">Payout method <span className="text-red-500">*</span></label>
+                            <div className="space-y-2">
+                              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 p-3 hover:bg-white/[0.03]">
+                                <input type="radio" name="step-method" value="bank_transfer" checked={formData.method === 'bank_transfer'} onChange={(e) => setFormData({ ...formData, method: e.target.value as any })} className="h-4 w-4 text-brand-300" />
+                                <span className="text-sm font-medium text-white">Bank transfer</span>
+                              </label>
+                              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 p-3 hover:bg-white/[0.03]">
+                                <input type="radio" name="step-method" value="mobile_money" checked={formData.method === 'mobile_money'} onChange={(e) => setFormData({ ...formData, method: e.target.value as any })} className="h-4 w-4 text-brand-300" />
+                                <span className="text-sm font-medium text-white">Mobile money</span>
+                              </label>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/70">Stripe Connect collects your bank details securely — no bank info required here.</div>
+                        )}
+
+                        {activeProfile === 'haiti' && formData.method === 'bank_transfer' ? (
+                          <div>
+                            <label className="mb-2 block text-sm font-medium text-white/70">Bank account <span className="text-red-500">*</span></label>
+                            {isLoadingBankDestinations ? <div className="text-sm text-white/50">Loading saved bank accounts…</div> : null}
+                            {bankDestinations && bankDestinations.length ? (
+                              <select aria-label="Select bank account" value={selectedBankDestinationId} onChange={(e) => setSelectedBankDestinationId(e.target.value)} className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                {bankDestinations.map((d) => (<option key={d.id} value={d.id}>{d.bankName} • ****{d.accountNumberLast4}{d.isPrimary ? ' (Primary)' : ''}</option>))}
+                              </select>
+                            ) : <div className="text-sm text-white/60">No bank accounts saved yet. Add one in step 2 (Verify).</div>}
+                            {bankDestinationsError ? <div className="text-xs text-red-300 mt-1">{bankDestinationsError}</div> : null}
+                          </div>
+                        ) : null}
+
+                        {formData.method === 'mobile_money' && activeProfile === 'haiti' && (
+                          <>
+                            <div>
+                              <label htmlFor="step-provider" className="mb-2 block text-sm font-medium text-white/70">Provider</label>
+                              <select id="step-provider" value={formData.provider} onChange={(e) => setFormData({ ...formData, provider: e.target.value })} className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                <option value="moncash">MonCash</option>
+                                <option value="natcash">Natcash</option>
+                              </select>
+                            </div>
+                            {Boolean(config?.mobileMoneyDetails?.phoneNumberLast4) && !isChangingMobileNumber ? (
+                              <div className="rounded-xl border border-white/10 bg-[#0a0a0a] p-4">
+                                <div className="text-sm font-medium text-white">Saved phone number</div>
+                                <div className="mt-1 text-sm text-white/70">****{config?.mobileMoneyDetails?.phoneNumberLast4}</div>
+                                <button type="button" onClick={() => setIsChangingMobileNumber(true)} className="mt-2 text-sm font-medium text-brand-300">Change number</button>
+                              </div>
+                            ) : (
+                              <div>
+                                <label htmlFor="step-phone" className="mb-2 block text-sm font-medium text-white/70">Phone number</label>
+                                <input id="step-phone" type="tel" value={formData.phoneNumber} onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })} placeholder="+50912345678" className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                                {Boolean(config?.mobileMoneyDetails?.phoneNumberLast4) ? (
+                                  <button type="button" onClick={() => { setIsChangingMobileNumber(false); setFormData((p) => ({ ...p, phoneNumber: '' })) }} className="mt-2 text-sm font-medium text-white/60 hover:text-white/70">Use saved number instead</button>
+                                ) : null}
+                              </div>
+                            )}
+                          </>
+                        )}
+
+                        {error && <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">{error}</div>}
+
+                        <button type="button" onClick={() => handleSavePayoutDetails(() => setEditStep('verify'))} disabled={isSaving || payoutChangeVerificationRequired} className="w-full rounded-xl bg-brand-700 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-800 disabled:opacity-40">
+                          {isSaving ? (activeProfile === 'stripe_connect' ? 'Opening Stripe…' : 'Saving…') : (activeProfile === 'stripe_connect' ? 'Continue to Stripe' : 'Save & continue')}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 2 — Verify */}
+                {editStep === 'verify' && (
+                  <div className="rounded-xl border border-white/10 bg-[#141414] shadow-sm">
+                    <div className="p-6">
+                      <div id="verify-payouts" />
+                      <h2 className="text-lg font-semibold text-white">Verify payouts</h2>
+                      <p className="mt-1 mb-4 text-sm text-white/60">Complete identity and account verification to receive payouts.</p>
+
+                      <div className="space-y-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <div className="text-sm font-medium text-white">Organizer identity</div>
+                            <div className="text-sm text-white/60">{organizerIdentityStatus === 'verified' ? 'Verified' : organizerIdentityStatus === 'failed' ? 'Needs attention' : 'Pending'}</div>
+                          </div>
+                          <Link href="/organizer/verify" className="text-sm font-medium text-brand-300">View</Link>
+                        </div>
+
+                        {!isStripeConnectAccount && config?.method === 'bank_transfer' && hasPayoutSetup && (
+                          <div className="border-t border-white/10 pt-3">
+                            <div className="mb-3">
+                              <div className="text-sm font-medium text-white">Bank account</div>
+                              <div className="text-sm text-white/60">{bankStatus === 'verified' ? 'Verified' : bankStatus === 'failed' ? 'Needs attention' : 'Pending'}</div>
+                            </div>
+                            <div className="space-y-3">
+                              {isHaiti ? (
+                                <div>
+                                  <label htmlFor="step2-bank-select" className="mb-1 block text-sm font-medium text-white/70">Select bank account</label>
+                                  <select id="step2-bank-select" value={selectedBankDestinationId} onChange={(e) => setSelectedBankDestinationId(e.target.value)} className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                    {(bankDestinations || []).map((d) => (<option key={d.id} value={d.id}>{d.bankName} • ****{d.accountNumberLast4}{d.isPrimary ? ' (Primary)' : ''} ({d.verificationStatus || 'not submitted'})</option>))}
+                                  </select>
+                                  {isLoadingBankDestinations ? <div className="mt-1 text-xs text-white/50">Loading bank accounts…</div> : null}
+                                  {bankDestinationsError ? <div className="mt-1 text-xs text-red-300">{bankDestinationsError}</div> : null}
+                                </div>
+                              ) : null}
+                              {(() => {
+                                const selected = (bankDestinations || []).find((d) => d.id === selectedBankDestinationId) || null
+                                const status = (selected?.verificationStatus || null) as 'pending' | 'verified' | 'failed' | null
+                                if (isHaiti && status === 'pending') return <div className="text-sm text-white/60">Verification submitted{selected?.verificationSubmittedAt ? ` on ${new Date(selected.verificationSubmittedAt).toLocaleDateString()}` : ''}. Awaiting review.</div>
+                                if (!isHaiti) { if (bankStatus === 'verified') return null } else { if (!selectedBankDestinationId) return null; if (status === 'verified') return null }
+                                return (
+                                  <>
+                                    {isHaiti && status === 'failed' ? <div className="text-sm text-red-300">Verification was rejected. Please upload a new document.</div> : null}
+                                    <div>
+                                      <label htmlFor="step2-doc-type" className="mb-1 block text-sm font-medium text-white/70">Document type</label>
+                                      <select id="step2-doc-type" value={bankVerificationType} onChange={(e) => setBankVerificationType(e.target.value as any)} className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                        <option value="bank_statement">Bank statement</option>
+                                        <option value="void_check">Void check</option>
+                                        <option value="utility_bill">Utility bill</option>
+                                      </select>
+                                    </div>
+                                    <div>
+                                      <label className="mb-1 block text-sm font-medium text-white/70">Upload document</label>
+                                      <input type="file" accept="image/*,application/pdf" aria-label="Upload document" onChange={(e) => setBankVerificationFile(e.target.files?.[0] || null)} className="w-full text-sm text-white" />
+                                    </div>
+                                    <button type="button" onClick={submitBankVerification} disabled={isSubmittingBankVerification} className="w-full rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/[0.03] disabled:opacity-50">
+                                      {isSubmittingBankVerification ? 'Submitting…' : 'Submit bank verification'}
+                                    </button>
+                                    {bankVerificationMessage && <div className="text-sm text-white/60">{bankVerificationMessage}</div>}
+                                  </>
+                                )
+                              })()}
+                              {isHaiti ? (
+                                <div className="border-t border-white/10 pt-3">
+                                  <div className="flex items-center justify-between gap-3">
+                                    <div className="text-sm font-medium text-white">Additional bank accounts</div>
+                                    <button type="button" onClick={() => setShowAddBankDestination((v) => !v)} className="text-sm font-medium text-brand-300">{showAddBankDestination ? 'Cancel' : 'Add bank account'}</button>
+                                  </div>
+                                  {addBankDestinationMessage ? <div className="mt-2 text-sm text-white/60">{addBankDestinationMessage}</div> : null}
+                                  {showAddBankDestination ? (
+                                    <div className="mt-3 space-y-3">
+                                      <div>
+                                        <label htmlFor="step2-add-bank" className="mb-1 block text-sm font-medium text-white/70">Bank</label>
+                                        <select id="step2-add-bank" value={newBankDestination.bankName} onChange={(e) => setNewBankDestination((p) => ({ ...p, bankName: e.target.value, customBankName: e.target.value === 'other' ? p.customBankName : '' }))} className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                          <option value="">Select a bank</option>
+                                          {banks.map((bank) => (<option key={bank.value} value={bank.value}>{bank.label}</option>))}
+                                        </select>
+                                      </div>
+                                      {newBankDestination.bankName === 'other' ? (
+                                        <div>
+                                          <label htmlFor="step2-custom-bank" className="mb-1 block text-sm font-medium text-white/70">Bank name</label>
+                                          <input id="step2-custom-bank" type="text" value={newBankDestination.customBankName} onChange={(e) => setNewBankDestination((p) => ({ ...p, customBankName: e.target.value }))} placeholder="Enter your bank name" className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                                        </div>
+                                      ) : null}
+                                      <div>
+                                        <label htmlFor="step2-acct-num" className="mb-1 block text-sm font-medium text-white/70">Account number</label>
+                                        <input id="step2-acct-num" type="text" value={newBankDestination.accountNumber} onChange={(e) => setNewBankDestination((p) => ({ ...p, accountNumber: e.target.value }))} placeholder="1234567890" className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                                      </div>
+                                      <div>
+                                        <label htmlFor="step2-acct-holder" className="mb-1 block text-sm font-medium text-white/70">Account holder name</label>
+                                        <input id="step2-acct-holder" type="text" value={newBankDestination.accountHolder} onChange={(e) => setNewBankDestination((p) => ({ ...p, accountHolder: e.target.value }))} placeholder="Your legal name" className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                                      </div>
+                                      <div>
+                                        <label htmlFor="step2-routing" className="mb-1 block text-sm font-medium text-white/70">Routing number (optional)</label>
+                                        <input id="step2-routing" type="text" value={newBankDestination.routingNumber} onChange={(e) => setNewBankDestination((p) => ({ ...p, routingNumber: e.target.value }))} className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                                      </div>
+                                      <div>
+                                        <label htmlFor="step2-swift" className="mb-1 block text-sm font-medium text-white/70">SWIFT code (optional)</label>
+                                        <input id="step2-swift" type="text" value={newBankDestination.swiftCode} onChange={(e) => setNewBankDestination((p) => ({ ...p, swiftCode: e.target.value }))} className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                                      </div>
+                                      <button type="button" onClick={addBankDestination} disabled={isAddingBankDestination} className="w-full rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/[0.03] disabled:opacity-50">
+                                        {isAddingBankDestination ? 'Adding…' : 'Add bank account'}
+                                      </button>
+                                      <p className="text-xs text-white/50">You'll need to submit a bank statement or void check for each bank account.</p>
+                                    </div>
+                                  ) : null}
+                                </div>
+                              ) : null}
+                            </div>
+                          </div>
+                        )}
+
+                        {!isStripeConnectAccount && config?.method === 'mobile_money' && hasPayoutSetup && (
+                          <div className="border-t border-white/10 pt-3">
+                            <div className="mb-3">
+                              <div className="text-sm font-medium text-white">Phone number</div>
+                              <div className="text-sm text-white/60">{phoneStatus === 'verified' ? 'Verified' : phoneStatus === 'failed' ? 'Needs attention' : 'Pending'}</div>
+                            </div>
+                            {phoneStatus !== 'verified' && (
+                              <div className="space-y-3">
+                                <button type="button" onClick={sendPhoneVerificationCode} disabled={isSendingPhoneCode} className="w-full rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/[0.03] disabled:opacity-50">
+                                  {isSendingPhoneCode ? 'Sending…' : 'Send verification code'}
+                                </button>
+                                <div>
+                                  <label htmlFor="step2-phone-code" className="mb-1 block text-sm font-medium text-white/70">Enter 6-digit code</label>
+                                  <input id="step2-phone-code" type="text" inputMode="numeric" value={phoneVerificationCode} onChange={(e) => setPhoneVerificationCode(e.target.value)} placeholder="123456" className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                                </div>
+                                <button type="button" onClick={submitPhoneVerificationCode} disabled={isSubmittingPhoneCode} className="w-full rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/[0.03] disabled:opacity-50">
+                                  {isSubmittingPhoneCode ? 'Verifying…' : 'Verify phone'}
+                                </button>
+                                {phoneVerificationMessage && <div className="text-sm text-white/60">{phoneVerificationMessage}</div>}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      <p className="mt-4 text-xs text-white/50">Verification is required to receive payouts and publish paid events.</p>
+                      <button type="button" onClick={() => setEditStep('done')} className="mt-4 w-full rounded-xl bg-brand-700 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-800">
+                        Done — back to overview
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 3 — Done */}
+                {editStep === 'done' && (
+                  <div className="rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 p-8 text-center">
+                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/15">
+                      <CheckCircle className="h-7 w-7 text-emerald-300" />
+                    </div>
+                    <h2 className="text-xl font-semibold text-white">You're all set!</h2>
+                    <p className="mt-2 text-sm text-white/60">Your payout details have been saved. Verification may take 1–2 business days.</p>
+                    <Link href="/organizer/settings/payouts" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-700 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
+                      Back to payouts
+                    </Link>
+                  </div>
+                )}
               </div>
             ) : (
-            /* Payout Profile Selector (advanced multi-profile view) */
+            /* ── NON-FOCUSED: existing multi-card layout ── */
+            <>
+            <div className="contents">
+            {/* Payout Profile Selector */}
             <div className="order-1 bg-[#141414] rounded-xl border border-white/10 shadow-sm overflow-hidden">
               <div className="p-6">
                 <h2 className="text-lg font-semibold text-white mb-2">Payout profile</h2>
@@ -1130,7 +1481,6 @@ export default function PayoutsPageNew({
                 ) : null}
               </div>
             </div>
-            )}
 
             {/* Verification Card */}
             <div className="order-3 bg-[#141414] rounded-xl border border-white/10 shadow-sm overflow-hidden">
@@ -1181,6 +1531,7 @@ export default function PayoutsPageNew({
                           <div>
                             <label className="block text-sm font-medium text-white/70 mb-1">Select bank account</label>
                             <select
+                              aria-label="Select bank account"
                               value={selectedBankDestinationId}
                               onChange={(e) => setSelectedBankDestinationId(e.target.value)}
                               className="w-full px-3 py-2 border border-white/15 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
@@ -1235,6 +1586,7 @@ export default function PayoutsPageNew({
                               <div>
                                 <label className="block text-sm font-medium text-white/70 mb-1">Document type</label>
                                 <select
+                                  aria-label="Document type"
                                   value={bankVerificationType}
                                   onChange={(e) => setBankVerificationType(e.target.value as any)}
                                   className="w-full px-3 py-2 border border-white/15 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
@@ -1250,12 +1602,14 @@ export default function PayoutsPageNew({
                                 <input
                                   type="file"
                                   accept="image/*,application/pdf"
+                                  aria-label="Upload document"
                                   onChange={(e) => setBankVerificationFile(e.target.files?.[0] || null)}
                                   className="w-full text-sm"
                                 />
                               </div>
 
                               <button
+                                type="button"
                                 onClick={submitBankVerification}
                                 disabled={isSubmittingBankVerification}
                                 className="w-full px-4 py-2 bg-[#141414] border border-white/15 text-white/70 rounded-lg font-medium hover:bg-[#0a0a0a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -1292,6 +1646,7 @@ export default function PayoutsPageNew({
                                 <div>
                                   <label className="block text-sm font-medium text-white/70 mb-1">Bank</label>
                                   <select
+                                    aria-label="Bank"
                                     value={newBankDestination.bankName}
                                     onChange={(e) =>
                                       setNewBankDestination((p) => ({
@@ -1352,6 +1707,7 @@ export default function PayoutsPageNew({
                                   <label className="block text-sm font-medium text-white/70 mb-1">Routing number (optional)</label>
                                   <input
                                     type="text"
+                                    aria-label="Routing number"
                                     value={newBankDestination.routingNumber}
                                     onChange={(e) => setNewBankDestination((p) => ({ ...p, routingNumber: e.target.value }))}
                                     className="w-full px-3 py-2 border border-white/15 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
@@ -1363,6 +1719,7 @@ export default function PayoutsPageNew({
                                   <label className="block text-sm font-medium text-white/70 mb-1">SWIFT code (optional)</label>
                                   <input
                                     type="text"
+                                    aria-label="SWIFT code"
                                     value={newBankDestination.swiftCode}
                                     onChange={(e) => setNewBankDestination((p) => ({ ...p, swiftCode: e.target.value }))}
                                     className="w-full px-3 py-2 border border-white/15 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
@@ -1408,6 +1765,7 @@ export default function PayoutsPageNew({
                       {phoneStatus !== 'verified' && (
                         <div className="space-y-3">
                           <button
+                            type="button"
                             onClick={sendPhoneVerificationCode}
                             disabled={isSendingPhoneCode}
                             className="w-full px-4 py-2 bg-[#141414] border border-white/15 text-white/70 rounded-lg font-medium hover:bg-[#0a0a0a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -1428,6 +1786,7 @@ export default function PayoutsPageNew({
                           </div>
 
                           <button
+                            type="button"
                             onClick={submitPhoneVerificationCode}
                             disabled={isSubmittingPhoneCode}
                             className="w-full px-4 py-2 bg-[#141414] border border-white/15 text-white/70 rounded-lg font-medium hover:bg-[#0a0a0a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -1478,6 +1837,7 @@ export default function PayoutsPageNew({
                     <div className="mt-3 flex gap-2">
                       {!stripeStatus?.connected ? (
                         <button
+                          type="button"
                           onClick={startStripeOnboarding}
                           className="px-3 py-2 bg-brand-700 text-white rounded-lg text-sm font-medium hover:bg-brand-800"
                         >
@@ -1486,12 +1846,14 @@ export default function PayoutsPageNew({
                       ) : (
                         <>
                           <button
+                            type="button"
                             onClick={startStripeOnboarding}
                             className="px-3 py-2 bg-[#141414] border border-white/15 text-white/70 rounded-lg text-sm font-medium hover:bg-[#0a0a0a]"
                           >
                             Continue onboarding
                           </button>
                           <button
+                            type="button"
                             onClick={openStripeDashboard}
                             className="px-3 py-2 bg-[#141414] border border-white/15 text-white/70 rounded-lg text-sm font-medium hover:bg-[#0a0a0a]"
                           >
@@ -1560,43 +1922,6 @@ export default function PayoutsPageNew({
                   </div>
                 ) : null}
 
-                <div className="mb-4 border border-white/10 rounded-lg p-3 sm:p-4 bg-[#141414]">
-                  <p className="text-sm font-semibold text-white">Payout options</p>
-                  <div className="mt-2 space-y-2 text-[12px] sm:text-sm text-white/70">
-                    <div className="flex items-start gap-2">
-                      <span className="mt-0.5">•</span>
-                      <span>
-                        <span className="font-medium text-white">Haiti:</span> Bank transfer or Mobile money (MonCash).
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="mt-0.5">•</span>
-                      <span>
-                        <span className="font-medium text-white">US/Canada:</span> Stripe Connect (shows when Account location is set to United States/Canada).
-                      </span>
-                    </div>
-                  </div>
-
-                  {isHaiti ? (
-                    <div className="mt-3 border-t border-white/10 pt-3">
-                      <p className="text-sm font-medium text-white">Fees (Haiti)</p>
-                      <p className="text-[12px] sm:text-sm text-white/60 mt-1">
-                        Mobile money is faster but typically has higher fees than bank payouts.
-                      </p>
-                      <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <div className="border border-white/10 rounded-lg p-3 bg-[#0a0a0a]">
-                          <p className="text-sm font-semibold text-white">MonCash / NatCash</p>
-                          <p className="text-[12px] sm:text-sm text-white/60">Instant (prefunding) · Higher fees</p>
-                        </div>
-                        <div className="border border-white/10 rounded-lg p-3 bg-[#0a0a0a]">
-                          <p className="text-sm font-semibold text-white">Bank payout</p>
-                          <p className="text-[12px] sm:text-sm text-white/60">1–3 days · Lower fees</p>
-                        </div>
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-
                 {/* Checklist + Setup Guidance */}
 
 
@@ -1660,6 +1985,7 @@ export default function PayoutsPageNew({
                     </p>
 
                     <button
+                      type="button"
                       onClick={() => setIsEditing(true)}
                       className="w-full px-4 py-2 bg-[#141414] border border-white/15 text-white/70 rounded-lg font-medium hover:bg-[#0a0a0a] transition-colors"
                     >
@@ -1675,6 +2001,7 @@ export default function PayoutsPageNew({
                         Account location <span className="text-red-500">*</span>
                       </label>
                       <select
+                        aria-label="Account location"
                         value={formData.accountLocation}
                         onChange={(e) => {
                           const nextLocation = e.target.value
@@ -1762,6 +2089,7 @@ export default function PayoutsPageNew({
 
                         {bankDestinations && bankDestinations.length ? (
                           <select
+                            aria-label="Select bank account"
                             value={selectedBankDestinationId}
                             onChange={(e) => setSelectedBankDestinationId(e.target.value)}
                             className="w-full px-3 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
@@ -1803,6 +2131,7 @@ export default function PayoutsPageNew({
                             Provider
                           </label>
                           <select
+                            aria-label="Provider"
                             value={formData.provider}
                             onChange={(e) => setFormData({ ...formData, provider: e.target.value })}
                             className="w-full px-3 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
@@ -1861,7 +2190,8 @@ export default function PayoutsPageNew({
 
                     <div className="flex gap-3 pt-2">
                       <button
-                        onClick={handleSavePayoutDetails}
+                        type="button"
+                        onClick={() => handleSavePayoutDetails()}
                         disabled={isSaving || payoutChangeVerificationRequired}
                         className="flex-1 px-4 py-2 bg-brand-700 text-white rounded-lg font-medium hover:bg-brand-800 transition-colors disabled:bg-white/20 disabled:cursor-not-allowed"
                       >
@@ -1871,6 +2201,7 @@ export default function PayoutsPageNew({
                       </button>
                       {hasPayoutSetup && (
                         <button
+                          type="button"
                           onClick={() => {
                             setIsEditing(false)
                             setError(null)
@@ -1891,22 +2222,9 @@ export default function PayoutsPageNew({
               </div>
             </div>
 
-            {/* Fees & Rules Card */}
-            <div className="order-4 bg-[#141414] rounded-xl border border-white/10 shadow-sm overflow-hidden">
-              <Link href="/organizer/settings/payouts/fees" className="block p-6 hover:bg-[#0a0a0a] transition-colors">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="text-base font-semibold text-white mb-1">
-                      Fees & rules
-                    </h3>
-                    <p className="text-sm text-white/60">
-                      Platform and processing fees, payout schedule.
-                    </p>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-white/40 flex-shrink-0 mt-0.5" />
-                </div>
-              </Link>
-            </div>
+            </>
+          )}
+
           </div>
 
           {/* Right Column - Earnings + Payouts */}
@@ -1921,6 +2239,7 @@ export default function PayoutsPageNew({
                     Earnings by event
                   </h2>
                   <select
+                    aria-label="Earnings period"
                     value={period}
                     onChange={(e) => setPeriod(e.target.value as any)}
                     className="px-3 py-1.5 border border-white/15 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
