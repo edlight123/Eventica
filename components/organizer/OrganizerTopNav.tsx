@@ -34,7 +34,10 @@ export function OrganizerTopNav({ draftEvents = 0, pendingPayouts = 0 }: Organiz
   const isActive = (href: string) =>
     href === '/organizer' ? pathname === '/organizer' : pathname?.startsWith(href)
 
-  const financeActive = pathname?.startsWith('/organizer/earnings') || pathname?.startsWith('/organizer/payouts')
+  const financeActive =
+    pathname?.startsWith('/organizer/finance') ||
+    pathname?.startsWith('/organizer/earnings') ||
+    pathname?.startsWith('/organizer/payouts')
   const settingsActive = pathname?.startsWith('/organizer/settings')
 
   return (
@@ -66,7 +69,7 @@ export function OrganizerTopNav({ draftEvents = 0, pendingPayouts = 0 }: Organiz
         {/* Right: finance + settings */}
         <div className="flex shrink-0 items-center gap-1">
           <Link
-            href="/organizer/earnings"
+            href="/organizer/finance"
             aria-label="Finance"
             className={`relative grid h-9 w-9 place-items-center rounded-lg transition-colors ${
               financeActive ? 'bg-white/10 text-white' : 'text-white/55 hover:bg-white/5 hover:text-white'
