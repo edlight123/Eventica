@@ -30,15 +30,17 @@ export default function CategoryChart({ data }: CategoryChartProps) {
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
           ))}
         </Pie>
-        <Tooltip 
+        <Tooltip
           contentStyle={{
-            backgroundColor: '#FFFFFF',
-            border: '1px solid #E5E7EB',
-            borderRadius: '8px',
-            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+            backgroundColor: '#1a1a1a',
+            border: '1px solid rgba(255,255,255,0.12)',
+            borderRadius: '10px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+            color: '#fff',
           }}
+          itemStyle={{ color: '#fff' }}
         />
-        <Legend />
+        <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.6)', fontSize: 12 }} />
       </PieChart>
     </ResponsiveContainer>
   );

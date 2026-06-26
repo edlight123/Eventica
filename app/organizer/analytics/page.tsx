@@ -4,12 +4,10 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import SalesChart from '@/components/charts/SalesChart'
 import CategoryChart from '@/components/charts/CategoryChart'
-import { TrendingUp, DollarSign, Ticket, Calendar, ArrowLeft } from 'lucide-react'
-import Badge from '@/components/ui/Badge'
+import { TrendingUp, DollarSign, Ticket, Calendar } from 'lucide-react'
 import { revalidatePath } from 'next/cache'
 import { formatMoneyFromCents, normalizeCurrency } from '@/lib/money'
-import { StatTile, EmptyState, Card } from '@/components/ui/kit'
-import { EditorialHeader, EditorialSectionHeading } from '@/components/ui/EditorialHeader'
+import { PageHeader, MetricCard, SectionHeader, OrgEmptyState } from '@/components/organizer/ui'
 
 export const revalidate = 120 // Cache for 2 minutes
 
@@ -170,101 +168,85 @@ export default async function AnalyticsPage() {
   }
 
   return (
-    <div className="bg-[#0a0a0a]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <EditorialHeader
+    <div className="min-h-screen bg-[#0a0a0a]">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+        <PageHeader
           eyebrow="Organizer"
           title="Analytics"
-          subtitle="Track your event performance and insights"
-          className="mb-8"
-          actions={
-            <Link
-              href="/organizer/events"
-              className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-[#141414] px-4 py-2.5 text-sm font-semibold text-white/70 transition-colors hover:border-brand-300 hover:text-brand-300"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Events
-            </Link>
-          }
+          subtitle="Track your event performance and insights."
         />
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatTile
+        {/* KPI row */}
+        <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <MetricCard
             icon={Calendar}
             label="Total Events"
             value={totalEvents}
-            sublabel={`${publishedEvents} Published`}
+            sublabel={`${publishedEvents} published`}
           />
-
-          <StatTile
+          <MetricCard
             icon={Ticket}
             label="Tickets Sold"
             value={totalTicketsSold}
             sublabel="Across all events"
           />
-
-          <StatTile
+          <MetricCard
             icon={DollarSign}
             label="Total Revenue"
             value={formatMoneyFromCents(totalRevenueCents, organizerCurrency, 'en-US', { currencyDisplay: 'code' })}
             sublabel="Lifetime earnings"
           />
-
-          <StatTile
+          <MetricCard
             icon={TrendingUp}
-            label="Avg per Event"
+            label="Avg / Event"
             value={totalEvents > 0 ? (totalTicketsSold / totalEvents).toFixed(1) : '0'}
             sublabel="Tickets per event"
           />
         </div>
 
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Sales Chart */}
-          <Card className="p-6">
-            <EditorialSectionHeading eyebrow="Last 7 days" title="Sales trend" className="mb-5" />
+        {/* Charts */}
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="rounded-2xl border border-white/10 bg-[#141414] p-6">
+            <SectionHeader eyebrow="Last 7 days" title="Sales trend" className="mb-5" />
             <SalesChart data={salesChartData} currency={organizerCurrency} />
-            <div className="flex items-center justify-center gap-6 mt-4">
+            <div className="mt-4 flex justify-center gap-6">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-brand-700 rounded-full"></div>
-                <span className="text-sm text-white/60">Tickets Sold</span>
+                <div className="h-2.5 w-2.5 rounded-full bg-brand-700" />
+                <span className="text-xs text-white/50">Tickets Sold</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-brand-500 rounded-full"></div>
-                <span className="text-sm text-white/60">Revenue</span>
+                <div className="h-2.5 w-2.5 rounded-full bg-brand-400" />
+                <span className="text-xs text-white/50">Revenue</span>
               </div>
             </div>
-          </Card>
+          </div>
 
-          {/* Category Distribution */}
-          <Card className="p-6">
-            <EditorialSectionHeading title="Events by category" className="mb-5" />
+          <div className="rounded-2xl border border-white/10 bg-[#141414] p-6">
+            <SectionHeader title="Events by category" className="mb-5" />
             {categoryChartData.length > 0 ? (
               <CategoryChart data={categoryChartData} />
             ) : (
-              <div className="flex items-center justify-center h-[300px] text-white/50">
-                No category data available
+              <div className="flex h-[300px] items-center justify-center text-sm text-white/40">
+                No category data yet
               </div>
             )}
-          </Card>
+          </div>
         </div>
 
-        {/* Top Performing Events */}
-        <Card className="p-8">
-          <EditorialSectionHeading eyebrow="Leaderboard" title="Top performing events" className="mb-6" />
+        {/* Top events */}
+        <div className="mt-6 rounded-2xl border border-white/10 bg-[#141414] p-6">
+          <SectionHeader eyebrow="Leaderboard" title="Top performing events" className="mb-6" />
           {eventsWithSales.length === 0 ? (
-            <EmptyState
+            <OrgEmptyState
               icon={Calendar}
-              title="No Events Yet"
-              description="Create your first event to see analytics!"
-              className="border-0"
+              title="No events yet"
+              description="Create your first event to see analytics."
               action={
                 <Link
                   href="/organizer/events/new"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-brand-700 text-white font-semibold hover:bg-brand-800 transition-colors"
+                  className="inline-flex items-center gap-2 rounded-lg bg-brand-700 px-6 py-3 font-semibold text-white hover:bg-brand-800 transition-colors"
                 >
-                  <Calendar className="w-5 h-5" />
+                  <Calendar className="h-5 w-5" />
                   Create Event
                 </Link>
               }
@@ -272,38 +254,50 @@ export default async function AnalyticsPage() {
           ) : (
             <div className="space-y-3">
               {eventsWithSales.slice(0, 10).map((event: any, index: number) => (
-                <div key={event.id} className="flex items-center gap-4 p-5 bg-[#0a0a0a] rounded-xl hover:bg-white/5 transition-colors border border-white/10">
-                  <div className="w-10 h-10 bg-brand-700 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
-                    #{index + 1}
+                <div
+                  key={event.id}
+                  className="flex items-center gap-4 rounded-xl border border-white/10 bg-[#0a0a0a] p-4 transition-colors hover:bg-white/[0.04]"
+                >
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-700 font-bold text-white text-sm">
+                    {index + 1}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <Link href={`/organizer/events/${event.id}`} className="font-bold text-white hover:text-brand-300 transition-colors block truncate">
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      href={`/organizer/events/${event.id}`}
+                      className="block truncate font-semibold text-white hover:text-brand-300 transition-colors"
+                    >
                       {event.title}
                     </Link>
-                    <p className="text-sm text-white/60 mt-1">
-                      {new Date(event.start_datetime).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                    <p className="text-xs text-white/50 mt-0.5">
+                      {new Date(event.start_datetime).toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
                     </p>
                   </div>
-                  <div className="flex items-center gap-6">
-                    <div className="text-center">
-                      <p className="text-xs text-white/50 font-semibold uppercase mb-1">Tickets</p>
-                      <p className="text-2xl font-bold text-brand-300">{event.ticketCount}</p>
+                  <div className="flex shrink-0 items-center gap-6">
+                    <div className="text-right">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-white/40">Tickets</p>
+                      <p className="text-xl font-bold text-brand-300">{event.ticketCount}</p>
                     </div>
-                    <div className="text-center">
-                      <p className="text-xs text-white/50 font-semibold uppercase mb-1">Revenue</p>
-                      <p className="text-2xl font-bold text-white">
+                    <div className="text-right">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-white/40">Revenue</p>
+                      <p className="text-xl font-bold text-white">
                         {formatMoneyFromCents(event.revenueCents, organizerCurrency, 'en-US', { currencyDisplay: 'code' })}
                       </p>
                     </div>
                     {!event.is_published && (
-                      <Badge variant="neutral" size="md">Draft</Badge>
+                      <span className="rounded-full bg-white/10 px-2.5 py-1 text-xs font-medium text-white/60">
+                        Draft
+                      </span>
                     )}
                   </div>
                 </div>
               ))}
             </div>
           )}
-        </Card>
+        </div>
       </div>
     </div>
   )

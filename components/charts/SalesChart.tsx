@@ -41,34 +41,41 @@ export default function SalesChart({ data, currency = 'HTG' }: SalesChartProps) 
             <stop offset="95%" stopColor="#14B8A6" stopOpacity={0}/>
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-        <XAxis 
-          dataKey="date" 
-          stroke="#6B7280"
-          style={{ fontSize: '12px' }}
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+        <XAxis
+          dataKey="date"
+          stroke="rgba(255,255,255,0.25)"
+          tick={{ fill: 'rgba(255,255,255,0.45)', fontSize: 11 }}
+          axisLine={{ stroke: 'rgba(255,255,255,0.08)' }}
+          tickLine={false}
         />
-        <YAxis 
-          stroke="#6B7280"
-          style={{ fontSize: '12px' }}
+        <YAxis
+          stroke="rgba(255,255,255,0.25)"
+          tick={{ fill: 'rgba(255,255,255,0.45)', fontSize: 11 }}
+          axisLine={{ stroke: 'rgba(255,255,255,0.08)' }}
+          tickLine={false}
           tickFormatter={(value) => {
             const n = Number(value || 0)
             if (!Number.isFinite(n)) return ''
-            // Avoid showing long decimals for the mixed-axis chart.
             if (Math.abs(n) >= 1000) return `${Math.round(n / 100) / 10}k`
             return String(Math.round(n))
           }}
         />
-        <Tooltip 
-          formatter={(value: any, name: any) => {
+        <Tooltip
+          formatter={(value: unknown, name: unknown) => {
             if (name === 'revenue') return [formatRevenue(value), 'Revenue']
             return [Number(value || 0), 'Tickets']
           }}
           contentStyle={{
-            backgroundColor: '#FFFFFF',
-            border: '1px solid #E5E7EB',
-            borderRadius: '8px',
-            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+            backgroundColor: '#1a1a1a',
+            border: '1px solid rgba(255,255,255,0.12)',
+            borderRadius: '10px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+            color: '#fff',
           }}
+          labelStyle={{ color: 'rgba(255,255,255,0.6)', fontSize: 11 }}
+          itemStyle={{ color: '#fff' }}
+          cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 }}
         />
         <Area 
           type="monotone" 
