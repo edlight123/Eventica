@@ -257,7 +257,7 @@ export default function OrganizerEventsPage() {
             title={t('events_page.title', 'My Events')}
             subtitle={t('events_page.subtitle', 'Create, manage, and track all of your events.')}
           />
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="mt-8 space-y-3">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <EventCardSkeleton key={i} />
             ))}
@@ -380,7 +380,7 @@ export default function OrganizerEventsPage() {
         {/* Main Content */}
         <div className="mt-6">
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-3">
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <EventCardSkeleton key={i} />
               ))}
@@ -426,7 +426,7 @@ export default function OrganizerEventsPage() {
             />
           ) : (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="space-y-3">
                 {currentEvents.map((event) => (
                   <OrganizerEventCard
                     key={event.id}

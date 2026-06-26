@@ -1,38 +1,20 @@
 export default function EventCardSkeleton() {
   return (
-    <div className="bg-[#141414] rounded-2xl shadow-poster-sm overflow-hidden border border-white/10 animate-pulse">
-      {/* Poster Skeleton (matches the 4:5 poster-led card) */}
-      <div className="relative aspect-[4/5] bg-white/10">
-        <div className="absolute inset-x-0 bottom-0 space-y-2 p-3.5">
-          <div className="h-5 w-20 rounded-full bg-white/10" />
-          <div className="h-6 w-3/4 rounded bg-white/10" />
-          <div className="h-3 w-1/2 rounded bg-white/10" />
-        </div>
+    <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-[#141414] p-3 animate-pulse">
+      {/* Poster thumbnail */}
+      <div className="h-[72px] w-[58px] shrink-0 rounded-lg bg-white/10" />
+
+      {/* Title + meta */}
+      <div className="min-w-0 flex-1 space-y-2">
+        <div className="h-4 w-20 rounded-full bg-white/10" />
+        <div className="h-4 w-2/3 rounded bg-white/10" />
+        <div className="h-3 w-1/2 rounded bg-white/10" />
       </div>
 
-      {/* Management footer */}
-      <div className="p-4 space-y-3.5">
-        {/* Progress Bar */}
-        <div className="space-y-2">
-          <div className="flex justify-between">
-            <div className="h-3 bg-white/10 rounded w-20" />
-            <div className="h-3 bg-white/10 rounded w-12" />
-          </div>
-          <div className="h-2 bg-white/10 rounded-full w-full" />
-        </div>
-
-        {/* Revenue & Check-ins */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="h-16 bg-white/10 rounded-xl" />
-          <div className="h-16 bg-white/10 rounded-xl" />
-        </div>
-
-        {/* Buttons */}
-        <div className="flex gap-2">
-          <div className="flex-1 h-9 bg-white/10 rounded-lg" />
-          <div className="flex-1 h-9 bg-white/10 rounded-lg" />
-          <div className="h-9 w-9 bg-white/10 rounded-lg" />
-        </div>
+      {/* Stats */}
+      <div className="hidden items-center gap-6 sm:flex">
+        <div className="h-8 w-12 rounded bg-white/10" />
+        <div className="h-8 w-16 rounded bg-white/10" />
       </div>
     </div>
   )
