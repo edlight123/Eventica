@@ -41,50 +41,50 @@ export default function MobileKeyFacts({
   }
 
   return (
-    <div className="md:hidden bg-gray-50 border-y border-gray-200 py-4">
+    <div className="md:hidden border-y border-white/10 py-4">
       <div className="grid grid-cols-2 gap-3 px-4">
         {/* Date/Time */}
-        <div className="bg-gray-50 rounded-xl p-3 border border-gray-200">
+        <div className="bg-white/5 rounded-xl p-3 border border-white/10">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-brand-100 rounded-lg flex items-center justify-center">
-              <Calendar className="w-4 h-4 text-brand-600" />
+            <div className="w-8 h-8 bg-brand-500/15 rounded-lg flex items-center justify-center">
+              <Calendar className="w-4 h-4 text-brand-400" />
             </div>
-            <span className="text-xs font-semibold text-gray-500">{t('date')}</span>
+            <span className="text-xs font-semibold text-white/50">{t('date')}</span>
           </div>
-          <p className="text-sm font-bold text-gray-900 line-clamp-1">
+          <p className="text-sm font-bold text-white line-clamp-1">
             {format(new Date(startDate), 'MMM d, yyyy')}
           </p>
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-white/55">
             {format(new Date(startDate), 'h:mm a')}
           </p>
         </div>
 
         {/* Location */}
-        <div className="bg-gray-50 rounded-xl p-3 border border-gray-200">
+        <div className="bg-white/5 rounded-xl p-3 border border-white/10">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-brand-100 rounded-lg flex items-center justify-center">
-              <MapPin className="w-4 h-4 text-brand-600" />
+            <div className="w-8 h-8 bg-brand-500/15 rounded-lg flex items-center justify-center">
+              <MapPin className="w-4 h-4 text-brand-400" />
             </div>
-            <span className="text-xs font-semibold text-gray-500">{t('location')}</span>
+            <span className="text-xs font-semibold text-white/50">{t('location')}</span>
           </div>
-          <p className="text-sm font-bold text-gray-900 line-clamp-1 min-w-0 break-words">
+          <p className="text-sm font-bold text-white line-clamp-1 min-w-0 break-words">
             {venueName}
           </p>
           <button
             onClick={handleOpenMaps}
-            className="text-xs text-brand-600 font-medium hover:text-brand-700 mt-1"
+            className="text-xs text-brand-400 font-medium hover:text-brand-300 mt-1"
           >
             {t('open_in_maps')} →
           </button>
         </div>
 
         {/* Price */}
-        <div className="bg-gray-50 rounded-xl p-3 border border-gray-200">
+        <div className="bg-white/5 rounded-xl p-3 border border-white/10">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-              <DollarSign className="w-4 h-4 text-green-600" />
+            <div className="w-8 h-8 bg-emerald-500/15 rounded-lg flex items-center justify-center">
+              <DollarSign className="w-4 h-4 text-emerald-400" />
             </div>
-            <span className="text-xs font-semibold text-gray-500">{t('price')}</span>
+            <span className="text-xs font-semibold text-white/50">{t('price')}</span>
           </div>
           {isFree ? (
             <p className="text-sm font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">
@@ -92,23 +92,23 @@ export default function MobileKeyFacts({
             </p>
           ) : (
             <>
-              <p className="text-sm font-bold text-gray-900">
+              <p className="text-sm font-bold text-white">
                 {ticketPrice} {currency}
               </p>
-              <p className="text-xs text-gray-600">{t('per_ticket')}</p>
+              <p className="text-xs text-white/55">{t('per_ticket')}</p>
             </>
           )}
         </div>
 
         {/* Availability */}
-        <div className="bg-gray-50 rounded-xl p-3 border border-gray-200">
+        <div className="bg-white/5 rounded-xl p-3 border border-white/10">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-brand-100 rounded-lg flex items-center justify-center">
-              <Users className="w-4 h-4 text-brand-600" />
+            <div className="w-8 h-8 bg-brand-500/15 rounded-lg flex items-center justify-center">
+              <Users className="w-4 h-4 text-brand-400" />
             </div>
-            <span className="text-xs font-semibold text-gray-500">{t('ticket.tickets')}</span>
+            <span className="text-xs font-semibold text-white/50">{t('ticket.tickets')}</span>
           </div>
-          <p className={`text-sm font-bold ${isSoldOut ? 'text-red-600' : remainingTickets < 10 ? 'text-amber-600' : 'text-gray-900'}`}>
+          <p className={`text-sm font-bold ${isSoldOut ? 'text-red-400' : remainingTickets < 10 ? 'text-amber-400' : 'text-white'}`}>
             {isSoldOut ? t('ticket.sold_out') : t('ticket.remaining', { count: remainingTickets })}
           </p>
           {!isSoldOut && remainingTickets < 10 && (

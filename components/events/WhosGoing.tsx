@@ -21,7 +21,7 @@ function Avatar({ user, size = 40 }: { user: PublicUserSummary; size?: number })
   const initial = (user.displayName || 'U').charAt(0).toUpperCase()
   return (
     <div
-      className="rounded-full overflow-hidden bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white font-semibold ring-2 ring-white"
+      className="rounded-full overflow-hidden bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white font-semibold ring-2 ring-[#0a0a0a]"
       style={{ width: size, height: size, fontSize: size * 0.4 }}
       title={user.displayName}
     >
@@ -58,11 +58,11 @@ export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl shadow-soft border border-gray-100 p-4 md:p-6">
-        <div className="h-5 w-32 bg-gray-100 rounded mb-4 animate-pulse" />
+      <div className="bg-white/5 rounded-2xl border border-white/10 p-4 md:p-6">
+        <div className="h-5 w-32 bg-white/10 rounded mb-4 animate-pulse" />
         <div className="flex -space-x-3">
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="w-10 h-10 rounded-full bg-gray-100 ring-2 ring-white animate-pulse" />
+            <div key={i} className="w-10 h-10 rounded-full bg-white/10 ring-2 ring-[#0a0a0a] animate-pulse" />
           ))}
         </div>
       </div>
@@ -79,13 +79,13 @@ export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
   const remaining = Math.max(0, totalGoing - namedCount - (viewerIsGoing ? 1 : 0))
 
   return (
-    <div className="bg-white rounded-2xl shadow-soft border border-gray-100 p-4 md:p-6">
+    <div className="bg-white/5 rounded-2xl border border-white/10 p-4 md:p-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
-          <Users className="w-5 h-5 text-brand-600" />
+        <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
+          <Users className="w-5 h-5 text-brand-400" />
           Who&apos;s going
         </h2>
-        <span className="text-sm font-semibold text-gray-500">
+        <span className="text-sm font-semibold text-white/50">
           {totalGoing} {totalGoing === 1 ? 'person' : 'people'}
         </span>
       </div>
@@ -93,7 +93,7 @@ export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
       {/* Friends going */}
       {friendsGoing.length > 0 && (
         <div className="mb-4">
-          <p className="text-xs font-semibold text-teal-700 uppercase tracking-wide mb-2">
+          <p className="text-xs font-semibold text-brand-300 uppercase tracking-wide mb-2">
             {friendsGoing.length} {friendsGoing.length === 1 ? 'friend' : 'friends'} going
           </p>
           <div className="flex flex-wrap gap-3">
@@ -101,10 +101,10 @@ export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
               <Link
                 key={f.uid}
                 href={`/profile/organizer/${f.uid}`}
-                className="flex items-center gap-2 bg-teal-50 hover:bg-teal-100 rounded-full pl-1 pr-3 py-1 transition-colors"
+                className="flex items-center gap-2 bg-brand-500/15 hover:bg-brand-500/25 rounded-full pl-1 pr-3 py-1 transition-colors"
               >
                 <Avatar user={f} size={28} />
-                <span className="text-sm font-medium text-gray-900 truncate max-w-[120px]">{f.displayName}</span>
+                <span className="text-sm font-medium text-white truncate max-w-[120px]">{f.displayName}</span>
               </Link>
             ))}
           </div>
@@ -117,7 +117,7 @@ export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
           <div className="flex -space-x-3">
             {viewerIsGoing && (
               <div
-                className="rounded-full w-10 h-10 bg-brand-600 flex items-center justify-center text-white text-xs font-semibold ring-2 ring-white"
+                className="rounded-full w-10 h-10 bg-brand-600 flex items-center justify-center text-white text-xs font-semibold ring-2 ring-[#0a0a0a]"
                 title="You're going"
               >
                 You
@@ -127,12 +127,12 @@ export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
               <Avatar key={u.uid} user={u} size={40} />
             ))}
             {remaining > 0 && (
-              <div className="rounded-full w-10 h-10 bg-gray-100 flex items-center justify-center text-gray-600 text-xs font-semibold ring-2 ring-white">
+              <div className="rounded-full w-10 h-10 bg-white/10 flex items-center justify-center text-white/70 text-xs font-semibold ring-2 ring-[#0a0a0a]">
                 +{remaining}
               </div>
             )}
           </div>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-white/55">
             {viewerIsGoing ? "You're going" : `${totalGoing} going`}
           </p>
         </div>
@@ -140,13 +140,13 @@ export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
 
       {/* Privacy note when nobody is publicly visible */}
       {friendsGoing.length === 0 && pile.length === 0 && (
-        <div className="flex items-start gap-2 text-sm text-gray-500">
+        <div className="flex items-start gap-2 text-sm text-white/50">
           <Lock className="w-4 h-4 mt-0.5 flex-shrink-0" />
           <p>
             {totalGoing} {totalGoing === 1 ? 'person is' : 'people are'} going. Attendees keep their
             attendance private.{' '}
             {currentUserId && (
-              <Link href="/profile" className="text-teal-600 hover:underline font-medium">
+              <Link href="/profile" className="text-brand-300 hover:underline font-medium">
                 Show that you&apos;re going
               </Link>
             )}

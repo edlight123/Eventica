@@ -27,7 +27,7 @@ export function DiscoverFilterChipsStrip({
       <div className="scrollbar-hide flex items-center gap-3 overflow-x-auto px-4 sm:px-6 lg:px-8 py-2.5">
         <span className="sr-only">{t('common.when')}</span>
         <DateChips currentDate={currentDate} bare />
-        <div className="h-6 w-px shrink-0 bg-gray-200" aria-hidden="true" />
+        <div className="h-6 w-px shrink-0 bg-white/15" aria-hidden="true" />
         <span className="sr-only">{t('common.categories')}</span>
         <CategoryChips selectedCategories={selectedCategories} bare />
       </div>

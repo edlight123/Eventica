@@ -17,17 +17,17 @@ function AccordionSection({ title, icon, defaultOpen = false, children }: Accord
   const [isOpen, setIsOpen] = useState(defaultOpen)
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+    <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
+        className="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-white/5 transition-colors"
       >
         <div className="flex items-center gap-2.5">
           {icon}
-          <span className="font-bold text-gray-900 text-base">{title}</span>
+          <span className="font-bold text-white text-base">{title}</span>
         </div>
         <ChevronDown
-          className={`w-5 h-5 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-5 h-5 text-white/50 transition-transform ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
       {isOpen && (
@@ -75,15 +75,15 @@ export default function MobileAccordions({
       {/* About */}
       <AccordionSection
         title={t('events.about_event')}
-        icon={<Sparkles className="w-5 h-5 text-brand-600" />}
+        icon={<Sparkles className="w-5 h-5 text-brand-400" />}
         defaultOpen={true}
       >
-        <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed mb-3">
+        <p className="text-sm text-white/70 whitespace-pre-wrap leading-relaxed mb-3">
           {description}
         </p>
         {tags && tags.length > 0 && (
-          <div className="pt-3 border-t border-gray-100">
-            <h4 className="text-xs font-semibold text-gray-500 mb-2">{t('events.tags').toUpperCase()}</h4>
+          <div className="pt-3 border-t border-white/10">
+            <h4 className="text-xs font-semibold text-white/50 mb-2">{t('events.tags').toUpperCase()}</h4>
             <div className="flex flex-wrap gap-2">
               {tags.map((tag: string) => (
                 <Badge key={tag} variant="neutral" size="sm">
@@ -98,34 +98,34 @@ export default function MobileAccordions({
       {/* Venue */}
       <AccordionSection
         title={t('events.venue_directions')}
-        icon={<MapPin className="w-5 h-5 text-brand-600" />}
+        icon={<MapPin className="w-5 h-5 text-brand-400" />}
       >
         <div className="space-y-3">
           <div>
-            <p className="text-xs font-semibold text-gray-500 mb-1">{t('events.venue_name').toUpperCase()}</p>
-            <p className="text-sm font-semibold text-gray-900">{venueName}</p>
+            <p className="text-xs font-semibold text-white/50 mb-1">{t('events.venue_name').toUpperCase()}</p>
+            <p className="text-sm font-semibold text-white">{venueName}</p>
           </div>
           <div>
-            <p className="text-xs font-semibold text-gray-500 mb-1">{t('events.address').toUpperCase()}</p>
-            <p className="text-sm text-gray-700 break-words">{address}</p>
-            <p className="text-sm text-gray-700">{commune}, {city}</p>
+            <p className="text-xs font-semibold text-white/50 mb-1">{t('events.address').toUpperCase()}</p>
+            <p className="text-sm text-white/70 break-words">{address}</p>
+            <p className="text-sm text-white/70">{commune}, {city}</p>
           </div>
           <div className="flex gap-3 pt-2">
             <a
               href={`https://maps.apple.com/?q=${encodeURIComponent(address || `${venueName}, ${commune}, ${city}`)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-brand-600 hover:text-brand-700 font-medium flex items-center gap-1"
+              className="text-sm text-brand-400 hover:text-brand-300 font-medium flex items-center gap-1"
             >
               <MapPin className="w-4 h-4" />
               {t('events.apple_maps')}
             </a>
-            <span className="text-gray-300">|</span>
+            <span className="text-white/20">|</span>
             <a
               href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address || `${venueName}, ${commune}, ${city}`)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-brand-600 hover:text-brand-700 font-medium flex items-center gap-1"
+              className="text-sm text-brand-400 hover:text-brand-300 font-medium flex items-center gap-1"
             >
               <MapPin className="w-4 h-4" />
               {t('events.google_maps')}
@@ -137,24 +137,24 @@ export default function MobileAccordions({
       {/* Date & Time */}
       <AccordionSection
         title={t('events.date_time')}
-        icon={<Clock className="w-5 h-5 text-brand-600" />}
+        icon={<Clock className="w-5 h-5 text-brand-400" />}
       >
         <div className="space-y-3">
           <div>
-            <p className="text-xs font-semibold text-gray-500 mb-1">{t('events.start').toUpperCase()}</p>
-            <p className="text-sm font-semibold text-gray-900">
+            <p className="text-xs font-semibold text-white/50 mb-1">{t('events.start').toUpperCase()}</p>
+            <p className="text-sm font-semibold text-white">
               {format(new Date(startDatetime), 'EEEE, MMMM d, yyyy')}
             </p>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-white/55">
               {format(new Date(startDatetime), 'h:mm a')} HTT
             </p>
           </div>
           <div>
-            <p className="text-xs font-semibold text-gray-500 mb-1">{t('events.end').toUpperCase()}</p>
-            <p className="text-sm font-semibold text-gray-900">
+            <p className="text-xs font-semibold text-white/50 mb-1">{t('events.end').toUpperCase()}</p>
+            <p className="text-sm font-semibold text-white">
               {format(new Date(endDatetime), 'EEEE, MMMM d, yyyy')}
             </p>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-white/55">
               {format(new Date(endDatetime), 'h:mm a')} HTT
             </p>
           </div>
@@ -164,7 +164,7 @@ export default function MobileAccordions({
       {/* Organizer */}
       <AccordionSection
         title={t('events.organizer')}
-        icon={<User className="w-5 h-5 text-brand-600" />}
+        icon={<User className="w-5 h-5 text-brand-400" />}
       >
         <a 
           href={`/profile/organizer/${organizerId}`}
@@ -174,11 +174,11 @@ export default function MobileAccordions({
             {organizerName[0].toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-gray-900 text-base truncate">
+            <p className="font-semibold text-white text-base truncate">
               {organizerName}
             </p>
             {isVerified && (
-              <div className="flex items-center gap-1 text-brand-600 text-sm mt-0.5">
+              <div className="flex items-center gap-1 text-brand-400 text-sm mt-0.5">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
@@ -192,7 +192,7 @@ export default function MobileAccordions({
       {/* Share */}
       <AccordionSection
         title={t('events.share_event')}
-        icon={<Share2 className="w-5 h-5 text-brand-600" />}
+        icon={<Share2 className="w-5 h-5 text-brand-400" />}
       >
         {shareButton}
       </AccordionSection>

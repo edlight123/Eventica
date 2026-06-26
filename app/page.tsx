@@ -178,7 +178,7 @@ export default async function HomePage({
   const serializedRecentlyAdded = serializeData(recentlyAddedEvents)
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-mobile-nav">
+    <div className="surface-dark min-h-screen pb-mobile-nav">
       <Navbar user={user} isAdmin={isAdmin(user?.email)} />
       
       {/* Location Detection Banner */}

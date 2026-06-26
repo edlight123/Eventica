@@ -73,10 +73,10 @@ export function DiscoverPageContent({
       {!hasActiveFilters && featuredEvents.length > 0 && (
         <div className="space-y-4">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-2">
-              ⭐ {t('events.featured_weekend')}
+            <h2 className="font-grotesk text-2xl sm:text-3xl font-bold lowercase tracking-tight text-white">
+              {t('events.featured_weekend')}
             </h2>
-            <p className="text-gray-600 text-sm sm:text-base mt-1">
+            <p className="text-white/55 text-sm sm:text-base mt-1">
               {t('events.featured_weekend_desc')}
             </p>
           </div>

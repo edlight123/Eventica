@@ -67,7 +67,7 @@ export default function EventCard({ event, priority = false, index = 0 }: EventC
     : selloutSoon
     ? { label: t('ticket.remaining_short', { count: remainingTickets }), tone: 'bg-amber-400/90 text-amber-950' }
     : isTrending
-    ? { label: `🔥 ${t('events.trending')}`, tone: 'bg-black/35 text-white' }
+    ? { label: t('events.trending'), tone: 'bg-black/35 text-white' }
     : isNew
     ? { label: t('events.new'), tone: 'bg-white/85 text-gray-900' }
     : null
@@ -135,27 +135,27 @@ export default function EventCard({ event, priority = false, index = 0 }: EventC
         {/* ---------- Content: two tight lines, no background ---------- */}
         <div className="px-0.5 pt-2">
           <div className="flex items-baseline justify-between gap-2">
-            <h3 className="truncate font-display text-[15px] leading-tight text-gray-900">
+            <h3 className="truncate font-grotesk text-[15px] font-semibold leading-tight text-white">
               {event.title}
             </h3>
             {dateLabel && (
-              <span className="shrink-0 text-[12px] font-medium text-gray-500">{dateLabel}</span>
+              <span className="shrink-0 text-[12px] font-medium text-white/45">{dateLabel}</span>
             )}
           </div>
           <div className="mt-0.5 flex items-baseline justify-between gap-2">
-            <span className="flex min-w-0 items-center gap-1 text-[12.5px] text-gray-500">
+            <span className="flex min-w-0 items-center gap-1 text-[12.5px] text-white/55">
               <span className="truncate">{locationLabel}</span>
               {event.users?.is_verified && (
-                <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-brand-500" />
+                <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-brand-400" />
               )}
             </span>
             <span className="shrink-0 text-right">
               {isFree ? (
-                <span className="font-grotesk text-sm font-bold text-brand-700">{t('common.free')}</span>
+                <span className="font-grotesk text-sm font-bold text-brand-300">{t('common.free')}</span>
               ) : (
-                <span className="font-grotesk text-sm font-bold text-brand-700">
-                  <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">{t('common.from')} </span>
-                  {ticketPrice.toLocaleString()} <span className="text-[11px] font-medium text-gray-400">{event.currency}</span>
+                <span className="font-grotesk text-sm font-bold text-brand-300">
+                  <span className="text-[10px] font-semibold uppercase tracking-wide text-white/40">{t('common.from')} </span>
+                  {ticketPrice.toLocaleString()} <span className="text-[11px] font-medium text-white/40">{event.currency}</span>
                 </span>
               )}
             </span>

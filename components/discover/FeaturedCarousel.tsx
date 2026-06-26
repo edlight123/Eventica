@@ -90,7 +90,7 @@ export function FeaturedCarousel({ events }: FeaturedCarouselProps) {
                 key={index}
                 onClick={() => setCurrentIndex(index)}
                 className={`h-2 rounded-full transition-all ${
-                  index === currentIndex ? 'bg-brand-600 w-6' : 'bg-gray-300 w-2'
+                  index === currentIndex ? 'bg-brand-500 w-6' : 'bg-white/25 w-2'
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
               />
@@ -110,10 +110,10 @@ function FeaturedEventCard({ event }: { event: Event }) {
   return (
     <Link
       href={`/events/${event.id}`}
-      className="group block bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 border-2 border-brand-500/20 hover:border-brand-500"
+      className="group block bg-[#141414] rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 border border-white/10 hover:border-brand-400/50"
     >
       {/* Image */}
-      <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-brand-100 to-brand-200">
+      <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-brand-900 to-brand-800">
         <Image
           src={event.banner_image_url || '/placeholder-event.jpg'}
           alt={event.title}
@@ -124,7 +124,7 @@ function FeaturedEventCard({ event }: { event: Event }) {
         
         {/* Featured Badge */}
         <div className="absolute top-4 left-4 px-3 py-1.5 bg-brand-600 rounded-full text-xs font-bold text-white shadow-lg flex items-center gap-1">
-          ⭐ Featured
+          Featured
         </div>
 
         {/* Price Badge */}
@@ -136,23 +136,23 @@ function FeaturedEventCard({ event }: { event: Event }) {
       {/* Content */}
       <div className="p-5 space-y-3">
         {/* Category */}
-        <div className="text-xs font-semibold text-brand-600 uppercase tracking-wide">
+        <div className="text-xs font-semibold text-brand-400 uppercase tracking-wide">
           {event.category}
         </div>
 
         {/* Title */}
-        <h3 className="font-bold text-gray-900 line-clamp-2 text-xl group-hover:text-brand-600 transition-colors">
+        <h3 className="font-grotesk font-bold text-white line-clamp-2 text-xl group-hover:text-brand-300 transition-colors">
           {event.title}
         </h3>
 
         {/* Date */}
-        <div className="text-sm text-gray-600">
-          📅 {dateLabel}
+        <div className="text-sm text-white/55">
+          {dateLabel}
         </div>
 
         {/* Location */}
-        <div className="text-sm text-gray-600">
-          📍 {locationSummary}
+        <div className="text-sm text-white/55">
+          {locationSummary}
         </div>
       </div>
     </Link>

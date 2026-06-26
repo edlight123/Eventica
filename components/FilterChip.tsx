@@ -30,9 +30,9 @@ export function FilterChip({ label, active, onClick, onRemove, className = '' }:
     <button
       onClick={onClick}
       className={`rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all
-        ${active 
-          ? 'border-brand-500 bg-brand-50 text-brand-700' 
-          : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:text-gray-900'
+        ${active
+          ? 'border-brand-400 bg-brand-500/15 text-brand-300'
+          : 'border-white/15 text-white/70 hover:border-white/30 hover:text-white'
         } ${className}`}
     >
       {label}

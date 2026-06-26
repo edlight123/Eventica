@@ -8,6 +8,8 @@ interface EmptyStateProps {
   actionLabel?: string
   actionHref?: string
   actionIcon?: LucideIcon
+  /** Visual tone. 'light' (default) for dashboards; 'dark' for public dark surfaces. */
+  tone?: 'light' | 'dark'
 }
 
 export default function EmptyState({
@@ -17,24 +19,26 @@ export default function EmptyState({
   actionLabel,
   actionHref,
   actionIcon: ActionIcon,
+  tone = 'light',
 }: EmptyStateProps) {
+  const dark = tone === 'dark'
   return (
-    <div className="bg-white rounded-2xl border-2 border-dashed border-gray-300 p-12 text-center hover:border-brand-400 transition-colors duration-300">
+    <div className={`rounded-2xl border-2 border-dashed p-12 text-center hover:border-brand-400 transition-colors duration-300 ${dark ? 'bg-white/5 border-white/15' : 'bg-white border-gray-300'}`}>
       {/* Icon with Premium Styling */}
       <div className="relative inline-block mb-6">
-        <div className="absolute inset-0 bg-brand-100 rounded-full blur-xl opacity-50"></div>
-        <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 rounded-full p-6">
-          <Icon className="w-16 h-16 text-gray-400" strokeWidth={1.5} />
+        <div className="absolute inset-0 bg-brand-500/20 rounded-full blur-xl opacity-50"></div>
+        <div className={`relative rounded-full p-6 ${dark ? 'bg-white/5' : 'bg-gradient-to-br from-gray-50 to-gray-100'}`}>
+          <Icon className={`w-16 h-16 ${dark ? 'text-white/40' : 'text-gray-400'}`} strokeWidth={1.5} />
         </div>
       </div>
 
       {/* Title */}
-      <h3 className="text-2xl font-bold text-gray-900 mb-3">
+      <h3 className={`text-2xl font-bold mb-3 ${dark ? 'text-white' : 'text-gray-900'}`}>
         {title}
       </h3>
 
       {/* Description */}
-      <p className="text-gray-600 mb-6 max-w-md mx-auto leading-relaxed">
+      <p className={`mb-6 max-w-md mx-auto leading-relaxed ${dark ? 'text-white/55' : 'text-gray-600'}`}>
         {description}
       </p>
 

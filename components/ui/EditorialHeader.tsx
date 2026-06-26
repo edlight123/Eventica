@@ -8,6 +8,8 @@ interface EditorialHeaderProps {
   /** Optional right-aligned content (status, actions). */
   actions?: React.ReactNode
   className?: string
+  /** Visual tone. 'light' (default) for dashboards; 'dark' for public dark surfaces. */
+  tone?: 'light' | 'dark'
 }
 
 /**
@@ -22,16 +24,18 @@ export function EditorialHeader({
   subtitle,
   actions,
   className = '',
+  tone = 'light',
 }: EditorialHeaderProps) {
+  const dark = tone === 'dark'
   return (
     <div className={`flex items-start justify-between gap-4 ${className}`}>
       <div className="min-w-0">
-        {eyebrow && <p className="eyebrow text-brand-600">{eyebrow}</p>}
-        <h1 className="mt-1.5 font-display text-[clamp(28px,4vw,40px)] leading-[1.02] text-gray-900">
+        {eyebrow && <p className={`eyebrow ${dark ? 'text-brand-400' : 'text-brand-600'}`}>{eyebrow}</p>}
+        <h1 className={`mt-1.5 font-display text-[clamp(28px,4vw,40px)] leading-[1.02] ${dark ? 'text-white' : 'text-gray-900'}`}>
           {title}
         </h1>
         {subtitle && (
-          <p className="mt-1.5 text-sm text-gray-500 sm:text-[15px]">{subtitle}</p>
+          <p className={`mt-1.5 text-sm sm:text-[15px] ${dark ? 'text-white/55' : 'text-gray-500'}`}>{subtitle}</p>
         )}
       </div>
       {actions && <div className="shrink-0">{actions}</div>}

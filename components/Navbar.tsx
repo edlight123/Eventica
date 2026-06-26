@@ -48,7 +48,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
   }
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-gray-200/70 bg-white/70 backdrop-blur-xl">
+    <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0a]/80 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-14 sm:h-16">
           <div className="flex items-center">
@@ -62,7 +62,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
               <Link
                 href="/"
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  pathname === '/' ? 'bg-gradient-to-r from-teal-50 to-teal-100 text-teal-700 shadow-sm' : 'text-gray-700 hover:bg-gray-50'
+                  pathname === '/' ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                 }`}
               >
                 {t('nav.home')}
@@ -70,17 +70,25 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
               <Link
                 href="/discover"
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  pathname === '/discover' ? 'bg-gradient-to-r from-teal-50 to-teal-100 text-teal-700 shadow-sm' : 'text-gray-700 hover:bg-gray-50'
+                  pathname === '/discover' ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                 }`}
               >
                 {t('nav.discover')}
+              </Link>
+              <Link
+                href="/platform"
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  pathname?.startsWith('/platform') ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                }`}
+              >
+                {t('nav.platform', { defaultValue: 'Platform' })}
               </Link>
               {user && (
                 <>
                   <Link
                     href="/tickets"
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      pathname?.startsWith('/tickets') ? 'bg-gradient-to-r from-teal-50 to-teal-100 text-teal-700 shadow-sm' : 'text-gray-700 hover:bg-gray-50'
+                      pathname?.startsWith('/tickets') ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     {t('nav.myTickets')}
@@ -88,7 +96,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                   <Link
                     href="/favorites"
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      pathname === '/favorites' ? 'bg-gradient-to-r from-teal-50 to-teal-100 text-teal-700 shadow-sm' : 'text-gray-700 hover:bg-gray-50'
+                      pathname === '/favorites' ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     {t('nav.favorites')}
@@ -96,7 +104,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                   <Link
                     href="/connections"
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      pathname?.startsWith('/connections') ? 'bg-gradient-to-r from-teal-50 to-teal-100 text-teal-700 shadow-sm' : 'text-gray-700 hover:bg-gray-50'
+                      pathname?.startsWith('/connections') ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     Friends
@@ -104,7 +112,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                   <Link
                     href="/organizer"
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      pathname?.startsWith('/organizer') ? 'bg-gradient-to-r from-teal-50 to-teal-100 text-teal-700 shadow-sm' : 'text-gray-700 hover:bg-gray-50'
+                      pathname?.startsWith('/organizer') ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     {t('nav.organizer')}
@@ -113,7 +121,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                     <Link
                       href="/admin"
                       className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                        pathname?.startsWith('/admin') ? 'bg-gradient-to-r from-brand-50 to-brand-100 text-brand-700 shadow-sm' : 'text-gray-700 hover:bg-gray-50'
+                        pathname?.startsWith('/admin') ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                       }`}
                     >
                       {t('nav.admin')}
@@ -132,16 +140,16 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                 
                 <Link
                   href="/profile"
-                  className="hidden sm:flex items-center gap-2 text-sm text-gray-700 hover:text-teal-700 transition-colors duration-200"
+                  className="hidden sm:flex items-center gap-2 text-sm text-white/80 hover:text-white transition-colors duration-200"
                 >
-                  <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-teal-700 rounded-full flex items-center justify-center text-white font-semibold text-xs shadow-md ring-2 ring-white ring-opacity-50">
+                  <div className="w-8 h-8 bg-gradient-to-br from-teal-400 to-teal-600 rounded-full flex items-center justify-center text-white font-semibold text-xs shadow-md ring-2 ring-white/10">
                     {user.full_name?.charAt(0).toUpperCase() || 'U'}
                   </div>
                   <span className="font-medium">{user.full_name}</span>
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-200"
+                  className="px-4 py-2 rounded-lg text-sm font-medium text-white/70 hover:bg-white/5 hover:text-white transition-all duration-200"
                 >
                   {t('nav.signOut')}
                 </button>
@@ -150,7 +158,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
               <>
                 <Link
                   href={`/auth/login?redirect=${encodeURIComponent(redirectTarget)}`}
-                  className="hidden sm:inline-flex items-center rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50"
+                  className="hidden sm:inline-flex items-center rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white/80 transition-all duration-200 hover:border-white/30 hover:bg-white/5"
                 >
                   {t('nav.signIn')}
                 </Link>
@@ -166,7 +174,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100"
+              className="md:hidden p-2 rounded-lg text-white/80 hover:bg-white/10"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {mobileMenuOpen ? (
@@ -181,13 +189,13 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
         
         {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200">
+          <div className="md:hidden py-4 border-t border-white/10">
             <div className="space-y-1">
               <Link
                 href="/"
                 onClick={() => setMobileMenuOpen(false)}
                 className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                  pathname === '/' ? 'bg-teal-50 text-teal-700' : 'text-gray-700 hover:bg-gray-100'
+                  pathname === '/' ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                 }`}
               >
                 {t('nav.home')}
@@ -196,10 +204,19 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                 href="/discover"
                 onClick={() => setMobileMenuOpen(false)}
                 className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                  pathname === '/discover' ? 'bg-teal-50 text-teal-700' : 'text-gray-700 hover:bg-gray-100'
+                  pathname === '/discover' ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                 }`}
               >
                 {t('nav.discover')}
+              </Link>
+              <Link
+                href="/platform"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+                  pathname?.startsWith('/platform') ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                }`}
+              >
+                {t('nav.platform', { defaultValue: 'Platform' })}
               </Link>
               {user && (
                 <>
@@ -207,7 +224,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                     href="/tickets"
                     onClick={() => setMobileMenuOpen(false)}
                     className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                      pathname?.startsWith('/tickets') ? 'bg-teal-50 text-teal-700' : 'text-gray-700 hover:bg-gray-100'
+                      pathname?.startsWith('/tickets') ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     {t('nav.myTickets')}
@@ -216,7 +233,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                     href="/favorites"
                     onClick={() => setMobileMenuOpen(false)}
                     className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                      pathname === '/favorites' ? 'bg-teal-50 text-teal-700' : 'text-gray-700 hover:bg-gray-100'
+                      pathname === '/favorites' ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     {t('nav.favorites')}
@@ -225,7 +242,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                     href="/connections"
                     onClick={() => setMobileMenuOpen(false)}
                     className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                      pathname?.startsWith('/connections') ? 'bg-teal-50 text-teal-700' : 'text-gray-700 hover:bg-gray-100'
+                      pathname?.startsWith('/connections') ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     Friends
@@ -234,7 +251,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                     href="/organizer/events"
                     onClick={() => setMobileMenuOpen(false)}
                     className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                      pathname?.startsWith('/organizer') ? 'bg-teal-50 text-teal-700' : 'text-gray-700 hover:bg-gray-100'
+                      pathname?.startsWith('/organizer') ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     {t('nav.myEvents')}
@@ -244,7 +261,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                       href="/admin"
                       onClick={() => setMobileMenuOpen(false)}
                       className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                        pathname?.startsWith('/admin') ? 'bg-brand-50 text-brand-700' : 'text-gray-700 hover:bg-gray-100'
+                        pathname?.startsWith('/admin') ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                       }`}
                     >
                       {t('nav.admin')}
@@ -254,7 +271,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                     href="/profile"
                     onClick={() => setMobileMenuOpen(false)}
                     className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                      pathname === '/profile' ? 'bg-teal-50 text-teal-700' : 'text-gray-700 hover:bg-gray-100'
+                      pathname === '/profile' ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     {t('nav.profile')}

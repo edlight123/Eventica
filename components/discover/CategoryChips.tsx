@@ -59,8 +59,8 @@ export function CategoryChips({ selectedCategories, bare = false }: CategoryChip
             onClick={() => handleCategoryToggle(category)}
             className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-all whitespace-nowrap
               ${selectedCategories.includes(category)
-                ? 'border-brand-500 bg-brand-50 text-brand-700 shadow-sm'
-                : 'border-transparent bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'border-brand-400 bg-brand-500/15 text-brand-300 shadow-sm'
+                : 'border-transparent bg-white/10 text-white/75 hover:bg-white/15'
               }`}
           >
             {CATEGORY_ICONS[category]}

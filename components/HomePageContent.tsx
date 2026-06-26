@@ -39,18 +39,18 @@ function SectionHeader({
   return (
     <div className="mb-5 flex items-end justify-between gap-4 sm:mb-6">
       <div className="min-w-0">
-        {eyebrow && <p className="eyebrow text-brand-600">{eyebrow}</p>}
-        <h2 className="mt-1.5 font-display text-[clamp(24px,4.2vw,36px)] leading-[1.02] text-gray-900">
+        {eyebrow && <p className="eyebrow text-brand-400">{eyebrow}</p>}
+        <h2 className="mt-1.5 font-display text-[clamp(24px,4.2vw,36px)] leading-[1.02] text-white">
           {title}
         </h2>
         {description && (
-          <p className="mt-1.5 text-sm text-gray-500 sm:text-[15px]">{description}</p>
+          <p className="mt-1.5 text-sm text-white/55 sm:text-[15px]">{description}</p>
         )}
       </div>
       {href && cta && (
         <Link
           href={href}
-          className="eyebrow group inline-flex shrink-0 items-center gap-1 whitespace-nowrap pb-1 text-[11px] text-brand-600 transition-colors hover:text-brand-700"
+          className="eyebrow group inline-flex shrink-0 items-center gap-1 whitespace-nowrap pb-1 text-[11px] text-brand-400 transition-colors hover:text-brand-300"
         >
           {cta}
           <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -88,12 +88,12 @@ function CategoryRail({
   return (
     <div>
       <div className="mb-4 flex items-end justify-between gap-4">
-        <h3 className="font-display text-[clamp(20px,3vw,28px)] leading-tight text-gray-900">
+        <h3 className="font-display text-[clamp(20px,3vw,28px)] leading-tight text-white">
           {label}
         </h3>
         <Link
           href={href}
-          className="eyebrow group inline-flex shrink-0 items-center gap-1 whitespace-nowrap pb-1 text-[11px] text-brand-600 transition-colors hover:text-brand-700"
+          className="eyebrow group inline-flex shrink-0 items-center gap-1 whitespace-nowrap pb-1 text-[11px] text-brand-400 transition-colors hover:text-brand-300"
         >
           {cta}
           <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -108,20 +108,20 @@ function CategoryRail({
 function NoEventsInCountry({ countryName }: { countryName: string }) {
   const { t } = useTranslation('common')
   return (
-    <div className="flex flex-col items-center rounded-3xl border border-gray-200/80 bg-white px-6 py-16 text-center shadow-poster-sm sm:py-20">
-      <div className="grid h-16 w-16 place-items-center rounded-2xl bg-brand-50 text-brand-600">
+    <div className="flex flex-col items-center rounded-3xl border border-white/10 bg-white/5 px-6 py-16 text-center shadow-poster-sm sm:py-20">
+      <div className="grid h-16 w-16 place-items-center rounded-2xl bg-brand-500/15 text-brand-400">
         <MapPin className="h-8 w-8" />
       </div>
-      <h3 className="mt-5 font-display text-2xl text-gray-900">
+      <h3 className="mt-5 font-display text-2xl text-white">
         No events in {countryName} yet
       </h3>
-      <p className="mx-auto mt-2 max-w-md text-[15px] text-gray-500">
+      <p className="mx-auto mt-2 max-w-md text-[15px] text-white/55">
         We don&apos;t have any upcoming events in {countryName} right now. Check back soon or
         explore events in a different location.
       </p>
       <Link
         href="/profile"
-        className="mt-7 inline-flex items-center gap-2 rounded-xl bg-gray-900 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-800"
+        className="mt-7 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-700"
       >
         <MapPin className="h-4 w-4" />
         {t('common.change_location', { defaultValue: 'Change your location' })}
@@ -182,12 +182,12 @@ export default function HomePageContent({
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center rounded-3xl border border-gray-200/80 bg-white px-6 py-20 text-center shadow-poster-sm">
-            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-gray-50 text-gray-400">
+          <div className="flex flex-col items-center rounded-3xl border border-white/10 bg-white/5 px-6 py-20 text-center shadow-poster-sm">
+            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-white/5 text-white/40">
               <Search className="h-8 w-8" />
             </div>
-            <h3 className="mt-5 font-display text-2xl text-gray-900">{t('events.no_events')}</h3>
-            <p className="mt-2 text-[15px] text-gray-500">{t('common.try_different_search')}</p>
+            <h3 className="mt-5 font-display text-2xl text-white">{t('events.no_events')}</h3>
+            <p className="mt-2 text-[15px] text-white/55">{t('common.try_different_search')}</p>
             <Link
               href="/"
               className="mt-7 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-700"
@@ -337,7 +337,7 @@ export default function HomePageContent({
           <div className="mt-9 flex justify-center">
             <Link
               href="/discover"
-              className="group inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-7 py-3 text-sm font-semibold text-gray-900 shadow-poster-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:text-brand-700"
+              className="group inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-7 py-3 text-sm font-semibold text-white shadow-poster-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-400/40 hover:text-brand-300"
             >
               {t('events.explore_all')}
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />

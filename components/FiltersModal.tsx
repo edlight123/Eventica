@@ -118,21 +118,21 @@ export function FiltersModal({
       {/* Modal/Sheet */}
       <div className="fixed inset-0 z-50 flex items-end md:items-center md:justify-center p-0 md:p-4 pointer-events-none">
         <div 
-          className="pointer-events-auto bg-white w-full h-full md:h-auto md:max-h-[90vh] md:max-w-[600px] rounded-t-3xl md:rounded-3xl shadow-poster md:border md:border-gray-200/80 flex flex-col overflow-hidden animate-in slide-in-from-bottom md:slide-in-from-bottom-0 md:zoom-in-95 duration-200"
+          className="pointer-events-auto bg-[#141414] w-full h-full md:h-auto md:max-h-[90vh] md:max-w-[600px] rounded-t-3xl md:rounded-3xl shadow-poster md:border md:border-white/10 flex flex-col overflow-hidden animate-in slide-in-from-bottom md:slide-in-from-bottom-0 md:zoom-in-95 duration-200"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200/80 bg-white sticky top-0 z-10">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-[#141414] sticky top-0 z-10">
             <div className="flex items-baseline gap-2.5">
-              <h2 className="font-display text-2xl leading-none text-gray-900">{t('filters.filters')}</h2>
+              <h2 className="font-display text-2xl leading-none text-white">{t('filters.filters')}</h2>
               {activeCount > 0 && (
-                <span className="eyebrow text-[11px] text-brand-600">{activeCount} {t('filters.active')}</span>
+                <span className="eyebrow text-[11px] text-brand-400">{activeCount} {t('filters.active')}</span>
               )}
             </div>
             <button
               onClick={onClose}
               aria-label={t('common.close', { defaultValue: 'Close' })}
-              className="grid h-9 w-9 place-items-center rounded-full border border-gray-200 text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900"
+              className="grid h-9 w-9 place-items-center rounded-full border border-white/15 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
             >
               <X className="w-[18px] h-[18px]" />
             </button>
@@ -142,7 +142,7 @@ export function FiltersModal({
           <div className="flex-1 overflow-y-auto p-5 space-y-6">
             {/* Date Filter */}
             <div className="space-y-3">
-              <label className="eyebrow text-[11px] text-gray-500">{t('filters.date')}</label>
+              <label className="eyebrow text-[11px] text-white/50">{t('filters.date')}</label>
               <div className="flex flex-wrap gap-2">
                 {DATE_OPTIONS.map(option => (
                   <FilterChip
@@ -158,23 +158,23 @@ export function FiltersModal({
                   type="date"
                   value={draftFilters.pickedDate || ''}
                   onChange={(e) => onDraftChange({ ...draftFilters, pickedDate: e.target.value })}
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+                  className="w-full rounded-xl border border-white/15 bg-white/5 text-white [color-scheme:dark] px-4 py-2.5 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30"
                 />
               )}
             </div>
 
             {/* Event Type - Segmented Control */}
             <div className="space-y-3">
-              <label className="eyebrow text-[11px] text-gray-500">{t('filters.event_type')}</label>
-              <div className="inline-flex rounded-xl border border-gray-200 p-1 bg-gray-50">
+              <label className="eyebrow text-[11px] text-white/50">{t('filters.event_type')}</label>
+              <div className="inline-flex rounded-xl border border-white/10 p-1 bg-white/5">
                 {EVENT_TYPE_OPTIONS.map(option => (
                   <button
                     key={option.value}
                     onClick={() => onDraftChange({ ...draftFilters, eventType: option.value })}
                     className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all
                       ${draftFilters.eventType === option.value
-                        ? 'bg-white text-brand-700 shadow-sm'
-                        : 'text-gray-500 hover:text-gray-900'
+                        ? 'bg-white/15 text-brand-300 shadow-sm'
+                        : 'text-white/55 hover:text-white'
                       }`}
                   >
                     {option.label}
@@ -185,7 +185,7 @@ export function FiltersModal({
 
             {/* Price Filter */}
             <div className="space-y-3">
-              <label className="eyebrow text-[11px] text-gray-500">{t('filters.price')}</label>
+              <label className="eyebrow text-[11px] text-white/50">{t('filters.price')}</label>
               <div className="flex flex-wrap gap-2">
                 {priceFilters.map(option => (
                   <FilterChip
@@ -200,7 +200,7 @@ export function FiltersModal({
 
             {/* Category Filter */}
             <div className="space-y-3">
-              <label className="eyebrow text-[11px] text-gray-500">{t('filters.categories')}</label>
+              <label className="eyebrow text-[11px] text-white/50">{t('filters.categories')}</label>
               <div className="flex flex-wrap gap-2">
                 {CATEGORIES.map(category => (
                   <FilterChip
@@ -215,13 +215,13 @@ export function FiltersModal({
 
             {/* Location Filter */}
             <div className="space-y-3">
-              <label className="eyebrow text-[11px] text-gray-500">{t('filters.location')}</label>
+              <label className="eyebrow text-[11px] text-white/50">{t('filters.location')}</label>
               <div className="space-y-3">
                 {/* City Dropdown */}
                 <select
                   value={draftFilters.city}
                   onChange={(e) => handleCityChange(e.target.value)}
-                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+                  className="w-full rounded-xl border border-white/15 bg-white/5 text-white [color-scheme:dark] px-4 py-2.5 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30"
                 >
                   <option value="">{t('filters.all_cities')}</option>
                   {cities.map(city => (
@@ -232,11 +232,11 @@ export function FiltersModal({
                 {/* Commune/Neighborhood Dropdown */}
                 {hasLocation && (
                   <div className="space-y-2">
-                    <label className="eyebrow text-[10px] text-gray-400">{locationLabel}</label>
+                    <label className="eyebrow text-[10px] text-white/40">{locationLabel}</label>
                     <select
                       value={draftFilters.commune || ''}
                       onChange={(e) => handleCommuneChange(e.target.value)}
-                      className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+                      className="w-full rounded-xl border border-white/15 bg-white/5 text-white [color-scheme:dark] px-4 py-2.5 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30"
                     >
                       <option value="">{t('filters.all_areas')} {locationLabel.toLowerCase()}s</option>
                       {subdivisions.map(subdivision => (
@@ -250,10 +250,10 @@ export function FiltersModal({
           </div>
 
           {/* Footer - Sticky */}
-          <div className="sticky bottom-0 bg-white/85 backdrop-blur border-t border-gray-200/80 p-4 flex items-center justify-between gap-3">
+          <div className="sticky bottom-0 bg-[#141414]/85 backdrop-blur border-t border-white/10 p-4 flex items-center justify-between gap-3">
             <button
               onClick={onReset}
-              className="px-4 py-2.5 text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors"
+              className="px-4 py-2.5 text-sm font-semibold text-white/55 hover:text-white transition-colors"
             >
               {t('filters.reset')}
             </button>
@@ -263,7 +263,7 @@ export function FiltersModal({
               className={`px-7 py-3 rounded-xl text-sm font-semibold transition-all duration-200
                 ${hasChanges
                   ? 'bg-brand-600 text-white shadow-sm hover:-translate-y-0.5 hover:bg-brand-700'
-                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-white/10 text-white/40 cursor-not-allowed'
                 }`}
             >
               {t('filters.apply_filters')}

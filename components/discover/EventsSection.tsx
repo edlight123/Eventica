@@ -37,18 +37,17 @@ export function EventsSection({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-2">
-            {emoji && <span>{emoji}</span>}
+          <h2 className="font-grotesk text-2xl sm:text-3xl font-bold lowercase tracking-tight text-white">
             {title}
           </h2>
           {description && (
-            <p className="text-gray-600 text-sm sm:text-base mt-1">{description}</p>
+            <p className="text-white/55 text-sm sm:text-base mt-1">{description}</p>
           )}
         </div>
         {seeAllLink && events.length >= 6 && (
           <Link
             href={seeAllLink}
-            className="flex items-center gap-1 text-brand-600 hover:text-brand-700 font-semibold text-sm sm:text-base transition-colors whitespace-nowrap"
+            className="flex items-center gap-1 text-brand-400 hover:text-brand-300 font-semibold text-sm sm:text-base transition-colors whitespace-nowrap"
           >
             {seeAllLabel || t('common.seeAll')}
             <ChevronRight className="w-4 h-4" />

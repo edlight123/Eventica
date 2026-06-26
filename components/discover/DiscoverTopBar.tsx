@@ -83,13 +83,13 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
           {/* Search Input */}
           <form onSubmit={handleSearch} className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={handleSearchChange}
                 placeholder={t('filters.search_placeholder')}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
+                className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/15 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm"
               />
             </div>
           </form>
@@ -100,7 +100,7 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
             <div className="relative">
               <button
                 onClick={() => setShowCityDropdown(!showCityDropdown)}
-                className="flex items-center gap-1.5 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium text-gray-700 transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2 bg-white/10 hover:bg-white/15 rounded-full text-sm font-medium text-white/80 transition-colors"
               >
                 <MapPin className="w-4 h-4" />
                 {filters.city || t('filters.all_cities')}
@@ -113,10 +113,10 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
                     className="fixed inset-0 z-10" 
                     onClick={() => setShowCityDropdown(false)}
                   />
-                  <div className="absolute top-full mt-2 right-0 bg-white rounded-lg shadow-xl border border-gray-200 py-1 min-w-[180px] z-20">
+                  <div className="absolute top-full mt-2 right-0 bg-[#1a1a1a] rounded-lg shadow-xl border border-white/10 py-1 min-w-[180px] z-20">
                     <button
                       onClick={() => handleCitySelect('')}
-                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 text-gray-700"
+                      className="w-full text-left px-4 py-2 text-sm hover:bg-white/10 text-white/80"
                     >
                       {t('filters.all_cities')}
                     </button>
@@ -124,8 +124,8 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
                       <button
                         key={city}
                         onClick={() => handleCitySelect(city)}
-                        className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${
-                          filters.city === city ? 'bg-brand-50 font-medium text-brand-700' : 'text-gray-700'
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-white/10 ${
+                          filters.city === city ? 'bg-brand-500/15 font-medium text-brand-300' : 'text-white/80'
                         }`}
                       >
                         {city}
@@ -141,7 +141,7 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
               <div className="relative">
                 <button
                   onClick={() => setShowSubareaDropdown(!showSubareaDropdown)}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium text-gray-700 transition-colors"
+                  className="flex items-center gap-1.5 px-4 py-2 bg-white/10 hover:bg-white/15 rounded-full text-sm font-medium text-white/80 transition-colors"
                 >
                   {filters.commune || `${t('filters.all_areas')} ${locationLabel.toLowerCase()}s`}
                   <ChevronDown className="w-4 h-4" />
@@ -153,10 +153,10 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
                       className="fixed inset-0 z-10" 
                       onClick={() => setShowSubareaDropdown(false)}
                     />
-                    <div className="absolute top-full mt-2 right-0 bg-white rounded-lg shadow-xl border border-gray-200 py-1 min-w-[180px] z-20">
+                    <div className="absolute top-full mt-2 right-0 bg-[#1a1a1a] rounded-lg shadow-xl border border-white/10 py-1 min-w-[180px] z-20">
                       <button
                         onClick={() => handleSubareaSelect('')}
-                        className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 text-gray-700"
+                        className="w-full text-left px-4 py-2 text-sm hover:bg-white/10 text-white/80"
                       >
                         {t('filters.all_areas')} {locationLabel.toLowerCase()}s
                       </button>
@@ -164,8 +164,8 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
                         <button
                           key={subarea}
                           onClick={() => handleSubareaSelect(subarea)}
-                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${
-                            filters.commune === subarea ? 'bg-brand-50 font-medium text-brand-700' : 'text-gray-700'
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-white/10 ${
+                            filters.commune === subarea ? 'bg-brand-500/15 font-medium text-brand-300' : 'text-white/80'
                           }`}
                         >
                           {subarea}
