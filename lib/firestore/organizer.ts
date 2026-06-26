@@ -104,9 +104,18 @@ export async function getOrganizerCustomers(organizerId: string) {
       })
     }
 
+    const resolveBuyer = (t: any) => {
+      const doc = userById.get(t.user_id)
+      return {
+        name: doc?.name || t.user_name || 'Guest',
+        email: doc?.email || t.user_email || '',
+        phone: doc?.phone || '',
+      }
+    }
+
     const orders = tickets
       .map((t: any) => {
-        const u = userById.get(t.user_id) || { name: 'Guest', email: '', phone: '' }
+        const u = resolveBuyer(t)
         return {
           id: t.id,
           eventTitle: eventTitleById.get(String(t.event_id)) || 'Untitled event',
@@ -122,7 +131,7 @@ export async function getOrganizerCustomers(organizerId: string) {
 
     const attendeeMap = new Map<string, any>()
     for (const t of tickets) {
-      const u = userById.get(t.user_id) || { name: 'Guest', email: '', phone: '' }
+      const u = resolveBuyer(t)
       const key = t.user_id || `${u.email}-${u.name}`
       const existing = attendeeMap.get(key)
       const spend = existing?.spendByCurrency || {}
@@ -207,6 +216,9 @@ export async function getOrganizerTickets(organizerId: string) {
           id: doc.id,
           event_id: data.event_id,
           user_id: data.user_id,
+          // Denormalized buyer details captured at purchase (covers guest checkout).
+          user_name: data.user_name || data.attendee_name || data.buyer_name || '',
+          user_email: data.user_email || data.attendee_email || data.buyer_email || '',
           price_paid: data.price_paid || 0,
           currency,
           status: data.status || 'valid',

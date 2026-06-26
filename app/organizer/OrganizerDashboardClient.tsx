@@ -3,7 +3,7 @@
 import { useTranslation } from 'react-i18next'
 import { ActionCenter } from '@/components/organizer/ActionCenter'
 import { SalesSnapshot } from '@/components/organizer/SalesSnapshot'
-import { EventPosterCard } from '@/components/organizer/events-manager/EventPosterCard'
+import OrganizerEventCard from '@/components/organizer/events-manager/OrganizerEventCard'
 import { PayoutsWidget } from '@/components/organizer/PayoutsWidget'
 import WelcomeDashboard from '@/components/organizer/WelcomeDashboard'
 import { PageHeader, SectionHeader, OrgEmptyState } from '@/components/organizer/ui'
@@ -66,6 +66,21 @@ export default function OrganizerDashboardClient({
     )
   }
 
+  // Dashboard shows a short snapshot — upcoming events first — not the whole catalog.
+  const now = Date.now()
+  const previewEvents = [...events]
+    .sort((a: any, b: any) => {
+      const ta = new Date(a?.start_datetime || 0).getTime()
+      const tb = new Date(b?.start_datetime || 0).getTime()
+      const aUp = ta >= now
+      const bUp = tb >= now
+      if (aUp && bUp) return ta - tb // soonest upcoming first
+      if (aUp) return -1
+      if (bUp) return 1
+      return tb - ta // then most recent past
+    })
+    .slice(0, 6)
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 space-y-6 md:space-y-8">
       {/* Header */}
@@ -120,14 +135,15 @@ export default function OrganizerDashboardClient({
         />
 
         {events.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {events.map((event: any) => {
+          <div className="space-y-3">
+            {previewEvents.map((event: any) => {
               const stats = eventStatsById[String(event.id)]
               const revenueByCurrencyCents: Record<string, number> = stats?.revenueByCurrencyCents || {}
 
               return (
-                <EventPosterCard
+                <OrganizerEventCard
                   key={event.id}
+                  showNeedsAttention={false}
                   event={{
                     id: String(event.id),
                     title: String(event.title || ''),
@@ -137,8 +153,7 @@ export default function OrganizerDashboardClient({
                     tickets_sold: stats?.ticketsSold ?? (Number(event.tickets_sold) || 0),
                     total_tickets: Number(event.total_tickets || event.max_attendees || 0),
                     city: event.city || undefined,
-                    venue_name: event.venue_name || undefined,
-                    location_name: event.location_name || undefined,
+                    location_name: event.location_name || event.venue_name || undefined,
                     currency: event.currency || undefined,
                     revenueByCurrencyCents,
                     category: event.category || undefined,

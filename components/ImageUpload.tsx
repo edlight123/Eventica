@@ -115,6 +115,20 @@ export default function ImageUpload({
   const frame = isFlyer ? 'aspect-[4/5]' : isSquare ? 'aspect-square' : 'h-64'
   const ctaLabel = isFlyer ? 'Upload your flyer' : isSquare ? 'Upload logo' : 'Upload image'
 
+  // Cool, Posh-style dropzone backdrop: a teal glow over a faint perspective grid.
+  const coolBg: React.CSSProperties =
+    isFlyer || isSquare
+      ? {
+          backgroundColor: '#0c0e0d',
+          backgroundImage: [
+            'radial-gradient(125% 90% at 50% -10%, rgba(20,184,166,0.22), rgba(20,184,166,0.04) 45%, transparent 70%)',
+            'linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px)',
+            'linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px)',
+          ].join(', '),
+          backgroundSize: '100% 100%, 28px 28px, 28px 28px',
+        }
+      : {}
+
   return (
     <div className="space-y-3">
       <div className="relative">
@@ -143,12 +157,13 @@ export default function ImageUpload({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className={`flex w-full ${frame} flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.03] text-white/50 transition hover:border-brand-400/50 hover:text-white/70`}
+            style={coolBg}
+            className={`group/flyer relative flex w-full ${frame} flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/10 text-white/50 transition hover:border-brand-400/40`}
           >
-            <span className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-gray-900">
+            <span className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-gray-900 shadow-lg transition-transform group-hover/flyer:scale-105">
               {ctaLabel}
             </span>
-            <span className="mt-3 text-xs text-white/40">PNG or JPG · up to 5MB</span>
+            <span className="mt-3 text-xs text-white/45">PNG or JPG · up to 5MB</span>
           </button>
         )}
 

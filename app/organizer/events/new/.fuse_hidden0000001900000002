@@ -264,7 +264,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
               <button
                 type="button"
                 onClick={() => setShowSummary(true)}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#1c1c1c] px-3.5 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                className="inline-flex items-center gap-1.5 rounded-full bg-[#1c1c1c] px-3.5 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
               >
                 <Plus className="h-4 w-4" /> Short Summary
               </button>
@@ -435,7 +435,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
             <SectionTitle icon={Star}>Event Features</SectionTitle>
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-4">
               <span className="text-sm text-white/50">Showcase your event&rsquo;s performers, sponsors and more.</span>
-              <span className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold text-white/50">
+              <span className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-sm font-semibold text-white/50">
                 Add feature <ChevronDown className="h-4 w-4" />
               </span>
             </div>
