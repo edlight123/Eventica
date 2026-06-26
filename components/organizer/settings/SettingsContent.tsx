@@ -18,7 +18,7 @@ import {
   HelpCircle,
   ChevronRight
 } from 'lucide-react'
-import { EditorialHeader } from '@/components/ui/EditorialHeader'
+import { PageHeader } from '@/components/organizer/ui'
 
 interface SettingsContentProps {
   isVerified: boolean
@@ -47,7 +47,7 @@ export default function SettingsContent({
         >
           {t('settings.back_to_events')}
         </Link>
-        <EditorialHeader eyebrow={t('settings.eyebrow', 'Organizer')} title={t('settings.title')} subtitle={t('settings.subtitle')} />
+        <PageHeader eyebrow={t('settings.eyebrow', 'Organizer')} title={t('settings.title')} subtitle={t('settings.subtitle')} />
       </div>
 
       {/* Summary Cards */}

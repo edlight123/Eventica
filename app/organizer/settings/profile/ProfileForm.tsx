@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { User, Phone, Mail, Camera, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
+import { SaveBar } from '@/components/organizer/ui';
 import Image from 'next/image';
 
 interface ProfileFormProps {
@@ -17,9 +18,23 @@ interface ProfileFormProps {
 
 export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
   const [formData, setFormData] = useState(initialData);
+  const [savedData, setSavedData] = useState(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const { showToast } = useToast();
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const isDirty = JSON.stringify(formData) !== JSON.stringify(savedData);
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +54,7 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
         throw new Error('Failed to update profile');
       }
 
+      setSavedData({ ...formData });
       showToast({
         title: 'Profile updated',
         message: 'Your profile has been successfully updated.',
@@ -117,7 +133,7 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-6 space-y-6">
+    <form ref={formRef} onSubmit={handleSubmit} className="p-6 space-y-6">
       {/* Profile Photo */}
       <div className="flex items-start gap-6">
         <div className="relative">
@@ -235,6 +251,12 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
           {isSubmitting ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
+      <SaveBar
+        dirty={isDirty}
+        saving={isSubmitting}
+        onSave={() => formRef.current?.requestSubmit()}
+        onDiscard={() => setFormData(savedData)}
+      />
     </form>
   );
 }

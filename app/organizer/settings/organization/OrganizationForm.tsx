@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Building2, Globe, Upload, Loader2, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
+import { SaveBar } from '@/components/organizer/ui';
 import Image from 'next/image';
 
 interface OrganizationFormProps {
@@ -22,9 +23,23 @@ interface OrganizationFormProps {
 
 export default function OrganizationForm({ userId, initialData }: OrganizationFormProps) {
   const [formData, setFormData] = useState(initialData);
+  const [savedData, setSavedData] = useState(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const { showToast } = useToast();
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const isDirty = JSON.stringify(formData) !== JSON.stringify(savedData);
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +56,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
         throw new Error('Failed to update organization');
       }
 
+      setSavedData({ ...formData });
       showToast({
         title: 'Organization updated',
         message: 'Your organization details have been successfully updated.',
@@ -117,7 +133,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-6 space-y-6">
+    <form ref={formRef} onSubmit={handleSubmit} className="p-6 space-y-6">
       {/* Organization Logo */}
       <div className="flex items-start gap-6">
         <div className="relative">
@@ -300,6 +316,13 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
           {isSubmitting ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
+
+      <SaveBar
+        dirty={isDirty}
+        saving={isSubmitting}
+        onSave={() => formRef.current?.requestSubmit()}
+        onDiscard={() => setFormData(savedData)}
+      />
     </form>
   );
 }
