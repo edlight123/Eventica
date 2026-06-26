@@ -6,7 +6,7 @@ import { SalesSnapshot } from '@/components/organizer/SalesSnapshot'
 import { EventPosterCard } from '@/components/organizer/events-manager/EventPosterCard'
 import { PayoutsWidget } from '@/components/organizer/PayoutsWidget'
 import WelcomeDashboard from '@/components/organizer/WelcomeDashboard'
-import { EditorialHeader } from '@/components/ui/EditorialHeader'
+import { PageHeader, SectionHeader, OrgEmptyState } from '@/components/organizer/ui'
 import Link from 'next/link'
 import { CalendarPlus } from 'lucide-react'
 
@@ -69,14 +69,14 @@ export default function OrganizerDashboardClient({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 space-y-6 md:space-y-8">
       {/* Header */}
-      <EditorialHeader
+      <PageHeader
         eyebrow="Organizer"
         title={t('organizer.dashboard_title', { defaultValue: 'Dashboard' })}
         subtitle={t('organizer.dashboard_subtitle', { defaultValue: 'Your events, sales and payouts at a glance' })}
         actions={
           <Link
             href="/organizer/events/new"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-700 hover:bg-brand-800 text-white rounded-lg font-semibold transition-colors text-sm shadow-sm"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-700 hover:bg-brand-800 text-white rounded-lg font-semibold transition-colors text-sm shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <CalendarPlus className="w-4 h-4" />
             {t('organizer.create_event')}
@@ -105,18 +105,19 @@ export default function OrganizerDashboardClient({
 
       {/* Events Grid */}
       <div>
-        <div className="mb-5 flex items-end justify-between gap-4">
-          <div>
-            <p className="eyebrow text-brand-300">Your events</p>
-            <h2 className="mt-1.5 font-display text-[clamp(22px,3.4vw,30px)] leading-[1.04] text-white">{t('organizer.your_events')}</h2>
-          </div>
-          <Link
-            href="/organizer/events"
-            className="eyebrow inline-flex shrink-0 items-center gap-1 text-[11px] text-brand-300 transition-colors hover:text-brand-300"
-          >
-            {t('organizer.view_all_events')} →
-          </Link>
-        </div>
+        <SectionHeader
+          eyebrow="Your events"
+          title={t('organizer.your_events')}
+          className="mb-5"
+          actions={
+            <Link
+              href="/organizer/events"
+              className="eyebrow inline-flex shrink-0 items-center gap-1 text-[11px] text-brand-300 transition-colors hover:text-brand-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            >
+              {t('organizer.view_all_events')} →
+            </Link>
+          }
+        />
 
         {events.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -147,21 +148,20 @@ export default function OrganizerDashboardClient({
             })}
           </div>
         ) : (
-          <div className="bg-[#141414] rounded-xl border-2 border-dashed border-white/15 p-8 md:p-12 text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-brand-500/15 to-brand-600/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CalendarPlus className="w-7 h-7 text-brand-300" />
-            </div>
-            <h3 className="text-lg font-bold text-white mb-2">{t('organizer.no_events.title')}</h3>
-            <p className="text-white/60 mb-6 max-w-md mx-auto">
-              {t('organizer.no_events.description')}
-            </p>
-            <Link
-              href="/organizer/events/new"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-brand-600 to-brand-700 text-white rounded-xl font-bold hover:shadow-lg transition-all"
-            >
-              + {t('organizer.no_events.cta')}
-            </Link>
-          </div>
+          <OrgEmptyState
+            icon={CalendarPlus}
+            title={t('organizer.no_events.title')}
+            description={t('organizer.no_events.description')}
+            action={
+              <Link
+                href="/organizer/events/new"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-brand-700 hover:bg-brand-800 text-white rounded-xl font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              >
+                <CalendarPlus className="w-4 h-4" />
+                {t('organizer.no_events.cta')}
+              </Link>
+            }
+          />
         )}
       </div>
     </div>
