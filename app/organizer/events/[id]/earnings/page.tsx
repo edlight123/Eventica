@@ -16,10 +16,10 @@ export const metadata = {
 export default async function EventEarningsPage({
   params
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const { user, error } = await requireAuth()
-  const eventId = params.id
+  const { id: eventId } = await params
 
   if (error || !user) {
     redirect(`/auth/login?redirect=/organizer/events/${eventId}/earnings`)
@@ -66,12 +66,11 @@ export default async function EventEarningsPage({
   const serializedEarnings = serializeData(earnings)
 
   return (
-    <div className="bg-[#0a0a0a]">      
-      <EventEarningsView
-        event={serializedEvent}
-        earnings={serializedEarnings}
-        organizerId={user.id}
-        tierBreakdown={tierBreakdown}
-      />    </div>
+    <EventEarningsView
+      event={serializedEvent}
+      earnings={serializedEarnings}
+      organizerId={user.id}
+      tierBreakdown={tierBreakdown}
+    />
   )
 }

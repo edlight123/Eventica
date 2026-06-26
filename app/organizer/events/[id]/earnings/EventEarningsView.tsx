@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { formatCurrency, calculateSettlementDate } from '@/lib/fees'
 import type { EventEarnings } from '@/types/earnings'
 import type { EventTierSalesBreakdownRow } from '@/lib/earnings'
-import { StatTile, StatusChip, type ChipTone } from '@/components/ui/kit'
+import { MetricCard, StatusChip, type ChipTone } from '@/components/organizer/ui'
 import { DollarSign, TrendingUp, Wallet } from 'lucide-react'
 
 interface EventEarningsViewProps {
@@ -389,22 +389,21 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
 
       {/* Earnings Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <StatTile
+        <MetricCard
           icon={DollarSign}
           label="Gross Revenue"
           value={formatCurrency(earnings.grossSales, earnings.currency)}
           sublabel={`${earnings.ticketsSold} tickets sold`}
         />
-        <StatTile
+        <MetricCard
           icon={TrendingUp}
           label="Net Earnings"
           value={formatCurrency(earnings.netAmount, earnings.currency)}
           sublabel={earnings.withdrawnAmount > 0 ? `${formatCurrency(earnings.withdrawnAmount, earnings.currency)} withdrawn` : 'Not withdrawn yet'}
         />
-        <StatTile
+        <MetricCard
           icon={Wallet}
           label="Available to Withdraw"
-          className="border-l-4 border-green-600"
           value={<span className="text-emerald-300">{formatCurrency(availableToWithdraw, earnings.currency)}</span>}
           sublabel={earnings.settlementStatus === 'ready' ? 'Ready now' : 'After settlement'}
         />
