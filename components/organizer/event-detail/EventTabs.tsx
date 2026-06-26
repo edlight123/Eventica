@@ -51,6 +51,21 @@ export function EventTabs({ eventId, ticketCount }: EventTabsProps) {
       href: `/organizer/events/${eventId}/marketing`,
     },
     {
+      id: 'guest-list',
+      label: 'Guest list',
+      href: `/organizer/events/${eventId}/guest-list`,
+    },
+    {
+      id: 'comps',
+      label: 'Comps',
+      href: `/organizer/events/${eventId}/comps`,
+    },
+    {
+      id: 'tracking',
+      label: 'Tracking',
+      href: `/organizer/events/${eventId}/tracking`,
+    },
+    {
       id: 'earnings',
       label: t('organizer.earnings', { defaultValue: 'Earnings' }),
       href: `/organizer/events/${eventId}/earnings`,
