@@ -98,7 +98,7 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
   }
 
   return (
-    <div className="bg-[#141414] border-b border-white/10 sticky top-0 z-40 shadow-sm">
+    <div className="bg-[#141414] border-b border-white/10 sticky top-14 z-30 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex items-center gap-4">
           {/* Search */}

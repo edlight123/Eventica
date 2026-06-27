@@ -1,10 +1,9 @@
 import { getCurrentUser, requireAdmin } from '@/lib/auth'
 import { redirect } from 'next/navigation'
-import Navbar from '@/components/Navbar'
 import MobileNavWrapper from '@/components/MobileNavWrapper'
 import { AdminCommandBar } from '@/components/admin/AdminCommandBar'
 import { AdminAccessDenied } from '@/components/admin/AdminAccessDenied'
-import { AdminSidebar } from '@/components/admin/AdminSidebar'
+import { AdminTopNav } from '@/components/admin/AdminTopNav'
 import { AdminRealtimeProvider } from '@/lib/realtime/AdminRealtimeProvider'
 
 // force-dynamic is required because we use cookies() for authentication
@@ -26,24 +25,20 @@ export default async function AdminLayout({
     return <AdminAccessDenied userEmail={user.email} />
   }
 
+  const accountInitial = (user.full_name || user.email || 'A').trim().charAt(0).toUpperCase()
+
   return (
     <AdminRealtimeProvider>
       <div className="surface-dark min-h-screen">
-        <Navbar user={user} isAdmin={true} />
-        
-        {/* Command Bar - Global Search & Quick Actions */}
+        {/* Single admin top bar (replaces the global navbar + left sidebar) */}
+        <AdminTopNav userEmail={user.email} accountInitial={accountInitial} />
+
+        {/* Global search & quick actions */}
         <AdminCommandBar />
-        
-        <div className="flex">
-          {/* Sidebar - Desktop Only - fetches its own badge data */}
-          <AdminSidebar userEmail={user.email} />
-          
-          {/* Main Content */}
-          <main className="flex-1 pb-mobile-nav">
-            {children}
-          </main>
-        </div>
-        
+
+        {/* Main Content */}
+        <main className="pb-mobile-nav">{children}</main>
+
         {/* Mobile Bottom Navigation */}
         <MobileNavWrapper user={user} isAdmin={true} />
       </div>
