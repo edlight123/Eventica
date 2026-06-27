@@ -308,7 +308,7 @@ export default function PromoCodeManager({
                 required
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                className="w-full rounded-lg border border-white/15 bg-[#1c1c1c] px-4 py-2.5 uppercase text-white placeholder:text-white/30 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+                className="w-full rounded-lg border border-white/15 bg-transparent px-4 py-2.5 uppercase text-white placeholder:text-white/30 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
                 placeholder="SUMMER2024"
               />
             </div>
@@ -355,7 +355,7 @@ export default function PromoCodeManager({
                 step="0.01"
                 value={discountValue}
                 onChange={(e) => setDiscountValue(e.target.value)}
-                className="w-full rounded-lg border border-white/15 bg-[#1c1c1c] px-4 py-2.5 text-white placeholder:text-white/30 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+                className="w-full rounded-lg border border-white/15 bg-transparent px-4 py-2.5 text-white placeholder:text-white/30 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
                 placeholder={discountType === 'percentage' ? '10' : '5.00'}
               />
             </div>
@@ -369,7 +369,7 @@ export default function PromoCodeManager({
                 min="1"
                 value={maxUses}
                 onChange={(e) => setMaxUses(e.target.value)}
-                className="w-full rounded-lg border border-white/15 bg-[#1c1c1c] px-4 py-2.5 text-white placeholder:text-white/30 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+                className="w-full rounded-lg border border-white/15 bg-transparent px-4 py-2.5 text-white placeholder:text-white/30 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
                 placeholder="Unlimited"
               />
             </div>

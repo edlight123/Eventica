@@ -284,7 +284,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
   const chip =
     'no-native-picker rounded-lg bg-[#2a2a2a] px-3 py-1.5 text-sm font-semibold text-white [color-scheme:dark] focus:outline-none focus:ring-2 focus:ring-brand-400/40'
   const field =
-    'w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-[15px] text-white [color-scheme:dark] placeholder:text-white/40 focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-400/40'
+    'w-full rounded-xl border border-white/10 bg-transparent px-4 py-3 text-[15px] text-white [color-scheme:dark] placeholder:text-white/40 focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-400/40'
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-6 md:py-10">
@@ -640,7 +640,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
                 <select
                   value={titleFont}
                   onChange={(e) => setTitleFont(e.target.value as any)}
-                  className="rounded-lg border border-white/10 bg-[#1c1c1c] px-2.5 py-1.5 text-sm text-white [color-scheme:dark] focus:outline-none"
+                  className="rounded-lg border border-white/10 bg-transparent px-2.5 py-1.5 text-sm text-white [color-scheme:dark] focus:outline-none"
                 >
                   <option>Default</option>
                   <option>Serif</option>
