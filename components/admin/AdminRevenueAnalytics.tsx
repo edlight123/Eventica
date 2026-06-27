@@ -154,7 +154,7 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 dateRange === option.value
                   ? 'bg-brand-600 text-white'
-                  : 'bg-white/5 text-white/70 hover:bg-white/10'
+                  : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
               }`}
             >
               {option.label}
@@ -220,7 +220,7 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
           <div className="border border-white/10 rounded-lg p-3">
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-sm font-medium text-white/70">HTG (Haitian Gourde)</h4>
-              <span className="text-xs bg-white/5 text-white/60 px-2 py-0.5 rounded">
+              <span className="text-xs bg-[#1c1c1c] text-white/60 px-2 py-0.5 rounded">
                 {revenue.byCurrency.HTG.tickets} tickets
               </span>
             </div>
@@ -250,7 +250,7 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
           <div className="border border-white/10 rounded-lg p-3">
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-sm font-medium text-white/70">USD (US Dollar)</h4>
-              <span className="text-xs bg-white/5 text-white/60 px-2 py-0.5 rounded">
+              <span className="text-xs bg-[#1c1c1c] text-white/60 px-2 py-0.5 rounded">
                 {revenue.byCurrency.USD.tickets} tickets
               </span>
             </div>

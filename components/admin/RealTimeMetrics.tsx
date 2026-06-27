@@ -102,29 +102,21 @@ export function RealTimeMetrics({
     }
   ]
 
-  // All KPI icon chips share one brand-tinted style for a calm, cohesive strip.
-  const getColorClasses = (_color: string) => 'bg-brand-500/10 text-brand-300 ring-brand-500/20'
-
   return (
-    <div className="mb-5 sm:mb-6">
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
+    <div className="mb-5 sm:mb-6 rounded-2xl border border-white/10">
+      <div className="grid grid-cols-2 divide-x divide-y divide-white/10 sm:grid-cols-3 lg:grid-cols-6 lg:divide-y-0">
         {metrics.map((metric) => {
           const Icon = metric.icon
-          const colorClasses = getColorClasses(metric.color)
-
           return (
-            <div
-              key={metric.title}
-              className="bg-[#141414] rounded-xl border border-white/10 p-3 sm:p-3.5 hover:border-white/10 transition-colors"
-            >
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ring-1 ${colorClasses} mb-2`}>
-                <Icon className="w-4 h-4" />
+            <div key={metric.title} className="p-4">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <span className="truncate text-[11px] font-medium uppercase tracking-wide text-white/45 sm:text-xs">
+                  {metric.title}
+                </span>
+                <Icon className="h-4 w-4 shrink-0 text-brand-300 opacity-70" />
               </div>
-              <div className="text-lg sm:text-xl font-bold text-white leading-none tabular-nums">
+              <div className="text-2xl font-bold leading-none text-white tabular-nums sm:text-3xl">
                 {metric.value}
-              </div>
-              <div className="text-[11px] sm:text-xs text-white/50 mt-1 truncate">
-                {metric.title}
               </div>
             </div>
           )

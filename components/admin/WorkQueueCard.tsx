@@ -29,26 +29,23 @@ export function WorkQueueCard({
   items,
   icon: Icon,
   iconColor,
-  iconBg,
   viewAllHref,
   emptyMessage = 'No items'
 }: WorkQueueCardProps) {
   const badgeColors = {
     success: 'bg-emerald-500/15 text-emerald-300',
     warning: 'bg-amber-500/15 text-amber-300',
-    neutral: 'bg-white/5 text-white/90',
+    neutral: 'bg-[#1c1c1c] text-white/90',
     error: 'bg-red-500/15 text-red-300'
   }
 
   return (
-    <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 overflow-hidden">
+    <div className="rounded-xl border border-white/10 overflow-hidden">
       {/* Header */}
       <div className="px-4 py-3 border-b border-white/10">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className={`w-8 h-8 ${iconBg} rounded-lg flex items-center justify-center flex-shrink-0`}>
-              <Icon className={`w-4 h-4 ${iconColor}`} />
-            </div>
+            <Icon className={`w-4 h-4 shrink-0 ${iconColor} opacity-80`} />
             <div className="min-w-0">
               <h3 className="font-semibold text-sm text-white leading-tight truncate">{title}</h3>
               <p className="text-xs text-white/50">{count} total</p>

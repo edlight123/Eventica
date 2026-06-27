@@ -252,7 +252,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
                 className={
                   active
                     ? 'px-3 py-1.5 rounded-full text-[13px] sm:text-sm font-semibold bg-brand-700 text-white'
-                    : 'px-3 py-1.5 rounded-full text-[13px] sm:text-sm font-medium bg-white/5 text-white/70 hover:bg-white/10'
+                    : 'px-3 py-1.5 rounded-full text-[13px] sm:text-sm font-medium bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
                 }
               >
                 {tab.label}
@@ -279,7 +279,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
             <button
               onClick={handleExportCSV}
               disabled={filteredRequests.length === 0}
-              className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white/70 rounded-lg text-[13px] sm:text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              className="px-4 py-2 bg-[#1c1c1c] hover:bg-[#242424] text-white/70 rounded-lg text-[13px] sm:text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
             >
               📥 Export CSV
             </button>
@@ -291,7 +291,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
             <button
               onClick={() => toggleSort('date')}
               className={`px-3 py-1 rounded-full text-[12px] sm:text-xs font-medium ${
-                sortField === 'date' ? 'bg-brand-500/15 text-brand-300' : 'bg-white/5 text-white/70'
+                sortField === 'date' ? 'bg-brand-500/15 text-brand-300' : 'bg-[#1c1c1c] text-white/70'
               }`}
             >
               Date {sortField === 'date' && (sortDirection === 'asc' ? '↑' : '↓')}
@@ -299,7 +299,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
             <button
               onClick={() => toggleSort('name')}
               className={`px-3 py-1 rounded-full text-[12px] sm:text-xs font-medium ${
-                sortField === 'name' ? 'bg-brand-500/15 text-brand-300' : 'bg-white/5 text-white/70'
+                sortField === 'name' ? 'bg-brand-500/15 text-brand-300' : 'bg-[#1c1c1c] text-white/70'
               }`}
             >
               Name {sortField === 'name' && (sortDirection === 'asc' ? '↑' : '↓')}
@@ -307,7 +307,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
             <button
               onClick={() => toggleSort('email')}
               className={`px-3 py-1 rounded-full text-[12px] sm:text-xs font-medium ${
-                sortField === 'email' ? 'bg-brand-500/15 text-brand-300' : 'bg-white/5 text-white/70'
+                sortField === 'email' ? 'bg-brand-500/15 text-brand-300' : 'bg-[#1c1c1c] text-white/70'
               }`}
             >
               Email {sortField === 'email' && (sortDirection === 'asc' ? '↑' : '↓')}
@@ -315,7 +315,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
             <button
               onClick={() => toggleSort('country')}
               className={`px-3 py-1 rounded-full text-[12px] sm:text-xs font-medium ${
-                sortField === 'country' ? 'bg-brand-500/15 text-brand-300' : 'bg-white/5 text-white/70'
+                sortField === 'country' ? 'bg-brand-500/15 text-brand-300' : 'bg-[#1c1c1c] text-white/70'
               }`}
             >
               Country {sortField === 'country' && (sortDirection === 'asc' ? '↑' : '↓')}

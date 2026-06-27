@@ -130,7 +130,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               filter === tab
                 ? 'bg-brand-700 text-white'
-                : 'text-white/60 hover:bg-white/5'
+                : 'text-white/60 hover:bg-[#1c1c1c]'
             }`}
           >
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -417,14 +417,14 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                   <button
                     onClick={() => handleAction(selectedWithdrawal.id, 'approve')}
                     disabled={processing}
-                    className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:bg-white/10"
+                    className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:bg-[#242424]"
                   >
                     ✓ Approve & Process
                   </button>
                   <button
                     onClick={() => handleAction(selectedWithdrawal.id, 'reject')}
                     disabled={processing}
-                    className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:bg-white/10"
+                    className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:bg-[#242424]"
                   >
                     ✗ Reject
                   </button>
@@ -435,14 +435,14 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                   <button
                     onClick={() => handleAction(selectedWithdrawal.id, 'complete')}
                     disabled={processing}
-                    className="flex-1 px-4 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 transition-colors font-medium disabled:bg-white/10"
+                    className="flex-1 px-4 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 transition-colors font-medium disabled:bg-[#242424]"
                   >
                     ✓ Mark Complete
                   </button>
                   <button
                     onClick={() => handleAction(selectedWithdrawal.id, 'fail')}
                     disabled={processing}
-                    className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:bg-white/10"
+                    className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:bg-[#242424]"
                   >
                     ✗ Mark Failed
                   </button>

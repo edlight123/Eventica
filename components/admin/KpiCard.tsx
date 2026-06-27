@@ -7,7 +7,8 @@ interface KpiCardProps {
   subtitle?: string
   icon: LucideIcon
   iconColor: string
-  iconBg: string
+  /** @deprecated kept for call-site compatibility; chips are no longer rendered */
+  iconBg?: string
   href?: string
   trend?: {
     value: string
@@ -15,61 +16,50 @@ interface KpiCardProps {
   }
 }
 
-export function KpiCard({ 
-  title, 
-  value, 
-  subtitle, 
-  icon: Icon, 
-  iconColor, 
-  iconBg, 
+export function KpiCard({
+  title,
+  value,
+  subtitle,
+  icon: Icon,
+  iconColor,
   href,
-  trend 
+  trend,
 }: KpiCardProps) {
   const content = (
-    <div className="relative overflow-hidden">
-      <div className="flex items-start justify-between mb-2 sm:mb-3">
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-1 truncate">
-            {title}
-          </p>
-          <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-white truncate">
-            {typeof value === 'number' ? value.toLocaleString() : value}
-          </p>
-        </div>
-        <div className={`w-10 h-10 sm:w-12 sm:h-12 ${iconBg} rounded-xl flex items-center justify-center flex-shrink-0 ml-2`}>
-          <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${iconColor}`} />
-        </div>
+    <>
+      <div className="mb-2 flex items-center justify-between">
+        <p className="truncate text-xs font-semibold uppercase tracking-wider text-white/45">
+          {title}
+        </p>
+        <Icon className={`h-4 w-4 shrink-0 ${iconColor} opacity-70`} />
       </div>
-      
-      {subtitle && (
-        <p className="text-xs sm:text-sm text-white/60 truncate">{subtitle}</p>
-      )}
-      
+      <p className="truncate text-2xl font-bold text-white sm:text-3xl">
+        {typeof value === 'number' ? value.toLocaleString() : value}
+      </p>
+      {subtitle && <p className="mt-1 truncate text-xs text-white/45">{subtitle}</p>}
       {trend && (
-        <div className={`mt-2 inline-flex items-center gap-1 text-xs font-medium ${
-          trend.isPositive ? 'text-emerald-300' : 'text-red-300'
-        }`}>
+        <div
+          className={`mt-2 inline-flex items-center gap-1 text-xs font-medium ${
+            trend.isPositive ? 'text-emerald-300' : 'text-red-300'
+          }`}
+        >
           <span>{trend.isPositive ? '↑' : '↓'}</span>
           <span>{trend.value}</span>
         </div>
       )}
-    </div>
+    </>
   )
 
   if (href) {
     return (
       <Link
         href={href}
-        className="block bg-[#141414] rounded-xl shadow-sm border border-white/10 p-3 sm:p-5 hover:shadow-md hover:border-brand-300 transition-all active:scale-95"
+        className="group block rounded-xl p-3 transition-colors hover:bg-[#141414] sm:p-4"
       >
         {content}
       </Link>
     )
   }
 
-  return (
-    <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-3 sm:p-5">
-      {content}
-    </div>
-  )
+  return <div className="p-3 sm:p-4">{content}</div>
 }

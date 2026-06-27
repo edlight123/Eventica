@@ -184,7 +184,7 @@ export function AdminActivityFeed({
   ]
 
   return (
-    <div className="bg-[#141414] rounded-xl border border-white/10 flex flex-col lg:h-[560px]">
+    <div className="rounded-xl border border-white/10 flex flex-col lg:h-[560px]">
       {/* Header */}
       <div className="px-4 py-3 border-b border-white/10">
         <div className="flex items-center justify-between gap-2">
@@ -217,7 +217,7 @@ export function AdminActivityFeed({
               {option.label}
               {option.count > 0 && (
                 <span className={`px-1.5 rounded-full text-[10px] leading-4 ${
-                  filter === option.value ? 'bg-brand-500/15' : 'bg-white/10'
+                  filter === option.value ? 'bg-brand-500/15' : 'bg-[#242424]'
                 }`}>
                   {option.count}
                 </span>
@@ -297,7 +297,7 @@ export function AdminActivityFeed({
                                 ? 'bg-red-500/15 text-red-300'
                                 : activity.metadata.severity === 'high'
                                 ? 'bg-amber-500/15 text-amber-300'
-                                : 'bg-white/5 text-white/70'
+                                : 'bg-[#1c1c1c] text-white/70'
                             }`}>
                               {activity.metadata.severity}
                             </span>

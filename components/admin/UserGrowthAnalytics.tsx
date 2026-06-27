@@ -76,7 +76,7 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               selectedDays === period
                 ? 'bg-brand-600 text-white'
-                : 'bg-white/5 text-white/70 hover:bg-white/10'
+                : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
             }`}
           >
             {period} days

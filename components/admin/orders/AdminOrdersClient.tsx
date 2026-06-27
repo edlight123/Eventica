@@ -154,7 +154,7 @@ function PaymentMethodBadge({ method }: { method: string }) {
     )
   }
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-white/5 text-white/90">
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[#1c1c1c] text-white/90">
       {method || 'Unknown'}
     </span>
   )
@@ -526,7 +526,7 @@ export function AdminOrdersClient() {
       )}
 
       {/* Search and Filter Bar */}
-      <div className="bg-[#141414] rounded-xl border border-white/10 p-4">
+      <div className="rounded-xl border border-white/10 p-4">
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Search Input */}
           <div className="flex-1 relative">
@@ -555,7 +555,7 @@ export function AdminOrdersClient() {
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   filters.dateRange === option.value
                     ? 'bg-brand-600 text-white'
-                    : 'bg-white/5 text-white/70 hover:bg-white/10'
+                    : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
                 }`}
               >
                 {option.label}
@@ -569,7 +569,7 @@ export function AdminOrdersClient() {
             className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               showFilters || activeFiltersCount > 0
                 ? 'bg-brand-500/10 text-brand-300'
-                : 'bg-white/5 text-white/70 hover:bg-white/10'
+                : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
             }`}
           >
             <Filter className="w-4 h-4" />
@@ -583,7 +583,7 @@ export function AdminOrdersClient() {
           <button
             onClick={handleExport}
             disabled={exporting}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 text-white/70 rounded-lg text-sm font-medium hover:bg-white/10 transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#1c1c1c] text-white/70 rounded-lg text-sm font-medium hover:bg-[#242424] transition-colors disabled:opacity-50"
           >
             <Download className="w-4 h-4" />
             {exporting ? 'Exporting...' : 'Export'}
@@ -723,7 +723,7 @@ export function AdminOrdersClient() {
                   <Ticket className="w-4 h-4" />
                   <span>Order ID</span>
                 </div>
-                <div className="font-mono text-sm bg-white/5 px-3 py-2 rounded-lg break-all">
+                <div className="font-mono text-sm bg-[#1c1c1c] px-3 py-2 rounded-lg break-all">
                   {selectedOrder.id}
                 </div>
               </div>

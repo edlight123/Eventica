@@ -111,7 +111,7 @@ export function AdminTopNav({ userEmail, accountInitial = 'A' }: AdminTopNavProp
               href="/admin/dev"
               aria-label="Dev tools"
               className={`grid h-9 w-9 place-items-center rounded-lg transition-colors ${
-                devActive ? 'bg-white/10 text-white' : 'text-white/55 hover:bg-white/5 hover:text-white'
+                devActive ? 'bg-[#242424] text-white' : 'text-white/55 hover:bg-[#1c1c1c] hover:text-white'
               }`}
             >
               <Wrench className="h-[18px] w-[18px]" />
@@ -121,7 +121,7 @@ export function AdminTopNav({ userEmail, accountInitial = 'A' }: AdminTopNavProp
             href="/admin/security"
             aria-label="Security"
             className={`grid h-9 w-9 place-items-center rounded-lg transition-colors ${
-              securityActive ? 'bg-white/10 text-white' : 'text-white/55 hover:bg-white/5 hover:text-white'
+              securityActive ? 'bg-[#242424] text-white' : 'text-white/55 hover:bg-[#1c1c1c] hover:text-white'
             }`}
           >
             <Lock className="h-[18px] w-[18px]" />
@@ -130,7 +130,7 @@ export function AdminTopNav({ userEmail, accountInitial = 'A' }: AdminTopNavProp
             href="/admin/settings"
             aria-label="Settings"
             className={`grid h-9 w-9 place-items-center rounded-lg transition-colors ${
-              settingsActive ? 'bg-white/10 text-white' : 'text-white/55 hover:bg-white/5 hover:text-white'
+              settingsActive ? 'bg-[#242424] text-white' : 'text-white/55 hover:bg-[#1c1c1c] hover:text-white'
             }`}
           >
             <Settings className="h-[18px] w-[18px]" />

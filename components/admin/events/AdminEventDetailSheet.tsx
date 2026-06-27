@@ -114,7 +114,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
           <h3 className="text-lg font-bold text-white">{t('admin.event_details')}</h3>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white/10 rounded-lg"
+            className="p-2 hover:bg-[#242424] rounded-lg"
           >
             <X className="w-5 h-5 text-white/60" />
           </button>
@@ -124,7 +124,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
         <div className="flex-1 overflow-y-auto">
           {/* Banner */}
           {event.banner_image_url ? (
-            <div className="relative w-full h-48 bg-white/5">
+            <div className="relative w-full h-48 bg-[#1c1c1c]">
               <Image
                 src={event.banner_image_url}
                 alt={event.title}
@@ -153,7 +153,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
               </div>
 
               {event.category && (
-                <span className="inline-flex px-2 py-1 bg-white/5 text-white/70 rounded-md text-sm">
+                <span className="inline-flex px-2 py-1 bg-[#1c1c1c] text-white/70 rounded-md text-sm">
                   {event.category}
                 </span>
               )}
@@ -257,7 +257,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
                 <div className="space-y-3">
                   {event.audit_logs.map((log) => (
                     <div key={log.id} className="flex gap-3">
-                      <div className="flex-shrink-0 w-8 h-8 bg-white/5 rounded-full flex items-center justify-center">
+                      <div className="flex-shrink-0 w-8 h-8 bg-[#1c1c1c] rounded-full flex items-center justify-center">
                         <span className="text-xs">📝</span>
                       </div>
                       <div>

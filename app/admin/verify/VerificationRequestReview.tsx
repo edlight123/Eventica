@@ -185,7 +185,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
         {url ? (
           <div
             onClick={() => setSelectedImage(url)}
-            className="relative aspect-[1.586/1] bg-white/5 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity border-2 border-white/10"
+            className="relative aspect-[1.586/1] bg-[#1c1c1c] rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity border-2 border-white/10"
           >
             <Image
               src={url}
@@ -202,7 +202,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
             </div>
           </div>
         ) : (
-          <div className="aspect-[1.586/1] bg-white/5 rounded-lg border-2 border-dashed border-white/10 flex items-center justify-center">
+          <div className="aspect-[1.586/1] bg-[#1c1c1c] rounded-lg border-2 border-dashed border-white/10 flex items-center justify-center">
             <p className="text-[12px] sm:text-sm text-white/50">Not provided</p>
           </div>
         )}
@@ -441,9 +441,9 @@ export default function VerificationRequestReview({ request, user }: Props) {
                       </div>
                       <div className="flex items-center gap-2 whitespace-nowrap">
                         {required ? (
-                          <span className="px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded bg-white/10 text-white/70">Required</span>
+                          <span className="px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded bg-[#242424] text-white/70">Required</span>
                         ) : (
-                          <span className="px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded bg-white/5 text-white/60">Optional</span>
+                          <span className="px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded bg-[#1c1c1c] text-white/60">Optional</span>
                         )}
                         <span className="px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded bg-[#141414] text-white/70 border border-white/10">
                           {String(stepStatus).replaceAll('_', ' ')}
@@ -585,7 +585,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
           <div className="relative max-w-4xl max-h-full">
             <button
               onClick={() => setSelectedImage(null)}
-              className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-[#141414] rounded-full p-2 hover:bg-white/5"
+              className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-[#141414] rounded-full p-2 hover:bg-[#1c1c1c]"
             >
               <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

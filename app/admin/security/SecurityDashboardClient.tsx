@@ -22,7 +22,7 @@ interface SuspiciousActivity {
 }
 
 const SEVERITY_COLORS = {
-  low: 'bg-white/5 text-white/90',
+  low: 'bg-[#1c1c1c] text-white/90',
   medium: 'bg-amber-500/10 text-amber-300',
   high: 'bg-amber-500/15 text-amber-300',
   critical: 'bg-red-500/15 text-red-300',
@@ -408,7 +408,7 @@ export default function SecurityDashboardClient() {
                                 setReviewingId(null)
                                 setActionText('')
                               }}
-                              className="px-3 py-1 bg-white/10 text-white/70 text-sm rounded-lg hover:bg-white/10"
+                              className="px-3 py-1 bg-[#242424] text-white/70 text-sm rounded-lg hover:bg-[#242424]"
                             >
                               Cancel
                             </button>

@@ -164,7 +164,7 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
                               <span className={`px-2 py-0.5 text-xs font-medium rounded ${
                                 result.metadata.status === 'published' || result.metadata.status === 'confirmed' ? 'bg-emerald-500/15 text-emerald-300' :
                                 result.metadata.status === 'draft' || result.metadata.status === 'pending' ? 'bg-amber-500/15 text-amber-300' :
-                                'bg-white/5 text-white/90'
+                                'bg-[#1c1c1c] text-white/90'
                               }`}>
                                 {result.metadata.status}
                               </span>

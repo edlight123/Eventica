@@ -215,7 +215,7 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
           <button
             onClick={exportCSV}
             disabled={payouts.length === 0}
-            className="px-4 py-2.5 bg-brand-700 text-white rounded-lg text-sm font-medium hover:bg-brand-800 transition-colors disabled:bg-white/10"
+            className="px-4 py-2.5 bg-brand-700 text-white rounded-lg text-sm font-medium hover:bg-brand-800 transition-colors disabled:bg-[#242424]"
           >
             Export CSV
           </button>

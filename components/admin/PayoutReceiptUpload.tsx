@@ -237,7 +237,7 @@ export default function PayoutReceiptUpload({
             <button
               onClick={handleUpload}
               disabled={uploading}
-              className="w-full bg-brand-700 text-white px-4 py-2 rounded-lg hover:bg-brand-800 disabled:bg-white/10 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-brand-700 text-white px-4 py-2 rounded-lg hover:bg-brand-800 disabled:bg-[#242424] disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
             >
               {uploading ? (
                 <>

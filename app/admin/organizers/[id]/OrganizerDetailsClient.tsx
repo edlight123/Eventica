@@ -295,8 +295,8 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                         <div className="flex items-center gap-2">
                           <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
                             dest.type === 'bank' ? 'bg-brand-500/10 text-brand-300' :
-                            dest.type === 'mobile_money' ? 'bg-white/5 text-white/90' :
-                            'bg-white/5 text-white/90'
+                            dest.type === 'mobile_money' ? 'bg-[#1c1c1c] text-white/90' :
+                            'bg-[#1c1c1c] text-white/90'
                           }`}>
                             {safeString(dest.type || 'bank').replace(/_/g, ' ')}
                           </span>
@@ -440,7 +440,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                     payoutConfig.status === 'active' ? 'bg-emerald-500/15 text-emerald-300' :
                     payoutConfig.status === 'pending_verification' ? 'bg-amber-500/15 text-amber-300' :
                     payoutConfig.status === 'on_hold' ? 'bg-red-500/15 text-red-300' :
-                    'bg-white/5 text-white/90'
+                    'bg-[#1c1c1c] text-white/90'
                   }`}>
                     {safeString(payoutConfig.status, 'not_setup').replace(/_/g, ' ')}
                   </span>
@@ -585,8 +585,8 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                           docType === 'identity' ? 'bg-brand-500/10' :
                           docType === 'bank' ? 'bg-emerald-500/15' :
-                          docType === 'phone' ? 'bg-white/5' :
-                          'bg-white/5'
+                          docType === 'phone' ? 'bg-[#1c1c1c]' :
+                          'bg-[#1c1c1c]'
                         }`}>
                           {docType === 'identity' && (
                             <svg className="w-5 h-5 text-brand-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">

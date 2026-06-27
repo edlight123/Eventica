@@ -89,7 +89,7 @@ export default function BankVerificationsClient() {
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 statusFilter === status
                   ? 'bg-brand-700 text-white'
-                  : 'bg-white/5 text-white/70 hover:bg-white/10'
+                  : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
               }`}
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}

@@ -167,13 +167,13 @@ export default function SeedEventsClient() {
           {result?.success && (
             <div className="flex gap-2">
               <button
-                className="flex-1 bg-white/10 hover:bg-white/10 text-white/90 font-semibold py-2 px-4 rounded-lg transition-colors"
+                className="flex-1 bg-[#242424] hover:bg-[#242424] text-white/90 font-semibold py-2 px-4 rounded-lg transition-colors"
                 onClick={() => (window.location.href = '/discover')}
               >
                 View Events
               </button>
               <button
-                className="flex-1 bg-white/10 hover:bg-white/10 text-white/90 font-semibold py-2 px-4 rounded-lg transition-colors"
+                className="flex-1 bg-[#242424] hover:bg-[#242424] text-white/90 font-semibold py-2 px-4 rounded-lg transition-colors"
                 onClick={() => (window.location.href = '/organizer/events')}
               >
                 Manage Events

@@ -15,8 +15,8 @@ interface RecentActivityTimelineProps {
 export function RecentActivityTimeline({ activities }: RecentActivityTimelineProps) {
   if (activities.length === 0) {
     return (
-      <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-8 text-center">
-        <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3">
+      <div className="rounded-xl border border-white/10 p-8 text-center">
+        <div className="w-12 h-12 bg-[#1c1c1c] rounded-full flex items-center justify-center mx-auto mb-3">
           <Clock className="w-6 h-6 text-white/40" />
         </div>
         <h3 className="font-bold text-white mb-1">No Recent Activity</h3>
@@ -24,14 +24,14 @@ export function RecentActivityTimeline({ activities }: RecentActivityTimelinePro
           Activity logs will appear here once admin actions are tracked
         </p>
         <p className="text-xs text-white/40 mt-2">
-          Requires <code className="bg-white/5 px-1 rounded">admin_audit_log</code> collection
+          Requires <code className="bg-[#1c1c1c] px-1 rounded">admin_audit_log</code> collection
         </p>
       </div>
     )
   }
 
   return (
-    <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 overflow-hidden">
+    <div className="rounded-xl border border-white/10 overflow-hidden">
       <div className="p-5 border-b border-white/10">
         <h3 className="font-bold text-white">Recent Activity</h3>
         <p className="text-sm text-white/50">Latest admin actions</p>
@@ -46,7 +46,7 @@ export function RecentActivityTimeline({ activities }: RecentActivityTimelinePro
                   {activity.icon || '👤'}
                 </div>
                 {index < activities.length - 1 && (
-                  <div className="absolute top-8 left-1/2 -translate-x-1/2 w-0.5 h-4 bg-white/10" />
+                  <div className="absolute top-8 left-1/2 -translate-x-1/2 w-0.5 h-4 bg-[#242424]" />
                 )}
               </div>
               <div className="flex-1">

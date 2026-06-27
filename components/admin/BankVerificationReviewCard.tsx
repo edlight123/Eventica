@@ -320,7 +320,7 @@ export default function BankVerificationReviewCard({ verification }: Props) {
               <button
                 onClick={handleApprove}
                 disabled={processing}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-white/10 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all disabled:cursor-not-allowed"
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-[#242424] text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all disabled:cursor-not-allowed"
               >
                 <Check className="w-5 h-5" />
                 {processing ? 'Processing...' : 'Approve Verification'}
@@ -328,7 +328,7 @@ export default function BankVerificationReviewCard({ verification }: Props) {
               <button
                 onClick={handleReject}
                 disabled={processing}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 disabled:bg-white/10 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all disabled:cursor-not-allowed"
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 disabled:bg-[#242424] text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all disabled:cursor-not-allowed"
               >
                 <X className="w-5 h-5" />
                 {processing ? 'Processing...' : 'Reject Verification'}

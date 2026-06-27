@@ -130,7 +130,7 @@ export function AdminDashboardClient({
           />
 
           {/* Compact info note */}
-          <div className="bg-brand-500/10 rounded-xl border border-brand-500/30 p-4">
+          <div className="rounded-xl border border-brand-500/25 p-4">
             <div className="flex items-start gap-2.5">
               <AlertCircle className="w-4 h-4 text-brand-300 mt-0.5 flex-shrink-0" />
               <div className="min-w-0">

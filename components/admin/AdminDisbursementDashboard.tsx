@@ -174,7 +174,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               filter === 'all'
                 ? 'bg-brand-700 text-white'
-                : 'bg-white/5 text-white/70 hover:bg-white/10'
+                : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
             }`}
           >
             All Events ({endedEvents.length})
@@ -184,7 +184,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               filter === 'eligible'
                 ? 'bg-brand-700 text-white'
-                : 'bg-white/5 text-white/70 hover:bg-white/10'
+                : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
             }`}
           >
             Eligible for Payout ({endedEvents.filter(e => e.payoutEligible && !e.hasPendingPayout).length})
@@ -194,7 +194,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               filter === 'pending'
                 ? 'bg-brand-700 text-white'
-                : 'bg-white/5 text-white/70 hover:bg-white/10'
+                : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
             }`}
           >
             Pending Payout ({endedEvents.filter(e => e.hasPendingPayout).length})
@@ -204,7 +204,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               filter === 'completed'
                 ? 'bg-brand-700 text-white'
-                : 'bg-white/5 text-white/70 hover:bg-white/10'
+                : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
             }`}
           >
             Completed ({endedEvents.filter(e => e.hasCompletedPayout).length})

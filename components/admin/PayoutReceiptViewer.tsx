@@ -64,7 +64,7 @@ export default function PayoutReceiptViewer({
             </div>
           </div>
         ) : (
-          <div className="relative w-full h-96 bg-white/5 rounded">
+          <div className="relative w-full h-96 bg-[#1c1c1c] rounded">
             <Image
               src={receiptUrl}
               alt="Payment receipt"
@@ -81,7 +81,7 @@ export default function PayoutReceiptViewer({
           {paymentReferenceId && (
             <div className="flex items-center gap-2 text-white/60">
               <span className="font-medium">Reference ID:</span>
-              <span className="font-mono bg-white/5 px-2 py-0.5 rounded">
+              <span className="font-mono bg-[#1c1c1c] px-2 py-0.5 rounded">
                 {paymentReferenceId}
               </span>
             </div>

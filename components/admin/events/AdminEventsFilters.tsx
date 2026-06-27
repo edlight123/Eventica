@@ -60,7 +60,7 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
           <h3 className="text-lg font-bold text-white">Filters</h3>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white/5 rounded-lg"
+            className="p-2 hover:bg-[#1c1c1c] rounded-lg"
           >
             <X className="w-5 h-5 text-white/60" />
           </button>

@@ -130,7 +130,7 @@ export function ConversionFunnelAnalytics() {
                   
                   {/* Progress Bar */}
                   <div className="relative">
-                    <div className="w-full bg-white/10 rounded-full h-2.5">
+                    <div className="w-full bg-[#242424] rounded-full h-2.5">
                       <div
                         className={`${stage.iconBg} h-2.5 rounded-full transition-all duration-500`}
                         style={{ width: `${widthPercentage}%` }}

@@ -143,7 +143,7 @@ export function EventPerformanceAnalytics() {
                       {category.count} tickets ({percentage.toFixed(1)}%)
                     </span>
                   </div>
-                  <div className="w-full bg-white/10 rounded-full h-2">
+                  <div className="w-full bg-[#242424] rounded-full h-2">
                     <div
                       className={`${color} h-2 rounded-full transition-all duration-500`}
                       style={{ width: `${percentage}%` }}

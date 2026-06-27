@@ -43,7 +43,7 @@ export function AdminDashboardQuickActions({
       description: 'Process organizer identity verifications',
       href: '/admin/verify',
       icon: CheckCircle,
-      color: 'bg-brand-500/10 text-brand-300',
+      color: 'text-brand-300',
       badge: pendingVerifications,
       urgent: pendingVerifications > 0
     },
@@ -52,7 +52,7 @@ export function AdminDashboardQuickActions({
       description: 'Review bank account verifications',
       href: '/admin/bank-verifications',
       icon: CreditCard,
-      color: 'bg-brand-500/10 text-brand-300',
+      color: 'text-brand-300',
       badge: pendingBankVerifications,
       urgent: pendingBankVerifications > 5
     },
@@ -61,42 +61,42 @@ export function AdminDashboardQuickActions({
       description: 'Manage event settlements and withdrawals',
       href: '/admin/disbursements',
       icon: DollarSign,
-      color: 'bg-brand-500/10 text-brand-300'
+      color: 'text-brand-300'
     },
     {
       title: 'Revenue Analytics',
       description: 'View platform performance metrics',
       href: '/admin/analytics',
       icon: TrendingUp,
-      color: 'bg-brand-500/10 text-brand-300'
+      color: 'text-brand-300'
     },
     {
       title: 'User Management',
       description: 'Manage platform users and organizers',
       href: '/admin/users',
       icon: Users,
-      color: 'bg-brand-500/10 text-brand-300'
+      color: 'text-brand-300'
     },
     {
       title: 'Event Moderation',
       description: 'Review and moderate events',
       href: '/admin/events',
       icon: Calendar,
-      color: 'bg-brand-500/10 text-brand-300'
+      color: 'text-brand-300'
     },
     {
       title: 'Security Dashboard',
       description: 'Monitor platform security and threats',
       href: '/admin/security',
       icon: AlertTriangle,
-      color: 'bg-red-500/10 text-red-300'
+      color: 'text-red-300'
     },
     {
       title: 'Platform Settings',
       description: 'Configure system settings',
       href: '/admin/settings',
       icon: Settings,
-      color: 'bg-white/5 text-white/60'
+      color: 'text-white/60'
     }
   ]
 
@@ -130,7 +130,7 @@ export function AdminDashboardQuickActions({
               key={action.href}
               href={action.href}
               title={action.description}
-              className="group relative bg-[#141414] rounded-xl border border-white/10 p-3 flex flex-col gap-2 hover:border-white/10 hover:shadow-sm transition-all"
+              className="group relative rounded-xl border border-white/10 p-3 flex flex-col gap-2 hover:bg-[#141414] hover:border-white/20 transition-all"
             >
               {action.badge !== undefined && action.badge > 0 && (
                 <span className="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
@@ -138,9 +138,7 @@ export function AdminDashboardQuickActions({
                 </span>
               )}
 
-              <div className={`w-9 h-9 ${action.color} rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform`}>
-                <Icon className="w-5 h-5" />
-              </div>
+              <Icon className={`w-5 h-5 ${action.color} group-hover:scale-105 transition-transform`} />
 
               <span className="text-xs font-medium text-white leading-tight group-hover:text-brand-300 transition-colors">
                 {action.title}

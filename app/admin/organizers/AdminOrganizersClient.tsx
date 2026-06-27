@@ -219,7 +219,7 @@ export default function AdminOrganizersClient({
             disabled={isLoadingMore}
             className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors border border-white/15 ${
               isLoadingMore
-                ? 'bg-white/5 text-white/50 cursor-not-allowed'
+                ? 'bg-[#1c1c1c] text-white/50 cursor-not-allowed'
                 : 'bg-[#141414] hover:bg-[#0a0a0a] text-white'
             }`}
           >
