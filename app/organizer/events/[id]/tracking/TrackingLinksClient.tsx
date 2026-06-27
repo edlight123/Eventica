@@ -159,7 +159,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
           </div>
 
           {/* Live preview */}
-          <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+          <div className="mt-4 rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3">
             <p className="mb-1 text-xs font-medium text-white/40">Preview</p>
             <p className="break-all text-xs text-white/70">{previewUrl}</p>
           </div>

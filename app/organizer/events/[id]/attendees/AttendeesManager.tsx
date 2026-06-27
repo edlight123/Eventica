@@ -196,7 +196,7 @@ export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesMana
       key={t.id}
       type="button"
       onClick={() => setSelectedTicket(t)}
-      className="flex w-full items-center gap-3 p-4 text-left hover:bg-white/[0.03] active:bg-white/[0.05]"
+      className="flex w-full items-center gap-3 p-4 text-left hover:bg-[#1c1c1c] active:bg-[#1c1c1c]"
     >
       <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full ">
         <User className="h-5 w-5 text-brand-300" />
@@ -246,7 +246,7 @@ export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesMana
           <button
             type="button"
             onClick={handleExportCSV}
-            className="inline-flex h-10 items-center gap-2 rounded-lg border border-white/10 bg-[#141414] px-4 text-sm font-medium text-white/70 transition-colors hover:bg-white/[0.08] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="inline-flex h-10 items-center gap-2 rounded-lg border border-white/10 bg-[#141414] px-4 text-sm font-medium text-white/70 transition-colors hover:bg-[#1c1c1c] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <Download className="h-4 w-4" />
             <span className="hidden sm:inline">Export CSV</span>

@@ -77,8 +77,8 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
       {message && (
         <div className={`p-3 rounded-lg text-sm ${
           message.type === 'success'
-            ? 'bg-emerald-500/10 border border-green-200 text-emerald-300'
-            : 'bg-red-500/10 border border-red-200 text-red-300'
+            ? 'border border-green-200 text-emerald-300'
+            : 'border border-red-200 text-red-300'
         }`}>
           {message.text}
         </div>
@@ -142,8 +142,8 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                   {message && (
                     <div className={`p-3 rounded-lg ${
                       message.type === 'success'
-                        ? 'bg-emerald-500/10 border border-green-200 text-emerald-300'
-                        : 'bg-red-500/10 border border-red-200 text-red-300'
+                        ? 'border border-green-200 text-emerald-300'
+                        : 'border border-red-200 text-red-300'
                     }`}>
                       {message.text}
                     </div>
@@ -226,7 +226,7 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                   </button>
                 </div>
 
-                <div className="bg-amber-500/10 border border-amber-200 rounded-lg p-3 mb-4">
+                <div className="border border-amber-200 rounded-lg p-3 mb-4">
                   <p className="text-sm text-amber-300">
                     <strong>⏰ Reminder:</strong> This transfer link expires in 24 hours. The recipient must accept before then.
                   </p>
@@ -235,8 +235,8 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                 {message && (
                   <div className={`p-3 rounded-lg mb-4 ${
                     message.type === 'success'
-                      ? 'bg-emerald-500/10 border border-green-200 text-emerald-300'
-                      : 'bg-red-500/10 border border-red-200 text-red-300'
+                      ? 'border border-green-200 text-emerald-300'
+                      : 'border border-red-200 text-red-300'
                   }`}>
                     {message.text}
                   </div>

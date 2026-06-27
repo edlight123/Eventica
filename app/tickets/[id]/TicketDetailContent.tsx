@@ -79,7 +79,7 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
             </div>
 
             {ticket.checked_in_at && (
-              <div className="w-full bg-emerald-500/10 border border-green-200 rounded-lg p-3 sm:p-4 mb-4">
+              <div className="w-full border border-green-200 rounded-lg p-3 sm:p-4 mb-4">
                 <p className="text-xs sm:text-sm font-semibold text-emerald-300 text-center">
                   {t('detail.checked_in')} {t('detail.checked_in_at', { 
                     time: format(new Date(ticket.checked_in_at), 'MMM d, yyyy • h:mm a') 
@@ -137,7 +137,7 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
 
               <div className="space-y-3 mt-6">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-brand-500/15 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
                     <Calendar className="w-5 h-5 text-brand-300" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -154,7 +154,7 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-brand-500/15 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
                     <MapPin className="w-5 h-5 text-brand-300" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -190,7 +190,7 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-brand-500/15 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
                     <User className="w-5 h-5 text-brand-300" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -202,7 +202,7 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-brand-500/15 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
                     <Clock className="w-5 h-5 text-brand-300" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -222,7 +222,7 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
           </div>
 
           {/* Instructions Card */}
-          <div className="bg-brand-500/10 border border-brand-100 rounded-2xl p-4 sm:p-6">
+          <div className="border border-brand-100 rounded-2xl p-4 sm:p-6">
             <div className="flex items-start gap-3 mb-3 sm:mb-4">
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-brand-600 rounded-lg flex items-center justify-center flex-shrink-0">
                 <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />

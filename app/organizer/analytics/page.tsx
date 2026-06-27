@@ -256,7 +256,7 @@ export default async function AnalyticsPage() {
               {eventsWithSales.slice(0, 10).map((event: any, index: number) => (
                 <div
                   key={event.id}
-                  className="flex items-center gap-4 rounded-xl border border-white/10 bg-[#0a0a0a] p-4 transition-colors hover:bg-white/[0.04]"
+                  className="flex items-center gap-4 rounded-xl border border-white/10 bg-[#0a0a0a] p-4 transition-colors hover:bg-[#1c1c1c]"
                 >
                   <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-700 font-bold text-white text-sm">
                     {index + 1}

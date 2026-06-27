@@ -1,0 +1,144 @@
+import { adminAuth, adminDb } from '@/lib/firebase/admin'
+import { redirect, notFound } from 'next/navigation'
+import { cookies } from 'next/headers'
+import { AttendeesManager } from './AttendeesManager'
+import { loadTicketDocsForEvent } from '@/lib/tickets/loadTicketsForEvent'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+export default async function AttendeesPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id: eventId } = await params
+
+  // Verify authentication
+  const cookieStore = await cookies()
+  const sessionCookie = cookieStore.get('session')?.value
+
+  if (!sessionCookie) {
+    redirect(`/auth/login?redirect=${encodeURIComponent(`/organizer/events/${eventId}/attendees`)}`)
+  }
+
+  let authUser
+  try {
+    const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true)
+    authUser = decodedClaims
+  } catch (error) {
+    console.error('Error verifying session:', error)
+    redirect(`/auth/login?redirect=${encodeURIComponent(`/organizer/events/${eventId}/attendees`)}`)
+  }
+
+  // Fetch event
+  let eventDoc
+  try {
+    eventDoc = await adminDb.collection('events').doc(eventId).get()
+  } catch (error) {
+    console.error('Error fetching event:', error)
+    notFound()
+  }
+  
+  if (!eventDoc.exists) {
+    notFound()
+  }
+
+  const eventData = eventDoc.data()
+  const event = {
+    id: eventDoc.id,
+    title: eventData.title,
+    organizer_id: eventData.organizer_id,
+    start_datetime: eventData.start_datetime?.toDate?.()?.toISOString() || eventData.start_datetime,
+    total_tickets: eventData.total_tickets,
+    tickets_sold: eventData.tickets_sold
+  }
+
+  // Verify organizer
+  if (event.organizer_id !== authUser.uid) {
+    return (
+      <div className="bg-[#0a0a0a]">        <div className="flex items-center justify-center py-16 px-4">
+          <div className="text-center">
+            <h2 className="font-display text-2xl text-white mb-3">Unauthorized</h2>
+            <p className="text-sm text-white/60">You don&apos;t have permission to manage this event&apos;s attendees.</p>
+          </div>
+        </div>      </div>
+    )
+  }
+
+  // Fetch all tickets for this event (supports legacy `eventId` field too)
+  let ticketDocs: any[] = []
+  try {
+    ticketDocs = await loadTicketDocsForEvent(eventId)
+  } catch (error) {
+    console.error('Error fetching tickets:', error)
+    ticketDocs = []
+  }
+
+  // Batch fetch all attendee users (instead of N+1 queries)
+  const attendeeIds = Array.from(new Set(
+    ticketDocs
+      .map((doc: any) => doc.data().attendee_id)
+      .filter((id: string) => id)
+  ))
+  
+  const attendeesMap = new Map<string, any>()
+  
+  if (attendeeIds.length > 0) {
+    // Firestore 'in' queries support up to 30 items, so chunk if needed
+    const chunks = []
+    for (let i = 0; i < attendeeIds.length; i += 30) {
+      chunks.push(attendeeIds.slice(i, i + 30))
+    }
+    
+    const userSnapshots = await Promise.all(
+      chunks.map(chunk => 
+        adminDb.collection('users').where('__name__', 'in', chunk).get()
+      )
+    )
+    
+    userSnapshots.forEach(snapshot => {
+      snapshot.docs.forEach((doc: any) => {
+        const userData = doc.data()
+        attendeesMap.set(doc.id, {
+          id: doc.id,
+          email: userData.email || '',
+          full_name: userData.full_name || '',
+          phone_number: userData.phone_number || ''
+        })
+      })
+    })
+  }
+
+  // Map tickets with pre-fetched attendee data (no more N+1)
+  const tickets = ticketDocs.map((doc: any) => {
+    const ticketData = doc.data()
+    const attendee = ticketData.attendee_id ? attendeesMap.get(ticketData.attendee_id) || null : null
+
+    return {
+      id: doc.id,
+      event_id: ticketData.event_id || ticketData.eventId || '',
+      attendee_id: ticketData.attendee_id || '',
+      status: ticketData.status || 'confirmed',
+      ticket_type: ticketData.ticket_type || 'General Admission',
+      ticket_tier_id: ticketData.ticket_tier_id || '',
+      price_paid: ticketData.price_paid || 0,
+      currency: ticketData.currency || null,
+      quantity: ticketData.quantity || 1,
+      checked_in: ticketData.checked_in || false,
+      qr_code: ticketData.qr_code || ticketData.qr_code_data || '',
+      qr_code_data: ticketData.qr_code_data || ticketData.qr_code || '',
+      attendee,
+      purchased_at: ticketData.purchased_at?.toDate?.()?.toISOString() || ticketData.purchased_at || new Date().toISOString(),
+      checked_in_at: ticketData.checked_in_at?.toDate?.()?.toISOString() || ticketData.checked_in_at || null,
+      created_at: ticketData.created_at?.toDate?.()?.toISOString() || ticketData.created_at || new Date().toISOString(),
+      updated_at: ticketData.updated_at?.toDate?.()?.toISOString() || ticketData.updated_at || new Date().toISOString(),
+    }
+  })
+
+  return (
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+      <AttendeesManager
+        eventId={eventId}
+        eventTitle={event.title}
+        tickets={tickets}
+      />
+    </div>
+  )
+}

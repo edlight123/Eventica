@@ -117,8 +117,8 @@ export default function HeroSection({ hasActiveFilters, featuredEvents }: HeroSe
     <section className="relative overflow-hidden">
       {/* Dark canvas + soft brand glows */}
       <div aria-hidden className="absolute inset-0 -z-10 bg-[#0a0a0a]" />
-      <div aria-hidden className="absolute right-[-12%] top-[-30%] -z-10 h-[460px] w-[460px] rounded-full bg-brand-500/15 blur-[130px]" />
-      <div aria-hidden className="absolute left-[-10%] top-[-8%] -z-10 h-[320px] w-[320px] rounded-full bg-brand-600/15 blur-[120px]" />
+      <div aria-hidden className="absolute right-[-12%] top-[-30%] -z-10 h-[460px] w-[460px] rounded-full blur-[130px]" />
+      <div aria-hidden className="absolute left-[-10%] top-[-8%] -z-10 h-[320px] w-[320px] rounded-full blur-[120px]" />
 
       <div className="mx-auto grid max-w-6xl items-center gap-10 px-5 pb-12 pt-10 sm:px-6 sm:pb-16 sm:pt-16 lg:grid-cols-12 lg:gap-6 lg:px-8">
         {/* Copy + search */}

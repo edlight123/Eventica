@@ -189,7 +189,7 @@ export function OrgDataTable<T>({
           <div className="hidden overflow-x-auto md:block">
             <table className="w-full">
               <thead
-                className={`bg-white/[0.03] ${stickyHeader ? 'sticky top-0 z-10' : ''}`}
+                className={`bg-[#1c1c1c] ${stickyHeader ? 'sticky top-0 z-10' : ''}`}
               >
                 <tr className="border-b border-white/10">
                   {columns.map((col) => (
@@ -221,7 +221,7 @@ export function OrgDataTable<T>({
                     <tr
                       key={id}
                       onClick={onRowClick ? () => onRowClick(row) : undefined}
-                      className={`transition-colors hover:bg-white/[0.035] ${
+                      className={`transition-colors hover:bg-[#1c1c1c] ${
                         onRowClick ? 'cursor-pointer' : ''
                       }`}
                     >

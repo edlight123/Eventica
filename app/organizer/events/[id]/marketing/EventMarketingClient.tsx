@@ -73,7 +73,7 @@ export default function EventMarketingClient({
 
         {/* URL row */}
         <div className="flex items-center gap-2">
-          <div className="flex flex-1 items-center gap-2 overflow-hidden rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white/70">
+          <div className="flex flex-1 items-center gap-2 overflow-hidden rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white/70">
             <ExternalLink className="h-4 w-4 shrink-0 text-white/40" />
             <span className="truncate">{eventUrl || `/events/${eventId}`}</span>
           </div>

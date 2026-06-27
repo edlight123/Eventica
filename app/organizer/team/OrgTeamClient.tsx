@@ -216,14 +216,14 @@ export default function OrgTeamClient({
       <div className="mt-8 rounded-2xl border border-white/10 bg-[#141414] p-5">
         <h3 className="mb-3 font-semibold text-white">Access levels</h3>
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="flex items-start gap-3 rounded-xl bg-white/[0.03] p-4">
+          <div className="flex items-start gap-3 rounded-xl bg-[#1c1c1c] p-4">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" />
             <div>
               <p className="text-sm font-semibold text-white">Admin</p>
               <p className="mt-0.5 text-xs text-white/50">Full access to all events, orders, and settings</p>
             </div>
           </div>
-          <div className="flex items-start gap-3 rounded-xl bg-white/[0.03] p-4">
+          <div className="flex items-start gap-3 rounded-xl bg-[#1c1c1c] p-4">
             <User className="mt-0.5 h-4 w-4 shrink-0 text-white/40" />
             <div>
               <p className="text-sm font-semibold text-white">Staff</p>

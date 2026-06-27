@@ -38,7 +38,7 @@ export default function TicketsListClient({ upcomingEvents, pastEvents }: Ticket
       {upcomingEvents.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-10 h-10 bg-brand-500/10 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center">
               <Calendar className="w-5 h-5 text-brand-300" />
             </div>
             <div>

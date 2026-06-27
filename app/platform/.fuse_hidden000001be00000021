@@ -1,0 +1,255 @@
+import Link from 'next/link'
+import type { Metadata } from 'next'
+import { getCurrentUser } from '@/lib/auth'
+import { isAdmin } from '@/lib/admin'
+import Navbar from '@/components/Navbar'
+import MobileNavWrapper from '@/components/MobileNavWrapper'
+import {
+  ArrowRight,
+  Palette,
+  Music,
+  Globe,
+  Ticket,
+  CreditCard,
+  Smartphone,
+  Zap,
+  BarChart3,
+  ShieldCheck,
+  Users,
+} from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'Platform | Tikèm',
+  description:
+    'Everything you need to create, promote and sell out events across Haiti and the diaspora — built for organizers.',
+}
+
+// Reads auth cookies for the navbar context.
+export const dynamic = 'force-dynamic'
+
+function FeatureCard({
+  icon: Icon,
+  title,
+  body,
+}: {
+  icon: any
+  title: string
+  body: string
+}) {
+  return (
+    <div>
+      <Icon className="h-7 w-7 text-brand-300" strokeWidth={1.75} />
+      <h3 className="mt-4 font-grotesk text-lg font-semibold text-white">{title}</h3>
+      <p className="mt-1.5 text-[15px] leading-relaxed text-white/55">{body}</p>
+    </div>
+  )
+}
+
+function Section({
+  index,
+  kicker,
+  title,
+  blurb,
+  children,
+}: {
+  index: string
+  kicker: string
+  title: string
+  blurb: string
+  children: React.ReactNode
+}) {
+  return (
+    <section className="mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-20 lg:px-8">
+      <div className="mb-9 max-w-2xl">
+        <p className="eyebrow text-brand-400">
+          {index} &nbsp; {kicker}
+        </p>
+        <h2 className="mt-3 font-display text-[clamp(30px,5vw,52px)] leading-[1.0] text-white">
+          {title}
+        </h2>
+        <p className="mt-4 text-[15px] leading-relaxed text-white/55 sm:text-lg">
+          {blurb}
+        </p>
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">{children}</div>
+    </section>
+  )
+}
+
+export default async function PlatformPage() {
+  const user = await getCurrentUser()
+
+  return (
+    <div className="surface-dark min-h-screen pb-mobile-nav">
+      <Navbar user={user} isAdmin={isAdmin(user?.email)} />
+
+      {/* HERO */}
+      <section className="relative overflow-hidden">
+        <div aria-hidden className="absolute inset-0 -z-10 bg-[#0a0a0a]" />
+        <div
+          aria-hidden
+          className="absolute left-1/2 top-[-30%] -z-10 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-brand-500/15 blur-[150px]"
+        />
+        <div className="mx-auto max-w-4xl px-5 pb-16 pt-20 text-center sm:px-6 sm:pb-20 sm:pt-28 lg:px-8">
+          <p className="eyebrow text-brand-400">For organizers</p>
+          <h1 className="mx-auto mt-4 max-w-[18ch] text-balance font-display text-[clamp(40px,7vw,76px)] leading-[0.96] text-white">
+            Create your world on{' '}
+            <span className="italic text-brand-400">tikèm</span>.
+          </h1>
+          <p className="mx-auto mt-5 max-w-xl text-[15px] leading-relaxed text-white/60 sm:text-lg">
+            The tools you need to create, promote and sell out any experience —
+            from block parties in Pétion-Ville to the diaspora abroad.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/auth/signup"
+              className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-7 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-700"
+            >
+              Get started
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/discover"
+              className="inline-flex items-center rounded-xl border border-white/15 px-7 py-3.5 text-sm font-semibold text-white/85 transition-all duration-200 hover:border-white/30 hover:bg-white/5"
+            >
+              Explore events
+            </Link>
+          </div>
+
+          {/* Value props (qualitative, not invented metrics) */}
+          <div className="mx-auto mt-14 grid max-w-3xl grid-cols-1 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-3">
+            {[
+              { label: 'No setup fees', sub: 'Publish your first event free' },
+              { label: 'HTG & USD', sub: 'Sell at home and in the diaspora' },
+              { label: 'Fast payouts', sub: 'Get paid after your event' },
+            ].map((s) => (
+              <div key={s.label} className="bg-[#0a0a0a] px-6 py-7">
+                <p className="font-grotesk text-xl font-bold text-white">{s.label}</p>
+                <p className="mt-1 text-[13px] text-white/55">{s.sub}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 01 — CREATE */}
+      <Section
+        index="01"
+        kicker="Create"
+        title="Bring your idea to life"
+        blurb="Build a beautiful event page in minutes. Make it as unique as the experience you're putting on."
+      >
+        <FeatureCard
+          icon={Palette}
+          title="A page that's yours"
+          body="Upload your poster, set your colors and tell your story. Your event, your look."
+        />
+        <FeatureCard
+          icon={Ticket}
+          title="Flexible tickets"
+          body="Free RSVPs, paid tiers, early-bird and VIP — price it however the night calls for."
+        />
+        <FeatureCard
+          icon={Music}
+          title="Built for the culture"
+          body="Concerts, fêtes, conferences, watch parties — tikèm fits how Haiti goes out."
+        />
+      </Section>
+
+      <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
+        <div className="hairline" />
+      </div>
+
+      {/* 02 — SELL */}
+      <Section
+        index="02"
+        kicker="Sell"
+        title="Reach your people"
+        blurb="Put your event in front of the right crowd — on the home feed, in Discover, and shared anywhere."
+      >
+        <FeatureCard
+          icon={Globe}
+          title="Home & diaspora"
+          body="Get discovered by attendees in Haiti and Haitians abroad, all in one place."
+        />
+        <FeatureCard
+          icon={Smartphone}
+          title="Made for mobile"
+          body="Most people buy on their phone. tikèm is fast and clean on every screen."
+        />
+        <FeatureCard
+          icon={Users}
+          title="Social proof"
+          body="Friends-going and attendee counts help fence-sitters commit and buy."
+        />
+      </Section>
+
+      <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
+        <div className="hairline" />
+      </div>
+
+      {/* 03 — GET PAID */}
+      <Section
+        index="03"
+        kicker="Get paid"
+        title="Money in your account"
+        blurb="Sell tickets, scan guests at the door and track every gourde — then cash out with confidence."
+      >
+        <FeatureCard
+          icon={CreditCard}
+          title="Collect payments"
+          body="Take card and local payments for your tickets, with fees that make sense."
+        />
+        <FeatureCard
+          icon={Zap}
+          title="Clear payouts"
+          body="See exactly what you've earned and request a payout after the event settles."
+        />
+        <FeatureCard
+          icon={BarChart3}
+          title="Live dashboard"
+          body="Track sales, check-ins and your best channels in real time as the night unfolds."
+        />
+      </Section>
+
+      {/* FINAL CTA */}
+      <section className="px-5 pb-24 pt-4 sm:px-6 lg:px-8">
+        <div className="relative mx-auto max-w-5xl overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] px-6 py-16 text-center sm:py-20">
+          <div
+            aria-hidden
+            className="absolute left-1/2 top-0 -z-10 h-[300px] w-[300px] -translate-x-1/2 rounded-full bg-brand-500/15 blur-[120px]"
+          />
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5">
+            <ShieldCheck className="h-4 w-4 text-brand-300" />
+            <span className="text-[13px] font-medium text-white/70">
+              Verified organizers, trusted by attendees
+            </span>
+          </div>
+          <h2 className="mx-auto max-w-[16ch] font-display text-[clamp(30px,5vw,52px)] leading-[1.0] text-white">
+            Ready to throw your event?
+          </h2>
+          <p className="mx-auto mt-4 max-w-lg text-[15px] leading-relaxed text-white/55 sm:text-lg">
+            Set up your organizer profile and publish your first event today.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/auth/signup"
+              className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-7 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-700"
+            >
+              Get started
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/organizer"
+              className="inline-flex items-center rounded-xl border border-white/15 px-7 py-3.5 text-sm font-semibold text-white/85 transition-all duration-200 hover:border-white/30 hover:bg-white/5"
+            >
+              Organizer dashboard
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <MobileNavWrapper user={user} isAdmin={isAdmin(user?.email)} />
+    </div>
+  )
+}

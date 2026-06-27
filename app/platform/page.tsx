@@ -88,7 +88,7 @@ export default async function PlatformPage() {
         <div aria-hidden className="absolute inset-0 -z-10 bg-[#0a0a0a]" />
         <div
           aria-hidden
-          className="absolute left-1/2 top-[-30%] -z-10 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-brand-500/15 blur-[150px]"
+          className="absolute left-1/2 top-[-30%] -z-10 h-[520px] w-[520px] -translate-x-1/2 rounded-full blur-[150px]"
         />
         <div className="mx-auto max-w-4xl px-5 pb-16 pt-20 text-center sm:px-6 sm:pb-20 sm:pt-28 lg:px-8">
           <p className="eyebrow text-brand-400">For organizers</p>
@@ -214,10 +214,10 @@ export default async function PlatformPage() {
 
       {/* FINAL CTA */}
       <section className="px-5 pb-24 pt-4 sm:px-6 lg:px-8">
-        <div className="relative mx-auto max-w-5xl overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] px-6 py-16 text-center sm:py-20">
+        <div className="relative mx-auto max-w-5xl overflow-hidden rounded-3xl border border-white/10 bg-[#1c1c1c] px-6 py-16 text-center sm:py-20">
           <div
             aria-hidden
-            className="absolute left-1/2 top-0 -z-10 h-[300px] w-[300px] -translate-x-1/2 rounded-full bg-brand-500/15 blur-[120px]"
+            className="absolute left-1/2 top-0 -z-10 h-[300px] w-[300px] -translate-x-1/2 rounded-full blur-[120px]"
           />
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5">
             <ShieldCheck className="h-4 w-4 text-brand-300" />

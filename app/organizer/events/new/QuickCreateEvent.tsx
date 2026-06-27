@@ -640,7 +640,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
                 <select
                   value={titleFont}
                   onChange={(e) => setTitleFont(e.target.value as any)}
-                  className="rounded-lg border border-white/10 bg-white/[0.06] px-2.5 py-1.5 text-sm text-white [color-scheme:dark] focus:outline-none"
+                  className="rounded-lg border border-white/10 bg-[#1c1c1c] px-2.5 py-1.5 text-sm text-white [color-scheme:dark] focus:outline-none"
                 >
                   <option>Default</option>
                   <option>Serif</option>

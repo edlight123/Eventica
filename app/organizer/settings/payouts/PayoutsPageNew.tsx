@@ -1191,18 +1191,18 @@ export default function PayoutsPageNew({
                           <div>
                             <label className="mb-2 block text-sm font-medium text-white/70">Payout method <span className="text-red-500">*</span></label>
                             <div className="space-y-2">
-                              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 p-3 hover:bg-white/[0.03]">
+                              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 p-3 hover:bg-[#1c1c1c]">
                                 <input type="radio" name="step-method" value="bank_transfer" checked={formData.method === 'bank_transfer'} onChange={(e) => setFormData({ ...formData, method: e.target.value as any })} className="h-4 w-4 text-brand-300" />
                                 <span className="text-sm font-medium text-white">Bank transfer</span>
                               </label>
-                              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 p-3 hover:bg-white/[0.03]">
+                              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 p-3 hover:bg-[#1c1c1c]">
                                 <input type="radio" name="step-method" value="mobile_money" checked={formData.method === 'mobile_money'} onChange={(e) => setFormData({ ...formData, method: e.target.value as any })} className="h-4 w-4 text-brand-300" />
                                 <span className="text-sm font-medium text-white">Mobile money</span>
                               </label>
                             </div>
                           </div>
                         ) : (
-                          <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/70">Stripe Connect collects your bank details securely — no bank info required here.</div>
+                          <div className="rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white/70">Stripe Connect collects your bank details securely — no bank info required here.</div>
                         )}
 
                         {activeProfile === 'haiti' && formData.method === 'bank_transfer' ? (
@@ -1309,7 +1309,7 @@ export default function PayoutsPageNew({
                                       <label className="mb-1 block text-sm font-medium text-white/70">Upload document</label>
                                       <input type="file" accept="image/*,application/pdf" aria-label="Upload document" onChange={(e) => setBankVerificationFile(e.target.files?.[0] || null)} className="w-full text-sm text-white" />
                                     </div>
-                                    <button type="button" onClick={submitBankVerification} disabled={isSubmittingBankVerification} className="w-full rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/[0.03] disabled:opacity-50">
+                                    <button type="button" onClick={submitBankVerification} disabled={isSubmittingBankVerification} className="w-full rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-[#1c1c1c] disabled:opacity-50">
                                       {isSubmittingBankVerification ? 'Submitting…' : 'Submit bank verification'}
                                     </button>
                                     {bankVerificationMessage && <div className="text-sm text-white/60">{bankVerificationMessage}</div>}
@@ -1354,7 +1354,7 @@ export default function PayoutsPageNew({
                                         <label htmlFor="step2-swift" className="mb-1 block text-sm font-medium text-white/70">SWIFT code (optional)</label>
                                         <input id="step2-swift" type="text" value={newBankDestination.swiftCode} onChange={(e) => setNewBankDestination((p) => ({ ...p, swiftCode: e.target.value }))} className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
                                       </div>
-                                      <button type="button" onClick={addBankDestination} disabled={isAddingBankDestination} className="w-full rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/[0.03] disabled:opacity-50">
+                                      <button type="button" onClick={addBankDestination} disabled={isAddingBankDestination} className="w-full rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-[#1c1c1c] disabled:opacity-50">
                                         {isAddingBankDestination ? 'Adding…' : 'Add bank account'}
                                       </button>
                                       <p className="text-xs text-white/50">You'll need to submit a bank statement or void check for each bank account.</p>
@@ -1374,14 +1374,14 @@ export default function PayoutsPageNew({
                             </div>
                             {phoneStatus !== 'verified' && (
                               <div className="space-y-3">
-                                <button type="button" onClick={sendPhoneVerificationCode} disabled={isSendingPhoneCode} className="w-full rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/[0.03] disabled:opacity-50">
+                                <button type="button" onClick={sendPhoneVerificationCode} disabled={isSendingPhoneCode} className="w-full rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-[#1c1c1c] disabled:opacity-50">
                                   {isSendingPhoneCode ? 'Sending…' : 'Send verification code'}
                                 </button>
                                 <div>
                                   <label htmlFor="step2-phone-code" className="mb-1 block text-sm font-medium text-white/70">Enter 6-digit code</label>
                                   <input id="step2-phone-code" type="text" inputMode="numeric" value={phoneVerificationCode} onChange={(e) => setPhoneVerificationCode(e.target.value)} placeholder="123456" className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
                                 </div>
-                                <button type="button" onClick={submitPhoneVerificationCode} disabled={isSubmittingPhoneCode} className="w-full rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/[0.03] disabled:opacity-50">
+                                <button type="button" onClick={submitPhoneVerificationCode} disabled={isSubmittingPhoneCode} className="w-full rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-[#1c1c1c] disabled:opacity-50">
                                   {isSubmittingPhoneCode ? 'Verifying…' : 'Verify phone'}
                                 </button>
                                 {phoneVerificationMessage && <div className="text-sm text-white/60">{phoneVerificationMessage}</div>}

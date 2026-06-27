@@ -346,7 +346,7 @@ function FindTab({ onChange }: { onChange: () => void }) {
       {/* Contact matching */}
       <div className="bg-[#141414] rounded-2xl shadow-sm border border-white/10 p-5">
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-lg bg-brand-500/10 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
             <Phone className="w-5 h-5 text-brand-300" />
           </div>
           <div className="flex-1">

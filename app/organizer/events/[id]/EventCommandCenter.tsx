@@ -194,7 +194,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
                           {Number(tier.price) > 0 ? formatMoneyFromCents(Math.round(Number(tier.price) * 100), currency) : 'Free'}
                         </span>
                       </div>
-                      <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-[#1c1c1c]">
                         <div className="h-full rounded-full bg-brand-500" style={{ width: `${pct}%` }} />
                       </div>
                     </div>

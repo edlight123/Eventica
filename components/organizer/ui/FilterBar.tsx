@@ -26,7 +26,7 @@ export function FilterChip({
       className={`inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
         active
           ? 'bg-brand-600 text-white'
-          : 'border border-white/10 bg-white/[0.04] text-white/70 hover:bg-white/[0.08] hover:text-white'
+          : 'border border-white/10 bg-[#1c1c1c] text-white/70 hover:bg-[#1c1c1c] hover:text-white'
       }`}
     >
       {children}

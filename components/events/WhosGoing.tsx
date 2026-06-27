@@ -101,7 +101,7 @@ export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
               <Link
                 key={f.uid}
                 href={`/profile/organizer/${f.uid}`}
-                className="flex items-center gap-2 bg-brand-500/15 hover:bg-brand-500/25 rounded-full pl-1 pr-3 py-1 transition-colors"
+                className="flex items-center gap-2 hover:bg-brand-500/25 rounded-full pl-1 pr-3 py-1 transition-colors"
               >
                 <Avatar user={f} size={28} />
                 <span className="text-sm font-medium text-white truncate max-w-[120px]">{f.displayName}</span>

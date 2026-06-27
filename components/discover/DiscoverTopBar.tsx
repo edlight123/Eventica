@@ -125,7 +125,7 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
                         key={city}
                         onClick={() => handleCitySelect(city)}
                         className={`w-full text-left px-4 py-2 text-sm hover:bg-white/10 ${
-                          filters.city === city ? 'bg-brand-500/15 font-medium text-brand-300' : 'text-white/80'
+                          filters.city === city ? 'font-medium text-brand-300' : 'text-white/80'
                         }`}
                       >
                         {city}
@@ -165,7 +165,7 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
                           key={subarea}
                           onClick={() => handleSubareaSelect(subarea)}
                           className={`w-full text-left px-4 py-2 text-sm hover:bg-white/10 ${
-                            filters.commune === subarea ? 'bg-brand-500/15 font-medium text-brand-300' : 'text-white/80'
+                            filters.commune === subarea ? 'font-medium text-brand-300' : 'text-white/80'
                           }`}
                         >
                           {subarea}

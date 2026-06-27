@@ -46,7 +46,7 @@ export default function MobileKeyFacts({
         {/* Date/Time */}
         <div className="bg-white/5 rounded-xl p-3 border border-white/10">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-brand-500/15 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <Calendar className="w-4 h-4 text-brand-400" />
             </div>
             <span className="text-xs font-semibold text-white/50">{t('date')}</span>
@@ -62,7 +62,7 @@ export default function MobileKeyFacts({
         {/* Location */}
         <div className="bg-white/5 rounded-xl p-3 border border-white/10">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-brand-500/15 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <MapPin className="w-4 h-4 text-brand-400" />
             </div>
             <span className="text-xs font-semibold text-white/50">{t('location')}</span>
@@ -81,7 +81,7 @@ export default function MobileKeyFacts({
         {/* Price */}
         <div className="bg-white/5 rounded-xl p-3 border border-white/10">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-emerald-500/15 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <DollarSign className="w-4 h-4 text-emerald-400" />
             </div>
             <span className="text-xs font-semibold text-white/50">{t('price')}</span>
@@ -103,7 +103,7 @@ export default function MobileKeyFacts({
         {/* Availability */}
         <div className="bg-white/5 rounded-xl p-3 border border-white/10">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-brand-500/15 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <Users className="w-4 h-4 text-brand-400" />
             </div>
             <span className="text-xs font-semibold text-white/50">{t('ticket.tickets')}</span>
