@@ -1,9 +1,11 @@
 'use client'
 
-import { useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
+import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
+import { Search, Users } from 'lucide-react'
+import { collection, getDocs, query, where } from 'firebase/firestore'
+import { db } from '@/lib/firebase/client'
 import { EmptyState } from './EmptyState'
-import { DiscoverFeaturedHero } from './DiscoverFeaturedHero'
 import { DiscoverEventCard } from './DiscoverEventCard'
 import { FriendsGoingProvider } from './FriendsGoingContext'
 import { LOCATION_CONFIG } from '@/lib/filters/config'
@@ -20,25 +22,28 @@ interface DiscoverPageContentProps {
   city?: string
   commune?: string
   userCountry?: string
+  userId?: string
 }
 
+type DiscoverTab = 'forYou' | 'following' | 'saved'
+
 /**
- * Discover is intentionally NOT the homepage. The home feed is editorial —
- * stacked, horizontally-scrolling rails. Discover is a search/browse surface:
- * a featured carousel up top, then one big responsive grid of everything that
- * matches the current filters. Cleaner, denser, and built for scanning.
+ * Web Discover mirrors the mobile app: a single-column feed with For You /
+ * Following / Saved tabs (no hero, no multi-column grid). The filter bar above
+ * (DiscoverFilterManager) drives the For You feed.
  */
 export function DiscoverPageContent({
   hasActiveFilters,
-  featuredEvents,
   filteredEvents,
   userCountry = 'HT',
+  userId,
 }: DiscoverPageContentProps) {
-  const { t } = useTranslation('common')
   const countryName = LOCATION_CONFIG[userCountry]?.name || 'Haiti'
+  const [tab, setTab] = useState<DiscoverTab>('forYou')
+  const [savedEvents, setSavedEvents] = useState<any[] | null>(null)
 
-  // De-dupe the grid (featured events can also appear in the full list).
-  const gridEvents = useMemo(() => {
+  // De-dupe the feed.
+  const feed = useMemo(() => {
     const seen = new Set<string>()
     const out: any[] = []
     for (const e of filteredEvents || []) {
@@ -50,51 +55,106 @@ export function DiscoverPageContent({
     return out
   }, [filteredEvents])
 
-  const allEventIds = useMemo(() => {
-    const ids = new Set<string>()
-    for (const list of [featuredEvents, gridEvents]) {
-      if (Array.isArray(list)) for (const e of list) if (e?.id) ids.add(e.id)
+  // Saved tab — intersect the user's favorites with the loaded events.
+  useEffect(() => {
+    if (tab !== 'saved' || !userId) return
+    let active = true
+    ;(async () => {
+      try {
+        const favs = await getDocs(
+          query(collection(db, 'event_favorites'), where('user_id', '==', userId))
+        )
+        const ids = new Set(favs.docs.map((d) => d.data().event_id))
+        if (active) setSavedEvents(feed.filter((e) => ids.has(e.id)))
+      } catch {
+        if (active) setSavedEvents([])
+      }
+    })()
+    return () => {
+      active = false
     }
-    return Array.from(ids)
-  }, [featuredEvents, gridEvents])
+  }, [tab, userId, feed])
 
-  // Featured hero (Posh Explore style). Use sales-based featured if present,
-  // otherwise the first events so the hero always has content to show.
-  const heroEvents = (featuredEvents.length > 0 ? featuredEvents : gridEvents).slice(0, 6)
-  const showHero = !hasActiveFilters && heroEvents.length > 0
+  const allEventIds = useMemo(() => feed.map((e) => e.id).filter(Boolean), [feed])
+
+  const tabs: { key: DiscoverTab; label: string }[] = [
+    { key: 'forYou', label: 'For You' },
+    { key: 'following', label: 'Following' },
+    { key: 'saved', label: 'Saved' },
+  ]
+
+  const renderFeed = (list: any[]) =>
+    list.length > 0 ? (
+      <div className="mx-auto max-w-2xl space-y-6">
+        {list.map((event) => (
+          <DiscoverEventCard key={event.id} event={event} />
+        ))}
+      </div>
+    ) : null
 
   return (
     <FriendsGoingProvider eventIds={allEventIds}>
-      <div className="space-y-10">
-        {/* Featured hero carousel — only on the unfiltered browse view */}
-        {showHero && <DiscoverFeaturedHero events={heroEvents} />}
-
-        {/* Big poster grid of everything that matches */}
-        <section className="space-y-4">
-          <div className="flex items-end justify-between gap-4">
-            <h2 className="font-grotesk text-2xl sm:text-3xl font-bold lowercase tracking-tight text-white">
-              {hasActiveFilters ? t('events.filtered_results') : t('events.all_events')}
-            </h2>
-            {gridEvents.length > 0 && (
-              <span className="shrink-0 text-sm text-white/45">
-                {gridEvents.length === 1
-                  ? t('events.event_found', { count: gridEvents.length })
-                  : t('events.events_found', { count: gridEvents.length })}
-              </span>
-            )}
-          </div>
-
-          {gridEvents.length > 0 ? (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {gridEvents.map((event) => (
-                <DiscoverEventCard key={event.id} event={event} />
-              ))}
-            </div>
-          ) : (
-            <EmptyState hasFilters={hasActiveFilters} countryName={countryName} />
-          )}
-        </section>
+      {/* Segmented tabs (centered, app-style) */}
+      <div className="mb-8 flex items-center justify-center gap-8">
+        {tabs.map((t) => (
+          <button
+            key={t.key}
+            type="button"
+            onClick={() => setTab(t.key)}
+            className={`relative pb-1 text-[15px] font-bold transition-colors ${
+              tab === t.key ? 'text-white' : 'text-white/40 hover:text-white/70'
+            }`}
+          >
+            {t.label}
+            {tab === t.key && <span className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-brand-400" />}
+          </button>
+        ))}
       </div>
+
+      {/* For You */}
+      {tab === 'forYou' &&
+        (feed.length > 0 ? (
+          renderFeed(feed)
+        ) : (
+          <EmptyState hasFilters={hasActiveFilters} countryName={countryName} />
+        ))}
+
+      {/* Following */}
+      {tab === 'following' && (
+        <div className="mx-auto max-w-2xl">
+          <EmptyState hasFilters={false} countryName={countryName} />
+          <div className="mt-4 text-center">
+            <Link
+              href="/connections"
+              className="inline-flex items-center gap-2 rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+            >
+              <Users className="h-4 w-4" />
+              Find friends
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Saved */}
+      {tab === 'saved' &&
+        (!userId ? (
+          <div className="mx-auto max-w-2xl rounded-2xl border border-white/10 bg-[#141414] py-16 text-center text-white/55">
+            <Link href="/auth/login?redirect=/discover" className="font-semibold text-brand-300 hover:text-brand-200">
+              Sign in
+            </Link>{' '}
+            to see events you&rsquo;ve saved.
+          </div>
+        ) : savedEvents === null ? (
+          <div className="mx-auto max-w-2xl py-16 text-center text-white/40">Loading saved events…</div>
+        ) : savedEvents.length > 0 ? (
+          renderFeed(savedEvents)
+        ) : (
+          <div className="mx-auto max-w-2xl rounded-2xl border border-white/10 bg-[#141414] py-16 text-center">
+            <Search className="mx-auto mb-3 h-8 w-8 text-white/30" />
+            <p className="text-white/70">No saved events yet</p>
+            <p className="mt-1 text-sm text-white/45">Tap the bookmark on any event to save it here.</p>
+          </div>
+        ))}
     </FriendsGoingProvider>
   )
 }

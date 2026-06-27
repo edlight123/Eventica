@@ -206,6 +206,7 @@ export default async function DiscoverPage({
             city={filters.city}
             commune={filters.commune}
             userCountry={userCountry}
+            userId={user?.id}
           />
         </Suspense>
       </div>
