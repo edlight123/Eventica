@@ -23,8 +23,10 @@ import {
   Settings,
   Star,
   Ticket,
+  Trash2,
   Type,
   Users,
+  X,
   Youtube,
 } from 'lucide-react'
 
@@ -45,6 +47,24 @@ interface QuickCreateEventProps {
   userId: string
   isVerified?: boolean
 }
+
+interface TicketTier {
+  id: string
+  name: string
+  price: string
+  qty: string
+}
+
+type GuestRole = 'Performer' | 'Host' | 'DJ' | 'Special Guest'
+const GUEST_ROLES: GuestRole[] = ['Performer', 'Host', 'DJ', 'Special Guest']
+
+interface Guest {
+  id: string
+  name: string
+  role: GuestRole
+}
+
+const makeId = () => Math.random().toString(36).slice(2, 9)
 
 /* ----------------------------- small UI atoms ----------------------------- */
 
@@ -114,12 +134,31 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
   const [isOnline, setIsOnline] = useState(false)
   const [city, setCity] = useState('Port-au-Prince')
 
-  // Tickets
-  const [showTicketEditor, setShowTicketEditor] = useState(false)
-  const [ticketName, setTicketName] = useState('General Admission')
-  const [ticketPrice, setTicketPrice] = useState('10')
-  const [ticketQty, setTicketQty] = useState('100')
+  // Tickets — multiple tiers
+  const [tiers, setTiers] = useState<TicketTier[]>([
+    { id: makeId(), name: 'General Admission', price: '10', qty: '100' },
+  ])
   const [enableWaitlist, setEnableWaitlist] = useState(false)
+
+  const addTier = () =>
+    setTiers((prev) => [...prev, { id: makeId(), name: '', price: '0', qty: '100' }])
+  const updateTier = (id: string, patch: Partial<TicketTier>) =>
+    setTiers((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)))
+  const removeTier = (id: string) =>
+    setTiers((prev) => (prev.length > 1 ? prev.filter((t) => t.id !== id) : prev))
+
+  // Guestlist — artists / hosts / performers joining the event (the lineup)
+  const [guests, setGuests] = useState<Guest[]>([])
+  const [guestName, setGuestName] = useState('')
+  const [guestRole, setGuestRole] = useState<GuestRole>('Performer')
+
+  const addGuest = () => {
+    const name = guestName.trim()
+    if (!name) return
+    setGuests((prev) => [...prev, { id: makeId(), name, role: guestRole }])
+    setGuestName('')
+  }
+  const removeGuest = (id: string) => setGuests((prev) => prev.filter((g) => g.id !== id))
 
   // Visibility extras
   const [showGuestlist, setShowGuestlist] = useState(true)
@@ -160,6 +199,15 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
     setSaving(true)
     try {
       const isRsvp = sellMode === 'rsvp'
+      const cleanTiers = tiers
+        .map((t) => ({
+          name: t.name.trim() || 'General Admission',
+          price: Number(t.price) || 0,
+          quantity: Number(t.qty) || 0,
+        }))
+      const firstTier = cleanTiers[0] || { name: 'General Admission', price: 0, quantity: 0 }
+      const totalQty = cleanTiers.reduce((sum, t) => sum + t.quantity, 0)
+      const cleanGuests = guests.map((g) => ({ name: g.name, role: g.role }))
       const eventData = {
         organizer_id: userId,
         title: title.trim(),
@@ -173,9 +221,10 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
         address: isOnline ? '' : address.trim(),
         start_datetime: composeISO(startDate, startTime),
         end_datetime: composeISO(endDate, endTime),
-        ticket_price: isRsvp ? 0 : Number(ticketPrice) || 0,
-        total_tickets: isRsvp ? 0 : Number(ticketQty) || 0,
-        ticket_name: isRsvp ? 'RSVP' : ticketName.trim() || 'General Admission',
+        ticket_price: isRsvp ? 0 : firstTier.price,
+        total_tickets: isRsvp ? 0 : totalQty,
+        ticket_name: isRsvp ? 'RSVP' : firstTier.name,
+        guestlist: cleanGuests,
         currency: normalizeEventCurrencyForCountry('HT', 'USD'),
         banner_image_url: bannerUrl || null,
         is_published: false,
@@ -201,6 +250,24 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
 
       const { data, error } = await firebaseDb.from('events').insert(eventData).select().single()
       if (error) throw error
+
+      // Persist ticket tiers to the canonical `ticket_tiers` collection so the
+      // edit form, event page and checkout all read the same source of truth.
+      if (!isRsvp && data?.id && cleanTiers.length > 0) {
+        const tiersToInsert = cleanTiers.map((t, i) => ({
+          event_id: data.id,
+          name: t.name,
+          price: t.price, // dollars (matches edit form + tier API storage)
+          total_quantity: t.quantity,
+          sold_quantity: 0,
+          description: null,
+          sales_start: null,
+          sales_end: null,
+          sort_order: i,
+        }))
+        const { error: tiersError } = await firebaseDb.from('ticket_tiers').insert(tiersToInsert)
+        if (tiersError) console.error('Error saving ticket tiers:', tiersError)
+      }
 
       showToast({ type: 'success', title: 'Draft created', message: 'Add the finishing touches, then publish.', duration: 3500 })
       router.push(`/organizer/events/${data.id}/edit`)
@@ -384,40 +451,52 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
                 Tickets
               </SectionTitle>
 
-              {showTicketEditor ? (
-                <div className="space-y-3 rounded-xl border border-white/10 bg-[#1c1c1c] p-4">
-                  <input value={ticketName} onChange={(e) => setTicketName(e.target.value)} placeholder="Ticket name" className={field} />
-                  <div className="grid grid-cols-2 gap-3">
-                    <label className="block">
-                      <span className="mb-1 block text-xs text-white/50">Price (USD)</span>
-                      <input type="number" min="0" value={ticketPrice} onChange={(e) => setTicketPrice(e.target.value)} className={field} />
-                    </label>
-                    <label className="block">
-                      <span className="mb-1 block text-xs text-white/50">Quantity</span>
-                      <input type="number" min="0" value={ticketQty} onChange={(e) => setTicketQty(e.target.value)} className={field} />
-                    </label>
+              <div className="space-y-3">
+                {tiers.map((tier, i) => (
+                  <div key={tier.id} className="space-y-3 rounded-xl border border-white/10 bg-[#1c1c1c] p-4">
+                    <div className="flex items-center gap-2">
+                      <input
+                        value={tier.name}
+                        onChange={(e) => updateTier(tier.id, { name: e.target.value })}
+                        placeholder={`Ticket type ${i + 1} (e.g. General, VIP, Early Bird)`}
+                        className={field}
+                      />
+                      {tiers.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeTier(tier.id)}
+                          className="shrink-0 rounded-lg border border-white/10 p-2.5 text-white/40 transition-colors hover:bg-white/5 hover:text-red-300"
+                          aria-label="Remove ticket type"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <label className="block">
+                        <span className="mb-1 block text-xs text-white/50">Price (USD)</span>
+                        <input type="number" min="0" value={tier.price} onChange={(e) => updateTier(tier.id, { price: e.target.value })} className={field} />
+                      </label>
+                      <label className="block">
+                        <span className="mb-1 block text-xs text-white/50">Quantity</span>
+                        <input type="number" min="0" value={tier.qty} onChange={(e) => updateTier(tier.id, { qty: e.target.value })} className={field} />
+                      </label>
+                    </div>
                   </div>
-                  <button type="button" onClick={() => setShowTicketEditor(false)} className="text-sm font-semibold text-brand-300 hover:text-brand-200">
-                    Done
-                  </button>
-                </div>
-              ) : (
+                ))}
+
                 <button
                   type="button"
-                  onClick={() => setShowTicketEditor(true)}
-                  className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3.5 transition-colors hover:bg-[#242424]"
+                  onClick={addTier}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/15 bg-transparent px-4 py-3 text-sm font-semibold text-white/70 transition-colors hover:border-white/30 hover:text-white"
                 >
-                  <span className="text-left">
-                    <span className="block text-[15px] font-semibold text-white">{ticketName}</span>
-                    <span className="block text-sm text-white/50">${Number(ticketPrice || 0).toFixed(2)}</span>
-                  </span>
-                  <Pencil className="h-4 w-4 text-white/50" />
+                  <Plus className="h-4 w-4" /> Add ticket type
                 </button>
-              )}
+              </div>
             </div>
           )}
 
-          {/* Guestlist */}
+          {/* Guestlist — the lineup: artists, hosts & special guests joining */}
           <div className="mt-8 border-t border-white/10 pt-6">
             <SectionTitle
               icon={Users}
@@ -425,8 +504,73 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
             >
               Guestlist
             </SectionTitle>
-            <div className="rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-5 text-sm text-white/50">
-              Your guestlist and attendee avatars will appear here as people RSVP.
+            <p className="mb-3 text-sm text-white/50">
+              Add the artists, hosts, DJs and special guests performing or joining your event.
+            </p>
+
+            <div className="space-y-3 rounded-xl border border-white/10 bg-[#1c1c1c] p-4">
+              {/* Existing guests */}
+              {guests.length > 0 && (
+                <div className="space-y-2">
+                  {guests.map((g) => (
+                    <div key={g.id} className="flex items-center gap-3 rounded-lg bg-[#2a2a2a] px-3 py-2.5">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white">
+                        {g.name.charAt(0).toUpperCase()}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-[15px] font-semibold text-white">{g.name}</span>
+                        <span className="block text-xs text-white/50">{g.role}</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeGuest(g.id)}
+                        className="shrink-0 rounded-lg p-1.5 text-white/40 transition-colors hover:bg-white/5 hover:text-red-300"
+                        aria-label={`Remove ${g.name}`}
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Add new guest */}
+              <input
+                value={guestName}
+                onChange={(e) => setGuestName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    addGuest()
+                  }
+                }}
+                placeholder="Artist or guest name"
+                className={field}
+              />
+              <div className="flex flex-wrap gap-2">
+                {GUEST_ROLES.map((role) => (
+                  <button
+                    key={role}
+                    type="button"
+                    onClick={() => setGuestRole(role)}
+                    className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${
+                      guestRole === role
+                        ? 'border-brand-500 bg-brand-600 text-white'
+                        : 'border-white/10 bg-[#1c1c1c] text-white/60 hover:border-white/20 hover:text-white'
+                    }`}
+                  >
+                    {role}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={addGuest}
+                disabled={!guestName.trim()}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/15 px-4 py-3 text-sm font-semibold text-white/70 transition-colors hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <Plus className="h-4 w-4" /> Add to guestlist
+              </button>
             </div>
           </div>
 
