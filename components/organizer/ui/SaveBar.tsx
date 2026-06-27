@@ -30,7 +30,7 @@ export function SaveBar({
     <div
       role="region"
       aria-label="Unsaved changes"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#141414]/95 px-4 py-3 backdrop-blur-md sm:px-6"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0a0a0a]/95 px-4 py-3 backdrop-blur-md sm:px-6"
       style={{ animation: 'slideUp 0.2s ease-out' }}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
@@ -40,7 +40,7 @@ export function SaveBar({
             type="button"
             onClick={onDiscard}
             disabled={saving}
-            className="rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-white/70 transition-colors hover:bg-[#1c1c1c] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-50"
+            className="rounded-lg  px-4 py-2 text-sm font-semibold text-white/70 transition-colors hover:bg-white/[0.04] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-50"
           >
             {discardLabel}
           </button>

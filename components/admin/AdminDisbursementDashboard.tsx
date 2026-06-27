@@ -123,7 +123,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
     <div className="space-y-6">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-[#141414] rounded-lg shadow p-6">
+        <div className="bg-[#0a0a0a] rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-white/60">Events Ended (7d)</p>
@@ -133,7 +133,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
           </div>
         </div>
 
-        <div className="bg-[#141414] rounded-lg shadow p-6">
+        <div className="bg-[#0a0a0a] rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-white/60">Pending Payouts</p>
@@ -143,7 +143,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
           </div>
         </div>
 
-        <div className="bg-[#141414] rounded-lg shadow p-6">
+        <div className="bg-[#0a0a0a] rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-white/60">Approved Payouts</p>
@@ -153,7 +153,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
           </div>
         </div>
 
-        <div className="bg-[#141414] rounded-lg shadow p-6">
+        <div className="bg-[#0a0a0a] rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-white/60">Pending Amount</p>
@@ -167,14 +167,14 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
       </div>
 
       {/* Filters */}
-      <div className="bg-[#141414] rounded-lg shadow p-4">
+      <div className="bg-[#0a0a0a] rounded-lg shadow p-4">
         <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => setFilter('all')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               filter === 'all'
                 ? 'bg-brand-700 text-white'
-                : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
+                : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
             }`}
           >
             All Events ({endedEvents.length})
@@ -184,7 +184,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               filter === 'eligible'
                 ? 'bg-brand-700 text-white'
-                : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
+                : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
             }`}
           >
             Eligible for Payout ({endedEvents.filter(e => e.payoutEligible && !e.hasPendingPayout).length})
@@ -194,7 +194,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               filter === 'pending'
                 ? 'bg-brand-700 text-white'
-                : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
+                : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
             }`}
           >
             Pending Payout ({endedEvents.filter(e => e.hasPendingPayout).length})
@@ -204,7 +204,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               filter === 'completed'
                 ? 'bg-brand-700 text-white'
-                : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
+                : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
             }`}
           >
             Completed ({endedEvents.filter(e => e.hasCompletedPayout).length})
@@ -213,7 +213,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
       </div>
 
       {/* Events Table */}
-      <div className="bg-[#141414] rounded-lg shadow overflow-hidden">
+      <div className="bg-[#0a0a0a] rounded-lg shadow overflow-hidden">
         <div className="px-6 py-4 border-b border-white/10">
           <h2 className="text-lg font-semibold text-white">Ended Events</h2>
         </div>
@@ -237,9 +237,9 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
                   <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-[#141414] divide-y divide-white/10">
+              <tbody className="bg-[#0a0a0a] divide-y divide-white/10">
                 {filteredEvents.map((event) => (
-                  <tr key={event.eventId} className="hover:bg-[#0a0a0a]">
+                  <tr key={event.eventId} className="hover:bg-white/[0.04]">
                     <td className="px-6 py-4">
                       <div className="text-sm font-medium text-white">{event.eventTitle}</div>
                       <div className="text-xs text-white/50">{event.eventId.substring(0, 8)}</div>
@@ -348,7 +348,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
       {/* Details Modal */}
       {showModal && selectedEvent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#141414] rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#0a0a0a] rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
             <h3 className="text-xl font-bold text-white mb-4">{selectedEvent.eventTitle}</h3>
 
             <div className="grid grid-cols-2 gap-4 mb-6">
@@ -387,7 +387,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
               </div>
             </div>
 
-            <div className="bg-[#141414] border border-white/10 rounded-lg p-4 mb-6">
+            <div className="bg-[#0a0a0a]  rounded-lg p-4 mb-6">
               <h4 className="font-semibold text-white mb-2">Preferred Transfer</h4>
               <div className="flex items-center gap-2 text-sm">
                 {selectedEvent.payoutMethod === 'bank_transfer' ? (
@@ -497,7 +497,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowModal(false)}
-                className="flex-1 px-4 py-2 border border-white/10 rounded-lg hover:bg-[#0a0a0a]"
+                className="flex-1 px-4 py-2  rounded-lg hover:bg-white/[0.04]"
               >
                 Close
               </button>

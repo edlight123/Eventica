@@ -166,11 +166,11 @@ export function PlatformSettingsForm() {
 
   if (loading) {
     return (
-      <div className="bg-[#141414] shadow rounded-lg p-6">
+      <div className="bg-[#0a0a0a] shadow rounded-lg p-6">
         <div className="animate-pulse space-y-4">
-          <div className="h-4 bg-[#242424] rounded w-1/4"></div>
-          <div className="h-4 bg-[#242424] rounded w-1/2"></div>
-          <div className="h-4 bg-[#242424] rounded w-1/3"></div>
+          <div className="h-4 bg-[#0a0a0a] rounded w-1/4"></div>
+          <div className="h-4 bg-[#0a0a0a] rounded w-1/2"></div>
+          <div className="h-4 bg-[#0a0a0a] rounded w-1/3"></div>
         </div>
       </div>
     )
@@ -181,7 +181,7 @@ export function PlatformSettingsForm() {
       {/* Confirmation Modal */}
       {showConfirmModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#141414] rounded-lg shadow-xl max-w-md w-full p-6">
+          <div className="bg-[#0a0a0a] rounded-lg shadow-xl max-w-md w-full p-6">
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0">
                 <AlertTriangle className="w-6 h-6 text-amber-300" />
@@ -233,7 +233,7 @@ export function PlatformSettingsForm() {
                 <div className="flex gap-3">
                   <button
                     onClick={() => setShowConfirmModal(false)}
-                    className="flex-1 px-4 py-2 border border-white/15 text-white/70 rounded-lg hover:bg-[#0a0a0a] font-medium"
+                    className="flex-1 px-4 py-2 border border-white/15 text-white/70 rounded-lg hover:bg-white/[0.04] font-medium"
                   >
                     Cancel
                   </button>
@@ -255,7 +255,7 @@ export function PlatformSettingsForm() {
         {/* Main Form - Left Column */}
         <div className="lg:col-span-2 space-y-6">
           {/* Info Banner */}
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-4">
+          <div className="bg-[#0a0a0a]  rounded-lg p-4">
             <div className="flex gap-3">
               <Info className="w-5 h-5 text-white/50 flex-shrink-0 mt-0.5" />
               <div className="text-sm text-white">
@@ -282,7 +282,7 @@ export function PlatformSettingsForm() {
             )}
 
             {/* Haiti Settings Card */}
-            <div className="bg-[#141414] shadow rounded-lg border border-white/10">
+            <div className="bg-[#0a0a0a] shadow rounded-lg ">
               <div className="p-6 space-y-4">
                 <div className="flex items-center gap-3 border-b border-white/10 pb-4">
                   <div className="text-3xl">🇭🇹</div>
@@ -342,7 +342,7 @@ export function PlatformSettingsForm() {
             </div>
 
             {/* US/Canada Settings Card */}
-            <div className="bg-[#141414] shadow rounded-lg border border-white/10">
+            <div className="bg-[#0a0a0a] shadow rounded-lg ">
               <div className="p-6 space-y-4">
                 <div className="flex items-center gap-3 border-b border-white/10 pb-4">
                   <div className="text-3xl">🇺🇸🇨🇦</div>
@@ -402,7 +402,7 @@ export function PlatformSettingsForm() {
             </div>
 
             {/* Global Settings Card */}
-            <div className="bg-[#141414] shadow rounded-lg border border-white/10">
+            <div className="bg-[#0a0a0a] shadow rounded-lg ">
               <div className="p-6 space-y-4">
                 <div className="flex items-center gap-3 border-b border-white/10 pb-4">
                   <div className="text-3xl">🌍</div>
@@ -501,7 +501,7 @@ export function PlatformSettingsForm() {
             </p>
 
             {/* Haiti Preview */}
-            <div className="bg-[#141414] rounded-lg p-4 mb-4 shadow-sm">
+            <div className="bg-[#0a0a0a] rounded-lg p-4 mb-4 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-xl">🇭🇹</span>
                 <p className="font-semibold text-white">Haiti Event</p>
@@ -531,7 +531,7 @@ export function PlatformSettingsForm() {
             </div>
 
             {/* US/Canada Preview */}
-            <div className="bg-[#141414] rounded-lg p-4 shadow-sm">
+            <div className="bg-[#0a0a0a] rounded-lg p-4 shadow-sm">
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-xl">🇺🇸🇨🇦</span>
                 <p className="font-semibold text-white">US/Canada Event</p>
@@ -563,7 +563,7 @@ export function PlatformSettingsForm() {
 
           {/* Current Settings Summary */}
           {settings && (
-            <div className="bg-[#141414] border border-white/10 rounded-lg p-6">
+            <div className="bg-[#0a0a0a]  rounded-lg p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Clock className="w-5 h-5 text-white/60" />
                 <h3 className="text-lg font-semibold text-white">Current Settings</h3>

@@ -87,7 +87,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
   return (
     <div className="space-y-6">
       {/* Change Password */}
-      <div className="bg-[#141414] rounded-xl border border-white/10 shadow-sm p-6">
+      <div className="bg-[#0a0a0a] rounded-xl  shadow-sm p-6">
         <div className="flex items-center gap-2 mb-6">
           <Key className="w-5 h-5 text-brand-300" />
           <h3 className="text-lg font-semibold text-white">Change Password</h3>
@@ -160,7 +160,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
       </div>
 
       {/* Two-Factor Authentication (Future) */}
-      <div className="bg-[#141414] rounded-xl border border-white/10 shadow-sm p-6">
+      <div className="bg-[#0a0a0a] rounded-xl  shadow-sm p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-brand-300" />
@@ -171,14 +171,14 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
               </p>
             </div>
           </div>
-          <span className="px-3 py-1 bg-[#1c1c1c] text-white/60 text-xs font-medium rounded-full">
+          <span className="px-3 py-1 bg-[#0a0a0a] text-white/60 text-xs font-medium rounded-full">
             Coming Soon
           </span>
         </div>
       </div>
 
       {/* Login History */}
-      <div className="bg-[#141414] rounded-xl border border-white/10 shadow-sm overflow-hidden">
+      <div className="bg-[#0a0a0a] rounded-xl  shadow-sm overflow-hidden">
         <div className="p-6 border-b border-white/10">
           <div className="flex items-center gap-2">
             <Monitor className="w-5 h-5 text-brand-300" />
@@ -196,7 +196,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
         ) : (
           <div className="divide-y divide-white/10">
             {loginHistory.map((record: LoginRecord) => (
-              <div key={record.id} className="p-4 hover:bg-[#0a0a0a]">
+              <div key={record.id} className="p-4 hover:bg-white/[0.04]">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">

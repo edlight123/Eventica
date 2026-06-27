@@ -138,7 +138,7 @@ export function DiscoverPageContent({
       {/* Saved */}
       {tab === 'saved' &&
         (!userId ? (
-          <div className="mx-auto max-w-2xl rounded-2xl border border-white/10 bg-[#141414] py-16 text-center text-white/55">
+          <div className="mx-auto max-w-2xl rounded-2xl  bg-[#0a0a0a] py-16 text-center text-white/55">
             <Link href="/auth/login?redirect=/discover" className="font-semibold text-brand-300 hover:text-brand-200">
               Sign in
             </Link>{' '}
@@ -149,7 +149,7 @@ export function DiscoverPageContent({
         ) : savedEvents.length > 0 ? (
           renderFeed(savedEvents)
         ) : (
-          <div className="mx-auto max-w-2xl rounded-2xl border border-white/10 bg-[#141414] py-16 text-center">
+          <div className="mx-auto max-w-2xl rounded-2xl  bg-[#0a0a0a] py-16 text-center">
             <Search className="mx-auto mb-3 h-8 w-8 text-white/30" />
             <p className="text-white/70">No saved events yet</p>
             <p className="mt-1 text-sm text-white/45">Tap the bookmark on any event to save it here.</p>

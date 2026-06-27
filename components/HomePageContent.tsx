@@ -110,7 +110,7 @@ function CategoryRail({
 function NoEventsInCountry({ countryName }: { countryName: string }) {
   const { t } = useTranslation('common')
   return (
-    <div className="flex flex-col items-center rounded-3xl border border-white/10 bg-white/5 px-6 py-16 text-center shadow-poster-sm sm:py-20">
+    <div className="flex flex-col items-center rounded-3xl  bg-white/5 px-6 py-16 text-center shadow-poster-sm sm:py-20">
       <div className="grid h-16 w-16 place-items-center rounded-2xl text-brand-400">
         <MapPin className="h-8 w-8" />
       </div>
@@ -184,7 +184,7 @@ export default function HomePageContent({
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center rounded-3xl border border-white/10 bg-white/5 px-6 py-20 text-center shadow-poster-sm">
+          <div className="flex flex-col items-center rounded-3xl  bg-white/5 px-6 py-20 text-center shadow-poster-sm">
             <div className="grid h-16 w-16 place-items-center rounded-2xl bg-white/5 text-white/40">
               <Search className="h-8 w-8" />
             </div>

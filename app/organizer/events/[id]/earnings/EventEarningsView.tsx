@@ -184,7 +184,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
           ← Back to All Earnings
         </Link>
         
-        <div className="bg-[#141414] rounded-xl p-8 text-center">
+        <div className="bg-[#0a0a0a] rounded-xl p-8 text-center">
           <span className="text-6xl mb-4 block">💰</span>
           <h2 className="font-display text-2xl text-white mb-2">No Earnings Yet</h2>
           <p className="text-white/60 mb-6">
@@ -410,7 +410,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
       </div>
 
       {/* Ticket Tier Breakdown */}
-      <div className="bg-[#141414] rounded-xl p-6 mb-6">
+      <div className="bg-[#0a0a0a] rounded-xl p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="font-display text-xl text-white">🎟️ Ticket Tier Breakdown</h2>
@@ -487,7 +487,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
 
       {/* Withdrawal Section */}
       {earnings.settlementStatus === 'ready' && availableToWithdraw > 0 && (
-        <div className="bg-[#141414] rounded-xl p-6 mb-6">
+        <div className="bg-[#0a0a0a] rounded-xl p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="font-display text-xl text-white">💸 Request Withdrawal</h2>
@@ -541,7 +541,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
 
       {/* Withdrawal History */}
       {earnings.withdrawnAmount > 0 && (
-        <div className="bg-[#141414] rounded-xl p-6">
+        <div className="bg-[#0a0a0a] rounded-xl p-6">
           <h2 className="font-display text-xl text-white mb-4">📋 Withdrawal History</h2>
           <div className="space-y-3">
             <div className="flex justify-between items-center py-3 border-b border-white/10">
@@ -567,7 +567,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
       {/* Withdrawal Modal */}
       {showWithdrawModal && withdrawMethod && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-[#141414] rounded-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#0a0a0a] rounded-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
             <h3 className="font-display text-xl text-white mb-4">
               Request {withdrawMethod === 'moncash' ? 'MonCash' : 'Bank'} Withdrawal
             </h3>
@@ -607,7 +607,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                       className={
                         moncashQuote.instantAvailable
                           ? 'border border-brand-500/30 rounded-lg p-3'
-                          : 'bg-[#0a0a0a] border border-white/10 rounded-lg p-3'
+                          : 'bg-[#0a0a0a]  rounded-lg p-3'
                       }
                     >
                       <p
@@ -743,7 +743,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                   </div>
 
                   {(bankMode === 'on_file' || bankMode === 'saved') && bankDestinations ? (
-                    <div className="border border-white/10 rounded-lg p-3 bg-[#0a0a0a]">
+                    <div className=" rounded-lg p-3 bg-[#0a0a0a]">
                       {bankMode === 'saved' ? (
                         <div className="mb-2">
                           <label className="block text-xs font-medium text-white/60 mb-1">Select account</label>
@@ -776,7 +776,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
 
                   {bankMode === 'new' ? (
                     <div className="space-y-3">
-                      <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-3">
+                      <div className="bg-[#0a0a0a]  rounded-lg p-3">
                         <p className="text-sm text-white font-medium">Verification required</p>
                         <p className="text-xs text-white/60 mt-1">
                           Adding a new bank account requires email verification. The account holder name should match your organizer name.
@@ -889,7 +889,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                       type="button"
                       onClick={verifyCode}
                       disabled={isVerifyingVerificationCode || !/^\d{6}$/.test(verificationCode)}
-                      className="px-3 py-2 bg-[#141414] border border-brand-300 text-brand-300 rounded-lg text-sm font-medium disabled:opacity-50"
+                      className="px-3 py-2 bg-[#0a0a0a] border border-brand-300 text-brand-300 rounded-lg text-sm font-medium disabled:opacity-50"
                     >
                       {isVerifyingVerificationCode ? 'Verifying…' : 'Verify'}
                     </button>
@@ -918,7 +918,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                     ((bankMode === 'new' && (!bankDetails.accountHolder || !bankDetails.bankName || !bankDetails.accountNumber)) ||
                       (bankMode !== 'new' && !selectedBankDestinationId)))
                 }
-                className="flex-1 px-4 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 transition-colors font-medium disabled:bg-[#242424] disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 transition-colors font-medium disabled:bg-[#0a0a0a] disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Submitting...' : 'Confirm Withdrawal'}
               </button>
@@ -943,7 +943,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                   })
                 }}
                 disabled={isSubmitting}
-                className="px-4 py-3 bg-[#1c1c1c] text-white/70 rounded-lg hover:bg-[#242424] transition-colors font-medium disabled:cursor-not-allowed"
+                className="px-4 py-3 bg-[#0a0a0a] text-white/70 rounded-lg hover:bg-white/[0.04] transition-colors font-medium disabled:cursor-not-allowed"
               >
                 Cancel
               </button>

@@ -104,7 +104,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
       )}
 
       {/* Header */}
-      <div className="bg-[#141414] rounded-xl sm:rounded-2xl shadow-sm border border-white/10 p-4 sm:p-6 mb-5">
+      <div className="bg-[#0a0a0a] rounded-xl sm:rounded-2xl shadow-sm  p-4 sm:p-6 mb-5">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="flex-1">
             <h1 className="font-display text-[clamp(22px,3vw,30px)] leading-[1.06] text-white mb-1">
@@ -157,7 +157,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
               <button
                 onClick={() => handleToggleStatus('disable_posting')}
                 disabled={isUpdating}
-                className="px-4 py-2 text-sm font-medium text-white/70 bg-[#141414] border border-white/15 hover:bg-[#0a0a0a] rounded-lg transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-sm font-medium text-white/70 bg-[#0a0a0a] border border-white/15 hover:bg-white/[0.04] rounded-lg transition-colors disabled:opacity-50"
               >
                 Disable Event Posting
               </button>
@@ -176,7 +176,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-6">
+        <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-6">
           <div className="flex items-center gap-3">
             <div className="p-3 rounded-lg">
               <svg className="w-6 h-6 text-brand-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -190,7 +190,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
           </div>
         </div>
 
-        <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-6">
+        <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-6">
           <div className="flex items-center gap-3">
             <div className="p-3 rounded-lg">
               <svg className="w-6 h-6 text-emerald-300" fill="currentColor" viewBox="0 0 20 20">
@@ -204,7 +204,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
           </div>
         </div>
 
-        <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-6">
+        <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-6">
           <div className="flex items-center gap-3">
             <div className="p-3 rounded-lg">
               <svg className="w-6 h-6 text-brand-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -221,7 +221,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Account Information */}
-        <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-6">
+        <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-6">
           <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -273,7 +273,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
         </div>
 
         {/* Bank Account & Verification */}
-        <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-6">
+        <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-6">
           <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -295,8 +295,8 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                         <div className="flex items-center gap-2">
                           <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
                             dest.type === 'bank' ? 'text-brand-300' :
-                            dest.type === 'mobile_money' ? 'bg-[#1c1c1c] text-white/90' :
-                            'bg-[#1c1c1c] text-white/90'
+                            dest.type === 'mobile_money' ? 'bg-[#0a0a0a] text-white/90' :
+                            'bg-[#0a0a0a] text-white/90'
                           }`}>
                             {safeString(dest.type || 'bank').replace(/_/g, ' ')}
                           </span>
@@ -440,7 +440,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                     payoutConfig.status === 'active' ? 'text-emerald-300' :
                     payoutConfig.status === 'pending_verification' ? 'text-amber-300' :
                     payoutConfig.status === 'on_hold' ? 'text-red-300' :
-                    'bg-[#1c1c1c] text-white/90'
+                    'bg-[#0a0a0a] text-white/90'
                   }`}>
                     {safeString(payoutConfig.status, 'not_setup').replace(/_/g, ' ')}
                   </span>
@@ -498,7 +498,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
 
         {/* Verification Request */}
         {verificationRequest && (
-          <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-6">
+          <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-6">
             <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -564,7 +564,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
 
         {/* Verification Documents */}
         {verificationDocs.length > 0 && (
-          <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-6">
+          <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-6">
             <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -585,8 +585,8 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                           docType === 'identity' ? '' :
                           docType === 'bank' ? '' :
-                          docType === 'phone' ? 'bg-[#1c1c1c]' :
-                          'bg-[#1c1c1c]'
+                          docType === 'phone' ? 'bg-[#0a0a0a]' :
+                          'bg-[#0a0a0a]'
                         }`}>
                           {docType === 'identity' && (
                             <svg className="w-5 h-5 text-brand-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -662,7 +662,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
 
         {/* Organization Profile */}
         {organizer && (
-          <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-6 lg:col-span-2">
+          <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-6 lg:col-span-2">
             <h2 className="text-lg font-bold text-white mb-4">Organization Profile</h2>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

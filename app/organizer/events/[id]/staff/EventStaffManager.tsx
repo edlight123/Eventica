@@ -261,7 +261,7 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
         </button>
       </div>
 
-      <div className="bg-[#141414] rounded-xl border border-white/10 overflow-hidden">
+      <div className="bg-[#0a0a0a] rounded-xl  overflow-hidden">
         <div className="px-6 py-4 border-b border-white/10">
           <h3 className="text-lg font-bold text-white">Staff Members</h3>
           <p className="text-sm text-white/60">Event-scoped access for check-in</p>
@@ -285,7 +285,7 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
                   const showEmail = profile?.full_name && profile?.email
 
                   return (
-                    <tr key={m.id} className="hover:bg-[#0a0a0a]">
+                    <tr key={m.id} className="hover:bg-white/[0.04]">
                       <td className="px-6 py-4">
                         <div className="font-medium text-white">{displayName}</div>
                         <div className="text-sm text-white/50">{m.role || 'staff'}</div>
@@ -312,7 +312,7 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
         )}
       </div>
 
-      <div className="bg-[#141414] rounded-xl border border-white/10 overflow-hidden">
+      <div className="bg-[#0a0a0a] rounded-xl  overflow-hidden">
         <div className="px-6 py-4 border-b border-white/10">
           <h3 className="text-lg font-bold text-white">Invites</h3>
           <p className="text-sm text-white/60">Invite links are one-time use. Create a new one if lost.</p>
@@ -341,7 +341,7 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
                   const target = inv.method === 'email' ? inv.targetEmail : inv.method === 'phone' ? inv.targetPhone : 'Link'
 
                   return (
-                    <tr key={inv.id} className="hover:bg-[#0a0a0a]">
+                    <tr key={inv.id} className="hover:bg-white/[0.04]">
                       <td className="px-6 py-4 text-sm text-white">{inv.method}</td>
                       <td className="px-6 py-4 text-sm text-white/70">{target || ''}</td>
                       <td className="px-6 py-4 text-sm text-white/70">{status}</td>
@@ -365,7 +365,7 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
 
       {showInviteModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-[#141414] rounded-xl max-w-md w-full p-6">
+          <div className="bg-[#0a0a0a] rounded-xl max-w-md w-full p-6">
             <h3 className="font-display text-xl text-white mb-4">Invite Staff</h3>
 
             <div className="space-y-4">
@@ -423,7 +423,7 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
                     setViewAttendees(false)
                     setMethod('link')
                   }}
-                  className="flex-1 px-4 py-2.5 border border-white/15 text-white/70 font-medium rounded-lg hover:bg-[#0a0a0a] transition-colors"
+                  className="flex-1 px-4 py-2.5 border border-white/15 text-white/70 font-medium rounded-lg hover:bg-white/[0.04] transition-colors"
                 >
                   Cancel
                 </button>

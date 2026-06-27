@@ -123,7 +123,7 @@ export default function AdminUsersClient({
         <StatTile icon={ShieldCheck} label={t('users.verified_organizers')} value={counts.verified} />
       </div>
 
-      <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-4 mb-6">
+      <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-4 mb-6">
         <div className="relative">
           <div className="flex flex-col sm:flex-row gap-3">
             <input
@@ -156,7 +156,7 @@ export default function AdminUsersClient({
           </div>
 
           {isOpen && (results.length > 0 || searchError) && (
-            <div className="absolute z-20 mt-2 w-full rounded-lg border border-white/10 bg-[#141414] shadow-lg overflow-hidden">
+            <div className="absolute z-20 mt-2 w-full rounded-lg  bg-[#0a0a0a] shadow-lg overflow-hidden">
               {searchError ? (
                 <div className="p-3 text-sm text-red-300">{searchError}</div>
               ) : (
@@ -169,7 +169,7 @@ export default function AdminUsersClient({
                         e.preventDefault()
                         navigateToUser(String(r.id || ''))
                       }}
-                      className="w-full text-left px-3 py-2.5 hover:bg-[#0a0a0a]"
+                      className="w-full text-left px-3 py-2.5 hover:bg-white/[0.04]"
                     >
                       <div className="text-sm font-medium text-white truncate">{r.title}</div>
                       {r.subtitle && <div className="text-[13px] text-white/50 truncate">{r.subtitle}</div>}

@@ -86,7 +86,7 @@ export default async function EventTicketsPage({ params }: { params: Promise<{ i
               return (
                 <div
                   key={tier.id}
-                  className="rounded-2xl border border-white/10 bg-[#141414] p-5"
+                  className="rounded-2xl  bg-[#0a0a0a] p-5"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -110,7 +110,7 @@ export default async function EventTicketsPage({ params }: { params: Promise<{ i
                         {tier.quantity > 0 && <span className="text-white/40"> / {tier.quantity}</span>}
                       </span>
                     </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-[#1c1c1c]">
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-[#0a0a0a]">
                       <div
                         className={`h-2 rounded-full ${soldOut ? 'bg-red-500' : 'bg-brand-500'}`}
                         style={{ width: `${pct}%` }}

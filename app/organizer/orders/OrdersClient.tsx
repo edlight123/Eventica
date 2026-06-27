@@ -116,7 +116,7 @@ export default function OrdersClient({ orders }: { orders: Order[] }) {
         subtitle="Every ticket sold across your events."
         actions={
           orders.length > 0 ? (
-            <span className="rounded-full border border-white/10 bg-[#1c1c1c] px-3.5 py-2 text-sm text-white/70">
+            <span className="rounded-full  bg-[#0a0a0a] px-3.5 py-2 text-sm text-white/70">
               {orders.length} order{orders.length !== 1 ? 's' : ''}
             </span>
           ) : undefined

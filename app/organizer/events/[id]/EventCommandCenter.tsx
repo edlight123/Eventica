@@ -84,7 +84,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-12">
       {/* Setup banner — only when something's missing */}
       {incomplete.length > 0 && (
-        <div className="mb-6 rounded-2xl border border-white/10 bg-[#141414] p-4 sm:p-5">
+        <div className="mb-6 rounded-2xl  bg-[#0a0a0a] p-4 sm:p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="text-[15px] font-semibold text-white">Finish setting up your event</h2>
@@ -104,7 +104,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
               <Link
                 key={s.id}
                 href={s.href}
-                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#1c1c1c] px-3.5 py-1.5 text-sm text-white/70 transition-colors hover:border-white/25 hover:text-white"
+                className="inline-flex items-center gap-2 rounded-full  bg-[#0a0a0a] px-3.5 py-1.5 text-sm text-white/70 transition-colors hover:border-white/25 hover:text-white"
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
                 {s.label}
@@ -119,7 +119,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
         {kpis.map((k) => {
           const Icon = k.icon
           return (
-            <div key={k.label} className="rounded-2xl border border-white/10 bg-[#141414] p-4 sm:p-5">
+            <div key={k.label} className="rounded-2xl  bg-[#0a0a0a] p-4 sm:p-5">
               <div className="mb-3 flex items-center justify-between">
                 <span className="text-xs font-medium uppercase tracking-wide text-white/45">{k.label}</span>
                 <Icon className="h-4 w-4 text-white/30" />
@@ -137,7 +137,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
         {/* ===== Main column ===== */}
         <div className="min-w-0 space-y-6">
           {/* Sales trend */}
-          <section className="rounded-2xl border border-white/10 bg-[#141414] p-5">
+          <section className="rounded-2xl  bg-[#0a0a0a] p-5">
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <h3 className="text-[15px] font-semibold text-white">Sales</h3>
@@ -172,7 +172,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
           </section>
 
           {/* Ticket tiers */}
-          <section className="rounded-2xl border border-white/10 bg-[#141414] p-5">
+          <section className="rounded-2xl  bg-[#0a0a0a] p-5">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-[15px] font-semibold text-white">Ticket types</h3>
               <Link href={`/organizer/events/${event.id}/tickets`} className="inline-flex items-center gap-1 text-sm font-medium text-brand-300 hover:text-brand-200">
@@ -194,7 +194,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
                           {Number(tier.price) > 0 ? formatMoneyFromCents(Math.round(Number(tier.price) * 100), currency) : 'Free'}
                         </span>
                       </div>
-                      <div className="h-2 w-full overflow-hidden rounded-full bg-[#1c1c1c]">
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-[#0a0a0a]">
                         <div className="h-full rounded-full bg-brand-500" style={{ width: `${pct}%` }} />
                       </div>
                     </div>
@@ -213,7 +213,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
           </section>
 
           {/* Recent activity */}
-          <section className="rounded-2xl border border-white/10 bg-[#141414] p-5">
+          <section className="rounded-2xl  bg-[#0a0a0a] p-5">
             <h3 className="mb-4 text-[15px] font-semibold text-white">Recent activity</h3>
             {recent.length > 0 ? (
               <ul className="divide-y divide-white/5">
@@ -249,7 +249,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
 
         {/* ===== Right rail — event details ===== */}
         <aside className="space-y-4 lg:sticky lg:top-[140px] lg:self-start">
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#141414]">
+          <div className="overflow-hidden rounded-2xl  bg-[#0a0a0a]">
             {event.banner_image_url ? (
               <div className="relative aspect-[4/5] w-full">
                 <Image src={event.banner_image_url} alt={event.title} fill sizes="340px" className="object-cover" />
@@ -281,7 +281,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
               </div>
               <Link
                 href={`/organizer/events/${event.id}/edit`}
-                className="block w-full rounded-xl border border-white/15 py-2.5 text-center text-sm font-semibold text-white/80 transition-colors hover:bg-[#1c1c1c]"
+                className="block w-full rounded-xl border border-white/15 py-2.5 text-center text-sm font-semibold text-white/80 transition-colors hover:bg-white/[0.04]"
               >
                 Edit event
               </Link>
@@ -289,7 +289,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
           </div>
 
           {event.description && (
-            <div className="rounded-2xl border border-white/10 bg-[#141414] p-4">
+            <div className="rounded-2xl  bg-[#0a0a0a] p-4">
               <h4 className="mb-2 text-sm font-semibold text-white">About</h4>
               <p className="line-clamp-6 whitespace-pre-wrap text-sm leading-relaxed text-white/60">
                 {event.description}

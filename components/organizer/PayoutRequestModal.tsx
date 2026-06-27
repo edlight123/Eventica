@@ -55,7 +55,7 @@ export function PayoutRequestModal({ open, onClose, availableLabel, methodLabel 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50" onClick={close} />
-      <div className="relative w-full max-w-md rounded-2xl bg-[#141414] shadow-xl">
+      <div className="relative w-full max-w-md rounded-2xl bg-[#0a0a0a] shadow-xl">
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
           <h3 className="font-display text-xl text-white">Request payout</h3>
           <button onClick={close} disabled={status === 'loading'} aria-label="Close" className="text-white/40 transition-colors hover:text-white/60 disabled:opacity-50">
@@ -80,7 +80,7 @@ export function PayoutRequestModal({ open, onClose, availableLabel, methodLabel 
           </div>
         ) : (
           <div className="space-y-4 px-5 py-5">
-            <div className="rounded-xl border border-white/10 bg-[#0a0a0a] p-4">
+            <div className="rounded-xl  bg-[#0a0a0a] p-4">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/50">
                 <Wallet className="h-4 w-4 text-brand-300" /> Amount
               </div>
@@ -106,7 +106,7 @@ export function PayoutRequestModal({ open, onClose, availableLabel, methodLabel 
             )}
 
             <div className="flex gap-3 pt-1">
-              <button onClick={close} disabled={status === 'loading'} className="flex-1 rounded-lg border border-white/15 px-4 py-2.5 text-sm font-semibold text-white/70 transition-colors hover:bg-[#0a0a0a] disabled:opacity-50">
+              <button onClick={close} disabled={status === 'loading'} className="flex-1 rounded-lg border border-white/15 px-4 py-2.5 text-sm font-semibold text-white/70 transition-colors hover:bg-white/[0.04] disabled:opacity-50">
                 Cancel
               </button>
               <button onClick={submit} disabled={status === 'loading'} className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 disabled:opacity-60">

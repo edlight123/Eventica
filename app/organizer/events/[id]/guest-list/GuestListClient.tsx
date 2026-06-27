@@ -169,7 +169,7 @@ export default function GuestListClient({ eventId, eventTitle, guests }: GuestLi
             <button
               type="button"
               onClick={() => { setOpen(false); reset() }}
-              className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white/70 transition-colors hover:bg-[#1c1c1c] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="rounded-xl  px-4 py-2.5 text-sm font-semibold text-white/70 transition-colors hover:bg-white/[0.04] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               Cancel
             </button>
@@ -192,7 +192,7 @@ export default function GuestListClient({ eventId, eventTitle, guests }: GuestLi
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Jane Doe"
-              className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="w-full rounded-xl  bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </FormField>
           <FormField label="Email address" required>
@@ -201,7 +201,7 @@ export default function GuestListClient({ eventId, eventTitle, guests }: GuestLi
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="jane@example.com"
-              className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="w-full rounded-xl  bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </FormField>
           <FormField label="Allow +1">
@@ -210,7 +210,7 @@ export default function GuestListClient({ eventId, eventTitle, guests }: GuestLi
                 type="checkbox"
                 checked={plusOne}
                 onChange={(e) => setPlusOne(e.target.checked)}
-                className="h-4 w-4 rounded border-white/20 bg-[#1c1c1c] text-brand-600 focus:ring-brand-500"
+                className="h-4 w-4 rounded border-white/20 bg-[#0a0a0a] text-brand-600 focus:ring-brand-500"
               />
               <span className="text-sm text-white/70">Allow this guest to bring one additional person</span>
             </label>

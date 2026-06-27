@@ -153,7 +153,7 @@ export default function OrgTeamClient({
           onClick={() => handleRemove(m.id)}
           disabled={removing === m.id}
           aria-label={`Remove ${m.name || m.email} from team`}
-          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 text-white/40 transition-colors hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400 disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-lg  text-white/40 transition-colors hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400 disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <Trash2 className="h-3.5 w-3.5" />
         </button>
@@ -213,17 +213,17 @@ export default function OrgTeamClient({
       )}
 
       {/* Guidelines */}
-      <div className="mt-8 rounded-2xl border border-white/10 bg-[#141414] p-5">
+      <div className="mt-8 rounded-2xl  bg-[#0a0a0a] p-5">
         <h3 className="mb-3 font-semibold text-white">Access levels</h3>
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="flex items-start gap-3 rounded-xl bg-[#1c1c1c] p-4">
+          <div className="flex items-start gap-3 rounded-xl bg-[#0a0a0a] p-4">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" />
             <div>
               <p className="text-sm font-semibold text-white">Admin</p>
               <p className="mt-0.5 text-xs text-white/50">Full access to all events, orders, and settings</p>
             </div>
           </div>
-          <div className="flex items-start gap-3 rounded-xl bg-[#1c1c1c] p-4">
+          <div className="flex items-start gap-3 rounded-xl bg-[#0a0a0a] p-4">
             <User className="mt-0.5 h-4 w-4 shrink-0 text-white/40" />
             <div>
               <p className="text-sm font-semibold text-white">Staff</p>
@@ -244,7 +244,7 @@ export default function OrgTeamClient({
             <button
               type="button"
               onClick={() => { setOpen(false); reset() }}
-              className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white/70 transition-colors hover:bg-[#1c1c1c] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="rounded-xl  px-4 py-2.5 text-sm font-semibold text-white/70 transition-colors hover:bg-white/[0.04] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               Cancel
             </button>
@@ -268,7 +268,7 @@ export default function OrgTeamClient({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="colleague@example.com"
-              className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="w-full rounded-xl  bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </FormField>
           <FormField label="Name" htmlFor="team-name">
@@ -278,7 +278,7 @@ export default function OrgTeamClient({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Optional"
-              className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="w-full rounded-xl  bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </FormField>
           <FormField label="Role" htmlFor="team-role">
@@ -286,7 +286,7 @@ export default function OrgTeamClient({
               id="team-role"
               value={role}
               onChange={(e) => setRole(e.target.value as Role)}
-              className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="w-full rounded-xl  bg-[#0a0a0a] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
             >
               {ROLES.map((r) => (
                 <option key={r.value} value={r.value}>

@@ -140,7 +140,7 @@ export default function ImageUpload({
                 alt="Preview"
                 fill
                 sizes="(max-width: 1024px) 100vw, 360px"
-                className="rounded-2xl border border-white/10 object-cover"
+                className="rounded-2xl  object-cover"
               />
             </div>
             <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
@@ -158,7 +158,7 @@ export default function ImageUpload({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             style={coolBg}
-            className={`group/flyer relative flex w-full ${frame} flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/10 text-white/50 transition hover:border-brand-400/40`}
+            className={`group/flyer relative flex w-full ${frame} flex-col items-center justify-center overflow-hidden rounded-2xl  text-white/50 transition hover:border-brand-400/40`}
           >
             <span className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-gray-900 shadow-lg transition-transform group-hover/flyer:scale-105">
               {ctaLabel}

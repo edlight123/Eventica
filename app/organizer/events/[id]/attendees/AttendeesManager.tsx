@@ -196,7 +196,7 @@ export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesMana
       key={t.id}
       type="button"
       onClick={() => setSelectedTicket(t)}
-      className="flex w-full items-center gap-3 p-4 text-left hover:bg-[#1c1c1c] active:bg-[#1c1c1c]"
+      className="flex w-full items-center gap-3 p-4 text-left hover:bg-white/[0.04] active:bg-[#0a0a0a]"
     >
       <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full ">
         <User className="h-5 w-5 text-brand-300" />
@@ -227,7 +227,7 @@ export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesMana
           { label: 'Pending', value: stats.notCheckedIn, color: 'text-amber-300', bg: 'border-amber-500/30' },
           { label: 'Cancelled', value: stats.cancelled, color: 'text-red-300', bg: 'border-red-500/30' },
         ].map((k) => (
-          <div key={k.label} className={`rounded-xl border bg-[#141414] p-4 ${k.bg}`}>
+          <div key={k.label} className={`rounded-xl border bg-[#0a0a0a] p-4 ${k.bg}`}>
             <p className="text-xs font-medium uppercase tracking-wide text-white/50">{k.label}</p>
             <p className={`mt-1 text-2xl font-bold ${k.color}`}>{k.value}</p>
           </div>
@@ -246,7 +246,7 @@ export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesMana
           <button
             type="button"
             onClick={handleExportCSV}
-            className="inline-flex h-10 items-center gap-2 rounded-lg border border-white/10 bg-[#141414] px-4 text-sm font-medium text-white/70 transition-colors hover:bg-[#1c1c1c] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="inline-flex h-10 items-center gap-2 rounded-lg  bg-[#0a0a0a] px-4 text-sm font-medium text-white/70 transition-colors hover:bg-white/[0.04] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <Download className="h-4 w-4" />
             <span className="hidden sm:inline">Export CSV</span>

@@ -27,8 +27,8 @@ export function NextEventHero({ event }: NextEventHeroProps) {
   
   if (!event) {
     return (
-      <div className="bg-gradient-to-br from-brand-500/15 to-brand-600/10 rounded-2xl border border-white/10 p-8 text-center">
-        <div className="w-16 h-16 bg-[#141414] rounded-full flex items-center justify-center mx-auto mb-4">
+      <div className="bg-gradient-to-br from-brand-500/15 to-brand-600/10 rounded-2xl  p-8 text-center">
+        <div className="w-16 h-16 bg-[#0a0a0a] rounded-full flex items-center justify-center mx-auto mb-4">
           <Calendar className="w-8 h-8 text-white/40" />
         </div>
         <h3 className="text-lg font-bold text-white mb-2">{t('next_event.no_upcoming_title')}</h3>
@@ -70,7 +70,7 @@ export function NextEventHero({ event }: NextEventHeroProps) {
   }
 
   return (
-    <div className="bg-[#141414] rounded-2xl shadow-soft border border-white/10 overflow-hidden">
+    <div className="bg-[#0a0a0a] rounded-2xl shadow-soft  overflow-hidden">
       {/* Banner Section */}
       <div className="relative h-48 md:h-64 bg-gradient-to-br from-brand-600 to-brand-700">
         {event.banner_image_url ? (
@@ -123,7 +123,7 @@ export function NextEventHero({ event }: NextEventHeroProps) {
 
         {/* KPIs Grid */}
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-[#0a0a0a] rounded-xl p-4 border border-white/10">
+          <div className="bg-[#0a0a0a] rounded-xl p-4 ">
             <div className="flex items-center gap-2 mb-1">
               <Users className="w-4 h-4 text-brand-300" />
               <p className="text-xs font-medium text-white/50">{t('next_event.tickets_sold')}</p>
@@ -132,7 +132,7 @@ export function NextEventHero({ event }: NextEventHeroProps) {
             <p className="text-xs text-white/50">{t('next_event.of')} {event.capacity}</p>
           </div>
 
-          <div className="bg-[#0a0a0a] rounded-xl p-4 border border-white/10">
+          <div className="bg-[#0a0a0a] rounded-xl p-4 ">
             <div className="flex items-center gap-2 mb-1">
               <DollarSign className="w-4 h-4 text-brand-300" />
               <p className="text-xs font-medium text-white/50">{t('next_event.revenue')}</p>
@@ -143,7 +143,7 @@ export function NextEventHero({ event }: NextEventHeroProps) {
             <p className="text-xs text-white/50">{t('next_event.earned')}</p>
           </div>
 
-          <div className="bg-[#0a0a0a] rounded-xl p-4 border border-white/10">
+          <div className="bg-[#0a0a0a] rounded-xl p-4 ">
             <div className="flex items-center gap-2 mb-1">
               <Calendar className="w-4 h-4 text-brand-300" />
               <p className="text-xs font-medium text-white/50">{t('next_event.capacity')}</p>
@@ -155,7 +155,7 @@ export function NextEventHero({ event }: NextEventHeroProps) {
 
         {/* Progress Bar */}
         <div className="mb-6">
-          <div className="h-2 bg-[#1c1c1c] rounded-full overflow-hidden">
+          <div className="h-2 bg-[#0a0a0a] rounded-full overflow-hidden">
             <div 
               className="h-full bg-gradient-to-r from-brand-500 to-brand-600 rounded-full transition-all duration-500"
               style={{ width: `${Math.min(progress, 100)}%` }}
@@ -175,7 +175,7 @@ export function NextEventHero({ event }: NextEventHeroProps) {
           
           <Link
             href={`/organizer/events/${event.id}/attendees`}
-            className="flex items-center justify-center gap-2 px-4 py-3 bg-[#141414] border-2 border-white/10 text-white/70 rounded-xl font-semibold hover:border-brand-500 hover:text-brand-300 transition-colors text-sm"
+            className="flex items-center justify-center gap-2 px-4 py-3 bg-[#0a0a0a] border-2 border-white/10 text-white/70 rounded-xl font-semibold hover:border-brand-500 hover:text-brand-300 transition-colors text-sm"
           >
             <Eye className="w-4 h-4" />
             <span className="hidden sm:inline">{t('next_event.attendees')}</span>
@@ -183,7 +183,7 @@ export function NextEventHero({ event }: NextEventHeroProps) {
           
           <Link
             href={`/organizer/scan/${event.id}`}
-            className="flex items-center justify-center gap-2 px-4 py-3 bg-[#141414] border-2 border-white/10 text-white/70 rounded-xl font-semibold hover:border-brand-500 hover:text-brand-300 transition-colors text-sm"
+            className="flex items-center justify-center gap-2 px-4 py-3 bg-[#0a0a0a] border-2 border-white/10 text-white/70 rounded-xl font-semibold hover:border-brand-500 hover:text-brand-300 transition-colors text-sm"
           >
             <QrCode className="w-4 h-4" />
             <span className="hidden sm:inline">{t('next_event.check_in')}</span>
@@ -200,7 +200,7 @@ export function NextEventHero({ event }: NextEventHeroProps) {
                 navigator.clipboard.writeText(`${window.location.origin}/events/${event.id}`)
               }
             }}
-            className="flex items-center justify-center gap-2 px-4 py-3 bg-[#141414] border-2 border-white/10 text-white/70 rounded-xl font-semibold hover:border-brand-500 hover:text-brand-300 transition-colors text-sm"
+            className="flex items-center justify-center gap-2 px-4 py-3 bg-[#0a0a0a] border-2 border-white/10 text-white/70 rounded-xl font-semibold hover:border-brand-500 hover:text-brand-300 transition-colors text-sm"
           >
             <Share2 className="w-4 h-4" />
             <span className="hidden sm:inline">{t('next_event.share')}</span>

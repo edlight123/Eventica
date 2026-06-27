@@ -308,12 +308,12 @@ export default function OrganizerEventsPage() {
 
           <div className="flex items-center gap-2">
             {/* View toggle */}
-            <div className="flex items-center rounded-lg bg-[#1c1c1c] p-1">
+            <div className="flex items-center rounded-lg bg-[#0a0a0a] p-1">
               <button
                 type="button"
                 onClick={() => setView('list')}
                 className={`rounded-md p-2 transition-all ${
-                  view === 'list' ? 'bg-[#141414] text-brand-300 shadow-sm' : 'text-white/50 hover:text-white/70'
+                  view === 'list' ? 'bg-[#0a0a0a] text-brand-300 shadow-sm' : 'text-white/50 hover:text-white/70'
                 }`}
                 aria-label={t('events_page.list_view', 'List view')}
               >
@@ -323,7 +323,7 @@ export default function OrganizerEventsPage() {
                 type="button"
                 onClick={() => setView('calendar')}
                 className={`rounded-md p-2 transition-all ${
-                  view === 'calendar' ? 'bg-[#141414] text-brand-300 shadow-sm' : 'text-white/50 hover:text-white/70'
+                  view === 'calendar' ? 'bg-[#0a0a0a] text-brand-300 shadow-sm' : 'text-white/50 hover:text-white/70'
                 }`}
                 aria-label={t('events_page.calendar_view', 'Calendar view')}
               >
@@ -335,7 +335,7 @@ export default function OrganizerEventsPage() {
             <button
               type="button"
               onClick={() => setShowFiltersModal(true)}
-              className="relative inline-flex items-center gap-2 rounded-lg border border-white/10 bg-[#141414] px-4 py-2.5 text-sm font-medium text-white/70 transition-all hover:bg-[#0a0a0a]"
+              className="relative inline-flex items-center gap-2 rounded-lg  bg-[#0a0a0a] px-4 py-2.5 text-sm font-medium text-white/70 transition-all hover:bg-white/[0.04]"
             >
               <SlidersHorizontal className="h-4 w-4" />
               <span>{t('events_page.filters', 'Filters')}</span>
@@ -388,7 +388,7 @@ export default function OrganizerEventsPage() {
                   <button
                     type="button"
                     onClick={handleClearFilters}
-                    className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-[#141414] px-5 py-2.5 font-semibold text-white/70 transition-colors hover:bg-[#0a0a0a]"
+                    className="inline-flex items-center gap-2 rounded-lg  bg-[#0a0a0a] px-5 py-2.5 font-semibold text-white/70 transition-colors hover:bg-white/[0.04]"
                   >
                     {t('events_page.clear_filters', 'Clear filters')}
                   </button>
@@ -427,7 +427,7 @@ export default function OrganizerEventsPage() {
                     type="button"
                     onClick={handleLoadMore}
                     disabled={loadingMore}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#141414] border border-white/10 hover:bg-[#0a0a0a] text-white font-medium disabled:opacity-60"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#0a0a0a]  hover:bg-white/[0.04] text-white font-medium disabled:opacity-60"
                   >
                     {loadingMore ? t('events_page.loading', 'Loading…') : t('events_page.load_more', 'Load more events')}
                   </button>

@@ -18,7 +18,7 @@ export function EmptyState({ hasFilters, countryName = 'your area' }: EmptyState
   if (!hasFilters) {
     // No events in user's country at all
     return (
-      <div className="text-center py-16 sm:py-20 bg-white/5 border border-white/10 rounded-3xl shadow-sm">
+      <div className="text-center py-16 sm:py-20 bg-white/5  rounded-3xl shadow-sm">
         <div className="relative inline-block mb-6">
           <div className="w-20 h-20 rounded-full flex items-center justify-center">
             <MapPin className="w-10 h-10 text-brand-400" />
@@ -62,7 +62,7 @@ export function EmptyState({ hasFilters, countryName = 'your area' }: EmptyState
   }
 
   return (
-    <div className="text-center py-20 bg-white/5 border border-white/10 rounded-3xl shadow-sm">
+    <div className="text-center py-20 bg-white/5  rounded-3xl shadow-sm">
       <h3 className="text-2xl font-bold text-white mb-3">
         {t('events.no_events')}
       </h3>

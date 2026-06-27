@@ -73,14 +73,14 @@ export function ConfirmationDialog({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={description ? descId : undefined}
-        className="relative w-full max-w-sm rounded-2xl border border-white/10 bg-[#1e1e1e] p-6 shadow-2xl"
+        className="relative w-full max-w-sm rounded-2xl  bg-[#1e1e1e] p-6 shadow-2xl"
         style={{ animation: 'scaleIn 0.18s ease-out' }}
       >
         <button
           type="button"
           aria-label="Close dialog"
           onClick={onClose}
-          className="absolute right-4 top-4 grid h-7 w-7 place-items-center rounded-lg text-white/40 transition-colors hover:bg-[#242424] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="absolute right-4 top-4 grid h-7 w-7 place-items-center rounded-lg text-white/40 transition-colors hover:bg-white/[0.04] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <X className="h-4 w-4" />
         </button>
@@ -106,7 +106,7 @@ export function ConfirmationDialog({
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="flex-1 rounded-xl border border-white/10 py-2.5 text-sm font-semibold text-white/80 transition-colors hover:bg-[#1c1c1c] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-50"
+            className="flex-1 rounded-xl  py-2.5 text-sm font-semibold text-white/80 transition-colors hover:bg-white/[0.04] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-50"
           >
             {cancelLabel}
           </button>

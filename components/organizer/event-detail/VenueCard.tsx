@@ -21,7 +21,7 @@ export function VenueCard({ eventId, venue }: VenueCardProps) {
   const hasVenue = venue.name || venue.address || venue.city || venue.is_online
 
   return (
-    <div className="bg-[#141414] rounded-xl border border-white/10 p-5 shadow-sm">
+    <div className="bg-[#0a0a0a] rounded-xl  p-5 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className="p-2 rounded-lg ">

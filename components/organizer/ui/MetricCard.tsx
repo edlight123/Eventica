@@ -24,7 +24,7 @@ export function MetricCard({
 }) {
   return (
     <div
-      className={`rounded-2xl border border-white/10 bg-[#141414] p-5 ${className}`}
+      className={`rounded-2xl  bg-[#0a0a0a] p-5 ${className}`}
     >
       <div className="mb-3 flex items-center gap-2">
         {Icon && (

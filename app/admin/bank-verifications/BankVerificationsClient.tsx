@@ -80,7 +80,7 @@ export default function BankVerificationsClient() {
       />
 
       {/* Status Filter Tabs */}
-      <div className="bg-[#141414] rounded-lg shadow-sm border border-white/10 p-4 mb-6">
+      <div className="bg-[#0a0a0a] rounded-lg shadow-sm  p-4 mb-6">
         <div className="flex flex-wrap gap-2">
           {['pending', 'approved', 'rejected'].map((status) => (
             <button
@@ -89,7 +89,7 @@ export default function BankVerificationsClient() {
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 statusFilter === status
                   ? 'bg-brand-700 text-white'
-                  : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
+                  : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
               }`}
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -108,7 +108,7 @@ export default function BankVerificationsClient() {
 
       {/* Empty State */}
       {!loading && verifications.length === 0 && (
-        <div className="text-center py-12 bg-[#141414] rounded-lg shadow-sm border border-white/10">
+        <div className="text-center py-12 bg-[#0a0a0a] rounded-lg shadow-sm ">
           <svg
             className="mx-auto h-12 w-12 text-white/40"
             fill="none"

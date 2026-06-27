@@ -72,7 +72,7 @@ export default function OrganizerEventCard({ event, showNeedsAttention = true }:
   return (
     <Link
       href={`/organizer/events/${event.id}`}
-      className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-[#141414] p-3 transition-colors hover:bg-[#1a1a1a]"
+      className="group flex items-center gap-4 rounded-2xl  bg-[#0a0a0a] p-3 transition-colors hover:bg-[#1a1a1a]"
     >
       {/* Poster thumbnail */}
       <div

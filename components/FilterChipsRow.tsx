@@ -67,7 +67,7 @@ export function FilterChipsRow({ filters, onRemoveFilter, onClearAll }: FilterCh
   if (chips.length === 0) return null
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-white/5 p-3.5 shadow-poster-sm">
+    <div className="flex flex-wrap items-center gap-2 rounded-2xl  bg-white/5 p-3.5 shadow-poster-sm">
       <span className="eyebrow text-[11px] text-white/50">{t('filters.active_filters')}</span>
       {chips.map((chip, index) => (
         <FilterChip

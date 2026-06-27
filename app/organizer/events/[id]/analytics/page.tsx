@@ -134,7 +134,7 @@ export default async function EventAnalyticsPage({
 
           {/* Ticket tier breakdown */}
           {tierBreakdown.length > 0 && (
-            <div className="rounded-2xl border border-white/10 bg-[#141414] p-5">
+            <div className="rounded-2xl  bg-[#0a0a0a] p-5">
               <h2 className="mb-4 font-semibold text-white">Sales by tier</h2>
               <div className="space-y-3">
                 {tierBreakdown.map((tier) => {
@@ -147,7 +147,7 @@ export default async function EventAnalyticsPage({
                           {tier.sold} <span className="text-white/40">({pct.toFixed(0)}%)</span>
                         </span>
                       </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-[#1c1c1c]">
+                      <div className="h-2 overflow-hidden rounded-full bg-[#0a0a0a]">
                         <div
                           className="h-full rounded-full bg-brand-600 transition-all"
                           style={{ width: `${pct}%` }}
@@ -162,7 +162,7 @@ export default async function EventAnalyticsPage({
 
           {/* Daily sales chart (text-based sparkline) */}
           {salesByDay.length > 1 && (
-            <div className="rounded-2xl border border-white/10 bg-[#141414] p-5">
+            <div className="rounded-2xl  bg-[#0a0a0a] p-5">
               <h2 className="mb-4 font-semibold text-white">Daily sales</h2>
               <div className="flex items-end gap-1 overflow-x-auto pb-1">
                 {salesByDay.map(({ date, count }) => {

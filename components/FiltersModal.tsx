@@ -118,11 +118,11 @@ export function FiltersModal({
       {/* Modal/Sheet */}
       <div className="fixed inset-0 z-50 flex items-end md:items-center md:justify-center p-0 md:p-4 pointer-events-none">
         <div 
-          className="pointer-events-auto bg-[#141414] w-full h-full md:h-auto md:max-h-[90vh] md:max-w-[600px] rounded-t-3xl md:rounded-3xl shadow-poster md:border md:border-white/10 flex flex-col overflow-hidden animate-in slide-in-from-bottom md:slide-in-from-bottom-0 md:zoom-in-95 duration-200"
+          className="pointer-events-auto bg-[#0a0a0a] w-full h-full md:h-auto md:max-h-[90vh] md:max-w-[600px] rounded-t-3xl md:rounded-3xl shadow-poster md:border md:border-white/10 flex flex-col overflow-hidden animate-in slide-in-from-bottom md:slide-in-from-bottom-0 md:zoom-in-95 duration-200"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-[#141414] sticky top-0 z-10">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-[#0a0a0a] sticky top-0 z-10">
             <div className="flex items-baseline gap-2.5">
               <h2 className="font-display text-2xl leading-none text-white">{t('filters.filters')}</h2>
               {activeCount > 0 && (
@@ -166,7 +166,7 @@ export function FiltersModal({
             {/* Event Type - Segmented Control */}
             <div className="space-y-3">
               <label className="eyebrow text-[11px] text-white/50">{t('filters.event_type')}</label>
-              <div className="inline-flex rounded-xl border border-white/10 p-1 bg-white/5">
+              <div className="inline-flex rounded-xl  p-1 bg-white/5">
                 {EVENT_TYPE_OPTIONS.map(option => (
                   <button
                     key={option.value}
@@ -250,7 +250,7 @@ export function FiltersModal({
           </div>
 
           {/* Footer - Sticky */}
-          <div className="sticky bottom-0 bg-[#141414]/85 backdrop-blur border-t border-white/10 p-4 flex items-center justify-between gap-3">
+          <div className="sticky bottom-0 bg-[#0a0a0a]/85 backdrop-blur border-t border-white/10 p-4 flex items-center justify-between gap-3">
             <button
               onClick={onReset}
               className="px-4 py-2.5 text-sm font-semibold text-white/55 hover:text-white transition-colors"

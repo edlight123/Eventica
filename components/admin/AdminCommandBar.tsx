@@ -98,7 +98,7 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
   }
 
   return (
-    <div className="bg-[#141414] border-b border-white/10 sticky top-14 z-30 shadow-sm">
+    <div className="bg-[#0a0a0a] border-b border-white/10 sticky top-14 z-30 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex items-center gap-4">
           {/* Search */}
@@ -112,7 +112,7 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
                 onFocus={() => searchQuery && setShowResults(true)}
                 onBlur={() => setTimeout(() => setShowResults(false), 200)}
                 placeholder={t('nav.search_placeholder')}
-                className="w-full pl-10 pr-10 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
+                className="w-full pl-10 pr-10 py-2  rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
               />
               {isSearching && (
                 <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 animate-spin" />
@@ -121,7 +121,7 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
             
             {/* Search Results Dropdown */}
             {showResults && searchQuery && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-[#141414] border border-white/10 rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
+              <div className="absolute top-full left-0 right-0 mt-1 bg-[#0a0a0a]  rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
                 {isSearching ? (
                   <div className="p-8 text-center">
                     <Loader2 className="w-6 h-6 text-brand-300 animate-spin mx-auto mb-2" />
@@ -139,7 +139,7 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
                       <button
                         key={`${result.type}-${result.id}`}
                         onClick={() => handleResultClick(result.href)}
-                        className="w-full px-4 py-3 hover:bg-[#0a0a0a] transition-colors flex items-start gap-3 text-left"
+                        className="w-full px-4 py-3 hover:bg-white/[0.04] transition-colors flex items-start gap-3 text-left"
                       >
                         {/* Icon */}
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
@@ -164,7 +164,7 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
                               <span className={`px-2 py-0.5 text-xs font-medium rounded ${
                                 result.metadata.status === 'published' || result.metadata.status === 'confirmed' ? 'text-emerald-300' :
                                 result.metadata.status === 'draft' || result.metadata.status === 'pending' ? 'text-amber-300' :
-                                'bg-[#1c1c1c] text-white/90'
+                                'bg-[#0a0a0a] text-white/90'
                               }`}>
                                 {result.metadata.status}
                               </span>

@@ -3,7 +3,7 @@ import React from 'react'
 /** Single event card placeholder, matching the poster-led DiscoverEventCard. */
 export function EventCardSkeleton() {
   return (
-    <div className="relative aspect-[4/5] overflow-hidden rounded-2xl border border-white/10 bg-white/10">
+    <div className="relative aspect-[4/5] overflow-hidden rounded-2xl  bg-white/10">
       <div className="absolute inset-x-0 bottom-0 space-y-2 p-3.5">
         <div className="h-5 w-3/4 rounded bg-white/15" />
         <div className="h-3 w-1/2 rounded bg-white/10" />

@@ -108,13 +108,13 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
       />
 
       {/* Side Panel */}
-      <div className="fixed inset-y-0 right-0 w-full sm:w-[600px] lg:w-[700px] bg-[#141414] shadow-xl z-50 flex flex-col">
+      <div className="fixed inset-y-0 right-0 w-full sm:w-[600px] lg:w-[700px] bg-[#0a0a0a] shadow-xl z-50 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-white/10 bg-[#0a0a0a]">
           <h3 className="text-lg font-bold text-white">{t('admin.event_details')}</h3>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-[#242424] rounded-lg"
+            className="p-2 hover:bg-white/[0.04] rounded-lg"
           >
             <X className="w-5 h-5 text-white/60" />
           </button>
@@ -124,7 +124,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
         <div className="flex-1 overflow-y-auto">
           {/* Banner */}
           {event.banner_image_url ? (
-            <div className="relative w-full h-48 bg-[#1c1c1c]">
+            <div className="relative w-full h-48 bg-[#0a0a0a]">
               <Image
                 src={event.banner_image_url}
                 alt={event.title}
@@ -153,7 +153,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
               </div>
 
               {event.category && (
-                <span className="inline-flex px-2 py-1 bg-[#1c1c1c] text-white/70 rounded-md text-sm">
+                <span className="inline-flex px-2 py-1 bg-[#0a0a0a] text-white/70 rounded-md text-sm">
                   {event.category}
                 </span>
               )}
@@ -205,7 +205,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
             )}
 
             {/* Organizer Info */}
-            <div className="p-4 border border-white/10 rounded-lg">
+            <div className="p-4  rounded-lg">
               <div className="flex items-start gap-3 mb-3">
                 <User className="w-5 h-5 text-white/40 mt-0.5" />
                 <div className="flex-1">
@@ -239,7 +239,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
                 </div>
                 <div className="space-y-2">
                   {event.reports.map((report) => (
-                    <div key={report.id} className="p-3 bg-[#141414] rounded-md">
+                    <div key={report.id} className="p-3 bg-[#0a0a0a] rounded-md">
                       <div className="text-sm text-white mb-1">{report.reason}</div>
                       <div className="text-xs text-white/50">
                         By {report.reported_by} • {format(new Date(report.created_at), 'MMM d, h:mm a')}
@@ -257,7 +257,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
                 <div className="space-y-3">
                   {event.audit_logs.map((log) => (
                     <div key={log.id} className="flex gap-3">
-                      <div className="flex-shrink-0 w-8 h-8 bg-[#1c1c1c] rounded-full flex items-center justify-center">
+                      <div className="flex-shrink-0 w-8 h-8 bg-[#0a0a0a] rounded-full flex items-center justify-center">
                         <span className="text-xs">📝</span>
                       </div>
                       <div>
@@ -286,7 +286,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder={t('admin.reason_placeholder')}
-                className="w-full px-3 py-2 border border-white/10 rounded-lg text-sm resize-none"
+                className="w-full px-3 py-2  rounded-lg text-sm resize-none"
                 rows={2}
               />
             </div>
@@ -314,7 +314,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
               <>
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 px-4 py-2.5 border border-white/10 text-white/70 rounded-lg hover:bg-[#0a0a0a] font-medium text-sm"
+                  className="flex-1 px-4 py-2.5  text-white/70 rounded-lg hover:bg-white/[0.04] font-medium text-sm"
                 >
                   {t('admin.cancel')}
                 </button>
@@ -355,7 +355,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
             <button
               onClick={() => downloadCsv('summary')}
               disabled={isExporting !== null}
-              className="flex-1 px-4 py-2.5 border border-white/10 text-white/70 rounded-lg hover:bg-[#0a0a0a] font-medium text-sm disabled:opacity-60"
+              className="flex-1 px-4 py-2.5  text-white/70 rounded-lg hover:bg-white/[0.04] font-medium text-sm disabled:opacity-60"
             >
               {isExporting === 'summary' ? 'Downloading…' : 'Download Summary CSV'}
             </button>

@@ -43,7 +43,7 @@ export default function AdminUserDetailsClient({
         </Link>
       </div>
 
-      <div className="bg-[#141414] rounded-xl sm:rounded-2xl shadow-sm border border-white/10 p-4 sm:p-6 mb-5">
+      <div className="bg-[#0a0a0a] rounded-xl sm:rounded-2xl shadow-sm  p-4 sm:p-6 mb-5">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="min-w-0">
             <h1 className="font-display text-[clamp(22px,3vw,30px)] leading-[1.06] text-white truncate">
@@ -87,22 +87,22 @@ export default function AdminUserDetailsClient({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-6">
+        <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-6">
           <div className="text-sm text-white/60">{t('users.events_attended')}</div>
           <div className="text-2xl font-bold text-white">{attendeeStats.eventsAttended}</div>
         </div>
-        <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-6">
+        <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-6">
           <div className="text-sm text-white/60">{t('users.tickets_confirmed')}</div>
           <div className="text-2xl font-bold text-white">{attendeeStats.ticketsConfirmed}</div>
         </div>
-        <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-6">
+        <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-6">
           <div className="text-sm text-white/60">{t('users.tickets_checked_in')}</div>
           <div className="text-2xl font-bold text-white">{attendeeStats.ticketsCheckedIn}</div>
         </div>
       </div>
 
       {isOrganizer && organizerStats && (
-        <div className="bg-[#141414] rounded-xl sm:rounded-2xl shadow-sm border border-white/10 p-6 sm:p-8">
+        <div className="bg-[#0a0a0a] rounded-xl sm:rounded-2xl shadow-sm  p-6 sm:p-8">
           <div className="flex items-center justify-between gap-4 mb-4">
             <h2 className="font-display text-lg sm:text-xl text-white">{t('users.organizer_section')}</h2>
             <Link
@@ -114,15 +114,15 @@ export default function AdminUserDetailsClient({
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="rounded-xl border border-white/10 p-4">
+            <div className="rounded-xl  p-4">
               <div className="text-sm text-white/60">{t('users.organizer_total_events')}</div>
               <div className="text-2xl font-bold text-white">{organizerStats.totalEvents}</div>
             </div>
-            <div className="rounded-xl border border-white/10 p-4">
+            <div className="rounded-xl  p-4">
               <div className="text-sm text-white/60">{t('users.organizer_published_events')}</div>
               <div className="text-2xl font-bold text-white">{organizerStats.publishedEvents}</div>
             </div>
-            <div className="rounded-xl border border-white/10 p-4">
+            <div className="rounded-xl  p-4">
               <div className="text-sm text-white/60">{t('users.organizer_tickets_sold')}</div>
               <div className="text-2xl font-bold text-white">{organizerStats.ticketsSold}</div>
             </div>

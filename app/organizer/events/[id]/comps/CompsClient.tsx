@@ -178,7 +178,7 @@ export default function CompsClient({ eventId, eventTitle, comps, tiers }: Comps
             <button
               type="button"
               onClick={() => { setOpen(false); reset() }}
-              className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white/70 transition-colors hover:bg-[#1c1c1c] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="rounded-xl  px-4 py-2.5 text-sm font-semibold text-white/70 transition-colors hover:bg-white/[0.04] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               Cancel
             </button>
@@ -201,7 +201,7 @@ export default function CompsClient({ eventId, eventTitle, comps, tiers }: Comps
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Jane Doe"
-              className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="w-full rounded-xl  bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </FormField>
           <FormField label="Email address" required>
@@ -210,7 +210,7 @@ export default function CompsClient({ eventId, eventTitle, comps, tiers }: Comps
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="jane@example.com"
-              className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="w-full rounded-xl  bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </FormField>
         </FormSection>
@@ -222,7 +222,7 @@ export default function CompsClient({ eventId, eventTitle, comps, tiers }: Comps
                 id="comp-tier"
                 value={tierId}
                 onChange={(e) => setTierId(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                className="w-full rounded-xl  bg-[#0a0a0a] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
               >
                 {tiers.map((t) => (
                   <option key={t.id} value={t.id}>
@@ -240,7 +240,7 @@ export default function CompsClient({ eventId, eventTitle, comps, tiers }: Comps
               max={20}
               value={quantity}
               onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value, 10) || 1))}
-              className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="w-full rounded-xl  bg-[#0a0a0a] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </FormField>
           <FormField label="Internal note">
@@ -249,7 +249,7 @@ export default function CompsClient({ eventId, eventTitle, comps, tiers }: Comps
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="e.g. Press pass, sponsor, VIP"
-              className="w-full rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="w-full rounded-xl  bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </FormField>
           {error && (

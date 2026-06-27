@@ -48,7 +48,7 @@ function StatCard({
   children: React.ReactNode
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#141414] p-5 shadow-soft">
+    <div className="rounded-2xl  bg-[#0a0a0a] p-5 shadow-soft">
       <div className="flex items-center gap-2 text-white/50">
         <span className="grid h-8 w-8 place-items-center rounded-lg text-brand-300">{icon}</span>
         <span className="text-xs font-semibold uppercase tracking-wide">{label}</span>
@@ -162,7 +162,7 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
       <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-700 via-brand-700 to-brand-800 p-6 text-white shadow-soft sm:p-8">
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#242424] blur-2xl"
+          className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#0a0a0a] blur-2xl"
         />
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="min-w-0">
@@ -205,7 +205,7 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
               type="button"
               onClick={() => setPayoutOpen(true)}
               disabled={!canWithdraw}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#141414] px-6 py-3 font-semibold text-brand-300 shadow-sm transition hover:bg-brand-500/10 disabled:cursor-not-allowed disabled:bg-white/70 disabled:text-brand-800/60 lg:w-auto"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0a0a0a] px-6 py-3 font-semibold text-brand-300 shadow-sm transition hover:bg-brand-500/10 disabled:cursor-not-allowed disabled:bg-white/70 disabled:text-brand-800/60 lg:w-auto"
             >
               Request payout
               <ArrowRight className="h-4 w-4" />
@@ -237,7 +237,7 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
       </div>
 
       {/* Fee structure — compact disclosure to keep the page focused */}
-      <details className="group rounded-2xl border border-white/10 bg-[#141414] shadow-soft">
+      <details className="group rounded-2xl  bg-[#0a0a0a] shadow-soft">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4">
           <span className="flex items-center gap-2 text-sm font-medium text-white">
             <Receipt className="h-4 w-4 text-brand-300" />
@@ -264,7 +264,7 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
         </div>
       </details>
 
-      <div className="bg-[#141414] rounded-2xl border border-white/10 shadow-soft overflow-hidden">
+      <div className="bg-[#0a0a0a] rounded-2xl  shadow-soft overflow-hidden">
         {/* Filter Tabs */}
         <div className="border-b border-white/10 px-4 sm:px-6 py-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -281,7 +281,7 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
                   className={`px-3 py-1.5 text-sm font-medium rounded-lg transition whitespace-nowrap ${
                     filter === status
                       ? 'bg-brand-700 text-white'
-                      : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
+                      : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
                   }`}
                 >
                   {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -307,7 +307,7 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
             </div>
           ) : (
             filteredEvents.map((event) => (
-              <div key={event.eventId} className="p-4 hover:bg-[#0a0a0a]">
+              <div key={event.eventId} className="p-4 hover:bg-white/[0.04]">
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex-1 min-w-0">
                     <h3 className="font-medium text-white truncate">{event.eventTitle}</h3>
@@ -384,7 +384,7 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-[#141414] divide-y divide-white/10">
+            <tbody className="bg-[#0a0a0a] divide-y divide-white/10">
               {filteredEvents.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-6 py-12 text-center">
@@ -401,7 +401,7 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
                 </tr>
               ) : (
                 filteredEvents.map((event) => (
-                  <tr key={event.eventId} className="hover:bg-[#0a0a0a]">
+                  <tr key={event.eventId} className="hover:bg-white/[0.04]">
                     <td className="px-6 py-4">
                       <div className="font-medium text-white">{event.eventTitle}</div>
                     </td>

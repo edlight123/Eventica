@@ -134,7 +134,7 @@ export default function PayoutsSummaryDashboard({
     return (
       <div 
         key={profile}
-        className="bg-[#141414] rounded-xl border border-white/10 p-5 hover:shadow-md transition-shadow"
+        className="bg-[#0a0a0a] rounded-xl  p-5 hover:shadow-md transition-shadow"
       >
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -166,7 +166,7 @@ export default function PayoutsSummaryDashboard({
           className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition-colors ${
             method.status === 'needs_attention'
               ? 'border-red-500/30 text-red-300 hover:bg-red-500/20'
-              : 'border-white/10 text-white/70 hover:bg-[#0a0a0a]'
+              : 'border-white/10 text-white/70 hover:bg-white/[0.04]'
           }`}
         >
           {method.status === 'needs_attention' ? (
@@ -228,8 +228,8 @@ export default function PayoutsSummaryDashboard({
             {stripeMethod && renderPayoutMethod(stripeMethod, 'stripe_connect')}
           </div>
         ) : (
-          <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-8 text-center">
-            <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-[#1c1c1c] flex items-center justify-center">
+          <div className="bg-[#0a0a0a] rounded-xl  p-8 text-center">
+            <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-[#0a0a0a] flex items-center justify-center">
               <Wallet className="w-7 h-7 text-white/40" />
             </div>
             <h3 className="font-semibold text-white mb-2">No payout methods set up</h3>
@@ -248,12 +248,12 @@ export default function PayoutsSummaryDashboard({
       </div>
 
       {/* Quick Links */}
-      <div className="bg-[#141414] rounded-xl border border-white/10 p-5">
+      <div className="bg-[#0a0a0a] rounded-xl  p-5">
         <h3 className="font-semibold text-white mb-4">Manage</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Link
             href="/organizer/earnings"
-            className="flex items-center gap-3 p-3 rounded-lg border border-white/10 hover:bg-[#0a0a0a] hover:border-white/10 transition-colors"
+            className="flex items-center gap-3 p-3 rounded-lg  hover:bg-white/[0.04] hover:border-white/10 transition-colors"
           >
             <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
               <TrendingUp className="w-5 h-5 text-brand-300" />
@@ -266,9 +266,9 @@ export default function PayoutsSummaryDashboard({
 
           <Link
             href="/organizer/settings/payouts/history"
-            className="flex items-center gap-3 p-3 rounded-lg border border-white/10 hover:bg-[#0a0a0a] hover:border-white/10 transition-colors"
+            className="flex items-center gap-3 p-3 rounded-lg  hover:bg-white/[0.04] hover:border-white/10 transition-colors"
           >
-            <div className="w-10 h-10 rounded-lg bg-[#1c1c1c] flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-[#0a0a0a] flex items-center justify-center flex-shrink-0">
               <History className="w-5 h-5 text-white/60" />
             </div>
             <div className="flex-1 min-w-0">
@@ -279,9 +279,9 @@ export default function PayoutsSummaryDashboard({
 
           <Link
             href="/organizer/settings/payouts/fees"
-            className="flex items-center gap-3 p-3 rounded-lg border border-white/10 hover:bg-[#0a0a0a] hover:border-white/10 transition-colors"
+            className="flex items-center gap-3 p-3 rounded-lg  hover:bg-white/[0.04] hover:border-white/10 transition-colors"
           >
-            <div className="w-10 h-10 rounded-lg bg-[#1c1c1c] flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-[#0a0a0a] flex items-center justify-center flex-shrink-0">
               <ShieldCheck className="w-5 h-5 text-white/60" />
             </div>
             <div className="flex-1 min-w-0">

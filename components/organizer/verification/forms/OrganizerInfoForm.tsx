@@ -80,7 +80,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="bg-[#141414] border border-white/10 rounded-lg p-6 md:p-8">
+      <div className="bg-[#0a0a0a]  rounded-lg p-6 md:p-8">
         <h3 className="text-lg md:text-xl font-bold text-white mb-6">
           Organizer Information
         </h3>
@@ -250,7 +250,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
           type="button"
           onClick={onCancel}
           disabled={isSaving}
-          className="flex-1 px-6 py-3 text-white/70 bg-[#141414] border-2 border-white/15 rounded-lg font-semibold hover:bg-[#0a0a0a] transition-all disabled:opacity-50"
+          className="flex-1 px-6 py-3 text-white/70 bg-[#0a0a0a] border-2 border-white/15 rounded-lg font-semibold hover:bg-white/[0.04] transition-all disabled:opacity-50"
         >
           Cancel
         </button>

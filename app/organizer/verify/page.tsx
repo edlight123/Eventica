@@ -302,7 +302,7 @@ export default function VerifyOrganizerPage() {
   if (error && !request) {
     return (
       <div className="bg-[#0a0a0a] flex items-center justify-center p-4">
-        <div className="bg-[#141414] border border-red-500/30 rounded-lg p-6 max-w-md">
+        <div className="bg-[#0a0a0a] border border-red-500/30 rounded-lg p-6 max-w-md">
           <h2 className="text-lg font-bold text-red-900 mb-2">Error Loading Verification</h2>
           <p className="text-sm text-red-300 mb-4">{error}</p>
           <button
@@ -376,7 +376,7 @@ export default function VerifyOrganizerPage() {
         />
 
         {statusForUI === 'approved' && !wantsDetails ? (
-          <div className="bg-[#141414] border border-emerald-500/30 rounded-xl p-4 md:p-5 mb-6">
+          <div className="bg-[#0a0a0a] border border-emerald-500/30 rounded-xl p-4 md:p-5 mb-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
                 <div className="text-sm font-semibold text-white">You’re already verified</div>
@@ -385,7 +385,7 @@ export default function VerifyOrganizerPage() {
               <div className="flex flex-col sm:flex-row gap-2">
                 <Link
                   href="/organizer/verify?details=1"
-                  className="px-4 py-2 rounded-lg font-semibold text-sm text-white bg-[#141414] border border-white/15 hover:border-white/20 hover:bg-[#0a0a0a] transition-all text-center"
+                  className="px-4 py-2 rounded-lg font-semibold text-sm text-white bg-[#0a0a0a] border border-white/15 hover:border-white/20 hover:bg-white/[0.04] transition-all text-center"
                 >
                   View Verification Details
                 </Link>
@@ -401,7 +401,7 @@ export default function VerifyOrganizerPage() {
         ) : null}
 
         {error ? (
-          <div className="bg-[#141414] border border-red-500/30 rounded-lg p-4 mb-6">
+          <div className="bg-[#0a0a0a] border border-red-500/30 rounded-lg p-4 mb-6">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="text-sm font-semibold text-red-900">Something went wrong</div>
@@ -429,7 +429,7 @@ export default function VerifyOrganizerPage() {
             </div>
 
             <aside className="lg:col-span-1">
-              <div className="bg-[#141414] border border-white/10 rounded-xl p-5 md:p-6 shadow-sm">
+              <div className="bg-[#0a0a0a]  rounded-xl p-5 md:p-6 shadow-sm">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h2 className="text-base md:text-lg font-bold text-white">Submission</h2>
@@ -450,7 +450,7 @@ export default function VerifyOrganizerPage() {
                 </div>
 
                 <div className="mt-4">
-                  <div className="w-full bg-[#1c1c1c] rounded-full h-2">
+                  <div className="w-full bg-[#0a0a0a] rounded-full h-2">
                     <div
                       className="bg-brand-700 h-2 rounded-full transition-all"
                       style={{ width: `${completionPercentage}%` }}
@@ -466,7 +466,7 @@ export default function VerifyOrganizerPage() {
                         ? 'bg-gray-900 hover:bg-gray-800 text-white'
                         : canSubmit
                           ? 'bg-brand-700 hover:bg-brand-800 text-white'
-                          : 'bg-[#1c1c1c] text-white/50 cursor-not-allowed'
+                          : 'bg-[#0a0a0a] text-white/50 cursor-not-allowed'
                     }`}
                     disabled={!isReadOnly && !canSubmit}
                   >

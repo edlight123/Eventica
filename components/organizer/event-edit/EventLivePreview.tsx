@@ -66,7 +66,7 @@ export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
         </p>
       </div>
 
-      <div className="bg-[#141414] border-2 border-white/10 rounded-xl overflow-hidden shadow-lg">
+      <div className="bg-[#0a0a0a] border-2 border-white/10 rounded-xl overflow-hidden shadow-lg">
         {/* Banner Image */}
         <div className="relative w-full h-48 bg-gradient-to-br from-white/10 to-white/20">
           {data.banner_image_url ? (
@@ -211,7 +211,7 @@ export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
               <div className="space-y-2">
                 {/* Base Ticket */}
                 {data.total_tickets && parseInt(data.total_tickets.toString()) > 0 && (
-                  <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-3">
+                  <div className="bg-[#0a0a0a]  rounded-lg p-3">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-semibold text-sm text-white">General Admission</p>
@@ -257,7 +257,7 @@ export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
                   </span>
                 ))}
                 {data.tags.length > 6 && (
-                  <span className="inline-block px-2.5 py-1 bg-[#1c1c1c] text-white/60 text-xs font-medium rounded-md">
+                  <span className="inline-block px-2.5 py-1 bg-[#0a0a0a] text-white/60 text-xs font-medium rounded-md">
                     +{data.tags.length - 6} more
                   </span>
                 )}

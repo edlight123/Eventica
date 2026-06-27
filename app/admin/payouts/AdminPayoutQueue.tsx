@@ -201,21 +201,21 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
     <div className="space-y-4">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-[#141414] rounded-lg shadow-sm border border-white/10 p-4">
+        <div className="bg-[#0a0a0a] rounded-lg shadow-sm  p-4">
           <div className="text-xs font-medium text-white/50 uppercase tracking-wide">Pending Requests</div>
           <div className="text-2xl font-bold text-white mt-1">{payouts.length}</div>
         </div>
-        <div className="bg-[#141414] rounded-lg shadow-sm border border-white/10 p-4">
+        <div className="bg-[#0a0a0a] rounded-lg shadow-sm  p-4">
           <div className="text-xs font-medium text-white/50 uppercase tracking-wide">Total Amount</div>
           <div className="text-2xl font-bold text-white mt-1">
             {formatCurrency(payouts.reduce((sum, p) => sum + p.amount, 0))}
           </div>
         </div>
-        <div className="bg-[#141414] rounded-lg shadow-sm border border-white/10 p-4 flex items-center justify-center">
+        <div className="bg-[#0a0a0a] rounded-lg shadow-sm  p-4 flex items-center justify-center">
           <button
             onClick={exportCSV}
             disabled={payouts.length === 0}
-            className="px-4 py-2.5 bg-brand-700 text-white rounded-lg text-sm font-medium hover:bg-brand-800 transition-colors disabled:bg-[#242424]"
+            className="px-4 py-2.5 bg-brand-700 text-white rounded-lg text-sm font-medium hover:bg-brand-800 transition-colors disabled:bg-[#0a0a0a]"
           >
             Export CSV
           </button>
@@ -223,7 +223,7 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
       </div>
 
       {/* Payouts Table */}
-      <div className="bg-[#141414] rounded-lg shadow-sm border border-white/10 overflow-hidden">
+      <div className="bg-[#0a0a0a] rounded-lg shadow-sm  overflow-hidden">
         <div className="px-4 py-3 border-b border-white/10">
           <h2 className="text-base font-semibold text-white">Pending Payouts</h2>
         </div>
@@ -246,9 +246,9 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
                   <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-[#141414] divide-y divide-white/10">
+              <tbody className="bg-[#0a0a0a] divide-y divide-white/10">
                 {payouts.map((payout) => (
-                  <tr key={payout.id} className="hover:bg-[#0a0a0a]">
+                  <tr key={payout.id} className="hover:bg-white/[0.04]">
                     <td className="px-6 py-4">
                       <div className="text-sm font-medium text-white">{payout.organizer.name}</div>
                       <div className="text-sm text-white/50">{payout.organizer.email}</div>
@@ -299,7 +299,7 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
       {/* Modal */}
       {showModal && selectedPayout && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-[#141414] rounded-lg max-w-2xl w-full p-6 my-8">
+          <div className="bg-[#0a0a0a] rounded-lg max-w-2xl w-full p-6 my-8">
             <h3 className="text-lg font-semibold text-white mb-4">
               {modalMode === 'approve' && 'Approve Payout'}
               {modalMode === 'decline' && 'Decline Payout'}
@@ -381,7 +381,7 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
               <button
                 onClick={closeModal}
                 disabled={isProcessing}
-                className="flex-1 px-4 py-2 border border-white/15 rounded-lg hover:bg-[#0a0a0a]"
+                className="flex-1 px-4 py-2 border border-white/15 rounded-lg hover:bg-white/[0.04]"
               >
                 Cancel
               </button>

@@ -110,7 +110,7 @@ function FeaturedEventCard({ event }: { event: Event }) {
   return (
     <Link
       href={`/events/${event.id}`}
-      className="group block bg-[#141414] rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 border border-white/10 hover:border-brand-400/50"
+      className="group block bg-[#0a0a0a] rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300  hover:border-brand-400/50"
     >
       {/* Image */}
       <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-brand-900 to-brand-800">

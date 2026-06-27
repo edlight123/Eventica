@@ -22,7 +22,7 @@ interface SuspiciousActivity {
 }
 
 const SEVERITY_COLORS = {
-  low: 'bg-[#1c1c1c] text-white/90',
+  low: 'bg-[#0a0a0a] text-white/90',
   medium: 'text-amber-300',
   high: 'text-amber-300',
   critical: 'text-red-300',
@@ -234,7 +234,7 @@ export default function SecurityDashboardClient() {
         </div>
 
         {/* Admin Tools */}
-        <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-4 sm:p-6 mb-4 sm:mb-6">
+        <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-4 sm:p-6 mb-4 sm:mb-6">
           <h2 className="text-base sm:text-lg font-semibold text-white mb-2">Admin tools</h2>
           <p className="text-[13px] sm:text-sm text-white/60 mb-4">
             Rebuild the admin search index so search is fully populated immediately.
@@ -267,7 +267,7 @@ export default function SecurityDashboardClient() {
         </div>
 
         {/* Filters */}
-        <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-4 sm:p-6 mb-4 sm:mb-6">
+        <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-4 sm:p-6 mb-4 sm:mb-6">
           <h2 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">Filters</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
             <div>
@@ -329,7 +329,7 @@ export default function SecurityDashboardClient() {
             <p className="text-[13px] sm:text-base text-white/60">Loading activities...</p>
           </div>
         ) : activities.length === 0 ? (
-          <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-8 sm:p-12 text-center">
+          <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-8 sm:p-12 text-center">
             <p className="text-[13px] sm:text-base text-white/60">No suspicious activities found</p>
           </div>
         ) : (
@@ -337,7 +337,7 @@ export default function SecurityDashboardClient() {
             {activities.map((activity) => (
               <div
                 key={activity.id}
-                className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-4 sm:p-6"
+                className="bg-[#0a0a0a] rounded-xl shadow-sm  p-4 sm:p-6"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -372,7 +372,7 @@ export default function SecurityDashboardClient() {
                     </div>
 
                     {activity.reviewed && activity.action_taken && (
-                      <div className="mt-3 bg-[#0a0a0a] border border-white/10 rounded-lg p-3">
+                      <div className="mt-3 bg-[#0a0a0a]  rounded-lg p-3">
                         <p className="text-sm text-white/70">
                           <strong>Action Taken:</strong> {activity.action_taken}
                         </p>
@@ -408,7 +408,7 @@ export default function SecurityDashboardClient() {
                                 setReviewingId(null)
                                 setActionText('')
                               }}
-                              className="px-3 py-1 bg-[#242424] text-white/70 text-sm rounded-lg hover:bg-[#242424]"
+                              className="px-3 py-1 bg-[#0a0a0a] text-white/70 text-sm rounded-lg hover:bg-white/[0.04]"
                             >
                               Cancel
                             </button>

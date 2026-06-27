@@ -21,7 +21,7 @@ export function EventActivityTimeline({ activities }: EventActivityTimelineProps
   
   if (!activities || activities.length === 0) {
     return (
-      <div className="bg-[#141414] rounded-xl border border-white/10 p-5 shadow-sm">
+      <div className="bg-[#0a0a0a] rounded-xl  p-5 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
           <div className="p-2 bg-[#0a0a0a] rounded-lg">
             <Activity className="w-5 h-5 text-white/60" />
@@ -63,7 +63,7 @@ export function EventActivityTimeline({ activities }: EventActivityTimelineProps
   }
 
   return (
-    <div className="bg-[#141414] rounded-xl border border-white/10 p-5 shadow-sm">
+    <div className="bg-[#0a0a0a] rounded-xl  p-5 shadow-sm">
       <div className="flex items-center gap-2 mb-4">
         <div className="p-2 bg-[#0a0a0a] rounded-lg">
           <Activity className="w-5 h-5 text-white/60" />

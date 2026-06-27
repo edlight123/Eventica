@@ -288,7 +288,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
           {/* Left Column - Event Details */}
           <div className="lg:col-span-2 space-y-4">
             {/* Desktop About Section */}
-            <div className="hidden md:block bg-white/5 rounded-2xl border border-white/10 p-3 sm:p-4 md:p-6">
+            <div className="hidden md:block bg-white/5 rounded-2xl  p-3 sm:p-4 md:p-6">
               <h2 className="text-base sm:text-lg md:text-xl font-bold text-white mb-2 sm:mb-3 flex items-center gap-1.5 sm:gap-2">
                 <Info className="w-4 h-4 sm:w-5 sm:h-5 text-brand-400" />
                 {t('events.about_event')}
@@ -299,7 +299,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
             </div>
 
             {/* Venue Details - Desktop */}
-            <div className="hidden md:block bg-white/5 rounded-2xl border border-white/10 p-4 md:p-6">
+            <div className="hidden md:block bg-white/5 rounded-2xl  p-4 md:p-6">
               <h2 className="text-lg md:text-xl font-bold text-white mb-3 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-brand-400" />
                 {t('events.venue_information')}
@@ -343,7 +343,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
             </div>
 
             {/* Date & Time Details - Desktop */}
-            <div className="hidden md:block bg-white/5 rounded-2xl border border-white/10 p-4 md:p-6">
+            <div className="hidden md:block bg-white/5 rounded-2xl  p-4 md:p-6">
               <h2 className="text-lg md:text-xl font-bold text-white mb-3 flex items-center gap-2">
                 <Clock className="w-5 h-5 text-brand-400" />
                 {t('events.date_and_time')}
@@ -373,7 +373,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
             </div>
 
             {/* Organizer Info - Desktop */}
-            <div className="hidden md:block bg-white/5 rounded-2xl border border-white/10 p-4 md:p-6">
+            <div className="hidden md:block bg-white/5 rounded-2xl  p-4 md:p-6">
               <h2 className="text-lg md:text-xl font-bold text-white mb-4 flex items-center gap-2">
                 <Users className="w-5 h-5 text-brand-400" />
                 {t('events.organizer')}
@@ -399,7 +399,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
 
           {/* Right Column - Ticket Purchase Sidebar */}
           <div className="lg:col-span-1">
-            <div className="hidden md:block sticky top-8 bg-white/5 rounded-2xl shadow-lg border border-white/10 p-6">
+            <div className="hidden md:block sticky top-8 bg-white/5 rounded-2xl shadow-lg  p-6">
               <div className="mb-6">
                 {isFree ? (
                   <div>

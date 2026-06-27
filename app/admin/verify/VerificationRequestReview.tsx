@@ -185,7 +185,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
         {url ? (
           <div
             onClick={() => setSelectedImage(url)}
-            className="relative aspect-[1.586/1] bg-[#1c1c1c] rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity border-2 border-white/10"
+            className="relative aspect-[1.586/1] bg-[#0a0a0a] rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity border-2 border-white/10"
           >
             <Image
               src={url}
@@ -202,7 +202,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
             </div>
           </div>
         ) : (
-          <div className="aspect-[1.586/1] bg-[#1c1c1c] rounded-lg border-2 border-dashed border-white/10 flex items-center justify-center">
+          <div className="aspect-[1.586/1] bg-[#0a0a0a] rounded-lg border-2 border-dashed border-white/10 flex items-center justify-center">
             <p className="text-[12px] sm:text-sm text-white/50">Not provided</p>
           </div>
         )}
@@ -215,7 +215,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
 
     if (normalized.includes('payoutsetup') || normalized.includes('payout_setup')) {
       return (
-        <div className="mt-3 border border-white/10 rounded-lg p-3 sm:p-4 bg-[#141414]">
+        <div className="mt-3  rounded-lg p-3 sm:p-4 bg-[#0a0a0a]">
           <p className="text-sm font-semibold text-white">Payout checklist</p>
           <p className="text-[12px] sm:text-sm text-white/60 mt-1">
             Payout setup can be completed after approval, but these items are required before payouts can be issued.
@@ -301,12 +301,12 @@ export default function VerificationRequestReview({ request, user }: Props) {
                   href={imageUrls.businessRegistrationUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-3 py-2 rounded-lg border border-white/10 bg-[#141414] text-brand-300 hover:text-brand-300 text-[13px] sm:text-sm font-medium"
+                  className="px-3 py-2 rounded-lg  bg-[#0a0a0a] text-brand-300 hover:text-brand-300 text-[13px] sm:text-sm font-medium"
                 >
                   Open business registration
                 </a>
               ) : (
-                <div className="px-3 py-2 rounded-lg border border-dashed border-white/10 bg-[#141414] text-[13px] sm:text-sm text-white/50">
+                <div className="px-3 py-2 rounded-lg border border-dashed border-white/10 bg-[#0a0a0a] text-[13px] sm:text-sm text-white/50">
                   Business registration not provided
                 </div>
               )}
@@ -316,12 +316,12 @@ export default function VerificationRequestReview({ request, user }: Props) {
                   href={imageUrls.taxIdUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-3 py-2 rounded-lg border border-white/10 bg-[#141414] text-brand-300 hover:text-brand-300 text-[13px] sm:text-sm font-medium"
+                  className="px-3 py-2 rounded-lg  bg-[#0a0a0a] text-brand-300 hover:text-brand-300 text-[13px] sm:text-sm font-medium"
                 >
                   Open tax ID document
                 </a>
               ) : (
-                <div className="px-3 py-2 rounded-lg border border-dashed border-white/10 bg-[#141414] text-[13px] sm:text-sm text-white/50">
+                <div className="px-3 py-2 rounded-lg border border-dashed border-white/10 bg-[#0a0a0a] text-[13px] sm:text-sm text-white/50">
                   Tax ID not provided
                 </div>
               )}
@@ -393,7 +393,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
 
   return (
     <>
-      <div className="border border-white/10 rounded-lg p-4 sm:p-6 bg-[#141414]">
+      <div className=" rounded-lg p-4 sm:p-6 bg-[#0a0a0a]">
         <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
           <div className="min-w-0 flex-1">
             <h3 className="font-semibold text-white text-base sm:text-lg truncate">
@@ -431,7 +431,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
                 const stepId: string = stepValue?.id || stepKey
 
                 return (
-                  <div key={stepKey} className="border border-white/10 rounded-lg p-3 sm:p-4 bg-[#0a0a0a]">
+                  <div key={stepKey} className=" rounded-lg p-3 sm:p-4 bg-[#0a0a0a]">
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div className="min-w-0">
                         <p className="text-sm sm:text-base font-semibold text-white truncate">{title}</p>
@@ -441,11 +441,11 @@ export default function VerificationRequestReview({ request, user }: Props) {
                       </div>
                       <div className="flex items-center gap-2 whitespace-nowrap">
                         {required ? (
-                          <span className="px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded bg-[#242424] text-white/70">Required</span>
+                          <span className="px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded bg-[#0a0a0a] text-white/70">Required</span>
                         ) : (
-                          <span className="px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded bg-[#1c1c1c] text-white/60">Optional</span>
+                          <span className="px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded bg-[#0a0a0a] text-white/60">Optional</span>
                         )}
-                        <span className="px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded bg-[#141414] text-white/70 border border-white/10">
+                        <span className="px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded bg-[#0a0a0a] text-white/70 ">
                           {String(stepStatus).replaceAll('_', ' ')}
                         </span>
                       </div>
@@ -485,7 +485,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
               })}
             </div>
           ) : (
-            <div className="border border-white/10 rounded-lg p-3 sm:p-4 bg-[#0a0a0a]">
+            <div className=" rounded-lg p-3 sm:p-4 bg-[#0a0a0a]">
               <p className="text-[13px] sm:text-sm text-white/70 font-medium">Submission details</p>
               <p className="text-[12px] sm:text-sm text-white/50">No step-by-step submission data found on this request.</p>
             </div>
@@ -512,7 +512,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
             </div>
 
             {!loadingImages && (imageUrls.businessRegistrationUrl || imageUrls.taxIdUrl) ? (
-              <div className="mt-3 border border-white/10 rounded-lg p-3 sm:p-4 bg-[#0a0a0a]">
+              <div className="mt-3  rounded-lg p-3 sm:p-4 bg-[#0a0a0a]">
                 <p className="text-sm sm:text-base font-semibold text-white mb-2">Business Documents</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {imageUrls.businessRegistrationUrl ? (
@@ -520,12 +520,12 @@ export default function VerificationRequestReview({ request, user }: Props) {
                       href={imageUrls.businessRegistrationUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="px-3 py-2 rounded-lg border border-white/10 bg-[#141414] text-brand-300 hover:text-brand-300 text-[13px] sm:text-sm font-medium"
+                      className="px-3 py-2 rounded-lg  bg-[#0a0a0a] text-brand-300 hover:text-brand-300 text-[13px] sm:text-sm font-medium"
                     >
                       Open business registration
                     </a>
                   ) : (
-                    <div className="px-3 py-2 rounded-lg border border-dashed border-white/10 bg-[#141414] text-[13px] sm:text-sm text-white/50">
+                    <div className="px-3 py-2 rounded-lg border border-dashed border-white/10 bg-[#0a0a0a] text-[13px] sm:text-sm text-white/50">
                       Business registration not provided
                     </div>
                   )}
@@ -535,12 +535,12 @@ export default function VerificationRequestReview({ request, user }: Props) {
                       href={imageUrls.taxIdUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="px-3 py-2 rounded-lg border border-white/10 bg-[#141414] text-brand-300 hover:text-brand-300 text-[13px] sm:text-sm font-medium"
+                      className="px-3 py-2 rounded-lg  bg-[#0a0a0a] text-brand-300 hover:text-brand-300 text-[13px] sm:text-sm font-medium"
                     >
                       Open tax ID document
                     </a>
                   ) : (
-                    <div className="px-3 py-2 rounded-lg border border-dashed border-white/10 bg-[#141414] text-[13px] sm:text-sm text-white/50">
+                    <div className="px-3 py-2 rounded-lg border border-dashed border-white/10 bg-[#0a0a0a] text-[13px] sm:text-sm text-white/50">
                       Tax ID not provided
                     </div>
                   )}
@@ -585,7 +585,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
           <div className="relative max-w-4xl max-h-full">
             <button
               onClick={() => setSelectedImage(null)}
-              className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-[#141414] rounded-full p-2 hover:bg-[#1c1c1c]"
+              className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-[#0a0a0a] rounded-full p-2 hover:bg-white/[0.04]"
             >
               <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -609,7 +609,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
       {/* Rejection Modal */}
       {showRejectModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-[#141414] rounded-xl p-4 sm:p-6 max-w-md w-full">
+          <div className="bg-[#0a0a0a] rounded-xl p-4 sm:p-6 max-w-md w-full">
             <h3 className="font-display text-lg sm:text-xl text-white mb-3 sm:mb-4">Request Changes</h3>
             <p className="text-[13px] sm:text-sm text-white/60 mb-3 sm:mb-4">
               Please describe what needs to be fixed. The organizer will receive this in an email and can resubmit.
@@ -627,7 +627,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
                   setShowRejectModal(false)
                   setRejectionReason('')
                 }}
-                className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 border border-white/15 rounded-lg text-[13px] sm:text-base font-medium text-white/70 hover:bg-[#0a0a0a] min-h-[44px]"
+                className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 border border-white/15 rounded-lg text-[13px] sm:text-base font-medium text-white/70 hover:bg-white/[0.04] min-h-[44px]"
               >
                 Cancel
               </button>

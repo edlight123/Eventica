@@ -133,7 +133,7 @@ function TabButton({
     <button
       onClick={onClick}
       className={`flex-1 inline-flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold transition-colors ${
-        active ? 'bg-[#141414] text-brand-300 shadow-sm' : 'text-white/60 hover:text-white'
+        active ? 'bg-[#0a0a0a] text-brand-300 shadow-sm' : 'text-white/60 hover:text-white'
       }`}
     >
       {children}
@@ -176,7 +176,7 @@ function FriendsTab({ overview, onChange }: { overview: Overview; onChange: () =
     )
   }
   return (
-    <div className="bg-[#141414] rounded-2xl shadow-sm border border-white/10 px-4 divide-y divide-white/10">
+    <div className="bg-[#0a0a0a] rounded-2xl shadow-sm  px-4 divide-y divide-white/10">
       {overview.friends.map((f) => (
         <PersonRow key={f.uid} user={f} isAuthenticated state="friends" onChange={onChange} />
       ))}
@@ -202,7 +202,7 @@ function RequestsTab({ overview, onChange }: { overview: Overview; onChange: () 
           <h2 className="text-xs font-semibold text-white/50 uppercase tracking-wide mb-2 flex items-center gap-2">
             <Inbox className="w-4 h-4" /> Received
           </h2>
-          <div className="bg-[#141414] rounded-2xl shadow-sm border border-white/10 px-4 divide-y divide-white/10">
+          <div className="bg-[#0a0a0a] rounded-2xl shadow-sm  px-4 divide-y divide-white/10">
             {incoming.map((u) => (
               <PersonRow key={u.uid} user={u} isAuthenticated state="request_received" onChange={onChange} />
             ))}
@@ -214,7 +214,7 @@ function RequestsTab({ overview, onChange }: { overview: Overview; onChange: () 
           <h2 className="text-xs font-semibold text-white/50 uppercase tracking-wide mb-2 flex items-center gap-2">
             <Send className="w-4 h-4" /> Sent
           </h2>
-          <div className="bg-[#141414] rounded-2xl shadow-sm border border-white/10 px-4 divide-y divide-white/10">
+          <div className="bg-[#0a0a0a] rounded-2xl shadow-sm  px-4 divide-y divide-white/10">
             {outgoing.map((u) => (
               <PersonRow key={u.uid} user={u} isAuthenticated state="request_sent" onChange={onChange} />
             ))}
@@ -324,7 +324,7 @@ function FindTab({ onChange }: { onChange: () => void }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search by name or email"
-            className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/10 focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-3 rounded-xl  focus:ring-2 focus:ring-teal-500 focus:border-transparent"
           />
           {searching && (
             <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 animate-spin" />
@@ -332,7 +332,7 @@ function FindTab({ onChange }: { onChange: () => void }) {
         </div>
 
         {results.length > 0 && (
-          <div className="mt-2 bg-[#141414] rounded-2xl shadow-sm border border-white/10 px-4 divide-y divide-white/10">
+          <div className="mt-2 bg-[#0a0a0a] rounded-2xl shadow-sm  px-4 divide-y divide-white/10">
             {results.map((r) => (
               <PersonRow key={r.uid} user={r} isAuthenticated state={r.friendship} onChange={onChange} />
             ))}
@@ -344,7 +344,7 @@ function FindTab({ onChange }: { onChange: () => void }) {
       </div>
 
       {/* Contact matching */}
-      <div className="bg-[#141414] rounded-2xl shadow-sm border border-white/10 p-5">
+      <div className="bg-[#0a0a0a] rounded-2xl shadow-sm  p-5">
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
             <Phone className="w-5 h-5 text-brand-300" />
@@ -368,7 +368,7 @@ function FindTab({ onChange }: { onChange: () => void }) {
               )}
               <button
                 onClick={() => setManualOpen((v) => !v)}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border-2 border-white/10 text-white/70 hover:bg-[#0a0a0a] transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border-2 border-white/10 text-white/70 hover:bg-white/[0.04] transition-colors"
               >
                 {supportsContactPicker ? 'Enter numbers manually' : 'Paste phone numbers'}
               </button>
@@ -381,7 +381,7 @@ function FindTab({ onChange }: { onChange: () => void }) {
                   onChange={(e) => setManualText(e.target.value)}
                   rows={4}
                   placeholder={'Paste phone numbers, one per line\n+509 1234 5678\n...'}
-                  className="w-full px-3 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none text-sm"
+                  className="w-full px-3 py-2  rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none text-sm"
                 />
                 <button
                   onClick={submitManual}

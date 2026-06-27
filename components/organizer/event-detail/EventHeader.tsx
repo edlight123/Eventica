@@ -44,7 +44,7 @@ export function EventHeader({ event }: EventHeaderProps) {
   const updatedDate = new Date(event.updated_at)
 
   return (
-    <div className="sticky top-0 z-30 bg-[#141414] border-b border-white/10 shadow-sm">
+    <div className="sticky top-0 z-30 bg-[#0a0a0a] border-b border-white/10 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Desktop Header */}
         <div className="hidden md:block py-4">
@@ -55,7 +55,7 @@ export function EventHeader({ event }: EventHeaderProps) {
                 <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
                   event.is_published 
                     ? 'text-emerald-300' 
-                    : 'bg-[#1c1c1c] text-white/90'
+                    : 'bg-[#0a0a0a] text-white/90'
                 }`}>
                   {event.is_published ? t('organizer.published') : t('organizer.draft')}
                 </span>
@@ -86,7 +86,7 @@ export function EventHeader({ event }: EventHeaderProps) {
             <div className="flex items-center gap-2 ml-4">
               <Link
                 href={`/organizer/events/${event.id}/edit`}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-[#141414] border border-white/15 rounded-lg text-sm font-medium text-white/70 hover:bg-[#0a0a0a] transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] border border-white/15 rounded-lg text-sm font-medium text-white/70 hover:bg-white/[0.04] transition-colors"
               >
                 <Edit className="w-4 h-4" />
                 {t('organizer.edit')}
@@ -94,7 +94,7 @@ export function EventHeader({ event }: EventHeaderProps) {
               <Link
                 href={`/events/${event.id}`}
                 target="_blank"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-[#141414] border border-white/15 rounded-lg text-sm font-medium text-white/70 hover:bg-[#0a0a0a] transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] border border-white/15 rounded-lg text-sm font-medium text-white/70 hover:bg-white/[0.04] transition-colors"
               >
                 <Eye className="w-4 h-4" />
                 {t('organizer.preview')}
@@ -110,7 +110,7 @@ export function EventHeader({ event }: EventHeaderProps) {
                     navigator.clipboard.writeText(`${window.location.origin}/events/${event.id}`)
                   }
                 }}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-[#141414] border border-white/15 rounded-lg text-sm font-medium text-white/70 hover:bg-[#0a0a0a] transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] border border-white/15 rounded-lg text-sm font-medium text-white/70 hover:bg-white/[0.04] transition-colors"
               >
                 <Share2 className="w-4 h-4" />
                 {t('organizer.share')}
@@ -131,17 +131,17 @@ export function EventHeader({ event }: EventHeaderProps) {
               <div className="relative">
                 <button
                   onClick={() => setShowMenu(!showMenu)}
-                  className="p-2 rounded-lg border border-white/15 hover:bg-[#0a0a0a] transition-colors"
+                  className="p-2 rounded-lg border border-white/15 hover:bg-white/[0.04] transition-colors"
                 >
                   <MoreVertical className="w-5 h-5 text-white/70" />
                 </button>
                 {showMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-[#141414] rounded-lg shadow-lg border border-white/10 py-1 z-50">
-                    <button className="w-full px-4 py-2 text-left text-sm text-white/70 hover:bg-[#0a0a0a] flex items-center gap-2">
+                  <div className="absolute right-0 mt-2 w-48 bg-[#0a0a0a] rounded-lg shadow-lg  py-1 z-50">
+                    <button className="w-full px-4 py-2 text-left text-sm text-white/70 hover:bg-white/[0.04] flex items-center gap-2">
                       <Copy className="w-4 h-4" />
                       {t('organizer.duplicate')}
                     </button>
-                    <button className="w-full px-4 py-2 text-left text-sm text-white/70 hover:bg-[#0a0a0a] flex items-center gap-2">
+                    <button className="w-full px-4 py-2 text-left text-sm text-white/70 hover:bg-white/[0.04] flex items-center gap-2">
                       <XCircle className="w-4 h-4" />
                       {t('organizer.cancel_event')}
                     </button>
@@ -163,7 +163,7 @@ export function EventHeader({ event }: EventHeaderProps) {
             <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
               event.is_published 
                 ? 'text-emerald-300' 
-                : 'bg-[#1c1c1c] text-white/90'
+                : 'bg-[#0a0a0a] text-white/90'
             }`}>
               {event.is_published ? t('organizer.published') : t('organizer.draft')}
             </span>
@@ -182,11 +182,11 @@ export function EventHeader({ event }: EventHeaderProps) {
       </div>
 
       {/* Mobile Bottom Action Bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-[#141414] border-t border-white/10 px-4 py-3 z-40 safe-bottom">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-[#0a0a0a] border-t border-white/10 px-4 py-3 z-40 safe-bottom">
         <div className="grid grid-cols-4 gap-2">
           <Link
             href={`/organizer/events/${event.id}/edit`}
-            className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-[#0a0a0a]"
+            className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/[0.04]"
           >
             <Edit className="w-5 h-5 text-white/70" />
             <span className="text-xs text-white/70">{t('organizer.edit')}</span>
@@ -194,7 +194,7 @@ export function EventHeader({ event }: EventHeaderProps) {
           <Link
             href={`/events/${event.id}`}
             target="_blank"
-            className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-[#0a0a0a]"
+            className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/[0.04]"
           >
             <Eye className="w-5 h-5 text-white/70" />
             <span className="text-xs text-white/70">{t('organizer.preview')}</span>
@@ -208,7 +208,7 @@ export function EventHeader({ event }: EventHeaderProps) {
                 })
               }
             }}
-            className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-[#0a0a0a]"
+            className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/[0.04]"
           >
             <Share2 className="w-5 h-5 text-white/70" />
             <span className="text-xs text-white/70">{t('organizer.share')}</span>
@@ -217,7 +217,7 @@ export function EventHeader({ event }: EventHeaderProps) {
             onClick={handlePublishToggle}
             disabled={isPublishing}
             className={`flex flex-col items-center gap-1 p-2 rounded-lg ${
-              event.is_published ? 'bg-[#1c1c1c]' : ''
+              event.is_published ? 'bg-[#0a0a0a]' : ''
             }`}
           >
             <div className={`w-5 h-5 rounded-full ${event.is_published ? 'bg-gray-600' : 'bg-brand-700'}`} />

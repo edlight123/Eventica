@@ -58,7 +58,7 @@ export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
 
   if (loading) {
     return (
-      <div className="bg-white/5 rounded-2xl border border-white/10 p-4 md:p-6">
+      <div className="bg-white/5 rounded-2xl  p-4 md:p-6">
         <div className="h-5 w-32 bg-white/10 rounded mb-4 animate-pulse" />
         <div className="flex -space-x-3">
           {[0, 1, 2, 3].map((i) => (
@@ -79,7 +79,7 @@ export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
   const remaining = Math.max(0, totalGoing - namedCount - (viewerIsGoing ? 1 : 0))
 
   return (
-    <div className="bg-white/5 rounded-2xl border border-white/10 p-4 md:p-6">
+    <div className="bg-white/5 rounded-2xl  p-4 md:p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
           <Users className="w-5 h-5 text-brand-400" />

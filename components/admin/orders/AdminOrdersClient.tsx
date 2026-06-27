@@ -154,7 +154,7 @@ function PaymentMethodBadge({ method }: { method: string }) {
     )
   }
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[#1c1c1c] text-white/90">
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[#0a0a0a] text-white/90">
       {method || 'Unknown'}
     </span>
   )
@@ -526,7 +526,7 @@ export function AdminOrdersClient() {
       )}
 
       {/* Search and Filter Bar */}
-      <div className="rounded-xl border border-white/10 p-4">
+      <div className="rounded-xl  p-4">
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Search Input */}
           <div className="flex-1 relative">
@@ -537,7 +537,7 @@ export function AdminOrdersClient() {
               value={filters.search}
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              className="w-full pl-9 pr-4 py-2 border border-white/10 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+              className="w-full pl-9 pr-4 py-2  rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             />
           </div>
 
@@ -555,7 +555,7 @@ export function AdminOrdersClient() {
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   filters.dateRange === option.value
                     ? 'bg-brand-600 text-white'
-                    : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
+                    : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
                 }`}
               >
                 {option.label}
@@ -569,7 +569,7 @@ export function AdminOrdersClient() {
             className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               showFilters || activeFiltersCount > 0
                 ? 'text-brand-300'
-                : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
+                : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
             }`}
           >
             <Filter className="w-4 h-4" />
@@ -583,7 +583,7 @@ export function AdminOrdersClient() {
           <button
             onClick={handleExport}
             disabled={exporting}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#1c1c1c] text-white/70 rounded-lg text-sm font-medium hover:bg-[#242424] transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] text-white/70 rounded-lg text-sm font-medium hover:bg-white/[0.04] transition-colors disabled:opacity-50"
           >
             <Download className="w-4 h-4" />
             {exporting ? 'Exporting...' : 'Export'}
@@ -599,7 +599,7 @@ export function AdminOrdersClient() {
               <select
                 value={filters.status}
                 onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
-                className="w-full px-3 py-2 border border-white/10 rounded-lg text-sm focus:ring-2 focus:ring-brand-500"
+                className="w-full px-3 py-2  rounded-lg text-sm focus:ring-2 focus:ring-brand-500"
               >
                 <option value="all">All Statuses</option>
                 <option value="confirmed">Confirmed</option>
@@ -615,7 +615,7 @@ export function AdminOrdersClient() {
               <select
                 value={filters.paymentMethod}
                 onChange={(e) => setFilters(prev => ({ ...prev, paymentMethod: e.target.value }))}
-                className="w-full px-3 py-2 border border-white/10 rounded-lg text-sm focus:ring-2 focus:ring-brand-500"
+                className="w-full px-3 py-2  rounded-lg text-sm focus:ring-2 focus:ring-brand-500"
               >
                 <option value="all">All Methods</option>
                 <option value="stripe">Stripe</option>
@@ -630,7 +630,7 @@ export function AdminOrdersClient() {
               <select
                 value={filters.currency}
                 onChange={(e) => setFilters(prev => ({ ...prev, currency: e.target.value }))}
-                className="w-full px-3 py-2 border border-white/10 rounded-lg text-sm focus:ring-2 focus:ring-brand-500"
+                className="w-full px-3 py-2  rounded-lg text-sm focus:ring-2 focus:ring-brand-500"
               >
                 <option value="all">All Currencies</option>
                 <option value="USD">USD</option>
@@ -644,7 +644,7 @@ export function AdminOrdersClient() {
               <select
                 value={filters.sortBy}
                 onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
-                className="w-full px-3 py-2 border border-white/10 rounded-lg text-sm focus:ring-2 focus:ring-brand-500"
+                className="w-full px-3 py-2  rounded-lg text-sm focus:ring-2 focus:ring-brand-500"
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
@@ -661,7 +661,7 @@ export function AdminOrdersClient() {
                   type="date"
                   value={filters.startDate}
                   onChange={(e) => setFilters(prev => ({ ...prev, startDate: e.target.value, dateRange: 'custom' }))}
-                  className="w-full px-3 py-2 border border-white/10 rounded-lg text-sm focus:ring-2 focus:ring-brand-500"
+                  className="w-full px-3 py-2  rounded-lg text-sm focus:ring-2 focus:ring-brand-500"
                 />
               </div>
               <div className="flex-1">
@@ -670,7 +670,7 @@ export function AdminOrdersClient() {
                   type="date"
                   value={filters.endDate}
                   onChange={(e) => setFilters(prev => ({ ...prev, endDate: e.target.value, dateRange: 'custom' }))}
-                  className="w-full px-3 py-2 border border-white/10 rounded-lg text-sm focus:ring-2 focus:ring-brand-500"
+                  className="w-full px-3 py-2  rounded-lg text-sm focus:ring-2 focus:ring-brand-500"
                 />
               </div>
               <button
@@ -708,7 +708,7 @@ export function AdminOrdersClient() {
       {selectedOrder && (
         <>
           <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setSelectedOrder(null)} />
-          <div className="fixed inset-y-0 right-0 w-full sm:w-[480px] bg-[#141414] shadow-xl z-50 flex flex-col overflow-hidden">
+          <div className="fixed inset-y-0 right-0 w-full sm:w-[480px] bg-[#0a0a0a] shadow-xl z-50 flex flex-col overflow-hidden">
             <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between bg-[#0a0a0a]">
               <h3 className="font-semibold text-white">Order Details</h3>
               <button onClick={() => setSelectedOrder(null)} className="p-1 text-white/50 hover:text-white/70">
@@ -723,7 +723,7 @@ export function AdminOrdersClient() {
                   <Ticket className="w-4 h-4" />
                   <span>Order ID</span>
                 </div>
-                <div className="font-mono text-sm bg-[#1c1c1c] px-3 py-2 rounded-lg break-all">
+                <div className="font-mono text-sm bg-[#0a0a0a] px-3 py-2 rounded-lg break-all">
                   {selectedOrder.id}
                 </div>
               </div>
@@ -817,7 +817,7 @@ export function AdminOrdersClient() {
               {(selectedOrder.qr_code || selectedOrder.qrCode) && (
                 <div className="text-center">
                   <div className="text-sm font-medium text-white/70 mb-2">QR Code</div>
-                  <div className="inline-block p-4 bg-[#141414] border border-white/10 rounded-lg">
+                  <div className="inline-block p-4 bg-[#0a0a0a]  rounded-lg">
                     <Image
                       src={selectedOrder.qr_code ?? selectedOrder.qrCode ?? ''}
                       alt="Ticket QR Code"

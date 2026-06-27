@@ -26,7 +26,7 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
     Boolean(request.reviewedAt)
 
   return (
-    <div className="bg-[#141414] border border-white/10 rounded-lg p-6 md:p-8">
+    <div className="bg-[#0a0a0a]  rounded-lg p-6 md:p-8">
       <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
         {isReadOnly ? 'Verification Details' : 'Review & Submit'}
       </h2>
@@ -39,7 +39,7 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
       {/* Summary Sections */}
       <div className="space-y-6">
         {!hasAnyDetails && isReadOnly ? (
-          <div className="p-4 bg-[#0a0a0a] border border-white/10 rounded-lg">
+          <div className="p-4 bg-[#0a0a0a]  rounded-lg">
             <div className="text-sm font-semibold text-white">No verification details available</div>
             <div className="text-sm text-white/60 mt-1">
               This account is marked as verified, but no submitted verification fields/files were found.
@@ -149,7 +149,7 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
         <div className="mt-8 flex flex-col sm:flex-row gap-3">
           <button
             onClick={onBack}
-            className="flex-1 px-6 py-3 text-white/70 bg-[#141414] border-2 border-white/15 rounded-lg font-semibold hover:bg-[#0a0a0a] transition-all"
+            className="flex-1 px-6 py-3 text-white/70 bg-[#0a0a0a] border-2 border-white/15 rounded-lg font-semibold hover:bg-white/[0.04] transition-all"
           >
             ← Back to Steps
           </button>
@@ -159,7 +159,7 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
             className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all shadow-md ${
               canSubmit
                 ? 'bg-brand-700 hover:bg-brand-800 text-white hover:shadow-lg'
-                : 'bg-[#242424] text-white/50 cursor-not-allowed'
+                : 'bg-[#0a0a0a] text-white/50 cursor-not-allowed'
             }`}
           >
             {canSubmit ? 'Submit for Review' : 'Complete Required Steps'}

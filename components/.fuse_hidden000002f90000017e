@@ -1,0 +1,80 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { CheckCircle, Sparkles } from 'lucide-react'
+import Confetti from './Confetti'
+
+interface SuccessCelebrationProps {
+  title: string
+  message: string
+  show: boolean
+  onClose: () => void
+  duration?: number
+}
+
+export default function SuccessCelebration({
+  title,
+  message,
+  show,
+  onClose,
+  duration = 3000,
+}: SuccessCelebrationProps) {
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    if (show) {
+      setIsVisible(true)
+      const timer = setTimeout(() => {
+        setIsVisible(false)
+        setTimeout(onClose, 300) // Wait for fade out animation
+      }, duration)
+      return () => clearTimeout(timer)
+    }
+  }, [show, duration, onClose])
+
+  if (!show) return null
+
+  return (
+    <>
+      <Confetti duration={duration} />
+      
+      <div className="fixed inset-0 z-[9998] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div
+          className={`bg-white rounded-3xl shadow-glow max-w-md w-full p-8 text-center transform transition-all duration-500 ${
+            isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+          }`}
+        >
+          {/* Success Icon with Animation */}
+          <div className="relative inline-block mb-6">
+            <div className="absolute inset-0 bg-success-200 rounded-full animate-ping opacity-75"></div>
+            <div className="relative bg-gradient-to-br from-success-500 to-success-600 rounded-full p-6">
+              <CheckCircle className="w-16 h-16 text-white" strokeWidth={2.5} />
+            </div>
+            <div className="absolute -top-2 -right-2">
+              <Sparkles className="w-8 h-8 text-brand-600 animate-pulse" />
+            </div>
+          </div>
+
+          {/* Title */}
+          <h2 className="text-3xl font-bold text-gray-900 mb-3 flex items-center justify-center gap-2">
+            {title}
+            <span className="inline-block animate-bounce">🎉</span>
+          </h2>
+
+          {/* Message */}
+          <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+            {message}
+          </p>
+
+          {/* Success Badge */}
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-success-50 to-brand-50 px-6 py-3 rounded-full border-2 border-success-200">
+            <div className="w-2 h-2 bg-success-500 rounded-full animate-pulse"></div>
+            <span className="text-sm font-semibold text-success-700">
+              Processing Complete
+            </span>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}

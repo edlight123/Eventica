@@ -74,7 +74,7 @@ export function PayoutsWidget({ status, pendingBalance = 0, currency = 'HTG', la
   const statusInfo = getStatusInfo()
 
   return (
-    <div className="bg-[#141414] rounded-2xl shadow-soft border border-white/10 p-6">
+    <div className="bg-[#0a0a0a] rounded-2xl shadow-soft  p-6">
       <div className="flex items-start gap-4 mb-6">
         <div className={`w-12 h-12 ${statusInfo.iconBg} rounded-xl flex items-center justify-center flex-shrink-0`}>
           <div className={statusInfo.iconColor}>

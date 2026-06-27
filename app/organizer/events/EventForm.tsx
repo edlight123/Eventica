@@ -211,7 +211,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
   return (
     <div className="space-y-6">
       {/* Step Progress */}
-      <div className="bg-[#141414] rounded-2xl shadow-soft border border-white/10 p-6">
+      <div className="bg-[#0a0a0a] rounded-2xl shadow-soft  p-6">
         <div className="flex items-center justify-between">
           {steps.map((step, index) => {
             const Icon = step.icon
@@ -236,7 +236,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
                       ? 'bg-brand-600 text-white' 
                       : isCompleted
                       ? 'bg-success-600 text-white'
-                      : 'bg-[#242424] text-white/60'
+                      : 'bg-[#0a0a0a] text-white/60'
                   }`}>
                     {isCompleted ? <Check className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
                   </div>
@@ -255,7 +255,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
                 </button>
                 {index < steps.length - 1 && (
                   <div className={`h-0.5 flex-1 mx-2 ${
-                    isCompleted ? 'bg-success-500' : 'bg-[#242424]'
+                    isCompleted ? 'bg-success-500' : 'bg-[#0a0a0a]'
                   }`}></div>
                 )}
               </div>
@@ -264,7 +264,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-[#141414] rounded-2xl shadow-soft border border-white/10 p-8">
+      <form onSubmit={handleSubmit} className="bg-[#0a0a0a] rounded-2xl shadow-soft  p-8">
         {error && (
           <div className="mb-6 bg-error-50 border-2 border-error-500 text-error-700 px-6 py-4 rounded-xl flex items-center gap-3">
             <svg className="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -596,7 +596,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
                 {ticketTiers.length > 0 && (
                   <div className="space-y-4 mt-4">
                     {ticketTiers.map((tier, index) => (
-                      <div key={index} className="bg-[#141414] rounded-lg p-4 border-2 border-white/10">
+                      <div key={index} className="bg-[#0a0a0a] rounded-lg p-4 border-2 border-white/10">
                         <div className="flex items-center justify-between mb-3">
                           <h4 className="font-semibold text-white">Tier #{index + 1}</h4>
                           <button
@@ -728,7 +728,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
                         className={`px-4 py-2 text-sm font-medium rounded-xl border-2 transition-all ${
                           tags.includes(tag)
                             ? 'text-brand-300 border-brand-300 cursor-not-allowed'
-                            : 'bg-[#141414] text-white/70 border-white/10 hover:border-brand-500 hover:bg-brand-500/10 hover:text-brand-300'
+                            : 'bg-[#0a0a0a] text-white/70 border-white/10 hover:border-brand-500 hover:bg-brand-500/10 hover:text-brand-300'
                         }`}
                       >
                         {tag}
@@ -835,7 +835,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
               <button
                 type="button"
                 onClick={() => setCurrentStep(currentStep - 1)}
-                className="px-6 py-3 border-2 border-white/10 rounded-xl font-semibold text-white/70 hover:border-white/15 hover:bg-[#0a0a0a] transition-all"
+                className="px-6 py-3 border-2 border-white/10 rounded-xl font-semibold text-white/70 hover:border-white/15 hover:bg-white/[0.04] transition-all"
               >
                 ← Previous
               </button>

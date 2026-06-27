@@ -1,0 +1,100 @@
+'use client'
+
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import type { Database } from '@/types/database'
+import { DiscoverEventCard } from './DiscoverEventCard'
+
+type Event = Database['public']['Tables']['events']['Row']
+
+interface EventRailProps {
+  events: Event[]
+  /** Max number of cards to render in the rail. */
+  limit?: number
+}
+
+/**
+ * Horizontal, snapping "rail" of event cards (Posh / Eventbrite style).
+ * - Mobile: native touch scroll with edge bleed.
+ * - Desktop: hover-revealed chevron buttons that scroll by ~one viewport,
+ *   auto-disabled at each end.
+ *
+ * Uses the shared `.rail` utility (scroll-snap + hidden scrollbar) from
+ * globals.css so behaviour stays consistent across the editorial surfaces.
+ */
+export function EventRail({ events, limit = 12 }: EventRailProps) {
+  const scrollerRef = useRef<HTMLDivElement>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
+
+  const visibleEvents = events.slice(0, limit)
+
+  const updateArrows = useCallback(() => {
+    const el = scrollerRef.current
+    if (!el) return
+    const { scrollLeft, clientWidth, scrollWidth } = el
+    setCanScrollLeft(scrollLeft > 8)
+    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 8)
+  }, [])
+
+  useEffect(() => {
+    const el = scrollerRef.current
+    if (!el) return
+    updateArrows()
+    el.addEventListener('scroll', updateArrows, { passive: true })
+    window.addEventListener('resize', updateArrows)
+    return () => {
+      el.removeEventListener('scroll', updateArrows)
+      window.removeEventListener('resize', updateArrows)
+    }
+  }, [updateArrows, visibleEvents.length])
+
+  const scrollByViewport = (direction: 1 | -1) => {
+    const el = scrollerRef.current
+    if (!el) return
+    const amount = Math.min(el.clientWidth * 0.9, 640)
+    el.scrollBy({ left: direction * amount, behavior: 'smooth' })
+  }
+
+  if (visibleEvents.length === 0) return null
+
+  return (
+    <div className="relative">
+      {/* Left arrow (desktop only) */}
+      <button
+        type="button"
+        aria-label="Scroll left"
+        onClick={() => scrollByViewport(-1)}
+        className={`absolute left-0 top-1/2 z-20 hidden -translate-y-1/2 md:flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-[#141414]/95 text-white/80 shadow-md backdrop-blur transition-all hover:bg-[#1e1e1e] hover:text-brand-300 ${
+          canScrollLeft ? 'opacity-100' : 'pointer-events-none opacity-0'
+        }`}
+      >
+        <ChevronLeft className="h-5 w-5" />
+      </button>
+
+      {/* Right arrow (desktop only) */}
+      <button
+        type="button"
+        aria-label="Scroll right"
+        onClick={() => scrollByViewport(1)}
+        className={`absolute right-0 top-1/2 z-20 hidden -translate-y-1/2 md:flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-[#141414]/95 text-white/80 shadow-md backdrop-blur transition-all hover:bg-[#1e1e1e] hover:text-brand-300 ${
+          canScrollRight ? 'opacity-100' : 'pointer-events-none opacity-0'
+        }`}
+      >
+        <ChevronRight className="h-5 w-5" />
+      </button>
+
+      {/* Scroller */}
+      <div
+        ref={scrollerRef}
+        className="rail -mx-4 px-4 sm:mx-0 sm:px-0"
+      >
+        {visibleEvents.map(event => (
+          <div key={event.id} className="w-[260px] sm:w-[280px] lg:w-[300px]">
+            <DiscoverEventCard event={event} />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}

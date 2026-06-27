@@ -210,30 +210,30 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
 
       {/* Analytics Dashboard */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-4 sm:mb-5">
-        <div className="bg-[#141414] rounded-lg border border-white/10 p-3 sm:p-4">
+        <div className="bg-[#0a0a0a] rounded-lg  p-3 sm:p-4">
           <p className="text-[11px] sm:text-xs text-white/50 uppercase font-medium">Pending</p>
           <p className="text-xl sm:text-2xl font-bold text-amber-300 mt-1">{analytics.pending}</p>
         </div>
-        <div className="bg-[#141414] rounded-lg border border-white/10 p-3 sm:p-4">
+        <div className="bg-[#0a0a0a] rounded-lg  p-3 sm:p-4">
           <p className="text-[11px] sm:text-xs text-white/50 uppercase font-medium">Approved</p>
           <p className="text-xl sm:text-2xl font-bold text-emerald-300 mt-1">{analytics.approved}</p>
         </div>
-        <div className="bg-[#141414] rounded-lg border border-white/10 p-3 sm:p-4">
+        <div className="bg-[#0a0a0a] rounded-lg  p-3 sm:p-4">
           <p className="text-[11px] sm:text-xs text-white/50 uppercase font-medium">Changes Req.</p>
           <p className="text-xl sm:text-2xl font-bold text-amber-300 mt-1">{analytics.changesRequested}</p>
         </div>
-        <div className="bg-[#141414] rounded-lg border border-white/10 p-3 sm:p-4">
+        <div className="bg-[#0a0a0a] rounded-lg  p-3 sm:p-4">
           <p className="text-[11px] sm:text-xs text-white/50 uppercase font-medium">Total</p>
           <p className="text-xl sm:text-2xl font-bold text-white mt-1">{analytics.total}</p>
         </div>
-        <div className="bg-[#141414] rounded-lg border border-white/10 p-3 sm:p-4 col-span-2">
+        <div className="bg-[#0a0a0a] rounded-lg  p-3 sm:p-4 col-span-2">
           <p className="text-[11px] sm:text-xs text-white/50 uppercase font-medium">Approval Rate</p>
           <p className="text-xl sm:text-2xl font-bold text-brand-300 mt-1">{analytics.approvalRate}%</p>
         </div>
       </div>
 
       {/* Verification Requests Section */}
-      <div className="bg-[#141414] rounded-xl sm:rounded-2xl shadow-sm border border-white/10 p-4 sm:p-6 mb-5">
+      <div className="bg-[#0a0a0a] rounded-xl sm:rounded-2xl shadow-sm  p-4 sm:p-6 mb-5">
         <EditorialHeader
           title={t('verify.title')}
           subtitle={t('verify.subtitle')}
@@ -252,7 +252,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
                 className={
                   active
                     ? 'px-3 py-1.5 rounded-full text-[13px] sm:text-sm font-semibold bg-brand-700 text-white'
-                    : 'px-3 py-1.5 rounded-full text-[13px] sm:text-sm font-medium bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
+                    : 'px-3 py-1.5 rounded-full text-[13px] sm:text-sm font-medium bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
                 }
               >
                 {tab.label}
@@ -279,7 +279,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
             <button
               onClick={handleExportCSV}
               disabled={filteredRequests.length === 0}
-              className="px-4 py-2 bg-[#1c1c1c] hover:bg-[#242424] text-white/70 rounded-lg text-[13px] sm:text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              className="px-4 py-2 bg-[#0a0a0a] hover:bg-white/[0.04] text-white/70 rounded-lg text-[13px] sm:text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
             >
               📥 Export CSV
             </button>
@@ -291,7 +291,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
             <button
               onClick={() => toggleSort('date')}
               className={`px-3 py-1 rounded-full text-[12px] sm:text-xs font-medium ${
-                sortField === 'date' ? 'text-brand-300' : 'bg-[#1c1c1c] text-white/70'
+                sortField === 'date' ? 'text-brand-300' : 'bg-[#0a0a0a] text-white/70'
               }`}
             >
               Date {sortField === 'date' && (sortDirection === 'asc' ? '↑' : '↓')}
@@ -299,7 +299,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
             <button
               onClick={() => toggleSort('name')}
               className={`px-3 py-1 rounded-full text-[12px] sm:text-xs font-medium ${
-                sortField === 'name' ? 'text-brand-300' : 'bg-[#1c1c1c] text-white/70'
+                sortField === 'name' ? 'text-brand-300' : 'bg-[#0a0a0a] text-white/70'
               }`}
             >
               Name {sortField === 'name' && (sortDirection === 'asc' ? '↑' : '↓')}
@@ -307,7 +307,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
             <button
               onClick={() => toggleSort('email')}
               className={`px-3 py-1 rounded-full text-[12px] sm:text-xs font-medium ${
-                sortField === 'email' ? 'text-brand-300' : 'bg-[#1c1c1c] text-white/70'
+                sortField === 'email' ? 'text-brand-300' : 'bg-[#0a0a0a] text-white/70'
               }`}
             >
               Email {sortField === 'email' && (sortDirection === 'asc' ? '↑' : '↓')}
@@ -315,7 +315,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
             <button
               onClick={() => toggleSort('country')}
               className={`px-3 py-1 rounded-full text-[12px] sm:text-xs font-medium ${
-                sortField === 'country' ? 'text-brand-300' : 'bg-[#1c1c1c] text-white/70'
+                sortField === 'country' ? 'text-brand-300' : 'bg-[#0a0a0a] text-white/70'
               }`}
             >
               Country {sortField === 'country' && (sortDirection === 'asc' ? '↑' : '↓')}
@@ -380,7 +380,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
       </div>
 
       {/* Quick Verification Toggle */}
-      <div className="bg-[#141414] rounded-xl sm:rounded-2xl shadow-sm border border-white/10 p-4 sm:p-8">
+      <div className="bg-[#0a0a0a] rounded-xl sm:rounded-2xl shadow-sm  p-4 sm:p-8">
         <details>
           <summary className="cursor-pointer select-none">
             <h2 className="inline font-display text-xl sm:text-2xl text-white">

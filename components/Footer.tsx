@@ -120,7 +120,7 @@ export default function Footer() {
                 key={s.label}
                 href="#"
                 aria-label={s.label}
-                className="grid h-9 w-9 place-items-center rounded-full border border-white/10 text-gray-400 transition-all duration-200 hover:border-white/20 hover:bg-white/5 hover:text-white"
+                className="grid h-9 w-9 place-items-center rounded-full  text-gray-400 transition-all duration-200 hover:border-white/20 hover:bg-white/5 hover:text-white"
               >
                 <svg className="h-[18px] w-[18px]" fill="currentColor" viewBox="0 0 24 24">
                   <path d={s.d} />

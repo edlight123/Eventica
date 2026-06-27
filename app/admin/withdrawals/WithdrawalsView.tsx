@@ -122,7 +122,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
       )}
 
       {/* Filter Tabs */}
-      <div className="bg-[#141414] rounded-xl border border-white/10 p-1 mb-6 flex flex-wrap">
+      <div className="bg-[#0a0a0a] rounded-xl  p-1 mb-6 flex flex-wrap">
         {['pending', 'processing', 'completed', 'failed', 'all'].map((tab) => (
           <button
             key={tab}
@@ -130,7 +130,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               filter === tab
                 ? 'bg-brand-700 text-white'
-                : 'text-white/60 hover:bg-[#1c1c1c]'
+                : 'text-white/60 hover:bg-white/[0.04]'
             }`}
           >
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -143,17 +143,17 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
 
       {/* Withdrawals List */}
       {loading ? (
-        <div className="bg-[#141414] rounded-xl p-12 text-center">
+        <div className="bg-[#0a0a0a] rounded-xl p-12 text-center">
           <div className="text-white/40 mb-2">Loading...</div>
         </div>
       ) : visibleWithdrawals.length === 0 ? (
-        <div className="bg-[#141414] rounded-xl p-12 text-center">
+        <div className="bg-[#0a0a0a] rounded-xl p-12 text-center">
           <span className="text-6xl mb-4 block">📭</span>
           <h3 className="font-display text-xl text-white mb-2">No Withdrawals</h3>
           <p className="text-white/60">No {filter !== 'all' ? filter : ''} withdrawal requests found</p>
         </div>
       ) : (
-        <div className="bg-[#141414] rounded-xl border border-white/10 overflow-hidden">
+        <div className="bg-[#0a0a0a] rounded-xl  overflow-hidden">
           {/* Desktop Table */}
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
@@ -170,7 +170,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
               </thead>
               <tbody className="divide-y divide-white/10">
                 {visibleWithdrawals.map((withdrawal) => (
-                  <tr key={withdrawal.id} className="hover:bg-[#0a0a0a]">
+                  <tr key={withdrawal.id} className="hover:bg-white/[0.04]">
                     <td className="px-4 py-4">
                       <div>
                         <div className="font-medium text-white">{withdrawal.organizer?.name || 'Unknown'}</div>
@@ -222,7 +222,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
             {visibleWithdrawals.map((withdrawal) => (
               <div
                 key={withdrawal.id}
-                className="p-4 hover:bg-[#0a0a0a] cursor-pointer"
+                className="p-4 hover:bg-white/[0.04] cursor-pointer"
                 onClick={() => setSelectedWithdrawal(withdrawal)}
               >
                 <div className="flex justify-between items-start mb-2">
@@ -250,7 +250,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
       {/* Detail Modal */}
       {selectedWithdrawal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-[#141414] rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
+          <div className="bg-[#0a0a0a] rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
             <div className="flex justify-between items-start mb-6">
               <h2 className="font-display text-2xl text-white">Withdrawal Details</h2>
               <button
@@ -417,14 +417,14 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                   <button
                     onClick={() => handleAction(selectedWithdrawal.id, 'approve')}
                     disabled={processing}
-                    className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:bg-[#242424]"
+                    className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:bg-[#0a0a0a]"
                   >
                     ✓ Approve & Process
                   </button>
                   <button
                     onClick={() => handleAction(selectedWithdrawal.id, 'reject')}
                     disabled={processing}
-                    className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:bg-[#242424]"
+                    className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:bg-[#0a0a0a]"
                   >
                     ✗ Reject
                   </button>
@@ -435,14 +435,14 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                   <button
                     onClick={() => handleAction(selectedWithdrawal.id, 'complete')}
                     disabled={processing}
-                    className="flex-1 px-4 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 transition-colors font-medium disabled:bg-[#242424]"
+                    className="flex-1 px-4 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 transition-colors font-medium disabled:bg-[#0a0a0a]"
                   >
                     ✓ Mark Complete
                   </button>
                   <button
                     onClick={() => handleAction(selectedWithdrawal.id, 'fail')}
                     disabled={processing}
-                    className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:bg-[#242424]"
+                    className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:bg-[#0a0a0a]"
                   >
                     ✗ Mark Failed
                   </button>

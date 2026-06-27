@@ -130,7 +130,7 @@ export function AdminDashboardQuickActions({
               key={action.href}
               href={action.href}
               title={action.description}
-              className="group relative rounded-xl border border-white/10 p-3 flex flex-col gap-2 hover:bg-[#141414] hover:border-white/20 transition-all"
+              className="group relative rounded-xl  p-3 flex flex-col gap-2 hover:bg-white/[0.04] hover:border-white/20 transition-all"
             >
               {action.badge !== undefined && action.badge > 0 && (
                 <span className="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">

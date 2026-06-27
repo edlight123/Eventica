@@ -117,7 +117,7 @@ export default async function PlatformPage() {
           </div>
 
           {/* Value props (qualitative, not invented metrics) */}
-          <div className="mx-auto mt-14 grid max-w-3xl grid-cols-1 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-3">
+          <div className="mx-auto mt-14 grid max-w-3xl grid-cols-1 gap-px overflow-hidden rounded-2xl  bg-white/10 sm:grid-cols-3">
             {[
               { label: 'No setup fees', sub: 'Publish your first event free' },
               { label: 'HTG & USD', sub: 'Sell at home and in the diaspora' },
@@ -214,12 +214,12 @@ export default async function PlatformPage() {
 
       {/* FINAL CTA */}
       <section className="px-5 pb-24 pt-4 sm:px-6 lg:px-8">
-        <div className="relative mx-auto max-w-5xl overflow-hidden rounded-3xl border border-white/10 bg-[#1c1c1c] px-6 py-16 text-center sm:py-20">
+        <div className="relative mx-auto max-w-5xl overflow-hidden rounded-3xl  bg-[#0a0a0a] px-6 py-16 text-center sm:py-20">
           <div
             aria-hidden
             className="absolute left-1/2 top-0 -z-10 h-[300px] w-[300px] -translate-x-1/2 rounded-full blur-[120px]"
           />
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full  bg-white/5 px-3.5 py-1.5">
             <ShieldCheck className="h-4 w-4 text-brand-300" />
             <span className="text-[13px] font-medium text-white/70">
               Verified organizers, trusted by attendees

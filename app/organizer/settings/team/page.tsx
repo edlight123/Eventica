@@ -73,7 +73,7 @@ export default async function TeamSettingsPage({
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-          <div className="bg-[#141414] border border-white/10 rounded-xl p-4">
+          <div className="bg-[#0a0a0a]  rounded-xl p-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-lg text-brand-300 flex items-center justify-center">
                 <CalendarDays className="w-5 h-5" />
@@ -84,7 +84,7 @@ export default async function TeamSettingsPage({
               </div>
             </div>
           </div>
-          <div className="bg-[#141414] border border-white/10 rounded-xl p-4">
+          <div className="bg-[#0a0a0a]  rounded-xl p-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-lg text-brand-300 flex items-center justify-center">
                 <ShieldCheck className="w-5 h-5" />
@@ -95,7 +95,7 @@ export default async function TeamSettingsPage({
               </div>
             </div>
           </div>
-          <div className="bg-[#141414] border border-white/10 rounded-xl p-4">
+          <div className="bg-[#0a0a0a]  rounded-xl p-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-lg text-brand-300 flex items-center justify-center">
                 <Users className="w-5 h-5" />
@@ -114,7 +114,7 @@ export default async function TeamSettingsPage({
           </div>
 
           <div className="space-y-6">
-            <div className="bg-[#141414] border border-white/10 rounded-xl p-5">
+            <div className="bg-[#0a0a0a]  rounded-xl p-5">
               <h3 className="text-lg font-semibold text-white mb-3">Guidelines</h3>
               <ul className="space-y-3 text-sm text-white/60">
                 <li className="flex gap-2">

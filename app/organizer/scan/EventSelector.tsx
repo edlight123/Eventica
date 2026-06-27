@@ -22,7 +22,7 @@ function ScanEventCard({ event, badge }: { event: any; badge?: { label: string; 
 
   return (
     <Link href={`/organizer/scan/${event.id}`} prefetch className="group block h-full">
-      <article className="hover-lift h-full overflow-hidden rounded-2xl border border-white/10 bg-[#141414] shadow-poster-sm transition-all duration-300 group-hover:border-brand-500/30 group-hover:shadow-card-hover">
+      <article className="hover-lift h-full overflow-hidden rounded-2xl  bg-[#0a0a0a] shadow-poster-sm transition-all duration-300 group-hover:border-brand-500/30 group-hover:shadow-card-hover">
         {/* ---------- Poster ---------- */}
         <div
           className="poster-vignette relative flex aspect-[4/5] flex-col justify-between overflow-hidden p-3.5 text-white"
@@ -123,7 +123,7 @@ export default function EventSelector({ events }: EventSelectorProps) {
 
   if (events.length === 0) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-[#141414] p-6 shadow-sm">
+      <div className="rounded-2xl  bg-[#0a0a0a] p-6 shadow-sm">
         <div className="py-12 text-center">
           <div className="mb-4 text-6xl">📅</div>
           <p className="mb-4 text-white/60">You don&apos;t have any events yet.</p>

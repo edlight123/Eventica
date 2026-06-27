@@ -65,7 +65,7 @@ export default function EventMarketingClient({
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
       {/* Share link */}
-      <div className="rounded-2xl border border-white/10 bg-[#141414] p-5">
+      <div className="rounded-2xl  bg-[#0a0a0a] p-5">
         <div className="mb-4 flex items-center gap-2">
           <Share2 className="h-4 w-4 text-brand-400" />
           <h2 className="font-semibold text-white">Share your event</h2>
@@ -73,7 +73,7 @@ export default function EventMarketingClient({
 
         {/* URL row */}
         <div className="flex items-center gap-2">
-          <div className="flex flex-1 items-center gap-2 overflow-hidden rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3 text-sm text-white/70">
+          <div className="flex flex-1 items-center gap-2 overflow-hidden rounded-xl  bg-[#0a0a0a] px-4 py-3 text-sm text-white/70">
             <ExternalLink className="h-4 w-4 shrink-0 text-white/40" />
             <span className="truncate">{eventUrl || `/events/${eventId}`}</span>
           </div>
@@ -89,7 +89,7 @@ export default function EventMarketingClient({
             href={`/events/${eventId}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 text-white/60 transition-colors hover:bg-[#1c1c1c] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl  text-white/60 transition-colors hover:bg-white/[0.04] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             aria-label="Open event page in new tab"
           >
             <ExternalLink className="h-4 w-4" />
@@ -105,7 +105,7 @@ export default function EventMarketingClient({
               href={s.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-white/60 transition-colors hover:border-white/20 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="rounded-lg  px-3 py-1.5 text-xs font-semibold text-white/60 transition-colors hover:border-white/20 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               {s.label}
             </a>
@@ -114,7 +114,7 @@ export default function EventMarketingClient({
       </div>
 
       {/* Promo codes */}
-      <div className="rounded-2xl border border-white/10 bg-[#141414]">
+      <div className="rounded-2xl  bg-[#0a0a0a]">
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
           <h2 className="font-semibold text-white">Promo codes</h2>
           <Link
@@ -168,7 +168,7 @@ export default function EventMarketingClient({
       </div>
 
       {/* SMS campaigns — coming soon */}
-      <div className="rounded-2xl border border-dashed border-white/10 bg-[#141414]/50 p-8">
+      <div className="rounded-2xl border border-dashed border-white/10 bg-[#0a0a0a]/50 p-8">
         <div className="mx-auto max-w-sm text-center">
           <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-xl ">
             <Megaphone className="h-6 w-6 text-brand-400" />

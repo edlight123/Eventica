@@ -45,7 +45,7 @@ export default async function DefaultsSettingsPage() {
         />
 
         {/* Defaults Form */}
-        <div className="mt-8 rounded-2xl border border-white/10 bg-[#141414] overflow-hidden">
+        <div className="mt-8 rounded-2xl  bg-[#0a0a0a] overflow-hidden">
           <DefaultsForm 
             userId={user.id}
             initialData={{
@@ -59,7 +59,7 @@ export default async function DefaultsSettingsPage() {
         </div>
 
         {/* Info Notice */}
-        <div className="mt-6 p-4 bg-[#0a0a0a] border border-white/10 rounded-lg">
+        <div className="mt-6 p-4 bg-[#0a0a0a]  rounded-lg">
           <p className="text-sm text-white/60">
             <strong className="text-white">Note:</strong> These defaults will be pre-filled when you create a new event, but you can always change them for individual events.
           </p>

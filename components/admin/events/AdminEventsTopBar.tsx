@@ -23,7 +23,7 @@ export function AdminEventsTopBar({
   const [showBulkMenu, setShowBulkMenu] = useState(false)
 
   return (
-    <div className="sticky top-0 z-30 bg-[#141414] border-b border-white/10 shadow-sm">
+    <div className="sticky top-0 z-30 bg-[#0a0a0a] border-b border-white/10 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center gap-4">
           {/* Search */}
@@ -34,14 +34,14 @@ export function AdminEventsTopBar({
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Search events by title, city, or organizer..."
-              className="w-full pl-10 pr-4 py-2.5 border border-white/10 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
+              className="w-full pl-10 pr-4 py-2.5  rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
             />
           </div>
 
           {/* Filters Button */}
           <button
             onClick={onOpenFilters}
-            className="flex items-center gap-2 px-4 py-2.5 border border-white/10 rounded-lg hover:bg-[#0a0a0a] text-sm font-medium whitespace-nowrap"
+            className="flex items-center gap-2 px-4 py-2.5  rounded-lg hover:bg-white/[0.04] text-sm font-medium whitespace-nowrap"
           >
             <Filter className="w-4 h-4" />
             <span>Filters</span>
@@ -69,13 +69,13 @@ export function AdminEventsTopBar({
                     className="fixed inset-0 z-10"
                     onClick={() => setShowBulkMenu(false)}
                   />
-                  <div className="absolute right-0 mt-2 w-48 bg-[#141414] rounded-lg shadow-lg border border-white/10 py-1 z-20">
+                  <div className="absolute right-0 mt-2 w-48 bg-[#0a0a0a] rounded-lg shadow-lg  py-1 z-20">
                     <button
                       onClick={() => {
                         onBulkAction('publish')
                         setShowBulkMenu(false)
                       }}
-                      className="w-full px-4 py-2 text-left text-sm text-white/70 hover:bg-[#0a0a0a] flex items-center gap-2"
+                      className="w-full px-4 py-2 text-left text-sm text-white/70 hover:bg-white/[0.04] flex items-center gap-2"
                     >
                       <Check className="w-4 h-4 text-emerald-300" />
                       Publish Selected
@@ -85,7 +85,7 @@ export function AdminEventsTopBar({
                         onBulkAction('unpublish')
                         setShowBulkMenu(false)
                       }}
-                      className="w-full px-4 py-2 text-left text-sm text-white/70 hover:bg-[#0a0a0a] flex items-center gap-2"
+                      className="w-full px-4 py-2 text-left text-sm text-white/70 hover:bg-white/[0.04] flex items-center gap-2"
                     >
                       <Check className="w-4 h-4 text-brand-300" />
                       Unpublish Selected

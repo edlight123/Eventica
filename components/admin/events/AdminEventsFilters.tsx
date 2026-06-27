@@ -54,13 +54,13 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
       />
 
       {/* Sheet */}
-      <div className="fixed inset-y-0 right-0 w-full sm:w-96 bg-[#141414] shadow-xl z-50 flex flex-col">
+      <div className="fixed inset-y-0 right-0 w-full sm:w-96 bg-[#0a0a0a] shadow-xl z-50 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-white/10">
           <h3 className="text-lg font-bold text-white">Filters</h3>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-[#1c1c1c] rounded-lg"
+            className="p-2 hover:bg-white/[0.04] rounded-lg"
           >
             <X className="w-5 h-5 text-white/60" />
           </button>
@@ -98,14 +98,14 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
                   type="date"
                   value={localFilters.startDate || ''}
                   onChange={(e) => setLocalFilters({ ...localFilters, startDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-white/10 rounded-lg text-sm"
+                  className="w-full px-3 py-2  rounded-lg text-sm"
                   placeholder="Start date"
                 />
                 <input
                   type="date"
                   value={localFilters.endDate || ''}
                   onChange={(e) => setLocalFilters({ ...localFilters, endDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-white/10 rounded-lg text-sm"
+                  className="w-full px-3 py-2  rounded-lg text-sm"
                   placeholder="End date"
                 />
               </div>
@@ -121,7 +121,7 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
             <select
               value={localFilters.city}
               onChange={(e) => setLocalFilters({ ...localFilters, city: e.target.value })}
-              className="w-full px-3 py-2 border border-white/10 rounded-lg text-sm"
+              className="w-full px-3 py-2  rounded-lg text-sm"
             >
               <option value="">All cities</option>
               <option value="Port-au-Prince">Port-au-Prince</option>
@@ -141,7 +141,7 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
             <select
               value={localFilters.category}
               onChange={(e) => setLocalFilters({ ...localFilters, category: e.target.value })}
-              className="w-full px-3 py-2 border border-white/10 rounded-lg text-sm"
+              className="w-full px-3 py-2  rounded-lg text-sm"
             >
               <option value="">All categories</option>
               <option value="Music">Music</option>
@@ -242,7 +242,7 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
         <div className="flex items-center gap-3 p-4 border-t border-white/10">
           <button
             onClick={handleReset}
-            className="flex-1 px-4 py-2.5 border border-white/10 text-white/70 rounded-lg hover:bg-[#0a0a0a] font-medium text-sm"
+            className="flex-1 px-4 py-2.5  text-white/70 rounded-lg hover:bg-white/[0.04] font-medium text-sm"
           >
             Reset
           </button>

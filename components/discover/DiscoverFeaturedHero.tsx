@@ -115,7 +115,7 @@ export function DiscoverFeaturedHero({ events }: { events: HeroEvent[] }) {
             type="button"
             aria-label="Previous"
             onClick={() => go(i - 1)}
-            className="grid h-8 w-8 place-items-center rounded-full border border-white/10 text-white/60 transition-colors hover:bg-white/5 hover:text-white"
+            className="grid h-8 w-8 place-items-center rounded-full  text-white/60 transition-colors hover:bg-white/5 hover:text-white"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -134,7 +134,7 @@ export function DiscoverFeaturedHero({ events }: { events: HeroEvent[] }) {
             type="button"
             aria-label="Next"
             onClick={() => go(i + 1)}
-            className="grid h-8 w-8 place-items-center rounded-full border border-white/10 text-white/60 transition-colors hover:bg-white/5 hover:text-white"
+            className="grid h-8 w-8 place-items-center rounded-full  text-white/60 transition-colors hover:bg-white/5 hover:text-white"
           >
             <ChevronRight className="h-4 w-4" />
           </button>

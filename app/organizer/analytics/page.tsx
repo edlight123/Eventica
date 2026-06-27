@@ -206,7 +206,7 @@ export default async function AnalyticsPage() {
 
         {/* Charts */}
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <div className="rounded-2xl border border-white/10 bg-[#141414] p-6">
+          <div className="rounded-2xl  bg-[#0a0a0a] p-6">
             <SectionHeader eyebrow="Last 7 days" title="Sales trend" className="mb-5" />
             <SalesChart data={salesChartData} currency={organizerCurrency} />
             <div className="mt-4 flex justify-center gap-6">
@@ -221,7 +221,7 @@ export default async function AnalyticsPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-[#141414] p-6">
+          <div className="rounded-2xl  bg-[#0a0a0a] p-6">
             <SectionHeader title="Events by category" className="mb-5" />
             {categoryChartData.length > 0 ? (
               <CategoryChart data={categoryChartData} />
@@ -234,7 +234,7 @@ export default async function AnalyticsPage() {
         </div>
 
         {/* Top events */}
-        <div className="mt-6 rounded-2xl border border-white/10 bg-[#141414] p-6">
+        <div className="mt-6 rounded-2xl  bg-[#0a0a0a] p-6">
           <SectionHeader eyebrow="Leaderboard" title="Top performing events" className="mb-6" />
           {eventsWithSales.length === 0 ? (
             <OrgEmptyState
@@ -256,7 +256,7 @@ export default async function AnalyticsPage() {
               {eventsWithSales.slice(0, 10).map((event: any, index: number) => (
                 <div
                   key={event.id}
-                  className="flex items-center gap-4 rounded-xl border border-white/10 bg-[#0a0a0a] p-4 transition-colors hover:bg-[#1c1c1c]"
+                  className="flex items-center gap-4 rounded-xl  bg-[#0a0a0a] p-4 transition-colors hover:bg-white/[0.04]"
                 >
                   <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-700 font-bold text-white text-sm">
                     {index + 1}
@@ -288,7 +288,7 @@ export default async function AnalyticsPage() {
                       </p>
                     </div>
                     {!event.is_published && (
-                      <span className="rounded-full bg-[#242424] px-2.5 py-1 text-xs font-medium text-white/60">
+                      <span className="rounded-full bg-[#0a0a0a] px-2.5 py-1 text-xs font-medium text-white/60">
                         Draft
                       </span>
                     )}

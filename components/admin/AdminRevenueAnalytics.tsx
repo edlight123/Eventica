@@ -154,7 +154,7 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 dateRange === option.value
                   ? 'bg-brand-600 text-white'
-                  : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
+                  : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
               }`}
             >
               {option.label}
@@ -183,7 +183,7 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
           )}
         </div>
 
-        <div className="bg-[#0a0a0a] rounded-xl p-4 border border-white/10">
+        <div className="bg-[#0a0a0a] rounded-xl p-4 ">
           <div className="flex items-center justify-between mb-2">
             <div className="w-9 h-9 bg-brand-600 rounded-lg flex items-center justify-center">
               <CreditCard className="w-5 h-5 text-white" />
@@ -196,7 +196,7 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
           </div>
         </div>
 
-        <div className="bg-[#0a0a0a] rounded-xl p-4 border border-white/10">
+        <div className="bg-[#0a0a0a] rounded-xl p-4 ">
           <div className="flex items-center justify-between mb-2">
             <div className="w-9 h-9 bg-brand-600 rounded-lg flex items-center justify-center">
               <TrendingUp className="w-5 h-5 text-white" />
@@ -213,14 +213,14 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
       </div>
 
       {/* Currency Breakdown */}
-      <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-4">
+      <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-4">
         <h3 className="text-sm font-semibold text-white mb-3">Revenue by Currency</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {/* HTG Revenue */}
-          <div className="border border-white/10 rounded-lg p-3">
+          <div className=" rounded-lg p-3">
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-sm font-medium text-white/70">HTG (Haitian Gourde)</h4>
-              <span className="text-xs bg-[#1c1c1c] text-white/60 px-2 py-0.5 rounded">
+              <span className="text-xs bg-[#0a0a0a] text-white/60 px-2 py-0.5 rounded">
                 {revenue.byCurrency.HTG.tickets} tickets
               </span>
             </div>
@@ -247,10 +247,10 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
           </div>
 
           {/* USD Revenue */}
-          <div className="border border-white/10 rounded-lg p-3">
+          <div className=" rounded-lg p-3">
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-sm font-medium text-white/70">USD (US Dollar)</h4>
-              <span className="text-xs bg-[#1c1c1c] text-white/60 px-2 py-0.5 rounded">
+              <span className="text-xs bg-[#0a0a0a] text-white/60 px-2 py-0.5 rounded">
                 {revenue.byCurrency.USD.tickets} tickets
               </span>
             </div>
@@ -274,17 +274,17 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
 
       {/* FX Spread Profit */}
       {revenue.fxSpread?.ticketCount > 0 && (
-        <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-4">
+        <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-4">
           <h3 className="text-sm font-semibold text-white mb-3">FX Spread Profit (MonCash USD Events)</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="border border-white/10 rounded-lg p-3">
+            <div className=" rounded-lg p-3">
               <div className="text-xs text-white/50">USD Volume</div>
               <div className="text-lg font-semibold text-white">
                 {formatCurrency(revenue.fxSpread.usdVolume, 'USD')}
               </div>
               <div className="text-xs text-white/50 mt-1">{revenue.fxSpread.ticketCount} tickets</div>
             </div>
-            <div className="border border-white/10 rounded-lg p-3">
+            <div className=" rounded-lg p-3">
               <div className="text-xs text-white/50">Spread Profit</div>
               <div className="text-lg font-semibold text-white">
                 {formatCurrency(revenue.fxSpread.profitHTG, 'HTG')}
@@ -292,7 +292,7 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
               <div className="text-xs text-white/50 mt-1">{formatCurrency(revenue.fxSpread.profitUSD || 0, 'USD')}</div>
               <div className="text-xs text-white/50 mt-1">Computed from base vs effective rate</div>
             </div>
-            <div className="border border-white/10 rounded-lg p-3">
+            <div className=" rounded-lg p-3">
               <div className="text-xs text-white/50">Avg Spread</div>
               <div className="text-lg font-semibold text-white">
                 {(revenue.fxSpread.averageSpreadPercent * 100).toFixed(2)}%
@@ -304,7 +304,7 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
       )}
 
       {/* Payment Method Breakdown */}
-      <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-4">
+      <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-4">
         <h3 className="text-sm font-semibold text-white mb-3">Revenue by Payment Method</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {/* Stripe */}
@@ -374,7 +374,7 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
 
       {/* Exchange Rate Info */}
       {revenue.exchangeRates.averageRate > 0 && (
-        <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-4">
+        <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-4">
           <h3 className="text-sm font-semibold text-white mb-3">Exchange Rate Analytics</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div>

@@ -26,14 +26,14 @@ export function FilterChip({
       className={`inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
         active
           ? 'bg-brand-600 text-white'
-          : 'border border-white/10 bg-[#1c1c1c] text-white/70 hover:bg-[#1c1c1c] hover:text-white'
+          : ' bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04] hover:text-white'
       }`}
     >
       {children}
       {count !== undefined && count > 0 && (
         <span
           className={`ml-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
-            active ? 'bg-white/20 text-white' : 'bg-[#242424] text-white/60'
+            active ? 'bg-white/20 text-white' : 'bg-[#0a0a0a] text-white/60'
           }`}
         >
           {count}

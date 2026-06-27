@@ -280,9 +280,9 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
   }
 
   const rowCls =
-    'flex w-full items-center gap-3 rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3.5 text-left text-[15px] text-white/70 transition-colors hover:bg-[#242424]'
+    'flex w-full items-center gap-3 rounded-xl  bg-[#0a0a0a] px-4 py-3.5 text-left text-[15px] text-white/70 transition-colors hover:bg-white/[0.04]'
   const chip =
-    'no-native-picker rounded-lg bg-[#2a2a2a] px-3 py-1.5 text-sm font-semibold text-white [color-scheme:dark] focus:outline-none focus:ring-2 focus:ring-brand-400/40'
+    'no-native-picker rounded-lg bg-[#0a0a0a] px-3 py-1.5 text-sm font-semibold text-white [color-scheme:dark] focus:outline-none focus:ring-2 focus:ring-brand-400/40'
   const field =
     'w-full rounded-xl border border-white/10 bg-transparent px-4 py-3 text-[15px] text-white [color-scheme:dark] placeholder:text-white/40 focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-400/40'
 
@@ -292,14 +292,14 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
         {/* ===================== LEFT — the event ===================== */}
         <div className="order-2 min-w-0 lg:order-1">
           {/* Sell Tickets / RSVP */}
-          <div className="mx-auto mb-8 grid max-w-md grid-cols-2 rounded-full border border-white/10 bg-[#1c1c1c] p-1">
+          <div className="mx-auto mb-8 grid max-w-md grid-cols-2 rounded-full  bg-[#0a0a0a] p-1">
             {(['tickets', 'rsvp'] as const).map((m) => (
               <button
                 key={m}
                 type="button"
                 onClick={() => setSellMode(m)}
                 className={`rounded-full py-2.5 text-sm font-semibold transition-all ${
-                  sellMode === m ? 'bg-[#242424] text-white' : 'text-white/50 hover:text-white/80'
+                  sellMode === m ? 'bg-[#0a0a0a] text-white' : 'text-white/50 hover:text-white/80'
                 }`}
               >
                 {m === 'tickets' ? 'Sell Tickets' : 'RSVP'}
@@ -331,7 +331,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
               <button
                 type="button"
                 onClick={() => setShowSummary(true)}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#1c1c1c] px-3.5 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-[#242424] hover:text-white"
+                className="inline-flex items-center gap-1.5 rounded-full  bg-[#0a0a0a] px-3.5 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-white/[0.04] hover:text-white"
               >
                 <Plus className="h-4 w-4" /> Short Summary
               </button>
@@ -341,7 +341,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
           {/* Dates */}
           <div className="mt-8 border-t border-white/10 pt-6">
             <SectionTitle icon={CalendarDays}>Dates</SectionTitle>
-            <div className="overflow-hidden rounded-xl border border-white/10 bg-[#1c1c1c]">
+            <div className="overflow-hidden rounded-xl  bg-[#0a0a0a]">
               <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5">
                 <span className="text-[15px] font-medium text-white">Start</span>
                 <div className="flex items-center gap-2">
@@ -361,7 +361,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
             </div>
             {startInvalid && <p className="mt-1.5 text-sm text-red-300">Pick when your event starts.</p>}
 
-            <div className="mt-3 flex items-center justify-between rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3.5">
+            <div className="mt-3 flex items-center justify-between rounded-xl  bg-[#0a0a0a] px-4 py-3.5">
               <span className="flex items-center gap-2 text-[15px] text-white/80">
                 <Repeat className="h-4 w-4 text-white/50" /> Recurring Series
               </span>
@@ -389,7 +389,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
               )}
 
               {/* Online toggle (kept compact) */}
-              <div className="flex items-center justify-between rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3.5">
+              <div className="flex items-center justify-between rounded-xl  bg-[#0a0a0a] px-4 py-3.5">
                 <span className="flex items-center gap-2 text-[15px] text-white/80">
                   <Globe className="h-[18px] w-[18px] text-white/50" /> Online event
                 </span>
@@ -398,12 +398,12 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
 
               {!isOnline && (
                 <>
-                  <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#1c1c1c] px-4">
+                  <div className="flex items-center gap-3 rounded-xl  bg-[#0a0a0a] px-4">
                     <MapPin className="h-[18px] w-[18px] shrink-0 text-white/50" />
                     <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Location / address" className="w-full bg-transparent py-3.5 text-[15px] text-white placeholder:text-white/40 focus:outline-none" />
                   </div>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#1c1c1c] px-4">
+                    <div className="flex items-center gap-3 rounded-xl  bg-[#0a0a0a] px-4">
                       <Globe className="h-[18px] w-[18px] shrink-0 text-white/50" />
                       <input value={venueName} onChange={(e) => setVenueName(e.target.value)} placeholder="Venue name" className="w-full bg-transparent py-3.5 text-[15px] text-white placeholder:text-white/40 focus:outline-none" />
                     </div>
@@ -413,7 +413,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
               )}
 
               {/* Category as a Posh-style row of chips */}
-              <div className="rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3.5">
+              <div className="rounded-xl  bg-[#0a0a0a] px-4 py-3.5">
                 <div className="mb-2.5 flex items-center gap-2 text-[13px] font-medium text-white/50">
                   <Star className="h-4 w-4" /> Category
                 </div>
@@ -426,7 +426,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
                       className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${
                         category === cat
                           ? 'border-brand-500 bg-brand-600 text-white'
-                          : 'border-white/10 bg-[#1c1c1c] text-white/60 hover:border-white/20 hover:text-white'
+                          : 'border-white/10 bg-[#0a0a0a] text-white/60 hover:border-white/20 hover:text-white'
                       }`}
                     >
                       {cat}
@@ -453,7 +453,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
 
               <div className="space-y-3">
                 {tiers.map((tier, i) => (
-                  <div key={tier.id} className="space-y-3 rounded-xl border border-white/10 bg-[#1c1c1c] p-4">
+                  <div key={tier.id} className="space-y-3 rounded-xl  bg-[#0a0a0a] p-4">
                     <div className="flex items-center gap-2">
                       <input
                         value={tier.name}
@@ -465,7 +465,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
                         <button
                           type="button"
                           onClick={() => removeTier(tier.id)}
-                          className="shrink-0 rounded-lg border border-white/10 p-2.5 text-white/40 transition-colors hover:bg-[#1c1c1c] hover:text-red-300"
+                          className="shrink-0 rounded-lg  p-2.5 text-white/40 transition-colors hover:bg-white/[0.04] hover:text-red-300"
                           aria-label="Remove ticket type"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -508,12 +508,12 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
               Add the artists, hosts, DJs and special guests performing or joining your event.
             </p>
 
-            <div className="space-y-3 rounded-xl border border-white/10 bg-[#1c1c1c] p-4">
+            <div className="space-y-3 rounded-xl  bg-[#0a0a0a] p-4">
               {/* Existing guests */}
               {guests.length > 0 && (
                 <div className="space-y-2">
                   {guests.map((g) => (
-                    <div key={g.id} className="flex items-center gap-3 rounded-lg bg-[#2a2a2a] px-3 py-2.5">
+                    <div key={g.id} className="flex items-center gap-3 rounded-lg bg-[#0a0a0a] px-3 py-2.5">
                       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white">
                         {g.name.charAt(0).toUpperCase()}
                       </span>
@@ -524,7 +524,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
                       <button
                         type="button"
                         onClick={() => removeGuest(g.id)}
-                        className="shrink-0 rounded-lg p-1.5 text-white/40 transition-colors hover:bg-[#1c1c1c] hover:text-red-300"
+                        className="shrink-0 rounded-lg p-1.5 text-white/40 transition-colors hover:bg-white/[0.04] hover:text-red-300"
                         aria-label={`Remove ${g.name}`}
                       >
                         <X className="h-4 w-4" />
@@ -556,7 +556,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
                     className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${
                       guestRole === role
                         ? 'border-brand-500 bg-brand-600 text-white'
-                        : 'border-white/10 bg-[#1c1c1c] text-white/60 hover:border-white/20 hover:text-white'
+                        : 'border-white/10 bg-[#0a0a0a] text-white/60 hover:border-white/20 hover:text-white'
                     }`}
                   >
                     {role}
@@ -577,7 +577,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
           {/* Event Features */}
           <div className="mt-8 border-t border-white/10 pt-6">
             <SectionTitle icon={Star}>Event Features</SectionTitle>
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl  bg-[#0a0a0a] px-4 py-4">
               <span className="text-sm text-white/50">Showcase your event&rsquo;s performers, sponsors and more.</span>
               <span className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold text-white/50">
                 Add feature <ChevronDown className="h-4 w-4" />
@@ -600,11 +600,11 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
           <div className="mt-8 border-t border-white/10 pt-6">
             <SectionTitle icon={Settings}>Page Settings</SectionTitle>
             <div className="space-y-3">
-              <div className="flex items-center justify-between rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3.5">
+              <div className="flex items-center justify-between rounded-xl  bg-[#0a0a0a] px-4 py-3.5">
                 <span className="text-[15px] text-white/80">Show on Explore</span>
                 <Toggle on={showOnExplore} onChange={setShowOnExplore} />
               </div>
-              <div className="flex items-center justify-between rounded-xl border border-white/10 bg-[#1c1c1c] px-4 py-3.5">
+              <div className="flex items-center justify-between rounded-xl  bg-[#0a0a0a] px-4 py-3.5">
                 <span className="flex items-center gap-2 text-[15px] text-white/80">
                   <Lock className="h-4 w-4 text-white/50" /> Password Protected Event
                 </span>
@@ -621,7 +621,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
             <ImageUpload variant="flyer" currentImage={bannerUrl} onImageUploaded={(url) => setBannerUrl(url)} />
 
             {/* Spotify */}
-            <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#1c1c1c] px-4">
+            <div className="flex items-center gap-3 rounded-xl  bg-[#0a0a0a] px-4">
               <Music2 className="h-[18px] w-[18px] shrink-0 text-white/50" />
               <input
                 value={spotifyUrl}
@@ -632,7 +632,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
             </div>
 
             {/* Font + accent */}
-            <div className="space-y-3 rounded-xl border border-white/10 bg-[#1c1c1c] p-4">
+            <div className="space-y-3 rounded-xl  bg-[#0a0a0a] p-4">
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2 text-sm text-white/80">
                   <Type className="h-4 w-4 text-white/50" /> Title Font

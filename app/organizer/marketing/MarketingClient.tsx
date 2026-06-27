@@ -104,7 +104,7 @@ export default function MarketingClient({ attendees }: { attendees: Attendee[] }
         subtitle="Everyone who has bought a ticket to your events."
         actions={
           attendees.length > 0 ? (
-            <span className="rounded-full border border-white/10 bg-[#1c1c1c] px-3.5 py-2 text-sm text-white/70">
+            <span className="rounded-full  bg-[#0a0a0a] px-3.5 py-2 text-sm text-white/70">
               {attendees.length} {attendees.length === 1 ? 'attendee' : 'attendees'}
             </span>
           ) : undefined

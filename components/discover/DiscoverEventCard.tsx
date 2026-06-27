@@ -40,7 +40,7 @@ export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
 
   return (
     <Link href={`/events/${event.id}`} prefetch className="group block h-full">
-      <article className="hover-lift h-full overflow-hidden rounded-2xl border border-white/10 bg-[#141414] shadow-poster-sm transition-all duration-300 group-hover:border-brand-400/40 group-hover:shadow-card-hover">
+      <article className="hover-lift h-full overflow-hidden rounded-2xl  bg-[#0a0a0a] shadow-poster-sm transition-all duration-300 group-hover:border-brand-400/40 group-hover:shadow-card-hover">
         {/* ---------- Poster ---------- */}
         <div
           className="poster-vignette relative flex aspect-[4/5] flex-col justify-between overflow-hidden p-3.5 text-white"

@@ -184,7 +184,7 @@ export function AdminActivityFeed({
   ]
 
   return (
-    <div className="rounded-xl border border-white/10 flex flex-col lg:h-[560px]">
+    <div className="rounded-xl  flex flex-col lg:h-[560px]">
       {/* Header */}
       <div className="px-4 py-3 border-b border-white/10">
         <div className="flex items-center justify-between gap-2">
@@ -195,7 +195,7 @@ export function AdminActivityFeed({
           <button
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="p-1.5 text-white/40 hover:text-white/60 hover:bg-[#0a0a0a] rounded-lg transition-colors disabled:opacity-50"
+            className="p-1.5 text-white/40 hover:text-white/60 hover:bg-white/[0.04] rounded-lg transition-colors disabled:opacity-50"
             title="Refresh activities"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -211,13 +211,13 @@ export function AdminActivityFeed({
               className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
                 filter === option.value
                   ? 'text-brand-300'
-                  : 'text-white/60 hover:text-white hover:bg-[#0a0a0a]'
+                  : 'text-white/60 hover:text-white hover:bg-white/[0.04]'
               }`}
             >
               {option.label}
               {option.count > 0 && (
                 <span className={`px-1.5 rounded-full text-[10px] leading-4 ${
-                  filter === option.value ? '' : 'bg-[#242424]'
+                  filter === option.value ? '' : 'bg-[#0a0a0a]'
                 }`}>
                   {option.count}
                 </span>
@@ -258,7 +258,7 @@ export function AdminActivityFeed({
                     type="button"
                     onClick={() => hasDetails && setExpandedId(isExpanded ? null : activity.id)}
                     className={`w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors ${
-                      hasDetails ? 'hover:bg-[#0a0a0a] cursor-pointer' : 'cursor-default'
+                      hasDetails ? 'hover:bg-white/[0.04] cursor-pointer' : 'cursor-default'
                     }`}
                   >
                     <span className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${colorClasses}`}>
@@ -297,7 +297,7 @@ export function AdminActivityFeed({
                                 ? 'text-red-300'
                                 : activity.metadata.severity === 'high'
                                 ? 'text-amber-300'
-                                : 'bg-[#1c1c1c] text-white/70'
+                                : 'bg-[#0a0a0a] text-white/70'
                             }`}>
                               {activity.metadata.severity}
                             </span>

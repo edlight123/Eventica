@@ -78,7 +78,7 @@ export default function TransferAcceptForm({ transfer, ticket, event, sender, cu
   }
 
   return (
-    <div className="bg-[#141414] rounded-xl sm:rounded-2xl shadow-lg overflow-hidden">
+    <div className="bg-[#0a0a0a] rounded-xl sm:rounded-2xl shadow-lg overflow-hidden">
       {/* Header */}
       <div className="bg-gradient-to-r from-brand-700 to-brand-800 text-white p-4 sm:p-6">
         <h1 className="text-xl sm:text-2xl font-bold mb-1 sm:mb-2">🎟️ Ticket Transfer</h1>
@@ -132,7 +132,7 @@ export default function TransferAcceptForm({ transfer, ticket, event, sender, cu
 
         {/* Message from sender */}
         {transfer.message && (
-          <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-[#0a0a0a] border border-white/10 rounded-lg">
+          <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-[#0a0a0a]  rounded-lg">
             <p className="text-[11px] sm:text-sm font-semibold text-white/70 mb-1 sm:mb-2">Message from sender:</p>
             <p className="text-[13px] sm:text-base text-white/60 italic">&quot;{transfer.message}&quot;</p>
           </div>
@@ -155,7 +155,7 @@ export default function TransferAcceptForm({ transfer, ticket, event, sender, cu
         )}
 
         {/* Info */}
-        <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-[#0a0a0a] border border-white/10 rounded-lg">
+        <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-[#0a0a0a]  rounded-lg">
           <h3 className="text-[13px] sm:text-base font-semibold text-white mb-1.5 sm:mb-2">What happens when you accept?</h3>
           <ul className="text-[11px] sm:text-sm text-white/70 space-y-0.5 sm:space-y-1">
             <li>• This ticket will be transferred to your account</li>
@@ -170,7 +170,7 @@ export default function TransferAcceptForm({ transfer, ticket, event, sender, cu
           <button
             onClick={handleReject}
             disabled={loading}
-            className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 border border-white/10 rounded-lg text-[13px] sm:text-base text-white/70 font-semibold hover:bg-[#0a0a0a] disabled:opacity-50 disabled:cursor-not-allowed transition min-h-[44px]"
+            className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3  rounded-lg text-[13px] sm:text-base text-white/70 font-semibold hover:bg-white/[0.04] disabled:opacity-50 disabled:cursor-not-allowed transition min-h-[44px]"
           >
             Reject Transfer
           </button>

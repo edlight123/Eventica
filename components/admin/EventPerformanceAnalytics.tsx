@@ -54,7 +54,7 @@ export function EventPerformanceAnalytics() {
   return (
     <div className="space-y-4">
       {/* Top Performing Events */}
-      <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-4">
+      <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-4">
         <div className="flex items-center gap-2 mb-4">
           <Trophy className="w-5 h-5 text-yellow-500" />
           <h3 className="text-sm font-semibold text-white">Top Performing Events</h3>
@@ -64,7 +64,7 @@ export function EventPerformanceAnalytics() {
             {topEvents.map((event, index) => (
               <div
                 key={event.id}
-                className="flex items-center gap-3 p-3 rounded-lg border border-white/10 hover:border-brand-300 transition-colors"
+                className="flex items-center gap-3 p-3 rounded-lg  hover:border-brand-300 transition-colors"
               >
                 <div className="flex-shrink-0 w-9 h-9 bg-gradient-to-br from-brand-500 to-brand-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
                   #{index + 1}
@@ -117,7 +117,7 @@ export function EventPerformanceAnalytics() {
       </div>
 
       {/* Category Popularity */}
-      <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-4">
+      <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-4">
         <div className="flex items-center gap-2 mb-4">
           <TrendingUp className="w-5 h-5 text-brand-500" />
           <h3 className="text-sm font-semibold text-white">Popular Categories (Last 30 Days)</h3>
@@ -143,7 +143,7 @@ export function EventPerformanceAnalytics() {
                       {category.count} tickets ({percentage.toFixed(1)}%)
                     </span>
                   </div>
-                  <div className="w-full bg-[#242424] rounded-full h-2">
+                  <div className="w-full bg-[#0a0a0a] rounded-full h-2">
                     <div
                       className={`${color} h-2 rounded-full transition-all duration-500`}
                       style={{ width: `${percentage}%` }}

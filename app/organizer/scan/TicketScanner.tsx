@@ -190,7 +190,7 @@ export default function TicketScanner({ organizerId }: TicketScannerProps) {
   }
 
   return (
-    <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-8">
+    <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-8">
       <form onSubmit={handleValidate} className="space-y-6">
         <div>
           <label htmlFor="qrData" className="block text-sm font-medium text-white/70 mb-2">

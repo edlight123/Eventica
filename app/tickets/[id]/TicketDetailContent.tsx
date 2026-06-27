@@ -61,7 +61,7 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
         {/* Left Column - QR & Actions */}
         <div className="space-y-4 sm:space-y-6">
           {/* QR Code Card */}
-          <div className="bg-[#141414] border border-white/10 rounded-2xl p-4 sm:p-6 lg:p-8 flex flex-col items-center">
+          <div className="bg-[#0a0a0a]  rounded-2xl p-4 sm:p-6 lg:p-8 flex flex-col items-center">
             <div className="flex items-center justify-between w-full mb-4">
               {getStatusBadge()}
             </div>
@@ -108,7 +108,7 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
         {/* Right Column - Event Details */}
         <div className="space-y-4 sm:space-y-6">
           {/* Event Banner Card */}
-          <div className="bg-[#141414] border border-white/10 rounded-2xl overflow-hidden">
+          <div className="bg-[#0a0a0a]  rounded-2xl overflow-hidden">
             {event.banner_image_url ? (
               <div className="relative w-full h-40 sm:h-48">
                 <Image

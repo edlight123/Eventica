@@ -52,7 +52,7 @@ export default function VerificationWelcome({ onStart, userName }: Props) {
           {benefits.map((benefit, index) => (
             <div 
               key={index}
-              className="bg-[#141414] border border-white/10 rounded-xl p-6 text-center hover:shadow-md transition-shadow"
+              className="bg-[#0a0a0a]  rounded-xl p-6 text-center hover:shadow-md transition-shadow"
             >
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4">
                 <benefit.icon className="w-6 h-6 text-brand-300" />
@@ -64,7 +64,7 @@ export default function VerificationWelcome({ onStart, userName }: Props) {
         </div>
 
         {/* What you'll need */}
-        <div className="bg-[#0a0a0a] border border-white/10 rounded-xl p-6 mb-8">
+        <div className="bg-[#0a0a0a]  rounded-xl p-6 mb-8">
           <h2 className="font-semibold text-white mb-4">What you&apos;ll need</h2>
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="flex items-start gap-3">
@@ -86,7 +86,7 @@ export default function VerificationWelcome({ onStart, userName }: Props) {
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-[#1c1c1c] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-6 h-6 bg-[#0a0a0a] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="text-xs font-bold text-white/50">3</span>
               </div>
               <div>

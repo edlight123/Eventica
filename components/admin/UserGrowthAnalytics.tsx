@@ -76,7 +76,7 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               selectedDays === period
                 ? 'bg-brand-600 text-white'
-                : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
+                : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
             }`}
           >
             {period} days
@@ -99,7 +99,7 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
           <div className="text-xs text-brand-300">Last {selectedDays} days</div>
         </div>
 
-        <div className="bg-[#0a0a0a] rounded-xl p-4 border border-white/10">
+        <div className="bg-[#0a0a0a] rounded-xl p-4 ">
           <div className="flex items-center gap-2.5 mb-2">
             <div className="w-9 h-9 bg-brand-600 rounded-lg flex items-center justify-center">
               <UserPlus className="w-5 h-5 text-white" />
@@ -114,7 +114,7 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
           </div>
         </div>
 
-        <div className="bg-[#0a0a0a] rounded-xl p-4 border border-white/10">
+        <div className="bg-[#0a0a0a] rounded-xl p-4 ">
           <div className="flex items-center gap-2.5 mb-2">
             <div className="w-9 h-9 bg-brand-600 rounded-lg flex items-center justify-center">
               <Briefcase className="w-5 h-5 text-white" />
@@ -131,7 +131,7 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
       </div>
 
       {/* Growth Chart */}
-      <div className="bg-[#141414] rounded-xl shadow-sm border border-white/10 p-4">
+      <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-4">
         <h3 className="text-sm font-semibold text-white mb-3">Daily Signups</h3>
         {data.dailySignups.length > 0 ? (
           <ResponsiveContainer width="100%" height={240}>

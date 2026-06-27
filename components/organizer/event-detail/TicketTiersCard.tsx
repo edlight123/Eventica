@@ -26,7 +26,7 @@ export function TicketTiersCard({ eventId, tiers, currency }: TicketTiersCardPro
   const hasTiers = tiers && tiers.length > 0
 
   return (
-    <div className="bg-[#141414] rounded-xl border border-white/10 p-5 shadow-sm">
+    <div className="bg-[#0a0a0a] rounded-xl  p-5 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className="p-2 rounded-lg">
@@ -65,7 +65,7 @@ export function TicketTiersCard({ eventId, tiers, currency }: TicketTiersCardPro
             return (
               <div
                 key={tier.id}
-                className="border border-white/10 rounded-lg p-4 hover:border-brand-500/30 transition-colors"
+                className=" rounded-lg p-4 hover:border-brand-500/30 transition-colors"
               >
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1">
@@ -105,7 +105,7 @@ export function TicketTiersCard({ eventId, tiers, currency }: TicketTiersCardPro
                   <span className="text-white/60">{soldPercentage.toFixed(0)}%</span>
                 </div>
 
-                <div className="w-full bg-[#1c1c1c] rounded-full h-2 mt-2 overflow-hidden">
+                <div className="w-full bg-[#0a0a0a] rounded-full h-2 mt-2 overflow-hidden">
                   <div 
                     className={`h-full rounded-full transition-all duration-500 ${
                       isSoldOut ? 'bg-red-500' : isLowStock ? 'bg-amber-500' : 'bg-brand-600'

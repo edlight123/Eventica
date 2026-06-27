@@ -80,7 +80,7 @@ function ReviewRow({ label, value }: { label: string; value?: string }) {
 function ReviewDoc({ ok, label }: { ok: boolean; label: string }) {
   return (
     <li className="flex items-center gap-2">
-      <span className={`grid h-5 w-5 place-items-center rounded-full ${ok ? 'text-emerald-300' : 'bg-[#1c1c1c] text-white/40'}`}>
+      <span className={`grid h-5 w-5 place-items-center rounded-full ${ok ? 'text-emerald-300' : 'bg-[#0a0a0a] text-white/40'}`}>
         {ok ? <Check className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
       </span>
       <span className={ok ? 'text-white' : 'text-white/50'}>{label}</span>
@@ -308,7 +308,7 @@ export default function VerificationWizard({
           </button>
           
           {/* Progress Bar */}
-          <div className="bg-[#141414] rounded-xl border border-white/10 p-4 md:p-5">
+          <div className="bg-[#0a0a0a] rounded-xl  p-4 md:p-5">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-lg font-semibold text-white">
                 Step {currentStepIndex + 1} of {STEPS.length}
@@ -339,8 +339,8 @@ export default function VerificationWizard({
                           : isCurrent
                             ? 'bg-brand-600 text-white ring-4 ring-brand-500/20'
                             : isPast
-                              ? 'bg-[#242424] text-white/60'
-                              : 'bg-[#1c1c1c] text-white/50'
+                              ? 'bg-[#0a0a0a] text-white/60'
+                              : 'bg-[#0a0a0a] text-white/50'
                         }
                       `}
                     >
@@ -349,7 +349,7 @@ export default function VerificationWizard({
                     {index < STEPS.length - 1 && (
                       <div
                         className={`flex-1 h-1 mx-2 rounded-full transition-colors ${
-                          isComplete || isPast ? 'bg-green-500' : 'bg-[#242424]'
+                          isComplete || isPast ? 'bg-green-500' : 'bg-[#0a0a0a]'
                         }`}
                       />
                     )}
@@ -373,7 +373,7 @@ export default function VerificationWizard({
               <p className="text-white/60">
                 {currentStep.description}
                 {!currentStep.required && (
-                  <span className="ml-2 text-xs font-medium text-white/50 bg-[#1c1c1c] px-2 py-0.5 rounded-full">
+                  <span className="ml-2 text-xs font-medium text-white/50 bg-[#0a0a0a] px-2 py-0.5 rounded-full">
                     Optional
                   </span>
                 )}
@@ -409,7 +409,7 @@ export default function VerificationWizard({
         )}
 
         {/* Step Content */}
-        <div className="bg-[#141414] rounded-xl border border-white/10 shadow-sm overflow-hidden">
+        <div className="bg-[#0a0a0a] rounded-xl  shadow-sm overflow-hidden">
           {currentStep.id === 'organizerInfo' && (
             <div className="p-5 md:p-6 space-y-5">
               {/* Full Name */}
@@ -620,7 +620,7 @@ export default function VerificationWizard({
 
           {currentStep.id === 'businessDetails' && (
             <div className="p-5 md:p-6 space-y-5">
-              <div className="bg-[#0a0a0a] border border-white/10 rounded-xl p-4 mb-2">
+              <div className="bg-[#0a0a0a]  rounded-xl p-4 mb-2">
                 <p className="text-sm text-white/60">
                   This step is optional. Add business details if you have a registered business.
                 </p>
@@ -699,7 +699,7 @@ export default function VerificationWizard({
               </p>
 
               {/* Personal information */}
-              <div className="rounded-xl border border-white/10 p-4">
+              <div className="rounded-xl  p-4">
                 <div className="mb-3 flex items-center justify-between">
                   <h3 className="font-display text-lg text-white">Personal information</h3>
                   <button type="button" onClick={() => setCurrentStepIndex(0)} className="text-sm font-medium text-brand-300 hover:text-brand-300">Edit</button>
@@ -715,7 +715,7 @@ export default function VerificationWizard({
               </div>
 
               {/* Documents */}
-              <div className="rounded-xl border border-white/10 p-4">
+              <div className="rounded-xl  p-4">
                 <div className="mb-3 flex items-center justify-between">
                   <h3 className="font-display text-lg text-white">Identity documents</h3>
                   <button type="button" onClick={() => setCurrentStepIndex(1)} className="text-sm font-medium text-brand-300 hover:text-brand-300">Edit</button>
@@ -729,7 +729,7 @@ export default function VerificationWizard({
 
               {/* Business (only if provided) */}
               {(businessForm.business_registration_number || businessForm.tax_id || businessForm.business_type) && (
-                <div className="rounded-xl border border-white/10 p-4">
+                <div className="rounded-xl  p-4">
                   <div className="mb-3 flex items-center justify-between">
                     <h3 className="font-display text-lg text-white">Business details</h3>
                     <button type="button" onClick={() => setCurrentStepIndex(3)} className="text-sm font-medium text-brand-300 hover:text-brand-300">Edit</button>
@@ -758,7 +758,7 @@ export default function VerificationWizard({
               flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all
               ${currentStepIndex === 0
                 ? 'text-white/40 cursor-not-allowed'
-                : 'text-white/70 hover:text-white hover:bg-[#1c1c1c]'
+                : 'text-white/70 hover:text-white hover:bg-white/[0.04]'
               }
             `}
           >
@@ -771,7 +771,7 @@ export default function VerificationWizard({
               <button
                 onClick={handleSkipStep}
                 disabled={saving}
-                className="px-4 py-2.5 rounded-lg text-sm font-semibold text-white/70 hover:text-white hover:bg-[#1c1c1c] transition-all"
+                className="px-4 py-2.5 rounded-lg text-sm font-semibold text-white/70 hover:text-white hover:bg-white/[0.04] transition-all"
               >
                 Skip for now
               </button>

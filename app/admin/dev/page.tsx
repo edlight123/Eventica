@@ -48,7 +48,7 @@ export default function DevToolsPage() {
           <Link
             key={tool.href}
             href={tool.href}
-            className="group bg-[#141414] rounded-lg border border-white/10 p-6 hover:border-white/15 hover:shadow-md transition-all duration-200"
+            className="group bg-[#0a0a0a] rounded-lg  p-6 hover:border-white/15 hover:shadow-md transition-all duration-200"
           >
             <div className="flex items-start space-x-4">
               <div className={`flex-shrink-0 ${tool.color} rounded-lg p-3`}>

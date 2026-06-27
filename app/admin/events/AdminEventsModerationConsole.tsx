@@ -180,7 +180,7 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
       {/* Page Header */}
-      <div className="bg-[#141414] border-b border-white/10">
+      <div className="bg-[#0a0a0a] border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <Link
             href="/admin"
@@ -217,7 +217,7 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
       {/* Events Table */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {loading ? (
-          <div className="bg-[#141414] rounded-xl border border-white/10 p-12 text-center">
+          <div className="bg-[#0a0a0a] rounded-xl  p-12 text-center">
             <p className="text-white/50">Loading events...</p>
           </div>
         ) : (

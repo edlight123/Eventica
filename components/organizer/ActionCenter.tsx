@@ -22,7 +22,7 @@ export function ActionCenter({ alerts }: ActionCenterProps) {
   
   if (alerts.length === 0) {
     return (
-      <div className="rounded-2xl border border-white/10 p-6">
+      <div className="rounded-2xl  p-6">
         <div className="flex items-start gap-4">
           <ShieldCheck className="w-6 h-6 shrink-0 text-emerald-300" />
           <div>
@@ -65,7 +65,7 @@ export function ActionCenter({ alerts }: ActionCenterProps) {
   }
 
   return (
-    <div className="bg-[#141414] rounded-2xl shadow-soft border border-white/10 p-6">
+    <div className="bg-[#0a0a0a] rounded-2xl shadow-soft  p-6">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-xl flex items-center justify-center">
           <AlertCircle className="w-5 h-5 text-red-300" />
@@ -87,7 +87,7 @@ export function ActionCenter({ alerts }: ActionCenterProps) {
               className={`${colors.bg} ${colors.border} border rounded-xl p-4`}
             >
               <div className="flex items-start gap-3">
-                <div className={`w-8 h-8 bg-[#141414] rounded-lg flex items-center justify-center flex-shrink-0 ${colors.icon}`}>
+                <div className={`w-8 h-8 bg-[#0a0a0a] rounded-lg flex items-center justify-center flex-shrink-0 ${colors.icon}`}>
                   {getIcon(alert.type)}
                 </div>
                 <div className="flex-1 min-w-0">

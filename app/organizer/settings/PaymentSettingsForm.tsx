@@ -62,7 +62,7 @@ export default function PaymentSettingsForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-[#141414] rounded-2xl shadow-sm border border-white/10 p-8">
+    <form onSubmit={handleSubmit} className="bg-[#0a0a0a] rounded-2xl shadow-sm  p-8">
       <h2 className="font-display text-xl text-white mb-6">Payment Method</h2>
 
       {message && (

@@ -35,12 +35,12 @@ export function WorkQueueCard({
   const badgeColors = {
     success: 'text-emerald-300',
     warning: 'text-amber-300',
-    neutral: 'bg-[#1c1c1c] text-white/90',
+    neutral: 'bg-[#0a0a0a] text-white/90',
     error: 'text-red-300'
   }
 
   return (
-    <div className="rounded-xl border border-white/10 overflow-hidden">
+    <div className="rounded-xl  overflow-hidden">
       {/* Header */}
       <div className="px-4 py-3 border-b border-white/10">
         <div className="flex items-center justify-between gap-2">
@@ -69,7 +69,7 @@ export function WorkQueueCard({
           </div>
         ) : (
           items.map((item) => (
-            <div key={item.id} className="px-4 py-2.5 hover:bg-[#0a0a0a] transition-colors">
+            <div key={item.id} className="px-4 py-2.5 hover:bg-white/[0.04] transition-colors">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-white truncate">{item.title}</p>

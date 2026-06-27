@@ -49,7 +49,7 @@ export default async function ProfileSettingsPage() {
         />
 
         {/* Profile Form */}
-        <div className="mt-8 rounded-2xl border border-white/10 bg-[#141414] overflow-hidden">
+        <div className="mt-8 rounded-2xl  bg-[#0a0a0a] overflow-hidden">
           <ProfileForm 
             userId={user.id}
             initialData={{
@@ -62,7 +62,7 @@ export default async function ProfileSettingsPage() {
         </div>
 
         {/* Info Notice */}
-        <div className="mt-6 p-4 bg-[#0a0a0a] border border-white/10 rounded-lg">
+        <div className="mt-6 p-4 bg-[#0a0a0a]  rounded-lg">
           <p className="text-sm text-white/60">
             <strong className="text-white">Note:</strong> Your email address is managed through your authentication provider and cannot be changed here. Contact support if you need to update your email.
           </p>

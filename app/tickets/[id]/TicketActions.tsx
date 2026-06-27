@@ -98,7 +98,7 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
       {/* Transfer Modal */}
       {showTransferModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-[#141414] rounded-2xl max-w-md w-full p-6">
+          <div className="bg-[#0a0a0a] rounded-2xl max-w-md w-full p-6">
             <h2 className="text-2xl font-bold text-white mb-4">{t('detail.transfer_title')}</h2>
             
             {!showTransferLink ? (
@@ -120,7 +120,7 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                       value={transferEmail}
                       onChange={(e) => setTransferEmail(e.target.value)}
                       placeholder="friend@example.com"
-                      className="w-full px-4 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      className="w-full px-4 py-2  rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       required
                     />
                   </div>
@@ -133,7 +133,7 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                       value={transferMessage}
                       onChange={(e) => setTransferMessage(e.target.value)}
                       placeholder={t('detail.transfer_message_placeholder')}
-                      className="w-full px-4 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      className="w-full px-4 py-2  rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       rows={3}
                       maxLength={500}
                     />
@@ -157,7 +157,7 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                         setShowTransferLink(false)
                         setTransferLink('')
                       }}
-                      className="flex-1 px-4 py-2 border border-white/10 rounded-lg text-white/70 font-medium hover:bg-[#0a0a0a]"
+                      className="flex-1 px-4 py-2  rounded-lg text-white/70 font-medium hover:bg-white/[0.04]"
                       disabled={loading}
                     >
                       {t('detail.transfer_cancel')}
@@ -185,7 +185,7 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                       type="text"
                       value={transferLink}
                       readOnly
-                      className="flex-1 px-3 py-2 border border-white/10 rounded-lg bg-[#0a0a0a] text-sm"
+                      className="flex-1 px-3 py-2  rounded-lg bg-[#0a0a0a] text-sm"
                     />
                     <button
                       onClick={async () => {
