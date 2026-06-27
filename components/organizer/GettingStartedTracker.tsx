@@ -92,7 +92,7 @@ export default function GettingStartedTracker({
         </div>
 
         {/* Progress Bar */}
-        <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+        <div className="h-2 bg-[#1c1c1c] rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-primary-500 to-primary-600 rounded-full transition-all duration-500 ease-out"
             style={{ width: `${progressPercent}%` }}
@@ -107,7 +107,7 @@ export default function GettingStartedTracker({
             key={step.id}
             className={`p-4 flex items-center gap-4 transition-colors ${
               step.completed
-                ? 'bg-white/5'
+                ? 'bg-[#1c1c1c]'
                 : nextStep?.id === step.id
                 ? 'bg-primary-50/30'
                 : ''
@@ -146,7 +146,7 @@ export default function GettingStartedTracker({
                 className={`flex-shrink-0 inline-flex items-center gap-1 px-4 py-2 rounded-lg font-medium text-sm transition-all ${
                   nextStep?.id === step.id
                     ? 'bg-primary-600 text-white hover:bg-primary-700 shadow-sm'
-                    : 'bg-white/5 text-white/60 hover:bg-white/10'
+                    : 'bg-[#1c1c1c] text-white/60 hover:bg-[#242424]'
                 }`}
               >
                 {step.ctaLabel}

@@ -65,7 +65,7 @@ export default function CalendarView({
       <div className="flex items-center justify-between px-6 py-4 bg-brand-700 text-white">
         <button
           onClick={handlePreviousMonth}
-          className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+          className="p-2 rounded-lg hover:bg-[#242424] transition-colors"
           aria-label="Previous month"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -79,7 +79,7 @@ export default function CalendarView({
 
         <button
           onClick={handleNextMonth}
-          className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+          className="p-2 rounded-lg hover:bg-[#242424] transition-colors"
           aria-label="Next month"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -133,7 +133,7 @@ export default function CalendarView({
                   {format(day, 'd')}
                 </span>
                 {dayEvents.length > 0 && (
-                  <span className="text-xs font-semibold text-brand-300 bg-brand-500/10 px-2 py-0.5 rounded-full">
+                  <span className="text-xs font-semibold text-brand-300 px-2 py-0.5 rounded-full">
                     {dayEvents.length}
                   </span>
                 )}
@@ -147,8 +147,8 @@ export default function CalendarView({
                     href={`/organizer/events/${event.id}`}
                     className={`block px-2 py-1 rounded text-xs font-medium truncate transition-colors ${
                       event.is_published
-                        ? 'bg-brand-500/10 text-brand-300 hover:bg-brand-500/15'
-                        : 'bg-white/10 text-white/70 hover:bg-white/10'
+                        ? 'text-brand-300 hover:bg-brand-500/15'
+                        : 'bg-[#242424] text-white/70 hover:bg-[#242424]'
                     }`}
                     title={event.title}
                   >

@@ -99,7 +99,7 @@ export default function OrganizerEventsFiltersModal({
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+            className="p-2 rounded-lg hover:bg-[#242424] transition-colors"
             aria-label="Close filters"
           >
             <X className="w-6 h-6" />
@@ -176,7 +176,7 @@ export default function OrganizerEventsFiltersModal({
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                       isSelected
                         ? 'bg-brand-700 text-white shadow-sm'
-                        : 'bg-white/5 text-white/70 hover:bg-white/10'
+                        : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
                     }`}
                   >
                     {city}
@@ -202,7 +202,7 @@ export default function OrganizerEventsFiltersModal({
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                       isSelected
                         ? 'bg-brand-700 text-white shadow-sm'
-                        : 'bg-white/5 text-white/70 hover:bg-white/10'
+                        : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
                     }`}
                   >
                     {category}
@@ -224,7 +224,7 @@ export default function OrganizerEventsFiltersModal({
                 className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   localFilters.hasSales === null
                     ? 'bg-brand-700 text-white shadow-sm'
-                    : 'bg-white/5 text-white/70 hover:bg-white/10'
+                    : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
                 }`}
               >
                 All Events
@@ -234,7 +234,7 @@ export default function OrganizerEventsFiltersModal({
                 className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   localFilters.hasSales === true
                     ? 'bg-brand-700 text-white shadow-sm'
-                    : 'bg-white/5 text-white/70 hover:bg-white/10'
+                    : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
                 }`}
               >
                 Has Sales
@@ -244,7 +244,7 @@ export default function OrganizerEventsFiltersModal({
                 className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   localFilters.hasSales === false
                     ? 'bg-brand-700 text-white shadow-sm'
-                    : 'bg-white/5 text-white/70 hover:bg-white/10'
+                    : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
                 }`}
               >
                 No Sales

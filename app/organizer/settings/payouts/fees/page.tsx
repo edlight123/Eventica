@@ -136,7 +136,7 @@ export default async function PayoutFeesPage() {
                 organizer dashboard. Payouts are typically processed within <strong>3-5
                 business days</strong>.
               </p>
-              <div className="bg-brand-500/10 border border-brand-500/30 rounded-lg p-4 mt-4">
+              <div className="border border-brand-500/30 rounded-lg p-4 mt-4">
                 <div className="flex gap-3">
                   <Info className="w-5 h-5 text-brand-300 flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-brand-300">

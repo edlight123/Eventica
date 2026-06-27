@@ -459,7 +459,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
 
       {/* Settlement Status */}
       {earnings.settlementStatus !== 'ready' && (
-        <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-6 mb-6">
+        <div className="border border-amber-500/30 rounded-xl p-6 mb-6">
           <div className="flex items-start gap-3">
             <span className="text-2xl">ℹ️</span>
             <div>
@@ -502,7 +502,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                 className="border-2 border-brand-500/30 rounded-xl p-4 hover:border-brand-400 hover:shadow-md transition-all text-left group"
               >
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-12 h-12 bg-brand-500/15 rounded-lg flex items-center justify-center group-hover:bg-brand-200 transition-colors">
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center group-hover:bg-brand-200 transition-colors">
                     <span className="text-2xl">📱</span>
                   </div>
                   <div>
@@ -518,7 +518,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                 className="border-2 border-brand-500/30 rounded-xl p-4 hover:border-brand-400 hover:shadow-md transition-all text-left group"
               >
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-12 h-12 bg-brand-500/10 rounded-lg flex items-center justify-center group-hover:bg-brand-500/15 transition-colors">
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center group-hover:bg-brand-500/15 transition-colors">
                     <span className="text-2xl">🏦</span>
                   </div>
                   <div>
@@ -530,7 +530,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
               </button>
             </div>
           ) : (
-            <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
+            <div className="border border-amber-500/30 rounded-lg p-4">
               <p className="text-amber-300 text-sm">
                 ⚠️ Minimum withdrawal amount is $50.00. Current available balance: {formatCurrency(availableToWithdraw, earnings.currency)}
               </p>
@@ -606,7 +606,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                     <div
                       className={
                         moncashQuote.instantAvailable
-                          ? 'bg-brand-500/10 border border-brand-500/30 rounded-lg p-3'
+                          ? 'border border-brand-500/30 rounded-lg p-3'
                           : 'bg-[#0a0a0a] border border-white/10 rounded-lg p-3'
                       }
                     >
@@ -659,7 +659,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                       </div>
                     </div>
                   ) : isInstantPrefundingAvailable ? (
-                    <div className="bg-brand-500/10 border border-brand-500/30 rounded-lg p-3">
+                    <div className="border border-brand-500/30 rounded-lg p-3">
                       <p className="text-sm font-medium text-brand-300">Instant MonCash (prefunding)</p>
                       <p className="text-xs text-brand-300 mt-1">
                         This withdrawal will be sent instantly using platform prefunding.
@@ -687,7 +687,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
               {withdrawMethod === 'bank' && (
                 <div className="space-y-4">
                   {bankDestinationsError ? (
-                    <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-sm text-amber-300">
+                    <div className="border border-amber-500/30 rounded-lg p-3 text-sm text-amber-300">
                       {bankDestinationsError}
                     </div>
                   ) : null}
@@ -860,7 +860,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
               )}
 
               {payoutChangeVerificationRequired ? (
-                <div className="mt-4 border border-brand-500/30 bg-brand-500/10 rounded-lg p-3">
+                <div className="mt-4 border border-brand-500/30 rounded-lg p-3">
                   <p className="text-sm font-semibold text-brand-300">Email verification</p>
                   <p className="text-xs text-brand-300 mt-1">
                     {verificationMessage || 'For your security, confirm this change with the code we email you.'}
@@ -902,7 +902,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
               ) : null}
 
               {error && (
-                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 mt-4">
+                <div className="border border-red-500/30 rounded-lg p-3 mt-4">
                   <p className="text-red-300 text-sm">❌ {error}</p>
                 </div>
               )}
@@ -918,7 +918,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                     ((bankMode === 'new' && (!bankDetails.accountHolder || !bankDetails.bankName || !bankDetails.accountNumber)) ||
                       (bankMode !== 'new' && !selectedBankDestinationId)))
                 }
-                className="flex-1 px-4 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 transition-colors font-medium disabled:bg-white/10 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 transition-colors font-medium disabled:bg-[#242424] disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Submitting...' : 'Confirm Withdrawal'}
               </button>
@@ -943,7 +943,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                   })
                 }}
                 disabled={isSubmitting}
-                className="px-4 py-3 bg-white/5 text-white/70 rounded-lg hover:bg-white/10 transition-colors font-medium disabled:cursor-not-allowed"
+                className="px-4 py-3 bg-[#1c1c1c] text-white/70 rounded-lg hover:bg-[#242424] transition-colors font-medium disabled:cursor-not-allowed"
               >
                 Cancel
               </button>

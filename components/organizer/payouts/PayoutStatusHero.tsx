@@ -17,7 +17,7 @@ export function PayoutStatusHero({ status, reason, onContinueSetup }: PayoutStat
       case 'not_setup':
         return {
           icon: <AlertCircle className="w-8 h-8" />,
-          iconBg: 'bg-brand-500/15',
+          iconBg: '',
           iconColor: 'text-brand-300',
           bgGradient: 'from-brand-500/15 to-brand-600/10',
           borderColor: 'border-brand-500/30',
@@ -30,7 +30,7 @@ export function PayoutStatusHero({ status, reason, onContinueSetup }: PayoutStat
       case 'pending_verification':
         return {
           icon: <Clock className="w-8 h-8" />,
-          iconBg: 'bg-amber-500/15',
+          iconBg: '',
           iconColor: 'text-amber-300',
           bgGradient: 'from-amber-500/15 to-amber-600/10',
           borderColor: 'border-amber-500/30',
@@ -43,7 +43,7 @@ export function PayoutStatusHero({ status, reason, onContinueSetup }: PayoutStat
       case 'active':
         return {
           icon: <CheckCircle className="w-8 h-8" />,
-          iconBg: 'bg-emerald-500/15',
+          iconBg: '',
           iconColor: 'text-emerald-300',
           bgGradient: 'from-emerald-500/15 to-emerald-600/10',
           borderColor: 'border-emerald-500/30',
@@ -56,7 +56,7 @@ export function PayoutStatusHero({ status, reason, onContinueSetup }: PayoutStat
       case 'on_hold':
         return {
           icon: <XCircle className="w-8 h-8" />,
-          iconBg: 'bg-red-500/15',
+          iconBg: '',
           iconColor: 'text-red-300',
           bgGradient: 'from-red-500/15 to-red-600/10',
           borderColor: 'border-red-500/30',

@@ -195,7 +195,7 @@ export default function DocumentUploadCard({
       {previewUrl ? (
         <div className="space-y-3">
           {/* Image Preview */}
-          <div className="relative aspect-video bg-white/5 rounded-lg overflow-hidden">
+          <div className="relative aspect-video bg-[#1c1c1c] rounded-lg overflow-hidden">
             <Image
               src={previewUrl}
               alt={title}
@@ -210,14 +210,14 @@ export default function DocumentUploadCard({
               <button
                 onClick={openFileDialog}
                 disabled={isUploading}
-                className="flex-1 px-4 py-2 text-sm font-medium text-brand-300 bg-brand-500/10 hover:bg-brand-500/15 rounded-lg transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-2 text-sm font-medium text-brand-300 hover:bg-brand-500/15 rounded-lg transition-colors disabled:opacity-50"
               >
                 Replace
               </button>
               <button
                 onClick={handleRemove}
                 disabled={isUploading}
-                className="flex-1 px-4 py-2 text-sm font-medium text-red-300 bg-red-500/10 hover:bg-red-500/15 rounded-lg transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-2 text-sm font-medium text-red-300 hover:bg-red-500/15 rounded-lg transition-colors disabled:opacity-50"
               >
                 Remove
               </button>
@@ -231,8 +231,8 @@ export default function DocumentUploadCard({
           onDragLeave={handleDragLeave}
           className={`border-2 border-dashed rounded-lg p-6 md:p-8 text-center transition-all ${
             isDragging
-              ? 'border-brand-500 bg-brand-500/10'
-              : 'border-white/15 bg-[#0a0a0a] hover:bg-white/5'
+              ? 'border-brand-500 '
+              : 'border-white/15 bg-[#0a0a0a] hover:bg-[#1c1c1c]'
           } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           onClick={disabled ? undefined : openFileDialog}
         >
@@ -244,7 +244,7 @@ export default function DocumentUploadCard({
           ) : (
             <>
               {/* Upload Icon */}
-              <div className="w-12 h-12 mx-auto mb-3 bg-brand-500/15 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center">
                 <svg className="w-6 h-6 text-brand-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
@@ -289,7 +289,7 @@ export default function DocumentUploadCard({
 
       {/* Error Message */}
       {error && (
-        <div className="mt-3 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+        <div className="mt-3 p-3 border border-red-500/30 rounded-lg">
           <p className="text-sm text-red-300">{error}</p>
         </div>
       )}

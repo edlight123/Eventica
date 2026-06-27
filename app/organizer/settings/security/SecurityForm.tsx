@@ -171,7 +171,7 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
               </p>
             </div>
           </div>
-          <span className="px-3 py-1 bg-white/5 text-white/60 text-xs font-medium rounded-full">
+          <span className="px-3 py-1 bg-[#1c1c1c] text-white/60 text-xs font-medium rounded-full">
             Coming Soon
           </span>
         </div>
@@ -207,8 +207,8 @@ export default function SecurityForm({ userId, loginHistory }: SecurityFormProps
                       <span
                         className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                           record.status === 'success'
-                            ? 'bg-emerald-500/15 text-emerald-300'
-                            : 'bg-red-500/15 text-red-300'
+                            ? 'text-emerald-300'
+                            : 'text-red-300'
                         }`}
                       >
                         {record.status}

@@ -56,7 +56,7 @@ export default function SettingsContent({
         <div className="bg-[#141414] rounded-xl border border-white/10 p-4">
           <div className="flex items-center gap-3 mb-2">
             <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-              isVerified ? 'bg-emerald-500/15' : isPending ? 'bg-amber-500/15' : 'bg-white/5'
+              isVerified ? '' : isPending ? '' : 'bg-[#1c1c1c]'
             }`}>
               {isVerified ? (
                 <CheckCircle className="w-5 h-5 text-emerald-300" />
@@ -79,7 +79,7 @@ export default function SettingsContent({
         <div className="bg-[#141414] rounded-xl border border-white/10 p-4">
           <div className="flex items-center gap-3 mb-2">
             <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-              hasPayoutSetup ? 'bg-brand-500/10' : 'bg-white/5'
+              hasPayoutSetup ? '' : 'bg-[#1c1c1c]'
             }`}>
               <CreditCard className={`w-5 h-5 ${hasPayoutSetup ? 'text-brand-300' : 'text-white/40'}`} />
             </div>
@@ -93,7 +93,7 @@ export default function SettingsContent({
         {/* Default Location */}
         <div className="bg-[#141414] rounded-xl border border-white/10 p-4">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-brand-500/10 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center">
               <MapPin className="w-5 h-5 text-brand-300" />
             </div>
           </div>
@@ -109,7 +109,7 @@ export default function SettingsContent({
           className="bg-[#141414] rounded-xl border border-white/10 p-4 hover:border-brand-300 hover:bg-brand-500/10 transition-colors"
         >
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-brand-500/10 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center">
               <HelpCircle className="w-5 h-5 text-brand-300" />
             </div>
           </div>
@@ -128,7 +128,7 @@ export default function SettingsContent({
           className="block bg-[#141414] rounded-xl border border-white/10 p-4 hover:border-brand-300 hover:shadow-sm transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-brand-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
               <User className="w-6 h-6 text-brand-300" />
             </div>
             <div className="flex-1 min-w-0">
@@ -145,7 +145,7 @@ export default function SettingsContent({
           className="block bg-[#141414] rounded-xl border border-white/10 p-4 hover:border-brand-300 hover:shadow-sm transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-brand-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
               <Building2 className="w-6 h-6 text-brand-300" />
             </div>
             <div className="flex-1 min-w-0">
@@ -162,7 +162,7 @@ export default function SettingsContent({
           className="block bg-[#141414] rounded-xl border border-white/10 p-4 hover:border-brand-300 hover:shadow-sm transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-brand-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
               <SettingsIcon className="w-6 h-6 text-brand-300" />
             </div>
             <div className="flex-1 min-w-0">
@@ -179,7 +179,7 @@ export default function SettingsContent({
           className="block bg-[#141414] rounded-xl border border-white/10 p-4 hover:border-brand-300 hover:shadow-sm transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-brand-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
               <CreditCard className="w-6 h-6 text-brand-300" />
             </div>
             <div className="flex-1 min-w-0">
@@ -196,14 +196,14 @@ export default function SettingsContent({
           className="block bg-[#141414] rounded-xl border border-white/10 p-4 hover:border-brand-300 hover:shadow-sm transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-brand-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
               <ShieldCheck className="w-6 h-6 text-brand-300" />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-white flex items-center gap-2">
                 {t('settings.verification_title')}
                 {!isVerified && (
-                  <span className="text-xs bg-amber-500/15 text-amber-300 px-2 py-0.5 rounded-full">
+                  <span className="text-xs text-amber-300 px-2 py-0.5 rounded-full">
                     {t('settings.action_needed')}
                   </span>
                 )}
@@ -220,7 +220,7 @@ export default function SettingsContent({
           className="block bg-[#141414] rounded-xl border border-white/10 p-4 hover:border-brand-300 hover:shadow-sm transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-brand-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
               <Users className="w-6 h-6 text-brand-300" />
             </div>
             <div className="flex-1 min-w-0">
@@ -237,7 +237,7 @@ export default function SettingsContent({
           className="block bg-[#141414] rounded-xl border border-white/10 p-4 hover:border-brand-300 hover:shadow-sm transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-brand-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
               <Bell className="w-6 h-6 text-brand-300" />
             </div>
             <div className="flex-1 min-w-0">
@@ -254,7 +254,7 @@ export default function SettingsContent({
           className="block bg-[#141414] rounded-xl border border-white/10 p-4 hover:border-brand-300 hover:shadow-sm transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-brand-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
               <Lock className="w-6 h-6 text-brand-300" />
             </div>
             <div className="flex-1 min-w-0">
@@ -271,7 +271,7 @@ export default function SettingsContent({
           className="block bg-[#141414] rounded-xl border border-red-500/30 p-4 hover:border-red-300 hover:shadow-sm transition-all"
         >
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-red-500/15 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
               <AlertTriangle className="w-6 h-6 text-red-300" />
             </div>
             <div className="flex-1 min-w-0">

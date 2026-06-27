@@ -45,27 +45,27 @@ export default function VerificationStatusHero({
   }> = {
     not_started: {
       icon: FileText,
-      bgColor: 'bg-brand-500/10',
+      bgColor: '',
       borderColor: 'border-brand-500/30',
-      iconBgColor: 'bg-brand-500/15',
+      iconBgColor: '',
       iconColor: 'text-brand-300',
       title: 'Start Verification',
       description: 'Complete identity verification to publish paid events and receive payouts.'
     },
     in_progress: {
       icon: Clock,
-      bgColor: 'bg-amber-500/10',
+      bgColor: '',
       borderColor: 'border-amber-500/30',
-      iconBgColor: 'bg-amber-500/15',
+      iconBgColor: '',
       iconColor: 'text-amber-300',
       title: 'Complete Your Verification',
       description: `You're ${completionPercentage}% complete. Finish the required steps to submit for review.`
     },
     pending_review: {
       icon: Eye,
-      bgColor: 'bg-amber-500/10',
+      bgColor: '',
       borderColor: 'border-amber-500/30',
-      iconBgColor: 'bg-amber-500/15',
+      iconBgColor: '',
       iconColor: 'text-amber-300',
       title: 'Verification Submitted',
       description: 'Your verification is pending review. Our team will review within 24-48 hours.',
@@ -74,9 +74,9 @@ export default function VerificationStatusHero({
     // Legacy alias (older documents used "pending")
     pending: {
       icon: Eye,
-      bgColor: 'bg-amber-500/10',
+      bgColor: '',
       borderColor: 'border-amber-500/30',
-      iconBgColor: 'bg-amber-500/15',
+      iconBgColor: '',
       iconColor: 'text-amber-300',
       title: 'Verification Submitted',
       description: 'Your verification is pending review. Our team will review within 24-48 hours.',
@@ -84,9 +84,9 @@ export default function VerificationStatusHero({
     },
     in_review: {
       icon: Eye,
-      bgColor: 'bg-amber-500/10',
+      bgColor: '',
       borderColor: 'border-amber-500/30',
-      iconBgColor: 'bg-amber-500/15',
+      iconBgColor: '',
       iconColor: 'text-amber-300',
       title: 'Under Review',
       description: 'Our team is currently reviewing your verification documents.',
@@ -94,9 +94,9 @@ export default function VerificationStatusHero({
     },
     approved: {
       icon: BadgeCheck,
-      bgColor: 'bg-emerald-500/10',
+      bgColor: '',
       borderColor: 'border-emerald-500/30',
-      iconBgColor: 'bg-emerald-500/15',
+      iconBgColor: '',
       iconColor: 'text-emerald-300',
       title: 'Verification Approved!',
       description: 'Your account is verified. You can now publish paid events and request payouts.',
@@ -105,18 +105,18 @@ export default function VerificationStatusHero({
     },
     changes_requested: {
       icon: TriangleAlert,
-      bgColor: 'bg-amber-500/10',
+      bgColor: '',
       borderColor: 'border-amber-500/30',
-      iconBgColor: 'bg-amber-500/15',
+      iconBgColor: '',
       iconColor: 'text-amber-300',
       title: 'Changes Requested',
       description: 'We need some additional information. Please review the notes below and update your submission.'
     },
     rejected: {
       icon: CircleX,
-      bgColor: 'bg-red-500/10',
+      bgColor: '',
       borderColor: 'border-red-500/30',
-      iconBgColor: 'bg-red-500/15',
+      iconBgColor: '',
       iconColor: 'text-red-300',
       title: 'Verification Declined',
       description: 'Your verification was not approved. Click below to start a fresh application with all fields cleared.',
@@ -156,7 +156,7 @@ export default function VerificationStatusHero({
                   {completionPercentage}%
                 </span>
               </div>
-              <div className="w-full bg-white/10 rounded-full h-2">
+              <div className="w-full bg-[#242424] rounded-full h-2">
                 <div
                   className="bg-gradient-to-r from-amber-500 to-amber-600 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${completionPercentage}%` }}

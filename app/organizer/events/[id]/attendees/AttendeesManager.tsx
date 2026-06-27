@@ -58,7 +58,7 @@ const COLUMNS: OrgColumn<Ticket>[] = [
     sortAccessor: (t: Ticket) => t.attendee?.full_name || '',
     render: (t: Ticket) => (
       <div className="flex items-center gap-3">
-        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-500/10">
+        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full ">
           <User className="h-4 w-4 text-brand-300" />
         </div>
         <div className="min-w-0">
@@ -198,7 +198,7 @@ export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesMana
       onClick={() => setSelectedTicket(t)}
       className="flex w-full items-center gap-3 p-4 text-left hover:bg-white/[0.03] active:bg-white/[0.05]"
     >
-      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-500/10">
+      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full ">
         <User className="h-5 w-5 text-brand-300" />
       </div>
       <div className="min-w-0 flex-1">
@@ -452,8 +452,8 @@ function AttendeeActions({ ticket, eventId }: { ticket: Ticket; eventId: string 
         <p
           className={`rounded-lg px-3 py-2 text-sm ${
             message.type === 'success'
-              ? 'bg-emerald-500/10 text-emerald-300'
-              : 'bg-red-500/10 text-red-300'
+              ? 'text-emerald-300'
+              : 'text-red-300'
           }`}
         >
           {message.text}

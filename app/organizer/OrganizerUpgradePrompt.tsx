@@ -40,7 +40,7 @@ export default function OrganizerUpgradePrompt({ redirectTo }: { redirectTo?: st
       {/* Left — textured brand panel */}
       <div className="relative hidden overflow-hidden lg:block">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0c2b28] via-[#0a0a0a] to-[#0a0a0a]" />
-        <div aria-hidden className="absolute left-1/3 top-1/4 h-[420px] w-[420px] rounded-full bg-brand-500/20 blur-[140px]" />
+        <div aria-hidden className="absolute left-1/3 top-1/4 h-[420px] w-[420px] rounded-full blur-[140px]" />
         <div className="relative flex h-full flex-col justify-between p-10">
           <TikemWordmark italic className="text-4xl text-white" />
           <div>
@@ -65,7 +65,7 @@ export default function OrganizerUpgradePrompt({ redirectTo }: { redirectTo?: st
           </p>
 
           {error && (
-            <div className="mt-5 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            <div className="mt-5 rounded-lg border border-red-500/30 px-4 py-3 text-sm text-red-300">
               {error}
             </div>
           )}

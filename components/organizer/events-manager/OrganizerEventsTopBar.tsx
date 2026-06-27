@@ -69,7 +69,7 @@ export default function OrganizerEventsTopBar({
           {/* Actions */}
           <div className="flex items-center gap-3">
             {/* View Toggle */}
-            <div className="flex items-center bg-white/5 rounded-lg p-1">
+            <div className="flex items-center bg-[#1c1c1c] rounded-lg p-1">
               <button
                 onClick={() => onViewChange('list')}
                 className={`p-2 rounded-md transition-all ${
@@ -147,7 +147,7 @@ export default function OrganizerEventsTopBar({
           {/* Action Buttons Row */}
           <div className="flex items-center gap-2">
             {/* View Toggle */}
-            <div className="flex items-center bg-white/5 rounded-lg p-1">
+            <div className="flex items-center bg-[#1c1c1c] rounded-lg p-1">
               <button
                 onClick={() => onViewChange('list')}
                 className={`p-2 rounded-md transition-all ${

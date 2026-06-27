@@ -225,7 +225,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
                   onClick={() => setCurrentStep(step.number)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                     isActive 
-                      ? 'bg-brand-500/10 border-2 border-brand-500' 
+                      ? 'border-2 border-brand-500' 
                       : isCompleted
                       ? 'bg-success-50 border-2 border-success-500'
                       : 'bg-[#0a0a0a] border-2 border-white/10 hover:border-white/15'
@@ -236,7 +236,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
                       ? 'bg-brand-600 text-white' 
                       : isCompleted
                       ? 'bg-success-600 text-white'
-                      : 'bg-white/10 text-white/60'
+                      : 'bg-[#242424] text-white/60'
                   }`}>
                     {isCompleted ? <Check className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
                   </div>
@@ -255,7 +255,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
                 </button>
                 {index < steps.length - 1 && (
                   <div className={`h-0.5 flex-1 mx-2 ${
-                    isCompleted ? 'bg-success-500' : 'bg-white/10'
+                    isCompleted ? 'bg-success-500' : 'bg-[#242424]'
                   }`}></div>
                 )}
               </div>
@@ -279,7 +279,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
           {currentStep === 1 && (
             <div className="space-y-6 animate-fadeIn">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-brand-500/15 rounded-xl flex items-center justify-center">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center">
                   <FileText className="w-6 h-6 text-brand-300" />
                 </div>
                 <div>
@@ -356,7 +356,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
           {currentStep === 2 && (
             <div className="space-y-6 animate-fadeIn">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-brand-500/10 rounded-xl flex items-center justify-center">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center">
                   <MapPin className="w-6 h-6 text-brand-300" />
                 </div>
                 <div>
@@ -436,7 +436,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
           {currentStep === 3 && (
             <div className="space-y-6 animate-fadeIn">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-brand-500/10 rounded-xl flex items-center justify-center">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center">
                   <Clock className="w-6 h-6 text-brand-300" />
                 </div>
                 <div>
@@ -480,7 +480,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
               </div>
 
               {formData.start_datetime && formData.end_datetime && (
-                <div className="bg-brand-500/10 border-2 border-brand-500/30 rounded-xl p-4">
+                <div className="border-2 border-brand-500/30 rounded-xl p-4">
                   <p className="text-sm font-semibold text-brand-300 mb-2">Event Duration</p>
                   <p className="text-brand-300">
                     {(() => {
@@ -570,7 +570,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
               </div>
 
               {/* Ticket Tiers Section */}
-              <div className="bg-brand-500/10 border-2 border-brand-500/30 rounded-xl p-6">
+              <div className="border-2 border-brand-500/30 rounded-xl p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="font-bold text-brand-300 mb-1 flex items-center gap-2">
@@ -694,7 +694,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
           {currentStep === 5 && (
             <div className="space-y-6 animate-fadeIn">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-brand-500/10 rounded-xl flex items-center justify-center">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center">
                   <Tag className="w-6 h-6 text-brand-300" />
                 </div>
                 <div>
@@ -727,7 +727,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
                         disabled={tags.includes(tag)}
                         className={`px-4 py-2 text-sm font-medium rounded-xl border-2 transition-all ${
                           tags.includes(tag)
-                            ? 'bg-brand-500/15 text-brand-300 border-brand-300 cursor-not-allowed'
+                            ? 'text-brand-300 border-brand-300 cursor-not-allowed'
                             : 'bg-[#141414] text-white/70 border-white/10 hover:border-brand-500 hover:bg-brand-500/10 hover:text-brand-300'
                         }`}
                       >
@@ -798,7 +798,7 @@ export default function EventForm({ userId, event }: EventFormProps) {
                 )}
               </div>
 
-              <div className="bg-brand-500/10 border-2 border-brand-500/30 rounded-xl p-6">
+              <div className="border-2 border-brand-500/30 rounded-xl p-6">
                 <div className="flex items-start gap-4">
                   <input
                     type="checkbox"

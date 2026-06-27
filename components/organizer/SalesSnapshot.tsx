@@ -79,7 +79,7 @@ export function SalesSnapshot({ data, currency = 'HTG' }: SalesSnapshotProps) {
           <h3 className="font-display text-lg leading-none text-white sm:text-xl">{t('sales_snapshot.title')}</h3>
           <span className="truncate text-xs text-white/40">{getRangeLabel(range)}</span>
         </div>
-        <div className="flex shrink-0 items-center gap-0.5 rounded-lg bg-white/5 p-0.5">
+        <div className="flex shrink-0 items-center gap-0.5 rounded-lg bg-[#1c1c1c] p-0.5">
           {(['7d', '30d', 'lifetime'] as TimeRange[]).map((r) => (
             <button
               key={r}

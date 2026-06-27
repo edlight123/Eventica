@@ -72,7 +72,7 @@ export default function EventStaffHub({
     <div className="space-y-6">
       <div className="bg-[#141414] border border-white/10 rounded-xl p-5">
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-lg bg-brand-500/10 text-brand-300 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-lg text-brand-300 flex items-center justify-center flex-shrink-0">
             <Users className="w-5 h-5" />
           </div>
           <div className="flex-1 min-w-0">

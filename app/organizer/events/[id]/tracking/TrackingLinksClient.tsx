@@ -168,7 +168,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
             <button
               type="button"
               onClick={reset}
-              className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white/70 transition-colors hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white/70 transition-colors hover:bg-[#1c1c1c] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               Cancel
             </button>
@@ -221,7 +221,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
                     .map(([k, v]) => (
                       <span
                         key={k}
-                        className="rounded-md bg-white/5 px-2 py-0.5 text-[11px] text-white/50"
+                        className="rounded-md bg-[#1c1c1c] px-2 py-0.5 text-[11px] text-white/50"
                       >
                         {k}={v}
                       </span>
@@ -233,7 +233,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
                   type="button"
                   onClick={() => copyLink(link.id, link.url)}
                   aria-label={`Copy tracking link: ${link.label}`}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-white/10 px-3 text-xs font-semibold text-white/60 transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-white/10 px-3 text-xs font-semibold text-white/60 transition-colors hover:bg-[#1c1c1c] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 >
                   {link.copiedAt ? (
                     <><Check className="h-3.5 w-3.5 text-emerald-400" />Copied</>

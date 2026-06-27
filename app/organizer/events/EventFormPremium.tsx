@@ -448,7 +448,7 @@ export default function EventFormPremium({ userId, event, isVerified = false, ve
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-[#141414] rounded-2xl shadow-2xl max-w-md w-full p-6">
             <div className="text-center">
-              <div className="w-16 h-16 bg-amber-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
@@ -492,7 +492,7 @@ export default function EventFormPremium({ userId, event, isVerified = false, ve
 
       {/* Verification banner (premium + non-blocking) */}
       {paidPublishingBlocked && (
-        <div className="bg-amber-500/10 border-b border-amber-500/30">
+        <div className="border-b border-amber-500/30">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <div className="flex items-start sm:items-center justify-between gap-3 flex-wrap">
               <div className="text-sm text-amber-900">

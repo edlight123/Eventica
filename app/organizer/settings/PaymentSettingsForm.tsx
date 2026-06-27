@@ -68,8 +68,8 @@ export default function PaymentSettingsForm({
       {message && (
         <div className={`mb-6 p-4 rounded-xl ${
           message.type === 'success' 
-            ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300' 
-            : 'bg-red-500/10 border border-red-500/30 text-red-300'
+            ? 'border border-emerald-500/30 text-emerald-300' 
+            : 'border border-red-500/30 text-red-300'
         }`}>
           {message.text}
         </div>
@@ -86,7 +86,7 @@ export default function PaymentSettingsForm({
             onClick={() => setPaymentMethod('moncash')}
             className={`p-4 rounded-xl border-2 transition ${
               paymentMethod === 'moncash'
-                ? 'border-brand-500 bg-brand-500/10'
+                ? 'border-brand-500 '
                 : 'border-white/10 hover:border-white/15'
             }`}
           >
@@ -99,7 +99,7 @@ export default function PaymentSettingsForm({
             onClick={() => setPaymentMethod('bank_transfer')}
             className={`p-4 rounded-xl border-2 transition ${
               paymentMethod === 'bank_transfer'
-                ? 'border-brand-500 bg-brand-500/10'
+                ? 'border-brand-500 '
                 : 'border-white/10 hover:border-white/15'
             }`}
           >
@@ -112,7 +112,7 @@ export default function PaymentSettingsForm({
             onClick={() => setPaymentMethod('paypal')}
             className={`p-4 rounded-xl border-2 transition ${
               paymentMethod === 'paypal'
-                ? 'border-brand-500 bg-brand-500/10'
+                ? 'border-brand-500 '
                 : 'border-white/10 hover:border-white/15'
             }`}
           >
@@ -213,7 +213,7 @@ export default function PaymentSettingsForm({
       )}
 
       {/* Info Box */}
-      <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
+      <div className="mt-6 p-4 border border-blue-500/30 rounded-xl">
         <div className="flex">
           <svg className="w-5 h-5 text-blue-300 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

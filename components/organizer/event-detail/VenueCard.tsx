@@ -24,7 +24,7 @@ export function VenueCard({ eventId, venue }: VenueCardProps) {
     <div className="bg-[#141414] rounded-xl border border-white/10 p-5 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-lg bg-brand-500/10">
+          <div className="p-2 rounded-lg ">
             {venue.is_online ? (
               <Globe className="w-5 h-5 text-brand-300" />
             ) : (
@@ -58,7 +58,7 @@ export function VenueCard({ eventId, venue }: VenueCardProps) {
         </div>
       ) : venue.is_online ? (
         <div className="space-y-3">
-          <div className="flex items-start gap-3 p-3 bg-brand-500/10 rounded-lg">
+          <div className="flex items-start gap-3 p-3 rounded-lg">
             <Globe className="w-5 h-5 text-brand-300 mt-0.5 flex-shrink-0" />
             <div>
               <p className="text-sm font-medium text-white mb-1">{t('organizer.virtual_event')}</p>

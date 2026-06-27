@@ -95,7 +95,7 @@ export default async function EventTicketsPage({ params }: { params: Promise<{ i
                     </div>
                     <span
                       className={`rounded-full px-3 py-1 text-[11px] font-semibold ${
-                        soldOut ? 'bg-red-500/15 text-red-300' : 'bg-emerald-500/15 text-emerald-300'
+                        soldOut ? 'text-red-300' : 'text-emerald-300'
                       }`}
                     >
                       {soldOut ? 'Sold out' : 'On sale'}
@@ -110,7 +110,7 @@ export default async function EventTicketsPage({ params }: { params: Promise<{ i
                         {tier.quantity > 0 && <span className="text-white/40"> / {tier.quantity}</span>}
                       </span>
                     </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-white/5">
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-[#1c1c1c]">
                       <div
                         className={`h-2 rounded-full ${soldOut ? 'bg-red-500' : 'bg-brand-500'}`}
                         style={{ width: `${pct}%` }}

@@ -56,7 +56,7 @@ export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
 
   return (
     <div className="sticky top-24 space-y-4">
-      <div className="bg-brand-500/10 border-2 border-brand-500/30 rounded-xl p-4">
+      <div className="border-2 border-brand-500/30 rounded-xl p-4">
         <h3 className="font-bold text-white mb-1 flex items-center gap-2">
           <span className="w-2 h-2 bg-brand-600 rounded-full animate-pulse"></span>
           Live Preview
@@ -224,7 +224,7 @@ export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
 
                 {/* Premium Tiers */}
                 {tiers.filter(t => t.name && t.quantity).map((tier, index) => (
-                  <div key={index} className="bg-brand-500/10 border border-brand-500/30 rounded-lg p-3">
+                  <div key={index} className="border border-brand-500/30 rounded-lg p-3">
                     <div className="flex items-center justify-between mb-1">
                       <p className="font-semibold text-sm text-white">{tier.name}</p>
                       <p className="font-bold text-brand-300">
@@ -251,13 +251,13 @@ export function EventLivePreview({ data, tiers }: EventLivePreviewProps) {
                 {data.tags.slice(0, 6).map((tag, index) => (
                   <span
                     key={index}
-                    className="inline-block px-2.5 py-1 bg-brand-500/10 text-brand-300 text-xs font-medium rounded-md"
+                    className="inline-block px-2.5 py-1 text-brand-300 text-xs font-medium rounded-md"
                   >
                     {tag}
                   </span>
                 ))}
                 {data.tags.length > 6 && (
-                  <span className="inline-block px-2.5 py-1 bg-white/5 text-white/60 text-xs font-medium rounded-md">
+                  <span className="inline-block px-2.5 py-1 bg-[#1c1c1c] text-white/60 text-xs font-medium rounded-md">
                     +{data.tags.length - 6} more
                   </span>
                 )}

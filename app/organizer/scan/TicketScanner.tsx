@@ -223,8 +223,8 @@ export default function TicketScanner({ organizerId }: TicketScannerProps) {
       {result && (
         <div className={`mt-6 p-6 rounded-lg border-2 ${
           result.success
-            ? 'bg-emerald-500/10 border-green-500'
-            : 'bg-red-500/10 border-red-500'
+            ? 'border-green-500'
+            : 'border-red-500'
         }`}>
           <p className={`text-lg font-semibold mb-2 ${
             result.success ? 'text-green-900' : 'text-red-900'

@@ -78,7 +78,7 @@ export default function SelfieForm({ userId, initialData, onSave, onCancel }: Pr
         </p>
 
         {/* Instructions */}
-        <div className="bg-brand-500/10 border border-brand-500/30 rounded-lg p-4 mb-6">
+        <div className="border border-brand-500/30 rounded-lg p-4 mb-6">
           <h4 className="font-semibold text-brand-300 text-sm mb-2">Instructions:</h4>
           <ul className="text-sm text-brand-300 space-y-1 list-disc list-inside">
             <li>Hold your ID next to your face</li>
@@ -101,7 +101,7 @@ export default function SelfieForm({ userId, initialData, onSave, onCancel }: Pr
 
         {/* Error */}
         {error && (
-          <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+          <div className="mt-4 p-3 border border-red-500/30 rounded-lg">
             <p className="text-sm text-red-300">{error}</p>
           </div>
         )}

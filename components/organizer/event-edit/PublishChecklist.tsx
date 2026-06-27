@@ -15,7 +15,7 @@ interface PublishChecklistProps {
 export function PublishChecklist({ blockingIssues, onNavigateToTab, canPublish }: PublishChecklistProps) {
   if (canPublish) {
     return (
-      <div className="bg-emerald-500/10 border-2 border-emerald-500/30 rounded-xl p-6">
+      <div className="border-2 border-emerald-500/30 rounded-xl p-6">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
             <Check className="w-7 h-7 text-white" />
@@ -41,7 +41,7 @@ export function PublishChecklist({ blockingIssues, onNavigateToTab, canPublish }
   return (
     <div className="bg-[#141414] border-2 border-amber-500/30 rounded-xl p-6">
       <div className="flex items-start gap-4 mb-4">
-        <div className="w-12 h-12 bg-amber-500/15 rounded-full flex items-center justify-center flex-shrink-0">
+        <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
           <AlertCircle className="w-7 h-7 text-amber-300" />
         </div>
         <div className="flex-1">
@@ -60,7 +60,7 @@ export function PublishChecklist({ blockingIssues, onNavigateToTab, canPublish }
             key={`${item.tabId}-${index}`}
             type="button"
             onClick={() => onNavigateToTab(item.tabId)}
-            className="w-full flex items-center justify-between p-3 bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/30 rounded-lg transition-all group text-left"
+            className="w-full flex items-center justify-between p-3 hover:bg-amber-500/15 border border-amber-500/30 rounded-lg transition-all group text-left"
           >
             <div className="flex items-start gap-3 flex-1">
               <div className="w-5 h-5 rounded-full border-2 border-amber-400 flex-shrink-0 mt-0.5"></div>

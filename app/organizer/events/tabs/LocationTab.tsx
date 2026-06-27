@@ -261,7 +261,7 @@ export function LocationTab({ formData, onChange, validation }: LocationTabProps
 
       {/* Validation Warnings */}
       {validation.warnings.length > 0 && (
-        <div className="bg-amber-500/10 border-2 border-amber-500/30 rounded-xl p-4">
+        <div className="border-2 border-amber-500/30 rounded-xl p-4">
           <p className="font-semibold text-amber-900 mb-2 flex items-center gap-2">
             <AlertCircle className="w-5 h-5" />
             Suggestions

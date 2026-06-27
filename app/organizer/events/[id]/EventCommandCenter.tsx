@@ -223,7 +223,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
                   const when = t.purchased_at ? new Date(t.purchased_at) : null
                   return (
                     <li key={t.id} className="flex items-center gap-3 py-3">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-500/15">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full ">
                         <Ticket className="h-4 w-4 text-brand-300" />
                       </span>
                       <div className="min-w-0 flex-1">
@@ -281,7 +281,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
               </div>
               <Link
                 href={`/organizer/events/${event.id}/edit`}
-                className="block w-full rounded-xl border border-white/15 py-2.5 text-center text-sm font-semibold text-white/80 transition-colors hover:bg-white/5"
+                className="block w-full rounded-xl border border-white/15 py-2.5 text-center text-sm font-semibold text-white/80 transition-colors hover:bg-[#1c1c1c]"
               >
                 Edit event
               </Link>

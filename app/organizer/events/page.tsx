@@ -308,7 +308,7 @@ export default function OrganizerEventsPage() {
 
           <div className="flex items-center gap-2">
             {/* View toggle */}
-            <div className="flex items-center rounded-lg bg-white/5 p-1">
+            <div className="flex items-center rounded-lg bg-[#1c1c1c] p-1">
               <button
                 type="button"
                 onClick={() => setView('list')}

@@ -29,7 +29,7 @@ export function TicketTiersCard({ eventId, tiers, currency }: TicketTiersCardPro
     <div className="bg-[#141414] rounded-xl border border-white/10 p-5 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-brand-500/10 rounded-lg">
+          <div className="p-2 rounded-lg">
             <Ticket className="w-5 h-5 text-brand-300" />
           </div>
           <h3 className="text-lg font-bold text-white">{t('organizer.ticket_tiers')}</h3>
@@ -72,12 +72,12 @@ export function TicketTiersCard({ eventId, tiers, currency }: TicketTiersCardPro
                     <div className="flex items-center gap-2 mb-1">
                       <h4 className="font-semibold text-white">{tier.name}</h4>
                       {isSoldOut && (
-                        <span className="text-xs font-medium px-2 py-0.5 bg-red-500/15 text-red-300 rounded-full">
+                        <span className="text-xs font-medium px-2 py-0.5 text-red-300 rounded-full">
                           {t('organizer.sold_out')}
                         </span>
                       )}
                       {isLowStock && !isSoldOut && (
-                        <span className="text-xs font-medium px-2 py-0.5 bg-amber-500/15 text-amber-300 rounded-full">
+                        <span className="text-xs font-medium px-2 py-0.5 text-amber-300 rounded-full">
                           {t('organizer.low_stock')}
                         </span>
                       )}
@@ -105,7 +105,7 @@ export function TicketTiersCard({ eventId, tiers, currency }: TicketTiersCardPro
                   <span className="text-white/60">{soldPercentage.toFixed(0)}%</span>
                 </div>
 
-                <div className="w-full bg-white/5 rounded-full h-2 mt-2 overflow-hidden">
+                <div className="w-full bg-[#1c1c1c] rounded-full h-2 mt-2 overflow-hidden">
                   <div 
                     className={`h-full rounded-full transition-all duration-500 ${
                       isSoldOut ? 'bg-red-500' : isLowStock ? 'bg-amber-500' : 'bg-brand-600'

@@ -81,7 +81,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
       </div>
 
       {/* Base Ticket */}
-      <div className="bg-brand-500/10 border-2 border-brand-500/30 rounded-xl p-6">
+      <div className="border-2 border-brand-500/30 rounded-xl p-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 bg-brand-700 rounded-lg flex items-center justify-center">
             <Ticket className="w-6 h-6 text-white" />
@@ -297,7 +297,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
 
       {/* Validation Warnings */}
       {validation.warnings.length > 0 && (
-        <div className="bg-amber-500/10 border-2 border-amber-500/30 rounded-xl p-4">
+        <div className="border-2 border-amber-500/30 rounded-xl p-4">
           <p className="font-semibold text-amber-900 mb-2 flex items-center gap-2">
             <AlertCircle className="w-5 h-5" />
             Suggestions

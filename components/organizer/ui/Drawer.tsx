@@ -86,7 +86,7 @@ export function Drawer({ open, onClose, title, size = 'md', children, footer }: 
             type="button"
             aria-label="Close"
             onClick={onClose}
-            className="ml-auto grid h-8 w-8 place-items-center rounded-lg text-white/50 transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="ml-auto grid h-8 w-8 place-items-center rounded-lg text-white/50 transition-colors hover:bg-[#242424] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <X className="h-5 w-5" />
           </button>

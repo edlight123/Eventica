@@ -52,7 +52,7 @@ export function EventKpis({ stats }: EventKpisProps) {
       {/* Tickets Sold */}
       <div className="bg-[#141414] rounded-xl border border-white/10 p-4 md:p-5 shadow-sm hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between mb-3">
-          <div className="p-2 bg-brand-500/10 rounded-lg">
+          <div className="p-2 rounded-lg">
             <Ticket className="w-5 h-5 text-brand-300" />
           </div>
           <span className="text-xs font-medium text-white/50">{t('organizer.sold_capacity')}</span>
@@ -62,7 +62,7 @@ export function EventKpis({ stats }: EventKpisProps) {
             <span className="text-2xl md:text-3xl font-bold text-white">{stats.ticketsSold}</span>
             <span className="text-sm text-white/50">/ {stats.capacity}</span>
           </div>
-          <div className="w-full bg-white/5 rounded-full h-2 overflow-hidden">
+          <div className="w-full bg-[#1c1c1c] rounded-full h-2 overflow-hidden">
             <div 
               className="h-full bg-brand-600 rounded-full transition-all duration-500"
               style={{ width: `${Math.min(progress, 100)}%` }}
@@ -75,7 +75,7 @@ export function EventKpis({ stats }: EventKpisProps) {
       {/* Revenue */}
       <div className="bg-[#141414] rounded-xl border border-white/10 p-4 md:p-5 shadow-sm hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between mb-3">
-          <div className="p-2 bg-brand-500/10 rounded-lg">
+          <div className="p-2 rounded-lg">
             <DollarSign className="w-5 h-5 text-brand-300" />
           </div>
           <span className="text-xs font-medium text-white/50">{t('organizer.revenue')}</span>
@@ -93,7 +93,7 @@ export function EventKpis({ stats }: EventKpisProps) {
       {/* Check-ins */}
       <div className="bg-[#141414] rounded-xl border border-white/10 p-4 md:p-5 shadow-sm hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between mb-3">
-          <div className="p-2 bg-brand-500/10 rounded-lg">
+          <div className="p-2 rounded-lg">
             <Users className="w-5 h-5 text-brand-300" />
           </div>
           <span className="text-xs font-medium text-white/50">{t('organizer.check_ins')}</span>
@@ -105,7 +105,7 @@ export function EventKpis({ stats }: EventKpisProps) {
           </div>
           {stats.ticketsSold > 0 && (
             <>
-              <div className="w-full bg-white/5 rounded-full h-2 overflow-hidden">
+              <div className="w-full bg-[#1c1c1c] rounded-full h-2 overflow-hidden">
                 <div 
                   className="h-full bg-brand-600 rounded-full transition-all duration-500"
                   style={{ width: `${Math.min(checkInRate, 100)}%` }}
@@ -121,7 +121,7 @@ export function EventKpis({ stats }: EventKpisProps) {
       {stats.views !== undefined && stats.views > 0 && (
         <div className="bg-[#141414] rounded-xl border border-white/10 p-4 md:p-5 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-3">
-            <div className="p-2 bg-brand-500/10 rounded-lg">
+            <div className="p-2 rounded-lg">
               <TrendingUp className="w-5 h-5 text-brand-300" />
             </div>
             <span className="text-xs font-medium text-white/50">CONVERSION</span>

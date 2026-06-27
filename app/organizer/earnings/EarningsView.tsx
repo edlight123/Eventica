@@ -50,7 +50,7 @@ function StatCard({
   return (
     <div className="rounded-2xl border border-white/10 bg-[#141414] p-5 shadow-soft">
       <div className="flex items-center gap-2 text-white/50">
-        <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-500/10 text-brand-300">{icon}</span>
+        <span className="grid h-8 w-8 place-items-center rounded-lg text-brand-300">{icon}</span>
         <span className="text-xs font-semibold uppercase tracking-wide">{label}</span>
       </div>
       <div className="mt-3 text-white">{children}</div>
@@ -162,7 +162,7 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
       <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-700 via-brand-700 to-brand-800 p-6 text-white shadow-soft sm:p-8">
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-white/10 blur-2xl"
+          className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#242424] blur-2xl"
         />
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="min-w-0">
@@ -281,7 +281,7 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
                   className={`px-3 py-1.5 text-sm font-medium rounded-lg transition whitespace-nowrap ${
                     filter === status
                       ? 'bg-brand-700 text-white'
-                      : 'bg-white/5 text-white/70 hover:bg-white/10'
+                      : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
                   }`}
                 >
                   {status.charAt(0).toUpperCase() + status.slice(1)}

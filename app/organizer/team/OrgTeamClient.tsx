@@ -244,7 +244,7 @@ export default function OrgTeamClient({
             <button
               type="button"
               onClick={() => { setOpen(false); reset() }}
-              className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white/70 transition-colors hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white/70 transition-colors hover:bg-[#1c1c1c] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               Cancel
             </button>
@@ -296,7 +296,7 @@ export default function OrgTeamClient({
             </select>
           </FormField>
           {error && (
-            <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>
+            <p className="rounded-lg px-3 py-2 text-sm text-red-400">{error}</p>
           )}
         </FormSection>
       </Drawer>

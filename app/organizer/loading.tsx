@@ -5,8 +5,8 @@ export default function Loading() {
       <div className="bg-[#141414] border-b border-white/10 sticky top-0 z-30 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center justify-between">
-            <div className="h-8 w-32 bg-white/10 rounded animate-pulse" />
-            <div className="h-8 w-20 bg-white/5 rounded animate-pulse" />
+            <div className="h-8 w-32 bg-[#242424] rounded animate-pulse" />
+            <div className="h-8 w-20 bg-[#1c1c1c] rounded animate-pulse" />
           </div>
         </div>
       </div>
@@ -14,8 +14,8 @@ export default function Loading() {
       {/* Header shimmer */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-2 mb-6">
-          <div className="h-8 w-56 bg-white/10 rounded animate-pulse" />
-          <div className="h-4 w-80 bg-white/5 rounded animate-pulse" />
+          <div className="h-8 w-56 bg-[#242424] rounded animate-pulse" />
+          <div className="h-4 w-80 bg-[#1c1c1c] rounded animate-pulse" />
         </div>
 
         {/* Dashboard metric cards skeleton */}

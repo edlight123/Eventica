@@ -59,7 +59,7 @@ export default function OrganizerEventsTabs({
     if (isActive) {
       return `${baseStyles} bg-brand-700 text-white shadow-sm`
     }
-    return `${baseStyles} text-white/60 hover:bg-white/5 hover:text-white`
+    return `${baseStyles} text-white/60 hover:bg-[#1c1c1c] hover:text-white`
   }
 
   const getCountBadgeStyles = (_tab: Tab, isActive: boolean) => {
@@ -67,7 +67,7 @@ export default function OrganizerEventsTabs({
     if (isActive) {
       return `${baseStyles} bg-white/20 text-white`
     }
-    return `${baseStyles} bg-white/5 text-white/70`
+    return `${baseStyles} bg-[#1c1c1c] text-white/70`
   }
 
   return (

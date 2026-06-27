@@ -33,7 +33,7 @@ export function FilterChip({
       {count !== undefined && count > 0 && (
         <span
           className={`ml-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
-            active ? 'bg-white/20 text-white' : 'bg-white/10 text-white/60'
+            active ? 'bg-white/20 text-white' : 'bg-[#242424] text-white/60'
           }`}
         >
           {count}

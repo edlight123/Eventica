@@ -247,7 +247,7 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
   return (
     <div className="space-y-6">
       {listenerError ? (
-        <div className="bg-red-500/10 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg text-sm">
+        <div className="border border-red-500/30 text-red-300 px-4 py-3 rounded-lg text-sm">
           {listenerError}
         </div>
       ) : null}

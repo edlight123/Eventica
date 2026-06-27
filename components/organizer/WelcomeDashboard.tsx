@@ -81,7 +81,7 @@ export default function WelcomeDashboard({
       {/* Benefits Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-[#141414] rounded-xl p-5 border border-white/10 shadow-sm">
-          <div className="w-10 h-10 bg-brand-500/10 rounded-lg flex items-center justify-center mb-3">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3">
             <Calendar className="w-5 h-5 text-brand-300" />
           </div>
           <h3 className="font-semibold text-white mb-1">
@@ -96,7 +96,7 @@ export default function WelcomeDashboard({
         </div>
 
         <div className="bg-[#141414] rounded-xl p-5 border border-white/10 shadow-sm">
-          <div className="w-10 h-10 bg-brand-500/10 rounded-lg flex items-center justify-center mb-3">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3">
             <TrendingUp className="w-5 h-5 text-brand-300" />
           </div>
           <h3 className="font-semibold text-white mb-1">
@@ -111,7 +111,7 @@ export default function WelcomeDashboard({
         </div>
 
         <div className="bg-[#141414] rounded-xl p-5 border border-white/10 shadow-sm">
-          <div className="w-10 h-10 bg-brand-500/10 rounded-lg flex items-center justify-center mb-3">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3">
             <Users className="w-5 h-5 text-brand-300" />
           </div>
           <h3 className="font-semibold text-white mb-1">

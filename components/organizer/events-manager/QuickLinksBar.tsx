@@ -19,7 +19,7 @@ export default function QuickLinksBar() {
         <Link
           key={href}
           href={href}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-white/5 px-3 py-1.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/10"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[#1c1c1c] px-3 py-1.5 text-sm font-medium text-white/70 transition-colors hover:bg-[#242424]"
         >
           <Icon className="h-4 w-4 text-brand-300" />
           {label}

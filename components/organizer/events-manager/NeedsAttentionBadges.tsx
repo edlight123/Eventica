@@ -67,13 +67,13 @@ export default function NeedsAttentionBadges({
   const getBadgeColor = (color: string) => {
     switch (color) {
       case 'yellow':
-        return 'bg-amber-500/15 text-amber-300 border-amber-300'
+        return 'text-amber-300 border-amber-300'
       case 'orange':
-        return 'bg-amber-500/15 text-amber-300 border-amber-300'
+        return 'text-amber-300 border-amber-300'
       case 'red':
-        return 'bg-red-500/15 text-red-300 border-red-300'
+        return 'text-red-300 border-red-300'
       default:
-        return 'bg-white/5 text-white/90 border-white/15'
+        return 'bg-[#1c1c1c] text-white/90 border-white/15'
     }
   }
 
@@ -91,7 +91,7 @@ export default function NeedsAttentionBadges({
         </span>
       ))}
       {remainingCount > 0 && (
-        <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full border bg-white/5 text-white/90 border-white/15">
+        <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full border bg-[#1c1c1c] text-white/90 border-white/15">
           <AlertCircle className="w-3 h-3" />
           <span>+{remainingCount} more</span>
         </span>

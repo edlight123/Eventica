@@ -93,7 +93,7 @@ export function ScheduleTab({ formData, onChange, validation }: ScheduleTabProps
 
       {/* Event Duration Display */}
       {formData.start_datetime && formData.end_datetime && eventDuration() && (
-        <div className="bg-brand-500/10 border-2 border-brand-500/30 rounded-xl p-4">
+        <div className="border-2 border-brand-500/30 rounded-xl p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-semibold text-brand-300 mb-1">Event Duration</p>
@@ -143,7 +143,7 @@ export function ScheduleTab({ formData, onChange, validation }: ScheduleTabProps
 
       {/* Validation Warnings */}
       {validation.warnings.length > 0 && (
-        <div className="bg-amber-500/10 border-2 border-amber-500/30 rounded-xl p-4">
+        <div className="border-2 border-amber-500/30 rounded-xl p-4">
           <p className="font-semibold text-amber-900 mb-2 flex items-center gap-2">
             <AlertCircle className="w-5 h-5" />
             Suggestions

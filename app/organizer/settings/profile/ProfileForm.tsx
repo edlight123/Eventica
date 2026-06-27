@@ -137,7 +137,7 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
       {/* Profile Photo */}
       <div className="flex items-start gap-6">
         <div className="relative">
-          <div className="w-24 h-24 rounded-full overflow-hidden bg-white/5 border-2 border-white/10">
+          <div className="w-24 h-24 rounded-full overflow-hidden bg-[#1c1c1c] border-2 border-white/10">
             {formData.photo_url ? (
               <Image
                 src={formData.photo_url}
@@ -161,7 +161,7 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
         <div className="flex-1">
           <label
             htmlFor="photo-upload"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white/70 rounded-lg cursor-pointer transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#1c1c1c] hover:bg-[#242424] text-white/70 rounded-lg cursor-pointer transition-colors"
           >
             <Camera className="w-4 h-4" />
             Change Photo

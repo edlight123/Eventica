@@ -94,7 +94,7 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
 
       {/* Blocking Issues */}
       {!canSubmit && !isReadOnly && blockingIssues.length > 0 && (
-        <div className="mt-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+        <div className="mt-6 p-4 border border-amber-500/30 rounded-lg">
           <h3 className="font-semibold text-amber-900 mb-2 text-sm md:text-base">
             Complete required steps to submit:
           </h3>
@@ -108,9 +108,9 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
 
       {/* Submission Status */}
       {isSubmitted && (
-        <div className="mt-6 p-4 bg-brand-500/10 border border-brand-500/30 rounded-lg">
+        <div className="mt-6 p-4 border border-brand-500/30 rounded-lg">
           <div className="flex items-start gap-3">
-            <div className="bg-brand-500/15 rounded-full p-2 flex-shrink-0">
+            <div className="rounded-full p-2 flex-shrink-0">
               <svg className="w-5 h-5 text-brand-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -159,7 +159,7 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
             className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all shadow-md ${
               canSubmit
                 ? 'bg-brand-700 hover:bg-brand-800 text-white hover:shadow-lg'
-                : 'bg-white/10 text-white/50 cursor-not-allowed'
+                : 'bg-[#242424] text-white/50 cursor-not-allowed'
             }`}
           >
             {canSubmit ? 'Submit for Review' : 'Complete Required Steps'}

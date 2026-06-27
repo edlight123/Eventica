@@ -27,7 +27,7 @@ export function EventChecklist({ eventId, items }: EventChecklistProps) {
   }
 
   return (
-    <div className="bg-amber-500/10 rounded-xl border border-amber-500/30 p-4 md:p-6 shadow-sm">
+    <div className="rounded-xl border border-amber-500/30 p-4 md:p-6 shadow-sm">
       <div className="flex items-start justify-between mb-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -45,7 +45,7 @@ export function EventChecklist({ eventId, items }: EventChecklistProps) {
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full bg-amber-500/15 rounded-full h-2 mb-4 overflow-hidden">
+      <div className="w-full rounded-full h-2 mb-4 overflow-hidden">
         <div 
           className="h-full bg-amber-500 rounded-full transition-all duration-500"
           style={{ width: `${progress}%` }}

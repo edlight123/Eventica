@@ -155,7 +155,7 @@ export function NextEventHero({ event }: NextEventHeroProps) {
 
         {/* Progress Bar */}
         <div className="mb-6">
-          <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+          <div className="h-2 bg-[#1c1c1c] rounded-full overflow-hidden">
             <div 
               className="h-full bg-gradient-to-r from-brand-500 to-brand-600 rounded-full transition-all duration-500"
               style={{ width: `${Math.min(progress, 100)}%` }}

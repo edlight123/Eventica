@@ -142,14 +142,14 @@ export default function EventUpdates({ eventId, eventTitle }: EventUpdatesProps)
               {message && (
                 <div className={`p-4 rounded-lg ${
                   message.type === 'success'
-                    ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300'
-                    : 'bg-red-500/10 border border-red-500/30 text-red-300'
+                    ? 'border border-emerald-500/30 text-emerald-300'
+                    : 'border border-red-500/30 text-red-300'
                 }`}>
                   {message.text}
                 </div>
               )}
 
-              <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
+              <div className="border border-amber-500/30 rounded-lg p-4">
                 <p className="text-sm text-amber-300">
                   ⚠️ This will immediately send notifications to all active ticket holders.
                 </p>

@@ -54,7 +54,7 @@ export default function VerificationWelcome({ onStart, userName }: Props) {
               key={index}
               className="bg-[#141414] border border-white/10 rounded-xl p-6 text-center hover:shadow-md transition-shadow"
             >
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-brand-500/10 rounded-xl mb-4">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4">
                 <benefit.icon className="w-6 h-6 text-brand-300" />
               </div>
               <h3 className="font-semibold text-white mb-2">{benefit.title}</h3>
@@ -68,7 +68,7 @@ export default function VerificationWelcome({ onStart, userName }: Props) {
           <h2 className="font-semibold text-white mb-4">What you&apos;ll need</h2>
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-brand-500/15 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="text-xs font-bold text-brand-300">1</span>
               </div>
               <div>
@@ -77,7 +77,7 @@ export default function VerificationWelcome({ onStart, userName }: Props) {
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-brand-500/15 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="text-xs font-bold text-brand-300">2</span>
               </div>
               <div>
@@ -86,7 +86,7 @@ export default function VerificationWelcome({ onStart, userName }: Props) {
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-white/5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-6 h-6 bg-[#1c1c1c] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="text-xs font-bold text-white/50">3</span>
               </div>
               <div>
@@ -95,7 +95,7 @@ export default function VerificationWelcome({ onStart, userName }: Props) {
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-brand-500/15 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="text-xs font-bold text-brand-300">~5</span>
               </div>
               <div>

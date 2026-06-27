@@ -57,7 +57,7 @@ function StepCard({ stepId, step, stepNumber, onEdit, onSkip, isReadOnly }: Step
   // Status styling
   const statusConfig = {
     complete: {
-      bgColor: 'bg-emerald-500/10',
+      bgColor: '',
       borderColor: 'border-emerald-500/30',
       iconBgColor: 'bg-green-500',
       icon: (
@@ -65,23 +65,23 @@ function StepCard({ stepId, step, stepNumber, onEdit, onSkip, isReadOnly }: Step
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
         </svg>
       ),
-      badgeColor: 'bg-emerald-500/15 text-emerald-300',
+      badgeColor: 'text-emerald-300',
       badgeText: 'Complete'
     },
     incomplete: {
       bgColor: 'bg-[#0a0a0a]',
       borderColor: 'border-white/10',
-      iconBgColor: 'bg-white/10',
+      iconBgColor: 'bg-[#242424]',
       icon: (
         <span className="text-xs font-bold text-white/60">
           {stepNumber}
         </span>
       ),
-      badgeColor: 'bg-white/5 text-white/60',
+      badgeColor: 'bg-[#1c1c1c] text-white/60',
       badgeText: step.required ? 'Required' : 'Optional'
     },
     needs_attention: {
-      bgColor: 'bg-red-500/10',
+      bgColor: '',
       borderColor: 'border-red-500/30',
       iconBgColor: 'bg-red-500',
       icon: (
@@ -89,7 +89,7 @@ function StepCard({ stepId, step, stepNumber, onEdit, onSkip, isReadOnly }: Step
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       ),
-      badgeColor: 'bg-red-500/15 text-red-300',
+      badgeColor: 'text-red-300',
       badgeText: 'Needs Attention'
     }
   }

@@ -52,11 +52,11 @@ export function EventActivityTimeline({ activities }: EventActivityTimelineProps
   const getBgColor = (type: string) => {
     switch (type) {
       case 'ticket_sold':
-        return 'bg-emerald-500/10'
+        return ''
       case 'event_published':
-        return 'bg-brand-500/10'
+        return ''
       case 'event_updated':
-        return 'bg-brand-500/10'
+        return ''
       default:
         return 'bg-[#0a0a0a]'
     }

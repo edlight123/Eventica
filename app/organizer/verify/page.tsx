@@ -450,7 +450,7 @@ export default function VerifyOrganizerPage() {
                 </div>
 
                 <div className="mt-4">
-                  <div className="w-full bg-white/5 rounded-full h-2">
+                  <div className="w-full bg-[#1c1c1c] rounded-full h-2">
                     <div
                       className="bg-brand-700 h-2 rounded-full transition-all"
                       style={{ width: `${completionPercentage}%` }}
@@ -466,7 +466,7 @@ export default function VerifyOrganizerPage() {
                         ? 'bg-gray-900 hover:bg-gray-800 text-white'
                         : canSubmit
                           ? 'bg-brand-700 hover:bg-brand-800 text-white'
-                          : 'bg-white/5 text-white/50 cursor-not-allowed'
+                          : 'bg-[#1c1c1c] text-white/50 cursor-not-allowed'
                     }`}
                     disabled={!isReadOnly && !canSubmit}
                   >

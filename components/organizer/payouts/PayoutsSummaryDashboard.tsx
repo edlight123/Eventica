@@ -73,28 +73,28 @@ export default function PayoutsSummaryDashboard({
     none: {
       icon: <Wallet className="h-7 w-7" />,
       ring: 'from-brand-500/15 to-brand-600/10 border-brand-500/30',
-      chip: 'bg-brand-500/15 text-brand-300',
+      chip: 'text-brand-300',
       title: 'Set up payouts to get paid',
       description: 'Add a payout method to start receiving earnings from your ticket sales. It only takes a few minutes.',
     },
     active: {
       icon: <CheckCircle className="h-7 w-7" />,
       ring: 'from-emerald-500/15 to-emerald-600/10 border-emerald-500/30',
-      chip: 'bg-emerald-500/15 text-emerald-300',
+      chip: 'text-emerald-300',
       title: 'Your payouts are ready',
       description: 'Your payout method is set up and verified. Earnings are paid out according to your schedule.',
     },
     pending: {
       icon: <Clock className="h-7 w-7" />,
       ring: 'from-amber-500/15 to-amber-600/10 border-amber-500/30',
-      chip: 'bg-amber-500/15 text-amber-300',
+      chip: 'text-amber-300',
       title: 'Verification in progress',
       description: 'We’re reviewing your payout details. This usually takes 1–2 business days — we’ll notify you once it’s approved.',
     },
     needs_attention: {
       icon: <AlertCircle className="h-7 w-7" />,
       ring: 'from-red-500/15 to-red-600/10 border-red-500/30',
-      chip: 'bg-red-500/15 text-red-300',
+      chip: 'text-red-300',
       title: 'Action needed on your payouts',
       description: 'One of your payout methods needs attention before you can receive funds. Open it below to resolve.',
     },
@@ -129,7 +129,7 @@ export default function PayoutsSummaryDashboard({
   }
 
   const renderPayoutMethod = (method: PayoutMethod, profile: 'haiti' | 'stripe_connect') => {
-    const iconBgColor = 'bg-brand-500/15 text-brand-300'
+    const iconBgColor = 'text-brand-300'
 
     return (
       <div 
@@ -165,7 +165,7 @@ export default function PayoutsSummaryDashboard({
           onClick={() => onEdit(profile)}
           className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition-colors ${
             method.status === 'needs_attention'
-              ? 'border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/20'
+              ? 'border-red-500/30 text-red-300 hover:bg-red-500/20'
               : 'border-white/10 text-white/70 hover:bg-[#0a0a0a]'
           }`}
         >
@@ -229,7 +229,7 @@ export default function PayoutsSummaryDashboard({
           </div>
         ) : (
           <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-8 text-center">
-            <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-white/5 flex items-center justify-center">
+            <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-[#1c1c1c] flex items-center justify-center">
               <Wallet className="w-7 h-7 text-white/40" />
             </div>
             <h3 className="font-semibold text-white mb-2">No payout methods set up</h3>
@@ -255,7 +255,7 @@ export default function PayoutsSummaryDashboard({
             href="/organizer/earnings"
             className="flex items-center gap-3 p-3 rounded-lg border border-white/10 hover:bg-[#0a0a0a] hover:border-white/10 transition-colors"
           >
-            <div className="w-10 h-10 rounded-lg bg-brand-500/15 flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
               <TrendingUp className="w-5 h-5 text-brand-300" />
             </div>
             <div className="flex-1 min-w-0">
@@ -268,7 +268,7 @@ export default function PayoutsSummaryDashboard({
             href="/organizer/settings/payouts/history"
             className="flex items-center gap-3 p-3 rounded-lg border border-white/10 hover:bg-[#0a0a0a] hover:border-white/10 transition-colors"
           >
-            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-[#1c1c1c] flex items-center justify-center flex-shrink-0">
               <History className="w-5 h-5 text-white/60" />
             </div>
             <div className="flex-1 min-w-0">
@@ -281,7 +281,7 @@ export default function PayoutsSummaryDashboard({
             href="/organizer/settings/payouts/fees"
             className="flex items-center gap-3 p-3 rounded-lg border border-white/10 hover:bg-[#0a0a0a] hover:border-white/10 transition-colors"
           >
-            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-[#1c1c1c] flex items-center justify-center flex-shrink-0">
               <ShieldCheck className="w-5 h-5 text-white/60" />
             </div>
             <div className="flex-1 min-w-0">

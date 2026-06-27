@@ -22,13 +22,11 @@ export function ActionCenter({ alerts }: ActionCenterProps) {
   
   if (alerts.length === 0) {
     return (
-      <div className="bg-gradient-to-br from-emerald-500/15 to-brand-600/10 rounded-2xl border border-emerald-500/30 p-6">
+      <div className="rounded-2xl border border-white/10 p-6">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 bg-emerald-500/15 rounded-xl flex items-center justify-center flex-shrink-0">
-            <ShieldCheck className="w-6 h-6 text-emerald-300" />
-          </div>
+          <ShieldCheck className="w-6 h-6 shrink-0 text-emerald-300" />
           <div>
-            <h3 className="font-display text-xl text-green-900 mb-1">{t('organizer.action_center.all_caught_up')}</h3>
+            <h3 className="font-display text-xl text-white mb-1">{t('organizer.action_center.all_caught_up')}</h3>
             <p className="text-sm text-emerald-300">{t('organizer.action_center.no_action_items')}</p>
           </div>
         </div>
@@ -54,13 +52,13 @@ export function ActionCenter({ alerts }: ActionCenterProps) {
   const getColor = (type: Alert['type']) => {
     switch (type) {
       case 'draft':
-        return { bg: 'bg-brand-500/10', border: 'border-brand-500/30', text: 'text-brand-300', icon: 'text-brand-300', btn: 'bg-brand-600 hover:bg-brand-700' }
+        return { bg: '', border: 'border-brand-500/30', text: 'text-brand-300', icon: 'text-brand-300', btn: 'bg-brand-600 hover:bg-brand-700' }
       case 'low-sales':
-        return { bg: 'bg-amber-500/10', border: 'border-amber-500/30', text: 'text-amber-900', icon: 'text-amber-300', btn: 'bg-amber-600 hover:bg-amber-700' }
+        return { bg: '', border: 'border-amber-500/30', text: 'text-white', icon: 'text-amber-300', btn: 'bg-amber-600 hover:bg-amber-700' }
       case 'payout':
-        return { bg: 'bg-brand-500/10', border: 'border-brand-500/30', text: 'text-brand-300', icon: 'text-brand-300', btn: 'bg-brand-600 hover:bg-brand-700' }
+        return { bg: '', border: 'border-brand-500/30', text: 'text-brand-300', icon: 'text-brand-300', btn: 'bg-brand-600 hover:bg-brand-700' }
       case 'verification':
-        return { bg: 'bg-amber-500/10', border: 'border-amber-500/30', text: 'text-yellow-900', icon: 'text-amber-300', btn: 'bg-yellow-600 hover:bg-yellow-700' }
+        return { bg: '', border: 'border-amber-500/30', text: 'text-white', icon: 'text-amber-300', btn: 'bg-amber-600 hover:bg-amber-700' }
       default:
         return { bg: 'bg-[#0a0a0a]', border: 'border-white/10', text: 'text-white', icon: 'text-white/60', btn: 'bg-gray-600 hover:bg-gray-700' }
     }
@@ -69,7 +67,7 @@ export function ActionCenter({ alerts }: ActionCenterProps) {
   return (
     <div className="bg-[#141414] rounded-2xl shadow-soft border border-white/10 p-6">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center">
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center">
           <AlertCircle className="w-5 h-5 text-red-300" />
         </div>
         <div>

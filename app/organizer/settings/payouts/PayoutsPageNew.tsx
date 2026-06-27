@@ -987,7 +987,7 @@ export default function PayoutsPageNew({
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {!isFocusedEdit && payoutChangeVerificationRequired ? (
-          <div id="payout-change-stepup" className="mb-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+          <div id="payout-change-stepup" className="mb-6 p-4 border border-amber-500/30 rounded-lg">
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-amber-300 flex-shrink-0 mt-0.5" />
               <div className="min-w-0 flex-1">
@@ -1045,7 +1045,7 @@ export default function PayoutsPageNew({
                 {/* Profile header */}
                 <div className="flex items-start justify-between gap-3 rounded-xl border border-white/10 bg-[#141414] p-6 shadow-sm">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-brand-500/15 text-brand-300">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl text-brand-300">
                       {activeProfile === 'stripe_connect' ? <Globe className="h-5 w-5" /> : <Wallet className="h-5 w-5" />}
                     </div>
                     <div>
@@ -1070,12 +1070,12 @@ export default function PayoutsPageNew({
                         return (
                           <div key={step.key} className={`flex items-center ${i < steps.length - 1 ? 'flex-1' : ''}`}>
                             <div className="flex shrink-0 items-center gap-2">
-                              <div className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${isDone ? 'bg-emerald-500 text-white' : isActive ? 'bg-brand-600 text-white' : 'bg-white/10 text-white/30'}`}>
+                              <div className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${isDone ? 'bg-emerald-500 text-white' : isActive ? 'bg-brand-600 text-white' : 'bg-[#242424] text-white/30'}`}>
                                 {isDone ? '✓' : i + 1}
                               </div>
                               <span className={`whitespace-nowrap text-sm font-medium ${isActive ? 'text-white' : isDone ? 'text-white/60' : 'text-white/30'}`}>{step.label}</span>
                             </div>
-                            {i < steps.length - 1 && <div className={`mx-3 h-px flex-1 ${isDone ? 'bg-emerald-500/40' : 'bg-white/10'}`} />}
+                            {i < steps.length - 1 && <div className={`mx-3 h-px flex-1 ${isDone ? 'bg-emerald-500/40' : 'bg-[#242424]'}`} />}
                           </div>
                         )
                       })}
@@ -1245,7 +1245,7 @@ export default function PayoutsPageNew({
                           </>
                         )}
 
-                        {error && <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">{error}</div>}
+                        {error && <div className="rounded-xl border border-red-500/30 p-4 text-sm text-red-300">{error}</div>}
 
                         <button type="button" onClick={() => handleSavePayoutDetails(() => setEditStep('verify'))} disabled={isSaving || payoutChangeVerificationRequired} className="w-full rounded-xl bg-brand-700 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-800 disabled:opacity-40">
                           {isSaving ? (activeProfile === 'stripe_connect' ? 'Opening Stripe…' : 'Saving…') : (activeProfile === 'stripe_connect' ? 'Continue to Stripe' : 'Save & continue')}
@@ -1402,7 +1402,7 @@ export default function PayoutsPageNew({
                 {/* Step 3 — Done */}
                 {editStep === 'done' && (
                   <div className="rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 p-8 text-center">
-                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/15">
+                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl ">
                       <CheckCircle className="h-7 w-7 text-emerald-300" />
                     </div>
                     <h2 className="text-xl font-semibold text-white">You're all set!</h2>
@@ -2183,7 +2183,7 @@ export default function PayoutsPageNew({
                     )}
 
                     {error && (
-                      <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-sm text-red-300">
+                      <div className="p-3 border border-red-500/30 rounded-lg text-sm text-red-300">
                         {error}
                       </div>
                     )}
@@ -2368,7 +2368,7 @@ export default function PayoutsPageNew({
 
                 {upcomingPayout ? (
                   <div className="space-y-4">
-                    <div className="flex items-center gap-3 p-4 bg-brand-500/10 border border-brand-500/30 rounded-lg">
+                    <div className="flex items-center gap-3 p-4 border border-brand-500/30 rounded-lg">
                       <Clock className="w-5 h-5 text-brand-300 flex-shrink-0" />
                       <div>
                         <div className="text-sm font-medium text-brand-300">

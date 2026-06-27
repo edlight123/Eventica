@@ -64,7 +64,7 @@ export function EditEventHeader({
                       </span>
                     )}
                   </div>
-                  <div className="w-full bg-white/10 rounded-full h-2">
+                  <div className="w-full bg-[#242424] rounded-full h-2">
                     <div
                       className={`h-2 rounded-full transition-all duration-500 ${
                         completionPercentage === 100
@@ -102,7 +102,7 @@ export function EditEventHeader({
               disabled={isSaving || !hasUnsavedChanges}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold transition-all ${
                 hasUnsavedChanges
-                  ? 'bg-white/5 text-white hover:bg-white/10 border-2 border-white/15'
+                  ? 'bg-[#1c1c1c] text-white hover:bg-[#242424] border-2 border-white/15'
                   : 'bg-[#0a0a0a] text-white/40 border-2 border-white/10 cursor-not-allowed'
               }`}
             >
@@ -134,7 +134,7 @@ export function EditEventHeader({
                   ? isPublished
                     ? 'bg-gray-600 text-white hover:bg-gray-700 shadow-md hover:shadow-lg'
                     : 'bg-brand-700 text-white hover:bg-brand-800 shadow-md hover:shadow-lg'
-                  : 'bg-white/10 text-white/40 cursor-not-allowed'
+                  : 'bg-[#242424] text-white/40 cursor-not-allowed'
               }`}
               title={!canPublish ? `Complete ${missingItemsCount} required item${missingItemsCount !== 1 ? 's' : ''} to publish` : ''}
             >

@@ -110,7 +110,7 @@ export function EventTabs({ eventId, ticketCount }: EventTabsProps) {
                   <span
                     className={`rounded-full px-2 py-0.5 text-[11px] font-semibold tabular-nums ${
                       active
-                        ? 'bg-brand-500/15 text-brand-300'
+                        ? 'text-brand-300'
                         : 'bg-white/8 text-white/55'
                     }`}
                   >

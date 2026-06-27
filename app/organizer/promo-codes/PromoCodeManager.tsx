@@ -160,8 +160,8 @@ export default function PromoCodeManager({
         onClick={() => toggleActive(promo.id, promo.is_active)}
         className={`px-3 py-1.5 rounded-lg font-medium text-xs md:text-sm transition ${
           promo.is_active
-            ? 'bg-brand-500/10 text-brand-300 hover:bg-brand-500/15'
-            : 'bg-white/5 text-white/70 hover:bg-white/10'
+            ? 'text-brand-300 hover:bg-brand-500/15'
+            : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
         }`}
       >
         {promo.is_active ? 'Deactivate' : 'Activate'}

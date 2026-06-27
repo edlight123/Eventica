@@ -27,7 +27,7 @@ export function PayoutsWidget({ status, pendingBalance = 0, currency = 'HTG', la
       case 'not-setup':
         return {
           icon: <AlertCircle className="w-5 h-5" />,
-          iconBg: 'bg-red-500/10',
+          iconBg: '',
           iconColor: 'text-red-300',
           title: t('payouts.not_setup_title'),
           description: t('payouts.not_setup_description'),
@@ -38,7 +38,7 @@ export function PayoutsWidget({ status, pendingBalance = 0, currency = 'HTG', la
       case 'setup':
         return {
           icon: <CheckCircle className="w-5 h-5" />,
-          iconBg: 'bg-emerald-500/10',
+          iconBg: '',
           iconColor: 'text-emerald-300',
           title: t('payouts.ready_title'),
           description: t('payouts.ready_description'),
@@ -49,7 +49,7 @@ export function PayoutsWidget({ status, pendingBalance = 0, currency = 'HTG', la
       case 'pending':
         return {
           icon: <Clock className="w-5 h-5" />,
-          iconBg: 'bg-amber-500/10',
+          iconBg: '',
           iconColor: 'text-amber-300',
           title: t('payouts.pending_title'),
           description: t('payouts.pending_description'),
@@ -60,7 +60,7 @@ export function PayoutsWidget({ status, pendingBalance = 0, currency = 'HTG', la
       case 'active':
         return {
           icon: <DollarSign className="w-5 h-5" />,
-          iconBg: 'bg-blue-500/10',
+          iconBg: '',
           iconColor: 'text-blue-300',
           title: t('payouts.active_title'),
           description: t('payouts.active_description'),

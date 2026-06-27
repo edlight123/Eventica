@@ -55,7 +55,7 @@ export default function BusinessDetailsForm({ initialData, onSave, onCancel, onS
               Optional: Provide business registration information if applicable
             </p>
           </div>
-          <span className="bg-white/5 text-white/60 px-3 py-1 rounded-full text-xs font-medium">
+          <span className="bg-[#1c1c1c] text-white/60 px-3 py-1 rounded-full text-xs font-medium">
             Optional
           </span>
         </div>
@@ -132,7 +132,7 @@ export default function BusinessDetailsForm({ initialData, onSave, onCancel, onS
 
         {/* Error */}
         {error && (
-          <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+          <div className="mt-4 p-3 border border-red-500/30 rounded-lg">
             <p className="text-sm text-red-300">{error}</p>
           </div>
         )}
@@ -152,7 +152,7 @@ export default function BusinessDetailsForm({ initialData, onSave, onCancel, onS
           type="button"
           onClick={onSkip}
           disabled={isSaving}
-          className="flex-1 px-6 py-3 text-white/60 bg-white/5 hover:bg-white/10 rounded-lg font-semibold transition-all disabled:opacity-50"
+          className="flex-1 px-6 py-3 text-white/60 bg-[#1c1c1c] hover:bg-[#242424] rounded-lg font-semibold transition-all disabled:opacity-50"
         >
           Skip for Now
         </button>

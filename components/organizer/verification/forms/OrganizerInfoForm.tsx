@@ -238,7 +238,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
 
         {/* Form Error */}
         {errors._form && (
-          <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+          <div className="mt-4 p-3 border border-red-500/30 rounded-lg">
             <p className="text-sm text-red-300">{errors._form}</p>
           </div>
         )}

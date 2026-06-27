@@ -288,7 +288,7 @@ export default async function AnalyticsPage() {
                       </p>
                     </div>
                     {!event.is_published && (
-                      <span className="rounded-full bg-white/10 px-2.5 py-1 text-xs font-medium text-white/60">
+                      <span className="rounded-full bg-[#242424] px-2.5 py-1 text-xs font-medium text-white/60">
                         Draft
                       </span>
                     )}

@@ -25,7 +25,7 @@ export function OrgEmptyState({
       className={`flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.02] p-10 text-center ${className}`}
     >
       {Icon && (
-        <div className="mx-auto mb-5 grid h-14 w-14 place-items-center rounded-2xl bg-brand-500/10 text-brand-400">
+        <div className="mx-auto mb-5 grid h-14 w-14 place-items-center rounded-2xl text-brand-400">
           <Icon className="h-7 w-7" />
         </div>
       )}
@@ -55,9 +55,9 @@ export function OrgErrorState({
 }) {
   return (
     <div
-      className={`flex flex-col items-center justify-center rounded-2xl border border-red-500/20 bg-red-500/5 p-10 text-center ${className}`}
+      className={`flex flex-col items-center justify-center rounded-2xl border border-red-500/20 p-10 text-center ${className}`}
     >
-      <div className="mx-auto mb-5 grid h-14 w-14 place-items-center rounded-2xl bg-red-500/10 text-red-400">
+      <div className="mx-auto mb-5 grid h-14 w-14 place-items-center rounded-2xl text-red-400">
         <AlertCircle className="h-7 w-7" />
       </div>
       <h3 className="font-display text-xl text-white">{title}</h3>
@@ -104,8 +104,8 @@ export function OrgPageSkeleton({ rows = 8 }: { rows?: number }) {
     <div className="animate-pulse space-y-6 px-4 py-6 sm:px-6 lg:px-8">
       {/* Header skeleton */}
       <div className="space-y-2">
-        <div className="h-3 w-16 rounded bg-brand-500/20" />
-        <div className="h-9 w-56 rounded-lg bg-white/10" />
+        <div className="h-3 w-16 rounded " />
+        <div className="h-9 w-56 rounded-lg bg-[#242424]" />
         <div className="h-4 w-80 rounded bg-white/[0.06]" />
       </div>
       {/* Content skeleton */}

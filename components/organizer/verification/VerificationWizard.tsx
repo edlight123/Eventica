@@ -80,7 +80,7 @@ function ReviewRow({ label, value }: { label: string; value?: string }) {
 function ReviewDoc({ ok, label }: { ok: boolean; label: string }) {
   return (
     <li className="flex items-center gap-2">
-      <span className={`grid h-5 w-5 place-items-center rounded-full ${ok ? 'bg-emerald-500/15 text-emerald-300' : 'bg-white/5 text-white/40'}`}>
+      <span className={`grid h-5 w-5 place-items-center rounded-full ${ok ? 'text-emerald-300' : 'bg-[#1c1c1c] text-white/40'}`}>
         {ok ? <Check className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
       </span>
       <span className={ok ? 'text-white' : 'text-white/50'}>{label}</span>
@@ -339,8 +339,8 @@ export default function VerificationWizard({
                           : isCurrent
                             ? 'bg-brand-600 text-white ring-4 ring-brand-500/20'
                             : isPast
-                              ? 'bg-white/10 text-white/60'
-                              : 'bg-white/5 text-white/50'
+                              ? 'bg-[#242424] text-white/60'
+                              : 'bg-[#1c1c1c] text-white/50'
                         }
                       `}
                     >
@@ -349,7 +349,7 @@ export default function VerificationWizard({
                     {index < STEPS.length - 1 && (
                       <div
                         className={`flex-1 h-1 mx-2 rounded-full transition-colors ${
-                          isComplete || isPast ? 'bg-green-500' : 'bg-white/10'
+                          isComplete || isPast ? 'bg-green-500' : 'bg-[#242424]'
                         }`}
                       />
                     )}
@@ -373,7 +373,7 @@ export default function VerificationWizard({
               <p className="text-white/60">
                 {currentStep.description}
                 {!currentStep.required && (
-                  <span className="ml-2 text-xs font-medium text-white/50 bg-white/5 px-2 py-0.5 rounded-full">
+                  <span className="ml-2 text-xs font-medium text-white/50 bg-[#1c1c1c] px-2 py-0.5 rounded-full">
                     Optional
                   </span>
                 )}
@@ -384,7 +384,7 @@ export default function VerificationWizard({
 
         {/* What you'll need — shown on the first step so organizers don't bail mid-flow */}
         {currentStepIndex === 0 && (
-          <div className="mb-6 bg-brand-500/10 border border-brand-500/30 rounded-xl p-4">
+          <div className="mb-6 border border-brand-500/30 rounded-xl p-4">
             <h4 className="text-sm font-semibold text-brand-300 mb-1.5">Before you start</h4>
             <p className="text-sm text-brand-700/90 mb-2">
               Have these ready — it takes about 5 minutes, and your progress saves as you go:
@@ -399,7 +399,7 @@ export default function VerificationWizard({
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-start gap-3">
+          <div className="mb-6 border border-red-500/30 rounded-xl p-4 flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-red-300">Error</p>
@@ -426,7 +426,7 @@ export default function VerificationWizard({
                     if (formErrors.full_name) setFormErrors(prev => ({ ...prev, full_name: '' }))
                   }}
                   className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors ${
-                    formErrors.full_name ? 'border-red-300 bg-red-500/10' : 'border-white/15'
+                    formErrors.full_name ? 'border-red-300 ' : 'border-white/15'
                   }`}
                   placeholder="Your full name as it appears on your ID"
                 />
@@ -448,7 +448,7 @@ export default function VerificationWizard({
                       if (formErrors.phone) setFormErrors(prev => ({ ...prev, phone: '' }))
                     }}
                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors ${
-                      formErrors.phone ? 'border-red-300 bg-red-500/10' : 'border-white/15'
+                      formErrors.phone ? 'border-red-300 ' : 'border-white/15'
                     }`}
                     placeholder="+509 1234 5678"
                   />
@@ -483,7 +483,7 @@ export default function VerificationWizard({
                     if (formErrors.organization_name) setFormErrors(prev => ({ ...prev, organization_name: '' }))
                   }}
                   className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors ${
-                    formErrors.organization_name ? 'border-red-300 bg-red-500/10' : 'border-white/15'
+                    formErrors.organization_name ? 'border-red-300 ' : 'border-white/15'
                   }`}
                   placeholder="Your business or organization name"
                 />
@@ -560,7 +560,7 @@ export default function VerificationWizard({
           {currentStep.id === 'governmentId' && (
             <div className="p-5 md:p-6 space-y-5">
               {/* Tips */}
-              <div className="bg-brand-500/10 border border-brand-500/30 rounded-xl p-4">
+              <div className="border border-brand-500/30 rounded-xl p-4">
                 <h4 className="font-semibold text-brand-300 text-sm mb-2 flex items-center gap-2">
                   <Sparkles className="w-4 h-4" /> Photo Tips
                 </h4>
@@ -596,7 +596,7 @@ export default function VerificationWizard({
           {currentStep.id === 'selfie' && (
             <div className="p-5 md:p-6 space-y-5">
               {/* Instructions */}
-              <div className="bg-brand-500/10 border border-brand-500/30 rounded-xl p-4">
+              <div className="border border-brand-500/30 rounded-xl p-4">
                 <h4 className="font-semibold text-brand-300 text-sm mb-2">How to take a good selfie:</h4>
                 <ul className="text-sm text-brand-300 space-y-1 ml-6 list-disc">
                   <li>Hold your ID next to your face</li>
@@ -742,7 +742,7 @@ export default function VerificationWizard({
                 </div>
               )}
 
-              <div className="rounded-xl border border-brand-500/30 bg-brand-500/10 p-4 text-sm text-brand-300">
+              <div className="rounded-xl border border-brand-500/30 p-4 text-sm text-brand-300">
                 By submitting, you confirm this information is accurate. Our team typically reviews within 1–2 business days, and you&apos;ll be notified once approved — unlocking paid events.
               </div>
             </div>
@@ -758,7 +758,7 @@ export default function VerificationWizard({
               flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all
               ${currentStepIndex === 0
                 ? 'text-white/40 cursor-not-allowed'
-                : 'text-white/70 hover:text-white hover:bg-white/5'
+                : 'text-white/70 hover:text-white hover:bg-[#1c1c1c]'
               }
             `}
           >
@@ -771,7 +771,7 @@ export default function VerificationWizard({
               <button
                 onClick={handleSkipStep}
                 disabled={saving}
-                className="px-4 py-2.5 rounded-lg text-sm font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all"
+                className="px-4 py-2.5 rounded-lg text-sm font-semibold text-white/70 hover:text-white hover:bg-[#1c1c1c] transition-all"
               >
                 Skip for now
               </button>

@@ -299,7 +299,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
                 type="button"
                 onClick={() => setSellMode(m)}
                 className={`rounded-full py-2.5 text-sm font-semibold transition-all ${
-                  sellMode === m ? 'bg-white/10 text-white' : 'text-white/50 hover:text-white/80'
+                  sellMode === m ? 'bg-[#242424] text-white' : 'text-white/50 hover:text-white/80'
                 }`}
               >
                 {m === 'tickets' ? 'Sell Tickets' : 'RSVP'}
@@ -331,7 +331,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
               <button
                 type="button"
                 onClick={() => setShowSummary(true)}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#1c1c1c] px-3.5 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#1c1c1c] px-3.5 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-[#242424] hover:text-white"
               >
                 <Plus className="h-4 w-4" /> Short Summary
               </button>
@@ -465,7 +465,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
                         <button
                           type="button"
                           onClick={() => removeTier(tier.id)}
-                          className="shrink-0 rounded-lg border border-white/10 p-2.5 text-white/40 transition-colors hover:bg-white/5 hover:text-red-300"
+                          className="shrink-0 rounded-lg border border-white/10 p-2.5 text-white/40 transition-colors hover:bg-[#1c1c1c] hover:text-red-300"
                           aria-label="Remove ticket type"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -524,7 +524,7 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
                       <button
                         type="button"
                         onClick={() => removeGuest(g.id)}
-                        className="shrink-0 rounded-lg p-1.5 text-white/40 transition-colors hover:bg-white/5 hover:text-red-300"
+                        className="shrink-0 rounded-lg p-1.5 text-white/40 transition-colors hover:bg-[#1c1c1c] hover:text-red-300"
                         aria-label={`Remove ${g.name}`}
                       >
                         <X className="h-4 w-4" />

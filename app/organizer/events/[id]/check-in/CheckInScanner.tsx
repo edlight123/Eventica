@@ -71,7 +71,7 @@ export default function CheckInScanner({ eventId }: { eventId: string }) {
           className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
             scanMode === 'camera'
               ? 'bg-brand-700 text-white'
-              : 'bg-white/5 text-white/70 hover:bg-white/10'
+              : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
           }`}
         >
           📷 Live Camera
@@ -81,7 +81,7 @@ export default function CheckInScanner({ eventId }: { eventId: string }) {
           className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
             scanMode === 'manual'
               ? 'bg-brand-700 text-white'
-              : 'bg-white/5 text-white/70 hover:bg-white/10'
+              : 'bg-[#1c1c1c] text-white/70 hover:bg-[#242424]'
           }`}
         >
           ⌨️ Manual Entry
@@ -101,7 +101,7 @@ export default function CheckInScanner({ eventId }: { eventId: string }) {
           />
         </div>
       ) : (
-        <div className="bg-white/5 rounded-xl p-8 mb-4 text-center">
+        <div className="bg-[#1c1c1c] rounded-xl p-8 mb-4 text-center">
           <div className="inline-flex items-center justify-center w-48 h-48 bg-[#141414] rounded-2xl border-4 border-dashed border-white/15">
             <div className="text-white/40">
               <svg className="w-24 h-24 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -132,8 +132,8 @@ export default function CheckInScanner({ eventId }: { eventId: string }) {
         {message && (
           <div className={`p-4 rounded-xl ${
             message.type === 'success' 
-              ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300' 
-              : 'bg-red-500/10 border border-red-500/30 text-red-300'
+              ? 'border border-emerald-500/30 text-emerald-300' 
+              : 'border border-red-500/30 text-red-300'
           }`}>
             {message.text}
           </div>

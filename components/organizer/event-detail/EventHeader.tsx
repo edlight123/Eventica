@@ -54,8 +54,8 @@ export function EventHeader({ event }: EventHeaderProps) {
                 <h1 className="text-2xl font-bold text-white truncate">{event.title}</h1>
                 <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
                   event.is_published 
-                    ? 'bg-emerald-500/15 text-emerald-300' 
-                    : 'bg-white/5 text-white/90'
+                    ? 'text-emerald-300' 
+                    : 'bg-[#1c1c1c] text-white/90'
                 }`}>
                   {event.is_published ? t('organizer.published') : t('organizer.draft')}
                 </span>
@@ -162,8 +162,8 @@ export function EventHeader({ event }: EventHeaderProps) {
             <h1 className="text-lg font-bold text-white truncate flex-1">{event.title}</h1>
             <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
               event.is_published 
-                ? 'bg-emerald-500/15 text-emerald-300' 
-                : 'bg-white/5 text-white/90'
+                ? 'text-emerald-300' 
+                : 'bg-[#1c1c1c] text-white/90'
             }`}>
               {event.is_published ? t('organizer.published') : t('organizer.draft')}
             </span>
@@ -217,7 +217,7 @@ export function EventHeader({ event }: EventHeaderProps) {
             onClick={handlePublishToggle}
             disabled={isPublishing}
             className={`flex flex-col items-center gap-1 p-2 rounded-lg ${
-              event.is_published ? 'bg-white/5' : 'bg-brand-500/10'
+              event.is_published ? 'bg-[#1c1c1c]' : ''
             }`}
           >
             <div className={`w-5 h-5 rounded-full ${event.is_published ? 'bg-gray-600' : 'bg-brand-700'}`} />

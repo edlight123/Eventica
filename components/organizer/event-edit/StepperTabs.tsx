@@ -49,10 +49,10 @@ export function StepperTabs({ tabs, currentTab, onTabChange }: StepperTabsProps)
                     isActive
                       ? 'bg-brand-700 text-white shadow-md'
                       : isCompleted
-                      ? 'bg-emerald-500/15 text-emerald-300 group-hover:bg-green-200'
+                      ? 'text-emerald-300 group-hover:bg-green-200'
                       : hasWarnings || tab.missingFields.length > 0
-                      ? 'bg-amber-500/15 text-amber-300 group-hover:bg-amber-200'
-                      : 'bg-white/5 text-white/60 group-hover:bg-white/10'
+                      ? 'text-amber-300 group-hover:bg-amber-200'
+                      : 'bg-[#1c1c1c] text-white/60 group-hover:bg-[#242424]'
                   }`}>
                     {isCompleted && !isActive ? (
                       <Check className="w-5 h-5" />
@@ -116,7 +116,7 @@ export function StepperTabs({ tabs, currentTab, onTabChange }: StepperTabsProps)
                   <div className={`h-0.5 w-8 transition-all ${
                     isPast || isCompleted
                       ? 'bg-green-500'
-                      : 'bg-white/10'
+                      : 'bg-[#242424]'
                   }`}></div>
                 )}
               </div>

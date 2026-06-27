@@ -2,14 +2,14 @@ export default function TeamLoading() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] py-8">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="h-6 w-32 bg-white/10 rounded mb-6 animate-pulse" />
+        <div className="h-6 w-32 bg-[#242424] rounded mb-6 animate-pulse" />
         <div className="mb-8">
-          <div className="h-9 w-80 bg-white/10 rounded mb-2 animate-pulse" />
-          <div className="h-5 w-full max-w-xl bg-white/10 rounded animate-pulse" />
+          <div className="h-9 w-80 bg-[#242424] rounded mb-2 animate-pulse" />
+          <div className="h-5 w-full max-w-xl bg-[#242424] rounded animate-pulse" />
         </div>
         <div className="space-y-6">
           <div className="flex justify-end">
-            <div className="h-11 w-48 bg-white/10 rounded-lg animate-pulse" />
+            <div className="h-11 w-48 bg-[#242424] rounded-lg animate-pulse" />
           </div>
           <div className="bg-[#141414] rounded-xl border border-white/10 overflow-hidden">
             <div className="overflow-x-auto">
@@ -18,7 +18,7 @@ export default function TeamLoading() {
                   <tr>
                     {[1, 2, 3, 4, 5].map((i) => (
                       <th key={i} className="px-6 py-3">
-                        <div className="h-4 bg-white/10 rounded animate-pulse" />
+                        <div className="h-4 bg-[#242424] rounded animate-pulse" />
                       </th>
                     ))}
                   </tr>
@@ -28,7 +28,7 @@ export default function TeamLoading() {
                     <tr key={i}>
                       {[1, 2, 3, 4, 5].map((j) => (
                         <td key={j} className="px-6 py-4">
-                          <div className="h-5 bg-white/10 rounded animate-pulse" />
+                          <div className="h-5 bg-[#242424] rounded animate-pulse" />
                         </td>
                       ))}
                     </tr>

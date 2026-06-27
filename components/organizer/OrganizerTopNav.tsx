@@ -77,7 +77,7 @@ export function OrganizerTopNav({ draftEvents = 0, pendingPayouts = 0, accountIn
             href="/organizer/finance"
             aria-label="Finance"
             className={`relative grid h-9 w-9 place-items-center rounded-lg transition-colors ${
-              financeActive ? 'bg-white/10 text-white' : 'text-white/55 hover:bg-white/5 hover:text-white'
+              financeActive ? 'bg-[#242424] text-white' : 'text-white/55 hover:bg-[#1c1c1c] hover:text-white'
             }`}
           >
             <DollarSign className="h-[18px] w-[18px]" />
@@ -91,7 +91,7 @@ export function OrganizerTopNav({ draftEvents = 0, pendingPayouts = 0, accountIn
             href="/organizer/settings"
             aria-label="Settings"
             className={`grid h-9 w-9 place-items-center rounded-lg transition-colors ${
-              settingsActive ? 'bg-white/10 text-white' : 'text-white/55 hover:bg-white/5 hover:text-white'
+              settingsActive ? 'bg-[#242424] text-white' : 'text-white/55 hover:bg-[#1c1c1c] hover:text-white'
             }`}
           >
             <Settings className="h-[18px] w-[18px]" />

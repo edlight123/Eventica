@@ -122,7 +122,7 @@ export function DetailsTab({ formData, onChange, validation }: DetailsTabProps) 
                 disabled={formData.tags?.includes(tag)}
                 className={`px-3 py-1.5 text-sm font-medium rounded-lg border-2 transition-all ${
                   formData.tags?.includes(tag)
-                    ? 'bg-brand-500/15 text-brand-300 border-brand-300 cursor-not-allowed'
+                    ? 'text-brand-300 border-brand-300 cursor-not-allowed'
                     : 'bg-[#141414] text-white/70 border-white/10 hover:border-brand-500 hover:bg-brand-500/10 hover:text-brand-300'
                 }`}
               >
@@ -158,7 +158,7 @@ export function DetailsTab({ formData, onChange, validation }: DetailsTabProps) 
 
         {/* Selected Tags */}
         {formData.tags && formData.tags.length > 0 && (
-          <div className="bg-brand-500/10 border-2 border-brand-500/30 rounded-xl p-4">
+          <div className="border-2 border-brand-500/30 rounded-xl p-4">
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs font-bold text-brand-300 uppercase tracking-wide">
                 Selected tags ({formData.tags.length})
@@ -192,7 +192,7 @@ export function DetailsTab({ formData, onChange, validation }: DetailsTabProps) 
 
       {/* Validation Warnings */}
       {validation.warnings.length > 0 && (
-        <div className="bg-amber-500/10 border-2 border-amber-500/30 rounded-xl p-4">
+        <div className="border-2 border-amber-500/30 rounded-xl p-4">
           <p className="font-semibold text-amber-900 mb-2 flex items-center gap-2">
             <AlertCircle className="w-5 h-5" />
             Suggestions

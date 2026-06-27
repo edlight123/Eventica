@@ -65,7 +65,7 @@ export function PayoutRequestModal({ open, onClose, availableLabel, methodLabel 
 
         {status === 'success' ? (
           <div className="px-5 py-8 text-center">
-            <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full bg-emerald-500/15 text-emerald-300">
+            <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full text-emerald-300">
               <CheckCircle2 className="h-6 w-6" />
             </div>
             <h4 className="font-display text-lg text-white">Payout requested</h4>
@@ -102,7 +102,7 @@ export function PayoutRequestModal({ open, onClose, availableLabel, methodLabel 
             </ul>
 
             {status === 'error' && (
-              <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">{message}</div>
+              <div className="rounded-lg border border-red-500/30 px-3 py-2 text-sm text-red-300">{message}</div>
             )}
 
             <div className="flex gap-3 pt-1">
