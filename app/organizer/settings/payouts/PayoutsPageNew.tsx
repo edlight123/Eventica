@@ -1357,7 +1357,7 @@ export default function PayoutsPageNew({
                                       <button type="button" onClick={addBankDestination} disabled={isAddingBankDestination} className="w-full rounded-xl  px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/[0.04] disabled:opacity-50">
                                         {isAddingBankDestination ? 'Adding…' : 'Add bank account'}
                                       </button>
-                                      <p className="text-xs text-white/50">You'll need to submit a bank statement or void check for each bank account.</p>
+                                      <p className="text-xs text-white/50">You&apos;ll need to submit a bank statement or void check for each bank account.</p>
                                     </div>
                                   ) : null}
                                 </div>
@@ -1405,7 +1405,7 @@ export default function PayoutsPageNew({
                     <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl ">
                       <CheckCircle className="h-7 w-7 text-emerald-300" />
                     </div>
-                    <h2 className="text-xl font-semibold text-white">You're all set!</h2>
+                    <h2 className="text-xl font-semibold text-white">You&apos;re all set!</h2>
                     <p className="mt-2 text-sm text-white/60">Your payout details have been saved. Verification may take 1–2 business days.</p>
                     <Link href="/organizer/settings/payouts" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-700 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
                       Back to payouts
