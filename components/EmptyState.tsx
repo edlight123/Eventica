@@ -23,11 +23,11 @@ export default function EmptyState({
 }: EmptyStateProps) {
   const dark = tone === 'dark'
   return (
-    <div className={`rounded-2xl border-2 border-dashed p-12 text-center hover:border-brand-400 transition-colors duration-300 ${dark ? 'bg-white/5 border-white/15' : 'bg-white border-gray-300'}`}>
+    <div className={`rounded-2xl border-2 border-dashed p-12 text-center hover:border-brand-400 transition-colors duration-300 ${dark ? 'border-white/15' : 'bg-white border-gray-300'}`}>
       {/* Icon with Premium Styling */}
       <div className="relative inline-block mb-6">
         <div className="absolute inset-0 rounded-full blur-xl opacity-50"></div>
-        <div className={`relative rounded-full p-6 ${dark ? 'bg-white/5' : 'bg-gradient-to-br from-gray-50 to-gray-100'}`}>
+        <div className={`relative rounded-full p-6 ${dark ? '' : 'bg-gradient-to-br from-gray-50 to-gray-100'}`}>
           <Icon className={`w-16 h-16 ${dark ? 'text-white/40' : 'text-gray-400'}`} strokeWidth={1.5} />
         </div>
       </div>

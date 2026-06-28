@@ -60,7 +60,7 @@ export function CategoryChips({ selectedCategories, bare = false }: CategoryChip
             className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-all whitespace-nowrap
               ${selectedCategories.includes(category)
                 ? 'border-brand-400 text-brand-300 shadow-sm'
-                : 'border-transparent bg-white/10 text-white/75 hover:bg-white/15'
+                : 'border-transparent text-white/75 hover:bg-white/15'
               }`}
           >
             {CATEGORY_ICONS[category]}

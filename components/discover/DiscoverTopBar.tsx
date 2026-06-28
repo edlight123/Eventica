@@ -89,7 +89,7 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
                 value={searchQuery}
                 onChange={handleSearchChange}
                 placeholder={t('filters.search_placeholder')}
-                className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/15 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm"
+                className="w-full pl-10 pr-4 py-2.5 border border-white/15 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm"
               />
             </div>
           </form>
@@ -100,7 +100,7 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
             <div className="relative">
               <button
                 onClick={() => setShowCityDropdown(!showCityDropdown)}
-                className="flex items-center gap-1.5 px-4 py-2 bg-white/10 hover:bg-white/15 rounded-full text-sm font-medium text-white/80 transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2 hover:bg-white/15 rounded-full text-sm font-medium text-white/80 transition-colors"
               >
                 <MapPin className="w-4 h-4" />
                 {filters.city || t('filters.all_cities')}
@@ -141,7 +141,7 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
               <div className="relative">
                 <button
                   onClick={() => setShowSubareaDropdown(!showSubareaDropdown)}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-white/10 hover:bg-white/15 rounded-full text-sm font-medium text-white/80 transition-colors"
+                  className="flex items-center gap-1.5 px-4 py-2 hover:bg-white/15 rounded-full text-sm font-medium text-white/80 transition-colors"
                 >
                   {filters.commune || `${t('filters.all_areas')} ${locationLabel.toLowerCase()}s`}
                   <ChevronDown className="w-4 h-4" />

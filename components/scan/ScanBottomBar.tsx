@@ -42,7 +42,7 @@ export function ScanBottomBar({ onManualLookup }: ScanBottomBarProps) {
             className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
               flashlightOn
                 ? 'bg-brand-600 text-white'
-                : 'bg-white/10 text-white hover:bg-white/20'
+                : 'text-white hover:bg-white/20'
             }`}
           >
             <Flashlight className="w-6 h-6" />
@@ -63,7 +63,7 @@ export function ScanBottomBar({ onManualLookup }: ScanBottomBarProps) {
             onClick={() => setSoundOn(!soundOn)}
             className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
               soundOn
-                ? 'bg-white/10 text-white hover:bg-white/20'
+                ? 'text-white hover:bg-white/20'
                 : 'bg-gray-700 text-gray-400'
             }`}
           >

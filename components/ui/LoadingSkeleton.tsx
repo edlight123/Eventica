@@ -9,7 +9,7 @@ interface LoadingSkeletonProps {
 }
 
 export default function LoadingSkeleton({ rows = 6, className = '', animated = true, tone = 'light' }: LoadingSkeletonProps) {
-  const bar = tone === 'dark' ? 'bg-white/10' : 'bg-gray-200'
+  const bar = tone === 'dark' ? '' : 'bg-gray-200'
   return (
     <div className={`${animated ? 'animate-pulse' : ''} ${className}`}>
       {[...Array(rows)].map((_, i) => (

@@ -158,7 +158,7 @@ export function FiltersModal({
                   type="date"
                   value={draftFilters.pickedDate || ''}
                   onChange={(e) => onDraftChange({ ...draftFilters, pickedDate: e.target.value })}
-                  className="w-full rounded-xl border border-white/15 bg-white/5 text-white [color-scheme:dark] px-4 py-2.5 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30"
+                  className="w-full rounded-xl border border-white/15 text-white [color-scheme:dark] px-4 py-2.5 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30"
                 />
               )}
             </div>
@@ -166,7 +166,7 @@ export function FiltersModal({
             {/* Event Type - Segmented Control */}
             <div className="space-y-3">
               <label className="eyebrow text-[11px] text-white/50">{t('filters.event_type')}</label>
-              <div className="inline-flex rounded-xl  p-1 bg-white/5">
+              <div className="inline-flex rounded-xl  p-1 ">
                 {EVENT_TYPE_OPTIONS.map(option => (
                   <button
                     key={option.value}
@@ -221,7 +221,7 @@ export function FiltersModal({
                 <select
                   value={draftFilters.city}
                   onChange={(e) => handleCityChange(e.target.value)}
-                  className="w-full rounded-xl border border-white/15 bg-white/5 text-white [color-scheme:dark] px-4 py-2.5 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30"
+                  className="w-full rounded-xl border border-white/15 text-white [color-scheme:dark] px-4 py-2.5 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30"
                 >
                   <option value="">{t('filters.all_cities')}</option>
                   {cities.map(city => (
@@ -236,7 +236,7 @@ export function FiltersModal({
                     <select
                       value={draftFilters.commune || ''}
                       onChange={(e) => handleCommuneChange(e.target.value)}
-                      className="w-full rounded-xl border border-white/15 bg-white/5 text-white [color-scheme:dark] px-4 py-2.5 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30"
+                      className="w-full rounded-xl border border-white/15 text-white [color-scheme:dark] px-4 py-2.5 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30"
                     >
                       <option value="">{t('filters.all_areas')} {locationLabel.toLowerCase()}s</option>
                       {subdivisions.map(subdivision => (
@@ -263,7 +263,7 @@ export function FiltersModal({
               className={`px-7 py-3 rounded-xl text-sm font-semibold transition-all duration-200
                 ${hasChanges
                   ? 'bg-brand-600 text-white shadow-sm hover:-translate-y-0.5 hover:bg-brand-700'
-                  : 'bg-white/10 text-white/40 cursor-not-allowed'
+                  : 'text-white/40 cursor-not-allowed'
                 }`}
             >
               {t('filters.apply_filters')}

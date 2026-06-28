@@ -1,0 +1,73 @@
+import { getCurrentUser } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import { adminDb } from '@/lib/firebase/admin';
+import ProfileForm from './ProfileForm';
+import Link from 'next/link';
+import { ChevronLeft } from 'lucide-react';
+import { PageHeader } from '@/components/organizer/ui';
+
+export const dynamic = 'force-dynamic';
+
+async function getUserProfile(userId: string) {
+  const userDoc = await adminDb.collection('users').doc(userId).get();
+  return userDoc.exists ? userDoc.data() : null;
+}
+
+export default async function ProfileSettingsPage() {
+  const user = await getCurrentUser();
+
+  if (!user?.id) {
+    redirect('/auth/login?redirect=/organizer/settings/profile');
+  }
+
+  if (user.role !== 'organizer') {
+    redirect('/organizer?redirect=/organizer/settings/profile');
+  }
+
+  const userProfile = await getUserProfile(user.id);
+
+  if (!userProfile) {
+    redirect('/');
+  }
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0a] py-8">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Back Button */}
+        <Link 
+          href="/organizer/settings"
+          className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white mb-6 transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Back to Settings
+        </Link>
+
+        <PageHeader
+          eyebrow="Settings"
+          title="Profile Settings"
+          subtitle="Manage your personal information and contact details"
+        />
+
+        {/* Profile Form */}
+        <div className="mt-8 rounded-2xl  bg-[#0a0a0a] overflow-hidden">
+          <ProfileForm 
+            userId={user.id}
+            initialData={{
+              full_name: userProfile.full_name || '',
+              email: userProfile.email || user.email || '',
+              phone_number: userProfile.phone_number || '',
+              photo_url: userProfile.photo_url || user.photo_url || '',
+            }}
+          />
+        </div>
+
+        {/* Info Notice */}
+        <div className="mt-6 p-4 bg-[#0a0a0a]  rounded-lg">
+          <p className="text-sm text-white/60">
+            <strong className="text-white">Note:</strong> Your email address is managed through your authentication provider and cannot be changed here. Contact support if you need to update your email.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}

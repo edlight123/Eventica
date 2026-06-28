@@ -110,7 +110,7 @@ function CategoryRail({
 function NoEventsInCountry({ countryName }: { countryName: string }) {
   const { t } = useTranslation('common')
   return (
-    <div className="flex flex-col items-center rounded-3xl  bg-white/5 px-6 py-16 text-center shadow-poster-sm sm:py-20">
+    <div className="flex flex-col items-center rounded-3xl  px-6 py-16 text-center shadow-poster-sm sm:py-20">
       <div className="grid h-16 w-16 place-items-center rounded-2xl text-brand-400">
         <MapPin className="h-8 w-8" />
       </div>
@@ -184,8 +184,8 @@ export default function HomePageContent({
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center rounded-3xl  bg-white/5 px-6 py-20 text-center shadow-poster-sm">
-            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-white/5 text-white/40">
+          <div className="flex flex-col items-center rounded-3xl  px-6 py-20 text-center shadow-poster-sm">
+            <div className="grid h-16 w-16 place-items-center rounded-2xl text-white/40">
               <Search className="h-8 w-8" />
             </div>
             <h3 className="mt-5 font-display text-2xl text-white">{t('events.no_events')}</h3>
@@ -340,7 +340,7 @@ export default function HomePageContent({
           <div className="mt-9 flex justify-center">
             <Link
               href="/discover"
-              className="group inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-7 py-3 text-sm font-semibold text-white shadow-poster-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-400/40 hover:text-brand-300"
+              className="group inline-flex items-center gap-2 rounded-xl border border-white/15 px-7 py-3 text-sm font-semibold text-white shadow-poster-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-400/40 hover:text-brand-300"
             >
               {t('events.explore_all')}
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />

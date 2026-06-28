@@ -44,7 +44,7 @@ export default function MobileKeyFacts({
     <div className="md:hidden border-y border-white/10 py-4">
       <div className="grid grid-cols-2 gap-3 px-4">
         {/* Date/Time */}
-        <div className="bg-white/5 rounded-xl p-3 ">
+        <div className="rounded-xl p-3 ">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <Calendar className="w-4 h-4 text-brand-400" />
@@ -60,7 +60,7 @@ export default function MobileKeyFacts({
         </div>
 
         {/* Location */}
-        <div className="bg-white/5 rounded-xl p-3 ">
+        <div className="rounded-xl p-3 ">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <MapPin className="w-4 h-4 text-brand-400" />
@@ -79,7 +79,7 @@ export default function MobileKeyFacts({
         </div>
 
         {/* Price */}
-        <div className="bg-white/5 rounded-xl p-3 ">
+        <div className="rounded-xl p-3 ">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <DollarSign className="w-4 h-4 text-emerald-400" />
@@ -101,7 +101,7 @@ export default function MobileKeyFacts({
         </div>
 
         {/* Availability */}
-        <div className="bg-white/5 rounded-xl p-3 ">
+        <div className="rounded-xl p-3 ">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <Users className="w-4 h-4 text-brand-400" />

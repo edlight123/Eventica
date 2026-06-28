@@ -106,7 +106,7 @@ export function DateChips({ currentDate, bare = false }: DateChipsProps) {
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
                 min={new Date().toISOString().split('T')[0]}
-                className="w-full px-4 py-3 bg-white/5 border border-white/15 rounded-lg text-white [color-scheme:dark] focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
+                className="w-full px-4 py-3 border border-white/15 rounded-lg text-white [color-scheme:dark] focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
               />
 
               <div className="flex gap-3">

@@ -55,7 +55,7 @@ export default function CategoryPageContent({ category, events }: CategoryPageCo
           </div>
         </>
       ) : (
-        <div className="flex flex-col items-center rounded-3xl  bg-white/5 px-6 py-16 text-center shadow-poster-sm sm:py-20">
+        <div className="flex flex-col items-center rounded-3xl  px-6 py-16 text-center shadow-poster-sm sm:py-20">
           <div className="grid h-16 w-16 place-items-center rounded-2xl text-brand-400">
             <Inbox className="h-8 w-8" />
           </div>

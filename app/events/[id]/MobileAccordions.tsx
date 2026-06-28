@@ -17,7 +17,7 @@ function AccordionSection({ title, icon, defaultOpen = false, children }: Accord
   const [isOpen, setIsOpen] = useState(defaultOpen)
 
   return (
-    <div className="bg-white/5  rounded-xl overflow-hidden">
+    <div className=" rounded-xl overflow-hidden">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-white/5 transition-colors"

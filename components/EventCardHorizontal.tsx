@@ -73,7 +73,7 @@ export default function EventCardHorizontal({ event, userCity }: EventCardHorizo
 
   return (
     <Link href={`/events/${event.id}`} prefetch={true} className="group block">
-      <article className="hover-lift flex gap-3 rounded-2xl  bg-white/5 p-2.5 shadow-poster-sm group-hover:border-brand-400/40">
+      <article className="hover-lift flex gap-3 rounded-2xl  p-2.5 shadow-poster-sm group-hover:border-brand-400/40">
         {/* Poster thumbnail */}
         <div
           className="relative aspect-[3/4] w-[88px] shrink-0 overflow-hidden rounded-xl"

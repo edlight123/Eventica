@@ -51,8 +51,8 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
           </div>
         ) : (
           <div className="h-32 sm:h-48 md:h-56 bg-gradient-to-br from-brand-700 to-[#0C5E57] relative overflow-hidden flex items-center justify-center">
-            <div className="absolute top-10 right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-10 left-20 w-80 h-80 bg-white/10 rounded-full blur-3xl" />
+            <div className="absolute top-10 right-20 w-64 h-64 rounded-full blur-3xl" />
+            <div className="absolute bottom-10 left-20 w-80 h-80 rounded-full blur-3xl" />
             <span className="relative font-display text-5xl md:text-6xl text-[#F8F5EE]">T</span>
           </div>
         )}

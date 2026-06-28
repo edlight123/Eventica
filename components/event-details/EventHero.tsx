@@ -88,7 +88,7 @@ export function EventHero({
           {/* Hosted By Pill */}
           <a
             href={`/profile/organizer/${organizerId}`}
-            className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-2.5 hover:bg-white/20 transition-colors"
+            className="inline-flex items-center gap-3 backdrop-blur-md border border-white/20 rounded-full px-4 py-2.5 hover:bg-white/20 transition-colors"
           >
             <div className="w-10 h-10 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full flex items-center justify-center text-white font-bold">
               {organizerName[0].toUpperCase()}

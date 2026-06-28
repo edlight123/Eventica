@@ -18,7 +18,7 @@ export function EmptyState({ hasFilters, countryName = 'your area' }: EmptyState
   if (!hasFilters) {
     // No events in user's country at all
     return (
-      <div className="text-center py-16 sm:py-20 bg-white/5  rounded-3xl shadow-sm">
+      <div className="text-center py-16 sm:py-20  rounded-3xl shadow-sm">
         <div className="relative inline-block mb-6">
           <div className="w-20 h-20 rounded-full flex items-center justify-center">
             <MapPin className="w-10 h-10 text-brand-400" />
@@ -62,7 +62,7 @@ export function EmptyState({ hasFilters, countryName = 'your area' }: EmptyState
   }
 
   return (
-    <div className="text-center py-20 bg-white/5  rounded-3xl shadow-sm">
+    <div className="text-center py-20  rounded-3xl shadow-sm">
       <h3 className="text-2xl font-bold text-white mb-3">
         {t('events.no_events')}
       </h3>
@@ -71,19 +71,19 @@ export function EmptyState({ hasFilters, countryName = 'your area' }: EmptyState
       <div className="flex flex-wrap justify-center gap-3 max-w-md mx-auto">
         <button
           onClick={() => handleSuggestion('any-date')}
-          className="px-4 py-2 bg-white/10 hover:bg-white/15 rounded-lg text-sm font-medium text-white/80 transition-colors"
+          className="px-4 py-2 hover:bg-white/15 rounded-lg text-sm font-medium text-white/80 transition-colors"
         >
           {t('common.show_any_date')}
         </button>
         <button
           onClick={() => handleSuggestion('expand-location')}
-          className="px-4 py-2 bg-white/10 hover:bg-white/15 rounded-lg text-sm font-medium text-white/80 transition-colors"
+          className="px-4 py-2 hover:bg-white/15 rounded-lg text-sm font-medium text-white/80 transition-colors"
         >
           {t('common.expand_location')}
         </button>
         <button
           onClick={() => handleSuggestion('online')}
-          className="px-4 py-2 bg-white/10 hover:bg-white/15 rounded-lg text-sm font-medium text-white/80 transition-colors"
+          className="px-4 py-2 hover:bg-white/15 rounded-lg text-sm font-medium text-white/80 transition-colors"
         >
           {t('common.show_online_events')}
         </button>

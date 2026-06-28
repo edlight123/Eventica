@@ -62,7 +62,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
               <Link
                 href="/"
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  pathname === '/' ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                  pathname === '/' ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                 }`}
               >
                 {t('nav.home')}
@@ -70,7 +70,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
               <Link
                 href="/discover"
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  pathname === '/discover' ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                  pathname === '/discover' ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                 }`}
               >
                 {t('nav.discover')}
@@ -78,7 +78,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
               <Link
                 href="/platform"
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  pathname?.startsWith('/platform') ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                  pathname?.startsWith('/platform') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                 }`}
               >
                 {t('nav.platform', { defaultValue: 'Platform' })}
@@ -88,7 +88,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                   <Link
                     href="/tickets"
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      pathname?.startsWith('/tickets') ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                      pathname?.startsWith('/tickets') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     {t('nav.myTickets')}
@@ -96,7 +96,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                   <Link
                     href="/favorites"
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      pathname === '/favorites' ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                      pathname === '/favorites' ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     {t('nav.favorites')}
@@ -104,7 +104,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                   <Link
                     href="/connections"
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      pathname?.startsWith('/connections') ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                      pathname?.startsWith('/connections') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     Friends
@@ -112,7 +112,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                   <Link
                     href="/organizer"
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      pathname?.startsWith('/organizer') ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                      pathname?.startsWith('/organizer') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     {t('nav.organizer')}
@@ -121,7 +121,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                     <Link
                       href="/admin"
                       className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                        pathname?.startsWith('/admin') ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                        pathname?.startsWith('/admin') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                       }`}
                     >
                       {t('nav.admin')}
@@ -195,7 +195,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                 href="/"
                 onClick={() => setMobileMenuOpen(false)}
                 className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                  pathname === '/' ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                  pathname === '/' ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                 }`}
               >
                 {t('nav.home')}
@@ -204,7 +204,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                 href="/discover"
                 onClick={() => setMobileMenuOpen(false)}
                 className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                  pathname === '/discover' ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                  pathname === '/discover' ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                 }`}
               >
                 {t('nav.discover')}
@@ -213,7 +213,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                 href="/platform"
                 onClick={() => setMobileMenuOpen(false)}
                 className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                  pathname?.startsWith('/platform') ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                  pathname?.startsWith('/platform') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                 }`}
               >
                 {t('nav.platform', { defaultValue: 'Platform' })}
@@ -224,7 +224,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                     href="/tickets"
                     onClick={() => setMobileMenuOpen(false)}
                     className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                      pathname?.startsWith('/tickets') ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                      pathname?.startsWith('/tickets') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     {t('nav.myTickets')}
@@ -233,7 +233,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                     href="/favorites"
                     onClick={() => setMobileMenuOpen(false)}
                     className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                      pathname === '/favorites' ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                      pathname === '/favorites' ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     {t('nav.favorites')}
@@ -242,7 +242,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                     href="/connections"
                     onClick={() => setMobileMenuOpen(false)}
                     className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                      pathname?.startsWith('/connections') ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                      pathname?.startsWith('/connections') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     Friends
@@ -251,7 +251,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                     href="/organizer/events"
                     onClick={() => setMobileMenuOpen(false)}
                     className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                      pathname?.startsWith('/organizer') ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                      pathname?.startsWith('/organizer') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     {t('nav.myEvents')}
@@ -261,7 +261,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                       href="/admin"
                       onClick={() => setMobileMenuOpen(false)}
                       className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                        pathname?.startsWith('/admin') ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                        pathname?.startsWith('/admin') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                       }`}
                     >
                       {t('nav.admin')}
@@ -271,7 +271,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                     href="/profile"
                     onClick={() => setMobileMenuOpen(false)}
                     className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                      pathname === '/profile' ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                      pathname === '/profile' ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     {t('nav.profile')}

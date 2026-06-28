@@ -58,11 +58,11 @@ export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
 
   if (loading) {
     return (
-      <div className="bg-white/5 rounded-2xl  p-4 md:p-6">
-        <div className="h-5 w-32 bg-white/10 rounded mb-4 animate-pulse" />
+      <div className="rounded-2xl  p-4 md:p-6">
+        <div className="h-5 w-32 rounded mb-4 animate-pulse" />
         <div className="flex -space-x-3">
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="w-10 h-10 rounded-full bg-white/10 ring-2 ring-[#0a0a0a] animate-pulse" />
+            <div key={i} className="w-10 h-10 rounded-full ring-2 ring-[#0a0a0a] animate-pulse" />
           ))}
         </div>
       </div>
@@ -79,7 +79,7 @@ export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
   const remaining = Math.max(0, totalGoing - namedCount - (viewerIsGoing ? 1 : 0))
 
   return (
-    <div className="bg-white/5 rounded-2xl  p-4 md:p-6">
+    <div className="rounded-2xl  p-4 md:p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
           <Users className="w-5 h-5 text-brand-400" />
@@ -127,7 +127,7 @@ export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
               <Avatar key={u.uid} user={u} size={40} />
             ))}
             {remaining > 0 && (
-              <div className="rounded-full w-10 h-10 bg-white/10 flex items-center justify-center text-white/70 text-xs font-semibold ring-2 ring-[#0a0a0a]">
+              <div className="rounded-full w-10 h-10 flex items-center justify-center text-white/70 text-xs font-semibold ring-2 ring-[#0a0a0a]">
                 +{remaining}
               </div>
             )}

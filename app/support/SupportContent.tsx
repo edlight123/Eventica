@@ -73,7 +73,7 @@ export default function SupportContent() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
           <div className="text-center max-w-3xl mx-auto">
             {/* Pill Label */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 backdrop-blur-sm rounded-full text-sm font-medium mb-4">
               <MessageCircle className="w-4 h-4 text-white/90" />
               <span>{t('hero.title')}</span>
             </div>

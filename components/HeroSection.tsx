@@ -65,9 +65,9 @@ export default function HeroSection({ hasActiveFilters, featuredEvents }: HeroSe
   const SearchForm = (
     <form
       onSubmit={handleSearch}
-      className="reveal reveal-3 mt-6 flex w-full max-w-2xl flex-wrap items-center gap-2 rounded-2xl  bg-white/5 p-2 shadow-poster-sm backdrop-blur-md"
+      className="reveal reveal-3 mt-6 flex w-full max-w-2xl flex-wrap items-center gap-2 rounded-2xl  p-2 shadow-poster-sm backdrop-blur-md"
     >
-      <div className="flex select-none items-center gap-1.5 rounded-xl bg-white/5 px-3 py-2.5 text-[13.5px] font-medium text-white/80">
+      <div className="flex select-none items-center gap-1.5 rounded-xl px-3 py-2.5 text-[13.5px] font-medium text-white/80">
         <MapPin className="h-[15px] w-[15px] text-brand-400" />
         {t('common.all_locations', { defaultValue: 'All Haiti' })}
         <ChevronDown className="h-3.5 w-3.5 text-white/40" />

@@ -48,7 +48,7 @@ export default function ShareIconButton({
 
   const toneClasses =
     tone === 'light'
-      ? 'bg-white/10 text-white ring-1 ring-white/20 hover:bg-white/20 backdrop-blur-md'
+      ? 'text-white ring-1 ring-white/20 hover:bg-white/20 backdrop-blur-md'
       : 'bg-gray-100 text-gray-600 ring-1 ring-gray-200 hover:bg-gray-200'
 
   return (

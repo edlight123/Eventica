@@ -95,7 +95,7 @@ export default function ConnectionsClient({ initialOverview }: { initialOverview
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-white/5 rounded-xl mb-5">
+      <div className="flex gap-1 p-1 rounded-xl mb-5">
         <TabButton active={tab === 'friends'} onClick={() => setTab('friends')}>
           Friends
           {overview.friends.length > 0 && <Count>{overview.friends.length}</Count>}
@@ -145,7 +145,7 @@ function Count({ children, highlight }: { children: React.ReactNode; highlight?:
   return (
     <span
       className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-bold ${
-        highlight ? 'bg-red-500 text-white' : 'bg-white/10 text-white/70'
+        highlight ? 'bg-red-500 text-white' : 'text-white/70'
       }`}
     >
       {children}
@@ -156,7 +156,7 @@ function Count({ children, highlight }: { children: React.ReactNode; highlight?:
 function EmptyState({ icon, title, subtitle }: { icon: React.ReactNode; title: string; subtitle: string }) {
   return (
     <div className="text-center py-12">
-      <div className="w-14 h-14 mx-auto rounded-2xl bg-white/5 flex items-center justify-center text-white/40 mb-3">
+      <div className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center text-white/40 mb-3">
         {icon}
       </div>
       <p className="font-semibold text-white">{title}</p>
