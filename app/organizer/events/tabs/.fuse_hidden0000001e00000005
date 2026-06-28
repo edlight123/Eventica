@@ -55,10 +55,10 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
   }
 
   return (
-    <div className="space-y-5 animate-fadeIn">
+    <div className="space-y-6 animate-fadeIn">
       {/* Section Header */}
       <div>
-        <h2 className="font-display text-lg text-white mb-2">Ticket Information</h2>
+        <h2 className="font-display text-2xl text-white mb-2">Ticket Information</h2>
         <p className="text-white/60">Set your pricing and capacity</p>
       </div>
 
@@ -72,7 +72,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
           value={enforcedCurrency}
           onChange={(e) => onChange('currency', e.target.value)}
           disabled={allowedCurrencies.length === 1}
-          className="w-full px-3 py-2.5 border border-white/10 rounded-lg focus:ring-2 focus:ring-brand-500 transition-all"
+          className="w-full px-4 py-3 border-2 border-white/10 rounded-xl focus:ring-2 focus:ring-brand-500 transition-all"
         >
           {allowedCurrencies.includes('USD') && <option value="USD">USD ($)</option>}
           {allowedCurrencies.includes('CAD') && <option value="CAD">CAD ($)</option>}
@@ -81,7 +81,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
       </div>
 
       {/* Base Ticket */}
-      <div className="border border-brand-500/30 rounded-lg p-6">
+      <div className="border-2 border-brand-500/30 rounded-xl p-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 bg-brand-700 rounded-lg flex items-center justify-center">
             <Ticket className="w-6 h-6 text-white" />
@@ -108,11 +108,11 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
                 min="0"
                 step="0.01"
                 placeholder="0 for free"
-                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 transition-all ${
+                className={`w-full pl-10 pr-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-brand-500 transition-all ${
                   priceError
                     ? 'border-red-300 focus:border-red-500'
                     : formData.ticket_price !== ''
-                    ? 'border-emerald-500/40 focus:border-emerald-500'
+                    ? 'border-green-300 focus:border-green-500'
                     : 'border-white/10 focus:border-brand-500'
                 }`}
               />
@@ -147,11 +147,11 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
               onChange={(e) => onChange('total_tickets', e.target.value)}
               min="1"
               placeholder="e.g., 100"
-              className={`w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-brand-500 transition-all ${
+              className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-brand-500 transition-all ${
                 quantityError
                   ? 'border-red-300 focus:border-red-500'
                   : formData.total_tickets
-                  ? 'border-emerald-500/40 focus:border-emerald-500'
+                  ? 'border-green-300 focus:border-green-500'
                   : 'border-white/10 focus:border-brand-500'
               }`}
             />
@@ -171,7 +171,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
       </div>
 
       {/* Premium Tiers */}
-      <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-6">
+      <div className="bg-[#0a0a0a] border-2 border-white/10 rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="font-bold text-white flex items-center gap-2">
@@ -197,7 +197,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
         ) : (
           <div className="space-y-4">
             {tiers.map((tier, index) => (
-              <div key={index} className="bg-[#0a0a0a] border border-white/10 rounded-lg p-4">
+              <div key={index} className="bg-[#0a0a0a] border-2 border-white/10 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="font-semibold text-white">Tier #{index + 1}</h4>
                   <button
@@ -220,7 +220,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
                       value={tier.name}
                       onChange={(e) => updateTier(index, 'name', e.target.value)}
                       placeholder="e.g., VIP"
-                      className="w-full px-3 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
+                      className="w-full px-3 py-2 border-2 border-white/10 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
                     />
                   </div>
                   <div>
@@ -234,7 +234,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
                       placeholder="0.00"
                       min="0"
                       step="0.01"
-                      className="w-full px-3 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
+                      className="w-full px-3 py-2 border-2 border-white/10 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
                     />
                   </div>
                   <div>
@@ -247,7 +247,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
                       onChange={(e) => updateTier(index, 'quantity', e.target.value)}
                       placeholder="e.g., 50"
                       min="1"
-                      className="w-full px-3 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
+                      className="w-full px-3 py-2 border-2 border-white/10 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
                     />
                   </div>
                 </div>
@@ -261,7 +261,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
                     value={tier.description || ''}
                     onChange={(e) => updateTier(index, 'description', e.target.value)}
                     placeholder="e.g., Includes backstage access"
-                    className="w-full px-3 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
+                    className="w-full px-3 py-2 border-2 border-white/10 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
                   />
                 </div>
 
@@ -274,7 +274,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
                       type="datetime-local"
                       value={toDateTimeLocalValue(tier.salesStart)}
                       onChange={(e) => updateTier(index, 'salesStart', e.target.value ? new Date(e.target.value).toISOString() : '')}
-                      className="w-full px-3 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
+                      className="w-full px-3 py-2 border-2 border-white/10 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
                     />
                   </div>
                   <div>
@@ -285,7 +285,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
                       type="datetime-local"
                       value={toDateTimeLocalValue(tier.salesEnd)}
                       onChange={(e) => updateTier(index, 'salesEnd', e.target.value ? new Date(e.target.value).toISOString() : '')}
-                      className="w-full px-3 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
+                      className="w-full px-3 py-2 border-2 border-white/10 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
                     />
                   </div>
                 </div>
@@ -297,7 +297,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
 
       {/* Validation Warnings */}
       {validation.warnings.length > 0 && (
-        <div className="border border-amber-500/30 rounded-lg p-4">
+        <div className="border-2 border-amber-500/30 rounded-xl p-4">
           <p className="font-semibold text-amber-900 mb-2 flex items-center gap-2">
             <AlertCircle className="w-5 h-5" />
             Suggestions
@@ -311,7 +311,7 @@ export function TicketsTab({ formData, onChange, tiers, onTiersChange, validatio
       )}
 
       {/* Info Box */}
-      <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-4">
+      <div className="bg-[#0a0a0a] border-2 border-white/10 rounded-xl p-4">
         <div className="flex items-start gap-3">
           <svg className="w-5 h-5 text-brand-300 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
