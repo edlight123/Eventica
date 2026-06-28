@@ -54,7 +54,7 @@ export function EventPerformanceAnalytics() {
   return (
     <div className="space-y-4">
       {/* Top Performing Events */}
-      <div className="rounded-xl border border-white/10 p-4">
+      <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-4">
         <div className="flex items-center gap-2 mb-4">
           <Trophy className="w-5 h-5 text-yellow-500" />
           <h3 className="text-sm font-semibold text-white">Top Performing Events</h3>
@@ -117,7 +117,7 @@ export function EventPerformanceAnalytics() {
       </div>
 
       {/* Category Popularity */}
-      <div className="rounded-xl border border-white/10 p-4">
+      <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-4">
         <div className="flex items-center gap-2 mb-4">
           <TrendingUp className="w-5 h-5 text-brand-500" />
           <h3 className="text-sm font-semibold text-white">Popular Categories (Last 30 Days)</h3>

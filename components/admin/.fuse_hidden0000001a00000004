@@ -98,7 +98,7 @@ export function ConversionFunnelAnalytics() {
       </div>
 
       {/* Funnel Visualization */}
-      <div className="rounded-xl border border-white/10 p-4">
+      <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-4">
         <h3 className="text-sm font-semibold text-white mb-3">Conversion Funnel</h3>
         <div className="space-y-2">
           {stages.map((stage, index) => {
