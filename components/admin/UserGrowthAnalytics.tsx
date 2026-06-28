@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { Users, TrendingUp, UserPlus, Briefcase } from 'lucide-react'
+import { Users, UserPlus, Briefcase } from 'lucide-react'
 
 interface UserGrowthData {
   dailySignups: Array<{
@@ -65,116 +65,77 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
     )
   }
 
+  const pct = (n: number) => (data.totalUsers > 0 ? ((n / data.totalUsers) * 100).toFixed(0) : '0')
+
   return (
     <div className="space-y-4">
-      {/* Period Selector */}
-      <div className="flex gap-2 flex-wrap">
+      {/* Period Selector — segmented */}
+      <div className="inline-flex gap-1 rounded-full border border-white/10 p-1">
         {[7, 14, 30, 60, 90].map((period) => (
           <button
             key={period}
             onClick={() => setSelectedDays(period)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              selectedDays === period
-                ? 'bg-brand-600 text-white'
-                : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
+            className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+              selectedDays === period ? 'bg-white/[0.08] text-white' : 'text-white/50 hover:text-white'
             }`}
           >
-            {period} days
+            {period}d
           </button>
         ))}
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="bg-gradient-to-br from-brand-500/15 to-brand-600/10 rounded-xl p-4 border border-brand-500/30">
-          <div className="flex items-center gap-2.5 mb-2">
-            <div className="w-9 h-9 bg-brand-600 rounded-lg flex items-center justify-center">
-              <Users className="w-5 h-5 text-white" />
+      {/* Summary — divided strip */}
+      <div className="grid grid-cols-3 divide-x divide-white/10 rounded-lg border border-white/10">
+        {[
+          { label: 'Total users', value: data.totalUsers, icon: Users, sub: `last ${selectedDays}d` },
+          { label: 'Attendees', value: data.attendeeCount, icon: UserPlus, sub: `${pct(data.attendeeCount)}% of total` },
+          { label: 'Organizers', value: data.organizerCount, icon: Briefcase, sub: `${pct(data.organizerCount)}% of total` },
+        ].map((s) => {
+          const Icon = s.icon
+          return (
+            <div key={s.label} className="p-4">
+              <div className="mb-1 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/40">
+                <Icon className="h-3.5 w-3.5 text-white/30" /> <span className="truncate">{s.label}</span>
+              </div>
+              <div className="text-xl font-bold tabular-nums text-white">{s.value.toLocaleString()}</div>
+              <div className="mt-0.5 text-[11px] text-white/40">{s.sub}</div>
             </div>
-            <div>
-              <div className="text-xs font-medium text-brand-300">Total Users</div>
-              <div className="text-xl font-bold text-brand-300">{data.totalUsers.toLocaleString()}</div>
-            </div>
-          </div>
-          <div className="text-xs text-brand-300">Last {selectedDays} days</div>
-        </div>
-
-        <div className="rounded-xl border border-white/10 p-4 ">
-          <div className="flex items-center gap-2.5 mb-2">
-            <div className="w-9 h-9 bg-brand-600 rounded-lg flex items-center justify-center">
-              <UserPlus className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <div className="text-xs font-medium text-white/60">Attendees</div>
-              <div className="text-xl font-bold text-white">{data.attendeeCount.toLocaleString()}</div>
-            </div>
-          </div>
-          <div className="text-xs text-white/50">
-            {((data.attendeeCount / data.totalUsers) * 100).toFixed(1)}% of total
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-white/10 p-4 ">
-          <div className="flex items-center gap-2.5 mb-2">
-            <div className="w-9 h-9 bg-brand-600 rounded-lg flex items-center justify-center">
-              <Briefcase className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <div className="text-xs font-medium text-white/60">Organizers</div>
-              <div className="text-xl font-bold text-white">{data.organizerCount.toLocaleString()}</div>
-            </div>
-          </div>
-          <div className="text-xs text-white/50">
-            {((data.organizerCount / data.totalUsers) * 100).toFixed(1)}% of total
-          </div>
-        </div>
+          )
+        })}
       </div>
 
       {/* Growth Chart */}
-      <div className="rounded-xl border border-white/10 p-4">
-        <h3 className="text-sm font-semibold text-white mb-3">Daily Signups</h3>
+      <div className="rounded-lg border border-white/10 p-4">
+        <h3 className="mb-3 text-[13px] font-semibold text-white">Daily signups</h3>
         {data.dailySignups.length > 0 ? (
           <ResponsiveContainer width="100%" height={240}>
-            <LineChart data={data.dailySignups}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="date" 
-                tick={{ fontSize: 12 }}
+            <LineChart data={data.dailySignups} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff14" vertical={false} />
+              <XAxis
+                dataKey="date"
+                tick={{ fontSize: 11, fill: '#ffffff66' }}
+                tickLine={false}
+                axisLine={{ stroke: '#ffffff1a' }}
                 tickFormatter={(value) => {
                   const date = new Date(value)
                   return `${date.getMonth() + 1}/${date.getDate()}`
                 }}
               />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip 
+              <YAxis tick={{ fontSize: 11, fill: '#ffffff66' }} tickLine={false} axisLine={false} width={32} />
+              <Tooltip
                 labelFormatter={(value) => new Date(value).toLocaleDateString()}
+                contentStyle={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10, fontSize: 12 }}
+                labelStyle={{ color: '#ffffffaa' }}
+                itemStyle={{ color: '#fff' }}
               />
-              <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="total" 
-                stroke="#0F766E" 
-                strokeWidth={2}
-                name="Total"
-              />
-              <Line 
-                type="monotone" 
-                dataKey="attendees" 
-                stroke="#14B8A6" 
-                strokeWidth={2}
-                name="Attendees"
-              />
-              <Line 
-                type="monotone" 
-                dataKey="organizers" 
-                stroke="#5EEAD4" 
-                strokeWidth={2}
-                name="Organizers"
-              />
+              <Legend wrapperStyle={{ fontSize: 12, color: '#ffffff99' }} iconType="plainline" />
+              <Line type="monotone" dataKey="total" stroke="#14B8A6" strokeWidth={2.5} dot={false} name="Total" />
+              <Line type="monotone" dataKey="attendees" stroke="#5EEAD4" strokeWidth={2} dot={false} name="Attendees" />
+              <Line type="monotone" dataKey="organizers" stroke="#0F766E" strokeWidth={2} dot={false} name="Organizers" />
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <div className="text-center py-12 text-white/50">No signup data available for this period</div>
+          <div className="py-12 text-center text-sm text-white/40">No signup data for this period</div>
         )}
       </div>
     </div>

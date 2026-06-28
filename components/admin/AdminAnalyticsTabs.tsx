@@ -1,14 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { 
-  DollarSign, 
-  TrendingUp, 
-  Calendar, 
-  Users, 
+import {
+  DollarSign,
+  TrendingUp,
+  Calendar,
+  Users,
   Award,
-  BarChart3
+  BarChart3,
+  Ticket,
+  RefreshCcw,
+  ShieldAlert,
 } from 'lucide-react'
+import { useAdminMetrics } from '@/lib/realtime/AdminRealtimeProvider'
 import { AdminRevenueAnalytics } from './AdminRevenueAnalytics'
 import { UserGrowthAnalytics } from './UserGrowthAnalytics'
 import { EventPerformanceAnalytics } from './EventPerformanceAnalytics'
@@ -26,144 +30,186 @@ interface Tab {
 const tabs: Tab[] = [
   { id: 'overview', label: 'Overview', icon: BarChart3 },
   { id: 'revenue', label: 'Revenue', icon: DollarSign },
-  { id: 'users', label: 'User Growth', icon: Users },
+  { id: 'users', label: 'Users', icon: Users },
   { id: 'events', label: 'Events', icon: Calendar },
   { id: 'conversion', label: 'Conversion', icon: TrendingUp },
-  { id: 'organizers', label: 'Organizers', icon: Award }
+  { id: 'organizers', label: 'Organizers', icon: Award },
 ]
+
+/* ----------------------------- helpers ----------------------------- */
+
+const fmtNum = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : `${n}`)
+const fmtHTG = (n: number) =>
+  n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n >= 1000 ? `${(n / 1000).toFixed(1)}k` : `${Math.round(n)}`
+
+/* ----------------------------- hero scorecard ----------------------------- */
+
+function HeroScorecard() {
+  const { metrics, isConnected } = useAdminMetrics()
+  const m = metrics
+
+  const cells = [
+    { label: 'Total users', value: m ? fmtNum(m.usersCount) : '—', icon: Users },
+    { label: 'Active events', value: m ? fmtNum(m.eventsCount) : '—', icon: Calendar },
+    { label: 'Tickets · 7d', value: m ? fmtNum(m.tickets7d) : '—', icon: Ticket },
+    { label: 'Revenue · 7d', value: m ? fmtHTG(m.gmv7d) : '—', sub: 'HTG', icon: DollarSign },
+    { label: 'Refunds · 7d', value: m ? fmtNum(m.refunds7d) : '—', icon: RefreshCcw },
+    { label: 'Pending', value: m ? fmtNum(m.pendingCount) : '—', icon: ShieldAlert },
+  ]
+
+  return (
+    <div>
+      <div className="mb-2 flex items-center gap-2">
+        <span className={`h-1.5 w-1.5 rounded-full ${isConnected ? 'bg-emerald-400' : 'bg-white/30'}`} />
+        <span className="text-[11px] font-medium uppercase tracking-wide text-white/40">
+          {isConnected ? 'Live' : 'Snapshot'}
+        </span>
+      </div>
+      <div className="grid grid-cols-2 divide-x divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10 sm:grid-cols-3 lg:grid-cols-6 lg:divide-y-0">
+        {cells.map((c) => {
+          const Icon = c.icon
+          return (
+            <div key={c.label} className="p-4">
+              <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/40">
+                <Icon className="h-3.5 w-3.5 text-white/30" />
+                <span className="truncate">{c.label}</span>
+              </div>
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-bold tabular-nums text-white">{c.value}</span>
+                {c.sub && <span className="text-xs text-white/40">{c.sub}</span>}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+/* ----------------------------- section frame ----------------------------- */
+
+function Section({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
+  return (
+    <section className="space-y-3">
+      <div>
+        <h2 className="text-sm font-semibold text-white">{title}</h2>
+        {subtitle && <p className="text-xs text-white/45">{subtitle}</p>}
+      </div>
+      {children}
+    </section>
+  )
+}
 
 export function AdminAnalyticsTabs() {
   const [activeTab, setActiveTab] = useState<TabId>('overview')
-  // Track which tabs have been visited to avoid re-mounting components
   const [visitedTabs, setVisitedTabs] = useState<Set<TabId>>(() => new Set<TabId>(['overview']))
-  
-  // Mark tab as visited when it becomes active
+
   useEffect(() => {
     if (!visitedTabs.has(activeTab)) {
-      setVisitedTabs(prev => {
-        const newSet = new Set<TabId>(Array.from(prev))
-        newSet.add(activeTab)
-        return newSet
+      setVisitedTabs((prev) => {
+        const next = new Set<TabId>(Array.from(prev))
+        next.add(activeTab)
+        return next
       })
     }
   }, [activeTab, visitedTabs])
 
   return (
-    <div className="space-y-4">
-      {/* Tab Navigation */}
-      <div className="border-b border-white/10 overflow-x-auto">
-        <nav className="flex space-x-1 min-w-max" aria-label="Analytics tabs">
-          {tabs.map((tab) => {
-            const Icon = tab.icon
-            const isActive = activeTab === tab.id
-            
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-3 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  isActive
-                    ? 'border-brand-600 text-brand-300'
-                    : 'border-transparent text-white/50 hover:text-white/70 hover:border-white/10'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                {tab.label}
-              </button>
-            )
-          })}
-        </nav>
+    <div className="space-y-6">
+      {/* Live hero scorecard */}
+      <HeroScorecard />
+
+      {/* Segmented tab control */}
+      <div
+        className="scrollbar-hide flex gap-1 overflow-x-auto rounded-full border border-white/10 p-1"
+        role="tablist"
+        aria-label="Analytics views"
+      >
+        {tabs.map((tab) => {
+          const Icon = tab.icon
+          const isActive = activeTab === tab.id
+          return (
+            <button
+              key={tab.id}
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                isActive ? 'bg-white/[0.08] text-white' : 'text-white/50 hover:text-white'
+              }`}
+            >
+              <Icon className="h-4 w-4" />
+              {tab.label}
+            </button>
+          )
+        })}
       </div>
 
-      {/* Tab Content - Only render tabs that have been visited (lazy loading) */}
+      {/* Tab content (lazy-mounted) */}
       <div className="min-h-[360px]">
-        {/* Overview Tab */}
         <div className={activeTab === 'overview' ? '' : 'hidden'}>
           {visitedTabs.has('overview') && (
-            <div className="space-y-5">
-              {/* Quick Stats Overview */}
-              <div>
-                <h2 className="text-base font-semibold text-white mb-3">Quick Overview</h2>
+            <div className="space-y-6">
+              <Section title="Revenue" subtitle="Gross sales across all currencies">
                 <AdminRevenueAnalytics showFilters={false} />
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {/* User Growth Summary */}
-                <div>
-                  <h2 className="text-base font-semibold text-white mb-3">Recent User Growth</h2>
+              </Section>
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <Section title="User growth" subtitle="Last 7 days">
                   <UserGrowthAnalytics days={7} />
-                </div>
-
-                {/* Top Events */}
-                <div>
-                  <h2 className="text-base font-semibold text-white mb-3">Top Events</h2>
+                </Section>
+                <Section title="Top events" subtitle="By tickets sold">
                   <EventPerformanceAnalytics />
-                </div>
+                </Section>
               </div>
-
-              {/* Conversion & Organizers */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <div>
-                  <h2 className="text-base font-semibold text-white mb-3">Conversion Funnel</h2>
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <Section title="Conversion funnel" subtitle="Views → checkout">
                   <ConversionFunnelAnalytics />
-                </div>
-                
-                <div>
-                  <h2 className="text-base font-semibold text-white mb-3">Top Organizers</h2>
+                </Section>
+                <Section title="Top organizers" subtitle="By revenue">
                   <OrganizerRankingsAnalytics />
-                </div>
+                </Section>
               </div>
             </div>
           )}
         </div>
 
-        {/* Revenue Tab - Only mount when first visited */}
         <div className={activeTab === 'revenue' ? '' : 'hidden'}>
           {visitedTabs.has('revenue') && (
-            <div>
-              <h2 className="text-base font-semibold text-white mb-3">Revenue Analytics (Multi-Currency)</h2>
+            <Section title="Revenue analytics" subtitle="Multi-currency breakdown, payment methods & FX">
               <AdminRevenueAnalytics showFilters={true} />
-            </div>
+            </Section>
           )}
         </div>
 
-        {/* Users Tab - Only mount when first visited */}
         <div className={activeTab === 'users' ? '' : 'hidden'}>
           {visitedTabs.has('users') && (
-            <div>
-              <h2 className="text-base font-semibold text-white mb-3">User Growth Metrics</h2>
+            <Section title="User growth" subtitle="New signups over the last 30 days">
               <UserGrowthAnalytics days={30} />
-            </div>
+            </Section>
           )}
         </div>
 
-        {/* Events Tab - Only mount when first visited */}
         <div className={activeTab === 'events' ? '' : 'hidden'}>
           {visitedTabs.has('events') && (
-            <div>
-              <h2 className="text-base font-semibold text-white mb-3">Event Performance</h2>
+            <Section title="Event performance" subtitle="Top-performing events">
               <EventPerformanceAnalytics />
-            </div>
+            </Section>
           )}
         </div>
 
-        {/* Conversion Tab - Only mount when first visited */}
         <div className={activeTab === 'conversion' ? '' : 'hidden'}>
           {visitedTabs.has('conversion') && (
-            <div>
-              <h2 className="text-base font-semibold text-white mb-3">Conversion Funnel Analysis</h2>
+            <Section title="Conversion funnel" subtitle="From page views to completed orders">
               <ConversionFunnelAnalytics />
-            </div>
+            </Section>
           )}
         </div>
 
-        {/* Organizers Tab - Only mount when first visited */}
         <div className={activeTab === 'organizers' ? '' : 'hidden'}>
           {visitedTabs.has('organizers') && (
-            <div>
-              <h2 className="text-base font-semibold text-white mb-3">Organizer Performance Rankings</h2>
+            <Section title="Organizer rankings" subtitle="Best-performing organizers">
               <OrganizerRankingsAnalytics />
-            </div>
+            </Section>
           )}
         </div>
       </div>

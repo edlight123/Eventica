@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Crown, Star, Ticket, Calendar, Award } from 'lucide-react'
+import { Crown, Star, Ticket, Calendar } from 'lucide-react'
 import Link from 'next/link'
 
 interface OrganizerData {
@@ -49,133 +49,68 @@ export function OrganizerRankingsAnalytics() {
     )
   }
 
-  const getMedalColor = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return 'from-yellow-400 to-yellow-600'
-      case 2:
-        return 'from-gray-300 to-gray-500'
-      case 3:
-        return 'from-amber-400 to-amber-600'
-      default:
-        return 'from-brand-400 to-brand-600'
-    }
-  }
+  const ratedCount = organizers.filter((o) => o.avgRating > 0).length
+  const avgRating = ratedCount > 0 ? organizers.reduce((sum, o) => sum + o.avgRating, 0) / ratedCount : 0
 
   return (
-    <div className="rounded-xl border border-white/10 p-4">
-      <div className="flex items-center gap-2 mb-4">
-        <Crown className="w-5 h-5 text-yellow-500" />
-        <h3 className="text-sm font-semibold text-white">Top Organizers</h3>
-        <span className="text-xs text-white/50">(by ticket sales)</span>
+    <div className="rounded-lg border border-white/10 p-4">
+      <div className="mb-3 flex items-center gap-2">
+        <Crown className="h-4 w-4 text-amber-300" />
+        <h3 className="text-[13px] font-semibold text-white">Top organizers</h3>
+        <span className="text-xs text-white/40">· by ticket sales</span>
       </div>
 
-      <div className="space-y-2">
+      <ul className="divide-y divide-white/5">
         {organizers.map((organizer, index) => {
           const rank = index + 1
           const isTopThree = rank <= 3
-
           return (
-            <div
-              key={organizer.id}
-              className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
-                isTopThree
-                  ? 'border-amber-500/30 '
-                  : 'border-white/10 hover:border-brand-300'
-              }`}
-            >
-              {/* Rank Badge */}
-              <div className={`flex-shrink-0 w-10 h-10 bg-gradient-to-br ${getMedalColor(rank)} rounded-full flex items-center justify-center shadow-lg`}>
-                {isTopThree ? (
-                  <Crown className="w-5 h-5 text-white" />
-                ) : (
-                  <span className="text-white font-bold text-base">#{rank}</span>
-                )}
-              </div>
-
-              {/* Organizer Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <Link
-                    href={`/organizer/profile/${organizer.id}`}
-                    className="font-semibold text-sm text-white hover:text-brand-300 transition-colors truncate"
-                  >
-                    {organizer.name}
-                  </Link>
-                  {isTopThree && (
-                    <Award className="w-4 h-4 text-yellow-500 flex-shrink-0" />
+            <li key={organizer.id} className="flex items-center gap-3 py-2.5">
+              <span
+                className={`w-5 shrink-0 text-center text-sm font-bold tabular-nums ${
+                  isTopThree ? 'text-amber-300' : 'text-white/40'
+                }`}
+              >
+                {rank}
+              </span>
+              <div className="min-w-0 flex-1">
+                <Link
+                  href={`/organizer/profile/${organizer.id}`}
+                  className="block truncate text-sm font-semibold text-white transition-colors hover:text-brand-300"
+                >
+                  {organizer.name}
+                </Link>
+                <div className="mt-0.5 flex items-center gap-3 text-xs text-white/45">
+                  <span className="inline-flex items-center gap-1"><Ticket className="h-3 w-3" />{organizer.totalTickets.toLocaleString()}</span>
+                  <span className="inline-flex items-center gap-1"><Calendar className="h-3 w-3" />{organizer.eventsCount}</span>
+                  {organizer.avgRating > 0 && (
+                    <span className="inline-flex items-center gap-1"><Star className="h-3 w-3 text-amber-300" />{organizer.avgRating.toFixed(1)}</span>
                   )}
                 </div>
-                <div className="text-xs text-white/50 mt-0.5 truncate">{organizer.email}</div>
-                
-                {/* Stats Grid */}
-                <div className="grid grid-cols-3 gap-2 mt-2">
-                  <div className="flex items-center gap-1.5">
-                    <Ticket className="w-4 h-4 text-brand-300" />
-                    <span className="text-sm font-medium text-white/70">
-                      {organizer.totalTickets.toLocaleString()}
-                    </span>
-                    <span className="text-xs text-white/50">tickets</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="w-4 h-4 text-brand-300" />
-                    <span className="text-sm font-medium text-white/70">
-                      {organizer.eventsCount}
-                    </span>
-                    <span className="text-xs text-white/50">events</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Star className="w-4 h-4 text-yellow-500" />
-                    <span className="text-sm font-medium text-white/70">
-                      {organizer.avgRating > 0 ? organizer.avgRating.toFixed(1) : 'N/A'}
-                    </span>
-                    {organizer.avgRating > 0 && (
-                      <span className="text-xs text-white/50">rating</span>
-                    )}
-                  </div>
+              </div>
+              <div className="shrink-0 text-right">
+                <div className="text-sm font-bold tabular-nums text-white">{organizer.totalTickets.toLocaleString()}</div>
+                <div className="text-[11px] text-white/40">
+                  {organizer.eventsCount > 0 ? `${(organizer.totalTickets / organizer.eventsCount).toFixed(0)}/event` : 'sales'}
                 </div>
               </div>
-
-              {/* Performance Indicator */}
-              <div className="flex-shrink-0 text-right">
-                <div className="text-lg font-bold text-brand-300">
-                  {organizer.totalTickets.toLocaleString()}
-                </div>
-                <div className="text-[11px] text-white/50">Total Sales</div>
-                {organizer.eventsCount > 0 && (
-                  <div className="text-xs text-white/40 mt-1">
-                    {(organizer.totalTickets / organizer.eventsCount).toFixed(0)} avg/event
-                  </div>
-                )}
-              </div>
-            </div>
+            </li>
           )
         })}
-      </div>
+      </ul>
 
-      {/* Summary Stats */}
-      <div className="mt-4 pt-4 border-t border-white/10 grid grid-cols-3 gap-3">
-        <div className="text-center">
-          <div className="text-xl font-bold text-white">
-            {organizers.reduce((sum, o) => sum + o.totalTickets, 0).toLocaleString()}
+      {/* Summary */}
+      <div className="mt-3 grid grid-cols-3 divide-x divide-white/10 border-t border-white/10 pt-3">
+        {[
+          { v: organizers.reduce((s, o) => s + o.totalTickets, 0).toLocaleString(), l: 'Tickets sold' },
+          { v: organizers.reduce((s, o) => s + o.eventsCount, 0).toLocaleString(), l: 'Events' },
+          { v: avgRating > 0 ? avgRating.toFixed(1) : 'N/A', l: 'Avg rating' },
+        ].map((s) => (
+          <div key={s.l} className="text-center">
+            <div className="text-lg font-bold tabular-nums text-white">{s.v}</div>
+            <div className="mt-0.5 text-[11px] text-white/40">{s.l}</div>
           </div>
-          <div className="text-[11px] text-white/50 mt-0.5">Total Tickets Sold</div>
-        </div>
-        <div className="text-center">
-          <div className="text-xl font-bold text-white">
-            {organizers.reduce((sum, o) => sum + o.eventsCount, 0).toLocaleString()}
-          </div>
-          <div className="text-[11px] text-white/50 mt-0.5">Total Events</div>
-        </div>
-        <div className="text-center">
-          <div className="text-xl font-bold text-white">
-            {(
-              organizers.reduce((sum, o) => sum + o.avgRating, 0) / 
-              organizers.filter(o => o.avgRating > 0).length
-            ).toFixed(1)}
-          </div>
-          <div className="text-[11px] text-white/50 mt-0.5">Avg Rating</div>
-        </div>
+        ))}
       </div>
     </div>
   )

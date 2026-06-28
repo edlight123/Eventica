@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Trophy, Ticket, Heart, Star, TrendingUp } from 'lucide-react'
+import { Trophy, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 
 interface EventData {
@@ -54,107 +54,64 @@ export function EventPerformanceAnalytics() {
   return (
     <div className="space-y-4">
       {/* Top Performing Events */}
-      <div className="rounded-xl border border-white/10 p-4">
-        <div className="flex items-center gap-2 mb-4">
-          <Trophy className="w-5 h-5 text-yellow-500" />
-          <h3 className="text-sm font-semibold text-white">Top Performing Events</h3>
+      <div className="rounded-lg border border-white/10 p-4">
+        <div className="mb-3 flex items-center gap-2">
+          <Trophy className="h-4 w-4 text-amber-300" />
+          <h3 className="text-[13px] font-semibold text-white">Top performing events</h3>
         </div>
         {topEvents.length > 0 ? (
-          <div className="space-y-2">
+          <ul className="divide-y divide-white/5">
             {topEvents.map((event, index) => (
-              <div
-                key={event.id}
-                className="flex items-center gap-3 p-3 rounded-lg  hover:border-brand-300 transition-colors"
-              >
-                <div className="flex-shrink-0 w-9 h-9 bg-gradient-to-br from-brand-500 to-brand-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                  #{index + 1}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <Link 
+              <li key={event.id} className="flex items-center gap-3 py-2.5">
+                <span className="w-5 shrink-0 text-center text-sm font-bold tabular-nums text-white/40">{index + 1}</span>
+                <div className="min-w-0 flex-1">
+                  <Link
                     href={`/events/${event.id}`}
-                    className="font-medium text-sm text-white hover:text-brand-300 transition-colors block truncate"
+                    className="block truncate text-sm font-medium text-white transition-colors hover:text-brand-300"
                   >
                     {event.title}
                   </Link>
-                  <div className="text-xs text-white/50 mt-0.5">
-                    {new Date(event.date).toLocaleDateString()} • By {event.users?.name || 'Unknown'}
+                  <div className="mt-0.5 truncate text-xs text-white/40">
+                    {new Date(event.date).toLocaleDateString()} · {event.users?.name || 'Unknown'}
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-center">
-                    <div className="text-[11px] text-white/50">Score</div>
-                    <div className="text-base font-bold text-brand-300">{event.successScore}/100</div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <div className="h-1.5 w-16 overflow-hidden rounded-full bg-white/[0.06]">
+                    <div className="h-full rounded-full bg-brand-500" style={{ width: `${Math.min(100, event.successScore)}%` }} />
                   </div>
-                  <div className="w-12 h-12">
-                    <svg className="transform -rotate-90" viewBox="0 0 36 36">
-                      <circle
-                        cx="18"
-                        cy="18"
-                        r="16"
-                        fill="none"
-                        stroke="#e5e7eb"
-                        strokeWidth="3"
-                      />
-                      <circle
-                        cx="18"
-                        cy="18"
-                        r="16"
-                        fill="none"
-                        stroke="#14b8a6"
-                        strokeWidth="3"
-                        strokeDasharray={`${event.successScore}, 100`}
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  </div>
+                  <span className="w-10 text-right text-sm font-bold tabular-nums text-brand-300">{event.successScore}</span>
                 </div>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         ) : (
-          <div className="text-center py-8 text-white/50">No event data available</div>
+          <div className="py-8 text-center text-sm text-white/40">No event data available</div>
         )}
       </div>
 
       {/* Category Popularity */}
-      <div className="rounded-xl border border-white/10 p-4">
-        <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="w-5 h-5 text-brand-500" />
-          <h3 className="text-sm font-semibold text-white">Popular Categories (Last 30 Days)</h3>
+      <div className="rounded-lg border border-white/10 p-4">
+        <div className="mb-3 flex items-center gap-2">
+          <TrendingUp className="h-4 w-4 text-brand-300" />
+          <h3 className="text-[13px] font-semibold text-white">Popular categories · 30d</h3>
         </div>
         {categories.length > 0 ? (
           <div className="space-y-2.5">
-            {categories.map((category, index) => {
+            {categories.map((category) => {
               const percentage = totalTicketsSold > 0 ? (category.count / totalTicketsSold) * 100 : 0
-              const colors = [
-                'bg-brand-700',
-                'bg-brand-500',
-                'bg-brand-300',
-                'bg-brand-200',
-                'bg-slate-400'
-              ]
-              const color = colors[index % colors.length]
-
               return (
-                <div key={category.category} className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-sm text-white">{category.category}</span>
-                    <span className="text-xs text-white/60">
-                      {category.count} tickets ({percentage.toFixed(1)}%)
-                    </span>
+                <div key={category.category} className="flex items-center gap-3">
+                  <span className="w-24 shrink-0 truncate text-sm text-white">{category.category}</span>
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
+                    <div className="h-full rounded-full bg-brand-500 transition-all duration-500" style={{ width: `${percentage}%` }} />
                   </div>
-                  <div className="w-full bg-[#0a0a0a] rounded-full h-2">
-                    <div
-                      className={`${color} h-2 rounded-full transition-all duration-500`}
-                      style={{ width: `${percentage}%` }}
-                    />
-                  </div>
+                  <span className="shrink-0 text-xs tabular-nums text-white/50">{category.count} · {percentage.toFixed(0)}%</span>
                 </div>
               )
             })}
           </div>
         ) : (
-          <div className="text-center py-8 text-white/50">No category data available</div>
+          <div className="py-8 text-center text-sm text-white/40">No category data available</div>
         )}
       </div>
     </div>

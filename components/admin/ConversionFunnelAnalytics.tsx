@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Eye, Heart, ShoppingCart, TrendingUp, ArrowRight } from 'lucide-react'
+import { Eye, Heart, ShoppingCart, TrendingUp } from 'lucide-react'
 
 interface ConversionData {
   views: number
@@ -47,132 +47,65 @@ export function ConversionFunnelAnalytics() {
   }
 
   const stages = [
-    {
-      label: 'Event Views',
-      value: data.views,
-      icon: Eye,
-      color: 'brand',
-      bgColor: '',
-      borderColor: 'border-brand-500/30',
-      textColor: 'text-brand-300',
-      iconBg: 'bg-brand-700'
-    },
-    {
-      label: 'Favorites',
-      value: data.favorites,
-      icon: Heart,
-      color: 'brand',
-      bgColor: '',
-      borderColor: 'border-brand-500/30',
-      textColor: 'text-brand-300',
-      iconBg: 'bg-brand-600',
-      conversionRate: data.favoriteRate
-    },
-    {
-      label: 'Purchases',
-      value: data.purchases,
-      icon: ShoppingCart,
-      color: 'brand',
-      bgColor: '',
-      borderColor: 'border-brand-500/30',
-      textColor: 'text-brand-300',
-      iconBg: 'bg-brand-500',
-      conversionRate: data.purchaseRate
-    }
+    { label: 'Event views', value: data.views, icon: Eye },
+    { label: 'Favorites', value: data.favorites, icon: Heart, conversionRate: data.favoriteRate },
+    { label: 'Purchases', value: data.purchases, icon: ShoppingCart, conversionRate: data.purchaseRate },
   ]
 
   return (
     <div className="space-y-4">
-      {/* Overall Conversion Rate */}
-      <div className="bg-gradient-to-br from-brand-500/15 to-brand-600/10 rounded-xl p-4 border border-brand-500/30">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-xs font-medium text-brand-300 mb-0.5">Overall Conversion Rate</div>
-            <div className="text-2xl font-bold text-brand-300">{data.overallConversion.toFixed(2)}%</div>
-            <div className="text-xs text-brand-300 mt-1">Views to Purchases (Last 30 Days)</div>
-          </div>
-          <div className="w-14 h-14 bg-brand-500 rounded-full flex items-center justify-center">
-            <TrendingUp className="w-7 h-7 text-white" />
-          </div>
+      {/* Overall conversion — flat highlight */}
+      <div className="flex items-center justify-between rounded-lg border border-white/10 p-4">
+        <div>
+          <div className="text-[11px] font-medium uppercase tracking-wide text-white/40">Overall conversion</div>
+          <div className="mt-0.5 text-3xl font-bold tabular-nums text-white">{data.overallConversion.toFixed(2)}%</div>
+          <div className="mt-0.5 text-xs text-white/40">Views → purchases · last 30 days</div>
         </div>
+        <TrendingUp className="h-8 w-8 text-brand-300" />
       </div>
 
-      {/* Funnel Visualization */}
-      <div className="rounded-xl border border-white/10 p-4">
-        <h3 className="text-sm font-semibold text-white mb-3">Conversion Funnel</h3>
-        <div className="space-y-2">
-          {stages.map((stage, index) => {
+      {/* Funnel */}
+      <div className="rounded-lg border border-white/10 p-4">
+        <h3 className="mb-3 text-[13px] font-semibold text-white">Conversion funnel</h3>
+        <div className="space-y-3">
+          {stages.map((stage) => {
             const StageIcon = stage.icon
-            const isLast = index === stages.length - 1
             const widthPercentage = data.views > 0 ? (stage.value / data.views) * 100 : 0
-
             return (
               <div key={stage.label}>
-                <div className={`${stage.bgColor} ${stage.borderColor} border rounded-xl p-4 transition-all hover:shadow-md`}>
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className={`w-9 h-9 ${stage.iconBg} rounded-lg flex items-center justify-center`}>
-                        <StageIcon className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <div className="font-medium text-sm text-white/70">{stage.label}</div>
-                        {stage.conversionRate !== undefined && (
-                          <div className={`text-xs ${stage.textColor} font-semibold`}>
-                            {stage.conversionRate.toFixed(2)}% conversion
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className={`text-2xl font-bold ${stage.textColor}`}>
-                      {stage.value.toLocaleString()}
-                    </div>
-                  </div>
-                  
-                  {/* Progress Bar */}
-                  <div className="relative">
-                    <div className="w-full bg-[#0a0a0a] rounded-full h-2.5">
-                      <div
-                        className={`${stage.iconBg} h-2.5 rounded-full transition-all duration-500`}
-                        style={{ width: `${widthPercentage}%` }}
-                      />
-                    </div>
-                    <div className="text-[11px] text-white/50 mt-1 text-right">
-                      {widthPercentage.toFixed(1)}% of initial views
-                    </div>
-                  </div>
+                <div className="mb-1.5 flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-sm text-white/80">
+                    <StageIcon className="h-4 w-4 text-brand-300" /> {stage.label}
+                    {stage.conversionRate !== undefined && (
+                      <span className="text-xs text-white/40">· {stage.conversionRate.toFixed(1)}%</span>
+                    )}
+                  </span>
+                  <span className="text-sm font-bold tabular-nums text-white">{stage.value.toLocaleString()}</span>
                 </div>
-
-                {/* Arrow between stages */}
-                {!isLast && (
-                  <div className="flex justify-center py-1">
-                    <ArrowRight className="w-4 h-4 text-white/40 rotate-90" />
-                  </div>
-                )}
+                <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                  <div className="h-full rounded-full bg-brand-500 transition-all duration-500" style={{ width: `${widthPercentage}%` }} />
+                </div>
               </div>
             )
           })}
         </div>
 
         {/* Insights */}
-        <div className="mt-4 p-3 border border-amber-500/30 rounded-lg">
-          <div className="flex items-start gap-2">
-            <TrendingUp className="w-4 h-4 text-amber-300 mt-0.5" />
-            <div>
-              <div className="font-medium text-sm text-amber-300">Conversion Insights</div>
-              <ul className="text-xs text-amber-300 mt-1.5 space-y-1">
-                <li>• {data.favoriteRate.toFixed(1)}% of viewers favorite events</li>
-                <li>• {data.purchaseRate.toFixed(1)}% of favorited events lead to purchases</li>
-                <li>• Overall {data.overallConversion.toFixed(2)}% of viewers complete a purchase</li>
-              </ul>
-            </div>
+        <div className="mt-4 rounded-lg border border-white/10 p-3">
+          <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-white/70">
+            <TrendingUp className="h-3.5 w-3.5 text-brand-300" /> Insights
           </div>
+          <ul className="space-y-0.5 text-xs text-white/50">
+            <li>{data.favoriteRate.toFixed(1)}% of viewers favorite events</li>
+            <li>{data.purchaseRate.toFixed(1)}% of favorited events lead to purchases</li>
+            <li>Overall {data.overallConversion.toFixed(2)}% of viewers complete a purchase</li>
+          </ul>
         </div>
       </div>
 
-      {/* Note about estimated views */}
-      <div className="text-xs text-white/50 text-center">
-        * Event views are estimated (10x favorites). Implement view tracking for accurate metrics.
-      </div>
+      <p className="text-center text-[11px] text-white/35">
+        Event views are estimated (10× favorites) until view tracking is implemented.
+      </p>
     </div>
   )
 }
