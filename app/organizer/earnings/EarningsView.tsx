@@ -205,7 +205,7 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
               type="button"
               onClick={() => setPayoutOpen(true)}
               disabled={!canWithdraw}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0a0a0a] px-6 py-3 font-semibold text-brand-300 shadow-sm transition hover:bg-brand-500/10 disabled:cursor-not-allowed disabled:bg-white/70 disabled:text-brand-800/60 lg:w-auto"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#0a0a0a] px-6 py-3 font-semibold text-brand-300 shadow-sm transition hover:bg-brand-500/10 disabled:cursor-not-allowed disabled:bg-white/70 disabled:text-brand-300/60 lg:w-auto"
             >
               Request payout
               <ArrowRight className="h-4 w-4" />

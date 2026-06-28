@@ -301,7 +301,7 @@ export default function BankVerificationReviewCard({ verification }: Props) {
           <div className="mt-6 p-4 border border-amber-500/30 rounded-xl">
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-amber-300 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-amber-900">
+              <div className="text-sm text-amber-300">
                 <p className="font-semibold mb-2">Review Checklist:</p>
                 <ul className="list-disc list-inside space-y-1">
                   <li>Bank name matches between form and document</li>

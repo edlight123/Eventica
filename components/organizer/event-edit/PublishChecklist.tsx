@@ -21,14 +21,14 @@ export function PublishChecklist({ blockingIssues, onNavigateToTab, canPublish }
             <Check className="w-7 h-7 text-white" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-green-900 mb-2">
+            <h3 className="text-lg font-bold text-emerald-300 mb-2">
               Ready to Publish! 🎉
             </h3>
             <p className="text-emerald-300 mb-4">
               All required information is complete. Your event is ready to go live.
             </p>
             <div className="bg-white/60 rounded-lg p-3 border border-emerald-500/30">
-              <p className="text-sm text-green-900 font-medium">
+              <p className="text-sm text-emerald-300 font-medium">
                 Click the <strong className="text-brand-300">Publish</strong> button in the header to make your event visible to attendees.
               </p>
             </div>

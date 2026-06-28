@@ -275,7 +275,7 @@ export default function SettingsContent({
               <AlertTriangle className="w-6 h-6 text-red-300" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-red-900">{t('settings.danger_zone')}</h3>
+              <h3 className="font-semibold text-red-300">{t('settings.danger_zone')}</h3>
               <p className="text-sm text-white/60 mt-0.5">{t('settings.danger_zone_desc')}</p>
             </div>
             <ChevronRight className="w-5 h-5 text-white/40 flex-shrink-0" />

@@ -25,7 +25,7 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
       {/* Back Button */}
       <Link 
         href="/profile"
-        className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+        className="inline-flex items-center gap-2 text-white/65 hover:text-white mb-6 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         <span className="font-medium">{t('back_to_profile')}</span>
@@ -33,71 +33,71 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
 
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1>
-        <p className="text-gray-600 mt-2">{t('subtitle')}</p>
+        <h1 className="text-3xl font-bold text-white">{t('title')}</h1>
+        <p className="text-white/65 mt-2">{t('subtitle')}</p>
       </div>
 
       {/* Settings Sections */}
       <div className="space-y-6">
         
         {/* Personal Information */}
-        <div className="bg-white rounded-2xl shadow-soft border border-gray-100 p-6">
+        <div className="bg-[#0a0a0a] rounded-2xl shadow-soft border border-white/10 p-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-brand-100 flex items-center justify-center">
               <User className="w-5 h-5 text-brand-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">{t('personal_info.title')}</h2>
-              <p className="text-sm text-gray-600">{t('personal_info.subtitle')}</p>
+              <h2 className="text-xl font-bold text-white">{t('personal_info.title')}</h2>
+              <p className="text-sm text-white/65">{t('personal_info.subtitle')}</p>
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">{t('personal_info.full_name')}</label>
-                <div className="px-4 py-3 bg-gray-50 rounded-xl border border-gray-200">
-                  <p className="text-gray-900 font-medium">{user.full_name}</p>
+                <label className="block text-sm font-semibold text-white/70 mb-2">{t('personal_info.full_name')}</label>
+                <div className="px-4 py-3 bg-[#0a0a0a] rounded-xl border border-white/10">
+                  <p className="text-white font-medium">{user.full_name}</p>
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">{t('personal_info.email')}</label>
-                <div className="px-4 py-3 bg-gray-50 rounded-xl border border-gray-200">
-                  <p className="text-gray-900 font-medium">{user.email}</p>
+                <label className="block text-sm font-semibold text-white/70 mb-2">{t('personal_info.email')}</label>
+                <div className="px-4 py-3 bg-[#0a0a0a] rounded-xl border border-white/10">
+                  <p className="text-white font-medium">{user.email}</p>
                 </div>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">{t('personal_info.phone')}</label>
-              <div className="px-4 py-3 bg-gray-50 rounded-xl border border-gray-200">
-                <p className="text-gray-900 font-medium">{user.phone_number || t('personal_info.not_provided')}</p>
+              <label className="block text-sm font-semibold text-white/70 mb-2">{t('personal_info.phone')}</label>
+              <div className="px-4 py-3 bg-[#0a0a0a] rounded-xl border border-white/10">
+                <p className="text-white font-medium">{user.phone_number || t('personal_info.not_provided')}</p>
               </div>
             </div>
 
             <div className="pt-4">
-              <p className="text-sm text-gray-600 bg-gray-50 border border-gray-100 rounded-xl p-4">
-                <strong className="text-gray-900">{t('personal_info.note')}:</strong> {t('personal_info.note_text')}
+              <p className="text-sm text-white/65 bg-[#0a0a0a] border border-white/10 rounded-xl p-4">
+                <strong className="text-white">{t('personal_info.note')}:</strong> {t('personal_info.note_text')}
               </p>
             </div>
           </div>
         </div>
 
         {/* Account Security */}
-        <div className="bg-white rounded-2xl shadow-soft border border-gray-100 p-6">
+        <div className="bg-[#0a0a0a] rounded-2xl shadow-soft border border-white/10 p-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-brand-100 flex items-center justify-center">
               <Shield className="w-5 h-5 text-brand-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">{t('security.title')}</h2>
-              <p className="text-sm text-gray-600">{t('security.subtitle')}</p>
+              <h2 className="text-xl font-bold text-white">{t('security.title')}</h2>
+              <p className="text-sm text-white/65">{t('security.subtitle')}</p>
             </div>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">{t('security.verification_status')}</label>
+              <label className="block text-sm font-semibold text-white/70 mb-2">{t('security.verification_status')}</label>
               <div className="flex items-center gap-3">
                 {user.is_verified ? (
                   <Badge variant="success" size="lg" icon={<Shield className="w-5 h-5" />}>
@@ -122,13 +122,13 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">{t('security.role')}</label>
+              <label className="block text-sm font-semibold text-white/70 mb-2">{t('security.role')}</label>
               <Badge variant={user.role === 'organizer' ? 'vip' : 'primary'} size="lg">
                 {user.role === 'organizer' ? t('security.event_organizer') : t('security.event_attendee')}
               </Badge>
             </div>
 
-            <div className="pt-4 border-t border-gray-200">
+            <div className="pt-4 border-t border-white/10">
               <Link
                 href="/api/auth/logout"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 font-medium transition-colors"
@@ -141,27 +141,27 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
         </div>
 
         {/* Notification Preferences */}
-        <div className="bg-white rounded-2xl shadow-soft border border-gray-100 p-6">
+        <div className="bg-[#0a0a0a] rounded-2xl shadow-soft border border-white/10 p-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center">
               <Bell className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">{t('notifications.title')}</h2>
-              <p className="text-sm text-gray-600">{t('notifications.subtitle')}</p>
+              <h2 className="text-xl font-bold text-white">{t('notifications.title')}</h2>
+              <p className="text-sm text-white/65">{t('notifications.subtitle')}</p>
             </div>
           </div>
 
           <div className="space-y-4">
             <Link 
               href="/settings/notifications"
-              className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+              className="flex items-center justify-between p-4 bg-[#0a0a0a] rounded-xl hover:bg-white/[0.04] transition-colors"
             >
               <div>
-                <p className="font-semibold text-gray-900">{t('notifications.preferences')}</p>
-                <p className="text-sm text-gray-600">{t('notifications.preferences_desc')}</p>
+                <p className="font-semibold text-white">{t('notifications.preferences')}</p>
+                <p className="text-sm text-white/65">{t('notifications.preferences_desc')}</p>
               </div>
-              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </Link>
@@ -169,20 +169,20 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
         </div>
 
         {/* Danger Zone */}
-        <div className="bg-white rounded-2xl shadow-soft border border-red-200 p-6">
+        <div className="bg-[#0a0a0a] rounded-2xl shadow-soft border border-red-200 p-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center">
               <Trash2 className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">{t('danger.title')}</h2>
-              <p className="text-sm text-gray-600">{t('danger.subtitle')}</p>
+              <h2 className="text-xl font-bold text-white">{t('danger.title')}</h2>
+              <p className="text-sm text-white/65">{t('danger.subtitle')}</p>
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
-              <p className="font-semibold text-red-900 mb-2">{t('danger.delete_account')}</p>
+              <p className="font-semibold text-red-300 mb-2">{t('danger.delete_account')}</p>
               <p className="text-sm text-red-700 mb-4">
                 {t('danger.delete_warning')}
               </p>

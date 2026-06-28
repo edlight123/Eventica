@@ -463,7 +463,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
           <div className="flex items-start gap-3">
             <span className="text-2xl">ℹ️</span>
             <div>
-              <h3 className="font-bold text-amber-900 mb-1">
+              <h3 className="font-bold text-amber-300 mb-1">
                 {earnings.settlementStatus === 'pending' ? 'Settlement Pending' : 'Funds Locked'}
               </h3>
               <p className="text-amber-300 text-sm mb-2">

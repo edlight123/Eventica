@@ -112,9 +112,9 @@ export function VerificationChecklist({ config }: VerificationChecklistProps) {
   }
 
   return (
-    <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 md:p-8">
+    <div className="bg-[#0a0a0a] rounded-2xl border-2 border-white/10 p-6 md:p-8">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-gray-900">{t('settings.payout_settings.verification_status')}</h3>
+        <h3 className="text-xl font-bold text-white">{t('settings.payout_settings.verification_status')}</h3>
         {allVerified && (
           <div className="flex items-center gap-1 px-3 py-1.5 bg-green-100 rounded-full">
             <Check className="w-4 h-4 text-green-600" />
@@ -126,7 +126,7 @@ export function VerificationChecklist({ config }: VerificationChecklistProps) {
       {/* Overall Status Message */}
       {!allVerified && !hasFailures && (
         <div className="mb-6 p-4 bg-brand-50 border border-brand-200 rounded-xl">
-          <p className="text-sm text-brand-900">
+          <p className="text-sm text-brand-300">
             <strong>{t('settings.payout_settings.action_required')}</strong> {t('settings.payout_settings.complete_verification')}
           </p>
         </div>
@@ -135,7 +135,7 @@ export function VerificationChecklist({ config }: VerificationChecklistProps) {
       {hasFailures && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-red-900">
+          <div className="text-sm text-red-300">
             <p className="font-semibold mb-1">{t('settings.payout_settings.verification_issues')}</p>
             <p>{t('settings.payout_settings.verification_issues_desc')}</p>
           </div>
@@ -171,10 +171,10 @@ export function VerificationChecklist({ config }: VerificationChecklistProps) {
                 {/* Content */}
                 <div className="flex-1">
                   <div className="flex items-start justify-between mb-1">
-                    <h4 className="font-semibold text-gray-900">{item.label}</h4>
+                    <h4 className="font-semibold text-white">{item.label}</h4>
                     {getStatusBadge(item.status)}
                   </div>
-                  <p className="text-sm text-gray-600 mb-3">{item.description}</p>
+                  <p className="text-sm text-white/65 mb-3">{item.description}</p>
 
                   {/* Action Button */}
                   {item.action && (
@@ -194,7 +194,7 @@ export function VerificationChecklist({ config }: VerificationChecklistProps) {
 
               {/* Connector Line */}
               {index < items.length - 1 && (
-                <div className="ml-6 mt-2 mb-2 h-8 border-l-2 border-dashed border-gray-300" />
+                <div className="ml-6 mt-2 mb-2 h-8 border-l-2 border-dashed border-white/10" />
               )}
             </div>
           )
@@ -202,8 +202,8 @@ export function VerificationChecklist({ config }: VerificationChecklistProps) {
       </div>
 
       {/* Info Footer */}
-      <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
-        <p className="text-xs text-gray-600">
+      <div className="mt-6 p-4 bg-[#0a0a0a] rounded-xl border border-white/10">
+        <p className="text-xs text-white/65">
           <strong>{t('settings.payout_settings.why_verification')}</strong> {t('settings.payout_settings.why_verification_desc')}
         </p>
       </div>

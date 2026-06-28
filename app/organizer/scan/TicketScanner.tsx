@@ -227,7 +227,7 @@ export default function TicketScanner({ organizerId }: TicketScannerProps) {
             : 'border-red-500'
         }`}>
           <p className={`text-lg font-semibold mb-2 ${
-            result.success ? 'text-green-900' : 'text-red-900'
+            result.success ? 'text-emerald-300' : 'text-red-300'
           }`}>
             {result.message}
           </p>

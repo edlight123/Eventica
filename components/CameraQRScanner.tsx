@@ -343,7 +343,7 @@ export function CameraQRScanner({
             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
           />
         </svg>
-        <h3 className="mt-2 text-sm font-medium text-red-800">Camera Access Denied</h3>
+        <h3 className="mt-2 text-sm font-medium text-red-300">Camera Access Denied</h3>
         <p className="mt-1 text-sm text-red-600">
           {error || 'Please allow camera access to scan QR codes'}
         </p>
@@ -404,7 +404,7 @@ export function CameraQRScanner({
               />
             </svg>
             <h3 className="mt-4 text-lg font-semibold text-white">Start Camera</h3>
-            <p className="mt-2 text-sm text-gray-300">
+            <p className="mt-2 text-sm text-white/40">
               Tap the button below to enable camera scanning
             </p>
             {debugInfo && (
@@ -439,7 +439,7 @@ export function CameraQRScanner({
           <div className="absolute top-4 right-4 flex items-center gap-2 rounded-full bg-green-500 px-3 py-1 text-sm font-medium text-white shadow-lg">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0a0a0a]"></span>
             </span>
             Scanning...
           </div>

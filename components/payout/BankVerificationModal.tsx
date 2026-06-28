@@ -65,12 +65,12 @@ export function BankVerificationModal({ onClose, onComplete }: BankVerificationM
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#0a0a0a] rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">Bank Account Verification</h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-            <X className="w-6 h-6 text-gray-600" />
+        <div className="flex items-center justify-between p-6 border-b border-white/10">
+          <h2 className="text-2xl font-bold text-white">Bank Account Verification</h2>
+          <button onClick={onClose} className="p-2 hover:bg-white/[0.04] rounded-lg transition-colors">
+            <X className="w-6 h-6 text-white/65" />
           </button>
         </div>
 
@@ -78,24 +78,24 @@ export function BankVerificationModal({ onClose, onComplete }: BankVerificationM
           {step === 'info' && (
             <div className="space-y-6">
               <div className="p-4 bg-brand-50 border border-brand-200 rounded-xl">
-                <p className="text-sm text-brand-900">
+                <p className="text-sm text-brand-300">
                   <strong>Why we need this:</strong> We need to verify that you own the bank account 
                   to ensure payouts go to the correct account. This protects both you and our platform.
                 </p>
               </div>
 
               <div>
-                <h3 className="font-semibold text-gray-900 mb-4">Accepted Documents:</h3>
+                <h3 className="font-semibold text-white mb-4">Accepted Documents:</h3>
                 <div className="space-y-3">
                   {verificationOptions.map((option) => (
                     <div
                       key={option.value}
-                      className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl"
+                      className="flex items-start gap-3 p-3 bg-[#0a0a0a] rounded-xl"
                     >
                       <FileText className="w-5 h-5 text-brand-600 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="font-semibold text-gray-900">{option.label}</p>
-                        <p className="text-sm text-gray-600">{option.description}</p>
+                        <p className="font-semibold text-white">{option.label}</p>
+                        <p className="text-sm text-white/65">{option.description}</p>
                       </div>
                     </div>
                   ))}
@@ -104,7 +104,7 @@ export function BankVerificationModal({ onClose, onComplete }: BankVerificationM
 
               <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                <div className="text-sm text-amber-900">
+                <div className="text-sm text-amber-300">
                   <p className="font-semibold mb-1">Requirements</p>
                   <ul className="list-disc list-inside space-y-1">
                     <li>Document must show your name matching your account</li>
@@ -127,7 +127,7 @@ export function BankVerificationModal({ onClose, onComplete }: BankVerificationM
           {step === 'upload' && (
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-3">
+                <label className="block text-sm font-semibold text-white mb-3">
                   Select Document Type
                 </label>
                 <div className="space-y-2">
@@ -138,11 +138,11 @@ export function BankVerificationModal({ onClose, onComplete }: BankVerificationM
                       className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
                         verificationType === option.value
                           ? 'border-brand-600 bg-brand-50'
-                          : 'border-gray-200 hover:border-gray-300'
+                          : 'border-white/10 hover:border-white/10'
                       }`}
                     >
-                      <p className="font-semibold text-gray-900">{option.label}</p>
-                      <p className="text-sm text-gray-600 mt-1">{option.description}</p>
+                      <p className="font-semibold text-white">{option.label}</p>
+                      <p className="text-sm text-white/65 mt-1">{option.description}</p>
                     </button>
                   ))}
                 </div>
@@ -150,7 +150,7 @@ export function BankVerificationModal({ onClose, onComplete }: BankVerificationM
 
               {/* Document Upload */}
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className="block text-sm font-semibold text-white mb-2">
                   Upload Document <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
@@ -163,22 +163,22 @@ export function BankVerificationModal({ onClose, onComplete }: BankVerificationM
                   />
                   <label
                     htmlFor="proof-upload"
-                    className="flex flex-col items-center justify-center w-full h-56 border-2 border-dashed border-gray-300 rounded-xl hover:border-brand-600 cursor-pointer transition-colors"
+                    className="flex flex-col items-center justify-center w-full h-56 border-2 border-dashed border-white/10 rounded-xl hover:border-brand-600 cursor-pointer transition-colors"
                   >
                     {proofDocument ? (
                       <div className="text-center">
                         <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-3" />
-                        <p className="text-base font-medium text-gray-900">{proofDocument.name}</p>
-                        <p className="text-sm text-gray-500 mt-1">
+                        <p className="text-base font-medium text-white">{proofDocument.name}</p>
+                        <p className="text-sm text-white/50 mt-1">
                           {(proofDocument.size / 1024 / 1024).toFixed(2)} MB
                         </p>
-                        <p className="text-xs text-gray-500 mt-2">Click to change</p>
+                        <p className="text-xs text-white/50 mt-2">Click to change</p>
                       </div>
                     ) : (
                       <div className="text-center">
-                        <Upload className="w-16 h-16 text-gray-400 mx-auto mb-3" />
-                        <p className="text-base font-medium text-gray-700">Upload your document</p>
-                        <p className="text-sm text-gray-500 mt-1">PDF, PNG, or JPG up to 10MB</p>
+                        <Upload className="w-16 h-16 text-white/40 mx-auto mb-3" />
+                        <p className="text-base font-medium text-white/70">Upload your document</p>
+                        <p className="text-sm text-white/50 mt-1">PDF, PNG, or JPG up to 10MB</p>
                       </div>
                     )}
                   </label>
@@ -189,7 +189,7 @@ export function BankVerificationModal({ onClose, onComplete }: BankVerificationM
                 <button
                   onClick={() => setStep('info')}
                   disabled={uploading}
-                  className="flex-1 px-6 py-3 text-gray-700 font-semibold hover:bg-gray-100 rounded-xl transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex-1 px-6 py-3 text-white/70 font-semibold hover:bg-white/[0.04] rounded-xl transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Back
                 </button>
@@ -209,8 +209,8 @@ export function BankVerificationModal({ onClose, onComplete }: BankVerificationM
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="w-12 h-12 text-green-600" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Verification Submitted!</h3>
-              <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              <h3 className="text-2xl font-bold text-white mb-2">Verification Submitted!</h3>
+              <p className="text-white/65 mb-6 max-w-md mx-auto">
                 Your bank account proof has been submitted for review. We&apos;ll notify you within 1-2 
                 business days once verification is complete.
               </p>

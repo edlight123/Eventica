@@ -233,7 +233,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
               <div className="p-4 border border-red-500/30 rounded-lg">
                 <div className="flex items-center gap-2 mb-3">
                   <AlertTriangle className="w-5 h-5 text-red-300" />
-                  <h4 className="text-sm font-medium text-red-900">
+                  <h4 className="text-sm font-medium text-red-300">
                     Reports ({event.reports.length})
                   </h4>
                 </div>

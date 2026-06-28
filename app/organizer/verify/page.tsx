@@ -303,7 +303,7 @@ export default function VerifyOrganizerPage() {
     return (
       <div className="bg-[#0a0a0a] flex items-center justify-center p-4">
         <div className="bg-[#0a0a0a] border border-red-500/30 rounded-lg p-6 max-w-md">
-          <h2 className="text-lg font-bold text-red-900 mb-2">Error Loading Verification</h2>
+          <h2 className="text-lg font-bold text-red-300 mb-2">Error Loading Verification</h2>
           <p className="text-sm text-red-300 mb-4">{error}</p>
           <button
             onClick={() => window.location.reload()}
@@ -404,7 +404,7 @@ export default function VerifyOrganizerPage() {
           <div className="bg-[#0a0a0a] border border-red-500/30 rounded-lg p-4 mb-6">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <div className="text-sm font-semibold text-red-900">Something went wrong</div>
+                <div className="text-sm font-semibold text-red-300">Something went wrong</div>
                 <div className="text-sm text-red-300 mt-1">{error}</div>
               </div>
               <button

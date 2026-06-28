@@ -9,15 +9,15 @@ export default async function RefundPolicyPage() {
   const user = await getCurrentUser()
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-mobile-nav">
+    <div className="min-h-screen bg-[#0a0a0a] pb-mobile-nav">
       <Navbar user={user} />
 
       
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8 lg:py-12">
-          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4">Refund Policy</h1>
-          <p className="text-[11px] sm:text-[13px] md:text-base text-gray-600 mb-4 sm:mb-6 md:mb-8">Last updated: November 23, 2025</p>
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 sm:mb-3 md:mb-4">Refund Policy</h1>
+          <p className="text-[11px] sm:text-[13px] md:text-base text-white/65 mb-4 sm:mb-6 md:mb-8">Last updated: November 23, 2025</p>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4 md:p-6 lg:p-8 prose prose-sm sm:prose prose-teal max-w-none">
+          <div className="bg-[#0a0a0a] rounded-xl shadow-sm border border-white/10 p-3 sm:p-4 md:p-6 lg:p-8 prose prose-sm sm:prose prose-teal max-w-none">
           <h2>1. General Refund Policy</h2>
           <p>
             Refund policies for events are set by individual event organizers. Tikèm acts as a ticketing platform and facilitates refunds according to the organizer&apos;s stated policy.
@@ -144,7 +144,7 @@ export default async function RefundPolicyPage() {
           </ul>
 
           <div className="bg-brand-50 border-l-4 border-brand-500 p-6 mt-8">
-            <h3 className="text-lg font-semibold text-brand-900 mt-0">💡 Refund Tips</h3>
+            <h3 className="text-lg font-semibold text-brand-300 mt-0">💡 Refund Tips</h3>
             <ul className="mb-0">
               <li>Always check the event&apos;s refund policy before purchasing</li>
               <li>Consider event insurance for expensive tickets</li>

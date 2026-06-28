@@ -144,7 +144,7 @@ export function ScheduleTab({ formData, onChange, validation }: ScheduleTabProps
       {/* Validation Warnings */}
       {validation.warnings.length > 0 && (
         <div className="border border-amber-500/30 rounded-lg p-4">
-          <p className="font-semibold text-amber-900 mb-2 flex items-center gap-2">
+          <p className="font-semibold text-amber-300 mb-2 flex items-center gap-2">
             <AlertCircle className="w-5 h-5" />
             Suggestions
           </p>

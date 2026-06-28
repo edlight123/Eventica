@@ -61,13 +61,13 @@ export function BalanceRow({ availableBalance, pendingBalance, nextPayoutDate }:
   return (
     <div className="space-y-4">
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-800">
+        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-300">
           {error}
         </div>
       )}
       
       {success && (
-        <div className="p-4 bg-green-50 border border-green-200 rounded-xl text-sm text-green-800">
+        <div className="p-4 bg-green-50 border border-green-200 rounded-xl text-sm text-emerald-300">
           {t('settings.payout_settings.request_success')}
         </div>
       )}
@@ -79,7 +79,7 @@ export function BalanceRow({ availableBalance, pendingBalance, nextPayoutDate }:
           <div className="w-10 h-10 bg-green-600 rounded-xl flex items-center justify-center">
             <DollarSign className="w-5 h-5 text-white" />
           </div>
-          <h3 className="text-sm font-semibold text-green-900 uppercase tracking-wide">{t('settings.payout_settings.available_balance')}</h3>
+          <h3 className="text-sm font-semibold text-emerald-300 uppercase tracking-wide">{t('settings.payout_settings.available_balance')}</h3>
         </div>
         <p className="text-3xl font-bold text-green-700">{formatCurrency(availableBalance)}</p>
         <p className="text-sm text-green-600 mt-1">{t('settings.payout_settings.ready_to_withdraw')}</p>
@@ -91,7 +91,7 @@ export function BalanceRow({ availableBalance, pendingBalance, nextPayoutDate }:
           <div className="w-10 h-10 bg-amber-600 rounded-xl flex items-center justify-center">
             <Clock className="w-5 h-5 text-white" />
           </div>
-          <h3 className="text-sm font-semibold text-amber-900 uppercase tracking-wide">{t('settings.payout_settings.pending_balance')}</h3>
+          <h3 className="text-sm font-semibold text-amber-300 uppercase tracking-wide">{t('settings.payout_settings.pending_balance')}</h3>
         </div>
         <p className="text-3xl font-bold text-amber-700">{formatCurrency(pendingBalance)}</p>
         <p className="text-sm text-amber-600 mt-1">{t('settings.payout_settings.processing')}</p>
@@ -103,7 +103,7 @@ export function BalanceRow({ availableBalance, pendingBalance, nextPayoutDate }:
           <div className="w-10 h-10 bg-brand-600 rounded-xl flex items-center justify-center">
             <Calendar className="w-5 h-5 text-white" />
           </div>
-          <h3 className="text-sm font-semibold text-brand-900 uppercase tracking-wide">{t('settings.payout_settings.next_payout')}</h3>
+          <h3 className="text-sm font-semibold text-brand-300 uppercase tracking-wide">{t('settings.payout_settings.next_payout')}</h3>
         </div>
         <p className="text-3xl font-bold text-brand-700">
           {nextPayoutDate ? formatDate(nextPayoutDate).split(',')[0] : '—'}
@@ -123,7 +123,7 @@ export function BalanceRow({ availableBalance, pendingBalance, nextPayoutDate }:
           <ArrowDownToLine className="w-5 h-5" />
           {requesting ? t('settings.payout_settings.requesting') : t('settings.payout_settings.request_payout')}
         </button>
-        <p className="text-sm text-gray-600 mt-2">
+        <p className="text-sm text-white/65 mt-2">
           {t('settings.payout_settings.payout_scheduled')}
         </p>
       </div>

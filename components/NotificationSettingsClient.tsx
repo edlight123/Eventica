@@ -42,21 +42,21 @@ export function NotificationSettingsClient({
   return (
     <div className="space-y-6">
       {/* Push Notifications Setup */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-[#0a0a0a] rounded-xl shadow-sm border border-white/10 p-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-xl bg-brand-100 flex items-center justify-center">
             <Bell className="w-5 h-5 text-brand-600" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Push Notifications</h2>
-            <p className="text-sm text-gray-600">Get instant updates on your device</p>
+            <h2 className="text-xl font-bold text-white">Push Notifications</h2>
+            <p className="text-sm text-white/65">Get instant updates on your device</p>
           </div>
         </div>
 
         {hasNotificationPermission() ? (
           <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg">
             <Check className="w-5 h-5 text-green-600" />
-            <p className="text-sm text-green-800 font-medium">
+            <p className="text-sm text-emerald-300 font-medium">
               Push notifications are enabled
             </p>
           </div>
@@ -82,18 +82,18 @@ export function NotificationSettingsClient({
       </div>
 
       {/* In-App Notification Preferences */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Notification Preferences</h2>
-        <p className="text-sm text-gray-600 mb-6">
+      <div className="bg-[#0a0a0a] rounded-xl shadow-sm border border-white/10 p-6">
+        <h2 className="text-xl font-bold text-white mb-4">Notification Preferences</h2>
+        <p className="text-sm text-white/65 mb-6">
           Choose which types of notifications you want to receive
         </p>
 
         <div className="space-y-4">
           {/* Ticket Purchase Notifications */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-[#0a0a0a] rounded-lg">
             <div className="flex-1">
-              <h3 className="font-semibold text-gray-900">Ticket Purchases</h3>
-              <p className="text-sm text-gray-600">Get notified when you purchase tickets</p>
+              <h3 className="font-semibold text-white">Ticket Purchases</h3>
+              <p className="text-sm text-white/65">Get notified when you purchase tickets</p>
             </div>
             <button
               onClick={() => handleToggle('notifyTicketPurchase')}
@@ -106,7 +106,7 @@ export function NotificationSettingsClient({
             >
               <span
                 className={`
-                  inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+                  inline-block h-4 w-4 transform rounded-full bg-[#0a0a0a] transition-transform
                   ${preferences.notifyTicketPurchase ? 'translate-x-6' : 'translate-x-1'}
                 `}
               />
@@ -114,10 +114,10 @@ export function NotificationSettingsClient({
           </div>
 
           {/* Event Updates */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-[#0a0a0a] rounded-lg">
             <div className="flex-1">
-              <h3 className="font-semibold text-gray-900">Event Updates</h3>
-              <p className="text-sm text-gray-600">Get notified about changes to your events</p>
+              <h3 className="font-semibold text-white">Event Updates</h3>
+              <p className="text-sm text-white/65">Get notified about changes to your events</p>
             </div>
             <button
               onClick={() => handleToggle('notifyEventUpdates')}
@@ -130,7 +130,7 @@ export function NotificationSettingsClient({
             >
               <span
                 className={`
-                  inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+                  inline-block h-4 w-4 transform rounded-full bg-[#0a0a0a] transition-transform
                   ${preferences.notifyEventUpdates ? 'translate-x-6' : 'translate-x-1'}
                 `}
               />
@@ -138,10 +138,10 @@ export function NotificationSettingsClient({
           </div>
 
           {/* Event Reminders */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-[#0a0a0a] rounded-lg">
             <div className="flex-1">
-              <h3 className="font-semibold text-gray-900">Event Reminders</h3>
-              <p className="text-sm text-gray-600">Get reminded before your events (24h, 3h, 30min)</p>
+              <h3 className="font-semibold text-white">Event Reminders</h3>
+              <p className="text-sm text-white/65">Get reminded before your events (24h, 3h, 30min)</p>
             </div>
             <button
               onClick={() => handleToggle('notifyReminders')}
@@ -154,7 +154,7 @@ export function NotificationSettingsClient({
             >
               <span
                 className={`
-                  inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+                  inline-block h-4 w-4 transform rounded-full bg-[#0a0a0a] transition-transform
                   ${preferences.notifyReminders ? 'translate-x-6' : 'translate-x-1'}
                 `}
               />
@@ -166,7 +166,7 @@ export function NotificationSettingsClient({
         {saved && (
           <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
             <Check className="w-5 h-5 text-green-600" />
-            <p className="text-sm text-green-800 font-medium">Preferences saved</p>
+            <p className="text-sm text-emerald-300 font-medium">Preferences saved</p>
           </div>
         )}
       </div>

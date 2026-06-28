@@ -311,12 +311,12 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
           <div className="border border-blue-500/30 rounded-lg p-3">
             <div className="flex items-center gap-2 mb-2">
               <CreditCard className="w-4 h-4 text-blue-300" />
-              <h4 className="text-sm font-medium text-blue-900">Stripe</h4>
+              <h4 className="text-sm font-medium text-blue-300">Stripe</h4>
             </div>
             <div className="space-y-1">
               <div>
                 <div className="text-xs text-blue-300">Revenue (USD)</div>
-                <div className="text-lg font-bold text-blue-900">
+                <div className="text-lg font-bold text-blue-300">
                   {formatCurrency(revenue.byPaymentMethod.stripe.revenueUSD, 'USD')}
                 </div>
               </div>
@@ -330,12 +330,12 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
           <div className="border border-red-500/30 rounded-lg p-3">
             <div className="flex items-center gap-2 mb-2">
               <Smartphone className="w-4 h-4 text-red-300" />
-              <h4 className="text-sm font-medium text-red-900">MonCash</h4>
+              <h4 className="text-sm font-medium text-red-300">MonCash</h4>
             </div>
             <div className="space-y-1">
               <div>
                 <div className="text-xs text-red-300">Revenue (HTG)</div>
-                <div className="text-lg font-bold text-red-900">
+                <div className="text-lg font-bold text-red-300">
                   {formatCurrency(revenue.byPaymentMethod.moncash.revenueHTG, 'HTG')}
                 </div>
               </div>
@@ -352,12 +352,12 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
           <div className="border border-emerald-500/30 rounded-lg p-3">
             <div className="flex items-center gap-2 mb-2">
               <Smartphone className="w-4 h-4 text-emerald-300" />
-              <h4 className="text-sm font-medium text-green-900">NatCash</h4>
+              <h4 className="text-sm font-medium text-emerald-300">NatCash</h4>
             </div>
             <div className="space-y-1">
               <div>
                 <div className="text-xs text-emerald-300">Revenue (HTG)</div>
-                <div className="text-lg font-bold text-green-900">
+                <div className="text-lg font-bold text-emerald-300">
                   {formatCurrency(revenue.byPaymentMethod.natcash.revenueHTG, 'HTG')}
                 </div>
               </div>

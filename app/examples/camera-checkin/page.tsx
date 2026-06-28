@@ -84,11 +84,11 @@ export default function AttendanceWithCameraExample() {
 
   return (
     <>
-    <div className="min-h-screen bg-gray-50 py-6 sm:py-12 px-4 sm:px-6 lg:px-8 pb-mobile-nav">
+    <div className="min-h-screen bg-[#0a0a0a] py-6 sm:py-12 px-4 sm:px-6 lg:px-8 pb-mobile-nav">
       <div className="mx-auto max-w-2xl">
         <div className="text-center mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Event Check-In</h1>
-          <p className="mt-1 sm:mt-2 text-[13px] sm:text-sm text-gray-600">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">Event Check-In</h1>
+          <p className="mt-1 sm:mt-2 text-[13px] sm:text-sm text-white/65">
             Scan QR codes to check in attendees
           </p>
         </div>
@@ -100,7 +100,7 @@ export default function AttendanceWithCameraExample() {
             className={`px-4 sm:px-6 py-2 rounded-lg text-[13px] sm:text-base font-medium transition-colors min-h-[44px] ${
               scanMode === 'upload'
                 ? 'bg-brand-600 text-white'
-                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                : 'bg-[#0a0a0a] text-white/70 border border-white/10 hover:bg-[#0a0a0a]'
             }`}
           >
             📁 Upload Image
@@ -110,7 +110,7 @@ export default function AttendanceWithCameraExample() {
             className={`px-4 sm:px-6 py-2 rounded-lg text-[13px] sm:text-base font-medium transition-colors min-h-[44px] ${
               scanMode === 'camera'
                 ? 'bg-brand-600 text-white'
-                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                : 'bg-[#0a0a0a] text-white/70 border border-white/10 hover:bg-[#0a0a0a]'
             }`}
           >
             📷 Live Camera
@@ -118,7 +118,7 @@ export default function AttendanceWithCameraExample() {
         </div>
 
         {/* Scanner Area */}
-        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+        <div className="bg-[#0a0a0a] rounded-lg shadow-lg p-4 sm:p-6">
           {scanMode === 'camera' ? (
             <CameraQRScanner
               onScan={handleQRScan}
@@ -128,9 +128,9 @@ export default function AttendanceWithCameraExample() {
               className="mb-6"
             />
           ) : (
-            <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-12 text-center">
+            <div className="rounded-lg border-2 border-dashed border-white/10 bg-[#0a0a0a] p-12 text-center">
               <svg
-                className="mx-auto h-12 w-12 text-gray-400"
+                className="mx-auto h-12 w-12 text-white/40"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -142,7 +142,7 @@ export default function AttendanceWithCameraExample() {
                   d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                 />
               </svg>
-              <p className="mt-2 text-sm text-gray-600">
+              <p className="mt-2 text-sm text-white/65">
                 Upload a screenshot of the QR code
               </p>
               <input
@@ -180,12 +180,12 @@ export default function AttendanceWithCameraExample() {
                 <div>
                   <p
                     className={`font-medium ${
-                      lastScan.status === 'success' ? 'text-green-800' : 'text-red-800'
+                      lastScan.status === 'success' ? 'text-emerald-300' : 'text-red-300'
                     }`}
                   >
                     {lastScan.message}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-white/65">
                     Ticket: {lastScan.ticketId.slice(0, 16)}...
                   </p>
                 </div>
@@ -196,8 +196,8 @@ export default function AttendanceWithCameraExample() {
 
         {/* Instructions */}
         <div className="mt-6 bg-brand-50 border border-brand-200 rounded-lg p-4">
-          <h3 className="font-medium text-brand-900 mb-2">💡 How to use:</h3>
-          <ul className="text-sm text-brand-800 space-y-1">
+          <h3 className="font-medium text-brand-300 mb-2">💡 How to use:</h3>
+          <ul className="text-sm text-brand-300 space-y-1">
             <li>• Switch to <strong>Live Camera</strong> mode for real-time scanning</li>
             <li>• Point your camera at the attendee&apos;s QR code</li>
             <li>• The system will automatically detect and check them in</li>

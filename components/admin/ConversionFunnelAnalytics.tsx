@@ -158,7 +158,7 @@ export function ConversionFunnelAnalytics() {
           <div className="flex items-start gap-2">
             <TrendingUp className="w-4 h-4 text-amber-300 mt-0.5" />
             <div>
-              <div className="font-medium text-sm text-amber-900">Conversion Insights</div>
+              <div className="font-medium text-sm text-amber-300">Conversion Insights</div>
               <ul className="text-xs text-amber-300 mt-1.5 space-y-1">
                 <li>• {data.favoriteRate.toFixed(1)}% of viewers favorite events</li>
                 <li>• {data.purchaseRate.toFixed(1)}% of favorited events lead to purchases</li>

@@ -95,7 +95,7 @@ export default function ReviewSubmitPanel({ request, onSubmit, onBack, isReadOnl
       {/* Blocking Issues */}
       {!canSubmit && !isReadOnly && blockingIssues.length > 0 && (
         <div className="mt-6 p-4 border border-amber-500/30 rounded-lg">
-          <h3 className="font-semibold text-amber-900 mb-2 text-sm md:text-base">
+          <h3 className="font-semibold text-amber-300 mb-2 text-sm md:text-base">
             Complete required steps to submit:
           </h3>
           <ul className="list-disc list-inside text-sm text-amber-300 space-y-1">

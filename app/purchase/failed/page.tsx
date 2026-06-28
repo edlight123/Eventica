@@ -48,10 +48,10 @@ export default function PurchaseFailedPage({
   const message = messages[reason] || messages.unknown
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
       <PurchasePopupBridge status="failed" reason={reason} />
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-xl shadow-md p-6 md:p-8 text-center">
+        <div className="bg-[#0a0a0a] rounded-xl shadow-md p-6 md:p-8 text-center">
           {/* Error Icon */}
           <div className="w-14 h-14 md:w-16 md:h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
@@ -69,11 +69,11 @@ export default function PurchaseFailedPage({
             </svg>
           </div>
 
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
+          <h1 className="text-xl md:text-2xl font-bold text-white mb-2">
             {message.title}
           </h1>
           
-          <p className="text-sm md:text-base text-gray-600 mb-6 md:mb-8">
+          <p className="text-sm md:text-base text-white/65 mb-6 md:mb-8">
             {message.description}
           </p>
 
@@ -87,7 +87,7 @@ export default function PurchaseFailedPage({
             
             <Link
               href="/tickets"
-              className="block w-full border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold py-3 md:py-3.5 px-6 rounded-lg transition-colors text-base"
+              className="block w-full border border-white/10 hover:bg-[#0a0a0a] text-white/70 font-semibold py-3 md:py-3.5 px-6 rounded-lg transition-colors text-base"
             >
               View My Tickets
             </Link>
@@ -95,7 +95,7 @@ export default function PurchaseFailedPage({
 
           {reason === 'ticket_creation_failed' && (
             <div className="mt-5 p-3.5 md:p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-[13px] md:text-sm text-yellow-800">
+              <p className="text-[13px] md:text-sm text-amber-300">
                 <strong>Important:</strong> Your payment was processed. Please contact support at{' '}
                 <a href="mailto:support@tikem.co" className="underline font-semibold">
                   support@tikem.co

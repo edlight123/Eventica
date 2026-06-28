@@ -55,39 +55,39 @@ export function AccountCard({ onDeleteAccount }: AccountCardProps) {
 
   return (
     <>
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-[#0a0a0a] rounded-2xl shadow-sm border border-white/10 p-6">
         {/* Header */}
         <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-1">{t('account.title')}</h2>
-          <p className="text-sm text-gray-600">{t('account.subtitle')}</p>
+          <h2 className="text-xl font-bold text-white mb-1">{t('account.title')}</h2>
+          <p className="text-sm text-white/65">{t('account.subtitle')}</p>
         </div>
 
         <div className="space-y-3">
           {/* Staff (hidden from global nav; accessible from Profile) */}
           <Link
             href="/staff"
-            className="w-full flex items-center gap-3 px-4 py-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl transition-colors group"
+            className="w-full flex items-center gap-3 px-4 py-3 bg-[#0a0a0a] hover:bg-white/[0.04] border border-white/10 rounded-xl transition-colors group"
           >
-            <div className="w-10 h-10 bg-gray-100 group-hover:bg-gray-200 rounded-lg flex items-center justify-center">
-              <Briefcase className="w-5 h-5 text-gray-600" />
+            <div className="w-10 h-10 bg-white/[0.04] group-hover:bg-white/[0.06] rounded-lg flex items-center justify-center">
+              <Briefcase className="w-5 h-5 text-white/65" />
             </div>
             <div className="flex-1 text-left">
-              <p className="font-semibold text-gray-900">{tCommon('nav.staff')}</p>
-              <p className="text-sm text-gray-600">Staff tools and check-in</p>
+              <p className="font-semibold text-white">{tCommon('nav.staff')}</p>
+              <p className="text-sm text-white/65">Staff tools and check-in</p>
             </div>
           </Link>
 
           {/* Sign Out */}
           <button
             onClick={handleSignOut}
-            className="w-full flex items-center gap-3 px-4 py-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl transition-colors group"
+            className="w-full flex items-center gap-3 px-4 py-3 bg-[#0a0a0a] hover:bg-white/[0.04] border border-white/10 rounded-xl transition-colors group"
           >
-            <div className="w-10 h-10 bg-gray-100 group-hover:bg-gray-200 rounded-lg flex items-center justify-center">
-              <LogOut className="w-5 h-5 text-gray-600" />
+            <div className="w-10 h-10 bg-white/[0.04] group-hover:bg-white/[0.06] rounded-lg flex items-center justify-center">
+              <LogOut className="w-5 h-5 text-white/65" />
             </div>
             <div className="flex-1 text-left">
-              <p className="font-semibold text-gray-900">{t('account.sign_out')}</p>
-              <p className="text-sm text-gray-600">{t('account.sign_out_desc')}</p>
+              <p className="font-semibold text-white">{t('account.sign_out')}</p>
+              <p className="text-sm text-white/65">{t('account.sign_out_desc')}</p>
             </div>
           </button>
 
@@ -100,8 +100,8 @@ export function AccountCard({ onDeleteAccount }: AccountCardProps) {
               <HelpCircle className="w-5 h-5 text-brand-600" />
             </div>
             <div className="flex-1 text-left">
-              <p className="font-semibold text-gray-900">{t('account.help_support')}</p>
-              <p className="text-sm text-gray-600">{t('account.help_support_desc')}</p>
+              <p className="font-semibold text-white">{t('account.help_support')}</p>
+              <p className="text-sm text-white/65">{t('account.help_support_desc')}</p>
             </div>
           </Link>
 
@@ -114,7 +114,7 @@ export function AccountCard({ onDeleteAccount }: AccountCardProps) {
               <Trash2 className="w-5 h-5 text-red-600" />
             </div>
             <div className="flex-1 text-left">
-              <p className="font-semibold text-red-900">{t('account.delete_account')}</p>
+              <p className="font-semibold text-red-300">{t('account.delete_account')}</p>
               <p className="text-sm text-red-700">{t('account.delete_account_desc')}</p>
             </div>
           </button>
@@ -124,30 +124,30 @@ export function AccountCard({ onDeleteAccount }: AccountCardProps) {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6">
+          <div className="bg-[#0a0a0a] rounded-2xl max-w-md w-full p-6">
             {/* Icon */}
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <AlertTriangle className="w-8 h-8 text-red-600" />
             </div>
 
             {/* Content */}
-            <h3 className="text-xl font-bold text-gray-900 text-center mb-2">
+            <h3 className="text-xl font-bold text-white text-center mb-2">
               {t('account.delete_modal_title')}
             </h3>
-            <p className="text-gray-600 text-center mb-6">
+            <p className="text-white/65 text-center mb-6">
               {t('account.delete_modal_desc')}
             </p>
 
             {/* Confirmation Input */}
             <div className="mb-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-white/70 mb-2">
                 {t('account.delete_confirm_label')}
               </label>
               <input
                 type="text"
                 value={deleteConfirmText}
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-white/10 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 placeholder={t('account.delete_confirm_placeholder')}
                 autoFocus
               />
@@ -161,7 +161,7 @@ export function AccountCard({ onDeleteAccount }: AccountCardProps) {
                   setDeleteConfirmText('')
                 }}
                 disabled={isDeleting}
-                className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-3 bg-white/[0.04] hover:bg-white/[0.06] text-white/70 font-semibold rounded-lg transition-colors disabled:opacity-50"
               >
                 {t('account.cancel')}
               </button>

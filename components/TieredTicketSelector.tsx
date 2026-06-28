@@ -159,14 +159,14 @@ export default function TieredTicketSelector({ eventId, userId, onPurchase }: Ti
   }
 
   if (loading) {
-    return <p className="text-gray-600">{t('events.loading_ticket_options')}</p>
+    return <p className="text-white/65">{t('events.loading_ticket_options')}</p>
   }
 
   if (tiers.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600 mb-4">{t('events.no_ticket_tiers')}</p>
-        <p className="text-sm text-gray-500">{t('events.no_ticket_tiers_desc')}</p>
+        <p className="text-white/65 mb-4">{t('events.no_ticket_tiers')}</p>
+        <p className="text-sm text-white/50">{t('events.no_ticket_tiers_desc')}</p>
       </div>
     )
   }
@@ -177,7 +177,7 @@ export default function TieredTicketSelector({ eventId, userId, onPurchase }: Ti
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">{t('events.select_ticket_tier')}</h3>
+      <h3 className="text-lg font-semibold text-white">{t('events.select_ticket_tier')}</h3>
 
       {/* Tier Selection */}
       <div className="space-y-2">
@@ -194,24 +194,24 @@ export default function TieredTicketSelector({ eventId, userId, onPurchase }: Ti
                 isSelected
                   ? 'border-teal-600 bg-teal-50'
                   : isAvailable
-                  ? 'border-gray-200 hover:border-teal-300'
-                  : 'border-gray-200 opacity-50 cursor-not-allowed'
+                  ? 'border-white/10 hover:border-teal-300'
+                  : 'border-white/10 opacity-50 cursor-not-allowed'
               }`}
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-semibold text-gray-900">{tier.name}</h4>
+                    <h4 className="font-semibold text-white">{tier.name}</h4>
                     {isSelected && <span className="text-teal-600">✓</span>}
                   </div>
                   {tier.description && (
-                    <p className="text-sm text-gray-600 mt-1">{tier.description}</p>
+                    <p className="text-sm text-white/65 mt-1">{tier.description}</p>
                   )}
                   <div className="flex items-center gap-3 mt-2 text-sm">
                     <span className="font-medium text-teal-600">
                       {tier.price.toFixed(2)} HTG
                     </span>
-                    <span className={available > 0 ? 'text-gray-600' : 'text-red-600'}>
+                    <span className={available > 0 ? 'text-white/65' : 'text-red-600'}>
                       {available > 0 ? `${available} ${t('ticket.available')}` : t('ticket.sold_out')}
                     </span>
                   </div>
@@ -232,13 +232,13 @@ export default function TieredTicketSelector({ eventId, userId, onPurchase }: Ti
       {/* Quantity Selector */}
       {selectedTierData && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-white/70 mb-2">
             {t('events.quantity')}
           </label>
           {groupDiscounts.length > 0 && (
             <div className="mb-3 p-3 bg-brand-50 border border-brand-200 rounded-lg">
-              <p className="text-sm font-medium text-brand-900 mb-1">🎟️ {t('events.group_discounts_available')}:</p>
-              <ul className="text-sm text-brand-800 space-y-1">
+              <p className="text-sm font-medium text-brand-300 mb-1">🎟️ {t('events.group_discounts_available')}:</p>
+              <ul className="text-sm text-brand-300 space-y-1">
                 {groupDiscounts
                   .sort((a, b) => a.min_quantity - b.min_quantity)
                   .map(d => (
@@ -252,7 +252,7 @@ export default function TieredTicketSelector({ eventId, userId, onPurchase }: Ti
           <select
             value={quantity}
             onChange={(e) => setQuantity(Number(e.target.value))}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+            className="w-full px-4 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-teal-500"
           >
             {[...Array(Math.min(10, selectedTierData.total_quantity - (selectedTierData.sold_quantity || 0)))].map((_, i) => (
               <option key={i + 1} value={i + 1}>
@@ -265,7 +265,7 @@ export default function TieredTicketSelector({ eventId, userId, onPurchase }: Ti
 
       {/* Promo Code */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-white/70 mb-2">
           {t('events.promo_code_optional')}
         </label>
         <div className="flex gap-2">
@@ -278,7 +278,7 @@ export default function TieredTicketSelector({ eventId, userId, onPurchase }: Ti
               setPromoError('')
             }}
             placeholder={t('events.enter_code')}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+            className="flex-1 px-4 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-teal-500"
           />
           <button
             onClick={handleApplyPromo}
@@ -302,11 +302,11 @@ export default function TieredTicketSelector({ eventId, userId, onPurchase }: Ti
 
       {/* Price Summary */}
       {selectedTierData && (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-4">
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">{t('events.tier')}: {selectedTierData.name}</span>
-              <span className="text-gray-900">{selectedTierData.price.toFixed(2)} HTG</span>
+              <span className="text-white/65">{t('events.tier')}: {selectedTierData.name}</span>
+              <span className="text-white">{selectedTierData.price.toFixed(2)} HTG</span>
             </div>
             {promoApplied && (
               <div className="flex justify-between text-sm text-green-600">
@@ -321,10 +321,10 @@ export default function TieredTicketSelector({ eventId, userId, onPurchase }: Ti
               </div>
             )}
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">{t('events.quantity')}</span>
-              <span className="text-gray-900">× {quantity}</span>
+              <span className="text-white/65">{t('events.quantity')}</span>
+              <span className="text-white">× {quantity}</span>
             </div>
-            <div className="border-t border-gray-300 pt-2 flex justify-between font-semibold text-lg">
+            <div className="border-t border-white/10 pt-2 flex justify-between font-semibold text-lg">
               <span>{t('events.total')}</span>
               <span className="text-teal-600">{totalPrice.toFixed(2)} HTG</span>
             </div>

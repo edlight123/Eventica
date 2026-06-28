@@ -62,7 +62,7 @@ export default function TransferTicketModal({
         className={`px-4 py-2 text-sm font-medium rounded-lg ${
           canTransfer
             ? 'bg-brand-600 text-white hover:bg-brand-700'
-            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            : 'bg-gray-300 text-white/50 cursor-not-allowed'
         }`}
         title={!canTransfer ? 'Ticket has been transferred maximum times' : undefined}
       >
@@ -73,11 +73,11 @@ export default function TransferTicketModal({
         <BottomSheet isOpen={isOpen} onClose={() => setIsOpen(false)} title="Transfer Ticket">
           <div className="space-y-4">
             <div>
-              <p className="text-gray-600 mb-2">
+              <p className="text-white/65 mb-2">
                 Transfer your ticket for <strong>{eventTitle}</strong> to another user.
               </p>
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                <p className="text-sm text-yellow-800">
+                <p className="text-sm text-amber-300">
                   ⚠️ This ticket has been transferred {transferCount} time(s). 
                   Maximum allowed: 3 transfers.
                 </p>
@@ -86,7 +86,7 @@ export default function TransferTicketModal({
 
             <form onSubmit={handleTransfer} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-white/70 mb-2">
                   Recipient Email *
                 </label>
                 <input
@@ -95,15 +95,15 @@ export default function TransferTicketModal({
                   onChange={(e) => setToEmail(e.target.value)}
                   placeholder="recipient@example.com"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-white/50 mt-1">
                   Recipient must have an Tikèm account
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-white/70 mb-2">
                   Reason (optional)
                 </label>
                 <textarea
@@ -111,18 +111,18 @@ export default function TransferTicketModal({
                   onChange={(e) => setReason(e.target.value)}
                   placeholder="Why are you transferring this ticket?"
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 />
               </div>
 
               {error && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <p className="text-sm text-red-800">{error}</p>
+                  <p className="text-sm text-red-300">{error}</p>
                 </div>
               )}
 
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                <p className="text-xs text-gray-700">
+              <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-3">
+                <p className="text-xs text-white/70">
                   ⓘ Once transferred, you will lose access to this ticket. 
                   The transfer cannot be undone.
                 </p>
@@ -139,7 +139,7 @@ export default function TransferTicketModal({
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="px-6 py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-50"
+                  className="px-6 py-3 border border-white/10 rounded-lg font-medium hover:bg-[#0a0a0a]"
                 >
                   Cancel
                 </button>

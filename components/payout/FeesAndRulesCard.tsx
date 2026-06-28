@@ -54,23 +54,23 @@ export function FeesAndRulesCard() {
   const fees = getFeeStructure()
 
   return (
-    <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 md:p-8">
+    <div className="bg-[#0a0a0a] rounded-2xl border-2 border-white/10 p-6 md:p-8">
       <div className="flex items-center gap-2 mb-6">
         <Info className="w-6 h-6 text-brand-600" />
-        <h3 className="text-xl font-bold text-gray-900">{t('settings.payout_settings.fees_rules')}</h3>
+        <h3 className="text-xl font-bold text-white">{t('settings.payout_settings.fees_rules')}</h3>
       </div>
 
       {/* Currency and Location Selector */}
       <div className="mb-6 space-y-3">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">{t('settings.payout_settings.currency')}</label>
+          <label className="block text-sm font-medium text-white/70 mb-2">{t('settings.payout_settings.currency')}</label>
           <div className="flex gap-2">
             <button
               onClick={() => setCurrency('USD')}
               className={`flex-1 px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
                 currency === 'USD'
                   ? 'bg-brand-700 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-white/[0.04] text-white/70 hover:bg-white/[0.06]'
               }`}
             >
               USD
@@ -80,7 +80,7 @@ export function FeesAndRulesCard() {
               className={`flex-1 px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
                 currency === 'HTG'
                   ? 'bg-brand-700 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-white/[0.04] text-white/70 hover:bg-white/[0.06]'
               }`}
             >
               HTG
@@ -88,14 +88,14 @@ export function FeesAndRulesCard() {
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">{t('settings.payout_settings.account_location')}</label>
+          <label className="block text-sm font-medium text-white/70 mb-2">{t('settings.payout_settings.account_location')}</label>
           <div className="flex gap-2">
             <button
               onClick={() => setLocation('haiti')}
               className={`flex-1 px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
                 location === 'haiti'
                   ? 'bg-brand-700 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-white/[0.04] text-white/70 hover:bg-white/[0.06]'
               }`}
             >
               {t('settings.payout_settings.haiti')}
@@ -105,7 +105,7 @@ export function FeesAndRulesCard() {
               className={`flex-1 px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
                 location === 'abroad'
                   ? 'bg-brand-700 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-white/[0.04] text-white/70 hover:bg-white/[0.06]'
               }`}
             >
               {t('settings.payout_settings.abroad')}
@@ -118,10 +118,10 @@ export function FeesAndRulesCard() {
         {/* Platform Fee */}
         <div className="p-4 bg-brand-50 border border-brand-200 rounded-xl">
           <div className="flex items-baseline justify-between mb-2">
-            <h4 className="font-semibold text-brand-900">{t('settings.payout_settings.platform_fee')}</h4>
+            <h4 className="font-semibold text-brand-300">{t('settings.payout_settings.platform_fee')}</h4>
             <span className="text-2xl font-bold text-brand-700">{fees.platformFee}</span>
           </div>
-          <p className="text-sm text-brand-800">
+          <p className="text-sm text-brand-300">
             {location === 'abroad' 
               ? t('settings.payout_settings.platform_fee_abroad')
               : t('settings.payout_settings.platform_fee_haiti')}
@@ -129,33 +129,33 @@ export function FeesAndRulesCard() {
         </div>
 
         {/* Processing Fee */}
-        <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
+        <div className="p-4 bg-[#0a0a0a] border border-white/10 rounded-xl">
           <div className="flex items-baseline justify-between mb-2">
-            <h4 className="font-semibold text-gray-900">{t('settings.payout_settings.processing_fee')}</h4>
-            <span className="text-lg font-bold text-gray-700">{fees.processingFee}</span>
+            <h4 className="font-semibold text-white">{t('settings.payout_settings.processing_fee')}</h4>
+            <span className="text-lg font-bold text-white/70">{fees.processingFee}</span>
           </div>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-white/65">
             {t('settings.payout_settings.processing_fee_desc')}
           </p>
         </div>
 
         {/* Payout Rules */}
         <div>
-          <h4 className="font-semibold text-gray-900 mb-3">{t('settings.payout_settings.payout_schedule')}</h4>
+          <h4 className="font-semibold text-white mb-3">{t('settings.payout_settings.payout_schedule')}</h4>
           <ul className="space-y-2">
-            <li className="flex items-start gap-2 text-sm text-gray-700">
+            <li className="flex items-start gap-2 text-sm text-white/70">
               <span className="text-brand-600 font-bold mt-0.5">•</span>
               <span>{t('settings.payout_settings.schedule_friday')} <strong>{t('settings.payout_settings.friday_5pm')}</strong></span>
             </li>
-            <li className="flex items-start gap-2 text-sm text-gray-700">
+            <li className="flex items-start gap-2 text-sm text-white/70">
               <span className="text-brand-600 font-bold mt-0.5">•</span>
               <span>{t('settings.payout_settings.minimum_payout')} <strong>{currency === 'USD' ? '$50.00' : '2,500 HTG'}</strong></span>
             </li>
-            <li className="flex items-start gap-2 text-sm text-gray-700">
+            <li className="flex items-start gap-2 text-sm text-white/70">
               <span className="text-brand-600 font-bold mt-0.5">•</span>
               <span>{t('settings.payout_settings.bank_transfer_time')} <strong>{t('settings.payout_settings.bank_days')}</strong> {t('settings.payout_settings.bank_arrival')}</span>
             </li>
-            <li className="flex items-start gap-2 text-sm text-gray-700">
+            <li className="flex items-start gap-2 text-sm text-white/70">
               <span className="text-brand-600 font-bold mt-0.5">•</span>
               <span>{t('settings.payout_settings.mobile_money_time')} <strong>{t('settings.payout_settings.mobile_instant')}</strong></span>
             </li>
@@ -164,9 +164,9 @@ export function FeesAndRulesCard() {
 
         {/* Example Calculation */}
         <div className="p-4 bg-brand-50 border border-brand-200 rounded-xl">
-          <h4 className="font-semibold text-brand-900 mb-3">{t('settings.payout_settings.example_calc')}</h4>
+          <h4 className="font-semibold text-brand-300 mb-3">{t('settings.payout_settings.example_calc')}</h4>
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between text-brand-800">
+            <div className="flex justify-between text-brand-300">
               <span>{t('settings.payout_settings.ticket_price')}</span>
               <span className="font-mono">{fees.ticketPrice}</span>
             </div>
@@ -179,7 +179,7 @@ export function FeesAndRulesCard() {
               <span className="font-mono">{fees.processingFeeAmount}</span>
             </div>
             <div className="h-px bg-brand-300 my-2" />
-            <div className="flex justify-between text-brand-900 font-bold">
+            <div className="flex justify-between text-brand-300 font-bold">
               <span>{t('settings.payout_settings.your_payout')}</span>
               <span className="font-mono">{fees.payout}</span>
             </div>
@@ -187,8 +187,8 @@ export function FeesAndRulesCard() {
         </div>
 
         {/* Additional Info */}
-        <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-          <p className="text-xs text-gray-600 leading-relaxed">
+        <div className="p-4 bg-[#0a0a0a] rounded-xl border border-white/10">
+          <p className="text-xs text-white/65 leading-relaxed">
             <strong>{t('settings.payout_settings.note')}</strong> {t('settings.payout_settings.note_desc')}
           </p>
         </div>

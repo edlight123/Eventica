@@ -495,7 +495,7 @@ export default function EventFormPremium({ userId, event, isVerified = false, ve
         <div className="border-b border-amber-500/30">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <div className="flex items-start sm:items-center justify-between gap-3 flex-wrap">
-              <div className="text-sm text-amber-900">
+              <div className="text-sm text-amber-300">
                 <span className="font-semibold">Verification required:</span>{' '}
                 You can keep editing and saving drafts, but paid events can’t be published until your identity is approved.
                 {verificationStatus ? (
@@ -505,7 +505,7 @@ export default function EventFormPremium({ userId, event, isVerified = false, ve
               <button
                 type="button"
                 onClick={() => router.push('/organizer/verify')}
-                className="px-4 py-2 bg-[#0a0a0a] border border-amber-300 text-amber-900 rounded-lg font-semibold hover:bg-amber-500/15 transition-colors"
+                className="px-4 py-2 bg-[#0a0a0a] border border-amber-300 text-amber-300 rounded-lg font-semibold hover:bg-amber-500/15 transition-colors"
               >
                 Continue Verification
               </button>

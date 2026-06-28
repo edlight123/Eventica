@@ -31,7 +31,7 @@ export function EventActionsClient({
       className={`text-sm font-medium ${
         isPublished 
           ? 'text-brand-300 hover:text-brand-300' 
-          : 'text-emerald-300 hover:text-green-900'
+          : 'text-emerald-300 hover:text-emerald-300'
       } disabled:opacity-50`}
       title={isPublished ? 'Unpublish event' : 'Publish event'}
     >

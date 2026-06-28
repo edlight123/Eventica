@@ -389,7 +389,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
             {/* Failure Reason */}
             {selectedWithdrawal.failureReason && (
               <div className="mb-6 border border-red-500/30 rounded-lg p-4">
-                <div className="font-bold text-red-900 mb-1">❌ Failure Reason</div>
+                <div className="font-bold text-red-300 mb-1">❌ Failure Reason</div>
                 <div className="text-red-300">{selectedWithdrawal.failureReason}</div>
               </div>
             )}
