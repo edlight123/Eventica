@@ -36,7 +36,7 @@ export default function DateFilters() {
           className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
             currentDate === range.value
               ? 'bg-teal-700 text-white shadow-md'
-              : 'bg-[#0a0a0a] text-white/70 border border-white/10 hover:border-teal-700 hover:text-teal-700'
+              : 'bg-[#0a0a0a] text-white/70 border border-white/10 hover:border-teal-700 hover:text-brand-300'
           }`}
         >
           {range.label}

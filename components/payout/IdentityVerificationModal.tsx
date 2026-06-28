@@ -71,7 +71,7 @@ export function IdentityVerificationModal({ onClose, onComplete }: IdentityVerif
         <div className="p-6">
           {step === 'info' && (
             <div className="space-y-6">
-              <div className="p-4 bg-brand-50 border border-brand-200 rounded-xl">
+              <div className="p-4 border border-brand-200 rounded-xl">
                 <p className="text-sm text-brand-300">
                   <strong>Why we need this:</strong> We verify your identity to comply with financial 
                   regulations and protect your account. Your information is encrypted and secure.
@@ -116,7 +116,7 @@ export function IdentityVerificationModal({ onClose, onComplete }: IdentityVerif
                     onClick={() => setIdType('national_id')}
                     className={`p-3 rounded-xl border-2 text-sm font-semibold transition-all ${
                       idType === 'national_id'
-                        ? 'border-brand-600 bg-brand-50 text-brand-700'
+                        ? 'border-brand-600 text-brand-300'
                         : 'border-white/10 hover:border-white/10 text-white/70'
                     }`}
                   >
@@ -126,7 +126,7 @@ export function IdentityVerificationModal({ onClose, onComplete }: IdentityVerif
                     onClick={() => setIdType('passport')}
                     className={`p-3 rounded-xl border-2 text-sm font-semibold transition-all ${
                       idType === 'passport'
-                        ? 'border-brand-600 bg-brand-50 text-brand-700'
+                        ? 'border-brand-600 text-brand-300'
                         : 'border-white/10 hover:border-white/10 text-white/70'
                     }`}
                   >
@@ -136,7 +136,7 @@ export function IdentityVerificationModal({ onClose, onComplete }: IdentityVerif
                     onClick={() => setIdType('drivers_license')}
                     className={`p-3 rounded-xl border-2 text-sm font-semibold transition-all ${
                       idType === 'drivers_license'
-                        ? 'border-brand-600 bg-brand-50 text-brand-700'
+                        ? 'border-brand-600 text-brand-300'
                         : 'border-white/10 hover:border-white/10 text-white/70'
                     }`}
                   >
@@ -215,7 +215,7 @@ export function IdentityVerificationModal({ onClose, onComplete }: IdentityVerif
                 </div>
               )}
 
-              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+              <div className="p-4 border border-amber-200 rounded-xl flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                 <div className="text-sm text-amber-300">
                   <p className="font-semibold mb-1">Important</p>

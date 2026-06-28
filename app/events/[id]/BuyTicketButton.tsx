@@ -521,7 +521,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
       )}
 
       {error && !showModal && (
-        <div className="mt-3 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+        <div className="mt-3 border border-red-200 text-red-300 px-4 py-3 rounded-lg text-sm">
           {error}
         </div>
       )}
@@ -565,7 +565,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
               </div>
             )}
 
-            <div className="bg-teal-50 rounded-lg p-4">
+            <div className="rounded-lg p-4">
               {selectedTiers.length > 0 ? (
                 // Show itemized breakdown for multi-tier purchases
                 <div className="space-y-2">
@@ -582,7 +582,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
                   <div className="border-t border-teal-200 pt-2 mt-2">
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium text-white/65">{t('events.total_amount')}:</span>
-                      <span className="text-xl font-bold text-teal-700">
+                      <span className="text-xl font-bold text-brand-300">
                         {selectedTiers.reduce((sum, t) => sum + (t.price * t.quantity), 0).toLocaleString()} {currency}
                       </span>
                     </div>
@@ -592,7 +592,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
                 // Single tier or legacy display
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-white/65">{t('events.total_amount')}:</span>
-                  <span className="text-xl font-bold text-teal-700">
+                  <span className="text-xl font-bold text-brand-300">
                     {((selectedTierPrice || ticketPrice) * quantity).toLocaleString()} {currency}
                   </span>
                 </div>
@@ -612,7 +612,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
                     </div>
                   )}
                   {!usdHtgQuoteLoading && usdHtgQuoteError && (
-                    <span className="text-red-700">Unable to estimate HTG total right now.</span>
+                    <span className="text-red-300">Unable to estimate HTG total right now.</span>
                   )}
                 </div>
               )}
@@ -625,7 +625,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              <div className="border border-red-200 text-red-300 px-4 py-3 rounded-lg text-sm">
                 {error}
               </div>
             )}
@@ -687,7 +687,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
                   >
                     <div className="flex items-center space-x-3">
                       <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                        <svg className="w-6 h-6 text-green-700" fill="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-6 h-6 text-emerald-300" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M7 4h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v12h10V6H7zm2 10h6v2H9v-2zm0-4h6v2H9v-2z" />
                         </svg>
                       </div>

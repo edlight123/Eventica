@@ -18,7 +18,7 @@ export default function EventSearchFilters({ filters, onOpenFilters }: EventSear
     <div className="flex items-center justify-between gap-4">
       <button
         onClick={onOpenFilters}
-        className="hover-lift inline-flex items-center gap-2 rounded-xl border border-white/10/80 bg-[#0a0a0a] px-4 py-2.5 font-semibold text-white/70 shadow-poster-sm hover:border-brand-200 hover:text-brand-700"
+        className="hover-lift inline-flex items-center gap-2 rounded-xl border border-white/10/80 bg-[#0a0a0a] px-4 py-2.5 font-semibold text-white/70 shadow-poster-sm hover:border-brand-200 hover:text-brand-300"
       >
         <SlidersHorizontal className="h-[18px] w-[18px]" />
         <span>{t('filters.filters')}</span>

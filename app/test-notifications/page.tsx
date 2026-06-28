@@ -48,7 +48,7 @@ export default function TestNotificationsPage() {
             <button
               onClick={() => sendTest('ticket_purchase')}
               disabled={loading}
-              className="flex flex-col items-start p-6 bg-brand-50 hover:bg-brand-100 border-2 border-brand-200 rounded-lg transition disabled:opacity-50"
+              className="flex flex-col items-start p-6 hover:bg-brand-100 border-2 border-brand-200 rounded-lg transition disabled:opacity-50"
             >
               <span className="text-2xl mb-2">🎫</span>
               <span className="font-semibold text-white">Ticket Purchase</span>
@@ -58,7 +58,7 @@ export default function TestNotificationsPage() {
             <button
               onClick={() => sendTest('verification')}
               disabled={loading}
-              className="flex flex-col items-start p-6 bg-green-50 hover:bg-green-100 border-2 border-green-200 rounded-lg transition disabled:opacity-50"
+              className="flex flex-col items-start p-6 hover:bg-green-100 border-2 border-green-200 rounded-lg transition disabled:opacity-50"
             >
               <span className="text-2xl mb-2">✅</span>
               <span className="font-semibold text-white">Verification</span>
@@ -114,8 +114,8 @@ export default function TestNotificationsPage() {
           {result && (
             <div className={`mt-6 p-4 rounded-lg ${
               result.success 
-                ? 'bg-green-50 border border-green-200' 
-                : 'bg-red-50 border border-red-200'
+                ? 'border border-green-200' 
+                : 'border border-red-200'
             }`}>
               <p className={result.success ? 'text-emerald-300' : 'text-red-300'}>
                 {result.success 

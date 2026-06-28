@@ -164,8 +164,8 @@ export default function SupportContent() {
                   onClick={() => scrollToCategory(category.id)}
                   className="bg-[#0a0a0a] p-6 rounded-xl border border-white/10 hover:border-brand-300 hover:shadow-md transition-all text-left group"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-brand-50 border border-brand-100 flex items-center justify-center mb-3">
-                    <category.icon className="w-5 h-5 text-brand-700" />
+                  <div className="w-10 h-10 rounded-xl border border-brand-100 flex items-center justify-center mb-3">
+                    <category.icon className="w-5 h-5 text-brand-300" />
                   </div>
                   <h3 className="font-semibold text-white mb-2 group-hover:text-brand-600 transition-colors">
                     {category.title}

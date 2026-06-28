@@ -63,7 +63,7 @@ export function PrivacyCard({ profile, onUpdate }: PrivacyCardProps) {
     <div className="bg-[#0a0a0a] rounded-2xl shadow-sm border border-white/10 p-6">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
-        <div className="w-10 h-10 bg-teal-50 rounded-lg flex items-center justify-center flex-shrink-0">
+        <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
           <Shield className="w-5 h-5 text-teal-600" />
         </div>
         <div>
@@ -86,7 +86,7 @@ export function PrivacyCard({ profile, onUpdate }: PrivacyCardProps) {
                 disabled={isUpdating}
                 className={`w-full text-left flex items-start gap-3 p-3 rounded-xl border transition-colors disabled:opacity-60 ${
                   active
-                    ? 'border-teal-500 bg-teal-50 ring-1 ring-teal-500'
+                    ? 'border-teal-500 ring-1 ring-teal-500'
                     : 'border-white/10 hover:bg-[#0a0a0a]'
                 }`}
               >

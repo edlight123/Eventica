@@ -219,7 +219,7 @@ export function NotificationsClient({
                 <button
                   onClick={handleMarkAllAsRead}
                   disabled={isLoading}
-                  className="px-3 py-2 text-sm font-medium text-brand-600 hover:text-brand-700 transition-colors disabled:opacity-50"
+                  className="px-3 py-2 text-sm font-medium text-brand-600 hover:text-brand-300 transition-colors disabled:opacity-50"
                 >
                   {t('mark_all_read')}
                 </button>
@@ -228,7 +228,7 @@ export function NotificationsClient({
                 <button
                   onClick={handleClearAll}
                   disabled={isClearing}
-                  className="px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 transition-colors disabled:opacity-50"
+                  className="px-3 py-2 text-sm font-medium text-red-600 hover:text-red-300 transition-colors disabled:opacity-50"
                 >
                   {t('clear_all')}
                 </button>

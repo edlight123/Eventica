@@ -110,14 +110,14 @@ export function PhoneVerificationModal({ onClose, onComplete }: PhoneVerificatio
                 </p>
               </div>
 
-              <div className="p-4 bg-brand-50 border border-brand-200 rounded-xl">
+              <div className="p-4 border border-brand-200 rounded-xl">
                 <p className="text-sm text-brand-300">
                   <strong>Note:</strong> Make sure you have access to your mobile money account to receive the verification code.
                 </p>
               </div>
 
               {error && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+                <div className="p-4 border border-red-200 rounded-xl flex items-start gap-3">
                   <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                   <p className="text-sm text-red-300">{error}</p>
                 </div>
@@ -151,7 +151,7 @@ export function PhoneVerificationModal({ onClose, onComplete }: PhoneVerificatio
               </div>
 
               {debugCode && (
-                <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                <div className="p-4 border border-amber-200 rounded-xl">
                   <p className="text-sm text-amber-300">
                     <strong>Development Mode:</strong> Your verification code is <span className="font-mono font-bold">{debugCode}</span>
                   </p>
@@ -178,7 +178,7 @@ export function PhoneVerificationModal({ onClose, onComplete }: PhoneVerificatio
               </div>
 
               {error && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+                <div className="p-4 border border-red-200 rounded-xl flex items-start gap-3">
                   <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                   <p className="text-sm text-red-300">{error}</p>
                 </div>
@@ -196,7 +196,7 @@ export function PhoneVerificationModal({ onClose, onComplete }: PhoneVerificatio
                 <button
                   onClick={handleSendCode}
                   disabled={sending}
-                  className="text-sm text-brand-700 hover:text-brand-300 font-semibold"
+                  className="text-sm text-brand-300 hover:text-brand-300 font-semibold"
                 >
                   {sending ? 'Sending...' : 'Didn&apos;t receive the code? Resend'}
                 </button>

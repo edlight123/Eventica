@@ -38,7 +38,7 @@ export function NotificationsCard({ profile, onUpdate }: NotificationsCardProps)
     <div className="bg-[#0a0a0a] rounded-2xl shadow-sm border border-white/10 p-6">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
-        <div className="w-10 h-10 bg-brand-50 rounded-lg flex items-center justify-center flex-shrink-0">
+        <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
           <Bell className="w-5 h-5 text-brand-600" />
         </div>
         <div>

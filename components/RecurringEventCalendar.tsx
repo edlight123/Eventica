@@ -141,9 +141,9 @@ export default function RecurringEventCalendar({
               key={instance.id}
               className={`p-4 border rounded-lg cursor-pointer transition-colors ${
                 instance.status === 'cancelled'
-                  ? 'bg-red-50 border-red-200'
+                  ? 'border-red-200'
                   : instance.status === 'rescheduled'
-                  ? 'bg-yellow-50 border-yellow-200'
+                  ? 'border-yellow-200'
                   : 'bg-[#0a0a0a] border-white/10 hover:border-teal-500'
               }`}
               onClick={() => setSelectedInstance(instance)}
@@ -159,12 +159,12 @@ export default function RecurringEventCalendar({
                       })}
                     </span>
                     {instance.status === 'cancelled' && (
-                      <span className="px-2 py-1 text-xs font-medium text-red-700 bg-red-100 rounded">
+                      <span className="px-2 py-1 text-xs font-medium text-red-300 bg-red-100 rounded">
                         Cancelled
                       </span>
                     )}
                     {instance.status === 'rescheduled' && (
-                      <span className="px-2 py-1 text-xs font-medium text-yellow-700 bg-yellow-100 rounded">
+                      <span className="px-2 py-1 text-xs font-medium text-amber-300 bg-yellow-100 rounded">
                         Rescheduled
                       </span>
                     )}

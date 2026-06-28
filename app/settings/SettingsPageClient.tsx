@@ -131,7 +131,7 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
             <div className="pt-4 border-t border-white/10">
               <Link
                 href="/api/auth/logout"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 font-medium transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-red-100 text-red-600 font-medium transition-colors"
               >
                 <Lock className="w-4 h-4" />
                 {t('security.change_password')}
@@ -181,9 +181,9 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
           </div>
 
           <div className="space-y-4">
-            <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
+            <div className="p-4 border border-red-200 rounded-xl">
               <p className="font-semibold text-red-300 mb-2">{t('danger.delete_account')}</p>
-              <p className="text-sm text-red-700 mb-4">
+              <p className="text-sm text-red-300 mb-4">
                 {t('danger.delete_warning')}
               </p>
               <button

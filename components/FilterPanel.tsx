@@ -236,7 +236,7 @@ export default function FilterPanel({
                     className={`
                       px-3 py-2 text-sm font-medium rounded-lg border-2 transition-all
                       ${isSelected
-                        ? 'bg-brand-50 border-brand-500 text-brand-700'
+                        ? 'border-brand-500 text-brand-300'
                         : 'bg-[#0a0a0a] border-white/10 text-white/70 hover:border-white/10'
                       }
                     `}

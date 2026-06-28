@@ -97,7 +97,7 @@ export default function EventPhotoUpload({ eventId, userId }: EventPhotoUploadPr
       <div
         className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
           dragActive
-            ? 'border-teal-600 bg-teal-50'
+            ? 'border-teal-600 '
             : 'border-white/10 hover:border-teal-400'
         } ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
         onDragEnter={handleDrag}

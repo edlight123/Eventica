@@ -163,8 +163,8 @@ export default function AttendanceWithCameraExample() {
             <div
               className={`mt-6 rounded-lg p-4 ${
                 lastScan.status === 'success'
-                  ? 'bg-green-50 border border-green-200'
-                  : 'bg-red-50 border border-red-200'
+                  ? 'border border-green-200'
+                  : 'border border-red-200'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -195,7 +195,7 @@ export default function AttendanceWithCameraExample() {
         </div>
 
         {/* Instructions */}
-        <div className="mt-6 bg-brand-50 border border-brand-200 rounded-lg p-4">
+        <div className="mt-6 border border-brand-200 rounded-lg p-4">
           <h3 className="font-medium text-brand-300 mb-2">💡 How to use:</h3>
           <ul className="text-sm text-brand-300 space-y-1">
             <li>• Switch to <strong>Live Camera</strong> mode for real-time scanning</li>

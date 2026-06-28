@@ -25,7 +25,7 @@ export function PayoutMethodCard({ config, onUpdate }: PayoutMethodCardProps) {
           {hasMethod && (
             <button
               onClick={() => setShowSetup(true)}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-brand-700 hover:text-brand-300 hover:bg-brand-50 rounded-lg transition-colors"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-brand-300 hover:text-brand-300 hover:bg-brand-50 rounded-lg transition-colors"
             >
               <Edit className="w-4 h-4" />
               {t('settings.payout_settings.edit')}
@@ -55,14 +55,14 @@ export function PayoutMethodCard({ config, onUpdate }: PayoutMethodCardProps) {
             {config.method === 'bank_transfer' && config.bankDetails && (
               <div className="flex items-start gap-4 p-4 bg-[#0a0a0a] rounded-xl">
                 <div className="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <CreditCard className="w-6 h-6 text-brand-700" />
+                  <CreditCard className="w-6 h-6 text-brand-300" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h4 className="font-semibold text-white">{t('settings.payout_settings.bank_transfer')}</h4>
                     <div className="flex items-center gap-1 px-2 py-0.5 bg-green-100 rounded-full">
                       <Check className="w-3 h-3 text-green-600" />
-                      <span className="text-xs font-semibold text-green-700">{t('settings.payout_settings.active')}</span>
+                      <span className="text-xs font-semibold text-emerald-300">{t('settings.payout_settings.active')}</span>
                     </div>
                   </div>
                   <p className="text-sm text-white/65">{config.bankDetails.bankName}</p>
@@ -79,14 +79,14 @@ export function PayoutMethodCard({ config, onUpdate }: PayoutMethodCardProps) {
             {config.method === 'mobile_money' && config.mobileMoneyDetails && (
               <div className="flex items-start gap-4 p-4 bg-[#0a0a0a] rounded-xl">
                 <div className="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Smartphone className="w-6 h-6 text-brand-700" />
+                  <Smartphone className="w-6 h-6 text-brand-300" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h4 className="font-semibold text-white">{t('settings.payout_settings.mobile_money')}</h4>
                     <div className="flex items-center gap-1 px-2 py-0.5 bg-green-100 rounded-full">
                       <Check className="w-3 h-3 text-green-600" />
-                      <span className="text-xs font-semibold text-green-700">{t('settings.payout_settings.active')}</span>
+                      <span className="text-xs font-semibold text-emerald-300">{t('settings.payout_settings.active')}</span>
                     </div>
                   </div>
                   <p className="text-sm text-white/65 capitalize">{config.mobileMoneyDetails.provider}</p>

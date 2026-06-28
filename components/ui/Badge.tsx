@@ -15,13 +15,13 @@ interface BadgeProps {
 // treatment (and semantic tokens for success/warning/error), not extra hues.
 const variantStyles: Record<BadgeVariant, string> = {
   primary: 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-sm',
-  secondary: 'bg-brand-50 text-brand-700 border border-brand-100',
+  secondary: 'text-brand-300 border border-brand-100',
   success: 'bg-success-50 text-success-700 border border-success-200',
   warning: 'bg-warning-50 text-warning-700 border border-warning-200',
   error: 'bg-error-50 text-error-700 border border-error-200',
   neutral: 'bg-white/[0.04] text-white/70 border border-white/10',
   vip: 'bg-gradient-to-r from-brand-600 to-brand-700 text-white shadow-md',
-  trending: 'bg-brand-50 text-brand-700 border border-brand-200 shadow-sm',
+  trending: 'text-brand-300 border border-brand-200 shadow-sm',
   new: 'bg-success-50 text-success-700 border border-success-200',
 };
 

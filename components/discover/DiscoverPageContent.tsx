@@ -85,7 +85,7 @@ export function DiscoverPageContent({
 
   const renderFeed = (list: any[]) =>
     list.length > 0 ? (
-      <div className="mx-auto max-w-2xl space-y-6">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {list.map((event) => (
           <DiscoverEventCard key={event.id} event={event} />
         ))}
@@ -94,21 +94,28 @@ export function DiscoverPageContent({
 
   return (
     <FriendsGoingProvider eventIds={allEventIds}>
-      {/* Segmented tabs (centered, app-style) */}
-      <div className="mb-8 flex items-center justify-center gap-8">
-        {tabs.map((t) => (
-          <button
-            key={t.key}
-            type="button"
-            onClick={() => setTab(t.key)}
-            className={`relative pb-1 text-[15px] font-bold transition-colors ${
-              tab === t.key ? 'text-white' : 'text-white/40 hover:text-white/70'
-            }`}
-          >
-            {t.label}
-            {tab === t.key && <span className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-brand-400" />}
-          </button>
-        ))}
+      {/* Tabs — left-aligned with a hairline rule and live count */}
+      <div className="mb-6 flex items-end justify-between border-b border-white/10">
+        <div className="flex items-center gap-6">
+          {tabs.map((t) => (
+            <button
+              key={t.key}
+              type="button"
+              onClick={() => setTab(t.key)}
+              className={`relative -mb-px pb-3 text-[15px] font-semibold transition-colors ${
+                tab === t.key ? 'text-white' : 'text-white/40 hover:text-white/70'
+              }`}
+            >
+              {t.label}
+              {tab === t.key && <span className="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-brand-400" />}
+            </button>
+          ))}
+        </div>
+        {tab === 'forYou' && feed.length > 0 && (
+          <span className="hidden pb-3 text-sm text-white/40 sm:block">
+            {feed.length} event{feed.length !== 1 ? 's' : ''}
+          </span>
+        )}
       </div>
 
       {/* For You */}

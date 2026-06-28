@@ -329,7 +329,7 @@ export function CameraQRScanner({
 
   if (hasPermission === false) {
     return (
-      <div className={`rounded-lg border-2 border-dashed border-red-300 bg-red-50 p-8 text-center ${className}`}>
+      <div className={`rounded-lg border-2 border-dashed border-red-300 p-8 text-center ${className}`}>
         <svg
           className="mx-auto h-12 w-12 text-red-400"
           fill="none"

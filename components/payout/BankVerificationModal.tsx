@@ -77,7 +77,7 @@ export function BankVerificationModal({ onClose, onComplete }: BankVerificationM
         <div className="p-6">
           {step === 'info' && (
             <div className="space-y-6">
-              <div className="p-4 bg-brand-50 border border-brand-200 rounded-xl">
+              <div className="p-4 border border-brand-200 rounded-xl">
                 <p className="text-sm text-brand-300">
                   <strong>Why we need this:</strong> We need to verify that you own the bank account 
                   to ensure payouts go to the correct account. This protects both you and our platform.
@@ -102,7 +102,7 @@ export function BankVerificationModal({ onClose, onComplete }: BankVerificationM
                 </div>
               </div>
 
-              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+              <div className="p-4 border border-amber-200 rounded-xl flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                 <div className="text-sm text-amber-300">
                   <p className="font-semibold mb-1">Requirements</p>
@@ -137,7 +137,7 @@ export function BankVerificationModal({ onClose, onComplete }: BankVerificationM
                       onClick={() => setVerificationType(option.value)}
                       className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
                         verificationType === option.value
-                          ? 'border-brand-600 bg-brand-50'
+                          ? 'border-brand-600 '
                           : 'border-white/10 hover:border-white/10'
                       }`}
                     >

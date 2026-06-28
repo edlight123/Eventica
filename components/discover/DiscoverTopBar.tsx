@@ -186,7 +186,7 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
             <SlidersHorizontal className="w-4 h-4" />
             <span className="hidden sm:inline">{t('filters.filters')}</span>
             {activeFiltersCount > 0 && (
-              <span className="bg-[#0a0a0a] text-brand-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+              <span className="bg-[#0a0a0a] text-brand-300 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
                 {activeFiltersCount}
               </span>
             )}

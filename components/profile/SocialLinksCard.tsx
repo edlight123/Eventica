@@ -76,7 +76,7 @@ export function SocialLinksCard({ profile, onUpdate }: SocialLinksCardProps) {
         {!isEditing ? (
           <button
             onClick={() => setIsEditing(true)}
-            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-teal-600 hover:text-brand-300 hover:bg-teal-50 rounded-lg transition-colors"
           >
             <Edit2 className="w-4 h-4" />
             Edit
@@ -162,7 +162,7 @@ export function SocialLinksCard({ profile, onUpdate }: SocialLinksCardProps) {
       </div>
 
       {isEditing && (
-        <div className="mt-5 bg-amber-50 border border-amber-200 rounded-lg p-3">
+        <div className="mt-5 border border-amber-200 rounded-lg p-3">
           <p className="text-xs text-amber-300">
             These links are shown on your public profile exactly as you enter them. We don&apos;t verify
             account ownership.

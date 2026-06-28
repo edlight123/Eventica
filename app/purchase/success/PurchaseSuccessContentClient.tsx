@@ -163,7 +163,7 @@ export default function PurchaseSuccessContentClient(props: Props) {
         </Link>
       </div>
 
-      <div className="mt-8 bg-brand-50 border border-brand-100 rounded-xl p-4 md:p-6">
+      <div className="mt-8 border border-brand-100 rounded-xl p-4 md:p-6">
         <h3 className="text-base md:text-lg font-semibold text-white mb-2.5">{t('tickets:purchase_success.next_steps_title')}</h3>
         <ul className="space-y-2 text-[13px] md:text-sm text-white/70">
           <li className="flex items-start">

@@ -76,7 +76,7 @@ export default function TransferTicketModal({
               <p className="text-white/65 mb-2">
                 Transfer your ticket for <strong>{eventTitle}</strong> to another user.
               </p>
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <div className="border border-yellow-200 rounded-lg p-3">
                 <p className="text-sm text-amber-300">
                   ⚠️ This ticket has been transferred {transferCount} time(s). 
                   Maximum allowed: 3 transfers.
@@ -116,7 +116,7 @@ export default function TransferTicketModal({
               </div>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <div className="border border-red-200 rounded-lg p-3">
                   <p className="text-sm text-red-300">{error}</p>
                 </div>
               )}

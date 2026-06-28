@@ -59,7 +59,7 @@ export default function NotifyAttendeesModal({ eventId, isOpen, onClose }: Notif
     <BottomSheet isOpen={isOpen} onClose={onClose} title="Notify Attendees">
       <div className="space-y-6">
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          <div className="border border-red-200 text-red-300 px-4 py-3 rounded-lg">
             {error}
           </div>
         )}
@@ -101,7 +101,7 @@ export default function NotifyAttendeesModal({ eventId, isOpen, onClose }: Notif
 
           {/* Warning for critical updates */}
           {(updateType === 'cancellation' || updateType === 'postponement') && (
-            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+            <div className="border-l-4 border-yellow-400 p-4">
               <div className="flex">
                 <div className="flex-shrink-0">
                   <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
@@ -109,7 +109,7 @@ export default function NotifyAttendeesModal({ eventId, isOpen, onClose }: Notif
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm text-yellow-700">
+                  <p className="text-sm text-amber-300">
                     <strong>Warning:</strong> This is a critical update. Make sure you&apos;ve communicated all necessary details.
                     {updateType === 'cancellation' && ' Refund processing information will be included automatically.'}
                   </p>

@@ -1,0 +1,350 @@
+'use client'
+
+import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Minus, Plus } from 'lucide-react'
+
+interface TicketTier {
+  id: string
+  name: string
+  description: string | null
+  price: number
+  total_quantity: number
+  sold_quantity: number
+  sales_start: string | null
+  sales_end: string | null
+  is_active?: boolean
+}
+
+interface TierQuantity {
+  [tierId: string]: number
+}
+
+interface PromoCodeValidation {
+  valid: boolean
+  promoCode?: {
+    id: string
+    code: string
+    description: string
+    discountType: 'percentage' | 'fixed'
+    discountValue: number
+  }
+}
+
+interface EventbriteStyleTicketSelectorProps {
+  eventId: string
+  userId: string | null
+  currency?: string
+  onPurchase: (selections: { tierId: string; quantity: number; price: number; tierName?: string }[], promoCodeId?: string) => void
+}
+
+export default function EventbriteStyleTicketSelector({ 
+  eventId, 
+  userId, 
+  currency = 'HTG',
+  onPurchase 
+}: EventbriteStyleTicketSelectorProps) {
+  const { t } = useTranslation('common')
+  const [tiers, setTiers] = useState<TicketTier[]>([])
+  const [quantities, setQuantities] = useState<TierQuantity>({})
+  const [loading, setLoading] = useState(true)
+  const [promoCode, setPromoCode] = useState('')
+  const [promoValidation, setPromoValidation] = useState<PromoCodeValidation | null>(null)
+  const [validatingPromo, setValidatingPromo] = useState(false)
+
+  const fetchTiers = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/ticket-tiers?eventId=${eventId}`)
+      if (!response.ok) throw new Error('Failed to fetch tiers')
+      const data = await response.json()
+      setTiers(data.tiers || [])
+      
+      // Initialize quantities to 0
+      const initialQuantities: TierQuantity = {}
+      data.tiers?.forEach((tier: TicketTier) => {
+        initialQuantities[tier.id] = 0
+      })
+      setQuantities(initialQuantities)
+    } catch (error) {
+      console.error('Error fetching tiers:', error)
+    } finally {
+      setLoading(false)
+    }
+  }, [eventId])
+
+  useEffect(() => {
+    fetchTiers()
+  }, [fetchTiers])
+
+  const isTierAvailable = (tier: TicketTier): boolean => {
+    const now = new Date()
+
+    if (tier.is_active === false) {
+      return false
+    }
+    
+    if (tier.sales_start && new Date(tier.sales_start) > now) {
+      return false
+    }
+    
+    if (tier.sales_end && new Date(tier.sales_end) < now) {
+      return false
+    }
+    
+    return (tier.total_quantity - (tier.sold_quantity || 0)) > 0
+  }
+
+  const getAvailableQuantity = (tier: TicketTier): number => {
+    return tier.total_quantity - (tier.sold_quantity || 0)
+  }
+
+  const updateQuantity = (tierId: string, delta: number) => {
+    const tier = tiers.find(t => t.id === tierId)
+    if (!tier) return
+
+    const maxAvailable = getAvailableQuantity(tier)
+    const newQuantity = Math.max(0, Math.min(maxAvailable, (quantities[tierId] || 0) + delta))
+    
+    setQuantities(prev => ({
+      ...prev,
+      [tierId]: newQuantity
+    }))
+  }
+
+  const getTotalTickets = (): number => {
+    return Object.values(quantities).reduce((sum, qty) => sum + qty, 0)
+  }
+
+  const getTotalPrice = (): number => {
+    let total = tiers.reduce((sum, tier) => {
+      const qty = quantities[tier.id] || 0
+      return sum + (tier.price * qty)
+    }, 0)
+
+    // Apply promo code discount
+    if (promoValidation?.valid && promoValidation.promoCode) {
+      const { discountType, discountValue } = promoValidation.promoCode
+      if (discountType === 'percentage') {
+        total = total * (1 - discountValue / 100)
+      } else {
+        total = Math.max(0, total - discountValue)
+      }
+    }
+
+    return total
+  }
+
+  const validatePromoCode = async () => {
+    if (!promoCode.trim() || !userId) return
+
+    setValidatingPromo(true)
+    try {
+      const response = await fetch('/api/promo-codes/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: promoCode, eventId }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.valid) {
+        setPromoValidation(data)
+      } else {
+        alert(data.error || 'Invalid promo code')
+        setPromoValidation(null)
+      }
+    } catch (error) {
+      console.error('Error validating promo:', error)
+      alert('Failed to validate promo code')
+    } finally {
+      setValidatingPromo(false)
+    }
+  }
+
+  const handlePurchase = () => {
+    if (!userId) return
+
+    const selections = tiers
+      .filter(tier => quantities[tier.id] > 0)
+      .map(tier => ({
+        tierId: tier.id,
+        quantity: quantities[tier.id],
+        price: tier.price,
+        tierName: tier.name
+      }))
+
+    if (selections.length === 0) return
+
+    onPurchase(selections, promoValidation?.promoCode?.id)
+  }
+
+  if (loading) {
+    return <p className="text-white/65">{t('events.loading_ticket_options')}</p>
+  }
+
+  if (tiers.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-white/65 mb-4">{t('events.no_ticket_tiers')}</p>
+        <p className="text-sm text-white/50">{t('events.no_ticket_tiers_desc')}</p>
+      </div>
+    )
+  }
+
+  const totalTickets = getTotalTickets()
+  const totalPrice = getTotalPrice()
+
+  return (
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold text-white">{t('events.select_tickets')}</h3>
+
+      {/* Tier List with Quantity Selectors */}
+      <div className="space-y-3">
+        {tiers.map((tier) => {
+          const available = getAvailableQuantity(tier)
+          const isAvailable = isTierAvailable(tier)
+          const quantity = quantities[tier.id] || 0
+
+          return (
+            <div
+              key={tier.id}
+              className={`border rounded-lg p-4 transition-all ${
+                quantity > 0
+                  ? 'border-teal-600 bg-teal-50'
+                  : isAvailable
+                  ? 'border-white/10 hover:border-white/10'
+                  : 'border-white/10 opacity-50'
+              }`}
+            >
+              <div className="flex items-start justify-between gap-4">
+                {/* Tier Info */}
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold text-white">{tier.name}</h4>
+                  {tier.description && (
+                    <p className="text-sm text-white/65 mt-1">{tier.description}</p>
+                  )}
+                  <div className="flex items-center gap-3 mt-2 text-sm">
+                    <span className="font-medium text-teal-600">
+                      {tier.price.toFixed(2)} {currency}
+                    </span>
+                    <span className={available > 0 ? 'text-white/65' : 'text-red-600'}>
+                      {available > 0 ? `${available} ${t('ticket.available')}` : t('ticket.sold_out')}
+                    </span>
+                  </div>
+                  {!isAvailable && available > 0 && (
+                    <p className="text-xs text-amber-600 mt-1">
+                      {tier.sales_start && new Date(tier.sales_start) > new Date()
+                        ? `${t('events.sales_start')} ${new Date(tier.sales_start).toLocaleDateString()}`
+                        : `${t('events.sales_ended')} ${new Date(tier.sales_end!).toLocaleDateString()}`}
+                    </p>
+                  )}
+                </div>
+
+                {/* Quantity Selector */}
+                {isAvailable && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => updateQuantity(tier.id, -1)}
+                      disabled={quantity === 0}
+                      className="w-9 h-9 flex items-center justify-center rounded-lg border-2 border-white/10 hover:border-teal-600 hover:bg-teal-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                    >
+                      <Minus className="w-4 h-4 text-white/65" />
+                    </button>
+                    <span className="w-12 text-center font-semibold text-white text-lg">
+                      {quantity}
+                    </span>
+                    <button
+                      onClick={() => updateQuantity(tier.id, 1)}
+                      disabled={quantity >= available}
+                      className="w-9 h-9 flex items-center justify-center rounded-lg border-2 border-white/10 hover:border-teal-600 hover:bg-teal-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                    >
+                      <Plus className="w-4 h-4 text-white/65" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Promo Code Section */}
+      <div className="border border-white/10 rounded-lg p-4">
+        <h4 className="font-medium text-white mb-3">{t('events.promo_code_optional')}</h4>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={promoCode}
+            onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+            placeholder={t('events.enter_code')}
+            disabled={!userId || validatingPromo}
+            className="flex-1 px-3 py-2 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:bg-white/[0.04]"
+          />
+          <button
+            onClick={validatePromoCode}
+            disabled={!userId || !promoCode.trim() || validatingPromo}
+            className="px-4 py-2 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 disabled:bg-gray-300 disabled:cursor-not-allowed min-w-[80px]"
+          >
+            {validatingPromo ? '...' : t('events.apply')}
+          </button>
+        </div>
+        {promoValidation?.valid && (
+          <div className="mt-2 text-sm text-green-600 flex items-center gap-1">
+            <span>✓</span>
+            <span>{promoValidation.promoCode?.description || 'Promo code applied'}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Total Summary */}
+      {totalTickets > 0 && (
+        <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-4">
+          <div className="space-y-2">
+            {tiers
+              .filter(tier => quantities[tier.id] > 0)
+              .map(tier => (
+                <div key={tier.id} className="flex justify-between text-sm">
+                  <span className="text-white/65">
+                    {quantities[tier.id]}× {tier.name}
+                  </span>
+                  <span className="text-white">
+                    {(tier.price * quantities[tier.id]).toFixed(2)} {currency}
+                  </span>
+                </div>
+              ))}
+            {promoValidation?.valid && promoValidation.promoCode && (
+              <div className="flex justify-between text-sm text-green-600">
+                <span>
+                  {t('common.promo_discount')} ({promoValidation.promoCode.code})
+                </span>
+                <span>
+                  -{promoValidation.promoCode.discountType === 'percentage' 
+                    ? `${promoValidation.promoCode.discountValue}%` 
+                    : `${promoValidation.promoCode.discountValue.toFixed(2)} ${currency}`}
+                </span>
+              </div>
+            )}
+            <div className="border-t border-white/10 pt-2 flex justify-between font-semibold text-lg">
+              <span>{t('events.total')} ({totalTickets} {t('ticket.ticket')}{totalTickets !== 1 ? 's' : ''})</span>
+              <span className="text-teal-600">{totalPrice.toFixed(2)} {currency}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Purchase Button */}
+      <button
+        onClick={handlePurchase}
+        disabled={!userId || totalTickets === 0}
+        className="w-full bg-teal-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-teal-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+      >
+        {!userId 
+          ? t('events.sign_in_to_purchase') 
+          : totalTickets === 0
+          ? t('events.select_tickets')
+          : `${t('events.checkout')} - ${totalPrice.toFixed(2)} ${currency}`
+        }
+      </button>
+    </div>
+  )
+}

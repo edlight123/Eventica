@@ -5,10 +5,34 @@
 :root {
   --brand-primary: #0F766E;
   --brand-secondary: #14B8A6;
+  /* App is dark end-to-end — render native controls, scrollbars & form fields dark. */
+  color-scheme: dark;
 }
 
 body {
-  @apply bg-gray-50 text-gray-900;
+  @apply bg-[#0a0a0a] text-white;
+}
+
+/* Form-control baseline: never fall back to the browser's white inputs. */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+textarea,
+select {
+  background-color: transparent;
+  color: inherit;
+}
+input::placeholder,
+textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+/* Keep autofilled fields dark instead of the browser's yellow/white wash. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: #fff;
+  -webkit-box-shadow: 0 0 0px 1000px #0a0a0a inset;
+  caret-color: #fff;
 }
 
 /* Mobile typography normalization */

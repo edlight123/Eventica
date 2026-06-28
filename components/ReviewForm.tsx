@@ -138,7 +138,7 @@ export default function ReviewForm({ eventId, ticketId, eventTitle, onSuccess }:
             onClick={() => setWouldRecommend(true)}
             className={`px-6 py-2 rounded-lg border-2 transition-colors ${
               wouldRecommend === true
-                ? 'border-teal-600 bg-teal-50 text-teal-700'
+                ? 'border-teal-600 text-brand-300'
                 : 'border-white/10 text-white/70 hover:border-gray-400'
             }`}
           >
@@ -149,7 +149,7 @@ export default function ReviewForm({ eventId, ticketId, eventTitle, onSuccess }:
             onClick={() => setWouldRecommend(false)}
             className={`px-6 py-2 rounded-lg border-2 transition-colors ${
               wouldRecommend === false
-                ? 'border-brand-600 bg-brand-50 text-brand-700'
+                ? 'border-brand-600 text-brand-300'
                 : 'border-white/10 text-white/70 hover:border-gray-400'
             }`}
           >
@@ -159,7 +159,7 @@ export default function ReviewForm({ eventId, ticketId, eventTitle, onSuccess }:
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+        <div className="mb-4 p-3 border border-red-200 rounded-lg text-sm text-red-300">
           {error}
         </div>
       )}

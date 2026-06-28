@@ -103,11 +103,11 @@ export function VerificationChecklist({ config }: VerificationChecklistProps) {
   const getStatusColor = (status: VerificationItemStatus) => {
     switch (status) {
       case 'verified':
-        return 'border-green-200 bg-green-50'
+        return 'border-green-200 '
       case 'failed':
-        return 'border-red-200 bg-red-50'
+        return 'border-red-200 '
       default:
-        return 'border-amber-200 bg-amber-50'
+        return 'border-amber-200 '
     }
   }
 
@@ -118,14 +118,14 @@ export function VerificationChecklist({ config }: VerificationChecklistProps) {
         {allVerified && (
           <div className="flex items-center gap-1 px-3 py-1.5 bg-green-100 rounded-full">
             <Check className="w-4 h-4 text-green-600" />
-            <span className="text-sm font-semibold text-green-700">{t('settings.payout_settings.all_verified')}</span>
+            <span className="text-sm font-semibold text-emerald-300">{t('settings.payout_settings.all_verified')}</span>
           </div>
         )}
       </div>
 
       {/* Overall Status Message */}
       {!allVerified && !hasFailures && (
-        <div className="mb-6 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+        <div className="mb-6 p-4 border border-brand-200 rounded-xl">
           <p className="text-sm text-brand-300">
             <strong>{t('settings.payout_settings.action_required')}</strong> {t('settings.payout_settings.complete_verification')}
           </p>
@@ -133,7 +133,7 @@ export function VerificationChecklist({ config }: VerificationChecklistProps) {
       )}
 
       {hasFailures && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+        <div className="mb-6 p-4 border border-red-200 rounded-xl flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
           <div className="text-sm text-red-300">
             <p className="font-semibold mb-1">{t('settings.payout_settings.verification_issues')}</p>

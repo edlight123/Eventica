@@ -210,7 +210,7 @@ export default function EventbriteStyleTicketSelector({
               key={tier.id}
               className={`border rounded-lg p-4 transition-all ${
                 quantity > 0
-                  ? 'border-teal-600 bg-teal-50'
+                  ? 'border-teal-600 '
                   : isAvailable
                   ? 'border-white/10 hover:border-white/10'
                   : 'border-white/10 opacity-50'

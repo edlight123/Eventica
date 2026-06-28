@@ -54,7 +54,7 @@ export function ProfileHeaderCard({ profile, onUpdate }: ProfileHeaderCardProps)
         {!isEditing ? (
           <button
             onClick={() => setIsEditing(true)}
-            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-teal-600 hover:text-brand-300 hover:bg-teal-50 rounded-lg transition-colors"
           >
             <Edit2 className="w-4 h-4" />
             {t('header.edit_profile')}

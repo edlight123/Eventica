@@ -116,10 +116,10 @@ export function FeesAndRulesCard() {
 
       <div className="space-y-6">
         {/* Platform Fee */}
-        <div className="p-4 bg-brand-50 border border-brand-200 rounded-xl">
+        <div className="p-4 border border-brand-200 rounded-xl">
           <div className="flex items-baseline justify-between mb-2">
             <h4 className="font-semibold text-brand-300">{t('settings.payout_settings.platform_fee')}</h4>
-            <span className="text-2xl font-bold text-brand-700">{fees.platformFee}</span>
+            <span className="text-2xl font-bold text-brand-300">{fees.platformFee}</span>
           </div>
           <p className="text-sm text-brand-300">
             {location === 'abroad' 
@@ -163,18 +163,18 @@ export function FeesAndRulesCard() {
         </div>
 
         {/* Example Calculation */}
-        <div className="p-4 bg-brand-50 border border-brand-200 rounded-xl">
+        <div className="p-4 border border-brand-200 rounded-xl">
           <h4 className="font-semibold text-brand-300 mb-3">{t('settings.payout_settings.example_calc')}</h4>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between text-brand-300">
               <span>{t('settings.payout_settings.ticket_price')}</span>
               <span className="font-mono">{fees.ticketPrice}</span>
             </div>
-            <div className="flex justify-between text-brand-700">
+            <div className="flex justify-between text-brand-300">
               <span>{t('settings.payout_settings.platform_fee')} ({fees.platformFee}):</span>
               <span className="font-mono">{fees.platformFeeAmount}</span>
             </div>
-            <div className="flex justify-between text-brand-700">
+            <div className="flex justify-between text-brand-300">
               <span>{t('settings.payout_settings.processing_fee')} ({fees.processingFee}):</span>
               <span className="font-mono">{fees.processingFeeAmount}</span>
             </div>

@@ -192,7 +192,7 @@ export default function TieredTicketSelector({ eventId, userId, onPurchase }: Ti
               onClick={() => isAvailable && setSelectedTier(tier.id)}
               className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
                 isSelected
-                  ? 'border-teal-600 bg-teal-50'
+                  ? 'border-teal-600 '
                   : isAvailable
                   ? 'border-white/10 hover:border-teal-300'
                   : 'border-white/10 opacity-50 cursor-not-allowed'
@@ -236,7 +236,7 @@ export default function TieredTicketSelector({ eventId, userId, onPurchase }: Ti
             {t('events.quantity')}
           </label>
           {groupDiscounts.length > 0 && (
-            <div className="mb-3 p-3 bg-brand-50 border border-brand-200 rounded-lg">
+            <div className="mb-3 p-3 border border-brand-200 rounded-lg">
               <p className="text-sm font-medium text-brand-300 mb-1">🎟️ {t('events.group_discounts_available')}:</p>
               <ul className="text-sm text-brand-300 space-y-1">
                 {groupDiscounts
@@ -315,7 +315,7 @@ export default function TieredTicketSelector({ eventId, userId, onPurchase }: Ti
               </div>
             )}
             {getApplicableGroupDiscount() && !promoApplied && (
-              <div className="flex justify-between text-sm text-brand-700">
+              <div className="flex justify-between text-sm text-brand-300">
                 <span>{t('events.group_discount')} ({getApplicableGroupDiscount()?.discount_percentage}% {t('events.off')} {getApplicableGroupDiscount()?.min_quantity}+ {t('ticket.tickets')})</span>
                 <span>-{(selectedTierData.price - finalPrice).toFixed(2)} HTG</span>
               </div>

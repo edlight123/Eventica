@@ -259,7 +259,7 @@ export default function TicketTiersManager({ eventId }: TicketTiersManagerProps)
                 </div>
                 <button
                   onClick={() => handleDelete(tier.id)}
-                  className="ml-4 text-red-600 hover:text-red-700"
+                  className="ml-4 text-red-600 hover:text-red-300"
                 >
                   Delete
                 </button>

@@ -81,7 +81,7 @@ export function TikemMark({
  */
 export function TikemLogo({
   markSize = 40,
-  wordmarkClassName = 'text-[30px] text-brand-700',
+  wordmarkClassName = 'text-[30px] text-brand-300',
   className = '',
 }: {
   markSize?: number

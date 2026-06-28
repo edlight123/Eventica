@@ -145,7 +145,7 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
           <div className="flex items-center justify-between max-w-md mx-auto">
             <div className="flex flex-col items-center gap-1">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold ${
-                step === 'method' ? 'bg-brand-700 text-white' : 'bg-brand-100 text-brand-700'
+                step === 'method' ? 'bg-brand-700 text-white' : 'bg-brand-100 text-brand-300'
               }`}>
                 {step !== 'method' ? <Check className="w-5 h-5" /> : '1'}
               </div>
@@ -156,7 +156,7 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
             }`} />
             <div className="flex flex-col items-center gap-1">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold ${
-                step === 'review' ? 'bg-brand-100 text-brand-700' :
+                step === 'review' ? 'bg-brand-100 text-brand-300' :
                 step === 'details' ? 'bg-brand-700 text-white' : 'bg-white/[0.06] text-white/50'
               }`}>
                 {step === 'review' ? <Check className="w-5 h-5" /> : '2'}
@@ -179,7 +179,7 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
 
         {/* Error Alert */}
         {error && (
-          <div className="mx-6 mt-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+          <div className="mx-6 mt-6 p-4 border border-red-200 rounded-xl flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
             <p className="text-sm text-red-300">{error}</p>
           </div>
@@ -196,7 +196,7 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
                 onClick={() => setMethod('bank_transfer')}
                 className={`w-full p-6 rounded-xl border-2 transition-all text-left ${
                   method === 'bank_transfer'
-                    ? 'border-brand-600 bg-brand-50'
+                    ? 'border-brand-600 '
                     : 'border-white/10 hover:border-white/10'
                 }`}
               >
@@ -205,7 +205,7 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
                     method === 'bank_transfer' ? 'bg-brand-100' : 'bg-white/[0.04]'
                   }`}>
                     <CreditCard className={`w-6 h-6 ${
-                      method === 'bank_transfer' ? 'text-brand-700' : 'text-white/65'
+                      method === 'bank_transfer' ? 'text-brand-300' : 'text-white/65'
                     }`} />
                   </div>
                   <div className="flex-1">
@@ -221,7 +221,7 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
                 onClick={() => setMethod('mobile_money')}
                 className={`w-full p-6 rounded-xl border-2 transition-all text-left ${
                   method === 'mobile_money'
-                    ? 'border-brand-600 bg-brand-50'
+                    ? 'border-brand-600 '
                     : 'border-white/10 hover:border-white/10'
                 }`}
               >
@@ -230,7 +230,7 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
                     method === 'mobile_money' ? 'bg-brand-100' : 'bg-white/[0.04]'
                   }`}>
                     <Smartphone className={`w-6 h-6 ${
-                      method === 'mobile_money' ? 'text-brand-700' : 'text-white/65'
+                      method === 'mobile_money' ? 'text-brand-300' : 'text-white/65'
                     }`} />
                   </div>
                   <div className="flex-1">
@@ -318,7 +318,7 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
                     onClick={() => setProvider('moncash')}
                     className={`p-4 rounded-xl border-2 font-semibold transition-all ${
                       provider === 'moncash'
-                        ? 'border-brand-600 bg-brand-50 text-brand-700'
+                        ? 'border-brand-600 text-brand-300'
                         : 'border-white/10 hover:border-white/10 text-white/70'
                     }`}
                   >
@@ -328,7 +328,7 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
                     onClick={() => setProvider('natcash')}
                     className={`p-4 rounded-xl border-2 font-semibold transition-all ${
                       provider === 'natcash'
-                        ? 'border-brand-600 bg-brand-50 text-brand-700'
+                        ? 'border-brand-600 text-brand-300'
                         : 'border-white/10 hover:border-white/10 text-white/70'
                     }`}
                   >
@@ -436,7 +436,7 @@ export function PayoutSetupStepper({ currentConfig, onClose, onComplete }: Payou
                 )}
               </div>
 
-              <div className="p-4 bg-brand-50 border border-brand-200 rounded-xl flex items-start gap-3">
+              <div className="p-4 border border-brand-200 rounded-xl flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-brand-600 flex-shrink-0 mt-0.5" />
                 <div className="text-sm text-brand-300">
                   <p className="font-semibold mb-1">Security Notice</p>

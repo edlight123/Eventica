@@ -46,7 +46,7 @@ const toastStyles: Record<ToastType, string> = {
   success: 'border-success-200 bg-success-50',
   error: 'border-error-200 bg-error-50',
   warning: 'border-warning-200 bg-warning-50',
-  info: 'border-brand-200 bg-brand-50',
+  info: 'border-brand-200 ',
 };
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {

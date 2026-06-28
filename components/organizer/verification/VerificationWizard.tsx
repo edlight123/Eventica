@@ -386,10 +386,10 @@ export default function VerificationWizard({
         {currentStepIndex === 0 && (
           <div className="mb-6 border border-brand-500/30 rounded-xl p-4">
             <h4 className="text-sm font-semibold text-brand-300 mb-1.5">Before you start</h4>
-            <p className="text-sm text-brand-700/90 mb-2">
+            <p className="text-sm text-brand-300/90 mb-2">
               Have these ready — it takes about 5 minutes, and your progress saves as you go:
             </p>
-            <ul className="text-sm text-brand-700/90 space-y-1 ml-5 list-disc">
+            <ul className="text-sm text-brand-300/90 space-y-1 ml-5 list-disc">
               <li>A government-issued ID (front &amp; back)</li>
               <li>Your phone or webcam for a quick selfie holding your ID</li>
               <li>Your organization name and contact details</li>

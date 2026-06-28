@@ -36,7 +36,7 @@ export function StatTile({
     <div className={`rounded-2xl border border-white/10 bg-[#0a0a0a] p-4 ${className}`}>
       <div className="mb-2 flex items-center gap-2">
         {Icon && (
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-50 text-brand-700">
+          <span className="grid h-8 w-8 place-items-center rounded-lg text-brand-300">
             <Icon className="h-4 w-4" />
           </span>
         )}
@@ -98,7 +98,7 @@ export function EmptyState({
   return (
     <div className={`rounded-2xl border border-dashed border-white/10 bg-[#0a0a0a] p-10 text-center ${className}`}>
       {Icon && (
-        <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-brand-50 text-brand-700">
+        <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl text-brand-300">
           <Icon className="h-7 w-7" />
         </div>
       )}
@@ -113,11 +113,11 @@ export function EmptyState({
 export type ChipTone = 'brand' | 'neutral' | 'success' | 'warning' | 'danger'
 
 const toneStyles: Record<ChipTone, string> = {
-  brand: 'bg-brand-50 text-brand-700 border border-brand-100',
+  brand: 'text-brand-300 border border-brand-100',
   neutral: 'bg-white/[0.04] text-white/70 border border-white/10',
-  success: 'bg-green-50 text-green-700 border border-green-200',
-  warning: 'bg-amber-50 text-amber-700 border border-amber-200',
-  danger: 'bg-red-50 text-red-700 border border-red-200',
+  success: 'text-emerald-300 border border-green-200',
+  warning: 'text-amber-300 border border-amber-200',
+  danger: 'text-red-300 border border-red-200',
 }
 
 /**

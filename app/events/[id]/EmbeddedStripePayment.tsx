@@ -103,7 +103,7 @@ function CheckoutForm({ eventId, eventTitle, quantity, totalAmount, currency, on
           </div>
           <div className="flex justify-between items-center pt-2 border-t border-white/10">
             <span className="font-semibold text-white">{t('events.total')}</span>
-            <span className="text-lg font-bold text-teal-700">
+            <span className="text-lg font-bold text-brand-300">
               {totalAmount.toLocaleString()} {currency}
             </span>
           </div>
@@ -120,7 +120,7 @@ function CheckoutForm({ eventId, eventTitle, quantity, totalAmount, currency, on
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="border border-red-200 rounded-lg p-4">
           <p className="text-sm text-red-300">{error}</p>
         </div>
       )}
@@ -256,7 +256,7 @@ export default function EmbeddedStripePayment({
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
             </div>
           ) : error ? (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+            <div className="border border-red-200 rounded-lg p-6 text-center">
               <p className="text-red-300 mb-4">{error}</p>
               <button
                 onClick={onClose}

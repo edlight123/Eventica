@@ -118,7 +118,7 @@ export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
               )}
               <span
                 className={`shrink-0 rounded-md px-2 py-1 text-[11px] font-bold backdrop-blur-md
-                  ${isFree ? 'bg-brand-600/90 text-white' : 'bg-white/90 text-white'}`}
+                  ${isFree ? 'bg-brand-600/90 text-white' : 'bg-white text-black'}`}
               >
                 {priceLabel}
               </span>

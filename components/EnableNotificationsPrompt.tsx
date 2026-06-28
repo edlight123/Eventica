@@ -76,7 +76,7 @@ export function EnableNotificationsPrompt({
           </p>
 
           {error && (
-            <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700">
+            <div className="mb-3 p-2 border border-red-200 rounded text-sm text-red-300">
               {error}
             </div>
           )}

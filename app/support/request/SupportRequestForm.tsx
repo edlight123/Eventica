@@ -96,7 +96,7 @@ export default function SupportRequestForm() {
                 onClick={() => setFormData({ ...formData, userType: 'attendee' })}
                 className={`flex-1 px-4 py-3 rounded-lg border-2 font-medium transition-all ${
                   formData.userType === 'attendee'
-                    ? 'border-brand-500 bg-brand-50 text-brand-700'
+                    ? 'border-brand-500 text-brand-300'
                     : 'border-white/10 bg-[#0a0a0a] text-white/70 hover:border-white/10'
                 }`}
               >
@@ -110,7 +110,7 @@ export default function SupportRequestForm() {
                 onClick={() => setFormData({ ...formData, userType: 'organizer' })}
                 className={`flex-1 px-4 py-3 rounded-lg border-2 font-medium transition-all ${
                   formData.userType === 'organizer'
-                    ? 'border-brand-500 bg-brand-50 text-brand-700'
+                    ? 'border-brand-500 text-brand-300'
                     : 'border-white/10 bg-[#0a0a0a] text-white/70 hover:border-white/10'
                 }`}
               >

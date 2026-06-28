@@ -266,7 +266,7 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
 
       {/* Help & Instructions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-brand-50 border border-brand-100 rounded-xl p-4">
+        <div className="border border-brand-100 rounded-xl p-4">
           <div className="flex items-start gap-3 mb-3">
             <div className="w-10 h-10 bg-brand-600 rounded-lg flex items-center justify-center flex-shrink-0">
               <QrCode className="w-5 h-5 text-white" />

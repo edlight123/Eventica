@@ -61,13 +61,13 @@ export function BalanceRow({ availableBalance, pendingBalance, nextPayoutDate }:
   return (
     <div className="space-y-4">
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-300">
+        <div className="p-4 border border-red-200 rounded-xl text-sm text-red-300">
           {error}
         </div>
       )}
       
       {success && (
-        <div className="p-4 bg-green-50 border border-green-200 rounded-xl text-sm text-emerald-300">
+        <div className="p-4 border border-green-200 rounded-xl text-sm text-emerald-300">
           {t('settings.payout_settings.request_success')}
         </div>
       )}
@@ -81,7 +81,7 @@ export function BalanceRow({ availableBalance, pendingBalance, nextPayoutDate }:
           </div>
           <h3 className="text-sm font-semibold text-emerald-300 uppercase tracking-wide">{t('settings.payout_settings.available_balance')}</h3>
         </div>
-        <p className="text-3xl font-bold text-green-700">{formatCurrency(availableBalance)}</p>
+        <p className="text-3xl font-bold text-emerald-300">{formatCurrency(availableBalance)}</p>
         <p className="text-sm text-green-600 mt-1">{t('settings.payout_settings.ready_to_withdraw')}</p>
       </div>
 
@@ -93,7 +93,7 @@ export function BalanceRow({ availableBalance, pendingBalance, nextPayoutDate }:
           </div>
           <h3 className="text-sm font-semibold text-amber-300 uppercase tracking-wide">{t('settings.payout_settings.pending_balance')}</h3>
         </div>
-        <p className="text-3xl font-bold text-amber-700">{formatCurrency(pendingBalance)}</p>
+        <p className="text-3xl font-bold text-amber-300">{formatCurrency(pendingBalance)}</p>
         <p className="text-sm text-amber-600 mt-1">{t('settings.payout_settings.processing')}</p>
       </div>
 
@@ -105,7 +105,7 @@ export function BalanceRow({ availableBalance, pendingBalance, nextPayoutDate }:
           </div>
           <h3 className="text-sm font-semibold text-brand-300 uppercase tracking-wide">{t('settings.payout_settings.next_payout')}</h3>
         </div>
-        <p className="text-3xl font-bold text-brand-700">
+        <p className="text-3xl font-bold text-brand-300">
           {nextPayoutDate ? formatDate(nextPayoutDate).split(',')[0] : '—'}
         </p>
         <p className="text-sm text-brand-600 mt-1">{formatDate(nextPayoutDate)}</p>

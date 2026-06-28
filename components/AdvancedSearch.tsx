@@ -148,7 +148,7 @@ export default function AdvancedSearch() {
                     onClick={() => setPriceRange('all')}
                     className={`flex-1 px-4 py-3 rounded-xl border-2 font-semibold transition-all ${
                       priceRange === 'all'
-                        ? 'border-brand-500 bg-brand-50 text-brand-700'
+                        ? 'border-brand-500 text-brand-300'
                         : 'border-white/10 text-white/70 hover:border-white/10'
                     }`}
                   >
@@ -170,7 +170,7 @@ export default function AdvancedSearch() {
                     onClick={() => setPriceRange('paid')}
                     className={`flex-1 px-4 py-3 rounded-xl border-2 font-semibold transition-all ${
                       priceRange === 'paid'
-                        ? 'border-brand-500 bg-brand-50 text-brand-700'
+                        ? 'border-brand-500 text-brand-300'
                         : 'border-white/10 text-white/70 hover:border-white/10'
                     }`}
                   >

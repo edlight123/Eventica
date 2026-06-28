@@ -168,7 +168,7 @@ export function PayoutHistory({ payouts, loading }: PayoutHistoryProps) {
                     <button 
                       onClick={() => handleRetry(payout.id)}
                       disabled={retrying === payout.id}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-brand-700 hover:bg-brand-50 disabled:bg-white/[0.04] disabled:text-white/40 disabled:cursor-not-allowed rounded-lg transition-colors"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-brand-300 hover:bg-brand-50 disabled:bg-white/[0.04] disabled:text-white/40 disabled:cursor-not-allowed rounded-lg transition-colors"
                     >
                       <RefreshCw className={`w-3 h-3 ${retrying === payout.id ? 'animate-spin' : ''}`} />
                       {retrying === payout.id ? 'Retrying...' : 'Retry'}
@@ -216,7 +216,7 @@ export function PayoutHistory({ payouts, loading }: PayoutHistoryProps) {
             </div>
 
             {payout.status === 'failed' && payout.failureReason && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg mb-3">
+              <div className="p-3 border border-red-200 rounded-lg mb-3">
                 <p className="text-xs text-red-300">
                   <strong>Reason:</strong> {payout.failureReason}
                 </p>
@@ -227,7 +227,7 @@ export function PayoutHistory({ payouts, loading }: PayoutHistoryProps) {
               <button 
                 onClick={() => handleRetry(payout.id)}
                 disabled={retrying === payout.id}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-brand-700 hover:bg-brand-50 disabled:bg-white/[0.04] disabled:text-white/40 disabled:cursor-not-allowed border-2 border-brand-600 disabled:border-white/10 rounded-lg transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-brand-300 hover:bg-brand-50 disabled:bg-white/[0.04] disabled:text-white/40 disabled:cursor-not-allowed border-2 border-brand-600 disabled:border-white/10 rounded-lg transition-colors"
               >
                 <RefreshCw className={`w-4 h-4 ${retrying === payout.id ? 'animate-spin' : ''}`} />
                 {retrying === payout.id ? 'Retrying...' : 'Retry Payout'}

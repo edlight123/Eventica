@@ -163,7 +163,7 @@ export default function HeroSection({ hasActiveFilters, featuredEvents }: HeroSe
 
                   {/* Top row */}
                   <div className="absolute inset-x-0 top-0 z-10 flex items-start justify-between p-4">
-                    <span className="eyebrow inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-[10px] tracking-[0.14em] text-brand-700 shadow-sm">
+                    <span className="eyebrow inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-[10px] tracking-[0.14em] text-brand-300 shadow-sm">
                       <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
                       {t('events.featured', { defaultValue: 'Featured' })}
                     </span>
