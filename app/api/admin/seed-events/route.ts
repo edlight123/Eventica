@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireAdmin } from '@/lib/auth'
+import { requireDevTools } from '@/lib/auth'
 import { adminDb } from '@/lib/firebase/admin'
 import { Timestamp } from 'firebase-admin/firestore'
 import { randomUUID } from 'crypto'
@@ -58,7 +58,7 @@ const templateEvents: TemplateEvent[] = [
 
 export async function POST(req: NextRequest) {
   try {
-    const { user, error } = await requireAdmin()
+    const { user, error } = await requireDevTools()
     if (error || !user) {
       return adminError(error || 'Unauthorized', error === 'Not authenticated' ? 401 : 403)
     }

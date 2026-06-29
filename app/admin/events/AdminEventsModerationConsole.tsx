@@ -7,6 +7,7 @@ import { AdminEventsTabs } from '@/components/admin/events/AdminEventsTabs'
 import { AdminEventsTable } from '@/components/admin/events/AdminEventsTable'
 import { AdminEventDetailSheet } from '@/components/admin/events/AdminEventDetailSheet'
 import { EditorialHeader } from '@/components/ui/EditorialHeader'
+import { useToast } from '@/components/ui/Toast'
 
 interface FilterOptions {
   dateRange: 'any' | 'today' | 'week' | 'custom'
@@ -25,6 +26,7 @@ interface AdminEventsModerationConsoleProps {
 }
 
 export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsModerationConsoleProps) {
+  const { showToast } = useToast()
   const [searchQuery, setSearchQuery] = useState('')
   const [showFilters, setShowFilters] = useState(false)
   const [activeTab, setActiveTab] = useState<'pending' | 'published' | 'reported' | 'unpublished'>('published')
@@ -113,7 +115,11 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
       void loadEvents()
     } catch (error) {
       console.error('Bulk action failed:', error)
-      alert(`Bulk action failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      showToast({
+        type: 'error',
+        title: 'Action failed',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      })
     }
   }
 
@@ -140,7 +146,11 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
       void loadEvents()
     } catch (error) {
       console.error('Action failed:', error)
-      alert(`Action failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      showToast({
+        type: 'error',
+        title: 'Action failed',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      })
     }
   }
 

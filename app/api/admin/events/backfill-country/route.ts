@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { FieldPath } from 'firebase-admin/firestore'
-import { requireAdmin } from '@/lib/auth'
+import { requireDevTools } from '@/lib/auth'
 import { adminDb } from '@/lib/firebase/admin'
 import { resolveEventCountry } from '@/lib/event-country'
 import { normalizeCountryCode } from '@/lib/payment-provider'
@@ -22,7 +22,7 @@ type BackfillRequest = {
 
 export async function GET() {
   try {
-    const { user, error } = await requireAdmin()
+    const { user, error } = await requireDevTools()
     if (error || !user) {
       return adminError(error || 'Unauthorized', error === 'Not authenticated' ? 401 : 403)
     }
@@ -48,7 +48,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { user, error } = await requireAdmin()
+    const { user, error } = await requireDevTools()
     if (error || !user) {
       return adminError(error || 'Unauthorized', error === 'Not authenticated' ? 401 : 403)
     }

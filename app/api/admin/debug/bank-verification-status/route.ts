@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { requireAdmin } from '@/lib/auth'
+import { requireDevTools } from '@/lib/auth'
 import { adminDb } from '@/lib/firebase/admin'
 import { adminError, adminOk } from '@/lib/api/admin-response'
 
@@ -7,9 +7,9 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
-    const { user, error } = await requireAdmin()
+    const { user, error } = await requireDevTools()
     if (error || !user) {
-      return adminError(error || 'Unauthorized', 401)
+      return adminError(error || 'Unauthorized', error === 'Not authenticated' ? 401 : 403)
     }
 
     // Get all organizers first, then fetch their verificationDocuments
@@ -67,9 +67,9 @@ export async function GET(request: NextRequest) {
 // Manually update a bank verification status for testing
 export async function POST(request: NextRequest) {
   try {
-    const { user, error } = await requireAdmin()
+    const { user, error } = await requireDevTools()
     if (error || !user) {
-      return adminError(error || 'Unauthorized', 401)
+      return adminError(error || 'Unauthorized', error === 'Not authenticated' ? 401 : 403)
     }
 
     const { docPath, newStatus } = await request.json()

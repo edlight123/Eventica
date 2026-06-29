@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { formatCurrency } from '@/lib/currency'
 import { StatusChip } from '@/components/ui/kit'
+import { useToast } from '@/components/ui/Toast'
 import { 
   Calendar, 
   DollarSign, 
@@ -62,6 +63,7 @@ interface Props {
 }
 
 export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
+  const { showToast } = useToast()
   const [selectedEvent, setSelectedEvent] = useState<EventDisbursementInfo | null>(null)
   const [showModal, setShowModal] = useState(false)
   const [filter, setFilter] = useState<'all' | 'eligible' | 'pending' | 'completed'>('eligible')
@@ -116,7 +118,12 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
 
   const initiatePayoutRequest = async (event: EventDisbursementInfo) => {
     // TODO: Implement payout request creation
-    alert(`Initiate payout for ${event.eventTitle}`)
+    void event
+    showToast({
+      type: 'info',
+      title: 'Payout',
+      message: 'Manual payout initiation is coming soon.',
+    })
   }
 
   return (

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Check, X, FileText, CreditCard, AlertCircle, ExternalLink } from 'lucide-react'
 import { StatusChip } from '@/components/ui/kit'
 import { useConfirm } from '@/components/ui/ConfirmProvider'
+import { useToast } from '@/components/ui/Toast'
 
 interface BankVerification {
   organizerId: string
@@ -34,6 +35,7 @@ interface Props {
 
 export default function BankVerificationReviewCard({ verification }: Props) {
   const confirmDialog = useConfirm()
+  const { showToast } = useToast()
   const [processing, setProcessing] = useState(false)
   const [expanded, setExpanded] = useState(verification.verificationDoc.status === 'pending')
   const [isOpeningDocument, setIsOpeningDocument] = useState(false)
@@ -51,7 +53,11 @@ export default function BankVerificationReviewCard({ verification }: Props) {
 
       window.open(data.url, '_blank', 'noopener,noreferrer')
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Failed to open document')
+      showToast({
+        type: 'error',
+        title: 'Action failed',
+        message: e instanceof Error ? e.message : 'Failed to open document',
+      })
     } finally {
       setIsOpeningDocument(false)
     }
@@ -83,10 +89,18 @@ export default function BankVerificationReviewCard({ verification }: Props) {
         throw new Error(data?.error || data?.message || 'Failed to approve')
       }
 
-      alert('Bank verification approved!')
+      showToast({
+        type: 'success',
+        title: 'Verification approved',
+        message: 'Bank verification approved!',
+      })
       window.location.reload()
     } catch (error) {
-      alert('Failed to approve verification')
+      showToast({
+        type: 'error',
+        title: 'Action failed',
+        message: 'Failed to approve verification',
+      })
       console.error(error)
     } finally {
       setProcessing(false)
@@ -115,10 +129,18 @@ export default function BankVerificationReviewCard({ verification }: Props) {
         throw new Error(data?.error || data?.message || 'Failed to reject')
       }
 
-      alert('Bank verification rejected')
+      showToast({
+        type: 'success',
+        title: 'Verification rejected',
+        message: 'Bank verification rejected',
+      })
       window.location.reload()
     } catch (error) {
-      alert('Failed to reject verification')
+      showToast({
+        type: 'error',
+        title: 'Action failed',
+        message: 'Failed to reject verification',
+      })
       console.error(error)
     } finally {
       setProcessing(false)

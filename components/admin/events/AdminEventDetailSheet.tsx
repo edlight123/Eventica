@@ -5,6 +5,7 @@ import { format } from 'date-fns'
 import { useState } from 'react'
 import Image from 'next/image'
 import { useTranslation } from 'react-i18next'
+import { useToast } from '@/components/ui/Toast'
 
 interface Event {
   id: string
@@ -48,6 +49,7 @@ interface AdminEventDetailSheetProps {
 
 export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: AdminEventDetailSheetProps) {
   const { t } = useTranslation('common')
+  const { showToast } = useToast()
   const [reason, setReason] = useState('')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [isExporting, setIsExporting] = useState<'full' | 'summary' | null>(null)
@@ -56,7 +58,11 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
 
   const handleUnpublish = () => {
     if (!reason.trim()) {
-      alert('Please provide a reason for unpublishing')
+      showToast({
+        type: 'warning',
+        title: 'Reason required',
+        message: 'Please provide a reason for unpublishing',
+      })
       return
     }
     onAction('unpublish', reason)
@@ -65,7 +71,11 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
 
   const handleDelete = () => {
     if (!reason.trim()) {
-      alert('Please provide a reason for deletion')
+      showToast({
+        type: 'warning',
+        title: 'Reason required',
+        message: 'Please provide a reason for deletion',
+      })
       return
     }
     onAction('delete', reason)
@@ -93,7 +103,11 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
       a.click()
       URL.revokeObjectURL(url)
     } catch (e: any) {
-      alert(e?.message || 'Failed to download CSV')
+      showToast({
+        type: 'error',
+        title: 'Action failed',
+        message: e?.message || 'Failed to download CSV',
+      })
     } finally {
       setIsExporting(null)
     }

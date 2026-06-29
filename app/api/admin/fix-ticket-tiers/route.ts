@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { adminDb } from '@/lib/firebase/admin'
-import { requireAdmin } from '@/lib/auth'
+import { requireDevTools } from '@/lib/auth'
 import { adminError, adminOk } from '@/lib/api/admin-response'
 import { logAdminAction } from '@/lib/admin/audit-log'
 
@@ -10,7 +10,7 @@ import { logAdminAction } from '@/lib/admin/audit-log'
  */
 export async function POST(req: NextRequest) {
   try {
-    const { user, error } = await requireAdmin()
+    const { user, error } = await requireDevTools()
     if (error || !user) {
       return adminError(error || 'Unauthorized', error === 'Not authenticated' ? 401 : 403)
     }

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { EditorialHeader } from '@/components/ui/EditorialHeader'
 import { useConfirm } from '@/components/ui/ConfirmProvider'
+import { useToast } from '@/components/ui/Toast'
 
 interface SuspiciousActivity {
   id: string
@@ -50,6 +51,7 @@ const ACTIVITY_TYPE_LABELS: Record<string, string> = {
 
 export default function SecurityDashboardClient() {
   const confirmDialog = useConfirm()
+  const { showToast } = useToast()
   const [activities, setActivities] = useState<SuspiciousActivity[]>([])
   const [unreviewedCount, setUnreviewedCount] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -189,7 +191,11 @@ export default function SecurityDashboardClient() {
       setUnreviewedCount(data.unreviewedCount || 0)
     } catch (error) {
       console.error('Error fetching activities:', error)
-      alert('Failed to load suspicious activities')
+      showToast({
+        type: 'error',
+        title: 'Action failed',
+        message: 'Failed to load suspicious activities',
+      })
     } finally {
       setLoading(false)
     }
@@ -217,7 +223,11 @@ export default function SecurityDashboardClient() {
       setActionText('')
     } catch (error) {
       console.error('Error reviewing activity:', error)
-      alert('Failed to mark as reviewed')
+      showToast({
+        type: 'error',
+        title: 'Action failed',
+        message: 'Failed to mark as reviewed',
+      })
     }
   }
 

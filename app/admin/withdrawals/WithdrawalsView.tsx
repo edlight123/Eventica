@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { formatCurrency } from '@/lib/fees'
 import { StatusChip } from '@/components/ui/kit'
 import { useConfirm } from '@/components/ui/ConfirmProvider'
+import { useToast } from '@/components/ui/Toast'
 
 interface Withdrawal {
   id: string
@@ -45,6 +46,7 @@ interface WithdrawalsViewProps {
 
 export default function WithdrawalsView({ embedded = false, showHeader = true }: WithdrawalsViewProps) {
   const confirmDialog = useConfirm()
+  const { showToast } = useToast()
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'pending' | 'processing' | 'completed' | 'failed'>('pending')
@@ -97,12 +99,20 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
         throw new Error(data.error || `Failed to ${action} withdrawal`)
       }
 
-      alert(`✅ Withdrawal ${action}d successfully`)
+      showToast({
+        type: 'success',
+        title: 'Withdrawal updated',
+        message: `Withdrawal ${action}d successfully`,
+      })
       setSelectedWithdrawal(null)
       setActionNote('')
       fetchWithdrawals()
     } catch (error: any) {
-      alert(`❌ Error: ${error.message}`)
+      showToast({
+        type: 'error',
+        title: 'Action failed',
+        message: error.message,
+      })
     } finally {
       setProcessing(false)
     }

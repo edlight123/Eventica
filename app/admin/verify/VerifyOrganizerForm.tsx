@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { StatusChip } from '@/components/ui/kit'
+import { useToast } from '@/components/ui/Toast'
 
 interface Organizer {
   id: string
@@ -26,6 +27,7 @@ interface Props {
 
 export default function VerifyOrganizerForm({ organizers }: Props) {
   const { t } = useTranslation('admin')
+  const { showToast } = useToast()
   const [updating, setUpdating] = useState<string | null>(null)
   const [localOrganizers, setLocalOrganizers] = useState(organizers)
   const [query, setQuery] = useState('')
@@ -68,7 +70,11 @@ export default function VerifyOrganizerForm({ organizers }: Props) {
       )
     } catch (error) {
       console.error('Error updating verification:', error)
-      alert('Failed to update verification status')
+      showToast({
+        type: 'error',
+        title: 'Action failed',
+        message: 'Failed to update verification status',
+      })
     } finally {
       setUpdating(null)
     }

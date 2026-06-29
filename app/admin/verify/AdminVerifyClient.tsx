@@ -7,6 +7,7 @@ import VerificationRequestReview from './VerificationRequestReview'
 import VerifyOrganizerForm from './VerifyOrganizerForm'
 import { EditorialHeader } from '@/components/ui/EditorialHeader'
 import { useConfirm } from '@/components/ui/ConfirmProvider'
+import { useToast } from '@/components/ui/Toast'
 
 type AdminVerifyClientProps = {
   requestsWithUsers: any[]
@@ -19,6 +20,7 @@ type SortDirection = 'asc' | 'desc'
 export default function AdminVerifyClient({ requestsWithUsers, organizers }: AdminVerifyClientProps) {
   const { t } = useTranslation('admin')
   const confirmDialog = useConfirm()
+  const { showToast } = useToast()
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -138,12 +140,20 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
       })
 
       await Promise.all(promises)
-      alert(`✅ ${selectedIds.size} verification requests approved!`)
+      showToast({
+        type: 'success',
+        title: 'Requests approved',
+        message: `${selectedIds.size} verification requests approved!`,
+      })
       setSelectedIds(new Set())
       router.refresh()
     } catch (error) {
       console.error('Bulk approve error:', error)
-      alert('Some requests failed to approve. Please try again.')
+      showToast({
+        type: 'error',
+        title: 'Action failed',
+        message: 'Some requests failed to approve. Please try again.',
+      })
     } finally {
       setBulkActionLoading(false)
     }
