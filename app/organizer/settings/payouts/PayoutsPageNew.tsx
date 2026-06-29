@@ -1043,7 +1043,7 @@ export default function PayoutsPageNew({
               /* ── STEPPER LAYOUT (focused edit: ?edit=haiti or ?edit=stripe_connect) ── */
               <div className="flex flex-col gap-6">
                 {/* Profile header */}
-                <div className="flex items-start justify-between gap-3 rounded-xl border border-white/10 p-6 shadow-sm">
+                <div className="flex items-start justify-between gap-3 rounded-xl border border-white/10 p-6">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl text-brand-300">
                       {activeProfile === 'stripe_connect' ? <Globe className="h-5 w-5" /> : <Wallet className="h-5 w-5" />}
@@ -1115,7 +1115,7 @@ export default function PayoutsPageNew({
 
                 {/* Step 1 — Payout method */}
                 {editStep === 'method' && (
-                  <div className="rounded-xl border border-white/10 shadow-sm">
+                  <div className="rounded-xl border border-white/10">
                     <div className="p-6">
                       <h2 className="mb-4 text-lg font-semibold text-white">Payout method</h2>
 
@@ -1257,7 +1257,7 @@ export default function PayoutsPageNew({
 
                 {/* Step 2 — Verify */}
                 {editStep === 'verify' && (
-                  <div className="rounded-xl border border-white/10 shadow-sm">
+                  <div className="rounded-xl border border-white/10">
                     <div className="p-6">
                       <div id="verify-payouts" />
                       <h2 className="text-lg font-semibold text-white">Verify payouts</h2>
@@ -1401,7 +1401,7 @@ export default function PayoutsPageNew({
 
                 {/* Step 3 — Done */}
                 {editStep === 'done' && (
-                  <div className="rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 p-8 text-center">
+                  <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-8 text-center">
                     <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl ">
                       <CheckCircle className="h-7 w-7 text-emerald-300" />
                     </div>
@@ -1418,7 +1418,7 @@ export default function PayoutsPageNew({
             <>
             <div className="contents">
             {/* Payout Profile Selector */}
-            <div className="order-1 bg-[#0a0a0a] rounded-xl  shadow-sm overflow-hidden">
+            <div className="order-1 bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden">
               <div className="p-6">
                 <h2 className="text-lg font-semibold text-white mb-2">Payout profile</h2>
                 <p className="text-sm text-white/60 mb-4">
@@ -1483,7 +1483,7 @@ export default function PayoutsPageNew({
             </div>
 
             {/* Verification Card */}
-            <div className="order-3 bg-[#0a0a0a] rounded-xl  shadow-sm overflow-hidden">
+            <div className="order-3 bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden">
               <div className="p-6">
                 <div id="verify-payouts" />
                 <h2 className="text-lg font-semibold text-white">Verify payouts</h2>
@@ -1812,7 +1812,7 @@ export default function PayoutsPageNew({
             </div>
             
             {/* Payout Setup Card */}
-            <div className="order-2 bg-[#0a0a0a] rounded-xl  shadow-sm overflow-hidden">
+            <div className="order-2 bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden">
               <div className="p-6">
                 <h2 className="text-lg font-semibold text-white mb-4">
                   Payout setup
@@ -2232,7 +2232,7 @@ export default function PayoutsPageNew({
           <div className="lg:col-span-2 space-y-6">
             
             {/* Earnings by Event Card */}
-            <div className="bg-[#0a0a0a] rounded-xl  shadow-sm overflow-hidden">
+            <div className="bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden">
               <div className="p-6 border-b border-white/10">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-white">
@@ -2360,7 +2360,7 @@ export default function PayoutsPageNew({
             </div>
 
             {/* Payouts Summary Card */}
-            <div className="bg-[#0a0a0a] rounded-xl  shadow-sm overflow-hidden">
+            <div className="bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden">
               <div className="p-6">
                 <h2 className="text-lg font-semibold text-white mb-4">
                   Payouts

@@ -125,7 +125,7 @@ export default function SettingsContent({
         {/* Profile */}
         <Link
           href="/organizer/settings/profile"
-          className="block bg-[#0a0a0a] rounded-xl  p-4 hover:border-brand-300 hover:shadow-sm transition-all"
+          className="block bg-[#0a0a0a] rounded-xl  p-4 hover:border-brand-300 transition-all"
         >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -142,7 +142,7 @@ export default function SettingsContent({
         {/* Organization/Brand */}
         <Link
           href="/organizer/settings/organization"
-          className="block bg-[#0a0a0a] rounded-xl  p-4 hover:border-brand-300 hover:shadow-sm transition-all"
+          className="block bg-[#0a0a0a] rounded-xl  p-4 hover:border-brand-300 transition-all"
         >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -159,7 +159,7 @@ export default function SettingsContent({
         {/* Event Defaults */}
         <Link
           href="/organizer/settings/defaults"
-          className="block bg-[#0a0a0a] rounded-xl  p-4 hover:border-brand-300 hover:shadow-sm transition-all"
+          className="block bg-[#0a0a0a] rounded-xl  p-4 hover:border-brand-300 transition-all"
         >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -176,7 +176,7 @@ export default function SettingsContent({
         {/* Payments & Payouts */}
         <Link
           href="/organizer/settings/payouts"
-          className="block bg-[#0a0a0a] rounded-xl  p-4 hover:border-brand-300 hover:shadow-sm transition-all"
+          className="block bg-[#0a0a0a] rounded-xl  p-4 hover:border-brand-300 transition-all"
         >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -193,7 +193,7 @@ export default function SettingsContent({
         {/* Verification */}
         <Link
           href="/organizer/verify"
-          className="block bg-[#0a0a0a] rounded-xl  p-4 hover:border-brand-300 hover:shadow-sm transition-all"
+          className="block bg-[#0a0a0a] rounded-xl  p-4 hover:border-brand-300 transition-all"
         >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -217,7 +217,7 @@ export default function SettingsContent({
         {/* Team & Permissions */}
         <Link
           href="/organizer/settings/team"
-          className="block bg-[#0a0a0a] rounded-xl  p-4 hover:border-brand-300 hover:shadow-sm transition-all"
+          className="block bg-[#0a0a0a] rounded-xl  p-4 hover:border-brand-300 transition-all"
         >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -234,7 +234,7 @@ export default function SettingsContent({
         {/* Notifications */}
         <Link
           href="/organizer/settings/notifications"
-          className="block bg-[#0a0a0a] rounded-xl  p-4 hover:border-brand-300 hover:shadow-sm transition-all"
+          className="block bg-[#0a0a0a] rounded-xl  p-4 hover:border-brand-300 transition-all"
         >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -251,7 +251,7 @@ export default function SettingsContent({
         {/* Security */}
         <Link
           href="/organizer/settings/security"
-          className="block bg-[#0a0a0a] rounded-xl  p-4 hover:border-brand-300 hover:shadow-sm transition-all"
+          className="block bg-[#0a0a0a] rounded-xl  p-4 hover:border-brand-300 transition-all"
         >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -268,7 +268,7 @@ export default function SettingsContent({
         {/* Danger Zone */}
         <Link
           href="/organizer/settings/danger-zone"
-          className="block bg-[#0a0a0a] rounded-xl border border-red-500/30 p-4 hover:border-red-300 hover:shadow-sm transition-all"
+          className="block bg-[#0a0a0a] rounded-xl border border-red-500/30 p-4 hover:border-red-300 transition-all"
         >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">

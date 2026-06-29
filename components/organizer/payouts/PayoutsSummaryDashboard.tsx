@@ -72,28 +72,28 @@ export default function PayoutsSummaryDashboard({
   const statusHero = {
     none: {
       icon: <Wallet className="h-7 w-7" />,
-      ring: 'from-brand-500/15 to-brand-600/10 border-brand-500/30',
+      ring: 'bg-brand-500/10 border-brand-500/30',
       chip: 'text-brand-300',
       title: 'Set up payouts to get paid',
       description: 'Add a payout method to start receiving earnings from your ticket sales. It only takes a few minutes.',
     },
     active: {
       icon: <CheckCircle className="h-7 w-7" />,
-      ring: 'from-emerald-500/15 to-emerald-600/10 border-emerald-500/30',
+      ring: 'bg-emerald-500/10 border-emerald-500/30',
       chip: 'text-emerald-300',
       title: 'Your payouts are ready',
       description: 'Your payout method is set up and verified. Earnings are paid out according to your schedule.',
     },
     pending: {
       icon: <Clock className="h-7 w-7" />,
-      ring: 'from-amber-500/15 to-amber-600/10 border-amber-500/30',
+      ring: 'bg-amber-500/10 border-amber-500/30',
       chip: 'text-amber-300',
       title: 'Verification in progress',
       description: 'We’re reviewing your payout details. This usually takes 1–2 business days — we’ll notify you once it’s approved.',
     },
     needs_attention: {
       icon: <AlertCircle className="h-7 w-7" />,
-      ring: 'from-red-500/15 to-red-600/10 border-red-500/30',
+      ring: 'bg-red-500/10 border-red-500/30',
       chip: 'text-red-300',
       title: 'Action needed on your payouts',
       description: 'One of your payout methods needs attention before you can receive funds. Open it below to resolve.',
@@ -134,7 +134,7 @@ export default function PayoutsSummaryDashboard({
     return (
       <div 
         key={profile}
-        className="bg-[#0a0a0a] rounded-xl  p-5 hover:shadow-md transition-shadow"
+        className="bg-[#0a0a0a] rounded-xl border border-white/10 p-5 transition-colors"
       >
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -182,7 +182,7 @@ export default function PayoutsSummaryDashboard({
   return (
     <div className="space-y-6">
       {/* Account status — accurate, derived from configured methods */}
-      <div className={`rounded-2xl border bg-gradient-to-br ${statusHero.ring} p-5 sm:p-6`}>
+      <div className={`rounded-2xl border ${statusHero.ring} p-5 sm:p-6`}>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-4">
             <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl ${statusHero.chip}`}>

@@ -79,7 +79,7 @@ export default async function PayoutFeesPage() {
         <div className="space-y-6">
           
           {/* Platform Fee Card */}
-          <div className="bg-[#0a0a0a] rounded-xl  shadow-sm p-6">
+          <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-6">
             <h2 className="text-lg font-semibold text-white mb-3">
               Platform fee
             </h2>
@@ -97,7 +97,7 @@ export default async function PayoutFeesPage() {
           </div>
 
           {/* Processing Fee Card */}
-          <div className="bg-[#0a0a0a] rounded-xl  shadow-sm p-6">
+          <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-6">
             <h2 className="text-lg font-semibold text-white mb-3">
               Payment processing fee
             </h2>
@@ -121,7 +121,7 @@ export default async function PayoutFeesPage() {
           </div>
 
           {/* Payout Schedule Card */}
-          <div className="bg-[#0a0a0a] rounded-xl  shadow-sm p-6">
+          <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-6">
             <h2 className="text-lg font-semibold text-white mb-3">
               Payout schedule
             </h2>
@@ -149,12 +149,12 @@ export default async function PayoutFeesPage() {
           </div>
 
           {/* Example Calculation Card */}
-          <div className="bg-[#0a0a0a] rounded-xl  shadow-sm p-6">
+          <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-6">
             <h2 className="text-lg font-semibold text-white mb-3">
               Example calculation
             </h2>
             <div className="space-y-3">
-              <div className="bg-[#0a0a0a] rounded-lg p-4 font-mono text-sm">
+              <div className="bg-[#0a0a0a] rounded-lg border border-white/10 p-4 font-mono text-sm">
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-white/60">Ticket price:</span>
@@ -192,7 +192,7 @@ export default async function PayoutFeesPage() {
           </div>
 
           {/* Refunds Note Card */}
-          <div className="bg-[#0a0a0a] rounded-xl  shadow-sm p-6">
+          <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-6">
             <h2 className="text-lg font-semibold text-white mb-3">
               Refunds
             </h2>

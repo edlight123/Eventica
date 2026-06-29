@@ -261,7 +261,7 @@ export default function PayoutsSetupWizard({
   }
 
   return (
-    <div className="min-h-[80vh] bg-gradient-to-b from-white/5 to-white">
+    <div className="min-h-[80vh] bg-[#0a0a0a]">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         {currentStep !== 'welcome' && (
@@ -275,7 +275,7 @@ export default function PayoutsSetupWizard({
             </button>
 
             {/* Progress Bar */}
-            <div className="bg-[#0a0a0a] rounded-xl  p-4 shadow-sm">
+            <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-4">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-medium text-white">
                   Setting up payouts
@@ -535,7 +535,7 @@ export default function PayoutsSetupWizard({
 
             {isStripeLocation ? (
               <div className="bg-[#0a0a0a] rounded-xl p-6 mb-8 text-center">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[#0a0a0a] shadow-md flex items-center justify-center">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[#0a0a0a] border border-white/10 flex items-center justify-center">
                   <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none">
                     <path d="M13.976 9.15c-2.172-.806-3.234-1.354-3.234-2.31 0-.788.636-1.262 1.885-1.262 2.217 0 3.614.964 3.614.964l.667-2.524s-1.397-.89-4.238-.89c-2.888 0-4.822 1.567-4.822 3.8 0 1.973 1.419 3.178 3.586 3.938 1.85.66 2.634 1.18 2.634 2.094 0 .888-.67 1.433-1.948 1.433-2.218 0-4.08-1.18-4.08-1.18l-.69 2.547s1.866 1.28 4.72 1.28c3.044 0 4.93-1.504 4.93-3.908 0-2.016-1.51-3.17-3.024-3.982z" fill="#635BFF"/>
                   </svg>
@@ -703,8 +703,8 @@ export default function PayoutsSetupWizard({
         {currentStep === 'review' && (
           <div>
             <div className="text-center mb-8">
-              <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
-                <Check className="w-7 h-7 text-white" />
+              <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-green-500/10 flex items-center justify-center">
+                <Check className="w-7 h-7 text-green-400" />
               </div>
               <h2 className="text-2xl font-bold text-white mb-2">Review Your Setup</h2>
               <p className="text-white/60">Confirm your payout details before finishing</p>
