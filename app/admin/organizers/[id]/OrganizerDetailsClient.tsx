@@ -88,277 +88,235 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
   const canPost = user.can_create_events !== false
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
+    <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-6">
       {/* Breadcrumb */}
-      <div className="mb-3 sm:mb-4">
-        <Link href="/admin/organizers" className="text-brand-300 hover:text-brand-300 text-[13px] sm:text-sm font-medium">
+      <div className="mb-4">
+        <Link href="/admin/organizers" className="text-sm font-medium text-white/50 hover:text-white">
           ← Back to Organizers
         </Link>
       </div>
 
       {/* Message */}
       {message && (
-        <div className={`mb-5 p-3 rounded-lg text-sm ${message.type === 'success' ? 'text-emerald-300' : 'text-red-300'}`}>
+        <div className={`mb-5 text-sm ${message.type === 'success' ? 'text-emerald-300' : 'text-red-300'}`}>
           {message.text}
         </div>
       )}
 
       {/* Header */}
-      <div className="bg-[#0a0a0a] rounded-xl sm:rounded-2xl shadow-sm  p-4 sm:p-6 mb-5">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-          <div className="flex-1">
-            <h1 className="font-display text-[clamp(22px,3vw,30px)] leading-[1.06] text-white mb-1">
-              {user.full_name || 'No name'}
-            </h1>
-            <p className="text-sm text-white/50 mb-2">{user.email}</p>
-            <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 text-xs font-semibold rounded-full text-brand-300">
-                {user.role}
-              </span>
-              {user.verification_status === 'approved' && (
-                <span className="px-3 py-1 text-xs font-semibold rounded-full text-emerald-300">
-                  ✓ Verified
-                </span>
-              )}
-              {isBanned && (
-                <span className="px-3 py-1 text-xs font-semibold rounded-full text-red-300">
-                  ✕ Banned
-                </span>
-              )}
-              {!canPost && (
-                <span className="px-3 py-1 text-xs font-semibold rounded-full text-amber-300">
-                  ⚠ Posting Disabled
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="flex flex-col gap-2 sm:min-w-[200px]">
-            {isBanned ? (
-              <button
-                onClick={() => handleToggleStatus('unban')}
-                disabled={isUpdating}
-                className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors disabled:opacity-50"
-              >
-                Unban Organizer
-              </button>
-            ) : (
-              <button
-                onClick={() => handleToggleStatus('ban')}
-                disabled={isUpdating}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors disabled:opacity-50"
-              >
-                Ban Organizer
-              </button>
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 flex-1">
+          <h1 className="font-display text-[clamp(22px,3vw,30px)] leading-[1.06] text-white">
+            {user.full_name || 'No name'}
+          </h1>
+          <p className="mt-1 text-sm text-white/50">{user.email}</p>
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold">
+            <span className="text-brand-300">{user.role}</span>
+            {user.verification_status === 'approved' && (
+              <span className="text-emerald-300">✓ Verified</span>
             )}
-            
-            {canPost ? (
-              <button
-                onClick={() => handleToggleStatus('disable_posting')}
-                disabled={isUpdating}
-                className="px-4 py-2 text-sm font-medium text-white/70 bg-[#0a0a0a] border border-white/15 hover:bg-white/[0.04] rounded-lg transition-colors disabled:opacity-50"
-              >
-                Disable Event Posting
-              </button>
-            ) : (
-              <button
-                onClick={() => handleToggleStatus('enable_posting')}
-                disabled={isUpdating}
-                className="px-4 py-2 text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-lg transition-colors disabled:opacity-50"
-              >
-                Enable Event Posting
-              </button>
+            {isBanned && (
+              <span className="text-red-300">✕ Banned</span>
+            )}
+            {!canPost && (
+              <span className="text-amber-300">⚠ Posting Disabled</span>
             )}
           </div>
         </div>
-      </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-6">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg">
-              <svg className="w-6 h-6 text-brand-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-sm text-white/60">Total Events</p>
-              <p className="text-2xl font-bold text-white">{stats.totalEvents}</p>
-            </div>
-          </div>
-        </div>
+        {/* Quick Actions */}
+        <div className="flex flex-col gap-2 sm:min-w-[200px]">
+          {isBanned ? (
+            <button
+              onClick={() => handleToggleStatus('unban')}
+              disabled={isUpdating}
+              className="rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
+            >
+              Unban Organizer
+            </button>
+          ) : (
+            <button
+              onClick={() => handleToggleStatus('ban')}
+              disabled={isUpdating}
+              className="rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+            >
+              Ban Organizer
+            </button>
+          )}
 
-        <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-6">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg">
-              <svg className="w-6 h-6 text-emerald-300" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-sm text-white/60">Published Events</p>
-              <p className="text-2xl font-bold text-white">{stats.publishedEvents}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-6">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg">
-              <svg className="w-6 h-6 text-brand-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-sm text-white/60">Tickets Sold</p>
-              <p className="text-2xl font-bold text-white">{stats.ticketsSold}</p>
-            </div>
-          </div>
+          {canPost ? (
+            <button
+              onClick={() => handleToggleStatus('disable_posting')}
+              disabled={isUpdating}
+              className="rounded-lg border border-white/10 px-4 py-2.5 text-sm font-semibold text-white/70 hover:bg-white/[0.04] disabled:opacity-50"
+            >
+              Disable Event Posting
+            </button>
+          ) : (
+            <button
+              onClick={() => handleToggleStatus('enable_posting')}
+              disabled={isUpdating}
+              className="rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
+            >
+              Enable Event Posting
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Stats Strip */}
+      <div className="mb-6 grid grid-cols-3 divide-x divide-white/10 overflow-hidden rounded-xl border border-white/10">
+        <div className="p-4">
+          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/40">
+            <svg className="h-3.5 w-3.5 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Total Events
+          </div>
+          <div className="mt-1 text-2xl font-bold tabular-nums text-white">{stats.totalEvents}</div>
+        </div>
+
+        <div className="p-4">
+          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/40">
+            <svg className="h-3.5 w-3.5 text-white/30" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+            </svg>
+            Published Events
+          </div>
+          <div className="mt-1 text-2xl font-bold tabular-nums text-white">{stats.publishedEvents}</div>
+        </div>
+
+        <div className="p-4">
+          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/40">
+            <svg className="h-3.5 w-3.5 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+            </svg>
+            Tickets Sold
+          </div>
+          <div className="mt-1 text-2xl font-bold tabular-nums text-white">{stats.ticketsSold}</div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Account Information */}
-        <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-6">
-          <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="rounded-lg border border-white/10 p-4 sm:p-5">
+          <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-white">
+            <svg className="h-4 w-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
             Account Information
           </h2>
           <dl className="space-y-3">
             <div>
-              <dt className="text-sm font-medium text-white/50">User ID</dt>
-              <dd className="text-sm text-white font-mono">{id}</dd>
+              <dt className="text-xs text-white/45">User ID</dt>
+              <dd className="text-sm text-white font-mono break-all">{id}</dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-white/50">Phone</dt>
+              <dt className="text-xs text-white/45">Phone</dt>
               <dd className="text-sm text-white">{user.phone_number || 'Not provided'}</dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-white/50">Account Status</dt>
-              <dd className="text-sm">
-                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                  isBanned ? 'text-red-300' : 'text-emerald-300'
-                }`}>
-                  {isBanned ? 'Banned' : 'Active'}
-                </span>
+              <dt className="text-xs text-white/45">Account Status</dt>
+              <dd className={`text-sm font-semibold ${isBanned ? 'text-red-300' : 'text-emerald-300'}`}>
+                {isBanned ? 'Banned' : 'Active'}
               </dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-white/50">Can Create Events</dt>
-              <dd className="text-sm">
-                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                  canPost ? 'text-emerald-300' : 'text-red-300'
-                }`}>
-                  {canPost ? 'Yes' : 'No'}
-                </span>
+              <dt className="text-xs text-white/45">Can Create Events</dt>
+              <dd className={`text-sm font-semibold ${canPost ? 'text-emerald-300' : 'text-red-300'}`}>
+                {canPost ? 'Yes' : 'No'}
               </dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-white/50">Joined</dt>
-              <dd className="text-sm text-white">
-                {formatDate(user.created_at)}
-              </dd>
+              <dt className="text-xs text-white/45">Joined</dt>
+              <dd className="text-sm text-white">{formatDate(user.created_at)}</dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-white/50">Last Updated</dt>
-              <dd className="text-sm text-white">
-                {formatDate(user.updated_at)}
-              </dd>
+              <dt className="text-xs text-white/45">Last Updated</dt>
+              <dd className="text-sm text-white">{formatDate(user.updated_at)}</dd>
             </div>
           </dl>
         </div>
 
         {/* Bank Account & Verification */}
-        <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-6">
-          <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="rounded-lg border border-white/10 p-4 sm:p-5">
+          <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-white">
+            <svg className="h-4 w-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             Bank Account & Payouts
           </h2>
-          
+
           {(payoutConfig || (payoutDestinations && payoutDestinations.length > 0)) ? (
             <div className="space-y-4">
               {/* All Payout Destinations (Multiple Bank Accounts) */}
               {payoutDestinations && payoutDestinations.length > 0 && (
                 <div className="space-y-3">
-                  <p className="text-sm font-medium text-white/70">
+                  <p className="text-xs text-white/45">
                     Payout Destinations ({payoutDestinations.length})
                   </p>
                   {payoutDestinations.map((dest, index) => (
-                    <div key={dest.id || index} className="p-4 bg-[#0a0a0a] rounded-lg border-l-4 border-brand-500">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
-                            dest.type === 'bank' ? 'text-brand-300' :
-                            dest.type === 'mobile_money' ? 'bg-[#0a0a0a] text-white/90' :
-                            'bg-[#0a0a0a] text-white/90'
-                          }`}>
-                            {safeString(dest.type || 'bank').replace(/_/g, ' ')}
+                    <div key={dest.id || index} className="rounded-lg border border-white/10 p-4">
+                      <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold">
+                        <span className="text-white/70">
+                          {safeString(dest.type || 'bank').replace(/_/g, ' ')}
+                        </span>
+                        {(dest.isPrimary || dest.isDefault) && (
+                          <span className="text-emerald-300">Primary</span>
+                        )}
+                        {dest.status && (
+                          <span className={
+                            dest.status === 'active' || dest.status === 'verified' ? 'text-emerald-300' :
+                            dest.status === 'pending' ? 'text-amber-300' :
+                            'text-red-300'
+                          }>
+                            {safeString(dest.status)}
                           </span>
-                          {(dest.isPrimary || dest.isDefault) && (
-                            <span className="px-2 py-0.5 text-xs font-semibold rounded-full text-emerald-300">
-                              Primary
-                            </span>
-                          )}
-                          {dest.status && (
-                            <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
-                              dest.status === 'active' || dest.status === 'verified' ? 'text-emerald-300' :
-                              dest.status === 'pending' ? 'text-amber-300' :
-                              'text-red-300'
-                            }`}>
-                              {safeString(dest.status)}
-                            </span>
-                          )}
-                        </div>
+                        )}
                       </div>
-                      
+
                       <dl className="space-y-1 text-sm">
                         {(dest.accountName || dest.bankDetails?.accountName) && (
-                          <div className="flex justify-between">
-                            <dt className="text-white/50">Account Name</dt>
+                          <div className="flex justify-between gap-3">
+                            <dt className="text-white/45">Account Name</dt>
                             <dd className="text-white font-medium">{safeString(dest.accountName || dest.bankDetails?.accountName)}</dd>
                           </div>
                         )}
                         {(dest.bankName || dest.bankDetails?.bankName) && (
-                          <div className="flex justify-between">
-                            <dt className="text-white/50">Bank</dt>
+                          <div className="flex justify-between gap-3">
+                            <dt className="text-white/45">Bank</dt>
                             <dd className="text-white capitalize">{safeString(dest.bankName || dest.bankDetails?.bankName)}</dd>
                           </div>
                         )}
                         {(dest.accountNumberLast4 || dest.accountNumber || dest.bankDetails?.accountNumberLast4 || dest.bankDetails?.accountNumber) && (
-                          <div className="flex justify-between">
-                            <dt className="text-white/50">Account #</dt>
+                          <div className="flex justify-between gap-3">
+                            <dt className="text-white/45">Account #</dt>
                             <dd className="text-white font-mono">
                               ****{safeString(dest.accountNumberLast4 || dest.bankDetails?.accountNumberLast4 || dest.accountNumber || dest.bankDetails?.accountNumber)}
                             </dd>
                           </div>
                         )}
                         {(dest.routingNumber || dest.bankDetails?.routingNumber) && (
-                          <div className="flex justify-between">
-                            <dt className="text-white/50">Routing #</dt>
+                          <div className="flex justify-between gap-3">
+                            <dt className="text-white/45">Routing #</dt>
                             <dd className="text-white font-mono">{safeString(dest.routingNumber || dest.bankDetails?.routingNumber)}</dd>
                           </div>
                         )}
                         {(dest.accountLocation || dest.bankDetails?.accountLocation) && (
-                          <div className="flex justify-between">
-                            <dt className="text-white/50">Location</dt>
+                          <div className="flex justify-between gap-3">
+                            <dt className="text-white/45">Location</dt>
                             <dd className="text-white capitalize">{safeString(dest.accountLocation || dest.bankDetails?.accountLocation)}</dd>
                           </div>
                         )}
                         {(dest.provider || dest.mobileMoneyDetails?.provider) && (
-                          <div className="flex justify-between">
-                            <dt className="text-white/50">Provider</dt>
+                          <div className="flex justify-between gap-3">
+                            <dt className="text-white/45">Provider</dt>
                             <dd className="text-white">{safeString(dest.provider || dest.mobileMoneyDetails?.provider)}</dd>
                           </div>
                         )}
                         {(dest.phoneNumber || dest.mobileMoneyDetails?.phoneNumber) && (
-                          <div className="flex justify-between">
-                            <dt className="text-white/50">Phone</dt>
+                          <div className="flex justify-between gap-3">
+                            <dt className="text-white/45">Phone</dt>
                             <dd className="text-white font-mono">{safeString(dest.phoneNumber || dest.mobileMoneyDetails?.phoneNumber)}</dd>
                           </div>
                         )}
@@ -370,37 +328,35 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
 
               {/* Legacy Bank Details from payoutConfig */}
               {payoutConfig?.bankDetails && !payoutDestinations?.length && (
-                <div className="p-4 bg-[#0a0a0a] rounded-lg">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-white">
-                        {safeString(payoutConfig.bankDetails?.accountName, 'N/A')}
-                      </p>
-                      <p className="text-xs text-white/50 mt-1">Account Holder</p>
-                    </div>
+                <div className="rounded-lg border border-white/10 p-4">
+                  <div className="mb-3">
+                    <p className="text-sm font-medium text-white">
+                      {safeString(payoutConfig.bankDetails?.accountName, 'N/A')}
+                    </p>
+                    <p className="mt-1 text-xs text-white/45">Account Holder</p>
                   </div>
-                  
+
                   <dl className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <dt className="text-white/50">Bank</dt>
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-white/45">Bank</dt>
                       <dd className="text-white font-medium">{safeString(payoutConfig.bankDetails?.bankName, 'N/A')}</dd>
                     </div>
-                    <div className="flex justify-between">
-                      <dt className="text-white/50">Account Number</dt>
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-white/45">Account Number</dt>
                       <dd className="text-white font-mono">
-                        {typeof payoutConfig.bankDetails?.accountNumber === 'string' && payoutConfig.bankDetails.accountNumber 
+                        {typeof payoutConfig.bankDetails?.accountNumber === 'string' && payoutConfig.bankDetails.accountNumber
                           ? payoutConfig.bankDetails.accountNumber
                           : 'N/A'}
                       </dd>
                     </div>
                     {payoutConfig.bankDetails?.routingNumber && (
-                      <div className="flex justify-between">
-                        <dt className="text-white/50">Routing Number</dt>
+                      <div className="flex justify-between gap-3">
+                        <dt className="text-white/45">Routing Number</dt>
                         <dd className="text-white font-mono">{safeString(payoutConfig.bankDetails.routingNumber)}</dd>
                       </div>
                     )}
-                    <div className="flex justify-between">
-                      <dt className="text-white/50">Location</dt>
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-white/45">Location</dt>
                       <dd className="text-white">{safeString(payoutConfig.accountLocation || payoutConfig.bankDetails?.accountLocation, 'N/A')}</dd>
                     </div>
                   </dl>
@@ -409,20 +365,20 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
 
               {/* Verification Status */}
               {payoutConfig.verificationStatus && typeof payoutConfig.verificationStatus === 'object' && (
-                <div className="p-4 bg-[#0a0a0a] rounded-lg">
-                  <p className="text-sm font-medium text-white mb-3">Verification Status</p>
-                  <div className="flex flex-wrap gap-2">
+                <div className="rounded-lg border border-white/10 p-4">
+                  <p className="mb-3 text-sm font-medium text-white">Verification Status</p>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs font-semibold">
                     {['identity', 'bank', 'phone'].map((type) => {
                       const status = payoutConfig.verificationStatus?.[type]
                       if (!status) return null
                       return (
                         <span
                           key={type}
-                          className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                          className={
                             status === 'verified' ? 'text-emerald-300' :
                             status === 'failed' ? 'text-red-300' :
                             'text-amber-300'
-                          }`}
+                          }
                         >
                           {type}: {status}
                         </span>
@@ -433,41 +389,41 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
               )}
 
               {/* Payout Status */}
-              <div className="p-4 bg-[#0a0a0a] rounded-lg">
-                <div className="flex justify-between items-center">
+              <div className="rounded-lg border border-white/10 p-4">
+                <div className="flex items-center justify-between gap-3">
                   <p className="text-sm font-medium text-white">Payout Status</p>
-                  <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                  <span className={`text-xs font-semibold ${
                     payoutConfig.status === 'active' ? 'text-emerald-300' :
                     payoutConfig.status === 'pending_verification' ? 'text-amber-300' :
                     payoutConfig.status === 'on_hold' ? 'text-red-300' :
-                    'bg-[#0a0a0a] text-white/90'
+                    'text-white/70'
                   }`}>
                     {safeString(payoutConfig.status, 'not_setup').replace(/_/g, ' ')}
                   </span>
                 </div>
                 {payoutConfig.method && (
-                  <p className="text-xs text-white/50 mt-1">Method: {safeString(payoutConfig.method).replace(/_/g, ' ')}</p>
+                  <p className="mt-1 text-xs text-white/45">Method: {safeString(payoutConfig.method).replace(/_/g, ' ')}</p>
                 )}
                 {payoutConfig.payoutProvider && (
-                  <p className="text-xs text-white/50">Provider: {safeString(payoutConfig.payoutProvider).replace(/_/g, ' ')}</p>
+                  <p className="text-xs text-white/45">Provider: {safeString(payoutConfig.payoutProvider).replace(/_/g, ' ')}</p>
                 )}
               </div>
 
               {/* Mobile Money Details */}
               {payoutConfig.mobileMoneyDetails && (
-                <div className="p-4 bg-[#0a0a0a] rounded-lg">
-                  <p className="text-sm font-medium text-white mb-2">Mobile Money</p>
+                <div className="rounded-lg border border-white/10 p-4">
+                  <p className="mb-2 text-sm font-medium text-white">Mobile Money</p>
                   <dl className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <dt className="text-white/50">Provider</dt>
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-white/45">Provider</dt>
                       <dd className="text-white">{safeString(payoutConfig.mobileMoneyDetails.provider)}</dd>
                     </div>
-                    <div className="flex justify-between">
-                      <dt className="text-white/50">Phone</dt>
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-white/45">Phone</dt>
                       <dd className="text-white font-mono">{safeString(payoutConfig.mobileMoneyDetails.phoneNumber)}</dd>
                     </div>
-                    <div className="flex justify-between">
-                      <dt className="text-white/50">Account Name</dt>
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-white/45">Account Name</dt>
                       <dd className="text-white">{safeString(payoutConfig.mobileMoneyDetails.accountName)}</dd>
                     </div>
                   </dl>
@@ -476,7 +432,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
 
               {/* Timestamps */}
               {(payoutConfig.createdAt || payoutConfig.updatedAt) && (
-                <div className="text-xs text-white/50 space-y-1">
+                <div className="space-y-1 text-xs text-white/45">
                   {payoutConfig.createdAt && (
                     <p>Created: {formatDate(payoutConfig.createdAt)}</p>
                   )}
@@ -487,73 +443,71 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
               )}
             </div>
           ) : (
-            <div className="text-center py-8">
-              <svg className="w-12 h-12 text-white/50 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="py-8 text-center">
+              <svg className="mx-auto mb-2 h-10 w-10 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <p className="text-sm text-white/50">No payout configuration</p>
+              <p className="text-sm text-white/45">No payout configuration</p>
             </div>
           )}
         </div>
 
         {/* Verification Request */}
         {verificationRequest && (
-          <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-6">
-            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="rounded-lg border border-white/10 p-4 sm:p-5">
+            <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-white">
+              <svg className="h-4 w-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               Verification Request
             </h2>
-            
+
             <dl className="space-y-3">
               <div>
-                <dt className="text-sm font-medium text-white/50">Status</dt>
-                <dd className="text-sm mt-1">
-                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                    safeString(verificationRequest.status) === 'approved' ? 'text-emerald-300' :
-                    safeString(verificationRequest.status) === 'rejected' ? 'text-red-300' :
-                    'text-amber-300'
-                  }`}>
-                    {safeString(verificationRequest.status, 'pending')}
-                  </span>
+                <dt className="text-xs text-white/45">Status</dt>
+                <dd className={`mt-1 text-sm font-semibold ${
+                  safeString(verificationRequest.status) === 'approved' ? 'text-emerald-300' :
+                  safeString(verificationRequest.status) === 'rejected' ? 'text-red-300' :
+                  'text-amber-300'
+                }`}>
+                  {safeString(verificationRequest.status, 'pending')}
                 </dd>
               </div>
-              
+
               {verificationRequest.business_name && typeof verificationRequest.business_name === 'string' && (
                 <div>
-                  <dt className="text-sm font-medium text-white/50">Business Name</dt>
+                  <dt className="text-xs text-white/45">Business Name</dt>
                   <dd className="text-sm text-white">{verificationRequest.business_name}</dd>
                 </div>
               )}
-              
+
               {verificationRequest.business_type && typeof verificationRequest.business_type === 'string' && (
                 <div>
-                  <dt className="text-sm font-medium text-white/50">Business Type</dt>
+                  <dt className="text-xs text-white/45">Business Type</dt>
                   <dd className="text-sm text-white">{verificationRequest.business_type}</dd>
                 </div>
               )}
-              
+
               <div>
-                <dt className="text-sm font-medium text-white/50">Submitted</dt>
+                <dt className="text-xs text-white/45">Submitted</dt>
                 <dd className="text-sm text-white">
                   {formatDate(verificationRequest.submitted_at || verificationRequest.createdAt)}
                 </dd>
               </div>
-              
+
               {verificationRequest.reviewed_at && (
                 <div>
-                  <dt className="text-sm font-medium text-white/50">Reviewed</dt>
+                  <dt className="text-xs text-white/45">Reviewed</dt>
                   <dd className="text-sm text-white">
                     {formatDate(verificationRequest.reviewed_at)}
                   </dd>
                 </div>
               )}
-              
+
               {verificationRequest.rejection_reason && typeof verificationRequest.rejection_reason === 'string' && (
                 <div>
-                  <dt className="text-sm font-medium text-white/50">Rejection Reason</dt>
-                  <dd className="text-sm text-red-300 p-2 rounded">
+                  <dt className="text-xs text-white/45">Rejection Reason</dt>
+                  <dd className="text-sm text-red-300">
                     {verificationRequest.rejection_reason}
                   </dd>
                 </div>
@@ -564,67 +518,60 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
 
         {/* Verification Documents */}
         {verificationDocs.length > 0 && (
-          <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-6">
-            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="rounded-lg border border-white/10 p-4 sm:p-5">
+            <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-white">
+              <svg className="h-4 w-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               Verification Documents ({verificationDocs.length})
             </h2>
-            
+
             <div className="space-y-3">
               {verificationDocs.map((doc) => {
                 const docType = doc.id || 'unknown'
                 const docTypeLabel = docType.charAt(0).toUpperCase() + docType.slice(1)
                 const status = typeof doc.status === 'string' ? doc.status : 'pending'
-                
+
                 return (
-                  <div key={doc.id} className="p-4 bg-[#0a0a0a] rounded-lg">
-                    <div className="flex items-center justify-between">
+                  <div key={doc.id} className="rounded-lg border border-white/10 p-4">
+                    <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                          docType === 'identity' ? '' :
-                          docType === 'bank' ? '' :
-                          docType === 'phone' ? 'bg-[#0a0a0a]' :
-                          'bg-[#0a0a0a]'
-                        }`}>
-                          {docType === 'identity' && (
-                            <svg className="w-5 h-5 text-brand-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
-                            </svg>
-                          )}
-                          {docType === 'bank' && (
-                            <svg className="w-5 h-5 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                            </svg>
-                          )}
-                          {docType === 'phone' && (
-                            <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                            </svg>
-                          )}
-                          {!['identity', 'bank', 'phone'].includes(docType) && (
-                            <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                          )}
-                        </div>
+                        {docType === 'identity' && (
+                          <svg className="h-5 w-5 text-brand-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                          </svg>
+                        )}
+                        {docType === 'bank' && (
+                          <svg className="h-5 w-5 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                          </svg>
+                        )}
+                        {docType === 'phone' && (
+                          <svg className="h-5 w-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                          </svg>
+                        )}
+                        {!['identity', 'bank', 'phone'].includes(docType) && (
+                          <svg className="h-5 w-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        )}
                         <div>
                           <p className="text-sm font-medium text-white">{docTypeLabel} Verification</p>
                           {doc.submittedAt && (
-                            <p className="text-xs text-white/50">
+                            <p className="text-xs text-white/45">
                               Submitted {formatDate(doc.submittedAt, false)}
                             </p>
                           )}
                           {doc.uploadedAt && !doc.submittedAt && (
-                            <p className="text-xs text-white/50">
+                            <p className="text-xs text-white/45">
                               Uploaded {formatDate(doc.uploadedAt, false)}
                             </p>
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                      <div className="flex items-center gap-3">
+                        <span className={`text-xs font-semibold ${
                           status === 'verified' || status === 'approved' ? 'text-emerald-300' :
                           status === 'rejected' || status === 'failed' ? 'text-red-300' :
                           'text-amber-300'
@@ -632,7 +579,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                           {status}
                         </span>
                         {(doc.url || doc.documentPath) && (
-                          <button 
+                          <button
                             onClick={async () => {
                               if (doc.url) {
                                 window.open(doc.url, '_blank')
@@ -646,7 +593,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                                 }
                               }
                             }}
-                            className="text-xs text-brand-300 hover:text-brand-300 font-medium"
+                            className="text-xs font-medium text-brand-300 hover:text-white"
                           >
                             View
                           </button>
@@ -662,39 +609,39 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
 
         {/* Organization Profile */}
         {organizer && (
-          <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-6 lg:col-span-2">
-            <h2 className="text-lg font-bold text-white mb-4">Organization Profile</h2>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="rounded-lg border border-white/10 p-4 sm:p-5 lg:col-span-2">
+            <h2 className="mb-4 text-base font-semibold text-white">Organization Profile</h2>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {organizer.organization_name && (
                 <div>
-                  <dt className="text-sm font-medium text-white/50">Organization Name</dt>
-                  <dd className="text-sm text-white mt-1">{organizer.organization_name}</dd>
+                  <dt className="text-xs text-white/45">Organization Name</dt>
+                  <dd className="mt-1 text-sm text-white">{organizer.organization_name}</dd>
                 </div>
               )}
-              
+
               {organizer.business_type && (
                 <div>
-                  <dt className="text-sm font-medium text-white/50">Business Type</dt>
-                  <dd className="text-sm text-white mt-1">{organizer.business_type}</dd>
+                  <dt className="text-xs text-white/45">Business Type</dt>
+                  <dd className="mt-1 text-sm text-white">{organizer.business_type}</dd>
                 </div>
               )}
-              
+
               {organizer.website && (
                 <div>
-                  <dt className="text-sm font-medium text-white/50">Website</dt>
-                  <dd className="text-sm text-white mt-1">
+                  <dt className="text-xs text-white/45">Website</dt>
+                  <dd className="mt-1 text-sm text-white">
                     <a href={organizer.website} target="_blank" rel="noopener noreferrer" className="text-brand-300 hover:underline">
                       {organizer.website}
                     </a>
                   </dd>
                 </div>
               )}
-              
+
               {organizer.description && (
                 <div className="sm:col-span-2">
-                  <dt className="text-sm font-medium text-white/50">Description</dt>
-                  <dd className="text-sm text-white mt-1">{organizer.description}</dd>
+                  <dt className="text-xs text-white/45">Description</dt>
+                  <dd className="mt-1 text-sm text-white">{organizer.description}</dd>
                 </div>
               )}
             </div>

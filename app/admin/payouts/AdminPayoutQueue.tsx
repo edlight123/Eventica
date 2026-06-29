@@ -240,7 +240,7 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-white/10">
-              <thead className="bg-[#0a0a0a]">
+              <thead>
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase">Organizer</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase">Amount</th>
@@ -251,7 +251,7 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
                   <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-[#0a0a0a] divide-y divide-white/10">
+              <tbody className="divide-y divide-white/10">
                 {payouts.map((payout) => (
                   <tr key={payout.id} className="hover:bg-white/[0.04]">
                     <td className="px-6 py-4">
@@ -273,22 +273,22 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
                     <td className="px-6 py-4 text-sm text-white/60">
                       {new Date(payout.scheduledDate).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 text-sm space-x-2">
+                    <td className="px-6 py-4 text-sm space-x-3">
                       <button
                         onClick={() => openModal(payout, 'approve')}
-                        className="text-emerald-300 hover:text-emerald-300 font-medium"
+                        className="font-medium text-emerald-300 hover:text-emerald-200"
                       >
                         Approve
                       </button>
                       <button
                         onClick={() => openModal(payout, 'mark-paid')}
-                        className="text-brand-300 hover:text-brand-300 font-medium"
+                        className="font-medium text-brand-300 hover:text-brand-200"
                       >
                         Mark Paid
                       </button>
                       <button
                         onClick={() => openModal(payout, 'decline')}
-                        className="text-red-300 hover:text-red-300 font-medium"
+                        className="font-medium text-red-300 hover:text-red-200"
                       >
                         Decline
                       </button>
@@ -303,29 +303,32 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
 
       {/* Modal */}
       {showModal && selectedPayout && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-[#0a0a0a] rounded-lg max-w-2xl w-full p-6 my-8">
-            <h3 className="text-lg font-semibold text-white mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/70 p-4">
+          <div className="my-8 w-full max-w-2xl rounded-xl border border-white/10 bg-[#0a0a0a] p-6">
+            <h3 className="mb-4 text-lg font-semibold text-white">
               {modalMode === 'approve' && 'Approve Payout'}
               {modalMode === 'decline' && 'Decline Payout'}
               {modalMode === 'mark-paid' && 'Mark Payout as Paid'}
             </h3>
 
             {error && (
-              <div className="mb-4 border border-red-500/30 rounded p-3">
+              <div className="mb-4 rounded-lg border border-red-500/40 p-3">
                 <p className="text-sm text-red-300">{error}</p>
               </div>
             )}
 
-            <div className="space-y-3 mb-6">
+            <div className="mb-6 space-y-3 rounded-lg border border-white/10 p-4 text-sm text-white/70">
               <div>
-                <span className="font-medium">Organizer:</span> {selectedPayout.organizer.name}
+                <span className="font-medium text-white/50">Organizer:</span>{' '}
+                <span className="text-white">{selectedPayout.organizer.name}</span>
               </div>
               <div>
-                <span className="font-medium">Amount:</span> {formatCurrency(selectedPayout.amount, selectedPayout.currency)}
+                <span className="font-medium text-white/50">Amount:</span>{' '}
+                <span className="tabular-nums text-white">{formatCurrency(selectedPayout.amount, selectedPayout.currency)}</span>
               </div>
               <div>
-                <span className="font-medium">Method:</span> {selectedPayout.method === 'mobile_money' ? 'MonCash/Natcash' : 'Bank Transfer'}
+                <span className="font-medium text-white/50">Method:</span>{' '}
+                <span className="text-white">{selectedPayout.method === 'mobile_money' ? 'MonCash/Natcash' : 'Bank Transfer'}</span>
               </div>
             </div>
 
@@ -338,7 +341,7 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
                   value={declineReason}
                   onChange={(e) => setDeclineReason(e.target.value)}
                   rows={3}
-                  className="w-full border border-white/15 rounded-lg px-3 py-2"
+                  className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2 text-white placeholder:text-white/30 focus:border-white/20 focus:outline-none"
                   placeholder="Explain why this payout is being declined..."
                 />
               </div>
@@ -354,7 +357,7 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
                     type="text"
                     value={paymentRef}
                     onChange={(e) => setPaymentRef(e.target.value)}
-                    className="w-full border border-white/15 rounded-lg px-3 py-2"
+                    className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2 text-white placeholder:text-white/30 focus:border-white/20 focus:outline-none"
                     placeholder="Bank transaction ID or MonCash reference"
                   />
                 </div>
@@ -366,7 +369,7 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
                     value={paymentNotes}
                     onChange={(e) => setPaymentNotes(e.target.value)}
                     rows={2}
-                    className="w-full border border-white/15 rounded-lg px-3 py-2"
+                    className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2 text-white placeholder:text-white/30 focus:border-white/20 focus:outline-none"
                     placeholder="Additional notes about this payment..."
                   />
                 </div>
@@ -386,7 +389,7 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
               <button
                 onClick={closeModal}
                 disabled={isProcessing}
-                className="flex-1 px-4 py-2 border border-white/15 rounded-lg hover:bg-white/[0.04]"
+                className="flex-1 rounded-lg border border-white/10 px-4 py-2 text-white/70 transition-colors hover:bg-white/[0.04] hover:text-white"
               >
                 Cancel
               </button>
@@ -397,10 +400,10 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
                   else handleMarkPaid()
                 }}
                 disabled={isProcessing}
-                className={`flex-1 px-4 py-2 rounded-lg text-white font-medium ${
+                className={`flex-1 rounded-lg px-4 py-2 font-medium text-white transition-colors disabled:opacity-50 ${
                   modalMode === 'decline'
                     ? 'bg-red-600 hover:bg-red-700'
-                    : 'bg-brand-700 hover:bg-brand-800'
+                    : 'bg-brand-600 hover:bg-brand-700'
                 }`}
               >
                 {isProcessing ? 'Processing...' : modalMode === 'approve' ? 'Approve' : modalMode === 'decline' ? 'Decline' : 'Mark Paid'}
