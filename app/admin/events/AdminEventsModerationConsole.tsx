@@ -1,8 +1,6 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
 import { AdminEventsTopBar } from '@/components/admin/events/AdminEventsTopBar'
 import { AdminEventsFilters } from '@/components/admin/events/AdminEventsFilters'
 import { AdminEventsTabs } from '@/components/admin/events/AdminEventsTabs'
@@ -182,13 +180,6 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
       {/* Page Header */}
       <div className="bg-[#0a0a0a] border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <Link
-            href="/admin"
-            className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white mb-4"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Admin Dashboard
-          </Link>
           <EditorialHeader
             eyebrow="Platform"
             title="Events Moderation"

@@ -2,10 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { StatTile } from '@/components/ui/kit'
-import { Users as UsersIcon, UserCog, ShieldCheck } from 'lucide-react'
+import { Users as UsersIcon, UserCog, ShieldCheck, Search } from 'lucide-react'
 
 type AdminUsersClientProps = {
   counts: {
@@ -103,39 +101,46 @@ export default function AdminUsersClient({
     router.push(`/admin/users/${userId}`)
   }
 
+  const stats = [
+    { icon: UsersIcon, label: t('users.total_users'), value: counts.total },
+    { icon: UserCog, label: t('users.organizers'), value: counts.organizers },
+    { icon: ShieldCheck, label: t('users.verified_organizers'), value: counts.verified },
+  ]
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
-      <div className="mb-3 sm:mb-4">
-        <Link href="/admin" className="text-brand-300 hover:text-brand-300 text-[13px] sm:text-sm font-medium">
-          {t('users.back_to_dashboard')}
-        </Link>
+    <div className="space-y-6">
+      <div>
+        <h1 className="font-display text-[clamp(24px,3vw,32px)] leading-[1.04] text-white">{t('users.title')}</h1>
+        <p className="mt-1 text-sm text-white/50">{t('users.subtitle')}</p>
       </div>
 
-      <div className="mb-4 sm:mb-5">
-        <h1 className="font-display text-[clamp(22px,3vw,30px)] leading-[1.06] text-white">{t('users.title')}</h1>
-        <p className="text-[13px] sm:text-sm text-white/50 mt-1">{t('users.subtitle')}</p>
+      {/* Stats — divided strip */}
+      <div className="grid grid-cols-3 divide-x divide-white/10 overflow-hidden rounded-xl border border-white/10">
+        {stats.map((s) => {
+          const Icon = s.icon
+          return (
+            <div key={s.label} className="p-4">
+              <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/40">
+                <Icon className="h-3.5 w-3.5 text-white/30" /> <span className="truncate">{s.label}</span>
+              </div>
+              <div className="text-2xl font-bold tabular-nums text-white">{s.value.toLocaleString()}</div>
+            </div>
+          )
+        })}
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-2.5 sm:gap-3 mb-4 sm:mb-5">
-        <StatTile icon={UsersIcon} label={t('users.total_users')} value={counts.total} />
-        <StatTile icon={UserCog} label={t('users.organizers')} value={counts.organizers} />
-        <StatTile icon={ShieldCheck} label={t('users.verified_organizers')} value={counts.verified} />
-      </div>
-
-      <div className="bg-[#0a0a0a] rounded-xl shadow-sm  p-4 mb-6">
-        <div className="relative">
-          <div className="flex flex-col sm:flex-row gap-3">
+      {/* Search */}
+      <div className="relative max-w-2xl">
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onFocus={() => {
                 if (results.length || searchError) setIsOpen(true)
               }}
-              onBlur={() => {
-                // Delay closing so clicks on suggestions register.
-                setTimeout(() => setIsOpen(false), 150)
-              }}
+              onBlur={() => setTimeout(() => setIsOpen(false), 150)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && results.length > 0) {
                   e.preventDefault()
@@ -143,44 +148,44 @@ export default function AdminUsersClient({
                 }
               }}
               placeholder={t('users.search_users')}
-              className="flex-1 px-4 py-2.5 border border-white/15 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full rounded-lg border border-white/10 bg-transparent py-2.5 pl-9 pr-3 text-sm text-white placeholder:text-white/40 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
             />
-            <button
-              type="button"
-              onClick={() => runSearch(query)}
-              disabled={isSearching || normalizedQuery.length < 2}
-              className="px-4 py-2.5 text-sm font-medium rounded-lg transition-colors bg-brand-600 hover:bg-brand-700 text-white disabled:opacity-50"
-            >
-              {isSearching ? t('users.loading') : t('users.search')}
-            </button>
           </div>
-
-          {isOpen && (results.length > 0 || searchError) && (
-            <div className="absolute z-20 mt-2 w-full rounded-lg border border-white/10 shadow-lg overflow-hidden">
-              {searchError ? (
-                <div className="p-3 text-sm text-red-300">{searchError}</div>
-              ) : (
-                <div className="divide-y divide-white/10">
-                  {results.map((r: any) => (
-                    <button
-                      key={`${r.type}_${r.id}`}
-                      type="button"
-                      onMouseDown={(e) => {
-                        e.preventDefault()
-                        navigateToUser(String(r.id || ''))
-                      }}
-                      className="w-full text-left px-3 py-2.5 hover:bg-white/[0.04]"
-                    >
-                      <div className="text-sm font-medium text-white truncate">{r.title}</div>
-                      {r.subtitle && <div className="text-[13px] text-white/50 truncate">{r.subtitle}</div>}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+          <button
+            type="button"
+            onClick={() => runSearch(query)}
+            disabled={isSearching || normalizedQuery.length < 2}
+            className="shrink-0 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700 disabled:opacity-50"
+          >
+            {isSearching ? t('users.loading') : t('users.search')}
+          </button>
         </div>
-        <div className="mt-2 text-xs text-white/50">{t('users.search_hint')}</div>
+
+        {isOpen && (results.length > 0 || searchError) && (
+          <div className="absolute z-20 mt-2 w-full overflow-hidden rounded-lg border border-white/10 bg-[#0a0a0a] shadow-xl">
+            {searchError ? (
+              <div className="p-3 text-sm text-red-300">{searchError}</div>
+            ) : (
+              <div className="divide-y divide-white/5">
+                {results.map((r: any) => (
+                  <button
+                    key={`${r.type}_${r.id}`}
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault()
+                      navigateToUser(String(r.id || ''))
+                    }}
+                    className="w-full px-3 py-2.5 text-left transition-colors hover:bg-white/[0.04]"
+                  >
+                    <div className="truncate text-sm font-medium text-white">{r.title}</div>
+                    {r.subtitle && <div className="truncate text-[13px] text-white/50">{r.subtitle}</div>}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+        <p className="mt-2 text-xs text-white/40">{t('users.search_hint')}</p>
       </div>
     </div>
   )

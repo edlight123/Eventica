@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import BankVerificationReviewCard from '@/components/admin/BankVerificationReviewCard'
-import Link from 'next/link'
 import { EditorialHeader } from '@/components/ui/EditorialHeader'
 
 interface BankVerification {
@@ -71,31 +70,30 @@ export default function BankVerificationsClient() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
       {/* Header */}
       <EditorialHeader
+        tone="dark"
         title="Bank Verifications"
         subtitle="Review and approve bank account verification documents"
         className="mb-6"
       />
 
       {/* Status Filter Tabs */}
-      <div className="bg-[#0a0a0a] rounded-lg shadow-sm  p-4 mb-6">
-        <div className="flex flex-wrap gap-2">
-          {['pending', 'approved', 'rejected'].map((status) => (
-            <button
-              key={status}
-              onClick={() => handleStatusChange(status)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                statusFilter === status
-                  ? 'bg-brand-700 text-white'
-                  : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
-              }`}
-            >
-              {status.charAt(0).toUpperCase() + status.slice(1)}
-            </button>
-          ))}
-        </div>
+      <div className="mb-6 flex flex-wrap gap-2">
+        {['pending', 'approved', 'rejected'].map((status) => (
+          <button
+            key={status}
+            onClick={() => handleStatusChange(status)}
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+              statusFilter === status
+                ? 'bg-brand-700 text-white'
+                : 'border border-white/10 bg-transparent text-white/70 hover:bg-white/[0.04]'
+            }`}
+          >
+            {status.charAt(0).toUpperCase() + status.slice(1)}
+          </button>
+        ))}
       </div>
 
       {/* Loading State */}
@@ -108,7 +106,7 @@ export default function BankVerificationsClient() {
 
       {/* Empty State */}
       {!loading && verifications.length === 0 && (
-        <div className="text-center py-12 bg-[#0a0a0a] rounded-lg shadow-sm ">
+        <div className="rounded-lg border border-white/10 p-12 text-center">
           <svg
             className="mx-auto h-12 w-12 text-white/40"
             fill="none"

@@ -166,11 +166,11 @@ export function PlatformSettingsForm() {
 
   if (loading) {
     return (
-      <div className="bg-[#0a0a0a] shadow rounded-lg p-6">
+      <div className="rounded-lg border border-white/10 p-4 sm:p-5">
         <div className="animate-pulse space-y-4">
-          <div className="h-4 bg-[#0a0a0a] rounded w-1/4"></div>
-          <div className="h-4 bg-[#0a0a0a] rounded w-1/2"></div>
-          <div className="h-4 bg-[#0a0a0a] rounded w-1/3"></div>
+          <div className="h-4 bg-white/10 rounded w-1/4"></div>
+          <div className="h-4 bg-white/10 rounded w-1/2"></div>
+          <div className="h-4 bg-white/10 rounded w-1/3"></div>
         </div>
       </div>
     )
@@ -180,50 +180,48 @@ export function PlatformSettingsForm() {
     <>
       {/* Confirmation Modal */}
       {showConfirmModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0a0a0a] rounded-lg shadow-xl max-w-md w-full p-6">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0a0a0a] rounded-lg border border-white/10 max-w-md w-full p-6">
             <div className="flex items-start gap-4">
-              <div className="flex-shrink-0">
-                <AlertTriangle className="w-6 h-6 text-amber-300" />
-              </div>
+              <AlertTriangle className="w-6 h-6 text-amber-300 flex-shrink-0" />
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-white mb-2">
+                <h3 className="text-base font-semibold text-white mb-2">
                   Confirm Settings Update
                 </h3>
-                <p className="text-sm text-white/60 mb-4">
+                <p className="text-sm text-white/50 mb-4">
                   These changes will affect all future transactions. Are you sure you want to update the platform settings?
                 </p>
-                
+
                 {/* Show changes */}
-                <div className="bg-[#0a0a0a] rounded-lg p-3 mb-4 text-xs space-y-2">
+                <div className="rounded-lg border border-white/10 p-3 mb-4 text-xs space-y-2">
                   {settings && parseFloat(haitiPlatformFee) !== settings.haiti.platformFeePercentage * 100 && (
                     <div className="flex justify-between">
-                      <span className="text-white/60">Haiti Fee:</span>
-                      <span className="font-semibold">
+                      <span className="text-white/50">Haiti Fee</span>
+                      <span className="font-semibold text-white">
                         {(settings.haiti.platformFeePercentage * 100).toFixed(2)}% → {parseFloat(haitiPlatformFee).toFixed(2)}%
                       </span>
                     </div>
                   )}
                   {settings && parseInt(haitiSettlementDays) !== settings.haiti.settlementHoldDays && (
                     <div className="flex justify-between">
-                      <span className="text-white/60">Haiti Settlement:</span>
-                      <span className="font-semibold">
+                      <span className="text-white/50">Haiti Settlement</span>
+                      <span className="font-semibold text-white">
                         {settings.haiti.settlementHoldDays} days → {parseInt(haitiSettlementDays)} days
                       </span>
                     </div>
                   )}
                   {settings && parseFloat(usCanadaPlatformFee) !== settings.usCanada.platformFeePercentage * 100 && (
                     <div className="flex justify-between">
-                      <span className="text-white/60">US/Canada Fee:</span>
-                      <span className="font-semibold">
+                      <span className="text-white/50">US/Canada Fee</span>
+                      <span className="font-semibold text-white">
                         {(settings.usCanada.platformFeePercentage * 100).toFixed(2)}% → {parseFloat(usCanadaPlatformFee).toFixed(2)}%
                       </span>
                     </div>
                   )}
                   {settings && parseInt(usCanadaSettlementDays) !== settings.usCanada.settlementHoldDays && (
                     <div className="flex justify-between">
-                      <span className="text-white/60">US/Canada Settlement:</span>
-                      <span className="font-semibold">
+                      <span className="text-white/50">US/Canada Settlement</span>
+                      <span className="font-semibold text-white">
                         {settings.usCanada.settlementHoldDays} days → {parseInt(usCanadaSettlementDays)} days
                       </span>
                     </div>
@@ -233,14 +231,14 @@ export function PlatformSettingsForm() {
                 <div className="flex gap-3">
                   <button
                     onClick={() => setShowConfirmModal(false)}
-                    className="flex-1 px-4 py-2 border border-white/15 text-white/70 rounded-lg hover:bg-white/[0.04] font-medium"
+                    className="flex-1 border border-white/15 text-white/80 hover:bg-white/[0.04] rounded-lg px-4 py-2.5 text-sm font-semibold"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={confirmSave}
                     disabled={saving}
-                    className="flex-1 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 font-medium disabled:opacity-50"
+                    className="flex-1 bg-brand-600 hover:bg-brand-700 text-white rounded-lg px-4 py-2.5 text-sm font-semibold disabled:opacity-50"
                   >
                     {saving ? 'Saving...' : 'Confirm'}
                   </button>

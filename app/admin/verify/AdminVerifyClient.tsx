@@ -1,7 +1,6 @@
 'use client'
 
 import { useTranslation } from 'react-i18next'
-import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import VerificationRequestReview from './VerificationRequestReview'
@@ -200,14 +199,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
   ]
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
-      {/* Breadcrumb */}
-      <div className="mb-3 sm:mb-4">
-        <Link href="/admin" className="text-brand-300 hover:text-brand-300 text-[13px] sm:text-sm font-medium">
-          {t('verify.back_to_dashboard')}
-        </Link>
-      </div>
-
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Analytics Dashboard */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-4 sm:mb-5">
         <div className="bg-[#0a0a0a] rounded-lg  p-3 sm:p-4">

@@ -1,6 +1,16 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import {
+  AlertTriangle,
+  ShieldCheck,
+  ListChecks,
+  Database,
+  Filter,
+  User as UserIcon,
+  Globe,
+  Clock,
+} from 'lucide-react'
 import { EditorialHeader } from '@/components/ui/EditorialHeader'
 
 interface SuspiciousActivity {
@@ -22,7 +32,7 @@ interface SuspiciousActivity {
 }
 
 const SEVERITY_COLORS = {
-  low: 'bg-[#0a0a0a] text-white/90',
+  low: 'text-white/60',
   medium: 'text-amber-300',
   high: 'text-amber-300',
   critical: 'text-red-300',
@@ -206,7 +216,7 @@ export default function SecurityDashboardClient() {
   const getSeverityBadge = (severity: string) => {
     return (
       <span
-        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+        className={`inline-flex items-center text-[11px] font-semibold uppercase tracking-wide ${
           SEVERITY_COLORS[severity as keyof typeof SEVERITY_COLORS]
         }`}
       >

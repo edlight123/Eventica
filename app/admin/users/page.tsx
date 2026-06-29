@@ -8,12 +8,8 @@ export default async function AdminUsersPage() {
   const counts = await getUserCounts()
 
   return (
-    <div className="p-6 space-y-6">
-      <AdminBreadcrumbs 
-        items={[
-          { label: 'Users', href: '/admin/users' }
-        ]} 
-      />
+    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 space-y-5">
+      <AdminBreadcrumbs items={[{ label: 'Users', href: '/admin/users' }]} />
       <AdminUsersClient counts={counts} />
     </div>
   )

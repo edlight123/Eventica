@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
-import { StatTile, EmptyState, StatusChip } from '@/components/ui/kit'
+import { EmptyState, StatusChip } from '@/components/ui/kit'
 import { DataTable, type Column } from '@/components/ui/DataTable'
 import { EditorialHeader } from '@/components/ui/EditorialHeader'
 import { Users, UserCheck, BadgeCheck } from 'lucide-react'
@@ -169,31 +169,34 @@ export default function AdminOrganizersClient({
     </div>
   )
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
-      <div className="mb-3 sm:mb-4">
-        <Link href="/admin" className="text-brand-300 hover:text-brand-300 text-[13px] sm:text-sm font-medium">
-          {t('users.back_to_dashboard')}
-        </Link>
-      </div>
+  const stats = [
+    { icon: Users, label: t('users.total_users'), value: counts.total },
+    { icon: UserCheck, label: t('users.organizers'), value: counts.organizers },
+    { icon: BadgeCheck, label: t('users.verified_organizers'), value: counts.verified },
+  ]
 
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <EditorialHeader
         eyebrow="Platform"
         title={t('organizers.title')}
         subtitle={t('organizers.subtitle')}
-        className="mb-4 sm:mb-5"
+        tone="dark"
+        className="mb-5"
       />
 
-      <div className="flex overflow-x-auto gap-3 sm:gap-4 mb-4 sm:mb-5 pb-2 snap-x snap-mandatory md:grid md:grid-cols-3 scrollbar-hide">
-        <div className="min-w-[180px] snap-start flex-shrink-0">
-          <StatTile icon={Users} label={t('users.total_users')} value={counts.total} />
-        </div>
-        <div className="min-w-[180px] snap-start flex-shrink-0">
-          <StatTile icon={UserCheck} label={t('users.organizers')} value={counts.organizers} />
-        </div>
-        <div className="min-w-[180px] snap-start flex-shrink-0">
-          <StatTile icon={BadgeCheck} label={t('users.verified_organizers')} value={counts.verified} />
-        </div>
+      <div className="mb-5 grid grid-cols-3 divide-x divide-white/10 overflow-hidden rounded-xl border border-white/10">
+        {stats.map((s) => {
+          const Icon = s.icon
+          return (
+            <div key={s.label} className="p-4">
+              <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/40">
+                <Icon className="h-3.5 w-3.5 text-white/30" /> <span className="truncate">{s.label}</span>
+              </div>
+              <div className="text-2xl font-bold tabular-nums text-white">{s.value.toLocaleString()}</div>
+            </div>
+          )
+        })}
       </div>
 
       <DataTable<any>
