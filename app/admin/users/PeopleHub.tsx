@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Users as UsersIcon, Briefcase } from 'lucide-react'
 import AdminUsersClient from './AdminUsersClient'
 import AdminOrganizersClient from '../organizers/AdminOrganizersClient'
@@ -26,8 +26,19 @@ export default function PeopleHub({
   organizerCursor,
 }: PeopleHubProps) {
   const searchParams = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
   const initial: PeopleTab = searchParams.get('tab') === 'organizers' ? 'organizers' : 'all'
   const [tab, setTab] = useState<PeopleTab>(initial)
+
+  const selectTab = (key: PeopleTab) => {
+    setTab(key)
+    const params = new URLSearchParams(Array.from(searchParams.entries()))
+    if (key === 'all') params.delete('tab')
+    else params.set('tab', key)
+    const qs = params.toString()
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
+  }
 
   const tabs: { key: PeopleTab; label: string; Icon: typeof UsersIcon }[] = [
     { key: 'all', label: 'All users', Icon: UsersIcon },
@@ -49,7 +60,7 @@ export default function PeopleHub({
                 key={key}
                 role="tab"
                 aria-selected={active}
-                onClick={() => setTab(key)}
+                onClick={() => selectTab(key)}
                 className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
                   active ? 'bg-white/[0.08] text-white' : 'text-white/50 hover:text-white'
                 }`}

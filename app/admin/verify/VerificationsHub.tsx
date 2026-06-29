@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { ShieldCheck, Landmark } from 'lucide-react'
 import AdminVerifyClient from './AdminVerifyClient'
 import BankVerificationsClient from '../bank-verifications/BankVerificationsClient'
@@ -22,9 +22,21 @@ export default function VerificationsHub({
   organizers: any[]
 }) {
   const searchParams = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
   const initial: HubTab = searchParams.get('tab') === 'bank' ? 'bank' : 'identity'
   const [tab, setTab] = useState<HubTab>(initial)
   const [bankVisited, setBankVisited] = useState(initial === 'bank')
+
+  const selectTab = (key: HubTab) => {
+    setTab(key)
+    if (key === 'bank') setBankVisited(true)
+    const params = new URLSearchParams(Array.from(searchParams.entries()))
+    if (key === 'identity') params.delete('tab')
+    else params.set('tab', key)
+    const qs = params.toString()
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
+  }
 
   const tabs: { key: HubTab; label: string; Icon: typeof ShieldCheck }[] = [
     { key: 'identity', label: 'Identity', Icon: ShieldCheck },
@@ -46,10 +58,7 @@ export default function VerificationsHub({
                 key={key}
                 role="tab"
                 aria-selected={active}
-                onClick={() => {
-                  setTab(key)
-                  if (key === 'bank') setBankVisited(true)
-                }}
+                onClick={() => selectTab(key)}
                 className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
                   active ? 'bg-white/[0.08] text-white' : 'text-white/50 hover:text-white'
                 }`}
