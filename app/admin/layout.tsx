@@ -5,6 +5,7 @@ import { AdminCommandBar } from '@/components/admin/AdminCommandBar'
 import { AdminAccessDenied } from '@/components/admin/AdminAccessDenied'
 import { AdminTopNav } from '@/components/admin/AdminTopNav'
 import { AdminRealtimeProvider } from '@/lib/realtime/AdminRealtimeProvider'
+import { ConfirmProvider } from '@/components/ui/ConfirmProvider'
 
 // force-dynamic is required because we use cookies() for authentication
 export const dynamic = 'force-dynamic'
@@ -29,6 +30,7 @@ export default async function AdminLayout({
 
   return (
     <AdminRealtimeProvider>
+      <ConfirmProvider>
       <div className="surface-dark min-h-screen">
         {/* Single admin top bar (replaces the global navbar + left sidebar) */}
         <AdminTopNav userEmail={user.email} accountInitial={accountInitial} />
@@ -42,6 +44,7 @@ export default async function AdminLayout({
         {/* Mobile Bottom Navigation */}
         <MobileNavWrapper user={user} isAdmin={true} />
       </div>
+      </ConfirmProvider>
     </AdminRealtimeProvider>
   )
 }

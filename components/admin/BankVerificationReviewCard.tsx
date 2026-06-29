@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Check, X, FileText, CreditCard, AlertCircle, ExternalLink } from 'lucide-react'
 import { StatusChip } from '@/components/ui/kit'
+import { useConfirm } from '@/components/ui/ConfirmProvider'
 
 interface BankVerification {
   organizerId: string
@@ -32,6 +33,7 @@ interface Props {
 }
 
 export default function BankVerificationReviewCard({ verification }: Props) {
+  const confirmDialog = useConfirm()
   const [processing, setProcessing] = useState(false)
   const [expanded, setExpanded] = useState(verification.verificationDoc.status === 'pending')
   const [isOpeningDocument, setIsOpeningDocument] = useState(false)
@@ -56,7 +58,13 @@ export default function BankVerificationReviewCard({ verification }: Props) {
   }
 
   const handleApprove = async () => {
-    if (!confirm('Approve this bank account verification?')) return
+    const ok = await confirmDialog({
+      title: 'Approve this bank account verification?',
+      description: `Payouts to ${verification.organizerName}'s ${verification.bankDetails.bankName} account will be enabled.`,
+      confirmLabel: 'Approve',
+      variant: 'default',
+    })
+    if (!ok) return
 
     setProcessing(true)
     try {

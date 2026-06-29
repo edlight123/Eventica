@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Search, Filter, ChevronDown, Check } from 'lucide-react'
+import { useConfirm } from '@/components/ui/ConfirmProvider'
 
 interface AdminEventsTopBarProps {
   searchQuery: string
@@ -21,6 +22,7 @@ export function AdminEventsTopBar({
   onBulkAction
 }: AdminEventsTopBarProps) {
   const [showBulkMenu, setShowBulkMenu] = useState(false)
+  const confirmDialog = useConfirm()
 
   return (
     <div className="sticky top-0 z-30 bg-[#0a0a0a] border-b border-white/10 shadow-sm">
@@ -91,8 +93,14 @@ export function AdminEventsTopBar({
                       Unpublish Selected
                     </button>
                     <button
-                      onClick={() => {
-                        if (confirm(`Delete ${selectedCount} event(s)? This cannot be undone.`)) {
+                      onClick={async () => {
+                        const ok = await confirmDialog({
+                          title: `Delete ${selectedCount} event(s)?`,
+                          description: 'This permanently removes the selected events. This cannot be undone.',
+                          confirmLabel: 'Delete',
+                          variant: 'danger',
+                        })
+                        if (ok) {
                           onBulkAction('delete')
                         }
                         setShowBulkMenu(false)

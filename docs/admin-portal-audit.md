@@ -119,13 +119,13 @@ A consistent dark, flat admin system has been established this cycle. Primitives
 
 ## 6. Open items / recommendations (next phases)
 
-1. **Disbursements hub** — polish `AdminDisbursementDashboard`, `WithdrawalsView`, `PayoutOperationsClient` to the system (payment-critical: presentational only). [P0]
-2. **Verify queue** — bespoke pass on `VerificationRequestReview` (647 lines). [P1]
+1. ~~**Disbursements hub**~~ — **Done.** `AdminDisbursementDashboard`, `WithdrawalsView`, `PayoutOperationsClient` refactored to the system (presentational only, payout logic untouched).
+2. **Verify queue** — bespoke pass on `VerificationRequestReview` (647 lines) still pending. [P1]
 3. **Dev tools gating** — hide `/admin/dev/*` and debug/seed/migrate APIs behind an env/`super_admin` gate. [P1]
 4. **Dead code** — remove `AdminSidebar.tsx` (+ `AdminKpiGrid` if unused). [P2]
-5. **Tables** — converge all admin tables on one `DataTable` with shared filters/sort/pagination + URL-persisted filters + CSV export where relevant. [P1]
-6. **Confirmations** — ensure all destructive actions (ban, refund, decline payout, delete) use a shared `ConfirmationDialog` (no `window.confirm/alert`). [P1]
-7. **Responsiveness/accessibility** — audit at 1440/1280/1024/768/390; focus traps in drawers/modals, keyboard nav, contrast. [P1]
+5. **Tables** — `DataTable` (`components/ui/DataTable.tsx`) already provides sort, client/server pagination, selection, and a toolbar slot, and is used by Orders, Organizers, Marketing. Remaining: URL-persisted filters + a shared CSV-export affordance (Orders/Verify already export ad-hoc). [P1, partially done]
+6. ~~**Confirmations**~~ — **Done (core).** Added a shared promise-based confirm system: `components/ui/ConfirmProvider.tsx` (`useConfirm()`), mounted in `app/admin/layout.tsx`. Converted destructive `window.confirm` gates to it in: organizer ban/disable, event bulk-delete, bank-verification approve, verification bulk-approve + single approve, security index-rebuild, and withdrawal approve/reject (payment). Remaining: migrate feedback `alert(...)` calls to the existing Toast system. [follow-up]
+7. **Responsiveness/accessibility** — audit at 1440/1280/1024/768/390; focus traps in drawers/modals, keyboard nav, contrast. (Confirm dialog is focus-trapped + Esc-closable.) [P1]
 8. **Tests** — add coverage for route protection, event moderation, organizer status, order/refund, payout actions, form validation, destructive confirmations. [P1]
 
 ## 7. Verification commands

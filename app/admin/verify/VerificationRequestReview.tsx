@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { StatusChip } from '@/components/ui/kit'
+import { useConfirm } from '@/components/ui/ConfirmProvider'
 
 function isHttpUrl(value: string) {
   return /^https?:\/\//i.test(value)
@@ -90,6 +91,7 @@ interface Props {
 
 export default function VerificationRequestReview({ request, user }: Props) {
   const router = useRouter()
+  const confirmDialog = useConfirm()
   const [reviewing, setReviewing] = useState(false)
   const [showRejectModal, setShowRejectModal] = useState(false)
   const [rejectionReason, setRejectionReason] = useState('')
@@ -335,7 +337,13 @@ export default function VerificationRequestReview({ request, user }: Props) {
   }
 
   const handleApprove = async () => {
-    if (!confirm('Are you sure you want to approve this verification?')) return
+    const ok = await confirmDialog({
+      title: 'Approve this verification?',
+      description: `${user?.full_name || user?.email || 'This organizer'} will be marked verified and notified.`,
+      confirmLabel: 'Approve',
+      variant: 'default',
+    })
+    if (!ok) return
 
     setReviewing(true)
     try {

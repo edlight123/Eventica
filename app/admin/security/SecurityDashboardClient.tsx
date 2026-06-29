@@ -12,6 +12,7 @@ import {
   Clock,
 } from 'lucide-react'
 import { EditorialHeader } from '@/components/ui/EditorialHeader'
+import { useConfirm } from '@/components/ui/ConfirmProvider'
 
 interface SuspiciousActivity {
   id: string
@@ -48,6 +49,7 @@ const ACTIVITY_TYPE_LABELS: Record<string, string> = {
 }
 
 export default function SecurityDashboardClient() {
+  const confirmDialog = useConfirm()
   const [activities, setActivities] = useState<SuspiciousActivity[]>([])
   const [unreviewedCount, setUnreviewedCount] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -73,7 +75,13 @@ export default function SecurityDashboardClient() {
   const [actionText, setActionText] = useState('')
 
   const rebuildSearchIndex = async () => {
-    if (!confirm('Rebuild admin search index now? This may take a few minutes.')) return
+    const ok = await confirmDialog({
+      title: 'Rebuild admin search index now?',
+      description: 'This reindexes all users, events, and tickets and may take a few minutes.',
+      confirmLabel: 'Rebuild',
+      variant: 'default',
+    })
+    if (!ok) return
 
     setRebuildStatus({
       running: true,

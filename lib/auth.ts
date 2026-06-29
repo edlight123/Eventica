@@ -161,6 +161,42 @@ export async function requireAdmin() {
   return { user, error: null }
 }
 
+/**
+ * Stricter gate: only the `super_admin` role. Use for the most sensitive
+ * platform operations (role grants, irreversible data ops).
+ */
+export async function requireSuperAdmin() {
+  const user = await getCurrentUser()
+  if (!user) return { user: null, error: 'Not authenticated' }
+  if (user.role !== 'super_admin') return { user: null, error: 'Super admin access required' }
+  return { user, error: null }
+}
+
+/**
+ * Gate for developer / debug / seed / migration tools.
+ * - In production: `super_admin` only (regular admins cannot reach them).
+ * - In non-production (or when ENABLE_DEV_TOOLS=true): any admin may use them.
+ * Always requires an admin baseline.
+ */
+export async function requireDevTools() {
+  const user = await getCurrentUser()
+  if (!user) return { user: null, error: 'Not authenticated' }
+
+  const roleIsAdmin = user.role === 'admin' || user.role === 'super_admin'
+  const isAdminAtAll = roleIsAdmin || isAdminEmail(user.email)
+  if (!isAdminAtAll) return { user: null, error: 'Admin access required' }
+
+  const isSuper = user.role === 'super_admin'
+  const enabledByEnv =
+    process.env.ENABLE_DEV_TOOLS === 'true' || process.env.NODE_ENV !== 'production'
+
+  if (!isSuper && !enabledByEnv) {
+    return { user: null, error: 'Developer tools are disabled in this environment' }
+  }
+
+  return { user, error: null }
+}
+
 export async function isOrganizer() {
   const user = await getCurrentUser()
   return user?.role === 'organizer'

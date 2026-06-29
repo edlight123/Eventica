@@ -3,6 +3,7 @@
 import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
 import { useState } from 'react'
+import { useConfirm } from '@/components/ui/ConfirmProvider'
 
 // Helper to safely render any value - prevents React error #31 for objects
 function safeString(value: any, fallback: string = ''): string {
@@ -48,13 +49,28 @@ type OrganizerDetailsProps = {
 
 export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDetailsProps) {
   const { t } = useTranslation('admin')
+  const confirmDialog = useConfirm()
   const [isUpdating, setIsUpdating] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
   const { id, user, organizer, payoutConfig, payoutDestinations, verificationRequest, verificationDocs, stats } = organizerDetails
 
   const handleToggleStatus = async (action: 'ban' | 'unban' | 'disable_posting' | 'enable_posting') => {
-    if (!confirm(`Are you sure you want to ${action.replace('_', ' ')} this organizer?`)) {
+    const actionLabel = action.replace('_', ' ')
+    const isDestructive = action === 'ban' || action === 'disable_posting'
+    const descriptions: Record<typeof action, string> = {
+      ban: `${user.full_name || user.email || 'This organizer'} will lose access and their events will be hidden.`,
+      unban: `${user.full_name || user.email || 'This organizer'} will regain access to their account.`,
+      disable_posting: `${user.full_name || user.email || 'This organizer'} will no longer be able to create or publish events.`,
+      enable_posting: `${user.full_name || user.email || 'This organizer'} will be able to create and publish events again.`,
+    }
+    const ok = await confirmDialog({
+      title: `${actionLabel.charAt(0).toUpperCase() + actionLabel.slice(1)} this organizer?`,
+      description: descriptions[action],
+      confirmLabel: actionLabel.charAt(0).toUpperCase() + actionLabel.slice(1),
+      variant: isDestructive ? 'danger' : 'default',
+    })
+    if (!ok) {
       return
     }
 

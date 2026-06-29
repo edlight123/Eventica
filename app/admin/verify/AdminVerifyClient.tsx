@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import VerificationRequestReview from './VerificationRequestReview'
 import VerifyOrganizerForm from './VerifyOrganizerForm'
 import { EditorialHeader } from '@/components/ui/EditorialHeader'
+import { useConfirm } from '@/components/ui/ConfirmProvider'
 
 type AdminVerifyClientProps = {
   requestsWithUsers: any[]
@@ -17,6 +18,7 @@ type SortDirection = 'asc' | 'desc'
 
 export default function AdminVerifyClient({ requestsWithUsers, organizers }: AdminVerifyClientProps) {
   const { t } = useTranslation('admin')
+  const confirmDialog = useConfirm()
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -116,7 +118,13 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
 
   const handleBulkApprove = async () => {
     if (selectedIds.size === 0) return
-    if (!confirm(`Approve ${selectedIds.size} verification requests?`)) return
+    const ok = await confirmDialog({
+      title: `Approve ${selectedIds.size} verification requests?`,
+      description: 'Each selected organizer will be marked approved and notified.',
+      confirmLabel: 'Approve',
+      variant: 'default',
+    })
+    if (!ok) return
 
     setBulkActionLoading(true)
     try {

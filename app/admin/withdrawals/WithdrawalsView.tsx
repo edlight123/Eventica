@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { formatCurrency } from '@/lib/fees'
 import { StatusChip } from '@/components/ui/kit'
+import { useConfirm } from '@/components/ui/ConfirmProvider'
 
 interface Withdrawal {
   id: string
@@ -43,6 +44,7 @@ interface WithdrawalsViewProps {
 }
 
 export default function WithdrawalsView({ embedded = false, showHeader = true }: WithdrawalsViewProps) {
+  const confirmDialog = useConfirm()
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'pending' | 'processing' | 'completed' | 'failed'>('pending')
@@ -72,7 +74,14 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
     : withdrawals.filter(w => w.status === filter)
 
   const handleAction = async (withdrawalId: string, action: 'approve' | 'reject' | 'complete' | 'fail') => {
-    if (!confirm(`Are you sure you want to ${action} this withdrawal?`)) return
+    const isDestructive = action === 'reject' || action === 'fail'
+    const ok = await confirmDialog({
+      title: `${action.charAt(0).toUpperCase() + action.slice(1)} this withdrawal?`,
+      description: 'This updates the withdrawal status and may trigger a payout. Please confirm the details are correct.',
+      confirmLabel: action.charAt(0).toUpperCase() + action.slice(1),
+      variant: isDestructive ? 'danger' : 'default',
+    })
+    if (!ok) return
 
     setProcessing(true)
     try {
