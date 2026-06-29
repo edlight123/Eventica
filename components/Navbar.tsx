@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { firebaseDb as supabase } from '@/lib/firebase-db/client'
 import { useRouter } from 'next/navigation'
-import { BRAND } from '@/config/brand'
 import { TikemWordmark } from '@/components/ui/TikemLogo'
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -54,8 +53,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
           <div className="flex items-center">
             <Link href="/" className="group flex items-center">
               <TikemWordmark
-                className="text-[28px] sm:text-[30px] transition-opacity duration-200 group-hover:opacity-80"
-                style={{ color: BRAND.primaryColor }}
+                className="text-[28px] text-white sm:text-[30px] transition-opacity duration-200 group-hover:opacity-80"
               />
             </Link>
             <div className="hidden md:ml-8 md:flex md:space-x-2 lg:space-x-4">
