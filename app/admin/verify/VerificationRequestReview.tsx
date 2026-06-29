@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { StatusChip } from '@/components/ui/kit'
 import { useConfirm } from '@/components/ui/ConfirmProvider'
+import { useToast } from '@/components/ui/Toast'
 
 function isHttpUrl(value: string) {
   return /^https?:\/\//i.test(value)
@@ -92,6 +93,7 @@ interface Props {
 export default function VerificationRequestReview({ request, user }: Props) {
   const router = useRouter()
   const confirmDialog = useConfirm()
+  const { showToast } = useToast()
   const [reviewing, setReviewing] = useState(false)
   const [showRejectModal, setShowRejectModal] = useState(false)
   const [rejectionReason, setRejectionReason] = useState('')
@@ -358,11 +360,11 @@ export default function VerificationRequestReview({ request, user }: Props) {
 
       if (!response.ok) throw new Error('Failed to approve')
 
-      alert('✅ Verification approved! Organizer has been notified.')
+      showToast({ type: 'success', title: 'Verification approved', message: 'The organizer has been notified.' })
       router.refresh()
     } catch (error) {
       console.error('Error approving:', error)
-      alert('Failed to approve verification')
+      showToast({ type: 'error', title: 'Approval failed', message: 'Could not approve this verification. Please try again.' })
     } finally {
       setReviewing(false)
     }
@@ -370,7 +372,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
 
   const handleRequestChanges = async () => {
     if (!rejectionReason.trim()) {
-      alert('Please provide a reason for the requested changes')
+      showToast({ type: 'warning', title: 'Reason required', message: 'Please provide a reason for the requested changes.' })
       return
     }
 
@@ -388,12 +390,12 @@ export default function VerificationRequestReview({ request, user }: Props) {
 
       if (!response.ok) throw new Error('Failed to request changes')
 
-      alert('Changes requested. Organizer has been notified.')
+      showToast({ type: 'success', title: 'Changes requested', message: 'The organizer has been notified.' })
       setShowRejectModal(false)
       router.refresh()
     } catch (error) {
       console.error('Error rejecting:', error)
-      alert('Failed to request changes')
+      showToast({ type: 'error', title: 'Request failed', message: 'Could not request changes. Please try again.' })
     } finally {
       setReviewing(false)
     }
