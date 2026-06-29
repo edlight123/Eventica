@@ -199,7 +199,7 @@ export default function SecurityDashboardClient() {
     } finally {
       setLoading(false)
     }
-  }, [filter])
+  }, [filter, showToast])
 
   useEffect(() => {
     fetchActivities()

@@ -15,6 +15,9 @@ const config = {
     '**/__tests__/**/*.test.[jt]s?(x)',
     '**/?(*.)+(spec|test).[jt]s?(x)',
   ],
+  // The `tests/` directory holds Playwright E2E specs (run via `playwright test`),
+  // not Jest unit tests — keep Jest from trying to load them.
+  testPathIgnorePatterns: ['/node_modules/', '<rootDir>/tests/', '/.next/'],
   collectCoverageFrom: [
     'components/**/*.{js,jsx,ts,tsx}',
     'lib/**/*.{js,jsx,ts,tsx}',
