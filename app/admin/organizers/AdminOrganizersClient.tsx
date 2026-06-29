@@ -1,12 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
 import { EmptyState, StatusChip } from '@/components/ui/kit'
 import { DataTable, type Column } from '@/components/ui/DataTable'
 import { EditorialHeader } from '@/components/ui/EditorialHeader'
-import { Users, UserCheck, BadgeCheck } from 'lucide-react'
+import { UserCheck, BadgeCheck, Clock, Search, ArrowUpRight } from 'lucide-react'
+
+type VerifyState = 'verified' | 'pending' | 'unverified'
+function verifyState(u: any): VerifyState {
+  const s = String(u?.verification_status || '').toLowerCase()
+  if (s === 'approved') return 'verified'
+  if (s === 'pending' || s === 'pending_review' || s === 'in_review') return 'pending'
+  return 'unverified'
+}
 
 type AdminOrganizersClientProps = {
   counts: {
@@ -31,6 +39,20 @@ export default function AdminOrganizersClient({
   const [hasMore, setHasMore] = useState<boolean>(initialHasMore)
   const [cursor, setCursor] = useState<string | null>(initialCursor)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [query, setQuery] = useState('')
+  const [verifyFilter, setVerifyFilter] = useState<'all' | VerifyState>('all')
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    return users.filter((u) => {
+      if (verifyFilter !== 'all' && verifyState(u) !== verifyFilter) return false
+      if (!q) return true
+      return (
+        String(u.full_name || '').toLowerCase().includes(q) ||
+        String(u.email || '').toLowerCase().includes(q)
+      )
+    })
+  }, [users, query, verifyFilter])
 
   const loadMore = async () => {
     if (isLoadingMore || !hasMore || !cursor) return
@@ -90,34 +112,14 @@ export default function AdminOrganizersClient({
   const columns: Column<any>[] = [
     {
       key: 'user',
-      header: 'User',
+      header: 'Organizer',
       render: (u) => (
-        <div className="min-w-0">
-          <Link
-            href={`/admin/users/${u.id}`}
-            onClick={(e) => e.stopPropagation()}
-            className="text-sm font-medium text-brand-300 hover:text-brand-300 truncate block"
-          >
+        <Link href={`/admin/organizers/${u.id}`} className="group block min-w-0">
+          <span className="block truncate text-sm font-medium text-white group-hover:text-brand-300">
             {u.full_name || 'No name'}
-          </Link>
-          <div className="text-[13px] text-white/50 truncate">{u.email}</div>
-          <Link
-            href={`/admin/organizers/${u.id}`}
-            onClick={(e) => e.stopPropagation()}
-            className="mt-1 inline-block text-[13px] font-medium text-brand-300 hover:text-brand-300"
-          >
-            {t('users.open_organizer_admin')}
-          </Link>
-        </div>
-      ),
-    },
-    {
-      key: 'role',
-      header: 'Role',
-      render: (u) => (
-        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full text-brand-300">
-          {u.role || 'organizer'}
-        </span>
+          </span>
+          <span className="block truncate text-[13px] text-white/50">{u.email}</span>
+        </Link>
       ),
     },
     {
@@ -134,45 +136,48 @@ export default function AdminOrganizersClient({
         </span>
       ),
     },
+    {
+      key: 'action',
+      header: '',
+      align: 'right',
+      render: (u) => (
+        <Link
+          href={`/admin/organizers/${u.id}`}
+          className="inline-flex items-center gap-1 text-[13px] font-medium text-brand-300 hover:text-brand-200"
+        >
+          Manage <ArrowUpRight className="h-3.5 w-3.5" />
+        </Link>
+      ),
+    },
   ]
 
   const renderOrganizerMobileCard = (u: any) => (
-    <div className="p-4">
-      <div className="flex items-start justify-between">
+    <Link href={`/admin/organizers/${u.id}`} className="block p-4">
+      <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <Link
-            href={`/admin/users/${u.id}`}
-            className="text-sm font-medium text-brand-300 hover:text-brand-300 truncate block"
-          >
-            {u.full_name || 'No name'}
-          </Link>
-          <div className="text-[13px] text-white/50 truncate">{u.email}</div>
-          <Link
-            href={`/admin/organizers/${u.id}`}
-            className="mt-1 inline-block text-[13px] font-medium text-brand-300 hover:text-brand-300"
-          >
-            {t('users.open_organizer_admin')}
-          </Link>
+          <span className="block truncate text-sm font-medium text-white">{u.full_name || 'No name'}</span>
+          <span className="block truncate text-[13px] text-white/50">{u.email}</span>
         </div>
-        <div>
-          <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full text-brand-300">
-            {u.role || 'organizer'}
-          </span>
-        </div>
+        {renderVerification(u)}
       </div>
-      <div className="mt-3 flex items-center justify-between">
-        <div>{renderVerification(u)}</div>
-        <div className="text-[13px] text-white/50">
-          {u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}
-        </div>
+      <div className="mt-2 text-[13px] text-white/50">
+        Joined {u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}
       </div>
-    </div>
+    </Link>
   )
 
+  const unverified = Math.max(0, counts.organizers - counts.verified)
   const stats = [
-    { icon: Users, label: t('users.total_users'), value: counts.total },
-    { icon: UserCheck, label: t('users.organizers'), value: counts.organizers },
-    { icon: BadgeCheck, label: t('users.verified_organizers'), value: counts.verified },
+    { icon: UserCheck, label: 'Organizers', value: counts.organizers },
+    { icon: BadgeCheck, label: 'Verified', value: counts.verified },
+    { icon: Clock, label: 'Not verified', value: unverified },
+  ]
+
+  const filters: { key: 'all' | VerifyState; label: string }[] = [
+    { key: 'all', label: 'All' },
+    { key: 'verified', label: 'Verified' },
+    { key: 'pending', label: 'Pending' },
+    { key: 'unverified', label: 'Not verified' },
   ]
 
   return (
@@ -199,16 +204,43 @@ export default function AdminOrganizersClient({
         })}
       </div>
 
+      {/* Toolbar: search + verification filter */}
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative w-full sm:max-w-xs">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search name or email"
+            className="w-full rounded-lg border border-white/10 bg-transparent py-2.5 pl-9 pr-3 text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+          />
+        </div>
+        <div className="flex shrink-0 gap-1 overflow-x-auto rounded-full border border-white/10 p-1">
+          {filters.map((f) => (
+            <button
+              key={f.key}
+              type="button"
+              onClick={() => setVerifyFilter(f.key)}
+              className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                verifyFilter === f.key ? 'bg-white/[0.08] text-white' : 'text-white/50 hover:text-white'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <DataTable<any>
         columns={columns}
-        rows={users}
+        rows={filtered}
         rowKey={(u) => String(u?.id || '')}
         pageSize={25}
         renderMobileCard={renderOrganizerMobileCard}
         empty={
           <EmptyState
-            icon={Users}
-            title={t('organizers.no_organizers_found')}
+            icon={UserCheck}
+            title={query || verifyFilter !== 'all' ? 'No organizers match your filters' : t('organizers.no_organizers_found')}
             className="border-0"
           />
         }
