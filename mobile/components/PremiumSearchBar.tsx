@@ -23,11 +23,11 @@ export default function PremiumSearchBar({ onPress }: PremiumSearchBarProps) {
       activeOpacity={0.7}
     >
       <View style={styles.searchBar}>
-        <Search size={20} color={colors.textSecondary} style={styles.icon} />
+        <Search size={20} color="#6B6B6B" style={styles.icon} />
         <TextInput
           style={styles.input}
           placeholder="Search events, organizers, or cities"
-          placeholderTextColor={colors.textSecondary}
+          placeholderTextColor="rgba(10,10,10,0.5)"
           editable={false}
           pointerEvents="none"
         />
@@ -61,7 +61,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   input: {
     flex: 1,
     fontSize: 16,
-    color: colors.text,
+    color: '#0A0A0A',
     fontWeight: '500',
   },
 });

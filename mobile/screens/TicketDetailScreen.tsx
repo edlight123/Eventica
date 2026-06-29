@@ -339,7 +339,7 @@ export default function TicketDetailScreen({ route }: any) {
               ]}>
                 <RotateCcw size={16} color={
                   ticket.refund_status === 'approved' ? colors.success :
-                  ticket.refund_status === 'denied' ? colors.error : '#B45309'
+                  ticket.refund_status === 'denied' ? colors.error : colors.warning
                 } />
                 <Text style={[styles.refundStatusText,
                   ticket.refund_status === 'approved' && { color: colors.success },
@@ -446,7 +446,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: '#FF8C00', // Orange color for expired
   },
   statusText: {
-    color: colors.surface,
+    color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '700',
     letterSpacing: 0.5,
@@ -600,11 +600,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 24,
   },
   pendingTransferCard: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: colors.surface,
     padding: 16,
     borderRadius: 12,
     marginBottom: 24,
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: '#F59E0B',
   },
   pendingTransferHeader: {
@@ -627,7 +627,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   pendingTransferEmail: {
     fontSize: 14,
-    color: '#92400E',
+    color: colors.text,
     marginBottom: 6,
   },
   pendingTransferEmailBold: {
@@ -635,11 +635,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   pendingTransferExpiry: {
     fontSize: 13,
-    color: '#B45309',
+    color: colors.textSecondary,
     marginBottom: 12,
   },
   cancelTransferButton: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
     padding: 12,
     borderRadius: 8,
     borderWidth: 1,
@@ -737,17 +737,23 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 8,
   },
   refundStatusPending: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: colors.warningLight,
+    borderWidth: 1,
+    borderColor: colors.warning + '40',
   },
   refundStatusApproved: {
-    backgroundColor: '#D1FAE5',
+    backgroundColor: colors.successLight,
+    borderWidth: 1,
+    borderColor: colors.success + '40',
   },
   refundStatusDenied: {
-    backgroundColor: '#FEE2E2',
+    backgroundColor: colors.errorLight,
+    borderWidth: 1,
+    borderColor: colors.error + '40',
   },
   refundStatusText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#B45309',
+    color: colors.warning,
   },
 });

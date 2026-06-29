@@ -173,9 +173,9 @@ export default function TransferTicketModal({
                 )}
 
                 {!canTransfer && (
-                  <View style={[styles.warningBox, { backgroundColor: '#FEE2E2', borderColor: '#FCA5A5' }]}>
-                    <AlertCircle size={16} color="#DC2626" />
-                    <Text style={[styles.warningText, { color: '#DC2626' }]}>
+                  <View style={[styles.warningBox, { backgroundColor: 'rgba(248, 113, 113, 0.12)', borderColor: 'rgba(248, 113, 113, 0.4)' }]}>
+                    <AlertCircle size={16} color="#F87171" />
+                    <Text style={[styles.warningText, { color: '#F87171' }]}>
                       This ticket has reached the maximum transfer limit
                     </Text>
                   </View>
@@ -368,25 +368,25 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
   },
   infoBox: {
-    backgroundColor: '#EFF6FF',
+    backgroundColor: 'rgba(20,184,166,0.14)',
     borderWidth: 1,
-    borderColor: '#BFDBFE',
+    borderColor: 'rgba(20,184,166,0.35)',
     borderRadius: 12,
     padding: 12,
     marginBottom: 16,
   },
   infoText: {
     fontSize: 13,
-    color: '#1E40AF',
+    color: colors.text,
     lineHeight: 18,
   },
   warningBox: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#FEF3C7',
+    backgroundColor: 'rgba(252, 211, 77, 0.12)',
     borderWidth: 1,
-    borderColor: '#FCD34D',
+    borderColor: 'rgba(252, 211, 77, 0.4)',
     borderRadius: 12,
     padding: 12,
     marginBottom: 16,
@@ -394,7 +394,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   warningText: {
     flex: 1,
     fontSize: 13,
-    color: '#92400E',
+    color: '#FCD34D',
     lineHeight: 18,
   },
   inputGroup: {
@@ -417,11 +417,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
   },
   inputError: {
-    borderColor: '#DC2626',
+    borderColor: '#F87171',
   },
   inputErrorText: {
     fontSize: 12,
-    color: '#DC2626',
+    color: '#F87171',
     marginTop: 6,
   },
   textArea: {
@@ -429,16 +429,16 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingTop: 12,
   },
   errorBox: {
-    backgroundColor: '#FEE2E2',
+    backgroundColor: 'rgba(248, 113, 113, 0.12)',
     borderWidth: 1,
-    borderColor: '#FCA5A5',
+    borderColor: 'rgba(248, 113, 113, 0.4)',
     borderRadius: 12,
     padding: 12,
     marginBottom: 16,
   },
   errorText: {
     fontSize: 13,
-    color: '#DC2626',
+    color: '#F87171',
   },
   actions: {
     flexDirection: 'row',

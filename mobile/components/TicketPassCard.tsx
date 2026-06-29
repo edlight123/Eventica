@@ -325,7 +325,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textSecondary,
   },
   usedBanner: {
-    backgroundColor: '#ECFDF5',
+    backgroundColor: 'rgba(16, 185, 129, 0.12)',
     padding: 12,
     borderTopWidth: 1,
     borderTopColor: '#10B981',
@@ -333,7 +333,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   usedBannerText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#047857',
+    color: '#34D399',
     textAlign: 'center',
   },
   actionsSection: {

@@ -21,7 +21,7 @@ export default function App() {
           <AppModeProvider>
             <FiltersProvider>
               <AppNavigator />
-              <StatusBar style="auto" />
+              <StatusBar style="light" />
             </FiltersProvider>
           </AppModeProvider>
         </I18nProvider>
