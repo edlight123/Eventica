@@ -122,100 +122,86 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-[#0a0a0a] rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-white/60">Events Ended (7d)</p>
-              <p className="text-2xl font-bold text-white">{stats.eventsEndedLast7Days}</p>
-            </div>
-            <Calendar className="w-10 h-10 text-brand-500" />
+      <div className="grid grid-cols-2 divide-x divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10 sm:grid-cols-4 sm:divide-y-0">
+        <div className="p-4">
+          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/40">
+            <Calendar className="h-3.5 w-3.5 text-white/30" /> Events Ended (7d)
           </div>
+          <div className="text-2xl font-bold tabular-nums text-white">{stats.eventsEndedLast7Days}</div>
         </div>
 
-        <div className="bg-[#0a0a0a] rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-white/60">Pending Payouts</p>
-              <p className="text-2xl font-bold text-amber-300">{stats.pendingPayouts}</p>
-            </div>
-            <Clock className="w-10 h-10 text-amber-500" />
+        <div className="p-4">
+          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/40">
+            <Clock className="h-3.5 w-3.5 text-amber-400/60" /> Pending Payouts
           </div>
+          <div className="text-2xl font-bold tabular-nums text-amber-300">{stats.pendingPayouts}</div>
         </div>
 
-        <div className="bg-[#0a0a0a] rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-white/60">Approved Payouts</p>
-              <p className="text-2xl font-bold text-emerald-300">{stats.approvedPayouts}</p>
-            </div>
-            <CheckCircle className="w-10 h-10 text-green-500" />
+        <div className="p-4">
+          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/40">
+            <CheckCircle className="h-3.5 w-3.5 text-emerald-400/60" /> Approved Payouts
           </div>
+          <div className="text-2xl font-bold tabular-nums text-emerald-300">{stats.approvedPayouts}</div>
         </div>
 
-        <div className="bg-[#0a0a0a] rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-white/60">Pending Amount</p>
-              <p className="text-2xl font-bold text-brand-300">
-                {formatCurrency(stats.totalPendingAmount, 'HTG')}
-              </p>
-            </div>
-            <DollarSign className="w-10 h-10 text-brand-500" />
+        <div className="p-4">
+          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/40">
+            <DollarSign className="h-3.5 w-3.5 text-white/30" /> Pending Amount
+          </div>
+          <div className="text-2xl font-bold tabular-nums text-brand-300">
+            {formatCurrency(stats.totalPendingAmount, 'HTG')}
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-[#0a0a0a] rounded-lg shadow p-4">
-        <div className="flex gap-2 flex-wrap">
-          <button
-            onClick={() => setFilter('all')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              filter === 'all'
-                ? 'bg-brand-700 text-white'
-                : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
-            }`}
-          >
-            All Events ({endedEvents.length})
-          </button>
-          <button
-            onClick={() => setFilter('eligible')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              filter === 'eligible'
-                ? 'bg-brand-700 text-white'
-                : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
-            }`}
-          >
-            Eligible for Payout ({endedEvents.filter(e => e.payoutEligible && !e.hasPendingPayout).length})
-          </button>
-          <button
-            onClick={() => setFilter('pending')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              filter === 'pending'
-                ? 'bg-brand-700 text-white'
-                : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
-            }`}
-          >
-            Pending Payout ({endedEvents.filter(e => e.hasPendingPayout).length})
-          </button>
-          <button
-            onClick={() => setFilter('completed')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              filter === 'completed'
-                ? 'bg-brand-700 text-white'
-                : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
-            }`}
-          >
-            Completed ({endedEvents.filter(e => e.hasCompletedPayout).length})
-          </button>
-        </div>
+      <div className="flex gap-2 flex-wrap">
+        <button
+          onClick={() => setFilter('all')}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            filter === 'all'
+              ? 'bg-brand-600 text-white'
+              : 'border border-white/10 text-white/70 hover:bg-white/[0.04]'
+          }`}
+        >
+          All Events ({endedEvents.length})
+        </button>
+        <button
+          onClick={() => setFilter('eligible')}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            filter === 'eligible'
+              ? 'bg-brand-600 text-white'
+              : 'border border-white/10 text-white/70 hover:bg-white/[0.04]'
+          }`}
+        >
+          Eligible for Payout ({endedEvents.filter(e => e.payoutEligible && !e.hasPendingPayout).length})
+        </button>
+        <button
+          onClick={() => setFilter('pending')}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            filter === 'pending'
+              ? 'bg-brand-600 text-white'
+              : 'border border-white/10 text-white/70 hover:bg-white/[0.04]'
+          }`}
+        >
+          Pending Payout ({endedEvents.filter(e => e.hasPendingPayout).length})
+        </button>
+        <button
+          onClick={() => setFilter('completed')}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            filter === 'completed'
+              ? 'bg-brand-600 text-white'
+              : 'border border-white/10 text-white/70 hover:bg-white/[0.04]'
+          }`}
+        >
+          Completed ({endedEvents.filter(e => e.hasCompletedPayout).length})
+        </button>
       </div>
 
       {/* Events Table */}
-      <div className="bg-[#0a0a0a] rounded-lg shadow overflow-hidden">
+      <div className="overflow-hidden rounded-lg border border-white/10">
         <div className="px-6 py-4 border-b border-white/10">
-          <h2 className="text-lg font-semibold text-white">Ended Events</h2>
+          <h2 className="text-base font-semibold text-white">Ended Events</h2>
         </div>
 
         {filteredEvents.length === 0 ? (
@@ -225,7 +211,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-white/10">
-              <thead className="bg-[#0a0a0a]">
+              <thead>
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase">Event</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase">Organizer</th>
@@ -237,7 +223,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
                   <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-[#0a0a0a] divide-y divide-white/10">
+              <tbody className="divide-y divide-white/10">
                 {filteredEvents.map((event) => (
                   <tr key={event.eventId} className="hover:bg-white/[0.04]">
                     <td className="px-6 py-4">
@@ -322,7 +308,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
                     <td className="px-6 py-4">
                       <button
                         onClick={() => viewDetails(event)}
-                        className="text-brand-300 hover:text-brand-300 font-medium text-sm mr-3"
+                        className="text-brand-300 hover:text-brand-200 font-medium text-sm mr-3"
                       >
                         <Eye className="w-4 h-4 inline mr-1" />
                         View
@@ -330,7 +316,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
                       {event.payoutEligible && !event.hasPendingPayout && !event.hasCompletedPayout && (
                         <button
                           onClick={() => initiatePayoutRequest(event)}
-                          className="text-brand-300 hover:text-brand-300 font-medium text-sm"
+                          className="text-brand-300 hover:text-brand-200 font-medium text-sm"
                         >
                           <Send className="w-4 h-4 inline mr-1" />
                           Create Payout
@@ -348,46 +334,46 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
       {/* Details Modal */}
       {showModal && selectedEvent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0a0a0a] rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#0a0a0a] border border-white/10 rounded-lg shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
             <h3 className="text-xl font-bold text-white mb-4">{selectedEvent.eventTitle}</h3>
 
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
                 <p className="text-sm text-white/60">Organizer</p>
-                <p className="font-medium">{selectedEvent.organizerName}</p>
+                <p className="font-medium text-white">{selectedEvent.organizerName}</p>
                 <p className="text-xs text-white/50">{selectedEvent.organizerEmail}</p>
               </div>
               <div>
                 <p className="text-sm text-white/60">Event Dates</p>
-                <p className="text-sm">Start: {new Date(selectedEvent.startDate).toLocaleDateString()}</p>
-                <p className="text-sm">End: {new Date(selectedEvent.endDate).toLocaleDateString()}</p>
+                <p className="text-sm text-white">Start: {new Date(selectedEvent.startDate).toLocaleDateString()}</p>
+                <p className="text-sm text-white">End: {new Date(selectedEvent.endDate).toLocaleDateString()}</p>
                 <p className="text-xs text-white/50">Ended {selectedEvent.daysEnded} days ago</p>
               </div>
             </div>
 
-            <div className="bg-[#0a0a0a] rounded-lg p-4 mb-6">
+            <div className="rounded-lg border border-white/10 p-4 mb-6">
               <h4 className="font-semibold text-white mb-3">Financial Summary</h4>
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-sm text-white/60">Tickets Sold:</span>
-                  <span className="font-medium">{selectedEvent.totalTicketsSold}</span>
+                  <span className="font-medium text-white">{selectedEvent.totalTicketsSold}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-white/60">Gross Revenue:</span>
-                  <span className="font-medium">{formatCurrency(selectedEvent.grossRevenue, selectedEvent.currency as any)}</span>
+                  <span className="font-medium text-white">{formatCurrency(selectedEvent.grossRevenue, selectedEvent.currency as any)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-white/60">Platform Fee (5%):</span>
                   <span className="font-medium text-red-300">-{formatCurrency(selectedEvent.platformFee, selectedEvent.currency as any)}</span>
                 </div>
-                <div className="flex justify-between border-t pt-2">
+                <div className="flex justify-between border-t border-white/10 pt-2">
                   <span className="font-semibold text-white">Amount to Send:</span>
                   <span className="font-bold text-brand-300">{formatCurrency(selectedEvent.netRevenue, selectedEvent.currency as any)}</span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-[#0a0a0a]  rounded-lg p-4 mb-6">
+            <div className="rounded-lg border border-white/10 p-4 mb-6">
               <h4 className="font-semibold text-white mb-2">Preferred Transfer</h4>
               <div className="flex items-center gap-2 text-sm">
                 {selectedEvent.payoutMethod === 'bank_transfer' ? (
@@ -409,14 +395,14 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
             </div>
 
             {selectedEvent.payoutMethod === 'bank_transfer' && hasBankDetails(selectedEvent.bankInfo) && (
-              <div className="rounded-lg p-4 mb-6">
+              <div className="rounded-lg border border-white/10 p-4 mb-6">
                 <h4 className="font-semibold text-white mb-3 flex items-center gap-2">
-                  <><Building2 className="w-5 h-5" /> Bank Account Details</>
+                  <><Building2 className="w-5 h-5 text-white/60" /> Bank Account Details</>
                 </h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-white/60">Account Name:</span>
-                    <span className="font-medium">{selectedEvent.bankInfo?.accountName || 'N/A'}</span>
+                    <span className="font-medium text-white">{selectedEvent.bankInfo?.accountName || 'N/A'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-white/60">Account Number:</span>
@@ -426,13 +412,13 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
                         selectedEvent.bankInfo?.accountNumber ||
                         ''
 
-                      if (!value) return <span className="font-mono font-medium">N/A</span>
+                      if (!value) return <span className="font-mono font-medium text-white">N/A</span>
 
                       return (
                         <button
                           type="button"
                           onClick={() => copyToClipboard(value)}
-                          className="font-mono font-medium inline-flex items-center gap-2 text-brand-300 hover:text-brand-300"
+                          className="font-mono font-medium inline-flex items-center gap-2 text-brand-300 hover:text-brand-200"
                           title="Click to copy"
                         >
                           <span>{value}</span>
@@ -446,24 +432,24 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-white/60">Bank Name:</span>
-                    <span className="font-medium">{selectedEvent.bankInfo?.bankName || 'N/A'}</span>
+                    <span className="font-medium text-white">{selectedEvent.bankInfo?.bankName || 'N/A'}</span>
                   </div>
                   {selectedEvent.bankInfo?.routingNumber && (
                     <div className="flex justify-between">
                       <span className="text-white/60">Routing Number:</span>
-                      <span className="font-mono font-medium">{selectedEvent.bankInfo.routingNumber}</span>
+                      <span className="font-mono font-medium text-white">{selectedEvent.bankInfo.routingNumber}</span>
                     </div>
                   )}
                   {selectedEvent.bankInfo?.swift && (
                     <div className="flex justify-between">
                       <span className="text-white/60">SWIFT:</span>
-                      <span className="font-mono font-medium">{selectedEvent.bankInfo.swift}</span>
+                      <span className="font-mono font-medium text-white">{selectedEvent.bankInfo.swift}</span>
                     </div>
                   )}
                   {selectedEvent.bankInfo?.iban && (
                     <div className="flex justify-between">
                       <span className="text-white/60">IBAN:</span>
-                      <span className="font-mono font-medium">{selectedEvent.bankInfo.iban}</span>
+                      <span className="font-mono font-medium text-white">{selectedEvent.bankInfo.iban}</span>
                     </div>
                   )}
                 </div>
@@ -471,23 +457,23 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
             )}
 
             {selectedEvent.payoutMethod === 'mobile_money' && hasMobileDetails(selectedEvent.bankInfo) && (
-              <div className="rounded-lg p-4 mb-6">
+              <div className="rounded-lg border border-white/10 p-4 mb-6">
                 <h4 className="font-semibold text-white mb-3 flex items-center gap-2">
-                  <><Smartphone className="w-5 h-5" /> Mobile Money Details</>
+                  <><Smartphone className="w-5 h-5 text-white/60" /> Mobile Money Details</>
                 </h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-white/60">Mobile Number:</span>
-                    <span className="font-mono font-medium">{selectedEvent.bankInfo?.mobileNumber || 'N/A'}</span>
+                    <span className="font-mono font-medium text-white">{selectedEvent.bankInfo?.mobileNumber || 'N/A'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-white/60">Provider:</span>
-                    <span className="font-medium">{selectedEvent.bankInfo?.provider || 'N/A'}</span>
+                    <span className="font-medium text-white">{selectedEvent.bankInfo?.provider || 'N/A'}</span>
                   </div>
                   {selectedEvent.bankInfo?.mobileAccountName && (
                     <div className="flex justify-between">
                       <span className="text-white/60">Account Name:</span>
-                      <span className="font-medium">{selectedEvent.bankInfo.mobileAccountName}</span>
+                      <span className="font-medium text-white">{selectedEvent.bankInfo.mobileAccountName}</span>
                     </div>
                   )}
                 </div>
@@ -497,14 +483,14 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowModal(false)}
-                className="flex-1 px-4 py-2  rounded-lg hover:bg-white/[0.04]"
+                className="flex-1 px-4 py-2 rounded-lg border border-white/10 text-white/70 hover:bg-white/[0.04] hover:text-white"
               >
                 Close
               </button>
               {selectedEvent.payoutEligible && !selectedEvent.hasPendingPayout && (
                 <button
                   onClick={() => initiatePayoutRequest(selectedEvent)}
-                  className="flex-1 px-4 py-2 bg-brand-700 text-white rounded-lg hover:bg-brand-800 font-medium"
+                  className="flex-1 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 font-semibold"
                 >
                   Create Payout Request
                 </button>

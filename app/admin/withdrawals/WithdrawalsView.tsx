@@ -122,15 +122,15 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
       )}
 
       {/* Filter Tabs */}
-      <div className="bg-[#0a0a0a] rounded-xl  p-1 mb-6 flex flex-wrap">
+      <div className="mb-6 flex flex-wrap gap-2">
         {['pending', 'processing', 'completed', 'failed', 'all'].map((tab) => (
           <button
             key={tab}
             onClick={() => setFilter(tab as any)}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               filter === tab
-                ? 'bg-brand-700 text-white'
-                : 'text-white/60 hover:bg-white/[0.04]'
+                ? 'bg-brand-600 text-white'
+                : 'border border-white/10 text-white/60 hover:bg-white/[0.04]'
             }`}
           >
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -143,21 +143,21 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
 
       {/* Withdrawals List */}
       {loading ? (
-        <div className="bg-[#0a0a0a] rounded-xl p-12 text-center">
+        <div className="rounded-xl border border-white/10 p-12 text-center">
           <div className="text-white/40 mb-2">Loading...</div>
         </div>
       ) : visibleWithdrawals.length === 0 ? (
-        <div className="bg-[#0a0a0a] rounded-xl p-12 text-center">
+        <div className="rounded-xl border border-white/10 p-12 text-center">
           <span className="text-6xl mb-4 block">📭</span>
           <h3 className="font-display text-xl text-white mb-2">No Withdrawals</h3>
           <p className="text-white/60">No {filter !== 'all' ? filter : ''} withdrawal requests found</p>
         </div>
       ) : (
-        <div className="bg-[#0a0a0a] rounded-xl  overflow-hidden">
+        <div className="overflow-hidden rounded-xl border border-white/10">
           {/* Desktop Table */}
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-[#0a0a0a] border-b border-white/10">
+              <thead className="border-b border-white/10">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-white/50 uppercase">Organizer</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-white/50 uppercase">Event</th>
@@ -206,7 +206,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                     <td className="px-4 py-4">
                       <button
                         onClick={() => setSelectedWithdrawal(withdrawal)}
-                        className="text-brand-300 hover:text-brand-300 font-medium text-sm"
+                        className="text-brand-300 hover:text-brand-200 font-medium text-sm"
                       >
                         View Details →
                       </button>
@@ -250,7 +250,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
       {/* Detail Modal */}
       {selectedWithdrawal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-[#0a0a0a] rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
+          <div className="bg-[#0a0a0a] border border-white/10 shadow-xl rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
             <div className="flex justify-between items-start mb-6">
               <h2 className="font-display text-2xl text-white">Withdrawal Details</h2>
               <button
@@ -266,20 +266,20 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
 
             {/* Status & Amount */}
             <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="bg-[#0a0a0a] rounded-lg p-4">
+              <div className="rounded-lg border border-white/10 p-4">
                 <div className="text-sm text-white/60 mb-1">Status</div>
                 <div>{getStatusBadge(selectedWithdrawal.status)}</div>
               </div>
-              <div className="bg-[#0a0a0a] rounded-lg p-4">
+              <div className="rounded-lg border border-white/10 p-4">
                 <div className="text-sm text-white/60 mb-1">Amount</div>
-                <div className="text-2xl font-bold text-white">{formatCurrency(selectedWithdrawal.amount)}</div>
+                <div className="text-2xl font-bold tabular-nums text-white">{formatCurrency(selectedWithdrawal.amount)}</div>
               </div>
             </div>
 
             {/* Organizer Info */}
             <div className="mb-6">
               <h3 className="font-bold text-white mb-3">👤 Organizer</h3>
-              <div className="bg-[#0a0a0a] rounded-lg p-4 space-y-2">
+              <div className="rounded-lg border border-white/10 p-4 space-y-2">
                 <div className="flex justify-between">
                   <span className="text-white/60">Name:</span>
                   <span className="font-medium text-white">{selectedWithdrawal.organizer?.name}</span>
@@ -294,7 +294,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
             {/* Event Info */}
             <div className="mb-6">
               <h3 className="font-bold text-white mb-3">📅 Event</h3>
-              <div className="bg-[#0a0a0a] rounded-lg p-4 space-y-2">
+              <div className="rounded-lg border border-white/10 p-4 space-y-2">
                 <div className="flex justify-between">
                   <span className="text-white/60">Title:</span>
                   <span className="font-medium text-white">{selectedWithdrawal.event?.title}</span>
@@ -313,7 +313,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
               <h3 className="font-bold text-white mb-3">
                 {getMethodIcon(selectedWithdrawal.method)} Payment Method
               </h3>
-              <div className="bg-[#0a0a0a] rounded-lg p-4 space-y-2">
+              <div className="rounded-lg border border-white/10 p-4 space-y-2">
                 <div className="flex justify-between">
                   <span className="text-white/60">Method:</span>
                   <span className="font-medium text-white">
@@ -360,7 +360,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
             {/* Timestamps */}
             <div className="mb-6">
               <h3 className="font-bold text-white mb-3">🕐 Timeline</h3>
-              <div className="bg-[#0a0a0a] rounded-lg p-4 space-y-2 text-sm">
+              <div className="rounded-lg border border-white/10 p-4 space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-white/60">Requested:</span>
                   <span className="font-medium text-white">
@@ -404,7 +404,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                   value={actionNote}
                   onChange={(e) => setActionNote(e.target.value)}
                   placeholder="Add a note about this action..."
-                  className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-transparent border border-white/10 rounded-lg text-white placeholder:text-white/40 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
                   rows={3}
                 />
               </div>
@@ -417,14 +417,14 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                   <button
                     onClick={() => handleAction(selectedWithdrawal.id, 'approve')}
                     disabled={processing}
-                    className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:bg-[#0a0a0a]"
+                    className="flex-1 px-4 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors font-semibold disabled:opacity-50"
                   >
                     ✓ Approve & Process
                   </button>
                   <button
                     onClick={() => handleAction(selectedWithdrawal.id, 'reject')}
                     disabled={processing}
-                    className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:bg-[#0a0a0a]"
+                    className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold disabled:opacity-50"
                   >
                     ✗ Reject
                   </button>
@@ -435,14 +435,14 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                   <button
                     onClick={() => handleAction(selectedWithdrawal.id, 'complete')}
                     disabled={processing}
-                    className="flex-1 px-4 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 transition-colors font-medium disabled:bg-[#0a0a0a]"
+                    className="flex-1 px-4 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors font-semibold disabled:opacity-50"
                   >
                     ✓ Mark Complete
                   </button>
                   <button
                     onClick={() => handleAction(selectedWithdrawal.id, 'fail')}
                     disabled={processing}
-                    className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:bg-[#0a0a0a]"
+                    className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold disabled:opacity-50"
                   >
                     ✗ Mark Failed
                   </button>

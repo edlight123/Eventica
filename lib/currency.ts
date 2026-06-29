@@ -30,12 +30,17 @@ const EXCHANGE_RATES: Record<string, number> = {
 }
 
 export function formatCurrency(amount: number, currency: Currency = 'USD'): string {
-  const config = CURRENCIES[currency]
+  // Be defensive: order/payment data may carry a missing, lowercase, or
+  // unexpected currency. Normalize and fall back to USD so we never crash on
+  // `config.decimals` (the default param only covers `undefined`).
+  const key = String(currency || 'USD').toUpperCase() as Currency
+  const config = CURRENCIES[key] ?? CURRENCIES.USD
+  const safeAmount = Number.isFinite(amount) ? amount : 0
 
   const formatted = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: config.decimals,
     maximumFractionDigits: config.decimals
-  }).format(amount)
+  }).format(safeAmount)
 
   // Use the symbol as a prefix only. Appending the ISO code as well (e.g.
   // "G7,000.00 HTG" / "$100.00 USD") is redundant, so we drop it. Surrounding

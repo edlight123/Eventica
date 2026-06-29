@@ -87,15 +87,40 @@ export async function GET(request: Request) {
       queryRef = queryRef.orderBy('purchased_at', 'desc')
     }
 
-    // Get total count (for pagination info)
-    const countSnapshot = await queryRef.count().get()
-    const totalCount = countSnapshot.data().count
+    // Get total count (for pagination info). The aggregation query can fail in
+    // some environments / index states — degrade gracefully instead of 500-ing.
+    let totalCount = 0
+    try {
+      const countSnapshot = await queryRef.count().get()
+      totalCount = countSnapshot.data().count
+    } catch (countErr) {
+      console.warn('orders count() failed; falling back to a capped scan', countErr)
+      try {
+        const capped = await queryRef.limit(1000).get()
+        totalCount = capped.size
+      } catch {
+        totalCount = 0
+      }
+    }
 
     // Apply pagination
     const offset = (page - 1) * pageSize
-    queryRef = queryRef.limit(pageSize).offset(offset)
+    const pagedRef = queryRef.limit(pageSize).offset(offset)
 
-    const snapshot = await queryRef.get()
+    // The orderBy can require a composite index when combined with filters.
+    // If the ordered query fails, retry without ordering so the page still loads.
+    let snapshot
+    try {
+      snapshot = await pagedRef.get()
+    } catch (orderErr) {
+      console.warn('orders ordered query failed; retrying unordered', orderErr)
+      let fallbackRef: any = adminDb.collection('tickets')
+      if (status && status !== 'all') fallbackRef = fallbackRef.where('status', '==', status)
+      if (paymentMethod && paymentMethod !== 'all') fallbackRef = fallbackRef.where('payment_method', '==', paymentMethod)
+      if (currency && currency !== 'all') fallbackRef = fallbackRef.where('currency', '==', currency.toUpperCase())
+      if (eventId) fallbackRef = fallbackRef.where('event_id', '==', eventId)
+      snapshot = await fallbackRef.limit(pageSize).offset(offset).get()
+    }
 
     let orders = snapshot.docs.map((doc: any) => ({
       id: doc.id,
@@ -166,27 +191,62 @@ export async function POST(request: Request) {
     const { type } = body
 
     if (type === 'summary') {
-      // Get orders summary statistics
+      // Get orders summary statistics. Each aggregate is computed defensively so
+      // a single failing query (e.g. a missing composite index) never 500s the
+      // whole summary — the page just shows best-effort numbers.
       const ticketsRef = adminDb.collection('tickets')
 
-      // Total orders
-      const totalSnap = await ticketsRef.count().get()
-      const totalOrders = totalSnap.data().count
+      const safeCount = async (q: any): Promise<number> => {
+        try {
+          const s = await q.count().get()
+          return s.data().count
+        } catch (e) {
+          console.warn('orders summary count() failed', e)
+          return 0
+        }
+      }
 
-      // By status
-      const confirmedSnap = await ticketsRef.where('status', '==', 'confirmed').count().get()
-      const pendingSnap = await ticketsRef.where('status', '==', 'pending').count().get()
-      const cancelledSnap = await ticketsRef.where('status', '==', 'cancelled').count().get()
-      const refundedSnap = await ticketsRef.where('status', '==', 'refunded').count().get()
+      const [totalOrders, confirmed, pending, cancelled, refunded] = await Promise.all([
+        safeCount(ticketsRef),
+        safeCount(ticketsRef.where('status', '==', 'confirmed')),
+        safeCount(ticketsRef.where('status', '==', 'pending')),
+        safeCount(ticketsRef.where('status', '==', 'cancelled')),
+        safeCount(ticketsRef.where('status', '==', 'refunded')),
+      ])
 
-      // Get revenue data (last 30 days for trend)
+      // Revenue (last 30 days). The status-in + date-range combo needs a
+      // composite index; if it's missing, fall back to a status-only query and
+      // filter the date in memory.
       const thirtyDaysAgo = new Date()
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-      const recentTickets = await ticketsRef
-        .where('status', 'in', ['confirmed', 'valid'])
-        .where('purchased_at', '>=', thirtyDaysAgo)
-        .get()
+      const toDate = (v: any): Date | null => {
+        if (!v) return null
+        if (typeof v?.toDate === 'function') return v.toDate()
+        const d = new Date(v)
+        return Number.isNaN(d.getTime()) ? null : d
+      }
+
+      let recentDocs: any[] = []
+      try {
+        const recentTickets = await ticketsRef
+          .where('status', 'in', ['confirmed', 'valid'])
+          .where('purchased_at', '>=', thirtyDaysAgo)
+          .get()
+        recentDocs = recentTickets.docs
+      } catch (e) {
+        console.warn('orders summary revenue query failed; falling back to in-memory date filter', e)
+        try {
+          const snap = await ticketsRef.where('status', 'in', ['confirmed', 'valid']).limit(2000).get()
+          recentDocs = snap.docs.filter((d: any) => {
+            const dt = toDate(d.data()?.purchased_at)
+            return dt !== null && dt >= thirtyDaysAgo
+          })
+        } catch (e2) {
+          console.warn('orders summary revenue fallback failed', e2)
+          recentDocs = []
+        }
+      }
 
       let totalRevenueUSD = 0
       let totalRevenueHTG = 0
@@ -194,17 +254,14 @@ export async function POST(request: Request) {
       let moncashCount = 0
       let natcashCount = 0
 
-      recentTickets.docs.forEach((doc: any) => {
+      recentDocs.forEach((doc: any) => {
         const data = doc.data()
-        const price = parseFloat(data.price_paid || 0)
+        const price = parseFloat(data.price_paid || 0) || 0
         const currency = (data.currency || 'USD').toUpperCase()
         const method = (data.payment_method || '').toLowerCase()
 
-        if (currency === 'HTG') {
-          totalRevenueHTG += price
-        } else {
-          totalRevenueUSD += price
-        }
+        if (currency === 'HTG') totalRevenueHTG += price
+        else totalRevenueUSD += price
 
         if (method === 'stripe') stripeCount++
         else if (method === 'moncash') moncashCount++
@@ -214,23 +271,18 @@ export async function POST(request: Request) {
       // Today's orders
       const today = new Date()
       today.setHours(0, 0, 0, 0)
-      const todaySnap = await ticketsRef.where('purchased_at', '>=', today).count().get()
+      const todayOrders = await safeCount(ticketsRef.where('purchased_at', '>=', today))
 
       return adminOk({
         summary: {
           totalOrders,
-          todayOrders: todaySnap.data().count,
-          byStatus: {
-            confirmed: confirmedSnap.data().count,
-            pending: pendingSnap.data().count,
-            cancelled: cancelledSnap.data().count,
-            refunded: refundedSnap.data().count,
-          },
+          todayOrders,
+          byStatus: { confirmed, pending, cancelled, refunded },
           last30Days: {
-            orders: recentTickets.size,
+            orders: recentDocs.length,
             revenueUSD: totalRevenueUSD,
             revenueHTG: totalRevenueHTG,
-            avgOrderValueUSD: recentTickets.size > 0 ? totalRevenueUSD / recentTickets.size : 0,
+            avgOrderValueUSD: recentDocs.length > 0 ? totalRevenueUSD / recentDocs.length : 0,
           },
           byPaymentMethod: {
             stripe: stripeCount,

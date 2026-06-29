@@ -63,15 +63,16 @@ export function PayoutOperationsClient({
   ]
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
       {/* Breadcrumbs */}
       <AdminBreadcrumbs items={[{ label: 'Payout Operations' }]} />
-      
+
       {/* Header */}
       <div className="mb-8">
         <EditorialHeader
           title="Payout Operations"
           subtitle="Manage event disbursements, pending requests, and withdrawal history"
+          tone="dark"
         />
       </div>
 
