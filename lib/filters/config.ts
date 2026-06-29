@@ -302,21 +302,59 @@ export function hasSubdivisions(city: string, countryCode: string = 'HT'): boole
 }
 
 /**
- * All available categories
+ * Discover filter categories. These MUST match the values events are actually
+ * tagged with at create/edit time (see the organizer create/edit forms), so the
+ * category filter returns results. Canonical set:
  */
 export const CATEGORIES = [
-  'Music',
-  'Sports',
-  'Arts & Culture',
-  'Business',
-  'Food & Drink',
-  'Education',
-  'Technology',
-  'Health & Wellness',
+  'Concert',
   'Party',
-  'Religious',
-  'Other'
+  'Festival',
+  'Conference',
+  'Workshop',
+  'Sports',
+  'Theater',
+  'Other',
 ]
+
+/**
+ * Map any stored event category (including legacy / seed / mixed-case values)
+ * to one of the canonical CATEGORIES so filtering is robust. Unknown values
+ * fall back to 'Other'.
+ */
+const CATEGORY_SYNONYMS: Record<string, string> = {
+  concert: 'Concert',
+  music: 'Concert',
+  party: 'Party',
+  nightlife: 'Party',
+  festival: 'Festival',
+  cultural: 'Festival',
+  culture: 'Festival',
+  conference: 'Conference',
+  business: 'Conference',
+  networking: 'Conference',
+  workshop: 'Workshop',
+  education: 'Workshop',
+  technology: 'Workshop',
+  tech: 'Workshop',
+  sports: 'Sports',
+  sport: 'Sports',
+  theater: 'Theater',
+  theatre: 'Theater',
+  art: 'Theater',
+  arts: 'Theater',
+  'arts & culture': 'Theater',
+  other: 'Other',
+}
+
+export function normalizeEventCategory(raw?: string | null): string {
+  const key = String(raw || '').trim().toLowerCase()
+  if (!key) return 'Other'
+  if (CATEGORY_SYNONYMS[key]) return CATEGORY_SYNONYMS[key]
+  // Exact (case-insensitive) match against a canonical category.
+  const canonical = CATEGORIES.find((c) => c.toLowerCase() === key)
+  return canonical || 'Other'
+}
 
 /**
  * Currency configuration by country

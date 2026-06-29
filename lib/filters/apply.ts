@@ -4,6 +4,7 @@
 
 import { EventFilters } from './types'
 import { getDateRange, getPriceRange } from './utils'
+import { normalizeEventCategory } from './config'
 import { isBudgetFriendlyTicketPrice, isOverBudgetTicketPrice } from '@/lib/pricing'
 
 // Use the actual database event type structure
@@ -77,9 +78,10 @@ export function filterEvents(events: Event[], filters: EventFilters): Event[] {
   
   // Category filter
   if (filters.categories.length > 0) {
-    filtered = filtered.filter(event => 
-      filters.categories.includes(event.category)
-    )
+    // Normalize both sides so legacy / mixed-case event categories still match
+    // the canonical filter chips.
+    const selected = new Set(filters.categories.map((c) => normalizeEventCategory(c)))
+    filtered = filtered.filter((event) => selected.has(normalizeEventCategory(event.category)))
   }
   
   // Price filter

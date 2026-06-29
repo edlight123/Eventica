@@ -7,30 +7,24 @@ import {
   Trophy,
   Palette,
   Briefcase,
-  UtensilsCrossed,
-  GraduationCap,
-  Cpu,
-  HeartPulse,
   PartyPopper,
-  Church,
   Sparkles,
+  Drama,
+  Ticket,
   type LucideIcon,
 } from 'lucide-react'
 import { CATEGORIES } from '@/lib/filters/config'
 import { getPosterTheme } from '@/lib/posterGradient'
 
 const ICONS: Record<string, LucideIcon> = {
-  Music,
-  Sports: Trophy,
-  'Arts & Culture': Palette,
-  Business: Briefcase,
-  'Food & Drink': UtensilsCrossed,
-  Education: GraduationCap,
-  Technology: Cpu,
-  'Health & Wellness': HeartPulse,
+  Concert: Music,
   Party: PartyPopper,
-  Religious: Church,
-  Other: Sparkles,
+  Festival: Sparkles,
+  Conference: Briefcase,
+  Workshop: Palette,
+  Sports: Trophy,
+  Theater: Drama,
+  Other: Ticket,
 }
 
 /**

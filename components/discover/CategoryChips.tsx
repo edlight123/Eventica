@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { FilterChip } from '@/components/FilterChip'
 import { CATEGORIES } from '@/lib/filters/config'
-import { Music, Trophy, Palette, Briefcase, Utensils, GraduationCap, Laptop, HeartPulse, PartyPopper, Church, Sparkles } from 'lucide-react'
+import { Music, Trophy, Palette, Briefcase, PartyPopper, Sparkles, Ticket, Drama } from 'lucide-react'
 
 interface CategoryChipsProps {
   selectedCategories: string[]
@@ -15,17 +15,14 @@ interface CategoryChipsProps {
 
 // Category icon mapping
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
-  'Music': <Music className="w-3.5 h-3.5" />,
-  'Sports': <Trophy className="w-3.5 h-3.5" />,
-  'Arts & Culture': <Palette className="w-3.5 h-3.5" />,
-  'Business': <Briefcase className="w-3.5 h-3.5" />,
-  'Food & Drink': <Utensils className="w-3.5 h-3.5" />,
-  'Education': <GraduationCap className="w-3.5 h-3.5" />,
-  'Technology': <Laptop className="w-3.5 h-3.5" />,
-  'Health & Wellness': <HeartPulse className="w-3.5 h-3.5" />,
+  'Concert': <Music className="w-3.5 h-3.5" />,
   'Party': <PartyPopper className="w-3.5 h-3.5" />,
-  'Religious': <Church className="w-3.5 h-3.5" />,
-  'Other': <Sparkles className="w-3.5 h-3.5" />
+  'Festival': <Sparkles className="w-3.5 h-3.5" />,
+  'Conference': <Briefcase className="w-3.5 h-3.5" />,
+  'Workshop': <Palette className="w-3.5 h-3.5" />,
+  'Sports': <Trophy className="w-3.5 h-3.5" />,
+  'Theater': <Drama className="w-3.5 h-3.5" />,
+  'Other': <Ticket className="w-3.5 h-3.5" />,
 }
 
 export function CategoryChips({ selectedCategories, bare = false }: CategoryChipsProps) {
