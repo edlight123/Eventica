@@ -126,7 +126,11 @@ A consistent dark, flat admin system has been established this cycle. Primitives
 5. **Tables** — `DataTable` (`components/ui/DataTable.tsx`) already provides sort, client/server pagination, selection, and a toolbar slot, and is used by Orders, Organizers, Marketing. Remaining: URL-persisted filters + a shared CSV-export affordance (Orders/Verify already export ad-hoc). [P1, partially done]
 6. ~~**Confirmations**~~ — **Done (core).** Added a shared promise-based confirm system: `components/ui/ConfirmProvider.tsx` (`useConfirm()`), mounted in `app/admin/layout.tsx`. Converted destructive `window.confirm` gates to it in: organizer ban/disable, event bulk-delete, bank-verification approve, verification bulk-approve + single approve, security index-rebuild, and withdrawal approve/reject (payment). **Feedback `alert(...)` fully migrated to Toasts** across all admin flows (16 components, ~20 alerts) — verify, security, withdrawals, events console + detail sheet, bank verification, disbursements, verify-organizer form, and the review screen. Zero raw `alert()` remain in admin.
 7. **Responsiveness/accessibility** — audit at 1440/1280/1024/768/390; focus traps in drawers/modals, keyboard nav, contrast. (Confirm dialog is focus-trapped + Esc-closable.) [P1]
-8. **Tests** — add coverage for route protection, event moderation, organizer status, order/refund, payout actions, form validation, destructive confirmations. [P1]
+8. **Tests** — in progress (Jest 30 confirmed working after `npm install` fixed a stale jest-25 node_modules). Added & passing (30 tests green) + a new security suite:
+   - `__tests__/currency.test.ts` — `formatCurrency` regression (Orders crash: invalid/lowercase/missing currency, non-finite amounts).
+   - `__tests__/unit/components/confirm-provider.test.tsx` — confirm dialog resolves true/false + window.confirm fallback.
+   - `__tests__/unit/lib/auth-rules.test.ts` — **permission enforcement**: extracted pure decision helpers `lib/auth-rules.ts` (`evaluateAdminAccess`/`evaluateSuperAdminAccess`/`evaluateDevToolsAccess`) that `requireAdmin`/`requireSuperAdmin`/`requireDevTools` now delegate to (behavior preserved). Covers: deny unauthenticated, role + allow-list, super-admin-only, and dev-tools prod/non-prod gating.
+   Still to add: event-moderation and payout-action workflow tests. [P1]
 
 ## 7. Verification commands
 

@@ -4,6 +4,11 @@ import { UserRole } from '@/types/database'
 import { isDemoMode } from '@/lib/demo'
 import { cookies } from 'next/headers'
 import { isAdmin as isAdminEmail } from '@/lib/admin'
+import {
+  evaluateAdminAccess,
+  evaluateSuperAdminAccess,
+  evaluateDevToolsAccess,
+} from '@/lib/auth-rules'
 
 function hasFirestoreAdmin(db: any): db is { collection: (path: string) => any } {
   return Boolean(db && typeof db.collection === 'function')
@@ -144,21 +149,12 @@ export async function requireAuth(requiredRole?: UserRole) {
 
 export async function requireAdmin() {
   const user = await getCurrentUser()
-  
-  if (!user) {
-    return { user: null, error: 'Not authenticated' }
-  }
-
-  // Canonical model: role-based admin
-  const roleIsAdmin = user.role === 'admin' || user.role === 'super_admin'
-  // Bootstrap model: allow emails in ADMIN_EMAILS (useful before roles are seeded)
-  const emailIsAdmin = isAdminEmail(user.email)
-
-  if (!roleIsAdmin && !emailIsAdmin) {
-    return { user: null, error: 'Admin access required' }
-  }
-
-  return { user, error: null }
+  const decision = evaluateAdminAccess({
+    authenticated: !!user,
+    role: user?.role,
+    isAllowlistedEmail: user ? isAdminEmail(user.email) : false,
+  })
+  return { user: decision.allowed ? user : null, error: decision.error }
 }
 
 /**
@@ -167,9 +163,8 @@ export async function requireAdmin() {
  */
 export async function requireSuperAdmin() {
   const user = await getCurrentUser()
-  if (!user) return { user: null, error: 'Not authenticated' }
-  if (user.role !== 'super_admin') return { user: null, error: 'Super admin access required' }
-  return { user, error: null }
+  const decision = evaluateSuperAdminAccess({ authenticated: !!user, role: user?.role })
+  return { user: decision.allowed ? user : null, error: decision.error }
 }
 
 /**
@@ -180,21 +175,14 @@ export async function requireSuperAdmin() {
  */
 export async function requireDevTools() {
   const user = await getCurrentUser()
-  if (!user) return { user: null, error: 'Not authenticated' }
-
-  const roleIsAdmin = user.role === 'admin' || user.role === 'super_admin'
-  const isAdminAtAll = roleIsAdmin || isAdminEmail(user.email)
-  if (!isAdminAtAll) return { user: null, error: 'Admin access required' }
-
-  const isSuper = user.role === 'super_admin'
-  const enabledByEnv =
-    process.env.ENABLE_DEV_TOOLS === 'true' || process.env.NODE_ENV !== 'production'
-
-  if (!isSuper && !enabledByEnv) {
-    return { user: null, error: 'Developer tools are disabled in this environment' }
-  }
-
-  return { user, error: null }
+  const decision = evaluateDevToolsAccess({
+    authenticated: !!user,
+    role: user?.role,
+    isAllowlistedEmail: user ? isAdminEmail(user.email) : false,
+    isProduction: process.env.NODE_ENV === 'production',
+    enableDevToolsEnv: process.env.ENABLE_DEV_TOOLS === 'true',
+  })
+  return { user: decision.allowed ? user : null, error: decision.error }
 }
 
 export async function isOrganizer() {

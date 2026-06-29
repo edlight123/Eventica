@@ -37,6 +37,29 @@ describe('Currency Utilities', () => {
     it('should default to USD when no currency specified', () => {
       expect(formatCurrency(50)).toBe('$50.00')
     })
+
+    // Regression: the admin Orders page crashed with
+    // "Cannot read properties of undefined (reading 'decimals')" when an order
+    // carried a missing / lowercase / unexpected currency.
+    it('should not crash on an invalid or missing currency (falls back to USD)', () => {
+      expect(() => formatCurrency(100, undefined as any)).not.toThrow()
+      expect(() => formatCurrency(100, null as any)).not.toThrow()
+      expect(() => formatCurrency(100, '' as any)).not.toThrow()
+      expect(() => formatCurrency(100, 'EUR' as any)).not.toThrow()
+      expect(formatCurrency(100, null as any)).toBe('$100.00')
+      expect(formatCurrency(100, 'EUR' as any)).toBe('$100.00')
+    })
+
+    it('should accept lowercase currency codes', () => {
+      expect(formatCurrency(100, 'usd' as any)).toBe('$100.00')
+      expect(formatCurrency(100, 'htg' as any)).toBe('G100.00')
+    })
+
+    it('should coerce non-finite amounts to 0', () => {
+      expect(formatCurrency(NaN as any, 'USD')).toBe('$0.00')
+      expect(formatCurrency(undefined as any, 'USD')).toBe('$0.00')
+      expect(formatCurrency(Infinity as any, 'USD')).toBe('$0.00')
+    })
   })
 
   describe('convertCurrency', () => {
