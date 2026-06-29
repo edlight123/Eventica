@@ -57,10 +57,8 @@ export function AdminTopNav({ userEmail, accountInitial = 'A' }: AdminTopNavProp
 
   const tabs: Tab[] = [
     { label: 'Dashboard', href: '/admin' },
-    { label: 'Users', href: '/admin/users' },
-    { label: 'Organizers', href: '/admin/organizers' },
-    { label: 'Verifications', href: '/admin/verify', badge: pendingVerifications },
-    { label: 'Bank', href: '/admin/bank-verifications', badge: pendingBank },
+    { label: 'People', href: '/admin/users' },
+    { label: 'Verifications', href: '/admin/verify', badge: pendingVerifications + pendingBank },
     { label: 'Events', href: '/admin/events' },
     { label: 'Orders', href: '/admin/orders' },
     { label: 'Payouts', href: '/admin/disbursements' },

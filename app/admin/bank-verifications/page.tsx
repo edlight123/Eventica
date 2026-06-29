@@ -1,19 +1,8 @@
-import { AdminBreadcrumbs } from '@/components/admin/AdminBreadcrumbs'
-import BankVerificationsClient from './BankVerificationsClient'
+import { redirect } from 'next/navigation'
 
-export const revalidate = 0
 export const dynamic = 'force-dynamic'
 
-export default async function BankVerificationsPage() {
-  return (
-    <div>
-      <AdminBreadcrumbs
-        items={[
-          { label: 'Verifications', href: '/admin/verifications' },
-          { label: 'Bank Accounts' },
-        ]}
-      />
-      <BankVerificationsClient />
-    </div>
-  )
+// Consolidated into the unified Verifications hub (Identity / Bank tabs).
+export default function BankVerificationsPage() {
+  redirect('/admin/verify?tab=bank')
 }

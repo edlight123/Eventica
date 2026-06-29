@@ -1,4 +1,4 @@
-import AdminVerifyClient from './AdminVerifyClient'
+import VerificationsHub from './VerificationsHub'
 import { adminDb } from '@/lib/firebase/admin'
 
 export const revalidate = 0
@@ -240,7 +240,7 @@ export default async function AdminVerifyPage({
   }
 
   return (
-    <AdminVerifyClient 
+    <VerificationsHub
       requestsWithUsers={requestsWithUsers}
       organizers={organizers}
     />

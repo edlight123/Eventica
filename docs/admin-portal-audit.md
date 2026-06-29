@@ -150,11 +150,11 @@ A consistent dark, flat admin system has been established this cycle. Primitives
 
 **Organizers list (`/admin/organizers`) — refactored this pass.** Removed: the "Total Users" stat (belongs on Users, not here) and the dead "Role" column (every row is `organizer`), plus the confusing dual row-links. Added: organizer-relevant stats (Organizers / Verified / Not verified), a **search** box (name/email), and a **verification filter** (All / Verified / Pending / Not verified). Each row now links once to the organizer admin (`/admin/organizers/[id]`) with a "Manage" affordance.
 
-**Overlaps & recommendations (need product decision — they change nav/URLs):**
+**Overlaps & resolutions:**
 
-1. **`/admin/users` ⊃ `/admin/organizers` (strong overlap).** Both list people and (before this pass) showed identical stat cards. Recommendation: **merge the two list pages into one "People" page** with a role filter (All / Organizers / Verified / Admins) + search, eliminating the duplicate. Keep BOTH detail pages — they're genuinely different: `/admin/users/[id]` = general account (+ promote to organizer); `/admin/organizers/[id]` = organizer **operations** (payouts, bank, verification, ban/disable). Lower-effort alternative (done now): keep `/admin/organizers` as a filtered, organizer-specific view with its own search/filter.
+1. ~~**`/admin/users` ⊃ `/admin/organizers`**~~ — **MERGED.** Unified **People hub** at `/admin/users` (`app/admin/users/PeopleHub.tsx`) with `All users` / `Organizers` tabs. `/admin/organizers` now redirects to `/admin/users?tab=organizers`. Both detail pages kept (general account vs organizer operations). Top-nav item renamed to **People** (one entry instead of two).
 
-2. **`/admin/verify` (identity) + `/admin/bank-verifications` (bank) — combine.** Both are review queues. Recommendation: one **"Verifications" hub** with `Identity` / `Bank` tabs, and drop the separate "Bank" top-nav item (fold it into Verifications). Reduces top-nav from 9 to 8 and groups related review work.
+2. ~~**`/admin/verify` + `/admin/bank-verifications`**~~ — **MERGED.** Unified **Verifications hub** at `/admin/verify` (`app/admin/verify/VerificationsHub.tsx`) with `Identity` / `Bank` tabs (Bank lazy-mounted). `/admin/bank-verifications` redirects to `/admin/verify?tab=bank`. The separate "Bank" top-nav item was removed and its pending badge folded into Verifications. **Top nav: 9 → 7 items** (Dashboard, People, Verifications, Events, Orders, Payouts, Analytics).
 
 3. **Payments cluster — already consolidated (good).** `/admin/payouts` → `/admin/disbursements`; `/admin/withdrawals` → `/admin/disbursements#withdrawals`. Keep as redirects.
 
