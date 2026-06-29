@@ -293,9 +293,15 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                 <Info className="w-4 h-4 sm:w-5 sm:h-5 text-brand-400" />
                 {t('events.about_event')}
               </h2>
-              <p className="text-sm sm:text-[15px] text-white/70 whitespace-pre-wrap leading-relaxed">
-                {event.description}
-              </p>
+              {event.description && event.description.trim() ? (
+                <p className="text-sm sm:text-[15px] text-white/70 whitespace-pre-wrap leading-relaxed">
+                  {event.description}
+                </p>
+              ) : (
+                <p className="text-sm sm:text-[15px] italic text-white/40 leading-relaxed">
+                  {t('events.no_description', { defaultValue: 'The organizer hasn’t added a description yet.' })}
+                </p>
+              )}
             </div>
 
             {/* Venue Details - Desktop */}

@@ -78,9 +78,15 @@ export default function MobileAccordions({
         icon={<Sparkles className="w-5 h-5 text-brand-400" />}
         defaultOpen={true}
       >
-        <p className="text-sm text-white/70 whitespace-pre-wrap leading-relaxed mb-3">
-          {description}
-        </p>
+        {description && description.trim() ? (
+          <p className="text-sm text-white/70 whitespace-pre-wrap leading-relaxed mb-3">
+            {description}
+          </p>
+        ) : (
+          <p className="text-sm italic text-white/40 leading-relaxed mb-3">
+            {t('events.no_description', { defaultValue: 'The organizer hasn’t added a description yet.' })}
+          </p>
+        )}
         {tags && tags.length > 0 && (
           <div className="pt-3 border-t border-white/10">
             <h4 className="text-xs font-semibold text-white/50 mb-2">{t('events.tags').toUpperCase()}</h4>
