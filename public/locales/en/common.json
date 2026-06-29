@@ -172,6 +172,7 @@
     "vip_event": "VIP Event",
     "verified": "Verified",
     "about_event": "About This Event",
+    "no_description": "The organizer hasn’t added a description yet.",
     "date_time": "Date & Time",
     "availability": "Availability",
     "tickets_remaining": "Tickets remaining:",
