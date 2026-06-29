@@ -295,71 +295,65 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
       )}
 
       {/* Payment Method Breakdown */}
-      <div className="rounded-xl border border-white/10 p-4">
-        <h3 className="text-sm font-semibold text-white mb-3">Revenue by Payment Method</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {/* Stripe */}
-          <div className="border border-blue-500/30 rounded-lg p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <CreditCard className="w-4 h-4 text-blue-300" />
-              <h4 className="text-sm font-medium text-blue-300">Stripe</h4>
-            </div>
-            <div className="space-y-1">
-              <div>
-                <div className="text-xs text-blue-300">Revenue (USD)</div>
-                <div className="text-lg font-bold text-blue-300">
-                  {formatCurrency(revenue.byPaymentMethod.stripe.revenueUSD, 'USD')}
+      <div>
+        <h3 className="mb-3 text-sm font-semibold text-white">Revenue by payment method</h3>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {[
+            {
+              name: 'Stripe',
+              icon: CreditCard,
+              accent: 'text-blue-300',
+              code: 'USD',
+              primary: formatCurrency(revenue.byPaymentMethod.stripe.revenueUSD, 'USD'),
+              meta: [
+                `${revenue.byPaymentMethod.stripe.tickets.toLocaleString()} tickets`,
+                `Avg ${formatCurrency(revenue.byPaymentMethod.stripe.averagePrice, 'USD')}`,
+              ],
+            },
+            {
+              name: 'MonCash',
+              icon: Smartphone,
+              accent: 'text-red-300',
+              code: 'HTG',
+              primary: formatCurrency(revenue.byPaymentMethod.moncash.revenueHTG, 'HTG'),
+              meta: [
+                `${revenue.byPaymentMethod.moncash.tickets.toLocaleString()} tickets`,
+                `≈ ${formatCurrency(revenue.byPaymentMethod.moncash.revenueUSD, 'USD')}`,
+              ],
+            },
+            {
+              name: 'NatCash',
+              icon: Smartphone,
+              accent: 'text-emerald-300',
+              code: 'HTG',
+              primary: formatCurrency(revenue.byPaymentMethod.natcash.revenueHTG, 'HTG'),
+              meta: [
+                `${revenue.byPaymentMethod.natcash.tickets.toLocaleString()} tickets`,
+                `≈ ${formatCurrency(revenue.byPaymentMethod.natcash.revenueUSD, 'USD')}`,
+              ],
+            },
+          ].map((m) => {
+            const Icon = m.icon
+            return (
+              <div key={m.name} className="rounded-xl border border-white/10 p-5">
+                <div className="mb-4 flex items-center gap-2">
+                  <Icon className={`h-4 w-4 ${m.accent}`} />
+                  <h4 className="text-sm font-semibold text-white">{m.name}</h4>
+                  <span className="ml-auto text-[11px] font-medium uppercase tracking-wide text-white/35">
+                    {m.code}
+                  </span>
+                </div>
+                <div className="text-[26px] font-bold leading-none tabular-nums text-white">
+                  {m.primary}
+                </div>
+                <div className="mt-4 flex items-center gap-4 border-t border-white/10 pt-3 text-xs text-white/50">
+                  {m.meta.map((x, i) => (
+                    <span key={i} className="tabular-nums">{x}</span>
+                  ))}
                 </div>
               </div>
-              <div className="text-xs text-blue-300">
-                {revenue.byPaymentMethod.stripe.tickets} tickets • Avg: {formatCurrency(revenue.byPaymentMethod.stripe.averagePrice, 'USD')}
-              </div>
-            </div>
-          </div>
-
-          {/* MonCash */}
-          <div className="border border-red-500/30 rounded-lg p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <Smartphone className="w-4 h-4 text-red-300" />
-              <h4 className="text-sm font-medium text-red-300">MonCash</h4>
-            </div>
-            <div className="space-y-1">
-              <div>
-                <div className="text-xs text-red-300">Revenue (HTG)</div>
-                <div className="text-lg font-bold text-red-300">
-                  {formatCurrency(revenue.byPaymentMethod.moncash.revenueHTG, 'HTG')}
-                </div>
-              </div>
-              <div className="text-xs text-red-300">
-                USD: {formatCurrency(revenue.byPaymentMethod.moncash.revenueUSD, 'USD')}
-              </div>
-              <div className="text-xs text-red-300">
-                {revenue.byPaymentMethod.moncash.tickets} tickets
-              </div>
-            </div>
-          </div>
-
-          {/* NatCash */}
-          <div className="border border-emerald-500/30 rounded-lg p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <Smartphone className="w-4 h-4 text-emerald-300" />
-              <h4 className="text-sm font-medium text-emerald-300">NatCash</h4>
-            </div>
-            <div className="space-y-1">
-              <div>
-                <div className="text-xs text-emerald-300">Revenue (HTG)</div>
-                <div className="text-lg font-bold text-emerald-300">
-                  {formatCurrency(revenue.byPaymentMethod.natcash.revenueHTG, 'HTG')}
-                </div>
-              </div>
-              <div className="text-xs text-emerald-300">
-                USD: {formatCurrency(revenue.byPaymentMethod.natcash.revenueUSD, 'USD')}
-              </div>
-              <div className="text-xs text-emerald-300">
-                {revenue.byPaymentMethod.natcash.tickets} tickets
-              </div>
-            </div>
-          </div>
+            )
+          })}
         </div>
       </div>
 

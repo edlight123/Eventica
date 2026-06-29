@@ -125,7 +125,14 @@ A consistent dark, flat admin system has been established this cycle. Primitives
 4. **Dead code** — confirmed unused: `components/admin/AdminClientLayout.tsx`, `components/admin/AdminSidebar.tsx`, `components/admin/AdminKpiGrid.tsx`. (Sandbox can't delete; remove with `git rm`.) [P2]
 5. **Tables** — `DataTable` (`components/ui/DataTable.tsx`) already provides sort, client/server pagination, selection, and a toolbar slot, and is used by Orders, Organizers, Marketing. Remaining: URL-persisted filters + a shared CSV-export affordance (Orders/Verify already export ad-hoc). [P1, partially done]
 6. ~~**Confirmations**~~ — **Done (core).** Added a shared promise-based confirm system: `components/ui/ConfirmProvider.tsx` (`useConfirm()`), mounted in `app/admin/layout.tsx`. Converted destructive `window.confirm` gates to it in: organizer ban/disable, event bulk-delete, bank-verification approve, verification bulk-approve + single approve, security index-rebuild, and withdrawal approve/reject (payment). **Feedback `alert(...)` fully migrated to Toasts** across all admin flows (16 components, ~20 alerts) — verify, security, withdrawals, events console + detail sheet, bank verification, disbursements, verify-organizer form, and the review screen. Zero raw `alert()` remain in admin.
-7. **Responsiveness/accessibility** — audit at 1440/1280/1024/768/390; focus traps in drawers/modals, keyboard nav, contrast. (Confirm dialog is focus-trapped + Esc-closable.) [P1]
+7. **Responsiveness/accessibility** — code-based audit completed (browser screenshots render at a fixed ~1555px so true-mobile visual verification wasn't possible; audited the responsive class system + a11y attributes instead). Findings — **no viewport-breaking issues**:
+   - Top nav: horizontal `overflow-x-auto` scroll on mobile; `aria-label="Admin"`; all icon links have `aria-label` (Dev tools/Security/Settings/Account) + `focus-visible` rings.
+   - Tables (payouts/disbursements/withdrawals): wrapped in `overflow-x-auto`; WithdrawalsView has an `md:hidden` mobile-card fallback.
+   - Event detail sheet: `w-full sm:w-[600px] lg:w-[700px]` (full-width on mobile).
+   - KPI strips: dashboard uses `grid-cols-2 sm:grid-cols-3 lg:grid-cols-6`; orders uses `grid-cols-2 sm:grid-cols-4`. No non-responsive 4/5/6-col grids.
+   - Confirm dialog: focus-trapped, Esc-closable, `role="alertdialog"`.
+   - Minor (optional): the 3-up `grid-cols-3 divide-x` stat strips (users/organizers/security/etc.) are tight but functional at 390px; left as-is to avoid unverified layout regressions.
+   Remaining for a full WCAG pass: keyboard-nav walkthrough, color-contrast measurement, and screen-reader testing — best done interactively on the live site. [largely done]
 8. **Tests** — in progress (Jest 30 confirmed working after `npm install` fixed a stale jest-25 node_modules). Added & passing (30 tests green) + a new security suite:
    - `__tests__/currency.test.ts` — `formatCurrency` regression (Orders crash: invalid/lowercase/missing currency, non-finite amounts).
    - `__tests__/unit/components/confirm-provider.test.tsx` — confirm dialog resolves true/false + window.confirm fallback.
