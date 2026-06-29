@@ -132,6 +132,8 @@ export function AdminAnalyticsTabs() {
             <button
               key={tab.id}
               role="tab"
+              id={`atab-${tab.id}`}
+              aria-controls={`apanel-${tab.id}`}
               aria-selected={isActive}
               onClick={() => setActiveTab(tab.id)}
               className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
@@ -147,7 +149,7 @@ export function AdminAnalyticsTabs() {
 
       {/* Tab content (lazy-mounted) */}
       <div className="min-h-[360px]">
-        <div className={activeTab === 'overview' ? '' : 'hidden'}>
+        <div role="tabpanel" id="apanel-overview" aria-labelledby="atab-overview" tabIndex={0} className={activeTab === 'overview' ? 'focus:outline-none' : 'hidden'}>
           {visitedTabs.has('overview') && (
             <div className="space-y-6">
               <Section title="Revenue" subtitle="Gross sales across all currencies">
@@ -173,7 +175,7 @@ export function AdminAnalyticsTabs() {
           )}
         </div>
 
-        <div className={activeTab === 'revenue' ? '' : 'hidden'}>
+        <div role="tabpanel" id="apanel-revenue" aria-labelledby="atab-revenue" tabIndex={0} className={activeTab === 'revenue' ? 'focus:outline-none' : 'hidden'}>
           {visitedTabs.has('revenue') && (
             <Section title="Revenue analytics" subtitle="Multi-currency breakdown, payment methods & FX">
               <AdminRevenueAnalytics showFilters={true} />
@@ -181,7 +183,7 @@ export function AdminAnalyticsTabs() {
           )}
         </div>
 
-        <div className={activeTab === 'users' ? '' : 'hidden'}>
+        <div role="tabpanel" id="apanel-users" aria-labelledby="atab-users" tabIndex={0} className={activeTab === 'users' ? 'focus:outline-none' : 'hidden'}>
           {visitedTabs.has('users') && (
             <Section title="User growth" subtitle="New signups over the last 30 days">
               <UserGrowthAnalytics days={30} />
@@ -189,7 +191,7 @@ export function AdminAnalyticsTabs() {
           )}
         </div>
 
-        <div className={activeTab === 'events' ? '' : 'hidden'}>
+        <div role="tabpanel" id="apanel-events" aria-labelledby="atab-events" tabIndex={0} className={activeTab === 'events' ? 'focus:outline-none' : 'hidden'}>
           {visitedTabs.has('events') && (
             <Section title="Event performance" subtitle="Top-performing events">
               <EventPerformanceAnalytics />
@@ -197,7 +199,7 @@ export function AdminAnalyticsTabs() {
           )}
         </div>
 
-        <div className={activeTab === 'conversion' ? '' : 'hidden'}>
+        <div role="tabpanel" id="apanel-conversion" aria-labelledby="atab-conversion" tabIndex={0} className={activeTab === 'conversion' ? 'focus:outline-none' : 'hidden'}>
           {visitedTabs.has('conversion') && (
             <Section title="Conversion funnel" subtitle="From page views to completed orders">
               <ConversionFunnelAnalytics />
@@ -205,7 +207,7 @@ export function AdminAnalyticsTabs() {
           )}
         </div>
 
-        <div className={activeTab === 'organizers' ? '' : 'hidden'}>
+        <div role="tabpanel" id="apanel-organizers" aria-labelledby="atab-organizers" tabIndex={0} className={activeTab === 'organizers' ? 'focus:outline-none' : 'hidden'}>
           {visitedTabs.has('organizers') && (
             <Section title="Organizer rankings" subtitle="Best-performing organizers">
               <OrganizerRankingsAnalytics />

@@ -133,7 +133,11 @@ A consistent dark, flat admin system has been established this cycle. Primitives
    - Confirm dialog: focus-trapped, Esc-closable, `role="alertdialog"`.
    - Minor (optional): the 3-up `grid-cols-3 divide-x` stat strips (users/organizers/security/etc.) are tight but functional at 390px; left as-is to avoid unverified layout regressions.
    - **Contrast measured & fixed:** computed WCAG ratios of the muted-text tokens on `#0a0a0a` — `text-white/40` (3.77:1) and `text-white/45` (4.48:1) **failed AA** (4.5:1) for normal text. Bumped both to `text-white/50` (5.37:1, passes AA) across admin + the shared `components/ui` kit + the globals placeholder color (181 instances). All muted text now ≥ 5.37:1.
-   Remaining for a full WCAG pass: interactive keyboard-nav walkthrough and screen-reader testing on real AT (can't be faked from here). [largely done]
+   - **Interactive DOM audit (live, via Chrome) — dashboard, orders, analytics:**
+     - Accessible names: **0** nameless interactive controls (39 on the dashboard), **0** unlabeled inputs, **0** images missing `alt`. Landmarks present (`main`, `nav`, single `h1` per page).
+     - **Heading order fixed:** dashboard was `h1, h3, h3, h3, h3, h2` (skipped h2). Promoted the dashboard section headings to `h2` (`AdminActivityFeed`, `WorkQueueCard`, daily-stats note) → now `h1, h2, …`. Orders (`h1,h2`) and analytics (`h1,h2,h3,h4…`, no skips) verified clean.
+     - **Analytics tabs ARIA completed:** tabs had `role="tab"` in a `role="tablist"` but the panels weren't wired. Added `role="tabpanel"` + `id`/`aria-labelledby` to all 6 panels and `id`/`aria-controls` on the tabs (full WAI-ARIA tabs pattern).
+   Remaining for a full WCAG pass: hands-on screen-reader (VoiceOver/NVDA) walkthrough on real AT — can't be automated from here. [largely done]
 8. **Tests** — in progress (Jest 30 confirmed working after `npm install` fixed a stale jest-25 node_modules). Added & passing (30 tests green) + a new security suite:
    - `__tests__/currency.test.ts` — `formatCurrency` regression (Orders crash: invalid/lowercase/missing currency, non-finite amounts).
    - `__tests__/unit/components/confirm-provider.test.tsx` — confirm dialog resolves true/false + window.confirm fallback.

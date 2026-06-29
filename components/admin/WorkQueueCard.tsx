@@ -47,7 +47,7 @@ export function WorkQueueCard({
           <div className="flex items-center gap-2.5 min-w-0">
             <Icon className={`w-4 h-4 shrink-0 ${iconColor} opacity-80`} />
             <div className="min-w-0">
-              <h3 className="font-semibold text-sm text-white leading-tight truncate">{title}</h3>
+              <h2 className="font-semibold text-sm text-white leading-tight truncate">{title}</h2>
               <p className="text-xs text-white/50">{count} total</p>
             </div>
           </div>

@@ -134,9 +134,9 @@ export function AdminDashboardClient({
             <div className="flex items-start gap-2.5">
               <AlertCircle className="w-4 h-4 text-brand-300 mt-0.5 flex-shrink-0" />
               <div className="min-w-0">
-                <h3 className="font-semibold text-brand-300 text-sm">
+                <h2 className="font-semibold text-brand-300 text-sm">
                   {t('dashboard.daily_stats_title')}
-                </h3>
+                </h2>
                 <p className="text-xs text-brand-300 mt-1">
                   {t('dashboard.daily_stats_updated')}
                 </p>

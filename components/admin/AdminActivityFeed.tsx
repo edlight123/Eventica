@@ -188,10 +188,10 @@ export function AdminActivityFeed({
       {/* Header */}
       <div className="px-4 py-3 border-b border-white/10">
         <div className="flex items-center justify-between gap-2">
-          <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+          <h2 className="text-sm font-semibold text-white flex items-center gap-2">
             <Activity className="w-4 h-4 text-brand-300" />
             Activity Feed
-          </h3>
+          </h2>
           <button
             onClick={handleRefresh}
             disabled={isRefreshing}
