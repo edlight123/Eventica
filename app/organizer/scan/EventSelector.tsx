@@ -47,7 +47,7 @@ function ScanEventCard({ event, badge }: { event: any; badge?: { label: string; 
             {badge ? (
               <span
                 className={`eyebrow inline-flex rounded-md px-2 py-1 text-[9px] tracking-[0.12em] backdrop-blur-md ${
-                  badge.tone === 'today' ? 'bg-brand-600/90 text-white' : 'bg-white/85 text-white/70'
+                  badge.tone === 'today' ? 'bg-brand-600/90 text-white' : 'bg-white/85 text-black/70'
                 }`}
               >
                 {badge.label}

@@ -60,9 +60,15 @@ export function EventAccordions({
         </button>
         {openSections.has('about') && (
           <div className="px-4 pb-4 border-t border-white/10">
-            <p className="text-sm text-white/70 whitespace-pre-wrap leading-relaxed mt-4">
-              {description}
-            </p>
+            {description && description.trim() ? (
+              <p className="text-sm text-white/70 whitespace-pre-wrap leading-relaxed mt-4">
+                {description}
+              </p>
+            ) : (
+              <p className="text-sm italic text-white/40 leading-relaxed mt-4">
+                The organizer hasn’t added a description yet.
+              </p>
+            )}
             {tags && tags.length > 0 && (
               <div className="mt-4 pt-4 border-t border-white/10">
                 <p className="text-xs font-semibold text-white/50 mb-2">TAGS</p>

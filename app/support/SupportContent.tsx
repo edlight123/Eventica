@@ -164,7 +164,7 @@ export default function SupportContent() {
                   onClick={() => scrollToCategory(category.id)}
                   className="bg-[#0a0a0a] p-6 rounded-xl border border-white/10 hover:border-brand-300 hover:shadow-md transition-all text-left group"
                 >
-                  <div className="w-10 h-10 rounded-xl border border-brand-100 flex items-center justify-center mb-3">
+                  <div className="w-10 h-10 rounded-xl border border-white/10 flex items-center justify-center mb-3">
                     <category.icon className="w-5 h-5 text-brand-300" />
                   </div>
                   <h3 className="font-semibold text-white mb-2 group-hover:text-brand-600 transition-colors">
@@ -243,7 +243,7 @@ export default function SupportContent() {
         </div>
 
         {/* Still Need Help Section */}
-        <div className="mt-20 bg-gradient-to-br from-brand-50 to-brand-100 rounded-2xl border border-brand-100 p-8 sm:p-12">
+        <div className="mt-20 rounded-2xl border border-white/10 p-8 sm:p-12">
           <div className="text-center max-w-2xl mx-auto mb-8">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
               {t('need_help.title')}
@@ -260,7 +260,7 @@ export default function SupportContent() {
               className="bg-[#0a0a0a] p-6 rounded-xl border border-white/10 hover:border-brand-300 hover:shadow-md transition-all group"
             >
               <div className="flex items-center justify-between mb-3">
-                <Mail className="w-6 h-6 text-brand-600" />
+                <Mail className="w-6 h-6 text-brand-300" />
                 <ExternalLink className="w-4 h-4 text-white/40 group-hover:text-brand-600 transition-colors" />
               </div>
               <h3 className="font-semibold text-white mb-1">{t('contact_cards.email_title')}</h3>
@@ -292,7 +292,7 @@ export default function SupportContent() {
               className="bg-[#0a0a0a] p-6 rounded-xl border border-white/10 hover:border-brand-300 hover:shadow-md transition-all group"
             >
               <div className="flex items-center justify-between mb-3">
-                <FileText className="w-6 h-6 text-brand-600" />
+                <FileText className="w-6 h-6 text-brand-300" />
                 <ExternalLink className="w-4 h-4 text-white/40 group-hover:text-brand-600 transition-colors" />
               </div>
               <h3 className="font-semibold text-white mb-1">{t('contact_cards.request_title')}</h3>

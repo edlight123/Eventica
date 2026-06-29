@@ -34,10 +34,10 @@ function PosterMedia({ ev, zoom = false }: { ev: any; zoom?: boolean }) {
   const theme = getPosterTheme(ev.id || ev.title, ev.category)
   return (
     <div
-      className="absolute inset-0 flex items-center justify-center p-6 text-center"
+      className="absolute inset-0 flex items-center justify-center p-6 text-center [container-type:inline-size]"
       style={{ backgroundImage: theme.bg }}
     >
-      <span className="font-display text-[28px] leading-[0.98] text-white/95 drop-shadow-[0_2px_18px_rgba(0,0,0,0.45)] line-clamp-5">
+      <span className="font-display text-[clamp(20px,7cqw,28px)] leading-[0.98] text-white/95 drop-shadow-[0_2px_18px_rgba(0,0,0,0.45)] line-clamp-5 [hyphens:auto] [overflow-wrap:anywhere]">
         {ev.title}
       </span>
     </div>

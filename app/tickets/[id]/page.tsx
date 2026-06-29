@@ -108,7 +108,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
   const eventPassed = isPast(new Date(serializedEvent.end_datetime || serializedEvent.start_datetime || serializedEvent.date))
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 pb-20 sm:pb-24">
+    <div className="min-h-screen bg-[#0a0a0a] pb-20 sm:pb-24">
       <Navbar user={user} isAdmin={isAdmin(user?.email)} />
 
       <div className="max-w-5xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">

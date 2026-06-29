@@ -89,7 +89,7 @@ export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
             {cue && (
               <span
                 className={`eyebrow inline-flex rounded-md px-2 py-1 text-[9px] tracking-[0.1em] backdrop-blur-md
-                  ${cue.variant === 'warning' ? 'bg-amber-400/90 text-amber-950' : 'bg-white/85 text-white'}`}
+                  ${cue.variant === 'warning' ? 'bg-amber-400/90 text-amber-950' : 'bg-white text-black'}`}
               >
                 {cue.label}
               </span>

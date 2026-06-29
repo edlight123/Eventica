@@ -61,8 +61,8 @@ export default function PurchaseSuccessContentClient(props: Props) {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
       <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full bg-green-100 mb-4">
-          <svg className="w-8 h-8 md:w-10 md:h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full bg-green-500/10 mb-4">
+          <svg className="w-8 h-8 md:w-10 md:h-10 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
@@ -73,7 +73,7 @@ export default function PurchaseSuccessContentClient(props: Props) {
       </div>
 
       {props.hasTicket && (
-        <div className="bg-[#0a0a0a] rounded-xl shadow-sm border border-white/10 overflow-hidden mb-6">
+        <div className="bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden mb-6">
           <div className="bg-gradient-to-r from-brand-600 to-brand-700 p-4 md:p-6 text-white">
             <h2 className="text-lg md:text-xl lg:text-2xl font-bold mb-1.5 md:mb-2 line-clamp-2">{props.eventTitle}</h2>
             <p className="text-sm md:text-base text-brand-100">{startText}</p>
@@ -97,7 +97,7 @@ export default function PurchaseSuccessContentClient(props: Props) {
 
             <div className="flex justify-between items-center">
               <span className="text-[13px] font-medium text-white/65">{t('tickets:purchase_success.status_label')}</span>
-              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] md:text-xs font-medium bg-green-100 text-emerald-300">
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] md:text-xs font-medium bg-emerald-500/10 text-emerald-300">
                 {t('tickets:purchase_success.status_confirmed')}
               </span>
             </div>
@@ -143,7 +143,7 @@ export default function PurchaseSuccessContentClient(props: Props) {
       )}
 
       {!props.hasTicket && (
-        <div className="bg-[#0a0a0a] rounded-xl shadow-sm border border-white/10 p-8 md:p-12 text-center mb-6">
+        <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-8 md:p-12 text-center mb-6">
           <p className="text-sm md:text-base text-white/65">{t('tickets:purchase_success.no_ticket_message')}</p>
         </div>
       )}
@@ -151,7 +151,7 @@ export default function PurchaseSuccessContentClient(props: Props) {
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
         <Link
           href="/tickets"
-          className="px-6 md:px-8 py-3 md:py-3.5 rounded-lg bg-brand-700 text-white text-base font-semibold hover:bg-brand-800 transition-colors text-center shadow-md"
+          className="px-6 md:px-8 py-3 md:py-3.5 rounded-lg bg-brand-700 text-white text-base font-semibold hover:bg-brand-800 transition-colors text-center"
         >
           {t('tickets:purchase_success.view_tickets')}
         </Link>
@@ -163,7 +163,7 @@ export default function PurchaseSuccessContentClient(props: Props) {
         </Link>
       </div>
 
-      <div className="mt-8 border border-brand-100 rounded-xl p-4 md:p-6">
+      <div className="mt-8 border border-white/10 rounded-xl p-4 md:p-6">
         <h3 className="text-base md:text-lg font-semibold text-white mb-2.5">{t('tickets:purchase_success.next_steps_title')}</h3>
         <ul className="space-y-2 text-[13px] md:text-sm text-white/70">
           <li className="flex items-start">

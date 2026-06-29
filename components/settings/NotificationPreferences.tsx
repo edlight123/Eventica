@@ -99,7 +99,7 @@ export default function NotificationPreferences({ userId }: Props) {
           <p className="text-sm text-white/65 mt-1">Real-time notifications delivered to your device.</p>
         </div>
         {!available && (
-          <p className="text-sm text-red-600">Push not supported in this browser.</p>
+          <p className="text-sm text-red-400">Push not supported in this browser.</p>
         )}
         <div className="flex flex-wrap gap-2">
           {TOPICS.map(t => (
@@ -135,10 +135,10 @@ export default function NotificationPreferences({ userId }: Props) {
             >{loading ? 'Sending…' : 'Send Test'}</button>
           )}
         </div>
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-red-400">{error}</p>}
         <div className="text-xs text-white/50">Permission: {permission}</div>
         {endpoint && (
-          <div className="text-[10px] text-white/40 break-all">Endpoint: {endpoint}</div>
+          <div className="text-[10px] text-white/50 break-all">Endpoint: {endpoint}</div>
         )}
       </div>
       <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 shadow-soft p-6 space-y-4">

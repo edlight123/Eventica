@@ -43,8 +43,8 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
         {/* Personal Information */}
         <div className="bg-[#0a0a0a] rounded-2xl shadow-soft border border-white/10 p-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-brand-100 flex items-center justify-center">
-              <User className="w-5 h-5 text-brand-600" />
+            <div className="w-10 h-10 rounded-xl bg-brand-500/10 flex items-center justify-center">
+              <User className="w-5 h-5 text-brand-300" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-white">{t('personal_info.title')}</h2>
@@ -86,8 +86,8 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
         {/* Account Security */}
         <div className="bg-[#0a0a0a] rounded-2xl shadow-soft border border-white/10 p-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-brand-100 flex items-center justify-center">
-              <Shield className="w-5 h-5 text-brand-600" />
+            <div className="w-10 h-10 rounded-xl bg-brand-500/10 flex items-center justify-center">
+              <Shield className="w-5 h-5 text-brand-300" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-white">{t('security.title')}</h2>
@@ -131,7 +131,7 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
             <div className="pt-4 border-t border-white/10">
               <Link
                 href="/api/auth/logout"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-red-100 text-red-600 font-medium transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-red-500/10 text-red-400 font-medium transition-colors"
               >
                 <Lock className="w-4 h-4" />
                 {t('security.change_password')}
@@ -143,8 +143,8 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
         {/* Notification Preferences */}
         <div className="bg-[#0a0a0a] rounded-2xl shadow-soft border border-white/10 p-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center">
-              <Bell className="w-5 h-5 text-green-600" />
+            <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+              <Bell className="w-5 h-5 text-green-400" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-white">{t('notifications.title')}</h2>
@@ -169,10 +169,10 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
         </div>
 
         {/* Danger Zone */}
-        <div className="bg-[#0a0a0a] rounded-2xl shadow-soft border border-red-200 p-6">
+        <div className="bg-[#0a0a0a] rounded-2xl shadow-soft border border-red-500/20 p-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center">
-              <Trash2 className="w-5 h-5 text-red-600" />
+            <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
+              <Trash2 className="w-5 h-5 text-red-400" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-white">{t('danger.title')}</h2>
@@ -181,7 +181,7 @@ export default function SettingsPageClient({ user }: SettingsPageClientProps) {
           </div>
 
           <div className="space-y-4">
-            <div className="p-4 border border-red-200 rounded-xl">
+            <div className="p-4 border border-red-500/20 rounded-xl">
               <p className="font-semibold text-red-300 mb-2">{t('danger.delete_account')}</p>
               <p className="text-sm text-red-300 mb-4">
                 {t('danger.delete_warning')}

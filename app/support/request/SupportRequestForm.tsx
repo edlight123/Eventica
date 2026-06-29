@@ -84,7 +84,7 @@ export default function SupportRequestForm() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-[#0a0a0a] rounded-xl border border-white/10 shadow-sm p-6 sm:p-8 space-y-6">
+        <form onSubmit={handleSubmit} className="bg-[#0a0a0a] rounded-xl border border-white/10 p-6 sm:p-8 space-y-6">
           {/* User Type */}
           <div>
             <label className="block text-sm font-semibold text-white/70 mb-3">

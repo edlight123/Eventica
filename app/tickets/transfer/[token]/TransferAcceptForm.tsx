@@ -78,7 +78,7 @@ export default function TransferAcceptForm({ transfer, ticket, event, sender, cu
   }
 
   return (
-    <div className="bg-[#0a0a0a] rounded-xl sm:rounded-2xl shadow-lg overflow-hidden">
+    <div className="bg-[#0a0a0a] rounded-xl sm:rounded-2xl border border-white/10 overflow-hidden">
       {/* Header */}
       <div className="bg-gradient-to-r from-brand-700 to-brand-800 text-white p-4 sm:p-6">
         <h1 className="text-xl sm:text-2xl font-bold mb-1 sm:mb-2">🎟️ Ticket Transfer</h1>
@@ -88,7 +88,7 @@ export default function TransferAcceptForm({ transfer, ticket, event, sender, cu
       {/* Content */}
       <div className="p-4 sm:p-6">
         {/* Sender Info */}
-        <div className="mb-4 sm:mb-6 p-3 sm:p-4 border border-brand-100 rounded-lg">
+        <div className="mb-4 sm:mb-6 p-3 sm:p-4 border border-white/10 rounded-lg">
           <p className="text-[13px] sm:text-sm text-brand-300 mb-1">
             <strong>{sender?.name || sender?.full_name || 'Someone'}</strong> wants to transfer a ticket to you
           </p>
@@ -140,7 +140,7 @@ export default function TransferAcceptForm({ transfer, ticket, event, sender, cu
 
         {/* Expiry Notice */}
         {transfer.expires_at && (
-          <div className="mb-4 sm:mb-6 p-2.5 sm:p-3 border border-amber-200 rounded-lg">
+          <div className="mb-4 sm:mb-6 p-2.5 sm:p-3 border border-amber-500/30 rounded-lg">
             <p className="text-[11px] sm:text-sm text-amber-300">
               ⏰ This transfer expires on <strong>{format(new Date(transfer.expires_at), 'MMM d, yyyy h:mm a')}</strong>
             </p>
@@ -149,7 +149,7 @@ export default function TransferAcceptForm({ transfer, ticket, event, sender, cu
 
         {/* Error Message */}
         {error && (
-          <div className="mb-4 sm:mb-6 p-3 sm:p-4 border border-red-200 rounded-lg">
+          <div className="mb-4 sm:mb-6 p-3 sm:p-4 border border-red-500/30 rounded-lg">
             <p className="text-[13px] sm:text-sm text-red-300">{error}</p>
           </div>
         )}

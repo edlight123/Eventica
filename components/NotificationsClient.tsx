@@ -219,7 +219,7 @@ export function NotificationsClient({
                 <button
                   onClick={handleMarkAllAsRead}
                   disabled={isLoading}
-                  className="px-3 py-2 text-sm font-medium text-brand-600 hover:text-brand-300 transition-colors disabled:opacity-50"
+                  className="px-3 py-2 text-sm font-medium text-brand-300 hover:text-brand-200 transition-colors disabled:opacity-50"
                 >
                   {t('mark_all_read')}
                 </button>
@@ -315,7 +315,7 @@ export function NotificationsClient({
                       </span>
                       
                       {getNotificationLink(notification) !== '#' && (
-                        <span className="text-brand-600">
+                        <span className="text-brand-300">
                           {t('view_details')}
                         </span>
                       )}

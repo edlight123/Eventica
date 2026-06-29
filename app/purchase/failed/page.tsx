@@ -51,11 +51,11 @@ export default function PurchaseFailedPage({
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
       <PurchasePopupBridge status="failed" reason={reason} />
       <div className="max-w-md w-full">
-        <div className="bg-[#0a0a0a] rounded-xl shadow-md p-6 md:p-8 text-center">
+        <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-6 md:p-8 text-center">
           {/* Error Icon */}
-          <div className="w-14 h-14 md:w-16 md:h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-14 h-14 md:w-16 md:h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
-              className="w-7 h-7 md:w-8 md:h-8 text-red-600"
+              className="w-7 h-7 md:w-8 md:h-8 text-red-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -94,7 +94,7 @@ export default function PurchaseFailedPage({
           </div>
 
           {reason === 'ticket_creation_failed' && (
-            <div className="mt-5 p-3.5 md:p-4 border border-yellow-200 rounded-lg">
+            <div className="mt-5 p-3.5 md:p-4 border border-amber-500/30 rounded-lg">
               <p className="text-[13px] md:text-sm text-amber-300">
                 <strong>Important:</strong> Your payment was processed. Please contact support at{' '}
                 <a href="mailto:support@tikem.co" className="underline font-semibold">
