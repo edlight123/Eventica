@@ -163,7 +163,7 @@ export default function HeroSection({ hasActiveFilters, featuredEvents }: HeroSe
 
                   {/* Top row */}
                   <div className="absolute inset-x-0 top-0 z-10 flex items-start justify-between p-4">
-                    <span className="eyebrow inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-[10px] tracking-[0.14em] text-brand-300 shadow-sm">
+                    <span className="eyebrow inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-[10px] tracking-[0.14em] text-brand-700 shadow-sm">
                       <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
                       {t('events.featured', { defaultValue: 'Featured' })}
                     </span>
@@ -187,7 +187,7 @@ export default function HeroSection({ hasActiveFilters, featuredEvents }: HeroSe
                         <CalendarDays className="h-3.5 w-3.5" />
                         {formatFeaturedDate(front.date)}
                       </span>
-                      <span className="shrink-0 rounded-lg bg-white/95 px-2.5 py-1 text-[12px] font-bold text-white backdrop-blur-md">
+                      <span className="shrink-0 rounded-lg bg-white px-2.5 py-1 text-[12px] font-bold text-black backdrop-blur-md">
                         {priceText(front.price)}
                       </span>
                     </div>

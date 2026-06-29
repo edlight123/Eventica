@@ -71,7 +71,7 @@ export default function EventCard({ event, priority = false, index = 0, userCity
     : isTrending
     ? { label: t('events.trending'), tone: 'bg-black/35 text-white' }
     : isNew
-    ? { label: t('events.new'), tone: 'bg-white/85 text-white' }
+    ? { label: t('events.new'), tone: 'bg-white text-black' }
     : null
 
   const dateLabel = validDate ? format(startDate, 'EEE, MMM d') : ''
