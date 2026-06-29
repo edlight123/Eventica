@@ -39,7 +39,9 @@ export const metadata: Metadata = {
   applicationName: BRAND.name,
   manifest: '/manifest.json',
   icons: {
-    icon: [{ url: '/tikem-mark.svg', type: 'image/svg+xml' }],
+    // Adaptive SVG favicon: dark tile on light browser chrome, white tile on dark.
+    icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
+    // Apple home-screen icon must be opaque on any wallpaper — use the fixed dark tile.
     apple: [{ url: '/tikem-mark.svg', type: 'image/svg+xml' }],
   },
   openGraph: {

@@ -1,5 +1,5 @@
-<svg width="512" height="512" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="512" height="512" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
   <rect x="0" y="0" width="100" height="100" fill="#FFFFFF"/>
-  <text x="50" y="72" font-family="Georgia, 'Times New Roman', serif" font-size="64" font-weight="700" fill="#0F766E" text-anchor="middle">T</text>
-  <circle cx="69" cy="34" r="5.5" fill="#2DD4BF"/>
+  <text x="49" y="80" font-family="'Instrument Serif', Georgia, 'Times New Roman', serif" font-style="italic" font-size="90" font-weight="700" fill="#0F766E" stroke="#0F766E" stroke-width="2.6" paint-order="stroke" text-anchor="middle">t</text>
+  <circle cx="73" cy="27" r="6.5" fill="#2DD4BF"/>
 </svg>
