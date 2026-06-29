@@ -17,13 +17,13 @@ export function RecentActivityTimeline({ activities }: RecentActivityTimelinePro
     return (
       <div className="rounded-xl  p-8 text-center">
         <div className="w-12 h-12 bg-[#0a0a0a] rounded-full flex items-center justify-center mx-auto mb-3">
-          <Clock className="w-6 h-6 text-white/40" />
+          <Clock className="w-6 h-6 text-white/50" />
         </div>
         <h3 className="font-bold text-white mb-1">No Recent Activity</h3>
         <p className="text-sm text-white/50">
           Activity logs will appear here once admin actions are tracked
         </p>
-        <p className="text-xs text-white/40 mt-2">
+        <p className="text-xs text-white/50 mt-2">
           Requires <code className="bg-[#0a0a0a] px-1 rounded">admin_audit_log</code> collection
         </p>
       </div>
@@ -52,7 +52,7 @@ export function RecentActivityTimeline({ activities }: RecentActivityTimelinePro
               <div className="flex-1">
                 <p className="text-sm text-white">{activity.action}</p>
                 <p className="text-xs text-white/50">by {activity.user}</p>
-                <p className="text-xs text-white/40 mt-1">
+                <p className="text-xs text-white/50 mt-1">
                   {new Date(activity.timestamp).toLocaleString()}
                 </p>
               </div>

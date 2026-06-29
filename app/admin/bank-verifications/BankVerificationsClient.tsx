@@ -108,7 +108,7 @@ export default function BankVerificationsClient() {
       {!loading && verifications.length === 0 && (
         <div className="rounded-lg border border-white/10 p-12 text-center">
           <svg
-            className="mx-auto h-12 w-12 text-white/40"
+            className="mx-auto h-12 w-12 text-white/50"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

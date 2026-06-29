@@ -57,9 +57,9 @@ export function ConversionFunnelAnalytics() {
       {/* Overall conversion — flat highlight */}
       <div className="flex items-center justify-between rounded-lg border border-white/10 p-4">
         <div>
-          <div className="text-[11px] font-medium uppercase tracking-wide text-white/40">Overall conversion</div>
+          <div className="text-[11px] font-medium uppercase tracking-wide text-white/50">Overall conversion</div>
           <div className="mt-0.5 text-3xl font-bold tabular-nums text-white">{data.overallConversion.toFixed(2)}%</div>
-          <div className="mt-0.5 text-xs text-white/40">Views → purchases · last 30 days</div>
+          <div className="mt-0.5 text-xs text-white/50">Views → purchases · last 30 days</div>
         </div>
         <TrendingUp className="h-8 w-8 text-brand-300" />
       </div>
@@ -77,7 +77,7 @@ export function ConversionFunnelAnalytics() {
                   <span className="flex items-center gap-2 text-sm text-white/80">
                     <StageIcon className="h-4 w-4 text-brand-300" /> {stage.label}
                     {stage.conversionRate !== undefined && (
-                      <span className="text-xs text-white/40">· {stage.conversionRate.toFixed(1)}%</span>
+                      <span className="text-xs text-white/50">· {stage.conversionRate.toFixed(1)}%</span>
                     )}
                   </span>
                   <span className="text-sm font-bold tabular-nums text-white">{stage.value.toLocaleString()}</span>

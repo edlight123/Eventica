@@ -28,7 +28,7 @@ export function KpiCard({
   const content = (
     <>
       <div className="mb-2 flex items-center justify-between">
-        <p className="truncate text-xs font-semibold uppercase tracking-wider text-white/45">
+        <p className="truncate text-xs font-semibold uppercase tracking-wider text-white/50">
           {title}
         </p>
         <Icon className={`h-4 w-4 shrink-0 ${iconColor} opacity-70`} />
@@ -36,7 +36,7 @@ export function KpiCard({
       <p className="truncate text-2xl font-bold text-white sm:text-3xl">
         {typeof value === 'number' ? value.toLocaleString() : value}
       </p>
-      {subtitle && <p className="mt-1 truncate text-xs text-white/45">{subtitle}</p>}
+      {subtitle && <p className="mt-1 truncate text-xs text-white/50">{subtitle}</p>}
       {trend && (
         <div
           className={`mt-2 inline-flex items-center gap-1 text-xs font-medium ${

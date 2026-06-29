@@ -189,7 +189,7 @@ export default function PayoutReceiptUpload({
                 : 'hover:bg-white/[0.04] border-white/10 hover:border-brand-400'
             }`}
           >
-            <Upload className="w-5 h-5 text-white/40" />
+            <Upload className="w-5 h-5 text-white/50" />
             <span className="text-sm text-white/60">
               {selectedFile ? 'Change file' : 'Click to browse or drag file here'}
             </span>

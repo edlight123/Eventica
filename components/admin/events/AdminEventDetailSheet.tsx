@@ -176,7 +176,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
             {/* Event Info */}
             <div className="grid grid-cols-2 gap-4 p-4 bg-[#0a0a0a] rounded-lg">
               <div className="flex items-start gap-3">
-                <Calendar className="w-5 h-5 text-white/40 mt-0.5" />
+                <Calendar className="w-5 h-5 text-white/50 mt-0.5" />
                 <div>
                   <div className="text-xs text-white/50 font-medium mb-1">{t('admin.date_time')}</div>
                   <div className="text-sm text-white">
@@ -189,7 +189,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
               </div>
 
               <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-white/40 mt-0.5" />
+                <MapPin className="w-5 h-5 text-white/50 mt-0.5" />
                 <div>
                   <div className="text-xs text-white/50 font-medium mb-1">{t('admin.location')}</div>
                   <div className="text-sm text-white">{event.venue_name || 'TBD'}</div>
@@ -198,7 +198,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
               </div>
 
               <div className="flex items-start gap-3">
-                <Ticket className="w-5 h-5 text-white/40 mt-0.5" />
+                <Ticket className="w-5 h-5 text-white/50 mt-0.5" />
                 <div>
                   <div className="text-xs text-white/50 font-medium mb-1">{t('admin.max_capacity')}</div>
                   <div className="text-sm text-white">
@@ -221,7 +221,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
             {/* Organizer Info */}
             <div className="p-4  rounded-lg">
               <div className="flex items-start gap-3 mb-3">
-                <User className="w-5 h-5 text-white/40 mt-0.5" />
+                <User className="w-5 h-5 text-white/50 mt-0.5" />
                 <div className="flex-1">
                   <h4 className="text-sm font-medium text-white/70 mb-1">Organizer</h4>
                   <div className="flex items-center gap-2">

@@ -167,7 +167,7 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
       <div className="grid grid-cols-1 divide-y divide-white/10 rounded-lg border border-white/10 md:grid-cols-3 md:divide-y-0 md:divide-x">
         <div className="p-4">
           <div className="mb-1 flex items-center justify-between">
-            <span className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/45">
+            <span className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
               <DollarSign className="h-3.5 w-3.5 text-brand-300" /> Revenue (USD)
             </span>
             {growth && <GrowthBadge value={growth.revenueGrowth7d} />}
@@ -176,7 +176,7 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
             {formatCurrency(revenue.totalRevenueUSDWithFxSpread ?? revenue.totalRevenueUSD, 'USD')}
           </div>
           {revenue.fxSpread?.ticketCount > 0 && (
-            <div className="mt-1 text-xs text-white/40">
+            <div className="mt-1 text-xs text-white/50">
               Incl. FX spread {formatCurrency(revenue.fxSpread.profitUSD || 0, 'USD')}
             </div>
           )}
@@ -184,7 +184,7 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
 
         <div className="p-4">
           <div className="mb-1 flex items-center justify-between">
-            <span className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/45">
+            <span className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
               <CreditCard className="h-3.5 w-3.5 text-brand-300" /> Tickets sold
             </span>
             {growth && <GrowthBadge value={growth.ticketsGrowth7d} />}
@@ -193,13 +193,13 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
         </div>
 
         <div className="p-4">
-          <div className="mb-1 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/45">
+          <div className="mb-1 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
             <TrendingUp className="h-3.5 w-3.5 text-brand-300" /> Avg ticket price
           </div>
           <div className="text-2xl font-bold tabular-nums text-white">
             {formatCurrency(revenue.totalRevenueUSD / revenue.totalTickets || 0, 'USD')}
           </div>
-          <div className="mt-1 text-xs text-white/40">Across all currencies</div>
+          <div className="mt-1 text-xs text-white/50">Across all currencies</div>
         </div>
       </div>
 

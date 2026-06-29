@@ -99,7 +99,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             
             <button
               onClick={() => removeToast(toast.id)}
-              className="flex-shrink-0 text-white/40 hover:text-white/60 transition-colors"
+              className="flex-shrink-0 text-white/50 hover:text-white/60 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>

@@ -79,7 +79,7 @@ export default function Modal({
               <button
                 onClick={onClose}
                 className="
-                  p-2 rounded-xl text-white/40 hover:text-white/60 
+                  p-2 rounded-xl text-white/50 hover:text-white/60 
                   hover:bg-white/[0.04] transition-all
                 "
               >

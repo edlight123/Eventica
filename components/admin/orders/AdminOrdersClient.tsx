@@ -499,32 +499,32 @@ export function AdminOrdersClient() {
       {summary && (
         <div className="grid grid-cols-2 divide-x divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10 sm:grid-cols-4 sm:divide-y-0">
           <div className="p-4">
-            <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/40">
+            <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
               <ShoppingCart className="h-3.5 w-3.5 text-white/30" /> Total Orders
             </div>
             <div className="text-2xl font-bold tabular-nums text-white">{summary.totalOrders.toLocaleString()}</div>
-            <div className="mt-1 text-xs text-white/40">Today: {summary.todayOrders}</div>
+            <div className="mt-1 text-xs text-white/50">Today: {summary.todayOrders}</div>
           </div>
           <div className="p-4">
-            <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/40">
+            <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
               <DollarSign className="h-3.5 w-3.5 text-white/30" /> Revenue (30d)
             </div>
             <div className="text-2xl font-bold tabular-nums text-white">{formatCurrency(summary.last30Days.revenueUSD, 'USD')}</div>
-            <div className="mt-1 text-xs text-white/40">{formatCurrency(summary.last30Days.revenueHTG, 'HTG')}</div>
+            <div className="mt-1 text-xs text-white/50">{formatCurrency(summary.last30Days.revenueHTG, 'HTG')}</div>
           </div>
           <div className="p-4">
-            <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/40">
+            <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
               <TrendingUp className="h-3.5 w-3.5 text-white/30" /> Avg Order Value
             </div>
             <div className="text-2xl font-bold tabular-nums text-white">{formatCurrency(summary.last30Days.avgOrderValueUSD, 'USD')}</div>
-            <div className="mt-1 text-xs text-white/40">{summary.last30Days.orders} orders (30d)</div>
+            <div className="mt-1 text-xs text-white/50">{summary.last30Days.orders} orders (30d)</div>
           </div>
           <div className="p-4">
-            <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/40">
+            <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
               <CheckCircle className="h-3.5 w-3.5 text-white/30" /> Confirmed
             </div>
             <div className="text-2xl font-bold tabular-nums text-white">{summary.byStatus.confirmed.toLocaleString()}</div>
-            <div className="mt-1 text-xs text-white/40">{summary.byStatus.pending} pending • {summary.byStatus.refunded} refunded</div>
+            <div className="mt-1 text-xs text-white/50">{summary.byStatus.pending} pending • {summary.byStatus.refunded} refunded</div>
           </div>
         </div>
       )}
@@ -534,14 +534,14 @@ export function AdminOrdersClient() {
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Search Input */}
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
             <input
               type="text"
               placeholder="Search by email, name, or order ID..."
               value={filters.search}
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              className="w-full pl-9 pr-4 py-2 bg-transparent border border-white/10 rounded-lg text-sm text-white placeholder:text-white/40 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/25"
+              className="w-full pl-9 pr-4 py-2 bg-transparent border border-white/10 rounded-lg text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/25"
             />
           </div>
 
@@ -603,7 +603,7 @@ export function AdminOrdersClient() {
               <select
                 value={filters.status}
                 onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
-                className="w-full px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm text-white placeholder:text-white/40 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/25"
+                className="w-full px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/25"
               >
                 <option value="all">All Statuses</option>
                 <option value="confirmed">Confirmed</option>
@@ -619,7 +619,7 @@ export function AdminOrdersClient() {
               <select
                 value={filters.paymentMethod}
                 onChange={(e) => setFilters(prev => ({ ...prev, paymentMethod: e.target.value }))}
-                className="w-full px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm text-white placeholder:text-white/40 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/25"
+                className="w-full px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/25"
               >
                 <option value="all">All Methods</option>
                 <option value="stripe">Stripe</option>
@@ -634,7 +634,7 @@ export function AdminOrdersClient() {
               <select
                 value={filters.currency}
                 onChange={(e) => setFilters(prev => ({ ...prev, currency: e.target.value }))}
-                className="w-full px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm text-white placeholder:text-white/40 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/25"
+                className="w-full px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/25"
               >
                 <option value="all">All Currencies</option>
                 <option value="USD">USD</option>
@@ -648,7 +648,7 @@ export function AdminOrdersClient() {
               <select
                 value={filters.sortBy}
                 onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
-                className="w-full px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm text-white placeholder:text-white/40 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/25"
+                className="w-full px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/25"
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
@@ -665,7 +665,7 @@ export function AdminOrdersClient() {
                   type="date"
                   value={filters.startDate}
                   onChange={(e) => setFilters(prev => ({ ...prev, startDate: e.target.value, dateRange: 'custom' }))}
-                  className="w-full px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm text-white placeholder:text-white/40 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/25"
+                  className="w-full px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/25"
                 />
               </div>
               <div className="flex-1">
@@ -674,7 +674,7 @@ export function AdminOrdersClient() {
                   type="date"
                   value={filters.endDate}
                   onChange={(e) => setFilters(prev => ({ ...prev, endDate: e.target.value, dateRange: 'custom' }))}
-                  className="w-full px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm text-white placeholder:text-white/40 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/25"
+                  className="w-full px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/25"
                 />
               </div>
               <button
@@ -703,7 +703,7 @@ export function AdminOrdersClient() {
           <div className="text-center">
             <Package className="w-12 h-12 text-white/50 mx-auto mb-3" />
             <p className="text-white/50">No orders found</p>
-            <p className="text-sm text-white/40 mt-1">Try adjusting your filters</p>
+            <p className="text-sm text-white/50 mt-1">Try adjusting your filters</p>
           </div>
         }
       />
@@ -761,11 +761,11 @@ export function AdminOrdersClient() {
                 <div className="text-sm font-medium text-white/70 mb-2">Attendee</div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-white/40" />
+                    <User className="w-4 h-4 text-white/50" />
                     <span className="text-white">{selectedOrder.attendee_name || selectedOrder.attendeeName || 'N/A'}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-white/40" />
+                    <Mail className="w-4 h-4 text-white/50" />
                     <span className="text-sm text-white break-all">
                       {selectedOrder.attendee_email || selectedOrder.attendeeEmail || selectedOrder.email || 'N/A'}
                     </span>

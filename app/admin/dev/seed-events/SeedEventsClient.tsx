@@ -79,7 +79,7 @@ export default function SeedEventsClient() {
       <div className="bg-[#0a0a0a] dark:bg-gray-800 rounded-lg shadow-lg p-6">
         <div className="mb-6">
           <h1 className="font-display text-2xl mb-2">Seed Template Events</h1>
-          <p className="text-white/60 dark:text-white/40">
+          <p className="text-white/60 dark:text-white/50">
             Create 30 template events across Haiti, USA, and Canada under the info@edlight.org organizer account.
           </p>
         </div>
@@ -120,7 +120,7 @@ export default function SeedEventsClient() {
         <div className="space-y-6">
           <div className="space-y-2">
             <h3 className="font-semibold">What will be created:</h3>
-            <ul className="list-disc list-inside space-y-1 text-sm text-white/60 dark:text-white/40">
+            <ul className="list-disc list-inside space-y-1 text-sm text-white/60 dark:text-white/50">
               <li>15 events in Haiti (50%) - Mix of USD and HTG pricing</li>
               <li>8 events in USA (Miami, New York, Boston, etc.)</li>
               <li>7 events in Canada (Montreal, Toronto, Vancouver, etc.)</li>

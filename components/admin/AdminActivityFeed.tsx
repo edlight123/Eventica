@@ -195,7 +195,7 @@ export function AdminActivityFeed({
           <button
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="p-1.5 text-white/40 hover:text-white/60 hover:bg-white/[0.04] rounded-lg transition-colors disabled:opacity-50"
+            className="p-1.5 text-white/50 hover:text-white/60 hover:bg-white/[0.04] rounded-lg transition-colors disabled:opacity-50"
             title="Refresh activities"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -230,7 +230,7 @@ export function AdminActivityFeed({
       {/* Activities List */}
       <div className="flex-1 overflow-y-auto">
         {filteredActivities.length === 0 ? (
-          <div className="p-8 text-center text-white/40">
+          <div className="p-8 text-center text-white/50">
             <Activity className="w-10 h-10 mx-auto mb-2 text-white/70" />
             <p className="text-sm">No activities found</p>
           </div>
@@ -267,7 +267,7 @@ export function AdminActivityFeed({
                     <span className="flex-1 min-w-0 text-sm text-white truncate">
                       {activity.title}
                     </span>
-                    <span className="text-[11px] text-white/40 whitespace-nowrap flex-shrink-0">
+                    <span className="text-[11px] text-white/50 whitespace-nowrap flex-shrink-0">
                       {formatTimeAgo(activity.timestamp)}
                     </span>
                     {hasDetails && (

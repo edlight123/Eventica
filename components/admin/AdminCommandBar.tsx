@@ -104,7 +104,7 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
           {/* Search */}
           <div className="flex-1 max-w-2xl relative">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
               <input
                 type="text"
                 value={searchQuery}
@@ -115,7 +115,7 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
                 className="w-full pl-10 pr-10 py-2  rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
               />
               {isSearching && (
-                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 animate-spin" />
+                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50 animate-spin" />
               )}
             </div>
             
@@ -131,7 +131,7 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
                   <div className="p-8 text-center">
                     <Search className="w-8 h-8 text-white/50 mx-auto mb-2" />
                     <p className="text-sm text-white/50">No results found</p>
-                    <p className="text-xs text-white/40 mt-1">Try a different search term</p>
+                    <p className="text-xs text-white/50 mt-1">Try a different search term</p>
                   </div>
                 ) : (
                   <div className="py-2">
@@ -174,7 +174,7 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
                             <p className="text-sm text-white/50 truncate">{result.subtitle}</p>
                           )}
                           <div className="flex items-center gap-3 mt-1">
-                            <span className="text-xs text-white/40 capitalize">{result.type}</span>
+                            <span className="text-xs text-white/50 capitalize">{result.type}</span>
                             {result.metadata?.city && (
                               <span className="flex items-center gap-1 text-xs text-white/50">
                                 <MapPin className="w-3 h-3" />

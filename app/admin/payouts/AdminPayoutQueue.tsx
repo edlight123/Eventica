@@ -203,13 +203,13 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
       {/* Summary Strip */}
       <div className="grid grid-cols-3 divide-x divide-white/10 overflow-hidden rounded-xl border border-white/10">
         <div className="p-4">
-          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/40">
+          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
             <Clock className="h-3.5 w-3.5 text-white/30" /> Pending Requests
           </div>
           <div className="text-2xl font-bold tabular-nums text-white">{payouts.length}</div>
         </div>
         <div className="p-4">
-          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/40">
+          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
             <Wallet className="h-3.5 w-3.5 text-white/30" /> Total Amount
           </div>
           <div className="text-2xl font-bold tabular-nums text-white">

@@ -132,12 +132,15 @@ A consistent dark, flat admin system has been established this cycle. Primitives
    - KPI strips: dashboard uses `grid-cols-2 sm:grid-cols-3 lg:grid-cols-6`; orders uses `grid-cols-2 sm:grid-cols-4`. No non-responsive 4/5/6-col grids.
    - Confirm dialog: focus-trapped, Esc-closable, `role="alertdialog"`.
    - Minor (optional): the 3-up `grid-cols-3 divide-x` stat strips (users/organizers/security/etc.) are tight but functional at 390px; left as-is to avoid unverified layout regressions.
-   Remaining for a full WCAG pass: keyboard-nav walkthrough, color-contrast measurement, and screen-reader testing — best done interactively on the live site. [largely done]
+   - **Contrast measured & fixed:** computed WCAG ratios of the muted-text tokens on `#0a0a0a` — `text-white/40` (3.77:1) and `text-white/45` (4.48:1) **failed AA** (4.5:1) for normal text. Bumped both to `text-white/50` (5.37:1, passes AA) across admin + the shared `components/ui` kit + the globals placeholder color (181 instances). All muted text now ≥ 5.37:1.
+   Remaining for a full WCAG pass: interactive keyboard-nav walkthrough and screen-reader testing on real AT (can't be faked from here). [largely done]
 8. **Tests** — in progress (Jest 30 confirmed working after `npm install` fixed a stale jest-25 node_modules). Added & passing (30 tests green) + a new security suite:
    - `__tests__/currency.test.ts` — `formatCurrency` regression (Orders crash: invalid/lowercase/missing currency, non-finite amounts).
    - `__tests__/unit/components/confirm-provider.test.tsx` — confirm dialog resolves true/false + window.confirm fallback.
    - `__tests__/unit/lib/auth-rules.test.ts` — **permission enforcement**: extracted pure decision helpers `lib/auth-rules.ts` (`evaluateAdminAccess`/`evaluateSuperAdminAccess`/`evaluateDevToolsAccess`) that `requireAdmin`/`requireSuperAdmin`/`requireDevTools` now delegate to (behavior preserved). Covers: deny unauthenticated, role + allow-list, super-admin-only, and dev-tools prod/non-prod gating.
-   Still to add: event-moderation and payout-action workflow tests. [P1]
+   - `__tests__/unit/lib/event-moderation.test.ts` — **event-moderation workflow**: extracted pure tab logic `lib/admin/event-moderation.ts` (`eventMatchesTab`/`filterEventsByTab`/`getEventTabCounts`) that the moderation console now uses; covers pending/published/reported/unpublished filtering + tab counts + empty list.
+   - Payout-action logic is already covered by the pre-existing `__tests__/unit/lib/payout-validation.test.ts`.
+   Test suite total after this work: 200+ passing (Jest 30); Playwright e2e excluded from Jest via `testPathIgnorePatterns`. [done for this scope]
 
 ## 7. Verification commands
 

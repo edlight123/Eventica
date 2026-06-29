@@ -25,7 +25,7 @@ export default function Input({
       
       <div className="relative">
         {icon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50">
             {icon}
           </div>
         )}
@@ -39,7 +39,7 @@ export default function Input({
               ? 'border-error-500 focus:border-error-600 focus:ring-4 focus:ring-error-50' 
               : 'border-white/10 focus:border-brand-primary focus:ring-4 focus:ring-brand-50'
             }
-            placeholder:text-white/40
+            placeholder:text-white/50
             disabled:bg-[#0a0a0a] disabled:cursor-not-allowed
             ${className}
           `}
@@ -87,7 +87,7 @@ export function TextArea({
             ? 'border-error-500 focus:border-error-600 focus:ring-4 focus:ring-error-50' 
             : 'border-white/10 focus:border-brand-primary focus:ring-4 focus:ring-brand-50'
           }
-          placeholder:text-white/40
+          placeholder:text-white/50
           disabled:bg-[#0a0a0a] disabled:cursor-not-allowed
           ${className}
         `}

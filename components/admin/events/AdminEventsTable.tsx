@@ -83,7 +83,7 @@ export function AdminEventsTable({
             {event.reports_count}
           </StatusChip>
         ) : (
-          <span className="text-white/40 text-sm">—</span>
+          <span className="text-white/50 text-sm">—</span>
         ),
     },
   ]

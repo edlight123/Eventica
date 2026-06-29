@@ -283,7 +283,7 @@ export function PlatformSettingsForm() {
               <span className="text-xl leading-none">🇭🇹</span>
               <div>
                 <h2 className="text-sm font-semibold text-white">Haiti Events</h2>
-                <p className="text-xs text-white/45">Settings for events in Haiti</p>
+                <p className="text-xs text-white/50">Settings for events in Haiti</p>
               </div>
             </div>
 
@@ -301,14 +301,14 @@ export function PlatformSettingsForm() {
                     step="0.01"
                     min="0"
                     max="100"
-                    className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2.5 pr-8 text-sm text-white placeholder:text-white/40 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+                    className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2.5 pr-8 text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
                     required
                   />
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <span className="text-white/40 text-sm">%</span>
+                    <span className="text-white/50 text-sm">%</span>
                   </div>
                 </div>
-                <p className="mt-1.5 text-xs text-white/45">
+                <p className="mt-1.5 text-xs text-white/50">
                   Commission taken from each sale
                 </p>
               </div>
@@ -323,10 +323,10 @@ export function PlatformSettingsForm() {
                   value={haitiSettlementDays}
                   onChange={(e) => setHaitiSettlementDays(e.target.value)}
                   min="0"
-                  className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2.5 text-sm text-white placeholder:text-white/40 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+                  className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2.5 text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
                   required
                 />
-                <p className="mt-1.5 text-xs text-white/45">
+                <p className="mt-1.5 text-xs text-white/50">
                   Days before funds can be withdrawn
                 </p>
               </div>
@@ -335,7 +335,7 @@ export function PlatformSettingsForm() {
             {/* Haiti Preview */}
             {haitiPreview && (
               <div className="mt-4 rounded-lg border border-white/10 p-3">
-                <p className="text-xs text-white/45 mb-2">Example: $100 ticket sale</p>
+                <p className="text-xs text-white/50 mb-2">Example: $100 ticket sale</p>
                 <div className="space-y-1.5 text-sm">
                   <div className="flex justify-between">
                     <span className="text-white/50">Ticket Price</span>
@@ -364,7 +364,7 @@ export function PlatformSettingsForm() {
               <span className="text-xl leading-none">🇺🇸🇨🇦</span>
               <div>
                 <h2 className="text-sm font-semibold text-white">US &amp; Canada Events</h2>
-                <p className="text-xs text-white/45">Settings for events in United States or Canada</p>
+                <p className="text-xs text-white/50">Settings for events in United States or Canada</p>
               </div>
             </div>
 
@@ -382,14 +382,14 @@ export function PlatformSettingsForm() {
                     step="0.01"
                     min="0"
                     max="100"
-                    className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2.5 pr-8 text-sm text-white placeholder:text-white/40 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+                    className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2.5 pr-8 text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
                     required
                   />
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <span className="text-white/40 text-sm">%</span>
+                    <span className="text-white/50 text-sm">%</span>
                   </div>
                 </div>
-                <p className="mt-1.5 text-xs text-white/45">
+                <p className="mt-1.5 text-xs text-white/50">
                   Commission taken from each sale
                 </p>
               </div>
@@ -404,10 +404,10 @@ export function PlatformSettingsForm() {
                   value={usCanadaSettlementDays}
                   onChange={(e) => setUsCanadaSettlementDays(e.target.value)}
                   min="0"
-                  className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2.5 text-sm text-white placeholder:text-white/40 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+                  className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2.5 text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
                   required
                 />
-                <p className="mt-1.5 text-xs text-white/45">
+                <p className="mt-1.5 text-xs text-white/50">
                   Days before funds can be withdrawn
                 </p>
               </div>
@@ -416,7 +416,7 @@ export function PlatformSettingsForm() {
             {/* US/Canada Preview */}
             {usCanadaPreview && (
               <div className="mt-4 rounded-lg border border-white/10 p-3">
-                <p className="text-xs text-white/45 mb-2">Example: $100 ticket sale</p>
+                <p className="text-xs text-white/50 mb-2">Example: $100 ticket sale</p>
                 <div className="space-y-1.5 text-sm">
                   <div className="flex justify-between">
                     <span className="text-white/50">Ticket Price</span>
@@ -445,7 +445,7 @@ export function PlatformSettingsForm() {
               <span className="text-xl leading-none">🌍</span>
               <div>
                 <h2 className="text-sm font-semibold text-white">Global Settings</h2>
-                <p className="text-xs text-white/45">Settings that apply to all events</p>
+                <p className="text-xs text-white/50">Settings that apply to all events</p>
               </div>
             </div>
 
@@ -456,7 +456,7 @@ export function PlatformSettingsForm() {
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="text-white/40 text-sm">$</span>
+                    <span className="text-white/50 text-sm">$</span>
                   </div>
                   <input
                     type="number"
@@ -465,11 +465,11 @@ export function PlatformSettingsForm() {
                     onChange={(e) => setMinimumPayout(e.target.value)}
                     step="0.01"
                     min="0"
-                    className="w-full rounded-lg border border-white/10 bg-transparent pl-7 pr-3 py-2.5 text-sm text-white placeholder:text-white/40 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+                    className="w-full rounded-lg border border-white/10 bg-transparent pl-7 pr-3 py-2.5 text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
                     required
                   />
                 </div>
-                <p className="mt-1.5 text-xs text-white/45">
+                <p className="mt-1.5 text-xs text-white/50">
                   Minimum required for withdrawal (USD)
                 </p>
               </div>
@@ -485,7 +485,7 @@ export function PlatformSettingsForm() {
               </div>
               <div className="space-y-3 text-sm">
                 <div>
-                  <p className="text-white/45 text-xs mb-1">🇭🇹 Haiti</p>
+                  <p className="text-white/50 text-xs mb-1">🇭🇹 Haiti</p>
                   <div className="flex justify-between items-center">
                     <span className="text-white/50">Fee</span>
                     <span className="font-semibold text-white">{(settings.haiti.platformFeePercentage * 100).toFixed(2)}%</span>
@@ -496,7 +496,7 @@ export function PlatformSettingsForm() {
                   </div>
                 </div>
                 <div className="border-t border-white/10 pt-3">
-                  <p className="text-white/45 text-xs mb-1">🇺🇸🇨🇦 US/Canada</p>
+                  <p className="text-white/50 text-xs mb-1">🇺🇸🇨🇦 US/Canada</p>
                   <div className="flex justify-between items-center">
                     <span className="text-white/50">Fee</span>
                     <span className="font-semibold text-white">{(settings.usCanada.platformFeePercentage * 100).toFixed(2)}%</span>
@@ -507,14 +507,14 @@ export function PlatformSettingsForm() {
                   </div>
                 </div>
                 <div className="border-t border-white/10 pt-3">
-                  <p className="text-white/45 text-xs mb-1">🌍 Global</p>
+                  <p className="text-white/50 text-xs mb-1">🌍 Global</p>
                   <div className="flex justify-between items-center">
                     <span className="text-white/50">Min Payout</span>
                     <span className="font-semibold text-white">${(settings.minimumPayoutAmount / 100).toFixed(2)}</span>
                   </div>
                 </div>
                 {settings.updatedBy && (
-                  <div className="border-t border-white/10 pt-3 text-xs text-white/45">
+                  <div className="border-t border-white/10 pt-3 text-xs text-white/50">
                     Last updated by: {settings.updatedBy}
                   </div>
                 )}
@@ -528,7 +528,7 @@ export function PlatformSettingsForm() {
               {hasChanges ? (
                 <span className="text-amber-300 font-medium">● Unsaved changes</span>
               ) : (
-                <span className="text-white/40">No changes</span>
+                <span className="text-white/50">No changes</span>
               )}
             </p>
             <button

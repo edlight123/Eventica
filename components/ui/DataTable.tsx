@@ -177,7 +177,7 @@ export function DataTable<T>({
 
   const SortIcon = ({ col }: { col: Column<T> }) => {
     if (!col.sortable) return null
-    if (activeSortKey !== col.key) return <ChevronsUpDown className="h-3.5 w-3.5 text-white/40" />
+    if (activeSortKey !== col.key) return <ChevronsUpDown className="h-3.5 w-3.5 text-white/50" />
     return activeSortDir === 'asc' ? (
       <ChevronUp className="h-3.5 w-3.5 text-brand-600" />
     ) : (
@@ -315,7 +315,7 @@ export function DataTable<T>({
                 >
                   {columns.map((col) => (
                     <div key={col.key} className="flex items-start justify-between gap-3">
-                      <span className="text-[11px] font-semibold uppercase tracking-wide text-white/40">
+                      <span className="text-[11px] font-semibold uppercase tracking-wide text-white/50">
                         {col.header}
                       </span>
                       <span className="min-w-0 text-right text-sm text-white">

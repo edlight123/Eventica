@@ -163,7 +163,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
       {/* Withdrawals List */}
       {loading ? (
         <div className="rounded-xl border border-white/10 p-12 text-center">
-          <div className="text-white/40 mb-2">Loading...</div>
+          <div className="text-white/50 mb-2">Loading...</div>
         </div>
       ) : visibleWithdrawals.length === 0 ? (
         <div className="rounded-xl border border-white/10 p-12 text-center">
@@ -218,7 +218,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                       <div className="text-sm text-white/60">
                         {new Date(withdrawal.createdAt).toLocaleDateString()}
                       </div>
-                      <div className="text-xs text-white/40">
+                      <div className="text-xs text-white/50">
                         {new Date(withdrawal.createdAt).toLocaleTimeString()}
                       </div>
                     </td>
@@ -257,7 +257,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                     {getMethodIcon(withdrawal.method)} {withdrawal.method === 'moncash' ? 'MonCash' : 'Bank'}
                   </div>
                 </div>
-                <div className="text-xs text-white/40 mt-2">
+                <div className="text-xs text-white/50 mt-2">
                   {new Date(withdrawal.createdAt).toLocaleDateString()}
                 </div>
               </div>
@@ -277,7 +277,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                   setSelectedWithdrawal(null)
                   setActionNote('')
                 }}
-                className="text-white/40 hover:text-white/60 text-2xl"
+                className="text-white/50 hover:text-white/60 text-2xl"
               >
                 ×
               </button>
@@ -423,7 +423,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                   value={actionNote}
                   onChange={(e) => setActionNote(e.target.value)}
                   placeholder="Add a note about this action..."
-                  className="w-full px-4 py-2 bg-transparent border border-white/10 rounded-lg text-white placeholder:text-white/40 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+                  className="w-full px-4 py-2 bg-transparent border border-white/10 rounded-lg text-white placeholder:text-white/50 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
                   rows={3}
                 />
               </div>

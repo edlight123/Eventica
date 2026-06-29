@@ -8,6 +8,7 @@ import { AdminEventsTable } from '@/components/admin/events/AdminEventsTable'
 import { AdminEventDetailSheet } from '@/components/admin/events/AdminEventDetailSheet'
 import { EditorialHeader } from '@/components/ui/EditorialHeader'
 import { useToast } from '@/components/ui/Toast'
+import { filterEventsByTab, getEventTabCounts } from '@/lib/admin/event-moderation'
 
 interface FilterOptions {
   dateRange: 'any' | 'today' | 'week' | 'custom'
@@ -161,29 +162,17 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
     return value !== '' && value !== 'any'
   }).length
 
-  // Calculate tab counts
+  // Calculate tab counts (shared, tested moderation logic)
+  const tabCounts = getEventTabCounts(events)
   const tabs = [
-    { id: 'pending' as const, label: 'Pending Review', count: events.filter(e => !e.is_published && !e.rejected).length },
-    { id: 'published' as const, label: 'Published', count: events.filter(e => e.is_published).length },
-    { id: 'reported' as const, label: 'Reported', count: events.filter(e => e.reports_count > 0).length },
-    { id: 'unpublished' as const, label: 'Unpublished', count: events.filter(e => !e.is_published && e.rejected).length },
+    { id: 'pending' as const, label: 'Pending Review', count: tabCounts.pending },
+    { id: 'published' as const, label: 'Published', count: tabCounts.published },
+    { id: 'reported' as const, label: 'Reported', count: tabCounts.reported },
+    { id: 'unpublished' as const, label: 'Unpublished', count: tabCounts.unpublished },
   ]
 
   // Filter events based on tab
-  const filteredEvents = events.filter(event => {
-    switch (activeTab) {
-      case 'pending':
-        return !event.is_published && !event.rejected
-      case 'published':
-        return event.is_published
-      case 'reported':
-        return event.reports_count > 0
-      case 'unpublished':
-        return !event.is_published && event.rejected
-      default:
-        return true
-    }
-  })
+  const filteredEvents = filterEventsByTab(events, activeTab)
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">

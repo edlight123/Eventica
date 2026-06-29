@@ -131,28 +131,28 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 divide-x divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10 sm:grid-cols-4 sm:divide-y-0">
         <div className="p-4">
-          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/40">
+          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
             <Calendar className="h-3.5 w-3.5 text-white/30" /> Events Ended (7d)
           </div>
           <div className="text-2xl font-bold tabular-nums text-white">{stats.eventsEndedLast7Days}</div>
         </div>
 
         <div className="p-4">
-          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/40">
+          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
             <Clock className="h-3.5 w-3.5 text-amber-400/60" /> Pending Payouts
           </div>
           <div className="text-2xl font-bold tabular-nums text-amber-300">{stats.pendingPayouts}</div>
         </div>
 
         <div className="p-4">
-          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/40">
+          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
             <CheckCircle className="h-3.5 w-3.5 text-emerald-400/60" /> Approved Payouts
           </div>
           <div className="text-2xl font-bold tabular-nums text-emerald-300">{stats.approvedPayouts}</div>
         </div>
 
         <div className="p-4">
-          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/40">
+          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
             <DollarSign className="h-3.5 w-3.5 text-white/30" /> Pending Amount
           </div>
           <div className="text-2xl font-bold tabular-nums text-brand-300">

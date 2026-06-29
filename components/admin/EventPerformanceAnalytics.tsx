@@ -63,7 +63,7 @@ export function EventPerformanceAnalytics() {
           <ul className="divide-y divide-white/5">
             {topEvents.map((event, index) => (
               <li key={event.id} className="flex items-center gap-3 py-2.5">
-                <span className="w-5 shrink-0 text-center text-sm font-bold tabular-nums text-white/40">{index + 1}</span>
+                <span className="w-5 shrink-0 text-center text-sm font-bold tabular-nums text-white/50">{index + 1}</span>
                 <div className="min-w-0 flex-1">
                   <Link
                     href={`/events/${event.id}`}
@@ -71,7 +71,7 @@ export function EventPerformanceAnalytics() {
                   >
                     {event.title}
                   </Link>
-                  <div className="mt-0.5 truncate text-xs text-white/40">
+                  <div className="mt-0.5 truncate text-xs text-white/50">
                     {new Date(event.date).toLocaleDateString()} · {event.users?.name || 'Unknown'}
                   </div>
                 </div>
@@ -85,7 +85,7 @@ export function EventPerformanceAnalytics() {
             ))}
           </ul>
         ) : (
-          <div className="py-8 text-center text-sm text-white/40">No event data available</div>
+          <div className="py-8 text-center text-sm text-white/50">No event data available</div>
         )}
       </div>
 
@@ -111,7 +111,7 @@ export function EventPerformanceAnalytics() {
             })}
           </div>
         ) : (
-          <div className="py-8 text-center text-sm text-white/40">No category data available</div>
+          <div className="py-8 text-center text-sm text-white/50">No category data available</div>
         )}
       </div>
     </div>

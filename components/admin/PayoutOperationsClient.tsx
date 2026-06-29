@@ -96,7 +96,7 @@ export function PayoutOperationsClient({
                   }
                 `}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-brand-300' : 'text-white/40 group-hover:text-white/50'}`} />
+                <Icon className={`w-5 h-5 ${isActive ? 'text-brand-300' : 'text-white/50 group-hover:text-white/50'}`} />
                 <span>{tab.label}</span>
                 {tab.badge && tab.badge > 0 && (
                   <span className="ml-2 py-0.5 px-2 rounded-full text-xs font-medium text-red-300">

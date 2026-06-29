@@ -25,7 +25,7 @@ export function AdminBreadcrumbs({ items }: AdminBreadcrumbsProps) {
       
       {items.map((item, index) => (
         <div key={index} className="flex items-center space-x-1">
-          <ChevronRight className="w-4 h-4 text-white/40" />
+          <ChevronRight className="w-4 h-4 text-white/50" />
           {item.href && index < items.length - 1 ? (
             <Link 
               href={item.href}

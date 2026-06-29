@@ -64,7 +64,7 @@ export function WorkQueueCard({
       {/* Queue Items */}
       <div className="divide-y divide-white/10">
         {items.length === 0 ? (
-          <div className="px-4 py-6 text-center text-white/40 text-xs">
+          <div className="px-4 py-6 text-center text-white/50 text-xs">
             {emptyMessage}
           </div>
         ) : (
@@ -77,7 +77,7 @@ export function WorkQueueCard({
                     {item.subtitle && <span className="truncate">{item.subtitle}</span>}
                     {item.subtitle && item.timestamp && <span className="text-white/50">·</span>}
                     {item.timestamp && (
-                      <span className="text-white/40 whitespace-nowrap">
+                      <span className="text-white/50 whitespace-nowrap">
                         {new Date(item.timestamp).toLocaleDateString('en-US', {
                           month: 'short',
                           day: 'numeric'

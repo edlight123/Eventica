@@ -22,7 +22,7 @@ select {
 }
 input::placeholder,
 textarea::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.5);
 }
 /* Keep autofilled fields dark instead of the browser's yellow/white wash. */
 input:-webkit-autofill,

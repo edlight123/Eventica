@@ -57,7 +57,7 @@ export function OrganizerRankingsAnalytics() {
       <div className="mb-3 flex items-center gap-2">
         <Crown className="h-4 w-4 text-amber-300" />
         <h3 className="text-[13px] font-semibold text-white">Top organizers</h3>
-        <span className="text-xs text-white/40">· by ticket sales</span>
+        <span className="text-xs text-white/50">· by ticket sales</span>
       </div>
 
       <ul className="divide-y divide-white/5">
@@ -68,7 +68,7 @@ export function OrganizerRankingsAnalytics() {
             <li key={organizer.id} className="flex items-center gap-3 py-2.5">
               <span
                 className={`w-5 shrink-0 text-center text-sm font-bold tabular-nums ${
-                  isTopThree ? 'text-amber-300' : 'text-white/40'
+                  isTopThree ? 'text-amber-300' : 'text-white/50'
                 }`}
               >
                 {rank}
@@ -80,7 +80,7 @@ export function OrganizerRankingsAnalytics() {
                 >
                   {organizer.name}
                 </Link>
-                <div className="mt-0.5 flex items-center gap-3 text-xs text-white/45">
+                <div className="mt-0.5 flex items-center gap-3 text-xs text-white/50">
                   <span className="inline-flex items-center gap-1"><Ticket className="h-3 w-3" />{organizer.totalTickets.toLocaleString()}</span>
                   <span className="inline-flex items-center gap-1"><Calendar className="h-3 w-3" />{organizer.eventsCount}</span>
                   {organizer.avgRating > 0 && (
@@ -90,7 +90,7 @@ export function OrganizerRankingsAnalytics() {
               </div>
               <div className="shrink-0 text-right">
                 <div className="text-sm font-bold tabular-nums text-white">{organizer.totalTickets.toLocaleString()}</div>
-                <div className="text-[11px] text-white/40">
+                <div className="text-[11px] text-white/50">
                   {organizer.eventsCount > 0 ? `${(organizer.totalTickets / organizer.eventsCount).toFixed(0)}/event` : 'sales'}
                 </div>
               </div>
@@ -108,7 +108,7 @@ export function OrganizerRankingsAnalytics() {
         ].map((s) => (
           <div key={s.l} className="text-center">
             <div className="text-lg font-bold tabular-nums text-white">{s.v}</div>
-            <div className="mt-0.5 text-[11px] text-white/40">{s.l}</div>
+            <div className="mt-0.5 text-[11px] text-white/50">{s.l}</div>
           </div>
         ))}
       </div>

@@ -120,7 +120,7 @@ export default function AdminUsersClient({
           const Icon = s.icon
           return (
             <div key={s.label} className="p-4">
-              <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/40">
+              <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
                 <Icon className="h-3.5 w-3.5 text-white/30" /> <span className="truncate">{s.label}</span>
               </div>
               <div className="text-2xl font-bold tabular-nums text-white">{s.value.toLocaleString()}</div>
@@ -148,7 +148,7 @@ export default function AdminUsersClient({
                 }
               }}
               placeholder={t('users.search_users')}
-              className="w-full rounded-lg border border-white/10 bg-transparent py-2.5 pl-9 pr-3 text-sm text-white placeholder:text-white/40 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+              className="w-full rounded-lg border border-white/10 bg-transparent py-2.5 pl-9 pr-3 text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
             />
           </div>
           <button
@@ -185,7 +185,7 @@ export default function AdminUsersClient({
             )}
           </div>
         )}
-        <p className="mt-2 text-xs text-white/40">{t('users.search_hint')}</p>
+        <p className="mt-2 text-xs text-white/50">{t('users.search_hint')}</p>
       </div>
     </div>
   )

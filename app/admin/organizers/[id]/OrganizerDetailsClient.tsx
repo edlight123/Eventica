@@ -183,7 +183,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
       {/* Stats Strip */}
       <div className="mb-6 grid grid-cols-3 divide-x divide-white/10 overflow-hidden rounded-xl border border-white/10">
         <div className="p-4">
-          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/40">
+          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/50">
             <svg className="h-3.5 w-3.5 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
@@ -193,7 +193,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
         </div>
 
         <div className="p-4">
-          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/40">
+          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/50">
             <svg className="h-3.5 w-3.5 text-white/30" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
             </svg>
@@ -203,7 +203,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
         </div>
 
         <div className="p-4">
-          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/40">
+          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/50">
             <svg className="h-3.5 w-3.5 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
             </svg>
@@ -217,38 +217,38 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
         {/* Account Information */}
         <div className="rounded-lg border border-white/10 p-4 sm:p-5">
           <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-white">
-            <svg className="h-4 w-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-4 w-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
             Account Information
           </h2>
           <dl className="space-y-3">
             <div>
-              <dt className="text-xs text-white/45">User ID</dt>
+              <dt className="text-xs text-white/50">User ID</dt>
               <dd className="text-sm text-white font-mono break-all">{id}</dd>
             </div>
             <div>
-              <dt className="text-xs text-white/45">Phone</dt>
+              <dt className="text-xs text-white/50">Phone</dt>
               <dd className="text-sm text-white">{user.phone_number || 'Not provided'}</dd>
             </div>
             <div>
-              <dt className="text-xs text-white/45">Account Status</dt>
+              <dt className="text-xs text-white/50">Account Status</dt>
               <dd className={`text-sm font-semibold ${isBanned ? 'text-red-300' : 'text-emerald-300'}`}>
                 {isBanned ? 'Banned' : 'Active'}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-white/45">Can Create Events</dt>
+              <dt className="text-xs text-white/50">Can Create Events</dt>
               <dd className={`text-sm font-semibold ${canPost ? 'text-emerald-300' : 'text-red-300'}`}>
                 {canPost ? 'Yes' : 'No'}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-white/45">Joined</dt>
+              <dt className="text-xs text-white/50">Joined</dt>
               <dd className="text-sm text-white">{formatDate(user.created_at)}</dd>
             </div>
             <div>
-              <dt className="text-xs text-white/45">Last Updated</dt>
+              <dt className="text-xs text-white/50">Last Updated</dt>
               <dd className="text-sm text-white">{formatDate(user.updated_at)}</dd>
             </div>
           </dl>
@@ -257,7 +257,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
         {/* Bank Account & Verification */}
         <div className="rounded-lg border border-white/10 p-4 sm:p-5">
           <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-white">
-            <svg className="h-4 w-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-4 w-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             Bank Account & Payouts
@@ -268,7 +268,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
               {/* All Payout Destinations (Multiple Bank Accounts) */}
               {payoutDestinations && payoutDestinations.length > 0 && (
                 <div className="space-y-3">
-                  <p className="text-xs text-white/45">
+                  <p className="text-xs text-white/50">
                     Payout Destinations ({payoutDestinations.length})
                   </p>
                   {payoutDestinations.map((dest, index) => (
@@ -294,19 +294,19 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                       <dl className="space-y-1 text-sm">
                         {(dest.accountName || dest.bankDetails?.accountName) && (
                           <div className="flex justify-between gap-3">
-                            <dt className="text-white/45">Account Name</dt>
+                            <dt className="text-white/50">Account Name</dt>
                             <dd className="text-white font-medium">{safeString(dest.accountName || dest.bankDetails?.accountName)}</dd>
                           </div>
                         )}
                         {(dest.bankName || dest.bankDetails?.bankName) && (
                           <div className="flex justify-between gap-3">
-                            <dt className="text-white/45">Bank</dt>
+                            <dt className="text-white/50">Bank</dt>
                             <dd className="text-white capitalize">{safeString(dest.bankName || dest.bankDetails?.bankName)}</dd>
                           </div>
                         )}
                         {(dest.accountNumberLast4 || dest.accountNumber || dest.bankDetails?.accountNumberLast4 || dest.bankDetails?.accountNumber) && (
                           <div className="flex justify-between gap-3">
-                            <dt className="text-white/45">Account #</dt>
+                            <dt className="text-white/50">Account #</dt>
                             <dd className="text-white font-mono">
                               ****{safeString(dest.accountNumberLast4 || dest.bankDetails?.accountNumberLast4 || dest.accountNumber || dest.bankDetails?.accountNumber)}
                             </dd>
@@ -314,25 +314,25 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                         )}
                         {(dest.routingNumber || dest.bankDetails?.routingNumber) && (
                           <div className="flex justify-between gap-3">
-                            <dt className="text-white/45">Routing #</dt>
+                            <dt className="text-white/50">Routing #</dt>
                             <dd className="text-white font-mono">{safeString(dest.routingNumber || dest.bankDetails?.routingNumber)}</dd>
                           </div>
                         )}
                         {(dest.accountLocation || dest.bankDetails?.accountLocation) && (
                           <div className="flex justify-between gap-3">
-                            <dt className="text-white/45">Location</dt>
+                            <dt className="text-white/50">Location</dt>
                             <dd className="text-white capitalize">{safeString(dest.accountLocation || dest.bankDetails?.accountLocation)}</dd>
                           </div>
                         )}
                         {(dest.provider || dest.mobileMoneyDetails?.provider) && (
                           <div className="flex justify-between gap-3">
-                            <dt className="text-white/45">Provider</dt>
+                            <dt className="text-white/50">Provider</dt>
                             <dd className="text-white">{safeString(dest.provider || dest.mobileMoneyDetails?.provider)}</dd>
                           </div>
                         )}
                         {(dest.phoneNumber || dest.mobileMoneyDetails?.phoneNumber) && (
                           <div className="flex justify-between gap-3">
-                            <dt className="text-white/45">Phone</dt>
+                            <dt className="text-white/50">Phone</dt>
                             <dd className="text-white font-mono">{safeString(dest.phoneNumber || dest.mobileMoneyDetails?.phoneNumber)}</dd>
                           </div>
                         )}
@@ -349,16 +349,16 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                     <p className="text-sm font-medium text-white">
                       {safeString(payoutConfig.bankDetails?.accountName, 'N/A')}
                     </p>
-                    <p className="mt-1 text-xs text-white/45">Account Holder</p>
+                    <p className="mt-1 text-xs text-white/50">Account Holder</p>
                   </div>
 
                   <dl className="space-y-2 text-sm">
                     <div className="flex justify-between gap-3">
-                      <dt className="text-white/45">Bank</dt>
+                      <dt className="text-white/50">Bank</dt>
                       <dd className="text-white font-medium">{safeString(payoutConfig.bankDetails?.bankName, 'N/A')}</dd>
                     </div>
                     <div className="flex justify-between gap-3">
-                      <dt className="text-white/45">Account Number</dt>
+                      <dt className="text-white/50">Account Number</dt>
                       <dd className="text-white font-mono">
                         {typeof payoutConfig.bankDetails?.accountNumber === 'string' && payoutConfig.bankDetails.accountNumber
                           ? payoutConfig.bankDetails.accountNumber
@@ -367,12 +367,12 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                     </div>
                     {payoutConfig.bankDetails?.routingNumber && (
                       <div className="flex justify-between gap-3">
-                        <dt className="text-white/45">Routing Number</dt>
+                        <dt className="text-white/50">Routing Number</dt>
                         <dd className="text-white font-mono">{safeString(payoutConfig.bankDetails.routingNumber)}</dd>
                       </div>
                     )}
                     <div className="flex justify-between gap-3">
-                      <dt className="text-white/45">Location</dt>
+                      <dt className="text-white/50">Location</dt>
                       <dd className="text-white">{safeString(payoutConfig.accountLocation || payoutConfig.bankDetails?.accountLocation, 'N/A')}</dd>
                     </div>
                   </dl>
@@ -418,10 +418,10 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                   </span>
                 </div>
                 {payoutConfig.method && (
-                  <p className="mt-1 text-xs text-white/45">Method: {safeString(payoutConfig.method).replace(/_/g, ' ')}</p>
+                  <p className="mt-1 text-xs text-white/50">Method: {safeString(payoutConfig.method).replace(/_/g, ' ')}</p>
                 )}
                 {payoutConfig.payoutProvider && (
-                  <p className="text-xs text-white/45">Provider: {safeString(payoutConfig.payoutProvider).replace(/_/g, ' ')}</p>
+                  <p className="text-xs text-white/50">Provider: {safeString(payoutConfig.payoutProvider).replace(/_/g, ' ')}</p>
                 )}
               </div>
 
@@ -431,15 +431,15 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                   <p className="mb-2 text-sm font-medium text-white">Mobile Money</p>
                   <dl className="space-y-2 text-sm">
                     <div className="flex justify-between gap-3">
-                      <dt className="text-white/45">Provider</dt>
+                      <dt className="text-white/50">Provider</dt>
                       <dd className="text-white">{safeString(payoutConfig.mobileMoneyDetails.provider)}</dd>
                     </div>
                     <div className="flex justify-between gap-3">
-                      <dt className="text-white/45">Phone</dt>
+                      <dt className="text-white/50">Phone</dt>
                       <dd className="text-white font-mono">{safeString(payoutConfig.mobileMoneyDetails.phoneNumber)}</dd>
                     </div>
                     <div className="flex justify-between gap-3">
-                      <dt className="text-white/45">Account Name</dt>
+                      <dt className="text-white/50">Account Name</dt>
                       <dd className="text-white">{safeString(payoutConfig.mobileMoneyDetails.accountName)}</dd>
                     </div>
                   </dl>
@@ -448,7 +448,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
 
               {/* Timestamps */}
               {(payoutConfig.createdAt || payoutConfig.updatedAt) && (
-                <div className="space-y-1 text-xs text-white/45">
+                <div className="space-y-1 text-xs text-white/50">
                   {payoutConfig.createdAt && (
                     <p>Created: {formatDate(payoutConfig.createdAt)}</p>
                   )}
@@ -463,7 +463,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
               <svg className="mx-auto mb-2 h-10 w-10 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <p className="text-sm text-white/45">No payout configuration</p>
+              <p className="text-sm text-white/50">No payout configuration</p>
             </div>
           )}
         </div>
@@ -472,7 +472,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
         {verificationRequest && (
           <div className="rounded-lg border border-white/10 p-4 sm:p-5">
             <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-white">
-              <svg className="h-4 w-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-4 w-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               Verification Request
@@ -480,7 +480,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
 
             <dl className="space-y-3">
               <div>
-                <dt className="text-xs text-white/45">Status</dt>
+                <dt className="text-xs text-white/50">Status</dt>
                 <dd className={`mt-1 text-sm font-semibold ${
                   safeString(verificationRequest.status) === 'approved' ? 'text-emerald-300' :
                   safeString(verificationRequest.status) === 'rejected' ? 'text-red-300' :
@@ -492,20 +492,20 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
 
               {verificationRequest.business_name && typeof verificationRequest.business_name === 'string' && (
                 <div>
-                  <dt className="text-xs text-white/45">Business Name</dt>
+                  <dt className="text-xs text-white/50">Business Name</dt>
                   <dd className="text-sm text-white">{verificationRequest.business_name}</dd>
                 </div>
               )}
 
               {verificationRequest.business_type && typeof verificationRequest.business_type === 'string' && (
                 <div>
-                  <dt className="text-xs text-white/45">Business Type</dt>
+                  <dt className="text-xs text-white/50">Business Type</dt>
                   <dd className="text-sm text-white">{verificationRequest.business_type}</dd>
                 </div>
               )}
 
               <div>
-                <dt className="text-xs text-white/45">Submitted</dt>
+                <dt className="text-xs text-white/50">Submitted</dt>
                 <dd className="text-sm text-white">
                   {formatDate(verificationRequest.submitted_at || verificationRequest.createdAt)}
                 </dd>
@@ -513,7 +513,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
 
               {verificationRequest.reviewed_at && (
                 <div>
-                  <dt className="text-xs text-white/45">Reviewed</dt>
+                  <dt className="text-xs text-white/50">Reviewed</dt>
                   <dd className="text-sm text-white">
                     {formatDate(verificationRequest.reviewed_at)}
                   </dd>
@@ -522,7 +522,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
 
               {verificationRequest.rejection_reason && typeof verificationRequest.rejection_reason === 'string' && (
                 <div>
-                  <dt className="text-xs text-white/45">Rejection Reason</dt>
+                  <dt className="text-xs text-white/50">Rejection Reason</dt>
                   <dd className="text-sm text-red-300">
                     {verificationRequest.rejection_reason}
                   </dd>
@@ -536,7 +536,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
         {verificationDocs.length > 0 && (
           <div className="rounded-lg border border-white/10 p-4 sm:p-5">
             <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-white">
-              <svg className="h-4 w-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-4 w-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               Verification Documents ({verificationDocs.length})
@@ -575,12 +575,12 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                         <div>
                           <p className="text-sm font-medium text-white">{docTypeLabel} Verification</p>
                           {doc.submittedAt && (
-                            <p className="text-xs text-white/45">
+                            <p className="text-xs text-white/50">
                               Submitted {formatDate(doc.submittedAt, false)}
                             </p>
                           )}
                           {doc.uploadedAt && !doc.submittedAt && (
-                            <p className="text-xs text-white/45">
+                            <p className="text-xs text-white/50">
                               Uploaded {formatDate(doc.uploadedAt, false)}
                             </p>
                           )}
@@ -631,21 +631,21 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {organizer.organization_name && (
                 <div>
-                  <dt className="text-xs text-white/45">Organization Name</dt>
+                  <dt className="text-xs text-white/50">Organization Name</dt>
                   <dd className="mt-1 text-sm text-white">{organizer.organization_name}</dd>
                 </div>
               )}
 
               {organizer.business_type && (
                 <div>
-                  <dt className="text-xs text-white/45">Business Type</dt>
+                  <dt className="text-xs text-white/50">Business Type</dt>
                   <dd className="mt-1 text-sm text-white">{organizer.business_type}</dd>
                 </div>
               )}
 
               {organizer.website && (
                 <div>
-                  <dt className="text-xs text-white/45">Website</dt>
+                  <dt className="text-xs text-white/50">Website</dt>
                   <dd className="mt-1 text-sm text-white">
                     <a href={organizer.website} target="_blank" rel="noopener noreferrer" className="text-brand-300 hover:underline">
                       {organizer.website}
@@ -656,7 +656,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
 
               {organizer.description && (
                 <div className="sm:col-span-2">
-                  <dt className="text-xs text-white/45">Description</dt>
+                  <dt className="text-xs text-white/50">Description</dt>
                   <dd className="mt-1 text-sm text-white">{organizer.description}</dd>
                 </div>
               )}

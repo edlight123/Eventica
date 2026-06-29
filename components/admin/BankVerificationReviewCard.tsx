@@ -204,7 +204,7 @@ export default function BankVerificationReviewCard({ verification }: Props) {
               Submitted {new Date(verification.verificationDoc.submittedAt).toLocaleString()}
             </p>
           </div>
-          <div className="text-2xl text-white/40">
+          <div className="text-2xl text-white/50">
             {expanded ? '−' : '+'}
           </div>
         </div>

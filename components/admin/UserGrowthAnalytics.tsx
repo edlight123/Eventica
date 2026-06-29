@@ -94,11 +94,11 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
           const Icon = s.icon
           return (
             <div key={s.label} className="p-4">
-              <div className="mb-1 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/40">
+              <div className="mb-1 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
                 <Icon className="h-3.5 w-3.5 text-white/30" /> <span className="truncate">{s.label}</span>
               </div>
               <div className="text-xl font-bold tabular-nums text-white">{s.value.toLocaleString()}</div>
-              <div className="mt-0.5 text-[11px] text-white/40">{s.sub}</div>
+              <div className="mt-0.5 text-[11px] text-white/50">{s.sub}</div>
             </div>
           )
         })}
@@ -135,7 +135,7 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <div className="py-12 text-center text-sm text-white/40">No signup data for this period</div>
+          <div className="py-12 text-center text-sm text-white/50">No signup data for this period</div>
         )}
       </div>
     </div>
