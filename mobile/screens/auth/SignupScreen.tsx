@@ -15,6 +15,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
+import { TikemWordmark } from '../../components/TikemWordmark';
 
 export default function SignupScreen({ navigation }: any) {
   const { t } = useI18n();
@@ -74,11 +75,7 @@ export default function SignupScreen({ navigation }: any) {
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.content}>
             <Animated.View style={[styles.logoContainer, { transform: [{ scale: logoScale }], opacity: logoOpacity }]}>
-              <Image
-                source={require('../../assets/tikem_wordmark_light.png')}
-                style={styles.wordmark}
-                resizeMode="contain"
-              />
+              <TikemWordmark fontSize={54} />
               <Text style={styles.subtitle}>{t('auth.signup.title')}</Text>
             </Animated.View>
 

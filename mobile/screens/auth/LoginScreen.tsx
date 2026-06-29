@@ -16,6 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../../contexts/AuthContext';
 import { BRAND } from '../../config/brand';
 import { useI18n } from '../../contexts/I18nContext';
+import { TikemWordmark } from '../../components/TikemWordmark';
 
 const { width, height } = Dimensions.get('window');
 
@@ -80,11 +81,7 @@ export default function LoginScreen({ navigation }: any) {
         <View style={styles.content}>
           {/* Logo */}
           <Animated.View style={[styles.logoContainer, { transform: [{ scale: logoScale }], opacity: logoOpacity }]}>
-            <Image
-              source={require('../../assets/tikem_wordmark_light.png')}
-              style={styles.wordmark}
-              resizeMode="contain"
-            />
+            <TikemWordmark fontSize={56} />
             <Text style={styles.tagline}>{BRAND.tagline}</Text>
           </Animated.View>
 

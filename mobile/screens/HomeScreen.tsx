@@ -28,6 +28,7 @@ import LocationPickerSheet from '../components/LocationPickerSheet';
 import { DEFAULT_FILTERS } from '../types/filters';
 
 import CategoryRail from '../components/CategoryRail';
+import { TikemWordmark } from '../components/TikemWordmark';
 import TrendingSection from '../components/TrendingSection';
 import ThisWeekSection from '../components/ThisWeekSection';
 import AllEventsPreview from '../components/AllEventsPreview';
@@ -371,11 +372,7 @@ export default function HomeScreen({ navigation }: any) {
         }}
       >
         <View style={styles.headerLeft}>
-          <Image
-            source={require('../assets/tikem_wordmark_light.png')}
-            style={styles.wordmark}
-            resizeMode="contain"
-          />
+          <TikemWordmark fontSize={32} />
         </View>
         <View style={styles.headerRight}>
           <TouchableOpacity
