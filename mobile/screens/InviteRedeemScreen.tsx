@@ -113,7 +113,7 @@ export default function InviteRedeemScreen({ route, navigation }: Props) {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background || '#fff' }}>
       <View style={{ flex: 1, padding: 20, justifyContent: 'center' }}>
-        <View style={{ backgroundColor: colors.surface, borderRadius: 16, padding: 20, borderWidth: 1, borderColor: colors.borderLight, ...SHADOWS.card }}>
+        <View style={{ backgroundColor: colors.surface, borderRadius: 16, padding: 20, borderWidth: 1, borderColor: colors.border }}>
           <Text style={{ fontSize: 22, fontWeight: '700', color: colors.text, marginBottom: 8 }}>
             Accept Staff Invite
           </Text>
@@ -123,7 +123,7 @@ export default function InviteRedeemScreen({ route, navigation }: Props) {
 
           {status === 'working' ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <ActivityIndicator />
+              <ActivityIndicator color={colors.primary} />
               <Text style={{ color: colors.textSecondary }}>{message}</Text>
             </View>
           ) : (

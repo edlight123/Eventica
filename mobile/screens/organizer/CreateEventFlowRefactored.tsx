@@ -368,6 +368,7 @@ export default function CreateEventFlowRefactored() {
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               onPress={() => {
                 Alert.alert(t('organizerCreateEventFlow.discardTitle'), t('organizerCreateEventFlow.discardBody'), [
                   { text: t('common.cancel'), style: 'cancel' },
@@ -377,7 +378,7 @@ export default function CreateEventFlowRefactored() {
             >
               <Ionicons name="close" size={24} color={colors.text} />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>
+            <Text style={styles.headerTitle} numberOfLines={1}>
               {isEditMode ? t('organizerCreateEventFlow.headerEdit') : t('organizerCreateEventFlow.headerCreate')}
             </Text>
             <View style={{ width: 24 }} />

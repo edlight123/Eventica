@@ -6,7 +6,7 @@ import { collectionGroup, getDoc, doc, getDocs, query, where } from 'firebase/fi
 import { db, auth } from '../../config/firebase';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useI18n } from '../../contexts/I18nContext';
-import { SHADOWS, RADIUS } from '../../config/brand';
+import { RADIUS } from '../../config/brand';
 import { getStaffEventIds } from '../../lib/staffAssignments';
 
 type StaffMemberDoc = {
@@ -174,7 +174,11 @@ export default function StaffEventsScreen() {
         keyExtractor={(item) => item.id}
         refreshing={refreshing}
         onRefresh={handleRefresh}
-        contentContainerStyle={[styles.list, events.length === 0 && styles.listEmpty]}
+        contentContainerStyle={[
+          styles.list,
+          { paddingBottom: 16 + insets.bottom },
+          events.length === 0 && styles.listEmpty,
+        ]}
         ListEmptyComponent={
           <View style={styles.center}>
             {loading ? (
@@ -189,8 +193,8 @@ export default function StaffEventsScreen() {
             style={styles.card}
             onPress={() => (navigation as any).navigate('TicketScanner', { eventId: item.id })}
           >
-            <Text style={styles.cardTitle}>{item.title}</Text>
-            <Text style={styles.cardMeta}>
+            <Text style={styles.cardTitle} numberOfLines={2}>{item.title}</Text>
+            <Text style={styles.cardMeta} numberOfLines={1}>
               {item.venue_name ? item.venue_name : t('common.venue')}
               {item.city ? ` • ${item.city}` : ''}
             </Text>
@@ -229,8 +233,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     opacity: 0.95,
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
+    paddingHorizontal: 16,
+    paddingTop: 12,
     paddingBottom: 12,
   },
   title: {
@@ -265,8 +269,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: RADIUS.lg,
     padding: 16,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   cardTitle: {
     fontSize: 16,

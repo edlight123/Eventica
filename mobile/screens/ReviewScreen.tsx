@@ -9,7 +9,7 @@ import {
   Alert,
   TextInput,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -26,6 +26,7 @@ export default function ReviewScreen({ route, navigation }: any) {
   const { ticketId, eventId, eventTitle } = route.params;
   const { user } = useAuth();
   const { t } = useI18n();
+  const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [ticket, setTicket] = useState<any>(null);
@@ -149,11 +150,15 @@ export default function ReviewScreen({ route, navigation }: any) {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()} hitSlop={8}>
             <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>
@@ -229,7 +234,8 @@ export default function ReviewScreen({ route, navigation }: any) {
           <TextInput
             style={styles.commentInput}
             placeholder={t('review.commentPlaceholder') || 'What did you enjoy? Any suggestions?'}
-            placeholderTextColor={colors.textSecondary}
+            placeholderTextColor={colors.textTertiary}
+            selectionColor={colors.primary}
             value={comment}
             onChangeText={setComment}
             multiline
@@ -298,10 +304,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     margin: 16,
     padding: 16,
     backgroundColor: colors.surface,
-    borderRadius: RADIUS.xl,
+    borderRadius: RADIUS.lg,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   eventTitle: {
     fontSize: 18,
@@ -318,10 +323,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 8,
     padding: 20,
     backgroundColor: colors.surface,
-    borderRadius: RADIUS.xl,
+    borderRadius: RADIUS.lg,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: colors.border,
   },
   ratingLabel: {
     fontSize: 16,
@@ -348,10 +353,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 8,
     padding: 20,
     backgroundColor: colors.surface,
-    borderRadius: RADIUS.xl,
+    borderRadius: RADIUS.lg,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: colors.border,
   },
   recommendButtons: {
     flexDirection: 'row',

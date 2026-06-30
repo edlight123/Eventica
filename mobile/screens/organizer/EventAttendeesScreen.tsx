@@ -131,8 +131,8 @@ export default function EventAttendeesScreen() {
       <View style={styles.attendeeCard}>
         <View style={styles.attendeeHeader}>
           <View style={styles.attendeeInfo}>
-            <Text style={styles.attendeeName}>{item.attendee_name || t('common.na')}</Text>
-            <Text style={styles.attendeeEmail}>{item.attendee_email || t('common.na')}</Text>
+            <Text style={styles.attendeeName} numberOfLines={1}>{item.attendee_name || t('common.na')}</Text>
+            <Text style={styles.attendeeEmail} numberOfLines={1}>{item.attendee_email || t('common.na')}</Text>
           </View>
           <View style={[styles.statusBadge, checkedIn && styles.statusBadgeCheckedIn]}>
             <Ionicons
@@ -188,7 +188,7 @@ export default function EventAttendeesScreen() {
       <View style={styles.container}>
         <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? colors.surface : colors.white} />
         <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{t('organizerAttendees.headerTitle')}</Text>
@@ -235,10 +235,11 @@ export default function EventAttendeesScreen() {
           placeholder={t('organizerAttendees.searchPlaceholder')}
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholderTextColor={colors.textSecondary}
+          placeholderTextColor={colors.textTertiary}
+          selectionColor={colors.primary}
         />
         {searchQuery.length > 0 && (
-          <TouchableOpacity onPress={() => setSearchQuery('')}>
+          <TouchableOpacity onPress={() => setSearchQuery('')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <Ionicons name="close-circle" size={20} color={colors.textSecondary} />
           </TouchableOpacity>
         )}
@@ -298,7 +299,7 @@ export default function EventAttendeesScreen() {
         data={filteredAttendees}
         renderItem={renderAttendee}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 24 }]}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -436,6 +437,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   attendeeInfo: {
     flex: 1,
+    marginRight: 12,
   },
   attendeeName: {
     fontSize: 16,

@@ -509,7 +509,7 @@ export default function HomeScreen({ navigation }: any) {
             )}
 
             {/* Bottom Spacing */}
-            <View style={{ height: 32 }} />
+            <View style={{ height: 32 + insets.bottom }} />
           </>
         )}
       </ScrollView>

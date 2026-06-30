@@ -386,6 +386,7 @@ export default function NotificationsScreen() {
             disabled={isClearing}
             style={styles.clearAllButton}
             activeOpacity={0.7}
+            hitSlop={8}
           >
             {isClearing ? (
               <ActivityIndicator size="small" color={colors.error} />
@@ -529,6 +530,7 @@ export default function NotificationsScreen() {
                     }}
                     style={styles.markReadButton}
                     activeOpacity={0.7}
+                    hitSlop={8}
                   >
                     <Check size={20} color={colors.textSecondary} />
                   </TouchableOpacity>
@@ -618,24 +620,19 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   notificationsList: {
     paddingHorizontal: 16,
     paddingTop: 16, // 16px gap below header
-    paddingBottom: 16,
+    paddingBottom: 32,
     gap: 8,
   },
   notificationCard: {
     flexDirection: 'row',
     backgroundColor: colors.surface,
-    borderRadius: 14,
+    borderRadius: 16,
     padding: 16,
     gap: 12,
     borderLeftWidth: 4,
     borderLeftColor: 'transparent',
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 2,
+    borderColor: colors.border,
   },
   notificationCardUnread: {
     borderLeftColor: colors.primary,

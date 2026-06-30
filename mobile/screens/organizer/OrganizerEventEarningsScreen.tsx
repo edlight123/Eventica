@@ -542,7 +542,11 @@ export default function OrganizerEventEarningsScreen() {
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
 
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
           <Ionicons name="chevron-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <View style={styles.headerTextWrap}>
@@ -553,10 +557,10 @@ export default function OrganizerEventEarningsScreen() {
         </View>
       </View>
 
-      <ScrollView style={styles.scroll} contentContainerStyle={{ padding: 16 }}>
+      <ScrollView style={styles.scroll} contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}>
         <View style={styles.card}>
           <Text style={styles.cardLabel}>{t('organizerEarnings.availableToWithdraw')}</Text>
-          <Text style={styles.amountText}>{formatCurrency(availableToWithdraw, currency)}</Text>
+          <Text style={styles.amountText} numberOfLines={1} adjustsFontSizeToFit>{formatCurrency(availableToWithdraw, currency)}</Text>
           <View style={styles.rowBetween}>
             <Text style={styles.metaText}>{t('organizerEarnings.settlement')}</Text>
             <Text style={styles.metaText}>{String(earnings?.settlementStatus || 'pending')}</Text>
@@ -627,7 +631,7 @@ export default function OrganizerEventEarningsScreen() {
                   ? t('organizerEarnings.modal.titleMoncash')
                   : t('organizerEarnings.modal.titleBank')}
               </Text>
-              <TouchableOpacity onPress={() => setShowWithdraw(false)}>
+              <TouchableOpacity onPress={() => setShowWithdraw(false)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
                 <Ionicons name="close" size={24} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
@@ -669,6 +673,8 @@ export default function OrganizerEventEarningsScreen() {
                     value={verificationCode}
                     onChangeText={setVerificationCode}
                     placeholder={t('organizerEarnings.otp.enterCodePlaceholder')}
+                    placeholderTextColor={colors.textTertiary}
+                    selectionColor={colors.primary}
                     keyboardType="number-pad"
                     style={styles.input}
                   />
@@ -689,6 +695,8 @@ export default function OrganizerEventEarningsScreen() {
                     value={moncashNumber}
                     onChangeText={setMoncashNumber}
                     placeholder={t('organizerEarnings.moncash.placeholder')}
+                    placeholderTextColor={colors.textTertiary}
+                    selectionColor={colors.primary}
                     keyboardType="phone-pad"
                     style={styles.input}
                   />
@@ -734,10 +742,10 @@ export default function OrganizerEventEarningsScreen() {
                           onPress={() => setSelectedBankDestinationId(d.id)}
                         >
                           <View style={{ flex: 1 }}>
-                            <Text style={styles.destinationTitle}>
+                            <Text style={styles.destinationTitle} numberOfLines={1}>
                               {d.bankName} ••••{d.accountNumberLast4}{d.isPrimary ? ` ${t('organizerEarnings.bank.primarySuffix')}` : ''}
                             </Text>
-                            <Text style={styles.destinationSubtitle}>{d.accountName}</Text>
+                            <Text style={styles.destinationSubtitle} numberOfLines={1}>{d.accountName}</Text>
                           </View>
                           <Ionicons
                             name={selectedBankDestinationId === d.id ? 'checkmark-circle' : 'ellipse-outline'}
@@ -753,30 +761,40 @@ export default function OrganizerEventEarningsScreen() {
                         value={bankDetails.accountHolder}
                         onChangeText={(v) => setBankDetails((s) => ({ ...s, accountHolder: v }))}
                         placeholder={t('organizerEarnings.bank.placeholders.accountHolder')}
+                        placeholderTextColor={colors.textTertiary}
+                        selectionColor={colors.primary}
                         style={styles.input}
                       />
                       <TextInput
                         value={bankDetails.bankName}
                         onChangeText={(v) => setBankDetails((s) => ({ ...s, bankName: v }))}
                         placeholder={t('organizerEarnings.bank.placeholders.bankName')}
+                        placeholderTextColor={colors.textTertiary}
+                        selectionColor={colors.primary}
                         style={styles.input}
                       />
                       <TextInput
                         value={bankDetails.accountNumber}
                         onChangeText={(v) => setBankDetails((s) => ({ ...s, accountNumber: v }))}
                         placeholder={t('organizerEarnings.bank.placeholders.accountNumber')}
+                        placeholderTextColor={colors.textTertiary}
+                        selectionColor={colors.primary}
                         style={styles.input}
                       />
                       <TextInput
                         value={bankDetails.routingNumber}
                         onChangeText={(v) => setBankDetails((s) => ({ ...s, routingNumber: v }))}
                         placeholder={t('organizerEarnings.bank.placeholders.routingNumberOptional')}
+                        placeholderTextColor={colors.textTertiary}
+                        selectionColor={colors.primary}
                         style={styles.input}
                       />
                       <TextInput
                         value={bankDetails.swiftCode}
                         onChangeText={(v) => setBankDetails((s) => ({ ...s, swiftCode: v }))}
                         placeholder={t('organizerEarnings.bank.placeholders.swiftOptional')}
+                        placeholderTextColor={colors.textTertiary}
+                        selectionColor={colors.primary}
                         style={styles.input}
                       />
 
@@ -836,7 +854,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 16,
     backgroundColor: colors.background,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.borderLight,
+    borderBottomColor: colors.border,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
@@ -874,8 +892,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   card: {
     backgroundColor: colors.surface,
-    borderRadius: RADIUS.xl,
-    padding: 16,
+    borderRadius: RADIUS.lg,
+    padding: 20,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -899,7 +917,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 13,
   },
   actionButton: {
-    borderRadius: 12,
+    borderRadius: RADIUS.md,
+    minHeight: 48,
     paddingVertical: 14,
     paddingHorizontal: 16,
     flexDirection: 'row',
@@ -928,8 +947,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   modalCard: {
     backgroundColor: colors.surface,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: RADIUS.xl,
+    borderTopRightRadius: RADIUS.xl,
     padding: 16,
     maxHeight: '90%',
   },
@@ -977,9 +996,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   primaryButton: {
     flex: 1,
     backgroundColor: colors.primary,
-    borderRadius: 12,
-    paddingVertical: 12,
+    borderRadius: RADIUS.md,
+    minHeight: 48,
+    paddingVertical: 14,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   primaryButtonText: {
     color: colors.white,
@@ -988,9 +1009,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   secondaryButton: {
     flex: 1,
     backgroundColor: colors.surfaceMuted,
-    borderRadius: 12,
-    paddingVertical: 12,
+    borderRadius: RADIUS.md,
+    minHeight: 48,
+    paddingVertical: 14,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   secondaryButtonText: {
     color: colors.text,
@@ -1022,7 +1045,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     gap: 10,
     padding: 12,
-    borderRadius: 12,
+    borderRadius: RADIUS.md,
     borderWidth: 1,
     borderColor: colors.border,
     marginBottom: 8,

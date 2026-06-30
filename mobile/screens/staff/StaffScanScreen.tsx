@@ -223,8 +223,8 @@ export default function StaffScanScreen() {
               <View style={styles.selectorContent}>
                 {selectedEvent ? (
                   <View style={styles.selectorTextCol}>
-                    <Text style={styles.selectorTitle}>{selectedEvent.title}</Text>
-                    <Text style={styles.selectorSubtitle}>
+                    <Text style={styles.selectorTitle} numberOfLines={1}>{selectedEvent.title}</Text>
+                    <Text style={styles.selectorSubtitle} numberOfLines={1}>
                       {selectedEvent.venue_name ? selectedEvent.venue_name : t('common.venue')}
                       {selectedEvent.city ? ` • ${selectedEvent.city}` : ''}
                     </Text>
@@ -258,7 +258,10 @@ export default function StaffScanScreen() {
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{t('staffScan.selectEvent')}</Text>
-              <TouchableOpacity onPress={() => setShowEventSelector(false)}>
+              <TouchableOpacity
+                onPress={() => setShowEventSelector(false)}
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              >
                 <Ionicons name="close" size={22} color={colors.text} />
               </TouchableOpacity>
             </View>
@@ -275,8 +278,8 @@ export default function StaffScanScreen() {
                   }}
                 >
                   <View style={styles.eventItemContent}>
-                    <Text style={styles.eventItemTitle}>{item.title}</Text>
-                    <Text style={styles.eventItemSubtitle}>
+                    <Text style={styles.eventItemTitle} numberOfLines={1}>{item.title}</Text>
+                    <Text style={styles.eventItemSubtitle} numberOfLines={1}>
                       {item.venue_name ? item.venue_name : t('common.venue')}
                       {item.city ? ` • ${item.city}` : ''}
                     </Text>
@@ -328,8 +331,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     opacity: 0.95,
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
+    paddingHorizontal: 16,
+    paddingTop: 12,
     paddingBottom: 12,
   },
   title: {
@@ -363,15 +366,14 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 14,
     color: colors.textSecondary,
     marginBottom: 8,
-    marginLeft: 4,
   },
   selectorButton: {
     backgroundColor: colors.surface,
-    borderRadius: 12,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: colors.border,
     paddingVertical: 14,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
   },
   selectorContent: {
     flexDirection: 'row',
@@ -397,9 +399,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textSecondary,
   },
   startButton: {
-    marginTop: 14,
+    marginTop: 16,
     backgroundColor: colors.primary,
-    borderRadius: 12,
+    borderRadius: 16,
+    minHeight: 48,
     paddingVertical: 14,
     paddingHorizontal: 16,
     flexDirection: 'row',

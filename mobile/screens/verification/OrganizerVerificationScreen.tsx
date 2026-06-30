@@ -15,7 +15,6 @@ import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
-import { SHADOWS } from '../../config/brand';
 import {
   getVerificationRequest,
   initializeVerificationRequest,
@@ -128,7 +127,7 @@ export default function OrganizerVerificationScreen() {
   }
 
   return (
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 24 + insets.bottom }}>
         <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? colors.surface : colors.white} />
 
         {/* Header */}
@@ -136,6 +135,7 @@ export default function OrganizerVerificationScreen() {
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
             <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
@@ -192,8 +192,8 @@ export default function OrganizerVerificationScreen() {
           >
             <View style={styles.stepIcon}>{renderStepIcon('organizerInfo')}</View>
             <View style={styles.stepContent}>
-              <Text style={styles.stepTitle}>{t('verification.organizerVerification.steps.organizerInfo.title')}</Text>
-              <Text style={styles.stepDescription}>
+              <Text style={styles.stepTitle} numberOfLines={1}>{t('verification.organizerVerification.steps.organizerInfo.title')}</Text>
+              <Text style={styles.stepDescription} numberOfLines={2}>
                 {t('verification.organizerVerification.steps.organizerInfo.description')}
               </Text>
             </View>
@@ -208,8 +208,8 @@ export default function OrganizerVerificationScreen() {
           >
             <View style={styles.stepIcon}>{renderStepIcon('governmentId')}</View>
             <View style={styles.stepContent}>
-              <Text style={styles.stepTitle}>{t('verification.organizerVerification.steps.governmentId.title')}</Text>
-              <Text style={styles.stepDescription}>
+              <Text style={styles.stepTitle} numberOfLines={1}>{t('verification.organizerVerification.steps.governmentId.title')}</Text>
+              <Text style={styles.stepDescription} numberOfLines={2}>
                 {t('verification.organizerVerification.steps.governmentId.description')}
               </Text>
             </View>
@@ -224,8 +224,8 @@ export default function OrganizerVerificationScreen() {
           >
             <View style={styles.stepIcon}>{renderStepIcon('selfie')}</View>
             <View style={styles.stepContent}>
-              <Text style={styles.stepTitle}>{t('verification.organizerVerification.steps.selfie.title')}</Text>
-              <Text style={styles.stepDescription}>
+              <Text style={styles.stepTitle} numberOfLines={1}>{t('verification.organizerVerification.steps.selfie.title')}</Text>
+              <Text style={styles.stepDescription} numberOfLines={2}>
                 {t('verification.organizerVerification.steps.selfie.description')}
               </Text>
             </View>
@@ -329,9 +329,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   retryButton: {
     marginTop: 20,
     paddingHorizontal: 24,
-    paddingVertical: 12,
+    minHeight: 48,
+    justifyContent: 'center',
     backgroundColor: colors.primary,
-    borderRadius: 8,
+    borderRadius: 16,
   },
   retryButtonText: {
     color: colors.white,
@@ -363,10 +364,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     margin: 16,
     padding: 20,
     backgroundColor: colors.surface,
-    borderRadius: 12,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   statusHeader: {
     flexDirection: 'row',
@@ -423,11 +423,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     padding: 16,
     backgroundColor: colors.surface,
-    borderRadius: 12,
+    borderRadius: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   stepIcon: {
     marginRight: 12,
@@ -450,9 +449,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   submitButton: {
     backgroundColor: colors.primary,
-    padding: 16,
-    borderRadius: 12,
+    minHeight: 48,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 16,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   submitButtonText: {
     color: colors.white,
@@ -463,7 +465,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     margin: 16,
     padding: 16,
     backgroundColor: colors.warning + '20',
-    borderRadius: 12,
+    borderRadius: 16,
     flexDirection: 'row',
     alignItems: 'center',
   },

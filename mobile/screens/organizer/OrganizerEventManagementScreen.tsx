@@ -234,8 +234,9 @@ export default function OrganizerEventManagementScreen() {
   });
 
   return (
-    <ScrollView 
+    <ScrollView
       style={styles.container}
+      contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
@@ -263,7 +264,7 @@ export default function OrganizerEventManagementScreen() {
         )}
         <View style={styles.overlay} />
         <View style={[styles.headerContent, { paddingTop: insets.top + 16 }]}>
-          <Text style={styles.headerTitle}>{event.title}</Text>
+          <Text style={styles.headerTitle} numberOfLines={2}>{event.title}</Text>
           <View style={styles.headerInfo}>
             <Ionicons name="calendar-outline" size={16} color={colors.white} />
             <Text style={styles.headerInfoText}>
@@ -272,7 +273,7 @@ export default function OrganizerEventManagementScreen() {
           </View>
           <View style={styles.headerInfo}>
             <Ionicons name="location-outline" size={16} color={colors.white} />
-            <Text style={styles.headerInfoText}>{event.location}</Text>
+            <Text style={styles.headerInfoText} numberOfLines={1}>{event.location}</Text>
           </View>
         </View>
       </View>
@@ -347,7 +348,7 @@ export default function OrganizerEventManagementScreen() {
             {ticketData.ticketTypes.map((ticketType, index) => (
               <View key={index} style={styles.ticketTypeRow}>
                 <View style={styles.ticketTypeInfo}>
-                  <Text style={styles.ticketTypeName}>{ticketType.name}</Text>
+                  <Text style={styles.ticketTypeName} numberOfLines={1}>{ticketType.name}</Text>
                   <Text style={styles.ticketTypeStats}>
                     {ticketType.sold} / {ticketType.capacity}
                   </Text>
@@ -471,6 +472,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 4,
   },
   headerInfoText: {
+    flex: 1,
     fontSize: 14,
     color: colors.white,
     marginLeft: 6,
@@ -571,8 +573,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 6,
   },
   ticketTypeName: {
+    flex: 1,
     fontSize: 14,
     color: colors.text,
+    marginRight: 12,
   },
   ticketTypeStats: {
     fontSize: 14,

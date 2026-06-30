@@ -75,6 +75,7 @@ export default function Step2Location({ draft, updateDraft }: Props) {
             style={styles.input}
             placeholder={t('organizerCreateEvent.location.venuePlaceholder')}
             placeholderTextColor={colors.textTertiary}
+            selectionColor={colors.primary}
             value={draft.venue_name}
             onChangeText={(text) => updateDraft({ venue_name: text })}
           />
@@ -122,6 +123,7 @@ export default function Step2Location({ draft, updateDraft }: Props) {
             style={styles.input}
             placeholder={t('organizerCreateEvent.location.communePlaceholder')}
             placeholderTextColor={colors.textTertiary}
+            selectionColor={colors.primary}
             value={draft.commune}
             onChangeText={(text) => updateDraft({ commune: text })}
           />
@@ -139,6 +141,7 @@ export default function Step2Location({ draft, updateDraft }: Props) {
             style={styles.input}
             placeholder={t('organizerCreateEvent.location.addressPlaceholder')}
             placeholderTextColor={colors.textTertiary}
+            selectionColor={colors.primary}
             value={draft.address}
             onChangeText={(text) => updateDraft({ address: text })}
           />
@@ -225,13 +228,15 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: colors.primary + '10',
+    backgroundColor: colors.primary + '14',
     padding: 12,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.primary + '33',
   },
   infoText: {
     flex: 1,
     fontSize: 13,
-    color: colors.text,
+    color: colors.textSecondary,
   },
 });

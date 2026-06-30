@@ -112,9 +112,9 @@ export default function OrganizerScanScreen() {
               >
                 <View style={styles.selectorContent}>
                   {selectedEvent ? (
-                    <View>
-                      <Text style={styles.selectorTitle}>{selectedEvent.title}</Text>
-                      <Text style={styles.selectorSubtitle}>
+                    <View style={styles.selectorTextWrap}>
+                      <Text style={styles.selectorTitle} numberOfLines={1}>{selectedEvent.title}</Text>
+                      <Text style={styles.selectorSubtitle} numberOfLines={1}>
                         {new Date(selectedEvent.start_datetime).toLocaleTimeString('en-US', {
                           hour: 'numeric',
                           minute: '2-digit',
@@ -166,13 +166,17 @@ export default function OrganizerScanScreen() {
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{t('organizerScan.selectEvent')}</Text>
-              <TouchableOpacity onPress={() => setShowEventSelector(false)}>
+              <TouchableOpacity
+                onPress={() => setShowEventSelector(false)}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
                 <Ionicons name="close" size={24} color={colors.text} />
               </TouchableOpacity>
             </View>
             <FlatList
               data={todayEvents}
               keyExtractor={(item) => item.id}
+              contentContainerStyle={{ paddingBottom: insets.bottom + 8 }}
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={[
@@ -185,8 +189,8 @@ export default function OrganizerScanScreen() {
                   }}
                 >
                   <View style={styles.eventItemContent}>
-                    <Text style={styles.eventItemTitle}>{item.title}</Text>
-                    <Text style={styles.eventItemSubtitle}>
+                    <Text style={styles.eventItemTitle} numberOfLines={1}>{item.title}</Text>
+                    <Text style={styles.eventItemSubtitle} numberOfLines={1}>
                       {new Date(item.start_datetime).toLocaleTimeString('en-US', {
                         hour: 'numeric',
                         minute: '2-digit',
@@ -230,7 +234,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingTop: 16,
     backgroundColor: colors.background,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.borderLight,
+    borderBottomColor: colors.border,
   },
   headerTitle: {
     fontSize: 32,
@@ -250,10 +254,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   instructionsCard: {
     backgroundColor: colors.primarySoft,
-    borderRadius: 12,
+    borderRadius: RADIUS.lg,
     padding: 20,
     alignItems: 'center',
     marginBottom: 24,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   instructionsTitle: {
     fontSize: 18,
@@ -289,6 +295,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  selectorTextWrap: {
+    flex: 1,
+    marginRight: 12,
   },
   selectorTitle: {
     fontSize: 16,
@@ -372,8 +382,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   modalContent: {
     backgroundColor: colors.surface,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: RADIUS.xl,
+    borderTopRightRadius: RADIUS.xl,
     maxHeight: '70%',
     paddingBottom: 20,
   },

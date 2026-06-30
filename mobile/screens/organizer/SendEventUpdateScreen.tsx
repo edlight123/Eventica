@@ -133,7 +133,11 @@ export default function SendEventUpdateScreen() {
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? colors.surface : colors.white} />
 
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
           <Ionicons name="close" size={28} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('organizerSendUpdate.headerTitle')}</Text>
@@ -153,10 +157,14 @@ export default function SendEventUpdateScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.eventInfo}>
           <Ionicons name="calendar" size={20} color={colors.primary} />
-          <Text style={styles.eventTitle}>{eventTitle}</Text>
+          <Text style={styles.eventTitle} numberOfLines={2}>{eventTitle}</Text>
         </View>
 
         <View style={styles.infoBox}>
@@ -174,7 +182,8 @@ export default function SendEventUpdateScreen() {
             value={title}
             onChangeText={setTitle}
             maxLength={100}
-            placeholderTextColor={colors.textSecondary}
+            placeholderTextColor={colors.textTertiary}
+            selectionColor={colors.primary}
           />
           <Text style={styles.charCount}>{title.length}/100</Text>
 
@@ -188,7 +197,8 @@ export default function SendEventUpdateScreen() {
             numberOfLines={10}
             textAlignVertical="top"
             maxLength={500}
-            placeholderTextColor={colors.textSecondary}
+            placeholderTextColor={colors.textTertiary}
+            selectionColor={colors.primary}
           />
           <Text style={styles.charCount}>{message.length}/500</Text>
         </View>

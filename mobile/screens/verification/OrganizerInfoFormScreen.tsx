@@ -144,14 +144,18 @@ export default function OrganizerInfoFormScreen() {
       {/* Header */}
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? colors.surface : colors.white} />
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('verification.organizerInfo.title')}</Text>
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView style={styles.content}>
+      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
         <Text style={styles.sectionDescription}>
           {t('verification.organizerInfo.subtitle')}
         </Text>
@@ -166,7 +170,8 @@ export default function OrganizerInfoFormScreen() {
             value={fullName}
             onChangeText={setFullName}
             placeholder={t('verification.organizerInfo.placeholders.fullName')}
-            placeholderTextColor={colors.textSecondary}
+            placeholderTextColor={colors.textTertiary}
+            selectionColor={colors.primary}
           />
         </View>
 
@@ -180,7 +185,8 @@ export default function OrganizerInfoFormScreen() {
             value={phone}
             onChangeText={setPhone}
             placeholder={t('verification.organizerInfo.placeholders.phone')}
-            placeholderTextColor={colors.textSecondary}
+            placeholderTextColor={colors.textTertiary}
+            selectionColor={colors.primary}
             keyboardType="phone-pad"
           />
         </View>
@@ -195,7 +201,8 @@ export default function OrganizerInfoFormScreen() {
             value={organizationName}
             onChangeText={setOrganizationName}
             placeholder={t('verification.organizerInfo.placeholders.organizationName')}
-            placeholderTextColor={colors.textSecondary}
+            placeholderTextColor={colors.textTertiary}
+            selectionColor={colors.primary}
           />
         </View>
 
@@ -238,7 +245,8 @@ export default function OrganizerInfoFormScreen() {
             value={description}
             onChangeText={setDescription}
             placeholder={t('verification.organizerInfo.placeholders.description')}
-            placeholderTextColor={colors.textSecondary}
+            placeholderTextColor={colors.textTertiary}
+            selectionColor={colors.primary}
             multiline
             numberOfLines={4}
             textAlignVertical="top"
@@ -247,7 +255,7 @@ export default function OrganizerInfoFormScreen() {
       </ScrollView>
 
       {/* Footer */}
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: 16 + insets.bottom }]}>
         <TouchableOpacity
           style={[styles.saveButton, saving && styles.saveButtonDisabled]}
           onPress={handleSave}
@@ -298,10 +306,14 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   content: {
     flex: 1,
+  },
+  contentContainer: {
     padding: 16,
+    paddingBottom: 24,
   },
   sectionDescription: {
     fontSize: 14,
+    lineHeight: 20,
     color: colors.textSecondary,
     marginBottom: 24,
   },
@@ -376,9 +388,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   saveButton: {
     backgroundColor: colors.primary,
-    padding: 16,
-    borderRadius: 12,
+    minHeight: 48,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 16,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   saveButtonDisabled: {
     opacity: 0.5,

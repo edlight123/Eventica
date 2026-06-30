@@ -124,8 +124,8 @@ export default function EventTicketsScreen({ route, navigation }: any) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <ArrowLeft size={24} color={colors.text} />
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton} hitSlop={8}>
+            <ArrowLeft size={24} color="#FFF" />
           </TouchableOpacity>
         </View>
         <View style={styles.emptyContainer}>
@@ -202,7 +202,7 @@ export default function EventTicketsScreen({ route, navigation }: any) {
       <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
         {/* Event Info Section */}
         <View style={styles.eventInfoSection}>
-          <Text style={styles.eventTitle}>{event.title}</Text>
+          <Text style={styles.eventTitle} numberOfLines={2}>{event.title}</Text>
           <Text style={styles.currentTicketIndicator}>
             {t('tickets.ticketSingular')} {currentIndex + 1} {t('common.of')} {tickets.length}
           </Text>

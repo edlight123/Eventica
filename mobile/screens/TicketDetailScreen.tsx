@@ -139,7 +139,7 @@ export default function TicketDetailScreen({ route }: any) {
         <View style={styles.content}>
           {/* Header with Title */}
           <View style={styles.header}>
-            <Text style={styles.eventTitle}>{ticket.event_title}</Text>
+            <Text style={styles.eventTitle} numberOfLines={2}>{ticket.event_title}</Text>
           </View>
 
           {/* Status Badge */}
@@ -485,14 +485,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     backgroundColor: colors.surface,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: colors.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 1,
   },
   infoCardIcon: {
     width: 40,
@@ -527,14 +522,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   detailsCard: {
     backgroundColor: colors.surface,
     padding: 20,
-    borderRadius: 12,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: colors.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
     marginBottom: 24,
   },
   detailsHeader: {
@@ -703,7 +693,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     backgroundColor: colors.surface,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: colors.border,
   },

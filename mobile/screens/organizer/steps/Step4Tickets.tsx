@@ -36,7 +36,11 @@ export default function Step4Tickets({ draft, updateDraft }: Props) {
   const getCurrencySymbol = () => (draft.currency === 'HTG' ? 'HTG' : '$');
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      showsVerticalScrollIndicator={false}
+    >
       <Text style={styles.title}>{t('organizerCreateEvent.tickets.title')}</Text>
       <Text style={styles.subtitle}>{t('organizerCreateEvent.tickets.subtitle')}</Text>
 
@@ -89,7 +93,10 @@ export default function Step4Tickets({ draft, updateDraft }: Props) {
               {t('organizerCreateEvent.tickets.tier')} {index + 1}
             </Text>
             {draft.ticket_tiers.length > 1 && (
-              <TouchableOpacity onPress={() => removeTier(index)}>
+              <TouchableOpacity
+                onPress={() => removeTier(index)}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
                 <Ionicons name="trash-outline" size={20} color={colors.error} />
               </TouchableOpacity>
             )}
@@ -101,6 +108,7 @@ export default function Step4Tickets({ draft, updateDraft }: Props) {
               style={styles.tierInput}
               placeholder={t('organizerCreateEvent.tickets.tierNamePlaceholder')}
               placeholderTextColor={colors.textTertiary}
+              selectionColor={colors.primary}
               value={tier.name}
               onChangeText={(text) => updateTier(index, 'name', text)}
             />
@@ -115,6 +123,7 @@ export default function Step4Tickets({ draft, updateDraft }: Props) {
                 style={styles.tierInput}
                 placeholder={t('organizerCreateEvent.tickets.pricePlaceholder')}
                 placeholderTextColor={colors.textTertiary}
+                selectionColor={colors.primary}
                 value={tier.price}
                 onChangeText={(text) => updateTier(index, 'price', text)}
                 keyboardType="numeric"
@@ -126,6 +135,7 @@ export default function Step4Tickets({ draft, updateDraft }: Props) {
                 style={styles.tierInput}
                 placeholder={t('organizerCreateEvent.tickets.quantityPlaceholder')}
                 placeholderTextColor={colors.textTertiary}
+                selectionColor={colors.primary}
                 value={tier.quantity}
                 onChangeText={(text) => updateTier(index, 'quantity', text)}
                 keyboardType="numeric"
@@ -156,6 +166,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   container: {
     flex: 1,
   },
+  contentContainer: {
+    paddingBottom: 32,
+  },
   title: {
     fontSize: 24,
     fontWeight: '700',
@@ -185,6 +198,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   currencyButton: {
     flex: 1,
+    minHeight: 48,
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 12,
@@ -192,6 +206,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderWidth: 1,
     borderColor: colors.border,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   currencyButtonActive: {
     backgroundColor: colors.primary,
@@ -233,14 +248,14 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   tierLabel: {
     fontSize: 14,
     fontWeight: '500',
-    color: colors.text,
-    marginBottom: 6,
+    color: colors.textSecondary,
+    marginBottom: 8,
   },
   tierInput: {
-    backgroundColor: colors.background,
+    backgroundColor: colors.surfaceRaised,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 8,
+    borderRadius: 12,
     padding: 12,
     fontSize: 15,
     color: colors.text,
@@ -259,7 +274,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderWidth: 2,
     borderStyle: 'dashed',
     borderColor: colors.primary,
-    backgroundColor: colors.primary + '10',
+    backgroundColor: colors.primary + '14',
     marginBottom: 12,
   },
   addTierText: {
@@ -271,14 +286,16 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: colors.primary + '10',
+    backgroundColor: colors.primary + '14',
     padding: 12,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.primary + '33',
     marginBottom: 20,
   },
   infoText: {
     flex: 1,
     fontSize: 13,
-    color: colors.text,
+    color: colors.textSecondary,
   },
 });

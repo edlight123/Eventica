@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native'
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { collection, doc, getDoc, getDocs, orderBy, query } from 'firebase/firestore'
 
@@ -56,6 +57,7 @@ export default function OrganizerEventStaffScreen() {
   const styles = getStyles(colors);
   const route = useRoute<RouteProp<RouteParams, 'OrganizerEventStaff'>>()
   const navigation = useNavigation<any>()
+  const insets = useSafeAreaInsets()
   const { eventId } = route.params
 
   const { t } = useI18n()
@@ -285,7 +287,7 @@ export default function OrganizerEventStaffScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: 32 + insets.bottom }]}>
         <View style={styles.headerRow}>
           <Text style={styles.title}>{t('organizerStaff.headerTitle')}</Text>
           <TouchableOpacity
@@ -311,8 +313,8 @@ export default function OrganizerEventStaffScreen() {
                 <View key={m.id} style={styles.card}>
                   <View style={styles.cardRow}>
                     <View style={styles.cardTextWrap}>
-                      <Text style={styles.cardTitle}>{name}</Text>
-                      {detail ? <Text style={styles.cardSubtitle}>{detail}</Text> : null}
+                      <Text style={styles.cardTitle} numberOfLines={1}>{name}</Text>
+                      {detail ? <Text style={styles.cardSubtitle} numberOfLines={1}>{detail}</Text> : null}
                     </View>
                     <TouchableOpacity
                       onPress={() => removeMember(m.id)}
@@ -341,8 +343,8 @@ export default function OrganizerEventStaffScreen() {
                 <View key={inv.id} style={styles.card}>
                   <View style={styles.cardRow}>
                     <View style={styles.cardTextWrap}>
-                      <Text style={styles.cardTitle}>{label}</Text>
-                      <Text style={styles.cardSubtitle}>{renderInviteStatus(inv)}</Text>
+                      <Text style={styles.cardTitle} numberOfLines={1}>{label}</Text>
+                      <Text style={styles.cardSubtitle} numberOfLines={1}>{renderInviteStatus(inv)}</Text>
                     </View>
                     {!inv.revokedAt && !inv.usedAt ? (
                       <TouchableOpacity
@@ -366,7 +368,10 @@ export default function OrganizerEventStaffScreen() {
           <View style={styles.modalCard}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{t('organizerStaff.createInviteTitle')}</Text>
-              <TouchableOpacity onPress={() => setShowInviteModal(false)}>
+              <TouchableOpacity
+                onPress={() => setShowInviteModal(false)}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
                 <Ionicons name="close" size={22} color={colors.text} />
               </TouchableOpacity>
             </View>
@@ -399,7 +404,8 @@ export default function OrganizerEventStaffScreen() {
                   autoCapitalize="none"
                   keyboardType="email-address"
                   placeholder={t('organizerStaff.emailPlaceholder')}
-                  placeholderTextColor={colors.textSecondary}
+                  placeholderTextColor={colors.textTertiary}
+                  selectionColor={colors.primary}
                 />
               </>
             ) : null}
@@ -413,7 +419,8 @@ export default function OrganizerEventStaffScreen() {
                   onChangeText={setTargetPhone}
                   keyboardType="phone-pad"
                   placeholder={t('organizerStaff.phonePlaceholder')}
-                  placeholderTextColor={colors.textSecondary}
+                  placeholderTextColor={colors.textTertiary}
+                  selectionColor={colors.primary}
                 />
               </>
             ) : null}

@@ -274,7 +274,7 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
         <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{t('analytics.title') || 'Analytics'}</Text>
@@ -336,7 +336,7 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
             activeOpacity={0.7}
           >
             <Ionicons name="cash-outline" size={24} color="#FFF" />
-            <Text style={styles.statValue}>{formatTotalRevenue()}</Text>
+            <Text style={styles.statValue} numberOfLines={1} adjustsFontSizeToFit>{formatTotalRevenue()}</Text>
             <Text style={styles.statLabel}>{t('analytics.totalRevenue') || 'Total Revenue'}</Text>
           </TouchableOpacity>
           <TouchableOpacity 
@@ -408,7 +408,7 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
                 </View>
                 <View style={styles.eventInfo}>
                   <Text style={styles.eventTitle} numberOfLines={1}>{event.title}</Text>
-                  <Text style={styles.eventStats}>
+                  <Text style={styles.eventStats} numberOfLines={1}>
                     {event.ticketCount} {t('analytics.tickets') || 'tickets'} • {formatMoney(event.revenueCents / 100, event.currency)}
                   </Text>
                 </View>
@@ -447,7 +447,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingBottom: 16,
     backgroundColor: colors.background,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.borderLight,
+    borderBottomColor: colors.border,
   },
   backButton: {
     padding: 8,
@@ -491,7 +491,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     gap: 8,
   },
   statCard: {

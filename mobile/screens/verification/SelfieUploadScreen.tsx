@@ -18,7 +18,6 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
-import { SHADOWS } from '../../config/brand';
 import SelfieCameraWithGuide from '../../components/SelfieCameraWithGuide';
 import * as ImagePicker from 'expo-image-picker';
 import {
@@ -218,14 +217,22 @@ export default function SelfieUploadScreen() {
 
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('verification.selfie.title')}</Text>
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Facial Guide Visual */}
         <View style={styles.guideVisual}>
           <Text style={styles.guideTitle}>{t('verification.selfie.guide.title')}</Text>
@@ -310,7 +317,7 @@ export default function SelfieUploadScreen() {
       </ScrollView>
 
       {/* Continue Button */}
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: 16 + insets.bottom }]}>
         <TouchableOpacity
           style={[
             styles.continueButton,
@@ -370,11 +377,15 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   content: {
     flex: 1,
+  },
+  contentContainer: {
     padding: 16,
   },
   guideVisual: {
     backgroundColor: colors.surface,
-    borderRadius: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
     padding: 20,
     marginBottom: 16,
     alignItems: 'center',
@@ -426,15 +437,17 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   instructionsCard: {
     padding: 16,
-    backgroundColor: colors.primarySoft,
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
     marginBottom: 24,
     alignItems: 'center',
   },
   instructionsTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.primary,
+    color: colors.text,
     marginTop: 8,
     marginBottom: 12,
   },
@@ -443,8 +456,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   tipItem: {
     fontSize: 14,
-    color: colors.primary,
-    marginBottom: 4,
+    color: colors.textSecondary,
+    marginBottom: 6,
+    lineHeight: 20,
   },
   uploadSection: {
     marginBottom: 24,
@@ -460,7 +474,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderWidth: 2,
     borderColor: colors.border,
     borderStyle: 'dashed',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 48,
     alignItems: 'center',
     justifyContent: 'center',
@@ -479,11 +493,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   previewContainer: {
     backgroundColor: colors.surface,
-    borderRadius: 12,
+    borderRadius: 16,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   preview: {
     width: '100%',
@@ -508,7 +521,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     padding: 16,
     backgroundColor: colors.success + '10',
-    borderRadius: 12,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: colors.success + '30',
   },
@@ -535,9 +548,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   continueButton: {
     backgroundColor: colors.primary,
-    padding: 16,
-    borderRadius: 12,
+    minHeight: 48,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 16,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   continueButtonDisabled: {
     backgroundColor: colors.textSecondary,

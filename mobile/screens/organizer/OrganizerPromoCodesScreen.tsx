@@ -307,7 +307,8 @@ export default function OrganizerPromoCodesScreen() {
                 onChangeText={setCode}
                 autoCapitalize="characters"
                 placeholder={t('organizerPromoCodes.placeholders.code')}
-                placeholderTextColor={colors.textSecondary}
+                placeholderTextColor={colors.textTertiary}
+                selectionColor={colors.primary}
               />
 
               <Text style={styles.label}>{t('organizerPromoCodes.fields.discountType')}</Text>
@@ -337,7 +338,8 @@ export default function OrganizerPromoCodesScreen() {
                 onChangeText={setDiscountValue}
                 keyboardType="numeric"
                 placeholder={t('organizerPromoCodes.placeholders.discountValue')}
-                placeholderTextColor={colors.textSecondary}
+                placeholderTextColor={colors.textTertiary}
+                selectionColor={colors.primary}
               />
 
               <Text style={styles.label}>{t('organizerPromoCodes.fields.maxUses')}</Text>
@@ -347,7 +349,8 @@ export default function OrganizerPromoCodesScreen() {
                 onChangeText={setMaxUses}
                 keyboardType="numeric"
                 placeholder={t('organizerPromoCodes.placeholders.maxUses')}
-                placeholderTextColor={colors.textSecondary}
+                placeholderTextColor={colors.textTertiary}
+                selectionColor={colors.primary}
               />
 
               <Text style={styles.label}>{t('organizerPromoCodes.fields.expiresAt')}</Text>
@@ -356,7 +359,8 @@ export default function OrganizerPromoCodesScreen() {
                 value={expiresAt}
                 onChangeText={setExpiresAt}
                 placeholder={t('organizerPromoCodes.placeholders.expiresAt')}
-                placeholderTextColor={colors.textSecondary}
+                placeholderTextColor={colors.textTertiary}
+                selectionColor={colors.primary}
               />
 
               <View style={styles.formActions}>
@@ -416,7 +420,11 @@ export default function OrganizerPromoCodesScreen() {
                       </View>
                     </View>
 
-                    <TouchableOpacity style={styles.iconButton} onPress={() => handleDelete(promo)}>
+                    <TouchableOpacity
+                      style={styles.iconButton}
+                      onPress={() => handleDelete(promo)}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    >
                       <Ionicons name="trash-outline" size={18} color={colors.error} />
                     </TouchableOpacity>
                   </View>
@@ -539,9 +547,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   input: {
     backgroundColor: colors.background,
-    borderRadius: 10,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    borderColor: colors.border,
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingVertical: 12,
     color: colors.text,
   },
   toggleRow: {

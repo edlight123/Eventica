@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -24,6 +24,7 @@ export default function RefundRequestScreen({ route, navigation }: any) {
   const styles = getStyles(colors);
   const { ticketId } = route.params;
   const { t } = useI18n();
+  const insets = useSafeAreaInsets();
   const [ticket, setTicket] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -130,11 +131,15 @@ export default function RefundRequestScreen({ route, navigation }: any) {
   const canRefund = now < refundDeadline;
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()} hitSlop={8}>
             <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{t('refund.title') || 'Request Refund'}</Text>
@@ -208,7 +213,8 @@ export default function RefundRequestScreen({ route, navigation }: any) {
                 <TextInput
                   style={styles.textInput}
                   placeholder={t('refund.reasonPlaceholder') || 'Please explain your reason...'}
-                  placeholderTextColor={colors.textSecondary}
+                  placeholderTextColor={colors.textTertiary}
+                  selectionColor={colors.primary}
                   value={reason}
                   onChangeText={setReason}
                   multiline
@@ -288,10 +294,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     margin: 16,
     padding: 16,
     backgroundColor: colors.surface,
-    borderRadius: RADIUS.xl,
+    borderRadius: RADIUS.lg,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   eventTitle: {
     fontSize: 18,

@@ -420,6 +420,7 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
           <TouchableOpacity
             style={[styles.backButton, { top: insets.top + 12 }]}
             onPress={() => navigation.goBack()}
+            hitSlop={8}
           >
             <ChevronLeft size={24} color="#FFF" />
           </TouchableOpacity>
@@ -918,7 +919,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.surface,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: colors.border,
     padding: 16,
     marginBottom: 24,
     gap: 12,
@@ -994,7 +995,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   emptyState: {
     backgroundColor: colors.surface,
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 40,
     alignItems: 'center',
     borderWidth: 1,
@@ -1059,7 +1060,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   // Reviews Placeholder
   reviewsPlaceholder: {
     backgroundColor: colors.surface,
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 40,
     alignItems: 'center',
     borderWidth: 1,

@@ -135,7 +135,7 @@ export default function ConnectionsScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.topBar}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} hitSlop={10}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} hitSlop={16}>
           <ChevronLeft size={26} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.topTitle}>Friends</Text>
@@ -356,6 +356,7 @@ function FindTab({ colors, onOpen, onChange, onRequireAuth, insets }: any) {
           onChangeText={setQuery}
           placeholder="Search by name or email"
           placeholderTextColor={colors.textTertiary}
+          selectionColor={colors.primary}
           style={styles.searchInput}
           autoCapitalize="none"
           autoCorrect={false}
@@ -469,12 +470,9 @@ const getStyles = (colors: any) =>
       borderRadius: 9,
     },
     tabBtnActive: {
-      backgroundColor: colors.surface,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.06,
-      shadowRadius: 2,
-      elevation: 1,
+      backgroundColor: colors.surfaceRaised,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
     },
     tabBtnText: {
       fontSize: 14,

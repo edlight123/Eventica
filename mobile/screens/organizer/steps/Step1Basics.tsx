@@ -89,6 +89,7 @@ export default function Step1Basics({ draft, updateDraft }: Props) {
           style={styles.input}
           placeholder={t('organizerCreateEvent.basics.eventTitlePlaceholder')}
           placeholderTextColor={colors.textTertiary}
+          selectionColor={colors.primary}
           value={draft.title}
           onChangeText={(text) => updateDraft({ title: text })}
           maxLength={100}
@@ -137,6 +138,7 @@ export default function Step1Basics({ draft, updateDraft }: Props) {
           style={[styles.input, styles.textArea]}
           placeholder={t('organizerCreateEvent.basics.descriptionPlaceholder')}
           placeholderTextColor={colors.textTertiary}
+          selectionColor={colors.primary}
           value={draft.description}
           onChangeText={(text) => updateDraft({ description: text })}
           multiline
@@ -190,7 +192,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   charCount: {
     fontSize: 12,
-    color: colors.textSecondary,
+    color: colors.textTertiary,
     textAlign: 'right',
   },
   categoryScroll: {
@@ -261,6 +263,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   imageUploadSubtext: {
     fontSize: 13,
-    color: colors.textSecondary,
+    color: colors.textTertiary,
   },
 });

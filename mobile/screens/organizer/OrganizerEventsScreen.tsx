@@ -140,8 +140,9 @@ export default function OrganizerEventsScreen() {
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <Text style={styles.headerTitle}>{t('organizerEvents.title')}</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.createButton}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           onPress={() => (navigation as any).navigate('CreateEvent')}
         >
           <Ionicons name="add-circle" size={20} color={colors.primary} />
@@ -172,6 +173,7 @@ export default function OrganizerEventsScreen() {
       {/* Events List */}
       <ScrollView
         style={styles.scrollView}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -234,7 +236,7 @@ export default function OrganizerEventsScreen() {
                       {event.title}
                     </Text>
                     <View style={[styles.statusPill, { backgroundColor: getStatusColor(displayStatus) }]}>
-                      <Text style={styles.statusText}>{getStatusLabel(displayStatus)}</Text>
+                      <Text style={styles.statusText} numberOfLines={1}>{getStatusLabel(displayStatus)}</Text>
                     </View>
                   </View>
 
@@ -260,8 +262,9 @@ export default function OrganizerEventsScreen() {
                         {event.tickets_sold || 0} / {event.total_tickets || 0} {t('common.sold')}
                       </Text>
                     </View>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       style={styles.manageButton}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                       onPress={() => navigation.navigate('OrganizerEventManagement', { eventId: event.id })}
                     >
                       <Text style={styles.manageButtonText}>{t('organizerEvents.manage')}</Text>
@@ -316,9 +319,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.primarySoft,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: RADIUS.sm,
   },
   createButtonText: {
     color: colors.primary,
@@ -330,19 +333,16 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     margin: 16,
     backgroundColor: colors.surfaceMuted,
-    borderRadius: 8,
+    borderRadius: RADIUS.md,
     padding: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   segment: {
     flex: 1,
     paddingVertical: 8,
     alignItems: 'center',
-    borderRadius: 6,
+    borderRadius: RADIUS.sm,
   },
   segmentActive: {
     backgroundColor: colors.primary,
@@ -379,7 +379,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   eventCard: {
     backgroundColor: colors.surface,
-    borderRadius: RADIUS.xl,
+    borderRadius: RADIUS.lg,
     marginBottom: 16,
     borderWidth: 1,
     borderColor: colors.border,

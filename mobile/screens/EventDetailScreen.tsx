@@ -369,13 +369,14 @@ export default function EventDetailScreen({ route, navigation }: any) {
 
           {/* Top Right Actions: Share & Save */}
           <View style={[styles.heroActions, { top: insets.top + 8 }]}>
-            <TouchableOpacity style={styles.iconButton} onPress={handleShare}>
+            <TouchableOpacity style={styles.iconButton} onPress={handleShare} hitSlop={8}>
               <Share2 size={20} color="#FFF" />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.iconButton}
               onPress={toggleFavorite}
               disabled={favoriteLoading}
+              hitSlop={8}
             >
               <Heart 
                 size={20} 

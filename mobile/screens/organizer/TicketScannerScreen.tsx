@@ -290,7 +290,7 @@ export default function TicketScannerScreen() {
         <TouchableOpacity style={styles.belowHeaderButton} onPress={() => navigation.goBack()}>
           <Ionicons name="close" size={26} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.belowHeaderTitle}>{t('organizerTicketScanner.headerTitle')}</Text>
+        <Text style={styles.belowHeaderTitle} numberOfLines={1}>{t('organizerTicketScanner.headerTitle')}</Text>
         <TouchableOpacity style={styles.belowHeaderButton} onPress={() => setFlashOn(!flashOn)}>
           <Ionicons name={flashOn ? 'flash' : 'flash-off'} size={22} color={colors.text} />
         </TouchableOpacity>
@@ -333,10 +333,10 @@ export default function TicketScannerScreen() {
             {/* Ticket Details */}
             <View style={styles.sheetContent}>
               {scanResult?.attendeeName && (
-                <Text style={styles.attendeeName}>{scanResult.attendeeName}</Text>
+                <Text style={styles.attendeeName} numberOfLines={2}>{scanResult.attendeeName}</Text>
               )}
               {scanResult?.tierName && (
-                <Text style={styles.tierName}>{scanResult.tierName}</Text>
+                <Text style={styles.tierName} numberOfLines={1}>{scanResult.tierName}</Text>
               )}
               {scanResult?.message && (
                 <Text style={styles.message}>{scanResult.message}</Text>
@@ -435,6 +435,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 16,
     fontWeight: '700',
     color: colors.text,
+    flex: 1,
+    textAlign: 'center',
+    marginHorizontal: 8,
   },
   overlay: {
     flex: 1,

@@ -413,6 +413,7 @@ export default function ProfileScreen() {
             style={styles.headerIconButton}
             onPress={() => navigation.navigate('Notifications', { userId: user?.uid || '' })}
             accessibilityLabel="Notifications"
+            hitSlop={8}
           >
             <Bell size={22} color={colors.text} />
           </TouchableOpacity>
@@ -420,6 +421,7 @@ export default function ProfileScreen() {
             style={styles.headerIconButton}
             onPress={() => setIsEditing((v) => !v)}
             accessibilityLabel={t('profile.edit')}
+            hitSlop={8}
           >
             <Settings size={22} color={colors.text} />
           </TouchableOpacity>
@@ -433,6 +435,7 @@ export default function ProfileScreen() {
           {
             // Header is positioned below the safe-area; include that offset.
             paddingTop: insets.top + headerHeight + 4,
+            paddingBottom: insets.bottom + 24,
           },
         ]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshAll} />}
@@ -504,6 +507,7 @@ export default function ProfileScreen() {
                 onChangeText={setEditedName}
                 placeholder={t('profile.placeholders.name')}
                 placeholderTextColor={colors.textTertiary}
+                selectionColor={colors.primary}
               />
 
               <Text style={styles.fieldLabel}>{t('profile.phone')}</Text>
@@ -529,6 +533,7 @@ export default function ProfileScreen() {
                   onChangeText={(value) => setPhoneDigits(value.replace(/\D/g, ''))}
                   placeholder={t('profile.placeholders.phone')}
                   placeholderTextColor={colors.textTertiary}
+                  selectionColor={colors.primary}
                   keyboardType="phone-pad"
                 />
               </View>
@@ -578,6 +583,7 @@ export default function ProfileScreen() {
                   setEditedCity(value);
                   setShowCitySuggestions(true);
                 }}
+                selectionColor={colors.primary}
                 onFocus={() => setShowCitySuggestions(true)}
                 onBlur={() => {
                   // Let suggestion taps register before hiding.
@@ -615,6 +621,7 @@ export default function ProfileScreen() {
                 onChangeText={(value) => setEditedBio(value.slice(0, 280))}
                 placeholder={t('profile.social.bioPlaceholder')}
                 placeholderTextColor={colors.textTertiary}
+                selectionColor={colors.primary}
                 multiline
                 maxLength={280}
               />
@@ -629,6 +636,7 @@ export default function ProfileScreen() {
                 onChangeText={setEditedInstagram}
                 placeholder="@username"
                 placeholderTextColor={colors.textTertiary}
+                selectionColor={colors.primary}
                 autoCapitalize="none"
                 autoCorrect={false}
               />
@@ -640,6 +648,7 @@ export default function ProfileScreen() {
                 onChangeText={setEditedTiktok}
                 placeholder="@username"
                 placeholderTextColor={colors.textTertiary}
+                selectionColor={colors.primary}
                 autoCapitalize="none"
                 autoCorrect={false}
               />
@@ -651,6 +660,7 @@ export default function ProfileScreen() {
                 onChangeText={setEditedTwitter}
                 placeholder="@username"
                 placeholderTextColor={colors.textTertiary}
+                selectionColor={colors.primary}
                 autoCapitalize="none"
                 autoCorrect={false}
               />
@@ -662,6 +672,7 @@ export default function ProfileScreen() {
                 onChangeText={setEditedFacebook}
                 placeholder="username"
                 placeholderTextColor={colors.textTertiary}
+                selectionColor={colors.primary}
                 autoCapitalize="none"
                 autoCorrect={false}
               />
@@ -1004,11 +1015,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   card: {
     backgroundColor: colors.surface,
-    borderRadius: RADIUS.xl,
+    borderRadius: RADIUS.lg,
     padding: 16,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...SHADOWS.card,
+    borderColor: colors.border,
   },
   profileRow: {
     flexDirection: 'row',
@@ -1253,11 +1263,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   sectionCard: {
     marginTop: 12,
     backgroundColor: colors.surface,
-    borderRadius: RADIUS.xl,
+    borderRadius: RADIUS.lg,
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: colors.border,
     overflow: 'hidden',
-    ...SHADOWS.card,
   },
   sectionTitle: {
     paddingHorizontal: 16,

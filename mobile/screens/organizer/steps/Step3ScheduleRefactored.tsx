@@ -541,14 +541,16 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: colors.primary + '10',
+    backgroundColor: colors.primary + '14',
     padding: 12,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.primary + '33',
   },
   infoText: {
     flex: 1,
     fontSize: 13,
-    color: colors.text,
+    color: colors.textSecondary,
   },
   
   // iOS Modal styles - CRITICAL for picker to work

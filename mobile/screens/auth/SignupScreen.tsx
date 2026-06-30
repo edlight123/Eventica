@@ -67,9 +67,9 @@ export default function SignupScreen({ navigation }: any) {
   const logoOpacity = logoAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 0.8, 1] });
 
   return (
-    <LinearGradient colors={['#0F172A', '#134E4A', '#0F766E']} style={styles.gradient}>
-      <View style={[styles.blob, { top: -60, left: -80, backgroundColor: '#0D9488' }]} />
-      <View style={[styles.blob, { bottom: 80, right: -60, backgroundColor: '#14B8A6', opacity: 0.35 }]} />
+    <LinearGradient colors={['#0A0A0A', '#0E1413', '#0A0A0A']} style={styles.gradient}>
+      <View style={[styles.blob, { top: -60, left: -80, backgroundColor: '#0D9488', opacity: 0.1 }]} />
+      <View style={[styles.blob, { bottom: 80, right: -60, backgroundColor: '#14B8A6', opacity: 0.12 }]} />
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
@@ -84,7 +84,7 @@ export default function SignupScreen({ navigation }: any) {
                   <TextInput
                     style={styles.input}
                     placeholder={t('auth.signup.placeholders.fullName')}
-                    placeholderTextColor="rgba(255,255,255,0.45)"
+                    placeholderTextColor="rgba(255,255,255,0.4)"
                     value={fullName}
                     onChangeText={setFullName}
                     selectionColor="#14B8A6"
@@ -92,7 +92,7 @@ export default function SignupScreen({ navigation }: any) {
                   <TextInput
                     style={styles.input}
                     placeholder={t('auth.signup.placeholders.email')}
-                    placeholderTextColor="rgba(255,255,255,0.45)"
+                    placeholderTextColor="rgba(255,255,255,0.4)"
                     value={email}
                     onChangeText={setEmail}
                     autoCapitalize="none"
@@ -102,7 +102,7 @@ export default function SignupScreen({ navigation }: any) {
                   <TextInput
                     style={styles.input}
                     placeholder={t('auth.signup.placeholders.password')}
-                    placeholderTextColor="rgba(255,255,255,0.45)"
+                    placeholderTextColor="rgba(255,255,255,0.4)"
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry
@@ -111,7 +111,7 @@ export default function SignupScreen({ navigation }: any) {
                   <TextInput
                     style={styles.input}
                     placeholder={t('auth.signup.placeholders.confirmPassword')}
-                    placeholderTextColor="rgba(255,255,255,0.45)"
+                    placeholderTextColor="rgba(255,255,255,0.4)"
                     value={confirmPassword}
                     onChangeText={setConfirmPassword}
                     secureTextEntry
@@ -196,9 +196,9 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   input: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)',
+    borderColor: 'rgba(255,255,255,0.14)',
     borderRadius: 14,
     padding: 16,
     fontSize: 16,

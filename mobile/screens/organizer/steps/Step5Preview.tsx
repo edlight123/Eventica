@@ -64,24 +64,24 @@ export default function Step5Preview({ draft, updateDraft }: Props) {
           )}
           <View style={styles.cardContent}>
             <View style={styles.cardCategory}>
-              <Text style={styles.cardCategoryText}>{draft.category}</Text>
+              <Text style={styles.cardCategoryText} numberOfLines={1}>{draft.category}</Text>
             </View>
             <Text style={styles.cardTitle} numberOfLines={2}>
               {draft.title || t('organizerCreateEvent.preview.eventTitlePlaceholder')}
             </Text>
             <View style={styles.cardInfo}>
               <Ionicons name="calendar-outline" size={14} color={colors.textSecondary} />
-              <Text style={styles.cardInfoText}>{draft.start_date || t('organizerCreateEvent.preview.dateTbd')}</Text>
+              <Text style={styles.cardInfoText} numberOfLines={1}>{draft.start_date || t('organizerCreateEvent.preview.dateTbd')}</Text>
             </View>
             <View style={styles.cardInfo}>
               <Ionicons name="location-outline" size={14} color={colors.textSecondary} />
-              <Text style={styles.cardInfoText}>{draft.city || t('organizerCreateEvent.preview.locationTbd')}</Text>
+              <Text style={styles.cardInfoText} numberOfLines={1}>{draft.city || t('organizerCreateEvent.preview.locationTbd')}</Text>
             </View>
             <View style={styles.cardFooter}>
-              <Text style={styles.cardPrice}>
+              <Text style={styles.cardPrice} numberOfLines={1}>
                 {getCurrencySymbol()} {draft.ticket_tiers[0]?.price || '0'}
               </Text>
-              <Text style={styles.cardTickets}>
+              <Text style={styles.cardTickets} numberOfLines={1}>
                 {totalTickets} {t('organizerCreateEvent.preview.tickets')}
               </Text>
             </View>
@@ -97,7 +97,11 @@ export default function Step5Preview({ draft, updateDraft }: Props) {
   }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.pageScrollContent}
+      showsVerticalScrollIndicator={false}
+    >
       <View style={styles.viewToggle}>
         <TouchableOpacity
           style={styles.toggleButton}
@@ -133,24 +137,24 @@ export default function Step5Preview({ draft, updateDraft }: Props) {
       {/* Event Details */}
       <View style={styles.eventPageContent}>
         <View style={styles.pageCategory}>
-          <Text style={styles.pageCategoryText}>{draft.category}</Text>
+          <Text style={styles.pageCategoryText} numberOfLines={1}>{draft.category}</Text>
         </View>
 
-  <Text style={styles.pageTitle}>{draft.title || t('organizerCreateEvent.preview.eventTitlePlaceholder')}</Text>
+        <Text style={styles.pageTitle} numberOfLines={3}>{draft.title || t('organizerCreateEvent.preview.eventTitlePlaceholder')}</Text>
 
         <View style={styles.pageInfoRow}>
           <View style={styles.pageInfoItem}>
             <Ionicons name="calendar" size={20} color={colors.primary} />
             <View style={styles.pageInfoTextContainer}>
               <Text style={styles.pageInfoLabel}>{t('organizerCreateEvent.preview.date')}</Text>
-              <Text style={styles.pageInfoValue}>{draft.start_date || t('organizerCreateEvent.preview.tbd')}</Text>
+              <Text style={styles.pageInfoValue} numberOfLines={1}>{draft.start_date || t('organizerCreateEvent.preview.tbd')}</Text>
             </View>
           </View>
           <View style={styles.pageInfoItem}>
             <Ionicons name="time" size={20} color={colors.primary} />
             <View style={styles.pageInfoTextContainer}>
               <Text style={styles.pageInfoLabel}>{t('organizerCreateEvent.preview.time')}</Text>
-              <Text style={styles.pageInfoValue}>{draft.start_time || t('organizerCreateEvent.preview.tbd')}</Text>
+              <Text style={styles.pageInfoValue} numberOfLines={1}>{draft.start_time || t('organizerCreateEvent.preview.tbd')}</Text>
             </View>
           </View>
         </View>
@@ -160,8 +164,8 @@ export default function Step5Preview({ draft, updateDraft }: Props) {
             <Ionicons name="location" size={20} color={colors.primary} />
             <View style={styles.pageInfoTextContainer}>
               <Text style={styles.pageInfoLabel}>{t('organizerCreateEvent.preview.location')}</Text>
-              <Text style={styles.pageInfoValue}>{draft.venue_name || t('organizerCreateEvent.preview.tbd')}</Text>
-              <Text style={styles.pageInfoSubtext}>{draft.city || ''}</Text>
+              <Text style={styles.pageInfoValue} numberOfLines={2}>{draft.venue_name || t('organizerCreateEvent.preview.tbd')}</Text>
+              <Text style={styles.pageInfoSubtext} numberOfLines={1}>{draft.city || ''}</Text>
             </View>
           </View>
         </View>
@@ -179,14 +183,14 @@ export default function Step5Preview({ draft, updateDraft }: Props) {
         {draft.ticket_tiers.map((tier, index) => (
           <View key={index} style={styles.pageTicketTier}>
             <View style={styles.pageTicketInfo}>
-              <Text style={styles.pageTicketName}>
+              <Text style={styles.pageTicketName} numberOfLines={1}>
                 {tier.name || `${t('organizerCreateEvent.preview.tier')} ${index + 1}`}
               </Text>
-              <Text style={styles.pageTicketAvailable}>
+              <Text style={styles.pageTicketAvailable} numberOfLines={1}>
                 {tier.quantity || '0'} {t('organizerCreateEvent.preview.available')}
               </Text>
             </View>
-            <Text style={styles.pageTicketPrice}>
+            <Text style={styles.pageTicketPrice} numberOfLines={1}>
               {getCurrencySymbol()} {tier.price || '0'}
             </Text>
           </View>
@@ -206,6 +210,9 @@ export default function Step5Preview({ draft, updateDraft }: Props) {
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
+  },
+  pageScrollContent: {
+    paddingBottom: 32,
   },
   viewToggle: {
     flexDirection: 'row',
@@ -241,6 +248,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   eventCard: {
     backgroundColor: colors.surface,
     borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
     overflow: 'hidden',
     marginBottom: 16,
   },
@@ -251,7 +260,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   cardImagePlaceholder: {
     width: '100%',
     height: 180,
-    backgroundColor: colors.border,
+    backgroundColor: colors.surfaceRaised,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -263,7 +272,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.primary + '15',
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 6,
+    borderRadius: 8,
     marginBottom: 8,
   },
   cardCategoryText: {
@@ -333,13 +342,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   pageHeroPlaceholder: {
     width: '100%',
     height: '100%',
-    backgroundColor: colors.border,
+    backgroundColor: colors.surfaceRaised,
     justifyContent: 'center',
     alignItems: 'center',
   },
   placeholderText: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: colors.textTertiary,
     marginTop: 8,
   },
   editImageButton: {
@@ -357,13 +366,15 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     padding: 16,
     backgroundColor: colors.surface,
     borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   pageCategory: {
     alignSelf: 'flex-start',
     backgroundColor: colors.primary + '15',
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 6,
+    borderRadius: 8,
     marginBottom: 12,
   },
   pageCategoryText: {
@@ -453,11 +464,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.success + '15',
     padding: 12,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.success + '33',
     marginTop: 16,
   },
   helpText: {
     flex: 1,
     fontSize: 13,
-    color: colors.text,
+    color: colors.textSecondary,
   },
 });

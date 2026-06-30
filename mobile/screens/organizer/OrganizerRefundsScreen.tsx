@@ -192,7 +192,11 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
         <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
             <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{t('refunds.title') || 'Refund Requests'}</Text>
@@ -218,7 +222,11 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
     <SafeAreaView style={styles.container} edges={['bottom']}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('refunds.title') || 'Refund Requests'}</Text>
@@ -291,7 +299,7 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
               <View style={styles.requestDetails}>
                 <View style={styles.detailRow}>
                   <Ionicons name="person-outline" size={16} color={colors.textSecondary} />
-                  <Text style={styles.detailText}>{request.attendee_name || request.attendee_email}</Text>
+                  <Text style={styles.detailText} numberOfLines={1}>{request.attendee_name || request.attendee_email}</Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Ionicons name="cash-outline" size={16} color={colors.textSecondary} />
@@ -346,7 +354,7 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
           ))
         )}
 
-        <View style={{ height: 40 }} />
+        <View style={{ height: 40 + insets.bottom }} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -375,7 +383,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingBottom: 16,
     backgroundColor: colors.background,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.borderLight,
+    borderBottomColor: colors.border,
   },
   backButton: {
     padding: 8,
@@ -505,6 +513,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
   },
   detailText: {
+    flex: 1,
     fontSize: 14,
     color: colors.textSecondary,
     marginLeft: 8,

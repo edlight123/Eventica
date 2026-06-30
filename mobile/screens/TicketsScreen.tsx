@@ -210,8 +210,10 @@ export default function TicketsScreen({ navigation }: any) {
 
       <ScrollView
         style={styles.content}
+        contentContainerStyle={{ paddingBottom: 24 + insets.bottom }}
+        showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} colors={[colors.primary]} />
         }
       >
         {displayedTickets.length === 0 ? (
@@ -344,16 +346,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 12,
     backgroundColor: colors.surface,
     marginHorizontal: 16,
-    marginTop: 14,
+    marginTop: 12,
     padding: 12,
-    borderRadius: 18,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.borderLight,
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
+    borderColor: colors.border,
   },
   ticketThumb: {
     width: 64,

@@ -70,7 +70,7 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={8}>
+        <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={12}>
           <ChevronLeft size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle} numberOfLines={1}>
@@ -90,7 +90,8 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
               onPress={() => navigation.navigate('EventDetail', { eventId: item.id })}
             />
           )}
-          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[styles.listContent, { paddingBottom: 32 + insets.bottom }]}
           ListEmptyComponent={
             <EmptyState
               icon={Inbox}

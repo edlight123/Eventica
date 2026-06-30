@@ -110,6 +110,7 @@ export default function OrganizerDashboardScreen() {
 
       <ScrollView
         style={styles.scrollContent}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -142,9 +143,10 @@ export default function OrganizerDashboardScreen() {
                 activeOpacity={0.7}
               >
                 <View style={styles.eventHeader}>
-                  <Text style={styles.eventTitle}>{event.title}</Text>
-                  <TouchableOpacity 
+                  <Text style={styles.eventTitle} numberOfLines={1}>{event.title}</Text>
+                  <TouchableOpacity
                     style={styles.scanButton}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                     onPress={(e) => {
                       e.stopPropagation();
                       navigation.navigate('TicketScanner', { eventId: event.id });
@@ -162,17 +164,17 @@ export default function OrganizerDashboardScreen() {
                   </View>
                   <View style={styles.eventDetailRow}>
                     <Ionicons name="location-outline" size={16} color={colors.textSecondary} />
-                    <Text style={styles.eventDetailText}>{event.location}</Text>
+                    <Text style={styles.eventDetailText} numberOfLines={1}>{event.location}</Text>
                   </View>
                 </View>
 
                 <View style={styles.eventStats}>
                   <View style={styles.statItem}>
-                    <Text style={styles.statValue}>{event.ticketsSold}/{event.capacity}</Text>
+                    <Text style={styles.statValue} numberOfLines={1}>{event.ticketsSold}/{event.capacity}</Text>
                     <Text style={styles.statLabel}>{t('organizerDashboard.ticketsSold')}</Text>
                   </View>
                   <View style={styles.statItem}>
-                    <Text style={styles.statValue}>{event.ticketsCheckedIn}</Text>
+                    <Text style={styles.statValue} numberOfLines={1}>{event.ticketsCheckedIn}</Text>
                     <Text style={styles.statLabel}>{t('organizerDashboard.checkedIn')}</Text>
                   </View>
                 </View>
@@ -210,7 +212,7 @@ export default function OrganizerDashboardScreen() {
             activeOpacity={0.7}
           >
             <Ionicons name="cash-outline" size={32} color={colors.primary} />
-            <Text style={styles.statCardValue}>${(stats?.revenue || 0).toFixed(2)}</Text>
+            <Text style={styles.statCardValue} numberOfLines={1}>${(stats?.revenue || 0).toFixed(2)}</Text>
             <Text style={styles.statCardLabel}>{t('organizerDashboard.revenue')}</Text>
           </TouchableOpacity>
           <TouchableOpacity 
@@ -277,7 +279,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingTop: 16,
     backgroundColor: colors.background,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.borderLight,
+    borderBottomColor: colors.border,
   },
   headerTitle: {
     fontFamily: 'InstrumentSerif_400Regular',
@@ -320,6 +322,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '600',
     color: colors.text,
     flex: 1,
+    marginRight: 12,
   },
   scanButton: {
     flexDirection: 'row',
@@ -346,6 +349,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 14,
     color: colors.textSecondary,
     marginLeft: 6,
+    flex: 1,
   },
   eventStats: {
     flexDirection: 'row',

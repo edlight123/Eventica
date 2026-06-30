@@ -22,7 +22,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { useI18n } from '../../contexts/I18nContext'
 import { backendFetch, backendJson } from '../../lib/api/backend'
 import { getVerificationRequest } from '../../lib/verification'
-import { SHADOWS, RADIUS } from '../../config/brand'
+import { RADIUS } from '../../config/brand'
 import { Skeleton } from '../../components/Skeleton'
 
 type VerificationStatus = 'not_started' | 'pending' | 'verified' | 'failed'
@@ -326,7 +326,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
     return (
       <View style={styles.container}>
         <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Payout Settings</Text>
@@ -344,7 +344,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Payout Settings</Text>
@@ -374,7 +374,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
         {/* Destinations List */}
         {destinations.length === 0 ? (
           <View style={styles.emptyState}>
-            <Ionicons name="wallet-outline" size={64} color={colors.textSecondary} />
+            <Ionicons name="wallet-outline" size={64} color={colors.primary} />
             <Text style={styles.emptyTitle}>No Payout Methods</Text>
             <Text style={styles.emptyText}>
               Add a bank account or mobile money to receive payments from your events.
@@ -388,7 +388,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
           <>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Payout Methods</Text>
-              <TouchableOpacity style={styles.addButton} onPress={() => setShowAddModal(true)}>
+              <TouchableOpacity style={styles.addButton} onPress={() => setShowAddModal(true)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
                 <Ionicons name="add" size={18} color={colors.primary} />
                 <Text style={styles.addButtonText}>Add</Text>
               </TouchableOpacity>
@@ -407,10 +407,10 @@ export default function OrganizerPayoutSettingsScreenV2() {
                       color={colors.text}
                     />
                     <View style={{ flex: 1, marginLeft: 12 }}>
-                      <Text style={styles.destinationTitle}>
+                      <Text style={styles.destinationTitle} numberOfLines={1}>
                         {isBank ? (dest as BankDestination).bankName : (dest as MoncashDestination).provider}
                       </Text>
-                      <Text style={styles.destinationSubtitle}>
+                      <Text style={styles.destinationSubtitle} numberOfLines={1}>
                         {isBank ? (dest as BankDestination).accountName : (dest as MoncashDestination).accountName}
                       </Text>
                       <Text style={styles.destinationMeta}>
@@ -495,21 +495,22 @@ export default function OrganizerPayoutSettingsScreenV2() {
       <Modal visible={showBankForm} animationType="slide" onRequestClose={() => setShowBankForm(false)}>
         <View style={[styles.container, { paddingTop: insets.top }]}>
           <View style={styles.header}>
-            <TouchableOpacity onPress={() => setShowBankForm(false)} style={styles.backButton}>
+            <TouchableOpacity onPress={() => setShowBankForm(false)} style={styles.backButton} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
               <Ionicons name="close" size={24} color={colors.text} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Add Bank Account</Text>
             <View style={{ width: 40 }} />
           </View>
 
-          <ScrollView contentContainerStyle={{ padding: 16 }}>
+          <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}>
             <Text style={styles.label}>Account Holder Name *</Text>
             <TextInput
               style={styles.input}
               value={bankForm.accountName}
               onChangeText={(v) => setBankForm((s) => ({ ...s, accountName: v }))}
               placeholder="Full legal name"
-              placeholderTextColor={colors.textSecondary}
+              placeholderTextColor={colors.textTertiary}
+              selectionColor={colors.primary}
             />
 
             <Text style={styles.label}>Bank Name *</Text>
@@ -518,7 +519,8 @@ export default function OrganizerPayoutSettingsScreenV2() {
               value={bankForm.bankName}
               onChangeText={(v) => setBankForm((s) => ({ ...s, bankName: v }))}
               placeholder="Your bank name"
-              placeholderTextColor={colors.textSecondary}
+              placeholderTextColor={colors.textTertiary}
+              selectionColor={colors.primary}
             />
 
             <Text style={styles.label}>Account Number *</Text>
@@ -527,7 +529,8 @@ export default function OrganizerPayoutSettingsScreenV2() {
               value={bankForm.accountNumber}
               onChangeText={(v) => setBankForm((s) => ({ ...s, accountNumber: v }))}
               placeholder="Account number"
-              placeholderTextColor={colors.textSecondary}
+              placeholderTextColor={colors.textTertiary}
+              selectionColor={colors.primary}
               keyboardType="number-pad"
             />
 
@@ -537,7 +540,8 @@ export default function OrganizerPayoutSettingsScreenV2() {
               value={bankForm.routingNumber}
               onChangeText={(v) => setBankForm((s) => ({ ...s, routingNumber: v }))}
               placeholder="Routing number"
-              placeholderTextColor={colors.textSecondary}
+              placeholderTextColor={colors.textTertiary}
+              selectionColor={colors.primary}
             />
 
             <Text style={styles.label}>SWIFT Code (optional)</Text>
@@ -546,7 +550,8 @@ export default function OrganizerPayoutSettingsScreenV2() {
               value={bankForm.swift}
               onChangeText={(v) => setBankForm((s) => ({ ...s, swift: v }))}
               placeholder="SWIFT code"
-              placeholderTextColor={colors.textSecondary}
+              placeholderTextColor={colors.textTertiary}
+              selectionColor={colors.primary}
               autoCapitalize="characters"
             />
 
@@ -569,14 +574,14 @@ export default function OrganizerPayoutSettingsScreenV2() {
       <Modal visible={showMoncashForm} animationType="slide" onRequestClose={() => setShowMoncashForm(false)}>
         <View style={[styles.container, { paddingTop: insets.top }]}>
           <View style={styles.header}>
-            <TouchableOpacity onPress={() => setShowMoncashForm(false)} style={styles.backButton}>
+            <TouchableOpacity onPress={() => setShowMoncashForm(false)} style={styles.backButton} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
               <Ionicons name="close" size={24} color={colors.text} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Add Mobile Money</Text>
             <View style={{ width: 40 }} />
           </View>
 
-          <ScrollView contentContainerStyle={{ padding: 16 }}>
+          <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}>
             <Text style={styles.label}>Provider</Text>
             <View style={styles.row}>
               <TouchableOpacity
@@ -603,7 +608,8 @@ export default function OrganizerPayoutSettingsScreenV2() {
               value={moncashForm.accountName}
               onChangeText={(v) => setMoncashForm((s) => ({ ...s, accountName: v }))}
               placeholder="Full legal name"
-              placeholderTextColor={colors.textSecondary}
+              placeholderTextColor={colors.textTertiary}
+              selectionColor={colors.primary}
             />
 
             <Text style={styles.label}>Phone Number *</Text>
@@ -612,7 +618,8 @@ export default function OrganizerPayoutSettingsScreenV2() {
               value={moncashForm.phoneNumber}
               onChangeText={(v) => setMoncashForm((s) => ({ ...s, phoneNumber: v }))}
               placeholder="+509..."
-              placeholderTextColor={colors.textSecondary}
+              placeholderTextColor={colors.textTertiary}
+              selectionColor={colors.primary}
               keyboardType="phone-pad"
             />
 
@@ -639,14 +646,14 @@ export default function OrganizerPayoutSettingsScreenV2() {
       >
         <View style={[styles.container, { paddingTop: insets.top }]}>
           <View style={styles.header}>
-            <TouchableOpacity onPress={() => setShowVerificationModal(false)} style={styles.backButton}>
+            <TouchableOpacity onPress={() => setShowVerificationModal(false)} style={styles.backButton} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
               <Ionicons name="close" size={24} color={colors.text} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Verify Bank Account</Text>
             <View style={{ width: 40 }} />
           </View>
 
-          <ScrollView contentContainerStyle={{ padding: 16 }}>
+          <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}>
             <View style={[styles.card, { backgroundColor: `${colors.primary}10` }]}>
               <Text style={styles.cardTitle}>Verification Required</Text>
               <Text style={styles.metaText}>
@@ -774,7 +781,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   card: {
     backgroundColor: colors.surface,
-    borderRadius: RADIUS.xl,
+    borderRadius: RADIUS.lg,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
@@ -809,7 +816,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   emptyState: {
     backgroundColor: colors.surface,
-    borderRadius: RADIUS.xl,
+    borderRadius: RADIUS.lg,
     padding: 32,
     alignItems: 'center',
     marginTop: 24,
@@ -856,7 +863,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   destinationCard: {
     backgroundColor: colors.surface,
-    borderRadius: RADIUS.xl,
+    borderRadius: RADIUS.lg,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
@@ -896,8 +903,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   primaryButton: {
     backgroundColor: colors.primary,
+    minHeight: 48,
     paddingVertical: 14,
-    borderRadius: 10,
+    borderRadius: RADIUS.md,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
@@ -912,13 +920,16 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 16,
   },
   secondaryButton: {
-    backgroundColor: colors.borderLight,
-    paddingVertical: 12,
-    borderRadius: 10,
+    backgroundColor: colors.surfaceRaised,
+    minHeight: 48,
+    paddingVertical: 14,
+    borderRadius: RADIUS.md,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
     gap: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   secondaryButtonText: {
     color: colors.text,
@@ -938,7 +949,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     padding: 24,
     width: '100%',
     maxWidth: 400,
-    ...SHADOWS.floating,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   modalTitle: {
     fontSize: 20,
@@ -957,9 +969,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    borderRadius: 12,
-    backgroundColor: colors.background,
+    borderRadius: RADIUS.md,
+    backgroundColor: colors.surfaceRaised,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   methodTitle: {
     fontSize: 16,
@@ -992,7 +1006,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 999,
-    backgroundColor: colors.borderLight,
+    backgroundColor: colors.surfaceRaised,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   chipActive: {
     backgroundColor: colors.primary,

@@ -576,6 +576,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
                 style={styles.searchInput}
                 placeholder={t('discover.searchPlaceholder')}
                 placeholderTextColor={colors.textSecondary}
+                selectionColor={colors.primary}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 autoFocus
@@ -621,7 +622,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
       <ScrollView
         ref={scrollViewRef}
         style={styles.content}
-        contentContainerStyle={styles.feedContent}
+        contentContainerStyle={[styles.feedContent, { paddingBottom: 32 + insets.bottom }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -802,6 +803,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 10,
     backgroundColor: colors.surface,
     borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.border,
     paddingHorizontal: 16,
     paddingVertical: 12,
   },

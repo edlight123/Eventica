@@ -176,8 +176,9 @@ export default function FavoritesScreen({ navigation }: any) {
 
       <ScrollView
         style={styles.content}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
         }
       >
         {favoriteEvents.length === 0 ? (
@@ -201,12 +202,14 @@ export default function FavoritesScreen({ navigation }: any) {
                     <TouchableOpacity
                       style={styles.cardActionBtn}
                       onPress={() => handleShare(event)}
+                      hitSlop={8}
                     >
                       <Share2 size={15} color={colors.text} />
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={styles.cardActionBtn}
                       onPress={() => removeFavorite(event.id)}
+                      hitSlop={8}
                     >
                       <Heart size={15} color={colors.error} fill={colors.error} />
                     </TouchableOpacity>
@@ -260,7 +263,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 12,
     paddingHorizontal: 16,
     paddingTop: 16,
-    paddingBottom: 24,
   },
   cardActions: {
     flexDirection: 'row',
