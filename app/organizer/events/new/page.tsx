@@ -1,6 +1,6 @@
 import { requireAuth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
-import QuickCreateEvent from './QuickCreateEvent'
+import EventComposer from '../EventComposer'
 import { createClient } from '@/lib/firebase-db/server'
 import { getOrganizerVerificationStatus } from '@/lib/organizerVerification'
 
@@ -22,5 +22,5 @@ export default async function NewEventPage() {
   await createClient() // Ensure server db is initialized for this request
   const verification = await getOrganizerVerificationStatus(user.id)
 
-  return <QuickCreateEvent userId={user.id} isVerified={verification.isVerified} />
+  return <EventComposer userId={user.id} isVerified={verification.isVerified} />
 }

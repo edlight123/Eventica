@@ -44,7 +44,7 @@ const CATEGORIES = [
 
 const ACCENTS = ['#14B8A6', '#F2B705', '#EF4444', '#8B5CF6', '#3B82F6', '#EC4899', '#F97316']
 
-interface QuickCreateEventProps {
+interface EventComposerProps {
   userId: string
   isVerified?: boolean
   verificationStatus?: string
@@ -121,16 +121,17 @@ function SectionTitle({
 }
 
 /**
- * Posh-style event create: the page IS the event, edited inline. Single screen,
- * no wizard. Reuses the existing draft-create logic (firebaseDb insert) and hands
- * off to the full editor afterwards for deep refinement.
+ * Posh-style event composer: the page IS the event, edited inline on a single
+ * screen (no wizard). Powers BOTH creating a new event and editing an existing
+ * one — pass an `event` (and `initialTiers`) to run in edit mode, where Save
+ * updates the event and the publish control toggles its live state.
  */
-export default function QuickCreateEvent({
+export default function EventComposer({
   userId,
   isVerified = false,
   event,
   initialTiers,
-}: QuickCreateEventProps) {
+}: EventComposerProps) {
   const router = useRouter()
   const { showToast } = useToast()
 

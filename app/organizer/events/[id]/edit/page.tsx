@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/firebase-db/server'
 import { requireAuth } from '@/lib/auth'
 import { redirect, notFound } from 'next/navigation'
-import QuickCreateEvent from '../../new/QuickCreateEvent'
+import EventComposer from '../../EventComposer'
 import { isDemoMode, DEMO_EVENTS } from '@/lib/demo'
 import { getOrganizerVerificationStatus } from '@/lib/organizerVerification'
 
@@ -23,7 +23,7 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
   if (isDemoMode()) {
     const event = DEMO_EVENTS.find((e) => e.id === id)
     if (!event) notFound()
-    return <QuickCreateEvent userId={user.id} event={event} isVerified />
+    return <EventComposer userId={user.id} event={event} isVerified />
   }
 
   const supabase = await createClient()
@@ -56,7 +56,7 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
   const verification = await getOrganizerVerificationStatus(user.id)
 
   return (
-    <QuickCreateEvent
+    <EventComposer
       userId={user.id}
       event={event}
       initialTiers={initialTiers.length > 0 ? initialTiers : undefined}
