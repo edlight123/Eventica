@@ -6,6 +6,7 @@ import { firebaseDb } from '@/lib/firebase-db/client'
 import { isDemoMode } from '@/lib/demo'
 import { useToast } from '@/components/ui/Toast'
 import ImageUpload from '@/components/ImageUpload'
+import { DatePicker, TimePicker } from '@/components/ui/DateTimePickers'
 import { normalizeEventCurrencyForCountry } from '@/lib/currency-policy'
 import {
   CalendarDays,
@@ -46,6 +47,11 @@ const ACCENTS = ['#14B8A6', '#F2B705', '#EF4444', '#8B5CF6', '#3B82F6', '#EC4899
 interface QuickCreateEventProps {
   userId: string
   isVerified?: boolean
+  verificationStatus?: string
+  /** When provided, the composer runs in EDIT mode (prefilled + updates this event). */
+  event?: any
+  /** Existing ticket tiers for the event being edited. */
+  initialTiers?: TicketTier[]
 }
 
 interface TicketTier {
@@ -53,6 +59,18 @@ interface TicketTier {
   name: string
   price: string
   qty: string
+}
+
+const pad2 = (n: number) => String(n).padStart(2, '0')
+/** Split an ISO datetime into local 'yyyy-MM-dd' + 'HH:mm' strings for the pickers. */
+function splitISO(iso?: string | null): { date: string; time: string } {
+  if (!iso) return { date: '', time: '' }
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return { date: '', time: '' }
+  return {
+    date: `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`,
+    time: `${pad2(d.getHours())}:${pad2(d.getMinutes())}`,
+  }
 }
 
 type GuestRole = 'Performer' | 'Host' | 'DJ' | 'Special Guest'
@@ -107,38 +125,51 @@ function SectionTitle({
  * no wizard. Reuses the existing draft-create logic (firebaseDb insert) and hands
  * off to the full editor afterwards for deep refinement.
  */
-export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
+export default function QuickCreateEvent({
+  userId,
+  isVerified = false,
+  event,
+  initialTiers,
+}: QuickCreateEventProps) {
   const router = useRouter()
   const { showToast } = useToast()
 
+  const isEdit = !!event
+  const start0 = splitISO(event?.start_datetime)
+  const end0 = splitISO(event?.end_datetime)
+
   // Core
-  const [sellMode, setSellMode] = useState<'tickets' | 'rsvp'>('tickets')
-  const [title, setTitle] = useState('')
-  const [summary, setSummary] = useState('')
-  const [showSummary, setShowSummary] = useState(false)
-  const [bannerUrl, setBannerUrl] = useState('')
+  const [sellMode, setSellMode] = useState<'tickets' | 'rsvp'>(
+    isEdit && event?.ticket_name === 'RSVP' ? 'rsvp' : 'tickets'
+  )
+  const [title, setTitle] = useState(event?.title || '')
+  const [summary, setSummary] = useState(event?.summary || '')
+  const [showSummary, setShowSummary] = useState(!!event?.summary)
+  const [bannerUrl, setBannerUrl] = useState(event?.banner_image_url || '')
 
   // Dates
-  const [startDate, setStartDate] = useState('')
-  const [startTime, setStartTime] = useState('')
-  const [endDate, setEndDate] = useState('')
-  const [endTime, setEndTime] = useState('')
-  const [recurring, setRecurring] = useState(false)
+  const [startDate, setStartDate] = useState(start0.date)
+  const [startTime, setStartTime] = useState(start0.time)
+  const [endDate, setEndDate] = useState(end0.date)
+  const [endTime, setEndTime] = useState(end0.time)
+  const [recurring, setRecurring] = useState(!!event?.is_recurring)
 
   // Details
-  const [showDescription, setShowDescription] = useState(false)
-  const [description, setDescription] = useState('')
-  const [address, setAddress] = useState('')
-  const [venueName, setVenueName] = useState('')
-  const [category, setCategory] = useState('Concert')
-  const [isOnline, setIsOnline] = useState(false)
-  const [city, setCity] = useState('Port-au-Prince')
+  const [showDescription, setShowDescription] = useState(!!event?.description)
+  const [description, setDescription] = useState(event?.description || '')
+  const [address, setAddress] = useState(event?.address || '')
+  const [venueName, setVenueName] = useState(event?.venue_name || '')
+  const [category, setCategory] = useState(event?.category || 'Concert')
+  const [isOnline, setIsOnline] = useState(!!event?.is_online)
+  const [city, setCity] = useState(event?.city || 'Port-au-Prince')
 
   // Tickets — multiple tiers
-  const [tiers, setTiers] = useState<TicketTier[]>([
-    { id: makeId(), name: 'General Admission', price: '10', qty: '100' },
-  ])
-  const [enableWaitlist, setEnableWaitlist] = useState(false)
+  const [tiers, setTiers] = useState<TicketTier[]>(
+    initialTiers && initialTiers.length > 0
+      ? initialTiers
+      : [{ id: makeId(), name: 'General Admission', price: '10', qty: '100' }]
+  )
+  const [enableWaitlist, setEnableWaitlist] = useState(!!event?.enable_waitlist)
 
   const addTier = () =>
     setTiers((prev) => [...prev, { id: makeId(), name: '', price: '0', qty: '100' }])
@@ -148,7 +179,15 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
     setTiers((prev) => (prev.length > 1 ? prev.filter((t) => t.id !== id) : prev))
 
   // Guestlist — artists / hosts / performers joining the event (the lineup)
-  const [guests, setGuests] = useState<Guest[]>([])
+  const [guests, setGuests] = useState<Guest[]>(
+    Array.isArray(event?.guestlist)
+      ? event.guestlist.map((g: any) => ({
+          id: makeId(),
+          name: typeof g === 'string' ? g : g?.name || '',
+          role: (g?.role as GuestRole) || 'Performer',
+        }))
+      : []
+  )
   const [guestName, setGuestName] = useState('')
   const [guestRole, setGuestRole] = useState<GuestRole>('Performer')
 
@@ -161,14 +200,18 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
   const removeGuest = (id: string) => setGuests((prev) => prev.filter((g) => g.id !== id))
 
   // Visibility extras
-  const [showGuestlist, setShowGuestlist] = useState(true)
-  const [showOnExplore, setShowOnExplore] = useState(true)
-  const [passwordProtected, setPasswordProtected] = useState(false)
+  const [showGuestlist, setShowGuestlist] = useState(event?.show_guestlist ?? true)
+  const [showOnExplore, setShowOnExplore] = useState(event?.show_on_explore ?? true)
+  const [passwordProtected, setPasswordProtected] = useState(!!event?.password_protected)
 
   // Style
-  const [spotifyUrl, setSpotifyUrl] = useState('')
-  const [titleFont, setTitleFont] = useState<'Default' | 'Serif' | 'Sans'>('Default')
-  const [accentColor, setAccentColor] = useState('#14B8A6')
+  const [spotifyUrl, setSpotifyUrl] = useState(event?.spotify_url || '')
+  const [titleFont, setTitleFont] = useState<'Default' | 'Serif' | 'Sans'>(event?.title_font || 'Default')
+  const [accentColor, setAccentColor] = useState(event?.accent_color || '#14B8A6')
+
+  // Edit-only: published state (toggled via the publish control)
+  const [isPublished, setIsPublished] = useState(!!event?.is_published)
+  const [publishing, setPublishing] = useState(false)
 
   const [attempted, setAttempted] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -184,7 +227,77 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
   const composeISO = (d: string, t: string) =>
     d ? new Date(`${d}T${t || '00:00'}`).toISOString() : null
 
-  const handleCreate = async () => {
+  const isPaid = sellMode === 'tickets' && tiers.some((t) => Number(t.price) > 0)
+  const paidPublishingBlocked = isPaid && !isVerified
+
+  // Build the shared event payload from the current form state.
+  const buildEventData = () => {
+    const isRsvp = sellMode === 'rsvp'
+    const cleanTiers = tiers.map((t) => ({
+      name: t.name.trim() || 'General Admission',
+      price: Number(t.price) || 0,
+      quantity: Number(t.qty) || 0,
+    }))
+    const firstTier = cleanTiers[0] || { name: 'General Admission', price: 0, quantity: 0 }
+    const totalQty = cleanTiers.reduce((sum, t) => sum + t.quantity, 0)
+    const cleanGuests = guests.map((g) => ({ name: g.name, role: g.role }))
+    const data: Record<string, any> = {
+      organizer_id: userId,
+      title: title.trim(),
+      description: description.trim() || summary.trim(),
+      summary: summary.trim(),
+      category,
+      venue_name: isOnline ? '' : venueName.trim(),
+      country: 'HT',
+      city: isOnline ? '' : city.trim() || 'Port-au-Prince',
+      commune: '',
+      address: isOnline ? '' : address.trim(),
+      start_datetime: composeISO(startDate, startTime),
+      end_datetime: composeISO(endDate, endTime),
+      ticket_price: isRsvp ? 0 : firstTier.price,
+      total_tickets: isRsvp ? 0 : totalQty,
+      ticket_name: isRsvp ? 'RSVP' : firstTier.name,
+      guestlist: cleanGuests,
+      currency: normalizeEventCurrencyForCountry('HT', 'USD'),
+      banner_image_url: bannerUrl || null,
+      is_online: isOnline,
+      is_recurring: recurring,
+      enable_waitlist: enableWaitlist,
+      show_guestlist: showGuestlist,
+      show_on_explore: showOnExplore,
+      password_protected: passwordProtected,
+      spotify_url: spotifyUrl.trim() || null,
+      title_font: titleFont,
+      accent_color: accentColor,
+    }
+    return { data, cleanTiers, isRsvp }
+  }
+
+  // Replace the tier set for an event (mirrors the existing editor's behaviour).
+  const syncTiers = async (
+    eventId: string,
+    cleanTiers: Array<{ name: string; price: number; quantity: number }>,
+    isRsvp: boolean
+  ) => {
+    await firebaseDb.from('ticket_tiers').delete().eq('event_id', eventId)
+    if (!isRsvp && cleanTiers.length > 0) {
+      const tiersToInsert = cleanTiers.map((t, i) => ({
+        event_id: eventId,
+        name: t.name,
+        price: t.price,
+        total_quantity: t.quantity,
+        sold_quantity: 0,
+        description: null,
+        sales_start: null,
+        sales_end: null,
+        sort_order: i,
+      }))
+      const { error } = await firebaseDb.from('ticket_tiers').insert(tiersToInsert)
+      if (error) console.error('Error saving ticket tiers:', error)
+    }
+  }
+
+  const handleSave = async () => {
     setAttempted(true)
     if (title.trim().length < 3 || !startDate) {
       showToast({
@@ -198,91 +311,91 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
 
     setSaving(true)
     try {
-      const isRsvp = sellMode === 'rsvp'
-      const cleanTiers = tiers
-        .map((t) => ({
-          name: t.name.trim() || 'General Admission',
-          price: Number(t.price) || 0,
-          quantity: Number(t.qty) || 0,
-        }))
-      const firstTier = cleanTiers[0] || { name: 'General Admission', price: 0, quantity: 0 }
-      const totalQty = cleanTiers.reduce((sum, t) => sum + t.quantity, 0)
-      const cleanGuests = guests.map((g) => ({ name: g.name, role: g.role }))
-      const eventData = {
-        organizer_id: userId,
-        title: title.trim(),
-        description: description.trim() || summary.trim(),
-        summary: summary.trim(),
-        category,
-        venue_name: isOnline ? '' : venueName.trim(),
-        country: 'HT',
-        city: isOnline ? '' : city.trim() || 'Port-au-Prince',
-        commune: '',
-        address: isOnline ? '' : address.trim(),
-        start_datetime: composeISO(startDate, startTime),
-        end_datetime: composeISO(endDate, endTime),
-        ticket_price: isRsvp ? 0 : firstTier.price,
-        total_tickets: isRsvp ? 0 : totalQty,
-        ticket_name: isRsvp ? 'RSVP' : firstTier.name,
-        guestlist: cleanGuests,
-        currency: normalizeEventCurrencyForCountry('HT', 'USD'),
-        banner_image_url: bannerUrl || null,
-        is_published: false,
-        is_online: isOnline,
-        is_recurring: recurring,
-        enable_waitlist: enableWaitlist,
-        show_guestlist: showGuestlist,
-        show_on_explore: showOnExplore,
-        password_protected: passwordProtected,
-        spotify_url: spotifyUrl.trim() || null,
-        title_font: titleFont,
-        accent_color: accentColor,
-        tags: [] as string[],
-        status: 'draft',
+      const { data, cleanTiers, isRsvp } = buildEventData()
+
+      // ----- EDIT: update the existing event -----
+      if (isEdit) {
+        if (isDemoMode()) {
+          await new Promise((r) => setTimeout(r, 500))
+          showToast({ type: 'success', title: 'Changes saved', message: 'Demo mode.', duration: 3000 })
+          return
+        }
+        const { error } = await firebaseDb.from('events').update(data).eq('id', event.id)
+        if (error) throw error
+        await syncTiers(event.id, cleanTiers, isRsvp)
+        showToast({ type: 'success', title: 'Changes saved', message: 'Your event has been updated.', duration: 3000 })
+        router.refresh()
+        return
       }
 
+      // ----- CREATE: insert a new draft -----
+      const createData = { ...data, tags: [] as string[], is_published: false, status: 'draft' }
       if (isDemoMode()) {
         await new Promise((r) => setTimeout(r, 600))
         showToast({ type: 'success', title: 'Draft created', message: 'Demo mode — opening the editor.', duration: 3000 })
         router.push('/organizer/events')
         return
       }
-
-      const { data, error } = await firebaseDb.from('events').insert(eventData).select().single()
+      const { data: created, error } = await firebaseDb.from('events').insert(createData).select().single()
       if (error) throw error
-
-      // Persist ticket tiers to the canonical `ticket_tiers` collection so the
-      // edit form, event page and checkout all read the same source of truth.
-      if (!isRsvp && data?.id && cleanTiers.length > 0) {
-        const tiersToInsert = cleanTiers.map((t, i) => ({
-          event_id: data.id,
-          name: t.name,
-          price: t.price, // dollars (matches edit form + tier API storage)
-          total_quantity: t.quantity,
-          sold_quantity: 0,
-          description: null,
-          sales_start: null,
-          sales_end: null,
-          sort_order: i,
-        }))
-        const { error: tiersError } = await firebaseDb.from('ticket_tiers').insert(tiersToInsert)
-        if (tiersError) console.error('Error saving ticket tiers:', tiersError)
-      }
-
+      if (created?.id) await syncTiers(created.id, cleanTiers, isRsvp)
       showToast({ type: 'success', title: 'Draft created', message: 'Add the finishing touches, then publish.', duration: 3500 })
-      router.push(`/organizer/events/${data.id}/edit`)
+      router.push(`/organizer/events/${created.id}/edit`)
       router.refresh()
     } catch (err: any) {
-      showToast({ type: 'error', title: 'Could not create event', message: err?.message || 'Please try again.', duration: 5000 })
+      showToast({
+        type: 'error',
+        title: isEdit ? 'Could not save changes' : 'Could not create event',
+        message: err?.message || 'Please try again.',
+        duration: 5000,
+      })
     } finally {
       setSaving(false)
     }
   }
 
+  // Edit-only: publish / unpublish (verification-gated for paid events).
+  const handleTogglePublish = async () => {
+    if (!isEdit || !event?.id) return
+    const next = !isPublished
+    if (next && paidPublishingBlocked) {
+      showToast({
+        type: 'error',
+        title: 'Verification required',
+        message: 'Complete identity verification to publish paid events.',
+        duration: 5000,
+      })
+      return
+    }
+    setPublishing(true)
+    try {
+      if (isDemoMode()) {
+        await new Promise((r) => setTimeout(r, 400))
+        setIsPublished(next)
+      } else {
+        const { error } = await firebaseDb
+          .from('events')
+          .update({ is_published: next, status: next ? 'published' : 'draft' })
+          .eq('id', event.id)
+        if (error) throw error
+        setIsPublished(next)
+        router.refresh()
+      }
+      showToast({
+        type: 'success',
+        title: next ? 'Event published' : 'Moved to draft',
+        message: next ? 'Your event is now live.' : 'Your event is hidden from attendees.',
+        duration: 3500,
+      })
+    } catch (err: any) {
+      showToast({ type: 'error', title: 'Could not update', message: err?.message || 'Please try again.', duration: 5000 })
+    } finally {
+      setPublishing(false)
+    }
+  }
+
   const rowCls =
     'flex w-full items-center gap-3 rounded-xl border border-white/10 px-4 py-3.5 text-left text-[15px] text-white/70 transition-colors hover:bg-white/[0.04]'
-  const chip =
-    'no-native-picker rounded-lg bg-[#0a0a0a] px-3 py-1.5 text-sm font-semibold text-white [color-scheme:dark] focus:outline-none focus:ring-2 focus:ring-brand-400/40'
   const field =
     'w-full rounded-xl border border-white/10 bg-transparent px-4 py-3 text-[15px] text-white [color-scheme:dark] placeholder:text-white/40 focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-400/40'
 
@@ -344,18 +457,18 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
             <div className="overflow-hidden rounded-xl border border-white/10">
               <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5">
                 <span className="text-[15px] font-medium text-white">Start</span>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="text-xs text-white/40">{tzLabel}</span>
-                  <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={`${chip} ${startInvalid ? 'border-red-400/60' : ''}`} />
-                  <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className={chip} />
+                  <DatePicker value={startDate} onChange={setStartDate} invalid={startInvalid} placeholder="Pick a date" />
+                  <TimePicker value={startTime} onChange={setStartTime} placeholder="Time" />
                 </div>
               </div>
               <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 px-4 py-3.5">
                 <span className="text-[15px] font-medium text-white">End</span>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="text-xs text-white/40">{tzLabel}</span>
-                  <input type="date" value={endDate} min={startDate || undefined} onChange={(e) => setEndDate(e.target.value)} className={chip} />
-                  <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className={chip} />
+                  <DatePicker value={endDate} onChange={setEndDate} min={startDate || undefined} placeholder="Pick a date" />
+                  <TimePicker value={endTime} onChange={setEndTime} placeholder="Time" />
                 </div>
               </div>
             </div>
@@ -666,16 +779,53 @@ export default function QuickCreateEvent({ userId }: QuickCreateEventProps) {
               </div>
             </div>
 
-            {/* Create */}
+            {/* Save / Create */}
             <button
               type="button"
-              onClick={handleCreate}
+              onClick={handleSave}
               disabled={saving}
               className="w-full rounded-xl bg-brand-600 px-7 py-3.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {saving ? 'Creating…' : 'Create Event'}
+              {isEdit
+                ? saving
+                  ? 'Saving…'
+                  : 'Save changes'
+                : saving
+                ? 'Creating…'
+                : 'Create Event'}
             </button>
-            <p className="text-center text-xs text-white/40">Saved as a private draft — publish when you&rsquo;re ready.</p>
+
+            {isEdit ? (
+              <>
+                <button
+                  type="button"
+                  onClick={handleTogglePublish}
+                  disabled={publishing || (!isPublished && paidPublishingBlocked)}
+                  className={`w-full rounded-xl px-7 py-3 text-sm font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-60 ${
+                    isPublished
+                      ? 'border border-white/15 text-white/80 hover:bg-white/[0.04]'
+                      : 'bg-white text-black hover:bg-white/90'
+                  }`}
+                >
+                  {publishing
+                    ? 'Updating…'
+                    : isPublished
+                    ? 'Unpublish (move to draft)'
+                    : 'Publish event'}
+                </button>
+                {!isPublished && paidPublishingBlocked ? (
+                  <p className="text-center text-xs text-amber-300">
+                    Complete identity verification to publish paid events.
+                  </p>
+                ) : (
+                  <p className="text-center text-xs text-white/40">
+                    {isPublished ? 'Live — visible to attendees.' : 'Draft — only you can see this.'}
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="text-center text-xs text-white/40">Saved as a private draft — publish when you&rsquo;re ready.</p>
+            )}
           </div>
         </div>
       </div>

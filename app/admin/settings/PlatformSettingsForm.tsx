@@ -250,17 +250,45 @@ export function PlatformSettingsForm() {
       )}
 
       <div className="space-y-6">
-        {/* Info Banner */}
-        <div className="rounded-lg border border-white/10 p-4 sm:p-5">
-          <div className="flex gap-3">
-            <Info className="w-5 h-5 text-white/50 flex-shrink-0 mt-0.5" />
-            <div className="text-sm">
-              <p className="font-semibold text-white mb-1">Important Information</p>
-              <p className="text-white/50">
-                These settings apply to all future transactions. Changes take effect immediately and will be applied to new ticket sales and earnings calculations.
-              </p>
+        {/* Current settings — live summary strip */}
+        {settings && (
+          <div>
+            <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-white/10 bg-white/10 sm:grid-cols-3 lg:grid-cols-5">
+              <div className="bg-[#0a0a0a] p-4">
+                <p className="text-[11px] uppercase tracking-wide text-white/50">Haiti fee</p>
+                <p className="mt-1 text-2xl font-bold tabular-nums text-white">{(settings.haiti.platformFeePercentage * 100).toFixed(2)}%</p>
+              </div>
+              <div className="bg-[#0a0a0a] p-4">
+                <p className="text-[11px] uppercase tracking-wide text-white/50">Haiti hold</p>
+                <p className="mt-1 text-2xl font-bold tabular-nums text-white">{settings.haiti.settlementHoldDays}<span className="text-base font-medium text-white/50"> days</span></p>
+              </div>
+              <div className="bg-[#0a0a0a] p-4">
+                <p className="text-[11px] uppercase tracking-wide text-white/50">US/CA fee</p>
+                <p className="mt-1 text-2xl font-bold tabular-nums text-white">{(settings.usCanada.platformFeePercentage * 100).toFixed(2)}%</p>
+              </div>
+              <div className="bg-[#0a0a0a] p-4">
+                <p className="text-[11px] uppercase tracking-wide text-white/50">US/CA hold</p>
+                <p className="mt-1 text-2xl font-bold tabular-nums text-white">{settings.usCanada.settlementHoldDays}<span className="text-base font-medium text-white/50"> days</span></p>
+              </div>
+              <div className="bg-[#0a0a0a] p-4">
+                <p className="text-[11px] uppercase tracking-wide text-white/50">Min payout</p>
+                <p className="mt-1 text-2xl font-bold tabular-nums text-white">${(settings.minimumPayoutAmount / 100).toFixed(2)}</p>
+              </div>
             </div>
+            {settings.updatedBy && (
+              <p className="mt-2 flex items-center gap-1.5 text-xs text-white/40">
+                <Clock className="h-3.5 w-3.5" /> Last updated by {settings.updatedBy}
+              </p>
+            )}
           </div>
+        )}
+
+        {/* Info Banner */}
+        <div className="flex gap-3 rounded-xl border border-white/10 p-4">
+          <Info className="mt-0.5 h-5 w-5 flex-shrink-0 text-white/40" />
+          <p className="text-sm text-white/55">
+            These settings apply to all future transactions. Changes take effect immediately and are applied to new ticket sales and earnings calculations.
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -277,8 +305,11 @@ export function PlatformSettingsForm() {
             </div>
           )}
 
+          {/* Region editors — side by side */}
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+
           {/* Haiti Settings Section */}
-          <section className="rounded-lg border border-white/10 p-4 sm:p-5">
+          <section className="rounded-xl border border-white/10 p-4 sm:p-5">
             <div className="flex items-center gap-2 mb-4">
               <span className="text-xl leading-none">🇭🇹</span>
               <div>
@@ -359,7 +390,7 @@ export function PlatformSettingsForm() {
           </section>
 
           {/* US/Canada Settings Section */}
-          <section className="rounded-lg border border-white/10 p-4 sm:p-5">
+          <section className="rounded-xl border border-white/10 p-4 sm:p-5">
             <div className="flex items-center gap-2 mb-4">
               <span className="text-xl leading-none">🇺🇸🇨🇦</span>
               <div>
@@ -439,8 +470,10 @@ export function PlatformSettingsForm() {
             )}
           </section>
 
+          </div>
+
           {/* Global Settings Section */}
-          <section className="rounded-lg border border-white/10 p-4 sm:p-5">
+          <section className="rounded-xl border border-white/10 p-4 sm:p-5">
             <div className="flex items-center gap-2 mb-4">
               <span className="text-xl leading-none">🌍</span>
               <div>
@@ -476,65 +509,19 @@ export function PlatformSettingsForm() {
             </div>
           </section>
 
-          {/* Current Settings Section */}
-          {settings && (
-            <section className="rounded-lg border border-white/10 p-4 sm:p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <Clock className="w-4 h-4 text-white/50" />
-                <h2 className="text-sm font-semibold text-white">Current Settings</h2>
-              </div>
-              <div className="space-y-3 text-sm">
-                <div>
-                  <p className="text-white/50 text-xs mb-1">🇭🇹 Haiti</p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/50">Fee</span>
-                    <span className="font-semibold text-white">{(settings.haiti.platformFeePercentage * 100).toFixed(2)}%</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/50">Settlement</span>
-                    <span className="font-semibold text-white">{settings.haiti.settlementHoldDays} days</span>
-                  </div>
-                </div>
-                <div className="border-t border-white/10 pt-3">
-                  <p className="text-white/50 text-xs mb-1">🇺🇸🇨🇦 US/Canada</p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/50">Fee</span>
-                    <span className="font-semibold text-white">{(settings.usCanada.platformFeePercentage * 100).toFixed(2)}%</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/50">Settlement</span>
-                    <span className="font-semibold text-white">{settings.usCanada.settlementHoldDays} days</span>
-                  </div>
-                </div>
-                <div className="border-t border-white/10 pt-3">
-                  <p className="text-white/50 text-xs mb-1">🌍 Global</p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/50">Min Payout</span>
-                    <span className="font-semibold text-white">${(settings.minimumPayoutAmount / 100).toFixed(2)}</span>
-                  </div>
-                </div>
-                {settings.updatedBy && (
-                  <div className="border-t border-white/10 pt-3 text-xs text-white/50">
-                    Last updated by: {settings.updatedBy}
-                  </div>
-                )}
-              </div>
-            </section>
-          )}
-
-          {/* Submit */}
-          <div className="flex items-center justify-between gap-4 pt-2">
+          {/* Sticky Save Bar */}
+          <div className="sticky bottom-4 z-10 flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-[#0a0a0a]/90 px-4 py-3 backdrop-blur">
             <p className="text-sm">
               {hasChanges ? (
-                <span className="text-amber-300 font-medium">● Unsaved changes</span>
+                <span className="font-medium text-amber-300">● Unsaved changes</span>
               ) : (
-                <span className="text-white/50">No changes</span>
+                <span className="text-white/50">All changes saved</span>
               )}
             </p>
             <button
               type="submit"
               disabled={saving || !hasChanges}
-              className="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white rounded-lg px-4 py-2.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white rounded-lg px-5 py-2.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saving ? (
                 <>

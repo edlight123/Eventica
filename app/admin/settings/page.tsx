@@ -6,7 +6,7 @@ export const revalidate = 30
 
 export default async function AdminSettingsPage() {
   return (
-    <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-6">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6">
       <AdminBreadcrumbs items={[{ label: 'Platform Settings' }]} />
 
       {/* Header */}

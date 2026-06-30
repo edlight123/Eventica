@@ -1,9 +1,11 @@
 import { createClient } from '@/lib/firebase-db/server'
 import { requireAuth } from '@/lib/auth'
 import { redirect, notFound } from 'next/navigation'
-import EventFormPremium from '../../EventFormPremium'
+import QuickCreateEvent from '../../new/QuickCreateEvent'
 import { isDemoMode, DEMO_EVENTS } from '@/lib/demo'
 import { getOrganizerVerificationStatus } from '@/lib/organizerVerification'
+
+export const dynamic = 'force-dynamic'
 
 export default async function EditEventPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -16,40 +18,50 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
   if (user.role !== 'organizer') {
     redirect(`/organizer?redirect=/organizer/events/${id}/edit`)
   }
-  let event: any = null
 
+  // Demo mode — render the composer with the in-memory demo event.
   if (isDemoMode()) {
-    // Find demo event
-    event = DEMO_EVENTS.find(e => e.id === id)
-    if (!event) {
-      notFound()
-    }
-  } else {
-    // Fetch from database
-    const supabase = await createClient()
-    const { data: eventData } = await supabase
-      .from('events')
-      .select('*')
-      .eq('id', id)
-      .eq('organizer_id', user.id)
-      .single()
-
-    event = eventData || null
-
-    if (!event) {
-      notFound()
-    }
-
-    const verification = await getOrganizerVerificationStatus(user.id)
-    return (
-      <EventFormPremium
-        userId={user.id}
-        event={event}
-        isVerified={verification.isVerified}
-        verificationStatus={verification.status || undefined}
-      />
-    )
+    const event = DEMO_EVENTS.find((e) => e.id === id)
+    if (!event) notFound()
+    return <QuickCreateEvent userId={user.id} event={event} isVerified />
   }
 
-  return <EventFormPremium userId={user.id} event={event} />
+  const supabase = await createClient()
+
+  const { data: event } = await supabase
+    .from('events')
+    .select('*')
+    .eq('id', id)
+    .eq('organizer_id', user.id)
+    .single()
+
+  if (!event) notFound()
+
+  // Load the canonical ticket tiers so the composer is prefilled with them.
+  const { data: tierRows } = await supabase
+    .from('ticket_tiers')
+    .select('*')
+    .eq('event_id', id)
+
+  const initialTiers = (tierRows || [])
+    .slice()
+    .sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+    .map((t: any) => ({
+      id: String(t.id ?? Math.random().toString(36).slice(2, 9)),
+      name: t.name ?? '',
+      price: String(t.price ?? 0),
+      qty: String(t.total_quantity ?? t.quantity ?? 0),
+    }))
+
+  const verification = await getOrganizerVerificationStatus(user.id)
+
+  return (
+    <QuickCreateEvent
+      userId={user.id}
+      event={event}
+      initialTiers={initialTiers.length > 0 ? initialTiers : undefined}
+      isVerified={verification.isVerified}
+      verificationStatus={verification.status || undefined}
+    />
+  )
 }
