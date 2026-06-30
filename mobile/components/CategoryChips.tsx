@@ -90,8 +90,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 6,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 8,
-    backgroundColor: colors.background,
+    borderRadius: 999,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -105,7 +105,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   chipText: {
     fontSize: 14,
     fontWeight: '600',
-    color: colors.secondary,
+    color: colors.textSecondary,
   },
   chipTextActive: {
     color: colors.white,

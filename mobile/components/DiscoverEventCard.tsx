@@ -113,7 +113,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     poster: {
       width: '100%',
       height: Math.round((width - 32) * 1.15),
-      borderRadius: 10,
+      borderRadius: 16,
       overflow: 'hidden',
       backgroundColor: colors.surfaceMuted,
     },
@@ -162,7 +162,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     cta: {
       marginTop: 14,
       backgroundColor: '#FFFFFF',
-      borderRadius: 14,
+      borderRadius: 16,
       paddingVertical: 16,
       alignItems: 'center',
     },

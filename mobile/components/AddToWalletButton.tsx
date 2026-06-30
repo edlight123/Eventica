@@ -124,12 +124,12 @@ export default function AddToWalletButton({
       >
         {isGenerating ? (
           <View style={styles.buttonContent}>
-            <ActivityIndicator size="small" color="#FFFFFF" />
+            <ActivityIndicator size="small" color={colors.background} />
             <Text style={styles.walletButtonText}>Generating...</Text>
           </View>
         ) : (
           <View style={styles.buttonContent}>
-            <Wallet size={20} color="#FFFFFF" />
+            <Wallet size={20} color={colors.background} />
             <Text style={styles.walletButtonText}>
               Add to {Platform.OS === 'ios' ? 'Apple' : 'Google'} Wallet
             </Text>
@@ -162,7 +162,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     padding: 16,
   },
   downloadButton: {
-    backgroundColor: colors.background,
+    backgroundColor: 'transparent',
     borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.border,
@@ -177,7 +177,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   walletButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: colors.background,
   },
   downloadButtonText: {
     fontSize: 16,

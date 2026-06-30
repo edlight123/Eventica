@@ -272,8 +272,8 @@ export default function TieredTicketSelector({
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>{t('ticketSelector.title')}</Text>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <X size={24} color={colors.primary} />
+          <TouchableOpacity onPress={onClose} style={styles.closeButton} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
+            <X size={24} color={colors.text} />
           </TouchableOpacity>
         </View>
 
@@ -366,10 +366,12 @@ export default function TieredTicketSelector({
                 <Text style={styles.sectionTitle}>{t('ticketSelector.promoTitle')}</Text>
                 <View style={styles.promoContainer}>
                   <View style={styles.promoInputContainer}>
-                    <Tag size={20} color={colors.secondary} />
+                    <Tag size={20} color={colors.textSecondary} />
                     <TextInput
                       style={styles.promoInput}
                       placeholder={t('ticketSelector.promoPlaceholder')}
+                      placeholderTextColor={colors.textTertiary}
+                      selectionColor={colors.primary}
                       value={promoCode}
                       onChangeText={setPromoCode}
                       autoCapitalize="characters"
@@ -466,7 +468,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: colors.primary,
+    color: colors.text,
   },
   closeButton: {
     padding: 4,
@@ -487,7 +489,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.primary,
+    color: colors.text,
     marginBottom: 12,
   },
   tierCard: {
@@ -518,10 +520,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   tierName: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.primary,
+    color: colors.text,
   },
   tierNameDisabled: {
-    color: colors.secondary,
+    color: colors.textTertiary,
   },
   tierPrice: {
     fontSize: 16,
@@ -530,7 +532,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   tierDescription: {
     fontSize: 13,
-    color: colors.secondary,
+    color: colors.textSecondary,
     marginTop: 4,
     marginBottom: 4,
   },
@@ -593,7 +595,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   promoInput: {
     flex: 1,
     fontSize: 16,
-    color: colors.primary,
+    color: colors.text,
   },
   promoApplyButton: {
     backgroundColor: colors.primary,
@@ -633,7 +635,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   totalLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.primary,
+    color: colors.text,
   },
   discountLabel: {
     fontSize: 12,

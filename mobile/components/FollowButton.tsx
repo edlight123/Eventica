@@ -129,6 +129,7 @@ export default function FollowButton({ organizerId, style, compact = false, onFo
         ]}
         onPress={handleToggleFollow}
         disabled={toggling}
+        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
       >
         {toggling ? (
           <ActivityIndicator size="small" color={isFollowing ? colors.primary : '#FFF'} />
@@ -178,7 +179,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'center',
     paddingVertical: 10,
     paddingHorizontal: 16,
-    borderRadius: 8,
+    borderRadius: 12,
     gap: 6,
   },
   loadingButton: {

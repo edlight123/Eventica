@@ -172,6 +172,7 @@ export default function FreeTicketModal({
     >
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
+          <View style={styles.handle} />
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.headerLeft}>
@@ -180,7 +181,7 @@ export default function FreeTicketModal({
               </View>
               <Text style={styles.headerTitle}>Claim Free Ticket</Text>
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
               <X size={24} color={colors.text} />
             </TouchableOpacity>
           </View>
@@ -275,17 +276,27 @@ export default function FreeTicketModal({
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'flex-end',
   },
   modalContainer: {
     backgroundColor: colors.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingTop: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingTop: 12,
     paddingBottom: 32,
     paddingHorizontal: 20,
     maxHeight: '80%',
+  },
+  handle: {
+    alignSelf: 'center',
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.border,
+    marginBottom: 12,
   },
   header: {
     flexDirection: 'row',
@@ -392,7 +403,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 12,
   },
   summary: {
-    backgroundColor: colors.background,
+    backgroundColor: colors.surfaceRaised,
     padding: 16,
     borderRadius: 12,
     marginBottom: 24,
@@ -420,7 +431,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     paddingVertical: 14,
     borderRadius: 12,
-    backgroundColor: colors.border,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: 'center',
   },
   cancelButtonText: {

@@ -86,7 +86,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   barBackground: {
     height: 6,
-    backgroundColor: colors.borderLight,
+    backgroundColor: colors.border,
     borderRadius: 3,
     overflow: 'hidden',
   },

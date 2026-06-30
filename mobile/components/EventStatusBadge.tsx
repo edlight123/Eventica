@@ -168,7 +168,7 @@ export default function EventStatusBadge({ status, size = 'small', style }: Even
 
 const styles = StyleSheet.create({
   badge: {
-    borderRadius: 12,
+    borderRadius: 999,
     alignSelf: 'flex-start',
   },
   badgeContent: {

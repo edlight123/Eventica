@@ -35,7 +35,7 @@ export default function QRCodeModal({ visible, onClose, ticketId, ticketNumber }
         
         <View style={styles.container}>
           {/* Close Button */}
-          <TouchableOpacity style={styles.closeButton} onPress={onClose} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.closeButton} onPress={onClose} activeOpacity={0.8} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <X size={28} color="#FFF" />
           </TouchableOpacity>
 

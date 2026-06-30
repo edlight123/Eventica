@@ -137,6 +137,7 @@ export default function EventFiltersSheet() {
           <TouchableOpacity
             style={styles.closeButton}
             onPress={closeFiltersModal}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
             <X size={24} color={colors.text} />
           </TouchableOpacity>
@@ -273,7 +274,7 @@ export default function EventFiltersSheet() {
                   value={draftFilters.customPriceRange?.min || 0}
                   onValueChange={(value) => handleCustomPriceChange('min', value)}
                   minimumTrackTintColor={colors.primary}
-                  maximumTrackTintColor="#D1D5DB"
+                  maximumTrackTintColor={colors.border}
                   thumbTintColor={colors.primary}
                 />
                 
@@ -286,7 +287,7 @@ export default function EventFiltersSheet() {
                   value={draftFilters.customPriceRange?.max || 2000}
                   onValueChange={(value) => handleCustomPriceChange('max', value)}
                   minimumTrackTintColor={colors.primary}
-                  maximumTrackTintColor="#D1D5DB"
+                  maximumTrackTintColor={colors.border}
                   thumbTintColor={colors.primary}
                 />
               </View>
@@ -458,7 +459,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   chip: {
     paddingHorizontal: 16,
     paddingVertical: 10,
-    borderRadius: 10,
+    borderRadius: 999,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,

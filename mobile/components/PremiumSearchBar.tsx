@@ -23,11 +23,12 @@ export default function PremiumSearchBar({ onPress }: PremiumSearchBarProps) {
       activeOpacity={0.7}
     >
       <View style={styles.searchBar}>
-        <Search size={20} color="#6B6B6B" style={styles.icon} />
+        <Search size={20} color={colors.textTertiary} style={styles.icon} />
         <TextInput
           style={styles.input}
           placeholder="Search events, organizers, or cities"
-          placeholderTextColor="rgba(10,10,10,0.5)"
+          placeholderTextColor={colors.textTertiary}
+          selectionColor={colors.primary}
           editable={false}
           pointerEvents="none"
         />
@@ -40,20 +41,17 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   container: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.background,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: colors.surface,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
     paddingHorizontal: 16,
     paddingVertical: Platform.OS === 'ios' ? 14 : 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   icon: {
     marginRight: 10,
@@ -61,7 +59,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#0A0A0A',
+    color: colors.text,
     fontWeight: '500',
   },
 });

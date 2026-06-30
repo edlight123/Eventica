@@ -68,8 +68,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   chip: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 8,
-    backgroundColor: colors.borderLight,
+    borderRadius: 999,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
   },

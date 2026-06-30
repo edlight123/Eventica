@@ -59,10 +59,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     pill: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 7,
+      gap: 8,
       paddingHorizontal: 16,
-      paddingVertical: 11,
-      borderRadius: RADIUS.sm,
+      paddingVertical: 10,
+      borderRadius: RADIUS.full,
       backgroundColor: colors.surface,
       borderWidth: 1,
       borderColor: colors.border,

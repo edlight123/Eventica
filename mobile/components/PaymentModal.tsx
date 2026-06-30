@@ -263,7 +263,7 @@ function PaymentForm({
             {quantity}x {eventTitle}
           </Text>
         </View>
-        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+        <TouchableOpacity onPress={onClose} style={styles.closeButton} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
           <X size={24} color={colors.textSecondary} />
         </TouchableOpacity>
       </View>

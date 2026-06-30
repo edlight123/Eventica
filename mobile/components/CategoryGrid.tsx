@@ -102,10 +102,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     card: {
       width: CARD_WIDTH,
       height: 64,
-      borderRadius: RADIUS.md,
+      borderRadius: RADIUS.lg,
       overflow: 'hidden',
       position: 'relative',
-      backgroundColor: colors.borderLight,
+      backgroundColor: colors.surfaceMuted,
     },
     image: {
       width: '100%',

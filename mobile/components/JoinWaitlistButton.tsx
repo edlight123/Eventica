@@ -210,7 +210,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderColor: colors.border,
   },
   joinButton: {
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.primary,
   },
   joinButtonText: {
     fontSize: 16,
@@ -231,7 +231,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
@@ -239,6 +239,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   modalContent: {
     backgroundColor: colors.surface,
     borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
     padding: 24,
     alignItems: 'center',
     width: '100%',
@@ -277,7 +279,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.primary,
     paddingVertical: 12,
     paddingHorizontal: 32,
-    borderRadius: 10,
+    borderRadius: 12,
   },
   closeButtonText: {
     fontSize: 16,

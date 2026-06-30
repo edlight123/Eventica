@@ -131,7 +131,7 @@ export default function AddToCalendarButton({ event, style }: AddToCalendarButto
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{t('calendar.addToCalendar') || 'Add to Calendar'}</Text>
-              <TouchableOpacity onPress={() => setShowModal(false)}>
+              <TouchableOpacity onPress={() => setShowModal(false)} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
                 <Ionicons name="close" size={24} color={colors.text} />
               </TouchableOpacity>
             </View>
@@ -171,7 +171,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingVertical: 12,
     paddingHorizontal: 16,
     backgroundColor: colors.primary + '10',
-    borderRadius: 10,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.primary + '30',
   },
@@ -183,13 +183,15 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'flex-end',
   },
   modalContent: {
     backgroundColor: colors.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
+    borderWidth: 1,
+    borderColor: colors.border,
     paddingTop: 20,
     paddingBottom: 40,
     paddingHorizontal: 20,
@@ -223,7 +225,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: colors.background,
+    backgroundColor: colors.surfaceRaised,
     borderRadius: 12,
   },
   optionIcon: {

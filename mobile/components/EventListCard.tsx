@@ -101,7 +101,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     poster: {
       width: 92,
       aspectRatio: 4 / 5,
-      borderRadius: 12,
+      borderRadius: 16,
       overflow: 'hidden',
       backgroundColor: colors.surfaceMuted,
     },

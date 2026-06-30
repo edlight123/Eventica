@@ -26,7 +26,7 @@ export default function ScreenHeader({ title, subtitle, onBack, right, transpare
         {
           paddingTop: insets.top + 8,
           backgroundColor: transparent ? 'transparent' : colors.surface,
-          borderBottomColor: transparent ? 'transparent' : colors.borderLight,
+          borderBottomColor: transparent ? 'transparent' : colors.border,
         },
       ]}
     >

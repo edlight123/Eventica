@@ -159,10 +159,11 @@ export default function EventbriteStyleTicketSelector({
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
+          <View style={styles.handle} />
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.headerTitle}>{t('ticketSelector.title')}</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
               <X size={24} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
@@ -301,14 +302,25 @@ export default function EventbriteStyleTicketSelector({
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'flex-end',
   },
   modalContent: {
     backgroundColor: colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingTop: 12,
     maxHeight: '90%',
+  },
+  handle: {
+    alignSelf: 'center',
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.border,
+    marginBottom: 4,
   },
   header: {
     flexDirection: 'row',
@@ -403,7 +415,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
   },
   quantityButtonDisabled: {
     opacity: 0.3,
@@ -419,7 +431,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     margin: 20,
     marginTop: 8,
     padding: 16,
-    backgroundColor: colors.background,
+    backgroundColor: colors.surfaceRaised,
     borderRadius: 12,
   },
   summaryTitle: {

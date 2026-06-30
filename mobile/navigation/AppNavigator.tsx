@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { AppState, Alert, View, TouchableOpacity, Text, StyleSheet, Platform, Animated } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ExpoLinking from 'expo-linking';
 import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -172,11 +173,13 @@ function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
     });
   }, [state.index]);
 
+  const insets = useSafeAreaInsets();
+
   return (
     <View style={[tabBarStyles.container, {
       backgroundColor: colors.background,
-      borderTopColor: colors.borderLight,
-      paddingBottom: Platform.OS === 'ios' ? 20 : 8,
+      borderTopColor: colors.border,
+      paddingBottom: Math.max(insets.bottom, Platform.OS === 'ios' ? 20 : 8),
     }]}>
       {tabs.map((tab, index) => {
         const isFocused = state.index === index;
@@ -229,11 +232,12 @@ const tabBarStyles = StyleSheet.create({
     flexDirection: 'row',
     paddingTop: 0,
     borderTopWidth: StyleSheet.hairlineWidth,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 8,
+    // Dark canvas: the hairline top border is the separator. No drop shadow.
+    shadowColor: 'transparent',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
   },
   tab: {
     flex: 1,
@@ -509,7 +513,20 @@ export default function AppNavigator() {
   return (
     <ThemeProvider>
     <NavigationContainer ref={navigationRef} linking={linking as any}>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+          // Dark, consistent headers for the few screens that use the default
+          // native header (PaymentWebView, InAppWebView, Notifications,
+          // OrganizerEventManagement, OrganizerEventStaff, OrganizerPromoCodes).
+          // Screens with their own in-screen headers set headerShown:false and
+          // are unaffected.
+          headerStyle: { backgroundColor: '#0A0A0A' },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: { color: '#FFFFFF', fontWeight: '700' },
+          headerShadowVisible: false,
+        }}
+      >
         {!user ? (
           <>
             <Stack.Screen name="Auth" component={AuthNavigator} />

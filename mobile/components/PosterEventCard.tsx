@@ -161,12 +161,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       width: '100%',
       alignItems: 'center',
       justifyContent: 'center',
-      borderRadius: 8,
+      borderRadius: 16,
       overflow: 'hidden',
       backgroundColor: colors.surfaceMuted,
     },
     posterInset: {
-      borderRadius: 14,
+      borderRadius: 16,
       overflow: 'hidden',
     },
     imgHidden: {

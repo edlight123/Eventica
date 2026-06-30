@@ -71,7 +71,7 @@ export default function ConnectButton({
 
   if (state === 'friends') {
     return (
-      <TouchableOpacity style={[styles.btn, styles.neutral]} onPress={onRemove} activeOpacity={0.8}>
+      <TouchableOpacity style={[styles.btn, styles.neutral]} onPress={onRemove} activeOpacity={0.8} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
         <Ionicons name="checkmark" size={size === 'sm' ? 14 : 16} color={colors.text} />
         <Text style={[styles.text, { color: colors.text }]}>Friends</Text>
       </TouchableOpacity>
@@ -80,7 +80,7 @@ export default function ConnectButton({
 
   if (state === 'request_sent') {
     return (
-      <TouchableOpacity style={[styles.btn, styles.neutral]} onPress={onRemove} activeOpacity={0.8}>
+      <TouchableOpacity style={[styles.btn, styles.neutral]} onPress={onRemove} activeOpacity={0.8} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
         <Ionicons name="time-outline" size={size === 'sm' ? 14 : 16} color={colors.textSecondary} />
         <Text style={[styles.text, { color: colors.textSecondary }]}>Requested</Text>
       </TouchableOpacity>

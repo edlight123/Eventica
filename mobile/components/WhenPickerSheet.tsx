@@ -36,7 +36,7 @@ export default function WhenPickerSheet({ visible, onClose, value, onSelect }: W
         <View style={styles.handle} />
         <View style={styles.header}>
           <Text style={styles.title}>{t('discover.when')}</Text>
-          <TouchableOpacity style={styles.closeBtn} onPress={onClose} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.closeBtn} onPress={onClose} activeOpacity={0.8} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <X size={20} color={colors.text} />
           </TouchableOpacity>
         </View>
@@ -67,7 +67,7 @@ export default function WhenPickerSheet({ visible, onClose, value, onSelect }: W
 
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
   StyleSheet.create({
-    backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.55)' },
+    backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)' },
     sheet: {
       position: 'absolute',
       left: 0,

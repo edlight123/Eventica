@@ -152,9 +152,10 @@ export default function TransferTicketModal({
     >
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
+          <View style={styles.handle} />
           <View style={styles.header}>
             <Text style={styles.title}>Transfer Ticket</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
               <X size={24} color={colors.text} />
             </TouchableOpacity>
           </View>
@@ -201,7 +202,8 @@ export default function TransferTicketModal({
                       emailError && styles.inputError
                     ]}
                     placeholder="friend@example.com"
-                    placeholderTextColor={colors.textSecondary}
+                    placeholderTextColor={colors.textTertiary}
+                    selectionColor={colors.primary}
                     value={toEmail}
                     onChangeText={(text) => {
                       setToEmail(text);
@@ -223,7 +225,8 @@ export default function TransferTicketModal({
                   <TextInput
                     style={[styles.input, styles.textArea]}
                     placeholder="Add a personal message..."
-                    placeholderTextColor={colors.textSecondary}
+                    placeholderTextColor={colors.textTertiary}
+                    selectionColor={colors.primary}
                     value={message}
                     onChangeText={setMessage}
                     multiline
@@ -285,7 +288,7 @@ export default function TransferTicketModal({
                   <Text style={styles.linkText} numberOfLines={2}>
                     {transferLink}
                   </Text>
-                  <TouchableOpacity onPress={handleCopyLink} style={styles.copyButton}>
+                  <TouchableOpacity onPress={handleCopyLink} style={styles.copyButton} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
                     <Copy size={20} color={colors.primary} />
                   </TouchableOpacity>
                 </View>
@@ -329,14 +332,25 @@ export default function TransferTicketModal({
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'flex-end',
   },
   modalContainer: {
     backgroundColor: colors.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingTop: 12,
     maxHeight: '90%',
+  },
+  handle: {
+    alignSelf: 'center',
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.border,
+    marginBottom: 8,
   },
   header: {
     flexDirection: 'row',
@@ -407,7 +421,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 8,
   },
   input: {
-    backgroundColor: colors.background,
+    backgroundColor: colors.surfaceRaised,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 12,
@@ -455,7 +469,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: 12,
   },
   cancelButton: {
-    backgroundColor: colors.background,
+    backgroundColor: 'transparent',
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -498,7 +512,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   linkBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.background,
+    backgroundColor: colors.surfaceRaised,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 12,

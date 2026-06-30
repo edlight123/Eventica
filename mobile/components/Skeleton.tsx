@@ -46,12 +46,12 @@ export function Skeleton({ width = '100%', height = 16, radius = 8, style }: Ske
 
 /**
  * Matches PosterEventCard: a transparent card (no border/fill) with a
- * rounded-8 poster, then a title line and a date/price meta row beneath it.
+ * rounded-16 poster, then a title line and a date/price meta row beneath it.
  */
 export function PosterCardSkeleton({ width, ratio = 1.25 }: { width?: number; ratio?: number }) {
   return (
     <View style={width ? { width } : { flex: 1 }}>
-      <Skeleton height={undefined as any} radius={8} style={{ width: '100%', aspectRatio: 1 / ratio } as ViewStyle} />
+      <Skeleton height={undefined as any} radius={16} style={{ width: '100%', aspectRatio: 1 / ratio } as ViewStyle} />
       <View style={styles.posterMeta}>
         <Skeleton width={'78%'} height={13} radius={6} />
         <View style={styles.posterMetaRow}>
@@ -105,7 +105,7 @@ export function HomeFeedSkeleton({ sections = 3 }: { sections?: number }) {
 export function DiscoverCardSkeleton() {
   return (
     <View style={styles.discoverCard}>
-      <Skeleton height={DISCOVER_POSTER_H} radius={10} style={{ width: '100%' } as ViewStyle} />
+      <Skeleton height={DISCOVER_POSTER_H} radius={16} style={{ width: '100%' } as ViewStyle} />
       <View style={styles.discoverBody}>
         <View style={styles.discoverBodyText}>
           <Skeleton width={'88%'} height={20} radius={7} />
@@ -118,7 +118,7 @@ export function DiscoverCardSkeleton() {
           <Skeleton width={20} height={20} radius={10} />
         </View>
       </View>
-      <Skeleton height={52} radius={14} style={{ width: '100%', marginTop: 14 } as ViewStyle} />
+      <Skeleton height={52} radius={16} style={{ width: '100%', marginTop: 14 } as ViewStyle} />
     </View>
   );
 }
@@ -138,7 +138,7 @@ export function DiscoverFeedSkeleton({ count = 3 }: { count?: number }) {
 export function ListCardSkeleton() {
   return (
     <View style={styles.listCard}>
-      <Skeleton width={92} height={undefined as any} radius={12} style={{ aspectRatio: 4 / 5 } as ViewStyle} />
+      <Skeleton width={92} height={undefined as any} radius={16} style={{ aspectRatio: 4 / 5 } as ViewStyle} />
       <View style={styles.listBody}>
         <Skeleton width={'82%'} height={15} radius={6} />
         <Skeleton width={'55%'} height={12} radius={5} />

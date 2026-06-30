@@ -249,7 +249,7 @@ const getStyles = (colors: any) =>
       width: 40,
       height: 40,
       borderRadius: 20,
-      backgroundColor: colors.borderLight,
+      backgroundColor: colors.surfaceRaised,
       alignItems: 'center',
       justifyContent: 'center',
       borderWidth: 2,

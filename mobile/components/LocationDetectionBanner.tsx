@@ -165,14 +165,16 @@ export default function LocationDetectionBanner() {
             style={styles.dismissButton}
             onPress={handleDismiss}
             disabled={updating}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           >
             <X size={20} color={colors.textSecondary} />
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             style={styles.acceptButton}
             onPress={handleAccept}
             disabled={updating}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           >
             {updating ? (
               <Text style={styles.acceptButtonText}>...</Text>
@@ -241,7 +243,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.background,
+    backgroundColor: colors.surfaceRaised,
   },
   acceptButton: {
     width: 36,
