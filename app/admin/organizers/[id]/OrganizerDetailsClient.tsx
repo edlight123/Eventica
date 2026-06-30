@@ -100,8 +100,49 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
     }
   }
 
+  const handleVerify = async (verify: boolean) => {
+    const name = user.full_name || user.email || 'This organizer'
+    const ok = await confirmDialog({
+      title: verify ? 'Verify this organizer?' : 'Remove verification?',
+      description: verify
+        ? `${name} will be marked as a verified organizer (verified badge shown across the platform).`
+        : `${name} will no longer be marked as verified.`,
+      confirmLabel: verify ? 'Verify' : 'Remove verification',
+      variant: verify ? 'default' : 'danger',
+    })
+    if (!ok) {
+      return
+    }
+
+    setIsUpdating(true)
+    setMessage(null)
+
+    try {
+      const response = await fetch('/api/admin/verify-organizer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ organizerId: id, isVerified: verify }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update verification')
+      }
+
+      setMessage({ type: 'success', text: data.message || (verify ? 'Organizer verified' : 'Verification removed') })
+      // Refresh page to show updated data
+      window.location.reload()
+    } catch (error: any) {
+      setMessage({ type: 'error', text: error.message })
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
   const isBanned = user.status === 'banned'
   const canPost = user.can_create_events !== false
+  const isVerified = user.is_verified === true || user.verification_status === 'approved'
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-6">
@@ -142,6 +183,24 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
 
         {/* Quick Actions */}
         <div className="flex flex-col gap-2 sm:min-w-[200px]">
+          {isVerified ? (
+            <button
+              onClick={() => handleVerify(false)}
+              disabled={isUpdating}
+              className="rounded-lg border border-white/10 px-4 py-2.5 text-sm font-semibold text-white/70 hover:bg-white/[0.04] disabled:opacity-50"
+            >
+              Remove Verification
+            </button>
+          ) : (
+            <button
+              onClick={() => handleVerify(true)}
+              disabled={isUpdating}
+              className="rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
+            >
+              ✓ Verify Organizer
+            </button>
+          )}
+
           {isBanned ? (
             <button
               onClick={() => handleToggleStatus('unban')}

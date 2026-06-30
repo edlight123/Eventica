@@ -8,6 +8,7 @@ import VerifyOrganizerForm from './VerifyOrganizerForm'
 import { EditorialHeader } from '@/components/ui/EditorialHeader'
 import { useConfirm } from '@/components/ui/ConfirmProvider'
 import { useToast } from '@/components/ui/Toast'
+import { Search, Download, Check, ArrowUp, ArrowDown, ChevronDown } from 'lucide-react'
 
 type AdminVerifyClientProps = {
   requestsWithUsers: any[]
@@ -182,15 +183,6 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
     link.click()
   }
 
-  const toggleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
-    } else {
-      setSortField(field)
-      setSortDirection('desc')
-    }
-  }
-
   const toggleSelectAll = () => {
     if (selectedIds.size === filteredRequests.length) {
       setSelectedIds(new Set())
@@ -216,196 +208,190 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
     { key: 'all', label: t('verify.all') },
   ]
 
+  const sortFields: Array<{ key: SortField; label: string }> = [
+    { key: 'date', label: 'Date' },
+    { key: 'name', label: 'Name' },
+    { key: 'email', label: 'Email' },
+    { key: 'country', label: 'Country' },
+  ]
+
+  const kpis: Array<{ label: string; value: string | number; tone: string }> = [
+    { label: 'Pending', value: analytics.pending, tone: 'text-amber-300' },
+    { label: 'Changes req.', value: analytics.changesRequested, tone: 'text-amber-300' },
+    { label: 'Approved', value: analytics.approved, tone: 'text-emerald-300' },
+    { label: 'Rejected', value: analytics.rejected, tone: 'text-red-300' },
+    { label: 'Approval rate', value: `${analytics.approvalRate}%`, tone: 'text-brand-300' },
+  ]
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      {/* Analytics Dashboard */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-4 sm:mb-5">
-        <div className="bg-[#0a0a0a] rounded-lg  p-3 sm:p-4">
-          <p className="text-[11px] sm:text-xs text-white/50 uppercase font-medium">Pending</p>
-          <p className="text-xl sm:text-2xl font-bold text-amber-300 mt-1">{analytics.pending}</p>
-        </div>
-        <div className="bg-[#0a0a0a] rounded-lg  p-3 sm:p-4">
-          <p className="text-[11px] sm:text-xs text-white/50 uppercase font-medium">Approved</p>
-          <p className="text-xl sm:text-2xl font-bold text-emerald-300 mt-1">{analytics.approved}</p>
-        </div>
-        <div className="bg-[#0a0a0a] rounded-lg  p-3 sm:p-4">
-          <p className="text-[11px] sm:text-xs text-white/50 uppercase font-medium">Changes Req.</p>
-          <p className="text-xl sm:text-2xl font-bold text-amber-300 mt-1">{analytics.changesRequested}</p>
-        </div>
-        <div className="bg-[#0a0a0a] rounded-lg  p-3 sm:p-4">
-          <p className="text-[11px] sm:text-xs text-white/50 uppercase font-medium">Total</p>
-          <p className="text-xl sm:text-2xl font-bold text-white mt-1">{analytics.total}</p>
-        </div>
-        <div className="bg-[#0a0a0a] rounded-lg  p-3 sm:p-4 col-span-2">
-          <p className="text-[11px] sm:text-xs text-white/50 uppercase font-medium">Approval Rate</p>
-          <p className="text-xl sm:text-2xl font-bold text-brand-300 mt-1">{analytics.approvalRate}%</p>
-        </div>
+      <EditorialHeader
+        title={t('verify.title')}
+        subtitle={t('verify.subtitle')}
+        className="mb-5"
+      />
+
+      {/* KPI strip — hairline grid via 1px gap over a faint backdrop */}
+      <div className="mb-6 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-white/10 bg-white/10 sm:grid-cols-3 lg:grid-cols-5">
+        {kpis.map((k) => (
+          <div key={k.label} className="bg-[#0a0a0a] p-4">
+            <p className="text-[11px] uppercase tracking-wide text-white/50">{k.label}</p>
+            <p className={`mt-1 text-2xl font-bold tabular-nums ${k.tone}`}>{k.value}</p>
+          </div>
+        ))}
       </div>
 
-      {/* Verification Requests Section */}
-      <div className="bg-[#0a0a0a] rounded-xl sm:rounded-2xl shadow-sm  p-4 sm:p-6 mb-5">
-        <EditorialHeader
-          title={t('verify.title')}
-          subtitle={t('verify.subtitle')}
-          className="mb-4 sm:mb-5"
-        />
-
-        {/* Status tabs */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          {tabs.map(tab => {
-            const active = requestedStatus === tab.key
+      {/* Toolbar: status filter + search + sort + export */}
+      <div className="mb-5 space-y-3">
+        {/* Status filter pills */}
+        <div
+          className="inline-flex flex-wrap gap-1 rounded-full border border-white/10 p-1"
+          role="tablist"
+          aria-label="Filter by status"
+        >
+          {tabs.map((tabItem) => {
+            const active = requestedStatus === tabItem.key
             return (
               <button
-                key={tab.key}
+                key={tabItem.key}
                 type="button"
-                onClick={() => setStatus(tab.key)}
-                className={
-                  active
-                    ? 'px-3 py-1.5 rounded-full text-[13px] sm:text-sm font-semibold bg-brand-700 text-white'
-                    : 'px-3 py-1.5 rounded-full text-[13px] sm:text-sm font-medium bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
-                }
+                role="tab"
+                aria-selected={active}
+                onClick={() => setStatus(tabItem.key)}
+                className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
+                  active ? 'bg-white/[0.08] text-white' : 'text-white/50 hover:text-white'
+                }`}
               >
-                {tab.label}
+                {tabItem.label}
               </button>
             )
           })}
         </div>
 
-        {/* Search and Controls */}
-        <div className="mb-6 space-y-3">
-          <div className="flex flex-col sm:flex-row gap-3">
-            {/* Search */}
-            <div className="flex-1">
-              <input
-                type="text"
-                placeholder="Search by name, email, or country..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent text-[15px]"
-              />
+        {/* Search + sort + export */}
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+            <input
+              type="text"
+              placeholder="Search by name, email, or country…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full rounded-lg border border-white/10 bg-transparent py-2 pl-9 pr-3 text-sm text-white placeholder:text-white/40 focus:border-white/25 focus:outline-none"
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <select
+                value={sortField}
+                onChange={(e) => setSortField(e.target.value as SortField)}
+                className="appearance-none rounded-lg border border-white/10 bg-transparent py-2 pl-3 pr-8 text-sm text-white/80 focus:border-white/25 focus:outline-none"
+                aria-label="Sort by"
+              >
+                {sortFields.map((f) => (
+                  <option key={f.key} value={f.key} className="bg-[#0a0a0a] text-white">
+                    Sort: {f.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
             </div>
-            
-            {/* Export Button */}
+
+            <button
+              type="button"
+              onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
+              className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 text-white/70 hover:bg-white/[0.04]"
+              aria-label={sortDirection === 'asc' ? 'Ascending' : 'Descending'}
+              title={sortDirection === 'asc' ? 'Ascending' : 'Descending'}
+            >
+              {sortDirection === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
+            </button>
+
             <button
               onClick={handleExportCSV}
               disabled={filteredRequests.length === 0}
-              className="px-4 py-2 bg-[#0a0a0a] hover:bg-white/[0.04] text-white/70 rounded-lg text-[13px] sm:text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm font-medium text-white/70 hover:bg-white/[0.04] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              📥 Export CSV
+              <Download className="h-4 w-4" />
+              Export
             </button>
           </div>
-
-          {/* Sort Controls */}
-          <div className="flex flex-wrap gap-2">
-            <span className="text-[13px] text-white/60 py-1">Sort by:</span>
-            <button
-              onClick={() => toggleSort('date')}
-              className={`px-3 py-1 rounded-full text-[12px] sm:text-xs font-medium ${
-                sortField === 'date' ? 'text-brand-300' : 'bg-[#0a0a0a] text-white/70'
-              }`}
-            >
-              Date {sortField === 'date' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </button>
-            <button
-              onClick={() => toggleSort('name')}
-              className={`px-3 py-1 rounded-full text-[12px] sm:text-xs font-medium ${
-                sortField === 'name' ? 'text-brand-300' : 'bg-[#0a0a0a] text-white/70'
-              }`}
-            >
-              Name {sortField === 'name' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </button>
-            <button
-              onClick={() => toggleSort('email')}
-              className={`px-3 py-1 rounded-full text-[12px] sm:text-xs font-medium ${
-                sortField === 'email' ? 'text-brand-300' : 'bg-[#0a0a0a] text-white/70'
-              }`}
-            >
-              Email {sortField === 'email' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </button>
-            <button
-              onClick={() => toggleSort('country')}
-              className={`px-3 py-1 rounded-full text-[12px] sm:text-xs font-medium ${
-                sortField === 'country' ? 'text-brand-300' : 'bg-[#0a0a0a] text-white/70'
-              }`}
-            >
-              Country {sortField === 'country' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </button>
-          </div>
-
-          {/* Bulk Actions */}
-          {requestedStatus === 'pending' && filteredRequests.length > 0 && (
-            <div className="flex items-center gap-3 pt-2 border-t border-white/10">
-              <input
-                type="checkbox"
-                checked={selectedIds.size === filteredRequests.length && filteredRequests.length > 0}
-                onChange={toggleSelectAll}
-                className="w-4 h-4 text-brand-300 rounded focus:ring-brand-600"
-              />
-              <span className="text-[13px] text-white/60">
-                {selectedIds.size > 0 ? `${selectedIds.size} selected` : 'Select all'}
-              </span>
-              {selectedIds.size > 0 && (
-                <button
-                  onClick={handleBulkApprove}
-                  disabled={bulkActionLoading}
-                  className="ml-auto px-4 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-[13px] font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {bulkActionLoading ? 'Processing...' : `✅ Approve ${selectedIds.size}`}
-                </button>
-              )}
-            </div>
-          )}
         </div>
 
-        {filteredRequests.length === 0 ? (
-          <p className="text-[13px] sm:text-base text-white/50 text-center py-6 sm:py-8">
-            {searchQuery ? `No results found for "${searchQuery}"` : requestedStatus === 'pending' ? t('verify.no_pending') : t('verify.all_caught_up')}
-          </p>
-        ) : (
-          <div className="space-y-4 sm:space-y-6">
-            {filteredRequests.map((request: any) => (
-              <div key={request.id} className="relative">
-                {requestedStatus === 'pending' && (
-                  <div className="absolute left-2 top-6 z-10">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.has(request.id)}
-                      onChange={() => toggleSelect(request.id)}
-                      className="w-5 h-5 text-brand-300 rounded focus:ring-brand-600 cursor-pointer"
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  </div>
-                )}
-                <div className={requestedStatus === 'pending' ? 'ml-10' : ''}>
-                  <VerificationRequestReview
-                    key={request.id}
-                    request={request}
-                    user={request.user}
-                  />
-                </div>
-              </div>
-            ))}
+        {/* Bulk actions */}
+        {requestedStatus === 'pending' && filteredRequests.length > 0 && (
+          <div className="flex items-center gap-3 rounded-lg border border-white/10 px-3 py-2">
+            <input
+              id="select-all-verify"
+              type="checkbox"
+              checked={selectedIds.size === filteredRequests.length && filteredRequests.length > 0}
+              onChange={toggleSelectAll}
+              className="h-4 w-4 accent-brand-500"
+            />
+            <label htmlFor="select-all-verify" className="text-[13px] text-white/60 cursor-pointer">
+              {selectedIds.size > 0 ? `${selectedIds.size} selected` : 'Select all'}
+            </label>
+            {selectedIds.size > 0 && (
+              <button
+                onClick={handleBulkApprove}
+                disabled={bulkActionLoading}
+                className="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-1.5 text-[13px] font-semibold text-white hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Check className="h-4 w-4" />
+                {bulkActionLoading ? 'Approving…' : `Approve ${selectedIds.size}`}
+              </button>
+            )}
           </div>
         )}
       </div>
 
-      {/* Quick Verification Toggle */}
-      <div className="bg-[#0a0a0a] rounded-xl sm:rounded-2xl shadow-sm  p-4 sm:p-8">
-        <details>
-          <summary className="cursor-pointer select-none">
-            <h2 className="inline font-display text-xl sm:text-2xl text-white">
-              {t('verify.quick_toggle_title')}
-            </h2>
-            <p className="text-[13px] sm:text-base text-white/60 mt-1 sm:mt-2">
-              {t('verify.quick_toggle_subtitle')}
-            </p>
-          </summary>
+      {/* Requests list */}
+      {filteredRequests.length === 0 ? (
+        <div className="rounded-xl border border-white/10 py-12 text-center">
+          <p className="text-sm text-white/50">
+            {searchQuery
+              ? `No results found for "${searchQuery}"`
+              : requestedStatus === 'pending'
+              ? t('verify.no_pending')
+              : t('verify.all_caught_up')}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {filteredRequests.map((request: any) => (
+            <div key={request.id} className="flex items-start gap-3">
+              {requestedStatus === 'pending' && (
+                <input
+                  type="checkbox"
+                  checked={selectedIds.has(request.id)}
+                  onChange={() => toggleSelect(request.id)}
+                  className="mt-5 h-5 w-5 shrink-0 accent-brand-500 cursor-pointer"
+                  onClick={(e) => e.stopPropagation()}
+                  aria-label="Select request"
+                />
+              )}
+              <div className="min-w-0 flex-1">
+                <VerificationRequestReview request={request} user={request.user} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
-          <div className="mt-6 sm:mt-8">
-            <VerifyOrganizerForm organizers={organizers} />
+      {/* Manual verification (verify any organizer by search) */}
+      <details className="group mt-6 rounded-xl border border-white/10">
+        <summary className="flex cursor-pointer select-none items-center justify-between gap-3 p-4">
+          <div>
+            <h2 className="text-base font-semibold text-white">{t('verify.quick_toggle_title')}</h2>
+            <p className="mt-0.5 text-[13px] text-white/55">{t('verify.quick_toggle_subtitle')}</p>
           </div>
-        </details>
-      </div>
+          <ChevronDown className="h-5 w-5 shrink-0 text-white/40 transition-transform group-open:rotate-180" />
+        </summary>
+        <div className="border-t border-white/10 p-4 sm:p-5">
+          <VerifyOrganizerForm organizers={organizers} />
+        </div>
+      </details>
     </div>
   )
 }
