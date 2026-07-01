@@ -175,16 +175,14 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
   const filteredEvents = filterEventsByTab(events, activeTab)
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
-      {/* Page Header */}
-      <div className="bg-[#0a0a0a] border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <EditorialHeader
-            eyebrow="Platform"
-            title="Events Moderation"
-            subtitle="Review and manage all events on the platform"
-          />
-        </div>
+    <div>
+      {/* Page Header — aligned with the breadcrumb + content column (matches other admin pages) */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-5">
+        <EditorialHeader
+          eyebrow="Platform"
+          title="Events Moderation"
+          subtitle="Review and manage all events on the platform"
+        />
       </div>
 
       {/* Top Bar */}

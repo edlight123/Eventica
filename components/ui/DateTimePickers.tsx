@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { CalendarDays, Clock, ChevronLeft, ChevronRight, Check } from 'lucide-react'
+import { CalendarDays, Clock, ChevronLeft, ChevronRight, Check, X } from 'lucide-react'
 import {
   format,
   addMonths,
@@ -36,60 +37,82 @@ function parseDateValue(value?: string): Date | null {
   return new Date(y, m - 1, d)
 }
 
-/** Close popover on outside click / Escape. */
-function useDismiss(open: boolean, close: () => void) {
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    if (!open) return
-    const onDown = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) close()
-    }
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') close()
-    }
-    document.addEventListener('mousedown', onDown)
-    document.addEventListener('keydown', onKey)
-    return () => {
-      document.removeEventListener('mousedown', onDown)
-      document.removeEventListener('keydown', onKey)
-    }
-  }, [open, close])
-  return ref
-}
-
 const triggerBase =
   'inline-flex items-center gap-2 rounded-lg border bg-[#0a0a0a] px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-white/[0.04] focus:outline-none focus:ring-2 focus:ring-brand-400/40'
 
+/**
+ * Centered modal, portaled to <body> so it can never be clipped by an ancestor
+ * with `overflow-hidden` / `transform` / `backdrop-blur`. Closes on backdrop
+ * click and Escape; locks body scroll while open.
+ */
+function PickerModal({
+  open,
+  onClose,
+  title,
+  children,
+  maxWidth = 'max-w-sm',
+}: {
+  open: boolean
+  onClose: () => void
+  title: string
+  children: React.ReactNode
+  maxWidth?: string
+}) {
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', onKey)
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prevOverflow
+    }
+  }, [open, onClose])
+
+  if (!open || typeof document === 'undefined') return null
+
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-end justify-center p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label={title}>
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]" onClick={onClose} aria-hidden="true" />
+      <div className={`relative z-[101] w-full ${maxWidth} rounded-t-2xl border border-white/10 bg-[#0a0a0a] p-4 shadow-2xl sm:rounded-2xl`}>
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-base font-semibold text-white">{title}</h3>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="grid h-8 w-8 place-items-center rounded-lg text-white/50 hover:bg-white/[0.06] hover:text-white"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>,
+    document.body
+  )
+}
+
 // ---------------------------------------------------------------------------
-// DatePicker
+// InlineCalendar — the month grid, controlled. Reused by DatePicker + others.
 // ---------------------------------------------------------------------------
 
-export function DatePicker({
+export function InlineCalendar({
   value,
   onChange,
   min,
-  invalid = false,
-  placeholder = 'Select date',
-  className = '',
 }: {
   value: string // 'yyyy-MM-dd'
   onChange: (value: string) => void
   min?: string // 'yyyy-MM-dd'
-  invalid?: boolean
-  placeholder?: string
-  className?: string
 }) {
   const locale = useDateLocale()
-  const [open, setOpen] = useState(false)
-  const ref = useDismiss(open, () => setOpen(false))
-
   const selected = parseDateValue(value)
   const minDate = parseDateValue(min)
   const [view, setView] = useState<Date>(() => selected || new Date())
-
-  useEffect(() => {
-    if (open && selected) setView(selected)
-  }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const weeks = useMemo(() => {
     const start = startOfWeek(startOfMonth(view), { locale })
@@ -105,20 +128,104 @@ export function DatePicker({
     [weeks, locale]
   )
 
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => setView((v) => subMonths(v, 1))}
+          className="grid h-9 w-9 place-items-center rounded-lg text-white/60 hover:bg-white/[0.06]"
+          aria-label="Previous month"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+        <span className="text-sm font-semibold capitalize text-white">
+          {format(view, 'LLLL yyyy', { locale })}
+        </span>
+        <button
+          type="button"
+          onClick={() => setView((v) => addMonths(v, 1))}
+          className="grid h-9 w-9 place-items-center rounded-lg text-white/60 hover:bg-white/[0.06]"
+          aria-label="Next month"
+        >
+          <ChevronRight className="h-5 w-5" />
+        </button>
+      </div>
+
+      <div className="mb-1 grid grid-cols-7 gap-0.5">
+        {weekdayLabels.map((w, i) => (
+          <div key={i} className="py-1 text-center text-[10px] font-medium uppercase tracking-wide text-white/35">
+            {w}
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7 gap-0.5">
+        {weeks.flat().map((day, i) => {
+          const inMonth = isSameMonth(day, view)
+          const isSel = selected && isSameDay(day, selected)
+          const disabled = minDate ? isBefore(startOfDay(day), startOfDay(minDate)) : false
+          return (
+            <button
+              key={i}
+              type="button"
+              disabled={disabled}
+              onClick={() => onChange(format(day, 'yyyy-MM-dd'))}
+              className={[
+                'grid h-10 place-items-center rounded-lg text-sm transition-colors',
+                isSel
+                  ? 'bg-brand-600 font-semibold text-white'
+                  : disabled
+                  ? 'cursor-not-allowed text-white/20'
+                  : inMonth
+                  ? 'text-white hover:bg-white/[0.08]'
+                  : 'text-white/30 hover:bg-white/[0.06]',
+                !isSel && isToday(day) ? 'ring-1 ring-inset ring-brand-400/50' : '',
+              ].join(' ')}
+            >
+              {format(day, 'd')}
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// DatePicker
+// ---------------------------------------------------------------------------
+
+export function DatePicker({
+  value,
+  onChange,
+  min,
+  invalid = false,
+  placeholder = 'Select date',
+  title = 'Pick a date',
+  className = '',
+}: {
+  value: string // 'yyyy-MM-dd'
+  onChange: (value: string) => void
+  min?: string // 'yyyy-MM-dd'
+  invalid?: boolean
+  placeholder?: string
+  title?: string
+  className?: string
+}) {
+  const locale = useDateLocale()
+  const [open, setOpen] = useState(false)
+  const selected = parseDateValue(value)
+
   const label = selected
     ? `${format(selected, 'EEE', { locale })}, ${format(selected, 'PP', { locale })}`
     : placeholder
 
-  const pick = (day: Date) => {
-    onChange(format(day, 'yyyy-MM-dd'))
-    setOpen(false)
-  }
-
   return (
-    <div ref={ref} className="relative">
+    <>
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={open}
         className={`${triggerBase} ${invalid ? 'border-red-400/60' : 'border-white/10'} ${selected ? '' : 'text-white/45'} ${className}`}
@@ -127,72 +234,17 @@ export function DatePicker({
         {label}
       </button>
 
-      {open && (
-        <div
-          role="dialog"
-          className="absolute right-0 z-50 mt-2 w-[284px] rounded-xl border border-white/10 bg-[#0a0a0a] p-3 shadow-2xl"
-        >
-          <div className="mb-2 flex items-center justify-between">
-            <button
-              type="button"
-              onClick={() => setView((v) => subMonths(v, 1))}
-              className="grid h-8 w-8 place-items-center rounded-lg text-white/60 hover:bg-white/[0.06]"
-              aria-label="Previous month"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <span className="text-sm font-semibold capitalize text-white">
-              {format(view, 'LLLL yyyy', { locale })}
-            </span>
-            <button
-              type="button"
-              onClick={() => setView((v) => addMonths(v, 1))}
-              className="grid h-8 w-8 place-items-center rounded-lg text-white/60 hover:bg-white/[0.06]"
-              aria-label="Next month"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-
-          <div className="mb-1 grid grid-cols-7 gap-0.5">
-            {weekdayLabels.map((w, i) => (
-              <div key={i} className="py-1 text-center text-[10px] font-medium uppercase tracking-wide text-white/35">
-                {w}
-              </div>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-7 gap-0.5">
-            {weeks.flat().map((day, i) => {
-              const inMonth = isSameMonth(day, view)
-              const isSel = selected && isSameDay(day, selected)
-              const disabled = minDate ? isBefore(startOfDay(day), startOfDay(minDate)) : false
-              return (
-                <button
-                  key={i}
-                  type="button"
-                  disabled={disabled}
-                  onClick={() => pick(day)}
-                  className={[
-                    'grid h-9 place-items-center rounded-lg text-sm transition-colors',
-                    isSel
-                      ? 'bg-brand-600 font-semibold text-white'
-                      : disabled
-                      ? 'cursor-not-allowed text-white/20'
-                      : inMonth
-                      ? 'text-white hover:bg-white/[0.08]'
-                      : 'text-white/30 hover:bg-white/[0.06]',
-                    !isSel && isToday(day) ? 'ring-1 ring-inset ring-brand-400/50' : '',
-                  ].join(' ')}
-                >
-                  {format(day, 'd')}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      )}
-    </div>
+      <PickerModal open={open} onClose={() => setOpen(false)} title={title}>
+        <InlineCalendar
+          value={value}
+          min={min}
+          onChange={(d) => {
+            onChange(d)
+            setOpen(false)
+          }}
+        />
+      </PickerModal>
+    </>
   )
 }
 
@@ -220,16 +272,17 @@ export function TimePicker({
   value,
   onChange,
   placeholder = 'Select time',
+  title = 'Pick a time',
   className = '',
 }: {
   value: string // 'HH:mm'
   onChange: (value: string) => void
   placeholder?: string
+  title?: string
   className?: string
 }) {
   const locale = useDateLocale()
   const [open, setOpen] = useState(false)
-  const ref = useDismiss(open, () => setOpen(false))
   const listRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -242,10 +295,10 @@ export function TimePicker({
   const label = value ? timeLabel(value, locale) : placeholder
 
   return (
-    <div ref={ref} className="relative">
+    <>
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => setOpen(true)}
         aria-haspopup="listbox"
         aria-expanded={open}
         className={`${triggerBase} border-white/10 ${value ? '' : 'text-white/45'} ${className}`}
@@ -254,12 +307,8 @@ export function TimePicker({
         {label}
       </button>
 
-      {open && (
-        <div
-          ref={listRef}
-          role="listbox"
-          className="absolute right-0 z-50 mt-2 max-h-64 w-40 overflow-y-auto rounded-xl border border-white/10 bg-[#0a0a0a] p-1 shadow-2xl"
-        >
+      <PickerModal open={open} onClose={() => setOpen(false)} title={title} maxWidth="max-w-xs">
+        <div ref={listRef} role="listbox" className="max-h-[60vh] overflow-y-auto rounded-lg">
           {TIME_OPTIONS.map((opt) => {
             const isSel = opt === value
             return (
@@ -273,7 +322,7 @@ export function TimePicker({
                   onChange(opt)
                   setOpen(false)
                 }}
-                className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+                className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm transition-colors ${
                   isSel ? 'bg-brand-600 font-semibold text-white' : 'text-white/80 hover:bg-white/[0.08]'
                 }`}
               >
@@ -283,7 +332,7 @@ export function TimePicker({
             )
           })}
         </div>
-      )}
-    </div>
+      </PickerModal>
+    </>
   )
 }

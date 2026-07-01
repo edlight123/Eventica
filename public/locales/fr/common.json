@@ -72,7 +72,12 @@
     "Health & Wellness": "Santé et Bien-être",
     "Party": "Fête",
     "Religious": "Religieux",
-    "Other": "Autre"
+    "Other": "Autre",
+    "Concert": "Concert",
+    "Festival": "Festival",
+    "Conference": "Conférence",
+    "Workshop": "Atelier",
+    "Theater": "Théâtre"
   },
   "filters": {
     "filters": "Filtres",
@@ -482,4 +487,3 @@
     "delete_selected": "Supprimer la sélection"
   }
 }
-

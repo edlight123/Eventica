@@ -72,7 +72,12 @@
     "Health & Wellness": "Sante ak Byennèt",
     "Party": "Fèt",
     "Religious": "Relijye",
-    "Other": "Lòt"
+    "Other": "Lòt",
+    "Concert": "Konsè",
+    "Festival": "Festival",
+    "Conference": "Konferans",
+    "Workshop": "Atelye",
+    "Theater": "Teyat"
   },
   "filters": {
     "filters": "Filt",
@@ -482,4 +487,3 @@
     "delete_selected": "Efase seleksyon"
   }
 }
-
