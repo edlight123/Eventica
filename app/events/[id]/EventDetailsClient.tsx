@@ -84,7 +84,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
             {/* Poster image — portrait poster shape */}
             <div className="mx-auto w-full max-w-[320px] lg:mx-0 lg:max-w-none">
               <div
-                className="poster-vignette relative aspect-[4/5] overflow-hidden rounded-2xl shadow-poster ring-1 ring-white/10"
+                className="poster-vignette relative aspect-[4/5] overflow-hidden rounded-none shadow-poster ring-1 ring-white/10"
                 style={event.banner_image_url ? undefined : { backgroundImage: posterTheme.bg }}
               >
                 {event.banner_image_url ? (
@@ -139,7 +139,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
               </div>
 
               {/* Title */}
-              <h1 className="font-display text-[clamp(30px,4vw,52px)] leading-[1.03] text-white mb-4">
+              <h1 className="font-display italic text-[clamp(30px,4vw,52px)] leading-[1.03] text-white mb-4">
                 {event.title}
               </h1>
 
@@ -169,11 +169,11 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                     <Calendar className="w-4 h-4 md:w-5 md:h-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-[11px] md:text-xs text-white/40 mb-0.5">{t('events.date_time')}</p>
-                    <p className="text-white font-semibold text-[13px] md:text-sm">
+                    <p className="label-mono text-[10px] md:text-[11px] uppercase text-white/40 mb-1">{t('events.date_time')}</p>
+                    <p className="label-mono text-white text-[12px] md:text-[13px]">
                       {format(new Date(event.start_datetime), 'MMM d, yyyy')}
                     </p>
-                    <p className="text-white/40 text-[11px] md:text-xs">
+                    <p className="label-mono text-white/40 text-[11px] md:text-xs">
                       {format(new Date(event.start_datetime), 'h:mm a')}
                     </p>
                   </div>
@@ -185,11 +185,11 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                     <MapPin className="w-4 h-4 md:w-5 md:h-5 text-white" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] md:text-xs text-white/40 mb-0.5">{t('events.venue_name')}</p>
-                    <p className="text-white font-semibold text-[13px] md:text-sm line-clamp-1">
+                    <p className="label-mono text-[10px] md:text-[11px] uppercase text-white/40 mb-1">{t('events.venue_name')}</p>
+                    <p className="label-mono text-white text-[12px] md:text-[13px] line-clamp-1">
                       {event.venue_name}
                     </p>
-                    <p className="text-white/40 text-[11px] md:text-xs line-clamp-1">
+                    <p className="label-mono text-white/40 text-[11px] md:text-xs line-clamp-1">
                       {event.city}
                     </p>
                   </div>
@@ -201,8 +201,8 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                     <Users className="w-4 h-4 md:w-5 md:h-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-[11px] md:text-xs text-white/40 mb-0.5">{t('events.availability')}</p>
-                    <p className="text-white font-semibold text-[13px] md:text-sm">
+                    <p className="label-mono text-[10px] md:text-[11px] uppercase text-white/40 mb-1">{t('events.availability')}</p>
+                    <p className="label-mono text-white text-[12px] md:text-[13px] uppercase">
                       {isSoldOut ? t('ticket.sold_out') : isFree ? t('common.free') : t('ticket.available')}
                     </p>
                   </div>
@@ -312,11 +312,11 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
               </h2>
               <div className="space-y-2.5">
                 <div>
-                  <p className="text-xs font-semibold text-white/50 mb-1">{t('events.venue_name')}</p>
+                  <p className="label-mono text-[11px] uppercase text-white/50 mb-1.5">{t('events.venue_name')}</p>
                   <p className="text-base font-semibold text-white">{event.venue_name}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-white/50 mb-1">{t('events.address')}</p>
+                  <p className="label-mono text-[11px] uppercase text-white/50 mb-1.5">{t('events.address')}</p>
                   <div className="space-y-1.5">
                     <div>
                       <p className="text-[15px] text-white/70">{event.address || t('events.address_not_specified')}</p>
@@ -356,21 +356,21 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
               </h2>
               <div className="space-y-3">
                 <div>
-                  <p className="text-xs font-semibold text-white/50 mb-1">{t('events.start')}</p>
-                  <p className="text-base font-semibold text-white">
+                  <p className="label-mono text-[11px] uppercase text-white/50 mb-1.5">{t('events.start')}</p>
+                  <p className="label-mono text-[15px] text-white">
                     {format(new Date(event.start_datetime), 'EEEE, MMMM d, yyyy')}
                   </p>
-                  <p className="text-sm text-white/55">
+                  <p className="label-mono text-[13px] text-white/55">
                     {format(new Date(event.start_datetime), 'h:mm a')}
                   </p>
                 </div>
                 {event.end_datetime && (
                   <div>
-                    <p className="text-xs font-semibold text-white/50 mb-1">{t('events.end')}</p>
-                    <p className="text-base font-semibold text-white">
+                    <p className="label-mono text-[11px] uppercase text-white/50 mb-1.5">{t('events.end')}</p>
+                    <p className="label-mono text-[15px] text-white">
                       {format(new Date(event.end_datetime), 'EEEE, MMMM d, yyyy')}
                     </p>
-                    <p className="text-sm text-white/55">
+                    <p className="label-mono text-[13px] text-white/55">
                       {format(new Date(event.end_datetime), 'h:mm a')}
                     </p>
                   </div>
@@ -409,15 +409,15 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
               <div className="mb-6">
                 {isFree ? (
                   <div>
-                    <p className="text-3xl font-bold text-brand-400">{t('common.free')}</p>
-                    <p className="text-sm text-white/55 mt-1">{t('events.no_ticket_required')}</p>
+                    <p className="label-mono text-3xl font-semibold uppercase text-brand-400">{t('common.free')}</p>
+                    <p className="label-mono text-[11px] uppercase text-white/55 mt-1.5">{t('events.no_ticket_required')}</p>
                   </div>
                 ) : (
                   <div>
-                    <p className="text-3xl font-bold text-white">
-                      {event.currency || 'HTG'} {(event.ticket_price || 0).toLocaleString()}
+                    <p className="label-mono text-3xl font-semibold text-brand-400">
+                      <span className="text-base text-white/45">{event.currency || 'HTG'}</span> {(event.ticket_price || 0).toLocaleString()}
                     </p>
-                    <p className="text-sm text-white/55 mt-1">{t('events.per_ticket')}</p>
+                    <p className="label-mono text-[11px] uppercase text-white/55 mt-1.5">{t('events.per_ticket')}</p>
                   </div>
                 )}
               </div>

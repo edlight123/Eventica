@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
+import { font } from '../theme/tokens';
 
 interface CountdownTimerProps {
   targetDate: Date;
@@ -81,9 +82,9 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   heading: {
-    fontSize: 13,
-    fontWeight: '600',
-    letterSpacing: 0.5,
+    fontFamily: font.mono,
+    fontSize: 12,
+    letterSpacing: 0.8,
     marginBottom: 8,
     textTransform: 'uppercase',
   },
@@ -97,16 +98,16 @@ const styles = StyleSheet.create({
     minWidth: 48,
   },
   unitValue: {
+    fontFamily: font.mono,
     fontSize: 28,
-    fontWeight: '700',
     fontVariant: ['tabular-nums'],
   },
   unitLabel: {
-    fontSize: 11,
-    fontWeight: '500',
+    fontFamily: font.mono,
+    fontSize: 10,
     marginTop: 2,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
   },
   separator: {
     fontSize: 24,

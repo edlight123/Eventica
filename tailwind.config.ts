@@ -61,6 +61,7 @@ const config: Config = {
         display: ['var(--font-serif-display)', 'Instrument Serif', 'Georgia', 'serif'],
         serif: ['var(--font-serif-display)', 'Instrument Serif', 'Georgia', 'serif'],
         grotesk: ['var(--font-grotesk)', 'Space Grotesk', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-mono)', 'JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       fontSize: {
         'xs': ['0.75rem', { lineHeight: '1rem' }],

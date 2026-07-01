@@ -35,7 +35,7 @@ import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { colors as T } from '../theme/tokens';
+import { colors as T, font } from '../theme/tokens';
 import { format } from 'date-fns';
 import PaymentModal from '../components/PaymentModal';
 import TieredTicketSelector from '../components/TieredTicketSelector';
@@ -651,7 +651,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   heroPoster: {
     width: POSTER_W,
     aspectRatio: 4 / 5,
-    borderRadius: 8,
+    borderRadius: 0,
     overflow: 'hidden',
     backgroundColor: colors.surfaceMuted,
     shadowColor: '#000',
@@ -774,14 +774,17 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 2,
   },
   factValue: {
-    fontSize: 15.5,
-    fontWeight: '600',
+    fontFamily: font.mono,
+    fontSize: 13.5,
+    letterSpacing: 0.3,
     color: colors.text,
   },
   factSub: {
-    fontSize: 13.5,
+    fontFamily: font.monoRegular,
+    fontSize: 12,
+    letterSpacing: 0.3,
     color: colors.textSecondary,
-    lineHeight: 19,
+    lineHeight: 18,
   },
   factDivider: {
     height: StyleSheet.hairlineWidth,
@@ -1065,10 +1068,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '800',
   },
   ctaButtonPrice: {
+    fontFamily: font.mono,
     color: T.onTeal,
     opacity: 0.7,
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: 13,
+    letterSpacing: 0.3,
   },
   ctaDisabled: {
     backgroundColor: colors.surfaceRaised,

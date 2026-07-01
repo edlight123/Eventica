@@ -49,12 +49,12 @@ export default function MobileKeyFacts({
             <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <Calendar className="w-4 h-4 text-brand-400" />
             </div>
-            <span className="text-xs font-semibold text-white/50">{t('date')}</span>
+            <span className="label-mono text-[10px] uppercase text-white/50">{t('date')}</span>
           </div>
-          <p className="text-sm font-bold text-white line-clamp-1">
+          <p className="label-mono text-[13px] text-white line-clamp-1">
             {format(new Date(startDate), 'MMM d, yyyy')}
           </p>
-          <p className="text-xs text-white/55">
+          <p className="label-mono text-[11px] text-white/55">
             {format(new Date(startDate), 'h:mm a')}
           </p>
         </div>
@@ -65,9 +65,9 @@ export default function MobileKeyFacts({
             <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <MapPin className="w-4 h-4 text-brand-400" />
             </div>
-            <span className="text-xs font-semibold text-white/50">{t('location')}</span>
+            <span className="label-mono text-[10px] uppercase text-white/50">{t('location')}</span>
           </div>
-          <p className="text-sm font-bold text-white line-clamp-1 min-w-0 break-words">
+          <p className="label-mono text-[13px] text-white line-clamp-1 min-w-0 break-words">
             {venueName}
           </p>
           <button
@@ -84,18 +84,18 @@ export default function MobileKeyFacts({
             <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <DollarSign className="w-4 h-4 text-emerald-400" />
             </div>
-            <span className="text-xs font-semibold text-white/50">{t('price')}</span>
+            <span className="label-mono text-[10px] uppercase text-white/50">{t('price')}</span>
           </div>
           {isFree ? (
-            <p className="text-sm font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">
+            <p className="label-mono text-[13px] font-semibold uppercase text-brand-300">
               {t('free').toUpperCase()}
             </p>
           ) : (
             <>
-              <p className="text-sm font-bold text-white">
-                {ticketPrice} {currency}
+              <p className="label-mono text-[13px] font-semibold text-brand-300">
+                {ticketPrice.toLocaleString()} <span className="text-[11px] text-white/45">{currency}</span>
               </p>
-              <p className="text-xs text-white/55">{t('per_ticket')}</p>
+              <p className="label-mono text-[11px] uppercase text-white/55">{t('per_ticket')}</p>
             </>
           )}
         </div>
@@ -106,13 +106,13 @@ export default function MobileKeyFacts({
             <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <Users className="w-4 h-4 text-brand-400" />
             </div>
-            <span className="text-xs font-semibold text-white/50">{t('ticket.tickets')}</span>
+            <span className="label-mono text-[10px] uppercase text-white/50">{t('ticket.tickets')}</span>
           </div>
-          <p className={`text-sm font-bold ${isSoldOut ? 'text-red-400' : remainingTickets < 10 ? 'text-amber-400' : 'text-white'}`}>
+          <p className={`label-mono text-[13px] uppercase ${isSoldOut ? 'text-red-400' : remainingTickets < 10 ? 'text-amber-400' : 'text-white'}`}>
             {isSoldOut ? t('ticket.sold_out') : t('ticket.remaining', { count: remainingTickets })}
           </p>
           {!isSoldOut && remainingTickets < 10 && (
-            <p className="text-xs text-amber-600 font-medium">{t('ticket.almost_gone')}</p>
+            <p className="label-mono text-[10px] uppercase text-amber-500">{t('ticket.almost_gone')}</p>
           )}
         </div>
       </div>

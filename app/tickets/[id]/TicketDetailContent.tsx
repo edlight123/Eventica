@@ -67,7 +67,7 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
             </div>
 
             <div className="mb-6 text-center w-full">
-              <p className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-2">
+              <p className="label-mono text-[11px] text-white/50 uppercase mb-2">
                 {t('detail.ticket_code')}
               </p>
               <div className="flex justify-center">
@@ -108,7 +108,7 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
         {/* Right Column - Event Details */}
         <div className="space-y-4 sm:space-y-6">
           {/* Event Banner Card */}
-          <div className="bg-[#0a0a0a]  rounded-2xl overflow-hidden">
+          <div className="bg-[#0a0a0a]  rounded-none overflow-hidden">
             {event.banner_image_url ? (
               <div className="relative w-full h-40 sm:h-48">
                 <Image
@@ -127,7 +127,7 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
             )}
             
             <div className="p-4 sm:p-6">
-              <h1 className="text-xl sm:text-2xl font-bold text-white mb-2">{cleanTitle}</h1>
+              <h1 className="font-display italic text-2xl sm:text-3xl text-white mb-2">{cleanTitle}</h1>
               <a
                 href={`/events/${event.id}`}
                 className="text-sm text-brand-300 hover:text-brand-300 font-medium inline-flex items-center gap-1"
@@ -141,13 +141,13 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
                     <Calendar className="w-5 h-5 text-brand-300" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-1">
+                    <p className="label-mono text-[10px] text-white/50 uppercase mb-1.5">
                       {t('detail.date')}
                     </p>
-                    <p className="font-bold text-white text-sm">
+                    <p className="label-mono text-white text-[13px]">
                       {format(new Date(event.start_datetime || event.date), 'MMM d, yyyy')}
                     </p>
-                    <p className="text-sm text-white/60">
+                    <p className="label-mono text-[13px] text-white/60">
                       {format(new Date(event.start_datetime || event.date), 'h:mm a')}
                     </p>
                   </div>
@@ -158,13 +158,13 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
                     <MapPin className="w-5 h-5 text-brand-300" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-1">
+                    <p className="label-mono text-[10px] text-white/50 uppercase mb-1.5">
                       {t('detail.venue')}
                     </p>
-                    <p className="font-bold text-white text-sm">
+                    <p className="label-mono text-white text-[13px]">
                       {event.venue_name || event.location}
                     </p>
-                    <p className="text-sm text-white/60">{event.commune}, {event.city}</p>
+                    <p className="label-mono text-[13px] text-white/60">{event.commune}, {event.city}</p>
                     <div className="flex gap-2 mt-2">
                       <a
                         href={`https://maps.apple.com/?q=${encodeURIComponent(event.address || `${event.venue_name || event.location}, ${event.commune}, ${event.city}`)}`}
@@ -194,7 +194,7 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
                     <User className="w-5 h-5 text-brand-300" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-1">
+                    <p className="label-mono text-[10px] text-white/50 uppercase mb-1.5">
                       {t('detail.attendee')}
                     </p>
                     <p className="font-bold text-white text-sm">{user.full_name || user.email}</p>
@@ -206,13 +206,13 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
                     <Clock className="w-5 h-5 text-brand-300" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-1">
+                    <p className="label-mono text-[10px] text-white/50 uppercase mb-1.5">
                       {t('detail.purchased')}
                     </p>
-                    <p className="font-bold text-white text-sm">
+                    <p className="label-mono text-white text-[13px]">
                       {format(new Date(ticket.purchased_at), 'MMM d, yyyy')}
                     </p>
-                    <p className="text-sm text-white/60">
+                    <p className="label-mono text-[13px] text-white/60">
                       {format(new Date(ticket.purchased_at), 'h:mm a')}
                     </p>
                   </div>

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, Instrument_Serif, Space_Grotesk } from 'next/font/google'
+import { Inter, Instrument_Serif, Space_Grotesk, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import { BRAND } from '@/config/brand'
 import { ToastProvider } from '@/components/ui/Toast'
@@ -21,11 +21,19 @@ const instrumentSerif = Instrument_Serif({
   display: 'swap',
 })
 
-// Mono-ish grotesk for eyebrows, labels and metadata
+// Mono-ish grotesk for buttons, nav and dense UI
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   weight: ['500', '600', '700'],
   variable: '--font-grotesk',
+  display: 'swap',
+})
+
+// Technical layer — monospace for eyebrows, dates, prices-as-data and ticket IDs
+const jetBrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['500', '600'],
+  variable: '--font-mono',
   display: 'swap',
 })
 
@@ -90,7 +98,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${instrumentSerif.variable} ${spaceGrotesk.variable}`}>
+    <html lang="en" className={`${inter.variable} ${instrumentSerif.variable} ${spaceGrotesk.variable} ${jetBrainsMono.variable}`}>
       <head>
         {/* DNS Prefetch for faster external resource loading */}
         <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com" />

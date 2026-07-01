@@ -11,6 +11,7 @@ import { Calendar, MapPin, User, Wallet, Send, ExternalLink } from 'lucide-react
 import QRCode from 'react-native-qrcode-svg';
 import { useTheme } from '../contexts/ThemeContext';
 import { format } from 'date-fns';
+import { font } from '../theme/tokens';
 
 interface TicketPassCardProps {
   ticket: any;
@@ -243,8 +244,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
   },
   ticketNumberText: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontFamily: font.mono,
+    fontSize: 16,
+    letterSpacing: 0.4,
     color: colors.text,
     marginBottom: 2,
   },
@@ -264,10 +266,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: '#64748B',
   },
   statusBadgeText: {
-    fontSize: 12,
-    fontWeight: '700',
+    fontFamily: font.mono,
+    fontSize: 11,
     color: '#FFF',
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
   },
   holderRow: {
     flexDirection: 'row',
@@ -315,13 +318,15 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 4,
   },
   orderLabel: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontFamily: font.mono,
+    fontSize: 12,
+    letterSpacing: 0.4,
     color: colors.text,
   },
   ticketIdLabel: {
     fontSize: 11,
-    fontFamily: 'monospace',
+    fontFamily: font.monoRegular,
+    letterSpacing: 0.4,
     color: colors.textSecondary,
   },
   usedBanner: {

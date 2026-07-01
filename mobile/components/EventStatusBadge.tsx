@@ -10,6 +10,7 @@ import { Star, TrendingUp, Sparkles, Ticket, AlertCircle } from 'lucide-react-na
 import { LinearGradient } from 'expo-linear-gradient';
 import { BADGE_COLORS, BadgeStatus } from '../theme/badges';
 import { useI18n } from '../contexts/I18nContext';
+import { font } from '../theme/tokens';
 
 /** Maps a display status to its BADGE_COLORS key (handles spaced labels). */
 const STATUS_KEY: Record<BadgeStatus, keyof typeof BADGE_COLORS> = {
@@ -177,7 +178,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   badgeText: {
-    fontWeight: '700',
-    letterSpacing: 0.2,
+    fontFamily: font.mono,
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
   },
 });

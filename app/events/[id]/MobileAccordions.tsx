@@ -89,7 +89,7 @@ export default function MobileAccordions({
         )}
         {tags && tags.length > 0 && (
           <div className="pt-3 border-t border-white/10">
-            <h4 className="text-xs font-semibold text-white/50 mb-2">{t('events.tags').toUpperCase()}</h4>
+            <h4 className="label-mono text-[10px] uppercase text-white/50 mb-2">{t('events.tags').toUpperCase()}</h4>
             <div className="flex flex-wrap gap-2">
               {tags.map((tag: string) => (
                 <Badge key={tag} variant="neutral" size="sm">
@@ -108,11 +108,11 @@ export default function MobileAccordions({
       >
         <div className="space-y-3">
           <div>
-            <p className="text-xs font-semibold text-white/50 mb-1">{t('events.venue_name').toUpperCase()}</p>
+            <p className="label-mono text-[10px] uppercase text-white/50 mb-1.5">{t('events.venue_name').toUpperCase()}</p>
             <p className="text-sm font-semibold text-white">{venueName}</p>
           </div>
           <div>
-            <p className="text-xs font-semibold text-white/50 mb-1">{t('events.address').toUpperCase()}</p>
+            <p className="label-mono text-[10px] uppercase text-white/50 mb-1.5">{t('events.address').toUpperCase()}</p>
             <p className="text-sm text-white/70 break-words">{address}</p>
             <p className="text-sm text-white/70">{commune}, {city}</p>
           </div>
@@ -147,20 +147,20 @@ export default function MobileAccordions({
       >
         <div className="space-y-3">
           <div>
-            <p className="text-xs font-semibold text-white/50 mb-1">{t('events.start').toUpperCase()}</p>
-            <p className="text-sm font-semibold text-white">
+            <p className="label-mono text-[10px] uppercase text-white/50 mb-1.5">{t('events.start').toUpperCase()}</p>
+            <p className="label-mono text-[13px] text-white">
               {format(new Date(startDatetime), 'EEEE, MMMM d, yyyy')}
             </p>
-            <p className="text-sm text-white/55">
+            <p className="label-mono text-[13px] text-white/55">
               {format(new Date(startDatetime), 'h:mm a')} HTT
             </p>
           </div>
           <div>
-            <p className="text-xs font-semibold text-white/50 mb-1">{t('events.end').toUpperCase()}</p>
-            <p className="text-sm font-semibold text-white">
+            <p className="label-mono text-[10px] uppercase text-white/50 mb-1.5">{t('events.end').toUpperCase()}</p>
+            <p className="label-mono text-[13px] text-white">
               {format(new Date(endDatetime), 'EEEE, MMMM d, yyyy')}
             </p>
-            <p className="text-sm text-white/55">
+            <p className="label-mono text-[13px] text-white/55">
               {format(new Date(endDatetime), 'h:mm a')} HTT
             </p>
           </div>

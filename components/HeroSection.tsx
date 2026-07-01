@@ -144,7 +144,7 @@ export default function HeroSection({ hasActiveFilters, featuredEvents }: HeroSe
               {back && (
                 <div
                   aria-hidden
-                  className="absolute -right-5 top-7 hidden aspect-[4/5] w-[82%] rotate-6 overflow-hidden rounded-3xl shadow-poster-sm ring-1 ring-white/10 sm:block"
+                  className="absolute -right-5 top-7 hidden aspect-[4/5] w-[82%] rotate-6 overflow-hidden rounded-none shadow-poster-sm ring-1 ring-white/10 sm:block"
                 >
                   <PosterMedia ev={back} />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent" />
@@ -157,7 +157,7 @@ export default function HeroSection({ hasActiveFilters, featuredEvents }: HeroSe
                 aria-label={front.title}
                 className="group relative block"
               >
-                <div className="poster-vignette relative aspect-[4/5] overflow-hidden rounded-3xl shadow-card-hover ring-1 ring-white/10 transition-transform duration-500 group-hover:-translate-y-1">
+                <div className="poster-vignette relative aspect-[4/5] overflow-hidden rounded-none shadow-card-hover ring-1 ring-white/10 transition-transform duration-500 group-hover:-translate-y-1">
                   <PosterMedia ev={front} zoom />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/25" />
 
@@ -179,15 +179,15 @@ export default function HeroSection({ hasActiveFilters, featuredEvents }: HeroSe
                         {front.category}
                       </span>
                     )}
-                    <h3 className="mt-1 font-display text-[26px] leading-[1.0] drop-shadow-[0_2px_16px_rgba(0,0,0,0.5)] line-clamp-2">
+                    <h3 className="mt-1 font-display italic text-[26px] leading-[1.0] drop-shadow-[0_2px_16px_rgba(0,0,0,0.5)] line-clamp-2">
                       {front.title}
                     </h3>
                     <div className="mt-2 flex items-center justify-between gap-2">
-                      <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-white/85">
+                      <span className="label-mono inline-flex items-center gap-1.5 text-[11px] uppercase text-white/85">
                         <CalendarDays className="h-3.5 w-3.5" />
                         {formatFeaturedDate(front.date)}
                       </span>
-                      <span className="shrink-0 rounded-lg bg-white px-2.5 py-1 text-[12px] font-bold text-black backdrop-blur-md">
+                      <span className="label-mono shrink-0 rounded-lg bg-white px-2.5 py-1 text-[12px] font-semibold text-black backdrop-blur-md">
                         {priceText(front.price)}
                       </span>
                     </div>

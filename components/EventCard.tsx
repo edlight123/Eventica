@@ -97,7 +97,7 @@ export default function EventCard({ event, priority = false, index = 0, userCity
       <article className="flex h-full flex-col">
         {/* ---------- Poster ---------- */}
         <div
-          className="relative aspect-[4/5] overflow-hidden rounded-xl text-white"
+          className="relative aspect-[4/5] overflow-hidden rounded-none text-white"
           style={hasImage ? undefined : { backgroundImage: theme.bg }}
         >
           {hasImage ? (
@@ -142,18 +142,18 @@ export default function EventCard({ event, priority = false, index = 0, userCity
           )}
         </div>
 
-        {/* ---------- Content: two tight lines, no background ---------- */}
-        <div className="px-0.5 pt-2">
+        {/* ---------- Content: serif title + mono metadata, no background ---------- */}
+        <div className="px-0.5 pt-2.5">
           <div className="flex items-baseline justify-between gap-2">
-            <h3 className="truncate font-grotesk text-[15px] font-semibold leading-tight text-white">
+            <h3 className="truncate font-display text-[18px] italic leading-tight text-white">
               {event.title}
             </h3>
             {dateLabel && (
-              <span className="shrink-0 text-[12px] font-medium text-white/45">{dateLabel}</span>
+              <span className="label-mono shrink-0 text-[10px] uppercase text-white/45">{dateLabel}</span>
             )}
           </div>
-          <div className="mt-0.5 flex items-baseline justify-between gap-2">
-            <span className="flex min-w-0 items-center gap-1 text-[12.5px] text-white/55">
+          <div className="mt-1 flex items-baseline justify-between gap-2">
+            <span className="label-mono flex min-w-0 items-center gap-1 text-[10.5px] uppercase text-white/50">
               <span className="truncate">{locationLabel}</span>
               {event.users?.is_verified && (
                 <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-brand-400" />
@@ -161,11 +161,11 @@ export default function EventCard({ event, priority = false, index = 0, userCity
             </span>
             <span className="shrink-0 text-right">
               {isFree ? (
-                <span className="font-grotesk text-sm font-bold text-brand-300">{t('common.free')}</span>
+                <span className="label-mono text-[12px] font-semibold uppercase text-brand-300">{t('common.free')}</span>
               ) : (
-                <span className="font-grotesk text-sm font-bold text-brand-300">
-                  <span className="text-[10px] font-semibold uppercase tracking-wide text-white/40">{t('common.from')} </span>
-                  {ticketPrice.toLocaleString()} <span className="text-[11px] font-medium text-white/40">{event.currency}</span>
+                <span className="label-mono text-[12px] font-semibold text-brand-300">
+                  <span className="text-[9px] uppercase text-white/40">{t('common.from')} </span>
+                  {ticketPrice.toLocaleString()} <span className="text-[10px] text-white/40">{event.currency}</span>
                 </span>
               )}
             </span>

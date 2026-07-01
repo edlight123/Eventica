@@ -34,7 +34,7 @@ export default function TicketCard({
 
   return (
     <Link href={`/tickets/event/${eventId}`} prefetch className="group block h-full">
-      <article className="hover-lift h-full overflow-hidden rounded-2xl border border-white/10/80 bg-[#0a0a0a] shadow-poster-sm transition-all duration-300 group-hover:border-brand-200 group-hover:shadow-card-hover">
+      <article className="hover-lift h-full overflow-hidden rounded-none border border-white/10/80 bg-[#0a0a0a] shadow-poster-sm transition-all duration-300 group-hover:border-brand-200 group-hover:shadow-card-hover">
         <div
           className="poster-vignette relative flex aspect-[4/5] flex-col justify-between overflow-hidden p-3.5 text-white"
           style={hasImage ? undefined : { backgroundImage: theme.bg }}
@@ -64,7 +64,7 @@ export default function TicketCard({
           {/* Center title for image-less posters */}
           {!hasImage && (
             <div className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center px-5 text-center">
-              <h3 className="font-display text-[24px] leading-[0.98] text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.45)] line-clamp-4">
+              <h3 className="font-display italic text-[24px] leading-[0.98] text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.45)] line-clamp-4">
                 {cleanTitle}
               </h3>
             </div>
@@ -73,15 +73,15 @@ export default function TicketCard({
           {/* Bottom: title + meta */}
           <div className="relative z-10 space-y-1.5">
             {hasImage && (
-              <h3 className="font-display text-[22px] leading-[1.02] text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.5)] line-clamp-2">
+              <h3 className="font-display italic text-[22px] leading-[1.02] text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.5)] line-clamp-2">
                 {cleanTitle}
               </h3>
             )}
-            <div className="eyebrow flex items-center gap-1.5 text-[10px] tracking-[0.06em] text-white/85">
+            <div className="label-mono flex items-center gap-1.5 text-[10px] uppercase text-white/85">
               <CalendarDays className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate">{dateLabel}</span>
             </div>
-            <div className="flex items-center gap-1.5 text-[11.5px] text-white/80">
+            <div className="label-mono flex items-center gap-1.5 text-[10.5px] uppercase text-white/80">
               <MapPin className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate">{locationLabel}</span>
             </div>

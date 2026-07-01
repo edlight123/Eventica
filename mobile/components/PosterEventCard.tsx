@@ -12,6 +12,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { formatDateForLanguage } from '../lib/dates';
 import { getPosterTheme } from '../lib/posterGradient';
+import { font } from '../theme/tokens';
 import type { BadgeStatus } from '../theme/badges';
 
 interface PosterEventCardProps {
@@ -161,12 +162,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       width: '100%',
       alignItems: 'center',
       justifyContent: 'center',
-      borderRadius: 16,
+      borderRadius: 0,
       overflow: 'hidden',
       backgroundColor: colors.surfaceMuted,
     },
     posterInset: {
-      borderRadius: 16,
+      borderRadius: 0,
       overflow: 'hidden',
     },
     imgHidden: {
@@ -187,8 +188,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       gap: 3,
     },
     title: {
-      fontSize: 14,
-      fontWeight: '700',
+      fontFamily: font.serif,
+      fontSize: 16,
       color: colors.text,
       lineHeight: 18,
       letterSpacing: -0.2,
@@ -201,21 +202,22 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       marginTop: 1,
     },
     metaText: {
+      fontFamily: font.monoRegular,
       color: colors.textSecondary,
-      fontSize: 12.5,
-      fontWeight: '500',
+      fontSize: 11,
+      letterSpacing: 0.4,
       flexShrink: 1,
     },
     price: {
-      fontSize: 12.5,
-      fontWeight: '700',
+      fontFamily: font.mono,
+      fontSize: 12,
       color: colors.primary,
-      letterSpacing: -0.2,
+      letterSpacing: 0.4,
     },
     free: {
-      fontSize: 11.5,
-      fontWeight: '800',
+      fontFamily: font.mono,
+      fontSize: 11,
       color: colors.primary,
-      letterSpacing: 0.5,
+      letterSpacing: 0.8,
     },
   });

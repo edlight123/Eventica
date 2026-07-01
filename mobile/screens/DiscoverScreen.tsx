@@ -19,6 +19,7 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useTheme } from '../contexts/ThemeContext';
 import { format } from 'date-fns';
+import { font } from '../theme/tokens';
 import FeaturedCarousel from '../components/FeaturedCarousel';
 import EventFiltersSheet from '../components/EventFiltersSheet';
 import EventStatusBadge from '../components/EventStatusBadge';
@@ -813,12 +814,16 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
   },
   pillText: {
-    fontSize: 15,
+    fontFamily: font.monoRegular,
+    fontSize: 12,
+    letterSpacing: 0.4,
     color: colors.textSecondary,
   },
   pillTextStrong: {
+    fontFamily: font.mono,
+    fontSize: 12,
+    letterSpacing: 0.4,
     color: colors.text,
-    fontWeight: '700',
   },
   tabsRow: {
     flexDirection: 'row',

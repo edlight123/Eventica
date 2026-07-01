@@ -6,6 +6,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { formatDateForLanguage } from '../lib/dates';
 import { getPosterTheme } from '../lib/posterGradient';
+import { font } from '../theme/tokens';
 
 const { width } = Dimensions.get('window');
 
@@ -113,7 +114,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     poster: {
       width: '100%',
       height: Math.round((width - 32) * 1.15),
-      borderRadius: 16,
+      borderRadius: 0,
       overflow: 'hidden',
       backgroundColor: colors.surfaceMuted,
     },
@@ -127,11 +128,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       flex: 1,
     },
     title: {
-      fontSize: 22,
-      fontWeight: '800',
+      fontFamily: font.serif,
+      fontSize: 26,
       color: colors.text,
       letterSpacing: -0.3,
-      lineHeight: 27,
+      lineHeight: 28,
     },
     orgRow: {
       flexDirection: 'row',
@@ -146,10 +147,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       flexShrink: 1,
     },
     meta: {
-      fontSize: 14,
+      fontFamily: font.monoRegular,
+      fontSize: 12,
+      letterSpacing: 0.3,
       color: colors.textSecondary,
       marginTop: 4,
-      lineHeight: 19,
+      lineHeight: 18,
     },
     actions: {
       flexDirection: 'row',
@@ -172,8 +175,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       fontWeight: '800',
     },
     ctaPrice: {
+      fontFamily: font.mono,
       color: '#6B6B6B',
-      fontSize: 15,
-      fontWeight: '600',
+      fontSize: 13,
+      letterSpacing: 0.3,
     },
   });

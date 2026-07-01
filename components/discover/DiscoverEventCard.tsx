@@ -40,7 +40,7 @@ export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
 
   return (
     <Link href={`/events/${event.id}`} prefetch className="group block h-full">
-      <article className="hover-lift h-full overflow-hidden rounded-2xl border border-white/10 shadow-poster-sm transition-all duration-300 group-hover:border-brand-400/40 group-hover:shadow-card-hover">
+      <article className="hover-lift h-full overflow-hidden rounded-none border border-white/10 shadow-poster-sm transition-all duration-300 group-hover:border-brand-400/40 group-hover:shadow-card-hover">
         {/* ---------- Poster ---------- */}
         <div
           className="poster-vignette relative flex aspect-[4/5] flex-col justify-between overflow-hidden p-3.5 text-white"
@@ -78,7 +78,7 @@ export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
           {/* Center title — poster treatment when there is no banner image */}
           {!hasImage && (
             <div className="pointer-events-none absolute inset-0 z-[5] flex flex-col items-center justify-center px-5 text-center">
-              <h3 className="font-grotesk font-bold text-[24px] leading-[0.98] text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.45)] line-clamp-4">
+              <h3 className="font-display italic text-[26px] leading-[0.98] text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.45)] line-clamp-4">
                 {event.title}
               </h3>
             </div>
@@ -96,12 +96,12 @@ export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
             )}
 
             {hasImage && (
-              <h3 className="font-grotesk font-bold text-[22px] leading-[1.02] text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.5)] line-clamp-2">
+              <h3 className="font-display italic text-[22px] leading-[1.02] text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.5)] line-clamp-2">
                 {event.title}
               </h3>
             )}
 
-            <div className="eyebrow text-[10px] tracking-[0.08em] text-white/85">
+            <div className="label-mono text-[10px] uppercase text-white/85">
               {dateLabel}
               {locationSummary && <span className="opacity-60"> · </span>}
               {locationSummary}
@@ -109,7 +109,7 @@ export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
 
             <div className="flex items-end justify-between gap-2 pt-0.5">
               {friendsGoing > 0 ? (
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-white/90">
+                <span className="label-mono inline-flex items-center gap-1 text-[11px] uppercase text-white/90">
                   <Users className="h-3.5 w-3.5" />
                   {friendsGoing} {friendsGoing === 1 ? 'friend' : 'friends'}
                 </span>
@@ -117,7 +117,7 @@ export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
                 <span />
               )}
               <span
-                className={`shrink-0 rounded-md px-2 py-1 text-[11px] font-bold backdrop-blur-md
+                className={`label-mono shrink-0 rounded-md px-2 py-1 text-[11px] font-semibold backdrop-blur-md
                   ${isFree ? 'bg-brand-600/90 text-white' : 'bg-white text-black'}`}
               >
                 {priceLabel}

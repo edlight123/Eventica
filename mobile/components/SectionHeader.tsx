@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { ArrowRight } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
-import { colors as T, type as TYPE } from '../theme/tokens';
+import { colors as T, type as TYPE, font } from '../theme/tokens';
 
 interface SectionHeaderProps {
   title: string;
@@ -63,10 +63,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       color: colors.text,
     },
     subtitle: {
-      fontSize: 13,
+      fontFamily: font.monoRegular,
+      fontSize: 11,
+      letterSpacing: 0.4,
       color: colors.textSecondary,
-      fontWeight: '500',
-      marginTop: 2,
+      marginTop: 3,
     },
     viewAll: {
       flexDirection: 'row',
@@ -76,8 +77,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       paddingLeft: 8,
     },
     viewAllText: {
-      fontSize: 13,
-      fontWeight: '700',
+      fontFamily: font.mono,
+      fontSize: 11,
+      letterSpacing: 0.4,
       color: T.teal,
     },
   });

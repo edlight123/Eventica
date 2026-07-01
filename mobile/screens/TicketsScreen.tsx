@@ -23,6 +23,7 @@ import EmptyState from '../components/EmptyState';
 import { format } from 'date-fns';
 import { useFocusEffect } from '@react-navigation/native';
 import { consumeTicketsRefreshHint } from '../lib/ticketsRefreshHint';
+import { font } from '../theme/tokens';
 
 export default function TicketsScreen({ navigation }: any) {
   const { colors } = useTheme();
@@ -355,7 +356,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   ticketThumb: {
     width: 64,
     height: 64,
-    borderRadius: 14,
+    borderRadius: 0,
     overflow: 'hidden',
     backgroundColor: colors.borderLight,
   },
@@ -373,8 +374,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 8,
   },
   ticketTitle: {
-    fontSize: 16,
-    fontWeight: '800',
+    fontFamily: font.serif,
+    fontSize: 18,
     color: colors.text,
     lineHeight: 21,
     letterSpacing: -0.2,
@@ -386,9 +387,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   ticketMetaText: {
     flex: 1,
-    fontSize: 13,
+    fontFamily: font.monoRegular,
+    fontSize: 11.5,
+    letterSpacing: 0.3,
     color: colors.textSecondary,
-    fontWeight: '500',
   },
   ticketCountBadge: {
     flexDirection: 'row',
@@ -402,9 +404,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 2,
   },
   ticketCountText: {
+    fontFamily: font.mono,
     color: colors.primary,
-    fontSize: 11,
-    fontWeight: '700',
+    fontSize: 10.5,
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
   },
   ticketDate: {
     fontSize: 14,

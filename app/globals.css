@@ -146,14 +146,22 @@ select:-webkit-autofill {
 }
 
 @layer components {
-  /* Eyebrow / kicker label — Space Grotesk, uppercase, tracked out */
+  /* Eyebrow / kicker label — JetBrains Mono technical layer, uppercase, tracked */
   .eyebrow {
-    font-family: var(--font-grotesk), 'Space Grotesk', system-ui, sans-serif;
-    font-weight: 600;
-    font-size: 0.72rem;
+    font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+    font-weight: 500;
+    font-size: 0.7rem;
     line-height: 1;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
+  }
+
+  /* Technical metadata — dates, prices-as-data, ticket IDs, counts */
+  .label-mono {
+    font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
   }
 
   /* Horizontal, snapping editorial rail */

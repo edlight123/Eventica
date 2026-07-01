@@ -6,6 +6,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import PaginationDots from './PaginationDots';
 import { useI18n } from '../contexts/I18nContext';
 import { getPosterTheme } from '../lib/posterGradient';
+import { font } from '../theme/tokens';
 
 import { formatDateForLanguage } from '../lib/dates';
 
@@ -135,7 +136,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   poster: {
     width: '100%',
     height: 420,
-    borderRadius: 16,
+    borderRadius: 0,
     overflow: 'hidden',
     backgroundColor: colors.surfaceMuted,
   },
@@ -143,10 +144,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingTop: 10,
   },
   title: {
-    fontSize: 20,
-    fontWeight: '800',
+    fontFamily: font.serif,
+    fontSize: 24,
     color: colors.text,
-    lineHeight: 25,
+    lineHeight: 26,
     letterSpacing: -0.3,
   },
   details: {
@@ -157,9 +158,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexWrap: 'nowrap',
   },
   detailText: {
+    fontFamily: font.monoRegular,
     color: colors.textSecondary,
-    fontSize: 13,
-    fontWeight: '500',
+    fontSize: 11.5,
+    letterSpacing: 0.3,
     flexShrink: 1,
   },
   separator: {

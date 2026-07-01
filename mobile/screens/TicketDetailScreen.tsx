@@ -10,6 +10,7 @@ import TransferTicketModal from '../components/TransferTicketModal';
 import AddToWalletButton from '../components/AddToWalletButton';
 import { useI18n } from '../contexts/I18nContext';
 import { useNavigation } from '@react-navigation/native';
+import { font } from '../theme/tokens';
 
 export default function TicketDetailScreen({ route }: any) {
   const { colors } = useTheme();
@@ -423,8 +424,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 16,
   },
   eventTitle: {
-    fontSize: 24,
-    fontWeight: '700',
+    fontFamily: font.serif,
+    fontSize: 28,
     color: colors.text,
     lineHeight: 30,
   },
@@ -446,10 +447,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: '#FF8C00', // Orange color for expired
   },
   statusText: {
+    fontFamily: font.mono,
     color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    fontSize: 11,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
   },
   qrSection: {
     alignItems: 'center',
@@ -502,21 +504,24 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
   },
   infoCardLabel: {
-    fontSize: 12,
+    fontFamily: font.mono,
+    fontSize: 11,
     color: colors.textSecondary,
-    fontWeight: '600',
     marginBottom: 4,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
   },
   infoCardValue: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: font.mono,
+    fontSize: 14,
+    letterSpacing: 0.3,
     color: colors.text,
     marginBottom: 2,
   },
   infoCardSubvalue: {
-    fontSize: 14,
+    fontFamily: font.monoRegular,
+    fontSize: 12,
+    letterSpacing: 0.3,
     color: colors.textSecondary,
   },
   detailsCard: {
@@ -550,20 +555,23 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderBottomColor: colors.borderLight,
   },
   detailLabel: {
-    fontSize: 14,
+    fontFamily: font.mono,
+    fontSize: 12,
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
     color: colors.textSecondary,
-    fontWeight: '500',
   },
   detailValue: {
-    fontSize: 14,
+    fontFamily: font.mono,
+    fontSize: 13,
+    letterSpacing: 0.3,
     color: colors.text,
-    fontWeight: '600',
     textAlign: 'right',
     maxWidth: '60%',
   },
   ticketId: {
+    fontFamily: font.monoRegular,
     fontSize: 12,
-    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
   },
   footer: {
     backgroundColor: colors.primary + '10',
@@ -610,10 +618,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: 16,
   },
   pendingTransferBadgeText: {
+    fontFamily: font.mono,
     color: '#FFF',
-    fontSize: 13,
-    fontWeight: '700',
-    letterSpacing: 0.3,
+    fontSize: 11,
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
   },
   pendingTransferEmail: {
     fontSize: 14,
@@ -624,7 +633,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '700',
   },
   pendingTransferExpiry: {
-    fontSize: 13,
+    fontFamily: font.monoRegular,
+    fontSize: 12,
+    letterSpacing: 0.3,
     color: colors.textSecondary,
     marginBottom: 12,
   },

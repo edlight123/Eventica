@@ -23,6 +23,7 @@ import { ArrowLeft } from 'lucide-react-native';
 import TicketPassCard from '../components/TicketPassCard';
 import QRCodeModal from '../components/QRCodeModal';
 import TransferTicketModal from '../components/TransferTicketModal';
+import { font } from '../theme/tokens';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -297,8 +298,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   eventTitle: {
-    fontSize: 22,
-    fontWeight: '700',
+    fontFamily: font.serif,
+    fontSize: 26,
     color: '#FFF',
     textAlign: 'center',
     marginBottom: 6,
@@ -310,8 +311,10 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   currentTicketIndicator: {
-    fontSize: 13,
-    fontWeight: '500',
+    fontFamily: font.mono,
+    fontSize: 12,
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
     color: 'rgba(255, 255, 255, 0.7)',
   },
   pagerContainer: {

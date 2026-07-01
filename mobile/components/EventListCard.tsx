@@ -6,6 +6,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { getPosterTheme } from '../lib/posterGradient';
 import { formatDateForLanguage } from '../lib/dates';
+import { font } from '../theme/tokens';
 
 interface EventListCardProps {
   event: any;
@@ -101,7 +102,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     poster: {
       width: 92,
       aspectRatio: 4 / 5,
-      borderRadius: 16,
+      borderRadius: 0,
       overflow: 'hidden',
       backgroundColor: colors.surfaceMuted,
     },
@@ -111,10 +112,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       gap: 6,
     },
     title: {
-      fontSize: 16,
-      fontWeight: '800',
+      fontFamily: font.serif,
+      fontSize: 18,
       color: colors.text,
-      lineHeight: 20,
+      lineHeight: 21,
     },
     metaRow: {
       flexDirection: 'row',
@@ -122,23 +123,25 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       gap: 6,
     },
     metaText: {
-      fontSize: 13,
+      fontFamily: font.monoRegular,
+      fontSize: 11.5,
       color: colors.textSecondary,
-      fontWeight: '500',
+      letterSpacing: 0.3,
       flexShrink: 1,
     },
     priceWrap: {
       marginTop: 2,
     },
     priceFree: {
+      fontFamily: font.mono,
       color: colors.primary,
-      fontWeight: '800',
-      fontSize: 13,
-      letterSpacing: 0.5,
+      fontSize: 12,
+      letterSpacing: 0.8,
     },
     price: {
+      fontFamily: font.mono,
       color: colors.primary,
-      fontWeight: '800',
-      fontSize: 15,
+      fontSize: 14,
+      letterSpacing: 0.3,
     },
   });

@@ -36,7 +36,7 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
       {/* Event Hero Card */}
-      <div className="relative bg-[#0a0a0a] rounded-2xl border border-white/10 overflow-hidden mb-6">
+      <div className="relative bg-[#0a0a0a] rounded-none border border-white/10 overflow-hidden mb-6">
         {/* Banner Image */}
         {event.banner_image_url ? (
           <div className="relative h-32 sm:h-48 md:h-56 bg-gradient-to-br from-brand-700 to-[#0C5E57]">
@@ -74,7 +74,7 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
                   </Badge>
                 )}
               </div>
-              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-1 line-clamp-2">{cleanTitle}</h1>
+              <h1 className="font-display italic text-2xl md:text-3xl lg:text-4xl text-white mb-1 line-clamp-2">{cleanTitle}</h1>
               <p className="text-[13px] md:text-sm text-white/65">{t('event_tickets.ready')}</p>
             </div>
           </div>
@@ -86,14 +86,14 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
                 <Calendar className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] md:text-xs font-semibold text-brand-300 uppercase tracking-wider mb-1">{t('event_tickets.date_time')}</p>
+                <p className="label-mono text-[10px] md:text-[11px] text-brand-300 uppercase mb-1.5">{t('event_tickets.date_time')}</p>
                 {event.start_datetime ? (
                   <>
-                    <p className="text-sm md:text-base font-bold text-white truncate">
+                    <p className="label-mono text-[13px] md:text-[14px] text-white truncate">
                       {format(new Date(event.start_datetime), 'EEE, MMM d, yyyy')}
                     </p>
-                    <p className="text-[13px] text-white/65 truncate">
-                      {event.end_datetime 
+                    <p className="label-mono text-[12px] text-white/65 truncate">
+                      {event.end_datetime
                         ? `${format(new Date(event.start_datetime), 'h:mm a')} - ${format(new Date(event.end_datetime), 'h:mm a')}`
                         : format(new Date(event.start_datetime), 'h:mm a')
                       }
@@ -101,8 +101,8 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
                   </>
                 ) : (
                   <>
-                    <p className="text-sm md:text-base font-bold text-white">{t('event_tickets.date_tba')}</p>
-                    <p className="text-[13px] text-white/65">{t('event_tickets.time_tba')}</p>
+                    <p className="label-mono text-[13px] md:text-[14px] text-white uppercase">{t('event_tickets.date_tba')}</p>
+                    <p className="label-mono text-[12px] text-white/65 uppercase">{t('event_tickets.time_tba')}</p>
                   </>
                 )}
               </div>
@@ -113,9 +113,9 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
                 <MapPin className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] md:text-xs font-semibold text-brand-300 uppercase tracking-wider mb-1">{t('event_tickets.venue')}</p>
-                <p className="text-sm md:text-base font-bold text-white truncate">{String(event.venue_name || t('event_tickets.venue_tba'))}</p>
-                <p className="text-[13px] text-white/65 truncate">{String(event.commune || t('event_tickets.location_tba'))}, {String(event.city || t('event_tickets.location_tba'))}</p>
+                <p className="label-mono text-[10px] md:text-[11px] text-brand-300 uppercase mb-1.5">{t('event_tickets.venue')}</p>
+                <p className="label-mono text-[13px] md:text-[14px] text-white truncate">{String(event.venue_name || t('event_tickets.venue_tba'))}</p>
+                <p className="label-mono text-[12px] text-white/65 truncate">{String(event.commune || t('event_tickets.location_tba'))}, {String(event.city || t('event_tickets.location_tba'))}</p>
               </div>
             </div>
           </div>
@@ -143,7 +143,7 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
               >
                 {/* Ticket Number Badge */}
                 <div className="absolute top-3 right-3 z-10">
-                  <div className="px-2.5 py-0.5 bg-brand-600 text-white text-[11px] font-bold rounded-full shadow-lg">
+                  <div className="label-mono px-2.5 py-0.5 bg-brand-600 text-white text-[10px] uppercase rounded-full shadow-lg">
                     {t('event_tickets.ticket_number', { number: index + 1 })}
                   </div>
                 </div>
@@ -165,8 +165,8 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
                   </div>
 
                   <div className="mt-3 space-y-0.5">
-                    <p className="text-[10px] md:text-xs font-semibold text-white/50 uppercase tracking-wider">{t('event_tickets.ticket_id')}</p>
-                    <p className="text-[11px] md:text-xs font-mono text-white">{ticket.id ? ticket.id.slice(0, 16) + '...' : 'N/A'}</p>
+                    <p className="label-mono text-[10px] md:text-[11px] text-white/50 uppercase">{t('event_tickets.ticket_id')}</p>
+                    <p className="text-[11px] md:text-xs font-mono tracking-wide text-white">{ticket.id ? ticket.id.slice(0, 16) + '...' : 'N/A'}</p>
                   </div>
                 </div>
 
@@ -193,7 +193,7 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
 
                 {/* Purchase Info */}
                 <div className="px-3 pb-3">
-                  <p className="text-[11px] text-white/50 text-center">
+                  <p className="label-mono text-[10px] uppercase text-white/50 text-center">
                     {ticket.purchased_at ? t('event_tickets.purchased_at', { date: format(new Date(ticket.purchased_at), 'MMM d, yyyy') }) : t('event_tickets.ticket')}
                   </p>
                 </div>
@@ -247,14 +247,14 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
                     <Badge variant="success" size="sm" icon={<CheckCircle2 className="w-3.5 h-3.5" />}>
                       {t('event_tickets.checked_in')}
                     </Badge>
-                    <p className="text-[13px] text-white/65">
+                    <p className="label-mono text-[12px] text-white/65">
                       {ticket.checked_in_at ? format(new Date(ticket.checked_in_at), 'MMM d, yyyy • h:mm a') : t('event_tickets.used')}
                     </p>
                   </div>
                 </div>
 
                 <div className="px-3 pb-3">
-                  <p className="text-[11px] text-white/50 text-center font-mono">
+                  <p className="text-[11px] text-white/50 text-center font-mono tracking-wide">
                     {ticket.id ? ticket.id.slice(0, 16) + '...' : 'N/A'}
                   </p>
                 </div>

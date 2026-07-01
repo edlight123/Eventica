@@ -38,6 +38,7 @@ import EmptyState from '../components/EmptyState';
 import { HomeFeedSkeleton } from '../components/Skeleton';
 import { isBudgetFriendlyTicketPrice } from '../lib/pricing';
 import { getCategoryLabel } from '../lib/categories';
+import { font } from '../theme/tokens';
 
 // Tolerant city matching (accents/case/"City, ST") so the Near You rail lines up
 // with whatever string is stored on each event's `city`.
@@ -564,8 +565,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 4,
   },
   locationText: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontFamily: font.mono,
+    fontSize: 11,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
     color: colors.textSecondary,
     maxWidth: 150,
   },

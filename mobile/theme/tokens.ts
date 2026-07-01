@@ -28,7 +28,19 @@ export const colors = {
   textTertiary: '#6B6B6B',
 } as const;
 
-export const radius = { sm: 8, md: 12, lg: 16, xl: 20, pill: 999 } as const;
+/**
+ * Font families — the three voices.
+ *  serif → event titles / wordmark (editorial soul)
+ *  mono  → the "technical layer": dates, prices-as-data, ticket IDs, eyebrows
+ *  (UI / body text uses the system default grotesk-like sans, no token needed)
+ */
+export const font = {
+  serif: 'InstrumentSerif_400Regular_Italic',
+  mono: 'JetBrainsMono_500Medium',
+  monoRegular: 'JetBrainsMono_400Regular',
+} as const;
+
+export const radius = { none: 0, sm: 8, md: 12, lg: 16, xl: 20, pill: 999 } as const;
 
 export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 } as const;
 
@@ -42,5 +54,5 @@ export const type = {
   sectionEyebrow: { fontSize: 13, fontWeight: '600' as const, letterSpacing: 0.3 },
 } as const;
 
-export const tokens = { colors, radius, spacing, type };
+export const tokens = { colors, radius, spacing, type, font };
 export default tokens;
