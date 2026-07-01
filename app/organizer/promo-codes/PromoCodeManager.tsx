@@ -192,8 +192,11 @@ export default function PromoCodeManager({
     {
       key: 'discount',
       header: 'Discount',
-      render: (p) =>
-        p.discount_type === 'percentage' ? `${p.discount_value}% off` : `$${p.discount_value} off`,
+      render: (p) => (
+        <span className="font-mono tabular-nums">
+          {p.discount_type === 'percentage' ? `${p.discount_value}% off` : `$${p.discount_value} off`}
+        </span>
+      ),
     },
     {
       key: 'usage',
@@ -201,7 +204,7 @@ export default function PromoCodeManager({
       sortable: true,
       sortAccessor: (p) => p.uses_count,
       render: (p) => (
-        <span className="text-white/70">
+        <span className="font-mono tabular-nums text-white/70">
           {p.uses_count}
           {p.max_uses ? ` / ${p.max_uses}` : ''}
         </span>
@@ -213,7 +216,11 @@ export default function PromoCodeManager({
       hideOnMobile: true,
       sortable: true,
       sortAccessor: (p) => (p.expires_at ? new Date(p.expires_at).getTime() : 0),
-      render: (p) => (p.expires_at ? new Date(p.expires_at).toLocaleDateString() : '—'),
+      render: (p) => (
+        <span className="font-mono tabular-nums">
+          {p.expires_at ? new Date(p.expires_at).toLocaleDateString() : '—'}
+        </span>
+      ),
     },
     {
       key: 'status',
@@ -241,13 +248,14 @@ export default function PromoCodeManager({
         </div>
         <p className="text-sm text-white/60 truncate">{p.event?.title || 'Event not found'}</p>
         <p className="text-sm text-white/70">
-          {p.discount_type === 'percentage' ? `${p.discount_value}% off` : `$${p.discount_value} off`}
+          <span className="font-mono tabular-nums">
+            {p.discount_type === 'percentage' ? `${p.discount_value}% off` : `$${p.discount_value} off`}
+          </span>
           <span className="text-white/40"> · </span>
-          Used {p.uses_count}
-          {p.max_uses ? ` / ${p.max_uses}` : ''}
+          Used <span className="font-mono tabular-nums">{p.uses_count}{p.max_uses ? ` / ${p.max_uses}` : ''}</span>
         </p>
         {p.expires_at && (
-          <p className="text-xs text-white/50">Expires {new Date(p.expires_at).toLocaleDateString()}</p>
+          <p className="text-xs text-white/50">Expires <span className="font-mono tabular-nums">{new Date(p.expires_at).toLocaleDateString()}</span></p>
         )}
         <div className="pt-1">{actionButtons(p)}</div>
       </div>
@@ -300,7 +308,7 @@ export default function PromoCodeManager({
         <form onSubmit={handleCreate} className="space-y-4 p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide text-white/60 mb-1.5">
+              <label className="label-mono block text-xs uppercase text-white/60 mb-1.5">
                 Code
               </label>
               <input
@@ -314,7 +322,7 @@ export default function PromoCodeManager({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide text-white/60 mb-1.5">
+              <label className="label-mono block text-xs uppercase text-white/60 mb-1.5">
                 Event
               </label>
               <select
@@ -331,7 +339,7 @@ export default function PromoCodeManager({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide text-white/60 mb-1.5">
+              <label className="label-mono block text-xs uppercase text-white/60 mb-1.5">
                 Discount Type
               </label>
               <select
@@ -345,7 +353,7 @@ export default function PromoCodeManager({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide text-white/60 mb-1.5">
+              <label className="label-mono block text-xs uppercase text-white/60 mb-1.5">
                 Discount Value
               </label>
               <input
@@ -361,7 +369,7 @@ export default function PromoCodeManager({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide text-white/60 mb-1.5">
+              <label className="label-mono block text-xs uppercase text-white/60 mb-1.5">
                 Max Uses <span className="normal-case font-normal">(optional)</span>
               </label>
               <input
@@ -375,7 +383,7 @@ export default function PromoCodeManager({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide text-white/60 mb-1.5">
+              <label className="label-mono block text-xs uppercase text-white/60 mb-1.5">
                 Expires At <span className="normal-case font-normal">(optional)</span>
               </label>
               <input

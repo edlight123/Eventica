@@ -39,7 +39,7 @@ export function RealtimeConnectionStatus() {
             <div className="w-2 h-2 rounded-full bg-green-500 animate-ping opacity-75" />
           )}
         </div>
-        <span className={isConnected ? 'text-emerald-300' : 'text-white/50'}>
+        <span className={`label-mono uppercase ${isConnected ? 'text-emerald-300' : 'text-white/50'}`}>
           {isConnected ? 'Live' : 'Offline'}
         </span>
       </div>
@@ -47,7 +47,7 @@ export function RealtimeConnectionStatus() {
       {/* Last Update Time */}
       {lastUpdate && (
         <span className="text-white/50">
-          · Updated {timeSinceUpdate}
+          · Updated <span className="font-mono tabular-nums">{timeSinceUpdate}</span>
         </span>
       )}
     </div>

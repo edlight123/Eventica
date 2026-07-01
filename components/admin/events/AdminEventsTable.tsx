@@ -43,7 +43,7 @@ export function AdminEventsTable({
       key: 'date',
       header: 'Date',
       render: (event) => (
-        <span className="whitespace-nowrap text-sm text-white/60">
+        <span className="whitespace-nowrap font-mono text-sm tabular-nums text-white/60">
           {format(new Date(event.start_datetime), 'MMM d, yyyy')}
         </span>
       ),
@@ -52,7 +52,7 @@ export function AdminEventsTable({
       key: 'city',
       header: 'City',
       render: (event) => (
-        <span className="whitespace-nowrap text-sm text-white/60">{event.city}</span>
+        <span className="whitespace-nowrap font-mono text-sm text-white/60">{event.city}</span>
       ),
     },
     {
@@ -119,8 +119,8 @@ export function AdminEventsTable({
           </div>
 
           <div className="space-y-1 text-xs text-white/60">
-            <div>{format(new Date(event.start_datetime), 'MMM d, yyyy')}</div>
-            <div>{event.city}</div>
+            <div className="font-mono tabular-nums">{format(new Date(event.start_datetime), 'MMM d, yyyy')}</div>
+            <div className="font-mono">{event.city}</div>
             <div>{event.organizer_name}</div>
           </div>
 

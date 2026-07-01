@@ -48,7 +48,7 @@ export function AdminEventsTopBar({
             <Filter className="w-4 h-4" />
             <span>Filters</span>
             {activeFiltersCount > 0 && (
-              <span className="ml-1 px-2 py-0.5 text-brand-300 rounded-full text-xs font-bold">
+              <span className="ml-1 px-2 py-0.5 text-brand-300 rounded-full font-mono text-xs font-bold tabular-nums">
                 {activeFiltersCount}
               </span>
             )}

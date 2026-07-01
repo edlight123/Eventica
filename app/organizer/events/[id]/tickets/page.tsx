@@ -91,7 +91,7 @@ export default async function EventTicketsPage({ params }: { params: Promise<{ i
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-[15px] font-semibold text-white">{tier.name}</p>
-                      <p className="mt-0.5 text-sm text-white/55">{money(tier.price)}</p>
+                      <p className="mt-0.5 text-sm font-mono tabular-nums text-white/55">{money(tier.price)}</p>
                     </div>
                     <span
                       className={`rounded-full px-3 py-1 text-[11px] font-semibold ${
@@ -104,8 +104,8 @@ export default async function EventTicketsPage({ params }: { params: Promise<{ i
 
                   <div className="mt-4">
                     <div className="mb-1.5 flex items-center justify-between text-xs">
-                      <span className="text-white/50">Sold</span>
-                      <span className="font-semibold tabular-nums text-white">
+                      <span className="label-mono uppercase text-white/50">Sold</span>
+                      <span className="font-semibold font-mono tabular-nums text-white">
                         {tier.sold}
                         {tier.quantity > 0 && <span className="text-white/40"> / {tier.quantity}</span>}
                       </span>

@@ -51,7 +51,7 @@ function StatCard({
     <div className="rounded-2xl border border-white/10 p-5 shadow-soft">
       <div className="flex items-center gap-2 text-white/50">
         <span className="grid h-8 w-8 place-items-center rounded-lg text-brand-300">{icon}</span>
-        <span className="text-xs font-semibold uppercase tracking-wide">{label}</span>
+        <span className="label-mono text-xs uppercase">{label}</span>
       </div>
       <div className="mt-3 text-white">{children}</div>
       {hint && <p className="mt-1 text-xs text-white/50">{hint}</p>}
@@ -117,8 +117,8 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
         <span className="block space-y-1">
           {(['USD', 'HTG'] as const).map((code) => (
             <span key={code} className="flex items-baseline justify-between gap-3">
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-white/40">{code}</span>
-              <span className={`text-lg font-bold ${valueClass}`}>
+              <span className="label-mono text-[11px] uppercase text-white/40">{code}</span>
+              <span className={`font-mono tabular-nums text-lg font-bold ${valueClass}`}>
                 {formatCurrency(pick(code === 'USD' ? usd : htg), code)}
               </span>
             </span>
@@ -126,7 +126,7 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
         </span>
       )
     }
-    return <span className={`text-2xl font-bold ${valueClass}`}>{formatCurrency(single)}</span>
+    return <span className={`font-mono tabular-nums text-2xl font-bold ${valueClass}`}>{formatCurrency(single)}</span>
   }
 
   const pendingPick = (t?: CurrencyTotals) =>
@@ -173,17 +173,17 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
 
             {isMixed ? (
               <div className="mt-3 space-y-1">
-                <div className="font-display text-3xl leading-none sm:text-4xl">
+                <div className="font-mono tabular-nums text-3xl leading-none sm:text-4xl">
                   {formatCurrency(usd?.totalAvailableToWithdraw ?? 0, 'USD')}
-                  <span className="ml-2 align-middle text-sm font-medium text-brand-200">USD</span>
+                  <span className="label-mono ml-2 align-middle text-sm text-brand-200">USD</span>
                 </div>
-                <div className="font-display text-3xl leading-none sm:text-4xl">
+                <div className="font-mono tabular-nums text-3xl leading-none sm:text-4xl">
                   {formatCurrency(htg?.totalAvailableToWithdraw ?? 0, 'HTG')}
-                  <span className="ml-2 align-middle text-sm font-medium text-brand-200">HTG</span>
+                  <span className="label-mono ml-2 align-middle text-sm text-brand-200">HTG</span>
                 </div>
               </div>
             ) : (
-              <div className="mt-3 font-display text-[clamp(32px,6vw,52px)] leading-none">
+              <div className="mt-3 font-mono tabular-nums text-[clamp(32px,6vw,52px)] leading-none">
                 {formatCurrency(summary.totalAvailableToWithdraw)}
               </div>
             )}
@@ -191,11 +191,11 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
             <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-brand-100">
               <span className="inline-flex items-center gap-1.5">
                 <Clock className="h-3.5 w-3.5" />
-                Pending&nbsp;<span className="font-semibold text-white">{pendingLabel}</span>
+                Pending&nbsp;<span className="font-mono tabular-nums font-semibold text-white">{pendingLabel}</span>
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <ArrowDownCircle className="h-3.5 w-3.5" />
-                Withdrawn&nbsp;<span className="font-semibold text-white">{withdrawnLabel}</span>
+                Withdrawn&nbsp;<span className="font-mono tabular-nums font-semibold text-white">{withdrawnLabel}</span>
               </span>
             </div>
           </div>
@@ -244,22 +244,22 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
             How fees are calculated
           </span>
           <span className="flex items-center gap-3 text-sm text-white/50">
-            <span className="hidden sm:inline">Total fees {totalFeesLabel}</span>
+            <span className="hidden sm:inline">Total fees <span className="font-mono tabular-nums">{totalFeesLabel}</span></span>
             <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
           </span>
         </summary>
         <div className="space-y-2 border-t border-white/10 px-5 py-4 text-sm text-white/60">
           <div className="flex justify-between">
             <span>Platform fee</span>
-            <span className="font-medium text-white">10% of ticket sales</span>
+            <span className="font-mono tabular-nums font-medium text-white">10% of ticket sales</span>
           </div>
           <div className="flex justify-between">
             <span>Processing fee</span>
-            <span className="font-medium text-white">2.9% + $0.30 per transaction</span>
+            <span className="font-mono tabular-nums font-medium text-white">2.9% + $0.30 per transaction</span>
           </div>
           <div className="flex justify-between border-t border-white/10 pt-2">
             <span>Total fees paid</span>
-            <span className="font-semibold text-white">{totalFeesLabel}</span>
+            <span className="font-mono tabular-nums font-semibold text-white">{totalFeesLabel}</span>
           </div>
         </div>
       </details>
@@ -310,8 +310,8 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
               <div key={event.eventId} className="p-4 hover:bg-white/[0.04]">
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-white truncate">{event.eventTitle}</h3>
-                    <p className="text-sm text-white/50 mt-1">
+                    <h3 className="font-display italic text-white truncate">{event.eventTitle}</h3>
+                    <p className="font-mono tabular-nums text-sm text-white/50 mt-1">
                       {new Date(event.eventDate).toLocaleDateString()}
                     </p>
                   </div>
@@ -325,20 +325,20 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
                 
                 <div className="grid grid-cols-2 gap-3 mt-3 text-sm">
                   <div>
-                    <div className="text-white/50">Gross Sales</div>
-                    <div className="font-medium">
+                    <div className="label-mono uppercase text-white/50">Gross Sales</div>
+                    <div className="font-mono tabular-nums font-medium">
                       {formatCurrency(event.grossSales, event.currency || undefined)}
                     </div>
                   </div>
                   <div>
-                    <div className="text-white/50">Net Amount</div>
-                    <div className="font-medium">
+                    <div className="label-mono uppercase text-white/50">Net Amount</div>
+                    <div className="font-mono tabular-nums font-medium">
                       {formatCurrency(event.netAmount, event.currency || undefined)}
                     </div>
                   </div>
                   <div>
-                    <div className="text-white/50">Available</div>
-                    <div className="font-semibold text-emerald-300">
+                    <div className="label-mono uppercase text-white/50">Available</div>
+                    <div className="font-mono tabular-nums font-semibold text-emerald-300">
                       {formatCurrency(event.availableToWithdraw, event.currency || undefined)}
                     </div>
                   </div>
@@ -361,25 +361,25 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
           <table className="w-full">
             <thead className="bg-[#0a0a0a]">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs label-mono text-white/50 uppercase">
                   Event
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs label-mono text-white/50 uppercase">
                   Date
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-white/50 uppercase tracking-wider">
+                <th className="px-6 py-3 text-right text-xs label-mono text-white/50 uppercase">
                   Gross Sales
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-white/50 uppercase tracking-wider">
+                <th className="px-6 py-3 text-right text-xs label-mono text-white/50 uppercase">
                   Net Amount
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-white/50 uppercase tracking-wider">
+                <th className="px-6 py-3 text-right text-xs label-mono text-white/50 uppercase">
                   Available
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-white/50 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs label-mono text-white/50 uppercase">
                   Status
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-white/50 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs label-mono text-white/50 uppercase">
                   Actions
                 </th>
               </tr>
@@ -403,18 +403,18 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
                 filteredEvents.map((event) => (
                   <tr key={event.eventId} className="hover:bg-white/[0.04]">
                     <td className="px-6 py-4">
-                      <div className="font-medium text-white">{event.eventTitle}</div>
+                      <div className="font-display italic text-white">{event.eventTitle}</div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-white/50 whitespace-nowrap">
+                    <td className="px-6 py-4 font-mono tabular-nums text-sm text-white/50 whitespace-nowrap">
                       {new Date(event.eventDate).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 text-right font-medium whitespace-nowrap">
+                    <td className="px-6 py-4 text-right font-mono tabular-nums font-medium whitespace-nowrap">
                       {formatCurrency(event.grossSales, event.currency || undefined)}
                     </td>
-                    <td className="px-6 py-4 text-right font-medium whitespace-nowrap">
+                    <td className="px-6 py-4 text-right font-mono tabular-nums font-medium whitespace-nowrap">
                       {formatCurrency(event.netAmount, event.currency || undefined)}
                     </td>
-                    <td className="px-6 py-4 text-right font-semibold text-emerald-300 whitespace-nowrap">
+                    <td className="px-6 py-4 text-right font-mono tabular-nums font-semibold text-emerald-300 whitespace-nowrap">
                       {formatCurrency(event.availableToWithdraw, event.currency || undefined)}
                     </td>
                     <td className="px-6 py-4 text-center">

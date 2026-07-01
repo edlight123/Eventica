@@ -235,8 +235,8 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
       <div className="mb-6 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-white/10 bg-white/10 sm:grid-cols-3 lg:grid-cols-5">
         {kpis.map((k) => (
           <div key={k.label} className="bg-[#0a0a0a] p-4">
-            <p className="text-[11px] uppercase tracking-wide text-white/50">{k.label}</p>
-            <p className={`mt-1 text-2xl font-bold tabular-nums ${k.tone}`}>{k.value}</p>
+            <p className="label-mono text-[11px] uppercase tracking-wide text-white/50">{k.label}</p>
+            <p className={`mt-1 font-mono text-2xl font-bold tabular-nums ${k.tone}`}>{k.value}</p>
           </div>
         ))}
       </div>

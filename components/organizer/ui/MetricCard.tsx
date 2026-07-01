@@ -32,18 +32,18 @@ export function MetricCard({
             <Icon className="h-4 w-4" />
           </span>
         )}
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50">
+        <p className="label-mono text-[11px] uppercase text-white/50">
           {label}
         </p>
       </div>
 
-      <p className="font-display text-[28px] leading-none text-white">{value}</p>
+      <p className="font-mono tabular-nums text-[28px] leading-none text-white">{value}</p>
 
       {(sublabel !== undefined || trend !== undefined) && (
         <div className="mt-1.5 flex items-center gap-2">
           {trend !== undefined && trend !== 0 && (
             <span
-              className={`text-xs font-semibold ${
+              className={`text-xs font-semibold font-mono tabular-nums ${
                 trend > 0 ? 'text-emerald-400' : 'text-red-400'
               }`}
             >

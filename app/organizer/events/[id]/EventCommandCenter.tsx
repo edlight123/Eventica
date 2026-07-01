@@ -109,10 +109,10 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
       <div className="grid grid-cols-2 divide-x divide-y divide-white/10 rounded-lg border border-white/10 sm:grid-cols-4 sm:divide-y-0">
         {kpis.map((k) => (
           <div key={k.label} className="px-4 py-3">
-            <p className="truncate text-[11px] font-medium uppercase tracking-wide text-white/40">{k.label}</p>
+            <p className="label-mono truncate uppercase text-[11px] text-white/40">{k.label}</p>
             <p className="mt-1 flex items-baseline gap-1.5">
-              <span className="text-xl font-bold tabular-nums text-white">{k.value}</span>
-              {k.sub && <span className="text-xs text-white/40">{k.sub}</span>}
+              <span className="text-xl font-bold font-mono tabular-nums text-white">{k.value}</span>
+              {k.sub && <span className="text-xs font-mono tabular-nums text-white/40">{k.sub}</span>}
             </p>
           </div>
         ))}
@@ -125,7 +125,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
           <section className="rounded-lg border border-white/10 p-4">
             <div className="mb-3 flex items-center justify-between">
               <h3 className="text-[13px] font-semibold text-white">
-                Sales <span className="ml-1 font-normal text-white/40">· {soldInWindow} in {TREND_DAYS}d</span>
+                Sales <span className="ml-1 font-normal font-mono tabular-nums text-white/40">· {soldInWindow} in {TREND_DAYS}d</span>
               </h3>
               <Link href={`/organizer/events/${event.id}/analytics`} className="inline-flex items-center gap-1 text-xs font-medium text-brand-300 hover:text-brand-200">
                 Analytics <ArrowUpRight className="h-3 w-3" />
@@ -167,7 +167,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
                       <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
                         <div className="h-full rounded-full bg-brand-500" style={{ width: `${pct}%` }} />
                       </div>
-                      <span className="shrink-0 text-xs tabular-nums text-white/50">
+                      <span className="shrink-0 text-xs font-mono tabular-nums text-white/50">
                         {tsold}{qty > 0 ? `/${qty}` : ''} · {Number(tier.price) > 0 ? formatMoneyFromCents(Math.round(Number(tier.price) * 100), currency) : 'Free'}
                       </span>
                     </div>
@@ -198,7 +198,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
                         Ticket sold · {cents > 0 ? formatMoneyFromCents(cents, cur) : 'Free'}
                       </span>
                       {when && !Number.isNaN(when.getTime()) && (
-                        <span className="shrink-0 text-xs text-white/35">{formatDistanceToNow(when, { addSuffix: true })}</span>
+                        <span className="shrink-0 text-xs font-mono tabular-nums text-white/35">{formatDistanceToNow(when, { addSuffix: true })}</span>
                       )}
                     </li>
                   )
@@ -213,7 +213,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
         {/* ===== Right rail — event details ===== */}
         <aside className="space-y-4 lg:sticky lg:top-[132px] lg:self-start">
           {event.banner_image_url ? (
-            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-lg border border-white/10">
+            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-none border border-white/10">
               <Image src={event.banner_image_url} alt={event.title} fill sizes="300px" className="object-cover" />
             </div>
           ) : (
@@ -229,7 +229,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
           <div className="space-y-2.5 text-sm">
             <div className="flex items-start gap-2.5">
               <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-white/40" />
-              <span className="text-white/75">{format(new Date(event.start_datetime), 'EEE, MMM d, yyyy · h:mm a')}</span>
+              <span className="font-mono tabular-nums text-white/75">{format(new Date(event.start_datetime), 'EEE, MMM d, yyyy · h:mm a')}</span>
             </div>
             <div className="flex items-start gap-2.5">
               {event.is_online ? (
@@ -251,7 +251,7 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
 
           {event.description && (
             <div className="border-t border-white/10 pt-3">
-              <h4 className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-white/40">About</h4>
+              <h4 className="label-mono mb-1.5 uppercase text-xs text-white/40">About</h4>
               <p className="line-clamp-5 whitespace-pre-wrap text-sm leading-relaxed text-white/55">
                 {event.description}
               </p>

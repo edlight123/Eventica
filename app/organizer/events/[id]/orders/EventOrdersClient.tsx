@@ -50,7 +50,7 @@ const COLUMNS: OrgColumn<Order>[] = [
     header: 'Amount',
     align: 'right',
     render: (o) => (
-      <span className="font-semibold tabular-nums text-white">{o.amount}</span>
+      <span className="font-mono font-semibold tabular-nums text-white">{o.amount}</span>
     ),
   },
   {
@@ -62,7 +62,7 @@ const COLUMNS: OrgColumn<Order>[] = [
     render: (o) => {
       const d = new Date(o.purchasedAt)
       return (
-        <span className="text-white/55">
+        <span className="font-mono tabular-nums text-white/55">
           {isValid(d) ? format(d, 'MMM d, yyyy') : '—'}
         </span>
       )
@@ -138,9 +138,9 @@ export default function EventOrdersClient({ orders }: { orders: Order[] }) {
               </div>
               <p className="mt-0.5 truncate text-xs text-white/45">{o.attendeeEmail}</p>
               <div className="mt-2 flex items-center gap-3 text-sm">
-                <span className="font-semibold text-white tabular-nums">{o.amount}</span>
+                <span className="font-mono font-semibold text-white tabular-nums">{o.amount}</span>
                 <span className="text-white/40">{o.tierName}</span>
-                <span className="ml-auto text-white/40">
+                <span className="ml-auto font-mono tabular-nums text-white/40">
                   {isValid(d) ? format(d, 'MMM d') : '—'}
                 </span>
               </div>

@@ -117,7 +117,7 @@ export function AdminDashboardQuickActions({
         {urgentTasks > 0 && (
           <span className="flex items-center gap-1 px-2 py-0.5 text-red-300 rounded-full text-xs font-medium">
             <AlertTriangle className="w-3 h-3" />
-            {urgentTasks} urgent
+            <span className="font-mono tabular-nums">{urgentTasks}</span> urgent
           </span>
         )}
       </div>
@@ -133,7 +133,7 @@ export function AdminDashboardQuickActions({
               className="group relative rounded-xl  p-3 flex flex-col gap-2 hover:bg-white/[0.04] hover:border-white/20 transition-all"
             >
               {action.badge !== undefined && action.badge > 0 && (
-                <span className="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                <span className="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center font-mono tabular-nums">
                   {action.badge > 99 ? '99+' : action.badge}
                 </span>
               )}

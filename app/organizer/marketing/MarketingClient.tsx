@@ -55,7 +55,7 @@ const COLUMNS: OrgColumn<Attendee>[] = [
     sortable: true,
     sortAccessor: (a) => a.ticketCount,
     render: (a) => (
-      <span className="font-semibold tabular-nums text-white">{a.ticketCount}</span>
+      <span className="font-mono font-semibold tabular-nums text-white">{a.ticketCount}</span>
     ),
   },
   {
@@ -64,7 +64,7 @@ const COLUMNS: OrgColumn<Attendee>[] = [
     align: 'right',
     hideOnMobile: true,
     render: (a) => (
-      <span className="tabular-nums text-white/70">{spendLabel(a.spendByCurrency)}</span>
+      <span className="font-mono tabular-nums text-white/70">{spendLabel(a.spendByCurrency)}</span>
     ),
   },
   {
@@ -76,7 +76,7 @@ const COLUMNS: OrgColumn<Attendee>[] = [
     render: (a) => {
       const d = new Date(a.lastPurchase)
       return (
-        <span className="text-white/55">{isValid(d) ? format(d, 'MMM d, yyyy') : '—'}</span>
+        <span className="font-mono tabular-nums text-white/55">{isValid(d) ? format(d, 'MMM d, yyyy') : '—'}</span>
       )
     },
   },
@@ -105,7 +105,7 @@ export default function MarketingClient({ attendees }: { attendees: Attendee[] }
         actions={
           attendees.length > 0 ? (
             <span className="rounded-full border border-white/10 px-3.5 py-2 text-sm text-white/70">
-              {attendees.length} {attendees.length === 1 ? 'attendee' : 'attendees'}
+              <span className="font-mono tabular-nums">{attendees.length}</span> {attendees.length === 1 ? 'attendee' : 'attendees'}
             </span>
           ) : undefined
         }
@@ -149,10 +149,10 @@ export default function MarketingClient({ attendees }: { attendees: Attendee[] }
                 <p className="truncate text-xs text-white/45">{a.email || a.phone || '—'}</p>
                 <div className="mt-2 flex items-center gap-4 text-sm">
                   <span className="text-white/60">
-                    {a.ticketCount} ticket{a.ticketCount !== 1 ? 's' : ''}
+                    <span className="font-mono tabular-nums">{a.ticketCount}</span> ticket{a.ticketCount !== 1 ? 's' : ''}
                   </span>
-                  <span className="text-white/40">{spendLabel(a.spendByCurrency)}</span>
-                  <span className="ml-auto text-white/40">
+                  <span className="font-mono tabular-nums text-white/40">{spendLabel(a.spendByCurrency)}</span>
+                  <span className="ml-auto font-mono tabular-nums text-white/40">
                     {isValid(d) ? format(d, 'MMM d') : '—'}
                   </span>
                 </div>

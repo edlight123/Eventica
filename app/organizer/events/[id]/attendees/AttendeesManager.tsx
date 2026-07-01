@@ -87,7 +87,7 @@ const COLUMNS: OrgColumn<Ticket>[] = [
         return (
           <div>
             <StatusChip tone="success">Checked In</StatusChip>
-            <p className="mt-0.5 text-xs text-white/40">
+            <p className="mt-0.5 font-mono tabular-nums text-xs text-white/40">
               {format(new Date(t.checked_in_at), 'MMM d, h:mm a')}
             </p>
           </div>
@@ -103,7 +103,7 @@ const COLUMNS: OrgColumn<Ticket>[] = [
     sortable: true,
     sortAccessor: (t: Ticket) => t.purchased_at,
     render: (t: Ticket) => (
-      <span className="text-sm text-white/60">
+      <span className="font-mono tabular-nums text-sm text-white/60">
         {format(new Date(t.purchased_at), 'MMM d, yyyy')}
       </span>
     ),
@@ -228,8 +228,8 @@ export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesMana
           { label: 'Cancelled', value: stats.cancelled, color: 'text-red-300', bg: 'border-red-500/30' },
         ].map((k) => (
           <div key={k.label} className={`rounded-xl border bg-[#0a0a0a] p-4 ${k.bg}`}>
-            <p className="text-xs font-medium uppercase tracking-wide text-white/50">{k.label}</p>
-            <p className={`mt-1 text-2xl font-bold ${k.color}`}>{k.value}</p>
+            <p className="label-mono uppercase text-white/50">{k.label}</p>
+            <p className={`mt-1 font-mono tabular-nums text-2xl font-bold ${k.color}`}>{k.value}</p>
           </div>
         ))}
       </div>
@@ -319,7 +319,7 @@ function AttendeeDetail({ ticket }: { ticket: Ticket }) {
     <div className="space-y-6 p-6">
       {/* Attendee info */}
       <section>
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-white/50">
+        <p className="label-mono uppercase mb-3 text-white/50">
           Attendee Information
         </p>
         <div className="space-y-3">
@@ -344,7 +344,7 @@ function AttendeeDetail({ ticket }: { ticket: Ticket }) {
 
       {/* Ticket info */}
       <section>
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-white/50">
+        <p className="label-mono uppercase mb-3 text-white/50">
           Ticket Information
         </p>
         <div className="space-y-3">
@@ -352,7 +352,7 @@ function AttendeeDetail({ ticket }: { ticket: Ticket }) {
             <span className="font-mono text-sm">{ticket.id}</span>
           </InfoRow>
           <InfoRow icon={<Calendar className="h-4 w-4" />} label="Purchased">
-            {format(new Date(ticket.purchased_at), 'MMMM d, yyyy h:mm a')}
+            <span className="font-mono tabular-nums">{format(new Date(ticket.purchased_at), 'MMMM d, yyyy h:mm a')}</span>
           </InfoRow>
           <InfoRow
             icon={
@@ -365,7 +365,7 @@ function AttendeeDetail({ ticket }: { ticket: Ticket }) {
             label="Check-In"
           >
             {ticket.checked_in_at ? (
-              <span className="text-emerald-300">
+              <span className="font-mono tabular-nums text-emerald-300">
                 {format(new Date(ticket.checked_in_at), 'MMM d, h:mm a')}
               </span>
             ) : (
@@ -373,10 +373,10 @@ function AttendeeDetail({ ticket }: { ticket: Ticket }) {
             )}
           </InfoRow>
           <InfoRow icon={<CreditCard className="h-4 w-4" />} label="Price Paid">
-            {formatMoneyFromCents(
+            <span className="font-mono tabular-nums text-brand-300">{formatMoneyFromCents(
               Math.round(Number(ticket.price_paid || 0) * 100),
               normalizeCurrency(ticket.currency, 'HTG')
-            )}
+            )}</span>
           </InfoRow>
         </div>
       </section>

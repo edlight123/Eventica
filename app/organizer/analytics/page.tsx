@@ -258,17 +258,17 @@ export default async function AnalyticsPage() {
                   key={event.id}
                   className="flex items-center gap-4 rounded-xl border border-white/10 p-4 transition-colors hover:bg-white/[0.04]"
                 >
-                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-700 font-bold text-white text-sm">
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-700 font-mono tabular-nums font-bold text-white text-sm">
                     {index + 1}
                   </div>
                   <div className="min-w-0 flex-1">
                     <Link
                       href={`/organizer/events/${event.id}`}
-                      className="block truncate font-semibold text-white hover:text-brand-300 transition-colors"
+                      className="block truncate font-display italic text-white hover:text-brand-300 transition-colors"
                     >
                       {event.title}
                     </Link>
-                    <p className="text-xs text-white/50 mt-0.5">
+                    <p className="font-mono tabular-nums text-xs text-white/50 mt-0.5">
                       {new Date(event.start_datetime).toLocaleDateString('en-US', {
                         month: 'long',
                         day: 'numeric',
@@ -278,12 +278,12 @@ export default async function AnalyticsPage() {
                   </div>
                   <div className="flex shrink-0 items-center gap-6">
                     <div className="text-right">
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-white/40">Tickets</p>
-                      <p className="text-xl font-bold text-brand-300">{event.ticketCount}</p>
+                      <p className="label-mono text-[10px] uppercase text-white/40">Tickets</p>
+                      <p className="font-mono tabular-nums text-xl font-bold text-brand-300">{event.ticketCount}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-white/40">Revenue</p>
-                      <p className="text-xl font-bold text-white">
+                      <p className="label-mono text-[10px] uppercase text-white/40">Revenue</p>
+                      <p className="font-mono tabular-nums text-xl font-bold text-white">
                         {formatMoneyFromCents(event.revenueCents, organizerCurrency, 'en-US', { currencyDisplay: 'code' })}
                       </p>
                     </div>

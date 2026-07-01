@@ -61,7 +61,7 @@ function HeroScorecard() {
     <div>
       <div className="mb-2 flex items-center gap-2">
         <span className={`h-1.5 w-1.5 rounded-full ${isConnected ? 'bg-emerald-400' : 'bg-white/30'}`} />
-        <span className="text-[11px] font-medium uppercase tracking-wide text-white/50">
+        <span className="label-mono text-[11px] font-medium uppercase tracking-wide text-white/50">
           {isConnected ? 'Live' : 'Snapshot'}
         </span>
       </div>
@@ -70,13 +70,13 @@ function HeroScorecard() {
           const Icon = c.icon
           return (
             <div key={c.label} className="p-4">
-              <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
+              <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
                 <Icon className="h-3.5 w-3.5 text-white/30" />
                 <span className="truncate">{c.label}</span>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-bold tabular-nums text-white">{c.value}</span>
-                {c.sub && <span className="text-xs text-white/50">{c.sub}</span>}
+                <span className="font-mono text-2xl font-bold tabular-nums text-white">{c.value}</span>
+                {c.sub && <span className="font-mono text-xs text-white/50">{c.sub}</span>}
               </div>
             </div>
           )

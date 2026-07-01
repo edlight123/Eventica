@@ -51,7 +51,7 @@ const COLUMNS: OrgColumn<Order>[] = [
     sortable: true,
     hideOnMobile: true,
     render: (o) => (
-      <span className="truncate text-white/70">{o.eventTitle}</span>
+      <span className="truncate font-display italic text-white/70">{o.eventTitle}</span>
     ),
   },
   {
@@ -61,7 +61,7 @@ const COLUMNS: OrgColumn<Order>[] = [
     sortable: true,
     sortAccessor: (o) => o.amount,
     render: (o) => (
-      <span className="font-semibold tabular-nums text-white">
+      <span className="font-mono font-semibold tabular-nums text-white">
         {money(o.amount, o.currency)}
       </span>
     ),
@@ -75,7 +75,7 @@ const COLUMNS: OrgColumn<Order>[] = [
     render: (o) => {
       const d = new Date(o.purchasedAt)
       return (
-        <span className="text-white/55">
+        <span className="font-mono tabular-nums text-white/55">
           {isValid(d) ? format(d, 'MMM d, yyyy') : '—'}
         </span>
       )
@@ -117,7 +117,7 @@ export default function OrdersClient({ orders }: { orders: Order[] }) {
         actions={
           orders.length > 0 ? (
             <span className="rounded-full border border-white/10 px-3.5 py-2 text-sm text-white/70">
-              {orders.length} order{orders.length !== 1 ? 's' : ''}
+              <span className="font-mono tabular-nums">{orders.length}</span> order{orders.length !== 1 ? 's' : ''}
             </span>
           ) : undefined
         }
@@ -163,12 +163,12 @@ export default function OrdersClient({ orders }: { orders: Order[] }) {
                     {o.status.replace(/_/g, ' ')}
                   </StatusChip>
                 </div>
-                <p className="mt-0.5 truncate text-xs text-white/45">{o.eventTitle}</p>
+                <p className="mt-0.5 truncate font-display italic text-xs text-white/45">{o.eventTitle}</p>
                 <div className="mt-2 flex items-center gap-3 text-sm">
-                  <span className="font-semibold text-white tabular-nums">
+                  <span className="font-mono font-semibold text-white tabular-nums">
                     {money(o.amount, o.currency)}
                   </span>
-                  <span className="text-white/40">
+                  <span className="font-mono tabular-nums text-white/40">
                     {isValid(d) ? format(d, 'MMM d, yyyy') : '—'}
                   </span>
                 </div>

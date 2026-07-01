@@ -143,7 +143,7 @@ export default async function EventAnalyticsPage({
                     <div key={tier.name}>
                       <div className="mb-1.5 flex items-center justify-between text-sm">
                         <span className="text-white/80">{tier.name}</span>
-                        <span className="tabular-nums text-white">
+                        <span className="font-mono tabular-nums text-white">
                           {tier.sold} <span className="text-white/40">({pct.toFixed(0)}%)</span>
                         </span>
                       </div>
@@ -179,14 +179,14 @@ export default async function EventAnalyticsPage({
                         style={{ height: `${heightPct * 0.8}px`, maxHeight: '80px' }}
                         title={`${count} on ${date}`}
                       />
-                      <span className="hidden text-[9px] text-white/30 group-hover:block">
+                      <span className="hidden font-mono tabular-nums text-[9px] text-white/30 group-hover:block">
                         {date.slice(5)}
                       </span>
                     </div>
                   )
                 })}
               </div>
-              <p className="mt-2 text-xs text-white/40">Last {salesByDay.length} days with sales</p>
+              <p className="mt-2 text-xs text-white/40">Last <span className="font-mono tabular-nums">{salesByDay.length}</span> days with sales</p>
             </div>
           )}
         </div>

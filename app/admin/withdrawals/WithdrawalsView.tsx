@@ -198,12 +198,12 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                     </td>
                     <td className="px-4 py-4">
                       <div className="font-medium text-white">{withdrawal.event?.title || 'Unknown Event'}</div>
-                      <div className="text-sm text-white/50">
+                      <div className="font-mono text-sm tabular-nums text-white/50">
                         {withdrawal.event?.date ? new Date(withdrawal.event.date).toLocaleDateString() : 'N/A'}
                       </div>
                     </td>
                     <td className="px-4 py-4">
-                      <div className="font-bold text-white">{formatCurrency(withdrawal.amount)}</div>
+                      <div className="font-mono font-bold tabular-nums text-white">{formatCurrency(withdrawal.amount)}</div>
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
@@ -215,10 +215,10 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                     </td>
                     <td className="px-4 py-4">{getStatusBadge(withdrawal.status)}</td>
                     <td className="px-4 py-4">
-                      <div className="text-sm text-white/60">
+                      <div className="font-mono text-sm tabular-nums text-white/60">
                         {new Date(withdrawal.createdAt).toLocaleDateString()}
                       </div>
-                      <div className="text-xs text-white/50">
+                      <div className="font-mono text-xs tabular-nums text-white/50">
                         {new Date(withdrawal.createdAt).toLocaleTimeString()}
                       </div>
                     </td>
@@ -252,12 +252,12 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                   {getStatusBadge(withdrawal.status)}
                 </div>
                 <div className="flex justify-between items-center">
-                  <div className="font-bold text-white">{formatCurrency(withdrawal.amount)}</div>
+                  <div className="font-mono font-bold tabular-nums text-white">{formatCurrency(withdrawal.amount)}</div>
                   <div className="text-sm text-white/50">
                     {getMethodIcon(withdrawal.method)} {withdrawal.method === 'moncash' ? 'MonCash' : 'Bank'}
                   </div>
                 </div>
-                <div className="text-xs text-white/50 mt-2">
+                <div className="font-mono text-xs tabular-nums text-white/50 mt-2">
                   {new Date(withdrawal.createdAt).toLocaleDateString()}
                 </div>
               </div>
@@ -290,8 +290,8 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                 <div>{getStatusBadge(selectedWithdrawal.status)}</div>
               </div>
               <div className="rounded-lg border border-white/10 p-4">
-                <div className="text-sm text-white/60 mb-1">Amount</div>
-                <div className="text-2xl font-bold tabular-nums text-white">{formatCurrency(selectedWithdrawal.amount)}</div>
+                <div className="label-mono text-sm text-white/60 mb-1">Amount</div>
+                <div className="font-mono text-2xl font-bold tabular-nums text-white">{formatCurrency(selectedWithdrawal.amount)}</div>
               </div>
             </div>
 
@@ -320,7 +320,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                 </div>
                 <div className="flex justify-between">
                   <span className="text-white/60">Date:</span>
-                  <span className="font-medium text-white">
+                  <span className="font-mono font-medium tabular-nums text-white">
                     {selectedWithdrawal.event?.date ? new Date(selectedWithdrawal.event.date).toLocaleDateString() : 'N/A'}
                   </span>
                 </div>
@@ -342,7 +342,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                 {selectedWithdrawal.method === 'moncash' && selectedWithdrawal.moncashNumber && (
                   <div className="flex justify-between">
                     <span className="text-white/60">Phone:</span>
-                    <span className="font-medium text-white">{selectedWithdrawal.moncashNumber}</span>
+                    <span className="font-mono font-medium tabular-nums text-white">{selectedWithdrawal.moncashNumber}</span>
                   </div>
                 )}
                 {selectedWithdrawal.method === 'bank' && selectedWithdrawal.bankDetails && (
@@ -357,18 +357,18 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                     </div>
                     <div className="flex justify-between">
                       <span className="text-white/60">Account #:</span>
-                      <span className="font-medium text-white">{selectedWithdrawal.bankDetails.accountNumber}</span>
+                      <span className="font-mono font-medium tabular-nums text-white">{selectedWithdrawal.bankDetails.accountNumber}</span>
                     </div>
                     {selectedWithdrawal.bankDetails.routingNumber && (
                       <div className="flex justify-between">
                         <span className="text-white/60">Routing:</span>
-                        <span className="font-medium text-white">{selectedWithdrawal.bankDetails.routingNumber}</span>
+                        <span className="font-mono font-medium tabular-nums text-white">{selectedWithdrawal.bankDetails.routingNumber}</span>
                       </div>
                     )}
                     {selectedWithdrawal.bankDetails.swiftCode && (
                       <div className="flex justify-between">
                         <span className="text-white/60">SWIFT:</span>
-                        <span className="font-medium text-white">{selectedWithdrawal.bankDetails.swiftCode}</span>
+                        <span className="font-mono font-medium tabular-nums text-white">{selectedWithdrawal.bankDetails.swiftCode}</span>
                       </div>
                     )}
                   </>
@@ -382,14 +382,14 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
               <div className="rounded-lg border border-white/10 p-4 space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-white/60">Requested:</span>
-                  <span className="font-medium text-white">
+                  <span className="font-mono font-medium tabular-nums text-white">
                     {new Date(selectedWithdrawal.createdAt).toLocaleString()}
                   </span>
                 </div>
                 {selectedWithdrawal.processedAt && (
                   <div className="flex justify-between">
                     <span className="text-white/60">Processed:</span>
-                    <span className="font-medium text-white">
+                    <span className="font-mono font-medium tabular-nums text-white">
                       {new Date(selectedWithdrawal.processedAt).toLocaleString()}
                     </span>
                   </div>
@@ -397,7 +397,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                 {selectedWithdrawal.completedAt && (
                   <div className="flex justify-between">
                     <span className="text-white/60">Completed:</span>
-                    <span className="font-medium text-white">
+                    <span className="font-mono font-medium tabular-nums text-white">
                       {new Date(selectedWithdrawal.completedAt).toLocaleString()}
                     </span>
                   </div>

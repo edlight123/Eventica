@@ -168,15 +168,15 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
           </h1>
           <p className="mt-1 text-sm text-white/50">{user.email}</p>
           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold">
-            <span className="text-brand-300">{user.role}</span>
+            <span className="label-mono uppercase text-brand-300">{user.role}</span>
             {user.verification_status === 'approved' && (
-              <span className="text-emerald-300">✓ Verified</span>
+              <span className="label-mono uppercase text-emerald-300">✓ Verified</span>
             )}
             {isBanned && (
-              <span className="text-red-300">✕ Banned</span>
+              <span className="label-mono uppercase text-red-300">✕ Banned</span>
             )}
             {!canPost && (
-              <span className="text-amber-300">⚠ Posting Disabled</span>
+              <span className="label-mono uppercase text-amber-300">⚠ Posting Disabled</span>
             )}
           </div>
         </div>
@@ -242,33 +242,33 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
       {/* Stats Strip */}
       <div className="mb-6 grid grid-cols-3 divide-x divide-white/10 overflow-hidden rounded-xl border border-white/10">
         <div className="p-4">
-          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/50">
+          <div className="label-mono flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/50">
             <svg className="h-3.5 w-3.5 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
             Total Events
           </div>
-          <div className="mt-1 text-2xl font-bold tabular-nums text-white">{stats.totalEvents}</div>
+          <div className="mt-1 font-mono text-2xl font-bold tabular-nums text-white">{stats.totalEvents}</div>
         </div>
 
         <div className="p-4">
-          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/50">
+          <div className="label-mono flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/50">
             <svg className="h-3.5 w-3.5 text-white/30" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
             </svg>
             Published Events
           </div>
-          <div className="mt-1 text-2xl font-bold tabular-nums text-white">{stats.publishedEvents}</div>
+          <div className="mt-1 font-mono text-2xl font-bold tabular-nums text-white">{stats.publishedEvents}</div>
         </div>
 
         <div className="p-4">
-          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/50">
+          <div className="label-mono flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/50">
             <svg className="h-3.5 w-3.5 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
             </svg>
             Tickets Sold
           </div>
-          <div className="mt-1 text-2xl font-bold tabular-nums text-white">{stats.ticketsSold}</div>
+          <div className="mt-1 font-mono text-2xl font-bold tabular-nums text-white">{stats.ticketsSold}</div>
         </div>
       </div>
 
@@ -292,23 +292,23 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
             </div>
             <div>
               <dt className="text-xs text-white/50">Account Status</dt>
-              <dd className={`text-sm font-semibold ${isBanned ? 'text-red-300' : 'text-emerald-300'}`}>
+              <dd className={`label-mono uppercase text-sm font-semibold ${isBanned ? 'text-red-300' : 'text-emerald-300'}`}>
                 {isBanned ? 'Banned' : 'Active'}
               </dd>
             </div>
             <div>
               <dt className="text-xs text-white/50">Can Create Events</dt>
-              <dd className={`text-sm font-semibold ${canPost ? 'text-emerald-300' : 'text-red-300'}`}>
+              <dd className={`label-mono uppercase text-sm font-semibold ${canPost ? 'text-emerald-300' : 'text-red-300'}`}>
                 {canPost ? 'Yes' : 'No'}
               </dd>
             </div>
             <div>
               <dt className="text-xs text-white/50">Joined</dt>
-              <dd className="text-sm text-white">{formatDate(user.created_at)}</dd>
+              <dd className="font-mono tabular-nums text-sm text-white">{formatDate(user.created_at)}</dd>
             </div>
             <div>
               <dt className="text-xs text-white/50">Last Updated</dt>
-              <dd className="text-sm text-white">{formatDate(user.updated_at)}</dd>
+              <dd className="font-mono tabular-nums text-sm text-white">{formatDate(user.updated_at)}</dd>
             </div>
           </dl>
         </div>
@@ -333,18 +333,18 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                   {payoutDestinations.map((dest, index) => (
                     <div key={dest.id || index} className="rounded-lg border border-white/10 p-4">
                       <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold">
-                        <span className="text-white/70">
+                        <span className="label-mono uppercase text-white/70">
                           {safeString(dest.type || 'bank').replace(/_/g, ' ')}
                         </span>
                         {(dest.isPrimary || dest.isDefault) && (
-                          <span className="text-emerald-300">Primary</span>
+                          <span className="label-mono uppercase text-emerald-300">Primary</span>
                         )}
                         {dest.status && (
-                          <span className={
+                          <span className={`label-mono uppercase ${
                             dest.status === 'active' || dest.status === 'verified' ? 'text-emerald-300' :
                             dest.status === 'pending' ? 'text-amber-300' :
                             'text-red-300'
-                          }>
+                          }`}>
                             {safeString(dest.status)}
                           </span>
                         )}
@@ -449,11 +449,11 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                       return (
                         <span
                           key={type}
-                          className={
+                          className={`label-mono uppercase ${
                             status === 'verified' ? 'text-emerald-300' :
                             status === 'failed' ? 'text-red-300' :
                             'text-amber-300'
-                          }
+                          }`}
                         >
                           {type}: {status}
                         </span>
@@ -467,7 +467,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
               <div className="rounded-lg border border-white/10 p-4">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm font-medium text-white">Payout Status</p>
-                  <span className={`text-xs font-semibold ${
+                  <span className={`label-mono uppercase text-xs font-semibold ${
                     payoutConfig.status === 'active' ? 'text-emerald-300' :
                     payoutConfig.status === 'pending_verification' ? 'text-amber-300' :
                     payoutConfig.status === 'on_hold' ? 'text-red-300' :
@@ -507,7 +507,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
 
               {/* Timestamps */}
               {(payoutConfig.createdAt || payoutConfig.updatedAt) && (
-                <div className="space-y-1 text-xs text-white/50">
+                <div className="space-y-1 font-mono tabular-nums text-xs text-white/50">
                   {payoutConfig.createdAt && (
                     <p>Created: {formatDate(payoutConfig.createdAt)}</p>
                   )}
@@ -540,7 +540,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
             <dl className="space-y-3">
               <div>
                 <dt className="text-xs text-white/50">Status</dt>
-                <dd className={`mt-1 text-sm font-semibold ${
+                <dd className={`label-mono uppercase mt-1 text-sm font-semibold ${
                   safeString(verificationRequest.status) === 'approved' ? 'text-emerald-300' :
                   safeString(verificationRequest.status) === 'rejected' ? 'text-red-300' :
                   'text-amber-300'
@@ -565,7 +565,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
 
               <div>
                 <dt className="text-xs text-white/50">Submitted</dt>
-                <dd className="text-sm text-white">
+                <dd className="font-mono tabular-nums text-sm text-white">
                   {formatDate(verificationRequest.submitted_at || verificationRequest.createdAt)}
                 </dd>
               </div>
@@ -573,7 +573,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
               {verificationRequest.reviewed_at && (
                 <div>
                   <dt className="text-xs text-white/50">Reviewed</dt>
-                  <dd className="text-sm text-white">
+                  <dd className="font-mono tabular-nums text-sm text-white">
                     {formatDate(verificationRequest.reviewed_at)}
                   </dd>
                 </div>
@@ -634,19 +634,19 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
                         <div>
                           <p className="text-sm font-medium text-white">{docTypeLabel} Verification</p>
                           {doc.submittedAt && (
-                            <p className="text-xs text-white/50">
+                            <p className="font-mono tabular-nums text-xs text-white/50">
                               Submitted {formatDate(doc.submittedAt, false)}
                             </p>
                           )}
                           {doc.uploadedAt && !doc.submittedAt && (
-                            <p className="text-xs text-white/50">
+                            <p className="font-mono tabular-nums text-xs text-white/50">
                               Uploaded {formatDate(doc.uploadedAt, false)}
                             </p>
                           )}
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className={`text-xs font-semibold ${
+                        <span className={`label-mono uppercase text-xs font-semibold ${
                           status === 'verified' || status === 'approved' ? 'text-emerald-300' :
                           status === 'rejected' || status === 'failed' ? 'text-red-300' :
                           'text-amber-300'

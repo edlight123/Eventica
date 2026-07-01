@@ -410,7 +410,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
               {user?.full_name || 'Unknown User'}
             </h3>
             <p className="text-[13px] sm:text-sm text-white/60 truncate">{user?.email}</p>
-            <p className="text-[11px] sm:text-xs text-white/50 mt-1">
+            <p className="font-mono tabular-nums text-[11px] sm:text-xs text-white/50 mt-1">
               {submittedDate ? (
                 <>
                   Submitted {formatSubmittedAt(submittedDate)} (UTC)
@@ -451,11 +451,11 @@ export default function VerificationRequestReview({ request, user }: Props) {
                       </div>
                       <div className="flex items-center gap-2 whitespace-nowrap">
                         {required ? (
-                          <span className="px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded bg-[#0a0a0a] text-white/70">Required</span>
+                          <span className="label-mono uppercase px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded bg-[#0a0a0a] text-white/70">Required</span>
                         ) : (
-                          <span className="px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded bg-[#0a0a0a] text-white/60">Optional</span>
+                          <span className="label-mono uppercase px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded bg-[#0a0a0a] text-white/60">Optional</span>
                         )}
-                        <span className="px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded bg-[#0a0a0a] text-white/70 ">
+                        <span className="label-mono uppercase px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded bg-[#0a0a0a] text-white/70 ">
                           {String(stepStatus).replaceAll('_', ' ')}
                         </span>
                       </div>

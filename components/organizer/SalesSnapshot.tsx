@@ -101,27 +101,27 @@ export function SalesSnapshot({ data, currency = 'HTG' }: SalesSnapshotProps) {
         <div className="rounded-xl border border-white/10 px-3.5 py-3">
           <div className="mb-1 flex items-center gap-1.5 text-white/50">
             <Calendar className="h-3.5 w-3.5 text-brand-300" />
-            <p className="text-[11px] font-semibold uppercase tracking-wide">{t('sales_snapshot.events')}</p>
+            <p className="label-mono text-[11px] uppercase">{t('sales_snapshot.events')}</p>
           </div>
-          <p className="text-2xl font-bold leading-none text-white">{metrics.upcomingEvents}</p>
+          <p className="text-2xl font-bold leading-none text-white font-mono tabular-nums">{metrics.upcomingEvents}</p>
           <p className="mt-1 text-[11px] text-white/40">{t('sales_snapshot.upcoming')}</p>
         </div>
 
         <div className="rounded-xl border border-white/10 px-3.5 py-3">
           <div className="mb-1 flex items-center gap-1.5 text-white/50">
             <Users className="h-3.5 w-3.5 text-brand-300" />
-            <p className="text-[11px] font-semibold uppercase tracking-wide">{t('sales_snapshot.tickets')}</p>
+            <p className="label-mono text-[11px] uppercase">{t('sales_snapshot.tickets')}</p>
           </div>
-          <p className="text-2xl font-bold leading-none text-white">{metrics.ticketsSold}</p>
+          <p className="text-2xl font-bold leading-none text-white font-mono tabular-nums">{metrics.ticketsSold}</p>
           <p className="mt-1 text-[11px] text-white/40">{t('sales_snapshot.sold')}</p>
         </div>
 
         <div className="rounded-xl border border-white/10 px-3.5 py-3">
           <div className="mb-1 flex items-center gap-1.5 text-white/50">
             <DollarSign className="h-3.5 w-3.5 text-brand-300" />
-            <p className="text-[11px] font-semibold uppercase tracking-wide">{t('sales_snapshot.revenue')}</p>
+            <p className="label-mono text-[11px] uppercase">{t('sales_snapshot.revenue')}</p>
           </div>
-          <p className={`font-bold leading-tight text-white ${metrics.revenueCents === 0 ? 'text-base' : 'text-2xl leading-none'}`}>
+          <p className={`font-bold leading-tight ${metrics.revenueCents === 0 ? 'text-base text-white' : 'text-2xl leading-none font-mono tabular-nums text-brand-300'}`}>
             {formatRevenue()}
           </p>
           <p className="mt-1 text-[11px] text-white/40">
@@ -136,9 +136,9 @@ export function SalesSnapshot({ data, currency = 'HTG' }: SalesSnapshotProps) {
         <div className="rounded-xl border border-white/10 px-3.5 py-3">
           <div className="mb-1 flex items-center gap-1.5 text-white/50">
             <TrendingUp className="h-3.5 w-3.5 text-brand-300" />
-            <p className="text-[11px] font-semibold uppercase tracking-wide">{t('sales_snapshot.avg_event')}</p>
+            <p className="label-mono text-[11px] uppercase">{t('sales_snapshot.avg_event')}</p>
           </div>
-          <p className="text-2xl font-bold leading-none text-white">{metrics.avgTicketsPerEvent.toFixed(1)}</p>
+          <p className="text-2xl font-bold leading-none text-white font-mono tabular-nums">{metrics.avgTicketsPerEvent.toFixed(1)}</p>
           <p className="mt-1 text-[11px] text-white/40">{t('sales_snapshot.tickets_per_event')}</p>
         </div>
       </div>

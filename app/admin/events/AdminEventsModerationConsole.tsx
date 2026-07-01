@@ -223,7 +223,7 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
         {/* Pagination placeholder */}
         {filteredEvents.length > 0 && (
           <div className="mt-4 flex items-center justify-between">
-            <p className="text-sm text-white/60">
+            <p className="font-mono text-sm tabular-nums text-white/60">
               Showing {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''}
             </p>
             {/* Future: Add pagination controls here */}

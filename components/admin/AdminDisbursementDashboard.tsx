@@ -131,31 +131,31 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 divide-x divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10 sm:grid-cols-4 sm:divide-y-0">
         <div className="p-4">
-          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
+          <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
             <Calendar className="h-3.5 w-3.5 text-white/30" /> Events Ended (7d)
           </div>
-          <div className="text-2xl font-bold tabular-nums text-white">{stats.eventsEndedLast7Days}</div>
+          <div className="font-mono text-2xl font-bold tabular-nums text-white">{stats.eventsEndedLast7Days}</div>
         </div>
 
         <div className="p-4">
-          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
+          <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
             <Clock className="h-3.5 w-3.5 text-amber-400/60" /> Pending Payouts
           </div>
-          <div className="text-2xl font-bold tabular-nums text-amber-300">{stats.pendingPayouts}</div>
+          <div className="font-mono text-2xl font-bold tabular-nums text-amber-300">{stats.pendingPayouts}</div>
         </div>
 
         <div className="p-4">
-          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
+          <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
             <CheckCircle className="h-3.5 w-3.5 text-emerald-400/60" /> Approved Payouts
           </div>
-          <div className="text-2xl font-bold tabular-nums text-emerald-300">{stats.approvedPayouts}</div>
+          <div className="font-mono text-2xl font-bold tabular-nums text-emerald-300">{stats.approvedPayouts}</div>
         </div>
 
         <div className="p-4">
-          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
+          <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
             <DollarSign className="h-3.5 w-3.5 text-white/30" /> Pending Amount
           </div>
-          <div className="text-2xl font-bold tabular-nums text-brand-300">
+          <div className="font-mono text-2xl font-bold tabular-nums text-brand-300">
             {formatCurrency(stats.totalPendingAmount, 'HTG')}
           </div>
         </div>
@@ -235,23 +235,23 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
                   <tr key={event.eventId} className="hover:bg-white/[0.04]">
                     <td className="px-6 py-4">
                       <div className="text-sm font-medium text-white">{event.eventTitle}</div>
-                      <div className="text-xs text-white/50">{event.eventId.substring(0, 8)}</div>
+                      <div className="font-mono text-xs tabular-nums text-white/50">{event.eventId.substring(0, 8)}</div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm text-white">{event.organizerName}</div>
                       <div className="text-xs text-white/50">{event.organizerEmail}</div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-white/60">
+                    <td className="px-6 py-4 font-mono text-sm tabular-nums text-white/60">
                       {event.daysEnded} day{event.daysEnded !== 1 ? 's' : ''} ago
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium text-white">
+                    <td className="px-6 py-4 font-mono text-sm font-medium tabular-nums text-white">
                       {event.totalTicketsSold}
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm font-semibold text-white">
+                      <div className="font-mono text-sm font-semibold tabular-nums text-white">
                         {formatCurrency(event.netRevenue, event.currency as any)}
                       </div>
-                      <div className="text-xs text-white/50">
+                      <div className="font-mono text-xs tabular-nums text-white/50">
                         Gross: {formatCurrency(event.grossRevenue, event.currency as any)}
                       </div>
                     </td>
@@ -280,10 +280,10 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
                           <div className="text-xs text-white/50">
                             <div>{event.bankInfo?.bankName || 'Bank'}</div>
                             {event.bankInfo?.accountNumber && (
-                              <div className="font-mono">Acct: {event.bankInfo.accountNumber}</div>
+                              <div className="font-mono tabular-nums">Acct: {event.bankInfo.accountNumber}</div>
                             )}
                             {event.bankInfo?.routingNumber && (
-                              <div className="font-mono">Routing: {event.bankInfo.routingNumber}</div>
+                              <div className="font-mono tabular-nums">Routing: {event.bankInfo.routingNumber}</div>
                             )}
                           </div>
                         )}
@@ -292,7 +292,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
                           <div className="text-xs text-white/50">
                             <div>{event.bankInfo?.provider || 'Provider'}</div>
                             {event.bankInfo?.mobileNumber && (
-                              <div className="font-mono">{event.bankInfo.mobileNumber}</div>
+                              <div className="font-mono tabular-nums">{event.bankInfo.mobileNumber}</div>
                             )}
                           </div>
                         )}
@@ -352,9 +352,9 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
               </div>
               <div>
                 <p className="text-sm text-white/60">Event Dates</p>
-                <p className="text-sm text-white">Start: {new Date(selectedEvent.startDate).toLocaleDateString()}</p>
-                <p className="text-sm text-white">End: {new Date(selectedEvent.endDate).toLocaleDateString()}</p>
-                <p className="text-xs text-white/50">Ended {selectedEvent.daysEnded} days ago</p>
+                <p className="font-mono text-sm tabular-nums text-white">Start: {new Date(selectedEvent.startDate).toLocaleDateString()}</p>
+                <p className="font-mono text-sm tabular-nums text-white">End: {new Date(selectedEvent.endDate).toLocaleDateString()}</p>
+                <p className="font-mono text-xs tabular-nums text-white/50">Ended {selectedEvent.daysEnded} days ago</p>
               </div>
             </div>
 
@@ -363,19 +363,19 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-sm text-white/60">Tickets Sold:</span>
-                  <span className="font-medium text-white">{selectedEvent.totalTicketsSold}</span>
+                  <span className="font-mono font-medium tabular-nums text-white">{selectedEvent.totalTicketsSold}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-white/60">Gross Revenue:</span>
-                  <span className="font-medium text-white">{formatCurrency(selectedEvent.grossRevenue, selectedEvent.currency as any)}</span>
+                  <span className="font-mono font-medium tabular-nums text-white">{formatCurrency(selectedEvent.grossRevenue, selectedEvent.currency as any)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-white/60">Platform Fee (5%):</span>
-                  <span className="font-medium text-red-300">-{formatCurrency(selectedEvent.platformFee, selectedEvent.currency as any)}</span>
+                  <span className="font-mono font-medium tabular-nums text-red-300">-{formatCurrency(selectedEvent.platformFee, selectedEvent.currency as any)}</span>
                 </div>
                 <div className="flex justify-between border-t border-white/10 pt-2">
                   <span className="font-semibold text-white">Amount to Send:</span>
-                  <span className="font-bold text-brand-300">{formatCurrency(selectedEvent.netRevenue, selectedEvent.currency as any)}</span>
+                  <span className="font-mono font-bold tabular-nums text-brand-300">{formatCurrency(selectedEvent.netRevenue, selectedEvent.currency as any)}</span>
                 </div>
               </div>
             </div>
@@ -419,13 +419,13 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
                         selectedEvent.bankInfo?.accountNumber ||
                         ''
 
-                      if (!value) return <span className="font-mono font-medium text-white">N/A</span>
+                      if (!value) return <span className="font-mono font-medium tabular-nums text-white">N/A</span>
 
                       return (
                         <button
                           type="button"
                           onClick={() => copyToClipboard(value)}
-                          className="font-mono font-medium inline-flex items-center gap-2 text-brand-300 hover:text-brand-200"
+                          className="font-mono font-medium tabular-nums inline-flex items-center gap-2 text-brand-300 hover:text-brand-200"
                           title="Click to copy"
                         >
                           <span>{value}</span>
@@ -444,19 +444,19 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
                   {selectedEvent.bankInfo?.routingNumber && (
                     <div className="flex justify-between">
                       <span className="text-white/60">Routing Number:</span>
-                      <span className="font-mono font-medium text-white">{selectedEvent.bankInfo.routingNumber}</span>
+                      <span className="font-mono font-medium tabular-nums text-white">{selectedEvent.bankInfo.routingNumber}</span>
                     </div>
                   )}
                   {selectedEvent.bankInfo?.swift && (
                     <div className="flex justify-between">
                       <span className="text-white/60">SWIFT:</span>
-                      <span className="font-mono font-medium text-white">{selectedEvent.bankInfo.swift}</span>
+                      <span className="font-mono font-medium tabular-nums text-white">{selectedEvent.bankInfo.swift}</span>
                     </div>
                   )}
                   {selectedEvent.bankInfo?.iban && (
                     <div className="flex justify-between">
                       <span className="text-white/60">IBAN:</span>
-                      <span className="font-mono font-medium text-white">{selectedEvent.bankInfo.iban}</span>
+                      <span className="font-mono font-medium tabular-nums text-white">{selectedEvent.bankInfo.iban}</span>
                     </div>
                   )}
                 </div>
@@ -471,7 +471,7 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-white/60">Mobile Number:</span>
-                    <span className="font-mono font-medium text-white">{selectedEvent.bankInfo?.mobileNumber || 'N/A'}</span>
+                    <span className="font-mono font-medium tabular-nums text-white">{selectedEvent.bankInfo?.mobileNumber || 'N/A'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-white/60">Provider:</span>

@@ -459,7 +459,7 @@ export default function EventComposer({
               <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5">
                 <span className="text-[15px] font-medium text-white">Start</span>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs text-white/40">{tzLabel}</span>
+                  <span className="label-mono text-[10px] uppercase text-white/40">{tzLabel}</span>
                   <DatePicker value={startDate} onChange={setStartDate} invalid={startInvalid} placeholder="Pick a date" />
                   <TimePicker value={startTime} onChange={setStartTime} placeholder="Time" />
                 </div>
@@ -467,7 +467,7 @@ export default function EventComposer({
               <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 px-4 py-3.5">
                 <span className="text-[15px] font-medium text-white">End</span>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs text-white/40">{tzLabel}</span>
+                  <span className="label-mono text-[10px] uppercase text-white/40">{tzLabel}</span>
                   <DatePicker value={endDate} onChange={setEndDate} min={startDate || undefined} placeholder="Pick a date" />
                   <TimePicker value={endTime} onChange={setEndTime} placeholder="Time" />
                 </div>
@@ -588,11 +588,11 @@ export default function EventComposer({
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <label className="block">
-                        <span className="mb-1 block text-xs text-white/50">Price (USD)</span>
+                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/50">Price (USD)</span>
                         <input type="number" min="0" value={tier.price} onChange={(e) => updateTier(tier.id, { price: e.target.value })} className={field} />
                       </label>
                       <label className="block">
-                        <span className="mb-1 block text-xs text-white/50">Quantity</span>
+                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/50">Quantity</span>
                         <input type="number" min="0" value={tier.qty} onChange={(e) => updateTier(tier.id, { qty: e.target.value })} className={field} />
                       </label>
                     </div>

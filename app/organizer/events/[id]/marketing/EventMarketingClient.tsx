@@ -98,7 +98,7 @@ export default function EventMarketingClient({
 
         {/* Social share */}
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <span className="text-xs font-medium text-white/40">Share on</span>
+          <span className="label-mono uppercase text-white/40">Share on</span>
           {socialLinks.map((s) => (
             <a
               key={s.label}

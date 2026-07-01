@@ -110,12 +110,12 @@ export function RealTimeMetrics({
           return (
             <div key={metric.title} className="p-4">
               <div className="mb-2 flex items-center justify-between gap-2">
-                <span className="truncate text-[11px] font-medium uppercase tracking-wide text-white/50 sm:text-xs">
+                <span className="label-mono truncate text-[11px] font-medium uppercase tracking-wide text-white/50 sm:text-xs">
                   {metric.title}
                 </span>
                 <Icon className="h-4 w-4 shrink-0 text-brand-300 opacity-70" />
               </div>
-              <div className="text-2xl font-bold leading-none text-white tabular-nums sm:text-3xl">
+              <div className="font-mono text-2xl font-bold leading-none text-white tabular-nums sm:text-3xl">
                 {metric.value}
               </div>
             </div>

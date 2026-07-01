@@ -92,7 +92,7 @@ export default function OrganizerEventsFiltersModal({
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-bold">Filters</h2>
             {activeFiltersCount > 0 && (
-              <span className="px-3 py-1 bg-white/20 rounded-full text-sm font-semibold">
+              <span className="px-3 py-1 bg-white/20 rounded-full text-sm font-semibold font-mono tabular-nums">
                 {activeFiltersCount} active
               </span>
             )}
@@ -116,7 +116,7 @@ export default function OrganizerEventsFiltersModal({
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs text-white/60 mb-1">Start Date</label>
+                <label className="label-mono uppercase block text-xs text-white/60 mb-1">Start Date</label>
                 <input
                   type="date"
                   value={localFilters.dateRange?.start || ''}
@@ -133,7 +133,7 @@ export default function OrganizerEventsFiltersModal({
                 />
               </div>
               <div>
-                <label className="block text-xs text-white/60 mb-1">End Date</label>
+                <label className="label-mono uppercase block text-xs text-white/60 mb-1">End Date</label>
                 <input
                   type="date"
                   value={localFilters.dateRange?.end || ''}

@@ -219,7 +219,7 @@ export default function PayoutReceiptUpload({
                   <p className="text-sm font-medium text-white truncate">
                     {selectedFile.name}
                   </p>
-                  <p className="text-xs text-white/50">
+                  <p className="font-mono text-xs tabular-nums text-white/50">
                     {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                   </p>
                 </div>

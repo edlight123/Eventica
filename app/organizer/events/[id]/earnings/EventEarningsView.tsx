@@ -371,12 +371,12 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
       </Link>
 
       <div className="mb-6">
-        <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-white mb-2">{event.title || 'Event'}</h1>
+        <h1 className="font-display italic text-[clamp(28px,4vw,40px)] leading-[1.04] text-white mb-2">{event.title || 'Event'}</h1>
         <div className="flex items-center gap-2 text-white/60">
-          <span>📅 {eventDate ? eventDate.toLocaleDateString('en-US', { 
-            month: 'long', 
-            day: 'numeric', 
-            year: 'numeric' 
+          <span className="font-mono tabular-nums">📅 {eventDate ? eventDate.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
           }) : 'Date TBD'}</span>
           <span className="mx-2">•</span>
           {getStatusBadge(earnings.settlementStatus)}
@@ -446,9 +446,9 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                     className="border-b last:border-b-0"
                   >
                     <td className="py-3 pr-4 font-medium text-white">{row.tierName}</td>
-                    <td className="py-3 pr-4 text-white/70">{formatCurrency(row.listedUnitPriceCents, row.listedCurrency)}</td>
-                    <td className="py-3 pr-4 text-white/70">{row.ticketsSold}</td>
-                    <td className="py-3 text-white">{formatCurrency(row.grossSales, row.listedCurrency)}</td>
+                    <td className="py-3 pr-4 font-mono tabular-nums text-white/70">{formatCurrency(row.listedUnitPriceCents, row.listedCurrency)}</td>
+                    <td className="py-3 pr-4 font-mono tabular-nums text-white/70">{row.ticketsSold}</td>
+                    <td className="py-3 font-mono tabular-nums text-white">{formatCurrency(row.grossSales, row.listedCurrency)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -473,11 +473,11 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
               </p>
               {settlementDate && (
                 <p className="text-amber-300 text-sm font-medium">
-                  Available for withdrawal: {settlementDate.toLocaleDateString('en-US', {
+                  Available for withdrawal: <span className="font-mono tabular-nums">{settlementDate.toLocaleDateString('en-US', {
                     month: 'long',
                     day: 'numeric',
                     year: 'numeric'
-                  })}
+                  })}</span>
                 </p>
               )}
             </div>
@@ -491,7 +491,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="font-display text-xl text-white">💸 Request Withdrawal</h2>
-              <p className="text-white/60 text-sm">Available: {formatCurrency(availableToWithdraw, earnings.currency)}</p>
+              <p className="text-white/60 text-sm">Available: <span className="font-mono tabular-nums">{formatCurrency(availableToWithdraw, earnings.currency)}</span></p>
             </div>
           </div>
 
@@ -549,7 +549,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                 <div className="font-medium text-white">Total Withdrawn</div>
                 <div className="text-sm text-white/50">From this event</div>
               </div>
-              <span className="font-bold text-white">{formatCurrency(earnings.withdrawnAmount, earnings.currency)}</span>
+              <span className="font-mono tabular-nums font-bold text-white">{formatCurrency(earnings.withdrawnAmount, earnings.currency)}</span>
             </div>
             {earnings.netAmount - earnings.withdrawnAmount > 0 && (
               <div className="flex justify-between items-center py-3">
@@ -557,7 +557,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                   <div className="font-medium text-white">Remaining Balance</div>
                   <div className="text-sm text-white/50">Available {earnings.settlementStatus === 'ready' ? 'now' : 'after settlement'}</div>
                 </div>
-                <span className="font-bold text-brand-300">{formatCurrency(earnings.netAmount - earnings.withdrawnAmount, earnings.currency)}</span>
+                <span className="font-mono tabular-nums font-bold text-brand-300">{formatCurrency(earnings.netAmount - earnings.withdrawnAmount, earnings.currency)}</span>
               </div>
             )}
           </div>
@@ -576,7 +576,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
               <div className="bg-[#0a0a0a] rounded-lg p-4 mb-4">
                 <div className="flex justify-between mb-2">
                   <span className="text-white/60">Amount:</span>
-                  <span className="font-bold text-white">{formatCurrency(availableToWithdraw, earnings.currency)}</span>
+                  <span className="font-mono tabular-nums font-bold text-white">{formatCurrency(availableToWithdraw, earnings.currency)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-white/60">Method:</span>
@@ -639,12 +639,12 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                         }
                       >
                         <div className="flex justify-between">
-                          <span>Fee ({moncashQuote.prefundingFeePercent}%)</span>
-                          <span>-{formatCurrency(moncashQuote.feeCents, moncashQuote.currency)}</span>
+                          <span>Fee (<span className="font-mono tabular-nums">{moncashQuote.prefundingFeePercent}%</span>)</span>
+                          <span className="font-mono tabular-nums">-{formatCurrency(moncashQuote.feeCents, moncashQuote.currency)}</span>
                         </div>
                         <div className="flex justify-between font-semibold">
                           <span>You receive</span>
-                          <span>
+                          <span className="font-mono tabular-nums">
                             {moncashQuote.payoutCurrency === 'HTG' && typeof moncashQuote.payoutAmountHtgCents === 'number'
                               ? formatCurrency(moncashQuote.payoutAmountHtgCents, 'HTG')
                               : formatCurrency(moncashQuote.payoutAmountCents, moncashQuote.currency)}
@@ -653,7 +653,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                         {moncashQuote.currency === 'USD' && typeof moncashQuote.usdToHtgRate === 'number' ? (
                           <div className="flex justify-between">
                             <span>Rate</span>
-                            <span>1 USD ≈ {moncashQuote.usdToHtgRate.toFixed(2)} HTG</span>
+                            <span className="font-mono tabular-nums">1 USD ≈ {moncashQuote.usdToHtgRate.toFixed(2)} HTG</span>
                           </div>
                         ) : null}
                       </div>
@@ -667,11 +667,11 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                       <div className="mt-2 text-xs text-brand-300 space-y-1">
                         <div className="flex justify-between">
                           <span>Prefunding fee (3%)</span>
-                          <span>-{formatCurrency(prefundingFeeCents, earnings.currency)}</span>
+                          <span className="font-mono tabular-nums">-{formatCurrency(prefundingFeeCents, earnings.currency)}</span>
                         </div>
                         <div className="flex justify-between font-semibold">
                           <span>You receive</span>
-                          <span>{formatCurrency(prefundingPayoutCents, earnings.currency)}</span>
+                          <span className="font-mono tabular-nums">{formatCurrency(prefundingPayoutCents, earnings.currency)}</span>
                         </div>
                       </div>
                     </div>

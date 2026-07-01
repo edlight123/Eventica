@@ -114,7 +114,7 @@ export default function VerifyOrganizerForm({ organizers }: Props) {
               </div>
               <p className="text-sm text-white/60">{organizer.email}</p>
               <div className="flex items-center gap-2 mt-1">
-                <p className="text-xs text-white/50">
+                <p className="font-mono text-xs tabular-nums text-white/50">
                   Joined {new Date(organizer.created_at).toLocaleDateString()}
                 </p>
                 {organizer.verification_status && organizer.verification_status !== 'none' && (

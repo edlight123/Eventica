@@ -64,7 +64,7 @@ const columns: OrgColumn<Member>[] = [
     key: 'joined_at',
     header: 'Added',
     render: (m) => (
-      <span className="text-sm text-white/40">
+      <span className="font-mono tabular-nums text-sm text-white/40">
         {m.joined_at
           ? new Date(m.joined_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
           : '—'}

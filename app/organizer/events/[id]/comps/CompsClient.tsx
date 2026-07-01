@@ -56,7 +56,7 @@ const columns: OrgColumn<Comp>[] = [
   {
     key: 'quantity',
     header: 'Qty',
-    render: (c) => <span className="tabular-nums text-sm text-white/70">{c.quantity}</span>,
+    render: (c) => <span className="font-mono tabular-nums text-sm text-white/70">{c.quantity}</span>,
   },
   {
     key: 'status',

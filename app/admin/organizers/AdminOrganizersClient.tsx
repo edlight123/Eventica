@@ -131,7 +131,7 @@ export default function AdminOrganizersClient({
       key: 'joined',
       header: 'Joined',
       render: (u) => (
-        <span className="text-[13px] text-white/50 whitespace-nowrap">
+        <span className="font-mono tabular-nums text-[13px] text-white/50 whitespace-nowrap">
           {u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}
         </span>
       ),
@@ -160,7 +160,7 @@ export default function AdminOrganizersClient({
         </div>
         {renderVerification(u)}
       </div>
-      <div className="mt-2 text-[13px] text-white/50">
+      <div className="mt-2 font-mono tabular-nums text-[13px] text-white/50">
         Joined {u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}
       </div>
     </Link>
@@ -195,10 +195,10 @@ export default function AdminOrganizersClient({
           const Icon = s.icon
           return (
             <div key={s.label} className="p-4">
-              <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
+              <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
                 <Icon className="h-3.5 w-3.5 text-white/30" /> <span className="truncate">{s.label}</span>
               </div>
-              <div className="text-2xl font-bold tabular-nums text-white">{s.value.toLocaleString()}</div>
+              <div className="font-mono text-2xl font-bold tabular-nums text-white">{s.value.toLocaleString()}</div>
             </div>
           )
         })}

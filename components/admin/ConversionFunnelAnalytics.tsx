@@ -57,8 +57,8 @@ export function ConversionFunnelAnalytics() {
       {/* Overall conversion — flat highlight */}
       <div className="flex items-center justify-between rounded-lg border border-white/10 p-4">
         <div>
-          <div className="text-[11px] font-medium uppercase tracking-wide text-white/50">Overall conversion</div>
-          <div className="mt-0.5 text-3xl font-bold tabular-nums text-white">{data.overallConversion.toFixed(2)}%</div>
+          <div className="label-mono text-[11px] font-medium uppercase tracking-wide text-white/50">Overall conversion</div>
+          <div className="mt-0.5 font-mono text-3xl font-bold tabular-nums text-white">{data.overallConversion.toFixed(2)}%</div>
           <div className="mt-0.5 text-xs text-white/50">Views → purchases · last 30 days</div>
         </div>
         <TrendingUp className="h-8 w-8 text-brand-300" />
@@ -77,10 +77,10 @@ export function ConversionFunnelAnalytics() {
                   <span className="flex items-center gap-2 text-sm text-white/80">
                     <StageIcon className="h-4 w-4 text-brand-300" /> {stage.label}
                     {stage.conversionRate !== undefined && (
-                      <span className="text-xs text-white/50">· {stage.conversionRate.toFixed(1)}%</span>
+                      <span className="font-mono text-xs tabular-nums text-white/50">· {stage.conversionRate.toFixed(1)}%</span>
                     )}
                   </span>
-                  <span className="text-sm font-bold tabular-nums text-white">{stage.value.toLocaleString()}</span>
+                  <span className="font-mono text-sm font-bold tabular-nums text-white">{stage.value.toLocaleString()}</span>
                 </div>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
                   <div className="h-full rounded-full bg-brand-500 transition-all duration-500" style={{ width: `${widthPercentage}%` }} />
@@ -96,9 +96,9 @@ export function ConversionFunnelAnalytics() {
             <TrendingUp className="h-3.5 w-3.5 text-brand-300" /> Insights
           </div>
           <ul className="space-y-0.5 text-xs text-white/50">
-            <li>{data.favoriteRate.toFixed(1)}% of viewers favorite events</li>
-            <li>{data.purchaseRate.toFixed(1)}% of favorited events lead to purchases</li>
-            <li>Overall {data.overallConversion.toFixed(2)}% of viewers complete a purchase</li>
+            <li><span className="font-mono tabular-nums">{data.favoriteRate.toFixed(1)}%</span> of viewers favorite events</li>
+            <li><span className="font-mono tabular-nums">{data.purchaseRate.toFixed(1)}%</span> of favorited events lead to purchases</li>
+            <li>Overall <span className="font-mono tabular-nums">{data.overallConversion.toFixed(2)}%</span> of viewers complete a purchase</li>
           </ul>
         </div>
       </div>

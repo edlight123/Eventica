@@ -86,7 +86,7 @@ export default function GettingStartedTracker({
                   })}
             </p>
           </div>
-          <div className="text-2xl font-bold text-primary-600">
+          <div className="text-2xl font-bold text-brand-300 font-mono tabular-nums">
             {Math.round(progressPercent)}%
           </div>
         </div>
@@ -120,7 +120,7 @@ export default function GettingStartedTracker({
               ) : (
                 <div className="relative">
                   <Circle className="w-8 h-8 text-white/50" />
-                  <span className="absolute inset-0 flex items-center justify-center text-sm font-medium text-white/50">
+                  <span className="absolute inset-0 flex items-center justify-center text-sm font-medium text-white/50 font-mono tabular-nums">
                     {index + 1}
                   </span>
                 </div>

@@ -32,7 +32,7 @@ export function FilterChip({
       {children}
       {count !== undefined && count > 0 && (
         <span
-          className={`ml-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
+          className={`ml-0.5 rounded-full px-1.5 py-0.5 font-mono tabular-nums text-[10px] font-bold leading-none ${
             active ? 'bg-white/20 text-white' : 'bg-[#0a0a0a] text-white/60'
           }`}
         >

@@ -2,7 +2,7 @@ export default function EventCardSkeleton() {
   return (
     <div className="flex items-center gap-4 rounded-2xl border border-white/10 p-3 animate-pulse">
       {/* Poster thumbnail */}
-      <div className="h-[72px] w-[58px] shrink-0 rounded-lg bg-[#0a0a0a]" />
+      <div className="h-[72px] w-[58px] shrink-0 rounded-none bg-[#0a0a0a]" />
 
       {/* Title + meta */}
       <div className="min-w-0 flex-1 space-y-2">

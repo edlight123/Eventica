@@ -179,10 +179,10 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
                 <Calendar className="w-5 h-5 text-white/50 mt-0.5" />
                 <div>
                   <div className="text-xs text-white/50 font-medium mb-1">{t('admin.date_time')}</div>
-                  <div className="text-sm text-white">
+                  <div className="font-mono text-sm tabular-nums text-white">
                     {format(new Date(event.start_datetime), 'MMM d, yyyy')}
                   </div>
-                  <div className="text-xs text-white/60">
+                  <div className="font-mono text-xs tabular-nums text-white/60">
                     {format(new Date(event.start_datetime), 'h:mm a')} - {format(new Date(event.end_datetime), 'h:mm a')}
                   </div>
                 </div>
@@ -193,7 +193,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
                 <div>
                   <div className="text-xs text-white/50 font-medium mb-1">{t('admin.location')}</div>
                   <div className="text-sm text-white">{event.venue_name || 'TBD'}</div>
-                  <div className="text-xs text-white/60">{event.city}</div>
+                  <div className="font-mono text-xs text-white/60">{event.city}</div>
                 </div>
               </div>
 
@@ -201,7 +201,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
                 <Ticket className="w-5 h-5 text-white/50 mt-0.5" />
                 <div>
                   <div className="text-xs text-white/50 font-medium mb-1">{t('admin.max_capacity')}</div>
-                  <div className="text-sm text-white">
+                  <div className="font-mono text-sm tabular-nums text-white">
                     {event.tickets_sold || 0} / {event.max_attendees} {t('admin.tickets_sold').toLowerCase()}
                   </div>
                 </div>

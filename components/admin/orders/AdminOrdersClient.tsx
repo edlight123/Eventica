@@ -343,7 +343,7 @@ export function AdminOrdersClient() {
         const ticketType = order.ticket_type || order.ticketType || 'General'
         return (
           <div>
-            <div className="text-sm font-medium text-white">{order.id.slice(0, 8)}…</div>
+            <div className="font-mono text-sm font-medium tabular-nums text-white">{order.id.slice(0, 8)}…</div>
             <div className="text-xs text-white/50">{ticketType}</div>
           </div>
         )
@@ -391,7 +391,7 @@ export function AdminOrdersClient() {
         const price = order.price_paid || order.pricePaid || 0
         const currency = order.currency || 'USD'
         return (
-          <div className="text-sm font-medium text-white">
+          <div className="font-mono text-sm font-medium tabular-nums text-white">
             {formatCurrency(price, currency as Currency)}
           </div>
         )
@@ -414,10 +414,10 @@ export function AdminOrdersClient() {
         const purchasedAt = order.purchased_at || order.purchasedAt || ''
         return (
           <div>
-            <div className="text-sm text-white">
+            <div className="font-mono text-sm tabular-nums text-white">
               {purchasedAt ? new Date(purchasedAt).toLocaleDateString() : '-'}
             </div>
-            <div className="text-xs text-white/50">
+            <div className="font-mono text-xs tabular-nums text-white/50">
               {purchasedAt ? new Date(purchasedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
             </div>
           </div>
@@ -455,18 +455,18 @@ export function AdminOrdersClient() {
       <div className="p-4" onClick={() => setSelectedOrder(order)}>
         <div className="flex items-start justify-between mb-2">
           <div>
-            <div className="text-sm font-medium text-white">Order {order.id.slice(0, 8)}…</div>
+            <div className="font-mono text-sm font-medium tabular-nums text-white">Order {order.id.slice(0, 8)}…</div>
             <div className="text-xs text-white/50 truncate max-w-[200px]">{order.event_name}</div>
           </div>
           <StatusBadge status={order.status || ''} />
         </div>
         <div className="flex items-center justify-between text-sm">
           <div className="text-white/60">{name || email || 'Unknown'}</div>
-          <div className="font-medium text-white">{formatCurrency(price, currency as Currency)}</div>
+          <div className="font-mono font-medium tabular-nums text-white">{formatCurrency(price, currency as Currency)}</div>
         </div>
         <div className="flex items-center justify-between mt-2">
           <PaymentMethodBadge method={paymentMethod} />
-          <div className="text-xs text-white/50">
+          <div className="font-mono text-xs tabular-nums text-white/50">
             {purchasedAt ? new Date(purchasedAt).toLocaleDateString() : '-'}
           </div>
         </div>
@@ -478,7 +478,7 @@ export function AdminOrdersClient() {
     <div className="flex items-center justify-between">
       <div>
         <h2 className="font-display text-xl text-white">Orders</h2>
-        <p className="text-xs text-white/50">
+        <p className="font-mono text-xs tabular-nums text-white/50">
           {pagination.totalCount.toLocaleString()} total orders
           {filters.search && ` • Filtered`}
         </p>
@@ -499,32 +499,32 @@ export function AdminOrdersClient() {
       {summary && (
         <div className="grid grid-cols-2 divide-x divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10 sm:grid-cols-4 sm:divide-y-0">
           <div className="p-4">
-            <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
+            <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
               <ShoppingCart className="h-3.5 w-3.5 text-white/30" /> Total Orders
             </div>
-            <div className="text-2xl font-bold tabular-nums text-white">{summary.totalOrders.toLocaleString()}</div>
-            <div className="mt-1 text-xs text-white/50">Today: {summary.todayOrders}</div>
+            <div className="font-mono text-2xl font-bold tabular-nums text-white">{summary.totalOrders.toLocaleString()}</div>
+            <div className="mt-1 font-mono text-xs tabular-nums text-white/50">Today: {summary.todayOrders}</div>
           </div>
           <div className="p-4">
-            <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
+            <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
               <DollarSign className="h-3.5 w-3.5 text-white/30" /> Revenue (30d)
             </div>
-            <div className="text-2xl font-bold tabular-nums text-white">{formatCurrency(summary.last30Days.revenueUSD, 'USD')}</div>
-            <div className="mt-1 text-xs text-white/50">{formatCurrency(summary.last30Days.revenueHTG, 'HTG')}</div>
+            <div className="font-mono text-2xl font-bold tabular-nums text-white">{formatCurrency(summary.last30Days.revenueUSD, 'USD')}</div>
+            <div className="mt-1 font-mono text-xs tabular-nums text-white/50">{formatCurrency(summary.last30Days.revenueHTG, 'HTG')}</div>
           </div>
           <div className="p-4">
-            <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
+            <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
               <TrendingUp className="h-3.5 w-3.5 text-white/30" /> Avg Order Value
             </div>
-            <div className="text-2xl font-bold tabular-nums text-white">{formatCurrency(summary.last30Days.avgOrderValueUSD, 'USD')}</div>
-            <div className="mt-1 text-xs text-white/50">{summary.last30Days.orders} orders (30d)</div>
+            <div className="font-mono text-2xl font-bold tabular-nums text-white">{formatCurrency(summary.last30Days.avgOrderValueUSD, 'USD')}</div>
+            <div className="mt-1 font-mono text-xs tabular-nums text-white/50">{summary.last30Days.orders} orders (30d)</div>
           </div>
           <div className="p-4">
-            <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
+            <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
               <CheckCircle className="h-3.5 w-3.5 text-white/30" /> Confirmed
             </div>
-            <div className="text-2xl font-bold tabular-nums text-white">{summary.byStatus.confirmed.toLocaleString()}</div>
-            <div className="mt-1 text-xs text-white/50">{summary.byStatus.pending} pending • {summary.byStatus.refunded} refunded</div>
+            <div className="font-mono text-2xl font-bold tabular-nums text-white">{summary.byStatus.confirmed.toLocaleString()}</div>
+            <div className="mt-1 font-mono text-xs tabular-nums text-white/50">{summary.byStatus.pending} pending • {summary.byStatus.refunded} refunded</div>
           </div>
         </div>
       )}
@@ -727,7 +727,7 @@ export function AdminOrdersClient() {
                   <Ticket className="w-4 h-4" />
                   <span>Order ID</span>
                 </div>
-                <div className="font-mono text-sm border border-white/10 text-white px-3 py-2 rounded-lg break-all">
+                <div className="font-mono text-sm tabular-nums border border-white/10 text-white px-3 py-2 rounded-lg break-all">
                   {selectedOrder.id}
                 </div>
               </div>
@@ -779,7 +779,7 @@ export function AdminOrdersClient() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-white/60">Amount</span>
-                    <span className="text-lg font-semibold text-white">
+                    <span className="font-mono text-lg font-semibold tabular-nums text-white">
                       {formatCurrency(
                         selectedOrder.price_paid || selectedOrder.pricePaid || 0,
                         (selectedOrder.currency || 'USD') as Currency
@@ -792,7 +792,7 @@ export function AdminOrdersClient() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-white/60">Date</span>
-                    <span className="text-sm text-white">
+                    <span className="font-mono text-sm tabular-nums text-white">
                       {(selectedOrder.purchased_at || selectedOrder.purchasedAt)
                         ? new Date(selectedOrder.purchased_at || selectedOrder.purchasedAt || '').toLocaleString()
                         : 'N/A'}

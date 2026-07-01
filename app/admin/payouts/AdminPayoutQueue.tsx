@@ -203,16 +203,16 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
       {/* Summary Strip */}
       <div className="grid grid-cols-3 divide-x divide-white/10 overflow-hidden rounded-xl border border-white/10">
         <div className="p-4">
-          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
+          <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
             <Clock className="h-3.5 w-3.5 text-white/30" /> Pending Requests
           </div>
-          <div className="text-2xl font-bold tabular-nums text-white">{payouts.length}</div>
+          <div className="font-mono text-2xl font-bold tabular-nums text-white">{payouts.length}</div>
         </div>
         <div className="p-4">
-          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
+          <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
             <Wallet className="h-3.5 w-3.5 text-white/30" /> Total Amount
           </div>
-          <div className="text-2xl font-bold tabular-nums text-white">
+          <div className="font-mono text-2xl font-bold tabular-nums text-white">
             {formatCurrency(payouts.reduce((sum, p) => sum + p.amount, 0))}
           </div>
         </div>
@@ -258,19 +258,19 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
                       <div className="text-sm font-medium text-white">{payout.organizer.name}</div>
                       <div className="text-sm text-white/50">{payout.organizer.email}</div>
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium text-white">
+                    <td className="px-6 py-4 font-mono text-sm font-medium tabular-nums text-white">
                       {formatCurrency(payout.amount, payout.currency)}
                     </td>
                     <td className="px-6 py-4 text-sm text-white/60">
                       {payout.method === 'mobile_money' ? 'MonCash/Natcash' : 'Bank Transfer'}
                     </td>
-                    <td className="px-6 py-4 text-sm text-white/60">
+                    <td className="px-6 py-4 font-mono text-sm tabular-nums text-white/60">
                       {payout.ticketIds?.length || 0}
                     </td>
-                    <td className="px-6 py-4 text-sm text-white/60">
+                    <td className="px-6 py-4 font-mono text-sm tabular-nums text-white/60">
                       {new Date(payout.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 text-sm text-white/60">
+                    <td className="px-6 py-4 font-mono text-sm tabular-nums text-white/60">
                       {new Date(payout.scheduledDate).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-sm space-x-3">
@@ -324,7 +324,7 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
               </div>
               <div>
                 <span className="font-medium text-white/50">Amount:</span>{' '}
-                <span className="tabular-nums text-white">{formatCurrency(selectedPayout.amount, selectedPayout.currency)}</span>
+                <span className="font-mono tabular-nums text-white">{formatCurrency(selectedPayout.amount, selectedPayout.currency)}</span>
               </div>
               <div>
                 <span className="font-medium text-white/50">Method:</span>{' '}

@@ -63,7 +63,7 @@ export function EventPerformanceAnalytics() {
           <ul className="divide-y divide-white/5">
             {topEvents.map((event, index) => (
               <li key={event.id} className="flex items-center gap-3 py-2.5">
-                <span className="w-5 shrink-0 text-center text-sm font-bold tabular-nums text-white/50">{index + 1}</span>
+                <span className="w-5 shrink-0 text-center font-mono text-sm font-bold tabular-nums text-white/50">{index + 1}</span>
                 <div className="min-w-0 flex-1">
                   <Link
                     href={`/events/${event.id}`}
@@ -72,14 +72,14 @@ export function EventPerformanceAnalytics() {
                     {event.title}
                   </Link>
                   <div className="mt-0.5 truncate text-xs text-white/50">
-                    {new Date(event.date).toLocaleDateString()} · {event.users?.name || 'Unknown'}
+                    <span className="font-mono tabular-nums">{new Date(event.date).toLocaleDateString()}</span> · {event.users?.name || 'Unknown'}
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <div className="h-1.5 w-16 overflow-hidden rounded-full bg-white/[0.06]">
                     <div className="h-full rounded-full bg-brand-500" style={{ width: `${Math.min(100, event.successScore)}%` }} />
                   </div>
-                  <span className="w-10 text-right text-sm font-bold tabular-nums text-brand-300">{event.successScore}</span>
+                  <span className="w-10 text-right font-mono text-sm font-bold tabular-nums text-brand-300">{event.successScore}</span>
                 </div>
               </li>
             ))}
@@ -105,7 +105,7 @@ export function EventPerformanceAnalytics() {
                   <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
                     <div className="h-full rounded-full bg-brand-500 transition-all duration-500" style={{ width: `${percentage}%` }} />
                   </div>
-                  <span className="shrink-0 text-xs tabular-nums text-white/50">{category.count} · {percentage.toFixed(0)}%</span>
+                  <span className="shrink-0 font-mono text-xs tabular-nums text-white/50">{category.count} · {percentage.toFixed(0)}%</span>
                 </div>
               )
             })}

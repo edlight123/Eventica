@@ -51,7 +51,7 @@ export function EventHeader({ event }: EventHeaderProps) {
           <div className="flex items-start justify-between mb-3">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-2xl font-bold text-white truncate">{event.title}</h1>
+                <h1 className="font-display italic text-2xl font-bold text-white truncate">{event.title}</h1>
                 <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
                   event.is_published 
                     ? 'text-emerald-300' 
@@ -63,7 +63,7 @@ export function EventHeader({ event }: EventHeaderProps) {
               <div className="flex items-center gap-4 text-sm text-white/60">
                 <div className="flex items-center gap-1.5">
                   <Calendar className="w-4 h-4" />
-                  <span>{format(startDate, 'EEE, MMM d, yyyy • h:mm a')}</span>
+                  <span className="font-mono tabular-nums">{format(startDate, 'EEE, MMM d, yyyy • h:mm a')}</span>
                 </div>
                 {event.is_online ? (
                   <div className="flex items-center gap-1.5">
@@ -76,7 +76,7 @@ export function EventHeader({ event }: EventHeaderProps) {
                     <span>{event.venue_name || event.city || 'Location TBD'}</span>
                   </div>
                 )}
-                <span className="text-xs text-white/50">
+                <span className="font-mono tabular-nums text-xs text-white/50">
                   {t('organizer.updated')} {formatDistanceToNow(updatedDate, { addSuffix: true })}
                 </span>
               </div>
@@ -159,7 +159,7 @@ export function EventHeader({ event }: EventHeaderProps) {
         {/* Mobile Header */}
         <div className="md:hidden py-3">
           <div className="flex items-center gap-2 mb-2">
-            <h1 className="text-lg font-bold text-white truncate flex-1">{event.title}</h1>
+            <h1 className="font-display italic text-lg font-bold text-white truncate flex-1">{event.title}</h1>
             <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
               event.is_published 
                 ? 'text-emerald-300' 
@@ -171,7 +171,7 @@ export function EventHeader({ event }: EventHeaderProps) {
           <div className="flex flex-col gap-1 text-xs text-white/60">
             <div className="flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5" />
-              <span>{format(startDate, 'MMM d, yyyy • h:mm a')}</span>
+              <span className="font-mono tabular-nums">{format(startDate, 'MMM d, yyyy • h:mm a')}</span>
             </div>
             <div className="flex items-center gap-1.5">
               {event.is_online ? <Globe className="w-3.5 h-3.5" /> : <MapPin className="w-3.5 h-3.5" />}

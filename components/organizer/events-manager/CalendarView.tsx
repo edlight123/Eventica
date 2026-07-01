@@ -73,7 +73,7 @@ export default function CalendarView({
           </svg>
         </button>
 
-        <h2 className="text-xl font-bold">
+        <h2 className="text-xl font-bold font-mono tabular-nums">
           {format(currentMonth, 'MMMM yyyy')}
         </h2>
 
@@ -122,7 +122,7 @@ export default function CalendarView({
               {/* Day Number */}
               <div className="flex items-center justify-between mb-1">
                 <span
-                  className={`text-sm font-semibold ${
+                  className={`text-sm font-semibold font-mono tabular-nums ${
                     isTodayDate
                       ? 'w-7 h-7 rounded-full bg-brand-700 text-white flex items-center justify-center'
                       : isCurrentMonth
@@ -133,7 +133,7 @@ export default function CalendarView({
                   {format(day, 'd')}
                 </span>
                 {dayEvents.length > 0 && (
-                  <span className="text-xs font-semibold text-brand-300 px-2 py-0.5 rounded-full">
+                  <span className="text-xs font-semibold text-brand-300 px-2 py-0.5 rounded-full font-mono tabular-nums">
                     {dayEvents.length}
                   </span>
                 )}
@@ -156,7 +156,7 @@ export default function CalendarView({
                   </Link>
                 ))}
                 {dayEvents.length > 3 && (
-                  <div className="text-xs text-white/50 px-2">
+                  <div className="text-xs text-white/50 px-2 font-mono tabular-nums">
                     +{dayEvents.length - 3} more
                   </div>
                 )}

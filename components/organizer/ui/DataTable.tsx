@@ -196,7 +196,7 @@ export function OrgDataTable<T>({
                     <th
                       key={col.key}
                       onClick={() => handleSort(col)}
-                      className={`px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-white/40 sm:px-6 ${
+                      className={`label-mono px-4 py-3 text-[11px] uppercase text-white/40 sm:px-6 ${
                         alignClass[col.align ?? 'left']
                       } ${col.sortable ? 'cursor-pointer select-none hover:text-white/70' : ''} ${
                         col.headerClassName ?? ''
@@ -267,7 +267,7 @@ export function OrgDataTable<T>({
                 >
                   {columns.map((col) => (
                     <div key={col.key} className="flex items-start justify-between gap-3">
-                      <span className="text-[11px] font-semibold uppercase tracking-wide text-white/40">
+                      <span className="label-mono text-[11px] uppercase text-white/40">
                         {col.header}
                       </span>
                       <span className="min-w-0 text-right text-sm text-white">
@@ -286,7 +286,7 @@ export function OrgDataTable<T>({
 
       {showFooter && (
         <div className="flex items-center justify-between border-t border-white/10 px-4 py-3 sm:px-6">
-          <p className="text-xs text-white/40">
+          <p className="font-mono tabular-nums text-xs text-white/40">
             Page {footerPage} of {footerTotalPages}
           </p>
           <div className="flex items-center gap-2">

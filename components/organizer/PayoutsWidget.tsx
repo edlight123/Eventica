@@ -92,8 +92,8 @@ export function PayoutsWidget({ status, pendingBalance = 0, currency = 'HTG', la
         <div className="space-y-4 mb-6">
           {/* Pending Balance */}
           <div className="bg-[#0a0a0a] rounded-xl p-4">
-            <p className="text-xs font-semibold text-white/60 uppercase tracking-wide mb-1">{t('payouts.pending_balance')}</p>
-            <p className="text-2xl font-bold text-white">
+            <p className="label-mono text-xs uppercase mb-1">{t('payouts.pending_balance')}</p>
+            <p className="text-2xl font-bold text-brand-300 font-mono tabular-nums">
               {formatMoneyFromCents(pendingBalance, currency)}
             </p>
           </div>
@@ -103,15 +103,15 @@ export function PayoutsWidget({ status, pendingBalance = 0, currency = 'HTG', la
             <div className="flex items-center justify-between py-2 border-b border-white/10">
               <div>
                 <p className="text-sm font-semibold text-white">{t('payouts.last_payout')}</p>
-                <p className="text-xs text-white/60">
-                  {new Date(lastPayout.date).toLocaleDateString('en-US', { 
-                    month: 'short', 
+                <p className="text-xs text-white/60 font-mono tabular-nums">
+                  {new Date(lastPayout.date).toLocaleDateString('en-US', {
+                    month: 'short',
                     day: 'numeric',
                     year: 'numeric'
                   })}
                 </p>
               </div>
-              <p className="text-lg font-bold text-emerald-300">
+              <p className="text-lg font-bold text-emerald-300 font-mono tabular-nums">
                 +{formatMoneyFromCents(lastPayout.amount, currency)}
               </p>
             </div>
@@ -122,15 +122,15 @@ export function PayoutsWidget({ status, pendingBalance = 0, currency = 'HTG', la
             <div className="flex items-center justify-between py-2">
               <div>
                 <p className="text-sm font-semibold text-white">{t('payouts.next_payout_est')}</p>
-                <p className="text-xs text-white/60">
-                  {new Date(nextPayout.estimatedDate).toLocaleDateString('en-US', { 
-                    month: 'short', 
+                <p className="text-xs text-white/60 font-mono tabular-nums">
+                  {new Date(nextPayout.estimatedDate).toLocaleDateString('en-US', {
+                    month: 'short',
                     day: 'numeric',
                     year: 'numeric'
                   })}
                 </p>
               </div>
-              <p className="text-lg font-bold text-blue-300">
+              <p className="text-lg font-bold text-blue-300 font-mono tabular-nums">
                 {formatMoneyFromCents(nextPayout.amount, currency)}
               </p>
             </div>

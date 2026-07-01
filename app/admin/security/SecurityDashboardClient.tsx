@@ -234,7 +234,7 @@ export default function SecurityDashboardClient() {
   const getSeverityBadge = (severity: string) => {
     return (
       <span
-        className={`inline-flex items-center text-[11px] font-semibold uppercase tracking-wide ${
+        className={`label-mono inline-flex items-center text-[11px] font-semibold uppercase tracking-wide ${
           SEVERITY_COLORS[severity as keyof typeof SEVERITY_COLORS]
         }`}
       >
@@ -257,22 +257,22 @@ export default function SecurityDashboardClient() {
       {/* KPI strip */}
       <div className="grid grid-cols-3 divide-x divide-white/10 overflow-hidden rounded-xl border border-white/10">
         <div className="p-4">
-          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
+          <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
             <AlertTriangle className="h-3.5 w-3.5 text-white/30" /> Unreviewed
           </div>
-          <div className="text-2xl font-bold tabular-nums text-white">{unreviewedCount}</div>
+          <div className="font-mono text-2xl font-bold tabular-nums text-white">{unreviewedCount}</div>
         </div>
         <div className="p-4">
-          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
+          <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
             <ShieldCheck className="h-3.5 w-3.5 text-white/30" /> Critical
           </div>
-          <div className="text-2xl font-bold tabular-nums text-white">{criticalCount}</div>
+          <div className="font-mono text-2xl font-bold tabular-nums text-white">{criticalCount}</div>
         </div>
         <div className="p-4">
-          <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
+          <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
             <ListChecks className="h-3.5 w-3.5 text-white/30" /> In View
           </div>
-          <div className="text-2xl font-bold tabular-nums text-white">{activities.length}</div>
+          <div className="font-mono text-2xl font-bold tabular-nums text-white">{activities.length}</div>
         </div>
       </div>
 
@@ -295,7 +295,7 @@ export default function SecurityDashboardClient() {
         </button>
 
         {rebuildStatus && (
-          <div className="mt-4 space-y-1 text-sm text-white/70">
+          <div className="mt-4 space-y-1 font-mono text-sm tabular-nums text-white/70">
             <div>Users indexed: {rebuildStatus.processed.users}</div>
             <div>Events indexed: {rebuildStatus.processed.events}</div>
             <div>Tickets indexed: {rebuildStatus.processed.tickets}</div>
@@ -320,7 +320,7 @@ export default function SecurityDashboardClient() {
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
-            <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-white/50">
+            <label className="label-mono mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-white/50">
               Review Status
             </label>
             <select
@@ -335,7 +335,7 @@ export default function SecurityDashboardClient() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-white/50">
+            <label className="label-mono mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-white/50">
               Severity
             </label>
             <select
@@ -352,7 +352,7 @@ export default function SecurityDashboardClient() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-white/50">
+            <label className="label-mono mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-white/50">
               Activity Type
             </label>
             <select
@@ -396,7 +396,7 @@ export default function SecurityDashboardClient() {
                     </span>
                     {getSeverityBadge(activity.severity)}
                     {activity.reviewed && (
-                      <span className="inline-flex items-center text-[11px] font-semibold uppercase tracking-wide text-emerald-300">
+                      <span className="label-mono inline-flex items-center text-[11px] font-semibold uppercase tracking-wide text-emerald-300">
                         Reviewed
                       </span>
                     )}
@@ -414,12 +414,12 @@ export default function SecurityDashboardClient() {
                       </span>
                     )}
                     {activity.ip_address && (
-                      <span className="inline-flex items-center gap-1.5">
+                      <span className="inline-flex items-center gap-1.5 font-mono tabular-nums">
                         <Globe className="h-3.5 w-3.5 text-white/50" />
                         {activity.ip_address}
                       </span>
                     )}
-                    <span className="inline-flex items-center gap-1.5">
+                    <span className="inline-flex items-center gap-1.5 font-mono tabular-nums">
                       <Clock className="h-3.5 w-3.5 text-white/50" />
                       {new Date(activity.detected_at).toLocaleString()}
                     </span>
@@ -431,7 +431,7 @@ export default function SecurityDashboardClient() {
                         <strong className="font-semibold text-white">Action Taken:</strong> {activity.action_taken}
                       </p>
                       {activity.reviewed_at && (
-                        <p className="mt-1 text-xs text-white/50">
+                        <p className="mt-1 font-mono text-xs tabular-nums text-white/50">
                           Reviewed on {new Date(activity.reviewed_at).toLocaleString()}
                         </p>
                       )}

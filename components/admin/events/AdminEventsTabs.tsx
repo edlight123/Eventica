@@ -34,7 +34,7 @@ export function AdminEventsTabs({ activeTab, onTabChange, tabs }: AdminEventsTab
                 {tab.label}
                 {tab.count > 0 && (
                   <span className={`
-                    px-2 py-0.5 rounded-full text-xs font-bold
+                    px-2 py-0.5 rounded-full font-mono text-xs font-bold tabular-nums
                     ${isActive
                       ? 'text-brand-300'
                       : 'bg-[#0a0a0a] text-white/60'

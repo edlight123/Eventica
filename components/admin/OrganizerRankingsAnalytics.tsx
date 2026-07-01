@@ -67,7 +67,7 @@ export function OrganizerRankingsAnalytics() {
           return (
             <li key={organizer.id} className="flex items-center gap-3 py-2.5">
               <span
-                className={`w-5 shrink-0 text-center text-sm font-bold tabular-nums ${
+                className={`w-5 shrink-0 text-center font-mono text-sm font-bold tabular-nums ${
                   isTopThree ? 'text-amber-300' : 'text-white/50'
                 }`}
               >
@@ -81,16 +81,16 @@ export function OrganizerRankingsAnalytics() {
                   {organizer.name}
                 </Link>
                 <div className="mt-0.5 flex items-center gap-3 text-xs text-white/50">
-                  <span className="inline-flex items-center gap-1"><Ticket className="h-3 w-3" />{organizer.totalTickets.toLocaleString()}</span>
-                  <span className="inline-flex items-center gap-1"><Calendar className="h-3 w-3" />{organizer.eventsCount}</span>
+                  <span className="inline-flex items-center gap-1 font-mono tabular-nums"><Ticket className="h-3 w-3" />{organizer.totalTickets.toLocaleString()}</span>
+                  <span className="inline-flex items-center gap-1 font-mono tabular-nums"><Calendar className="h-3 w-3" />{organizer.eventsCount}</span>
                   {organizer.avgRating > 0 && (
-                    <span className="inline-flex items-center gap-1"><Star className="h-3 w-3 text-amber-300" />{organizer.avgRating.toFixed(1)}</span>
+                    <span className="inline-flex items-center gap-1 font-mono tabular-nums"><Star className="h-3 w-3 text-amber-300" />{organizer.avgRating.toFixed(1)}</span>
                   )}
                 </div>
               </div>
               <div className="shrink-0 text-right">
-                <div className="text-sm font-bold tabular-nums text-white">{organizer.totalTickets.toLocaleString()}</div>
-                <div className="text-[11px] text-white/50">
+                <div className="font-mono text-sm font-bold tabular-nums text-white">{organizer.totalTickets.toLocaleString()}</div>
+                <div className="font-mono text-[11px] tabular-nums text-white/50">
                   {organizer.eventsCount > 0 ? `${(organizer.totalTickets / organizer.eventsCount).toFixed(0)}/event` : 'sales'}
                 </div>
               </div>
@@ -107,7 +107,7 @@ export function OrganizerRankingsAnalytics() {
           { v: avgRating > 0 ? avgRating.toFixed(1) : 'N/A', l: 'Avg rating' },
         ].map((s) => (
           <div key={s.l} className="text-center">
-            <div className="text-lg font-bold tabular-nums text-white">{s.v}</div>
+            <div className="font-mono text-lg font-bold tabular-nums text-white">{s.v}</div>
             <div className="mt-0.5 text-[11px] text-white/50">{s.l}</div>
           </div>
         ))}

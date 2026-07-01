@@ -48,7 +48,7 @@ export function WorkQueueCard({
             <Icon className={`w-4 h-4 shrink-0 ${iconColor} opacity-80`} />
             <div className="min-w-0">
               <h2 className="font-semibold text-sm text-white leading-tight truncate">{title}</h2>
-              <p className="text-xs text-white/50">{count} total</p>
+              <p className="text-xs text-white/50"><span className="font-mono tabular-nums">{count}</span> total</p>
             </div>
           </div>
           <Link
@@ -77,7 +77,7 @@ export function WorkQueueCard({
                     {item.subtitle && <span className="truncate">{item.subtitle}</span>}
                     {item.subtitle && item.timestamp && <span className="text-white/50">·</span>}
                     {item.timestamp && (
-                      <span className="text-white/50 whitespace-nowrap">
+                      <span className="font-mono tabular-nums text-white/50 whitespace-nowrap">
                         {new Date(item.timestamp).toLocaleDateString('en-US', {
                           month: 'short',
                           day: 'numeric'
@@ -87,7 +87,7 @@ export function WorkQueueCard({
                   </div>
                 </div>
                 {item.badge && (
-                  <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium whitespace-nowrap flex-shrink-0 ${
+                  <span className={`label-mono uppercase px-2 py-0.5 rounded-full text-[11px] font-medium whitespace-nowrap flex-shrink-0 ${
                     badgeColors[item.badge.variant]
                   }`}>
                     {item.badge.label}

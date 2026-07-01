@@ -161,7 +161,7 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
                           <div className="flex items-center gap-2 mb-1">
                             <p className="font-medium text-white truncate">{result.title}</p>
                             {result.metadata?.status && (
-                              <span className={`px-2 py-0.5 text-xs font-medium rounded ${
+                              <span className={`label-mono uppercase px-2 py-0.5 text-xs font-medium rounded ${
                                 result.metadata.status === 'published' || result.metadata.status === 'confirmed' ? 'text-emerald-300' :
                                 result.metadata.status === 'draft' || result.metadata.status === 'pending' ? 'text-amber-300' :
                                 'bg-[#0a0a0a] text-white/90'
@@ -174,7 +174,7 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
                             <p className="text-sm text-white/50 truncate">{result.subtitle}</p>
                           )}
                           <div className="flex items-center gap-3 mt-1">
-                            <span className="text-xs text-white/50 capitalize">{result.type}</span>
+                            <span className="label-mono uppercase text-xs text-white/50">{result.type}</span>
                             {result.metadata?.city && (
                               <span className="flex items-center gap-1 text-xs text-white/50">
                                 <MapPin className="w-3 h-3" />
@@ -182,7 +182,7 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
                               </span>
                             )}
                             {result.metadata?.price !== undefined && (
-                              <span className="text-xs text-white/50">
+                              <span className="font-mono tabular-nums text-xs text-white/50">
                                 {result.metadata.price === 0 ? 'Free' : `${result.metadata.price} ${result.metadata.currency || 'HTG'}`}
                               </span>
                             )}

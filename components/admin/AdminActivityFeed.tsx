@@ -216,7 +216,7 @@ export function AdminActivityFeed({
             >
               {option.label}
               {option.count > 0 && (
-                <span className={`px-1.5 rounded-full text-[10px] leading-4 ${
+                <span className={`font-mono tabular-nums px-1.5 rounded-full text-[10px] leading-4 ${
                   filter === option.value ? '' : 'bg-[#0a0a0a]'
                 }`}>
                   {option.count}
@@ -267,7 +267,7 @@ export function AdminActivityFeed({
                     <span className="flex-1 min-w-0 text-sm text-white truncate">
                       {activity.title}
                     </span>
-                    <span className="text-[11px] text-white/50 whitespace-nowrap flex-shrink-0">
+                    <span className="font-mono tabular-nums text-[11px] text-white/50 whitespace-nowrap flex-shrink-0">
                       {formatTimeAgo(activity.timestamp)}
                     </span>
                     {hasDetails && (
@@ -287,12 +287,12 @@ export function AdminActivityFeed({
                       {(activity.metadata?.amount != null || activity.metadata?.severity || activity.link) && (
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-white/50">
                           {activity.metadata?.amount != null && (
-                            <span className="font-medium text-white/70">
+                            <span className="font-mono tabular-nums font-medium text-white/70">
                               {Number(activity.metadata.amount).toLocaleString()} {activity.metadata.currency || ''}
                             </span>
                           )}
                           {activity.metadata?.severity && (
-                            <span className={`px-1.5 py-0.5 rounded-full font-medium ${
+                            <span className={`label-mono uppercase px-1.5 py-0.5 rounded-full font-medium ${
                               activity.metadata.severity === 'critical'
                                 ? 'text-red-300'
                                 : activity.metadata.severity === 'high'

@@ -120,10 +120,10 @@ export default function AdminUsersClient({
           const Icon = s.icon
           return (
             <div key={s.label} className="p-4">
-              <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
+              <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
                 <Icon className="h-3.5 w-3.5 text-white/30" /> <span className="truncate">{s.label}</span>
               </div>
-              <div className="text-2xl font-bold tabular-nums text-white">{s.value.toLocaleString()}</div>
+              <div className="font-mono text-2xl font-bold tabular-nums text-white">{s.value.toLocaleString()}</div>
             </div>
           )
         })}

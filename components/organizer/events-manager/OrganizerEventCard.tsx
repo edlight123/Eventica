@@ -76,7 +76,7 @@ export default function OrganizerEventCard({ event, showNeedsAttention = true }:
     >
       {/* Poster thumbnail */}
       <div
-        className="relative h-[72px] w-[58px] shrink-0 overflow-hidden rounded-lg"
+        className="relative h-[72px] w-[58px] shrink-0 overflow-hidden rounded-none"
         style={hasImage ? undefined : { backgroundImage: theme.bg }}
       >
         {hasImage ? (
@@ -108,10 +108,10 @@ export default function OrganizerEventCard({ event, showNeedsAttention = true }:
           )}
         </div>
 
-        <h3 className="truncate text-[15px] font-semibold text-white">{event.title}</h3>
+        <h3 className="truncate font-display text-[15px] italic text-white">{event.title}</h3>
 
         <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-0.5 text-[12.5px] text-white/50">
-          <span className="inline-flex items-center gap-1.5">
+          <span className="inline-flex items-center gap-1.5 font-mono tabular-nums">
             <Calendar className="h-3.5 w-3.5 shrink-0" />
             {dateValid ? format(new Date(event.start_datetime), 'MMM d, yyyy · h:mm a') : '—'}
           </span>
@@ -125,15 +125,15 @@ export default function OrganizerEventCard({ event, showNeedsAttention = true }:
       {/* Compact stats */}
       <div className="hidden shrink-0 items-center gap-6 pr-1 sm:flex">
         <div className="text-right">
-          <p className="text-sm font-semibold text-white tabular-nums">
+          <p className="text-sm font-semibold text-white font-mono tabular-nums">
             {ticketsSold}
             {totalTickets > 0 && <span className="text-white/40">/{totalTickets}</span>}
           </p>
-          <p className="text-[11px] text-white/40">{t('event_card_detail.ticket_sales')}</p>
+          <p className="label-mono uppercase text-[11px] text-white/40">{t('event_card_detail.ticket_sales')}</p>
         </div>
         <div className="text-right">
-          <p className="text-sm font-semibold text-white tabular-nums">{revenueText}</p>
-          <p className="text-[11px] text-white/40">{t('event_card_detail.revenue')}</p>
+          <p className="text-sm font-semibold text-brand-300 font-mono tabular-nums">{revenueText}</p>
+          <p className="label-mono uppercase text-[11px] text-white/40">{t('event_card_detail.revenue')}</p>
         </div>
       </div>
 

@@ -160,8 +160,8 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
 
           {/* Live preview */}
           <div className="mt-4 rounded-xl border border-white/10 px-4 py-3">
-            <p className="mb-1 text-xs font-medium text-white/40">Preview</p>
-            <p className="break-all text-xs text-white/70">{previewUrl}</p>
+            <p className="label-mono uppercase mb-1 text-white/40">Preview</p>
+            <p className="break-all font-mono text-xs text-white/70">{previewUrl}</p>
           </div>
 
           <div className="mt-4 flex justify-end gap-3">
@@ -208,7 +208,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
             <div key={link.id} className="flex items-center gap-4 px-5 py-4">
               <div className="min-w-0 flex-1">
                 <p className="font-medium text-white">{link.label}</p>
-                <p className="mt-0.5 truncate text-xs text-white/40">{link.url}</p>
+                <p className="mt-0.5 truncate font-mono text-xs text-white/40">{link.url}</p>
                 <div className="mt-1 flex flex-wrap gap-2">
                   {(
                     [
@@ -221,7 +221,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
                     .map(([k, v]) => (
                       <span
                         key={k}
-                        className="rounded-md bg-[#0a0a0a] px-2 py-0.5 text-[11px] text-white/50"
+                        className="rounded-md bg-[#0a0a0a] px-2 py-0.5 font-mono text-[11px] text-white/50"
                       >
                         {k}={v}
                       </span>

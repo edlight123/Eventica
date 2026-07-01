@@ -75,7 +75,7 @@ export function AdminTopNav({ userEmail, accountInitial = 'A' }: AdminTopNavProp
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:px-6 lg:px-8">
         <Link href="/admin" className="flex shrink-0 items-center gap-2 pr-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded">
           <TikemWordmark italic className="text-2xl text-white" />
-          <span className="rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-300">
+          <span className="label-mono rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-300">
             Admin
           </span>
         </Link>
@@ -93,7 +93,7 @@ export function AdminTopNav({ userEmail, accountInitial = 'A' }: AdminTopNavProp
               >
                 {tab.label}
                 {tab.badge ? (
-                  <span className="grid h-5 min-w-[20px] place-items-center rounded-full bg-red-500 px-1.5 text-[11px] font-bold text-white">
+                  <span className="grid h-5 min-w-[20px] place-items-center rounded-full bg-red-500 px-1.5 text-[11px] font-bold text-white font-mono tabular-nums">
                     {tab.badge > 9 ? '9+' : tab.badge}
                   </span>
                 ) : null}
