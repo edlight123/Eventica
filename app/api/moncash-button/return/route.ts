@@ -4,12 +4,10 @@ import { createClient } from '@/lib/firebase-db/server'
 import {
   decryptMonCashButtonReturnTransactionId,
   getMonCashButtonReturnDecryptConfig,
+  getMonCashButtonPaymentByOrderId,
+  getMonCashButtonPaymentByTransactionId,
   isMonCashButtonPaidAmountAcceptable,
 } from '@/lib/moncash-button'
-import {
-  retrieveMonCashOrderPayment,
-  retrieveMonCashTransactionPayment,
-} from '@/lib/moncash'
 import { notifyTicketPurchase as notifyTicketPurchaseNotification } from '@/lib/notifications/helpers'
 import { sendEmail, getTicketConfirmationEmail } from '@/lib/email'
 import { sendWhatsAppMessage, getTicketConfirmationWhatsApp } from '@/lib/whatsapp'
@@ -322,7 +320,7 @@ async function handleMonCashButtonReturn(request: Request): Promise<NextResponse
 
     if (!orderId && transactionId) {
       try {
-        paymentFromLookup = await retrieveMonCashTransactionPayment(transactionId)
+        paymentFromLookup = await getMonCashButtonPaymentByTransactionId(transactionId)
         if (paymentFromLookup?.reference) {
           orderId = String(paymentFromLookup.reference)
         }
@@ -359,10 +357,10 @@ async function handleMonCashButtonReturn(request: Request): Promise<NextResponse
       return NextResponse.redirect(new URL(`/purchase/success?ticketId=${pendingTx.ticket_id}`, request.url))
     }
 
-    // Verify payment via the MonCash Button gateway (RetrieveOrderPayment).
-    const payment = paymentFromLookup || (await retrieveMonCashOrderPayment(orderId))
+    // Verify payment via MonCash Button middleware
+    const payment = paymentFromLookup || (await getMonCashButtonPaymentByOrderId(orderId))
 
-    const isPaid = !!(payment?.success && payment?.payment_status && String(payment.payment_status).toLowerCase() === 'successful')
+    const isPaid = !!(payment?.success && payment?.payment_status)
 
     if (!isPaid) {
       await supabase

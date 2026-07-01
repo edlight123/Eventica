@@ -323,13 +323,49 @@ export async function POST(request: Request) {
     }
 
     const orderHash = crypto.createHash('sha256').update(orderId).digest('hex').slice(0, 10)
+    const restTokenEnabled =
+      !forceFormPost && String(process.env.MONCASH_BUTTON_REST_TOKEN_ENABLED || '').toLowerCase() === 'true'
 
-    // Always go through the checkout route, which runs the standard MonCash Button
-    // gateway flow (CreatePayment -> redirect to /Moncash-business/Payment/Redirect).
-    const origin = new URL(request.url).origin
-    const redirectUrl = `${origin}/api/moncash-button/checkout?orderId=${encodeURIComponent(orderId)}`
-    console.info('[moncash_button] initiate: redirecting via gateway checkout route', { orderHash })
+    let redirectUrl: string
+    if (!restTokenEnabled) {
+      console.info('[moncash_button] initiate: using FORM POST (forced or REST token disabled)', { orderHash })
+      const origin = new URL(request.url).origin
+      redirectUrl = `${origin}/api/moncash-button/checkout?orderId=${encodeURIComponent(orderId)}`
+    } else {
+      try {
+        const { token } = await createMonCashButtonCheckoutToken({
+          amount: chargeAmount,
+          orderId,
+        })
 
+        console.info('[moncash_button] initiate: using REST token redirect', {
+          orderHash,
+          hasToken: Boolean(token),
+        })
+
+        const { error: pendingUpdateError } = await supabase
+          .from('pending_transactions')
+          .update({
+            moncash_button_token: token,
+            moncash_button_token_variants: buildTokenVariants(token),
+          })
+          .eq('order_id', orderId)
+
+        if (pendingUpdateError) {
+          console.error('Error updating pending transaction token:', pendingUpdateError)
+        }
+
+        redirectUrl = getMonCashButtonRedirectUrl(token)
+      } catch (err: any) {
+        console.warn('MonCash Button REST token failed; falling back to form POST:', {
+          orderHash,
+          message: err?.message,
+        })
+        console.info('[moncash_button] initiate: using FORM POST fallback', { orderHash })
+        const origin = new URL(request.url).origin
+        redirectUrl = `${origin}/api/moncash-button/checkout?orderId=${encodeURIComponent(orderId)}`
+      }
+    }
     const response = NextResponse.json({ redirectUrl })
     // Correlate browser redirect back from MonCash to our pending transaction.
     // This prevents false "missing_order" failures when the gateway doesn't include orderId

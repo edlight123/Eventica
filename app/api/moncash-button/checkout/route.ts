@@ -1,20 +1,13 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/firebase-db/server'
 import { getCurrentUser } from '@/lib/auth'
-import { createMonCashGatewayPayment, isMonCashConfigured } from '@/lib/moncash'
+import { createMonCashButtonCheckoutFormPost, isMonCashButtonConfigured } from '@/lib/moncash-button'
 import crypto from 'crypto'
 
 export const runtime = 'nodejs'
 
 export const dynamic = 'force-dynamic'
 
-/**
- * Starts a MonCash Button checkout using the standard gateway flow:
- *   CreatePayment -> redirect the browser to the MonCash payment page.
- * The customer completes payment on MonCash, then MonCash returns them to our
- * ReturnUrl (handled by /api/moncash-button/return), which verifies the payment
- * via RetrieveOrderPayment and issues the ticket.
- */
 export async function GET(request: Request) {
   try {
     const user = await getCurrentUser()
@@ -22,8 +15,8 @@ export async function GET(request: Request) {
       return new NextResponse('Unauthorized', { status: 401 })
     }
 
-    if (!isMonCashConfigured()) {
-      return new NextResponse('MonCash is not configured', { status: 500 })
+    if (!isMonCashButtonConfigured()) {
+      return new NextResponse('MonCash Button is not configured', { status: 500 })
     }
 
     const url = new URL(request.url)
@@ -33,6 +26,7 @@ export async function GET(request: Request) {
     }
 
     const orderHash = crypto.createHash('sha256').update(orderId).digest('hex').slice(0, 10)
+    console.info('[moncash_button] checkout: serving FORM POST page', { orderHash })
 
     const supabase = await createClient()
     const { data: pending, error } = await supabase
@@ -49,50 +43,89 @@ export async function GET(request: Request) {
       return new NextResponse('Forbidden', { status: 403 })
     }
 
-    const amount = Number(pending.amount) || 0
+    const { actionUrl, fields, meta } = createMonCashButtonCheckoutFormPost({
+      amount: Number(pending.amount) || 0,
+      orderId,
+    })
 
-    // Create the gateway payment and get the MonCash redirect URL.
-    const { redirectUrl, token } = await createMonCashGatewayPayment({ amount, orderId })
-    console.info('[moncash_button] checkout: redirecting to MonCash gateway', { orderHash, amount })
+    console.info('[moncash_button] checkout: form meta', {
+      orderHash,
+      mode: meta.mode,
+      paddingMode: meta.paddingMode,
+      ciphertextEncoding: meta.ciphertextEncoding,
+      amountPlaintext: meta.amountPlaintext,
+      businessKeySegmentKind: meta.businessKeySegmentKind,
+      businessKeySegmentHash: meta.businessKeySegmentHash,
+    })
 
-    // Persist the gateway token so the Return handler can correlate back to this order
-    // even if cookies are dropped on the cross-site round trip. (Best effort.)
-    try {
-      await supabase
-        .from('pending_transactions')
-        .update({ moncash_button_token: token })
-        .eq('order_id', orderId)
-    } catch {
-      /* non-fatal */
-    }
+    const html = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Redirecting to MonCash…</title>
+</head>
+<body>
+  <form id="moncashForm" method="post" action="${actionUrl}">
+    <input type="hidden" name="amount" value="${fields.amount}" />
+    <input type="hidden" name="orderId" value="${fields.orderId}" />
+    <noscript>
+      <p>JavaScript is required to continue. Click the button below.</p>
+      <button type="submit">Continue to MonCash</button>
+    </noscript>
+  </form>
+  <script>
+    document.getElementById('moncashForm').submit();
+  </script>
+</body>
+</html>`
 
-    const response = NextResponse.redirect(redirectUrl, 303)
-    response.headers.set('Cache-Control', 'no-store')
+    const response = new NextResponse(html, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Cache-Control': 'no-store',
+      },
+    })
 
-    // Correlation cookies so the (cross-site) Return URL can map back to this order.
-    const cookieOpts = {
+    // IMPORTANT: Set correlation cookies here as well.
+    // This endpoint is a top-level navigation, so cookies are much more likely to stick
+    // than when setting them on a fetch() JSON response.
+    //
+    // Use an __Host- cookie to avoid domain mismatch issues.
+    response.cookies.set('moncash_button_order_id', orderId, {
       httpOnly: true,
-      sameSite: 'none' as const,
+      sameSite: 'none',
       secure: true,
       path: '/',
       maxAge: 60 * 60,
-    }
-    response.cookies.set('moncash_button_order_id', orderId, cookieOpts)
-    response.cookies.set('__Host-moncash_button_order_id', orderId, cookieOpts)
+    })
+    response.cookies.set('__Host-moncash_button_order_id', orderId, {
+      httpOnly: true,
+      sameSite: 'none',
+      secure: true,
+      path: '/',
+      maxAge: 60 * 60,
+    })
 
     // Also set a domain cookie to survive www <-> apex ReturnUrl mismatches.
+    // (A __Host- cookie cannot set Domain.)
     const host = new URL(request.url).hostname
     const apex = host.startsWith('www.') ? host.slice(4) : host
     if (apex && apex.includes('.') && !/localhost/i.test(apex) && !/vercel\.app$/i.test(apex)) {
       response.cookies.set('moncash_button_order_id_domain', orderId, {
-        ...cookieOpts,
+        httpOnly: true,
+        sameSite: 'none',
+        secure: true,
+        path: '/',
         domain: `.${apex}`,
+        maxAge: 60 * 60,
       })
     }
 
     return response
   } catch (err: any) {
-    console.error('MonCash Button checkout error:', err)
-    return new NextResponse('Failed to start MonCash checkout', { status: 500 })
+    console.error('MonCash Button checkout form error:', err)
+    return new NextResponse('Failed to render MonCash checkout', { status: 500 })
   }
 }
