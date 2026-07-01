@@ -33,12 +33,31 @@
           "action": "VIEW",
           "autoVerify": true,
           "data": [
-            { "scheme": "https", "host": "tikem.co", "pathPrefix": "/events" },
-            { "scheme": "https", "host": "tikem.co", "pathPrefix": "/tickets" },
-            { "scheme": "https", "host": "tikem.co", "pathPrefix": "/invite" },
-            { "scheme": "https", "host": "tikem.co", "pathPrefix": "/notifications" }
+            {
+              "scheme": "https",
+              "host": "tikem.co",
+              "pathPrefix": "/events"
+            },
+            {
+              "scheme": "https",
+              "host": "tikem.co",
+              "pathPrefix": "/tickets"
+            },
+            {
+              "scheme": "https",
+              "host": "tikem.co",
+              "pathPrefix": "/invite"
+            },
+            {
+              "scheme": "https",
+              "host": "tikem.co",
+              "pathPrefix": "/notifications"
+            }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -53,6 +72,11 @@
           "contactsPermission": "Allow Tikèm to access your contacts to find friends who are already on Tikèm. Your contacts are only used to match and are never stored."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "b8dc3f81-b1c3-413a-973d-d6587daaa7f0"
+      }
+    }
   }
 }
