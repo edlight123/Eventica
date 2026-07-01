@@ -14,7 +14,7 @@ function RailSkeleton({ cards = 5 }: { cards?: number }) {
       <div className="flex gap-4 overflow-hidden -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         {Array.from({ length: cards }).map((_, i) => (
           <div key={i} className="w-[228px] shrink-0 sm:w-[248px]">
-            <div className="aspect-[4/5] rounded-2xl bg-white/[0.06] animate-pulse" />
+            <div className="aspect-[4/5] rounded-none bg-white/[0.06] animate-pulse" />
             <div className="mt-3 h-4 w-3/4 rounded bg-white/[0.06] animate-pulse" />
             <div className="mt-2 h-3 w-1/2 rounded bg-white/[0.04] animate-pulse" />
           </div>
