@@ -8,6 +8,10 @@ import {
   getMonCashButtonPaymentByTransactionId,
   isMonCashButtonPaidAmountAcceptable,
 } from '@/lib/moncash-button'
+import {
+  retrieveMonCashOrderPayment,
+  retrieveMonCashTransactionPayment,
+} from '@/lib/moncash'
 import { notifyTicketPurchase as notifyTicketPurchaseNotification } from '@/lib/notifications/helpers'
 import { sendEmail, getTicketConfirmationEmail } from '@/lib/email'
 import { sendWhatsAppMessage, getTicketConfirmationWhatsApp } from '@/lib/whatsapp'
@@ -319,13 +323,25 @@ async function handleMonCashButtonReturn(request: Request): Promise<NextResponse
     }
 
     if (!orderId && transactionId) {
+      // MonCash gateway: resolve orderId from the gateway transaction (RetrieveTransactionPayment).
       try {
-        paymentFromLookup = await getMonCashButtonPaymentByTransactionId(transactionId)
+        paymentFromLookup = await retrieveMonCashTransactionPayment(transactionId)
         if (paymentFromLookup?.reference) {
           orderId = String(paymentFromLookup.reference)
         }
       } catch (err) {
-        console.error('MonCash Button return: transaction lookup failed', err)
+        console.error('MonCash gateway return: transaction lookup failed', err)
+      }
+      // Fallback: NatCash / legacy button middleware lookup.
+      if (!orderId) {
+        try {
+          paymentFromLookup = await getMonCashButtonPaymentByTransactionId(transactionId)
+          if (paymentFromLookup?.reference) {
+            orderId = String(paymentFromLookup.reference)
+          }
+        } catch (err) {
+          console.error('MonCash Button return: transaction lookup fallback failed', err)
+        }
       }
     }
 
@@ -357,8 +373,16 @@ async function handleMonCashButtonReturn(request: Request): Promise<NextResponse
       return NextResponse.redirect(new URL(`/purchase/success?ticketId=${pendingTx.ticket_id}`, request.url))
     }
 
-    // Verify payment via MonCash Button middleware
-    const payment = paymentFromLookup || (await getMonCashButtonPaymentByOrderId(orderId))
+    // Verify payment. MonCash uses the REST gateway (RetrieveOrderPayment);
+    // NatCash uses the legacy button middleware.
+    const verifyProvider = String(
+      pendingTx.mobile_money_provider || pendingTx.payment_method || 'moncash'
+    ).toLowerCase()
+    const payment =
+      paymentFromLookup ||
+      (verifyProvider === 'natcash'
+        ? await getMonCashButtonPaymentByOrderId(orderId)
+        : await retrieveMonCashOrderPayment(orderId))
 
     const isPaid = !!(payment?.success && payment?.payment_status)
 

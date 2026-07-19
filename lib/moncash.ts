@@ -390,6 +390,169 @@ export function getMonCashStatus(): string {
 }
 
 // ============================================================================
+// MonCash Button — Gateway (redirect) flow
+//
+// This is the standard, documented MonCash Button checkout:
+//   1. POST {host}/Api/oauth/token           -> access token   (getAccessToken)
+//   2. POST {host}/Api/v1/CreatePayment      -> { payment_token: { token } }
+//   3. redirect the browser to
+//        {host}/Moncash-middleware/Payment/Redirect?token=<token>
+//   4. on return / alert, verify with
+//        POST {host}/Api/v1/RetrieveOrderPayment       { orderId }
+//        POST {host}/Api/v1/RetrieveTransactionPayment { transactionId }
+//
+// where {host} is sandbox.moncashbutton.digicelgroup.com (test) or
+// moncashbutton.digicelgroup.com (live).
+// ============================================================================
+
+export interface MonCashGatewayPayment {
+  /** URL to send the customer's browser to, to complete payment in MonCash. */
+  redirectUrl: string
+  /** The gateway payment token (also usable to build the redirect URL). */
+  token: string
+  orderId: string
+  mode: string
+}
+
+/** Create a MonCash Button gateway payment and return the redirect URL. */
+export async function createMonCashGatewayPayment({
+  amount,
+  orderId,
+}: {
+  amount: number
+  orderId: string
+}): Promise<MonCashGatewayPayment> {
+  const baseUrl = getMonCashBaseUrl()
+  const payload = { amount: Number(amount), orderId: String(orderId) }
+
+  console.log('[MonCash] CreatePayment:', { baseUrl, orderId, amount: payload.amount })
+
+  const doRequest = async (): Promise<Response> => {
+    const token = await getAccessToken()
+    return fetch(`${baseUrl}/Api/v1/CreatePayment`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
+  }
+
+  let response = await doRequest()
+  if (!response.ok) {
+    const errorText = await response.text()
+    if (shouldRetryWithFreshToken(response.status, errorText)) {
+      cachedToken = null
+      response = await doRequest()
+    }
+    if (!response.ok) {
+      const errorText2 = await response.text()
+      throw new Error(`MonCash CreatePayment failed (${response.status}): ${errorText2}`)
+    }
+  }
+
+  const data: any = await response.json().catch(() => ({}))
+  // Response shape: { payment_token: { expired, created, token }, timestamp, status }
+  const gatewayToken: string =
+    data?.payment_token?.token ||
+    data?.payment_token?.Token ||
+    data?.paymentToken?.token ||
+    ''
+
+  if (!gatewayToken) {
+    throw new Error(`MonCash CreatePayment: no payment token in response: ${JSON.stringify(data)}`)
+  }
+
+  // Gateway base is {host}/Moncash-middleware; the hosted payment page is
+  // {GATEWAY_BASE}/Payment/Redirect?token=<token> (per Digicel REST API docs).
+  const redirectUrl = `${baseUrl}/Moncash-middleware/Payment/Redirect?token=${encodeURIComponent(gatewayToken)}`
+
+  return {
+    redirectUrl,
+    token: gatewayToken,
+    orderId: String(orderId),
+    mode: getMonCashStatus(),
+  }
+}
+
+/** Normalized payment result compatible with the checkout return handler. */
+export interface MonCashGatewayVerification {
+  success: boolean
+  payment_status: string
+  cost?: number
+  reference: string
+  transactionId: string
+  payer?: string
+  raw: any
+}
+
+function normalizeGatewayPayment(data: any): MonCashGatewayVerification {
+  // Response shape: { payment: { reference, transaction_id, cost, message, payer, timestamp }, timestamp, status }
+  const payment = data?.payment || data
+  const message = String(payment?.message || '').toLowerCase()
+  const httpStatus = Number(data?.status ?? payment?.status ?? 0)
+  const success = message === 'successful' || httpStatus === 200
+  const costRaw = payment?.cost
+  const cost = costRaw == null || costRaw === '' ? undefined : Number(costRaw)
+  return {
+    success,
+    payment_status: payment?.message ? String(payment.message) : success ? 'successful' : 'unknown',
+    cost: Number.isFinite(cost as number) ? (cost as number) : undefined,
+    reference: String(payment?.reference || ''),
+    transactionId: String(payment?.transaction_id || payment?.transactionId || ''),
+    payer: payment?.payer ? String(payment.payer) : undefined,
+    raw: data,
+  }
+}
+
+async function retrieveGatewayPayment(
+  endpoint: 'RetrieveOrderPayment' | 'RetrieveTransactionPayment',
+  body: Record<string, string>
+): Promise<MonCashGatewayVerification> {
+  const baseUrl = getMonCashBaseUrl()
+  const doRequest = async (): Promise<Response> => {
+    const token = await getAccessToken()
+    return fetch(`${baseUrl}/Api/v1/${endpoint}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(body),
+    })
+  }
+
+  let response = await doRequest()
+  if (!response.ok) {
+    const errorText = await response.text()
+    if (shouldRetryWithFreshToken(response.status, errorText)) {
+      cachedToken = null
+      response = await doRequest()
+    }
+    if (!response.ok) {
+      const errorText2 = await response.text()
+      throw new Error(`MonCash ${endpoint} failed (${response.status}): ${errorText2}`)
+    }
+  }
+
+  const data = await response.json().catch(() => ({}))
+  return normalizeGatewayPayment(data)
+}
+
+/** Verify a MonCash Button gateway payment by our order id. */
+export async function retrieveMonCashOrderPayment(orderId: string): Promise<MonCashGatewayVerification> {
+  return retrieveGatewayPayment('RetrieveOrderPayment', { orderId: String(orderId) })
+}
+
+/** Verify a MonCash Button gateway payment by the gateway transaction id. */
+export async function retrieveMonCashTransactionPayment(transactionId: string): Promise<MonCashGatewayVerification> {
+  return retrieveGatewayPayment('RetrieveTransactionPayment', { transactionId: String(transactionId) })
+}
+
+// ============================================================================
 // Prefunded / Payout (REST API)
 // ============================================================================
 

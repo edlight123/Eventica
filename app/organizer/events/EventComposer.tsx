@@ -374,11 +374,19 @@ export default function EventComposer({
         await new Promise((r) => setTimeout(r, 400))
         setIsPublished(next)
       } else {
-        const { error } = await firebaseDb
-          .from('events')
-          .update({ is_published: next, status: next ? 'published' : 'draft' })
-          .eq('id', event.id)
-        if (error) throw error
+        // Publish through the server route so all gates are enforced:
+        // identity verification, the country's payout profile, and (for US/CA)
+        // completed Stripe Connect onboarding. Writing is_published directly from
+        // the client would bypass those checks.
+        const res = await fetch(`/api/events/${event.id}/publish`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ is_published: next }),
+        })
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok) {
+          throw new Error(data?.error || 'Could not update publish status')
+        }
         setIsPublished(next)
         router.refresh()
       }

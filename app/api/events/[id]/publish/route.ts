@@ -119,6 +119,7 @@ export async function POST(
     const existingCountry = normalizeCountryCode(eventData?.country)
     const updatePayload: Record<string, any> = {
       is_published,
+      status: is_published ? 'published' : 'draft',
       updated_at: new Date(),
     }
 
