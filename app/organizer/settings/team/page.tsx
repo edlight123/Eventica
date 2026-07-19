@@ -18,7 +18,7 @@ type OrganizerEvent = {
   organizer_id?: string
 }
 
-async function getOrganizerEvents(organizerId: string): Promise<OrganizerEvent[]> {
+async function getOrganizerEvents(organizerId: string): Promise<{ events: OrganizerEvent[]; error: boolean }> {
   const supabase = await createClient()
   const res = await supabase
     .from('events')
@@ -28,14 +28,16 @@ async function getOrganizerEvents(organizerId: string): Promise<OrganizerEvent[]
 
   if ((res as any)?.error) {
     console.error('Failed to load organizer events for team settings:', (res as any).error)
+    return { events: [], error: true }
   }
 
   const events = ((res as any)?.data as OrganizerEvent[] | null) || []
-  return events.sort((a, b) => {
+  const sorted = events.sort((a, b) => {
     const aTime = a?.start_datetime ? new Date(a.start_datetime).getTime() : 0
     const bTime = b?.start_datetime ? new Date(b.start_datetime).getTime() : 0
     return bTime - aTime
   })
+  return { events: sorted, error: false }
 }
 
 export default async function TeamSettingsPage({
@@ -53,7 +55,7 @@ export default async function TeamSettingsPage({
     redirect('/organizer?redirect=/organizer/settings/team')
   }
 
-  const events = await getOrganizerEvents(user.id)
+  const { events, error: eventsError } = await getOrganizerEvents(user.id)
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
@@ -72,10 +74,16 @@ export default async function TeamSettingsPage({
           subtitle="Invite door staff and manage check-in access per event"
         />
 
+        {eventsError ? (
+          <div className="mb-6 rounded-xl border border-amber-500/30 bg-amber-500/[0.06] p-4 text-sm text-white/70">
+            We couldn&apos;t load your events right now. Some counts may be incomplete — please refresh to try again.
+          </div>
+        ) : null}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-          <div className="bg-[#0a0a0a]  rounded-xl p-4">
+          <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg text-brand-300 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-lg bg-brand-500/10 text-brand-300 flex items-center justify-center">
                 <CalendarDays className="w-5 h-5" />
               </div>
               <div>
@@ -84,9 +92,9 @@ export default async function TeamSettingsPage({
               </div>
             </div>
           </div>
-          <div className="bg-[#0a0a0a]  rounded-xl p-4">
+          <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg text-brand-300 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-lg bg-brand-500/10 text-brand-300 flex items-center justify-center">
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
@@ -95,9 +103,9 @@ export default async function TeamSettingsPage({
               </div>
             </div>
           </div>
-          <div className="bg-[#0a0a0a]  rounded-xl p-4">
+          <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg text-brand-300 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-lg bg-brand-500/10 text-brand-300 flex items-center justify-center">
                 <Users className="w-5 h-5" />
               </div>
               <div>
@@ -114,9 +122,9 @@ export default async function TeamSettingsPage({
           </div>
 
           <div className="space-y-6">
-            <div className="bg-[#0a0a0a]  rounded-xl p-5">
+            <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5">
               <h3 className="text-lg font-semibold text-white mb-3">Guidelines</h3>
-              <ul className="space-y-3 text-sm text-white/60">
+              <ul className="space-y-3 text-sm text-white/70">
                 <li className="flex gap-2">
                   <span className="text-brand-300">•</span>
                   Invite staff for a specific event
@@ -132,14 +140,14 @@ export default async function TeamSettingsPage({
               </ul>
             </div>
 
-            <div className="border border-brand-500/30 rounded-xl p-5">
+            <div className="bg-brand-500/[0.06] border border-brand-500/30 rounded-xl p-5">
               <h3 className="text-base font-semibold text-brand-300 mb-2">Need help?</h3>
-              <p className="text-sm text-brand-300 mb-4">
+              <p className="text-sm text-white/70 mb-4">
                 Our support team can help onboard large teams and set up access.
               </p>
               <Link
                 href="mailto:support@tikem.co"
-                className="inline-flex items-center text-sm font-semibold text-brand-300 hover:text-brand-300"
+                className="inline-flex items-center text-sm font-semibold text-brand-300 hover:text-brand-200 transition-colors"
               >
                 Contact Support →
               </Link>

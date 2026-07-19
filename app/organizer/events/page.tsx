@@ -308,12 +308,13 @@ export default function OrganizerEventsPage() {
 
           <div className="flex items-center gap-2">
             {/* View toggle */}
-            <div className="flex items-center rounded-lg bg-[#0a0a0a] p-1">
+            <div className="flex items-center rounded-lg border border-white/10 bg-white/[0.03] p-1">
               <button
                 type="button"
                 onClick={() => setView('list')}
+                aria-pressed={view === 'list'}
                 className={`rounded-md p-2 transition-all ${
-                  view === 'list' ? 'bg-[#0a0a0a] text-brand-300 shadow-sm' : 'text-white/50 hover:text-white/70'
+                  view === 'list' ? 'bg-white text-black shadow-sm' : 'text-white/70 hover:text-white'
                 }`}
                 aria-label={t('events_page.list_view', 'List view')}
               >
@@ -322,8 +323,9 @@ export default function OrganizerEventsPage() {
               <button
                 type="button"
                 onClick={() => setView('calendar')}
+                aria-pressed={view === 'calendar'}
                 className={`rounded-md p-2 transition-all ${
-                  view === 'calendar' ? 'bg-[#0a0a0a] text-brand-300 shadow-sm' : 'text-white/50 hover:text-white/70'
+                  view === 'calendar' ? 'bg-white text-black shadow-sm' : 'text-white/70 hover:text-white'
                 }`}
                 aria-label={t('events_page.calendar_view', 'Calendar view')}
               >
@@ -380,18 +382,35 @@ export default function OrganizerEventsPage() {
               }
               description={
                 hasSearchOrFilters
-                  ? t('events_page.empty_filtered_desc', "Try adjusting your search or filters to find what you're looking for.")
+                  ? (hasMore
+                      ? t('events_page.empty_filtered_more_desc', {
+                          count: events.length,
+                          defaultValue: `No matches in the ${events.length} events loaded so far. Load more to keep searching, or adjust your filters.`,
+                        })
+                      : t('events_page.empty_filtered_desc', "Try adjusting your search or filters to find what you're looking for."))
                   : t('events_page.empty_desc', 'Create your first event to start selling tickets and tracking sales.')
               }
               action={
                 hasSearchOrFilters ? (
-                  <button
-                    type="button"
-                    onClick={handleClearFilters}
-                    className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-5 py-2.5 font-semibold text-white/70 transition-colors hover:bg-white/[0.04]"
-                  >
-                    {t('events_page.clear_filters', 'Clear filters')}
-                  </button>
+                  <div className="flex flex-wrap items-center justify-center gap-3">
+                    {hasMore && (
+                      <button
+                        type="button"
+                        onClick={handleLoadMore}
+                        disabled={loadingMore}
+                        className="inline-flex items-center gap-2 rounded-lg bg-brand-700 px-5 py-2.5 font-semibold text-white transition-colors hover:bg-brand-800 disabled:opacity-60"
+                      >
+                        {loadingMore ? t('events_page.loading', 'Loading…') : t('events_page.load_more', 'Load more events')}
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleClearFilters}
+                      className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-5 py-2.5 font-semibold text-white/70 transition-colors hover:bg-white/[0.04]"
+                    >
+                      {t('events_page.clear_filters', 'Clear filters')}
+                    </button>
+                  </div>
                 ) : (
                   <Link
                     href="/organizer/events/new"
@@ -421,13 +440,21 @@ export default function OrganizerEventsPage() {
                 ))}
               </div>
 
-              {hasMore && view === 'list' && !hasSearchOrFilters && (
-                <div className="flex justify-center mt-8">
+              {hasMore && view === 'list' && (
+                <div className="mt-8 flex flex-col items-center gap-2">
+                  {hasSearchOrFilters && (
+                    <p className="text-xs text-white/70">
+                      {t('events_page.search_scope_note', {
+                        count: events.length,
+                        defaultValue: `Search covers the ${events.length} events loaded so far — load more to search further.`,
+                      })}
+                    </p>
+                  )}
                   <button
                     type="button"
                     onClick={handleLoadMore}
                     disabled={loadingMore}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#0a0a0a]  hover:bg-white/[0.04] text-white font-medium disabled:opacity-60"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] text-white font-medium disabled:opacity-60"
                   >
                     {loadingMore ? t('events_page.loading', 'Loading…') : t('events_page.load_more', 'Load more events')}
                   </button>

@@ -169,11 +169,11 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                     <Calendar className="w-4 h-4 md:w-5 md:h-5 text-white" />
                   </div>
                   <div>
-                    <p className="label-mono text-[10px] md:text-[11px] uppercase text-white/40 mb-1">{t('events.date_time')}</p>
+                    <p className="label-mono text-[10px] md:text-[11px] uppercase text-white/70 mb-1">{t('events.date_time')}</p>
                     <p className="label-mono text-white text-[12px] md:text-[13px]">
                       {format(new Date(event.start_datetime), 'MMM d, yyyy')}
                     </p>
-                    <p className="label-mono text-white/40 text-[11px] md:text-xs">
+                    <p className="label-mono text-white/70 text-[11px] md:text-xs">
                       {format(new Date(event.start_datetime), 'h:mm a')}
                     </p>
                   </div>
@@ -185,11 +185,11 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                     <MapPin className="w-4 h-4 md:w-5 md:h-5 text-white" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="label-mono text-[10px] md:text-[11px] uppercase text-white/40 mb-1">{t('events.venue_name')}</p>
+                    <p className="label-mono text-[10px] md:text-[11px] uppercase text-white/70 mb-1">{t('events.venue_name')}</p>
                     <p className="label-mono text-white text-[12px] md:text-[13px] line-clamp-1">
                       {event.venue_name}
                     </p>
-                    <p className="label-mono text-white/40 text-[11px] md:text-xs line-clamp-1">
+                    <p className="label-mono text-white/70 text-[11px] md:text-xs line-clamp-1">
                       {event.city}
                     </p>
                   </div>
@@ -201,7 +201,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                     <Users className="w-4 h-4 md:w-5 md:h-5 text-white" />
                   </div>
                   <div>
-                    <p className="label-mono text-[10px] md:text-[11px] uppercase text-white/40 mb-1">{t('events.availability')}</p>
+                    <p className="label-mono text-[10px] md:text-[11px] uppercase text-white/70 mb-1">{t('events.availability')}</p>
                     <p className="label-mono text-white text-[12px] md:text-[13px] uppercase">
                       {isSoldOut ? t('ticket.sold_out') : isFree ? t('common.free') : t('ticket.available')}
                     </p>
@@ -216,10 +216,18 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
       <div className="md:hidden sticky top-0 z-40 bg-[#0a0a0a]/95 backdrop-blur border-b border-white/10 px-4 py-3">
         <div className="flex items-center gap-3">
           <div className="flex-1 min-w-0">
-            {user ? (
-              <BuyTicketButton 
-                eventId={event.id} 
-                userId={user.id} 
+            {isPastEvent ? (
+              <div className="block w-full text-center font-semibold py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white/70">
+                Event Ended
+              </div>
+            ) : isSoldOut ? (
+              <div className="block w-full text-center font-semibold py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white/70">
+                {t('ticket.sold_out_caps')}
+              </div>
+            ) : user ? (
+              <BuyTicketButton
+                eventId={event.id}
+                userId={user.id}
                 isFree={isFree}
                 ticketPrice={event.ticket_price || 0}
                 eventTitle={event.title}
@@ -288,7 +296,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
           {/* Left Column - Event Details */}
           <div className="lg:col-span-2 space-y-4">
             {/* Desktop About Section */}
-            <div className="hidden md:block rounded-2xl  p-3 sm:p-4 md:p-6">
+            <div className="hidden md:block rounded-2xl bg-white/[0.03] border border-white/10 p-3 sm:p-4 md:p-6">
               <h2 className="text-base sm:text-lg md:text-xl font-bold text-white mb-2 sm:mb-3 flex items-center gap-1.5 sm:gap-2">
                 <Info className="w-4 h-4 sm:w-5 sm:h-5 text-brand-400" />
                 {t('events.about_event')}
@@ -298,25 +306,25 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                   {event.description}
                 </p>
               ) : (
-                <p className="text-sm sm:text-[15px] italic text-white/40 leading-relaxed">
+                <p className="text-sm sm:text-[15px] italic text-white/70 leading-relaxed">
                   {t('events.no_description', { defaultValue: 'The organizer hasn’t added a description yet.' })}
                 </p>
               )}
             </div>
 
             {/* Venue Details - Desktop */}
-            <div className="hidden md:block rounded-2xl  p-4 md:p-6">
+            <div className="hidden md:block rounded-2xl bg-white/[0.03] border border-white/10 p-4 md:p-6">
               <h2 className="text-lg md:text-xl font-bold text-white mb-3 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-brand-400" />
                 {t('events.venue_information')}
               </h2>
               <div className="space-y-2.5">
                 <div>
-                  <p className="label-mono text-[11px] uppercase text-white/50 mb-1.5">{t('events.venue_name')}</p>
+                  <p className="label-mono text-[11px] uppercase text-white/70 mb-1.5">{t('events.venue_name')}</p>
                   <p className="text-base font-semibold text-white">{event.venue_name}</p>
                 </div>
                 <div>
-                  <p className="label-mono text-[11px] uppercase text-white/50 mb-1.5">{t('events.address')}</p>
+                  <p className="label-mono text-[11px] uppercase text-white/70 mb-1.5">{t('events.address')}</p>
                   <div className="space-y-1.5">
                     <div>
                       <p className="text-[15px] text-white/70">{event.address || t('events.address_not_specified')}</p>
@@ -349,28 +357,28 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
             </div>
 
             {/* Date & Time Details - Desktop */}
-            <div className="hidden md:block rounded-2xl  p-4 md:p-6">
+            <div className="hidden md:block rounded-2xl bg-white/[0.03] border border-white/10 p-4 md:p-6">
               <h2 className="text-lg md:text-xl font-bold text-white mb-3 flex items-center gap-2">
                 <Clock className="w-5 h-5 text-brand-400" />
                 {t('events.date_and_time')}
               </h2>
               <div className="space-y-3">
                 <div>
-                  <p className="label-mono text-[11px] uppercase text-white/50 mb-1.5">{t('events.start')}</p>
+                  <p className="label-mono text-[11px] uppercase text-white/70 mb-1.5">{t('events.start')}</p>
                   <p className="label-mono text-[15px] text-white">
                     {format(new Date(event.start_datetime), 'EEEE, MMMM d, yyyy')}
                   </p>
-                  <p className="label-mono text-[13px] text-white/55">
+                  <p className="label-mono text-[13px] text-white/70">
                     {format(new Date(event.start_datetime), 'h:mm a')}
                   </p>
                 </div>
                 {event.end_datetime && (
                   <div>
-                    <p className="label-mono text-[11px] uppercase text-white/50 mb-1.5">{t('events.end')}</p>
+                    <p className="label-mono text-[11px] uppercase text-white/70 mb-1.5">{t('events.end')}</p>
                     <p className="label-mono text-[15px] text-white">
                       {format(new Date(event.end_datetime), 'EEEE, MMMM d, yyyy')}
                     </p>
-                    <p className="label-mono text-[13px] text-white/55">
+                    <p className="label-mono text-[13px] text-white/70">
                       {format(new Date(event.end_datetime), 'h:mm a')}
                     </p>
                   </div>
@@ -379,7 +387,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
             </div>
 
             {/* Organizer Info - Desktop */}
-            <div className="hidden md:block rounded-2xl  p-4 md:p-6">
+            <div className="hidden md:block rounded-2xl bg-white/[0.03] border border-white/10 p-4 md:p-6">
               <h2 className="text-lg md:text-xl font-bold text-white mb-4 flex items-center gap-2">
                 <Users className="w-5 h-5 text-brand-400" />
                 {t('events.organizer')}
@@ -400,24 +408,31 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                   )}
                 </div>
               </a>
+              <div className="mt-4">
+                <FollowButton
+                  organizerId={event.organizer_id}
+                  userId={user?.id || null}
+                  initialIsFollowing={isFollowing}
+                />
+              </div>
             </div>
           </div>
 
           {/* Right Column - Ticket Purchase Sidebar */}
           <div className="lg:col-span-1">
-            <div className="hidden md:block sticky top-8 rounded-2xl shadow-lg  p-6">
+            <div className="hidden md:block sticky top-8 rounded-2xl shadow-lg bg-white/[0.03] border border-white/10 p-6">
               <div className="mb-6">
                 {isFree ? (
                   <div>
                     <p className="label-mono text-3xl font-semibold uppercase text-brand-400">{t('common.free')}</p>
-                    <p className="label-mono text-[11px] uppercase text-white/55 mt-1.5">{t('events.no_ticket_required')}</p>
+                    <p className="label-mono text-[11px] uppercase text-white/70 mt-1.5">{t('events.no_ticket_required')}</p>
                   </div>
                 ) : (
                   <div>
                     <p className="label-mono text-3xl font-semibold text-brand-400">
-                      <span className="text-base text-white/45">{event.currency || 'HTG'}</span> {(event.ticket_price || 0).toLocaleString()}
+                      <span className="text-base text-white/70">{event.currency || 'HTG'}</span> {(event.ticket_price || 0).toLocaleString()}
                     </p>
-                    <p className="label-mono text-[11px] uppercase text-white/55 mt-1.5">{t('events.per_ticket')}</p>
+                    <p className="label-mono text-[11px] uppercase text-white/70 mt-1.5">{t('events.per_ticket')}</p>
                   </div>
                 )}
               </div>
@@ -425,12 +440,12 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
               {isPastEvent ? (
                 <div className="text-center py-4">
                   <Badge variant="neutral" size="lg">Event Ended</Badge>
-                  <p className="text-sm text-white/55 mt-2">This event has ended. Tickets are no longer available.</p>
+                  <p className="text-sm text-white/70 mt-2">This event has ended. Tickets are no longer available.</p>
                 </div>
               ) : isSoldOut ? (
                 <div className="text-center py-4">
                   <Badge variant="error" size="lg">{t('ticket.sold_out_caps')}</Badge>
-                  <p className="text-sm text-white/55 mt-2">{t('events.event_reached_capacity')}</p>
+                  <p className="text-sm text-white/70 mt-2">{t('events.event_reached_capacity')}</p>
                 </div>
               ) : (
                 <>
@@ -457,7 +472,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                       >
                         {t('events.sign_in_to_get_tickets')}
                       </a>
-                      <p className="text-xs text-white/50 text-center mt-3">{t('events.create_account_to_purchase')}</p>
+                      <p className="text-xs text-white/70 text-center mt-3">{t('events.create_account_to_purchase')}</p>
                     </>
                   )}
                 </>

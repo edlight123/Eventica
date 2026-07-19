@@ -114,6 +114,7 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
 
       const { photo_url } = await response.json();
       setFormData((prev) => ({ ...prev, photo_url }));
+      setSavedData((prev) => ({ ...prev, photo_url }));
 
       showToast({
         title: 'Photo updated',
@@ -161,7 +162,7 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
         <div className="flex-1">
           <label
             htmlFor="photo-upload"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] hover:bg-white/[0.04] text-white/70 rounded-lg cursor-pointer transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] text-white/70 rounded-lg cursor-pointer transition-colors"
           >
             <Camera className="w-4 h-4" />
             Change Photo
@@ -240,17 +241,6 @@ export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
         </p>
       </div>
 
-      {/* Submit Button */}
-      <div className="flex justify-end pt-4 border-t border-white/10">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="px-6 py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-        >
-          {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-          {isSubmitting ? 'Saving...' : 'Save Changes'}
-        </button>
-      </div>
       <SaveBar
         dirty={isDirty}
         saving={isSubmitting}

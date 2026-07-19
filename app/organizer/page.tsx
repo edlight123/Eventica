@@ -42,17 +42,46 @@ export default async function OrganizerDashboard({
     return <OrganizerUpgradePrompt redirectTo={redirectTo} />
   }
 
+  // Safe empty defaults so a partial Firestore failure renders a recoverable
+  // error state instead of masquerading as a brand-new (empty) organizer.
+  const emptyStats: any = {
+    draftEvents: 0,
+    upcomingSoonWithNoSales: 0,
+    upcomingEvents: 0,
+    ticketsSold: 0,
+    revenue: 0,
+    revenueByCurrencyCents: {},
+    avgTicketsPerEvent: 0,
+    events: [],
+    tickets: [],
+  }
+
   // Fetch organizer data
-  const [nextEvent, stats7d, stats30d, statsLifetime, haitiProfile, stripeProfile, balanceData, identityStatus] = await Promise.all([
-    getNextEvent(user.id),
-    getOrganizerStats(user.id, '7d'),
-    getOrganizerStats(user.id, '30d'),
-    getOrganizerStats(user.id, 'lifetime'),
-    getPayoutProfile(user.id, 'haiti'),
-    getPayoutProfile(user.id, 'stripe_connect'),
-    getOrganizerBalance(user.id),
-    getOrganizerIdentityVerificationStatus(user.id),
-  ])
+  let loadError = false
+  let nextEvent: any = null
+  let stats7d: any = emptyStats
+  let stats30d: any = emptyStats
+  let statsLifetime: any = emptyStats
+  let haitiProfile: any = null
+  let stripeProfile: any = null
+  let balanceData: any = { pending: 0, currency: 'HTG' }
+  let identityStatus: any = 'unverified'
+
+  try {
+    ;[nextEvent, stats7d, stats30d, statsLifetime, haitiProfile, stripeProfile, balanceData, identityStatus] = await Promise.all([
+      getNextEvent(user.id),
+      getOrganizerStats(user.id, '7d'),
+      getOrganizerStats(user.id, '30d'),
+      getOrganizerStats(user.id, 'lifetime'),
+      getPayoutProfile(user.id, 'haiti'),
+      getPayoutProfile(user.id, 'stripe_connect'),
+      getOrganizerBalance(user.id),
+      getOrganizerIdentityVerificationStatus(user.id),
+    ])
+  } catch (err) {
+    console.error('Organizer dashboard failed to load:', err)
+    loadError = true
+  }
 
   // Default to 7d stats
   const currentStats = stats7d
@@ -223,6 +252,7 @@ export default async function OrganizerDashboard({
       isVerified={isVerified}
       organizerName={user.name || user.email || ''}
       hasCreatedEvent={hasCreatedEvent}
+      loadError={loadError}
     />
   )
 }

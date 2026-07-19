@@ -1,6 +1,7 @@
 'use client'
 
 import { useTranslation } from 'react-i18next'
+import { useRouter } from 'next/navigation'
 import { ActionCenter } from '@/components/organizer/ActionCenter'
 import { SalesSnapshot } from '@/components/organizer/SalesSnapshot'
 import OrganizerEventCard from '@/components/organizer/events-manager/OrganizerEventCard'
@@ -8,7 +9,7 @@ import { PayoutsWidget } from '@/components/organizer/PayoutsWidget'
 import WelcomeDashboard from '@/components/organizer/WelcomeDashboard'
 import { PageHeader, SectionHeader, OrgEmptyState } from '@/components/organizer/ui'
 import Link from 'next/link'
-import { CalendarPlus } from 'lucide-react'
+import { CalendarPlus, AlertTriangle, RefreshCw } from 'lucide-react'
 
 interface Alert {
   id: string
@@ -32,6 +33,7 @@ interface OrganizerDashboardClientProps {
   isVerified: boolean
   organizerName: string
   hasCreatedEvent: boolean
+  loadError?: boolean
 }
 
 export default function OrganizerDashboardClient({
@@ -46,9 +48,43 @@ export default function OrganizerDashboardClient({
   eventStatsById,
   isVerified,
   organizerName,
-  hasCreatedEvent
+  hasCreatedEvent,
+  loadError = false
 }: OrganizerDashboardClientProps) {
   const { t } = useTranslation('common')
+  const router = useRouter()
+
+  // If the dashboard data failed to load, show a recoverable error instead of
+  // the new-organizer welcome screen (which would misrepresent a real account
+  // as empty when the reads simply failed).
+  if (loadError) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+        <div className="mx-auto max-w-md rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/10">
+            <AlertTriangle className="h-6 w-6 text-amber-300" />
+          </div>
+          <h1 className="font-display text-2xl text-white">We couldn&rsquo;t load your dashboard</h1>
+          <p className="mt-2 text-[15px] text-white/70">
+            Something went wrong fetching your events and sales. Your data is safe — please try again.
+          </p>
+          <button
+            type="button"
+            onClick={() => router.refresh()}
+            className="mt-6 inline-flex items-center gap-2 rounded-lg bg-brand-700 px-5 py-2.5 font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Try again
+          </button>
+          <p className="mt-4 text-sm text-white/70">
+            <Link href="/organizer/events" className="text-brand-300 hover:text-brand-200">
+              Go to your events
+            </Link>
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   // Show welcome dashboard for new organizers (no events yet)
   const isNewOrganizer = !hasCreatedEvent

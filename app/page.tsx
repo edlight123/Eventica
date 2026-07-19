@@ -118,6 +118,7 @@ export default async function HomePage({
       location: `${e.venue_name}, ${e.city}`,
       category: e.category,
       price: e.ticket_price,
+      currency: e.currency,
       isFeatured: true,
       isVIP: (e.ticket_price || 0) > 100,
     }))

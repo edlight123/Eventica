@@ -1,9 +1,11 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Download, Mail, User, CreditCard, Calendar, Check, AlertCircle, QrCode } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Download, Mail, User, CreditCard, Calendar, Check, AlertCircle, QrCode, AlertTriangle } from 'lucide-react'
 import { format } from 'date-fns'
 import { formatMoneyFromCents, normalizeCurrency } from '@/lib/money'
+import { useToast } from '@/components/ui/Toast'
 import {
   SearchInput,
   FilterBar,
@@ -39,6 +41,7 @@ interface AttendeesManagerProps {
   eventId: string
   eventTitle: string
   tickets: Ticket[]
+  ticketsError?: boolean
 }
 
 type FilterStatus = 'all' | 'checked-in' | 'not-checked-in' | 'cancelled'
@@ -58,12 +61,12 @@ const COLUMNS: OrgColumn<Ticket>[] = [
     sortAccessor: (t: Ticket) => t.attendee?.full_name || '',
     render: (t: Ticket) => (
       <div className="flex items-center gap-3">
-        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full ">
+        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/10 bg-white/[0.06]">
           <User className="h-4 w-4 text-brand-300" />
         </div>
         <div className="min-w-0">
           <p className="truncate font-medium text-white">{t.attendee?.full_name || 'Unknown'}</p>
-          <p className="truncate text-xs text-white/50 sm:hidden">{t.attendee?.email || ''}</p>
+          <p className="truncate text-xs text-white/70 sm:hidden">{t.attendee?.email || ''}</p>
         </div>
       </div>
     ),
@@ -87,7 +90,7 @@ const COLUMNS: OrgColumn<Ticket>[] = [
         return (
           <div>
             <StatusChip tone="success">Checked In</StatusChip>
-            <p className="mt-0.5 font-mono tabular-nums text-xs text-white/40">
+            <p className="mt-0.5 font-mono tabular-nums text-xs text-white/70">
               {format(new Date(t.checked_in_at), 'MMM d, h:mm a')}
             </p>
           </div>
@@ -112,7 +115,8 @@ const COLUMNS: OrgColumn<Ticket>[] = [
   },
 ]
 
-export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesManagerProps) {
+export function AttendeesManager({ eventId, eventTitle, tickets, ticketsError = false }: AttendeesManagerProps) {
+  const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all')
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null)
@@ -196,14 +200,14 @@ export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesMana
       key={t.id}
       type="button"
       onClick={() => setSelectedTicket(t)}
-      className="flex w-full items-center gap-3 p-4 text-left hover:bg-white/[0.04] active:bg-[#0a0a0a]"
+      className="flex w-full items-center gap-3 p-4 text-left hover:bg-white/[0.04] active:bg-white/[0.08]"
     >
-      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full ">
+      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/10 bg-white/[0.06]">
         <User className="h-5 w-5 text-brand-300" />
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium text-white">{t.attendee?.full_name || 'Unknown'}</p>
-        <p className="truncate text-xs text-white/50">{t.attendee?.email || ''}</p>
+        <p className="truncate text-xs text-white/70">{t.attendee?.email || ''}</p>
       </div>
       <div>
         {t.checked_in_at ? (
@@ -219,6 +223,25 @@ export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesMana
 
   return (
     <>
+      {ticketsError && (
+        <div className="mb-4 flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-300" />
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-white">Couldn&apos;t load attendees</p>
+            <p className="mt-0.5 text-sm text-white/70">
+              Something went wrong fetching tickets for this event.{' '}
+              <button
+                type="button"
+                onClick={() => router.refresh()}
+                className="font-semibold text-brand-300 underline underline-offset-2 hover:text-brand-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              >
+                Try again
+              </button>
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* KPI row */}
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
@@ -227,8 +250,8 @@ export function AttendeesManager({ eventId, eventTitle, tickets }: AttendeesMana
           { label: 'Pending', value: stats.notCheckedIn, color: 'text-amber-300', bg: 'border-amber-500/30' },
           { label: 'Cancelled', value: stats.cancelled, color: 'text-red-300', bg: 'border-red-500/30' },
         ].map((k) => (
-          <div key={k.label} className={`rounded-xl border bg-[#0a0a0a] p-4 ${k.bg}`}>
-            <p className="label-mono uppercase text-white/50">{k.label}</p>
+          <div key={k.label} className={`rounded-xl border bg-white/[0.03] p-4 ${k.bg}`}>
+            <p className="label-mono uppercase text-white/70">{k.label}</p>
             <p className={`mt-1 font-mono tabular-nums text-2xl font-bold ${k.color}`}>{k.value}</p>
           </div>
         ))}
@@ -319,7 +342,7 @@ function AttendeeDetail({ ticket }: { ticket: Ticket }) {
     <div className="space-y-6 p-6">
       {/* Attendee info */}
       <section>
-        <p className="label-mono uppercase mb-3 text-white/50">
+        <p className="label-mono uppercase mb-3 text-white/70">
           Attendee Information
         </p>
         <div className="space-y-3">
@@ -344,7 +367,7 @@ function AttendeeDetail({ ticket }: { ticket: Ticket }) {
 
       {/* Ticket info */}
       <section>
-        <p className="label-mono uppercase mb-3 text-white/50">
+        <p className="label-mono uppercase mb-3 text-white/70">
           Ticket Information
         </p>
         <div className="space-y-3">
@@ -397,7 +420,7 @@ function InfoRow({
     <div className="flex gap-3">
       <span className="mt-0.5 shrink-0 text-white/40">{icon}</span>
       <div>
-        <p className="text-xs text-white/40">{label}</p>
+        <p className="text-xs text-white/70">{label}</p>
         <p className="font-medium text-white">{children}</p>
       </div>
     </div>
@@ -405,12 +428,13 @@ function InfoRow({
 }
 
 function AttendeeActions({ ticket, eventId }: { ticket: Ticket; eventId: string }) {
+  const router = useRouter()
+  const { showToast } = useToast()
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [confirmingRefund, setConfirmingRefund] = useState(false)
 
   const handleResendTicket = async () => {
     setLoading(true)
-    setMessage(null)
     try {
       const res = await fetch('/api/resend-ticket', {
         method: 'POST',
@@ -418,18 +442,17 @@ function AttendeeActions({ ticket, eventId }: { ticket: Ticket; eventId: string 
         body: JSON.stringify({ ticketId: ticket.id }),
       })
       if (!res.ok) throw new Error()
-      setMessage({ type: 'success', text: 'Ticket resent successfully!' })
+      showToast({ type: 'success', title: 'Ticket resent', message: 'The ticket email is on its way.' })
     } catch {
-      setMessage({ type: 'error', text: 'Failed to resend ticket' })
+      showToast({ type: 'error', title: 'Failed to resend', message: 'Please try again.' })
     } finally {
       setLoading(false)
     }
   }
 
   const handleRefund = async () => {
-    if (!confirm('Refund this ticket? This cannot be undone.')) return
+    setConfirmingRefund(false)
     setLoading(true)
-    setMessage(null)
     try {
       const res = await fetch('/api/refund-ticket', {
         method: 'POST',
@@ -437,10 +460,10 @@ function AttendeeActions({ ticket, eventId }: { ticket: Ticket; eventId: string 
         body: JSON.stringify({ ticketId: ticket.id }),
       })
       if (!res.ok) throw new Error()
-      setMessage({ type: 'success', text: 'Refund processed!' })
-      setTimeout(() => window.location.reload(), 1500)
+      showToast({ type: 'success', title: 'Refund processed', message: 'The ticket has been refunded.' })
+      router.refresh()
     } catch {
-      setMessage({ type: 'error', text: 'Failed to process refund' })
+      showToast({ type: 'error', title: 'Refund failed', message: 'Please try again.' })
     } finally {
       setLoading(false)
     }
@@ -448,17 +471,6 @@ function AttendeeActions({ ticket, eventId }: { ticket: Ticket; eventId: string 
 
   return (
     <div className="space-y-3 p-4">
-      {message && (
-        <p
-          className={`rounded-lg px-3 py-2 text-sm ${
-            message.type === 'success'
-              ? 'text-emerald-300'
-              : 'text-red-300'
-          }`}
-        >
-          {message.text}
-        </p>
-      )}
       <button
         type="button"
         onClick={handleResendTicket}
@@ -468,15 +480,40 @@ function AttendeeActions({ ticket, eventId }: { ticket: Ticket; eventId: string 
         <Mail className="h-4 w-4" />
         Resend Ticket Email
       </button>
-      <button
-        type="button"
-        onClick={handleRefund}
-        disabled={loading}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
-      >
-        <CreditCard className="h-4 w-4" />
-        Process Refund
-      </button>
+
+      {confirmingRefund ? (
+        <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3">
+          <p className="text-sm text-white">Refund this ticket? This cannot be undone.</p>
+          <div className="mt-3 flex gap-2">
+            <button
+              type="button"
+              onClick={() => setConfirmingRefund(false)}
+              disabled={loading}
+              className="flex-1 rounded-lg border border-white/10 px-3 py-2 text-sm font-semibold text-white/70 transition-colors hover:bg-white/[0.04] disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleRefund}
+              disabled={loading}
+              className="flex-1 rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+            >
+              {loading ? 'Refunding…' : 'Confirm refund'}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setConfirmingRefund(true)}
+          disabled={loading}
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+        >
+          <CreditCard className="h-4 w-4" />
+          Process Refund
+        </button>
+      )}
     </div>
   )
 }

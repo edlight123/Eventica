@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { X } from 'lucide-react'
@@ -33,6 +33,7 @@ export function FiltersModal({
   const { t } = useTranslation('common')
   const [mounted, setMounted] = useState(false)
   const [showDatePicker, setShowDatePicker] = useState(false)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
   
   // Get country-specific options
   const cities = getCitiesForCountry(userCountry)
@@ -70,7 +71,11 @@ export function FiltersModal({
     document.body.style.overflow = 'hidden'
     window.addEventListener('keydown', handleEscape)
 
+    // Move focus into the dialog when it opens
+    const focusTimer = window.setTimeout(() => closeButtonRef.current?.focus(), 0)
+
     return () => {
+      window.clearTimeout(focusTimer)
       document.body.style.overflow = ''
       window.removeEventListener('keydown', handleEscape)
     }
@@ -117,22 +122,26 @@ export function FiltersModal({
 
       {/* Modal/Sheet */}
       <div className="fixed inset-0 z-50 flex items-end md:items-center md:justify-center p-0 md:p-4 pointer-events-none">
-        <div 
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="filters-modal-title"
           className="pointer-events-auto bg-[#0a0a0a] w-full h-full md:h-auto md:max-h-[90vh] md:max-w-[600px] rounded-t-3xl md:rounded-3xl shadow-poster md:border md:border-white/10 flex flex-col overflow-hidden animate-in slide-in-from-bottom md:slide-in-from-bottom-0 md:zoom-in-95 duration-200"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-[#0a0a0a] sticky top-0 z-10">
             <div className="flex items-baseline gap-2.5">
-              <h2 className="font-display text-2xl leading-none text-white">{t('filters.filters')}</h2>
+              <h2 id="filters-modal-title" className="font-display text-2xl leading-none text-white">{t('filters.filters')}</h2>
               {activeCount > 0 && (
                 <span className="eyebrow text-[11px] text-brand-400">{activeCount} {t('filters.active')}</span>
               )}
             </div>
             <button
+              ref={closeButtonRef}
               onClick={onClose}
               aria-label={t('common.close', { defaultValue: 'Close' })}
-              className="grid h-9 w-9 place-items-center rounded-full border border-white/15 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+              className="grid h-9 w-9 place-items-center rounded-full border border-white/15 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
             >
               <X className="w-[18px] h-[18px]" />
             </button>
@@ -142,7 +151,7 @@ export function FiltersModal({
           <div className="flex-1 overflow-y-auto p-5 space-y-6">
             {/* Date Filter */}
             <div className="space-y-3">
-              <label className="eyebrow text-[11px] text-white/50">{t('filters.date')}</label>
+              <label className="eyebrow text-[11px] text-white/70">{t('filters.date')}</label>
               <div className="flex flex-wrap gap-2">
                 {DATE_OPTIONS.map(option => (
                   <FilterChip
@@ -165,8 +174,8 @@ export function FiltersModal({
 
             {/* Event Type - Segmented Control */}
             <div className="space-y-3">
-              <label className="eyebrow text-[11px] text-white/50">{t('filters.event_type')}</label>
-              <div className="inline-flex rounded-xl  p-1 ">
+              <label className="eyebrow text-[11px] text-white/70">{t('filters.event_type')}</label>
+              <div className="inline-flex rounded-xl border border-white/10 bg-white/[0.03] p-1">
                 {EVENT_TYPE_OPTIONS.map(option => (
                   <button
                     key={option.value}
@@ -174,7 +183,7 @@ export function FiltersModal({
                     className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all
                       ${draftFilters.eventType === option.value
                         ? 'bg-white/15 text-brand-300 shadow-sm'
-                        : 'text-white/55 hover:text-white'
+                        : 'text-white/70 hover:text-white'
                       }`}
                   >
                     {option.label}
@@ -185,7 +194,7 @@ export function FiltersModal({
 
             {/* Price Filter */}
             <div className="space-y-3">
-              <label className="eyebrow text-[11px] text-white/50">{t('filters.price')}</label>
+              <label className="eyebrow text-[11px] text-white/70">{t('filters.price')}</label>
               <div className="flex flex-wrap gap-2">
                 {priceFilters.map(option => (
                   <FilterChip
@@ -200,7 +209,7 @@ export function FiltersModal({
 
             {/* Category Filter */}
             <div className="space-y-3">
-              <label className="eyebrow text-[11px] text-white/50">{t('filters.categories')}</label>
+              <label className="eyebrow text-[11px] text-white/70">{t('filters.categories')}</label>
               <div className="flex flex-wrap gap-2">
                 {CATEGORIES.map(category => (
                   <FilterChip
@@ -215,7 +224,7 @@ export function FiltersModal({
 
             {/* Location Filter */}
             <div className="space-y-3">
-              <label className="eyebrow text-[11px] text-white/50">{t('filters.location')}</label>
+              <label className="eyebrow text-[11px] text-white/70">{t('filters.location')}</label>
               <div className="space-y-3">
                 {/* City Dropdown */}
                 <select
@@ -232,13 +241,13 @@ export function FiltersModal({
                 {/* Commune/Neighborhood Dropdown */}
                 {hasLocation && (
                   <div className="space-y-2">
-                    <label className="eyebrow text-[10px] text-white/40">{locationLabel}</label>
+                    <label className="eyebrow text-[10px] text-white/70">{locationLabel}</label>
                     <select
                       value={draftFilters.commune || ''}
                       onChange={(e) => handleCommuneChange(e.target.value)}
                       className="w-full rounded-xl border border-white/15 text-white [color-scheme:dark] px-4 py-2.5 text-sm focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30"
                     >
-                      <option value="">{t('filters.all_areas')} {locationLabel.toLowerCase()}s</option>
+                      <option value="">{t('filters.all_areas')}</option>
                       {subdivisions.map(subdivision => (
                         <option key={subdivision} value={subdivision}>{subdivision}</option>
                       ))}
@@ -253,7 +262,7 @@ export function FiltersModal({
           <div className="sticky bottom-0 bg-[#0a0a0a]/85 backdrop-blur border-t border-white/10 p-4 flex items-center justify-between gap-3">
             <button
               onClick={onReset}
-              className="px-4 py-2.5 text-sm font-semibold text-white/55 hover:text-white transition-colors"
+              className="px-4 py-2.5 text-sm font-semibold text-white/70 hover:text-white transition-colors"
             >
               {t('filters.reset')}
             </button>

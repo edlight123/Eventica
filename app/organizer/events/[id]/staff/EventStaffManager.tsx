@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore'
 import { db } from '@/lib/firebase/client'
 import { useToast } from '@/components/ui/Toast'
@@ -53,6 +53,42 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
   const [targetPhone, setTargetPhone] = useState('')
   const [viewAttendees, setViewAttendees] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [pendingConfirm, setPendingConfirm] = useState<
+    | { kind: 'revoke' | 'remove'; id: string; title: string; message: string; cta: string }
+    | null
+  >(null)
+  const [confirmBusy, setConfirmBusy] = useState(false)
+
+  const inviteMethodRef = useRef<HTMLSelectElement | null>(null)
+
+  const closeInviteModal = useCallback(() => {
+    setShowInviteModal(false)
+    setTargetEmail('')
+    setTargetPhone('')
+    setViewAttendees(false)
+    setMethod('link')
+  }, [])
+
+  // Focus first field when the invite modal opens.
+  useEffect(() => {
+    if (showInviteModal) {
+      const t = setTimeout(() => inviteMethodRef.current?.focus(), 0)
+      return () => clearTimeout(t)
+    }
+  }, [showInviteModal])
+
+  // Close modal / confirm on Escape.
+  useEffect(() => {
+    if (!showInviteModal && !pendingConfirm) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (pendingConfirm) setPendingConfirm(null)
+        else if (showInviteModal) closeInviteModal()
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [showInviteModal, pendingConfirm, closeInviteModal])
 
   const canSubmit = useMemo(() => {
     if (method === 'email') return Boolean(targetEmail.trim())
@@ -188,21 +224,16 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
         showToast({ title: 'Invite created', message: 'Share the invite link with your staff member.', type: 'success' })
       }
 
-      setShowInviteModal(false)
-      setTargetEmail('')
-      setTargetPhone('')
-      setViewAttendees(false)
-      setMethod('link')
+      closeInviteModal()
     } catch (err: any) {
       showToast({ title: 'Error', message: err?.message || 'Failed to create invite', type: 'error' })
     } finally {
       setIsSubmitting(false)
     }
-  }, [canSubmit, eventId, method, showToast, targetEmail, targetPhone, viewAttendees])
+  }, [canSubmit, closeInviteModal, eventId, method, showToast, targetEmail, targetPhone, viewAttendees])
 
   const handleRevokeInvite = useCallback(
     async (inviteId: string) => {
-      if (!confirm('Revoke this invite?')) return
       try {
         const res = await fetch('/api/staff/invites/revoke', {
           method: 'POST',
@@ -224,7 +255,6 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
 
   const handleRemoveMember = useCallback(
     async (memberId: string) => {
-      if (!confirm('Remove this staff member?')) return
       try {
         const res = await fetch('/api/staff/members/remove', {
           method: 'POST',
@@ -244,10 +274,25 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
     [eventId, showToast]
   )
 
+  const runPendingConfirm = useCallback(async () => {
+    if (!pendingConfirm) return
+    setConfirmBusy(true)
+    try {
+      if (pendingConfirm.kind === 'revoke') {
+        await handleRevokeInvite(pendingConfirm.id)
+      } else {
+        await handleRemoveMember(pendingConfirm.id)
+      }
+    } finally {
+      setConfirmBusy(false)
+      setPendingConfirm(null)
+    }
+  }, [pendingConfirm, handleRevokeInvite, handleRemoveMember])
+
   return (
     <div className="space-y-6">
       {listenerError ? (
-        <div className="border border-red-500/30 text-red-300 px-4 py-3 rounded-lg text-sm">
+        <div className="border border-red-500/30 bg-red-500/10 text-red-300 px-4 py-3 rounded-lg text-sm">
           {listenerError}
         </div>
       ) : null}
@@ -261,21 +306,21 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
         </button>
       </div>
 
-      <div className="bg-[#0a0a0a] rounded-xl  overflow-hidden">
+      <div className="bg-white/[0.03] border border-white/10 rounded-xl overflow-hidden">
         <div className="px-6 py-4 border-b border-white/10">
           <h3 className="text-lg font-bold text-white">Staff Members</h3>
-          <p className="text-sm text-white/60">Event-scoped access for check-in</p>
+          <p className="text-sm text-white/70">Event-scoped access for check-in</p>
         </div>
         {members.length === 0 ? (
-          <div className="px-6 py-8 text-sm text-white/60">No staff members yet.</div>
+          <div className="px-6 py-8 text-sm text-white/70">No staff members yet.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-[#0a0a0a] border-b border-white/10">
+              <thead className="bg-white/[0.03] border-b border-white/10">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase tracking-wider">User</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase tracking-wider">Permissions</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-white/50 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">User</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Permissions</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-white/70 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/10">
@@ -288,9 +333,9 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
                     <tr key={m.id} className="hover:bg-white/[0.04]">
                       <td className="px-6 py-4">
                         <div className="font-medium text-white">{displayName}</div>
-                        <div className="text-sm text-white/50">{m.role || 'staff'}</div>
+                        <div className="text-sm text-white/70">{m.role || 'staff'}</div>
                         {showEmail && (
-                          <div className="text-xs text-white/50 mt-0.5">{profile.email}</div>
+                          <div className="text-xs text-white/70 mt-0.5">{profile.email}</div>
                         )}
                       </td>
                       <td className="px-6 py-4 text-sm text-white/70">
@@ -299,7 +344,18 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
                         View attendees: {m.permissions?.viewAttendees ? 'Yes' : 'No'}
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button onClick={() => handleRemoveMember(m.id)} className="text-red-300 hover:text-red-300">
+                        <button
+                          onClick={() =>
+                            setPendingConfirm({
+                              kind: 'remove',
+                              id: m.id,
+                              title: 'Remove staff member?',
+                              message: 'This revokes their event-scoped access. They can be re-invited later.',
+                              cta: 'Remove',
+                            })
+                          }
+                          className="text-sm font-medium text-red-300 transition-colors hover:text-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
+                        >
                           Remove
                         </button>
                       </td>
@@ -312,22 +368,22 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
         )}
       </div>
 
-      <div className="bg-[#0a0a0a] rounded-xl  overflow-hidden">
+      <div className="bg-white/[0.03] border border-white/10 rounded-xl overflow-hidden">
         <div className="px-6 py-4 border-b border-white/10">
           <h3 className="text-lg font-bold text-white">Invites</h3>
-          <p className="text-sm text-white/60">Invite links are one-time use. Create a new one if lost.</p>
+          <p className="text-sm text-white/70">Invite links are one-time use. Create a new one if lost.</p>
         </div>
         {invites.length === 0 ? (
-          <div className="px-6 py-8 text-sm text-white/60">No invites yet.</div>
+          <div className="px-6 py-8 text-sm text-white/70">No invites yet.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-[#0a0a0a] border-b border-white/10">
+              <thead className="bg-white/[0.03] border-b border-white/10">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase tracking-wider">Method</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase tracking-wider">Target</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-white/50 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Method</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Target</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-white/70 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/10">
@@ -347,11 +403,22 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
                       <td className="px-6 py-4 text-sm text-white/70">{status}</td>
                       <td className="px-6 py-4 text-right">
                         {!inv.revokedAt && !inv.usedAt ? (
-                          <button onClick={() => handleRevokeInvite(inv.id)} className="text-red-300 hover:text-red-300">
+                          <button
+                            onClick={() =>
+                              setPendingConfirm({
+                                kind: 'revoke',
+                                id: inv.id,
+                                title: 'Revoke this invite?',
+                                message: 'The invite link will stop working immediately.',
+                                cta: 'Revoke',
+                              })
+                            }
+                            className="text-sm font-medium text-red-300 transition-colors hover:text-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
+                          >
                             Revoke
                           </button>
                         ) : (
-                          <span className="text-sm text-white/40">—</span>
+                          <span className="text-sm text-white/70">—</span>
                         )}
                       </td>
                     </tr>
@@ -364,17 +431,28 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
       </div>
 
       {showInviteModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0a0a0a] rounded-xl max-w-md w-full p-6">
-            <h3 className="font-display text-xl text-white mb-4">Invite Staff</h3>
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={closeInviteModal}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="invite-staff-title"
+            onClick={(e) => e.stopPropagation()}
+            className="bg-[#141414] border border-white/10 rounded-xl max-w-md w-full p-6"
+          >
+            <h3 id="invite-staff-title" className="font-display text-xl text-white mb-4">Invite Staff</h3>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-white/70 mb-2">Method</label>
+                <label htmlFor="invite-method" className="block text-sm font-medium text-white/70 mb-2">Method</label>
                 <select
+                  id="invite-method"
+                  ref={inviteMethodRef}
                   value={method}
                   onChange={(e) => setMethod(e.target.value as InviteMethod)}
-                  className="w-full px-4 py-2.5 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                  className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/15 rounded-lg text-white focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 >
                   <option value="link">Link</option>
                   <option value="email">Email</option>
@@ -384,12 +462,13 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
 
               {method === 'email' && (
                 <div>
-                  <label className="block text-sm font-medium text-white/70 mb-2">Email</label>
+                  <label htmlFor="invite-email" className="block text-sm font-medium text-white/70 mb-2">Email</label>
                   <input
+                    id="invite-email"
                     type="email"
                     value={targetEmail}
                     onChange={(e) => setTargetEmail(e.target.value)}
-                    className="w-full px-4 py-2.5 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                    className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/15 rounded-lg text-white placeholder-white/30 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                     placeholder="staff@example.com"
                   />
                 </div>
@@ -397,32 +476,45 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
 
               {method === 'phone' && (
                 <div>
-                  <label className="block text-sm font-medium text-white/70 mb-2">Phone</label>
+                  <label htmlFor="invite-phone" className="block text-sm font-medium text-white/70 mb-2">Phone</label>
                   <input
+                    id="invite-phone"
                     type="tel"
                     value={targetPhone}
                     onChange={(e) => setTargetPhone(e.target.value)}
-                    className="w-full px-4 py-2.5 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                    className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/15 rounded-lg text-white placeholder-white/30 focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                     placeholder="+509..."
                   />
                 </div>
               )}
 
-              <label className="flex items-center gap-2 text-sm text-white/70">
-                <input type="checkbox" checked={viewAttendees} onChange={(e) => setViewAttendees(e.target.checked)} />
-                Allow viewing attendee details
-              </label>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-white">Allow viewing attendee details</p>
+                  <p className="text-xs text-white/70">Let this staff member see attendee names and contacts.</p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={viewAttendees}
+                  aria-label="Allow viewing attendee details"
+                  onClick={() => setViewAttendees((v) => !v)}
+                  className={`relative mt-0.5 inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+                    viewAttendees ? 'bg-brand-700' : 'bg-white/15'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      viewAttendees ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
 
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowInviteModal(false)
-                    setTargetEmail('')
-                    setTargetPhone('')
-                    setViewAttendees(false)
-                    setMethod('link')
-                  }}
+                  onClick={closeInviteModal}
                   className="flex-1 px-4 py-2.5 border border-white/15 text-white/70 font-medium rounded-lg hover:bg-white/[0.04] transition-colors"
                 >
                   Cancel
@@ -436,6 +528,42 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
                   {isSubmitting ? 'Creating…' : 'Create Invite'}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {pendingConfirm && (
+        <div
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={() => !confirmBusy && setPendingConfirm(null)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="staff-confirm-title"
+            onClick={(e) => e.stopPropagation()}
+            className="bg-[#141414] border border-white/10 rounded-xl max-w-md w-full p-6"
+          >
+            <h3 id="staff-confirm-title" className="font-display text-xl text-white mb-2">{pendingConfirm.title}</h3>
+            <p className="text-sm text-white/70 mb-6">{pendingConfirm.message}</p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setPendingConfirm(null)}
+                disabled={confirmBusy}
+                className="flex-1 px-4 py-2.5 border border-white/15 text-white/70 font-medium rounded-lg hover:bg-white/[0.04] transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={runPendingConfirm}
+                disabled={confirmBusy}
+                className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
+              >
+                {confirmBusy ? 'Working…' : pendingConfirm.cta}
+              </button>
             </div>
           </div>
         </div>

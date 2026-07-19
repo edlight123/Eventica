@@ -132,18 +132,16 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   const isTrending = (event.tickets_sold || 0) > 10
   const selloutSoon = !isSoldOut && remainingTickets < 10
 
-  // Fetch reviews, related events, and user status in parallel
-  let reviews: any[] = []
+  // Fetch related events and user status in parallel
   let relatedEvents: any[] = []
   let isFollowing = false
   let isFavorite = false
-  
+
   if (!isDemoMode()) {
     const now = new Date()
-    
+
     // Start all independent queries in parallel
-    const [reviewsSnapshot, relatedSnapshot, followingResult, favoriteResult] = await Promise.all([
-      adminDb.collection('reviews').where('event_id', '==', id).get(),
+    const [relatedSnapshot, followingResult, favoriteResult] = await Promise.all([
       adminDb.collection('events')
         .where('category', '==', event.category)
         .where('is_published', '==', true)
@@ -153,50 +151,10 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
       user && event.organizer_id ? checkIsFollowing(user.id, event.organizer_id) : Promise.resolve(false),
       user ? checkIsFavorite(user.id, id) : Promise.resolve(false)
     ])
-    
+
     isFollowing = followingResult
     isFavorite = favoriteResult
-    
-    // Batch fetch all user IDs needed for reviews
-    const reviewUserIds = Array.from(new Set(reviewsSnapshot.docs.map((doc: any) => doc.data().user_id)))
-    const reviewUsersMap = new Map<string, any>()
-    
-    if (reviewUserIds.length > 0) {
-      // Firestore 'in' queries support up to 30 items
-      const userChunks = []
-      for (let i = 0; i < reviewUserIds.length; i += 30) {
-        userChunks.push(reviewUserIds.slice(i, i + 30))
-      }
-      
-      const userSnapshots = await Promise.all(
-        userChunks.map(chunk => 
-          adminDb.collection('users').where('__name__', 'in', chunk).get()
-        )
-      )
-      
-      userSnapshots.forEach(snapshot => {
-        snapshot.docs.forEach((doc: any) => {
-          reviewUsersMap.set(doc.id, doc.data())
-        })
-      })
-    }
-    
-    // Map reviews with pre-fetched user data
-    reviews = reviewsSnapshot.docs.map((reviewDoc: any) => {
-      const reviewData = reviewDoc.data()
-      const userData = reviewUsersMap.get(reviewData.user_id)
-      
-      return {
-        id: reviewDoc.id,
-        rating: reviewData.rating,
-        comment: reviewData.comment,
-        created_at: reviewData.created_at?.toDate?.()?.toISOString() || new Date().toISOString(),
-        user: {
-          full_name: userData?.full_name || 'Anonymous'
-        }
-      }
-    })
-    
+
     // Process related events - batch fetch organizers
     const filteredRelated = relatedSnapshot.docs
       .filter((doc: any) => doc.id !== id)

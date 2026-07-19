@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { Share2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -13,6 +14,9 @@ interface TicketActionsProps {
 
 export default function TicketActions({ ticketId, ticketStatus, checkedIn, eventTitle }: TicketActionsProps) {
   const { t } = useTranslation('tickets')
+  const router = useRouter()
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const emailInputRef = useRef<HTMLInputElement>(null)
   const [showTransferModal, setShowTransferModal] = useState(false)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
@@ -22,6 +26,31 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
   const [transferMessage, setTransferMessage] = useState('')
   const [transferLink, setTransferLink] = useState('')
   const [showTransferLink, setShowTransferLink] = useState(false)
+
+  function closeTransferModal() {
+    setShowTransferModal(false)
+    setShowTransferLink(false)
+    setTransferLink('')
+  }
+
+  // Dialog behavior: close on Escape and focus the first element when opened.
+  useEffect(() => {
+    if (!showTransferModal) return
+
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        closeTransferModal()
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+
+    // Focus the first meaningful control inside the dialog.
+    const focusTarget = emailInputRef.current || closeButtonRef.current
+    focusTarget?.focus()
+
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [showTransferModal, showTransferLink])
 
   async function handleTransfer(e: React.FormEvent) {
     e.preventDefault()
@@ -60,7 +89,7 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
       if (!data.transfer?.transferToken) {
         setTimeout(() => {
           setShowTransferModal(false)
-          window.location.reload()
+          router.refresh()
         }, 2000)
       }
     } catch (error: any) {
@@ -97,9 +126,18 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
 
       {/* Transfer Modal */}
       {showTransferModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-[#0a0a0a] rounded-2xl max-w-md w-full p-6">
-            <h2 className="text-2xl font-bold text-white mb-4">{t('detail.transfer_title')}</h2>
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+          onClick={closeTransferModal}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="transfer-modal-title"
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white/[0.03] border border-white/10 rounded-2xl max-w-md w-full p-6"
+          >
+            <h2 id="transfer-modal-title" className="text-2xl font-bold text-white mb-4">{t('detail.transfer_title')}</h2>
             
             {!showTransferLink ? (
               <>
@@ -116,11 +154,12 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                       {t('detail.transfer_to_email')}
                     </label>
                     <input
+                      ref={emailInputRef}
                       type="email"
                       value={transferEmail}
                       onChange={(e) => setTransferEmail(e.target.value)}
                       placeholder="friend@example.com"
-                      className="w-full px-4 py-2  rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      className="w-full px-4 py-2 bg-white/[0.03] border border-white/10 text-white rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       required
                     />
                   </div>
@@ -133,7 +172,7 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                       value={transferMessage}
                       onChange={(e) => setTransferMessage(e.target.value)}
                       placeholder={t('detail.transfer_message_placeholder')}
-                      className="w-full px-4 py-2  rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      className="w-full px-4 py-2 bg-white/[0.03] border border-white/10 text-white rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       rows={3}
                       maxLength={500}
                     />
@@ -151,13 +190,10 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
 
                   <div className="flex gap-3">
                     <button
+                      ref={closeButtonRef}
                       type="button"
-                      onClick={() => {
-                        setShowTransferModal(false)
-                        setShowTransferLink(false)
-                        setTransferLink('')
-                      }}
-                      className="flex-1 px-4 py-2  rounded-lg text-white/70 font-medium hover:bg-white/[0.04]"
+                      onClick={closeTransferModal}
+                      className="flex-1 px-4 py-2 bg-white/[0.03] border border-white/10 rounded-lg text-white/70 font-medium hover:bg-white/[0.06]"
                       disabled={loading}
                     >
                       {t('detail.transfer_cancel')}
@@ -185,7 +221,7 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                       type="text"
                       value={transferLink}
                       readOnly
-                      className="flex-1 px-3 py-2  rounded-lg bg-[#0a0a0a] text-sm"
+                      className="flex-1 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/10 text-white text-sm"
                     />
                     <button
                       onClick={async () => {
@@ -193,9 +229,9 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                         setMessage({ type: 'success', text: t('detail.transfer_link_copied') })
                         setTimeout(() => setMessage(null), 2000)
                       }}
-                      className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                      className="px-4 py-2 bg-white/[0.03] border border-white/10 text-white font-medium rounded-lg hover:bg-white/[0.06] transition-colors"
                     >
-                      📋 {t('detail.transfer_copy_link')}
+                      {t('detail.transfer_copy_link')}
                     </button>
                   </div>
 
@@ -220,9 +256,9 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
                       const text = `I'm transferring my ticket for ${eventTitle}. Accept it here: ${transferLink}`
                       window.location.href = `sms:?&body=${encodeURIComponent(text)}`
                     }}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-800 text-white font-medium rounded-lg hover:bg-gray-900 transition"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white/[0.03] border border-white/10 text-white font-medium rounded-lg hover:bg-white/[0.06] transition-colors"
                   >
-                    💬 Share via Text Message
+                    Share via Text Message
                   </button>
                 </div>
 
@@ -244,12 +280,10 @@ export default function TicketActions({ ticketId, ticketStatus, checkedIn, event
 
                 <button
                   onClick={() => {
-                    setShowTransferModal(false)
-                    setShowTransferLink(false)
-                    setTransferLink('')
-                    window.location.reload()
+                    closeTransferModal()
+                    router.refresh()
                   }}
-                  className="w-full px-4 py-2 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700"
+                  className="w-full px-4 py-2 bg-brand-600 text-white font-semibold rounded-lg hover:bg-brand-700 transition-colors"
                 >
                   Done
                 </button>

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Copy, Check, ExternalLink, Tag, Megaphone, Share2 } from 'lucide-react'
 import { OrgEmptyState, StatusChip } from '@/components/organizer/ui'
+import { useToast } from '@/components/ui/Toast'
 
 interface PromoCode {
   id: string
@@ -31,6 +32,7 @@ export default function EventMarketingClient({
   eventTitle,
   promoCodes,
 }: EventMarketingClientProps) {
+  const { showToast } = useToast()
   const [origin, setOrigin] = useState('')
   const [copied, setCopied] = useState(false)
 
@@ -42,9 +44,13 @@ export default function EventMarketingClient({
 
   const copyLink = async () => {
     const url = `${window.location.origin}/events/${eventId}`
-    await navigator.clipboard.writeText(url)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      showToast({ type: 'error', title: 'Couldn’t copy link', message: 'Copy it manually from the field.' })
+    }
   }
 
   const socialLinks = [
@@ -89,7 +95,7 @@ export default function EventMarketingClient({
             href={`/events/${eventId}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl  text-white/60 transition-colors hover:bg-white/[0.04] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             aria-label="Open event page in new tab"
           >
             <ExternalLink className="h-4 w-4" />
@@ -98,14 +104,14 @@ export default function EventMarketingClient({
 
         {/* Social share */}
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <span className="label-mono uppercase text-white/40">Share on</span>
+          <span className="label-mono uppercase text-white/70">Share on</span>
           {socialLinks.map((s) => (
             <a
               key={s.label}
               href={s.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg  px-3 py-1.5 text-xs font-semibold text-white/60 transition-colors hover:border-white/20 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-semibold text-white/70 transition-colors hover:border-white/20 hover:bg-white/[0.06] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               {s.label}
             </a>
@@ -170,7 +176,7 @@ export default function EventMarketingClient({
       {/* SMS campaigns — coming soon */}
       <div className="rounded-2xl border border-dashed border-white/10 bg-[#0a0a0a]/50 p-8">
         <div className="mx-auto max-w-sm text-center">
-          <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-xl ">
+          <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-xl border border-white/10 bg-white/[0.03]">
             <Megaphone className="h-6 w-6 text-brand-400" />
           </div>
           <h3 className="font-semibold text-white">SMS campaigns</h3>

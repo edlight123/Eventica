@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Link2, Copy, Check, Plus, Trash2 } from 'lucide-react'
+import { Link2, Copy, Check, Plus, Trash2, AlertTriangle } from 'lucide-react'
 import { FormField, OrgEmptyState } from '@/components/organizer/ui'
 
 interface TrackingLink {
@@ -93,7 +93,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-white">Tracking links</h1>
-          <p className="mt-0.5 text-sm text-white/50">
+          <p className="mt-0.5 text-sm text-white/70">
             Generate UTM-tagged links to track traffic from different sources.
           </p>
         </div>
@@ -168,7 +168,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
             <button
               type="button"
               onClick={reset}
-              className="rounded-xl  px-4 py-2.5 text-sm font-semibold text-white/70 transition-colors hover:bg-white/[0.04] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               Cancel
             </button>
@@ -203,12 +203,20 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
           }
         />
       ) : links.length > 0 ? (
+        <>
+        <div className="flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
+          <p className="text-sm text-white/70">
+            <span className="font-semibold text-white">Links are not saved</span> — copy them now.
+            They&apos;ll disappear when you leave or refresh this page.
+          </p>
+        </div>
         <div className="rounded-2xl border border-white/10 divide-y divide-white/5">
           {links.map((link) => (
             <div key={link.id} className="flex items-center gap-4 px-5 py-4">
               <div className="min-w-0 flex-1">
                 <p className="font-medium text-white">{link.label}</p>
-                <p className="mt-0.5 truncate font-mono text-xs text-white/40">{link.url}</p>
+                <p className="mt-0.5 truncate font-mono text-xs text-white/70">{link.url}</p>
                 <div className="mt-1 flex flex-wrap gap-2">
                   {(
                     [
@@ -221,7 +229,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
                     .map(([k, v]) => (
                       <span
                         key={k}
-                        className="rounded-md bg-[#0a0a0a] px-2 py-0.5 font-mono text-[11px] text-white/50"
+                        className="rounded-md border border-white/10 bg-white/[0.06] px-2 py-0.5 font-mono text-[11px] text-white/70"
                       >
                         {k}={v}
                       </span>
@@ -233,7 +241,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
                   type="button"
                   onClick={() => copyLink(link.id, link.url)}
                   aria-label={`Copy tracking link: ${link.label}`}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-lg  px-3 text-xs font-semibold text-white/60 transition-colors hover:bg-white/[0.04] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 text-xs font-semibold text-white/70 transition-colors hover:bg-white/[0.06] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 >
                   {link.copiedAt ? (
                     <><Check className="h-3.5 w-3.5 text-emerald-400" />Copied</>
@@ -245,7 +253,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
                   type="button"
                   onClick={() => deleteLink(link.id)}
                   aria-label={`Delete tracking link: ${link.label}`}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg  text-white/40 transition-colors hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-white/70 transition-colors hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
@@ -253,6 +261,7 @@ export default function TrackingLinksClient({ eventId, eventTitle }: TrackingLin
             </div>
           ))}
         </div>
+        </>
       ) : null}
     </div>
   )

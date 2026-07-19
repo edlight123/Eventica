@@ -7,10 +7,9 @@ import { isDemoMode } from '@/lib/demo'
 import { useToast } from '@/components/ui/Toast'
 import ImageUpload from '@/components/ImageUpload'
 import { DatePicker, TimePicker } from '@/components/ui/DateTimePickers'
-import { normalizeEventCurrencyForCountry } from '@/lib/currency-policy'
+import { normalizeEventCurrencyForCountry, getAllowedEventCurrencies, type EventCurrency } from '@/lib/currency-policy'
 import {
   CalendarDays,
-  ChevronDown,
   Globe,
   Image as ImageIcon,
   Info,
@@ -42,7 +41,15 @@ const CATEGORIES = [
   'Other',
 ]
 
-const ACCENTS = ['#14B8A6', '#F2B705', '#EF4444', '#8B5CF6', '#3B82F6', '#EC4899', '#F97316']
+const ACCENTS: { hex: string; name: string }[] = [
+  { hex: '#14B8A6', name: 'Teal' },
+  { hex: '#F2B705', name: 'Gold' },
+  { hex: '#EF4444', name: 'Red' },
+  { hex: '#8B5CF6', name: 'Purple' },
+  { hex: '#3B82F6', name: 'Blue' },
+  { hex: '#EC4899', name: 'Pink' },
+  { hex: '#F97316', name: 'Orange' },
+]
 
 interface EventComposerProps {
   userId: string
@@ -86,12 +93,23 @@ const makeId = () => Math.random().toString(36).slice(2, 9)
 
 /* ----------------------------- small UI atoms ----------------------------- */
 
-function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
+function Toggle({
+  on,
+  onChange,
+  label,
+}: {
+  on: boolean
+  onChange: (v: boolean) => void
+  label: string
+}) {
   return (
     <button
       type="button"
+      role="switch"
+      aria-checked={on}
+      aria-label={label}
       onClick={() => onChange(!on)}
-      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${on ? 'bg-brand-600' : 'bg-white/15'}`}
+      className={`relative h-6 w-11 shrink-0 rounded-full border transition-colors ${on ? 'border-brand-500 bg-brand-600' : 'border-white/20 bg-white/15'}`}
     >
       <span
         className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${on ? 'left-[22px]' : 'left-0.5'}`}
@@ -164,6 +182,13 @@ export default function EventComposer({
   const [isOnline, setIsOnline] = useState(!!event?.is_online)
   const [city, setCity] = useState(event?.city || 'Port-au-Prince')
 
+  // Currency — HT organizers may price in HTG or USD. Attendee views default to
+  // HTG, so new events default to HTG here (edit mode keeps the stored choice).
+  const allowedCurrencies = getAllowedEventCurrencies('HT')
+  const [currency, setCurrency] = useState<EventCurrency>(
+    isEdit ? normalizeEventCurrencyForCountry('HT', event?.currency || 'HTG') : 'HTG'
+  )
+
   // Tickets — multiple tiers
   const [tiers, setTiers] = useState<TicketTier[]>(
     initialTiers && initialTiers.length > 0
@@ -217,16 +242,28 @@ export default function EventComposer({
   const [attempted, setAttempted] = useState(false)
   const [saving, setSaving] = useState(false)
 
+  const composeISO = (d: string, t: string) =>
+    d ? new Date(`${d}T${t || '00:00'}`).toISOString() : null
+
+  // Validation
+  const startISOv = composeISO(startDate, startTime)
+  const endISOv = composeISO(endDate, endTime)
+  const endBeforeStart = !!(
+    startISOv &&
+    endISOv &&
+    new Date(endISOv).getTime() <= new Date(startISOv).getTime()
+  )
+  const needsLocation = !isOnline && !venueName.trim() && !address.trim() && !city.trim()
+
   const titleInvalid = attempted && title.trim().length < 3
   const startInvalid = attempted && !startDate
+  const endInvalid = attempted && endBeforeStart
+  const locationInvalid = attempted && needsLocation
 
   const tzLabel = (() => {
     const off = -new Date().getTimezoneOffset() / 60
     return `GMT${off >= 0 ? '+' : ''}${off}`
   })()
-
-  const composeISO = (d: string, t: string) =>
-    d ? new Date(`${d}T${t || '00:00'}`).toISOString() : null
 
   const isPaid = sellMode === 'tickets' && tiers.some((t) => Number(t.price) > 0)
   const paidPublishingBlocked = isPaid && !isVerified
@@ -259,7 +296,7 @@ export default function EventComposer({
       total_tickets: isRsvp ? 0 : totalQty,
       ticket_name: isRsvp ? 'RSVP' : firstTier.name,
       guestlist: cleanGuests,
-      currency: normalizeEventCurrencyForCountry('HT', 'USD'),
+      currency: normalizeEventCurrencyForCountry('HT', currency),
       banner_image_url: bannerUrl || null,
       is_online: isOnline,
       is_recurring: recurring,
@@ -309,6 +346,24 @@ export default function EventComposer({
       })
       return
     }
+    if (endBeforeStart) {
+      showToast({
+        type: 'error',
+        title: 'Check your dates',
+        message: 'The end time must be after the start time.',
+        duration: 4000,
+      })
+      return
+    }
+    if (needsLocation) {
+      showToast({
+        type: 'error',
+        title: 'Add a location',
+        message: 'In-person events need a venue, address, or city.',
+        duration: 4000,
+      })
+      return
+    }
 
     setSaving(true)
     try {
@@ -340,7 +395,7 @@ export default function EventComposer({
       const { data: created, error } = await firebaseDb.from('events').insert(createData).select().single()
       if (error) throw error
       if (created?.id) await syncTiers(created.id, cleanTiers, isRsvp)
-      showToast({ type: 'success', title: 'Draft created', message: 'Add the finishing touches, then publish.', duration: 3500 })
+      showToast({ type: 'success', title: 'Draft created', message: 'Review the details, then Publish below.', duration: 4000 })
       router.push(`/organizer/events/${created.id}/edit`)
       router.refresh()
     } catch (err: any) {
@@ -413,6 +468,17 @@ export default function EventComposer({
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_minmax(0,360px)]">
         {/* ===================== LEFT — the event ===================== */}
         <div className="order-2 min-w-0 lg:order-1">
+          {/* Draft signposting — makes the two-step create→edit flow explicit */}
+          {isEdit && !isPublished && (
+            <div className="mb-6 flex items-start gap-3 rounded-xl border border-brand-500/30 bg-brand-500/10 px-4 py-3">
+              <Info className="mt-0.5 h-[18px] w-[18px] shrink-0 text-brand-300" />
+              <p className="text-sm text-white/80">
+                <span className="font-semibold text-white">Draft saved.</span> Add the finishing
+                touches, then <span className="font-semibold text-white">Publish</span> when you&rsquo;re ready.
+              </p>
+            </div>
+          )}
+
           {/* Sell Tickets / RSVP */}
           <div className="mx-auto mb-8 grid max-w-md grid-cols-2 rounded-full border border-white/10 p-1">
             {(['tickets', 'rsvp'] as const).map((m) => (
@@ -420,8 +486,9 @@ export default function EventComposer({
                 key={m}
                 type="button"
                 onClick={() => setSellMode(m)}
+                aria-pressed={sellMode === m}
                 className={`rounded-full py-2.5 text-sm font-semibold transition-all ${
-                  sellMode === m ? 'bg-[#0a0a0a] text-white' : 'text-white/50 hover:text-white/80'
+                  sellMode === m ? 'bg-white text-black' : 'text-white/70 hover:text-white'
                 }`}
               >
                 {m === 'tickets' ? 'Sell Tickets' : 'RSVP'}
@@ -434,6 +501,8 @@ export default function EventComposer({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="My event name"
+            aria-label="Event name (required)"
+            aria-required="true"
             className="w-full bg-transparent font-display text-[clamp(34px,6vw,52px)] leading-[1.04] tracking-tight text-white placeholder:text-white/25 focus:outline-none"
           />
           {titleInvalid && <p className="mt-1 text-sm text-red-300">Give your event a name (3+ characters).</p>}
@@ -445,6 +514,7 @@ export default function EventComposer({
                 value={summary}
                 onChange={(e) => setSummary(e.target.value)}
                 placeholder="Add a short summary…"
+                aria-label="Short summary"
                 rows={2}
                 autoFocus={showSummary}
                 className="w-full resize-none bg-transparent text-[15px] leading-relaxed text-white/70 placeholder:text-white/30 focus:outline-none"
@@ -465,9 +535,11 @@ export default function EventComposer({
             <SectionTitle icon={CalendarDays}>Dates</SectionTitle>
             <div className="overflow-hidden rounded-xl border border-white/10">
               <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5">
-                <span className="text-[15px] font-medium text-white">Start</span>
+                <span className="text-[15px] font-medium text-white">
+                  Start <span className="text-red-300" aria-hidden="true">*</span>
+                </span>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="label-mono text-[10px] uppercase text-white/40">{tzLabel}</span>
+                  <span className="label-mono text-[10px] uppercase text-white/70">{tzLabel}</span>
                   <DatePicker value={startDate} onChange={setStartDate} invalid={startInvalid} placeholder="Pick a date" />
                   <TimePicker value={startTime} onChange={setStartTime} placeholder="Time" />
                 </div>
@@ -475,19 +547,20 @@ export default function EventComposer({
               <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 px-4 py-3.5">
                 <span className="text-[15px] font-medium text-white">End</span>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="label-mono text-[10px] uppercase text-white/40">{tzLabel}</span>
+                  <span className="label-mono text-[10px] uppercase text-white/70">{tzLabel}</span>
                   <DatePicker value={endDate} onChange={setEndDate} min={startDate || undefined} placeholder="Pick a date" />
                   <TimePicker value={endTime} onChange={setEndTime} placeholder="Time" />
                 </div>
               </div>
             </div>
             {startInvalid && <p className="mt-1.5 text-sm text-red-300">Pick when your event starts.</p>}
+            {endInvalid && <p className="mt-1.5 text-sm text-red-300">The end time must be after the start time.</p>}
 
             <div className="mt-3 flex items-center justify-between rounded-xl border border-white/10 px-4 py-3.5">
               <span className="flex items-center gap-2 text-[15px] text-white/80">
                 <Repeat className="h-4 w-4 text-white/50" /> Recurring Series
               </span>
-              <Toggle on={recurring} onChange={setRecurring} />
+              <Toggle on={recurring} onChange={setRecurring} label="Recurring series" />
             </div>
           </div>
 
@@ -500,6 +573,7 @@ export default function EventComposer({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Tell people what to expect…"
+                  aria-label="Event description"
                   rows={4}
                   autoFocus={showDescription}
                   className={field}
@@ -515,22 +589,25 @@ export default function EventComposer({
                 <span className="flex items-center gap-2 text-[15px] text-white/80">
                   <Globe className="h-[18px] w-[18px] text-white/50" /> Online event
                 </span>
-                <Toggle on={isOnline} onChange={setIsOnline} />
+                <Toggle on={isOnline} onChange={setIsOnline} label="Online event" />
               </div>
 
               {!isOnline && (
                 <>
-                  <div className="flex items-center gap-3 rounded-xl border border-white/10 px-4">
+                  <div className={`flex items-center gap-3 rounded-xl border px-4 ${locationInvalid ? 'border-red-400/60' : 'border-white/10'}`}>
                     <MapPin className="h-[18px] w-[18px] shrink-0 text-white/50" />
-                    <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Location / address" className="w-full bg-transparent py-3.5 text-[15px] text-white placeholder:text-white/40 focus:outline-none" />
+                    <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Location / address" aria-label="Location or address" className="w-full bg-transparent py-3.5 text-[15px] text-white placeholder:text-white/40 focus:outline-none" />
                   </div>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div className="flex items-center gap-3 rounded-xl border border-white/10 px-4">
                       <Globe className="h-[18px] w-[18px] shrink-0 text-white/50" />
-                      <input value={venueName} onChange={(e) => setVenueName(e.target.value)} placeholder="Venue name" className="w-full bg-transparent py-3.5 text-[15px] text-white placeholder:text-white/40 focus:outline-none" />
+                      <input value={venueName} onChange={(e) => setVenueName(e.target.value)} placeholder="Venue name" aria-label="Venue name" className="w-full bg-transparent py-3.5 text-[15px] text-white placeholder:text-white/40 focus:outline-none" />
                     </div>
-                    <input value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" className={field} />
+                    <input value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" aria-label="City" className={field} />
                   </div>
+                  {locationInvalid && (
+                    <p className="text-sm text-red-300">Add a venue, address, or city for in-person events.</p>
+                  )}
                 </>
               )}
 
@@ -548,7 +625,7 @@ export default function EventComposer({
                       className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${
                         category === cat
                           ? 'border-brand-500 bg-brand-600 text-white'
-                          : 'border-white/10 bg-[#0a0a0a] text-white/60 hover:border-white/20 hover:text-white'
+                          : 'border-white/10 bg-white/[0.03] text-white/70 hover:border-white/20 hover:text-white'
                       }`}
                     >
                       {cat}
@@ -565,13 +642,33 @@ export default function EventComposer({
               <SectionTitle
                 icon={Ticket}
                 right={
-                  <span className="flex items-center gap-2 text-sm text-white/50">
-                    Enable waitlist <Toggle on={enableWaitlist} onChange={setEnableWaitlist} />
+                  <span className="flex items-center gap-2 text-sm text-white/70">
+                    Enable waitlist <Toggle on={enableWaitlist} onChange={setEnableWaitlist} label="Enable waitlist" />
                   </span>
                 }
               >
                 Tickets
               </SectionTitle>
+
+              {/* Currency — HTG or USD (attendees see HTG by default) */}
+              <div className="mb-3 flex items-center justify-between rounded-xl border border-white/10 px-4 py-3">
+                <span className="label-mono text-[11px] uppercase tracking-wide text-white/70">Currency</span>
+                <div className="flex rounded-full border border-white/10 p-0.5" role="group" aria-label="Ticket currency">
+                  {allowedCurrencies.map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => setCurrency(c)}
+                      aria-pressed={currency === c}
+                      className={`rounded-full px-3.5 py-1 text-xs font-semibold transition-colors ${
+                        currency === c ? 'bg-white text-black' : 'text-white/70 hover:text-white'
+                      }`}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               <div className="space-y-3">
                 {tiers.map((tier, i) => (
@@ -581,6 +678,7 @@ export default function EventComposer({
                         value={tier.name}
                         onChange={(e) => updateTier(tier.id, { name: e.target.value })}
                         placeholder={`Ticket type ${i + 1} (e.g. General, VIP, Early Bird)`}
+                        aria-label={`Ticket type ${i + 1} name`}
                         className={field}
                       />
                       {tiers.length > 1 && (
@@ -596,11 +694,11 @@ export default function EventComposer({
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <label className="block">
-                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/50">Price (USD)</span>
+                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">Price ({currency})</span>
                         <input type="number" min="0" value={tier.price} onChange={(e) => updateTier(tier.id, { price: e.target.value })} className={field} />
                       </label>
                       <label className="block">
-                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/50">Quantity</span>
+                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">Quantity</span>
                         <input type="number" min="0" value={tier.qty} onChange={(e) => updateTier(tier.id, { qty: e.target.value })} className={field} />
                       </label>
                     </div>
@@ -622,7 +720,7 @@ export default function EventComposer({
           <div className="mt-8 border-t border-white/10 pt-6">
             <SectionTitle
               icon={Users}
-              right={<Toggle on={showGuestlist} onChange={setShowGuestlist} />}
+              right={<Toggle on={showGuestlist} onChange={setShowGuestlist} label="Show guestlist" />}
             >
               Guestlist
             </SectionTitle>
@@ -635,7 +733,7 @@ export default function EventComposer({
               {guests.length > 0 && (
                 <div className="space-y-2">
                   {guests.map((g) => (
-                    <div key={g.id} className="flex items-center gap-3 rounded-lg bg-[#0a0a0a] px-3 py-2.5">
+                    <div key={g.id} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5">
                       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white">
                         {g.name.charAt(0).toUpperCase()}
                       </span>
@@ -667,6 +765,7 @@ export default function EventComposer({
                   }
                 }}
                 placeholder="Artist or guest name"
+                aria-label="Artist or guest name"
                 className={field}
               />
               <div className="flex flex-wrap gap-2">
@@ -678,7 +777,7 @@ export default function EventComposer({
                     className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${
                       guestRole === role
                         ? 'border-brand-500 bg-brand-600 text-white'
-                        : 'border-white/10 bg-[#0a0a0a] text-white/60 hover:border-white/20 hover:text-white'
+                        : 'border-white/10 bg-white/[0.03] text-white/70 hover:border-white/20 hover:text-white'
                     }`}
                   >
                     {role}
@@ -700,21 +799,31 @@ export default function EventComposer({
           <div className="mt-8 border-t border-white/10 pt-6">
             <SectionTitle icon={Star}>Event Features</SectionTitle>
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 px-4 py-4">
-              <span className="text-sm text-white/50">Showcase your event&rsquo;s performers, sponsors and more.</span>
-              <span className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold text-white/50">
-                Add feature <ChevronDown className="h-4 w-4" />
+              <span className="text-sm text-white/70">Showcase your event&rsquo;s performers, sponsors and more.</span>
+              <span className="inline-flex select-none items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-white/60">
+                Coming soon
               </span>
             </div>
-            <p className="mt-2 px-1 text-xs text-white/35">Available in the editor after you create the event.</p>
+            <p className="mt-2 px-1 text-xs text-white/70">Available in the editor after you create the event.</p>
           </div>
 
-          {/* Media rows */}
+          {/* Media rows — not yet available */}
           <div className="mt-6 space-y-3">
-            <div className="flex items-center gap-3 text-[15px] text-white/45">
-              <Youtube className="h-[18px] w-[18px]" /> YouTube Video
+            <div className="flex items-center justify-between gap-3 text-[15px] text-white/70">
+              <span className="flex items-center gap-3">
+                <Youtube className="h-[18px] w-[18px]" /> YouTube Video
+              </span>
+              <span className="inline-flex select-none items-center rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-white/60">
+                Coming soon
+              </span>
             </div>
-            <div className="flex items-center gap-3 text-[15px] text-white/45">
-              <ImageIcon className="h-[18px] w-[18px]" /> Image Gallery
+            <div className="flex items-center justify-between gap-3 text-[15px] text-white/70">
+              <span className="flex items-center gap-3">
+                <ImageIcon className="h-[18px] w-[18px]" /> Image Gallery
+              </span>
+              <span className="inline-flex select-none items-center rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-white/60">
+                Coming soon
+              </span>
             </div>
           </div>
 
@@ -724,13 +833,13 @@ export default function EventComposer({
             <div className="space-y-3">
               <div className="flex items-center justify-between rounded-xl border border-white/10 px-4 py-3.5">
                 <span className="text-[15px] text-white/80">Show on Explore</span>
-                <Toggle on={showOnExplore} onChange={setShowOnExplore} />
+                <Toggle on={showOnExplore} onChange={setShowOnExplore} label="Show on Explore" />
               </div>
               <div className="flex items-center justify-between rounded-xl border border-white/10 px-4 py-3.5">
                 <span className="flex items-center gap-2 text-[15px] text-white/80">
                   <Lock className="h-4 w-4 text-white/50" /> Password Protected Event
                 </span>
-                <Toggle on={passwordProtected} onChange={setPasswordProtected} />
+                <Toggle on={passwordProtected} onChange={setPasswordProtected} label="Password protected event" />
               </div>
             </div>
           </div>
@@ -749,6 +858,7 @@ export default function EventComposer({
                 value={spotifyUrl}
                 onChange={(e) => setSpotifyUrl(e.target.value)}
                 placeholder="Add song from Spotify"
+                aria-label="Spotify song link"
                 className="w-full bg-transparent py-3 text-sm text-white placeholder:text-white/40 focus:outline-none"
               />
             </div>
@@ -774,14 +884,16 @@ export default function EventComposer({
                   <Palette className="h-4 w-4 text-white/50" /> Accent Color
                 </span>
                 <div className="flex items-center gap-1.5">
-                  {ACCENTS.map((c) => (
+                  {ACCENTS.map(({ hex, name }) => (
                     <button
-                      key={c}
+                      key={hex}
                       type="button"
-                      onClick={() => setAccentColor(c)}
-                      className={`h-5 w-5 rounded-full transition-transform ${accentColor === c ? 'ring-2 ring-white ring-offset-2 ring-offset-[#0a0a0a]' : ''}`}
-                      style={{ backgroundColor: c }}
-                      aria-label={c}
+                      onClick={() => setAccentColor(hex)}
+                      aria-label={name}
+                      aria-pressed={accentColor === hex}
+                      title={name}
+                      className={`h-5 w-5 rounded-full transition-transform ${accentColor === hex ? 'ring-2 ring-white ring-offset-2 ring-offset-[#0a0a0a]' : ''}`}
+                      style={{ backgroundColor: hex }}
                     />
                   ))}
                 </div>
@@ -827,13 +939,13 @@ export default function EventComposer({
                     Complete identity verification to publish paid events.
                   </p>
                 ) : (
-                  <p className="text-center text-xs text-white/40">
+                  <p className="text-center text-xs text-white/70">
                     {isPublished ? 'Live — visible to attendees.' : 'Draft — only you can see this.'}
                   </p>
                 )}
               </>
             ) : (
-              <p className="text-center text-xs text-white/40">Saved as a private draft — publish when you&rsquo;re ready.</p>
+              <p className="text-center text-xs text-white/70">Saved as a private draft — publish when you&rsquo;re ready.</p>
             )}
           </div>
         </div>

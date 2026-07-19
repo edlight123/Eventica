@@ -103,7 +103,7 @@ export default function MobileHero({
           className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
         >
           <div className="w-10 h-10 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-            {organizerName[0].toUpperCase()}
+            {(organizerName?.[0] || 'E').toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold text-white truncate">

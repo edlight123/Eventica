@@ -214,8 +214,8 @@ export default function DefaultsForm({ userId, initialData }: DefaultsFormProps)
               onClick={() => handleCategoryToggle(category)}
               className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
                 formData.default_categories.includes(category)
-                  ? 'border-brand-500 text-brand-300'
-                  : 'border-white/10 bg-[#0a0a0a] text-white/70 hover:border-white/15'
+                  ? 'border-brand-500 bg-brand-500/15 text-white'
+                  : 'border-white/10 bg-white/[0.03] text-white/70 hover:border-white/15'
               }`}
             >
               {category}
