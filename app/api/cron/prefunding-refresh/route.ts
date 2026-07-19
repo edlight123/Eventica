@@ -33,6 +33,25 @@ export async function GET(request: Request) {
 
     const prefunding = current?.prefunding || {}
     const enabled = Boolean(prefunding?.enabled)
+    const now = new Date()
+
+    // If prefunding isn't enabled, don't call the prefunded balance API at all.
+    // Disbursement is a separate MonCash product this account may not be
+    // provisioned for, so polling it just produces recurring 401/403 error noise.
+    if (!enabled) {
+      await payoutsRef.set(
+        {
+          prefunding: { ...prefunding, enabled, available: false, lastCheckedAt: now, lastError: null },
+          updatedAt: now,
+        },
+        { merge: true }
+      )
+      return NextResponse.json({
+        success: true,
+        skipped: 'prefunding_disabled',
+        prefunding: { enabled, available: false, lastCheckedAt: now.toISOString() },
+      })
+    }
 
     // Optional threshold (major units) to prevent offering instant payouts when balance is low.
     const minBalance = Number(prefunding?.minBalance ?? 0)
@@ -42,8 +61,6 @@ export async function GET(request: Request) {
     const balance = Number(balanceRes.balance)
 
     const available = enabled && Number.isFinite(balance) && balance >= minBalanceSafe
-
-    const now = new Date()
 
     await payoutsRef.set(
       {
