@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { format } from 'date-fns'
+import { format, isValid } from 'date-fns'
 
 interface TransferAcceptFormProps {
   transfer: any
@@ -16,6 +16,13 @@ export default function TransferAcceptForm({ transfer, ticket, event, sender, cu
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showRejectConfirm, setShowRejectConfirm] = useState(false)
+
+  // Guard against missing/invalid event datetimes.
+  const startDate = event?.start_datetime ? new Date(event.start_datetime) : null
+  const endDate = event?.end_datetime ? new Date(event.end_datetime) : null
+  const hasValidStart = Boolean(startDate && isValid(startDate))
+  const hasValidEnd = Boolean(endDate && isValid(endDate))
 
   async function handleAccept() {
     setLoading(true)
@@ -46,10 +53,7 @@ export default function TransferAcceptForm({ transfer, ticket, event, sender, cu
   }
 
   async function handleReject() {
-    if (!confirm('Are you sure you want to reject this ticket transfer?')) {
-      return
-    }
-
+    setShowRejectConfirm(false)
     setLoading(true)
     setError('')
 
@@ -78,7 +82,7 @@ export default function TransferAcceptForm({ transfer, ticket, event, sender, cu
   }
 
   return (
-    <div className="bg-[#0a0a0a] rounded-xl sm:rounded-2xl border border-white/10 overflow-hidden">
+    <div className="bg-white/[0.03] rounded-xl sm:rounded-2xl border border-white/10 overflow-hidden">
       {/* Header */}
       <div className="bg-gradient-to-r from-brand-700 to-brand-800 text-white p-4 sm:p-6">
         <h1 className="text-xl sm:text-2xl font-bold mb-1 sm:mb-2">🎟️ Ticket Transfer</h1>
@@ -108,10 +112,15 @@ export default function TransferAcceptForm({ transfer, ticket, event, sender, cu
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
                 <div className="min-w-0">
-                  <p className="text-[13px] sm:text-base font-semibold">{format(new Date(event.start_datetime), 'EEEE, MMMM d, yyyy')}</p>
-                  <p className="text-[11px] sm:text-sm text-white/60">
-                    {format(new Date(event.start_datetime), 'h:mm a')} - {format(new Date(event.end_datetime), 'h:mm a')}
+                  <p className="text-[13px] sm:text-base font-semibold">
+                    {hasValidStart ? format(startDate as Date, 'EEEE, MMMM d, yyyy') : 'Date to be confirmed'}
                   </p>
+                  {hasValidStart && (
+                    <p className="text-[11px] sm:text-sm text-white/60">
+                      {format(startDate as Date, 'h:mm a')}
+                      {hasValidEnd ? ` - ${format(endDate as Date, 'h:mm a')}` : ''}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -132,7 +141,7 @@ export default function TransferAcceptForm({ transfer, ticket, event, sender, cu
 
         {/* Message from sender */}
         {transfer.message && (
-          <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-[#0a0a0a]  rounded-lg">
+          <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-white/[0.03] border border-white/10 rounded-lg">
             <p className="text-[11px] sm:text-sm font-semibold text-white/70 mb-1 sm:mb-2">Message from sender:</p>
             <p className="text-[13px] sm:text-base text-white/60 italic">&quot;{transfer.message}&quot;</p>
           </div>
@@ -155,7 +164,7 @@ export default function TransferAcceptForm({ transfer, ticket, event, sender, cu
         )}
 
         {/* Info */}
-        <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-[#0a0a0a]  rounded-lg">
+        <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-white/[0.03] border border-white/10 rounded-lg">
           <h3 className="text-[13px] sm:text-base font-semibold text-white mb-1.5 sm:mb-2">What happens when you accept?</h3>
           <ul className="text-[11px] sm:text-sm text-white/70 space-y-0.5 sm:space-y-1">
             <li>• This ticket will be transferred to your account</li>
@@ -166,22 +175,46 @@ export default function TransferAcceptForm({ transfer, ticket, event, sender, cu
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-3 sm:gap-4">
-          <button
-            onClick={handleReject}
-            disabled={loading}
-            className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3  rounded-lg text-[13px] sm:text-base text-white/70 font-semibold hover:bg-white/[0.04] disabled:opacity-50 disabled:cursor-not-allowed transition min-h-[44px]"
-          >
-            Reject Transfer
-          </button>
-          <button
-            onClick={handleAccept}
-            disabled={loading}
-            className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-brand-600 text-white text-[13px] sm:text-base font-semibold rounded-lg hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition min-h-[44px]"
-          >
-            {loading ? 'Processing...' : '✓ Accept Ticket'}
-          </button>
-        </div>
+        {showRejectConfirm ? (
+          <div className="border border-white/10 bg-white/[0.03] rounded-lg p-3 sm:p-4">
+            <p className="text-[13px] sm:text-sm text-white/70 mb-3">
+              Are you sure you want to reject this ticket transfer? This can&apos;t be undone.
+            </p>
+            <div className="flex gap-3 sm:gap-4">
+              <button
+                onClick={() => setShowRejectConfirm(false)}
+                disabled={loading}
+                className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-white/[0.03] border border-white/10 rounded-lg text-[13px] sm:text-base text-white/70 font-semibold hover:bg-white/[0.06] disabled:opacity-50 disabled:cursor-not-allowed transition min-h-[44px]"
+              >
+                Keep Ticket
+              </button>
+              <button
+                onClick={handleReject}
+                disabled={loading}
+                className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 border border-red-500/40 text-red-300 text-[13px] sm:text-base font-semibold rounded-lg hover:bg-red-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition min-h-[44px]"
+              >
+                {loading ? 'Processing...' : 'Reject Transfer'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex gap-3 sm:gap-4">
+            <button
+              onClick={() => setShowRejectConfirm(true)}
+              disabled={loading}
+              className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-white/[0.03] border border-white/10 rounded-lg text-[13px] sm:text-base text-white/70 font-semibold hover:bg-white/[0.06] disabled:opacity-50 disabled:cursor-not-allowed transition min-h-[44px]"
+            >
+              Reject Transfer
+            </button>
+            <button
+              onClick={handleAccept}
+              disabled={loading}
+              className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-brand-600 text-white text-[13px] sm:text-base font-semibold rounded-lg hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition min-h-[44px]"
+            >
+              {loading ? 'Processing...' : 'Accept Ticket'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

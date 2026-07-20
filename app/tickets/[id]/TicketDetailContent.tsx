@@ -29,18 +29,32 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
         </Badge>
       )
     }
-    
-    if (ticket.status === 'active' || ticket.status === 'valid') {
+
+    const status = String(ticket.status || '').toLowerCase()
+
+    if (status === 'active' || status === 'valid') {
       return (
         <Badge variant="success" className="text-sm px-4 py-2">
           {t('detail.status.valid')}
         </Badge>
       )
     }
-    
+
+    // Map known statuses to friendly labels; fall back to a safe generic
+    // label so internal enum strings are never shown to the user.
+    const statusLabels: Record<string, string> = {
+      used: t('detail.status.used'),
+      transferred: t('status.transferred'),
+      cancelled: t('status.cancelled'),
+      canceled: t('status.cancelled'),
+      refunded: 'Refunded',
+      expired: 'Expired',
+      pending: 'Pending',
+    }
+
     return (
-      <Badge variant="neutral" className="text-sm px-4 py-2 capitalize">
-        {ticket.status}
+      <Badge variant="neutral" className="text-sm px-4 py-2">
+        {statusLabels[status] || 'Inactive'}
       </Badge>
     )
   }
@@ -61,13 +75,13 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
         {/* Left Column - QR & Actions */}
         <div className="space-y-4 sm:space-y-6">
           {/* QR Code Card */}
-          <div className="bg-[#0a0a0a]  rounded-2xl p-4 sm:p-6 lg:p-8 flex flex-col items-center">
+          <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-4 sm:p-6 lg:p-8 flex flex-col items-center">
             <div className="flex items-center justify-between w-full mb-4">
               {getStatusBadge()}
             </div>
 
             <div className="mb-6 text-center w-full">
-              <p className="label-mono text-[11px] text-white/50 uppercase mb-2">
+              <p className="label-mono text-[11px] text-white/70 uppercase mb-2">
                 {t('detail.ticket_code')}
               </p>
               <div className="flex justify-center">
@@ -108,7 +122,7 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
         {/* Right Column - Event Details */}
         <div className="space-y-4 sm:space-y-6">
           {/* Event Banner Card */}
-          <div className="bg-[#0a0a0a]  rounded-none overflow-hidden">
+          <div className="bg-white/[0.03] border border-white/10 rounded-none overflow-hidden">
             {event.banner_image_url ? (
               <div className="relative w-full h-40 sm:h-48">
                 <Image
@@ -141,7 +155,7 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
                     <Calendar className="w-5 h-5 text-brand-300" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="label-mono text-[10px] text-white/50 uppercase mb-1.5">
+                    <p className="label-mono text-[10px] text-white/70 uppercase mb-1.5">
                       {t('detail.date')}
                     </p>
                     <p className="label-mono text-white text-[13px]">
@@ -158,7 +172,7 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
                     <MapPin className="w-5 h-5 text-brand-300" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="label-mono text-[10px] text-white/50 uppercase mb-1.5">
+                    <p className="label-mono text-[10px] text-white/70 uppercase mb-1.5">
                       {t('detail.venue')}
                     </p>
                     <p className="label-mono text-white text-[13px]">
@@ -175,7 +189,7 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
                         <MapPin className="w-3 h-3" />
                         {t('detail.apple_maps')}
                       </a>
-                      <span className="text-white/50">|</span>
+                      <span className="text-white/70">|</span>
                       <a
                         href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address || `${event.venue_name || event.location}, ${event.commune}, ${event.city}`)}`}
                         target="_blank"
@@ -194,7 +208,7 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
                     <User className="w-5 h-5 text-brand-300" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="label-mono text-[10px] text-white/50 uppercase mb-1.5">
+                    <p className="label-mono text-[10px] text-white/70 uppercase mb-1.5">
                       {t('detail.attendee')}
                     </p>
                     <p className="font-bold text-white text-sm">{user.full_name || user.email}</p>
@@ -206,7 +220,7 @@ export default function TicketDetailContent({ ticket, event, user }: TicketDetai
                     <Clock className="w-5 h-5 text-brand-300" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="label-mono text-[10px] text-white/50 uppercase mb-1.5">
+                    <p className="label-mono text-[10px] text-white/70 uppercase mb-1.5">
                       {t('detail.purchased')}
                     </p>
                     <p className="label-mono text-white text-[13px]">

@@ -36,6 +36,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
   const [showEmbeddedPayment, setShowEmbeddedPayment] = useState(false)
   const [tierProbeLoading, setTierProbeLoading] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [pendingMethod, setPendingMethod] = useState<'stripe' | 'moncash' | 'natcash' | 'sogepay' | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'moncash' | 'natcash' | 'sogepay'>('stripe')
   const [quantity, setQuantity] = useState(1)
@@ -245,8 +246,14 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
     }
   }
 
+  // Clear the per-button pending state whenever the shared loading flag settles.
+  useEffect(() => {
+    if (!loading) setPendingMethod(null)
+  }, [loading])
+
   async function handlePurchase(method: 'stripe' | 'moncash' | 'natcash' | 'sogepay') {
     setLoading(true)
+    setPendingMethod(method)
     setError(null)
 
     try {
@@ -459,13 +466,14 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
       {isFree ? (
         <div className="space-y-4">
           {/* Quantity Selector for Free Tickets */}
-          <div className="flex items-center justify-between bg-[#0a0a0a] rounded-lg p-4">
+          <div className="flex items-center justify-between bg-white/[0.03] border border-white/10 rounded-lg p-4">
             <span className="text-sm font-medium text-white/70">{t('quantity')}</span>
             <div className="flex items-center space-x-3">
               <button
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                 disabled={quantity <= 1 || loading}
-                className="w-8 h-8 rounded-full bg-[#0a0a0a] border border-white/10 flex items-center justify-center hover:bg-[#0a0a0a] disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label={t('events.decrease_quantity', { defaultValue: 'Decrease quantity' })}
+                className="w-8 h-8 rounded-full bg-white/[0.03] border border-white/10 flex items-center justify-center hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-4 h-4 text-white/65" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
@@ -475,7 +483,8 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
               <button
                 onClick={() => setQuantity(Math.min(10, quantity + 1))}
                 disabled={quantity >= 10 || loading}
-                className="w-8 h-8 rounded-full bg-[#0a0a0a] border border-white/10 flex items-center justify-center hover:bg-[#0a0a0a] disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label={t('events.increase_quantity', { defaultValue: 'Increase quantity' })}
+                className="w-8 h-8 rounded-full bg-white/[0.03] border border-white/10 flex items-center justify-center hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-4 h-4 text-white/65" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -487,7 +496,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
           <button
             onClick={handleClaimFreeTicket}
             disabled={loading}
-            className="block w-full bg-teal-700 hover:bg-teal-800 text-white text-center font-semibold py-2.5 px-5 rounded-lg transition-colors disabled:opacity-50 min-h-[44px]"
+            className="block w-full bg-brand-600 hover:bg-brand-700 text-white text-center font-semibold py-2.5 px-5 rounded-lg transition-colors disabled:opacity-50 min-h-[44px]"
           >
             {loading ? t('events.processing') : `${t('events.claim')} ${quantity} ${t('events.free_ticket')}${quantity !== 1 ? 's' : ''}`}
           </button>
@@ -497,7 +506,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
           <button
             onClick={handleOpenPurchaseFlow}
             disabled={loading || tierProbeLoading}
-            className="block w-full bg-teal-700 hover:bg-teal-800 text-white text-center font-semibold py-2.5 px-5 rounded-lg transition-colors disabled:opacity-50 min-h-[44px]"
+            className="block w-full bg-brand-600 hover:bg-brand-700 text-white text-center font-semibold py-2.5 px-5 rounded-lg transition-colors disabled:opacity-50 min-h-[44px]"
           >
             {loading || tierProbeLoading ? t('events.processing') : t('events.buy_ticket')}
           </button>
@@ -539,13 +548,14 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
 
             {/* Quantity Selector - Only show for single tier purchases */}
             {selectedTiers.length === 0 && (
-              <div className="flex items-center justify-between bg-[#0a0a0a] rounded-lg p-4">
+              <div className="flex items-center justify-between bg-white/[0.03] border border-white/10 rounded-lg p-4">
                 <span className="text-sm font-medium text-white/70">{t('events.quantity')}</span>
                 <div className="flex items-center space-x-3">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     disabled={quantity <= 1 || loading}
-                    className="w-8 h-8 rounded-full bg-[#0a0a0a] border border-white/10 flex items-center justify-center hover:bg-[#0a0a0a] disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label={t('events.decrease_quantity', { defaultValue: 'Decrease quantity' })}
+                    className="w-8 h-8 rounded-full bg-white/[0.03] border border-white/10 flex items-center justify-center hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <svg className="w-4 h-4 text-white/65" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
@@ -555,7 +565,8 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
                   <button
                     onClick={() => setQuantity(Math.min(10, quantity + 1))}
                     disabled={quantity >= 10 || loading}
-                    className="w-8 h-8 rounded-full bg-[#0a0a0a] border border-white/10 flex items-center justify-center hover:bg-[#0a0a0a] disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label={t('events.increase_quantity', { defaultValue: 'Increase quantity' })}
+                    className="w-8 h-8 rounded-full bg-white/[0.03] border border-white/10 flex items-center justify-center hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <svg className="w-4 h-4 text-white/65" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -565,7 +576,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
               </div>
             )}
 
-            <div className="rounded-lg p-4">
+            <div className="rounded-lg bg-white/[0.03] border border-white/10 p-4">
               {selectedTiers.length > 0 ? (
                 // Show itemized breakdown for multi-tier purchases
                 <div className="space-y-2">
@@ -579,7 +590,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
                       </span>
                     </div>
                   ))}
-                  <div className="border-t border-teal-200 pt-2 mt-2">
+                  <div className="border-t border-white/10 pt-2 mt-2">
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium text-white/65">{t('events.total_amount')}:</span>
                       <span className="text-xl font-bold text-brand-300">
@@ -606,7 +617,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
                       <div>
                         Estimated MonCash charge: <span className="font-semibold text-white">{usdHtgQuote.amountHtg.toLocaleString()} HTG</span>
                       </div>
-                      <div className="text-xs text-white/50">
+                      <div className="text-xs text-white/70">
                         Rate: {usdHtgQuote.baseRate.toFixed(2)} HTG/USD + {(usdHtgQuote.spreadPercent * 100).toFixed(0)}% spread
                       </div>
                     </div>
@@ -618,7 +629,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
               )}
 
               {promoCode && (
-                <div className="mt-2 text-sm text-green-600">
+                <div className="mt-2 text-sm text-green-400">
                   ✓ Promo code applied
                 </div>
               )}
@@ -637,22 +648,29 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
               <button
                 onClick={() => handlePurchase(isHaitiEvent ? 'sogepay' : 'stripe')}
                 disabled={loading}
-                className="w-full flex items-center justify-between px-4 py-4 border-2 border-white/10 rounded-lg hover:border-teal-600 hover:bg-teal-50 transition disabled:opacity-50"
+                className="w-full flex items-center justify-between px-4 py-4 border-2 border-white/10 rounded-lg hover:border-brand-500 hover:bg-white/10 transition disabled:opacity-50"
               >
                 <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                  <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.591-7.305z"/>
                     </svg>
                   </div>
                   <div className="text-left">
                     <div className="font-semibold text-white">{t('events.credit_debit_card')}</div>
-                    <div className="text-sm text-white/50">{isHaitiEvent ? 'Sogepay' : t('events.visa_mastercard_amex')}</div>
+                    <div className="text-sm text-white/70">{isHaitiEvent ? 'Sogepay' : t('events.visa_mastercard_amex')}</div>
                   </div>
                 </div>
-                <svg className="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
+                {pendingMethod === (isHaitiEvent ? 'sogepay' : 'stripe') ? (
+                  <svg className="w-5 h-5 text-white/70 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                )}
               </button>
               )}
 
@@ -662,43 +680,57 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
                   <button
                     onClick={() => handlePurchase('moncash')}
                     disabled={loading}
-                    className="w-full flex items-center justify-between px-4 py-4 border-2 border-white/10 rounded-lg hover:border-teal-600 hover:bg-teal-50 transition disabled:opacity-50"
+                    className="w-full flex items-center justify-between px-4 py-4 border-2 border-white/10 rounded-lg hover:border-brand-500 hover:bg-white/10 transition disabled:opacity-50"
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                        <svg className="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+                      <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center">
+                        <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/>
                         </svg>
                       </div>
                       <div className="text-left">
                         <div className="font-semibold text-white">MonCash</div>
-                        <div className="text-sm text-white/50">{t('events.mobile_money_haiti')}</div>
+                        <div className="text-sm text-white/70">{t('events.mobile_money_haiti')}</div>
                       </div>
                     </div>
-                    <svg className="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
+                    {pendingMethod === 'moncash' ? (
+                      <svg className="w-5 h-5 text-white/70 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    )}
                   </button>
 
                   <button
                     onClick={() => handlePurchase('natcash')}
                     disabled={loading}
-                    className="w-full flex items-center justify-between px-4 py-4 border-2 border-white/10 rounded-lg hover:border-teal-600 hover:bg-teal-50 transition disabled:opacity-50"
+                    className="w-full flex items-center justify-between px-4 py-4 border-2 border-white/10 rounded-lg hover:border-brand-500 hover:bg-white/10 transition disabled:opacity-50"
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                        <svg className="w-6 h-6 text-emerald-300" fill="currentColor" viewBox="0 0 24 24">
+                      <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center">
+                        <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M7 4h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v12h10V6H7zm2 10h6v2H9v-2zm0-4h6v2H9v-2z" />
                         </svg>
                       </div>
                       <div className="text-left">
                         <div className="font-semibold text-white">NatCash</div>
-                        <div className="text-sm text-white/50">{t('events.mobile_money_haiti')}</div>
+                        <div className="text-sm text-white/70">{t('events.mobile_money_haiti')}</div>
                       </div>
                     </div>
-                    <svg className="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
+                    {pendingMethod === 'natcash' ? (
+                      <svg className="w-5 h-5 text-white/70 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    )}
                   </button>
                 </>
               )}
@@ -707,7 +739,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
             <button
               onClick={() => setShowModal(false)}
               disabled={loading}
-              className="w-full px-4 py-3 border border-white/10 rounded-lg font-medium text-white/70 hover:bg-[#0a0a0a] disabled:opacity-50"
+              className="w-full px-4 py-3 border border-white/10 rounded-lg font-medium text-white/70 hover:bg-white/10 disabled:opacity-50"
             >
               {loading ? t('events.processing') : t('common.cancel')}
             </button>

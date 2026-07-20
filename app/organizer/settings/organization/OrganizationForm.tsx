@@ -114,6 +114,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
 
       const { logo_url } = await response.json();
       setFormData((prev) => ({ ...prev, organization_logo: logo_url }));
+      setSavedData((prev) => ({ ...prev, organization_logo: logo_url }));
 
       showToast({
         title: 'Logo updated',
@@ -161,7 +162,7 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
         <div className="flex-1">
           <label
             htmlFor="logo-upload"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] hover:bg-white/[0.04] text-white/70 rounded-lg cursor-pointer transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] text-white/70 rounded-lg cursor-pointer transition-colors"
           >
             <Upload className="w-4 h-4" />
             Upload Logo
@@ -303,18 +304,6 @@ export default function OrganizationForm({ userId, initialData }: OrganizationFo
             placeholder="LinkedIn profile URL"
           />
         </div>
-      </div>
-
-      {/* Submit Button */}
-      <div className="flex justify-end pt-4 border-t border-white/10">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="px-6 py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-        >
-          {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-          {isSubmitting ? 'Saving...' : 'Save Changes'}
-        </button>
       </div>
 
       <SaveBar

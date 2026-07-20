@@ -1,6 +1,7 @@
 import { adminAuth, adminDb } from '@/lib/firebase/admin'
 import { redirect, notFound } from 'next/navigation'
 import { cookies } from 'next/headers'
+import Link from 'next/link'
 import { AttendeesManager } from './AttendeesManager'
 import { loadTicketDocsForEvent } from '@/lib/tickets/loadTicketsForEvent'
 
@@ -53,21 +54,29 @@ export default async function AttendeesPage({ params }: { params: Promise<{ id: 
   // Verify organizer
   if (event.organizer_id !== authUser.uid) {
     return (
-      <div className="bg-[#0a0a0a]">        <div className="flex items-center justify-center py-16 px-4">
-          <div className="text-center">
-            <h2 className="font-display text-2xl text-white mb-3">Unauthorized</h2>
-            <p className="text-sm text-white/60">You don&apos;t have permission to manage this event&apos;s attendees.</p>
-          </div>
-        </div>      </div>
+      <div className="mx-auto flex min-h-[60vh] max-w-md items-center justify-center px-4 py-16">
+        <div className="w-full rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
+          <h2 className="font-display text-2xl text-white mb-3">Unauthorized</h2>
+          <p className="text-sm text-white/70">You don&apos;t have permission to manage this event&apos;s attendees.</p>
+          <Link
+            href="/organizer/events"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          >
+            Back to events
+          </Link>
+        </div>
+      </div>
     )
   }
 
   // Fetch all tickets for this event (supports legacy `eventId` field too)
   let ticketDocs: any[] = []
+  let ticketsError = false
   try {
     ticketDocs = await loadTicketDocsForEvent(eventId)
   } catch (error) {
     console.error('Error fetching tickets:', error)
+    ticketsError = true
     ticketDocs = []
   }
 
@@ -138,6 +147,7 @@ export default async function AttendeesPage({ params }: { params: Promise<{ id: 
         eventId={eventId}
         eventTitle={event.title}
         tickets={tickets}
+        ticketsError={ticketsError}
       />
     </div>
   )

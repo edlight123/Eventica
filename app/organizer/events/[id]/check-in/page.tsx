@@ -1,6 +1,7 @@
 import { adminAuth, adminDb } from '@/lib/firebase/admin'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { CheckInInterface } from '@/components/check-in/CheckInInterface'
 import { checkInTicket } from './actions'
 import { loadTicketDocsForEvent } from '@/lib/tickets/loadTicketsForEvent'
@@ -43,7 +44,20 @@ export default async function CheckInPage({ params }: PageProps) {
 
   // Verify organizer access
   if (eventData?.organizer_id !== authUser.uid) {
-    redirect('/organizer/events')
+    return (
+      <div className="mx-auto flex min-h-[60vh] max-w-md items-center justify-center px-4 py-16">
+        <div className="w-full rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
+          <h2 className="font-display text-2xl text-white mb-3">Unauthorized</h2>
+          <p className="text-sm text-white/70">You don&apos;t have permission to run check-in for this event.</p>
+          <Link
+            href="/organizer/events"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          >
+            Back to events
+          </Link>
+        </div>
+      </div>
+    )
   }
 
   // Fetch all tickets for this event (supports legacy `eventId` field too)
@@ -60,19 +74,19 @@ export default async function CheckInPage({ params }: PageProps) {
       price: data.price,
       status: data.status,
       checked_in: data.checked_in || false,
-      checked_in_at: data.checked_in_at?.toDate().toISOString() || null,
+      checked_in_at: data.checked_in_at?.toDate?.()?.toISOString() || data.checked_in_at || null,
       entry_point: data.entry_point || null,
       attendee_name: data.attendee_name || '',
       attendee_email: data.attendee_email || '',
       qr_code: data.qr_code || doc.id,
-      purchased_at: data.purchased_at?.toDate().toISOString() || null,
+      purchased_at: data.purchased_at?.toDate?.()?.toISOString() || data.purchased_at || null,
     }
   })
 
   const event = {
     id: eventDoc.id,
     title: eventData?.title || '',
-    start_datetime: eventData?.start_datetime?.toDate().toISOString() || '',
+    start_datetime: eventData?.start_datetime?.toDate?.()?.toISOString() || eventData?.start_datetime || '',
     organizer_id: eventData?.organizer_id || '',
   }
 

@@ -40,33 +40,46 @@ export default async function MyTicketsList({ userId }: { userId: string }) {
       }
     })
   } else {
-    const supabase = await createClient()
-    const allTicketsQuery = await supabase.from('tickets').select('*')
-    const allTicketsData = allTicketsQuery.data
-    const ticketsData = allTicketsData?.filter((t: any) => t.attendee_id === userId) || []
+    try {
+      const supabase = await createClient()
+      const allTicketsQuery = await supabase.from('tickets').select('*')
+      if (allTicketsQuery.error) {
+        throw allTicketsQuery.error
+      }
+      const allTicketsData = allTicketsQuery.data
+      const ticketsData = allTicketsData?.filter((t: any) => t.attendee_id === userId) || []
 
-    if (!ticketsData || ticketsData.length === 0) {
-      eventsWithTickets = []
-    } else {
-      const eventsQuery = await supabase.from('events').select('*')
-      const eventsData = eventsQuery.data || []
-      const ticketsByEvent = new Map()
-
-      ticketsData.forEach((ticket: any) => {
-        if (!ticketsByEvent.has(ticket.event_id)) {
-          ticketsByEvent.set(ticket.event_id, [])
+      if (!ticketsData || ticketsData.length === 0) {
+        eventsWithTickets = []
+      } else {
+        const eventsQuery = await supabase.from('events').select('*')
+        if (eventsQuery.error) {
+          throw eventsQuery.error
         }
-        ticketsByEvent.get(ticket.event_id).push(ticket)
-      })
+        const eventsData = eventsQuery.data || []
+        const ticketsByEvent = new Map()
 
-      eventsWithTickets = Array.from(ticketsByEvent.entries()).map(([eventId, tickets]) => {
-        const event = eventsData?.find((e: any) => e.id === eventId)
-        const serializedEvent = event ? serializeTimestamps(event) : null
-        return {
-          event: serializedEvent,
-          ticketCount: (tickets as any[]).length
-        }
-      }).filter(item => item.event)
+        ticketsData.forEach((ticket: any) => {
+          if (!ticketsByEvent.has(ticket.event_id)) {
+            ticketsByEvent.set(ticket.event_id, [])
+          }
+          ticketsByEvent.get(ticket.event_id).push(ticket)
+        })
+
+        eventsWithTickets = Array.from(ticketsByEvent.entries()).map(([eventId, tickets]) => {
+          const event = eventsData?.find((e: any) => e.id === eventId)
+          const serializedEvent = event ? serializeTimestamps(event) : null
+          return {
+            event: serializedEvent,
+            ticketCount: (tickets as any[]).length
+          }
+        }).filter(item => item.event)
+      }
+    } catch (err) {
+      // Surface load failures to the route error boundary (app/tickets/error.tsx)
+      // instead of silently rendering an empty "no tickets" state.
+      console.error('Failed to load tickets:', err)
+      throw new Error("We couldn't load your tickets. Please try again.")
     }
   }
 

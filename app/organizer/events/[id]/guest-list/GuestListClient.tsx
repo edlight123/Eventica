@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { UserPlus, Users, CheckCircle2, Clock, Mail } from 'lucide-react'
 import {
   OrgDataTable,
@@ -67,9 +68,9 @@ const columns: OrgColumn<Guest>[] = [
     header: 'Checked in',
     render: (g) =>
       g.checked_in ? (
-        <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+        <CheckCircle2 className="h-4 w-4 text-emerald-400" role="img" aria-label="Checked in" />
       ) : (
-        <Clock className="h-4 w-4 text-white/30" />
+        <Clock className="h-4 w-4 text-white/40" role="img" aria-label="Not checked in" />
       ),
   },
 ]
@@ -81,6 +82,7 @@ export default function GuestListClient({ eventId, eventTitle, guests }: GuestLi
   const [plusOne, setPlusOne] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
   const reset = () => {
     setName('')
@@ -106,8 +108,8 @@ export default function GuestListClient({ eventId, eventTitle, guests }: GuestLi
         if (!res.ok) throw new Error('Failed to invite guest')
         setOpen(false)
         reset()
-        // Reload page data
-        window.location.reload()
+        // Refresh server data without a full reload
+        router.refresh()
       } catch {
         setError('Something went wrong. Please try again.')
       }
@@ -210,7 +212,7 @@ export default function GuestListClient({ eventId, eventTitle, guests }: GuestLi
                 type="checkbox"
                 checked={plusOne}
                 onChange={(e) => setPlusOne(e.target.checked)}
-                className="h-4 w-4 rounded border-white/20 bg-[#0a0a0a] text-brand-600 focus:ring-brand-500"
+                className="h-4 w-4 rounded border-white/20 bg-white/10 text-brand-600 accent-brand-600 focus:ring-brand-500"
               />
               <span className="text-sm text-white/70">Allow this guest to bring one additional person</span>
             </label>

@@ -3,8 +3,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { format, isValid } from 'date-fns'
-import { Heart } from 'lucide-react'
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getPosterTheme, getAvatarColors } from '@/lib/posterGradient'
 
@@ -41,7 +39,6 @@ interface EventCardHorizontalProps {
  */
 export default function EventCardHorizontal({ event, userCity }: EventCardHorizontalProps) {
   const { t } = useTranslation('common')
-  const [liked, setLiked] = useState(false)
 
   const totalTickets = Number(event.total_tickets) || 0
   const ticketsSold = Number(event.tickets_sold) || 0
@@ -57,12 +54,6 @@ export default function EventCardHorizontal({ event, userCity }: EventCardHorizo
   const hasImage = Boolean(event.banner_image_url)
   const avatarColors = getAvatarColors(event.id || event.title, Math.min(ticketsSold, 3))
 
-  const handleLike = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setLiked((v) => !v)
-  }
-
   const statusLabel = isSoldOut
     ? t('ticket.sold_out_caps')
     : selloutSoon
@@ -73,7 +64,7 @@ export default function EventCardHorizontal({ event, userCity }: EventCardHorizo
 
   return (
     <Link href={`/events/${event.id}`} prefetch={true} className="group block">
-      <article className="hover-lift flex gap-3 rounded-2xl  p-2.5 shadow-poster-sm group-hover:border-brand-400/40">
+      <article className="hover-lift flex gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-2.5 shadow-poster-sm group-hover:border-brand-400/40">
         {/* Poster thumbnail */}
         <div
           className="relative aspect-[3/4] w-[88px] shrink-0 overflow-hidden rounded-xl"
@@ -110,21 +101,13 @@ export default function EventCardHorizontal({ event, userCity }: EventCardHorizo
             <div className="eyebrow text-[10px] tracking-[0.08em] text-brand-400">
               {validDate ? `${format(startDate, 'EEE, MMM d')} · ${format(startDate, 'h a')}` : ''}
             </div>
-            <button
-              type="button"
-              onClick={handleLike}
-              aria-label={liked ? 'Unlike' : 'Like'}
-              className="-mr-1 -mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full transition-colors hover:bg-white/10"
-            >
-              <Heart className={`h-4 w-4 ${liked ? 'fill-rose-500 text-rose-500' : 'text-white/40'}`} />
-            </button>
           </div>
 
           <h3 className="mt-0.5 font-grotesk text-[17px] font-semibold leading-[1.05] text-white line-clamp-2">
             {event.title}
           </h3>
 
-          <p className="mt-0.5 truncate text-xs text-white/55">
+          <p className="mt-0.5 truncate text-xs text-white/70">
             {(() => {
               const venue = (event.venue_name || '').trim()
               const city = (event.city || '').trim()
@@ -147,9 +130,9 @@ export default function EventCardHorizontal({ event, userCity }: EventCardHorizo
                 </div>
               )}
               {statusLabel ? (
-                <span className="text-[11px] font-semibold text-white/55">{statusLabel}</span>
+                <span className="text-[11px] font-semibold text-white/70">{statusLabel}</span>
               ) : ticketsSold > 0 ? (
-                <span className="ml-1.5 text-[11px] text-white/40">{ticketsSold} {t('events.going', { defaultValue: 'going' })}</span>
+                <span className="ml-1.5 text-[11px] text-white/70">{ticketsSold} {t('events.going', { defaultValue: 'going' })}</span>
               ) : null}
             </div>
 
@@ -158,8 +141,8 @@ export default function EventCardHorizontal({ event, userCity }: EventCardHorizo
                 t('common.free')
               ) : (
                 <>
-                  <span className="text-[10px] font-semibold uppercase tracking-wide text-white/40">{t('common.from')} </span>
-                  {Number(event.ticket_price).toLocaleString()} <span className="text-[11px] font-medium text-white/40">{event.currency}</span>
+                  <span className="text-[10px] font-semibold uppercase tracking-wide text-white/70">{t('common.from')} </span>
+                  {Number(event.ticket_price).toLocaleString()} <span className="text-[11px] font-medium text-white/70">{event.currency}</span>
                 </>
               )}
             </div>

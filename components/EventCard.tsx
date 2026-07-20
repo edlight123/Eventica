@@ -3,8 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { format, isValid } from 'date-fns'
-import { Heart, ShieldCheck } from 'lucide-react'
-import { useState } from 'react'
+import { ShieldCheck } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { getPosterTheme } from '@/lib/posterGradient'
 
@@ -39,7 +38,6 @@ interface EventCardProps {
 
 export default function EventCard({ event, priority = false, index = 0, userCity }: EventCardProps) {
   const { t } = useTranslation('common')
-  const [liked, setLiked] = useState(false)
 
   const toFiniteNumber = (value: unknown, fallback = 0) => {
     const num = typeof value === 'number' ? value : Number(value)
@@ -86,12 +84,6 @@ export default function EventCard({ event, priority = false, index = 0, userCity
     : venue
   const monogram = (event.title || '?').trim().charAt(0).toUpperCase()
 
-  const handleLike = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setLiked((v) => !v)
-  }
-
   return (
     <Link href={`/events/${event.id}`} prefetch={true} className="group block h-full">
       <article className="flex h-full flex-col">
@@ -119,19 +111,11 @@ export default function EventCard({ event, priority = false, index = 0, userCity
             </div>
           )}
 
-          {/* Top row: category + like */}
+          {/* Top row: category */}
           <div className="absolute inset-x-0 top-0 z-10 flex items-start justify-between p-2.5">
             <span className="eyebrow rounded-lg bg-black/30 px-2.5 py-1.5 text-[10px] tracking-[0.12em] text-white backdrop-blur-md">
               {event.category}
             </span>
-            <button
-              type="button"
-              onClick={handleLike}
-              aria-label={liked ? 'Unlike' : 'Like'}
-              className="grid h-8 w-8 place-items-center rounded-full bg-black/30 backdrop-blur-md transition-transform duration-200 active:scale-90"
-            >
-              <Heart className={`h-[15px] w-[15px] ${liked ? 'fill-rose-500 text-rose-500' : 'text-white'}`} />
-            </button>
           </div>
 
           {/* A single status chip, bottom-left */}
@@ -149,11 +133,11 @@ export default function EventCard({ event, priority = false, index = 0, userCity
               {event.title}
             </h3>
             {dateLabel && (
-              <span className="label-mono shrink-0 text-[10px] uppercase text-white/45">{dateLabel}</span>
+              <span className="label-mono shrink-0 text-[10px] uppercase text-white/70">{dateLabel}</span>
             )}
           </div>
           <div className="mt-1 flex items-baseline justify-between gap-2">
-            <span className="label-mono flex min-w-0 items-center gap-1 text-[10.5px] uppercase text-white/50">
+            <span className="label-mono flex min-w-0 items-center gap-1 text-[10.5px] uppercase text-white/70">
               <span className="truncate">{locationLabel}</span>
               {event.users?.is_verified && (
                 <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-brand-400" />
@@ -164,8 +148,8 @@ export default function EventCard({ event, priority = false, index = 0, userCity
                 <span className="label-mono text-[12px] font-semibold uppercase text-brand-300">{t('common.free')}</span>
               ) : (
                 <span className="label-mono text-[12px] font-semibold text-brand-300">
-                  <span className="text-[9px] uppercase text-white/40">{t('common.from')} </span>
-                  {ticketPrice.toLocaleString()} <span className="text-[10px] text-white/40">{event.currency}</span>
+                  <span className="text-[9px] uppercase text-white/70">{t('common.from')} </span>
+                  {ticketPrice.toLocaleString()} <span className="text-[10px] text-white/70">{event.currency}</span>
                 </span>
               )}
             </span>

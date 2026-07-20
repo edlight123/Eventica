@@ -1004,7 +1004,8 @@ export default function PayoutsPageNew({
                     value={payoutChangeCode}
                     onChange={(e) => setPayoutChangeCode(e.target.value)}
                     placeholder="6-digit code"
-                    className="w-full sm:w-48 px-3 py-2 border border-amber-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                    aria-label="6-digit verification code"
+                    className="w-full rounded-xl border border-amber-500/30 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 sm:w-48"
                   />
                   <button
                     type="button"
@@ -1070,12 +1071,12 @@ export default function PayoutsPageNew({
                         return (
                           <div key={step.key} className={`flex items-center ${i < steps.length - 1 ? 'flex-1' : ''}`}>
                             <div className="flex shrink-0 items-center gap-2">
-                              <div className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${isDone ? 'bg-emerald-500 text-white' : isActive ? 'bg-brand-600 text-white' : 'bg-[#0a0a0a] text-white/30'}`}>
+                              <div className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${isDone ? 'bg-emerald-500 text-white' : isActive ? 'bg-brand-600 text-white' : 'bg-white/10 text-white/40'}`}>
                                 {isDone ? '✓' : i + 1}
                               </div>
                               <span className={`whitespace-nowrap text-sm font-medium ${isActive ? 'text-white' : isDone ? 'text-white/60' : 'text-white/30'}`}>{step.label}</span>
                             </div>
-                            {i < steps.length - 1 && <div className={`mx-3 h-px flex-1 ${isDone ? 'bg-emerald-500/40' : 'bg-[#0a0a0a]'}`} />}
+                            {i < steps.length - 1 && <div className={`mx-3 h-px flex-1 ${isDone ? 'bg-emerald-500/40' : 'bg-white/15'}`} />}
                           </div>
                         )
                       })}
@@ -1163,7 +1164,7 @@ export default function PayoutsPageNew({
                                   router.refresh()
                                 } catch { setError('Failed to update prefunding preference') }
                               }}
-                              className="h-4 w-4 text-brand-300"
+                              className="h-4 w-4 accent-brand-500"
                             />
                             Allow instant MonCash withdrawals when available
                           </label>
@@ -1192,11 +1193,11 @@ export default function PayoutsPageNew({
                             <label className="mb-2 block text-sm font-medium text-white/70">Payout method <span className="text-red-500">*</span></label>
                             <div className="space-y-2">
                               <label className="flex cursor-pointer items-center gap-3 rounded-xl  p-3 hover:bg-white/[0.04]">
-                                <input type="radio" name="step-method" value="bank_transfer" checked={formData.method === 'bank_transfer'} onChange={(e) => setFormData({ ...formData, method: e.target.value as any })} className="h-4 w-4 text-brand-300" />
+                                <input type="radio" name="step-method" value="bank_transfer" checked={formData.method === 'bank_transfer'} onChange={(e) => setFormData({ ...formData, method: e.target.value as any })} className="h-4 w-4 accent-brand-500" />
                                 <span className="text-sm font-medium text-white">Bank transfer</span>
                               </label>
                               <label className="flex cursor-pointer items-center gap-3 rounded-xl  p-3 hover:bg-white/[0.04]">
-                                <input type="radio" name="step-method" value="mobile_money" checked={formData.method === 'mobile_money'} onChange={(e) => setFormData({ ...formData, method: e.target.value as any })} className="h-4 w-4 text-brand-300" />
+                                <input type="radio" name="step-method" value="mobile_money" checked={formData.method === 'mobile_money'} onChange={(e) => setFormData({ ...formData, method: e.target.value as any })} className="h-4 w-4 accent-brand-500" />
                                 <span className="text-sm font-medium text-white">Mobile money</span>
                               </label>
                             </div>

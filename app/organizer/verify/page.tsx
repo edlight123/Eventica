@@ -6,7 +6,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import VerificationStatusHero from '@/components/organizer/verification/VerificationStatusHero'
 import VerificationStepper from '@/components/organizer/verification/VerificationStepper'
@@ -33,7 +33,6 @@ import { useOrganizerClientGuard } from '@/lib/hooks/useOrganizerClientGuard'
 type ViewMode = 'welcome' | 'wizard' | 'overview' | 'organizerInfo' | 'governmentId' | 'selfie' | 'businessDetails' | 'review'
 
 export default function VerifyOrganizerPage() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const { firebaseUser, navbarUser: user, userProfile, loading: authLoading } = useOrganizerClientGuard({
     loginRedirectPath: '/organizer/verify',
@@ -51,21 +50,6 @@ export default function VerifyOrganizerPage() {
 
   const userIsVerified = Boolean(userVerification?.is_verified) || userVerification?.verification_status === 'approved'
   const effectiveStatus = request ? (userIsVerified ? 'approved' : request.status) : null
-
-  // If already approved, default to the organizer dashboard unless the user explicitly requests details.
-  useEffect(() => {
-    if (!request) return
-    if (effectiveStatus !== 'approved') return
-    if (wantsDetails) return
-
-    const timeoutId = window.setTimeout(() => {
-      router.replace('/organizer')
-    }, 1200)
-
-    return () => {
-      window.clearTimeout(timeoutId)
-    }
-  }, [request, effectiveStatus, wantsDetails, router])
 
   // If details are requested for an in-flight review state, jump straight to the submitted view.
   // For approved, keep the step overview visible so the user can browse sections.
@@ -380,7 +364,7 @@ export default function VerifyOrganizerPage() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
                 <div className="text-sm font-semibold text-white">You’re already verified</div>
-                <div className="text-sm text-white/60 mt-1">Redirecting you to your organizer dashboard…</div>
+                <div className="text-sm text-white/60 mt-1">You can head to your organizer dashboard or review your verification details.</div>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Link
@@ -429,7 +413,7 @@ export default function VerifyOrganizerPage() {
             </div>
 
             <aside className="lg:col-span-1">
-              <div className="bg-[#0a0a0a]  rounded-xl p-5 md:p-6 shadow-sm">
+              <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 md:p-6 shadow-sm">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h2 className="text-base md:text-lg font-bold text-white">Submission</h2>
@@ -450,7 +434,7 @@ export default function VerifyOrganizerPage() {
                 </div>
 
                 <div className="mt-4">
-                  <div className="w-full bg-[#0a0a0a] rounded-full h-2">
+                  <div className="w-full bg-white/10 rounded-full h-2">
                     <div
                       className="bg-brand-700 h-2 rounded-full transition-all"
                       style={{ width: `${completionPercentage}%` }}
@@ -466,7 +450,7 @@ export default function VerifyOrganizerPage() {
                         ? 'bg-gray-900 hover:bg-gray-800 text-white'
                         : canSubmit
                           ? 'bg-brand-700 hover:bg-brand-800 text-white'
-                          : 'bg-[#0a0a0a] text-white/50 cursor-not-allowed'
+                          : 'bg-white/10 text-white/40 cursor-not-allowed'
                     }`}
                     disabled={!isReadOnly && !canSubmit}
                   >

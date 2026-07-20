@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { format, formatDistanceToNow } from 'date-fns'
+import { format, formatDistanceToNow, isValid } from 'date-fns'
 import {
   ArrowUpRight,
   CalendarDays,
@@ -109,10 +109,10 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
       <div className="grid grid-cols-2 divide-x divide-y divide-white/10 rounded-lg border border-white/10 sm:grid-cols-4 sm:divide-y-0">
         {kpis.map((k) => (
           <div key={k.label} className="px-4 py-3">
-            <p className="label-mono truncate uppercase text-[11px] text-white/40">{k.label}</p>
+            <p className="label-mono truncate uppercase text-[11px] text-white/70">{k.label}</p>
             <p className="mt-1 flex items-baseline gap-1.5">
               <span className="text-xl font-bold font-mono tabular-nums text-white">{k.value}</span>
-              {k.sub && <span className="text-xs font-mono tabular-nums text-white/40">{k.sub}</span>}
+              {k.sub && <span className="text-xs font-mono tabular-nums text-white/70">{k.sub}</span>}
             </p>
           </div>
         ))}
@@ -132,10 +132,17 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
               </Link>
             </div>
             {soldInWindow > 0 ? (
-              <div className="flex h-20 items-end gap-1">
+              <div
+                role="img"
+                aria-label={`Daily ticket sales over the last ${TREND_DAYS} days: ${soldInWindow} sold total. ${buckets
+                  .map((b) => `${format(b.date, 'MMM d')}: ${b.count}`)
+                  .join(', ')}.`}
+                className="flex h-20 items-end gap-1"
+              >
                 {buckets.map((b, i) => (
                   <div
                     key={i}
+                    aria-hidden="true"
                     className="flex-1 rounded-t bg-brand-500/80 transition-colors hover:bg-brand-400"
                     style={{ height: `${Math.max(3, (b.count / maxCount) * 100)}%` }}
                     title={`${format(b.date, 'MMM d')}: ${b.count}`}
@@ -229,7 +236,12 @@ export function EventCommandCenter({ event, stats, tickets, tiers }: EventComman
           <div className="space-y-2.5 text-sm">
             <div className="flex items-start gap-2.5">
               <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-white/40" />
-              <span className="font-mono tabular-nums text-white/75">{format(new Date(event.start_datetime), 'EEE, MMM d, yyyy · h:mm a')}</span>
+              <span className="font-mono tabular-nums text-white/75">
+                {(() => {
+                  const d = new Date(event.start_datetime)
+                  return isValid(d) ? format(d, 'EEE, MMM d, yyyy · h:mm a') : 'Date to be announced'
+                })()}
+              </span>
             </div>
             <div className="flex items-start gap-2.5">
               {event.is_online ? (

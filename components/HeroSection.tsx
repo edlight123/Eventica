@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { format, isValid } from 'date-fns'
-import { Search, MapPin, ChevronDown, ArrowUpRight, CalendarDays } from 'lucide-react'
+import { Search, MapPin, ArrowUpRight, CalendarDays } from 'lucide-react'
 import { getPosterTheme } from '@/lib/posterGradient'
 
 interface HeroSectionProps {
@@ -56,29 +56,26 @@ export default function HeroSection({ hasActiveFilters, featuredEvents }: HeroSe
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '')
-    if (query.trim()) params.set('q', query.trim())
-    else params.delete('q')
-    router.push(`/?${params.toString()}`)
+    const q = query.trim()
+    router.push(q ? `/discover?search=${encodeURIComponent(q)}` : '/discover')
   }
 
   const SearchForm = (
     <form
       onSubmit={handleSearch}
-      className="reveal reveal-3 mt-6 flex w-full max-w-2xl flex-wrap items-center gap-2 rounded-2xl  p-2 shadow-poster-sm backdrop-blur-md"
+      className="reveal reveal-3 mt-6 flex w-full max-w-2xl flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-2 shadow-poster-sm backdrop-blur-md"
     >
       <div className="flex select-none items-center gap-1.5 rounded-xl px-3 py-2.5 text-[13.5px] font-medium text-white/80">
         <MapPin className="h-[15px] w-[15px] text-brand-400" />
         {t('common.all_locations', { defaultValue: 'All Haiti' })}
-        <ChevronDown className="h-3.5 w-3.5 text-white/40" />
       </div>
       <div className="flex min-w-[150px] flex-1 items-center gap-2 px-2">
-        <Search className="h-[18px] w-[18px] shrink-0 text-white/40" />
+        <Search className="h-[18px] w-[18px] shrink-0 text-white/70" />
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t('common.search_placeholder')}
-          className="w-full bg-transparent py-1 text-[15px] text-white outline-none placeholder:text-white/40"
+          className="w-full bg-transparent py-1 text-[15px] text-white outline-none placeholder:text-white/70"
           aria-label={t('common.search')}
         />
       </div>
@@ -110,8 +107,8 @@ export default function HeroSection({ hasActiveFilters, featuredEvents }: HeroSe
   const featured = Array.isArray(featuredEvents) ? featuredEvents.filter(Boolean) : []
   const front = featured[0]
   const back = featured[1]
-  const priceText = (price: any) =>
-    Number(price) > 0 ? `${Number(price).toLocaleString()} HTG` : t('common.free')
+  const priceText = (price: any, currency?: string) =>
+    Number(price) > 0 ? `${Number(price).toLocaleString()} ${currency || 'HTG'}` : t('common.free')
 
   return (
     <section className="relative overflow-hidden">
@@ -130,7 +127,7 @@ export default function HeroSection({ hasActiveFilters, featuredEvents }: HeroSe
             <span className="italic text-brand-400">{t('events.hero_headline_accent')}</span>.
           </h1>
 
-          <p className="reveal reveal-3 mt-4 max-w-xl text-[15px] leading-relaxed text-white/55 sm:text-lg">
+          <p className="reveal reveal-3 mt-4 max-w-xl text-[15px] leading-relaxed text-white/70 sm:text-lg">
             {t('events.hero_subtitle')}
           </p>
 
@@ -188,7 +185,7 @@ export default function HeroSection({ hasActiveFilters, featuredEvents }: HeroSe
                         {formatFeaturedDate(front.date)}
                       </span>
                       <span className="label-mono shrink-0 rounded-lg bg-white px-2.5 py-1 text-[12px] font-semibold text-black backdrop-blur-md">
-                        {priceText(front.price)}
+                        {priceText(front.price, front.currency)}
                       </span>
                     </div>
                   </div>

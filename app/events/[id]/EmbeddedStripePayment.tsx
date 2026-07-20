@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import { useRouter } from 'next/navigation'
@@ -94,7 +94,7 @@ function CheckoutForm({ eventId, eventTitle, quantity, totalAmount, currency, on
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Order Summary */}
-      <div className="bg-[#0a0a0a] rounded-lg p-4">
+      <div className="bg-white/[0.03] border border-white/10 rounded-lg p-4">
         <h3 className="text-sm font-semibold text-white mb-3">{t('events.order_summary')}</h3>
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
@@ -111,7 +111,7 @@ function CheckoutForm({ eventId, eventTitle, quantity, totalAmount, currency, on
       </div>
 
       {/* Payment Element */}
-      <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-4">
+      <div className="bg-white/[0.03] border border-white/10 rounded-lg p-4">
         <div className="flex items-center gap-2 mb-4">
           <CreditCard className="w-5 h-5 text-white/65" />
           <h3 className="text-sm font-semibold text-white">{t('events.payment_details')}</h3>
@@ -126,7 +126,7 @@ function CheckoutForm({ eventId, eventTitle, quantity, totalAmount, currency, on
       )}
 
       {/* Security Badge */}
-      <div className="flex items-center justify-center gap-2 text-xs text-white/50">
+      <div className="flex items-center justify-center gap-2 text-xs text-white/70">
         <Lock className="w-3 h-3" />
         <span>{t('events.secure_payment_stripe')}</span>
       </div>
@@ -137,14 +137,14 @@ function CheckoutForm({ eventId, eventTitle, quantity, totalAmount, currency, on
           type="button"
           onClick={onClose}
           disabled={processing}
-          className="flex-1 px-4 py-3 border border-white/10 rounded-lg font-medium text-white/70 hover:bg-[#0a0a0a] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 px-4 py-3 border border-white/10 rounded-lg font-medium text-white/70 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {t('common.cancel')}
         </button>
         <button
           type="submit"
           disabled={!stripe || processing}
-          className="flex-1 px-4 py-3 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+          className="flex-1 px-4 py-3 bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 text-white font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
         >
           {processing ? t('events.processing') : `${t('events.pay')} ${totalAmount.toLocaleString()} ${currency}`}
         </button>
@@ -180,6 +180,17 @@ export default function EmbeddedStripePayment({
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
+
+  // Modal a11y: close on Escape, focus the first control on mount.
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', onKeyDown)
+    closeButtonRef.current?.focus()
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [onClose])
 
   // Map i18next language codes to Stripe locale codes
   const getStripeLocale = () => {
@@ -222,11 +233,11 @@ export default function EmbeddedStripePayment({
   }, [eventId, quantity, tierId, promoCodeId])
 
   const appearance = {
-    theme: 'stripe' as const,
+    theme: 'night' as const,
     variables: {
-      colorPrimary: '#0d9488',
-      colorBackground: '#ffffff',
-      colorText: '#1f2937',
+      colorPrimary: '#14B8A6',
+      colorBackground: '#0a0a0a',
+      colorText: '#ffffff',
       colorDanger: '#ef4444',
       fontFamily: 'system-ui, sans-serif',
       spacingUnit: '4px',
@@ -236,11 +247,17 @@ export default function EmbeddedStripePayment({
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="bg-[#0a0a0a] w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={t('events.complete_payment')}
+        className="bg-[#0a0a0a] w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto"
+      >
         {/* Header */}
         <div className="sticky top-0 bg-[#0a0a0a] border-b border-white/10 px-6 py-4 flex items-center justify-between">
           <h2 className="text-xl font-bold text-white">{t('events.complete_payment')}</h2>
           <button
+            ref={closeButtonRef}
             onClick={onClose}
             className="p-2 hover:bg-white/[0.04] rounded-lg transition-colors"
             aria-label="Close"
@@ -253,7 +270,7 @@ export default function EmbeddedStripePayment({
         <div className="p-6">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500"></div>
             </div>
           ) : error ? (
             <div className="border border-red-200 rounded-lg p-6 text-center">
