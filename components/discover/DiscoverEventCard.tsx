@@ -32,7 +32,9 @@ export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
 
   const cue = getEventCue(event)
   const priceLabel = getPriceLabel(event.ticket_price, event.currency)
-  const locationSummary = getLocationSummary(event.city, event.commune)
+  // Venue-first: the venue name adds variety and is rarely redundant; fall back
+  // to the city/commune summary only when there's no venue (e.g. online events).
+  const locationSummary = (event.venue_name || '').trim() || getLocationSummary(event.city, event.commune)
   const dateLabel = formatEventDate(event.start_datetime)
   const hasImage = Boolean(event.banner_image_url)
   const theme = getPosterTheme(event.id || event.title, event.category)
