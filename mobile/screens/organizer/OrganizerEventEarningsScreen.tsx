@@ -23,6 +23,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { useI18n } from '../../contexts/I18nContext'
 import { backendFetch, backendJson } from '../../lib/api/backend'
 import { getEventById } from '../../lib/api/organizer'
+import { getVerificationRequest } from '../../lib/verification'
 import { getRequiredPayoutProfileIdForEventCountry, normalizeCountryCode } from '../../lib/payment-provider'
 import { RADIUS } from '../../config/brand'
 
@@ -72,6 +73,10 @@ export default function OrganizerEventEarningsScreen() {
 
   const [isStripeConnectAccount, setIsStripeConnectAccount] = useState(false)
   const [accountLocation, setAccountLocation] = useState<string>('')
+
+  // Identity verification (KYC) is required before earnings can be withdrawn.
+  // null = still checking, true = approved, false = not verified.
+  const [identityVerified, setIdentityVerified] = useState<boolean | null>(null)
 
   const requiresStripeConnect = useMemo(() => {
     const normalized = normalizeCountryCode(eventCountry)
@@ -188,6 +193,19 @@ export default function OrganizerEventEarningsScreen() {
     }
   }, [user?.uid])
 
+  const loadIdentityStatus = useCallback(async () => {
+    if (!user?.uid) {
+      setIdentityVerified(false)
+      return
+    }
+    try {
+      const req = await getVerificationRequest(user.uid)
+      setIdentityVerified(req?.status === 'approved')
+    } catch {
+      setIdentityVerified(false)
+    }
+  }, [user?.uid])
+
   const loadEarnings = useCallback(async () => {
     setLoading(true)
     try {
@@ -254,16 +272,30 @@ export default function OrganizerEventEarningsScreen() {
   useEffect(() => {
     loadEarnings()
     loadPayoutRail()
+    loadIdentityStatus()
   }, [loadEarnings])
 
   useFocusEffect(
     useCallback(() => {
       loadEarnings()
       loadPayoutRail()
-    }, [loadEarnings, loadPayoutRail])
+      loadIdentityStatus()
+    }, [loadEarnings, loadPayoutRail, loadIdentityStatus])
   )
 
   const openWithdraw = async (nextMethod: 'moncash' | 'bank') => {
+    if (!identityVerified) {
+      Alert.alert(
+        'Verify your identity to withdraw',
+        "Complete identity verification before you can withdraw your earnings. It's quick and reviewed within 48 hours.",
+        [
+          { text: t('common.cancel'), style: 'cancel' },
+          { text: 'Verify Identity', onPress: () => navigation.navigate('OrganizerVerification') },
+        ]
+      )
+      return
+    }
+
     if (!earnings) {
       Alert.alert(t('organizerEarnings.validation.unavailableTitle'), t('organizerEarnings.validation.unavailableBody'))
       return
@@ -569,7 +601,27 @@ export default function OrganizerEventEarningsScreen() {
 
         <View style={{ height: 12 }} />
 
-        {requiresStripeConnect ? (
+        {identityVerified === false ? (
+          <View style={styles.notice}>
+            <Ionicons name="shield-checkmark-outline" size={18} color={colors.textSecondary} />
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.noticeText, { fontWeight: '700', color: colors.text }]}>
+                Verify your identity to withdraw
+              </Text>
+              <Text style={[styles.noticeText, { marginTop: 4 }]}>
+                Complete a quick identity check to withdraw your earnings. Verification is reviewed within 48 hours.
+              </Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('OrganizerVerification')}
+                style={[styles.actionButton, { backgroundColor: colors.primary, marginTop: 10 }]}
+                activeOpacity={0.85}
+              >
+                <Ionicons name="shield-checkmark-outline" size={20} color={colors.white} />
+                <Text style={styles.actionButtonText}>Verify Identity</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : requiresStripeConnect ? (
           <View style={styles.notice}>
             <Ionicons name="card-outline" size={18} color={colors.textSecondary} />
             <View style={{ flex: 1 }}>
@@ -585,7 +637,7 @@ export default function OrganizerEventEarningsScreen() {
               </TouchableOpacity>
             </View>
           </View>
-        ) : (
+        ) : identityVerified === true ? (
           <>
             <TouchableOpacity
               style={[styles.actionButton, { backgroundColor: colors.primary }]}
@@ -607,7 +659,7 @@ export default function OrganizerEventEarningsScreen() {
               <Text style={[styles.actionButtonText, { color: colors.text }]}>{t('organizerEarnings.withdrawToBank')}</Text>
             </TouchableOpacity>
           </>
-        )}
+        ) : null}
 
         {!earnings ? (
           <View style={styles.notice}>

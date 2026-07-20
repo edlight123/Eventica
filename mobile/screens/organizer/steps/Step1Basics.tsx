@@ -100,7 +100,7 @@ export default function Step1Basics({ draft, updateDraft }: Props) {
       {/* Category */}
       <View style={styles.formGroup}>
         <Text style={styles.label}>
-          {t('organizerCreateEvent.basics.category')} <Text style={styles.required}>*</Text>
+          {t('organizerCreateEvent.basics.category')}
         </Text>
         <ScrollView
           horizontal
@@ -132,7 +132,7 @@ export default function Step1Basics({ draft, updateDraft }: Props) {
       {/* Description */}
       <View style={styles.formGroup}>
         <Text style={styles.label}>
-          {t('organizerCreateEvent.basics.description')} <Text style={styles.required}>*</Text>
+          {t('organizerCreateEvent.basics.description')}
         </Text>
         <TextInput
           style={[styles.input, styles.textArea]}

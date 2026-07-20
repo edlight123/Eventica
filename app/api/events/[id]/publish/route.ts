@@ -66,32 +66,34 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
-    // Backend enforcement: publishing paid events requires identity verification.
+    // Launch policy — "verify at the money, not at the door":
+    // Haiti (HT) organizers may publish PAID events WITHOUT identity verification
+    // and without an active payout profile. Identity/KYC is instead enforced at
+    // disbursement time by the withdrawal/payout routes, so funds can only ever be
+    // paid out to a verified organizer with a valid payout profile. This lets HT
+    // organizers list and sell first, then complete KYC before cashing out.
+    //
+    // US/Canada keep the full pre-publish gate: Stripe destination charges require
+    // completed Connect onboarding (identity + charges/payouts enabled) before any
+    // money can be collected, so those checks must pass before publishing.
     if (is_published === true) {
       const paid = await isPaidEvent(id, eventData)
       if (paid) {
-        const verified = await isOrganizerVerified(user.id)
-        if (!verified) {
-          return NextResponse.json(
-            { error: 'Verification required to publish paid events' },
-            { status: 403 }
-          )
-        }
-
         const resolvedCountry = await resolveEventCountry(eventData)
         const requiredProfileId = getRequiredPayoutProfileIdForEventCountry(resolvedCountry || eventData?.country)
 
-        if (requiredProfileId === 'haiti') {
-          const haitiProfile = await getPayoutProfile(user.id, 'haiti')
-          if (!haitiProfile || haitiProfile.status !== 'active') {
+        // Haiti (and other non-US/CA) events: no publish-time gate — KYC is enforced
+        // at disbursement instead. Free/RSVP events remain unrestricted as before.
+
+        if (requiredProfileId === 'stripe_connect') {
+          const verified = await isOrganizerVerified(user.id)
+          if (!verified) {
             return NextResponse.json(
-              { error: 'Payout setup required to publish paid events in Haiti.' },
+              { error: 'Verification required to publish paid events' },
               { status: 403 }
             )
           }
-        }
 
-        if (requiredProfileId === 'stripe_connect') {
           const stripeProfile = await getPayoutProfile(user.id, 'stripe_connect')
           const stripeAccountId = stripeProfile?.stripeAccountId
           if (!stripeAccountId) {

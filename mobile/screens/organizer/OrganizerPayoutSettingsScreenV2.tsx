@@ -359,7 +359,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
               <Ionicons name="shield-checkmark-outline" size={20} color={colors.primary} />
               <View style={{ flex: 1, marginLeft: 10 }}>
                 <Text style={[styles.cardTitle, { color: colors.primary }]}>Identity Verification Required</Text>
-                <Text style={styles.metaText}>Complete identity verification to add payout methods.</Text>
+                <Text style={styles.metaText}>Complete identity verification to add payout methods and withdraw earnings. Reviewed within 48 hours.</Text>
               </View>
             </View>
             <TouchableOpacity

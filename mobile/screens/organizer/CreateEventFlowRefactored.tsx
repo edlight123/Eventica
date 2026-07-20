@@ -105,7 +105,7 @@ export default function CreateEventFlowRefactored() {
   const [eventDraft, setEventDraft] = useState<EventDraft>({
     title: '',
     description: '',
-    category: 'Concert',
+    category: 'Music',
     banner_image_url: '',
     venue_name: '',
     country: 'HT',
@@ -118,7 +118,7 @@ export default function CreateEventFlowRefactored() {
     end_time: '',
     timezone: 'America/Port-au-Prince',
     ticket_tiers: [{ name: 'General Admission', price: '0', quantity: '100' }],
-    currency: 'USD',
+    currency: 'HTG',
   });
 
   // Track keyboard visibility
