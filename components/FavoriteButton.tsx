@@ -62,11 +62,13 @@ export default function FavoriteButton({ eventId, userId, initialIsFavorite = fa
     <button
       onClick={toggleFavorite}
       disabled={loading}
-      className={`p-3 rounded-full transition-all duration-300 shadow-md hover:shadow-lg ${
+      className={`p-3 rounded-full transition-all duration-300 shadow-md hover:shadow-lg border ${
         isFavorite
-          ? 'bg-gradient-to-br from-red-50 to-red-100 text-red-600 hover:from-red-100 hover:to-red-200 ring-2 ring-red-200'
-          : 'bg-[#0a0a0a] text-white/40 hover:text-red-500 hover:bg-red-50'
+          ? 'bg-red-500/15 text-red-400 border-red-500/30 hover:bg-red-500/25'
+          : 'bg-white/[0.03] text-white/70 border-white/10 hover:text-red-400 hover:bg-white/10'
       } disabled:opacity-50 transform hover:scale-110`}
+      aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+      aria-pressed={isFavorite}
       title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
     >
       <svg

@@ -62,10 +62,11 @@ export default function FollowButton({ organizerId, userId, initialIsFollowing =
     <button
       onClick={toggleFollow}
       disabled={loading}
+      aria-pressed={isFollowing}
       className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105 ${
         isFollowing
-          ? 'bg-[#0a0a0a] text-white/70 hover:bg-[#0a0a0a] border-2 border-white/10'
-          : 'bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-700 hover:to-teal-800'
+          ? 'bg-white/[0.03] text-white/70 hover:bg-white/10 border border-white/15'
+          : 'bg-brand-600 text-white hover:bg-brand-700'
       } disabled:opacity-50`}
     >
       {loading ? (
