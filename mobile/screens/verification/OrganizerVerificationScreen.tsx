@@ -281,6 +281,9 @@ export default function OrganizerVerificationScreen() {
             >
               <Text style={styles.submitButtonText}>{t('verification.organizerVerification.submit.button')}</Text>
             </TouchableOpacity>
+            <Text style={styles.reviewTimeNote}>
+              Verification is typically reviewed within 48 hours. We'll notify you once it's done.
+            </Text>
           </View>
         )}
 
@@ -460,6 +463,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.white,
     fontSize: 16,
     fontWeight: '600',
+  },
+  reviewTimeNote: {
+    marginTop: 12,
+    fontSize: 13,
+    color: colors.textSecondary,
+    textAlign: 'center',
   },
   pendingNotice: {
     margin: 16,

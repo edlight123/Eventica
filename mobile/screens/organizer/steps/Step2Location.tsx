@@ -133,7 +133,7 @@ export default function Step2Location({ draft, updateDraft }: Props) {
       {/* Address */}
       <View style={styles.formGroup}>
         <Text style={styles.label}>
-          {t('organizerCreateEvent.location.streetAddress')} <Text style={styles.required}>*</Text>
+          {t('organizerCreateEvent.location.streetAddress')}
         </Text>
         <View style={styles.inputContainer}>
           <Ionicons name="location-outline" size={20} color={colors.textSecondary} />
