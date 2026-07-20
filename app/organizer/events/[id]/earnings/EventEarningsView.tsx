@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useToast } from '@/components/ui/Toast'
 import { formatCurrency, calculateSettlementDate } from '@/lib/fees'
 import type { EventEarnings } from '@/types/earnings'
 import type { EventTierSalesBreakdownRow } from '@/lib/earnings'
@@ -16,6 +18,8 @@ interface EventEarningsViewProps {
 }
 
 export default function EventEarningsView({ event, earnings, organizerId, tierBreakdown }: EventEarningsViewProps) {
+  const router = useRouter()
+  const { showToast } = useToast()
   const [showWithdrawModal, setShowWithdrawModal] = useState(false)
   const [withdrawMethod, setWithdrawMethod] = useState<'moncash' | 'bank' | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -184,7 +188,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
           ← Back to All Earnings
         </Link>
         
-        <div className="bg-[#0a0a0a] rounded-xl p-8 text-center">
+        <div className="bg-white/[0.03] border border-white/10 rounded-xl p-8 text-center">
           <span className="text-6xl mb-4 block">💰</span>
           <h2 className="font-display text-2xl text-white mb-2">No Earnings Yet</h2>
           <p className="text-white/60 mb-6">
@@ -305,25 +309,30 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
       throw new Error(data?.error || data?.message || 'Failed to submit withdrawal')
     }
 
-    // Success - reload page to show updated balance
+    // Success — toast, close the modal, and refresh to show the updated balance.
     if (withdrawMethod === 'moncash' && data?.instant) {
       const payoutCurrency = String(data?.payoutCurrency || '').toUpperCase() === 'HTG' ? 'HTG' : null
       const payoutAmountHtgCents = typeof data?.payoutAmountHtgCents === 'number' ? data.payoutAmountHtgCents : null
-      alert(
-        `✅ Instant MonCash sent! Fee: ${formatCurrency(data?.feeCents || 0, earnings.currency)}. You receive: ${
-          payoutCurrency && payoutAmountHtgCents != null
-            ? formatCurrency(payoutAmountHtgCents, payoutCurrency)
-            : formatCurrency(data?.payoutAmountCents || 0, earnings.currency)
-        }.`
-      )
+      const received =
+        payoutCurrency && payoutAmountHtgCents != null
+          ? formatCurrency(payoutAmountHtgCents, payoutCurrency)
+          : formatCurrency(data?.payoutAmountCents || 0, earnings.currency)
+      showToast({
+        type: 'success',
+        title: 'Instant MonCash sent',
+        message: `Fee ${formatCurrency(data?.feeCents || 0, earnings.currency)} · You receive ${received}.`,
+        duration: 5000,
+      })
     } else {
-      alert(
-        `✅ Withdrawal request submitted successfully! You'll receive your funds within ${
-          withdrawMethod === 'moncash' ? '24 hours' : '3-5 business days'
-        }.`
-      )
+      showToast({
+        type: 'success',
+        title: 'Withdrawal requested',
+        message: `You'll receive your funds within ${withdrawMethod === 'moncash' ? '24 hours' : '3–5 business days'}.`,
+        duration: 5000,
+      })
     }
-    window.location.reload()
+    setShowWithdrawModal(false)
+    router.refresh()
   }
 
   const submitWithdrawal = async () => {
@@ -381,7 +390,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
           <span className="mx-2">•</span>
           {getStatusBadge(earnings.settlementStatus)}
         </div>
-        <div className="mt-1 text-xs text-white/50">
+        <div className="mt-1 text-xs text-white/70">
           Revenue source: {earnings.dataSource === 'tickets_derived' ? 'Derived from tickets' : earnings.dataSource === 'event_earnings' ? 'event_earnings record' : 'Unknown'}
           {earnings.lastCalculatedAt ? ` • Last calculated: ${new Date(earnings.lastCalculatedAt).toLocaleString('en-US')}` : ''}
         </div>
@@ -410,7 +419,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
       </div>
 
       {/* Ticket Tier Breakdown */}
-      <div className="bg-[#0a0a0a] rounded-xl p-6 mb-6">
+      <div className="bg-white/[0.03] border border-white/10 rounded-xl p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="font-display text-xl text-white">🎟️ Ticket Tier Breakdown</h2>
@@ -432,7 +441,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-white/50 border-b">
+                <tr className="text-left text-white/70 border-b">
                   <th className="py-2 pr-4 font-medium">Tier</th>
                   <th className="py-2 pr-4 font-medium">Listed Unit Price</th>
                   <th className="py-2 pr-4 font-medium">Tickets Sold</th>
@@ -487,7 +496,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
 
       {/* Withdrawal Section */}
       {earnings.settlementStatus === 'ready' && availableToWithdraw > 0 && (
-        <div className="bg-[#0a0a0a] rounded-xl p-6 mb-6">
+        <div className="bg-white/[0.03] border border-white/10 rounded-xl p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="font-display text-xl text-white">💸 Request Withdrawal</h2>
@@ -507,10 +516,10 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                   </div>
                   <div>
                     <div className="font-bold text-white">MonCash</div>
-                    <div className="text-sm text-white/50">Instant transfer</div>
+                    <div className="text-sm text-white/70">Instant transfer</div>
                   </div>
                 </div>
-                <div className="text-xs text-white/40">Processed within 24 hours</div>
+                <div className="text-xs text-white/70">Processed within 24 hours</div>
               </button>
 
               <button
@@ -523,10 +532,10 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                   </div>
                   <div>
                     <div className="font-bold text-white">Bank Transfer</div>
-                    <div className="text-sm text-white/50">Direct deposit</div>
+                    <div className="text-sm text-white/70">Direct deposit</div>
                   </div>
                 </div>
-                <div className="text-xs text-white/40">Processed within 3-5 business days</div>
+                <div className="text-xs text-white/70">Processed within 3-5 business days</div>
               </button>
             </div>
           ) : (
@@ -541,13 +550,13 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
 
       {/* Withdrawal History */}
       {earnings.withdrawnAmount > 0 && (
-        <div className="bg-[#0a0a0a] rounded-xl p-6">
+        <div className="bg-white/[0.03] border border-white/10 rounded-xl p-6">
           <h2 className="font-display text-xl text-white mb-4">📋 Withdrawal History</h2>
           <div className="space-y-3">
             <div className="flex justify-between items-center py-3 border-b border-white/10">
               <div>
                 <div className="font-medium text-white">Total Withdrawn</div>
-                <div className="text-sm text-white/50">From this event</div>
+                <div className="text-sm text-white/70">From this event</div>
               </div>
               <span className="font-mono tabular-nums font-bold text-white">{formatCurrency(earnings.withdrawnAmount, earnings.currency)}</span>
             </div>
@@ -555,7 +564,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
               <div className="flex justify-between items-center py-3">
                 <div>
                   <div className="font-medium text-white">Remaining Balance</div>
-                  <div className="text-sm text-white/50">Available {earnings.settlementStatus === 'ready' ? 'now' : 'after settlement'}</div>
+                  <div className="text-sm text-white/70">Available {earnings.settlementStatus === 'ready' ? 'now' : 'after settlement'}</div>
                 </div>
                 <span className="font-mono tabular-nums font-bold text-brand-300">{formatCurrency(earnings.netAmount - earnings.withdrawnAmount, earnings.currency)}</span>
               </div>
@@ -567,13 +576,13 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
       {/* Withdrawal Modal */}
       {showWithdrawModal && withdrawMethod && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-[#0a0a0a] rounded-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#141414] border border-white/10 rounded-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
             <h3 className="font-display text-xl text-white mb-4">
               Request {withdrawMethod === 'moncash' ? 'MonCash' : 'Bank'} Withdrawal
             </h3>
             
             <div className="mb-6">
-              <div className="bg-[#0a0a0a] rounded-lg p-4 mb-4">
+              <div className="bg-white/[0.03] border border-white/10 rounded-lg p-4 mb-4">
                 <div className="flex justify-between mb-2">
                   <span className="text-white/60">Amount:</span>
                   <span className="font-mono tabular-nums font-bold text-white">{formatCurrency(availableToWithdraw, earnings.currency)}</span>
@@ -607,7 +616,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                       className={
                         moncashQuote.instantAvailable
                           ? 'border border-brand-500/30 rounded-lg p-3'
-                          : 'bg-[#0a0a0a]  rounded-lg p-3'
+                          : 'bg-white/[0.03] border border-white/10 rounded-lg p-3'
                       }
                     >
                       <p
@@ -703,7 +712,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                       />
                       <span>
                         <span className="font-semibold">Use bank on file</span>
-                        <span className="block text-xs text-white/50">
+                        <span className="block text-xs text-white/70">
                           {bankDestinations?.some((d) => d.isPrimary)
                             ? 'Uses your primary bank from payout settings.'
                             : 'No bank on file yet. Add a bank account below.'}
@@ -721,7 +730,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                         />
                         <span>
                           <span className="font-semibold">Use a saved bank account</span>
-                          <span className="block text-xs text-white/50">Choose from your saved accounts.</span>
+                          <span className="block text-xs text-white/70">Choose from your saved accounts.</span>
                         </span>
                       </label>
                     ) : null}
@@ -735,7 +744,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                       />
                       <span>
                         <span className="font-semibold">Use a new bank account (add second account)</span>
-                        <span className="block text-xs text-white/50">
+                        <span className="block text-xs text-white/70">
                           Using a new bank account requires email verification.
                         </span>
                       </span>
@@ -743,7 +752,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                   </div>
 
                   {(bankMode === 'on_file' || bankMode === 'saved') && bankDestinations ? (
-                    <div className=" rounded-lg p-3 bg-[#0a0a0a]">
+                    <div className=" rounded-lg p-3 bg-white/[0.03] border border-white/10">
                       {bankMode === 'saved' ? (
                         <div className="mb-2">
                           <label className="block text-xs font-medium text-white/60 mb-1">Select account</label>
@@ -776,7 +785,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
 
                   {bankMode === 'new' ? (
                     <div className="space-y-3">
-                      <div className="bg-[#0a0a0a]  rounded-lg p-3">
+                      <div className="bg-white/[0.03] border border-white/10 rounded-lg p-3">
                         <p className="text-sm text-white font-medium">Verification required</p>
                         <p className="text-xs text-white/60 mt-1">
                           Adding a new bank account requires email verification. The account holder name should match your organizer name.
@@ -889,7 +898,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                       type="button"
                       onClick={verifyCode}
                       disabled={isVerifyingVerificationCode || !/^\d{6}$/.test(verificationCode)}
-                      className="px-3 py-2 bg-[#0a0a0a] border border-brand-300 text-brand-300 rounded-lg text-sm font-medium disabled:opacity-50"
+                      className="px-3 py-2 bg-white/[0.03] border border-brand-400 text-brand-300 rounded-lg text-sm font-medium hover:bg-white/10 disabled:opacity-50"
                     >
                       {isVerifyingVerificationCode ? 'Verifying…' : 'Verify'}
                     </button>
@@ -918,7 +927,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                     ((bankMode === 'new' && (!bankDetails.accountHolder || !bankDetails.bankName || !bankDetails.accountNumber)) ||
                       (bankMode !== 'new' && !selectedBankDestinationId)))
                 }
-                className="flex-1 px-4 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 transition-colors font-medium disabled:bg-[#0a0a0a] disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 transition-colors font-medium disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Submitting...' : 'Confirm Withdrawal'}
               </button>
@@ -943,7 +952,7 @@ export default function EventEarningsView({ event, earnings, organizerId, tierBr
                   })
                 }}
                 disabled={isSubmitting}
-                className="px-4 py-3 bg-[#0a0a0a] text-white/70 rounded-lg hover:bg-white/[0.04] transition-colors font-medium disabled:cursor-not-allowed"
+                className="px-4 py-3 bg-white/[0.03] border border-white/10 text-white/70 rounded-lg hover:bg-white/10 transition-colors font-medium disabled:cursor-not-allowed"
               >
                 Cancel
               </button>

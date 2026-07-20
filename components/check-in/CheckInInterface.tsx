@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Camera, Search, Users, CheckCircle, XCircle, Clock, AlertCircle, Menu } from 'lucide-react'
 import { QRScanner } from './QRScanner'
 
@@ -37,6 +38,7 @@ type ScanResult = {
 }
 
 export function CheckInInterface({ event, tickets, onCheckIn }: CheckInInterfaceProps) {
+  const router = useRouter()
   const [showScanner, setShowScanner] = useState(false)
   const [showManualLookup, setShowManualLookup] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -89,7 +91,7 @@ export function CheckInInterface({ event, tickets, onCheckIn }: CheckInInterface
           
           // Refresh page data
           setTimeout(() => {
-            window.location.reload()
+            router.refresh()
           }, 2000)
         }
       } else {
@@ -139,7 +141,7 @@ export function CheckInInterface({ event, tickets, onCheckIn }: CheckInInterface
         <div className="px-4 py-4 flex items-center justify-between">
           <div className="flex-1 min-w-0">
             <h1 className="text-xl font-bold truncate">{event.title}</h1>
-            <p className="text-sm text-white/40 mt-0.5">Check-In Scanner</p>
+            <p className="text-sm text-white/70 mt-0.5">Check-In Scanner</p>
           </div>
           <Link
             href={`/organizer/events/${event.id}/attendees`}
@@ -172,7 +174,7 @@ export function CheckInInterface({ event, tickets, onCheckIn }: CheckInInterface
         <div className="max-w-2xl mx-auto mt-4">
           <div className="h-2 bg-teal-800 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-[#0a0a0a] transition-all duration-500"
+              className="h-full bg-white transition-all duration-500"
               style={{ width: `${stats.total > 0 ? (stats.checkedIn / stats.total) * 100 : 0}%` }}
             />
           </div>
@@ -181,7 +183,7 @@ export function CheckInInterface({ event, tickets, onCheckIn }: CheckInInterface
 
       {/* Entry Point Selector */}
       <div className="bg-gray-800 px-4 py-3 border-b border-gray-700">
-        <label className="block text-sm font-medium text-white/40 mb-2">Entry Point</label>
+        <label className="block text-sm font-medium text-white/70 mb-2">Entry Point</label>
         <select
           value={selectedEntryPoint}
           onChange={(e) => setSelectedEntryPoint(e.target.value)}
@@ -250,7 +252,7 @@ export function CheckInInterface({ event, tickets, onCheckIn }: CheckInInterface
         {recentCheckIns.length === 0 ? (
           <div className="bg-gray-800 rounded-xl p-8 text-center">
             <Clock className="w-12 h-12 text-white/65 mx-auto mb-3" />
-            <p className="text-white/40">No check-ins yet</p>
+            <p className="text-white/70">No check-ins yet</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -258,11 +260,11 @@ export function CheckInInterface({ event, tickets, onCheckIn }: CheckInInterface
               <div key={ticket.id} className="bg-gray-800 rounded-xl p-4 flex items-center justify-between">
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold truncate">{ticket.attendee_name}</p>
-                  <p className="text-sm text-white/40 truncate">{ticket.ticket_type}</p>
+                  <p className="text-sm text-white/70 truncate">{ticket.ticket_type}</p>
                 </div>
                 <div className="text-right ml-4">
                   <CheckCircle className="w-5 h-5 text-green-400 mb-1" />
-                  <p className="text-xs text-white/40">
+                  <p className="text-xs text-white/70">
                     {ticket.checked_in_at && new Date(ticket.checked_in_at).toLocaleTimeString([], { 
                       hour: '2-digit', 
                       minute: '2-digit' 
@@ -301,7 +303,7 @@ export function CheckInInterface({ event, tickets, onCheckIn }: CheckInInterface
 
           <div className="p-4">
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/70" />
               <input
                 type="text"
                 value={searchQuery}
@@ -317,7 +319,7 @@ export function CheckInInterface({ event, tickets, onCheckIn }: CheckInInterface
             {searchQuery.trim() && filteredTickets.length === 0 && (
               <div className="text-center py-12">
                 <AlertCircle className="w-12 h-12 text-white/65 mx-auto mb-3" />
-                <p className="text-white/40">No tickets found</p>
+                <p className="text-white/70">No tickets found</p>
               </div>
             )}
 
@@ -336,8 +338,8 @@ export function CheckInInterface({ event, tickets, onCheckIn }: CheckInInterface
                   <div className="flex items-center justify-between">
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold truncate">{ticket.attendee_name}</p>
-                      <p className="text-sm text-white/40 truncate">{ticket.attendee_email}</p>
-                      <p className="text-xs text-white/50 mt-1">{ticket.ticket_type}</p>
+                      <p className="text-sm text-white/70 truncate">{ticket.attendee_email}</p>
+                      <p className="text-xs text-white/70 mt-1">{ticket.ticket_type}</p>
                     </div>
                     {ticket.checked_in ? (
                       <CheckCircle className="w-6 h-6 text-green-400 ml-4" />
