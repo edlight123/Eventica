@@ -94,9 +94,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Configure Google Sign-In with proper redirect URI
-  // Use reverse client ID format that Google accepts
+  // Use reverse client ID format that Google accepts.
+  // When no client ID is configured (e.g. local dev / UX review builds), fall
+  // back to a harmless placeholder so the auth hook can construct a request
+  // instead of throwing and crashing the whole app at render. `googleConfigured`
+  // gates the actual sign-in so an unconfigured build fails loudly on tap only.
+  const googleWebClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+  const googleConfigured = !!googleWebClientId;
+  const GOOGLE_PLACEHOLDER_CLIENT_ID = 'unconfigured.apps.googleusercontent.com';
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    clientId: googleWebClientId || GOOGLE_PLACEHOLDER_CLIENT_ID,
+    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || googleWebClientId || GOOGLE_PLACEHOLDER_CLIENT_ID,
+    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || googleWebClientId || GOOGLE_PLACEHOLDER_CLIENT_ID,
     // Expo handles the redirect automatically in production builds
   });
 
@@ -179,6 +188,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signInWithGoogle = async () => {
+    if (!googleConfigured) {
+      throw new Error('Google Sign-In is not configured (missing EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID).');
+    }
     try {
       await promptAsync();
     } catch (error: any) {
