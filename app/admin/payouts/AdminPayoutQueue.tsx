@@ -1,8 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Clock, Wallet, Download } from 'lucide-react'
+import { Clock, Wallet, Download, CheckCircle } from 'lucide-react'
 import PayoutReceiptUpload from '@/components/admin/PayoutReceiptUpload'
+import { formatCurrency as formatMoney, type Currency } from '@/lib/currency'
+import { StatusChip } from '@/components/ui/kit'
 
 interface Payout {
   id: string
@@ -40,10 +42,13 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
   const [error, setError] = useState<string | null>(null)
   const [receiptUrl, setReceiptUrl] = useState<string | null>(null)
 
-  const formatCurrency = (cents: number, currency: string = 'HTG') => {
-    const symbol = currency === 'HTG' ? 'G ' : '$'
-    return `${symbol}${(cents / 100).toFixed(2)}`
-  }
+  // Payout amounts are stored in cents. Delegate to the shared formatter (major
+  // units) so money renders consistently with the other disbursement tabs.
+  const formatCurrency = (cents: number, currency: string = 'HTG') =>
+    formatMoney((cents || 0) / 100, String(currency || 'HTG').toUpperCase() as Currency)
+
+  const pendingCount = payouts.filter((p) => p.status === 'pending').length
+  const approvedCount = payouts.filter((p) => p.status === 'approved').length
 
   const openModal = (payout: Payout, mode: 'approve' | 'decline' | 'mark-paid') => {
     setSelectedPayout(payout)
@@ -88,8 +93,10 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
         throw new Error(data.message || data.error || 'Failed to approve payout')
       }
 
-      // Remove from list
-      setPayouts(payouts.filter(p => p.id !== selectedPayout.id))
+      // Keep the payout visible in an "approved / awaiting payment" state so it
+      // can still be marked paid — removing it here would lose track of money
+      // that has been approved but not yet disbursed.
+      setPayouts(payouts.map(p => (p.id === selectedPayout.id ? { ...p, status: 'approved' } : p)))
       closeModal()
     } catch (err: any) {
       setError(err.message)
@@ -201,16 +208,22 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
   return (
     <div className="space-y-4">
       {/* Summary Strip */}
-      <div className="grid grid-cols-3 divide-x divide-white/10 overflow-hidden rounded-xl border border-white/10">
+      <div className="grid grid-cols-2 divide-x divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10 sm:grid-cols-4 sm:divide-y-0">
         <div className="p-4">
           <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
-            <Clock className="h-3.5 w-3.5 text-white/30" /> Pending Requests
+            <Clock className="h-3.5 w-3.5 text-amber-400/60" /> Pending Requests
           </div>
-          <div className="font-mono text-2xl font-bold tabular-nums text-white">{payouts.length}</div>
+          <div className="font-mono text-2xl font-bold tabular-nums text-amber-300">{pendingCount}</div>
         </div>
         <div className="p-4">
           <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
-            <Wallet className="h-3.5 w-3.5 text-white/30" /> Total Amount
+            <CheckCircle className="h-3.5 w-3.5 text-emerald-400/60" /> Awaiting Payment
+          </div>
+          <div className="font-mono text-2xl font-bold tabular-nums text-emerald-300">{approvedCount}</div>
+        </div>
+        <div className="p-4">
+          <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
+            <Wallet className="h-3.5 w-3.5 text-white/30" /> Total in Queue
           </div>
           <div className="font-mono text-2xl font-bold tabular-nums text-white">
             {formatCurrency(payouts.reduce((sum, p) => sum + p.amount, 0))}
@@ -230,12 +243,12 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
       {/* Payouts Table */}
       <div className="overflow-hidden rounded-lg border border-white/10">
         <div className="border-b border-white/10 px-4 py-3">
-          <h2 className="text-base font-semibold text-white">Pending Payouts</h2>
+          <h2 className="text-base font-semibold text-white">Payout Queue</h2>
         </div>
 
         {payouts.length === 0 ? (
           <div className="px-6 py-12 text-center">
-            <p className="text-white/50">No pending payout requests</p>
+            <p className="text-white/50">No payouts in the queue</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -248,6 +261,7 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
                   <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase">Tickets</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase">Requested</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase">Scheduled</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase">Status</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase">Actions</th>
                 </tr>
               </thead>
@@ -273,19 +287,30 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
                     <td className="px-6 py-4 font-mono text-sm tabular-nums text-white/60">
                       {new Date(payout.scheduledDate).toLocaleDateString()}
                     </td>
+                    <td className="px-6 py-4">
+                      {payout.status === 'approved' ? (
+                        <StatusChip tone="success" icon={CheckCircle}>Awaiting payment</StatusChip>
+                      ) : (
+                        <StatusChip tone="warning" icon={Clock}>Pending</StatusChip>
+                      )}
+                    </td>
                     <td className="px-6 py-4 text-sm space-x-3">
-                      <button
-                        onClick={() => openModal(payout, 'approve')}
-                        className="font-medium text-emerald-300 hover:text-emerald-200"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => openModal(payout, 'mark-paid')}
-                        className="font-medium text-brand-300 hover:text-brand-200"
-                      >
-                        Mark Paid
-                      </button>
+                      {payout.status === 'pending' && (
+                        <button
+                          onClick={() => openModal(payout, 'approve')}
+                          className="font-medium text-emerald-300 hover:text-emerald-200"
+                        >
+                          Approve
+                        </button>
+                      )}
+                      {payout.status === 'approved' && (
+                        <button
+                          onClick={() => openModal(payout, 'mark-paid')}
+                          className="font-medium text-brand-300 hover:text-brand-200"
+                        >
+                          Mark Paid
+                        </button>
+                      )}
                       <button
                         onClick={() => openModal(payout, 'decline')}
                         className="font-medium text-red-300 hover:text-red-200"

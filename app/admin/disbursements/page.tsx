@@ -14,9 +14,11 @@ export const revalidate = 60
 
 async function getPendingPayouts() {
   try {
+    // Include approved (awaiting-payment) payouts alongside pending ones so an
+    // approved payout stays visible in the queue until it is marked paid.
     const payoutsSnapshot = await adminDb
       .collectionGroup('payouts')
-      .where('status', '==', 'pending')
+      .where('status', 'in', ['pending', 'approved'])
       .orderBy('createdAt', 'asc')
       .limit(100)
       .get()
