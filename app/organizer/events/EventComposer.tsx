@@ -385,7 +385,10 @@ export default function EventComposer({
       }
 
       // ----- CREATE: insert a new draft -----
-      const createData = { ...data, tags: [] as string[], is_published: false, status: 'draft' }
+      // Seed the moderation fields the admin Events console filters on. Firestore
+      // drops docs missing a filtered field, so without these a new draft would be
+      // invisible in the admin "Pending" tab (is_published==false && rejected==false).
+      const createData = { ...data, tags: [] as string[], is_published: false, rejected: false, reports_count: 0, status: 'draft' }
       if (isDemoMode()) {
         await new Promise((r) => setTimeout(r, 600))
         showToast({ type: 'success', title: 'Draft created', message: 'Demo mode — opening the editor.', duration: 3000 })
