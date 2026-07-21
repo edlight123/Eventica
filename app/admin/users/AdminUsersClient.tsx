@@ -1,9 +1,11 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRouter } from 'next/navigation'
-import { Users as UsersIcon, UserCog, ShieldCheck, Search } from 'lucide-react'
+import Link from 'next/link'
+import { EmptyState, StatusChip } from '@/components/ui/kit'
+import { DataTable, type Column } from '@/components/ui/DataTable'
+import { Users as UsersIcon, UserCog, ShieldCheck, Search, ArrowUpRight } from 'lucide-react'
 
 type AdminUsersClientProps = {
   counts: {
@@ -11,94 +13,83 @@ type AdminUsersClientProps = {
     organizers: number
     verified: number
   }
+  initialUsers: any[]
+  initialHasMore?: boolean
+  initialCursor?: string | null
+}
+
+function roleTone(role: string): 'success' | 'warning' | 'neutral' {
+  if (role === 'admin') return 'warning'
+  if (role === 'organizer') return 'success'
+  return 'neutral'
 }
 
 export default function AdminUsersClient({
   counts,
+  initialUsers,
+  initialHasMore = false,
+  initialCursor = null,
 }: AdminUsersClientProps) {
   const { t } = useTranslation('admin')
-  const router = useRouter()
 
+  const [users, setUsers] = useState<any[]>(initialUsers)
+  const [hasMore, setHasMore] = useState<boolean>(initialHasMore)
+  const [cursor, setCursor] = useState<string | null>(initialCursor)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [query, setQuery] = useState('')
-  const [isSearching, setIsSearching] = useState(false)
-  const [results, setResults] = useState<any[]>([])
-  const [searchError, setSearchError] = useState<string | null>(null)
-  const [isOpen, setIsOpen] = useState(false)
-  const activeRequest = useRef<AbortController | null>(null)
-  const debounceTimer = useRef<any>(null)
 
-  const normalizedQuery = useMemo(() => query.trim(), [query])
+  const normalizedQuery = query.trim().toLowerCase()
 
-  useEffect(() => {
-    setSearchError(null)
-  }, [query])
+  const filtered = useMemo(() => {
+    if (!normalizedQuery) return users
+    return users.filter(
+      (u) =>
+        String(u.full_name || '').toLowerCase().includes(normalizedQuery) ||
+        String(u.email || '').toLowerCase().includes(normalizedQuery),
+    )
+  }, [users, normalizedQuery])
 
-  const runSearch = async (q: string) => {
-    const trimmed = q.trim()
-    if (trimmed.length < 2) {
-      activeRequest.current?.abort()
-      setResults([])
-      setIsOpen(false)
-      return
-    }
-
-    activeRequest.current?.abort()
-    const controller = new AbortController()
-    activeRequest.current = controller
-
-    setIsSearching(true)
-    setSearchError(null)
-
+  const loadMore = async () => {
+    if (isLoadingMore || !hasMore || !cursor) return
+    setIsLoadingMore(true)
+    setLoadError(null)
     try {
-      const res = await fetch('/api/admin/search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: trimmed }),
-        signal: controller.signal,
-      })
+      const url = new URL('/api/admin/users', window.location.origin)
+      url.searchParams.set('limit', '200')
+      url.searchParams.set('cursor', cursor)
 
+      const res = await fetch(url.toString(), { method: 'GET' })
       if (!res.ok) {
-        const text = await res.text()
-        throw new Error(text || 'Search failed')
+        const text = await res.text().catch(() => '')
+        throw new Error(text || `Failed to load more users (${res.status})`)
       }
 
       const data = await res.json()
-      const all = Array.isArray(data?.results) ? data.results : []
-      const usersOnly = all
-        .filter((r: any) => r?.type === 'user')
-        .slice(0, 10)
-        .map((r: any) => ({
-          ...r,
-          href: r?.id ? `/admin/users/${r.id}` : r?.href,
-        }))
-      setResults(usersOnly)
-      setIsOpen(true)
+      const nextUsers = Array.isArray(data?.users) ? data.users : []
+      const nextCursor = typeof data?.nextCursor === 'string' ? data.nextCursor : null
+      const nextHasMore = Boolean(data?.hasMore)
+
+      setUsers((prev) => {
+        const seen = new Set(prev.map((u: any) => String(u?.id || '')))
+        const out = [...prev]
+        for (const u of nextUsers) {
+          const id = String(u?.id || '')
+          if (!id || seen.has(id)) continue
+          seen.add(id)
+          out.push(u)
+        }
+        return out
+      })
+
+      setCursor(nextCursor)
+      setHasMore(nextHasMore && Boolean(nextCursor))
     } catch (err: any) {
-      if (err?.name === 'AbortError') return
-      setSearchError(err?.message || 'Search failed')
-      setResults([])
-      setIsOpen(true)
+      console.error('Load more users error:', err)
+      setLoadError(err?.message || 'Failed to load more users')
     } finally {
-      setIsSearching(false)
+      setIsLoadingMore(false)
     }
-  }
-
-  useEffect(() => {
-    if (debounceTimer.current) clearTimeout(debounceTimer.current)
-    debounceTimer.current = setTimeout(() => {
-      runSearch(normalizedQuery)
-    }, 250)
-
-    return () => {
-      if (debounceTimer.current) clearTimeout(debounceTimer.current)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [normalizedQuery])
-
-  const navigateToUser = (userId: string) => {
-    if (!userId) return
-    setIsOpen(false)
-    router.push(`/admin/users/${userId}`)
   }
 
   const stats = [
@@ -106,6 +97,69 @@ export default function AdminUsersClient({
     { icon: UserCog, label: t('users.organizers'), value: counts.organizers },
     { icon: ShieldCheck, label: t('users.verified_organizers'), value: counts.verified },
   ]
+
+  const columns: Column<any>[] = [
+    {
+      key: 'user',
+      header: 'User',
+      render: (u) => (
+        <Link href={`/admin/users/${u.id}`} className="group block min-w-0">
+          <span className="block truncate text-sm font-medium text-white group-hover:text-brand-300">
+            {u.full_name || 'No name'}
+          </span>
+          <span className="block truncate text-[13px] text-white/50">{u.email || 'No email'}</span>
+        </Link>
+      ),
+    },
+    {
+      key: 'role',
+      header: 'Role',
+      render: (u) => (
+        <StatusChip tone={roleTone(String(u.role || 'attendee'))}>
+          {String(u.role || 'attendee')}
+        </StatusChip>
+      ),
+    },
+    {
+      key: 'joined',
+      header: 'Joined',
+      render: (u) => (
+        <span className="font-mono tabular-nums text-[13px] text-white/50 whitespace-nowrap">
+          {u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}
+        </span>
+      ),
+    },
+    {
+      key: 'action',
+      header: '',
+      align: 'right',
+      render: (u) => (
+        <Link
+          href={`/admin/users/${u.id}`}
+          className="inline-flex items-center gap-1 text-[13px] font-medium text-brand-300 hover:text-brand-200"
+        >
+          View <ArrowUpRight className="h-3.5 w-3.5" />
+        </Link>
+      ),
+    },
+  ]
+
+  const renderMobileCard = (u: any) => (
+    <Link href={`/admin/users/${u.id}`} className="block p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <span className="block truncate text-sm font-medium text-white">{u.full_name || 'No name'}</span>
+          <span className="block truncate text-[13px] text-white/50">{u.email || 'No email'}</span>
+        </div>
+        <StatusChip tone={roleTone(String(u.role || 'attendee'))}>
+          {String(u.role || 'attendee')}
+        </StatusChip>
+      </div>
+      <div className="mt-2 font-mono tabular-nums text-[13px] text-white/50">
+        Joined {u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}
+      </div>
+    </Link>
+  )
 
   return (
     <div className="space-y-6">
@@ -129,64 +183,56 @@ export default function AdminUsersClient({
         })}
       </div>
 
-      {/* Search */}
-      <div className="relative max-w-2xl">
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onFocus={() => {
-                if (results.length || searchError) setIsOpen(true)
-              }}
-              onBlur={() => setTimeout(() => setIsOpen(false), 150)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && results.length > 0) {
-                  e.preventDefault()
-                  navigateToUser(String(results[0]?.id || ''))
-                }
-              }}
-              placeholder={t('users.search_users')}
-              className="w-full rounded-lg border border-white/10 bg-transparent py-2.5 pl-9 pr-3 text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
-            />
-          </div>
+      {/* Search — refines the loaded list */}
+      <div className="relative w-full sm:max-w-xs">
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={t('users.search_users')}
+          className="w-full rounded-lg border border-white/10 bg-transparent py-2.5 pl-9 pr-3 text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+        />
+      </div>
+
+      {loadError && (
+        <div className="rounded-lg border border-red-500/30 bg-red-500/[0.06] px-4 py-3 text-sm text-red-300">
+          {loadError}
+        </div>
+      )}
+
+      <DataTable<any>
+        columns={columns}
+        rows={filtered}
+        rowKey={(u) => String(u?.id || '')}
+        pageSize={25}
+        renderMobileCard={renderMobileCard}
+        empty={
+          <EmptyState
+            icon={UsersIcon}
+            title={normalizedQuery ? 'No users match your search' : 'No users found'}
+            className="border-0"
+          />
+        }
+      />
+
+      {hasMore && cursor && !normalizedQuery && (
+        <div className="flex justify-center">
           <button
             type="button"
-            onClick={() => runSearch(query)}
-            disabled={isSearching || normalizedQuery.length < 2}
-            className="shrink-0 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700 disabled:opacity-50"
+            onClick={loadMore}
+            disabled={isLoadingMore}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors border border-white/15 ${
+              isLoadingMore
+                ? 'bg-[#0a0a0a] text-white/50 cursor-not-allowed'
+                : 'bg-[#0a0a0a] hover:bg-white/[0.04] text-white'
+            }`}
           >
-            {isSearching ? t('users.loading') : t('users.search')}
+            {isLoadingMore ? t('users.loading') : t('users.load_more')}
           </button>
         </div>
+      )}
 
-        {isOpen && (results.length > 0 || searchError) && (
-          <div className="absolute z-20 mt-2 w-full overflow-hidden rounded-lg border border-white/10 bg-[#0a0a0a] shadow-xl">
-            {searchError ? (
-              <div className="p-3 text-sm text-red-300">{searchError}</div>
-            ) : (
-              <div className="divide-y divide-white/5">
-                {results.map((r: any) => (
-                  <button
-                    key={`${r.type}_${r.id}`}
-                    type="button"
-                    onMouseDown={(e) => {
-                      e.preventDefault()
-                      navigateToUser(String(r.id || ''))
-                    }}
-                    className="w-full px-3 py-2.5 text-left transition-colors hover:bg-white/[0.04]"
-                  >
-                    <div className="truncate text-sm font-medium text-white">{r.title}</div>
-                    {r.subtitle && <div className="truncate text-[13px] text-white/50">{r.subtitle}</div>}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-        <p className="mt-2 text-xs text-white/50">{t('users.search_hint')}</p>
-      </div>
+      <p className="text-xs text-white/50">{t('users.search_hint')}</p>
     </div>
   )
 }

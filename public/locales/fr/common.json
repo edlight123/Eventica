@@ -485,6 +485,8 @@
     "reason_for_action": "Raison de l'action",
     "cancel": "Annuler",
     "confirm_delete": "Confirmer la suppression",
-    "delete_selected": "Supprimer la sélection"
+    "delete_selected": "Supprimer la sélection",
+    "feature": "Mettre en avant",
+    "unfeature": "Retirer de la une"
   }
 }

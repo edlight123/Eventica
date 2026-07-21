@@ -10,17 +10,24 @@ type PeopleTab = 'all' | 'organizers'
 
 interface PeopleHubProps {
   counts: { total: number; organizers: number; verified: number }
+  allUsers: any[]
+  allUsersHasMore: boolean
+  allUsersCursor: string | null
   organizerUsers: any[]
   organizerHasMore: boolean
   organizerCursor: string | null
 }
 
 /**
- * Unified People hub: all users (search) + organizers (list) under one route
- * with tabs. `/admin/organizers` redirects here with `?tab=organizers`.
+ * Unified People hub: all users (browsable list + search) + organizers (list)
+ * under one route with tabs. `/admin/organizers` redirects here with
+ * `?tab=organizers`.
  */
 export default function PeopleHub({
   counts,
+  allUsers,
+  allUsersHasMore,
+  allUsersCursor,
   organizerUsers,
   organizerHasMore,
   organizerCursor,
@@ -75,7 +82,12 @@ export default function PeopleHub({
 
       <div role="tabpanel" aria-label="All users" className={tab === 'all' ? '' : 'hidden'}>
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <AdminUsersClient counts={counts} />
+          <AdminUsersClient
+            counts={counts}
+            initialUsers={allUsers}
+            initialHasMore={allUsersHasMore}
+            initialCursor={allUsersCursor}
+          />
         </div>
       </div>
       <div role="tabpanel" aria-label="Organizers" className={tab === 'organizers' ? '' : 'hidden'}>

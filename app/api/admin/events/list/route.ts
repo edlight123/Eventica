@@ -169,6 +169,7 @@ export async function POST(request: NextRequest) {
           banner_image_url: data.banner_image || data.banner_image_url,
           category: data.category || '',
           is_published: data.is_published || false,
+          featured: data.featured || false,
           max_attendees: data.max_attendees || 0,
           organizer_id: data.organizer_id,
           organizer_name: organizer.name,
