@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
 import { EmptyState, StatusChip } from '@/components/ui/kit'
 import { DataTable, type Column } from '@/components/ui/DataTable'
+import { StatTriplet, type StatItem } from '@/components/ui/StatTriplet'
 import { Users as UsersIcon, UserCog, ShieldCheck, Search, ArrowUpRight } from 'lucide-react'
 
 type AdminUsersClientProps = {
@@ -92,10 +93,10 @@ export default function AdminUsersClient({
     }
   }
 
-  const stats = [
-    { icon: UsersIcon, label: t('users.total_users'), value: counts.total },
-    { icon: UserCog, label: t('users.organizers'), value: counts.organizers },
-    { icon: ShieldCheck, label: t('users.verified_organizers'), value: counts.verified },
+  const stats: StatItem[] = [
+    { icon: UsersIcon, label: t('users.total_users'), value: counts.total.toLocaleString() },
+    { icon: UserCog, label: t('users.organizers'), value: counts.organizers.toLocaleString() },
+    { icon: ShieldCheck, label: t('users.verified_organizers'), value: counts.verified.toLocaleString() },
   ]
 
   const columns: Column<any>[] = [
@@ -169,19 +170,7 @@ export default function AdminUsersClient({
       </div>
 
       {/* Stats — divided strip */}
-      <div className="grid grid-cols-3 divide-x divide-white/10 overflow-hidden rounded-xl border border-white/10">
-        {stats.map((s) => {
-          const Icon = s.icon
-          return (
-            <div key={s.label} className="p-4">
-              <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
-                <Icon className="h-3.5 w-3.5 text-white/30" /> <span className="truncate">{s.label}</span>
-              </div>
-              <div className="font-mono text-2xl font-bold tabular-nums text-white">{s.value.toLocaleString()}</div>
-            </div>
-          )
-        })}
-      </div>
+      <StatTriplet items={stats} columns={3} />
 
       {/* Search — refines the loaded list */}
       <div className="relative w-full sm:max-w-xs">

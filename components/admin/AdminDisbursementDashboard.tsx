@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { formatCurrency } from '@/lib/currency'
 import { StatusChip } from '@/components/ui/kit'
+import { StatTriplet, type StatItem } from '@/components/ui/StatTriplet'
 import { 
   Calendar, 
   DollarSign, 
@@ -114,40 +115,17 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
     setShowModal(true)
   }
 
+  const statItems: StatItem[] = [
+    { label: 'Events Ended (7d)', value: stats.eventsEndedLast7Days, icon: Calendar },
+    { label: 'Pending Payouts', value: stats.pendingPayouts, tone: 'amber', icon: Clock },
+    { label: 'Approved Payouts', value: stats.approvedPayouts, tone: 'emerald', icon: CheckCircle },
+    { label: 'Pending Amount', value: formatCurrency(stats.totalPendingAmount, 'HTG'), tone: 'brand', icon: DollarSign },
+  ]
+
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 divide-x divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10 sm:grid-cols-4 sm:divide-y-0">
-        <div className="p-4">
-          <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
-            <Calendar className="h-3.5 w-3.5 text-white/30" /> Events Ended (7d)
-          </div>
-          <div className="font-mono text-2xl font-bold tabular-nums text-white">{stats.eventsEndedLast7Days}</div>
-        </div>
-
-        <div className="p-4">
-          <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
-            <Clock className="h-3.5 w-3.5 text-amber-400/60" /> Pending Payouts
-          </div>
-          <div className="font-mono text-2xl font-bold tabular-nums text-amber-300">{stats.pendingPayouts}</div>
-        </div>
-
-        <div className="p-4">
-          <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
-            <CheckCircle className="h-3.5 w-3.5 text-emerald-400/60" /> Approved Payouts
-          </div>
-          <div className="font-mono text-2xl font-bold tabular-nums text-emerald-300">{stats.approvedPayouts}</div>
-        </div>
-
-        <div className="p-4">
-          <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
-            <DollarSign className="h-3.5 w-3.5 text-white/30" /> Pending Amount
-          </div>
-          <div className="font-mono text-2xl font-bold tabular-nums text-brand-300">
-            {formatCurrency(stats.totalPendingAmount, 'HTG')}
-          </div>
-        </div>
-      </div>
+      <StatTriplet items={statItems} columns={4} />
 
       {/* Filters */}
       <div className="flex gap-2 flex-wrap">
