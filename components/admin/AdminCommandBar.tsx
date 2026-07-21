@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Search, Bell, Calendar, Loader2, MapPin, DollarSign, User } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useAdminPendingCount } from '@/lib/realtime/AdminRealtimeProvider'
 
 interface AdminCommandBarProps {
   // Props removed - will fetch client-side
@@ -27,29 +28,9 @@ interface SearchResult {
 export function AdminCommandBar({}: AdminCommandBarProps) {
   const { t } = useTranslation('admin')
   const router = useRouter()
-  const [pendingVerifications, setPendingVerifications] = useState(0)
-  const [pendingBankVerifications, setPendingBankVerifications] = useState(0)
-
-  // Fetch badge counts client-side
-  useEffect(() => {
-    const fetchCounts = async () => {
-      try {
-        const res = await fetch('/api/admin/platform-counts')
-        if (res.ok) {
-          const data = await res.json()
-          setPendingVerifications(data.pendingVerifications || 0)
-          setPendingBankVerifications(data.pendingBankVerifications || 0)
-        }
-      } catch (err) {
-        console.error('Failed to fetch platform counts:', err)
-      }
-    }
-
-    fetchCounts()
-    // Refresh every 30 seconds
-    const interval = setInterval(fetchCounts, 30000)
-    return () => clearInterval(interval)
-  }, [])
+  // Single source of truth: the AdminRealtimeProvider (10s poll) feeds the
+  // combined "needs attention" figure — no independent polling here.
+  const { total: pendingTotal } = useAdminPendingCount()
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearching, setIsSearching] = useState(false)
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
@@ -200,14 +181,14 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
               The top bar is now just global search + the alerts status badge. */}
 
           {/* Alerts Badge */}
-          {pendingVerifications > 0 && (
+          {pendingTotal > 0 && (
             <Link
               href="/admin/verify"
               className="relative flex items-center gap-2 px-3 py-2 text-amber-300 rounded-lg hover:bg-amber-500/15 transition-colors"
             >
               <Bell className="w-4 h-4" />
               <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
-                {pendingVerifications > 9 ? '9+' : pendingVerifications}
+                {pendingTotal > 9 ? '9+' : pendingTotal}
               </span>
             </Link>
           )}
