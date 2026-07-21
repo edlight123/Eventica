@@ -522,7 +522,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
             </div>
 
             {!loadingImages && (imageUrls.businessRegistrationUrl || imageUrls.taxIdUrl) ? (
-              <div className="mt-3  rounded-lg p-3 sm:p-4 bg-[#0a0a0a]">
+              <div className="mt-3 rounded-lg p-3 sm:p-4 bg-[#0a0a0a] border border-white/10">
                 <p className="text-sm sm:text-base font-semibold text-white mb-2">Business Documents</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {imageUrls.businessRegistrationUrl ? (

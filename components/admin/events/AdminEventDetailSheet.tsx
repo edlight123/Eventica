@@ -219,7 +219,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
             )}
 
             {/* Organizer Info */}
-            <div className="p-4  rounded-lg">
+            <div className="p-4 rounded-lg border border-white/10 bg-white/[0.02]">
               <div className="flex items-start gap-3 mb-3">
                 <User className="w-5 h-5 text-white/50 mt-0.5" />
                 <div className="flex-1">
@@ -300,7 +300,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder={t('admin.reason_placeholder')}
-                className="w-full px-3 py-2  rounded-lg text-sm resize-none"
+                className="w-full px-3 py-2 rounded-lg border border-white/10 bg-white/[0.03] text-sm text-white placeholder:text-white/45 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25 resize-none"
                 rows={2}
               />
             </div>
@@ -328,7 +328,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
               <>
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 px-4 py-2.5  text-white/70 rounded-lg hover:bg-white/[0.04] font-medium text-sm"
+                  className="flex-1 px-4 py-2.5 border border-white/10 text-white/70 rounded-lg hover:bg-white/[0.04] hover:text-white font-medium text-sm"
                 >
                   {t('admin.cancel')}
                 </button>
@@ -369,7 +369,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
             <button
               onClick={() => downloadCsv('summary')}
               disabled={isExporting !== null}
-              className="flex-1 px-4 py-2.5  text-white/70 rounded-lg hover:bg-white/[0.04] font-medium text-sm disabled:opacity-60"
+              className="flex-1 px-4 py-2.5 border border-white/10 text-white/70 rounded-lg hover:bg-white/[0.04] hover:text-white font-medium text-sm disabled:opacity-60"
             >
               {isExporting === 'summary' ? 'Downloading…' : 'Download Summary CSV'}
             </button>

@@ -98,14 +98,14 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
                   type="date"
                   value={localFilters.startDate || ''}
                   onChange={(e) => setLocalFilters({ ...localFilters, startDate: e.target.value })}
-                  className="w-full px-3 py-2  rounded-lg text-sm"
+                  className="w-full px-3 py-2 rounded-lg border border-white/10 bg-white/[0.03] text-sm text-white placeholder:text-white/45 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
                   placeholder="Start date"
                 />
                 <input
                   type="date"
                   value={localFilters.endDate || ''}
                   onChange={(e) => setLocalFilters({ ...localFilters, endDate: e.target.value })}
-                  className="w-full px-3 py-2  rounded-lg text-sm"
+                  className="w-full px-3 py-2 rounded-lg border border-white/10 bg-white/[0.03] text-sm text-white placeholder:text-white/45 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
                   placeholder="End date"
                 />
               </div>
@@ -121,7 +121,7 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
             <select
               value={localFilters.city}
               onChange={(e) => setLocalFilters({ ...localFilters, city: e.target.value })}
-              className="w-full px-3 py-2  rounded-lg text-sm"
+              className="w-full px-3 py-2 rounded-lg border border-white/10 bg-white/[0.03] text-sm text-white placeholder:text-white/45 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
             >
               <option value="">All cities</option>
               <option value="Port-au-Prince">Port-au-Prince</option>
@@ -141,7 +141,7 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
             <select
               value={localFilters.category}
               onChange={(e) => setLocalFilters({ ...localFilters, category: e.target.value })}
-              className="w-full px-3 py-2  rounded-lg text-sm"
+              className="w-full px-3 py-2 rounded-lg border border-white/10 bg-white/[0.03] text-sm text-white placeholder:text-white/45 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
             >
               <option value="">All categories</option>
               <option value="Music">Music</option>
@@ -242,7 +242,7 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
         <div className="flex items-center gap-3 p-4 border-t border-white/10">
           <button
             onClick={handleReset}
-            className="flex-1 px-4 py-2.5  text-white/70 rounded-lg hover:bg-white/[0.04] font-medium text-sm"
+            className="flex-1 px-4 py-2.5 border border-white/10 text-white/70 rounded-lg hover:bg-white/[0.04] hover:text-white font-medium text-sm"
           >
             Reset
           </button>
