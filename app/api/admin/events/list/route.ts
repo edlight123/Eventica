@@ -1,105 +1,160 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth'
 import { adminDb } from '@/lib/firebase/admin'
+import type { EventModerationTab } from '@/lib/admin/event-moderation'
+
+const PAGE_SIZE = 50
+
+/**
+ * Apply the moderation-tab predicate to a Firestore query.
+ *
+ * These filters run against the normalized `is_published`, `rejected`, and
+ * `reports_count` fields (see scripts/backfill-event-moderation-fields.js).
+ * Because Firestore drops docs missing a filtered field, every event MUST carry
+ * these fields — run the backfill before relying on this endpoint.
+ */
+function applyTab(query: FirebaseFirestore.Query, tab: EventModerationTab): FirebaseFirestore.Query {
+  switch (tab) {
+    case 'published':
+      return query.where('is_published', '==', true)
+    case 'pending':
+      return query.where('is_published', '==', false).where('rejected', '==', false)
+    case 'unpublished':
+      return query.where('is_published', '==', false).where('rejected', '==', true)
+    case 'reported':
+      return query.where('reports_count', '>', 0)
+    default:
+      return query
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
     const { user, error } = await requireAdmin()
-
     if (error || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { tab, filters, searchQuery } = await request.json()
+    const body = await request.json()
+    const tab: EventModerationTab = body.tab || 'published'
+    const filters = body.filters || {}
+    const searchQuery: string = body.searchQuery || ''
+    const cursor: string | null = body.cursor || null
+    const sortBy: string = filters.sortBy || 'newest'
 
-    // Build Firestore query
-    let query = adminDb.collection('events')
+    const events = adminDb.collection('events')
 
-    // Apply filters
-    if (filters.city) {
-      query = query.where('city', '==', filters.city)
+    // --- True per-tab counts (server-side, over ALL events) --------------------
+    // These are the authoritative badge numbers, independent of pagination or
+    // the in-memory city/category/search refinement below.
+    const tabs: EventModerationTab[] = ['pending', 'published', 'reported', 'unpublished']
+    let counts: Record<EventModerationTab, number>
+    try {
+      const countSnaps = await Promise.all(
+        tabs.map((t) => applyTab(events, t).count().get()),
+      )
+      counts = {
+        pending: countSnaps[0].data().count,
+        published: countSnaps[1].data().count,
+        reported: countSnaps[2].data().count,
+        unpublished: countSnaps[3].data().count,
+      }
+    } catch (err: any) {
+      // A FAILED_PRECONDITION here almost always means a composite index is still
+      // building. Surface it explicitly instead of returning zeroed counts that
+      // look like "no work to do".
+      console.error('Event tab count failed (index may be building):', err?.message || err)
+      return NextResponse.json(
+        {
+          error: 'index_building',
+          message:
+            'Event moderation indexes are still building. Counts and lists will be available once they finish.',
+        },
+        { status: 200 },
+      )
     }
 
-    if (filters.category) {
-      query = query.where('category', '==', filters.category)
+    // --- Paginated, sorted list for the active tab -----------------------------
+    let listQuery = applyTab(events, tab)
+    if (tab === 'reported') {
+      // reports_count is a range filter, so it must lead the ordering.
+      listQuery = listQuery.orderBy('reports_count', 'desc')
+    } else if (sortBy === 'soonest') {
+      listQuery = listQuery.orderBy('start_datetime', 'asc')
+    } else {
+      listQuery = listQuery.orderBy('created_at', 'desc')
     }
 
-    // Sort
-    if (filters.sortBy === 'newest') {
-      query = query.orderBy('created_at', 'desc')
-    } else if (filters.sortBy === 'soonest') {
-      query = query.orderBy('start_datetime', 'asc')
+    if (cursor) {
+      const cursorDoc = await events.doc(cursor).get()
+      if (cursorDoc.exists) listQuery = listQuery.startAfter(cursorDoc)
     }
 
-    // Limit results
-    query = query.limit(100)
+    let snapshot: FirebaseFirestore.QuerySnapshot
+    try {
+      snapshot = await listQuery.limit(PAGE_SIZE).get()
+    } catch (err: any) {
+      console.error('Event list query failed (index may be building):', err?.message || err)
+      return NextResponse.json(
+        {
+          error: 'index_building',
+          message:
+            'Event moderation indexes are still building. This tab will load once they finish.',
+        },
+        { status: 200 },
+      )
+    }
 
-    const snapshot = await query.get()
+    const hasMore = snapshot.size === PAGE_SIZE
+    const nextCursor = hasMore ? snapshot.docs[snapshot.docs.length - 1].id : null
 
-    // Get all organizer IDs
-    const organizerIdsSet = new Set<string>()
-    snapshot.docs.forEach((doc: any) => {
-      const orgId = doc.data().organizer_id
-      if (orgId) organizerIdsSet.add(orgId)
-    })
-    const organizerIds = Array.from(organizerIdsSet)
-
-    // Fetch organizers (only if we have IDs)
-    let organizersSnapshot
+    // Resolve organizers in batches of 10 (Firestore 'in' limit).
+    const organizerIds = Array.from(
+      new Set(snapshot.docs.map((d: any) => d.data().organizer_id).filter(Boolean)),
+    )
+    const organizersMap = new Map<string, { name: string; email: string; verified: boolean }>()
     if (organizerIds.length > 0) {
-      // Firestore 'in' operator supports max 10 values, so batch if needed
       const batches = []
       for (let i = 0; i < organizerIds.length; i += 10) {
-        const batch = organizerIds.slice(i, i + 10)
         batches.push(
-          adminDb.collection('users').where('__name__', 'in', batch).get()
+          adminDb
+            .collection('users')
+            .where('__name__', 'in', organizerIds.slice(i, i + 10))
+            .get(),
         )
       }
       const results = await Promise.all(batches)
-      organizersSnapshot = { docs: results.flatMap(r => r.docs) }
-    } else {
-      organizersSnapshot = { docs: [] }
+      results.flatMap((r) => r.docs).forEach((doc: any) => {
+        const data = doc.data()
+        organizersMap.set(doc.id, {
+          name: data.full_name || data.email || 'Unknown',
+          email: data.email || '',
+          verified: data.verified || false,
+        })
+      })
     }
 
-    const organizersMap = new Map()
-    organizersSnapshot.docs.forEach((doc: any) => {
-      const data = doc.data()
-      organizersMap.set(doc.id, {
-        id: doc.id,
-        name: data.full_name || data.email || 'Unknown',
-        email: data.email,
-        verified: data.verified || false
-      })
-    })
-
-    // Fetch tickets count for each event
+    // Ticket counts via aggregation (no more per-event full-scan reads).
     const eventsWithData = await Promise.all(
       snapshot.docs.map(async (doc: any) => {
         const data = doc.data()
         const organizer = organizersMap.get(data.organizer_id) || {
           name: 'Unknown',
           email: '',
-          verified: false
+          verified: false,
         }
 
-        // Get ticket count
-        const ticketsSnapshot = await adminDb
-          .collection('tickets')
-          .where('event_id', '==', doc.id)
-          .where('status', '!=', 'cancelled')
-          .get()
-
-        // Get report count (gracefully returns 0 if collection doesn't exist yet)
-        let reports_count = 0
+        let tickets_sold = 0
         try {
-          const reportsSnap = await adminDb
-            .collection('event_reports')
+          const ticketsCount = await adminDb
+            .collection('tickets')
             .where('event_id', '==', doc.id)
+            .where('status', '!=', 'cancelled')
             .count()
             .get()
-          reports_count = reportsSnap.data().count || 0
+          tickets_sold = ticketsCount.data().count || 0
         } catch {
-          reports_count = 0
+          tickets_sold = 0
         }
 
         return {
@@ -112,36 +167,44 @@ export async function POST(request: NextRequest) {
           venue_name: data.venue_name,
           address: data.venue_address || data.address,
           banner_image_url: data.banner_image || data.banner_image_url,
-          category: data.category,
+          category: data.category || '',
           is_published: data.is_published || false,
           max_attendees: data.max_attendees || 0,
           organizer_id: data.organizer_id,
           organizer_name: organizer.name,
           organizer_email: organizer.email,
           organizer_verified: organizer.verified,
-          tickets_sold: ticketsSnapshot.size,
-          reports_count,
-          rejected: data.rejected || false
+          tickets_sold,
+          reports_count: data.reports_count || 0,
+          rejected: data.rejected || false,
         }
-      })
+      }),
     )
 
-    // Apply search filter in memory
-    let filteredEvents = eventsWithData
+    // In-memory refinement of the current page (secondary filters). These narrow
+    // what is shown; the tab counts above remain the authoritative totals.
+    let pageEvents = eventsWithData
+    if (filters.city) pageEvents = pageEvents.filter((e) => e.city === filters.city)
+    if (filters.category) pageEvents = pageEvents.filter((e) => e.category === filters.category)
     if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      filteredEvents = eventsWithData.filter(event =>
-        event.title.toLowerCase().includes(query) ||
-        event.city.toLowerCase().includes(query) ||
-        event.organizer_name.toLowerCase().includes(query) ||
-        event.organizer_email.toLowerCase().includes(query)
+      const q = searchQuery.toLowerCase()
+      pageEvents = pageEvents.filter(
+        (e) =>
+          (e.title || '').toLowerCase().includes(q) ||
+          (e.city || '').toLowerCase().includes(q) ||
+          (e.organizer_name || '').toLowerCase().includes(q) ||
+          (e.organizer_email || '').toLowerCase().includes(q),
       )
     }
+    const refined = Boolean(filters.city || filters.category || searchQuery)
 
-    // Apply price filter in memory
-    // Note: This would need ticket_tiers data for accurate filtering
-    
-    return NextResponse.json({ events: filteredEvents })
+    return NextResponse.json({
+      events: pageEvents,
+      counts,
+      nextCursor,
+      hasMore,
+      refined,
+    })
   } catch (error) {
     console.error('Error listing events:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
