@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { formatCurrency } from '@/lib/currency'
 import { StatusChip } from '@/components/ui/kit'
-import { useToast } from '@/components/ui/Toast'
 import { 
   Calendar, 
   DollarSign, 
@@ -63,7 +62,6 @@ interface Props {
 }
 
 export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
-  const { showToast } = useToast()
   const [selectedEvent, setSelectedEvent] = useState<EventDisbursementInfo | null>(null)
   const [showModal, setShowModal] = useState(false)
   const [filter, setFilter] = useState<'all' | 'eligible' | 'pending' | 'completed'>('eligible')
@@ -114,16 +112,6 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
   const viewDetails = (event: EventDisbursementInfo) => {
     setSelectedEvent(event)
     setShowModal(true)
-  }
-
-  const initiatePayoutRequest = async (event: EventDisbursementInfo) => {
-    // TODO: Implement payout request creation
-    void event
-    showToast({
-      type: 'info',
-      title: 'Payout',
-      message: 'Manual payout initiation is coming soon.',
-    })
   }
 
   return (
@@ -321,13 +309,13 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
                         View
                       </button>
                       {event.payoutEligible && !event.hasPendingPayout && !event.hasCompletedPayout && (
-                        <button
-                          onClick={() => initiatePayoutRequest(event)}
-                          className="text-brand-300 hover:text-brand-200 font-medium text-sm"
+                        <span
+                          className="inline-flex cursor-not-allowed items-center gap-1 text-sm text-white/30"
+                          title="Manual payout creation isn't available yet — organizers request payouts from their dashboard"
                         >
-                          <Send className="w-4 h-4 inline mr-1" />
+                          <Send className="w-4 h-4" />
                           Create Payout
-                        </button>
+                        </span>
                       )}
                     </td>
                   </tr>
@@ -496,10 +484,12 @@ export function AdminDisbursementDashboard({ endedEvents, stats }: Props) {
               </button>
               {selectedEvent.payoutEligible && !selectedEvent.hasPendingPayout && (
                 <button
-                  onClick={() => initiatePayoutRequest(selectedEvent)}
-                  className="flex-1 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 font-semibold"
+                  type="button"
+                  disabled
+                  title="Manual payout creation isn't available yet — organizers request payouts from their dashboard"
+                  className="flex-1 cursor-not-allowed rounded-lg border border-white/10 px-4 py-2 font-semibold text-white/40"
                 >
-                  Create Payout Request
+                  Create Payout (coming soon)
                 </button>
               )}
             </div>
