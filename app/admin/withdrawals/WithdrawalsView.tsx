@@ -49,6 +49,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
   const { showToast } = useToast()
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [filter, setFilter] = useState<'all' | 'pending' | 'processing' | 'completed' | 'failed'>('pending')
   const [selectedWithdrawal, setSelectedWithdrawal] = useState<Withdrawal | null>(null)
   const [actionNote, setActionNote] = useState('')
@@ -56,12 +57,20 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
 
   const fetchWithdrawals = useCallback(async () => {
     setLoading(true)
+    setLoadError(null)
     try {
       const response = await fetch('/api/admin/withdrawals?status=all&limit=200')
-      const data = await response.json()
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        setLoadError(data.error || `Failed to load withdrawals (${response.status})`)
+        setWithdrawals([])
+        return
+      }
       setWithdrawals(data.withdrawals || [])
     } catch (error) {
       console.error('Failed to fetch withdrawals:', error)
+      setLoadError(error instanceof Error ? error.message : 'Failed to load withdrawals')
+      setWithdrawals([])
     } finally {
       setLoading(false)
     }
@@ -164,6 +173,16 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
       {loading ? (
         <div className="rounded-xl border border-white/10 p-12 text-center">
           <div className="text-white/50 mb-2">Loading...</div>
+        </div>
+      ) : loadError ? (
+        <div className="rounded-xl border border-white/10 bg-white/[0.02] p-12 text-center">
+          <p className="mb-4 text-sm text-red-300">{loadError}</p>
+          <button
+            onClick={() => void fetchWithdrawals()}
+            className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/[0.04] hover:text-white"
+          >
+            Retry
+          </button>
         </div>
       ) : visibleWithdrawals.length === 0 ? (
         <div className="rounded-xl border border-white/10 p-12 text-center">

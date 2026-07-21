@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Crown, Star, Ticket, Calendar } from 'lucide-react'
 import Link from 'next/link'
 
@@ -18,25 +18,50 @@ interface OrganizerData {
 export function OrganizerRankingsAnalytics() {
   const [organizers, setOrganizers] = useState<OrganizerData[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  const loadData = useCallback(async () => {
+    setLoading(true)
+    setLoadError(null)
+    try {
+      const res = await fetch('/api/admin/analytics-data?type=organizers&limit=10')
+      const result = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(result.error || `Failed to load organizer rankings (${res.status})`)
+      }
+      const organizersData = result.data || result
+      setOrganizers(Array.isArray(organizersData) ? organizersData : [])
+    } catch (err) {
+      console.error('Failed to load organizer rankings:', err)
+      setLoadError(err instanceof Error ? err.message : 'Failed to load organizer rankings')
+      setOrganizers([])
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
-    fetch('/api/admin/analytics-data?type=organizers&limit=10')
-      .then(r => r.json())
-      .then(result => {
-        const organizersData = result.data || result
-        setOrganizers(Array.isArray(organizersData) ? organizersData : [])
-        setLoading(false)
-      })
-      .catch(err => {
-        console.error('Failed to load organizer rankings:', err)
-        setLoading(false)
-      })
-  }, [])
+    void loadData()
+  }, [loadData])
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
+      </div>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <div className="rounded-lg border border-white/10 bg-white/[0.02] p-8 text-center">
+        <p className="mb-4 text-sm text-red-300">{loadError}</p>
+        <button
+          onClick={() => void loadData()}
+          className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/[0.04] hover:text-white"
+        >
+          Retry
+        </button>
       </div>
     )
   }

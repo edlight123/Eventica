@@ -29,25 +29,41 @@ export default function CreateTestDataClient() {
       return
     }
 
-    setDeleting(true)
-    setResults(['🗑️ Deleting existing test events...', ''])
-
+    // Look up the organizer and their events up-front so the confirmation can
+    // state exactly how many events are about to be destroyed.
+    let userId: string
+    let eventsSnapshot: Awaited<ReturnType<typeof getDocs>>
     try {
-      // Get user document
       const usersQuery = query(collection(db, 'users'), where('email', '==', user.email))
       const userSnapshot = await getDocs(usersQuery)
 
       if (userSnapshot.empty) {
-        setResults(prev => [...prev, '❌ User document not found in database'])
+        setResults(['❌ User document not found in database'])
         return
       }
 
-      const userId = userSnapshot.docs[0].id
-      setResults(prev => [...prev, `✅ Found user: ${user.email}`, ''])
-
-      // Delete existing events for this user
+      userId = userSnapshot.docs[0].id
       const eventsQuery = query(collection(db, 'events'), where('organizer_id', '==', userId))
-      const eventsSnapshot = await getDocs(eventsQuery)
+      eventsSnapshot = await getDocs(eventsQuery)
+    } catch (error: any) {
+      setResults(['', `❌ Error: ${error.message}`])
+      return
+    }
+
+    const eventCount = eventsSnapshot.size
+    const confirmed = window.confirm(
+      `⚠️ IRREVERSIBLE ACTION\n\n` +
+      `This will PERMANENTLY DELETE all ${eventCount} event${eventCount === 1 ? '' : 's'} for ${user.email} ` +
+      `and every associated ticket tier, then recreate ${testEvents.length} fresh test events.\n\n` +
+      `Deleted events and tiers cannot be recovered. Continue?`
+    )
+    if (!confirmed) return
+
+    setDeleting(true)
+    setResults(['🗑️ Deleting existing test events...', ''])
+
+    try {
+      setResults(prev => [...prev, `✅ Found user: ${user.email}`, ''])
 
       let deletedCount = 0
       let deletedTiersCount = 0
