@@ -1,7 +1,7 @@
 'use client'
 
 import { useAdminMetrics } from '@/lib/realtime/AdminRealtimeProvider'
-import { 
+import {
   Users,
   Calendar,
   DollarSign,
@@ -9,13 +9,7 @@ import {
   RefreshCw,
   AlertCircle
 } from 'lucide-react'
-
-interface MetricCard {
-  title: string
-  value: string | number
-  icon: React.ComponentType<{ className?: string }>
-  color: string
-}
+import { StatTriplet, type StatItem } from '@/components/ui/StatTriplet'
 
 interface RealTimeMetricsProps {
   usersCount: number
@@ -69,65 +63,18 @@ export function RealTimeMetrics({
     return num.toString()
   }
 
-  const metrics: MetricCard[] = [
-    {
-      title: 'Total Users',
-      value: formatNumber(usersCount),
-      icon: Users,
-      color: 'blue'
-    },
-    {
-      title: 'Active Events',
-      value: formatNumber(eventsCount),
-      icon: Calendar,
-      color: 'green'
-    },
-    {
-      title: 'Tickets Sold (7d)',
-      value: formatNumber(tickets7d),
-      icon: ShoppingBag,
-      color: 'purple'
-    },
-    {
-      title: 'Revenue (7d)',
-      value: formatCurrency(gmv7d),
-      icon: DollarSign,
-      color: 'teal'
-    },
-    {
-      title: 'Refunds (7d)',
-      value: formatNumber(refunds7d),
-      icon: RefreshCw,
-      color: 'orange'
-    },
-    {
-      title: 'Pending Tasks',
-      value: pendingTasks,
-      icon: AlertCircle,
-      color: 'red'
-    }
+  const metrics: StatItem[] = [
+    { label: 'Total Users', value: formatNumber(usersCount), icon: Users },
+    { label: 'Active Events', value: formatNumber(eventsCount), icon: Calendar },
+    { label: 'Tickets Sold (7d)', value: formatNumber(tickets7d), icon: ShoppingBag },
+    { label: 'Revenue (7d)', value: formatCurrency(gmv7d), icon: DollarSign, tone: 'brand' },
+    { label: 'Refunds (7d)', value: formatNumber(refunds7d), icon: RefreshCw },
+    { label: 'Pending Tasks', value: pendingTasks, icon: AlertCircle, tone: pendingTasks > 0 ? 'amber' : 'default' }
   ]
 
   return (
-    <div className="mb-5 sm:mb-6 rounded-2xl border border-white/10 bg-white/[0.02] overflow-hidden">
-      <div className="grid grid-cols-2 divide-x divide-y divide-white/10 sm:grid-cols-3 lg:grid-cols-6 lg:divide-y-0">
-        {metrics.map((metric) => {
-          const Icon = metric.icon
-          return (
-            <div key={metric.title} className="p-4">
-              <div className="mb-2 flex items-center justify-between gap-2">
-                <span className="label-mono truncate text-[11px] font-medium uppercase tracking-wide text-white/50 sm:text-xs">
-                  {metric.title}
-                </span>
-                <Icon className="h-4 w-4 shrink-0 text-brand-300 opacity-70" />
-              </div>
-              <div className="font-mono text-2xl font-bold leading-none text-white tabular-nums sm:text-3xl">
-                {metric.value}
-              </div>
-            </div>
-          )
-        })}
-      </div>
+    <div className="mb-5 sm:mb-6">
+      <StatTriplet items={metrics} columns={6} />
     </div>
   )
 }
