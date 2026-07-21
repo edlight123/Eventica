@@ -1,17 +1,12 @@
 'use client'
 
-import { X, Calendar, MapPin, DollarSign, Tag, AlertTriangle, ArrowUpDown } from 'lucide-react'
+import { X, MapPin, Tag, ArrowUpDown } from 'lucide-react'
 import { useState } from 'react'
 
 interface FilterOptions {
-  dateRange: 'any' | 'today' | 'week' | 'custom'
-  startDate?: string
-  endDate?: string
   city: string
   category: string
-  priceRange: 'any' | 'free' | 'low' | 'high'
-  riskLevel: 'any' | 'reported' | 'flagged' | 'suspicious'
-  sortBy: 'newest' | 'soonest' | 'most_reported'
+  sortBy: 'newest' | 'soonest'
 }
 
 interface AdminEventsFiltersProps {
@@ -19,6 +14,12 @@ interface AdminEventsFiltersProps {
   onClose: () => void
   filters: FilterOptions
   onApply: (filters: FilterOptions) => void
+}
+
+const DEFAULT_FILTERS: FilterOptions = {
+  city: '',
+  category: '',
+  sortBy: 'newest',
 }
 
 export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminEventsFiltersProps) {
@@ -32,86 +33,31 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
   }
 
   const handleReset = () => {
-    const resetFilters: FilterOptions = {
-      dateRange: 'any',
-      city: '',
-      category: '',
-      priceRange: 'any',
-      riskLevel: 'any',
-      sortBy: 'newest'
-    }
-    setLocalFilters(resetFilters)
-    onApply(resetFilters)
+    setLocalFilters(DEFAULT_FILTERS)
+    onApply(DEFAULT_FILTERS)
     onClose()
   }
+
+  const inputClass =
+    'w-full px-3 py-2 rounded-lg border border-white/10 bg-white/[0.03] text-sm text-white placeholder:text-white/45 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25'
 
   return (
     <>
       {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black bg-opacity-50 z-40"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={onClose} />
 
       {/* Sheet */}
       <div className="fixed inset-y-0 right-0 w-full sm:w-96 bg-[#0a0a0a] shadow-xl z-50 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-white/10">
           <h3 className="text-lg font-bold text-white">Filters</h3>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-white/[0.04] rounded-lg"
-          >
+          <button onClick={onClose} aria-label="Close filters" className="p-2 hover:bg-white/[0.04] rounded-lg">
             <X className="w-5 h-5 text-white/60" />
           </button>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4 space-y-6">
-          {/* Date Range */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-white/70 mb-3">
-              <Calendar className="w-4 h-4" />
-              Date Range
-            </label>
-            <div className="space-y-2">
-              {['any', 'today', 'week', 'custom'].map((range) => (
-                <label key={range} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="dateRange"
-                    value={range}
-                    checked={localFilters.dateRange === range}
-                    onChange={(e) => setLocalFilters({ ...localFilters, dateRange: e.target.value as any })}
-                    className="w-4 h-4 text-brand-300 focus:ring-brand-500"
-                  />
-                  <span className="text-sm text-white/70 capitalize">
-                    {range === 'any' ? 'Any time' : range === 'week' ? 'This week' : range === 'today' ? 'Today' : 'Custom range'}
-                  </span>
-                </label>
-              ))}
-            </div>
-            
-            {localFilters.dateRange === 'custom' && (
-              <div className="mt-3 space-y-2">
-                <input
-                  type="date"
-                  value={localFilters.startDate || ''}
-                  onChange={(e) => setLocalFilters({ ...localFilters, startDate: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-white/10 bg-white/[0.03] text-sm text-white placeholder:text-white/45 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
-                  placeholder="Start date"
-                />
-                <input
-                  type="date"
-                  value={localFilters.endDate || ''}
-                  onChange={(e) => setLocalFilters({ ...localFilters, endDate: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-white/10 bg-white/[0.03] text-sm text-white placeholder:text-white/45 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
-                  placeholder="End date"
-                />
-              </div>
-            )}
-          </div>
-
           {/* City */}
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-white/70 mb-3">
@@ -121,7 +67,7 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
             <select
               value={localFilters.city}
               onChange={(e) => setLocalFilters({ ...localFilters, city: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg border border-white/10 bg-white/[0.03] text-sm text-white placeholder:text-white/45 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+              className={inputClass}
             >
               <option value="">All cities</option>
               <option value="Port-au-Prince">Port-au-Prince</option>
@@ -141,7 +87,7 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
             <select
               value={localFilters.category}
               onChange={(e) => setLocalFilters({ ...localFilters, category: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg border border-white/10 bg-white/[0.03] text-sm text-white placeholder:text-white/45 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+              className={inputClass}
             >
               <option value="">All categories</option>
               <option value="Music">Music</option>
@@ -154,62 +100,6 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
             </select>
           </div>
 
-          {/* Price Range */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-white/70 mb-3">
-              <DollarSign className="w-4 h-4" />
-              Price Range
-            </label>
-            <div className="space-y-2">
-              {[
-                { value: 'any', label: 'Any price' },
-                { value: 'free', label: 'Free' },
-                { value: 'low', label: '≤ 500 HTG' },
-                { value: 'high', label: '> 500 HTG' }
-              ].map((price) => (
-                <label key={price.value} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="priceRange"
-                    value={price.value}
-                    checked={localFilters.priceRange === price.value}
-                    onChange={(e) => setLocalFilters({ ...localFilters, priceRange: e.target.value as any })}
-                    className="w-4 h-4 text-brand-300 focus:ring-brand-500"
-                  />
-                  <span className="text-sm text-white/70">{price.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Risk Level */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-white/70 mb-3">
-              <AlertTriangle className="w-4 h-4" />
-              Risk Level
-            </label>
-            <div className="space-y-2">
-              {[
-                { value: 'any', label: 'Any' },
-                { value: 'reported', label: 'Has reports' },
-                { value: 'flagged', label: 'Flagged' },
-                { value: 'suspicious', label: 'Suspicious organizer' }
-              ].map((risk) => (
-                <label key={risk.value} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="riskLevel"
-                    value={risk.value}
-                    checked={localFilters.riskLevel === risk.value}
-                    onChange={(e) => setLocalFilters({ ...localFilters, riskLevel: e.target.value as any })}
-                    className="w-4 h-4 text-brand-300 focus:ring-brand-500"
-                  />
-                  <span className="text-sm text-white/70">{risk.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
           {/* Sort By */}
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-white/70 mb-3">
@@ -220,7 +110,6 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
               {[
                 { value: 'newest', label: 'Newest first' },
                 { value: 'soonest', label: 'Soonest event date' },
-                { value: 'most_reported', label: 'Most reported' }
               ].map((sort) => (
                 <label key={sort.value} className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -228,7 +117,7 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
                     name="sortBy"
                     value={sort.value}
                     checked={localFilters.sortBy === sort.value}
-                    onChange={(e) => setLocalFilters({ ...localFilters, sortBy: e.target.value as any })}
+                    onChange={(e) => setLocalFilters({ ...localFilters, sortBy: e.target.value as FilterOptions['sortBy'] })}
                     className="w-4 h-4 text-brand-300 focus:ring-brand-500"
                   />
                   <span className="text-sm text-white/70">{sort.label}</span>

@@ -8,17 +8,12 @@ import { AdminEventsTable } from '@/components/admin/events/AdminEventsTable'
 import { AdminEventDetailSheet } from '@/components/admin/events/AdminEventDetailSheet'
 import { EditorialHeader } from '@/components/ui/EditorialHeader'
 import { useToast } from '@/components/ui/Toast'
-import { filterEventsByTab, getEventTabCounts } from '@/lib/admin/event-moderation'
+import type { EventModerationTab } from '@/lib/admin/event-moderation'
 
 interface FilterOptions {
-  dateRange: 'any' | 'today' | 'week' | 'custom'
-  startDate?: string
-  endDate?: string
   city: string
   category: string
-  priceRange: 'any' | 'free' | 'low' | 'high'
-  riskLevel: 'any' | 'reported' | 'flagged' | 'suspicious'
-  sortBy: 'newest' | 'soonest' | 'most_reported'
+  sortBy: 'newest' | 'soonest'
 }
 
 interface AdminEventsModerationConsoleProps {
@@ -34,35 +29,81 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [selectedEvent, setSelectedEvent] = useState<any>(null)
   const [events, setEvents] = useState<any[]>([])
+  const [counts, setCounts] = useState<Record<EventModerationTab, number>>({
+    pending: 0, published: 0, reported: 0, unpublished: 0,
+  })
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [nextCursor, setNextCursor] = useState<string | null>(null)
+  const [hasMore, setHasMore] = useState(false)
+  const [refined, setRefined] = useState(false)
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [filters, setFilters] = useState<FilterOptions>({
-    dateRange: 'any',
     city: '',
     category: '',
-    priceRange: 'any',
-    riskLevel: 'any',
-    sortBy: 'newest'
+    sortBy: 'newest',
   })
 
   const loadEvents = useCallback(async (searchOverride?: string) => {
     setLoading(true)
+    setLoadError(null)
     try {
       const response = await fetch('/api/admin/events/list', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tab: activeTab, filters, searchQuery: searchOverride ?? searchQuery })
+        body: JSON.stringify({ tab: activeTab, filters, searchQuery: searchOverride ?? searchQuery }),
       })
       const data = await response.json()
+      if (!response.ok || data.error) {
+        setLoadError(data.message || data.error || `Failed to load events (${response.status})`)
+        setEvents([])
+        setHasMore(false)
+        setNextCursor(null)
+        return
+      }
       setEvents(data.events || [])
+      if (data.counts) setCounts(data.counts)
+      setNextCursor(data.nextCursor || null)
+      setHasMore(Boolean(data.hasMore))
+      setRefined(Boolean(data.refined))
     } catch (error) {
       console.error('Failed to load events:', error)
+      setLoadError(error instanceof Error ? error.message : 'Failed to load events')
+      setEvents([])
+      setHasMore(false)
+      setNextCursor(null)
     } finally {
       setLoading(false)
     }
   }, [activeTab, filters, searchQuery])
 
-  // Load events
+  const loadMore = useCallback(async () => {
+    if (!nextCursor || loadingMore) return
+    setLoadingMore(true)
+    try {
+      const response = await fetch('/api/admin/events/list', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tab: activeTab, filters, searchQuery, cursor: nextCursor }),
+      })
+      const data = await response.json()
+      if (!response.ok || data.error) {
+        setLoadError(data.message || data.error || 'Failed to load more events')
+        return
+      }
+      setEvents((prev) => [...prev, ...(data.events || [])])
+      setNextCursor(data.nextCursor || null)
+      setHasMore(Boolean(data.hasMore))
+    } catch (error) {
+      console.error('Failed to load more events:', error)
+      setLoadError(error instanceof Error ? error.message : 'Failed to load more events')
+    } finally {
+      setLoadingMore(false)
+    }
+  }, [activeTab, filters, searchQuery, nextCursor, loadingMore])
+
+  // Reload when tab / filters / search change
   useEffect(() => {
     void loadEvents()
   }, [loadEvents])
@@ -155,24 +196,21 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
     }
   }
 
-  // Count active filters
-  const activeFiltersCount = Object.entries(filters).filter(([key, value]) => {
-    if (key === 'sortBy') return false
-    if (key === 'dateRange') return value !== 'any'
-    return value !== '' && value !== 'any'
-  }).length
+  // Count active refinement filters (sort is not a filter)
+  const activeFiltersCount = [filters.city, filters.category].filter(Boolean).length
 
-  // Calculate tab counts (shared, tested moderation logic)
-  const tabCounts = getEventTabCounts(events)
+  // Tab badges reflect true server-side counts across ALL events, not just the
+  // currently loaded page.
   const tabs = [
-    { id: 'pending' as const, label: 'Pending Review', count: tabCounts.pending },
-    { id: 'published' as const, label: 'Published', count: tabCounts.published },
-    { id: 'reported' as const, label: 'Reported', count: tabCounts.reported },
-    { id: 'unpublished' as const, label: 'Unpublished', count: tabCounts.unpublished },
+    { id: 'pending' as const, label: 'Pending Review', count: counts.pending },
+    { id: 'published' as const, label: 'Published', count: counts.published },
+    { id: 'reported' as const, label: 'Reported', count: counts.reported },
+    { id: 'unpublished' as const, label: 'Unpublished', count: counts.unpublished },
   ]
 
-  // Filter events based on tab
-  const filteredEvents = filterEventsByTab(events, activeTab)
+  // The server returns only this tab's events (plus any in-memory
+  // city/category/search refinement), so render them directly.
+  const filteredEvents = events
 
   return (
     <div>
@@ -208,6 +246,16 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
           <div className="bg-[#0a0a0a] border border-white/10 rounded-xl p-12 text-center">
             <p className="text-white/50">Loading events...</p>
           </div>
+        ) : loadError ? (
+          <div className="bg-[#0a0a0a] border border-white/10 rounded-xl p-12 text-center">
+            <p className="mb-4 text-sm text-red-300">{loadError}</p>
+            <button
+              onClick={() => void loadEvents()}
+              className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/[0.04] hover:text-white"
+            >
+              Retry
+            </button>
+          </div>
         ) : (
           <AdminEventsTable
             events={filteredEvents}
@@ -218,14 +266,27 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
           />
         )}
 
-        {/* Pagination placeholder */}
-        {filteredEvents.length > 0 && (
-          <div className="mt-4 flex items-center justify-between">
+        {!loading && !loadError && filteredEvents.length > 0 && (
+          <div className="mt-4 flex items-center justify-between gap-3">
             <p className="font-mono text-sm tabular-nums text-white/60">
-              Showing {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''}
+              Showing {filteredEvents.length}
+              {refined ? ' matching' : ''} event{filteredEvents.length !== 1 ? 's' : ''} of {counts[activeTab]} in this tab
             </p>
-            {/* Future: Add pagination controls here */}
+            {hasMore && (
+              <button
+                onClick={() => void loadMore()}
+                disabled={loadingMore}
+                className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/[0.04] hover:text-white disabled:opacity-50"
+              >
+                {loadingMore ? 'Loading…' : 'Load more'}
+              </button>
+            )}
           </div>
+        )}
+        {!loading && !loadError && refined && hasMore && (
+          <p className="mt-2 text-xs text-white/40">
+            City, category, and search refine only the events loaded so far — load more to search further.
+          </p>
         )}
       </div>
 
