@@ -76,7 +76,9 @@ const nextConfig = {
     ]
   },
 
-  // Serve mobile deep-link association files from /.well-known (env-driven routes)
+  // Serve mobile deep-link association files from /.well-known (env-driven routes).
+  // NOTE: guide docs are served by app/guides/[file]/route.ts (reads private
+  // Storage objects via the Admin SDK), not by a rewrite.
   async rewrites() {
     return [
       {

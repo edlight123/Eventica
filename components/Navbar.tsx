@@ -81,6 +81,14 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
               >
                 {t('nav.platform', { defaultValue: 'Platform' })}
               </Link>
+              <Link
+                href="/resources"
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  pathname?.startsWith('/resources') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                }`}
+              >
+                {t('nav.resources', { defaultValue: 'Guides' })}
+              </Link>
               {user && (
                 <>
                   <Link
@@ -215,6 +223,15 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                 }`}
               >
                 {t('nav.platform', { defaultValue: 'Platform' })}
+              </Link>
+              <Link
+                href="/resources"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+                  pathname?.startsWith('/resources') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                }`}
+              >
+                {t('nav.resources', { defaultValue: 'Guides' })}
               </Link>
               {user && (
                 <>
