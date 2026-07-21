@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import {
   DollarSign,
   TrendingUp,
@@ -35,6 +36,11 @@ const tabs: Tab[] = [
   { id: 'conversion', label: 'Conversion', icon: TrendingUp },
   { id: 'organizers', label: 'Organizers', icon: Award },
 ]
+
+const DEFAULT_TAB: TabId = 'overview'
+const tabIds = new Set<string>(tabs.map((t) => t.id))
+const normalizeTab = (value: string | null | undefined): TabId =>
+  value && tabIds.has(value) ? (value as TabId) : DEFAULT_TAB
 
 /* ----------------------------- helpers ----------------------------- */
 
@@ -100,9 +106,28 @@ function Section({ title, subtitle, children }: { title: string; subtitle?: stri
   )
 }
 
-export function AdminAnalyticsTabs() {
-  const [activeTab, setActiveTab] = useState<TabId>('overview')
-  const [visitedTabs, setVisitedTabs] = useState<Set<TabId>>(() => new Set<TabId>(['overview']))
+function AdminAnalyticsTabsInner() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  // The URL's ?tab= param is the source of truth for the active tab.
+  const activeTab = normalizeTab(searchParams.get('tab'))
+  const [visitedTabs, setVisitedTabs] = useState<Set<TabId>>(() => new Set<TabId>([activeTab]))
+
+  const selectTab = useCallback(
+    (tabId: TabId) => {
+      const params = new URLSearchParams(Array.from(searchParams.entries()))
+      if (tabId === DEFAULT_TAB) {
+        params.delete('tab')
+      } else {
+        params.set('tab', tabId)
+      }
+      const query = params.toString()
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false })
+    },
+    [router, pathname, searchParams]
+  )
 
   useEffect(() => {
     if (!visitedTabs.has(activeTab)) {
@@ -135,7 +160,7 @@ export function AdminAnalyticsTabs() {
               id={`atab-${tab.id}`}
               aria-controls={`apanel-${tab.id}`}
               aria-selected={isActive}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => selectTab(tab.id)}
               className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
                 isActive ? 'bg-white/[0.08] text-white' : 'text-white/50 hover:text-white'
               }`}
@@ -216,5 +241,14 @@ export function AdminAnalyticsTabs() {
         </div>
       </div>
     </div>
+  )
+}
+
+export function AdminAnalyticsTabs() {
+  // useSearchParams requires a Suspense boundary during static prerender.
+  return (
+    <Suspense fallback={<HeroScorecard />}>
+      <AdminAnalyticsTabsInner />
+    </Suspense>
   )
 }
