@@ -1,4 +1,6 @@
-import React from 'react'
+'use client'
+
+import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -47,7 +49,11 @@ export function PosterCard({
   onClick,
   className = '',
 }: PosterCardProps) {
-  const hasImage = Boolean(imageUrl)
+  // Fall back to the gradient title-card not just when the URL is absent, but
+  // also when the image fails to load (broken/missing banner) — otherwise a dead
+  // URL leaves an empty black poster instead of the intended fallback.
+  const [imgError, setImgError] = useState(false)
+  const hasImage = Boolean(imageUrl) && !imgError
   const aspectClass = aspect === '2/3' ? 'aspect-[2/3]' : 'aspect-[4/5]'
 
   const inner = (
@@ -66,6 +72,7 @@ export function PosterCard({
             className="object-cover transition-transform duration-[1.1s] ease-out group-hover:scale-[1.06]"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             quality={78}
+            onError={() => setImgError(true)}
           />
         ) : (
           // Text-only events still read as premium: title set large in bold grotesk.
