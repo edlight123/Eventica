@@ -7,6 +7,15 @@ import Image from 'next/image'
 import { useTranslation } from 'react-i18next'
 import { useToast } from '@/components/ui/Toast'
 
+// Guard against missing/malformed dates: date-fns `format` throws
+// "RangeError: Invalid time value" on an Invalid Date, which would crash the
+// whole detail sheet when opening a legacy/seed event with a bad date field.
+function safeFormat(value: string | undefined, fmt: string, fallback = '—'): string {
+  if (!value) return fallback
+  const d = new Date(value)
+  return isNaN(d.getTime()) ? fallback : format(d, fmt)
+}
+
 interface Event {
   id: string
   title: string
@@ -181,10 +190,10 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
                 <div>
                   <div className="text-xs text-white/50 font-medium mb-1">{t('admin.date_time')}</div>
                   <div className="font-mono text-sm tabular-nums text-white">
-                    {format(new Date(event.start_datetime), 'MMM d, yyyy')}
+                    {safeFormat(event.start_datetime, 'MMM d, yyyy')}
                   </div>
                   <div className="font-mono text-xs tabular-nums text-white/60">
-                    {format(new Date(event.start_datetime), 'h:mm a')} - {format(new Date(event.end_datetime), 'h:mm a')}
+                    {safeFormat(event.start_datetime, 'h:mm a')} - {safeFormat(event.end_datetime, 'h:mm a')}
                   </div>
                 </div>
               </div>
@@ -259,7 +268,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
                     <div key={report.id} className="p-3 bg-[#0a0a0a] rounded-md">
                       <div className="text-sm text-white mb-1">{report.reason}</div>
                       <div className="text-xs text-white/50">
-                        By {report.reported_by} • {format(new Date(report.created_at), 'MMM d, h:mm a')}
+                        By {report.reported_by} • {safeFormat(report.created_at, 'MMM d, h:mm a')}
                       </div>
                     </div>
                   ))}
@@ -280,7 +289,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
                       <div>
                         <div className="text-sm text-white">{log.action}</div>
                         <div className="text-xs text-white/50">
-                          By {log.admin_email} • {format(new Date(log.timestamp), 'MMM d, h:mm a')}
+                          By {log.admin_email} • {safeFormat(log.timestamp, 'MMM d, h:mm a')}
                         </div>
                       </div>
                     </div>
