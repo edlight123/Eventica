@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Trophy, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 
@@ -24,27 +24,57 @@ export function EventPerformanceAnalytics() {
   const [topEvents, setTopEvents] = useState<EventData[]>([])
   const [categories, setCategories] = useState<CategoryData[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
-  useEffect(() => {
-    Promise.all([
-      fetch('/api/admin/analytics-data?type=top-events&limit=10').then(r => r.json()),
-      fetch('/api/admin/analytics-data?type=categories&days=30').then(r => r.json())
-    ]).then(([eventsRes, catsRes]) => {
+  const loadData = useCallback(async () => {
+    setLoading(true)
+    setLoadError(null)
+    try {
+      const [eventsResp, catsResp] = await Promise.all([
+        fetch('/api/admin/analytics-data?type=top-events&limit=10'),
+        fetch('/api/admin/analytics-data?type=categories&days=30'),
+      ])
+      if (!eventsResp.ok || !catsResp.ok) {
+        throw new Error(`Failed to load event data (${!eventsResp.ok ? eventsResp.status : catsResp.status})`)
+      }
+      const eventsRes = await eventsResp.json()
+      const catsRes = await catsResp.json()
       const events = eventsRes.data || eventsRes
       const cats = catsRes.data || catsRes
       setTopEvents(Array.isArray(events) ? events : [])
       setCategories(Array.isArray(cats) ? cats : [])
-      setLoading(false)
-    }).catch(err => {
+    } catch (err) {
       console.error('Failed to load event data:', err)
+      setLoadError(err instanceof Error ? err.message : 'Failed to load event data')
+      setTopEvents([])
+      setCategories([])
+    } finally {
       setLoading(false)
-    })
+    }
   }, [])
+
+  useEffect(() => {
+    void loadData()
+  }, [loadData])
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
+      </div>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <div className="rounded-lg border border-white/10 bg-white/[0.02] p-8 text-center">
+        <p className="mb-4 text-sm text-red-300">{loadError}</p>
+        <button
+          onClick={() => void loadData()}
+          className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/[0.04] hover:text-white"
+        >
+          Retry
+        </button>
       </div>
     )
   }

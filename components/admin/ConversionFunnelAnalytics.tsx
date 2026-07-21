@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Eye, Heart, ShoppingCart, TrendingUp } from 'lucide-react'
 
 interface ConversionData {
@@ -15,20 +15,31 @@ interface ConversionData {
 export function ConversionFunnelAnalytics() {
   const [data, setData] = useState<ConversionData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  const loadData = useCallback(async () => {
+    setLoading(true)
+    setLoadError(null)
+    try {
+      const res = await fetch('/api/admin/analytics-data?type=conversion&days=30')
+      const result = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(result.error || `Failed to load conversion data (${res.status})`)
+      }
+      const conversionData = result.data || result
+      setData(conversionData)
+    } catch (err) {
+      console.error('Failed to load conversion data:', err)
+      setLoadError(err instanceof Error ? err.message : 'Failed to load conversion data')
+      setData(null)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
-    fetch('/api/admin/analytics-data?type=conversion&days=30')
-      .then(r => r.json())
-      .then(result => {
-        const conversionData = result.data || result
-        setData(conversionData)
-        setLoading(false)
-      })
-      .catch(err => {
-        console.error('Failed to load conversion data:', err)
-        setLoading(false)
-      })
-  }, [])
+    void loadData()
+  }, [loadData])
 
   if (loading) {
     return (
@@ -38,10 +49,16 @@ export function ConversionFunnelAnalytics() {
     )
   }
 
-  if (!data) {
+  if (loadError || !data) {
     return (
-      <div className="text-center py-12 text-white/50">
-        Failed to load conversion data
+      <div className="rounded-lg border border-white/10 bg-white/[0.02] p-8 text-center">
+        <p className="mb-4 text-sm text-red-300">{loadError || 'Failed to load conversion data'}</p>
+        <button
+          onClick={() => void loadData()}
+          className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/[0.04] hover:text-white"
+        >
+          Retry
+        </button>
       </div>
     )
   }

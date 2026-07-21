@@ -172,12 +172,14 @@ export function AdminOrdersClient() {
   })
   const [filters, setFilters] = useState<Filters>(initialFilters)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [showFilters, setShowFilters] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [exporting, setExporting] = useState(false)
 
   const fetchOrders = useCallback(async (page: number = 1) => {
     setLoading(true)
+    setLoadError(null)
     try {
       const params = new URLSearchParams({
         page: page.toString(),
@@ -193,14 +195,19 @@ export function AdminOrdersClient() {
       if (filters.endDate) params.set('endDate', filters.endDate)
 
       const res = await fetch(`/api/admin/orders?${params}`)
-      const data = await res.json()
+      const data = await res.json().catch(() => ({}))
 
-      if (data.ok) {
+      if (res.ok && data.ok) {
         setOrders(data.orders)
         setPagination(data.pagination)
+      } else {
+        setLoadError(data.error || `Failed to load orders (${res.status})`)
+        setOrders([])
       }
     } catch (e) {
       console.error('Failed to fetch orders:', e)
+      setLoadError(e instanceof Error ? e.message : 'Failed to load orders')
+      setOrders([])
     } finally {
       setLoading(false)
     }
@@ -689,6 +696,17 @@ export function AdminOrdersClient() {
       </div>
 
       {/* Orders Table */}
+      {loadError && !loading ? (
+        <div className="rounded-xl border border-white/10 bg-white/[0.02] p-12 text-center">
+          <p className="mb-4 text-sm text-red-300">{loadError}</p>
+          <button
+            onClick={() => fetchOrders(pagination.page)}
+            className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/[0.04] hover:text-white"
+          >
+            Retry
+          </button>
+        </div>
+      ) : (
       <DataTable<Order>
         columns={columns}
         rows={orders}
@@ -707,6 +725,7 @@ export function AdminOrdersClient() {
           </div>
         }
       />
+      )}
 
       {/* Order Details Modal */}
       {selectedOrder && (

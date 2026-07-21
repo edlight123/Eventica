@@ -30,6 +30,7 @@ interface BankVerification {
 export default function BankVerificationsClient() {
   const [verifications, setVerifications] = useState<BankVerification[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState('pending')
   const [cursor, setCursor] = useState<string | null>(null)
   const [hasMore, setHasMore] = useState(false)
@@ -37,24 +38,33 @@ export default function BankVerificationsClient() {
   const fetchVerifications = useCallback(async (loadMore = false, currentCursor: string | null = null) => {
     try {
       setLoading(true)
+      setLoadError(null)
       const params = new URLSearchParams({ status: statusFilter })
       if (loadMore && currentCursor) {
         params.append('cursor', currentCursor)
       }
 
       const response = await fetch(`/api/admin/bank-verifications?${params}`)
-      const data = await response.json()
+      const data = await response.json().catch(() => ({}))
+
+      if (!response.ok) {
+        setLoadError(data.error || `Failed to load bank verifications (${response.status})`)
+        if (!loadMore) setVerifications([])
+        return
+      }
 
       if (loadMore) {
-        setVerifications((prev) => [...prev, ...data.verifications])
+        setVerifications((prev) => [...prev, ...(data.verifications || [])])
       } else {
-        setVerifications(data.verifications)
+        setVerifications(data.verifications || [])
       }
 
       setHasMore(data.hasMore)
       setCursor(data.nextCursor)
     } catch (error) {
       console.error('Error fetching verifications:', error)
+      setLoadError(error instanceof Error ? error.message : 'Failed to load bank verifications')
+      if (!loadMore) setVerifications([])
     } finally {
       setLoading(false)
     }
@@ -104,8 +114,21 @@ export default function BankVerificationsClient() {
         </div>
       )}
 
+      {/* Error State */}
+      {!loading && loadError && verifications.length === 0 && (
+        <div className="rounded-lg border border-white/10 bg-white/[0.02] p-12 text-center">
+          <p className="mb-4 text-sm text-red-300">{loadError}</p>
+          <button
+            onClick={() => fetchVerifications()}
+            className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/[0.04] hover:text-white"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       {/* Empty State */}
-      {!loading && verifications.length === 0 && (
+      {!loading && !loadError && verifications.length === 0 && (
         <div className="rounded-lg border border-white/10 p-12 text-center">
           <svg
             className="mx-auto h-12 w-12 text-white/50"

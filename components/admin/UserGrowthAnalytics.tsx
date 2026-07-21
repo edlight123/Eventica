@@ -23,6 +23,7 @@ interface Props {
 export function UserGrowthAnalytics({ days = 30 }: Props) {
   const [data, setData] = useState<UserGrowthData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [selectedDays, setSelectedDays] = useState(days)
 
   useEffect(() => {
@@ -31,9 +32,13 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
 
   const fetchData = async (period: number) => {
     setLoading(true)
+    setLoadError(null)
     try {
       const res = await fetch(`/api/admin/analytics-data?type=user-growth&days=${period}`)
-      const result = await res.json()
+      const result = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(result.error || `Failed to load user growth data (${res.status})`)
+      }
       // Access data from wrapped response
       const userData = result.data || result
       setData({
@@ -44,6 +49,8 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
       })
     } catch (err) {
       console.error('Failed to load user growth data:', err)
+      setLoadError(err instanceof Error ? err.message : 'Failed to load user growth data')
+      setData(null)
     } finally {
       setLoading(false)
     }
@@ -57,10 +64,16 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
     )
   }
 
-  if (!data) {
+  if (loadError || !data) {
     return (
-      <div className="text-center py-12 text-white/50">
-        Failed to load user growth data
+      <div className="rounded-lg border border-white/10 bg-white/[0.02] p-8 text-center">
+        <p className="mb-4 text-sm text-red-300">{loadError || 'Failed to load user growth data'}</p>
+        <button
+          onClick={() => fetchData(selectedDays)}
+          className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/[0.04] hover:text-white"
+        >
+          Retry
+        </button>
       </div>
     )
   }

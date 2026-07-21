@@ -79,10 +79,12 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
   const [revenue, setRevenue] = useState<RevenueData | null>(null)
   const [growth, setGrowth] = useState<GrowthData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [dateRange, setDateRange] = useState<'all' | '7d' | '30d' | '90d'>('all')
 
   const fetchData = useCallback(async () => {
     setLoading(true)
+    setLoadError(null)
     try {
       let url = '/api/admin/revenue-analytics?type=platform'
       
@@ -96,12 +98,17 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
       }
       
       const res = await fetch(url)
-      const data = await res.json()
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(data.error || `Failed to load revenue analytics (${res.status})`)
+      }
       setRevenue(data.revenue)
       setGrowth(data.growth)
       setLoading(false)
     } catch (err) {
       console.error('Failed to load revenue analytics:', err)
+      setLoadError(err instanceof Error ? err.message : 'Failed to load revenue analytics')
+      setRevenue(null)
       setLoading(false)
     }
   }, [dateRange])
@@ -118,10 +125,16 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
     )
   }
 
-  if (!revenue) {
+  if (loadError || !revenue) {
     return (
-      <div className="text-center py-12 text-white/50">
-        Failed to load revenue analytics
+      <div className="rounded-lg border border-white/10 bg-white/[0.02] p-8 text-center">
+        <p className="mb-4 text-sm text-red-300">{loadError || 'Failed to load revenue analytics'}</p>
+        <button
+          onClick={() => void fetchData()}
+          className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/[0.04] hover:text-white"
+        >
+          Retry
+        </button>
       </div>
     )
   }
