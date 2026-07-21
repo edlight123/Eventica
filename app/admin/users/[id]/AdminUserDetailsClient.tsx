@@ -1,7 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
+import { useConfirm } from '@/components/ui/ConfirmProvider'
 
 type AdminUserDetailsClientProps = {
   details: {
@@ -29,8 +32,53 @@ export default function AdminUserDetailsClient({
   promoteToOrganizer,
 }: AdminUserDetailsClientProps) {
   const { t } = useTranslation('admin')
+  const router = useRouter()
+  const confirmDialog = useConfirm()
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   const { id, user, attendeeStats, organizerStats, isOrganizer } = details
+
+  const isBanned = user.status === 'banned'
+  const displayName = user.full_name || user.name || user.email || 'This user'
+
+  const handleToggleBan = async (action: 'ban' | 'unban') => {
+    const ok = await confirmDialog({
+      title: action === 'ban' ? 'Suspend this user?' : 'Restore this user?',
+      description:
+        action === 'ban'
+          ? `${displayName} will lose access to their account and their events will be hidden.`
+          : `${displayName} will regain access to their account.`,
+      confirmLabel: action === 'ban' ? 'Suspend' : 'Restore',
+      variant: action === 'ban' ? 'danger' : 'default',
+    })
+    if (!ok) return
+
+    setIsUpdating(true)
+    setMessage(null)
+
+    try {
+      // Reuses the shared admin action endpoint (operates on any user doc).
+      const res = await fetch('/api/admin/organizer-actions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ organizerId: id, action }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(data?.error || 'Failed to update user')
+      }
+      setMessage({
+        type: 'success',
+        text: data?.message || (action === 'ban' ? 'User suspended' : 'User restored'),
+      })
+      router.refresh()
+    } catch (err: any) {
+      setMessage({ type: 'error', text: err?.message || 'Failed to update user' })
+    } finally {
+      setIsUpdating(false)
+    }
+  }
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-6">
@@ -43,6 +91,13 @@ export default function AdminUserDetailsClient({
         </Link>
       </div>
 
+      {/* Message */}
+      {message && (
+        <div className={`mb-5 text-sm ${message.type === 'success' ? 'text-emerald-300' : 'text-red-300'}`}>
+          {message.text}
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
@@ -54,6 +109,9 @@ export default function AdminUserDetailsClient({
             <span className="label-mono uppercase text-brand-300">{user.role || 'attendee'}</span>
             {user.is_verified && (
               <span className="label-mono uppercase text-emerald-300">{t('users.verified')}</span>
+            )}
+            {isBanned && (
+              <span className="label-mono uppercase text-red-300">Suspended</span>
             )}
             {isOrganizer && (
               <Link
@@ -69,17 +127,37 @@ export default function AdminUserDetailsClient({
           </div>
         </div>
 
-        {showPromoteToOrganizer && (
-          <form action={promoteToOrganizer}>
-            <input type="hidden" name="userId" value={id} />
+        <div className="flex flex-col gap-2 sm:min-w-[200px]">
+          {showPromoteToOrganizer && (
+            <form action={promoteToOrganizer}>
+              <input type="hidden" name="userId" value={id} />
+              <button
+                type="submit"
+                className="w-full rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
+              >
+                {t('users.promote_to_organizer')}
+              </button>
+            </form>
+          )}
+
+          {isBanned ? (
             <button
-              type="submit"
-              className="rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
+              onClick={() => handleToggleBan('unban')}
+              disabled={isUpdating}
+              className="rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
             >
-              {t('users.promote_to_organizer')}
+              Restore Access
             </button>
-          </form>
-        )}
+          ) : (
+            <button
+              onClick={() => handleToggleBan('ban')}
+              disabled={isUpdating}
+              className="rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+            >
+              Suspend User
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Attendee stats strip */}

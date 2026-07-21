@@ -165,7 +165,7 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
     }
   }
 
-  const handleEventAction = async (action: 'publish' | 'unpublish' | 'delete' | 'feature', reason?: string) => {
+  const handleEventAction = async (action: 'publish' | 'unpublish' | 'delete' | 'feature' | 'unfeature', reason?: string) => {
     if (!selectedEvent) return
 
     try {

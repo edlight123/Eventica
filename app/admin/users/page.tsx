@@ -10,40 +10,48 @@ function encodeCursor(cursor: Cursor): string {
 
 export const revalidate = 60
 
-export default async function AdminPeoplePage() {
-  const [counts, organizersResult] = await Promise.all([
-    getUserCounts(),
-    getAdminUsers({ role: 'organizer' }, 200),
-  ])
+function cursorFromLastDoc(result: { hasMore: boolean; lastDoc: any }): string | null {
+  if (!result.hasMore || !result.lastDoc) return null
+  const lastData: any = result.lastDoc.data?.() || {}
+  const createdAt: any = lastData?.created_at
+  const createdAtMillis =
+    typeof createdAt?.toMillis === 'function'
+      ? createdAt.toMillis()
+      : typeof createdAt?.toDate === 'function'
+        ? createdAt.toDate().getTime()
+        : typeof createdAt === 'string'
+          ? Date.parse(createdAt)
+          : Number.NaN
+  if (!Number.isFinite(createdAtMillis)) return null
+  return encodeCursor({ id: result.lastDoc.id, createdAtMillis })
+}
 
-  let organizerCursor: string | null = null
-  if (organizersResult.hasMore && organizersResult.lastDoc) {
-    const lastData: any = (organizersResult.lastDoc as any).data?.() || {}
-    const createdAt: any = lastData?.created_at
-    const createdAtMillis =
-      typeof createdAt?.toMillis === 'function'
-        ? createdAt.toMillis()
-        : typeof createdAt?.toDate === 'function'
-          ? createdAt.toDate().getTime()
-          : typeof createdAt === 'string'
-            ? Date.parse(createdAt)
-            : Number.NaN
-    if (Number.isFinite(createdAtMillis)) {
-      organizerCursor = encodeCursor({ id: organizersResult.lastDoc.id, createdAtMillis })
-    }
-  }
-
-  const organizerUsers = organizersResult.data.map((u: any) => ({
+function mapUser(u: any) {
+  return {
     id: u.id || '',
     email: u.email || '',
-    full_name: u.full_name || '',
+    full_name: u.full_name || u.name || '',
     role: u.role || 'attendee',
     is_verified: Boolean(u.is_verified),
     verification_status: u.verification_status || 'none',
     is_organizer: Boolean(u.is_organizer),
     created_at:
       typeof u.created_at === 'string' ? u.created_at : u.created_at?.toISOString?.() || new Date().toISOString(),
-  }))
+  }
+}
+
+export default async function AdminPeoplePage() {
+  const [counts, allUsersResult, organizersResult] = await Promise.all([
+    getUserCounts(),
+    getAdminUsers({}, 200),
+    getAdminUsers({ role: 'organizer' }, 200),
+  ])
+
+  const allUsersCursor = cursorFromLastDoc(allUsersResult)
+  const organizerCursor = cursorFromLastDoc(organizersResult)
+
+  const allUsers = allUsersResult.data.map(mapUser)
+  const organizerUsers = organizersResult.data.map(mapUser)
 
   return (
     <div className="space-y-2">
@@ -52,6 +60,9 @@ export default async function AdminPeoplePage() {
       </div>
       <PeopleHub
         counts={counts}
+        allUsers={allUsers}
+        allUsersHasMore={allUsersResult.hasMore && Boolean(allUsersCursor)}
+        allUsersCursor={allUsersCursor}
         organizerUsers={organizerUsers}
         organizerHasMore={organizersResult.hasMore && Boolean(organizerCursor)}
         organizerCursor={organizerCursor}

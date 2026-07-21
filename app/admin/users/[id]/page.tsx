@@ -179,6 +179,7 @@ export default async function AdminUserDetailsPage({ params }: { params: { id: s
       name: userData.name || '',
       role: userData.role || 'attendee',
       is_verified: Boolean(userDataRaw.is_verified),
+      status: userData.status || 'active',
     },
     attendeeStats,
     organizerStats,

@@ -1,6 +1,6 @@
 'use client'
 
-import { X, ExternalLink, CheckCircle, XCircle, Trash2, AlertTriangle, User, Ticket, Calendar, MapPin } from 'lucide-react'
+import { X, ExternalLink, CheckCircle, XCircle, Trash2, AlertTriangle, User, Ticket, Calendar, MapPin, Star } from 'lucide-react'
 import { format } from 'date-fns'
 import { useState } from 'react'
 import Image from 'next/image'
@@ -19,6 +19,7 @@ interface Event {
   banner_image_url?: string
   category?: string
   is_published: boolean
+  featured?: boolean
   max_attendees: number
   organizer_id: string
   organizer_name: string
@@ -44,7 +45,7 @@ interface AdminEventDetailSheetProps {
   event: Event | null
   isOpen: boolean
   onClose: () => void
-  onAction: (action: 'publish' | 'unpublish' | 'delete' | 'feature', reason?: string) => void
+  onAction: (action: 'publish' | 'unpublish' | 'delete' | 'feature' | 'unfeature', reason?: string) => void
 }
 
 export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: AdminEventDetailSheetProps) {
@@ -232,13 +233,15 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
                   </div>
                   <div className="text-xs text-white/60">{event.organizer_email}</div>
                 </div>
-                <a
-                  href={`/admin/users?search=${event.organizer_email}`}
-                  className="text-brand-300 hover:text-brand-300 text-sm font-medium flex items-center gap-1"
-                >
-                  View
-                  <ExternalLink className="w-3 h-3" />
-                </a>
+                {event.organizer_id ? (
+                  <a
+                    href={`/admin/organizers/${event.organizer_id}`}
+                    className="text-brand-300 hover:text-brand-300 text-sm font-medium flex items-center gap-1"
+                  >
+                    View
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                ) : null}
               </div>
             </div>
 
@@ -357,6 +360,19 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
               </>
             )}
           </div>
+
+          {/* Feature toggle */}
+          <button
+            onClick={() => onAction(event.featured ? 'unfeature' : 'feature')}
+            className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm ${
+              event.featured
+                ? 'border border-amber-300 text-amber-300 hover:bg-amber-500/10'
+                : 'border border-white/10 text-white/70 hover:bg-white/[0.04] hover:text-white'
+            }`}
+          >
+            <Star className={`w-4 h-4 ${event.featured ? 'fill-amber-300' : ''}`} />
+            {event.featured ? t('admin.unfeature') : t('admin.feature')}
+          </button>
 
           <div className="flex items-center gap-2">
             <button

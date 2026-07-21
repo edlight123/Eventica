@@ -485,6 +485,8 @@
     "reason_for_action": "Rezon pou aksyon",
     "cancel": "Anile",
     "confirm_delete": "Konfime efasman",
-    "delete_selected": "Efase seleksyon"
+    "delete_selected": "Efase seleksyon",
+    "feature": "Mete an vedèt",
+    "unfeature": "Retire nan vedèt"
   }
 }

@@ -124,6 +124,29 @@ export async function POST(request: NextRequest) {
           featured: true,
           updated_at: new Date()
         })
+        await logAdminAction({
+          action: 'event.feature',
+          adminId,
+          adminEmail: effectiveAdminEmail,
+          resourceId: eventId,
+          resourceType: 'event',
+          details: { eventTitle: eventData.title }
+        })
+        break
+
+      case 'unfeature':
+        await eventRef.update({
+          featured: false,
+          updated_at: new Date()
+        })
+        await logAdminAction({
+          action: 'event.unfeature',
+          adminId,
+          adminEmail: effectiveAdminEmail,
+          resourceId: eventId,
+          resourceType: 'event',
+          details: { eventTitle: eventData.title }
+        })
         break
     }
 

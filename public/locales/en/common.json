@@ -485,6 +485,8 @@
     "reason_for_action": "Reason for action",
     "cancel": "Cancel",
     "confirm_delete": "Confirm Delete",
-    "delete_selected": "Delete Selected"
+    "delete_selected": "Delete Selected",
+    "feature": "Feature Event",
+    "unfeature": "Unfeature Event"
   }
 }
