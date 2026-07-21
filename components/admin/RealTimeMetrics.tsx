@@ -25,6 +25,7 @@ interface RealTimeMetricsProps {
   refunds7d?: number
   refundsAmount7d?: number
   pendingCount?: number
+  pendingBankCount?: number
 }
 
 export function RealTimeMetrics({
@@ -34,7 +35,8 @@ export function RealTimeMetrics({
   gmv7d: initialGmv7d,
   refunds7d: initialRefunds7d = 0,
   refundsAmount7d = 0,
-  pendingCount: initialPendingCount = 0
+  pendingCount: initialPendingCount = 0,
+  pendingBankCount: initialPendingBankCount = 0
 }: RealTimeMetricsProps) {
   // Use real-time data from the provider
   const { metrics: realtimeMetrics } = useAdminMetrics()
@@ -45,7 +47,11 @@ export function RealTimeMetrics({
   const tickets7d = realtimeMetrics?.tickets7d ?? initialTickets7d
   const gmv7d = realtimeMetrics?.gmv7d ?? initialGmv7d
   const refunds7d = realtimeMetrics?.refunds7d ?? initialRefunds7d
+  // "Pending Tasks" = verifications + bank verifications, matching the
+  // top-nav / command-bar badges (single definition of "needs attention").
   const pendingCount = realtimeMetrics?.pendingCount ?? initialPendingCount
+  const pendingBankCount = realtimeMetrics?.pendingBankCount ?? initialPendingBankCount
+  const pendingTasks = pendingCount + pendingBankCount
 
   const formatCurrency = (amount: number) => {
     if (amount >= 1000000) {
@@ -96,7 +102,7 @@ export function RealTimeMetrics({
     },
     {
       title: 'Pending Tasks',
-      value: pendingCount,
+      value: pendingTasks,
       icon: AlertCircle,
       color: 'red'
     }

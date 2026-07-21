@@ -55,6 +55,7 @@ export function AdminDashboardClient({
         refunds7d={refunds7d}
         refundsAmount7d={refundsAmount7d}
         pendingCount={pendingCount}
+        pendingBankCount={pendingBankCount}
       />
 
       {/* Work area: activity feed (2/3) + stacked queues (1/3) */}

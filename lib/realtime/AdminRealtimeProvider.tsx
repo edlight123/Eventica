@@ -230,3 +230,18 @@ export function useSystemStatus() {
   const { systemStatus, isConnected, lastUpdate } = useAdminRealtime()
   return { systemStatus, isConnected, lastUpdate }
 }
+
+/**
+ * Single source of truth for the admin "needs attention" figure.
+ * Definition: pending verifications + pending bank verifications.
+ * Consumed by the top-nav Verifications badge, the command-bar bell badge,
+ * the "Pending Tasks" KPI, and the dashboard quick-actions urgent count so
+ * they never disagree. Backed by the provider's existing 10s poll — no extra
+ * fetch loop.
+ */
+export function useAdminPendingCount() {
+  const { metrics, isConnected } = useAdminRealtime()
+  const pendingCount = metrics?.pendingCount ?? 0
+  const pendingBankCount = metrics?.pendingBankCount ?? 0
+  return { pendingCount, pendingBankCount, total: pendingCount + pendingBankCount, isConnected }
+}

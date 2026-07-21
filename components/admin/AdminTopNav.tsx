@@ -2,9 +2,9 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
 import { Lock, Settings, Wrench } from 'lucide-react'
 import { TikemWordmark } from '@/components/ui/TikemLogo'
+import { useAdminPendingCount } from '@/lib/realtime/AdminRealtimeProvider'
 
 const DEV_EMAILS = ['edward.laguerre+dev@gmail.com', 'edwardlaguerre7@gmail.com']
 
@@ -27,38 +27,16 @@ interface Tab {
  */
 export function AdminTopNav({ userEmail, accountInitial = 'A' }: AdminTopNavProps) {
   const pathname = usePathname()
-  const [pendingVerifications, setPendingVerifications] = useState(0)
-  const [pendingBank, setPendingBank] = useState(0)
-
-  useEffect(() => {
-    let active = true
-    const fetchCounts = async () => {
-      try {
-        const res = await fetch('/api/admin/platform-counts')
-        if (res.ok) {
-          const data = await res.json()
-          if (!active) return
-          setPendingVerifications(data.pendingVerifications || 0)
-          setPendingBank(data.pendingBankVerifications || 0)
-        }
-      } catch {
-        /* non-fatal */
-      }
-    }
-    fetchCounts()
-    const id = setInterval(fetchCounts, 30000)
-    return () => {
-      active = false
-      clearInterval(id)
-    }
-  }, [])
+  // Single source of truth: the AdminRealtimeProvider (10s poll) feeds the
+  // combined "needs attention" figure — no independent polling here.
+  const { total: pendingTotal } = useAdminPendingCount()
 
   const isDeveloper = !!userEmail && DEV_EMAILS.includes(userEmail)
 
   const tabs: Tab[] = [
     { label: 'Dashboard', href: '/admin' },
     { label: 'People', href: '/admin/users' },
-    { label: 'Verifications', href: '/admin/verify', badge: pendingVerifications + pendingBank },
+    { label: 'Verifications', href: '/admin/verify', badge: pendingTotal },
     { label: 'Events', href: '/admin/events' },
     { label: 'Orders', href: '/admin/orders' },
     { label: 'Payouts', href: '/admin/disbursements' },
