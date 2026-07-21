@@ -94,30 +94,23 @@ export async function getUsersByIds(userIds: string[]): Promise<Map<string, User
   try {
     if (userIds.length === 0) return new Map()
     
-    // Firestore 'in' query supports max 10 items, batch them
+    // Resolve users by document reference (getAll) rather than a
+    // `where('__name__', 'in', batch)` query: filtering on the documentId
+    // requires Key values, not bare id strings, so passing plain ids throws
+    // "__key__ filter value must be a Key". getAll takes plain refs, has no
+    // 10-item cap, and returns missing docs with `exists === false`.
     const userMap = new Map<string, User>()
-    const batches = []
-    
-    for (let i = 0; i < userIds.length; i += 10) {
-      const batch = userIds.slice(i, i + 10)
-      batches.push(
-        adminDb.collection('users')
-          .where('__name__', 'in', batch)
-          .get()
-      )
-    }
+    const refs = userIds.map((id) => adminDb.collection('users').doc(id))
+    const docs = await adminDb.getAll(...refs)
 
-    const snapshots = await Promise.all(batches)
-    
-    for (const snapshot of snapshots) {
-      snapshot.docs.forEach((doc: any) => {
-        const data = doc.data()
-        userMap.set(doc.id, {
-          id: doc.id,
-          ...data,
-          created_at: data.created_at?.toDate?.()?.toISOString() || data.created_at,
-          updated_at: data.updated_at?.toDate?.()?.toISOString() || data.updated_at,
-        })
+    for (const doc of docs) {
+      if (!doc.exists) continue
+      const data = doc.data() as any
+      userMap.set(doc.id, {
+        id: doc.id,
+        ...data,
+        created_at: data.created_at?.toDate?.()?.toISOString() || data.created_at,
+        updated_at: data.updated_at?.toDate?.()?.toISOString() || data.updated_at,
       })
     }
 

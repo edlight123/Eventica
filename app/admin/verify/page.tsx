@@ -185,16 +185,16 @@ export default async function AdminVerifyPage({
 
   const usersById = new Map<string, any>()
   try {
-    const batches: Promise<any>[] = []
-    for (let i = 0; i < userIds.length; i += 10) {
-      const batch = userIds.slice(i, i + 10)
-      batches.push(adminDb.collection('users').where('__name__', 'in', batch).get())
-    }
-    const snaps = await Promise.all(batches)
-    for (const snap of snaps) {
-      for (const doc of snap.docs) {
-        usersById.set(doc.id, { id: doc.id, ...serializeFirestoreValue(doc.data()) })
-      }
+    // Resolve users by document reference (getAll) rather than a
+    // `where('__name__', 'in', batch)` query: filtering on the documentId
+    // requires Key values, not bare id strings, so passing plain ids throws
+    // "__key__ filter value must be a Key". getAll takes plain refs, has no
+    // 10-item cap, and returns missing docs with `exists === false`.
+    const refs = (userIds as string[]).map((id) => adminDb.collection('users').doc(id))
+    const docs = refs.length > 0 ? await adminDb.getAll(...refs) : []
+    for (const doc of docs) {
+      if (!doc.exists) continue
+      usersById.set(doc.id, { id: doc.id, ...serializeFirestoreValue(doc.data()) })
     }
   } catch (err) {
     console.error('Error fetching users for verification requests:', err)
