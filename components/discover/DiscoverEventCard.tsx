@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Bookmark } from 'lucide-react'
+import { Bookmark, Users } from 'lucide-react'
 import { isValid, parseISO } from 'date-fns'
 import type { Database } from '@/types/database'
 import {
@@ -13,6 +13,7 @@ import {
   toggleBookmark as toggleBookmarkHelper,
 } from '@/lib/discover/helpers'
 import { PosterCard } from '@/components/ui/PosterCard'
+import { useFriendsGoingCount } from './FriendsGoingContext'
 
 type Event = Database['public']['Tables']['events']['Row']
 
@@ -34,6 +35,7 @@ export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
   }
 
   const cue = getEventCue(event)
+  const friendsGoing = useFriendsGoingCount(event.id)
   const priceLabel = getPriceLabel(event.ticket_price, event.currency)
   // Venue-first: the venue name adds variety and is rarely redundant; fall back
   // to the city/commune summary only when there's no venue (e.g. online events).
@@ -45,20 +47,28 @@ export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
   const dateLabel =
     parsedDate && isValid(parsedDate) ? formatEventDate(event.start_datetime) : undefined
 
-  // A single, most-important chip on the poster: prefer the derived status cue
-  // (Popular / Few tickets left), otherwise fall back to the category.
+  // Poster overlay chips, stacked top-left: the status cue (Popular / Few tickets
+  // left, else category) plus a friends-going social-proof chip when relevant.
   const badge = (
-    <span
-      className={`eyebrow inline-flex rounded-md px-2 py-1 text-[9px] tracking-[0.1em] backdrop-blur-md ${
-        cue
-          ? cue.variant === 'warning'
-            ? 'bg-amber-400/90 text-amber-950'
-            : 'bg-white text-black'
-          : 'bg-black/30 text-white'
-      }`}
-    >
-      {cue ? cue.label : event.category}
-    </span>
+    <div className="flex flex-col items-start gap-1">
+      <span
+        className={`eyebrow inline-flex rounded-md px-2 py-1 text-[9px] tracking-[0.1em] backdrop-blur-md ${
+          cue
+            ? cue.variant === 'warning'
+              ? 'bg-amber-400/90 text-amber-950'
+              : 'bg-white text-black'
+            : 'bg-black/30 text-white'
+        }`}
+      >
+        {cue ? cue.label : event.category}
+      </span>
+      {friendsGoing > 0 && (
+        <span className="label-mono inline-flex items-center gap-1 rounded-md bg-black/40 px-2 py-1 text-[9px] uppercase tracking-[0.1em] text-white/90 backdrop-blur-md">
+          <Users className="h-3 w-3" />
+          {friendsGoing} {friendsGoing === 1 ? 'friend' : 'friends'}
+        </span>
+      )}
+    </div>
   )
 
   return (
