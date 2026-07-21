@@ -5,6 +5,15 @@ import { AlertCircle } from 'lucide-react'
 import { DataTable, type Column, type DataTableSelection } from '@/components/ui/DataTable'
 import { StatusChip } from '@/components/ui/kit'
 
+// Some legacy/seed events carry a missing or malformed start_datetime. Passing an
+// Invalid Date to date-fns `format` throws "RangeError: Invalid time value" and
+// crashes the whole moderation table, so format defensively.
+function formatEventDate(value?: string): string {
+  if (!value) return '—'
+  const d = new Date(value)
+  return isNaN(d.getTime()) ? '—' : format(d, 'MMM d, yyyy')
+}
+
 interface Event {
   id: string
   title: string
@@ -44,7 +53,7 @@ export function AdminEventsTable({
       header: 'Date',
       render: (event) => (
         <span className="whitespace-nowrap font-mono text-sm tabular-nums text-white/60">
-          {format(new Date(event.start_datetime), 'MMM d, yyyy')}
+          {formatEventDate(event.start_datetime)}
         </span>
       ),
     },
@@ -119,7 +128,7 @@ export function AdminEventsTable({
           </div>
 
           <div className="space-y-1 text-xs text-white/60">
-            <div className="font-mono tabular-nums">{format(new Date(event.start_datetime), 'MMM d, yyyy')}</div>
+            <div className="font-mono tabular-nums">{formatEventDate(event.start_datetime)}</div>
             <div className="font-mono">{event.city}</div>
             <div>{event.organizer_name}</div>
           </div>
