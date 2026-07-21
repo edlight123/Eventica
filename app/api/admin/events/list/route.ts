@@ -114,17 +114,15 @@ export async function POST(request: NextRequest) {
     )
     const organizersMap = new Map<string, { name: string; email: string; verified: boolean }>()
     if (organizerIds.length > 0) {
-      const batches = []
-      for (let i = 0; i < organizerIds.length; i += 10) {
-        batches.push(
-          adminDb
-            .collection('users')
-            .where('__name__', 'in', organizerIds.slice(i, i + 10))
-            .get(),
-        )
-      }
-      const results = await Promise.all(batches)
-      results.flatMap((r) => r.docs).forEach((doc: any) => {
+      // Resolve users by document reference (getAll) rather than a
+      // `where('__name__', 'in', batch)` query: filtering on the documentId
+      // requires Key values, not bare id strings, so passing plain ids throws
+      // "__key__ filter value must be a Key". getAll takes plain refs, has no
+      // 10-item cap, and returns missing docs with `exists === false`.
+      const refs = (organizerIds as string[]).map((id) => adminDb.collection('users').doc(id))
+      const results = await adminDb.getAll(...refs)
+      results.forEach((doc: any) => {
+        if (!doc.exists) return
         const data = doc.data()
         organizersMap.set(doc.id, {
           name: data.full_name || data.email || 'Unknown',

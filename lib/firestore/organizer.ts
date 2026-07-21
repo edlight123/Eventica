@@ -87,14 +87,18 @@ export async function getOrganizerCustomers(organizerId: string) {
     const eventTitleById = new Map<string, string>(events.map((e: any) => [e.id, e.title || 'Untitled event']))
     const tickets = await getOrganizerTickets(organizerId)
 
-    // Resolve buyer details in batches of 10 (Firestore 'in' limit).
-    const userIds = Array.from(new Set(tickets.map((t: any) => t.user_id).filter(Boolean)))
+    // Resolve buyer details by document reference (getAll) rather than a
+    // `where('__name__', 'in', batch)` query: filtering on the documentId
+    // requires Key values, not bare id strings, so passing plain ids throws
+    // "__key__ filter value must be a Key". getAll takes plain refs, has no
+    // 10-item cap, and returns missing docs with `exists === false`.
+    const userIds = Array.from(new Set(tickets.map((t: any) => t.user_id).filter(Boolean))) as string[]
     const userById = new Map<string, { name: string; email: string; phone: string }>()
-    for (let i = 0; i < userIds.length; i += 10) {
-      const batch = userIds.slice(i, i + 10)
-      if (batch.length === 0) continue
-      const snap = await adminDb.collection('users').where('__name__', 'in', batch).get()
-      snap.docs.forEach((doc: any) => {
+    if (userIds.length > 0) {
+      const refs = userIds.map((id) => adminDb.collection('users').doc(id))
+      const docs = await adminDb.getAll(...refs)
+      docs.forEach((doc: any) => {
+        if (!doc.exists) return
         const d = doc.data()
         userById.set(doc.id, {
           name: d.full_name || d.display_name || d.displayName || 'Guest',

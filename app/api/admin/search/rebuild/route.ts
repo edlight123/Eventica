@@ -34,21 +34,21 @@ function encodeCursor(path: string): string {
   return Buffer.from(JSON.stringify({ path }), 'utf8').toString('base64url')
 }
 
+// Resolve docs by document reference (getAll) rather than a
+// `where('__name__', 'in', batch)` query: filtering on the documentId requires
+// Key values, not bare id strings, so passing plain ids throws
+// "__key__ filter value must be a Key". getAll takes plain refs, has no 10-item
+// cap, and returns missing docs with `exists === false`.
 async function batchGetUsersById(ids: string[]): Promise<Map<string, any>> {
   const out = new Map<string, any>()
   if (!ids.length) return out
 
-  const chunks: string[][] = []
-  for (let i = 0; i < ids.length; i += 10) chunks.push(ids.slice(i, i + 10))
+  const refs = ids.map((id) => adminDb.collection('users').doc(id))
+  const docs = await adminDb.getAll(...refs)
 
-  const snaps = await Promise.all(
-    chunks.map((batch) => adminDb.collection('users').where('__name__', 'in', batch).get())
-  )
-
-  for (const snap of snaps) {
-    for (const doc of snap.docs) {
-      out.set(doc.id, doc.data())
-    }
+  for (const doc of docs) {
+    if (!doc.exists) continue
+    out.set(doc.id, doc.data())
   }
 
   return out
@@ -58,17 +58,12 @@ async function batchGetEventsById(ids: string[]): Promise<Map<string, any>> {
   const out = new Map<string, any>()
   if (!ids.length) return out
 
-  const chunks: string[][] = []
-  for (let i = 0; i < ids.length; i += 10) chunks.push(ids.slice(i, i + 10))
+  const refs = ids.map((id) => adminDb.collection('events').doc(id))
+  const docs = await adminDb.getAll(...refs)
 
-  const snaps = await Promise.all(
-    chunks.map((batch) => adminDb.collection('events').where('__name__', 'in', batch).get())
-  )
-
-  for (const snap of snaps) {
-    for (const doc of snap.docs) {
-      out.set(doc.id, doc.data())
-    }
+  for (const doc of docs) {
+    if (!doc.exists) continue
+    out.set(doc.id, doc.data())
   }
 
   return out

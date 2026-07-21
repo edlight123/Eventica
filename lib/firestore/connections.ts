@@ -55,24 +55,22 @@ export async function getPublicUserSummaries(
   const unique = Array.from(new Set(userIds.filter(Boolean)))
   if (unique.length === 0) return result
 
-  const chunks: string[][] = []
-  for (let i = 0; i < unique.length; i += 30) {
-    chunks.push(unique.slice(i, i + 30))
-  }
+  // Resolve users by document reference (getAll) rather than a
+  // `where('__name__', 'in', chunk)` query: filtering on the documentId
+  // requires Key values, not bare id strings, so passing plain ids throws
+  // "__key__ filter value must be a Key". getAll takes plain refs, has no
+  // 30-item cap, and returns missing docs with `exists === false`.
+  const refs = unique.map((id) => adminDb.collection('users').doc(id))
+  const docs = await adminDb.getAll(...refs)
 
-  const snapshots = await Promise.all(
-    chunks.map((chunk) => adminDb.collection('users').where('__name__', 'in', chunk).get())
-  )
-
-  snapshots.forEach((snap: any) => {
-    snap.docs.forEach((doc: any) => {
-      const data = doc.data() || {}
-      result.set(doc.id, {
-        uid: doc.id,
-        displayName: data.full_name || data.display_name || data.displayName || 'Tikèm user',
-        photoURL: data.photo_url || data.photoURL || '',
-        isVerified: Boolean(data.is_verified),
-      })
+  docs.forEach((doc: any) => {
+    if (!doc.exists) return
+    const data = doc.data() || {}
+    result.set(doc.id, {
+      uid: doc.id,
+      displayName: data.full_name || data.display_name || data.displayName || 'Tikèm user',
+      photoURL: data.photo_url || data.photoURL || '',
+      isVerified: Boolean(data.is_verified),
     })
   })
 

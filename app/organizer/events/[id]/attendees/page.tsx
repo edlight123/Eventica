@@ -90,27 +90,23 @@ export default async function AttendeesPage({ params }: { params: Promise<{ id: 
   const attendeesMap = new Map<string, any>()
   
   if (attendeeIds.length > 0) {
-    // Firestore 'in' queries support up to 30 items, so chunk if needed
-    const chunks = []
-    for (let i = 0; i < attendeeIds.length; i += 30) {
-      chunks.push(attendeeIds.slice(i, i + 30))
-    }
-    
-    const userSnapshots = await Promise.all(
-      chunks.map(chunk => 
-        adminDb.collection('users').where('__name__', 'in', chunk).get()
-      )
-    )
-    
-    userSnapshots.forEach(snapshot => {
-      snapshot.docs.forEach((doc: any) => {
-        const userData = doc.data()
-        attendeesMap.set(doc.id, {
-          id: doc.id,
-          email: userData.email || '',
-          full_name: userData.full_name || '',
-          phone_number: userData.phone_number || ''
-        })
+    // Resolve users by document reference (getAll) rather than a
+    // `where('__name__', 'in', chunk)` query: filtering on the documentId
+    // requires Key values, not bare id strings, so passing plain ids throws
+    // "__key__ filter value must be a Key" — which previously left this map
+    // empty so every attendee name fell back to blank. getAll takes plain refs,
+    // has no 30-item cap, and returns missing docs with `exists === false`.
+    const refs = attendeeIds.map((id: any) => adminDb.collection('users').doc(id))
+    const userDocs = await adminDb.getAll(...refs)
+
+    userDocs.forEach((doc: any) => {
+      if (!doc.exists) return
+      const userData = doc.data()
+      attendeesMap.set(doc.id, {
+        id: doc.id,
+        email: userData.email || '',
+        full_name: userData.full_name || '',
+        phone_number: userData.phone_number || ''
       })
     })
   }

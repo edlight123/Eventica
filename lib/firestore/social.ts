@@ -42,20 +42,22 @@ function attendanceVisibilityOf(data: any): AttendanceVisibility {
   return data?.privacy?.attendance_visibility || DEFAULT_PRIVACY.attendance_visibility
 }
 
-/** Batch-fetch raw user docs (chunks of 30) keyed by id. */
+/** Batch-fetch raw user docs keyed by id via getAll. */
 async function fetchUserDocs(ids: string[]): Promise<Map<string, any>> {
   const map = new Map<string, any>()
   const unique = Array.from(new Set(ids.filter(Boolean)))
   if (unique.length === 0) return map
 
-  const chunks: string[][] = []
-  for (let i = 0; i < unique.length; i += 30) chunks.push(unique.slice(i, i + 30))
-
-  const snaps = await Promise.all(
-    chunks.map((chunk) => adminDb.collection('users').where('__name__', 'in', chunk).get())
-  )
-  snaps.forEach((snap: any) => {
-    snap.docs.forEach((doc: any) => map.set(doc.id, doc.data() || {}))
+  // Resolve users by document reference (getAll) rather than a
+  // `where('__name__', 'in', chunk)` query: filtering on the documentId
+  // requires Key values, not bare id strings, so passing plain ids throws
+  // "__key__ filter value must be a Key". getAll takes plain refs, has no
+  // 30-item cap, and returns missing docs with `exists === false`.
+  const refs = unique.map((id) => adminDb.collection('users').doc(id))
+  const docs = await adminDb.getAll(...refs)
+  docs.forEach((doc: any) => {
+    if (!doc.exists) return
+    map.set(doc.id, doc.data() || {})
   })
   return map
 }

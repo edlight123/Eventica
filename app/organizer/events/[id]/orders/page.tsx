@@ -42,22 +42,20 @@ export default async function EventOrdersPage({
   const attendeesMap = new Map<string, { name: string; email: string }>()
 
   if (attendeeIds.length > 0) {
-    const chunks: string[][] = []
-    for (let i = 0; i < attendeeIds.length; i += 30) {
-      chunks.push(attendeeIds.slice(i, i + 30))
-    }
-    const snaps = await Promise.all(
-      chunks.map((chunk) =>
-        adminDb.collection('users').where('__name__', 'in', chunk).get()
-      )
-    )
-    snaps.forEach((snap) => {
-      snap.docs.forEach((doc: FirebaseFirestore.QueryDocumentSnapshot) => {
-        const d = doc.data()
-        attendeesMap.set(doc.id, {
-          name: d.full_name || d.name || d.email || 'Unknown',
-          email: d.email || '',
-        })
+    // Resolve users by document reference (getAll) rather than a
+    // `where('__name__', 'in', chunk)` query: filtering on the documentId
+    // requires Key values, not bare id strings, so passing plain ids throws
+    // "__key__ filter value must be a Key" — which previously left this map
+    // empty so every attendee name fell back to "Unknown". getAll takes plain
+    // refs, has no 30-item cap, and returns missing docs with `exists === false`.
+    const refs = (attendeeIds as string[]).map((id) => adminDb.collection('users').doc(id))
+    const docs = await adminDb.getAll(...refs)
+    docs.forEach((doc: any) => {
+      if (!doc.exists) return
+      const d = doc.data() as any
+      attendeesMap.set(doc.id, {
+        name: d.full_name || d.name || d.email || 'Unknown',
+        email: d.email || '',
       })
     })
   }
