@@ -138,30 +138,51 @@ export async function GET(request: Request) {
       })
     }
 
-    // Fetch event names for display
-    const eventIds = Array.from(new Set(orders.map((o: any) => o.event_id || o.eventId).filter(Boolean))) as string[]
+    // Fetch event titles for display.
+    //
+    // Resolve each event by document reference (getAll) rather than a
+    // `where('__name__', 'in', batch)` query. Filtering on the documentId /
+    // `__name__` field requires Key values, not bare ID strings — passing plain
+    // ids throws "__key__ filter value must be a Key". The previous query
+    // therefore failed for every batch, the error was swallowed by the catch,
+    // and every order fell back to "Unknown Event". getAll accepts plain doc
+    // refs, has no 10-item `in` cap, and returns missing docs with
+    // `exists === false`, so genuinely-deleted events still fall back cleanly.
+    const eventIds = Array.from(
+      new Set(orders.map((o: any) => o.event_id || o.eventId).filter(Boolean)),
+    ) as string[]
     const eventNames: Record<string, string> = {}
 
     if (eventIds.length > 0) {
-      // Batch fetch events (max 10 per query due to Firestore 'in' limit)
-      for (let i = 0; i < eventIds.length; i += 10) {
-        const batch = eventIds.slice(i, i + 10)
-        try {
-          const eventsSnap = await adminDb.collection('events').where('__name__', 'in', batch).get()
-          eventsSnap.docs.forEach((doc: any) => {
-            eventNames[doc.id] = doc.data()?.title || doc.data()?.name || 'Unknown Event'
-          })
-        } catch (e) {
-          console.warn('Failed to fetch event names batch', e)
-        }
+      try {
+        const refs = eventIds.map((id) => adminDb.collection('events').doc(id))
+        const eventDocs = await adminDb.getAll(...refs)
+        eventDocs.forEach((doc: any) => {
+          if (doc.exists) {
+            const data = doc.data()
+            const title = data?.title || data?.name
+            if (title) eventNames[doc.id] = title
+          }
+        })
+      } catch (e) {
+        console.warn('Failed to fetch event names', e)
       }
     }
 
-    // Enrich orders with event names
-    orders = orders.map((order: any) => ({
-      ...order,
-      event_name: eventNames[order.event_id || order.eventId] || 'Unknown Event',
-    }))
+    // Enrich orders with the resolved event title. Fall back to any title that
+    // was denormalized onto the order at purchase time before giving up with
+    // "Unknown Event" (only for orders whose event truly no longer exists).
+    orders = orders.map((order: any) => {
+      const eventId = order.event_id || order.eventId
+      return {
+        ...order,
+        event_name:
+          (eventId && eventNames[eventId]) ||
+          order.event_title ||
+          order.event_name ||
+          'Unknown Event',
+      }
+    })
 
     return adminOk({
       orders,
