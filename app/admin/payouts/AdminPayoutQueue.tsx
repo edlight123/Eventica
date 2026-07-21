@@ -5,6 +5,7 @@ import { Clock, Wallet, Download, CheckCircle } from 'lucide-react'
 import PayoutReceiptUpload from '@/components/admin/PayoutReceiptUpload'
 import { formatCurrency as formatMoney, type Currency } from '@/lib/currency'
 import { StatusChip } from '@/components/ui/kit'
+import { StatTriplet, type StatItem } from '@/components/ui/StatTriplet'
 
 interface Payout {
   id: string
@@ -205,39 +206,28 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
     a.click()
   }
 
+  const summaryItems: StatItem[] = [
+    { label: 'Pending Requests', value: pendingCount, tone: 'amber', icon: Clock },
+    { label: 'Awaiting Payment', value: approvedCount, tone: 'emerald', icon: CheckCircle },
+    {
+      label: 'Total in Queue',
+      value: formatCurrency(payouts.reduce((sum, p) => sum + p.amount, 0)),
+      icon: Wallet,
+    },
+  ]
+
   return (
     <div className="space-y-4">
       {/* Summary Strip */}
-      <div className="grid grid-cols-2 divide-x divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10 sm:grid-cols-4 sm:divide-y-0">
-        <div className="p-4">
-          <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
-            <Clock className="h-3.5 w-3.5 text-amber-400/60" /> Pending Requests
-          </div>
-          <div className="font-mono text-2xl font-bold tabular-nums text-amber-300">{pendingCount}</div>
-        </div>
-        <div className="p-4">
-          <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
-            <CheckCircle className="h-3.5 w-3.5 text-emerald-400/60" /> Awaiting Payment
-          </div>
-          <div className="font-mono text-2xl font-bold tabular-nums text-emerald-300">{approvedCount}</div>
-        </div>
-        <div className="p-4">
-          <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
-            <Wallet className="h-3.5 w-3.5 text-white/30" /> Total in Queue
-          </div>
-          <div className="font-mono text-2xl font-bold tabular-nums text-white">
-            {formatCurrency(payouts.reduce((sum, p) => sum + p.amount, 0))}
-          </div>
-        </div>
-        <div className="flex items-center justify-center p-4">
-          <button
-            onClick={exportCSV}
-            disabled={payouts.length === 0}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-700 disabled:opacity-40"
-          >
-            <Download className="h-4 w-4" /> Export CSV
-          </button>
-        </div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <StatTriplet items={summaryItems} columns={3} className="flex-1" />
+        <button
+          onClick={exportCSV}
+          disabled={payouts.length === 0}
+          className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-700 disabled:opacity-40"
+        >
+          <Download className="h-4 w-4" /> Export CSV
+        </button>
       </div>
 
       {/* Payouts Table */}
