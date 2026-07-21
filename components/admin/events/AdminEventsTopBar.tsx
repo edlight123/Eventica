@@ -36,14 +36,14 @@ export function AdminEventsTopBar({
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Search events by title, city, or organizer..."
-              className="w-full pl-10 pr-4 py-2.5  rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
+              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-white/10 bg-white/[0.03] text-sm text-white placeholder:text-white/45 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
             />
           </div>
 
           {/* Filters Button */}
           <button
             onClick={onOpenFilters}
-            className="flex items-center gap-2 px-4 py-2.5  rounded-lg hover:bg-white/[0.04] text-sm font-medium whitespace-nowrap"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-white/10 text-white/80 hover:bg-white/[0.04] hover:text-white text-sm font-medium whitespace-nowrap"
           >
             <Filter className="w-4 h-4" />
             <span>Filters</span>
@@ -71,7 +71,7 @@ export function AdminEventsTopBar({
                     className="fixed inset-0 z-10"
                     onClick={() => setShowBulkMenu(false)}
                   />
-                  <div className="absolute right-0 mt-2 w-48 bg-[#0a0a0a] rounded-lg shadow-lg  py-1 z-20">
+                  <div className="absolute right-0 mt-2 w-48 bg-[#0a0a0a] border border-white/10 rounded-lg shadow-lg py-1 z-20">
                     <button
                       onClick={() => {
                         onBulkAction('publish')

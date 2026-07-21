@@ -101,7 +101,7 @@ export default function VerifyOrganizerForm({ organizers }: Props) {
         filtered.map(organizer => (
           <div
             key={organizer.id}
-            className="flex items-center justify-between p-4  rounded-lg hover:bg-white/[0.04] transition-colors"
+            className="flex items-center justify-between p-4 rounded-lg border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] transition-colors"
           >
             <div className="flex-1">
               <div className="flex items-center gap-2">

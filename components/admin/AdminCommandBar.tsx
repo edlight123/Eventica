@@ -112,7 +112,7 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
                 onFocus={() => searchQuery && setShowResults(true)}
                 onBlur={() => setTimeout(() => setShowResults(false), 200)}
                 placeholder={t('nav.search_placeholder')}
-                className="w-full pl-10 pr-10 py-2  rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
+                className="w-full pl-10 pr-10 py-2 rounded-lg border border-white/10 bg-white/[0.03] text-sm text-white placeholder:text-white/45 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
               />
               {isSearching && (
                 <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50 animate-spin" />
@@ -121,7 +121,7 @@ export function AdminCommandBar({}: AdminCommandBarProps) {
             
             {/* Search Results Dropdown */}
             {showResults && searchQuery && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-[#0a0a0a]  rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
+              <div className="absolute top-full left-0 right-0 mt-1 bg-[#0a0a0a] border border-white/10 rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
                 {isSearching ? (
                   <div className="p-8 text-center">
                     <Loader2 className="w-6 h-6 text-brand-300 animate-spin mx-auto mb-2" />

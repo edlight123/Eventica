@@ -103,7 +103,7 @@ export function RealTimeMetrics({
   ]
 
   return (
-    <div className="mb-5 sm:mb-6 rounded-2xl ">
+    <div className="mb-5 sm:mb-6 rounded-2xl border border-white/10 bg-white/[0.02] overflow-hidden">
       <div className="grid grid-cols-2 divide-x divide-y divide-white/10 sm:grid-cols-3 lg:grid-cols-6 lg:divide-y-0">
         {metrics.map((metric) => {
           const Icon = metric.icon

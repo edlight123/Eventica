@@ -205,7 +205,7 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
       {/* Events Table */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {loading ? (
-          <div className="bg-[#0a0a0a] rounded-xl  p-12 text-center">
+          <div className="bg-[#0a0a0a] border border-white/10 rounded-xl p-12 text-center">
             <p className="text-white/50">Loading events...</p>
           </div>
         ) : (

@@ -37,7 +37,7 @@ export function AdminEventsTabs({ activeTab, onTabChange, tabs }: AdminEventsTab
                     px-2 py-0.5 rounded-full font-mono text-xs font-bold tabular-nums
                     ${isActive
                       ? 'text-brand-300'
-                      : 'bg-[#0a0a0a] text-white/60'
+                      : 'bg-white/10 text-white/60'
                     }
                   `}>
                     {tab.count}
