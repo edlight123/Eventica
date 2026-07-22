@@ -7,9 +7,12 @@ import { format } from 'date-fns'
 interface AddToWalletButtonProps {
   ticket: any
   event: any
+  /** DOM id of this ticket's QR container. Must match the QRCodeDisplay id so
+   *  PDF capture grabs THIS ticket's QR, not the first one on the page. */
+  qrElementId?: string
 }
 
-export default function AddToWalletButton({ ticket, event }: AddToWalletButtonProps) {
+export default function AddToWalletButton({ ticket, event, qrElementId = 'ticket-qr-code' }: AddToWalletButtonProps) {
   const [isDownloading, setIsDownloading] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
 
@@ -31,7 +34,7 @@ export default function AddToWalletButton({ ticket, event }: AddToWalletButtonPr
     
     try {
       // Find the QR code SVG element by its container
-      const qrContainer = document.getElementById('ticket-qr-code')
+      const qrContainer = document.getElementById(qrElementId)
       const qrCodeElement = qrContainer?.querySelector('svg') as SVGElement
       
       if (!qrCodeElement) {
