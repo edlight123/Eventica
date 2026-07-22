@@ -432,7 +432,7 @@ export default {
     saveFailedCreate: 'Failed to create event. Please try again.',
     saveFailedUpdate: 'Failed to update event. Please try again.',
     entry: {
-      title: 'What kind of event?',
+      title: "Let's launch your next event",
       subtitle: 'You can change the details later.',
       sellTitle: 'Sell tickets',
       sellDesc: 'Set prices and ticket tiers.',
@@ -457,6 +457,18 @@ export default {
       tierPrice: 'Enter a valid price',
       tierQuantity: 'Enter a quantity',
       capacity: 'Enter a guest cap',
+    },
+    canvas: {
+      flyerTitle: 'Design your event page',
+      uploadFlyer: 'Upload Flyer',
+      changeFlyer: 'Change flyer',
+      titlePlaceholder: 'Event title',
+      start: 'Start',
+      end: 'End',
+      additionalDetails: 'Additional Details',
+      eventSummary: 'Event summary (optional)',
+      ticketsHeader: 'Tickets',
+      addTicketType: 'Add ticket type',
     },
   },
 

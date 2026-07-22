@@ -1246,7 +1246,7 @@ export default {
     saveFailedCreate: "Échec de la création de l'événement. Veuillez réessayer.",
     saveFailedUpdate: "Échec de la mise à jour de l'événement. Veuillez réessayer.",
     entry: {
-      title: "Quel type d'événement ?",
+      title: 'Lançons votre prochain événement',
       subtitle: 'Vous pourrez modifier les détails plus tard.',
       sellTitle: 'Vendre des billets',
       sellDesc: 'Définir les prix et les types de billets.',
@@ -1271,6 +1271,18 @@ export default {
       tierPrice: 'Saisissez un prix valide',
       tierQuantity: 'Saisissez une quantité',
       capacity: 'Saisissez une limite',
+    },
+    canvas: {
+      flyerTitle: 'Concevez votre page d’événement',
+      uploadFlyer: 'Ajouter une affiche',
+      changeFlyer: 'Changer l’affiche',
+      titlePlaceholder: 'Titre de l’événement',
+      start: 'Début',
+      end: 'Fin',
+      additionalDetails: 'Détails supplémentaires',
+      eventSummary: 'Résumé de l’événement (facultatif)',
+      ticketsHeader: 'Billets',
+      addTicketType: 'Ajouter un type de billet',
     },
   },
 

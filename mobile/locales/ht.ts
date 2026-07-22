@@ -1244,7 +1244,7 @@ export default {
     saveFailedCreate: 'Pa t kapab kreye evènman an. Tanpri eseye ankò.',
     saveFailedUpdate: 'Pa t kapab mete evènman an ajou. Tanpri eseye ankò.',
     entry: {
-      title: 'Ki kalite evènman?',
+      title: 'Ann lanse pwochen evènman ou',
       subtitle: 'Ou ka chanje detay yo pita.',
       sellTitle: 'Vann tikè',
       sellDesc: 'Mete pri ak kategori tikè.',
@@ -1269,6 +1269,18 @@ export default {
       tierPrice: 'Antre yon pri valab',
       tierQuantity: 'Antre yon kantite',
       capacity: 'Antre yon limit envite',
+    },
+    canvas: {
+      flyerTitle: 'Konsevwa paj evènman ou',
+      uploadFlyer: 'Mete afich',
+      changeFlyer: 'Chanje afich',
+      titlePlaceholder: 'Tit evènman',
+      start: 'Kòmansman',
+      end: 'Fen',
+      additionalDetails: 'Detay anplis',
+      eventSummary: 'Rezime evènman (opsyonèl)',
+      ticketsHeader: 'Tikè',
+      addTicketType: 'Ajoute yon kalite tikè',
     },
   },
 

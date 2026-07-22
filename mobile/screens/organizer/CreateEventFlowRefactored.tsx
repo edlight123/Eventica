@@ -1,19 +1,21 @@
 /**
- * CreateEventFlow - Parent stepper component
+ * CreateEventFlow — POSH flyer-first single-canvas create/edit flow.
  *
  * Architecture:
- * - Single source of truth: eventDraft state
- * - Two-choice entry (Sell tickets vs free RSVP) before Step 1 (POSH §2.10)
- * - Only active step is rendered (prevents gesture conflicts)
- * - Each step receives draft + updateDraft + inline per-field `errors`
- * - Inline per-field validation on Continue (no Alert.alert banners)
- * - A confirmation sheet before publishing, with a save-as-draft escape hatch
+ * - Single source of truth: eventDraft state.
+ * - Create mode opens a two-tile entry chooser (Sell tickets vs free RSVP),
+ *   then drops into ONE scrolling canvas. Edit mode goes straight to the canvas.
+ * - No numbered stepper: the flyer hero + borderless inline fields ARE the form
+ *   and the preview at once (POSH IMG_1843/1847/1848/1849).
+ * - Inline per-field validation (red placeholder + red divider). A confirmation
+ *   sheet gates publishing in create mode, with a save-as-draft escape hatch.
  */
 
 import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
+  TextInput,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
@@ -24,8 +26,12 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Modal,
+  KeyboardTypeOptions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
+import * as ImagePicker from 'expo-image-picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -36,6 +42,7 @@ import { getEventById } from '../../lib/api/organizer';
 import { RADIUS } from '../../config/brand';
 import { db } from '../../config/firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import { COUNTRIES, CITIES_BY_COUNTRY } from '../../types/filters';
 import WhitePillCTA from '../../components/WhitePillCTA';
 import { font } from '../../theme/tokens';
 
@@ -43,13 +50,6 @@ type RouteParams = {
   CreateEvent: undefined;
   EditEvent: { eventId: string };
 };
-
-// Import step components
-import Step1Basics from './steps/Step1Basics';
-import Step2Location from './steps/Step2Location';
-import Step3ScheduleRefactored from './steps/Step3ScheduleRefactored';
-import Step4Tickets from './steps/Step4Tickets';
-import Step5Preview from './steps/Step5Preview';
 
 // Per-field inline validation errors, keyed by field name.
 export type FieldErrors = Record<string, string>;
@@ -89,13 +89,141 @@ export interface EventDraft {
   capacity: string;
 }
 
-const STEPS = [
-  { id: 1, titleKey: 'organizerCreateEventFlow.steps.basics', icon: 'document-text-outline' },
-  { id: 2, titleKey: 'organizerCreateEventFlow.steps.location', icon: 'location-outline' },
-  { id: 3, titleKey: 'organizerCreateEventFlow.steps.schedule', icon: 'time-outline' },
-  { id: 4, titleKey: 'organizerCreateEventFlow.steps.tickets', icon: 'ticket-outline' },
-  { id: 5, titleKey: 'organizerCreateEventFlow.steps.preview', icon: 'eye-outline' },
+const CATEGORIES = [
+  'Music', 'Sports', 'Arts', 'Business', 'Food & Drink',
+  'Community', 'Education', 'Tech', 'Health', 'Other',
 ];
+
+const CATEGORY_LABEL_KEYS: Record<string, string> = {
+  Music: 'organizerCreateEvent.categories.music',
+  Sports: 'organizerCreateEvent.categories.sports',
+  Arts: 'organizerCreateEvent.categories.arts',
+  Business: 'organizerCreateEvent.categories.business',
+  'Food & Drink': 'organizerCreateEvent.categories.foodDrink',
+  Community: 'organizerCreateEvent.categories.community',
+  Education: 'organizerCreateEvent.categories.education',
+  Tech: 'organizerCreateEvent.categories.tech',
+  Health: 'organizerCreateEvent.categories.health',
+  Other: 'organizerCreateEvent.categories.other',
+};
+
+// ── Borderless inline field (POSH IMG_1848/1849) ──────────────────────────
+// Module-level so it doesn't remount every keystroke (which would drop focus).
+// Transparent, no box: the label doubles as the placeholder, a hairline divider
+// sits below. On error the placeholder + divider tint red (POSH required look).
+type Colors = ReturnType<typeof useTheme>['colors'];
+
+function InlineTextRow({
+  colors,
+  placeholder,
+  value,
+  onChangeText,
+  error,
+  multiline,
+  keyboardType,
+  maxLength,
+}: {
+  colors: Colors;
+  placeholder: string;
+  value: string;
+  onChangeText: (t: string) => void;
+  error?: boolean;
+  multiline?: boolean;
+  keyboardType?: KeyboardTypeOptions;
+  maxLength?: number;
+}) {
+  return (
+    <View style={[inline.row, { borderBottomColor: error ? colors.error : colors.border }]}>
+      <TextInput
+        style={[
+          multiline ? inline.multiline : inline.input,
+          { color: colors.text },
+        ]}
+        placeholder={placeholder}
+        placeholderTextColor={error ? colors.error : colors.textSecondary}
+        selectionColor={colors.primary}
+        value={value}
+        onChangeText={onChangeText}
+        multiline={!!multiline}
+        keyboardType={keyboardType}
+        maxLength={maxLength}
+        textAlignVertical={multiline ? 'top' : 'center'}
+      />
+    </View>
+  );
+}
+
+// A borderless inline row that opens the date + time pickers. Left cell = date,
+// right cell = time, so both halves of Start/End are reachable in one row.
+function InlineDateTimeRow({
+  colors,
+  label,
+  dateText,
+  timeText,
+  timePlaceholder,
+  onPressDate,
+  onPressTime,
+  error,
+}: {
+  colors: Colors;
+  label: string;
+  dateText: string;
+  timeText: string;
+  timePlaceholder: string;
+  onPressDate: () => void;
+  onPressTime: () => void;
+  error?: boolean;
+}) {
+  const hasDate = !!dateText;
+  return (
+    <View style={[inline.row, inline.rowInner, { borderBottomColor: error ? colors.error : colors.border }]}>
+      <TouchableOpacity style={inline.flex} onPress={onPressDate} activeOpacity={0.7}>
+        <Text style={[inline.rowText, { color: hasDate ? colors.text : error ? colors.error : colors.textSecondary }]}>
+          {hasDate ? dateText : label}
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={onPressTime} activeOpacity={0.7} style={inline.timeCell}>
+        <Ionicons name="time-outline" size={16} color={colors.textSecondary} />
+        <Text style={[inline.timeText, { color: timeText ? colors.text : colors.textSecondary }]}>
+          {timeText || timePlaceholder}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+const inline = StyleSheet.create({
+  row: {
+    paddingVertical: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  rowInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  flex: { flex: 1 },
+  input: {
+    fontSize: 17,
+    padding: 0,
+  },
+  multiline: {
+    fontSize: 16,
+    minHeight: 96,
+    padding: 0,
+  },
+  rowText: {
+    fontSize: 17,
+  },
+  timeCell: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingLeft: 12,
+  },
+  timeText: {
+    fontSize: 15,
+  },
+});
 
 export default function CreateEventFlowRefactored() {
   const { colors } = useTheme();
@@ -105,18 +233,24 @@ export default function CreateEventFlowRefactored() {
   const insets = useSafeAreaInsets();
   const { user, userProfile } = useAuth();
   const { t } = useI18n();
-  const [currentStep, setCurrentStep] = useState(1);
   const [saving, setSaving] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [loadingEvent, setLoadingEvent] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [confirmVisible, setConfirmVisible] = useState(false);
 
+  // Date/time picker visibility (ported from Step3ScheduleRefactored).
+  const [showStartDate, setShowStartDate] = useState(false);
+  const [showStartTime, setShowStartTime] = useState(false);
+  const [showEndDate, setShowEndDate] = useState(false);
+  const [showEndTime, setShowEndTime] = useState(false);
+  const [scheduleErrorKey, setScheduleErrorKey] = useState<string | null>(null);
+
   const eventId = route.params?.eventId;
   const isEditMode = !!eventId;
 
   // In create mode the two-choice entry chooser is shown first; edit mode
-  // jumps straight into the stepper (mode derived from the loaded event).
+  // jumps straight into the canvas (mode derived from the loaded event).
   const [entryChosen, setEntryChosen] = useState(isEditMode);
 
   // Single source of truth for all form data
@@ -223,94 +357,231 @@ export default function CreateEventFlowRefactored() {
     }
   }, [isEditMode, eventId]);
 
-  // Generic update function - any step can update any field
+  // Generic update function - any field can be updated
   const updateDraft = (updates: Partial<EventDraft>) => {
     setEventDraft(prev => ({ ...prev, ...updates }));
   };
 
-  // Choose the entry mode (sell tickets vs free RSVP) and enter the stepper.
+  // Choose the entry mode (sell tickets vs free RSVP) and enter the canvas.
   const chooseMode = (rsvp: boolean) => {
     updateDraft({ is_rsvp: rsvp });
     setEntryChosen(true);
-    setCurrentStep(1);
   };
 
-  /**
-   * Validate a single step and set inline per-field errors. Returns true when
-   * the step is valid. Replaces the old Alert.alert `validateAllSteps` banner.
-   */
-  const validateStep = (step: number): boolean => {
-    const next: FieldErrors = { ...errors };
-    // Clear this step's keys before re-validating.
-    const clear = (...keys: string[]) => keys.forEach((k) => delete next[k]);
-    let ok = true;
+  const getCategoryLabel = (categoryId: string) => {
+    const key = CATEGORY_LABEL_KEYS[categoryId] || CATEGORY_LABEL_KEYS.Other;
+    return t(key);
+  };
 
-    if (step === 1) {
-      clear('title');
-      if (!eventDraft.title.trim()) {
-        next.title = t('organizerCreateEventFlow.validation.title');
-        ok = false;
-      }
-    } else if (step === 2) {
-      clear('venue_name');
-      if (!eventDraft.venue_name.trim()) {
-        next.venue_name = t('organizerCreateEventFlow.validation.venue');
-        ok = false;
-      }
-    } else if (step === 3) {
-      clear('start', 'end');
-      if (!eventDraft.start_date || !eventDraft.start_time) {
-        next.start = t('organizerCreateEventFlow.validation.startDate');
-        ok = false;
-      }
-      if (!eventDraft.end_date || !eventDraft.end_time) {
-        next.end = t('organizerCreateEventFlow.validation.endDate');
-        ok = false;
-      }
-    } else if (step === 4) {
-      if (eventDraft.is_rsvp) {
-        clear('capacity');
-        const cap = parseInt(eventDraft.capacity || '0', 10);
-        if (!Number.isFinite(cap) || cap <= 0) {
-          next.capacity = t('organizerCreateEventFlow.validation.capacity');
-          ok = false;
-        }
-      } else {
-        // Clear all previous tier errors.
-        Object.keys(next)
-          .filter((k) => k.startsWith('tier_'))
-          .forEach((k) => delete next[k]);
-        if (eventDraft.ticket_tiers.length === 0) {
-          next.tier_0_name = t('organizerCreateEventFlow.validation.tierName');
-          ok = false;
-        }
-        eventDraft.ticket_tiers.forEach((tier, i) => {
-          if (!tier.name.trim()) {
-            next[`tier_${i}_name`] = t('organizerCreateEventFlow.validation.tierName');
-            ok = false;
-          }
-          const price = parseFloat(tier.price);
-          if (tier.price === '' || !Number.isFinite(price) || price < 0) {
-            next[`tier_${i}_price`] = t('organizerCreateEventFlow.validation.tierPrice');
-            ok = false;
-          }
-          const qty = parseInt(tier.quantity || '0', 10);
-          if (!Number.isFinite(qty) || qty <= 0) {
-            next[`tier_${i}_quantity`] = t('organizerCreateEventFlow.validation.tierQuantity');
-            ok = false;
-          }
-        });
-      }
+  // Flyer pick (ported from Step1Basics — aspect [2,3]).
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [2, 3],
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      updateDraft({ banner_image_url: result.assets[0].uri });
     }
+  };
 
-    setErrors(next);
-    return ok;
+  // ── Location (ported from Step2Location) ──
+  const selectedCountry = (eventDraft as any).country || 'HT';
+  const cities = CITIES_BY_COUNTRY[selectedCountry] || [];
+  const handleCountryChange = (countryCode: string) => {
+    const newCities = CITIES_BY_COUNTRY[countryCode] || [];
+    updateDraft({
+      country: countryCode,
+      city: newCities[0] || '',
+      commune: '',
+    } as any);
+  };
+
+  // ── Tickets (ported from Step4Tickets) ──
+  const addTier = () => {
+    updateDraft({ ticket_tiers: [...eventDraft.ticket_tiers, { name: '', price: '', quantity: '' }] });
+  };
+  const removeTier = (index: number) => {
+    if (eventDraft.ticket_tiers.length > 1) {
+      updateDraft({ ticket_tiers: eventDraft.ticket_tiers.filter((_, i) => i !== index) });
+    }
+  };
+  const updateTier = (index: number, field: string, value: string) => {
+    const newTiers = [...eventDraft.ticket_tiers];
+    newTiers[index] = { ...newTiers[index], [field]: value };
+    updateDraft({ ticket_tiers: newTiers });
+  };
+  const getCurrencySymbol = () => (eventDraft.currency === 'HTG' ? 'HTG' : '$');
+
+  // ── Date/time helpers (ported verbatim from Step3ScheduleRefactored) ──
+  const closeAllPickers = () => {
+    setShowStartDate(false);
+    setShowStartTime(false);
+    setShowEndDate(false);
+    setShowEndTime(false);
+  };
+
+  useEffect(() => {
+    validateSchedule();
+  }, [eventDraft.start_date, eventDraft.start_time, eventDraft.end_date, eventDraft.end_time]);
+
+  // Auto-update end time when start time changes.
+  useEffect(() => {
+    if (eventDraft.start_date && eventDraft.start_time) {
+      const oneHourLater = addOneHour(eventDraft.start_time);
+      const shouldUpdateEndDate = !eventDraft.end_date || eventDraft.end_date < eventDraft.start_date;
+      updateDraft({
+        end_date: shouldUpdateEndDate ? eventDraft.start_date : eventDraft.end_date,
+        end_time: oneHourLater,
+      });
+    }
+  }, [eventDraft.start_date, eventDraft.start_time]);
+
+  const validateSchedule = (): boolean => {
+    if (!eventDraft.start_date || !eventDraft.start_time || !eventDraft.end_date || !eventDraft.end_time) {
+      setScheduleErrorKey(null);
+      return false;
+    }
+    const start = combineDateAndTime(eventDraft.start_date, eventDraft.start_time);
+    const end = combineDateAndTime(eventDraft.end_date, eventDraft.end_time);
+    const now = new Date();
+    if (start < now) {
+      setScheduleErrorKey('organizerCreateEvent.schedule.errors.startInPast');
+      return false;
+    }
+    if (end <= start) {
+      setScheduleErrorKey('organizerCreateEvent.schedule.errors.endAfterStart');
+      return false;
+    }
+    setScheduleErrorKey(null);
+    return true;
+  };
+
+  const addOneHour = (timeStr: string): string => {
+    const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+    if (!match) return timeStr;
+    let hours = parseInt(match[1]);
+    const minutes = match[2];
+    let period = match[3].toUpperCase();
+    hours += 1;
+    if (hours > 12) {
+      hours = 1;
+      period = period === 'AM' ? 'PM' : 'AM';
+    } else if (hours === 12) {
+      period = period === 'AM' ? 'PM' : 'AM';
+    }
+    return `${hours}:${minutes} ${period}`;
+  };
+
+  const combineDateAndTime = (dateStr: string, timeStr: string): Date => {
+    const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+    if (!match) return new Date(dateStr);
+    let hours = parseInt(match[1]);
+    const minutes = parseInt(match[2]);
+    const period = match[3].toUpperCase();
+    if (period === 'PM' && hours !== 12) hours += 12;
+    if (period === 'AM' && hours === 12) hours = 0;
+    const date = new Date(dateStr + 'T00:00:00');
+    date.setHours(hours, minutes);
+    return date;
+  };
+
+  const getDateValue = (dateStr: string): Date => {
+    return dateStr ? new Date(dateStr + 'T00:00:00') : new Date();
+  };
+
+  const getTimeValue = (timeStr: string): Date => {
+    if (!timeStr) return new Date();
+    const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+    if (!match) return new Date();
+    let hours = parseInt(match[1]);
+    const minutes = parseInt(match[2]);
+    const period = match[3].toUpperCase();
+    if (period === 'PM' && hours !== 12) hours += 12;
+    if (period === 'AM' && hours === 12) hours = 0;
+    const date = new Date();
+    date.setHours(hours, minutes);
+    return date;
+  };
+
+  const handleStartDateChange = (event: any, selectedDate?: Date) => {
+    if (Platform.OS === 'android') setShowStartDate(false);
+    if (selectedDate) updateDraft({ start_date: selectedDate.toISOString().split('T')[0] });
+  };
+  const handleEndDateChange = (event: any, selectedDate?: Date) => {
+    if (Platform.OS === 'android') setShowEndDate(false);
+    if (selectedDate) updateDraft({ end_date: selectedDate.toISOString().split('T')[0] });
+  };
+  const handleStartTimeChange = (event: any, selectedTime?: Date) => {
+    if (Platform.OS === 'android') setShowStartTime(false);
+    if (selectedTime) {
+      const hours = selectedTime.getHours();
+      const minutes = selectedTime.getMinutes().toString().padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const displayHours = hours % 12 || 12;
+      updateDraft({ start_time: `${displayHours}:${minutes} ${ampm}` });
+    }
+  };
+  const handleEndTimeChange = (event: any, selectedTime?: Date) => {
+    if (Platform.OS === 'android') setShowEndTime(false);
+    if (selectedTime) {
+      const hours = selectedTime.getHours();
+      const minutes = selectedTime.getMinutes().toString().padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const displayHours = hours % 12 || 12;
+      updateDraft({ end_time: `${displayHours}:${minutes} ${ampm}` });
+    }
+  };
+
+  // iOS picker modal — fixed 240px height container is CRITICAL (ported from Step3).
+  const renderPickerModal = (
+    visible: boolean,
+    title: string,
+    value: Date,
+    mode: 'date' | 'time',
+    onChange: (event: any, date?: Date) => void,
+    onClose: () => void,
+    minimumDate?: Date
+  ) => {
+    if (Platform.OS === 'android') return null;
+    return (
+      <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={onClose}>
+          <SafeAreaView style={styles.modalSafeArea}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <TouchableOpacity onPress={onClose}>
+                  <Text style={styles.modalButton}>{t('common.cancel')}</Text>
+                </TouchableOpacity>
+                <Text style={styles.modalTitle}>{title}</Text>
+                <TouchableOpacity onPress={onClose}>
+                  <Text style={[styles.modalButton, styles.modalButtonDone]}>{t('common.done')}</Text>
+                </TouchableOpacity>
+              </View>
+              {/* CRITICAL: fixed-height container or the picker renders at 0 height. */}
+              <View style={styles.pickerContainer}>
+                <DateTimePicker
+                  value={value}
+                  mode={mode}
+                  is24Hour={false}
+                  display="spinner"
+                  onChange={onChange}
+                  textColor={colors.text}
+                  minimumDate={minimumDate}
+                />
+              </View>
+            </View>
+          </SafeAreaView>
+        </TouchableOpacity>
+      </Modal>
+    );
   };
 
   /**
-   * Validate every step before submit (the progress bar lets users skip ahead,
-   * so a per-step check on Continue isn't enough). Sets all inline errors and
-   * jumps to the first offending step. Returns true when the whole draft is valid.
+   * Validate the whole draft on Save. Sets inline per-field errors (the inline
+   * rows show red). No step-jumping — this is a single canvas.
    */
   const validateForSubmit = (): boolean => {
     const errs: FieldErrors = {};
@@ -333,37 +604,16 @@ export default function CreateEventFlowRefactored() {
     }
 
     setErrors(errs);
-
-    if (Object.keys(errs).length === 0) return true;
-
-    // Jump to the first step that has an error.
-    if (errs.title) setCurrentStep(1);
-    else if (errs.venue_name) setCurrentStep(2);
-    else if (errs.start || errs.end) setCurrentStep(3);
-    else setCurrentStep(4);
-    return false;
+    return Object.keys(errs).length === 0;
   };
 
-  const handleNext = () => {
-    if (currentStep < 5) {
-      if (!validateStep(currentStep)) return;
-      setCurrentStep(currentStep + 1);
-      return;
-    }
-    // Final step — validate the whole draft before publishing.
+  // Save: validate, then confirm-to-publish (create) or submit directly (edit).
+  const handleSave = () => {
     if (!validateForSubmit()) return;
     if (isEditMode) {
-      // Edit mode preserves publication state — submit directly.
       handleSubmit({});
     } else {
-      // Create mode: confirm before publishing (with save-as-draft escape).
       setConfirmVisible(true);
-    }
-  };
-
-  const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
     }
   };
 
@@ -422,7 +672,6 @@ export default function CreateEventFlowRefactored() {
             t('organizerEarnings.stripeConnectRequired.title'),
             t('organizerEarnings.stripeConnectRequired.body')
           );
-          setCurrentStep(2);
           return;
         }
       } catch {
@@ -431,7 +680,6 @@ export default function CreateEventFlowRefactored() {
           t('organizerEarnings.stripeConnectRequired.title'),
           t('organizerEarnings.stripeConnectRequired.body')
         );
-        setCurrentStep(2);
         return;
       }
     }
@@ -475,24 +723,6 @@ export default function CreateEventFlowRefactored() {
     }
   };
 
-  // Render only the active step - prevents gesture conflicts
-  const renderActiveStep = () => {
-    switch (currentStep) {
-      case 1:
-        return <Step1Basics draft={eventDraft} updateDraft={updateDraft} errors={errors} />;
-      case 2:
-        return <Step2Location draft={eventDraft} updateDraft={updateDraft} errors={errors} />;
-      case 3:
-        return <Step3ScheduleRefactored draft={eventDraft} updateDraft={updateDraft} errors={errors} />;
-      case 4:
-        return <Step4Tickets draft={eventDraft} updateDraft={updateDraft} errors={errors} />;
-      case 5:
-        return <Step5Preview draft={eventDraft} updateDraft={updateDraft} errors={errors} />;
-      default:
-        return null;
-    }
-  };
-
   if (loadingEvent) {
     return (
       <View style={[styles.container, styles.loadingContainer]}>
@@ -509,57 +739,44 @@ export default function CreateEventFlowRefactored() {
     ]);
   };
 
-  // ── Two-choice entry chooser (create mode only) ──────────────────────────
+  // ── Two-tile entry chooser (create mode only, POSH IMG_1843) ─────────────
   if (!entryChosen) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.wrapper}>
-          <View style={styles.header}>
+          <View style={styles.entryHeader}>
             <TouchableOpacity
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               onPress={() => navigation.goBack()}
             >
-              <Ionicons name="close" size={24} color={colors.text} />
+              <Ionicons name="chevron-back" size={26} color={colors.text} />
             </TouchableOpacity>
-            <Text style={styles.headerTitle} numberOfLines={1}>
-              {t('organizerCreateEventFlow.headerCreate')}
-            </Text>
-            <View style={{ width: 24 }} />
           </View>
 
           <View style={styles.entryBody}>
             <Text style={styles.entryTitle}>{t('organizerCreateEventFlow.entry.title')}</Text>
+
+            <View style={styles.entryTiles}>
+              <TouchableOpacity
+                style={styles.entryTile}
+                activeOpacity={0.85}
+                onPress={() => chooseMode(false)}
+              >
+                <Ionicons name="pricetags-outline" size={40} color={colors.text} />
+                <Text style={styles.entryTileLabel}>{t('organizerCreateEventFlow.entry.sellTitle')}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.entryTile}
+                activeOpacity={0.85}
+                onPress={() => chooseMode(true)}
+              >
+                <Ionicons name="people-outline" size={40} color={colors.text} />
+                <Text style={styles.entryTileLabel}>{t('organizerCreateEventFlow.entry.rsvpTitle')}</Text>
+              </TouchableOpacity>
+            </View>
+
             <Text style={styles.entrySubtitle}>{t('organizerCreateEventFlow.entry.subtitle')}</Text>
-
-            <TouchableOpacity
-              style={styles.entryCard}
-              activeOpacity={0.85}
-              onPress={() => chooseMode(false)}
-            >
-              <View style={styles.entryIcon}>
-                <Ionicons name="pricetags-outline" size={26} color={colors.text} />
-              </View>
-              <View style={styles.entryCardText}>
-                <Text style={styles.entryCardTitle}>{t('organizerCreateEventFlow.entry.sellTitle')}</Text>
-                <Text style={styles.entryCardDesc}>{t('organizerCreateEventFlow.entry.sellDesc')}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.entryCard}
-              activeOpacity={0.85}
-              onPress={() => chooseMode(true)}
-            >
-              <View style={styles.entryIcon}>
-                <Ionicons name="people-outline" size={26} color={colors.text} />
-              </View>
-              <View style={styles.entryCardText}>
-                <Text style={styles.entryCardTitle}>{t('organizerCreateEventFlow.entry.rsvpTitle')}</Text>
-                <Text style={styles.entryCardDesc}>{t('organizerCreateEventFlow.entry.rsvpDesc')}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
-            </TouchableOpacity>
           </View>
         </View>
       </SafeAreaView>
@@ -588,68 +805,281 @@ export default function CreateEventFlowRefactored() {
             <View style={{ width: 24 }} />
           </View>
 
-          {/* Progress Bar - clickable */}
-          <View style={styles.progressWrapper}>
-            <View style={styles.progressContainer}>
-              {STEPS.map((step, index) => (
-                <React.Fragment key={step.id}>
-                  <TouchableOpacity
-                    style={styles.stepItem}
-                    onPress={() => setCurrentStep(step.id)}
-                  >
-                    <View
-                      style={[
-                        styles.stepCircle,
-                        currentStep >= step.id && styles.stepCircleActive,
-                      ]}
-                    >
-                      <Text style={[styles.stepNumber, currentStep >= step.id && styles.stepNumberActive]}>
-                        {step.id}
-                      </Text>
-                    </View>
-                    <Text style={[styles.stepLabel, currentStep >= step.id && styles.stepLabelActive]}>
-                      {t(step.titleKey)}
-                    </Text>
-                  </TouchableOpacity>
-                  {index < STEPS.length - 1 && (
-                    <View style={[styles.line, currentStep > step.id && styles.lineActive]} />
-                  )}
-                </React.Fragment>
-              ))}
-            </View>
-          </View>
-
-          {/* Active Step Content - scrollable */}
+          {/* Single scrolling canvas */}
           <ScrollView
             style={styles.content}
             contentContainerStyle={{
-              paddingHorizontal: 16,
-              paddingTop: 16,
-              paddingBottom: isKeyboardVisible ? 20 : 120,
+              paddingBottom: isKeyboardVisible ? 24 : 140,
             }}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
             automaticallyAdjustKeyboardInsets={true}
           >
-            {renderActiveStep()}
+            {/* Flyer hero (POSH IMG_1847) */}
+            <TouchableOpacity style={styles.flyerHero} activeOpacity={0.9} onPress={pickImage}>
+              {eventDraft.banner_image_url ? (
+                <>
+                  <Image
+                    source={{ uri: eventDraft.banner_image_url }}
+                    style={StyleSheet.absoluteFill}
+                    contentFit="cover"
+                  />
+                  <View style={styles.flyerOverlay} />
+                  <View style={styles.changeFlyerPill}>
+                    <Ionicons name="camera-outline" size={16} color={colors.white} />
+                    <Text style={styles.changeFlyerText}>{t('organizerCreateEventFlow.canvas.changeFlyer')}</Text>
+                  </View>
+                </>
+              ) : (
+                <View style={styles.flyerEmpty}>
+                  <Text style={styles.flyerTitle}>{t('organizerCreateEventFlow.canvas.flyerTitle')}</Text>
+                  <View style={styles.uploadPill}>
+                    <Text style={styles.uploadPillText}>{t('organizerCreateEventFlow.canvas.uploadFlyer')}</Text>
+                  </View>
+                </View>
+              )}
+            </TouchableOpacity>
+
+            {/* Core inline fields */}
+            <View style={styles.canvasPad}>
+              <InlineTextRow
+                colors={colors}
+                placeholder={t('organizerCreateEventFlow.canvas.titlePlaceholder') + ' *'}
+                value={eventDraft.title}
+                onChangeText={(text) => updateDraft({ title: text })}
+                error={!!errors.title}
+                maxLength={100}
+              />
+
+              <InlineDateTimeRow
+                colors={colors}
+                label={t('organizerCreateEventFlow.canvas.start') + ' *'}
+                dateText={eventDraft.start_date}
+                timeText={eventDraft.start_time}
+                timePlaceholder={t('organizerCreateEvent.schedule.selectTime')}
+                onPressDate={() => { closeAllPickers(); Keyboard.dismiss(); setShowStartDate(true); }}
+                onPressTime={() => { closeAllPickers(); Keyboard.dismiss(); setShowStartTime(true); }}
+                error={!!errors.start}
+              />
+              <InlineDateTimeRow
+                colors={colors}
+                label={t('organizerCreateEventFlow.canvas.end') + ' *'}
+                dateText={eventDraft.end_date}
+                timeText={eventDraft.end_time}
+                timePlaceholder={t('organizerCreateEvent.schedule.selectTime')}
+                onPressDate={() => { closeAllPickers(); Keyboard.dismiss(); setShowEndDate(true); }}
+                onPressTime={() => { closeAllPickers(); Keyboard.dismiss(); setShowEndTime(true); }}
+                error={!!errors.end}
+              />
+              {scheduleErrorKey && (
+                <View style={styles.scheduleError}>
+                  <Ionicons name="alert-circle" size={16} color={colors.error} />
+                  <Text style={styles.scheduleErrorText}>{t(scheduleErrorKey)}</Text>
+                </View>
+              )}
+
+              <InlineTextRow
+                colors={colors}
+                placeholder={t('organizerCreateEvent.location.venueName') + ' *'}
+                value={eventDraft.venue_name}
+                onChangeText={(text) => updateDraft({ venue_name: text })}
+                error={!!errors.venue_name}
+              />
+              <InlineTextRow
+                colors={colors}
+                placeholder={t('organizerCreateEvent.location.streetAddress')}
+                value={eventDraft.address}
+                onChangeText={(text) => updateDraft({ address: text })}
+              />
+
+              {/* Country + City — kept minimal for Haiti (POSH omits them). */}
+              <View style={styles.chipBlock}>
+                <Text style={styles.chipLabel}>{t('organizerCreateEvent.location.country')}</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
+                  {COUNTRIES.map((country) => (
+                    <TouchableOpacity
+                      key={country.code}
+                      style={[styles.chip, selectedCountry === country.code && styles.chipActive]}
+                      onPress={() => handleCountryChange(country.code)}
+                    >
+                      <Text style={[styles.chipText, selectedCountry === country.code && styles.chipTextActive]}>
+                        {country.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+
+              <View style={styles.chipBlock}>
+                <Text style={styles.chipLabel}>{t('organizerCreateEvent.location.city')}</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
+                  {cities.map((city) => (
+                    <TouchableOpacity
+                      key={city}
+                      style={[styles.chip, eventDraft.city === city && styles.chipActive]}
+                      onPress={() => updateDraft({ city })}
+                    >
+                      <Text style={[styles.chipText, eventDraft.city === city && styles.chipTextActive]}>
+                        {city}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+
+              <InlineTextRow
+                colors={colors}
+                placeholder={t('organizerCreateEvent.location.communeOptional')}
+                value={eventDraft.commune}
+                onChangeText={(text) => updateDraft({ commune: text })}
+              />
+
+              {/* Category */}
+              <View style={styles.chipBlock}>
+                <Text style={styles.chipLabel}>{t('organizerCreateEvent.basics.category')}</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
+                  {CATEGORIES.map((cat) => (
+                    <TouchableOpacity
+                      key={cat}
+                      style={[styles.chip, eventDraft.category === cat && styles.chipActive]}
+                      onPress={() => updateDraft({ category: cat })}
+                    >
+                      <Text style={[styles.chipText, eventDraft.category === cat && styles.chipTextActive]}>
+                        {getCategoryLabel(cat)}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            </View>
+
+            {/* Additional Details */}
+            <View style={styles.canvasPad}>
+              <Text style={styles.sectionHeader}>{t('organizerCreateEventFlow.canvas.additionalDetails')}</Text>
+              <InlineTextRow
+                colors={colors}
+                placeholder={t('organizerCreateEventFlow.canvas.eventSummary')}
+                value={eventDraft.description}
+                onChangeText={(text) => updateDraft({ description: text })}
+                multiline
+                maxLength={2000}
+              />
+            </View>
+
+            {/* Tickets */}
+            <View style={styles.canvasPad}>
+              <View style={styles.sectionHeaderRow}>
+                <Text style={styles.sectionHeader}>{t('organizerCreateEventFlow.canvas.ticketsHeader')}</Text>
+                {!eventDraft.is_rsvp && (
+                  <TouchableOpacity onPress={addTier} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                    <Ionicons name="add-circle" size={26} color={colors.text} />
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {eventDraft.is_rsvp ? (
+                <>
+                  <InlineTextRow
+                    colors={colors}
+                    placeholder={t('organizerCreateEvent.rsvp.capLabel') + ' *'}
+                    value={eventDraft.capacity}
+                    onChangeText={(text) => updateDraft({ capacity: text })}
+                    error={!!errors.capacity}
+                    keyboardType="numeric"
+                  />
+                  <View style={styles.infoRow}>
+                    <Ionicons name="information-circle-outline" size={16} color={colors.textSecondary} />
+                    <Text style={styles.infoText}>{t('organizerCreateEvent.rsvp.infoText')}</Text>
+                  </View>
+                </>
+              ) : (
+                <>
+                  {/* Currency segmented control */}
+                  <View style={styles.currencyRow}>
+                    <TouchableOpacity
+                      style={[styles.currencyButton, eventDraft.currency === 'USD' && styles.currencyButtonActive]}
+                      onPress={() => updateDraft({ currency: 'USD' })}
+                    >
+                      <Text style={[styles.currencyText, eventDraft.currency === 'USD' && styles.currencyTextActive]}>
+                        {t('organizerCreateEvent.tickets.currencyUsd')}
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.currencyButton, eventDraft.currency === 'HTG' && styles.currencyButtonActive]}
+                      onPress={() => updateDraft({ currency: 'HTG' })}
+                    >
+                      <Text style={[styles.currencyText, eventDraft.currency === 'HTG' && styles.currencyTextActive]}>
+                        {t('organizerCreateEvent.tickets.currencyHtg')}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  {eventDraft.ticket_tiers.map((tier, index) => (
+                    <View key={index} style={styles.tierCard}>
+                      <View style={styles.tierHeader}>
+                        <Text style={styles.tierTitle}>
+                          {t('organizerCreateEvent.tickets.tier')} {index + 1}
+                        </Text>
+                        {eventDraft.ticket_tiers.length > 1 && (
+                          <TouchableOpacity
+                            onPress={() => removeTier(index)}
+                            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                          >
+                            <Ionicons name="trash-outline" size={18} color={colors.error} />
+                          </TouchableOpacity>
+                        )}
+                      </View>
+
+                      <InlineTextRow
+                        colors={colors}
+                        placeholder={t('organizerCreateEvent.tickets.tierName') + ' *'}
+                        value={tier.name}
+                        onChangeText={(text) => updateTier(index, 'name', text)}
+                        error={!!errors[`tier_${index}_name`]}
+                      />
+                      <View style={styles.tierSplit}>
+                        <View style={styles.tierSplitCell}>
+                          <InlineTextRow
+                            colors={colors}
+                            placeholder={`${t('organizerCreateEvent.tickets.price')} (${getCurrencySymbol()}) *`}
+                            value={tier.price}
+                            onChangeText={(text) => updateTier(index, 'price', text)}
+                            error={!!errors[`tier_${index}_price`]}
+                            keyboardType="numeric"
+                          />
+                        </View>
+                        <View style={styles.tierSplitCell}>
+                          <InlineTextRow
+                            colors={colors}
+                            placeholder={t('organizerCreateEvent.tickets.quantity') + ' *'}
+                            value={tier.quantity}
+                            onChangeText={(text) => updateTier(index, 'quantity', text)}
+                            error={!!errors[`tier_${index}_quantity`]}
+                            keyboardType="numeric"
+                          />
+                        </View>
+                      </View>
+                    </View>
+                  ))}
+
+                  <TouchableOpacity style={styles.addTierRow} onPress={addTier}>
+                    <Ionicons name="add" size={20} color={colors.text} />
+                    <Text style={styles.addTierText}>{t('organizerCreateEventFlow.canvas.addTicketType')}</Text>
+                  </TouchableOpacity>
+                </>
+              )}
+            </View>
           </ScrollView>
 
-          {/* Footer - absolutely positioned, hidden when keyboard visible */}
+          {/* Footer — persistent, hidden when keyboard is visible (POSH IMG_1848) */}
           {!isKeyboardVisible && (
             <View style={styles.footer}>
-              {currentStep > 1 && (
-                <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-                  <Ionicons name="arrow-back" size={20} color={colors.text} />
-                  <Text style={styles.backButtonText}>{t('common.back')}</Text>
-                </TouchableOpacity>
-              )}
+              <TouchableOpacity style={styles.backButton} onPress={confirmExit}>
+                <Text style={styles.backButtonText}>{t('common.back')}</Text>
+              </TouchableOpacity>
               <WhitePillCTA
-                label={
-                  currentStep === 5
-                    ? (isEditMode ? t('organizerCreateEventFlow.updateEvent') : t('organizerCreateEventFlow.createEvent'))
-                    : t('common.continue')
-                }
-                onPress={handleNext}
+                label={isEditMode ? t('organizerCreateEventFlow.updateEvent') : t('organizerCreateEventFlow.createEvent')}
+                onPress={handleSave}
                 disabled={saving}
                 style={styles.footerCta}
               />
@@ -657,6 +1087,56 @@ export default function CreateEventFlowRefactored() {
           )}
         </View>
       </SafeAreaView>
+
+      {/* iOS date/time picker modals (Android uses inline native dialogs below) */}
+      {renderPickerModal(
+        showStartDate,
+        t('organizerCreateEvent.schedule.modalStartDate'),
+        getDateValue(eventDraft.start_date),
+        'date',
+        handleStartDateChange,
+        () => setShowStartDate(false),
+        undefined
+      )}
+      {renderPickerModal(
+        showEndDate,
+        t('organizerCreateEvent.schedule.modalEndDate'),
+        getDateValue(eventDraft.end_date),
+        'date',
+        handleEndDateChange,
+        () => setShowEndDate(false),
+        eventDraft.start_date ? new Date(eventDraft.start_date) : undefined
+      )}
+      {renderPickerModal(
+        showStartTime,
+        t('organizerCreateEvent.schedule.modalStartTime'),
+        getTimeValue(eventDraft.start_time),
+        'time',
+        handleStartTimeChange,
+        () => setShowStartTime(false)
+      )}
+      {renderPickerModal(
+        showEndTime,
+        t('organizerCreateEvent.schedule.modalEndTime'),
+        getTimeValue(eventDraft.end_time),
+        'time',
+        handleEndTimeChange,
+        () => setShowEndTime(false)
+      )}
+
+      {/* Android inline pickers (auto-dismiss native dialogs) */}
+      {Platform.OS === 'android' && showStartDate && (
+        <DateTimePicker value={getDateValue(eventDraft.start_date)} mode="date" display="default" onChange={handleStartDateChange} />
+      )}
+      {Platform.OS === 'android' && showStartTime && (
+        <DateTimePicker value={getTimeValue(eventDraft.start_time)} mode="time" is24Hour={false} display="default" onChange={handleStartTimeChange} />
+      )}
+      {Platform.OS === 'android' && showEndDate && (
+        <DateTimePicker value={getDateValue(eventDraft.end_date)} mode="date" display="default" onChange={handleEndDateChange} minimumDate={eventDraft.start_date ? new Date(eventDraft.start_date) : undefined} />
+      )}
+      {Platform.OS === 'android' && showEndTime && (
+        <DateTimePicker value={getTimeValue(eventDraft.end_time)} mode="time" is24Hour={false} display="default" onChange={handleEndTimeChange} />
+      )}
 
       {/* Confirmation-before-publish sheet with save-as-draft escape hatch */}
       <Modal
@@ -729,125 +1209,265 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 12,
-    backgroundColor: colors.surface,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '600',
     color: colors.text,
   },
 
-  // ── Entry chooser ──
+  // ── Entry chooser (two big square tiles) ──
+  entryHeader: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 8,
+  },
   entryBody: {
     flex: 1,
-    padding: 24,
-    gap: 16,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    gap: 28,
   },
   entryTitle: {
     fontFamily: font.serif,
-    fontSize: 40,
-    lineHeight: 44,
+    fontSize: 44,
+    lineHeight: 48,
     color: colors.text,
-    marginTop: 8,
   },
-  entrySubtitle: {
-    fontSize: 15,
-    color: colors.textSecondary,
-    marginBottom: 12,
-  },
-  entryCard: {
+  entryTiles: {
     flexDirection: 'row',
-    alignItems: 'center',
     gap: 16,
-    padding: 20,
+  },
+  entryTile: {
+    flex: 1,
+    aspectRatio: 1,
     borderRadius: RADIUS.xl,
     backgroundColor: colors.surfaceRaised,
-  },
-  entryIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: colors.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 18,
   },
-  entryCardText: {
-    flex: 1,
-    gap: 4,
-  },
-  entryCardTitle: {
-    fontSize: 17,
+  entryTileLabel: {
+    fontSize: 18,
     fontWeight: '700',
     color: colors.text,
   },
-  entryCardDesc: {
-    fontSize: 13,
+  entrySubtitle: {
+    fontSize: 14,
     color: colors.textSecondary,
-    lineHeight: 18,
+    textAlign: 'center',
   },
 
-  progressWrapper: {
-    backgroundColor: colors.surface,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
+  content: {
+    flex: 1,
   },
-  progressContainer: {
+  canvasPad: {
+    paddingHorizontal: 20,
+    paddingTop: 8,
+  },
+
+  // ── Flyer hero ──
+  flyerHero: {
+    height: 380,
+    borderRadius: RADIUS.xl,
+    marginHorizontal: 16,
+    marginBottom: 12,
+    overflow: 'hidden',
+    backgroundColor: colors.surfaceRaised,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  flyerEmpty: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 20,
+  },
+  flyerTitle: {
+    fontFamily: font.serif,
+    fontSize: 28,
+    lineHeight: 32,
+    color: colors.text,
+    textAlign: 'center',
+    paddingHorizontal: 24,
+  },
+  uploadPill: {
+    paddingHorizontal: 22,
+    paddingVertical: 12,
+    borderRadius: RADIUS.full,
+    backgroundColor: colors.white,
+  },
+  uploadPillText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#000000',
+  },
+  flyerOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.28)',
+  },
+  changeFlyerPill: {
+    position: 'absolute',
+    top: 14,
+    right: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: RADIUS.full,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+  },
+  changeFlyerText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.white,
+  },
+
+  // ── Section headers ──
+  sectionHeader: {
+    fontSize: 13,
+    fontWeight: '700',
+    letterSpacing: 0.4,
+    color: colors.textSecondary,
+    textTransform: 'uppercase',
+    marginTop: 20,
+    marginBottom: 4,
+  },
+  sectionHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  stepItem: {
-    alignItems: 'center',
-    minWidth: 50,
+
+  // ── Chips (country / city / category) ──
+  chipBlock: {
+    paddingVertical: 14,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+    gap: 10,
   },
-  stepCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.border,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  stepCircleActive: {
-    // Teal = the active-state marker (semantic, POSH §1).
-    backgroundColor: colors.primary,
-  },
-  stepNumber: {
-    fontSize: 14,
-    fontWeight: '600',
+  chipLabel: {
+    fontSize: 13,
     color: colors.textSecondary,
   },
-  stepNumberActive: {
+  chipScroll: {
+    gap: 8,
+    paddingVertical: 2,
+  },
+  chip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: RADIUS.full,
+    backgroundColor: colors.surfaceRaised,
+  },
+  chipActive: {
+    // Teal = the selected-state marker (semantic, POSH §1).
+    backgroundColor: colors.primary,
+  },
+  chipText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: colors.text,
+  },
+  chipTextActive: {
     color: colors.white,
   },
-  stepLabel: {
-    fontSize: 9,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    maxWidth: 50,
+
+  // ── Schedule inline error ──
+  scheduleError: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 10,
   },
-  stepLabelActive: {
-    color: colors.primary,
-    fontWeight: '600',
-  },
-  line: {
+  scheduleErrorText: {
     flex: 1,
-    height: 2,
-    backgroundColor: colors.border,
-    marginHorizontal: 4,
-    marginBottom: 20,
+    fontSize: 13,
+    color: colors.error,
+    fontWeight: '500',
   },
-  lineActive: {
+
+  // ── Info row (RSVP) ──
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 14,
+  },
+  infoText: {
+    flex: 1,
+    fontSize: 13,
+    color: colors.textSecondary,
+  },
+
+  // ── Tickets ──
+  currencyRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 14,
+    marginBottom: 4,
+  },
+  currencyButton: {
+    flex: 1,
+    minHeight: 44,
+    borderRadius: RADIUS.md,
+    backgroundColor: colors.surfaceRaised,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  currencyButtonActive: {
     backgroundColor: colors.primary,
   },
-  content: {
+  currencyText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  currencyTextActive: {
+    color: colors.white,
+  },
+  tierCard: {
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.lg,
+    paddingHorizontal: 14,
+    paddingBottom: 4,
+    marginTop: 14,
+  },
+  tierHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 12,
+  },
+  tierTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  tierSplit: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  tierSplitCell: {
     flex: 1,
   },
+  addTierRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 16,
+    marginTop: 8,
+    borderRadius: RADIUS.md,
+    backgroundColor: colors.surfaceRaised,
+  },
+  addTierText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: colors.text,
+  },
+
+  // ── Footer ──
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -859,12 +1479,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingBottom: Platform.OS === 'ios' ? 32 : 16,
   },
   backButton: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
     height: 56,
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     borderRadius: RADIUS.full,
     backgroundColor: colors.surfaceRaised,
   },
@@ -875,6 +1493,47 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   footerCta: {
     flex: 1,
+  },
+
+  // ── iOS picker modal (ported from Step3) ──
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalSafeArea: {},
+  modalContent: {
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  modalTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  modalButton: {
+    fontSize: 17,
+    color: colors.textSecondary,
+  },
+  modalButtonDone: {
+    color: colors.primary,
+    fontWeight: '600',
+  },
+  // CRITICAL: fixed height for picker — without this, picker has 0 height.
+  pickerContainer: {
+    height: 240,
+    backgroundColor: colors.surface,
+    paddingBottom: Platform.OS === 'ios' ? 20 : 0,
   },
 
   // ── Confirm sheet ──
