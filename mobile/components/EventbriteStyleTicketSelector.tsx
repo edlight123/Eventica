@@ -13,6 +13,8 @@ import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
+import WhitePillCTA from './WhitePillCTA';
+import { formatCurrency } from '../lib/currency';
 
 interface TicketTier {
   id: string;
@@ -201,7 +203,7 @@ export default function EventbriteStyleTicketSelector({
                             <Text style={styles.tierDescription}>{tier.description}</Text>
                           )}
                           <View style={styles.tierMeta}>
-                            <Text style={styles.tierPrice}>{tier.price.toFixed(2)} {displayCurrency}</Text>
+                            <Text style={styles.tierPrice}>{formatCurrency(tier.price, displayCurrency)}</Text>
                             <Text style={[
                               styles.tierAvailability,
                               available === 0 && styles.tierSoldOut
@@ -256,7 +258,7 @@ export default function EventbriteStyleTicketSelector({
                             {quantities[tier.id]}× {tier.name}
                           </Text>
                           <Text style={styles.summaryItemPrice}>
-                            {(tier.price * quantities[tier.id]).toFixed(2)} {displayCurrency}
+                            {formatCurrency(tier.price * quantities[tier.id], displayCurrency)}
                           </Text>
                         </View>
                       ))}
@@ -268,28 +270,21 @@ export default function EventbriteStyleTicketSelector({
                           : t('ticketSelector.ticketPlural')}
                         )
                       </Text>
-                      <Text style={styles.summaryTotalPrice}>{totalPrice.toFixed(2)} {displayCurrency}</Text>
+                      <Text style={styles.summaryTotalPrice}>{formatCurrency(totalPrice, displayCurrency)}</Text>
                     </View>
                   </View>
                 )}
               </ScrollView>
 
-              {/* Checkout Button */}
+              {/* Checkout — the one white-pill primary for this sheet (POSH §2.2) */}
               <View style={styles.footer}>
-                <TouchableOpacity
-                  onPress={handlePurchase}
+                <WhitePillCTA
+                  variant="paid"
+                  label={totalTickets === 0 ? t('ticketSelector.selectTickets') : t('ticketSelector.checkout')}
+                  subLabel={totalTickets === 0 ? undefined : formatCurrency(totalPrice, displayCurrency)}
                   disabled={totalTickets === 0}
-                  style={[
-                    styles.checkoutButton,
-                    totalTickets === 0 && styles.checkoutButtonDisabled,
-                  ]}
-                >
-                  <Text style={styles.checkoutButtonText}>
-                    {totalTickets === 0
-                      ? t('ticketSelector.selectTickets')
-                      : `${t('ticketSelector.checkout')} - ${totalPrice.toFixed(2)} ${displayCurrency}`}
-                  </Text>
-                </TouchableOpacity>
+                  onPress={handlePurchase}
+                />
               </View>
             </>
           )}

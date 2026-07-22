@@ -18,6 +18,7 @@ import { format } from 'date-fns';
 import { useI18n } from '../contexts/I18nContext';
 import { SHADOWS, RADIUS } from '../config/brand';
 import { backendFetch } from '../lib/api/backend';
+import { formatCurrency } from '../lib/currency';
 
 export default function RefundRequestScreen({ route, navigation }: any) {
   const { colors } = useTheme();
@@ -164,7 +165,7 @@ export default function RefundRequestScreen({ route, navigation }: any) {
           <View style={styles.priceRow}>
             <Text style={styles.priceLabel}>{t('refund.amountPaid') || 'Amount Paid'}:</Text>
             <Text style={styles.priceValue}>
-              ${(ticket.price_paid || ticket.price || 0).toFixed(2)}
+              {formatCurrency(Number(ticket.price_paid || ticket.price || 0), ticket.currency)}
             </Text>
           </View>
         </View>

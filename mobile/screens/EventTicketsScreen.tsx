@@ -3,6 +3,7 @@ import {
   View,
   Text,
   FlatList,
+  ScrollView,
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
@@ -14,7 +15,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { LinearGradient } from 'expo-linear-gradient';
 import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
@@ -113,7 +113,7 @@ export default function EventTicketsScreen({ route, navigation }: any) {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
@@ -123,7 +123,7 @@ export default function EventTicketsScreen({ route, navigation }: any) {
 
   if (!event || tickets.length === 0) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton} hitSlop={8}>
             <ArrowLeft size={24} color="#FFF" />
@@ -158,15 +158,20 @@ export default function EventTicketsScreen({ route, navigation }: any) {
 
   const renderTicket = ({ item, index }: { item: any; index: number }) => (
     <View style={styles.pageContainer}>
-      <TicketPassCard
-        ticket={item}
-        event={event}
-        user={user}
-        ticketNumber={index + 1}
-        onQRPress={() => handleQRPress(item)}
-        onViewEvent={handleViewEvent}
-        onTransferPress={() => handleTransferPress(item)}
-      />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.pageScroll}
+      >
+        <TicketPassCard
+          ticket={item}
+          event={event}
+          user={user}
+          ticketNumber={index + 1}
+          onQRPress={() => handleQRPress(item)}
+          onViewEvent={handleViewEvent}
+          onTransferPress={() => handleTransferPress(item)}
+        />
+      </ScrollView>
     </View>
   );
 
@@ -189,16 +194,8 @@ export default function EventTicketsScreen({ route, navigation }: any) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle="light-content" />
-      
-      {/* Gradient Background */}
-      <LinearGradient
-        colors={['#1a1a1a', '#0f766e', '#1a1a1a']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFill}
-      />
 
       <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
         {/* Event Info Section */}
@@ -322,14 +319,16 @@ const styles = StyleSheet.create({
   },
   flatListContent: {
     flexGrow: 1,
-    alignItems: 'center',
-    paddingVertical: 16,
   },
   pageContainer: {
-    width: SCREEN_WIDTH - 32,
+    width: SCREEN_WIDTH,
     height: '100%',
+  },
+  pageScroll: {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    flexGrow: 1,
     justifyContent: 'center',
-    alignItems: 'center',
   },
   paginationContainer: {
     flexDirection: 'row',
