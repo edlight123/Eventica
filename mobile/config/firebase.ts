@@ -4,6 +4,7 @@ import { getAuth, inMemoryPersistence, initializeAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getFunctions } from 'firebase/functions';
 import { getStorage } from 'firebase/storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Use the same Firebase config as the web app
 const firebaseConfig = {
@@ -23,14 +24,19 @@ console.log('[Firebase] Initializing with config:', {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Auth
-// firebase@12.x does not ship a React Native persistence adapter.
-// Use in-memory persistence (and fall back to getAuth() during hot reload).
+// Initialize Auth with AsyncStorage persistence so the session survives cold
+// app restarts (in-memory persistence logged users out on every relaunch).
+// `getReactNativePersistence` lives on firebase/auth's React Native build (what
+// Metro bundles) but isn't on the web type surface, so access it dynamically;
+// fall back to in-memory if it's ever unavailable, and to getAuth() on the
+// "already-initialized" throw during Fast Refresh.
 export const auth = (() => {
   try {
-    return initializeAuth(app, {
-      persistence: inMemoryPersistence,
-    });
+    const authModule = require('firebase/auth') as any;
+    const persistence = typeof authModule.getReactNativePersistence === 'function'
+      ? authModule.getReactNativePersistence(AsyncStorage)
+      : inMemoryPersistence;
+    return initializeAuth(app, { persistence });
   } catch {
     return getAuth(app);
   }
