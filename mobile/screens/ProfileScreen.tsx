@@ -14,7 +14,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Bell, Briefcase, ChevronDown, ChevronRight, Compass, ExternalLink, LogOut, MapPin, Settings, User, Users } from 'lucide-react-native';
+import { Bell, Briefcase, ChevronDown, ChevronRight, Compass, ExternalLink, Heart, LogOut, MapPin, Settings, User, Users } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { getDownloadURL, ref as storageRef, uploadBytes } from 'firebase/storage';
@@ -832,6 +832,14 @@ export default function ProfileScreen() {
 
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>{t('profile.actions')}</Text>
+
+          <TouchableOpacity style={styles.rowButton} onPress={() => navigation.navigate('Favorites')}>
+            <View style={styles.rowLeft}>
+              <Heart size={18} color={colors.primary} />
+              <Text style={styles.rowText}>{t('tabs.favorites')}</Text>
+            </View>
+            <ChevronRight size={18} color={colors.textTertiary} />
+          </TouchableOpacity>
 
           <TouchableOpacity style={styles.rowButton} onPress={() => navigation.navigate('Connections')}>
             <View style={styles.rowLeft}>

@@ -182,6 +182,7 @@ export default {
   tabs: {
     home: 'Akèy',
     discover: 'Dekouvri',
+    create: 'Kreye',
     favorites: 'Favori',
     tickets: 'Biyè',
     profile: 'Pwofil',

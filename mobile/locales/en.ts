@@ -138,6 +138,7 @@ export default {
   tabs: {
     home: 'Home',
     discover: 'Discover',
+    create: 'Create',
     favorites: 'Favorites',
     tickets: 'Tickets',
     profile: 'Profile',
