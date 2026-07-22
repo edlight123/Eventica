@@ -34,6 +34,14 @@ export interface CreateEventData {
     price: string;
     quantity: string;
   }>;
+  /** Free RSVP event — no paid tiers; a single free tier caps attendance. */
+  is_rsvp?: boolean;
+}
+
+export interface SaveEventOptions {
+  /** When false, the event is saved as an unpublished draft. Defaults to true
+   *  (immediate publish) so existing callers keep their behavior. */
+  publish?: boolean;
 }
 
 /**
@@ -41,8 +49,10 @@ export interface CreateEventData {
  */
 export async function createEvent(
   organizerId: string,
-  eventData: CreateEventData
+  eventData: CreateEventData,
+  options: SaveEventOptions = {}
 ): Promise<string> {
+  const publish = options.publish !== false;
   try {
     // Upload image to Firebase Storage if it's a local URI
     let coverImageUrl = eventData.banner_image_url;
@@ -104,8 +114,13 @@ export async function createEvent(
       tickets_sold: 0,
       tickets_available: totalCapacity,
       organizer_id: organizerId,
-      is_published: true,
-      status: 'published',
+      is_rsvp: eventData.is_rsvp || false,
+      is_published: publish,
+      status: publish ? 'published' : 'draft',
+      // Moderation defaults — every event must carry these or it goes invisible
+      // to the admin events tabs (see event-moderation-data-model). Drafts too.
+      rejected: false,
+      reports_count: 0,
       created_at: serverTimestamp(),
       updated_at: serverTimestamp(),
     };
@@ -151,7 +166,8 @@ export async function createEvent(
 export async function updateEvent(
   eventId: string,
   organizerId: string,
-  eventData: CreateEventData
+  eventData: CreateEventData,
+  options: SaveEventOptions = {}
 ): Promise<void> {
   try {
     // Upload image to Firebase Storage if it's a new local URI
@@ -209,7 +225,13 @@ export async function updateEvent(
       total_capacity: totalCapacity,
       total_tickets: totalCapacity,
       capacity: totalCapacity,
+      is_rsvp: eventData.is_rsvp || false,
       updated_at: serverTimestamp(),
+      // Only flip publication state when the caller explicitly asks (e.g. the
+      // publish-vs-draft confirmation sheet); otherwise leave it untouched.
+      ...(options.publish !== undefined
+        ? { is_published: options.publish, status: options.publish ? 'published' : 'draft' }
+        : {}),
     };
 
     // Update the event document

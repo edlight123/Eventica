@@ -28,14 +28,15 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useI18n } from '../../../contexts/I18nContext';
-import type { EventDraft } from '../CreateEventFlowRefactored';
+import type { EventDraft, FieldErrors } from '../CreateEventFlowRefactored';
 
 interface Props {
   draft: EventDraft;
   updateDraft: (updates: Partial<EventDraft>) => void;
+  errors?: FieldErrors;
 }
 
-export default function Step3ScheduleRefactored({ draft, updateDraft }: Props) {
+export default function Step3ScheduleRefactored({ draft, updateDraft, errors = {} }: Props) {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const { t } = useI18n();
@@ -372,6 +373,7 @@ export default function Step3ScheduleRefactored({ draft, updateDraft }: Props) {
           )}
         </View>
       </View>
+      {!!errors.start && <Text style={styles.fieldError}>{errors.start}</Text>}
 
       {/* End Date & Time */}
       <View style={styles.row}>
@@ -425,6 +427,7 @@ export default function Step3ScheduleRefactored({ draft, updateDraft }: Props) {
           )}
         </View>
       </View>
+      {!!errors.end && <Text style={styles.fieldError}>{errors.end}</Text>}
 
       {/* Error message */}
       {errorKey && (
@@ -536,6 +539,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 14,
     color: colors.error,
     fontWeight: '500',
+  },
+  fieldError: {
+    fontSize: 13,
+    color: colors.error,
+    marginTop: -8,
   },
   infoCard: {
     flexDirection: 'row',

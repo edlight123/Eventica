@@ -26,6 +26,7 @@ import { getOrganizerEvents, OrganizerEvent } from '../../lib/api/organizer';
 import { getPosterTheme } from '../../lib/posterGradient';
 import { RADIUS } from '../../config/brand';
 import EmptyState from '../../components/EmptyState';
+import StatusChip from '../../components/StatusChip';
 
 type EventStatus = 'draft' | 'published' | 'sold_out' | 'completed' | 'cancelled';
 
@@ -87,20 +88,23 @@ export default function OrganizerEventsScreen() {
 
   const events = eventTab === 'upcoming' ? upcomingEvents : pastEvents;
 
-  const getStatusColor = (status: EventStatus) => {
+  // Map an event status to the locked StatusChip semantic (POSH §2.7):
+  //   published → live (teal) · draft → action-needed (amber) ·
+  //   sold_out/cancelled → error (red) · completed → used (grey).
+  const getChipStatus = (status: EventStatus): string => {
     switch (status) {
       case 'draft':
-        return colors.warning;
+        return 'actionNeeded';
       case 'published':
-        return colors.success;
+        return 'live';
       case 'sold_out':
-        return colors.error;
+        return 'soldOut';
       case 'completed':
-        return colors.textSecondary;
+        return 'used';
       case 'cancelled':
-        return colors.error;
+        return 'error';
       default:
-        return colors.textSecondary;
+        return 'neutral';
     }
   };
 
@@ -189,6 +193,8 @@ export default function OrganizerEventsScreen() {
             subtitle={eventTab === 'upcoming'
               ? t('organizerEvents.emptyUpcomingBody')
               : t('organizerEvents.emptyPastBody')}
+            actionLabel={eventTab === 'upcoming' ? t('organizerDashboard.createEventCta') : undefined}
+            onAction={eventTab === 'upcoming' ? () => (navigation as any).navigate('CreateEvent') : undefined}
           />
         ) : (
           events.map((event) => {
@@ -235,9 +241,7 @@ export default function OrganizerEventsScreen() {
                     <Text style={styles.eventTitle} numberOfLines={2}>
                       {event.title}
                     </Text>
-                    <View style={[styles.statusPill, { backgroundColor: getStatusColor(displayStatus) }]}>
-                      <Text style={styles.statusText} numberOfLines={1}>{getStatusLabel(displayStatus)}</Text>
-                    </View>
+                    <StatusChip status={getChipStatus(displayStatus)} label={getStatusLabel(displayStatus)} />
                   </View>
 
                   <View style={styles.eventDetails}>
@@ -378,11 +382,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     lineHeight: 20,
   },
   eventCard: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
     borderRadius: RADIUS.lg,
     marginBottom: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
     overflow: 'hidden',
   },
   eventImage: {

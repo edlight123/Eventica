@@ -1,11 +1,13 @@
 /**
  * CreateEventFlow - Parent stepper component
- * 
+ *
  * Architecture:
  * - Single source of truth: eventDraft state
+ * - Two-choice entry (Sell tickets vs free RSVP) before Step 1 (POSH §2.10)
  * - Only active step is rendered (prevents gesture conflicts)
- * - Each step receives draft + updateDraft callback
- * - Validation happens per-step, collected on submit
+ * - Each step receives draft + updateDraft + inline per-field `errors`
+ * - Inline per-field validation on Continue (no Alert.alert banners)
+ * - A confirmation sheet before publishing, with a save-as-draft escape hatch
  */
 
 import React, { useState, useEffect } from 'react';
@@ -21,6 +23,7 @@ import {
   Keyboard,
   SafeAreaView,
   ActivityIndicator,
+  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
@@ -28,11 +31,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
-import { createEvent, updateEvent } from '../../lib/api/events';
+import { createEvent, updateEvent, SaveEventOptions } from '../../lib/api/events';
 import { getEventById } from '../../lib/api/organizer';
-import { SHADOWS, RADIUS } from '../../config/brand';
+import { RADIUS } from '../../config/brand';
 import { db } from '../../config/firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import WhitePillCTA from '../../components/WhitePillCTA';
+import { font } from '../../theme/tokens';
 
 type RouteParams = {
   CreateEvent: undefined;
@@ -46,6 +51,9 @@ import Step3ScheduleRefactored from './steps/Step3ScheduleRefactored';
 import Step4Tickets from './steps/Step4Tickets';
 import Step5Preview from './steps/Step5Preview';
 
+// Per-field inline validation errors, keyed by field name.
+export type FieldErrors = Record<string, string>;
+
 // Event draft shape - single source of truth
 export interface EventDraft {
   // Basics
@@ -53,21 +61,21 @@ export interface EventDraft {
   description: string;
   category: string;
   banner_image_url: string;
-  
+
   // Location
   venue_name: string;
   country?: string;
   city: string;
   commune: string;
   address: string;
-  
+
   // Schedule - local times
   start_date: string;      // YYYY-MM-DD
   start_time: string;      // HH:MM AM/PM
   end_date: string;        // YYYY-MM-DD
   end_time: string;        // HH:MM AM/PM
   timezone: string;        // America/Port-au-Prince
-  
+
   // Tickets
   ticket_tiers: Array<{
     name: string;
@@ -75,6 +83,10 @@ export interface EventDraft {
     quantity: string;
   }>;
   currency: string;
+
+  // Free RSVP path — no paid tiers, a single attendance cap instead.
+  is_rsvp: boolean;
+  capacity: string;
 }
 
 const STEPS = [
@@ -97,9 +109,15 @@ export default function CreateEventFlowRefactored() {
   const [saving, setSaving] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [loadingEvent, setLoadingEvent] = useState(false);
-  
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const [confirmVisible, setConfirmVisible] = useState(false);
+
   const eventId = route.params?.eventId;
   const isEditMode = !!eventId;
+
+  // In create mode the two-choice entry chooser is shown first; edit mode
+  // jumps straight into the stepper (mode derived from the loaded event).
+  const [entryChosen, setEntryChosen] = useState(isEditMode);
 
   // Single source of truth for all form data
   const [eventDraft, setEventDraft] = useState<EventDraft>({
@@ -119,6 +137,8 @@ export default function CreateEventFlowRefactored() {
     timezone: 'America/Port-au-Prince',
     ticket_tiers: [{ name: 'General Admission', price: '0', quantity: '100' }],
     currency: 'HTG',
+    is_rsvp: false,
+    capacity: '100',
   });
 
   // Track keyboard visibility
@@ -164,6 +184,8 @@ export default function CreateEventFlowRefactored() {
             }))
           : [{ name: 'General Admission', price: '0', quantity: '100' }];
 
+        const isRsvp = Boolean((event as any).is_rsvp);
+
         setEventDraft({
           title: event.title || '',
           description: event.description || '',
@@ -181,6 +203,8 @@ export default function CreateEventFlowRefactored() {
           timezone: 'America/Port-au-Prince',
           ticket_tiers: formattedTicketTiers,
           currency: event.currency || 'USD',
+          is_rsvp: isRsvp,
+          capacity: String((event as any).total_tickets ?? formattedTicketTiers[0]?.quantity ?? '100'),
         });
       }
     } catch (error) {
@@ -204,39 +228,136 @@ export default function CreateEventFlowRefactored() {
     setEventDraft(prev => ({ ...prev, ...updates }));
   };
 
-  // Step validation - only runs on final submit
-  const validateAllSteps = (): boolean => {
-    if (!eventDraft.title.trim()) {
-      Alert.alert(t('organizerCreateEventFlow.requiredTitle'), t('organizerCreateEventFlow.requiredEventTitle'));
-      setCurrentStep(1);
-      return false;
+  // Choose the entry mode (sell tickets vs free RSVP) and enter the stepper.
+  const chooseMode = (rsvp: boolean) => {
+    updateDraft({ is_rsvp: rsvp });
+    setEntryChosen(true);
+    setCurrentStep(1);
+  };
+
+  /**
+   * Validate a single step and set inline per-field errors. Returns true when
+   * the step is valid. Replaces the old Alert.alert `validateAllSteps` banner.
+   */
+  const validateStep = (step: number): boolean => {
+    const next: FieldErrors = { ...errors };
+    // Clear this step's keys before re-validating.
+    const clear = (...keys: string[]) => keys.forEach((k) => delete next[k]);
+    let ok = true;
+
+    if (step === 1) {
+      clear('title');
+      if (!eventDraft.title.trim()) {
+        next.title = t('organizerCreateEventFlow.validation.title');
+        ok = false;
+      }
+    } else if (step === 2) {
+      clear('venue_name');
+      if (!eventDraft.venue_name.trim()) {
+        next.venue_name = t('organizerCreateEventFlow.validation.venue');
+        ok = false;
+      }
+    } else if (step === 3) {
+      clear('start', 'end');
+      if (!eventDraft.start_date || !eventDraft.start_time) {
+        next.start = t('organizerCreateEventFlow.validation.startDate');
+        ok = false;
+      }
+      if (!eventDraft.end_date || !eventDraft.end_time) {
+        next.end = t('organizerCreateEventFlow.validation.endDate');
+        ok = false;
+      }
+    } else if (step === 4) {
+      if (eventDraft.is_rsvp) {
+        clear('capacity');
+        const cap = parseInt(eventDraft.capacity || '0', 10);
+        if (!Number.isFinite(cap) || cap <= 0) {
+          next.capacity = t('organizerCreateEventFlow.validation.capacity');
+          ok = false;
+        }
+      } else {
+        // Clear all previous tier errors.
+        Object.keys(next)
+          .filter((k) => k.startsWith('tier_'))
+          .forEach((k) => delete next[k]);
+        if (eventDraft.ticket_tiers.length === 0) {
+          next.tier_0_name = t('organizerCreateEventFlow.validation.tierName');
+          ok = false;
+        }
+        eventDraft.ticket_tiers.forEach((tier, i) => {
+          if (!tier.name.trim()) {
+            next[`tier_${i}_name`] = t('organizerCreateEventFlow.validation.tierName');
+            ok = false;
+          }
+          const price = parseFloat(tier.price);
+          if (tier.price === '' || !Number.isFinite(price) || price < 0) {
+            next[`tier_${i}_price`] = t('organizerCreateEventFlow.validation.tierPrice');
+            ok = false;
+          }
+          const qty = parseInt(tier.quantity || '0', 10);
+          if (!Number.isFinite(qty) || qty <= 0) {
+            next[`tier_${i}_quantity`] = t('organizerCreateEventFlow.validation.tierQuantity');
+            ok = false;
+          }
+        });
+      }
     }
-    if (!eventDraft.venue_name.trim()) {
-      Alert.alert(t('organizerCreateEventFlow.requiredTitle'), t('organizerCreateEventFlow.requiredVenueName'));
-      setCurrentStep(2);
-      return false;
+
+    setErrors(next);
+    return ok;
+  };
+
+  /**
+   * Validate every step before submit (the progress bar lets users skip ahead,
+   * so a per-step check on Continue isn't enough). Sets all inline errors and
+   * jumps to the first offending step. Returns true when the whole draft is valid.
+   */
+  const validateForSubmit = (): boolean => {
+    const errs: FieldErrors = {};
+    if (!eventDraft.title.trim()) errs.title = t('organizerCreateEventFlow.validation.title');
+    if (!eventDraft.venue_name.trim()) errs.venue_name = t('organizerCreateEventFlow.validation.venue');
+    if (!eventDraft.start_date || !eventDraft.start_time) errs.start = t('organizerCreateEventFlow.validation.startDate');
+    if (!eventDraft.end_date || !eventDraft.end_time) errs.end = t('organizerCreateEventFlow.validation.endDate');
+
+    if (eventDraft.is_rsvp) {
+      const cap = parseInt(eventDraft.capacity || '0', 10);
+      if (!Number.isFinite(cap) || cap <= 0) errs.capacity = t('organizerCreateEventFlow.validation.capacity');
+    } else {
+      eventDraft.ticket_tiers.forEach((tier, i) => {
+        if (!tier.name.trim()) errs[`tier_${i}_name`] = t('organizerCreateEventFlow.validation.tierName');
+        const price = parseFloat(tier.price);
+        if (tier.price === '' || !Number.isFinite(price) || price < 0) errs[`tier_${i}_price`] = t('organizerCreateEventFlow.validation.tierPrice');
+        const qty = parseInt(tier.quantity || '0', 10);
+        if (!Number.isFinite(qty) || qty <= 0) errs[`tier_${i}_quantity`] = t('organizerCreateEventFlow.validation.tierQuantity');
+      });
     }
-    if (!eventDraft.start_date || !eventDraft.start_time || !eventDraft.end_date || !eventDraft.end_time) {
-      Alert.alert(t('organizerCreateEventFlow.requiredTitle'), t('organizerCreateEventFlow.requiredDatesTimes'));
-      setCurrentStep(3);
-      return false;
-    }
-    if (eventDraft.ticket_tiers.length === 0) {
-      Alert.alert(t('organizerCreateEventFlow.requiredTitle'), t('organizerCreateEventFlow.requiredTickets'));
-      setCurrentStep(4);
-      return false;
-    }
-    return true;
+
+    setErrors(errs);
+
+    if (Object.keys(errs).length === 0) return true;
+
+    // Jump to the first step that has an error.
+    if (errs.title) setCurrentStep(1);
+    else if (errs.venue_name) setCurrentStep(2);
+    else if (errs.start || errs.end) setCurrentStep(3);
+    else setCurrentStep(4);
+    return false;
   };
 
   const handleNext = () => {
     if (currentStep < 5) {
+      if (!validateStep(currentStep)) return;
       setCurrentStep(currentStep + 1);
+      return;
+    }
+    // Final step — validate the whole draft before publishing.
+    if (!validateForSubmit()) return;
+    if (isEditMode) {
+      // Edit mode preserves publication state — submit directly.
+      handleSubmit({});
     } else {
-      // Final submit
-      if (validateAllSteps()) {
-        handleSubmit();
-      }
+      // Create mode: confirm before publishing (with save-as-draft escape).
+      setConfirmVisible(true);
     }
   };
 
@@ -246,16 +367,33 @@ export default function CreateEventFlowRefactored() {
     }
   };
 
-  const handleSubmit = async () => {
+  // Normalize the draft into the CreateEventData shape. RSVP events collapse to
+  // a single free tier sized by the attendance cap.
+  const buildEventData = () => {
+    if (eventDraft.is_rsvp) {
+      return {
+        ...eventDraft,
+        currency: eventDraft.currency || 'HTG',
+        ticket_tiers: [
+          { name: 'RSVP', price: '0', quantity: eventDraft.capacity || '0' },
+        ],
+      };
+    }
+    return eventDraft;
+  };
+
+  const handleSubmit = async (options: SaveEventOptions) => {
     if (!userProfile?.id) {
       Alert.alert(t('common.error'), t('organizerCreateEventFlow.authRequired'));
       return;
     }
 
+    const eventData = buildEventData();
+
     // Match web restrictions: paid US/CA events require Stripe Connect.
     const draftCountry = String((eventDraft as any).country || 'HT').toUpperCase();
     const isStripeCountry = draftCountry === 'US' || draftCountry === 'CA';
-    const hasPaidTickets = (eventDraft.ticket_tiers || []).some((tier) => {
+    const hasPaidTickets = !eventDraft.is_rsvp && (eventData.ticket_tiers || []).some((tier) => {
       const price = parseFloat(String((tier as any).price ?? '0'));
       return Number.isFinite(price) && price > 0;
     });
@@ -279,6 +417,7 @@ export default function CreateEventFlowRefactored() {
         const ok = provider === 'stripe_connect' && !!stripeAccountId;
 
         if (!ok) {
+          setConfirmVisible(false);
           Alert.alert(
             t('organizerEarnings.stripeConnectRequired.title'),
             t('organizerEarnings.stripeConnectRequired.body')
@@ -287,6 +426,7 @@ export default function CreateEventFlowRefactored() {
           return;
         }
       } catch {
+        setConfirmVisible(false);
         Alert.alert(
           t('organizerEarnings.stripeConnectRequired.title'),
           t('organizerEarnings.stripeConnectRequired.body')
@@ -300,9 +440,10 @@ export default function CreateEventFlowRefactored() {
     try {
       if (isEditMode && eventId) {
         // Update existing event
-        await updateEvent(eventId, userProfile.id, eventDraft);
+        await updateEvent(eventId, userProfile.id, eventData, options);
         console.log('Event updated with ID:', eventId);
-        
+
+        setConfirmVisible(false);
         Alert.alert(
           t('common.success'),
           t('organizerCreateEventFlow.updateSuccessBody'),
@@ -310,17 +451,21 @@ export default function CreateEventFlowRefactored() {
         );
       } else {
         // Create new event
-        const newEventId = await createEvent(userProfile.id, eventDraft);
+        const newEventId = await createEvent(userProfile.id, eventData, options);
         console.log('Event created with ID:', newEventId);
-        
+
+        setConfirmVisible(false);
         Alert.alert(
           t('common.success'),
-          t('organizerCreateEventFlow.createSuccessBody'),
+          options.publish === false
+            ? t('organizerCreateEventFlow.draftSuccessBody')
+            : t('organizerCreateEventFlow.createSuccessBody'),
           [{ text: t('common.ok'), onPress: () => navigation.goBack() }]
         );
       }
     } catch (error: any) {
       console.error('Event save error:', error);
+      setConfirmVisible(false);
       Alert.alert(
         t('common.error'),
         error.message || (isEditMode ? t('organizerCreateEventFlow.saveFailedUpdate') : t('organizerCreateEventFlow.saveFailedCreate'))
@@ -334,15 +479,15 @@ export default function CreateEventFlowRefactored() {
   const renderActiveStep = () => {
     switch (currentStep) {
       case 1:
-        return <Step1Basics draft={eventDraft} updateDraft={updateDraft} />;
+        return <Step1Basics draft={eventDraft} updateDraft={updateDraft} errors={errors} />;
       case 2:
-        return <Step2Location draft={eventDraft} updateDraft={updateDraft} />;
+        return <Step2Location draft={eventDraft} updateDraft={updateDraft} errors={errors} />;
       case 3:
-        return <Step3ScheduleRefactored draft={eventDraft} updateDraft={updateDraft} />;
+        return <Step3ScheduleRefactored draft={eventDraft} updateDraft={updateDraft} errors={errors} />;
       case 4:
-        return <Step4Tickets draft={eventDraft} updateDraft={updateDraft} />;
+        return <Step4Tickets draft={eventDraft} updateDraft={updateDraft} errors={errors} />;
       case 5:
-        return <Step5Preview draft={eventDraft} updateDraft={updateDraft} />;
+        return <Step5Preview draft={eventDraft} updateDraft={updateDraft} errors={errors} />;
       default:
         return null;
     }
@@ -357,8 +502,72 @@ export default function CreateEventFlowRefactored() {
     );
   }
 
+  const confirmExit = () => {
+    Alert.alert(t('organizerCreateEventFlow.discardTitle'), t('organizerCreateEventFlow.discardBody'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('organizerCreateEventFlow.leave'), style: 'destructive', onPress: () => navigation.goBack() },
+    ]);
+  };
+
+  // ── Two-choice entry chooser (create mode only) ──────────────────────────
+  if (!entryChosen) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.wrapper}>
+          <View style={styles.header}>
+            <TouchableOpacity
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              onPress={() => navigation.goBack()}
+            >
+              <Ionicons name="close" size={24} color={colors.text} />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle} numberOfLines={1}>
+              {t('organizerCreateEventFlow.headerCreate')}
+            </Text>
+            <View style={{ width: 24 }} />
+          </View>
+
+          <View style={styles.entryBody}>
+            <Text style={styles.entryTitle}>{t('organizerCreateEventFlow.entry.title')}</Text>
+            <Text style={styles.entrySubtitle}>{t('organizerCreateEventFlow.entry.subtitle')}</Text>
+
+            <TouchableOpacity
+              style={styles.entryCard}
+              activeOpacity={0.85}
+              onPress={() => chooseMode(false)}
+            >
+              <View style={styles.entryIcon}>
+                <Ionicons name="pricetags-outline" size={26} color={colors.text} />
+              </View>
+              <View style={styles.entryCardText}>
+                <Text style={styles.entryCardTitle}>{t('organizerCreateEventFlow.entry.sellTitle')}</Text>
+                <Text style={styles.entryCardDesc}>{t('organizerCreateEventFlow.entry.sellDesc')}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.entryCard}
+              activeOpacity={0.85}
+              onPress={() => chooseMode(true)}
+            >
+              <View style={styles.entryIcon}>
+                <Ionicons name="people-outline" size={26} color={colors.text} />
+              </View>
+              <View style={styles.entryCardText}>
+                <Text style={styles.entryCardTitle}>{t('organizerCreateEventFlow.entry.rsvpTitle')}</Text>
+                <Text style={styles.entryCardDesc}>{t('organizerCreateEventFlow.entry.rsvpDesc')}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? -50 : 0}
@@ -369,12 +578,7 @@ export default function CreateEventFlowRefactored() {
           <View style={styles.header}>
             <TouchableOpacity
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              onPress={() => {
-                Alert.alert(t('organizerCreateEventFlow.discardTitle'), t('organizerCreateEventFlow.discardBody'), [
-                  { text: t('common.cancel'), style: 'cancel' },
-                  { text: t('organizerCreateEventFlow.leave'), style: 'destructive', onPress: () => navigation.goBack() },
-                ]);
-              }}
+              onPress={confirmExit}
             >
               <Ionicons name="close" size={24} color={colors.text} />
             </TouchableOpacity>
@@ -416,7 +620,7 @@ export default function CreateEventFlowRefactored() {
           </View>
 
           {/* Active Step Content - scrollable */}
-          <ScrollView 
+          <ScrollView
             style={styles.content}
             contentContainerStyle={{
               paddingHorizontal: 16,
@@ -434,27 +638,65 @@ export default function CreateEventFlowRefactored() {
           {!isKeyboardVisible && (
             <View style={styles.footer}>
               {currentStep > 1 && (
-                <TouchableOpacity style={[styles.button, styles.buttonSecondary]} onPress={handleBack}>
-                  <Ionicons name="arrow-back" size={20} color={colors.primary} />
-                  <Text style={styles.buttonSecondaryText}>{t('common.back')}</Text>
+                <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+                  <Ionicons name="arrow-back" size={20} color={colors.text} />
+                  <Text style={styles.backButtonText}>{t('common.back')}</Text>
                 </TouchableOpacity>
               )}
-              <TouchableOpacity
-                style={[styles.button, styles.buttonPrimary, currentStep === 1 && styles.buttonFull]}
+              <WhitePillCTA
+                label={
+                  currentStep === 5
+                    ? (isEditMode ? t('organizerCreateEventFlow.updateEvent') : t('organizerCreateEventFlow.createEvent'))
+                    : t('common.continue')
+                }
                 onPress={handleNext}
                 disabled={saving}
-              >
-                <Text style={styles.buttonPrimaryText}>
-                  {currentStep === 5
-                    ? (isEditMode ? t('organizerCreateEventFlow.updateEvent') : t('organizerCreateEventFlow.createEvent'))
-                    : t('common.continue')}
-                </Text>
-                {currentStep < 5 && <Ionicons name="arrow-forward" size={20} color={colors.white} />}
-              </TouchableOpacity>
+                style={styles.footerCta}
+              />
             </View>
           )}
         </View>
       </SafeAreaView>
+
+      {/* Confirmation-before-publish sheet with save-as-draft escape hatch */}
+      <Modal
+        visible={confirmVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => !saving && setConfirmVisible(false)}
+      >
+        <View style={styles.sheetBackdrop}>
+          <TouchableOpacity
+            style={StyleSheet.absoluteFill}
+            activeOpacity={1}
+            onPress={() => !saving && setConfirmVisible(false)}
+          />
+          <View style={[styles.sheet, { paddingBottom: insets.bottom + 20 }]}>
+            <View style={styles.sheetHandle} />
+            <Text style={styles.sheetTitle}>{t('organizerCreateEventFlow.confirm.title')}</Text>
+            <Text style={styles.sheetBody}>{t('organizerCreateEventFlow.confirm.body')}</Text>
+
+            <WhitePillCTA
+              label={t('organizerCreateEventFlow.confirm.publish')}
+              variant="paid"
+              onPress={() => handleSubmit({ publish: true })}
+              loading={saving}
+              disabled={saving}
+              style={styles.sheetPublish}
+            />
+
+            <TouchableOpacity
+              style={styles.sheetDraft}
+              disabled={saving}
+              onPress={() => handleSubmit({ publish: false })}
+            >
+              <Text style={styles.sheetDraftText}>
+                {t('organizerCreateEventFlow.confirm.saveDraft')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
@@ -475,6 +717,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   safeArea: {
     flex: 1,
+    backgroundColor: colors.background,
   },
   wrapper: {
     flex: 1,
@@ -487,7 +730,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingTop: 12,
     paddingBottom: 12,
     backgroundColor: colors.surface,
-    borderBottomWidth: 1,
+    borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
   },
   headerTitle: {
@@ -495,11 +738,61 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '600',
     color: colors.text,
   },
+
+  // ── Entry chooser ──
+  entryBody: {
+    flex: 1,
+    padding: 24,
+    gap: 16,
+  },
+  entryTitle: {
+    fontFamily: font.serif,
+    fontSize: 40,
+    lineHeight: 44,
+    color: colors.text,
+    marginTop: 8,
+  },
+  entrySubtitle: {
+    fontSize: 15,
+    color: colors.textSecondary,
+    marginBottom: 12,
+  },
+  entryCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    padding: 20,
+    borderRadius: RADIUS.xl,
+    backgroundColor: colors.surfaceRaised,
+  },
+  entryIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.surfaceMuted,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  entryCardText: {
+    flex: 1,
+    gap: 4,
+  },
+  entryCardTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  entryCardDesc: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    lineHeight: 18,
+  },
+
   progressWrapper: {
     backgroundColor: colors.surface,
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderBottomWidth: 1,
+    borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
   },
   progressContainer: {
@@ -521,10 +814,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 4,
   },
   stepCircleActive: {
+    // Teal = the active-state marker (semantic, POSH §1).
     backgroundColor: colors.primary,
-    ...SHADOWS.xs,
-    shadowColor: colors.primary,
-    shadowOpacity: 0.35,
   },
   stepNumber: {
     fontSize: 14,
@@ -559,42 +850,79 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   footer: {
     flexDirection: 'row',
+    alignItems: 'center',
     padding: 16,
     gap: 12,
     backgroundColor: colors.surface,
-    borderTopWidth: 1,
+    borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.border,
     paddingBottom: Platform.OS === 'ios' ? 32 : 16,
   },
-  button: {
-    flex: 1,
+  backButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    paddingVertical: 14,
-    borderRadius: RADIUS.lg,
+    height: 56,
+    paddingHorizontal: 20,
+    borderRadius: RADIUS.full,
+    backgroundColor: colors.surfaceRaised,
   },
-  buttonFull: {
+  backButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  footerCta: {
     flex: 1,
   },
-  buttonSecondary: {
+
+  // ── Confirm sheet ──
+  sheetBackdrop: {
+    flex: 1,
+    backgroundColor: colors.overlay,
+    justifyContent: 'flex-end',
+  },
+  sheet: {
     backgroundColor: colors.surface,
-    borderWidth: 2,
-    borderColor: colors.primary,
+    borderTopLeftRadius: RADIUS.xl,
+    borderTopRightRadius: RADIUS.xl,
+    paddingHorizontal: 20,
+    paddingTop: 12,
   },
-  buttonSecondaryText: {
-    fontSize: 16,
+  sheetHandle: {
+    alignSelf: 'center',
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.border,
+    marginBottom: 20,
+  },
+  sheetTitle: {
+    fontFamily: font.serif,
+    fontSize: 30,
+    lineHeight: 34,
+    color: colors.text,
+  },
+  sheetBody: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginTop: 8,
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  sheetPublish: {
+    width: '100%',
+  },
+  sheetDraft: {
+    alignItems: 'center',
+    paddingVertical: 16,
+    marginTop: 4,
+  },
+  sheetDraftText: {
+    fontSize: 15,
     fontWeight: '600',
-    color: colors.primary,
-  },
-  buttonPrimary: {
-    backgroundColor: colors.primary,
-    ...SHADOWS.floating,
-  },
-  buttonPrimaryText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.white,
+    color: colors.textSecondary,
+    textDecorationLine: 'underline',
   },
 });

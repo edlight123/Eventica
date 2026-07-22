@@ -2,14 +2,18 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useI18n } from '../../../contexts/I18nContext';
-import type { EventDraft } from '../CreateEventFlowRefactored';
+import { getPosterTheme } from '../../../lib/posterGradient';
+import { font } from '../../../theme/tokens';
+import type { EventDraft, FieldErrors } from '../CreateEventFlowRefactored';
 
 interface Props {
   draft: EventDraft;
   updateDraft: (updates: Partial<EventDraft>) => void;
+  errors?: FieldErrors;
 }
 
 export default function Step5Preview({ draft, updateDraft }: Props) {
@@ -22,7 +26,7 @@ export default function Step5Preview({ draft, updateDraft }: Props) {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [16, 9],
+      aspect: [2, 3],
       quality: 0.8,
     });
 
@@ -32,7 +36,14 @@ export default function Step5Preview({ draft, updateDraft }: Props) {
   };
 
   const getCurrencySymbol = () => (draft.currency === 'HTG' ? 'HTG' : '$');
-  const totalTickets = draft.ticket_tiers.reduce((sum, tier) => sum + (parseInt(tier.quantity) || 0), 0);
+  const totalTickets = draft.is_rsvp
+    ? (parseInt(draft.capacity) || 0)
+    : draft.ticket_tiers.reduce((sum, tier) => sum + (parseInt(tier.quantity) || 0), 0);
+
+  // Fallback poster theme (bold serif title on a teal/black gradient) so no
+  // event is ever posterless in the preview (POSH §2.8).
+  const posterTheme = getPosterTheme(draft.title || 'tikem', draft.category);
+  const posterTitle = draft.title || t('organizerCreateEvent.preview.eventTitlePlaceholder');
 
   if (viewMode === 'card') {
     return (
@@ -59,7 +70,13 @@ export default function Step5Preview({ draft, updateDraft }: Props) {
             <Image source={{ uri: draft.banner_image_url }} style={styles.cardImage} />
           ) : (
             <View style={styles.cardImagePlaceholder}>
-              <Ionicons name="image-outline" size={40} color={colors.textSecondary} />
+              <LinearGradient
+                colors={posterTheme.colors}
+                start={{ x: 0.1, y: 0 }}
+                end={{ x: 0.9, y: 1 }}
+                style={StyleSheet.absoluteFill}
+              />
+              <Text style={styles.posterTitle} numberOfLines={4}>{posterTitle}</Text>
             </View>
           )}
           <View style={styles.cardContent}>
@@ -79,7 +96,9 @@ export default function Step5Preview({ draft, updateDraft }: Props) {
             </View>
             <View style={styles.cardFooter}>
               <Text style={styles.cardPrice} numberOfLines={1}>
-                {getCurrencySymbol()} {draft.ticket_tiers[0]?.price || '0'}
+                {draft.is_rsvp
+                  ? t('common.free')
+                  : `${getCurrencySymbol()} ${draft.ticket_tiers[0]?.price || '0'}`}
               </Text>
               <Text style={styles.cardTickets} numberOfLines={1}>
                 {totalTickets} {t('organizerCreateEvent.preview.tickets')}
@@ -125,8 +144,13 @@ export default function Step5Preview({ draft, updateDraft }: Props) {
           <Image source={{ uri: draft.banner_image_url }} style={styles.pageHeroImage} />
         ) : (
           <View style={styles.pageHeroPlaceholder}>
-            <Ionicons name="image-outline" size={60} color={colors.textSecondary} />
-            <Text style={styles.placeholderText}>{t('organizerCreateEvent.preview.noImageSelected')}</Text>
+            <LinearGradient
+              colors={posterTheme.colors}
+              start={{ x: 0.1, y: 0 }}
+              end={{ x: 0.9, y: 1 }}
+              style={StyleSheet.absoluteFill}
+            />
+            <Text style={styles.heroPosterTitle} numberOfLines={3}>{posterTitle}</Text>
           </View>
         )}
         <TouchableOpacity style={styles.editImageButton} onPress={pickImage}>
@@ -180,21 +204,37 @@ export default function Step5Preview({ draft, updateDraft }: Props) {
         <View style={styles.pageDivider} />
 
         <Text style={styles.pageSectionTitle}>{t('organizerCreateEvent.preview.ticketOptions')}</Text>
-        {draft.ticket_tiers.map((tier, index) => (
-          <View key={index} style={styles.pageTicketTier}>
+        {draft.is_rsvp ? (
+          <View style={styles.pageTicketTier}>
             <View style={styles.pageTicketInfo}>
               <Text style={styles.pageTicketName} numberOfLines={1}>
-                {tier.name || `${t('organizerCreateEvent.preview.tier')} ${index + 1}`}
+                {t('organizerCreateEventFlow.entry.rsvpTitle')}
               </Text>
               <Text style={styles.pageTicketAvailable} numberOfLines={1}>
-                {tier.quantity || '0'} {t('organizerCreateEvent.preview.available')}
+                {draft.capacity || '0'} {t('organizerCreateEvent.preview.available')}
               </Text>
             </View>
             <Text style={styles.pageTicketPrice} numberOfLines={1}>
-              {getCurrencySymbol()} {tier.price || '0'}
+              {t('common.free')}
             </Text>
           </View>
-        ))}
+        ) : (
+          draft.ticket_tiers.map((tier, index) => (
+            <View key={index} style={styles.pageTicketTier}>
+              <View style={styles.pageTicketInfo}>
+                <Text style={styles.pageTicketName} numberOfLines={1}>
+                  {tier.name || `${t('organizerCreateEvent.preview.tier')} ${index + 1}`}
+                </Text>
+                <Text style={styles.pageTicketAvailable} numberOfLines={1}>
+                  {tier.quantity || '0'} {t('organizerCreateEvent.preview.available')}
+                </Text>
+              </View>
+              <Text style={styles.pageTicketPrice} numberOfLines={1}>
+                {getCurrencySymbol()} {tier.price || '0'}
+              </Text>
+            </View>
+          ))
+        )}
 
         <View style={styles.helpCard}>
           <Ionicons name="checkmark-circle" size={20} color={colors.success} />
@@ -263,6 +303,23 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.surfaceRaised,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
+  },
+  posterTitle: {
+    fontFamily: font.serif,
+    fontSize: 28,
+    lineHeight: 30,
+    color: '#FFFFFF',
+    textAlign: 'center',
+    paddingHorizontal: 20,
+  },
+  heroPosterTitle: {
+    fontFamily: font.serif,
+    fontSize: 34,
+    lineHeight: 36,
+    color: '#FFFFFF',
+    textAlign: 'center',
+    paddingHorizontal: 24,
   },
   cardContent: {
     padding: 16,
@@ -345,6 +402,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.surfaceRaised,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
   },
   placeholderText: {
     fontSize: 14,

@@ -1161,6 +1161,8 @@ export default {
     refunds: 'Remboursements',
     payouts: 'Paiements',
     createEvent: 'Créer',
+    createEventCta: 'Créer un événement',
+    pageVisits: 'Vues de page',
   },
 
   organizerEvents: {
@@ -1229,6 +1231,33 @@ export default {
     updateSuccessBody: 'Votre événement a été mis à jour avec succès !',
     saveFailedCreate: "Échec de la création de l'événement. Veuillez réessayer.",
     saveFailedUpdate: "Échec de la mise à jour de l'événement. Veuillez réessayer.",
+    entry: {
+      title: "Quel type d'événement ?",
+      subtitle: 'Vous pourrez modifier les détails plus tard.',
+      sellTitle: 'Vendre des billets',
+      sellDesc: 'Définir les prix et les types de billets.',
+      rsvpTitle: 'RSVP gratuit',
+      rsvpDesc: 'Collectez des RSVP gratuits avec une limite.',
+    },
+    confirm: {
+      title: 'Prêt à publier ?',
+      body: 'Votre événement sera visible dans Découvrir.',
+      publish: 'Publier',
+      saveDraft: 'Enregistrer comme brouillon',
+    },
+    publishing: 'Publication…',
+    savingDraft: 'Enregistrement…',
+    draftSuccessBody: 'Votre événement a été enregistré comme brouillon.',
+    validation: {
+      title: "Saisissez un titre d'événement",
+      venue: 'Saisissez le nom du lieu',
+      startDate: 'Sélectionnez une date et une heure de début',
+      endDate: 'Sélectionnez une date et une heure de fin',
+      tierName: 'Saisissez un nom de type',
+      tierPrice: 'Saisissez un prix valide',
+      tierQuantity: 'Saisissez une quantité',
+      capacity: 'Saisissez une limite',
+    },
   },
 
   organizerCreateEvent: {
@@ -1238,7 +1267,7 @@ export default {
       eventImage: "Image de l'événement",
       changeImage: "Changer l'image",
       uploadImage: "Téléverser l'image",
-      aspectRatio: 'Format 16:9 recommandé',
+      aspectRatio: 'Format portrait 2:3 recommandé',
       eventTitle: "Titre de l'événement",
       eventTitlePlaceholder: 'Donnez un nom accrocheur à votre événement',
       category: 'Catégorie',
@@ -1304,6 +1333,13 @@ export default {
       quantityPlaceholder: '100',
       addTier: 'Ajouter un autre palier',
       infoText: 'Créez plusieurs niveaux de billets pour proposer différentes options de prix.',
+    },
+    rsvp: {
+      title: "Combien d'invités ?",
+      subtitle: 'Fixez une limite pour les RSVP gratuits.',
+      capLabel: "Limite d'invités",
+      capPlaceholder: '100',
+      infoText: "Les invités réservent une place gratuite jusqu'à la limite.",
     },
     preview: {
       cardView: 'Vue carte',

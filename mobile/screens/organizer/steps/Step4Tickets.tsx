@@ -3,14 +3,15 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView } from 
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useI18n } from '../../../contexts/I18nContext';
-import type { EventDraft } from '../CreateEventFlowRefactored';
+import type { EventDraft, FieldErrors } from '../CreateEventFlowRefactored';
 
 interface Props {
   draft: EventDraft;
   updateDraft: (updates: Partial<EventDraft>) => void;
+  errors?: FieldErrors;
 }
 
-export default function Step4Tickets({ draft, updateDraft }: Props) {
+export default function Step4Tickets({ draft, updateDraft, errors = {} }: Props) {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const { t } = useI18n();
@@ -41,9 +42,45 @@ export default function Step4Tickets({ draft, updateDraft }: Props) {
       contentContainerStyle={styles.contentContainer}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.title}>{t('organizerCreateEvent.tickets.title')}</Text>
-      <Text style={styles.subtitle}>{t('organizerCreateEvent.tickets.subtitle')}</Text>
+      <Text style={styles.title}>
+        {draft.is_rsvp
+          ? t('organizerCreateEvent.rsvp.title')
+          : t('organizerCreateEvent.tickets.title')}
+      </Text>
+      <Text style={styles.subtitle}>
+        {draft.is_rsvp
+          ? t('organizerCreateEvent.rsvp.subtitle')
+          : t('organizerCreateEvent.tickets.subtitle')}
+      </Text>
 
+      {draft.is_rsvp ? (
+        <>
+          {/* Free RSVP — attendance cap instead of paid tiers */}
+          <View style={styles.formGroup}>
+            <Text style={styles.label}>
+              {t('organizerCreateEvent.rsvp.capLabel')} <Text style={styles.required}>*</Text>
+            </Text>
+            <TextInput
+              style={[styles.tierInput, !!errors.capacity && styles.inputError]}
+              placeholder={t('organizerCreateEvent.rsvp.capPlaceholder')}
+              placeholderTextColor={colors.textTertiary}
+              selectionColor={colors.primary}
+              value={draft.capacity}
+              onChangeText={(text) => updateDraft({ capacity: text })}
+              keyboardType="numeric"
+            />
+            {!!errors.capacity && <Text style={styles.errorText}>{errors.capacity}</Text>}
+          </View>
+
+          <View style={styles.infoCard}>
+            <Ionicons name="information-circle-outline" size={20} color={colors.primary} />
+            <Text style={styles.infoText}>
+              {t('organizerCreateEvent.rsvp.infoText')}
+            </Text>
+          </View>
+        </>
+      ) : (
+      <>
       {/* Currency Selection */}
       <View style={styles.formGroup}>
         <Text style={styles.label}>
@@ -105,13 +142,16 @@ export default function Step4Tickets({ draft, updateDraft }: Props) {
           <View style={styles.tierFormGroup}>
             <Text style={styles.tierLabel}>{t('organizerCreateEvent.tickets.tierName')} *</Text>
             <TextInput
-              style={styles.tierInput}
+              style={[styles.tierInput, !!errors[`tier_${index}_name`] && styles.inputError]}
               placeholder={t('organizerCreateEvent.tickets.tierNamePlaceholder')}
               placeholderTextColor={colors.textTertiary}
               selectionColor={colors.primary}
               value={tier.name}
               onChangeText={(text) => updateTier(index, 'name', text)}
             />
+            {!!errors[`tier_${index}_name`] && (
+              <Text style={styles.errorText}>{errors[`tier_${index}_name`]}</Text>
+            )}
           </View>
 
           <View style={styles.tierRow}>
@@ -120,7 +160,7 @@ export default function Step4Tickets({ draft, updateDraft }: Props) {
                 {t('organizerCreateEvent.tickets.price')} ({getCurrencySymbol()}) *
               </Text>
               <TextInput
-                style={styles.tierInput}
+                style={[styles.tierInput, !!errors[`tier_${index}_price`] && styles.inputError]}
                 placeholder={t('organizerCreateEvent.tickets.pricePlaceholder')}
                 placeholderTextColor={colors.textTertiary}
                 selectionColor={colors.primary}
@@ -128,11 +168,14 @@ export default function Step4Tickets({ draft, updateDraft }: Props) {
                 onChangeText={(text) => updateTier(index, 'price', text)}
                 keyboardType="numeric"
               />
+              {!!errors[`tier_${index}_price`] && (
+                <Text style={styles.errorText}>{errors[`tier_${index}_price`]}</Text>
+              )}
             </View>
             <View style={[styles.tierFormGroup, styles.tierFormGroupHalf]}>
               <Text style={styles.tierLabel}>{t('organizerCreateEvent.tickets.quantity')} *</Text>
               <TextInput
-                style={styles.tierInput}
+                style={[styles.tierInput, !!errors[`tier_${index}_quantity`] && styles.inputError]}
                 placeholder={t('organizerCreateEvent.tickets.quantityPlaceholder')}
                 placeholderTextColor={colors.textTertiary}
                 selectionColor={colors.primary}
@@ -140,6 +183,9 @@ export default function Step4Tickets({ draft, updateDraft }: Props) {
                 onChangeText={(text) => updateTier(index, 'quantity', text)}
                 keyboardType="numeric"
               />
+              {!!errors[`tier_${index}_quantity`] && (
+                <Text style={styles.errorText}>{errors[`tier_${index}_quantity`]}</Text>
+              )}
             </View>
           </View>
         </View>
@@ -158,6 +204,8 @@ export default function Step4Tickets({ draft, updateDraft }: Props) {
           {t('organizerCreateEvent.tickets.infoText')}
         </Text>
       </View>
+      </>
+      )}
     </ScrollView>
   );
 }
@@ -259,6 +307,14 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     padding: 12,
     fontSize: 15,
     color: colors.text,
+  },
+  inputError: {
+    borderColor: colors.error,
+  },
+  errorText: {
+    fontSize: 13,
+    color: colors.error,
+    marginTop: 6,
   },
   tierRow: {
     flexDirection: 'row',
