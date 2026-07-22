@@ -132,12 +132,12 @@ export default function FollowButton({ organizerId, style, compact = false, onFo
         hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
       >
         {toggling ? (
-          <ActivityIndicator size="small" color={isFollowing ? colors.primary : '#FFF'} />
+          <ActivityIndicator size="small" color={isFollowing ? colors.text : '#000000'} />
         ) : (
           <Ionicons
             name={isFollowing ? 'checkmark' : 'add'}
             size={18}
-            color={isFollowing ? colors.primary : '#FFF'}
+            color={isFollowing ? colors.text : '#000000'}
           />
         )}
       </TouchableOpacity>
@@ -155,13 +155,13 @@ export default function FollowButton({ organizerId, style, compact = false, onFo
       disabled={toggling}
     >
       {toggling ? (
-        <ActivityIndicator size="small" color={isFollowing ? colors.primary : '#FFF'} />
+        <ActivityIndicator size="small" color={isFollowing ? colors.text : '#000000'} />
       ) : (
         <>
           <Ionicons
             name={isFollowing ? 'checkmark-circle' : 'person-add'}
             size={18}
-            color={isFollowing ? colors.primary : '#FFF'}
+            color={isFollowing ? colors.text : '#000000'}
           />
           <Text style={[styles.buttonText, isFollowing && styles.buttonTextFollowing]}>
             {isFollowing ? (t('follow.following') || 'Following') : (t('follow.follow') || 'Follow')}
@@ -188,33 +188,35 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderColor: colors.border,
     minWidth: 100,
   },
+  // POSH §2.2: primary follow = solid white pill (black label). "Following" is
+  // a dark-grey secondary. Teal never carries the follow CTA.
   buttonNotFollowing: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.white,
   },
   buttonFollowing: {
-    backgroundColor: colors.primary + '10',
+    backgroundColor: colors.surfaceRaised,
     borderWidth: 1,
-    borderColor: colors.primary,
+    borderColor: colors.border,
   },
   buttonText: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#FFF',
+    fontWeight: '700',
+    color: '#000000',
   },
   buttonTextFollowing: {
-    color: colors.primary,
+    color: colors.text,
   },
   compactButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
   compactButtonFollowing: {
-    backgroundColor: colors.primary + '15',
+    backgroundColor: colors.surfaceRaised,
     borderWidth: 1,
-    borderColor: colors.primary,
+    borderColor: colors.border,
   },
 });

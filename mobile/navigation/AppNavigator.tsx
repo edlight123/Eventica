@@ -216,10 +216,19 @@ function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
             <Animated.View style={[tabBarStyles.iconWrap, { transform: [{ scale }, { translateY: lift }] }]}>
               <Ionicons
                 name={(isFocused ? tab.activeIcon : tab.icon) as any}
-                size={26}
+                size={24}
                 color={iconColor}
               />
             </Animated.View>
+            {/* Short text label — a first-time Haitian audience needs more than
+                a cryptic icon (POSH §3). Teal active tint stays semantic. */}
+            <Text
+              style={[tabBarStyles.label, { color: iconColor }]}
+              numberOfLines={1}
+              allowFontScaling={false}
+            >
+              {tab.label}
+            </Text>
           </TouchableOpacity>
         );
       })}
@@ -243,7 +252,7 @@ const tabBarStyles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 10,
+    paddingTop: 8,
   },
   topAccent: {
     width: 26,
@@ -253,14 +262,16 @@ const tabBarStyles = StyleSheet.create({
   },
   iconWrap: {
     width: 56,
-    height: 30,
+    height: 26,
     alignItems: 'center',
     justifyContent: 'center',
   },
   label: {
     fontSize: 10.5,
-    marginTop: 2,
+    marginTop: 3,
     letterSpacing: 0.1,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });
 

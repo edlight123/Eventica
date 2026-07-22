@@ -17,8 +17,12 @@ interface PrimaryButtonProps {
   loading?: boolean;
   /** Optional leading icon. */
   icon?: React.ReactNode;
-  /** 'solid' (teal) or 'outline' (teal text on transparent). */
-  variant?: 'solid' | 'outline';
+  /**
+   * 'solid' (teal), 'outline' (teal text on transparent), or 'white' (solid
+   * white pill, black label — the POSH primary that keeps teal off the CTA).
+   * Default stays 'solid' so existing call sites are unaffected.
+   */
+  variant?: 'solid' | 'outline' | 'white';
   /**
    * Pin to the bottom safe-area as a sticky CTA (event detail "Get Tickets").
    * Adds a dark bar + hairline top border behind the button.
@@ -43,6 +47,11 @@ export default function PrimaryButton({
 }: PrimaryButtonProps) {
   const insets = useSafeAreaInsets();
   const isOutline = variant === 'outline';
+  const isWhite = variant === 'white';
+
+  const surfaceStyle = isOutline ? styles.outline : isWhite ? styles.white : styles.solid;
+  const labelStyle = isOutline ? styles.labelOutline : isWhite ? styles.labelWhite : styles.labelSolid;
+  const spinnerColor = isOutline ? colors.teal : isWhite ? colors.onWhite : colors.onTeal;
 
   const button = (
     <TouchableOpacity
@@ -51,17 +60,17 @@ export default function PrimaryButton({
       disabled={disabled || loading}
       style={[
         styles.button,
-        isOutline ? styles.outline : styles.solid,
+        surfaceStyle,
         (disabled || loading) && styles.disabled,
         style,
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={isOutline ? colors.teal : colors.onTeal} />
+        <ActivityIndicator color={spinnerColor} />
       ) : (
         <>
           {icon ? <View style={styles.icon}>{icon}</View> : null}
-          <Text style={[styles.label, isOutline ? styles.labelOutline : styles.labelSolid]}>
+          <Text style={[styles.label, labelStyle]}>
             {label}
           </Text>
         </>
@@ -96,6 +105,9 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: colors.teal,
   },
+  white: {
+    backgroundColor: colors.white,
+  },
   disabled: {
     opacity: 0.45,
   },
@@ -111,6 +123,9 @@ const styles = StyleSheet.create({
   },
   labelOutline: {
     color: colors.teal,
+  },
+  labelWhite: {
+    color: colors.onWhite,
   },
   stickyBar: {
     position: 'absolute',

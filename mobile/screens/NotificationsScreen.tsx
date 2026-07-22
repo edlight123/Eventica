@@ -26,6 +26,7 @@ import {
 } from '../lib/notifications';
 import { addStaffEventId } from '../lib/staffAssignments';
 import { backendJson } from '../lib/api/backend';
+import EmptyState from '../components/EmptyState';
 import type { Notification } from '../types/notifications';
 
 export default function NotificationsScreen() {
@@ -407,11 +408,11 @@ export default function NotificationsScreen() {
       >
         {notifications.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Bell size={64} color={colors.textSecondary} strokeWidth={1.5} />
-            <Text style={styles.emptyTitle}>{t('notifications.emptyTitle')}</Text>
-            <Text style={styles.emptySubtitle}>
-              {t('notifications.emptyBody')}
-            </Text>
+            <EmptyState
+              icon={Bell}
+              title={t('notifications.emptyTitle')}
+              subtitle={t('notifications.emptyBody')}
+            />
           </View>
         ) : (
           <View style={styles.notificationsList}>
@@ -623,16 +624,16 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingBottom: 32,
     gap: 8,
   },
+  // Elevation, not borders (POSH §1): raised surface, no 1px box. The teal left
+  // accent is kept as the semantic unread marker.
   notificationCard: {
     flexDirection: 'row',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
     borderRadius: 16,
     padding: 16,
     gap: 12,
     borderLeftWidth: 4,
     borderLeftColor: 'transparent',
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   notificationCardUnread: {
     borderLeftColor: colors.primary,

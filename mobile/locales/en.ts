@@ -204,6 +204,10 @@ export default {
     eventsAttended: 'Attended',
     following: 'Following',
     followers: 'Followers',
+    postersTitle: 'Your events',
+    postersEmptyTitle: 'No events yet',
+    postersEmptyBody: 'Events you save and attend will show up here as a poster wall.',
+    postersExplore: 'Explore events',
     actions: 'Actions',
     friends: 'Friends',
     social: {

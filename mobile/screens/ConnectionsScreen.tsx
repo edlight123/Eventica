@@ -19,6 +19,8 @@ import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import ConnectButton from '../components/ConnectButton';
+import VerifiedBadge from '../components/VerifiedBadge';
+import EmptyState from '../components/EmptyState';
 import {
   fetchConnections,
   searchUsers,
@@ -41,12 +43,12 @@ function Avatar({ user, colors, size = 44 }: { user: PublicUserSummary; colors: 
         width: size,
         height: size,
         borderRadius: size / 2,
-        backgroundColor: colors.primary,
+        backgroundColor: colors.surfaceRaised,
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: size * 0.4 }}>{initial}</Text>
+      <Text style={{ color: colors.text, fontWeight: '700', fontSize: size * 0.4 }}>{initial}</Text>
     </View>
   );
 }
@@ -75,7 +77,7 @@ function PersonRow({
           <Text style={styles.rowName} numberOfLines={1}>
             {user.displayName}
           </Text>
-          {user.isVerified && <Text style={styles.rowVerified}>Verified</Text>}
+          {user.isVerified && <VerifiedBadge size="small" showLabel style={styles.rowVerified} />}
         </View>
       </TouchableOpacity>
       <ConnectButton
@@ -200,24 +202,12 @@ function TabBtn({
   );
 }
 
-function Empty({ icon, title, subtitle, colors }: { icon: React.ReactNode; title: string; subtitle: string; colors: any }) {
-  const styles = getStyles(colors);
-  return (
-    <View style={styles.empty}>
-      <View style={styles.emptyIcon}>{icon}</View>
-      <Text style={styles.emptyTitle}>{title}</Text>
-      <Text style={styles.emptySub}>{subtitle}</Text>
-    </View>
-  );
-}
-
 function FriendsTab({ overview, colors, onOpen, onChange, onRequireAuth }: any) {
   const styles = getStyles(colors);
   if (overview.friends.length === 0) {
     return (
-      <Empty
-        colors={colors}
-        icon={<Users size={28} color={colors.textSecondary} />}
+      <EmptyState
+        icon={Users}
         title="No friends yet"
         subtitle="Find friends from your contacts or by searching their name."
       />
@@ -239,9 +229,8 @@ function RequestsTab({ overview, colors, onOpen, onChange, onRequireAuth }: any)
   const { incoming, outgoing } = overview;
   if (incoming.length === 0 && outgoing.length === 0) {
     return (
-      <Empty
-        colors={colors}
-        icon={<Inbox size={28} color={colors.textSecondary} />}
+      <EmptyState
+        icon={Inbox}
         title="No pending requests"
         subtitle="Friend requests you send or receive will appear here."
       />
@@ -381,7 +370,7 @@ function FindTab({ colors, onOpen, onChange, onRequireAuth, insets }: any) {
       <View style={styles.contactCard}>
         <View style={styles.contactHeader}>
           <View style={styles.contactIcon}>
-            <Phone size={20} color={colors.primary} />
+            <Phone size={20} color={colors.textSecondary} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.contactTitle}>Find friends from contacts</Text>
@@ -392,10 +381,10 @@ function FindTab({ colors, onOpen, onChange, onRequireAuth, insets }: any) {
         </View>
         <TouchableOpacity style={styles.syncBtn} onPress={syncContacts} disabled={contactLoading} activeOpacity={0.85}>
           {contactLoading ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
+            <ActivityIndicator size="small" color="#000000" />
           ) : (
             <>
-              <UserPlus size={16} color="#FFFFFF" />
+              <UserPlus size={16} color="#000000" />
               <Text style={styles.syncBtnText}>Sync contacts</Text>
             </>
           )}
@@ -447,9 +436,9 @@ const getStyles = (colors: any) =>
     },
     topTitle: {
       fontFamily: 'InstrumentSerif_400Regular',
-      fontSize: 20,
+      fontSize: 34,
       fontWeight: '700',
-      letterSpacing: 0,
+      letterSpacing: -0.5,
       color: colors.text,
     },
     tabs: {
@@ -496,11 +485,10 @@ const getStyles = (colors: any) =>
       fontSize: 11,
       fontWeight: '700',
     },
+    // Elevation, not borders (POSH §1).
     card: {
       backgroundColor: colors.surface,
       borderRadius: 16,
-      borderWidth: 1,
-      borderColor: colors.border,
       paddingHorizontal: 14,
     },
     divider: {
@@ -528,9 +516,7 @@ const getStyles = (colors: any) =>
       color: colors.text,
     },
     rowVerified: {
-      fontSize: 12,
-      color: colors.info,
-      marginTop: 2,
+      marginTop: 3,
     },
     sectionLabelRow: {
       flexDirection: 'row',
@@ -545,38 +531,11 @@ const getStyles = (colors: any) =>
       textTransform: 'uppercase',
       letterSpacing: 0.4,
     },
-    empty: {
-      alignItems: 'center',
-      paddingVertical: 56,
-    },
-    emptyIcon: {
-      width: 56,
-      height: 56,
-      borderRadius: 18,
-      backgroundColor: colors.borderLight,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: 12,
-    },
-    emptyTitle: {
-      fontSize: 16,
-      fontWeight: '700',
-      color: colors.text,
-    },
-    emptySub: {
-      fontSize: 13,
-      color: colors.textSecondary,
-      marginTop: 4,
-      textAlign: 'center',
-      paddingHorizontal: 32,
-    },
     searchBox: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 10,
-      backgroundColor: colors.surface,
-      borderWidth: 1,
-      borderColor: colors.border,
+      backgroundColor: colors.surfaceRaised,
       borderRadius: 12,
       paddingHorizontal: 14,
       paddingVertical: Platform.OS === 'ios' ? 12 : 4,
@@ -596,8 +555,6 @@ const getStyles = (colors: any) =>
       marginTop: 20,
       backgroundColor: colors.surface,
       borderRadius: 16,
-      borderWidth: 1,
-      borderColor: colors.border,
       padding: 16,
     },
     contactHeader: {
@@ -609,7 +566,7 @@ const getStyles = (colors: any) =>
       width: 40,
       height: 40,
       borderRadius: 10,
-      backgroundColor: colors.primary + '14',
+      backgroundColor: colors.surfaceRaised,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -624,18 +581,19 @@ const getStyles = (colors: any) =>
       marginTop: 2,
       lineHeight: 18,
     },
+    // White pill primary (POSH §2.2) — not a teal fill.
     syncBtn: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
       gap: 8,
-      backgroundColor: colors.primary,
+      backgroundColor: colors.white,
       borderRadius: 12,
       paddingVertical: 12,
       marginTop: 14,
     },
     syncBtnText: {
-      color: '#FFFFFF',
+      color: '#000000',
       fontSize: 14,
       fontWeight: '700',
     },

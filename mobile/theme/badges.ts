@@ -21,20 +21,23 @@ export const BADGE_COLORS = {
     text: '#053B36',
     shadow: 'rgba(45, 212, 191, 0.32)',
   },
+  // Solid (non-gradient) badges. On the dark canvas these are low-opacity tints
+  // of their semantic hue over black — never the light washes (#F0FDFA etc.)
+  // that read wrong on #0A0A0A. Colors mirror the semantic scale in theme/tokens.ts.
   free: {
-    background: '#F0FDFA',
-    text: '#0F766E',
-    border: '#99F6E4',
+    background: 'rgba(20,184,166,0.16)', // teal-muted
+    text: '#2DD4BF',
+    border: 'rgba(20,184,166,0.32)',
   },
   soldOut: {
-    background: '#FEF2F2',
-    text: '#DC2626',
-    border: '#FECACA',
+    background: 'rgba(248,113,113,0.16)', // red-muted
+    text: '#F87171',
+    border: 'rgba(248,113,113,0.32)',
   },
   lastChance: {
-    background: '#FFFBEB',
-    text: '#D97706',
-    border: '#FDE68A',
+    background: 'rgba(252,211,77,0.16)', // amber-muted
+    text: '#FCD34D',
+    border: 'rgba(252,211,77,0.32)',
   },
 };
 
