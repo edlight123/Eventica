@@ -20,6 +20,8 @@ export interface CreateEventData {
   banner_image_url: string;
   venue_name: string;
   country?: string;
+  /** Haiti département (optional; city stays the discovery-facing value). */
+  department?: string;
   city: string;
   commune: string;
   address: string;
@@ -92,6 +94,7 @@ export async function createEvent(
       image_url: coverImageUrl,
       venue_name: eventData.venue_name,
       country: eventData.country || 'HT',
+      department: eventData.department || '',
       city: eventData.city,
       commune: eventData.commune || '',
       address: eventData.address,
@@ -207,6 +210,7 @@ export async function updateEvent(
       image_url: coverImageUrl,
       venue_name: eventData.venue_name,
       country: eventData.country || 'HT',
+      department: eventData.department || '',
       city: eventData.city,
       commune: eventData.commune || '',
       address: eventData.address,

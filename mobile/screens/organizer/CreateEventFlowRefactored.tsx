@@ -43,6 +43,12 @@ import { RADIUS } from '../../config/brand';
 import { db } from '../../config/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { COUNTRIES, CITIES_BY_COUNTRY } from '../../types/filters';
+import {
+  HAITI_DEPARTMENTS,
+  citiesForDepartment,
+  communesForCity,
+  departmentForCity,
+} from '../../data/haitiGeo';
 import WhitePillCTA from '../../components/WhitePillCTA';
 import { font } from '../../theme/tokens';
 
@@ -65,6 +71,7 @@ export interface EventDraft {
   // Location
   venue_name: string;
   country?: string;
+  department: string;   // Haiti département (cascade parent of city)
   city: string;
   commune: string;
   address: string;
@@ -122,6 +129,7 @@ function InlineTextRow({
   multiline,
   keyboardType,
   maxLength,
+  onFocus,
 }: {
   colors: Colors;
   placeholder: string;
@@ -131,6 +139,7 @@ function InlineTextRow({
   multiline?: boolean;
   keyboardType?: KeyboardTypeOptions;
   maxLength?: number;
+  onFocus?: () => void;
 }) {
   return (
     <View style={[inline.row, { borderBottomColor: error ? colors.error : colors.border }]}>
@@ -144,6 +153,7 @@ function InlineTextRow({
         selectionColor={colors.primary}
         value={value}
         onChangeText={onChangeText}
+        onFocus={onFocus}
         multiline={!!multiline}
         keyboardType={keyboardType}
         maxLength={maxLength}
@@ -238,6 +248,8 @@ export default function CreateEventFlowRefactored() {
   const [loadingEvent, setLoadingEvent] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [confirmVisible, setConfirmVisible] = useState(false);
+  // Haiti commune search dropdown visibility.
+  const [communeListOpen, setCommuneListOpen] = useState(false);
 
   // Date/time picker visibility (ported from Step3ScheduleRefactored).
   const [showStartDate, setShowStartDate] = useState(false);
@@ -261,6 +273,7 @@ export default function CreateEventFlowRefactored() {
     banner_image_url: '',
     venue_name: '',
     country: 'HT',
+    department: 'Ouest',
     city: 'Port-au-Prince',
     commune: '',
     address: '',
@@ -320,6 +333,12 @@ export default function CreateEventFlowRefactored() {
 
         const isRsvp = Boolean((event as any).is_rsvp);
 
+        // Department: prefer the stored value; otherwise derive from the stored
+        // city (arrondissement main-city) via the Haiti geo dataset.
+        const storedCity = event.city || '';
+        const resolvedDepartment =
+          (event as any).department || departmentForCity(storedCity) || '';
+
         setEventDraft({
           title: event.title || '',
           description: event.description || '',
@@ -327,7 +346,8 @@ export default function CreateEventFlowRefactored() {
           banner_image_url: event.cover_image_url || '',
           venue_name: event.venue_name || '',
           country: (event as any).country || 'HT',
-          city: event.city || '',
+          department: resolvedDepartment,
+          city: storedCity,
           commune: event.commune || '',
           address: event.address || '',
           start_date: startDate.toISOString().split('T')[0],
@@ -389,14 +409,50 @@ export default function CreateEventFlowRefactored() {
 
   // ── Location (ported from Step2Location) ──
   const selectedCountry = (eventDraft as any).country || 'HT';
+  const isHaiti = selectedCountry === 'HT';
+  // Non-Haiti countries keep the flat city list.
   const cities = CITIES_BY_COUNTRY[selectedCountry] || [];
+  // Haiti gets a Département → City (arrondissement) → Commune cascade.
+  const department = eventDraft.department || 'Ouest';
+  const haitiCities = citiesForDepartment(department);
+
   const handleCountryChange = (countryCode: string) => {
-    const newCities = CITIES_BY_COUNTRY[countryCode] || [];
-    updateDraft({
-      country: countryCode,
-      city: newCities[0] || '',
-      commune: '',
-    } as any);
+    if (countryCode === 'HT') {
+      const dep = 'Ouest';
+      const first = citiesForDepartment(dep)[0]?.name || '';
+      updateDraft({ country: 'HT', department: dep, city: first, commune: '' });
+    } else {
+      const newCities = CITIES_BY_COUNTRY[countryCode] || [];
+      updateDraft({ country: countryCode, department: '', city: newCities[0] || '', commune: '' });
+    }
+    setCommuneListOpen(false);
+  };
+
+  // On département select: reset city to the department's first arrondissement.
+  const handleDepartmentChange = (dep: string) => {
+    const first = citiesForDepartment(dep)[0]?.name || '';
+    updateDraft({ department: dep, city: first, commune: '' });
+    setCommuneListOpen(false);
+  };
+
+  // Accent/case-insensitive commune matching for the searchable dropdown.
+  const normalizeText = (s: string) =>
+    s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+
+  const communeSuggestions = (() => {
+    if (!isHaiti) return [];
+    const all = communesForCity(department, eventDraft.city);
+    const q = normalizeText(eventDraft.commune);
+    const matches = q
+      ? all.filter((c) => normalizeText(c).includes(q))
+      : all;
+    return matches.slice(0, 8);
+  })();
+
+  const selectCommune = (commune: string) => {
+    updateDraft({ commune });
+    setCommuneListOpen(false);
+    Keyboard.dismiss();
   };
 
   // ── Tickets (ported from Step4Tickets) ──
@@ -427,7 +483,17 @@ export default function CreateEventFlowRefactored() {
     validateSchedule();
   }, [eventDraft.start_date, eventDraft.start_time, eventDraft.end_date, eventDraft.end_time]);
 
-  // Auto-update end time when start time changes.
+  // The moment a start date is set/changed, mirror it into the end date when the
+  // end is still empty or now falls before the start — even if no time is set yet.
+  // A valid, later end date the user already chose is left untouched.
+  useEffect(() => {
+    if (!eventDraft.start_date) return;
+    if (!eventDraft.end_date || eventDraft.end_date < eventDraft.start_date) {
+      updateDraft({ end_date: eventDraft.start_date });
+    }
+  }, [eventDraft.start_date]);
+
+  // When a start time is set, push the end time to +1 hour (and keep end date valid).
   useEffect(() => {
     if (eventDraft.start_date && eventDraft.start_time) {
       const oneHourLater = addOneHour(eventDraft.start_time);
@@ -910,29 +976,97 @@ export default function CreateEventFlowRefactored() {
                 </ScrollView>
               </View>
 
-              <View style={styles.chipBlock}>
-                <Text style={styles.chipLabel}>{t('organizerCreateEvent.location.city')}</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
-                  {cities.map((city) => (
-                    <TouchableOpacity
-                      key={city}
-                      style={[styles.chip, eventDraft.city === city && styles.chipActive]}
-                      onPress={() => updateDraft({ city })}
-                    >
-                      <Text style={[styles.chipText, eventDraft.city === city && styles.chipTextActive]}>
-                        {city}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
+              {isHaiti ? (
+                <>
+                  {/* Département → City (arrondissement) → Commune cascade (Haiti) */}
+                  <View style={styles.chipBlock}>
+                    <Text style={styles.chipLabel}>{t('organizerCreateEvent.location.department')}</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
+                      {HAITI_DEPARTMENTS.map((dep) => (
+                        <TouchableOpacity
+                          key={dep}
+                          style={[styles.chip, department === dep && styles.chipActive]}
+                          onPress={() => handleDepartmentChange(dep)}
+                        >
+                          <Text style={[styles.chipText, department === dep && styles.chipTextActive]}>
+                            {dep}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
 
-              <InlineTextRow
-                colors={colors}
-                placeholder={t('organizerCreateEvent.location.communeOptional')}
-                value={eventDraft.commune}
-                onChangeText={(text) => updateDraft({ commune: text })}
-              />
+                  <View style={styles.chipBlock}>
+                    <Text style={styles.chipLabel}>{t('organizerCreateEvent.location.city')}</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
+                      {haitiCities.map((c) => (
+                        <TouchableOpacity
+                          key={c.name}
+                          style={[styles.chip, eventDraft.city === c.name && styles.chipActive]}
+                          onPress={() => updateDraft({ city: c.name, commune: '' })}
+                        >
+                          <Text style={[styles.chipText, eventDraft.city === c.name && styles.chipTextActive]}>
+                            {c.name}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+
+                  {/* Searchable commune — type to filter, tap a match, or free-text */}
+                  <InlineTextRow
+                    colors={colors}
+                    placeholder={t('organizerCreateEvent.location.communeSearchPlaceholder')}
+                    value={eventDraft.commune}
+                    onChangeText={(text) => {
+                      updateDraft({ commune: text });
+                      setCommuneListOpen(true);
+                    }}
+                    onFocus={() => setCommuneListOpen(true)}
+                  />
+                  {communeListOpen && communeSuggestions.length > 0 && (
+                    <View style={styles.communeList}>
+                      {communeSuggestions.map((c) => (
+                        <TouchableOpacity
+                          key={c}
+                          style={styles.communeItem}
+                          onPress={() => selectCommune(c)}
+                        >
+                          <Ionicons name="location-outline" size={15} color={colors.textSecondary} />
+                          <Text style={styles.communeItemText}>{c}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+                </>
+              ) : (
+                <>
+                  {/* Non-Haiti: flat city chips + free-text commune */}
+                  <View style={styles.chipBlock}>
+                    <Text style={styles.chipLabel}>{t('organizerCreateEvent.location.city')}</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
+                      {cities.map((city) => (
+                        <TouchableOpacity
+                          key={city}
+                          style={[styles.chip, eventDraft.city === city && styles.chipActive]}
+                          onPress={() => updateDraft({ city })}
+                        >
+                          <Text style={[styles.chipText, eventDraft.city === city && styles.chipTextActive]}>
+                            {city}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+
+                  <InlineTextRow
+                    colors={colors}
+                    placeholder={t('organizerCreateEvent.location.communeOptional')}
+                    value={eventDraft.commune}
+                    onChangeText={(text) => updateDraft({ commune: text })}
+                  />
+                </>
+              )}
 
               {/* Category */}
               <View style={styles.chipBlock}>
@@ -1371,6 +1505,28 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   chipTextActive: {
     color: colors.white,
+  },
+
+  // ── Commune search dropdown (Haiti) ──
+  communeList: {
+    marginTop: 4,
+    marginBottom: 4,
+    borderRadius: RADIUS.md,
+    backgroundColor: colors.surfaceRaised,
+    overflow: 'hidden',
+  },
+  communeItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+  },
+  communeItemText: {
+    fontSize: 15,
+    color: colors.text,
   },
 
   // ── Schedule inline error ──
