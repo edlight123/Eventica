@@ -13,7 +13,7 @@ import { Mail, Lock } from 'lucide-react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { AuthBackground } from '../../components/auth/AuthBackground';
-import { AuthHeadline } from '../../components/auth/AuthHeadline';
+import { TikemWordmark } from '../../components/TikemWordmark';
 import { AuthInput } from '../../components/auth/AuthInput';
 import { SecondaryPill } from '../../components/auth/SecondaryPill';
 import * as AppleAuthentication from 'expo-apple-authentication';
@@ -90,17 +90,10 @@ export default function LoginScreen({ navigation }: any) {
     <AuthBackground>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
         <View style={[styles.content, { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom + spacing.xl }]}>
-          {/* Top third — brand + oversized editorial headline, left-aligned */}
-          <Animated.View style={{ opacity: headlineOpacity, transform: [{ translateY: headlineTranslate }] }}>
-            <AuthHeadline
-              eyebrow={t('auth.login.eyebrow')}
-              lead={t('auth.login.headlineLead')}
-              accent={t('auth.login.headlineAccent')}
-            />
+          {/* Brand wordmark, centered in the upper band above the form */}
+          <Animated.View style={[styles.brand, { opacity: headlineOpacity, transform: [{ translateY: headlineTranslate }] }]}>
+            <TikemWordmark fontSize={64} />
           </Animated.View>
-
-          {/* Spacer pushes the form cluster into the lower ~55% of the screen */}
-          <View style={styles.spacer} />
 
           {/* Lower cluster — form + auth buttons grouped tight, left-aligned */}
           <Animated.View style={{ transform: [{ translateY: formAnim }], opacity: formOpacity }}>
@@ -178,9 +171,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: spacing.xl,
   },
-  spacer: {
+  brand: {
     flex: 1,
-    minHeight: spacing.xl,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   form: {
     gap: spacing.md,
