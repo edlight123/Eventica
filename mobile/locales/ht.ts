@@ -1162,6 +1162,8 @@ export default {
     refunds: 'Ranbousman',
     payouts: 'Peman',
     createEvent: 'Kreye',
+    createEventCta: 'Kreye yon evènman',
+    pageVisits: 'Vizit paj',
   },
 
   organizerEvents: {
@@ -1230,6 +1232,33 @@ export default {
     updateSuccessBody: 'Evènman ou a mete ajou avèk siksè!',
     saveFailedCreate: 'Pa t kapab kreye evènman an. Tanpri eseye ankò.',
     saveFailedUpdate: 'Pa t kapab mete evènman an ajou. Tanpri eseye ankò.',
+    entry: {
+      title: 'Ki kalite evènman?',
+      subtitle: 'Ou ka chanje detay yo pita.',
+      sellTitle: 'Vann tikè',
+      sellDesc: 'Mete pri ak kategori tikè.',
+      rsvpTitle: 'RSVP gratis',
+      rsvpDesc: 'Ranmase RSVP gratis ak yon limit envite.',
+    },
+    confirm: {
+      title: 'Pare pou pibliye?',
+      body: 'Evènman ou an ap parèt nan Dekouvri.',
+      publish: 'Piblisye',
+      saveDraft: 'Sonje kòm bouyon',
+    },
+    publishing: 'N ap pibliye…',
+    savingDraft: 'N ap sonje bouyon…',
+    draftSuccessBody: 'Evènman ou an sove kòm bouyon.',
+    validation: {
+      title: 'Antre yon tit evènman',
+      venue: 'Antre non kote a',
+      startDate: 'Chwazi dat ak lè kòmansman',
+      endDate: 'Chwazi dat ak lè fen',
+      tierName: 'Antre yon non kategori',
+      tierPrice: 'Antre yon pri valab',
+      tierQuantity: 'Antre yon kantite',
+      capacity: 'Antre yon limit envite',
+    },
   },
 
   organizerCreateEvent: {
@@ -1239,7 +1268,7 @@ export default {
       eventImage: 'Imaj evènman',
       changeImage: 'Chanje imaj',
       uploadImage: 'Mete imaj evènman an',
-      aspectRatio: 'Rapò 16:9 rekòmande',
+      aspectRatio: 'Fòma pòtrè 2:3 rekòmande',
       eventTitle: 'Tit evènman',
       eventTitlePlaceholder: 'Bay evènman ou a yon bon non',
       category: 'Kategori',
@@ -1305,6 +1334,13 @@ export default {
       quantityPlaceholder: '100',
       addTier: 'Ajoute yon lòt nivo',
       infoText: 'Kreye plizyè nivo biyè pou bay diferan opsyon pri.',
+    },
+    rsvp: {
+      title: 'Konbyen envite?',
+      subtitle: 'Mete yon limit pou RSVP gratis.',
+      capLabel: 'Limit envite',
+      capPlaceholder: '100',
+      infoText: 'Envite yo rezève yon plas gratis jiskaske limit lan rive.',
     },
     preview: {
       cardView: 'Gade kat',

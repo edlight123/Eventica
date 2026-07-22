@@ -23,6 +23,8 @@ import {
 import { SPACING, RADIUS } from '../../config/brand';
 import { Skeleton } from '../../components/Skeleton';
 import EmptyState from '../../components/EmptyState';
+import StatTriplet from '../../components/StatTriplet';
+import WhitePillCTA from '../../components/WhitePillCTA';
 import { Calendar } from 'lucide-react-native';
 
 export default function OrganizerDashboardScreen() {
@@ -86,12 +88,13 @@ export default function OrganizerDashboardScreen() {
           <Skeleton width={150} height={22} radius={7} style={{ marginBottom: 16 }} />
           <Skeleton width="100%" height={148} radius={RADIUS.lg} style={{ marginBottom: 24 }} />
           <Skeleton width={120} height={22} radius={7} style={{ marginBottom: 16 }} />
-          <View style={styles.statsGrid}>
-            <Skeleton width="48%" height={116} radius={RADIUS.lg} />
-            <Skeleton width="48%" height={116} radius={RADIUS.lg} />
-            <Skeleton width="48%" height={116} radius={RADIUS.lg} />
-            <Skeleton width="48%" height={116} radius={RADIUS.lg} />
-          </View>
+          <StatTriplet
+            items={[
+              { label: t('organizerDashboard.revenue'), value: null },
+              { label: t('organizerDashboard.ticketsSold'), value: null },
+              { label: t('organizerDashboard.upcomingEvents'), value: null },
+            ]}
+          />
         </View>
       </View>
     );
@@ -110,7 +113,7 @@ export default function OrganizerDashboardScreen() {
 
       <ScrollView
         style={styles.scrollContent}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -184,47 +187,23 @@ export default function OrganizerDashboardScreen() {
         )}
       </View>
 
-      {/* This Week Stats */}
+      {/* This Week Stats — the reusable POSH metric triplet (§2.3).
+          Revenue / Tickets Sold / Upcoming, three across. `null` renders •••
+          while loading; zero-states ($0.00 / 0) render with confidence. */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>{t('organizerDashboard.thisWeek')}</Text>
-        <View style={styles.statsGrid}>
-          <TouchableOpacity 
-            style={styles.statCard}
-            onPress={() => navigation.navigate('OrganizerAnalytics')}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="ticket-outline" size={32} color={colors.primary} />
-            <Text style={styles.statCardValue}>{stats?.ticketsSold || 0}</Text>
-            <Text style={styles.statCardLabel}>{t('organizerDashboard.ticketsSold')}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.statCard}
-            onPress={() => navigation.navigate('MyEvents')}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="checkmark-circle-outline" size={32} color={colors.success} />
-            <Text style={styles.statCardValue}>{stats?.upcomingEvents || 0}</Text>
-            <Text style={styles.statCardLabel}>{t('organizerDashboard.upcomingEvents')}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.statCard}
-            onPress={() => navigation.navigate('OrganizerAnalytics')}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="cash-outline" size={32} color={colors.primary} />
-            <Text style={styles.statCardValue} numberOfLines={1}>${(stats?.revenue || 0).toFixed(2)}</Text>
-            <Text style={styles.statCardLabel}>{t('organizerDashboard.revenue')}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.statCard}
-            onPress={() => navigation.navigate('MyEvents')}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="document-text-outline" size={32} color={colors.textSecondary} />
-            <Text style={styles.statCardValue}>{stats?.draftEvents || 0}</Text>
-            <Text style={styles.statCardLabel}>{t('organizerDashboard.drafts')}</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          activeOpacity={0.85}
+          onPress={() => navigation.navigate('OrganizerAnalytics')}
+        >
+          <StatTriplet
+            items={[
+              { label: t('organizerDashboard.revenue'), value: stats ? `$${(stats.revenue || 0).toFixed(2)}` : null },
+              { label: t('organizerDashboard.ticketsSold'), value: stats ? (stats.ticketsSold || 0) : null },
+              { label: t('organizerDashboard.upcomingEvents'), value: stats ? (stats.upcomingEvents || 0) : null },
+            ]}
+          />
+        </TouchableOpacity>
       </View>
 
       {/* Quick Actions */}
@@ -235,33 +214,41 @@ export default function OrganizerDashboardScreen() {
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('OrganizerAnalytics')}
           >
-            <Ionicons name="bar-chart-outline" size={24} color={colors.primary} />
+            <Ionicons name="bar-chart-outline" size={24} color={colors.text} />
             <Text style={styles.quickActionText}>{t('organizerDashboard.analytics') || 'Analytics'}</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('OrganizerRefunds')}
           >
-            <Ionicons name="refresh-outline" size={24} color={colors.primary} />
+            <Ionicons name="refresh-outline" size={24} color={colors.text} />
             <Text style={styles.quickActionText}>{t('organizerDashboard.refunds') || 'Refunds'}</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('OrganizerPayoutSettings')}
           >
-            <Ionicons name="wallet-outline" size={24} color={colors.primary} />
+            <Ionicons name="wallet-outline" size={24} color={colors.text} />
             <Text style={styles.quickActionText}>{t('organizerDashboard.payouts') || 'Payouts'}</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('CreateEvent')}
           >
-            <Ionicons name="add-circle-outline" size={24} color={colors.primary} />
+            <Ionicons name="add-circle-outline" size={24} color={colors.text} />
             <Text style={styles.quickActionText}>{t('organizerDashboard.createEvent') || 'Create'}</Text>
           </TouchableOpacity>
         </View>
       </View>
       </ScrollView>
+
+      {/* Persistent primary action — the one white pill on this surface (§2.2) */}
+      <View style={[styles.floatingCta, { bottom: insets.bottom + 16 }]} pointerEvents="box-none">
+        <WhitePillCTA
+          label={t('organizerDashboard.createEventCta')}
+          onPress={() => navigation.navigate('CreateEvent')}
+        />
+      </View>
     </View>
   );
 }
@@ -304,12 +291,15 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     letterSpacing: -0.3,
   },
   eventCard: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
     borderRadius: RADIUS.lg,
     padding: SPACING.lg,
     marginBottom: SPACING.md,
-    borderWidth: 1,
-    borderColor: colors.border,
+  },
+  floatingCta: {
+    position: 'absolute',
+    left: 20,
+    right: 20,
   },
   eventHeader: {
     flexDirection: 'row',
@@ -407,14 +397,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   quickActionButton: {
     width: '48%',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
     borderRadius: RADIUS.lg,
     padding: SPACING.lg,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   quickActionText: {
     fontSize: 14,

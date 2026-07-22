@@ -4,14 +4,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useI18n } from '../../../contexts/I18nContext';
 import { COUNTRIES, CITIES_BY_COUNTRY } from '../../../types/filters';
-import type { EventDraft } from '../CreateEventFlowRefactored';
+import type { EventDraft, FieldErrors } from '../CreateEventFlowRefactored';
 
 interface Props {
   draft: EventDraft;
   updateDraft: (updates: Partial<EventDraft>) => void;
+  errors?: FieldErrors;
 }
 
-export default function Step2Location({ draft, updateDraft }: Props) {
+export default function Step2Location({ draft, updateDraft, errors = {} }: Props) {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const { t } = useI18n();
@@ -69,7 +70,7 @@ export default function Step2Location({ draft, updateDraft }: Props) {
         <Text style={styles.label}>
           {t('organizerCreateEvent.location.venueName')} <Text style={styles.required}>*</Text>
         </Text>
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, !!errors.venue_name && styles.inputContainerError]}>
           <Ionicons name="business-outline" size={20} color={colors.textSecondary} />
           <TextInput
             style={styles.input}
@@ -80,6 +81,7 @@ export default function Step2Location({ draft, updateDraft }: Props) {
             onChangeText={(text) => updateDraft({ venue_name: text })}
           />
         </View>
+        {!!errors.venue_name && <Text style={styles.errorText}>{errors.venue_name}</Text>}
       </View>
 
       {/* City */}
@@ -193,6 +195,14 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: 14,
+  },
+  inputContainerError: {
+    borderColor: colors.error,
+  },
+  errorText: {
+    fontSize: 13,
+    color: colors.error,
+    marginTop: 2,
   },
   input: {
     flex: 1,

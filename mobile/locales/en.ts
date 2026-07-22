@@ -420,6 +420,33 @@ export default {
     updateSuccessBody: 'Your event has been updated successfully!',
     saveFailedCreate: 'Failed to create event. Please try again.',
     saveFailedUpdate: 'Failed to update event. Please try again.',
+    entry: {
+      title: 'What kind of event?',
+      subtitle: 'You can change the details later.',
+      sellTitle: 'Sell tickets',
+      sellDesc: 'Set prices and ticket tiers.',
+      rsvpTitle: 'Free RSVP',
+      rsvpDesc: 'Collect free RSVPs with a guest cap.',
+    },
+    confirm: {
+      title: 'Ready to publish?',
+      body: 'Your event will go live and appear in Discover.',
+      publish: 'Publish',
+      saveDraft: 'Save as draft',
+    },
+    publishing: 'Publishing…',
+    savingDraft: 'Saving draft…',
+    draftSuccessBody: 'Your event was saved as a draft.',
+    validation: {
+      title: 'Enter an event title',
+      venue: 'Enter a venue name',
+      startDate: 'Select a start date and time',
+      endDate: 'Select an end date and time',
+      tierName: 'Enter a tier name',
+      tierPrice: 'Enter a valid price',
+      tierQuantity: 'Enter a quantity',
+      capacity: 'Enter a guest cap',
+    },
   },
 
   organizerCreateEvent: {
@@ -429,7 +456,7 @@ export default {
       eventImage: 'Event Image',
       changeImage: 'Change Image',
       uploadImage: 'Upload Event Image',
-      aspectRatio: '16:9 aspect ratio recommended',
+      aspectRatio: 'Portrait 2:3 recommended',
       eventTitle: 'Event Title',
       eventTitlePlaceholder: 'Give your event a catchy name',
       category: 'Category',
@@ -495,6 +522,13 @@ export default {
       quantityPlaceholder: '100',
       addTier: 'Add Another Tier',
       infoText: 'Create multiple ticket tiers to offer different pricing options to your attendees.',
+    },
+    rsvp: {
+      title: 'How many guests?',
+      subtitle: 'Set a cap for free RSVPs.',
+      capLabel: 'Guest cap',
+      capPlaceholder: '100',
+      infoText: 'Guests reserve a free spot until the cap is reached.',
     },
     preview: {
       cardView: 'Card View',
@@ -1185,6 +1219,8 @@ export default {
     refunds: 'Refunds',
     payouts: 'Payouts',
     createEvent: 'Create',
+    createEventCta: 'Create an event',
+    pageVisits: 'Page Visits',
   },
 
   organizerEvents: {

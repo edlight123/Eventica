@@ -5,7 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Image } from 'expo-image';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useI18n } from '../../../contexts/I18nContext';
-import type { EventDraft } from '../CreateEventFlowRefactored';
+import type { EventDraft, FieldErrors } from '../CreateEventFlowRefactored';
 
 const CATEGORIES = [
   'Music', 'Sports', 'Arts', 'Business', 'Food & Drink',
@@ -28,9 +28,10 @@ const CATEGORY_LABEL_KEYS: Record<string, string> = {
 interface Props {
   draft: EventDraft;
   updateDraft: (updates: Partial<EventDraft>) => void;
+  errors?: FieldErrors;
 }
 
-export default function Step1Basics({ draft, updateDraft }: Props) {
+export default function Step1Basics({ draft, updateDraft, errors = {} }: Props) {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const { t } = useI18n();
@@ -44,7 +45,7 @@ export default function Step1Basics({ draft, updateDraft }: Props) {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [16, 9],
+      aspect: [2, 3],
       quality: 0.8,
     });
 
@@ -86,7 +87,7 @@ export default function Step1Basics({ draft, updateDraft }: Props) {
           {t('organizerCreateEvent.basics.eventTitle')} <Text style={styles.required}>*</Text>
         </Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, !!errors.title && styles.inputError]}
           placeholder={t('organizerCreateEvent.basics.eventTitlePlaceholder')}
           placeholderTextColor={colors.textTertiary}
           selectionColor={colors.primary}
@@ -94,6 +95,7 @@ export default function Step1Basics({ draft, updateDraft }: Props) {
           onChangeText={(text) => updateDraft({ title: text })}
           maxLength={100}
         />
+        {!!errors.title && <Text style={styles.errorText}>{errors.title}</Text>}
         <Text style={styles.charCount}>{draft.title.length}/100</Text>
       </View>
 
@@ -185,6 +187,14 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     padding: 14,
     fontSize: 15,
     color: colors.text,
+  },
+  inputError: {
+    borderColor: colors.error,
+  },
+  errorText: {
+    fontSize: 13,
+    color: colors.error,
+    marginTop: 2,
   },
   textArea: {
     minHeight: 120,
