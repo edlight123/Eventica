@@ -15,7 +15,6 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
-  Shield,
   Calendar,
   Users,
   Star,
@@ -35,6 +34,9 @@ import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
 import ConnectButton from '../components/ConnectButton';
 import PosterEventCard from '../components/PosterEventCard';
+import StatTriplet from '../components/StatTriplet';
+import VerifiedBadge from '../components/VerifiedBadge';
+import EmptyState from '../components/EmptyState';
 import { fetchConnections } from '../lib/api/social';
 import { socialUrlFor, type FriendshipState, type SocialPlatform } from '../types/social';
 
@@ -448,42 +450,18 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
               )}
             </View>
 
-            {/* Name + Verified Badge */}
+            {/* Name + Verified Badge (consolidated to the shared VerifiedBadge) */}
             <View style={styles.nameRow}>
               <Text style={styles.organizerName} numberOfLines={1}>
                 {organizer.full_name}
               </Text>
-              {organizer.is_verified && (
-                <View style={styles.verifiedBadge}>
-                  <Shield size={10} color="#FFF" fill="#FFF" />
-                  <Text style={styles.verifiedText}>{t('organizerProfile.verified')}</Text>
-                </View>
-              )}
+              {organizer.is_verified && <VerifiedBadge size="small" showLabel />}
             </View>
 
             {/* Subtitle - Category · City */}
             {subtitle && (
               <Text style={styles.subtitle}>{subtitle}</Text>
             )}
-
-            {/* Stats In Hero - Horizontal Scroll */}
-            <View style={styles.heroStats}>
-              <View style={styles.heroStatItem}>
-                <Calendar size={16} color="rgba(255,255,255,0.9)" />
-                <Text style={styles.heroStatValue}>{stats.totalEvents || 0}</Text>
-                <Text style={styles.heroStatLabel}>{t('organizerProfile.stats.events')}</Text>
-              </View>
-              <View style={styles.heroStatItem}>
-                <Users size={16} color="rgba(255,255,255,0.9)" />
-                <Text style={styles.heroStatValue}>{stats.followerCount || 0}</Text>
-                <Text style={styles.heroStatLabel}>{t('organizerProfile.stats.followers')}</Text>
-              </View>
-              <View style={styles.heroStatItem}>
-                <Star size={16} color="rgba(255,255,255,0.9)" />
-                <Text style={styles.heroStatValue}>{stats.totalTicketsSold.toLocaleString()}</Text>
-                <Text style={styles.heroStatLabel}>{t('organizerProfile.stats.sold')}</Text>
-              </View>
-            </View>
 
             {/* Contact Button - Scrolls to bottom */}
             {(organizer.whatsapp || organizer.phone || organizer.email || socialLinks.length > 0) && (
@@ -499,6 +477,18 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
         </ImageBackground>
 
         <View style={styles.content}>
+
+          {/* Performance triplet — the shared StatTriplet on every host surface
+              (POSH §2.3). "•••" shows while the fetch is still in flight. */}
+          <View style={styles.statBlock}>
+            <StatTriplet
+              items={[
+                { label: t('organizerProfile.stats.events'), value: loading ? null : stats.totalEvents || 0 },
+                { label: t('organizerProfile.stats.followers'), value: loading ? null : stats.followerCount || 0 },
+                { label: t('organizerProfile.stats.sold'), value: loading ? null : stats.totalTicketsSold.toLocaleString() },
+              ]}
+            />
+          </View>
 
           {/* Friend connection + personal social */}
           {showSocialCard ? (
@@ -558,15 +548,16 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
                 {upcomingEvents.map((event) => renderEventCard(event, false))}
               </View>
             ) : (
-              <View style={styles.emptyState}>
-                <Calendar size={48} color={colors.textSecondary} />
-                <Text style={styles.emptyStateTitle}>{t('organizerProfile.noUpcomingTitle')}</Text>
-                <Text style={styles.emptyStateText}>
-                  {isFollowing 
+              <EmptyState
+                icon={Calendar}
+                title={t('organizerProfile.noUpcomingTitle')}
+                subtitle={
+                  isFollowing
                     ? t('organizerProfile.noUpcomingBodyFollowing')
-                    : t('organizerProfile.noUpcomingBodyNotFollowing')}
-                </Text>
-              </View>
+                    : t('organizerProfile.noUpcomingBodyNotFollowing')
+                }
+                compact
+              />
             )}
           </View>
 
@@ -663,12 +654,11 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
           {/* Reviews Placeholder */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{t('organizerProfile.reviewsTitle')}</Text>
-            <View style={styles.reviewsPlaceholder}>
-              <Star size={40} color={colors.textSecondary} />
-              <Text style={styles.reviewsPlaceholderText}>
-                {t('organizerProfile.reviewsComingSoon')}
-              </Text>
-            </View>
+            <EmptyState
+              icon={Star}
+              title={t('organizerProfile.reviewsComingSoon')}
+              compact
+            />
           </View>
         </View>
       </ScrollView>
@@ -750,10 +740,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderWidth: 1.5,
     borderColor: '#FFF',
   },
+  // White pill = the follow CTA (POSH §2.2): black label on white, never teal.
   followButtonSmallText: {
     fontSize: 14,
     fontWeight: '700',
-    color: colors.primary,
+    color: '#000000',
   },
   followingButtonSmallText: {
     color: '#FFF',
@@ -797,60 +788,18 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   organizerName: {
     fontFamily: 'InstrumentSerif_400Regular',
-    fontSize: 28,
+    fontSize: 40,
     fontWeight: '700',
-    letterSpacing: 0,
+    letterSpacing: -0.5,
     color: '#FFF',
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 4,
   },
-  verifiedBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#0F766E',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 10,
-  },
-  verifiedText: {
-    color: '#FFF',
-    fontSize: 10,
-    fontWeight: '600',
-  },
   subtitle: {
     fontSize: 14,
     color: 'rgba(255, 255, 255, 0.95)',
     marginBottom: 12,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
-  heroStats: {
-    flexDirection: 'row',
-    gap: 16,
-    marginBottom: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  heroStatItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  heroStatValue: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFF',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
-  heroStatLabel: {
-    fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.9)',
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
@@ -873,53 +822,19 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '600',
   },
 
-  // Slim Stats Row
-  statsRow: {
-    flexDirection: 'row',
-    backgroundColor: colors.surface,
-    paddingVertical: 20,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
-  },
-  statColumn: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statDivider: {
-    width: 1,
-    backgroundColor: colors.borderLight,
-    marginHorizontal: 8,
-  },
-  statValue: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-
   // Content
   content: {
     padding: 16,
-    paddingTop: 48,
+    paddingTop: 24,
+  },
+  statBlock: {
+    marginBottom: 24,
   },
 
-  // Friend connection + personal social
+  // Friend connection + personal social. Elevation, not a 1px box (POSH §1).
   socialCard: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
     padding: 16,
     marginBottom: 24,
     gap: 12,
@@ -970,8 +885,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 28,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontFamily: 'InstrumentSerif_400Regular',
+    fontSize: 26,
     fontWeight: '700',
+    letterSpacing: -0.3,
     color: colors.text,
     marginBottom: 6,
   },
@@ -993,28 +910,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexWrap: 'wrap',
     gap: 12,
   },
-  emptyState: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 40,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  emptyStateTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.text,
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  emptyStateText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-
   // About Section
   aboutText: {
     fontSize: 15,
@@ -1057,19 +952,4 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderColor: colors.border,
   },
 
-  // Reviews Placeholder
-  reviewsPlaceholder: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 40,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  reviewsPlaceholderText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginTop: 12,
-  },
 });

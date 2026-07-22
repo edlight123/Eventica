@@ -244,9 +244,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   headerTitle: {
     fontFamily: 'InstrumentSerif_400Regular',
-    fontSize: 32,
+    fontSize: 40,
     fontWeight: '700',
-    letterSpacing: 0,
+    letterSpacing: -0.5,
     color: colors.text,
   },
   headerSubtitle: {

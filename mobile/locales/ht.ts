@@ -249,6 +249,10 @@ export default {
     eventsAttended: 'Evènman ou te ale',
     following: 'Ou swiv',
     followers: 'Moun ki swiv ou',
+    postersTitle: 'Evènman ou yo',
+    postersEmptyTitle: 'Poko gen evènman',
+    postersEmptyBody: 'Evènman ou sere ak sa ou ale yo ap parèt isit la tankou yon mi afich.',
+    postersExplore: 'Dekouvri evènman',
     actions: 'Aksyon',
     friends: 'Zanmi',
     social: {

@@ -91,8 +91,8 @@ export default function ConnectButton({
     return (
       <View style={styles.row}>
         <TouchableOpacity style={[styles.btn, styles.primary]} onPress={onAccept} activeOpacity={0.8}>
-          <Ionicons name="checkmark" size={size === 'sm' ? 14 : 16} color="#FFFFFF" />
-          <Text style={[styles.text, { color: '#FFFFFF' }]}>Accept</Text>
+          <Ionicons name="checkmark" size={size === 'sm' ? 14 : 16} color="#000000" />
+          <Text style={[styles.text, styles.primaryText]}>Accept</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.btn, styles.neutral]} onPress={onDecline} activeOpacity={0.8}>
           <Text style={[styles.text, { color: colors.textSecondary }]}>Decline</Text>
@@ -104,8 +104,8 @@ export default function ConnectButton({
   // none
   return (
     <TouchableOpacity style={[styles.btn, styles.primary]} onPress={onSend} activeOpacity={0.8}>
-      <Ionicons name="person-add-outline" size={size === 'sm' ? 14 : 16} color="#FFFFFF" />
-      <Text style={[styles.text, { color: '#FFFFFF' }]}>Add friend</Text>
+      <Ionicons name="person-add-outline" size={size === 'sm' ? 14 : 16} color="#000000" />
+      <Text style={[styles.text, styles.primaryText]}>Add friend</Text>
     </TouchableOpacity>
   );
 }
@@ -125,12 +125,17 @@ const getStyles = (colors: any, size: 'sm' | 'md') =>
       paddingHorizontal: size === 'sm' ? 12 : 18,
       borderRadius: 12,
     },
+    // POSH §2.2: the primary connect action is a solid white pill with black
+    // text — teal is reserved for semantic marks, never the primary CTA.
     primary: {
-      backgroundColor: colors.primary,
+      backgroundColor: colors.white,
+    },
+    primaryText: {
+      color: '#000000',
     },
     neutral: {
-      backgroundColor: colors.surface,
-      borderWidth: 1.5,
+      backgroundColor: colors.surfaceRaised,
+      borderWidth: StyleSheet.hairlineWidth,
       borderColor: colors.border,
     },
     text: {

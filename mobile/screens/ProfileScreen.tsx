@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
+  Dimensions,
   Image,
   Linking,
   RefreshControl,
@@ -13,7 +14,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Bell, Briefcase, ChevronDown, ChevronRight, ExternalLink, LogOut, MapPin, Settings, User, Users } from 'lucide-react-native';
+import { Bell, Briefcase, ChevronDown, ChevronRight, Compass, ExternalLink, LogOut, MapPin, Settings, User, Users } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { getDownloadURL, ref as storageRef, uploadBytes } from 'firebase/storage';
@@ -36,8 +37,16 @@ import {
   type AttendanceVisibility,
   type ProfileVisibility,
 } from '../types/social';
+import StatTriplet from '../components/StatTriplet';
+import VerifiedBadge from '../components/VerifiedBadge';
+import StatusChip from '../components/StatusChip';
+import PosterEventCard from '../components/PosterEventCard';
+import EmptyState from '../components/EmptyState';
 
 const WEBSITE_BASE_URL = 'https://tikem.co';
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+// Two-column poster wall inside the 16px-padded scroll content (12px gutter).
+const PROFILE_POSTER_WIDTH = (SCREEN_WIDTH - 32 - 12) / 2;
 
 export default function ProfileScreen() {
   const { colors, isDark } = useTheme();
@@ -82,6 +91,10 @@ export default function ProfileScreen() {
 
   const [verificationStatus, setVerificationStatus] = useState<VerificationRequest | null>(null);
   const [accountStats, setAccountStats] = useState({ eventsAttended: 0, following: 0, followers: 0 });
+  const [statsLoaded, setStatsLoaded] = useState(false);
+  // The poster wall — every event this user holds a ticket to (newest first).
+  // Gives the profile a POSH poster-forward identity instead of a settings list.
+  const [myEvents, setMyEvents] = useState<any[]>([]);
   const [staffEventIds, setStaffEventIdsState] = useState<string[]>([]);
 
   const parsePhone = useCallback((raw: string) => {
@@ -160,6 +173,8 @@ export default function ProfileScreen() {
   const loadAccountStats = useCallback(async () => {
     if (!user?.uid) {
       setAccountStats({ eventsAttended: 0, following: 0, followers: 0 });
+      setMyEvents([]);
+      setStatsLoaded(true);
       return;
     }
 
@@ -176,28 +191,43 @@ export default function ProfileScreen() {
       const eventIds = Array.from(new Set(ticketDocs.map((t) => String(t.event_id || '')).filter(Boolean)));
 
       let attended = 0;
+      let posterEvents: any[] = [];
       if (eventIds.length) {
         const now = new Date();
         const eventSnaps = await Promise.all(
           eventIds.map((eventId) => getDocs(query(collection(db, 'events'), where('__name__', '==', eventId))))
         );
 
+        // Normalize dates once so downstream cards get real Date objects (guarded).
+        const toDate = (v: any): Date | null =>
+          v?.toDate ? v.toDate() : v ? new Date(v) : null;
+
         const events = eventSnaps
-          .map((s) => (s.empty ? null : ({ id: s.docs[0].id, ...s.docs[0].data() } as any)))
+          .map((s) => {
+            if (s.empty) return null;
+            const raw = { id: s.docs[0].id, ...s.docs[0].data() } as any;
+            return {
+              ...raw,
+              start_datetime: toDate(raw.start_datetime),
+              end_datetime: toDate(raw.end_datetime),
+            };
+          })
           .filter(Boolean) as any[];
 
         attended = events.filter((e) => {
-          const end = e.end_datetime?.toDate ? e.end_datetime.toDate() : e.end_datetime ? new Date(e.end_datetime) : null;
-          const start = e.start_datetime?.toDate
-            ? e.start_datetime.toDate()
-            : e.start_datetime
-              ? new Date(e.start_datetime)
-              : null;
-          const cutoff = end || start;
-          return cutoff && new Date(cutoff) < now;
+          const cutoff = e.end_datetime || e.start_datetime;
+          return cutoff && cutoff < now;
         }).length;
+
+        // Poster wall: newest first, undated events sink to the bottom.
+        posterEvents = [...events].sort((a, b) => {
+          const at = a.start_datetime ? a.start_datetime.getTime() : 0;
+          const bt = b.start_datetime ? b.start_datetime.getTime() : 0;
+          return bt - at;
+        });
       }
 
+      setMyEvents(posterEvents);
       setAccountStats({
         eventsAttended: attended,
         following: followingSnap.size,
@@ -205,6 +235,9 @@ export default function ProfileScreen() {
       });
     } catch {
       setAccountStats({ eventsAttended: 0, following: 0, followers: 0 });
+      setMyEvents([]);
+    } finally {
+      setStatsLoaded(true);
     }
   }, [user?.uid]);
 
@@ -371,18 +404,18 @@ export default function ProfileScreen() {
     ]);
   }, [signOut, t]);
 
-  const verificationBadge = useMemo(() => {
+  const verificationState = useMemo<'approved' | 'pending' | null>(() => {
     if (!verificationStatus?.status) return null;
-    if (verificationStatus.status === 'approved') return t('organizerProfile.verified');
+    if (verificationStatus.status === 'approved') return 'approved';
     if (
       verificationStatus.status === 'pending' ||
       verificationStatus.status === 'pending_review' ||
       verificationStatus.status === 'in_review'
     ) {
-      return t('profile.verificationPending');
+      return 'pending';
     }
     return null;
-  }, [t, verificationStatus?.status]);
+  }, [verificationStatus?.status]);
 
   if (!user) {
     return (
@@ -463,10 +496,10 @@ export default function ProfileScreen() {
                 <Text style={styles.nameText} numberOfLines={1}>
                   {displayName}
                 </Text>
-                {verificationBadge ? (
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>{verificationBadge}</Text>
-                  </View>
+                {verificationState === 'approved' ? (
+                  <VerifiedBadge size="small" />
+                ) : verificationState === 'pending' ? (
+                  <StatusChip status="pending" label={t('profile.verificationPending')} />
                 ) : null}
               </View>
 
@@ -481,21 +514,14 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{accountStats.eventsAttended}</Text>
-              <Text style={styles.statLabel}>{t('profile.eventsAttended')}</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{accountStats.following}</Text>
-              <Text style={styles.statLabel}>{t('profile.following')}</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{accountStats.followers}</Text>
-              <Text style={styles.statLabel}>{t('profile.followers')}</Text>
-            </View>
+          <View style={styles.statBlock}>
+            <StatTriplet
+              items={[
+                { label: t('profile.eventsAttended'), value: statsLoaded ? accountStats.eventsAttended : null },
+                { label: t('profile.following'), value: statsLoaded ? accountStats.following : null },
+                { label: t('profile.followers'), value: statsLoaded ? accountStats.followers : null },
+              ]}
+            />
           </View>
 
           {isEditing ? (
@@ -756,6 +782,35 @@ export default function ProfileScreen() {
           ) : null}
         </View>
 
+        {/* Poster wall — POSH poster-forward identity (§2.1). Hidden while editing. */}
+        {!isEditing ? (
+          <View style={styles.postersSection}>
+            <Text style={styles.postersTitle}>{t('profile.postersTitle')}</Text>
+            {myEvents.length > 0 ? (
+              <View style={styles.postersGrid}>
+                {myEvents.map((event) => (
+                  <PosterEventCard
+                    key={event.id}
+                    event={event}
+                    width={PROFILE_POSTER_WIDTH}
+                    userCity={userProfile?.default_city}
+                    onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
+                  />
+                ))}
+              </View>
+            ) : (
+              <EmptyState
+                icon={Compass}
+                title={t('profile.postersEmptyTitle')}
+                subtitle={t('profile.postersEmptyBody')}
+                actionLabel={t('profile.postersExplore')}
+                onAction={() => navigation.navigate('Main', { screen: 'Discover' })}
+                compact
+              />
+            )}
+          </View>
+        ) : null}
+
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>{t('profile.preferences')}</Text>
 
@@ -898,9 +953,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   headerTitle: {
     fontFamily: 'InstrumentSerif_400Regular',
-    fontSize: 32,
+    fontSize: 40,
     fontWeight: '700',
-    letterSpacing: 0,
+    letterSpacing: -0.5,
     color: colors.text,
   },
   headerIconButton: {
@@ -958,9 +1013,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 8,
     borderRadius: 12,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
   },
   suggestionRow: {
     paddingHorizontal: 12,
@@ -976,9 +1029,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
+    backgroundColor: colors.surfaceRaised,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 14,
@@ -992,9 +1043,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 12,
     borderRadius: 12,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
   },
   countryOption: {
     paddingHorizontal: 14,
@@ -1013,12 +1062,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.primary,
     fontWeight: '600',
   },
+  // Elevation, not borders (POSH §1): the card separates from the canvas by
+  // being a brightness step lighter, never by drawing a 1px box.
   card: {
     backgroundColor: colors.surface,
     borderRadius: RADIUS.lg,
     padding: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   profileRow: {
     flexDirection: 'row',
@@ -1055,22 +1104,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   nameText: {
     flex: 1,
-    fontSize: 18,
+    fontFamily: 'InstrumentSerif_400Regular',
+    fontSize: 26,
     fontWeight: '700',
+    letterSpacing: -0.3,
     color: colors.text,
-  },
-  badge: {
-    backgroundColor: colors.successLight,
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderWidth: 1,
-    borderColor: colors.success,
-  },
-  badgeText: {
-    color: colors.success,
-    fontSize: 12,
-    fontWeight: '700',
   },
   locationRow: {
     marginTop: 4,
@@ -1088,34 +1126,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 12,
     color: colors.textSecondary,
   },
-  statsRow: {
+  statBlock: {
     marginTop: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderTopWidth: 1,
-    borderTopColor: colors.borderLight,
-    paddingTop: 14,
-  },
-  statItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statValue: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: colors.text,
-    letterSpacing: -0.3,
-  },
-  statLabel: {
-    marginTop: 2,
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
-  statDivider: {
-    width: 1,
-    height: 30,
-    backgroundColor: colors.borderLight,
   },
   editForm: {
     marginTop: 16,
@@ -1127,14 +1139,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '600',
     color: colors.text,
   },
+  // Grouped-disclosure field: a raised surface row, no 1px box (POSH §1 / item 7).
   input: {
-    borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
     color: colors.text,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
   },
   bioInput: {
     minHeight: 80,
@@ -1264,9 +1275,24 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 12,
     backgroundColor: colors.surface,
     borderRadius: RADIUS.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
     overflow: 'hidden',
+  },
+  postersSection: {
+    marginTop: 24,
+    marginBottom: 4,
+  },
+  postersTitle: {
+    fontFamily: 'InstrumentSerif_400Regular',
+    fontSize: 24,
+    fontWeight: '700',
+    letterSpacing: -0.3,
+    color: colors.text,
+    marginBottom: 14,
+  },
+  postersGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
   },
   sectionTitle: {
     paddingHorizontal: 16,

@@ -249,6 +249,10 @@ export default {
     eventsAttended: 'Participations',
     following: 'Abonnements',
     followers: 'Abonnés',
+    postersTitle: 'Vos évènements',
+    postersEmptyTitle: 'Aucun évènement',
+    postersEmptyBody: 'Les évènements que vous enregistrez et auxquels vous participez apparaîtront ici.',
+    postersExplore: 'Explorer les évènements',
     actions: 'Actions',
     friends: 'Amis',
     social: {
