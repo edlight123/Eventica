@@ -59,6 +59,7 @@ export default {
   common: {
     free: 'Gratis',
     from: 'apati',
+    rsvp: 'RSVP',
     viewAll: 'Gade tout',
     ok: 'OK',
     yes: 'Wi',
@@ -435,6 +436,7 @@ export default {
     },
   },
   home: {
+    headline: 'Kisa k ap fèt',
     loading: 'Nap chaje evènman yo…',
     browseTitle: 'Chèche pa Kategori',
     browseSubtitle: 'Jwenn evènman ki enterese w',
@@ -459,6 +461,7 @@ export default {
     emptySubtitle: 'Tounen byento pou nouvo evènman!',
   },
   discover: {
+    headline: 'Dekouvri',
     searchPlaceholder: 'Chèche evènman, òganizasyon, moun…',
     searchActive: 'Chèche',
     tabs: {

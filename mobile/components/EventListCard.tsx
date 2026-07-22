@@ -5,8 +5,8 @@ import { Calendar, MapPin } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { getPosterTheme } from '../lib/posterGradient';
-import { formatDateForLanguage } from '../lib/dates';
-import { font } from '../theme/tokens';
+import { safeFormatForLanguage } from '../lib/dates';
+import { font, radius } from '../theme/tokens';
 
 interface EventListCardProps {
   event: any;
@@ -28,9 +28,8 @@ export default function EventListCard({ event, onPress }: EventListCardProps) {
   const price = Number(event.ticket_price || 0);
   const isFree = !price || price === 0;
 
-  const dateLabel = event.start_datetime
-    ? formatDateForLanguage(new Date(event.start_datetime), 'EEE, MMM d · h:mm a', language)
-    : '';
+  // Guarded — an invalid/missing date yields '' instead of crashing date-fns.
+  const dateLabel = safeFormatForLanguage(event.start_datetime, 'EEE, MMM d · h:mm a', language);
   const location = [event.venue_name, event.city].filter(Boolean).join(', ');
 
   return (
@@ -58,7 +57,7 @@ export default function EventListCard({ event, onPress }: EventListCardProps) {
           {event.title}
         </Text>
 
-        {event.start_datetime ? (
+        {dateLabel ? (
           <View style={styles.metaRow}>
             <Calendar size={13} color={colors.textSecondary} />
             <Text style={styles.metaText} numberOfLines={1}>
@@ -102,7 +101,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     poster: {
       width: 92,
       aspectRatio: 4 / 5,
-      borderRadius: 0,
+      // Rounded per POSH §2.1 — proportional to this smaller thumbnail.
+      borderRadius: radius.md,
       overflow: 'hidden',
       backgroundColor: colors.surfaceMuted,
     },
@@ -132,15 +132,16 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     priceWrap: {
       marginTop: 2,
     },
+    // Price is grey, not teal — teal stays reserved for semantic use (POSH §1).
     priceFree: {
       fontFamily: font.mono,
-      color: colors.primary,
+      color: colors.textSecondary,
       fontSize: 12,
       letterSpacing: 0.8,
     },
     price: {
       fontFamily: font.mono,
-      color: colors.primary,
+      color: colors.textSecondary,
       fontSize: 14,
       letterSpacing: 0.3,
     },

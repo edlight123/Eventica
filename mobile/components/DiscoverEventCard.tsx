@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Share2, Bookmark, ShieldCheck } from 'lucide-react-native';
+import { Share2, Bookmark } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
-import { formatDateForLanguage } from '../lib/dates';
+import { safeFormatForLanguage } from '../lib/dates';
 import { getPosterTheme } from '../lib/posterGradient';
 import { font } from '../theme/tokens';
+import WhitePillCTA from './WhitePillCTA';
+import VerifiedBadge from './VerifiedBadge';
 
 const { width } = Dimensions.get('window');
 
@@ -40,9 +42,8 @@ export default function DiscoverEventCard({
   const isFree = !price || price === 0;
   const organizer = event.users?.full_name || event.organizer_name || '';
 
-  const dateLabel = event.start_datetime
-    ? formatDateForLanguage(new Date(event.start_datetime), 'EEE, MMM d · h:mm a', language)
-    : '';
+  // Guarded — an invalid/missing date yields '' instead of crashing date-fns.
+  const dateLabel = safeFormatForLanguage(event.start_datetime, 'EEE, MMM d · h:mm a', language);
   const venue = [event.venue_name, event.city].filter(Boolean).join(', ');
 
   return (
@@ -74,7 +75,7 @@ export default function DiscoverEventCard({
           {!!organizer && (
             <View style={styles.orgRow}>
               <Text style={styles.org} numberOfLines={1}>{organizer}</Text>
-              {event.users?.is_verified && <ShieldCheck size={14} color={colors.primary} />}
+              {event.users?.is_verified && <VerifiedBadge size="medium" />}
             </View>
           )}
           {(dateLabel || venue) && (
@@ -93,15 +94,23 @@ export default function DiscoverEventCard({
         </View>
       </View>
 
-      {/* Get Tickets CTA */}
-      <TouchableOpacity activeOpacity={0.9} onPress={onPress} style={styles.cta}>
-        <Text style={styles.ctaText}>
-          {t('home.getTickets')}
-          {!isFree && (
-            <Text style={styles.ctaPrice}>  {t('common.from')} {event.currency || 'HTG'} {price.toLocaleString()}</Text>
-          )}
-        </Text>
-      </TouchableOpacity>
+      {/* Adaptive white-pill CTA: RSVP for free, Get Tickets + price for paid. */}
+      {isFree ? (
+        <WhitePillCTA
+          variant="rsvp"
+          label={t('common.rsvp')}
+          onPress={onPress}
+          style={styles.cta}
+        />
+      ) : (
+        <WhitePillCTA
+          variant="paid"
+          label={t('home.getTickets')}
+          subLabel={`${t('common.from')} ${price.toLocaleString()} ${event.currency || 'HTG'}`}
+          onPress={onPress}
+          style={styles.cta}
+        />
+      )}
     </View>
   );
 }
@@ -164,20 +173,5 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     cta: {
       marginTop: 14,
-      backgroundColor: '#FFFFFF',
-      borderRadius: 16,
-      paddingVertical: 16,
-      alignItems: 'center',
-    },
-    ctaText: {
-      color: '#111111',
-      fontSize: 16,
-      fontWeight: '800',
-    },
-    ctaPrice: {
-      fontFamily: font.mono,
-      color: '#6B6B6B',
-      fontSize: 13,
-      letterSpacing: 0.3,
     },
   });
