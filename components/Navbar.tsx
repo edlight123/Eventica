@@ -5,7 +5,7 @@ import { usePathname, useSearchParams } from 'next/navigation'
 import { firebaseDb as supabase } from '@/lib/firebase-db/client'
 import { useRouter } from 'next/navigation'
 import { TikemWordmark } from '@/components/ui/TikemLogo'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isDemoMode, isDemoEmail } from '@/lib/demo'
 import { demoLogout } from '@/app/auth/actions'
@@ -27,11 +27,38 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
   const router = useRouter()
   const { t } = useTranslation('common')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false)
+  const accountMenuRef = useRef<HTMLDivElement>(null)
+
+  const isHost = user?.role === 'organizer' || user?.role === 'staff'
 
   const redirectTarget = (() => {
     const query = searchParams?.toString()
     return query ? `${pathname}?${query}` : pathname
   })()
+
+  // Close the account dropdown on outside-click and Escape.
+  useEffect(() => {
+    if (!accountMenuOpen) return
+
+    function handleClickOutside(event: MouseEvent) {
+      if (accountMenuRef.current && !accountMenuRef.current.contains(event.target as Node)) {
+        setAccountMenuOpen(false)
+      }
+    }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setAccountMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [accountMenuOpen])
 
   async function handleSignOut() {
     // Handle demo logout
@@ -46,6 +73,9 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
     router.refresh()
   }
 
+  const accountMenuItemClass =
+    'block w-full text-left px-4 py-2 text-sm text-white/70 hover:bg-white/5 hover:text-white transition-colors duration-200'
+
   return (
     <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0a]/80 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -58,28 +88,14 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
             </Link>
             <div className="hidden md:ml-8 md:flex md:space-x-2 lg:space-x-4">
               <Link
-                href="/"
+                href="/discover"
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  pathname === '/' ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                  pathname === '/' || pathname === '/discover'
+                    ? 'text-white'
+                    : 'text-white/70 hover:bg-white/5 hover:text-white'
                 }`}
               >
                 {t('nav.home')}
-              </Link>
-              <Link
-                href="/discover"
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  pathname === '/discover' ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
-                }`}
-              >
-                {t('nav.discover')}
-              </Link>
-              <Link
-                href="/platform"
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  pathname?.startsWith('/platform') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
-                }`}
-              >
-                {t('nav.platform', { defaultValue: 'Platform' })}
               </Link>
               <Link
                 href="/resources"
@@ -89,52 +105,6 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
               >
                 {t('nav.resources', { defaultValue: 'Guides' })}
               </Link>
-              {user && (
-                <>
-                  <Link
-                    href="/tickets"
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      pathname?.startsWith('/tickets') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
-                    }`}
-                  >
-                    {t('nav.myTickets')}
-                  </Link>
-                  <Link
-                    href="/favorites"
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      pathname === '/favorites' ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
-                    }`}
-                  >
-                    {t('nav.favorites')}
-                  </Link>
-                  <Link
-                    href="/connections"
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      pathname?.startsWith('/connections') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
-                    }`}
-                  >
-                    Friends
-                  </Link>
-                  <Link
-                    href="/organizer"
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      pathname?.startsWith('/organizer') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
-                    }`}
-                  >
-                    {t('nav.organizer')}
-                  </Link>
-                  {isAdmin && (
-                    <Link
-                      href="/admin"
-                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                        pathname?.startsWith('/admin') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
-                      }`}
-                    >
-                      {t('nav.admin')}
-                    </Link>
-                  )}
-                </>
-              )}
             </div>
           </div>
 
@@ -143,22 +113,114 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
               <>
                 {/* Notification Bell */}
                 <NotificationBell userId={user.id} />
-                
-                <Link
-                  href="/profile"
-                  className="hidden sm:flex items-center gap-2 text-sm text-white/80 hover:text-white transition-colors duration-200"
-                >
-                  <div className="w-8 h-8 bg-gradient-to-br from-teal-400 to-teal-600 rounded-full flex items-center justify-center text-white font-semibold text-xs shadow-md ring-2 ring-white/10">
-                    {user.full_name?.charAt(0).toUpperCase() || 'U'}
-                  </div>
-                  <span className="font-medium">{user.full_name}</span>
-                </Link>
-                <button
-                  onClick={handleSignOut}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-white/70 hover:bg-white/5 hover:text-white transition-all duration-200"
-                >
-                  {t('nav.signOut')}
-                </button>
+
+                {/* Account dropdown (desktop) */}
+                <div className="relative hidden sm:block" ref={accountMenuRef}>
+                  <button
+                    type="button"
+                    onClick={() => setAccountMenuOpen((open) => !open)}
+                    aria-haspopup="menu"
+                    aria-expanded={accountMenuOpen}
+                    aria-label={user.full_name}
+                    className="flex items-center gap-2 text-sm text-white/80 hover:text-white transition-colors duration-200"
+                  >
+                    <div className="w-8 h-8 bg-gradient-to-br from-teal-400 to-teal-600 rounded-full flex items-center justify-center text-white font-semibold text-xs shadow-md ring-2 ring-white/10">
+                      {user.full_name?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                    <span className="font-medium">{user.full_name}</span>
+                    <svg
+                      className={`w-4 h-4 transition-transform duration-200 ${accountMenuOpen ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  {accountMenuOpen && (
+                    <div
+                      role="menu"
+                      aria-label={user.full_name}
+                      className="absolute right-0 mt-2 w-56 rounded-lg border border-white/10 bg-[#0a0a0a] py-1 shadow-xl"
+                    >
+                      <Link
+                        href="/tickets"
+                        role="menuitem"
+                        onClick={() => setAccountMenuOpen(false)}
+                        className={accountMenuItemClass}
+                      >
+                        {t('nav.myTickets')}
+                      </Link>
+                      <Link
+                        href="/favorites"
+                        role="menuitem"
+                        onClick={() => setAccountMenuOpen(false)}
+                        className={accountMenuItemClass}
+                      >
+                        {t('nav.favorites')}
+                      </Link>
+                      <Link
+                        href="/connections"
+                        role="menuitem"
+                        onClick={() => setAccountMenuOpen(false)}
+                        className={accountMenuItemClass}
+                      >
+                        {t('nav.friends', { defaultValue: 'Friends' })}
+                      </Link>
+                      {isHost ? (
+                        <Link
+                          href="/organizer"
+                          role="menuitem"
+                          onClick={() => setAccountMenuOpen(false)}
+                          className={accountMenuItemClass}
+                        >
+                          {t('nav.organizer')}
+                        </Link>
+                      ) : (
+                        <Link
+                          href="/organizer"
+                          role="menuitem"
+                          onClick={() => setAccountMenuOpen(false)}
+                          className={accountMenuItemClass}
+                        >
+                          {t('nav.becomeHost', { defaultValue: 'Become a host' })}
+                        </Link>
+                      )}
+                      {isAdmin && (
+                        <Link
+                          href="/admin"
+                          role="menuitem"
+                          onClick={() => setAccountMenuOpen(false)}
+                          className={accountMenuItemClass}
+                        >
+                          {t('nav.admin')}
+                        </Link>
+                      )}
+                      <div className="my-1 border-t border-white/10" />
+                      <Link
+                        href="/profile"
+                        role="menuitem"
+                        onClick={() => setAccountMenuOpen(false)}
+                        className={accountMenuItemClass}
+                      >
+                        {t('nav.profile')}
+                      </Link>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          setAccountMenuOpen(false)
+                          handleSignOut()
+                        }}
+                        className={accountMenuItemClass}
+                      >
+                        {t('nav.signOut')}
+                      </button>
+                    </div>
+                  )}
+                </div>
               </>
             ) : (
               <>
@@ -176,7 +238,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                 </Link>
               </>
             )}
-            
+
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -192,37 +254,21 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
             </button>
           </div>
         </div>
-        
+
         {/* Mobile menu */}
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-white/10">
             <div className="space-y-1">
               <Link
-                href="/"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                  pathname === '/' ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
-                }`}
-              >
-                {t('nav.home')}
-              </Link>
-              <Link
                 href="/discover"
                 onClick={() => setMobileMenuOpen(false)}
                 className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                  pathname === '/discover' ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                  pathname === '/' || pathname === '/discover'
+                    ? 'text-white'
+                    : 'text-white/70 hover:bg-white/5 hover:text-white'
                 }`}
               >
-                {t('nav.discover')}
-              </Link>
-              <Link
-                href="/platform"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                  pathname?.startsWith('/platform') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
-                }`}
-              >
-                {t('nav.platform', { defaultValue: 'Platform' })}
+                {t('nav.home')}
               </Link>
               <Link
                 href="/resources"
@@ -260,17 +306,29 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                       pathname?.startsWith('/connections') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
                     }`}
                   >
-                    Friends
+                    {t('nav.friends', { defaultValue: 'Friends' })}
                   </Link>
-                  <Link
-                    href="/organizer/events"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`block px-3 py-2 rounded-lg text-sm font-medium ${
-                      pathname?.startsWith('/organizer') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
-                    }`}
-                  >
-                    {t('nav.myEvents')}
-                  </Link>
+                  {isHost ? (
+                    <Link
+                      href="/organizer"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+                        pathname?.startsWith('/organizer') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                      }`}
+                    >
+                      {t('nav.organizer')}
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/organizer"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+                        pathname?.startsWith('/organizer') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                      }`}
+                    >
+                      {t('nav.becomeHost', { defaultValue: 'Become a host' })}
+                    </Link>
+                  )}
                   {isAdmin && (
                     <Link
                       href="/admin"
@@ -290,6 +348,34 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
                     }`}
                   >
                     {t('nav.profile')}
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      handleSignOut()
+                    }}
+                    className="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:bg-white/5 hover:text-white"
+                  >
+                    {t('nav.signOut')}
+                  </button>
+                </>
+              )}
+              {!user && (
+                <>
+                  <Link
+                    href={`/auth/login?redirect=${encodeURIComponent(redirectTarget)}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:bg-white/5 hover:text-white"
+                  >
+                    {t('nav.signIn')}
+                  </Link>
+                  <Link
+                    href={`/auth/signup?redirect=${encodeURIComponent(redirectTarget)}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:bg-white/5 hover:text-white"
+                  >
+                    {t('auth:signup.submit')}
                   </Link>
                 </>
               )}
