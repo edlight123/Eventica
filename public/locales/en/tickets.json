@@ -109,7 +109,15 @@
     "view_event_details": "View Event Details",
     "all_my_tickets": "All My Tickets",
     "back_to_tickets": "← Back to All Tickets",
-    "add_to_calendar": "Add to Calendar"
+    "add_to_calendar": "Add to Calendar",
+    "get_directions": "Get Directions",
+    "holder": "Ticket holder",
+    "reference": "Reference",
+    "scan_at_entrance": "Scan this at the entrance",
+    "used_count": "{{count}} used",
+    "show": "Show",
+    "hide": "Hide",
+    "no_active_tickets": "No active tickets for this event."
   },
   "purchase_success": {
     "title": "Purchase Successful!",

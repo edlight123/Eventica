@@ -109,7 +109,15 @@
     "view_event_details": "Voir les détails de l'événement",
     "all_my_tickets": "Tous mes billets",
     "back_to_tickets": "← Retour à tous les billets",
-    "add_to_calendar": "Ajouter au calendrier"
+    "add_to_calendar": "Ajouter au calendrier",
+    "get_directions": "Itinéraire",
+    "holder": "Titulaire du billet",
+    "reference": "Référence",
+    "scan_at_entrance": "Scannez ceci à l'entrée",
+    "used_count": "{{count}} utilisé(s)",
+    "show": "Afficher",
+    "hide": "Masquer",
+    "no_active_tickets": "Aucun billet actif pour cet événement."
   },
   "purchase_success": {
     "title": "Achat réussi !",

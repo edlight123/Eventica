@@ -109,7 +109,15 @@
     "view_event_details": "Gade detay evènman an",
     "all_my_tickets": "Tout tikè mwen",
     "back_to_tickets": "← Retounen nan tout tikè",
-    "add_to_calendar": "Ajoute nan kalandriye"
+    "add_to_calendar": "Ajoute nan kalandriye",
+    "get_directions": "Jwenn direksyon",
+    "holder": "Moun ki gen tikè a",
+    "reference": "Referans",
+    "scan_at_entrance": "Eskane sa a nan antre a",
+    "used_count": "{{count}} itilize",
+    "show": "Montre",
+    "hide": "Kache",
+    "no_active_tickets": "Pa gen tikè aktif pou evènman sa a."
   },
   "purchase_success": {
     "title": "Acha a reyisi!",
