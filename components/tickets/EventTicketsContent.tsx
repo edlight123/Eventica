@@ -204,6 +204,7 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             {validTickets.map((ticket, index) => {
               const qrValue = ticket.qr_code_data || ticket.id
+              const qrId = `ticket-qr-${ticket.id || index}`
               const tierName = ticket.tier_name || t('event_tickets.ticket')
               const holderName = ticket.attendee_name
               return (
@@ -242,7 +243,7 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
                     <div className="flex flex-col items-center">
                       {qrValue ? (
                         <div className="w-[240px] max-w-full">
-                          <QRCodeDisplay value={qrValue} size={240} />
+                          <QRCodeDisplay value={qrValue} size={240} id={qrId} />
                         </div>
                       ) : (
                         <div className="w-[240px] max-w-full aspect-square flex items-center justify-center rounded-lg bg-black/5">
@@ -291,7 +292,7 @@ export default function EventTicketsContent({ event, tickets }: EventTicketsCont
                     )}
                     {!isDemoMode() && (
                       <>
-                        <AddToWalletButton ticket={ticket} event={event} />
+                        <AddToWalletButton ticket={ticket} event={event} qrElementId={qrId} />
                         <a
                           href={`/tickets/${ticket.id}`}
                           className="group/btn flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-white/[0.04] hover:bg-white/[0.08] text-white/70 border border-white/10 hover:border-brand-400 text-sm font-semibold rounded-lg transition-all"
