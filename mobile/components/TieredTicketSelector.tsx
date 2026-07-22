@@ -15,6 +15,7 @@ import { db } from '../config/firebase';
 import { useI18n } from '../contexts/I18nContext';
 import { normalizePromoValidationResponse } from '../lib/promoCodes';
 import { useTheme } from '../contexts/ThemeContext';
+import WhitePillCTA from './WhitePillCTA';
 
 interface TicketTier {
   id: string;
@@ -436,14 +437,12 @@ export default function TieredTicketSelector({
                 </Text>
               </View>
             </View>
-            <TouchableOpacity
-              style={styles.purchaseButton}
+            <WhitePillCTA
+              variant="paid"
+              label={t('ticketSelector.continueToPayment')}
+              subLabel={`${getTotalPrice().toLocaleString()} ${displayCurrency}`}
               onPress={handlePurchase}
-            >
-              <Text style={styles.purchaseButtonText}>
-                {t('ticketSelector.continueToPayment')}
-              </Text>
-            </TouchableOpacity>
+            />
           </View>
         )}
       </View>
@@ -528,7 +527,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   tierPrice: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.primary,
+    color: colors.text,
   },
   tierDescription: {
     fontSize: 13,
@@ -565,7 +564,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   quantityText: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.primary,
+    color: colors.text,
     marginHorizontal: 16,
     minWidth: 24,
     textAlign: 'center',
@@ -598,7 +597,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
   },
   promoApplyButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.surfaceRaised,
     borderRadius: 8,
     paddingHorizontal: 20,
     height: 48,
@@ -607,7 +606,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     minWidth: 80,
   },
   promoApplyButtonText: {
-    color: colors.white,
+    color: colors.text,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -648,17 +647,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   totalPrice: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: colors.primary,
-  },
-  purchaseButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-  },
-  purchaseButtonText: {
-    color: colors.white,
-    fontSize: 18,
-    fontWeight: 'bold',
+    color: colors.text,
   },
 });

@@ -691,13 +691,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 16,
   },
   retryButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.surfaceRaised,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
   },
   retryButtonText: {
-    color: '#FFF',
+    color: colors.text,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -706,7 +706,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   hero: {
     height: HERO_HEIGHT,
     justifyContent: 'flex-start',
-    backgroundColor: colors.primary, // Fallback color
+    backgroundColor: colors.surfaceRaised, // neutral fallback behind poster (not decorative teal)
   },
   heroScrim: {
     ...StyleSheet.absoluteFillObject,

@@ -1255,10 +1255,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: 'center',
-    backgroundColor: colors.primary,
+    backgroundColor: colors.white,
   },
   primaryButtonText: {
-    color: colors.white,
+    color: '#000000',
     fontWeight: '700',
   },
   secondaryButton: {
