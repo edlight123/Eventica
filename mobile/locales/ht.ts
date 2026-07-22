@@ -157,9 +157,15 @@ export default {
       continueWithGoogle: 'Kontinye ak Google',
       noAccount: 'Ou pa gen kont?',
       signUp: 'Enskri',
+      eyebrow: 'AYITI AK DYASPORA A',
+      headlineLead: 'Kote Ayiti ',
+      headlineAccent: 'soti.',
     },
     signup: {
       title: 'Kreye kont',
+      eyebrow: 'AYITI AK DYASPORA A',
+      headlineLead: 'Antre nan ',
+      headlineAccent: 'lakou a.',
       errors: {
         fillAllFields: 'Tanpri ranpli tout chan yo.',
         passwordsDoNotMatch: 'Modpas yo pa menm.',

@@ -8,12 +8,12 @@ import {
   Alert,
   Animated,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Mail, Lock } from 'lucide-react-native';
 import { useAuth } from '../../contexts/AuthContext';
-import { BRAND } from '../../config/brand';
 import { useI18n } from '../../contexts/I18nContext';
-import { TikemWordmark } from '../../components/TikemWordmark';
 import { AuthBackground } from '../../components/auth/AuthBackground';
+import { AuthHeadline } from '../../components/auth/AuthHeadline';
 import { AuthInput } from '../../components/auth/AuthInput';
 import { SecondaryPill } from '../../components/auth/SecondaryPill';
 import * as AppleAuthentication from 'expo-apple-authentication';
@@ -22,19 +22,20 @@ import { colors, spacing, type } from '../../theme/tokens';
 
 export default function LoginScreen({ navigation }: any) {
   const { t } = useI18n();
+  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { signIn, signInWithGoogle, signInWithApple, appleAuthAvailable } = useAuth();
 
-  // Entrance animations
-  const logoAnim = useRef(new Animated.Value(0)).current;
+  // Entrance animations — headline settles first, then the form cluster rises.
+  const headlineAnim = useRef(new Animated.Value(0)).current;
   const formAnim = useRef(new Animated.Value(40)).current;
   const formOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.sequence([
-      Animated.spring(logoAnim, { toValue: 1, tension: 60, friction: 8, useNativeDriver: true }),
+      Animated.spring(headlineAnim, { toValue: 1, tension: 60, friction: 8, useNativeDriver: true }),
       Animated.parallel([
         Animated.timing(formAnim, { toValue: 0, duration: 400, useNativeDriver: true }),
         Animated.timing(formOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
@@ -82,20 +83,26 @@ export default function LoginScreen({ navigation }: any) {
     }
   };
 
-  const logoScale = logoAnim.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] });
-  const logoOpacity = logoAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 0.8, 1] });
+  const headlineOpacity = headlineAnim.interpolate({ inputRange: [0, 0.6, 1], outputRange: [0, 0.9, 1] });
+  const headlineTranslate = headlineAnim.interpolate({ inputRange: [0, 1], outputRange: [16, 0] });
 
   return (
     <AuthBackground>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
-        <View style={styles.content}>
-          {/* Logo */}
-          <Animated.View style={[styles.logoContainer, { transform: [{ scale: logoScale }], opacity: logoOpacity }]}>
-            <TikemWordmark fontSize={56} />
-            <Text style={styles.tagline}>{BRAND.tagline}</Text>
+        <View style={[styles.content, { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom + spacing.xl }]}>
+          {/* Top third — brand + oversized editorial headline, left-aligned */}
+          <Animated.View style={{ opacity: headlineOpacity, transform: [{ translateY: headlineTranslate }] }}>
+            <AuthHeadline
+              eyebrow={t('auth.login.eyebrow')}
+              lead={t('auth.login.headlineLead')}
+              accent={t('auth.login.headlineAccent')}
+            />
           </Animated.View>
 
-          {/* Form — crafted cells sit directly on the ambient background */}
+          {/* Spacer pushes the form cluster into the lower ~55% of the screen */}
+          <View style={styles.spacer} />
+
+          {/* Lower cluster — form + auth buttons grouped tight, left-aligned */}
           <Animated.View style={{ transform: [{ translateY: formAnim }], opacity: formOpacity }}>
             <View style={styles.form}>
               <AuthInput
@@ -169,20 +176,14 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
-    padding: spacing.xl,
+    paddingHorizontal: spacing.xl,
   },
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: spacing.xxl,
-  },
-  tagline: {
-    fontSize: 15,
-    color: colors.textSecondary,
-    marginTop: spacing.xs + 2,
+  spacer: {
+    flex: 1,
+    minHeight: spacing.xl,
   },
   form: {
-    gap: 14,
+    gap: spacing.md,
   },
   primary: {
     marginTop: spacing.xs,
@@ -190,13 +191,13 @@ const styles = StyleSheet.create({
   appleButton: {
     width: '100%',
     height: 56,
-    marginTop: spacing.sm,
   },
   linkButton: {
-    marginTop: spacing.xs,
+    marginTop: spacing.sm,
+    alignItems: 'flex-start',
   },
   linkText: {
-    textAlign: 'center',
+    textAlign: 'left',
     color: colors.textSecondary,
     fontSize: 14,
   },

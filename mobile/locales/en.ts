@@ -113,9 +113,15 @@ export default {
       continueWithGoogle: 'Continue with Google',
       noAccount: "Don't have an account?",
       signUp: 'Sign Up',
+      eyebrow: 'HAITI & THE DIASPORA',
+      headlineLead: 'Where Haiti goes ',
+      headlineAccent: 'out.',
     },
     signup: {
       title: 'Create Account',
+      eyebrow: 'HAITI & THE DIASPORA',
+      headlineLead: 'Join the ',
+      headlineAccent: 'lakou.',
       errors: {
         fillAllFields: 'Please fill in all fields.',
         passwordsDoNotMatch: "Passwords don't match.",

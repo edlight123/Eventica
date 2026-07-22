@@ -9,11 +9,12 @@ import {
   ScrollView,
   Animated,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { User, Mail, Lock } from 'lucide-react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
-import { TikemWordmark } from '../../components/TikemWordmark';
 import { AuthBackground } from '../../components/auth/AuthBackground';
+import { AuthHeadline } from '../../components/auth/AuthHeadline';
 import { AuthInput } from '../../components/auth/AuthInput';
 import WhitePillCTA from '../../components/WhitePillCTA';
 import * as AppleAuthentication from 'expo-apple-authentication';
@@ -21,6 +22,7 @@ import { colors, spacing } from '../../theme/tokens';
 
 export default function SignupScreen({ navigation }: any) {
   const { t } = useI18n();
+  const insets = useSafeAreaInsets();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,13 +43,14 @@ export default function SignupScreen({ navigation }: any) {
     }
   };
 
-  const logoAnim = useRef(new Animated.Value(0)).current;
+  // Entrance animations — headline settles first, then the form cluster rises.
+  const headlineAnim = useRef(new Animated.Value(0)).current;
   const formAnim = useRef(new Animated.Value(50)).current;
   const formOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.sequence([
-      Animated.spring(logoAnim, { toValue: 1, tension: 60, friction: 8, useNativeDriver: true }),
+      Animated.spring(headlineAnim, { toValue: 1, tension: 60, friction: 8, useNativeDriver: true }),
       Animated.parallel([
         Animated.timing(formAnim, { toValue: 0, duration: 420, useNativeDriver: true }),
         Animated.timing(formOpacity, { toValue: 1, duration: 420, useNativeDriver: true }),
@@ -78,82 +81,95 @@ export default function SignupScreen({ navigation }: any) {
     }
   };
 
-  const logoScale = logoAnim.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] });
-  const logoOpacity = logoAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 0.8, 1] });
+  const headlineOpacity = headlineAnim.interpolate({ inputRange: [0, 0.6, 1], outputRange: [0, 0.9, 1] });
+  const headlineTranslate = headlineAnim.interpolate({ inputRange: [0, 1], outputRange: [16, 0] });
 
   return (
     <AuthBackground>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
-        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-          <View style={styles.content}>
-            <Animated.View style={[styles.logoContainer, { transform: [{ scale: logoScale }], opacity: logoOpacity }]}>
-              <TikemWordmark fontSize={54} />
-              <Text style={styles.subtitle}>{t('auth.signup.title')}</Text>
-            </Animated.View>
+        <ScrollView
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom + spacing.xl },
+          ]}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Top — brand + oversized editorial headline, left-aligned */}
+          <Animated.View style={{ opacity: headlineOpacity, transform: [{ translateY: headlineTranslate }] }}>
+            <AuthHeadline
+              eyebrow={t('auth.signup.eyebrow')}
+              lead={t('auth.signup.headlineLead')}
+              accent={t('auth.signup.headlineAccent')}
+            />
+          </Animated.View>
 
-            <Animated.View style={{ transform: [{ translateY: formAnim }], opacity: formOpacity }}>
-              <View style={styles.form}>
-                <AuthInput
-                  icon={User}
-                  placeholder={t('auth.signup.placeholders.fullName')}
-                  value={fullName}
-                  onChangeText={setFullName}
-                  autoComplete="name"
-                />
-                <AuthInput
-                  icon={Mail}
-                  placeholder={t('auth.signup.placeholders.email')}
-                  value={email}
-                  onChangeText={setEmail}
-                  autoCapitalize="none"
-                  autoComplete="email"
-                  keyboardType="email-address"
-                />
-                <AuthInput
-                  icon={Lock}
-                  isPassword
-                  placeholder={t('auth.signup.placeholders.password')}
-                  value={password}
-                  onChangeText={setPassword}
-                  autoCapitalize="none"
-                />
-                <AuthInput
-                  icon={Lock}
-                  isPassword
-                  placeholder={t('auth.signup.placeholders.confirmPassword')}
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  autoCapitalize="none"
-                />
+          {/* Spacer keeps the form in the lower band without over-stretching */}
+          <View style={styles.spacer} />
 
-                {/* Primary action — the one white pill per screen (POSH §2.2) */}
-                <WhitePillCTA
-                  label={loading ? t('auth.signup.creatingAccount') : t('auth.signup.signUp')}
-                  onPress={handleSignup}
-                  loading={loading}
-                  style={styles.primary}
+          {/* Lower cluster — form + auth buttons grouped tight, left-aligned */}
+          <Animated.View style={{ transform: [{ translateY: formAnim }], opacity: formOpacity }}>
+            <View style={styles.form}>
+              <AuthInput
+                icon={User}
+                placeholder={t('auth.signup.placeholders.fullName')}
+                value={fullName}
+                onChangeText={setFullName}
+                autoComplete="name"
+              />
+              <AuthInput
+                icon={Mail}
+                placeholder={t('auth.signup.placeholders.email')}
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                autoComplete="email"
+                keyboardType="email-address"
+              />
+              <AuthInput
+                icon={Lock}
+                isPassword
+                placeholder={t('auth.signup.placeholders.password')}
+                value={password}
+                onChangeText={setPassword}
+                autoCapitalize="none"
+              />
+              <AuthInput
+                icon={Lock}
+                isPassword
+                placeholder={t('auth.signup.placeholders.confirmPassword')}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                autoCapitalize="none"
+              />
+
+              {/* Primary action — the one white pill per screen (POSH §2.2) */}
+              <WhitePillCTA
+                label={loading ? t('auth.signup.creatingAccount') : t('auth.signup.signUp')}
+                onPress={handleSignup}
+                loading={loading}
+                style={styles.primary}
+              />
+
+              {/* Sign up with Apple — native HIG button; iOS + native module only. */}
+              {appleAuthAvailable && (
+                <AppleAuthentication.AppleAuthenticationButton
+                  buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_UP}
+                  buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
+                  cornerRadius={28}
+                  style={styles.appleButton}
+                  onPress={handleAppleSignIn}
                 />
+              )}
 
-                {/* Sign up with Apple — native HIG button; iOS + native module only. */}
-                {appleAuthAvailable && (
-                  <AppleAuthentication.AppleAuthenticationButton
-                    buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_UP}
-                    buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
-                    cornerRadius={28}
-                    style={styles.appleButton}
-                    onPress={handleAppleSignIn}
-                  />
-                )}
-
-                <View style={styles.linkButton}>
-                  <Text style={styles.linkText} onPress={() => navigation.navigate('Login')}>
-                    {t('auth.signup.haveAccount')}{' '}
-                    <Text style={styles.linkTextBold}>{t('auth.signup.signIn')}</Text>
-                  </Text>
-                </View>
+              <View style={styles.linkButton}>
+                <Text style={styles.linkText} onPress={() => navigation.navigate('Login')}>
+                  {t('auth.signup.haveAccount')}{' '}
+                  <Text style={styles.linkTextBold}>{t('auth.signup.signIn')}</Text>
+                </Text>
               </View>
-            </Animated.View>
-          </View>
+            </View>
+          </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
     </AuthBackground>
@@ -166,23 +182,14 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: 'center',
+    paddingHorizontal: spacing.xl,
   },
-  content: {
-    padding: spacing.xl,
-    justifyContent: 'center',
-  },
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: spacing.xl + 4,
-  },
-  subtitle: {
-    fontSize: 15,
-    color: colors.textSecondary,
-    marginTop: spacing.xs + 2,
+  spacer: {
+    flex: 1,
+    minHeight: spacing.xxl,
   },
   form: {
-    gap: 14,
+    gap: spacing.md,
   },
   primary: {
     marginTop: spacing.xs,
@@ -190,13 +197,13 @@ const styles = StyleSheet.create({
   appleButton: {
     width: '100%',
     height: 56,
-    marginTop: spacing.sm,
   },
   linkButton: {
-    marginTop: spacing.xs,
+    marginTop: spacing.sm,
+    alignItems: 'flex-start',
   },
   linkText: {
-    textAlign: 'center',
+    textAlign: 'left',
     color: colors.textSecondary,
     fontSize: 14,
   },
