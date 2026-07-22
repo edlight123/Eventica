@@ -12,6 +12,7 @@ import { applyFiltersAndSort } from '@/lib/filters/apply'
 import { getDiscoverEvents } from '@/lib/data/events'
 import { getUserProfileAdmin } from '@/lib/firestore/user-profile-admin'
 import { LocationBannerWrapper } from '@/components/LocationBannerWrapper'
+import { adminDb } from '@/lib/firebase/admin'
 
 type Event = Database['public']['Tables']['events']['Row']
 
@@ -97,6 +98,34 @@ export default async function HomePage({
     const eventCountry = e.country || 'HT' // Default to Haiti if no country set
     return eventCountry === userCountry
   })
+
+  // Attach organizer display names so the hero search autocomplete can match by
+  // organizer. The events carry organizer_id but not a name; resolve in one
+  // batched read (getAll — robust vs the fragile `__name__ in` pattern). Never
+  // let this break the home page.
+  if (!isDemoMode()) {
+    try {
+      const organizerIds = Array.from(
+        new Set(events.map((e: any) => e.organizer_id).filter(Boolean)),
+      ) as string[]
+      if (organizerIds.length > 0) {
+        const refs = organizerIds.map((id) => adminDb.collection('users').doc(id))
+        const docs = await adminDb.getAll(...refs)
+        const nameById = new Map<string, string>()
+        docs.forEach((d: any) => {
+          if (!d.exists) return
+          const u = d.data() || {}
+          nameById.set(d.id, u.full_name || u.name || u.email || '')
+        })
+        events = events.map((e: any) => ({
+          ...e,
+          organizer_name: e.organizer_name || nameById.get(e.organizer_id) || '',
+        }))
+      }
+    } catch (error) {
+      console.error('Failed to resolve organizer names for home events:', error)
+    }
+  }
 
   // Prioritize events by user's city first, then rest of country
   const eventsInUserCity = userCity ? events.filter(e => e.city === userCity) : []
