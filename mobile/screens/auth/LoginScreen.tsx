@@ -16,6 +16,7 @@ import { TikemWordmark } from '../../components/TikemWordmark';
 import { AuthBackground } from '../../components/auth/AuthBackground';
 import { AuthInput } from '../../components/auth/AuthInput';
 import { SecondaryPill } from '../../components/auth/SecondaryPill';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import WhitePillCTA from '../../components/WhitePillCTA';
 import { colors, spacing, type } from '../../theme/tokens';
 
@@ -24,7 +25,7 @@ export default function LoginScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn, signInWithGoogle } = useAuth();
+  const { signIn, signInWithGoogle, signInWithApple, appleAuthAvailable } = useAuth();
 
   // Entrance animations
   const logoAnim = useRef(new Animated.Value(0)).current;
@@ -62,6 +63,20 @@ export default function LoginScreen({ navigation }: any) {
       await signInWithGoogle();
     } catch (error: any) {
       Alert.alert(t('auth.login.google.title'), error.message || t('auth.login.google.configRequired'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAppleSignIn = async () => {
+    setLoading(true);
+    try {
+      await signInWithApple();
+    } catch (error: any) {
+      // User-cancelled (ERR_REQUEST_CANCELED) is not an error worth alerting.
+      if (error?.code !== 'ERR_REQUEST_CANCELED') {
+        Alert.alert('Sign in with Apple', error?.message || 'Could not sign in with Apple.');
+      }
     } finally {
       setLoading(false);
     }
@@ -122,12 +137,17 @@ export default function LoginScreen({ navigation }: any) {
                 disabled={loading}
               />
 
-              {/*
-                APPLE SIGN-IN SLOT — a future "Sign in with Apple" SecondaryPill
-                (or Apple's native button) goes here, directly under Google.
-                Intentionally left as a placeholder; a separate change wires up
-                Apple auth. Keep it a dark-grey SecondaryPill to match the stack.
-              */}
+              {/* Sign in with Apple — Apple's HIG-compliant native button.
+                  Only renders on iOS with the native module present. */}
+              {appleAuthAvailable && (
+                <AppleAuthentication.AppleAuthenticationButton
+                  buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+                  buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
+                  cornerRadius={28}
+                  style={styles.appleButton}
+                  onPress={handleAppleSignIn}
+                />
+              )}
 
               <View style={styles.linkButton}>
                 <Text style={styles.linkText} onPress={() => navigation.navigate('Signup')}>
@@ -166,6 +186,11 @@ const styles = StyleSheet.create({
   },
   primary: {
     marginTop: spacing.xs,
+  },
+  appleButton: {
+    width: '100%',
+    height: 56,
+    marginTop: spacing.sm,
   },
   linkButton: {
     marginTop: spacing.xs,

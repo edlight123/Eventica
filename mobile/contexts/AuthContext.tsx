@@ -1,11 +1,14 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, onAuthStateChanged, signInWithEmailAndPassword, signOut as firebaseSignOut, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import { User, onAuthStateChanged, signInWithEmailAndPassword, signOut as firebaseSignOut, createUserWithEmailAndPassword, GoogleAuthProvider, OAuthProvider, signInWithCredential } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db, isDemoMode } from '../config/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import { makeRedirectUri } from 'expo-auth-session';
+import * as AppleAuthentication from 'expo-apple-authentication';
+import * as Crypto from 'expo-crypto';
+import { Platform } from 'react-native';
 import type { SocialLinks, PrivacySettings } from '../types/social';
 
 WebBrowser.maybeCompleteAuthSession();
@@ -34,6 +37,8 @@ interface AuthContextType {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
+  signInWithApple: () => Promise<void>;
+  appleAuthAvailable: boolean;
   signUp: (email: string, password: string, fullName: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshUserProfile: () => Promise<void>;
@@ -48,6 +53,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [appleAuthAvailable, setAppleAuthAvailable] = useState(false);
+
+  // Apple Sign-In is iOS-only and requires the native module (present after a
+  // dev/EAS build). Guard so the button only appears where it can work.
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        if (Platform.OS !== 'ios') return;
+        const available = await AppleAuthentication.isAvailableAsync();
+        if (active) setAppleAuthAvailable(available);
+      } catch {
+        // Native module not in the current build yet — hide the button.
+        if (active) setAppleAuthAvailable(false);
+      }
+    })();
+    return () => { active = false; };
+  }, []);
 
   const refreshUserProfile = async (uid?: string) => {
     const userId = uid || user?.uid;
@@ -199,6 +222,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const signInWithApple = async () => {
+    // Firebase requires the raw nonce sent to Apple and its SHA-256 hash passed
+    // in the authorization request, to prevent replay attacks.
+    const rawNonce = Array.from(await Crypto.getRandomBytesAsync(16))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+    const hashedNonce = await Crypto.digestStringAsync(
+      Crypto.CryptoDigestAlgorithm.SHA256,
+      rawNonce,
+    );
+
+    const appleCredential = await AppleAuthentication.signInAsync({
+      requestedScopes: [
+        AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+        AppleAuthentication.AppleAuthenticationScope.EMAIL,
+      ],
+      nonce: hashedNonce,
+    });
+
+    if (!appleCredential.identityToken) {
+      throw new Error('Apple Sign-In did not return an identity token.');
+    }
+
+    const provider = new OAuthProvider('apple.com');
+    const credential = provider.credential({
+      idToken: appleCredential.identityToken,
+      rawNonce,
+    });
+    const userCredential = await signInWithCredential(auth, credential);
+
+    // Apple only returns the name on the FIRST authorization — capture it into
+    // the user profile if we don't have one yet.
+    const uid = userCredential.user.uid;
+    const fullName = [appleCredential.fullName?.givenName, appleCredential.fullName?.familyName]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+    try {
+      const existing = await getDoc(doc(db, 'users', uid));
+      if (!existing.exists()) {
+        await setDoc(doc(db, 'users', uid), {
+          email: userCredential.user.email || appleCredential.email || '',
+          full_name: fullName || userCredential.user.displayName || '',
+          role: 'attendee',
+          created_at: new Date().toISOString(),
+          is_verified: false,
+        });
+      }
+    } catch (e) {
+      console.warn('Apple sign-in: could not seed user profile', e);
+    }
+  };
+
   const signUp = async (email: string, password: string, fullName: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     
@@ -218,7 +294,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, userProfile, loading, signIn, signInWithGoogle, signUp, signOut, refreshUserProfile: async () => refreshUserProfile(), updateUserProfile }}>
+    <AuthContext.Provider value={{ user, userProfile, loading, signIn, signInWithGoogle, signInWithApple, appleAuthAvailable, signUp, signOut, refreshUserProfile: async () => refreshUserProfile(), updateUserProfile }}>
       {children}
     </AuthContext.Provider>
   );

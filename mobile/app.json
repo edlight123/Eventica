@@ -15,6 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "co.tikem.mobile",
+      "usesAppleSignIn": true,
       "associatedDomains": [
         "applinks:tikem.co",
         "applinks:www.tikem.co"
@@ -66,6 +67,7 @@
     },
     "scheme": "tikem",
     "plugins": [
+      "expo-apple-authentication",
       [
         "expo-contacts",
         {
