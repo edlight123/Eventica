@@ -5,6 +5,7 @@ import { BRAND } from '@/config/brand'
 import { ToastProvider } from '@/components/ui/Toast'
 import PWAInstallPrompt from '@/components/pwa/PWAInstallPrompt'
 import { I18nProvider } from '@/components/I18nProvider'
+import Footer from '@/components/Footer'
 
 // Body / UI typeface
 const inter = Inter({
@@ -112,6 +113,7 @@ export default function RootLayout({
         <I18nProvider>
           <ToastProvider>
             {children}
+            <Footer />
           </ToastProvider>
           <PWAInstallPrompt />
         </I18nProvider>

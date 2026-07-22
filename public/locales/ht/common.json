@@ -457,7 +457,15 @@
     "unlimited": "San limit"
   },
   "footer": {
-    "copyright": "© {{year}} Tikèm. Tout dwa rezève."
+    "copyright": "© {{year}} Tikèm. Tout dwa rezève.",
+    "landmark": "Pye paj sit la",
+    "tagline": "Dekouvri epi achte tikè pou evènman ann Ayiti.",
+    "discover": "Dekouvri",
+    "company": "Konpayi",
+    "support": "Sipò",
+    "privacy": "Konfidansyalite",
+    "terms": "Kondisyon",
+    "refunds": "Ranbousman"
   },
   "admin": {
     "search_placeholder": "Chèche evènman...",
