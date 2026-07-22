@@ -281,6 +281,18 @@ export function getSubdivisions(city: string, countryCode: string = 'HT'): strin
 }
 
 /**
+ * The set of location names a top-level city filter should match — the city
+ * itself plus its subdivisions (communes/neighborhoods). Selecting
+ * "Port-au-Prince" is thus metro-inclusive: it also matches events in
+ * Pétion-Ville, Delmas, etc. Returns just [city] for unknown cities.
+ * (city + up to 8 subdivisions stays within Firestore's 10-item `in` cap.)
+ */
+export function getCityMatchGroup(city: string, countryCode: string = 'HT'): string[] {
+  if (!city) return []
+  return [city, ...getSubdivisions(city, countryCode)]
+}
+
+/**
  * Get location type label for a city
  */
 export function getLocationTypeLabel(city: string, countryCode: string = 'HT'): string {
