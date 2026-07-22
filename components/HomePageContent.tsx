@@ -3,6 +3,7 @@
 import { useTranslation } from 'react-i18next'
 import EventCard from '@/components/EventCard'
 import EventCardHorizontal from '@/components/EventCardHorizontal'
+import { DiscoverEventCard } from '@/components/discover/DiscoverEventCard'
 import { LOCATION_CONFIG, CATEGORIES } from '@/lib/filters/config'
 import Link from 'next/link'
 import { MapPin, ArrowRight, Search } from 'lucide-react'
@@ -61,12 +62,12 @@ function SectionHeader({
 }
 
 /** Horizontal, snapping rail of poster cards that bleeds to the screen edges. */
-function EventRail({ events, userCity }: { events: any[]; userCity?: string }) {
+function EventRail({ events }: { events: any[]; userCity?: string }) {
   return (
     <div className="rail -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-      {events.map((event, index) => (
+      {events.map((event) => (
         <div key={event.id} className="w-[228px] sm:w-[248px]">
-          <EventCard event={event} index={index} userCity={userCity} />
+          <DiscoverEventCard event={event} />
         </div>
       ))}
     </div>
@@ -203,6 +204,15 @@ export default function HomePageContent({
   }
 
   /* ------------------------------ Home view ------------------------------- */
+  // Inventory-aware home. With a tiny catalog the curated rails just replay the
+  // same handful of events over and over (and half-fill their rows), so below a
+  // threshold we collapse to a single "All Events" grid. Above it, we keep the
+  // editorial rails but dedupe across them and only show a rail once it can fill
+  // a desktop row.
+  const LOW_INVENTORY_THRESHOLD = 8
+  const MIN_RAIL_EVENTS = 4
+  const isLowInventory = events.length < LOW_INVENTORY_THRESHOLD
+
   // Group events into one editorial rail per category that actually has events
   // (mirrors the mobile home). Group by the real category value on each event
   // so custom / legacy categories like "Festival" or "Cultural" still appear,
@@ -222,10 +232,75 @@ export default function HomePageContent({
     events: groupedByCategory[category].slice(0, 12),
   }))
 
+  // Dedupe across rails: process in priority order, each rail keeps only events
+  // not already shown in an earlier rail, and a rail is dropped entirely unless
+  // it still has enough fresh events to fill a row. The final All Events grid is
+  // intentionally exempt — it's the comprehensive catalog.
+  const seen = new Set<string>()
+  const dedupeRail = (list: any[] = []) => {
+    const fresh = list.filter((e) => e?.id && !seen.has(e.id))
+    if (fresh.length < MIN_RAIL_EVENTS) return []
+    fresh.forEach((e) => seen.add(e.id))
+    return fresh
+  }
+
+  const trendingRail = isLowInventory ? [] : dedupeRail(trendingEvents)
+  const recentlyAddedRail = isLowInventory ? [] : dedupeRail(recentlyAddedEvents)
+  const countryRail = isLowInventory ? [] : dedupeRail(countryEvents)
+  const thisWeekRail = isLowInventory ? [] : dedupeRail(upcomingThisWeek)
+  const categoryRails = isLowInventory
+    ? []
+    : eventsByCategory
+        .map(({ category, events: categoryEvents }) => ({
+          category,
+          events: dedupeRail(categoryEvents),
+        }))
+        .filter(({ events: railEvents }) => railEvents.length > 0)
+
+  const allEventsGrid = (
+    <section>
+      <SectionHeader
+        eyebrow={t('events.eyebrow_all')}
+        title={t('events.all_events')}
+        description={
+          events.length === 1
+            ? t('events.event_found', { count: events.length })
+            : t('events.events_found', { count: events.length })
+        }
+      />
+      {events.length > 0 ? (
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {events.slice(0, 12).map((event) => (
+            <DiscoverEventCard key={event.id} event={event} />
+          ))}
+        </div>
+      ) : (
+        <NoEventsInCountry countryName={countryName} />
+      )}
+
+      {events.length > 12 && (
+        <div className="mt-9 flex justify-center">
+          <Link
+            href="/discover"
+            className="group inline-flex items-center gap-2 rounded-xl border border-white/15 px-7 py-3 text-sm font-semibold text-white shadow-poster-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-400/40 hover:text-brand-300"
+          >
+            {t('events.explore_all')}
+            <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+          </Link>
+        </div>
+      )}
+    </section>
+  )
+
+  // Low inventory: hero (rendered by the parent) + one clean grid, no rails.
+  if (isLowInventory) {
+    return <div className="space-y-12 sm:space-y-16">{allEventsGrid}</div>
+  }
+
   return (
     <div className="space-y-12 sm:space-y-16">
       {/* Trending — editorial rail */}
-      {trendingEvents.length > 0 && (
+      {trendingRail.length > 0 && (
         <section>
           <SectionHeader
             eyebrow={t('events.eyebrow_trending')}
@@ -234,12 +309,12 @@ export default function HomePageContent({
             href="/discover?sort=popular"
             cta={t('common.viewAll')}
           />
-          <EventRail events={trendingEvents} userCity={userCity} />
+          <EventRail events={trendingRail} userCity={userCity} />
         </section>
       )}
 
       {/* Recently added — newest on the platform */}
-      {recentlyAddedEvents.length > 0 && (
+      {recentlyAddedRail.length > 0 && (
         <section>
           <SectionHeader
             eyebrow={t('events.eyebrow_new')}
@@ -248,12 +323,12 @@ export default function HomePageContent({
             href="/discover?sort=newest"
             cta={t('common.viewAll')}
           />
-          <EventRail events={recentlyAddedEvents} userCity={userCity} />
+          <EventRail events={recentlyAddedRail} userCity={userCity} />
         </section>
       )}
 
       {/* Near you (when a location is set) / Events in country — editorial rail */}
-      {countryEvents.length > 0 && (
+      {countryRail.length > 0 && (
         <section>
           {nearLocation ? (
             <SectionHeader
@@ -272,12 +347,12 @@ export default function HomePageContent({
               cta={t('common.viewAll')}
             />
           )}
-          <EventRail events={countryEvents} userCity={userCity} />
+          <EventRail events={countryRail} userCity={userCity} />
         </section>
       )}
 
       {/* This week — editorial rail */}
-      {upcomingThisWeek.length > 0 && (
+      {thisWeekRail.length > 0 && (
         <section>
           <SectionHeader
             eyebrow={t('events.eyebrow_week')}
@@ -286,14 +361,14 @@ export default function HomePageContent({
             href="/discover?date=week"
             cta={t('common.viewAll')}
           />
-          <EventRail events={upcomingThisWeek} userCity={userCity} />
+          <EventRail events={thisWeekRail} userCity={userCity} />
         </section>
       )}
 
       {/* Per-category rails (mirrors mobile) — header + carousel, no wrapper */}
-      {eventsByCategory.length > 0 && (
+      {categoryRails.length > 0 && (
         <section className="space-y-10 sm:space-y-12">
-          {eventsByCategory.map(({ category, events: categoryEvents }) => (
+          {categoryRails.map(({ category, events: categoryEvents }) => (
             <CategoryRail
               key={category}
               label={t(`categories.${category}`, { defaultValue: category })}
@@ -307,47 +382,7 @@ export default function HomePageContent({
       )}
 
       {/* All upcoming events */}
-      <section>
-        <SectionHeader
-          eyebrow={t('events.eyebrow_all')}
-          title={t('events.all_events')}
-          description={
-            events.length === 1
-              ? t('events.event_found', { count: events.length })
-              : t('events.events_found', { count: events.length })
-          }
-        />
-        {events.length > 0 ? (
-          <>
-            {/* Mobile: list rows */}
-            <div className="space-y-3 md:hidden">
-              {events.slice(0, 12).map((event) => (
-                <EventCardHorizontal key={event.id} event={event} userCity={userCity} />
-              ))}
-            </div>
-            {/* Desktop: poster grid */}
-            <div className="hidden gap-5 md:grid md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
-              {events.slice(0, 12).map((event, index) => (
-                <EventCard key={event.id} event={event} index={index} userCity={userCity} />
-              ))}
-            </div>
-          </>
-        ) : (
-          <NoEventsInCountry countryName={countryName} />
-        )}
-
-        {events.length > 12 && (
-          <div className="mt-9 flex justify-center">
-            <Link
-              href="/discover"
-              className="group inline-flex items-center gap-2 rounded-xl border border-white/15 px-7 py-3 text-sm font-semibold text-white shadow-poster-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-400/40 hover:text-brand-300"
-            >
-              {t('events.explore_all')}
-              <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
-            </Link>
-          </div>
-        )}
-      </section>
+      {allEventsGrid}
     </div>
   )
 }
