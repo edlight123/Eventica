@@ -2,20 +2,21 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
   Alert,
   ScrollView,
-  Image,
   Animated,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { User, Mail, Lock } from 'lucide-react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { TikemWordmark } from '../../components/TikemWordmark';
+import { AuthBackground } from '../../components/auth/AuthBackground';
+import { AuthInput } from '../../components/auth/AuthInput';
+import WhitePillCTA from '../../components/WhitePillCTA';
+import { colors, spacing } from '../../theme/tokens';
 
 export default function SignupScreen({ navigation }: any) {
   const { t } = useI18n();
@@ -67,10 +68,7 @@ export default function SignupScreen({ navigation }: any) {
   const logoOpacity = logoAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 0.8, 1] });
 
   return (
-    <LinearGradient colors={['#0A0A0A', '#0E1413', '#0A0A0A']} style={styles.gradient}>
-      <View style={[styles.blob, { top: -60, left: -80, backgroundColor: '#0D9488', opacity: 0.1 }]} />
-      <View style={[styles.blob, { bottom: 80, right: -60, backgroundColor: '#14B8A6', opacity: 0.12 }]} />
-
+    <AuthBackground>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.content}>
@@ -81,154 +79,105 @@ export default function SignupScreen({ navigation }: any) {
 
             <Animated.View style={{ transform: [{ translateY: formAnim }], opacity: formOpacity }}>
               <View style={styles.form}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder={t('auth.signup.placeholders.fullName')}
-                    placeholderTextColor="rgba(255,255,255,0.4)"
-                    value={fullName}
-                    onChangeText={setFullName}
-                    selectionColor="#14B8A6"
-                  />
-                  <TextInput
-                    style={styles.input}
-                    placeholder={t('auth.signup.placeholders.email')}
-                    placeholderTextColor="rgba(255,255,255,0.4)"
-                    value={email}
-                    onChangeText={setEmail}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                    selectionColor="#14B8A6"
-                  />
-                  <TextInput
-                    style={styles.input}
-                    placeholder={t('auth.signup.placeholders.password')}
-                    placeholderTextColor="rgba(255,255,255,0.4)"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry
-                    selectionColor="#14B8A6"
-                  />
-                  <TextInput
-                    style={styles.input}
-                    placeholder={t('auth.signup.placeholders.confirmPassword')}
-                    placeholderTextColor="rgba(255,255,255,0.4)"
-                    value={confirmPassword}
-                    onChangeText={setConfirmPassword}
-                    secureTextEntry
-                    selectionColor="#14B8A6"
-                  />
+                <AuthInput
+                  icon={User}
+                  placeholder={t('auth.signup.placeholders.fullName')}
+                  value={fullName}
+                  onChangeText={setFullName}
+                  autoComplete="name"
+                />
+                <AuthInput
+                  icon={Mail}
+                  placeholder={t('auth.signup.placeholders.email')}
+                  value={email}
+                  onChangeText={setEmail}
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  keyboardType="email-address"
+                />
+                <AuthInput
+                  icon={Lock}
+                  isPassword
+                  placeholder={t('auth.signup.placeholders.password')}
+                  value={password}
+                  onChangeText={setPassword}
+                  autoCapitalize="none"
+                />
+                <AuthInput
+                  icon={Lock}
+                  isPassword
+                  placeholder={t('auth.signup.placeholders.confirmPassword')}
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  autoCapitalize="none"
+                />
 
-                  <TouchableOpacity
-                    onPress={handleSignup}
-                    disabled={loading}
-                    style={loading ? styles.buttonDisabled : undefined}
-                  >
-                    <LinearGradient
-                      colors={['#14B8A6', '#0D9488']}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 0 }}
-                      style={styles.button}
-                    >
-                      <Text style={styles.buttonText}>
-                        {loading ? t('auth.signup.creatingAccount') : t('auth.signup.signUp')}
-                      </Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
+                {/* Primary action — the one white pill per screen (POSH §2.2) */}
+                <WhitePillCTA
+                  label={loading ? t('auth.signup.creatingAccount') : t('auth.signup.signUp')}
+                  onPress={handleSignup}
+                  loading={loading}
+                  style={styles.primary}
+                />
 
-                  <TouchableOpacity style={styles.linkButton} onPress={() => navigation.navigate('Login')}>
-                    <Text style={styles.linkText}>
-                      {t('auth.signup.haveAccount')}{' '}
-                      <Text style={styles.linkTextBold}>{t('auth.signup.signIn')}</Text>
-                    </Text>
-                  </TouchableOpacity>
+                {/*
+                  APPLE SIGN-IN SLOT — a future "Sign up with Apple" SecondaryPill
+                  (or Apple's native button) goes here, under the primary. Left as
+                  a placeholder; a separate change wires up Apple auth.
+                */}
+
+                <View style={styles.linkButton}>
+                  <Text style={styles.linkText} onPress={() => navigation.navigate('Login')}>
+                    {t('auth.signup.haveAccount')}{' '}
+                    <Text style={styles.linkTextBold}>{t('auth.signup.signIn')}</Text>
+                  </Text>
+                </View>
               </View>
             </Animated.View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </AuthBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  gradient: {
-    flex: 1,
-  },
   flex: {
     flex: 1,
-  },
-  blob: {
-    position: 'absolute',
-    width: 240,
-    height: 240,
-    borderRadius: 120,
-    opacity: 0.22,
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
   },
   content: {
-    padding: 24,
+    padding: spacing.xl,
     justifyContent: 'center',
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 28,
-  },
-  wordmark: {
-    width: 190,
-    height: 60,
+    marginBottom: spacing.xl + 4,
   },
   subtitle: {
     fontSize: 15,
-    color: 'rgba(255,255,255,0.6)',
-    marginTop: 6,
-  },
-  blurCard: {
-    borderRadius: 24,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
+    color: colors.textSecondary,
+    marginTop: spacing.xs + 2,
   },
   form: {
-    padding: 24,
     gap: 14,
   },
-  input: {
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.14)',
-    borderRadius: 14,
-    padding: 16,
-    fontSize: 16,
-    color: '#FFFFFF',
-  },
-  button: {
-    borderRadius: 14,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  buttonDisabled: {
-    opacity: 0.55,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '700',
-    letterSpacing: 0.2,
+  primary: {
+    marginTop: spacing.xs,
   },
   linkButton: {
-    marginTop: 4,
+    marginTop: spacing.xs,
   },
   linkText: {
     textAlign: 'center',
-    color: 'rgba(255,255,255,0.6)',
+    color: colors.textSecondary,
     fontSize: 14,
   },
   linkTextBold: {
-    color: '#5EEAD4',
+    color: colors.tealBright,
     fontWeight: '700',
   },
 });

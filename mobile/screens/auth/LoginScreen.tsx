@@ -2,23 +2,22 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
   Alert,
-  Image,
   Animated,
-  Dimensions,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Mail, Lock } from 'lucide-react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import { BRAND } from '../../config/brand';
 import { useI18n } from '../../contexts/I18nContext';
 import { TikemWordmark } from '../../components/TikemWordmark';
-
-const { width, height } = Dimensions.get('window');
+import { AuthBackground } from '../../components/auth/AuthBackground';
+import { AuthInput } from '../../components/auth/AuthInput';
+import { SecondaryPill } from '../../components/auth/SecondaryPill';
+import WhitePillCTA from '../../components/WhitePillCTA';
+import { colors, spacing, type } from '../../theme/tokens';
 
 export default function LoginScreen({ navigation }: any) {
   const { t } = useI18n();
@@ -72,11 +71,7 @@ export default function LoginScreen({ navigation }: any) {
   const logoOpacity = logoAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 0.8, 1] });
 
   return (
-    <LinearGradient colors={['#0A0A0A', '#0E1413', '#0A0A0A']} style={styles.gradient}>
-      {/* Decorative blurred circles */}
-      <View style={[styles.blob, { top: -80, right: -60, backgroundColor: '#14B8A6', opacity: 0.12 }]} />
-      <View style={[styles.blob, { bottom: 100, left: -80, backgroundColor: '#0D9488', opacity: 0.1 }]} />
-
+    <AuthBackground>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
         <View style={styles.content}>
           {/* Logo */}
@@ -85,180 +80,118 @@ export default function LoginScreen({ navigation }: any) {
             <Text style={styles.tagline}>{BRAND.tagline}</Text>
           </Animated.View>
 
-          {/* Form — no card, sits directly on the background */}
+          {/* Form — crafted cells sit directly on the ambient background */}
           <Animated.View style={{ transform: [{ translateY: formAnim }], opacity: formOpacity }}>
             <View style={styles.form}>
-                <TextInput
-                  style={styles.input}
-                  placeholder={t('auth.login.placeholders.email')}
-                  placeholderTextColor="rgba(255,255,255,0.4)"
-                  value={email}
-                  onChangeText={setEmail}
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                  selectionColor="#14B8A6"
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder={t('auth.login.placeholders.password')}
-                  placeholderTextColor="rgba(255,255,255,0.4)"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry
-                  selectionColor="#14B8A6"
-                />
+              <AuthInput
+                icon={Mail}
+                placeholder={t('auth.login.placeholders.email')}
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                autoComplete="email"
+                keyboardType="email-address"
+              />
+              <AuthInput
+                icon={Lock}
+                isPassword
+                placeholder={t('auth.login.placeholders.password')}
+                value={password}
+                onChangeText={setPassword}
+                autoCapitalize="none"
+              />
 
-                <TouchableOpacity
-                  onPress={handleLogin}
-                  disabled={loading}
-                  style={loading ? styles.buttonDisabled : undefined}
-                >
-                  <LinearGradient
-                    colors={['#14B8A6', '#0D9488']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={styles.button}
-                  >
-                    <Text style={styles.buttonText}>
-                      {loading ? t('auth.login.signingIn') : t('auth.login.signIn')}
-                    </Text>
-                  </LinearGradient>
-                </TouchableOpacity>
+              {/* Primary action — the one white pill per screen (POSH §2.2) */}
+              <WhitePillCTA
+                label={loading ? t('auth.login.signingIn') : t('auth.login.signIn')}
+                onPress={handleLogin}
+                loading={loading}
+                style={styles.primary}
+              />
 
-                <View style={styles.divider}>
-                  <View style={styles.dividerLine} />
-                  <Text style={styles.dividerText}>{t('auth.login.or')}</Text>
-                  <View style={styles.dividerLine} />
-                </View>
+              <View style={styles.divider}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>{t('auth.login.or')}</Text>
+                <View style={styles.dividerLine} />
+              </View>
 
-                <TouchableOpacity
-                  style={[styles.googleButton, loading && styles.buttonDisabled]}
-                  onPress={handleGoogleSignIn}
-                  disabled={loading}
-                >
-                  <Text style={styles.googleButtonText}>
-                    {t('auth.login.continueWithGoogle')}
-                  </Text>
-                </TouchableOpacity>
+              {/* Secondary action — dark-grey pill, never teal */}
+              <SecondaryPill
+                label={t('auth.login.continueWithGoogle')}
+                onPress={handleGoogleSignIn}
+                disabled={loading}
+              />
 
-                <TouchableOpacity style={styles.linkButton} onPress={() => navigation.navigate('Signup')}>
-                  <Text style={styles.linkText}>
-                    {t('auth.login.noAccount')}{' '}
-                    <Text style={styles.linkTextBold}>{t('auth.login.signUp')}</Text>
-                  </Text>
-                </TouchableOpacity>
+              {/*
+                APPLE SIGN-IN SLOT — a future "Sign in with Apple" SecondaryPill
+                (or Apple's native button) goes here, directly under Google.
+                Intentionally left as a placeholder; a separate change wires up
+                Apple auth. Keep it a dark-grey SecondaryPill to match the stack.
+              */}
+
+              <View style={styles.linkButton}>
+                <Text style={styles.linkText} onPress={() => navigation.navigate('Signup')}>
+                  {t('auth.login.noAccount')}{' '}
+                  <Text style={styles.linkTextBold}>{t('auth.login.signUp')}</Text>
+                </Text>
+              </View>
             </View>
           </Animated.View>
         </View>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </AuthBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  gradient: {
-    flex: 1,
-  },
   flex: {
     flex: 1,
-  },
-  blob: {
-    position: 'absolute',
-    width: 260,
-    height: 260,
-    borderRadius: 130,
-    opacity: 0.25,
   },
   content: {
     flex: 1,
     justifyContent: 'center',
-    padding: 24,
+    padding: spacing.xl,
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 32,
-  },
-  wordmark: {
-    width: 200,
-    height: 64,
-    tintColor: '#FFFFFF',
+    marginBottom: spacing.xxl,
   },
   tagline: {
     fontSize: 15,
-    color: 'rgba(255,255,255,0.65)',
-    marginTop: 6,
-  },
-  blurCard: {
-    borderRadius: 24,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
+    color: colors.textSecondary,
+    marginTop: spacing.xs + 2,
   },
   form: {
-    padding: 24,
     gap: 14,
   },
-  input: {
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.14)',
-    borderRadius: 14,
-    padding: 16,
-    fontSize: 16,
-    color: '#FFFFFF',
-  },
-  button: {
-    borderRadius: 14,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  buttonDisabled: {
-    opacity: 0.55,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '700',
-    letterSpacing: 0.2,
+  primary: {
+    marginTop: spacing.xs,
   },
   linkButton: {
-    marginTop: 4,
+    marginTop: spacing.xs,
   },
   linkText: {
     textAlign: 'center',
-    color: 'rgba(255,255,255,0.6)',
+    color: colors.textSecondary,
     fontSize: 14,
   },
   linkTextBold: {
-    color: '#5EEAD4',
+    color: colors.tealBright,
     fontWeight: '700',
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginVertical: spacing.xs,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: 'rgba(255,255,255,0.12)',
   },
   dividerText: {
+    ...type.caption,
     marginHorizontal: 14,
-    color: 'rgba(255,255,255,0.45)',
-    fontSize: 13,
-  },
-  googleButton: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)',
-    borderRadius: 14,
-    padding: 16,
-    alignItems: 'center',
-  },
-  googleButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    color: colors.textTertiary,
   },
 });
