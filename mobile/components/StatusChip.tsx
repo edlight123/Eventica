@@ -1,0 +1,118 @@
+import React from 'react';
+import { View, Text, StyleSheet, ViewStyle } from 'react-native';
+import { colors, radius, spacing, font } from '../theme/tokens';
+
+export interface StatusTone {
+  /** Solid dot + text color. */
+  color: string;
+  /** Subtle chip fill (low-opacity tint of `color`). */
+  fill: string;
+  /** Canonical default label for this status. */
+  defaultLabel: string;
+}
+
+/**
+ * Locked semantic color map (POSH §2.7) — the same color never means two
+ * things. Any unknown status falls back to the neutral/grey tone.
+ *
+ *   live / upcoming              → teal
+ *   action-needed / pending      → amber
+ *   error / expired / void /
+ *     declined / sold-out        → red
+ *   verified                     → teal (gold available via `colors.gold`)
+ *   success / paid               → emerald
+ *   used / neutral / default     → grey
+ */
+export function statusTone(status: string): StatusTone {
+  const key = String(status).toLowerCase().replace(/[\s_-]+/g, '');
+
+  switch (key) {
+    case 'live':
+      return { color: colors.accent, fill: colors.accentMuted, defaultLabel: 'Live' };
+    case 'upcoming':
+      return { color: colors.accent, fill: colors.accentMuted, defaultLabel: 'Upcoming' };
+    case 'active':
+      return { color: colors.accent, fill: colors.accentMuted, defaultLabel: 'Active' };
+    case 'verified':
+      return { color: colors.accent, fill: colors.accentMuted, defaultLabel: 'Verified' };
+
+    case 'actionneeded':
+      return { color: colors.amber, fill: colors.amberMuted, defaultLabel: 'Action needed' };
+    case 'pending':
+      return { color: colors.amber, fill: colors.amberMuted, defaultLabel: 'Pending' };
+
+    case 'error':
+      return { color: colors.red, fill: colors.redMuted, defaultLabel: 'Error' };
+    case 'expired':
+      return { color: colors.red, fill: colors.redMuted, defaultLabel: 'Expired' };
+    case 'void':
+      return { color: colors.red, fill: colors.redMuted, defaultLabel: 'Void' };
+    case 'declined':
+      return { color: colors.red, fill: colors.redMuted, defaultLabel: 'Declined' };
+    case 'soldout':
+      return { color: colors.red, fill: colors.redMuted, defaultLabel: 'Sold out' };
+
+    case 'success':
+      return { color: colors.emerald, fill: colors.emeraldMuted, defaultLabel: 'Success' };
+    case 'paid':
+      return { color: colors.emerald, fill: colors.emeraldMuted, defaultLabel: 'Paid' };
+
+    case 'used':
+      return { color: colors.textSecondary, fill: colors.neutralMuted, defaultLabel: 'Used' };
+    case 'neutral':
+    default:
+      return { color: colors.textSecondary, fill: colors.neutralMuted, defaultLabel: status };
+  }
+}
+
+interface StatusChipProps {
+  status: string;
+  /** Overrides the canonical label for this status. */
+  label?: string;
+}
+
+/**
+ * A small dot + short label chip. Never color-only — the text label always
+ * ships alongside the dot so meaning is legible without relying on color.
+ */
+export default function StatusChip({ status, label }: StatusChipProps) {
+  const tone = statusTone(status);
+  const text = label ?? tone.defaultLabel;
+
+  return (
+    <View
+      style={[styles.chip, { backgroundColor: tone.fill }]}
+      accessible
+      accessibilityRole="text"
+      accessibilityLabel={text}
+    >
+      <View style={[styles.dot, { backgroundColor: tone.color }]} />
+      <Text style={[styles.label, { color: tone.color }]} numberOfLines={1}>
+        {text}
+      </Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 6,
+    paddingHorizontal: spacing.sm + 2,
+    paddingVertical: 5,
+    borderRadius: radius.pill,
+  },
+  dot: {
+    width: 7,
+    height: 7,
+    borderRadius: 999,
+  },
+  label: {
+    fontFamily: font.mono,
+    fontSize: 11,
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
+  },
+});
