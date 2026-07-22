@@ -23,10 +23,9 @@ import {
   Tag, 
   Share2, 
   Heart, 
-  Ticket, 
+  Ticket,
   TrendingUp,
   Star,
-  Shield,
   ExternalLink,
   ChevronRight
 } from 'lucide-react-native';
@@ -37,6 +36,9 @@ import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { colors as T, font } from '../theme/tokens';
 import { format } from 'date-fns';
+import { isValidDate } from '../lib/dates';
+import WhitePillCTA from '../components/WhitePillCTA';
+import VerifiedBadge from '../components/VerifiedBadge';
 import PaymentModal from '../components/PaymentModal';
 import TieredTicketSelector from '../components/TieredTicketSelector';
 import { getPosterTheme } from '../lib/posterGradient';
@@ -309,6 +311,11 @@ export default function EventDetailScreen({ route, navigation }: any) {
   const isTrending = (event.tickets_sold || 0) > 10;
   const selloutSoon = !isSoldOut && remainingTickets > 0 && remainingTickets < 10;
 
+  // Guarded dates — never hand an Invalid Date to date-fns `format` (it throws).
+  const startValid = isValidDate(event.start_datetime) ? event.start_datetime : null;
+  const endValid = isValidDate(event.end_datetime) ? event.end_datetime : null;
+  const priceSubLabel = `${t('common.from')} ${(event.ticket_price || 0).toLocaleString()} ${event.currency || 'HTG'}`;
+
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <Animated.ScrollView 
@@ -392,21 +399,22 @@ export default function EventDetailScreen({ route, navigation }: any) {
           <Text style={styles.title}>{event.title}</Text>
 
           {/* Countdown to event */}
-          {event.start_datetime && new Date(event.start_datetime) > new Date() && (
-            <CountdownTimer targetDate={new Date(event.start_datetime)} />
+          {startValid && startValid > new Date() && (
+            <CountdownTimer targetDate={startValid} />
           )}
 
-          {/* Key facts — clean text rows, no tiles or fills */}
+          {/* Key facts — clean text rows. Icons are neutral grey; teal stays
+              reserved for semantic use (verified / links / live). */}
           <View style={styles.factList}>
             <View style={styles.factRow}>
-              <Calendar size={18} color={colors.primary} />
+              <Calendar size={18} color={colors.textSecondary} />
               <View style={styles.factText}>
                 <Text style={styles.factValue}>
-                  {event.start_datetime && format(event.start_datetime, 'EEEE, MMMM d, yyyy')}
+                  {startValid && format(startValid, 'EEEE, MMMM d, yyyy')}
                 </Text>
                 <Text style={styles.factSub}>
-                  {event.start_datetime && format(event.start_datetime, 'h:mm a')}
-                  {event.end_datetime && ` – ${format(event.end_datetime, 'h:mm a')}`}
+                  {startValid && format(startValid, 'h:mm a')}
+                  {endValid && ` – ${format(endValid, 'h:mm a')}`}
                 </Text>
               </View>
             </View>
@@ -414,7 +422,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
             <View style={styles.factDivider} />
 
             <TouchableOpacity style={styles.factRow} onPress={openInMaps} activeOpacity={0.6}>
-              <MapPin size={18} color={colors.primary} />
+              <MapPin size={18} color={colors.textSecondary} />
               <View style={styles.factText}>
                 <Text style={styles.factValue}>{event.venue_name}</Text>
                 <Text style={styles.factSub}>
@@ -475,10 +483,12 @@ export default function EventDetailScreen({ route, navigation }: any) {
                     {event.users?.full_name || event.organizer_name || t('eventDetail.organizerFallback')}
                   </Text>
                   {(event.users?.is_verified || event.is_verified) && (
-                    <View style={styles.verifiedBadgeInline}>
-                      <Shield size={12} color={colors.primary} />
-                      <Text style={styles.verifiedTextInline}>{t('eventDetail.verified')}</Text>
-                    </View>
+                    <VerifiedBadge
+                      showLabel
+                      label={t('eventDetail.verified')}
+                      size="small"
+                      style={styles.verifiedBadgeInline}
+                    />
                   )}
                 </View>
                 <ChevronRight size={16} color={colors.textSecondary} />
@@ -525,25 +535,15 @@ export default function EventDetailScreen({ route, navigation }: any) {
             <Text style={styles.ctaDisabledText}>{t('badges.soldout')}</Text>
           </View>
         ) : (
-          <TouchableOpacity
-            style={[styles.ctaButton, purchasing && styles.floatingButtonProcessing]}
+          // Adaptive white-pill primary action (POSH §2.2): free → RSVP,
+          // paid → Get Tickets with a muted price sub-label.
+          <WhitePillCTA
+            variant={isFree ? 'rsvp' : 'paid'}
+            label={isFree ? t('common.rsvp') : t('eventDetail.floating.getTickets')}
+            subLabel={isFree ? undefined : priceSubLabel}
             onPress={handlePurchaseTicket}
-            disabled={purchasing}
-            activeOpacity={0.9}
-          >
-            {purchasing ? (
-              <ActivityIndicator color={T.onTeal} size="small" />
-            ) : (
-              <Text style={styles.ctaButtonText}>
-                {isFree ? t('eventDetail.floating.claimTicket') : t('eventDetail.floating.getTickets')}
-                {!isFree && (
-                  <Text style={styles.ctaButtonPrice}>
-                    {'  '}{t('common.from')} {event.currency || 'HTG'} {(event.ticket_price || 0).toLocaleString()}
-                  </Text>
-                )}
-              </Text>
-            )}
-          </TouchableOpacity>
+            loading={purchasing}
+          />
         )}
       </Animated.View>
 

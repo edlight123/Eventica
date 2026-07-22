@@ -8,11 +8,12 @@ import {
   Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Users } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
-import { formatDateForLanguage } from '../lib/dates';
+import { safeFormatForLanguage } from '../lib/dates';
 import { getPosterTheme } from '../lib/posterGradient';
-import { font } from '../theme/tokens';
+import { font, radius } from '../theme/tokens';
 import type { BadgeStatus } from '../theme/badges';
 
 interface PosterEventCardProps {
@@ -24,7 +25,7 @@ interface PosterEventCardProps {
   ratio?: number;
   /** Override the auto-derived status badge. */
   badge?: BadgeStatus | null;
-  /** Show the bottom meta strip (date + venue). Default true. */
+  /** Show the bottom meta strip (venue + date). Default true. */
   showMeta?: boolean;
   /** Optional "N friends going" social proof shown in the footer. */
   friendsGoing?: number;
@@ -41,9 +42,11 @@ interface PosterEventCardProps {
 /**
  * The single, poster-led event card used across every discovery surface.
  * - Real banner when available; otherwise a deterministic teal poster gradient
- *   (never a grey placeholder).
- * - Title rendered over the poster with a readable scrim.
- * - Auto-derives Free / Sold Out / VIP / New badges, or accepts an override.
+ *   with the wrapped event TITLE rendered in serif (never a bare monogram or a
+ *   grey placeholder) — the fallback poster IS the art (POSH §2.8).
+ * - Three-tier caption below the poster (POSH §2.5): bold white title →
+ *   grey price · venue → lighter-grey date. Teal is NOT used for the price;
+ *   the accent stays reserved for semantic use (verified / live / links).
  */
 export default function PosterEventCard({
   event,
@@ -69,11 +72,14 @@ export default function PosterEventCard({
   const price = Number(event.ticket_price || 0);
   const isFree = !price || price === 0;
 
-  const dateLabel = event.start_datetime
-    ? formatDateForLanguage(new Date(event.start_datetime), 'EEE, MMM d', language)
+  // Date is guarded — an invalid/missing start_datetime yields '' rather than
+  // crashing date-fns (POSH constraint: never crash on a bad date).
+  const dateLabel = showMeta
+    ? safeFormatForLanguage(event.start_datetime, 'EEE, MMM d', language)
     : '';
-  // One quiet line, Posh-style: "Sat, Aug 15 · Yanvalou". Venue-first — the venue
-  // is never redundant; the city only shows when the event is out of the viewer's town.
+
+  // Venue-first place line: the venue is never redundant; the city only shows
+  // when the event is out of the viewer's town.
   const venue = (event.venue_name || '').trim();
   const city = (event.city || '').trim();
   const place = !venue
@@ -81,7 +87,15 @@ export default function PosterEventCard({
     : userCity && city && city !== userCity
     ? `${venue} · ${city}`
     : venue;
-  const metaLine = [dateLabel, place].filter(Boolean).join(' · ');
+
+  // Tier 2 — grey price · venue.
+  const priceLabel = isFree ? t('common.free') : `${event.currency || 'HTG'} ${price.toLocaleString()}`;
+  const tier2Line = [priceLabel, showMeta ? place : ''].filter(Boolean).join('  ·  ');
+
+  const friendsLabel =
+    friendsGoing > 0
+      ? `${friendsGoing} ${t(friendsGoing === 1 ? 'social.friendGoingSuffix' : 'social.friendsGoingSuffix')}`
+      : '';
 
   const pressIn = () =>
     Animated.spring(scale, { toValue: 0.97, useNativeDriver: true }).start();
@@ -98,7 +112,7 @@ export default function PosterEventCard({
         style={styles.card}
       >
         <View style={{ paddingHorizontal: posterInsetX, paddingTop: posterInsetX }}>
-          <View style={[styles.poster, { aspectRatio: 1 / ratio }, posterInsetX > 0 && styles.posterInset]}>
+          <View style={[styles.poster, { aspectRatio: 1 / ratio }]}>
             {/* Poster gradient sits behind the image as the fallback art. */}
             <LinearGradient
               colors={theme.colors}
@@ -115,36 +129,45 @@ export default function PosterEventCard({
                 onLoad={() => setImgLoaded(true)}
               />
             ) : (
-              <Text style={styles.monogram} numberOfLines={1}>
-                {(event.title || '?').trim().charAt(0).toUpperCase()}
-              </Text>
+              // Fallback poster: the wrapped event title becomes the artwork.
+              <View style={styles.fallbackWrap}>
+                <Text style={styles.fallbackTitle} numberOfLines={4}>
+                  {event.title || '?'}
+                </Text>
+              </View>
             )}
 
             {overlay ? <View style={styles.overlayWrap}>{overlay}</View> : null}
           </View>
         </View>
 
-        {/* Minimal, Posh-style content: title + one quiet meta line + price.
-            All text sits BELOW the poster so it never covers the artwork. */}
+        {/* Three-tier caption (POSH §2.5). All text sits BELOW the poster so it
+            never covers the artwork. */}
         <View style={styles.content}>
           <Text style={styles.title} numberOfLines={1}>
             {event.title}
           </Text>
 
-          <View style={styles.metaRow}>
-            {showMeta && !!metaLine && (
-              <Text style={styles.metaText} numberOfLines={1}>
-                {metaLine}
+          {!!tier2Line && (
+            <Text style={styles.tier2} numberOfLines={1}>
+              {tier2Line}
+            </Text>
+          )}
+
+          {!!dateLabel && (
+            <Text style={styles.tier3} numberOfLines={1}>
+              {dateLabel}
+            </Text>
+          )}
+
+          {!!friendsLabel && (
+            <View style={styles.friendsRow}>
+              <Users size={11} color={colors.textSecondary} />
+              <Text style={styles.friendsText} numberOfLines={1}>
+                {friendsLabel}
               </Text>
-            )}
-            {isFree ? (
-              <Text style={styles.free}>{t('common.free').toUpperCase()}</Text>
-            ) : (
-              <Text style={styles.price} numberOfLines={1}>
-                {event.currency || 'HTG'} {price.toLocaleString()}
-              </Text>
-            )}
-          </View>
+            </View>
+          )}
         </View>
       </TouchableOpacity>
     </Animated.View>
@@ -162,21 +185,28 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       width: '100%',
       alignItems: 'center',
       justifyContent: 'center',
-      borderRadius: 0,
+      // Rounded per POSH §2.1 (~20px). Full-bleed hero/feed posters
+      // (DiscoverEventCard, EventDetail hero) intentionally stay square.
+      borderRadius: radius.lg,
       overflow: 'hidden',
       backgroundColor: colors.surfaceMuted,
-    },
-    posterInset: {
-      borderRadius: 0,
-      overflow: 'hidden',
     },
     imgHidden: {
       opacity: 0,
     },
-    monogram: {
-      fontSize: 64,
-      fontWeight: '800',
-      color: 'rgba(255,255,255,0.28)',
+    fallbackWrap: {
+      ...StyleSheet.absoluteFillObject,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 18,
+    },
+    fallbackTitle: {
+      fontFamily: font.serif,
+      fontSize: 26,
+      lineHeight: 28,
+      textAlign: 'center',
+      color: 'rgba(255,255,255,0.94)',
+      letterSpacing: -0.3,
     },
     overlayWrap: {
       position: 'absolute',
@@ -194,30 +224,32 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       lineHeight: 18,
       letterSpacing: -0.2,
     },
-    metaRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: 8,
+    // Tier 2 — grey price · venue.
+    tier2: {
+      fontFamily: font.mono,
+      color: colors.textSecondary,
+      fontSize: 11.5,
+      letterSpacing: 0.3,
       marginTop: 1,
     },
-    metaText: {
+    // Tier 3 — lighter grey date.
+    tier3: {
+      fontFamily: font.monoRegular,
+      color: colors.textTertiary,
+      fontSize: 11,
+      letterSpacing: 0.4,
+    },
+    friendsRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      marginTop: 2,
+    },
+    friendsText: {
       fontFamily: font.monoRegular,
       color: colors.textSecondary,
-      fontSize: 11,
-      letterSpacing: 0.4,
+      fontSize: 10.5,
+      letterSpacing: 0.3,
       flexShrink: 1,
-    },
-    price: {
-      fontFamily: font.mono,
-      fontSize: 12,
-      color: colors.primary,
-      letterSpacing: 0.4,
-    },
-    free: {
-      fontFamily: font.mono,
-      fontSize: 11,
-      color: colors.primary,
-      letterSpacing: 0.8,
     },
   });

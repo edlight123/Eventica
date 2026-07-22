@@ -567,8 +567,11 @@ export default function DiscoverScreen({ navigation, route }: any) {
 
   return (
     <View style={styles.container}>
-      {/* Posh-style header: filter/search pill + segmented tabs */}
+      {/* Posh-style header: oversized serif masthead + filter/search pill + tabs */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <Text style={styles.headline} numberOfLines={2}>
+          {t('discover.headline')}
+        </Text>
         <View style={styles.searchPill}>
           {searchMode ? (
             <>
@@ -797,6 +800,15 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.background,
     paddingHorizontal: 16,
     paddingBottom: 6,
+  },
+  headline: {
+    fontFamily: 'InstrumentSerif_400Regular',
+    fontSize: 40,
+    lineHeight: 42,
+    letterSpacing: -0.5,
+    color: colors.text,
+    marginTop: 2,
+    marginBottom: 12,
   },
   searchPill: {
     flexDirection: 'row',

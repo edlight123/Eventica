@@ -59,6 +59,7 @@ export default {
   common: {
     free: 'Gratuit',
     from: 'à partir de',
+    rsvp: 'RSVP',
     viewAll: 'Voir tout',
     ok: 'OK',
     yes: 'Oui',
@@ -437,6 +438,7 @@ export default {
     },
   },
   home: {
+    headline: "À l'affiche",
     loading: 'Chargement des événements…',
     browseTitle: 'Parcourir par catégorie',
     browseSubtitle: 'Trouvez des événements qui vous intéressent',
@@ -461,6 +463,7 @@ export default {
     emptySubtitle: 'Revenez bientôt pour de nouveaux événements !',
   },
   discover: {
+    headline: 'Découvrir',
     searchPlaceholder: 'Rechercher événements, organisations, personnes…',
     searchActive: 'Recherche',
     tabs: {

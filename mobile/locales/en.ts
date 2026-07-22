@@ -59,6 +59,7 @@ export default {
   common: {
     free: 'Free',
     from: 'from',
+    rsvp: 'RSVP',
     viewAll: 'View All',
     ok: 'OK',
     yes: 'Yes',
@@ -554,6 +555,7 @@ export default {
     },
   },
   home: {
+    headline: "What's on",
     loading: 'Loading amazing events...',
     browseTitle: 'Browse by Category',
     browseSubtitle: 'Find events that interest you',
@@ -578,6 +580,7 @@ export default {
     emptySubtitle: 'Check back soon for exciting events!',
   },
   discover: {
+    headline: 'Discover',
     searchPlaceholder: 'Search events, organizations, people…',
     searchActive: 'Search',
     tabs: {

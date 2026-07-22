@@ -403,6 +403,12 @@ export default function HomeScreen({ navigation }: any) {
           <HomeFeedSkeleton />
         ) : (
           <>
+            {/* Oversized editorial masthead (POSH §2.5) — scaled-up serif,
+                wraps up to 2 lines. Keeps the serif title identity. */}
+            <Text style={styles.headline} numberOfLines={2}>
+              {t('home.headline')}
+            </Text>
+
             {/* For You */}
             {forYouEvents.length > 0 && (
               <View style={styles.firstSection}>
@@ -601,6 +607,16 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   content: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  headline: {
+    fontFamily: 'InstrumentSerif_400Regular',
+    fontSize: 44,
+    lineHeight: 46,
+    letterSpacing: -0.5,
+    color: colors.text,
+    paddingHorizontal: 16,
+    marginTop: 12,
+    marginBottom: 2,
   },
   section: {
     marginBottom: 24,
