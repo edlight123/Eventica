@@ -115,7 +115,9 @@ export default async function HomePage({
         docs.forEach((d: any) => {
           if (!d.exists) return
           const u = d.data() || {}
-          nameById.set(d.id, u.full_name || u.name || u.email || '')
+          // NEVER fall back to email here — this name is serialized into the
+          // PUBLIC homepage payload. Only the organizer's public display name.
+          nameById.set(d.id, u.full_name || u.name || '')
         })
         events = events.map((e: any) => ({
           ...e,
