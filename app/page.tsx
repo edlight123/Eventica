@@ -204,9 +204,10 @@ export default async function HomePage({
       )}
 
       {/* HERO: Featured Carousel OR Search Hero */}
-      <HeroSection 
+      <HeroSection
         hasActiveFilters={hasActiveFilters}
         featuredEvents={serializedFeaturedEvents}
+        events={serializedEvents}
         brandTagline={BRAND.tagline}
       />
 

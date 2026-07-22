@@ -123,6 +123,7 @@
     "just_now": "Just now"
   },
   "events": {
+    "hero_search_placeholder": "Search events, organizers, cities…",
     "event": "Event",
     "events": "Events",
     "upcoming": "Upcoming Events",
