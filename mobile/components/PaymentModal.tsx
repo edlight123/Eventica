@@ -16,6 +16,8 @@ import { useTheme } from '../contexts/ThemeContext';
 import { auth } from '../config/firebase';
 import { backendJson } from '../lib/api/backend';
 import { useI18n } from '../contexts/I18nContext';
+import WhitePillCTA from './WhitePillCTA';
+import { formatCurrency } from '../lib/currency';
 
 // Check if we're in Expo Go (Stripe won't work)
 const isExpoGo = !(Platform as any).constants?.expoConfig;
@@ -414,7 +416,7 @@ function PaymentForm({
         <View style={styles.totalContainer}>
           <Text style={styles.totalLabel}>{t('paymentModal.totalAmount')}</Text>
           <Text style={styles.totalAmount}>
-            {currency} {totalAmount.toLocaleString()}
+            {formatCurrency(totalAmount, currency)}
           </Text>
         </View>
 
@@ -435,22 +437,15 @@ function PaymentForm({
           <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[
-            styles.payButton,
-            (processing || (paymentMethod === 'stripe' && !cardComplete)) && styles.payButtonDisabled,
-          ]}
-          onPress={handlePayment}
+        <WhitePillCTA
+          variant="paid"
+          style={styles.payButtonPill}
+          label={t('paymentModal.pay')}
+          subLabel={formatCurrency(totalAmount, currency)}
+          loading={processing}
           disabled={processing || (paymentMethod === 'stripe' && !cardComplete)}
-        >
-          {processing ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
-          ) : (
-            <Text style={styles.payButtonText}>
-              {t('paymentModal.pay')} {currency} {totalAmount.toLocaleString()}
-            </Text>
-          )}
-        </TouchableOpacity>
+          onPress={handlePayment}
+        />
       </View>
     </View>
   );
@@ -668,7 +663,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   totalAmount: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: colors.primary,
+    color: colors.text,
   },
   securityBadge: {
     flexDirection: 'row',
@@ -710,6 +705,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  payButtonPill: {
+    flex: 2,
   },
   payButtonDisabled: {
     opacity: 0.5,

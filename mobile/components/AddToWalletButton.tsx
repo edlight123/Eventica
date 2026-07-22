@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Wallet, Download } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
+import { backendFetch } from '../lib/api/backend';
 
 interface AddToWalletButtonProps {
   ticketId: string;
@@ -39,12 +40,11 @@ export default function AddToWalletButton({
     setIsGenerating(true);
 
     try {
-      // Call API to generate wallet pass
-      const response = await fetch('/api/wallet/generate', {
+      // Call API to generate wallet pass. Route through backendFetch so the
+      // request hits the real (absolute) API host WITH auth headers — a bare
+      // relative fetch was unauthenticated and never reached the backend.
+      const response = await backendFetch('/api/wallet/generate', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           ticketId,
           qrCodeData,

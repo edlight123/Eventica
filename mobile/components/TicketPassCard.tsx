@@ -1,17 +1,13 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  Linking,
-} from 'react-native';
-import { Calendar, MapPin, User, Wallet, Send, ExternalLink } from 'lucide-react-native';
-import QRCode from 'react-native-qrcode-svg';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { CalendarPlus, MapPin, Send, ExternalLink } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { format } from 'date-fns';
-import { font } from '../theme/tokens';
+import TicketQRCard from './TicketQRCard';
+import StatusChip from './StatusChip';
+import AddToWalletButton from './AddToWalletButton';
+import { ticketOrderRef, ticketTierLabel, ticketQrValue, ticketStatusKey } from '../lib/ticket';
+import { addToCalendar, openDirections } from '../lib/postPurchaseActions';
 
 interface TicketPassCardProps {
   ticket: any;
@@ -23,6 +19,26 @@ interface TicketPassCardProps {
   onTransferPress?: () => void;
 }
 
+/** Guarded date → formatted label; returns undefined for missing/invalid dates. */
+function safeDate(value: any, pattern: string): string | undefined {
+  if (!value) return undefined;
+  const d = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(d.getTime())) return undefined;
+  return format(d, pattern);
+}
+
+function toDate(value: any): Date | null {
+  if (!value) return null;
+  const d = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+/**
+ * Post-purchase ticket pass. Renders the ONE shared ticket identity — the
+ * inverted white `TicketQRCard` (BLACK-on-white QR) — then a POSH §2.4 action
+ * stack: Add to Wallet (white primary) · Add to calendar · Get directions ·
+ * Transfer · View event. Fed real fields (real tier, TKM- order ref, holder).
+ */
 export default function TicketPassCard({
   ticket,
   event,
@@ -34,110 +50,101 @@ export default function TicketPassCard({
 }: TicketPassCardProps) {
   const { colors } = useTheme();
   const styles = getStyles(colors);
-  const isUsed = !!ticket.checked_in_at;
-  const orderNumber = `EH-${ticket.id?.slice(0, 8).toUpperCase() || 'XXXXXXXX'}`;
 
-  const handleAddToWallet = () => {
-    // Stub for now - could integrate Apple Wallet / Google Pay
-    console.log('Add to wallet - feature coming soon');
-  };
+  const start = toDate(event?.start_datetime) || toDate(ticket?.event_date);
+  const end = toDate(event?.end_datetime);
+  const isExpired = end ? new Date() > end : false;
+  const isUsed = !!ticket?.checked_in_at || String(ticket?.status || '').toLowerCase() === 'used';
+
+  const eventTitle = event?.title || ticket?.event_title || 'Event';
+  const dateLabel = safeDate(start, 'EEE, MMM d · h:mm a');
+  const tier = ticketTierLabel(ticket);
+  const holder = user?.displayName || user?.email || undefined;
+  const orderRef = ticketOrderRef(ticket);
+  const statusKey = ticketStatusKey(ticket, isExpired);
+
+  const venueLabel = [event?.venue_name, event?.address, event?.city]
+    .filter(Boolean)
+    .join(', ');
+
+  const handleCalendar = () =>
+    addToCalendar({
+      title: eventTitle,
+      start,
+      end,
+      location: venueLabel || event?.venue_name || undefined,
+      details: `Tikèm ticket · ${orderRef}`,
+    });
+
+  const handleDirections = () =>
+    openDirections({
+      venue: event?.venue_name,
+      address: event?.address,
+      city: event?.city,
+      lat: event?.latitude ?? event?.lat ?? null,
+      lng: event?.longitude ?? event?.lng ?? null,
+    });
 
   return (
-    <View style={styles.card}>
-      {/* Decorative notches */}
-      <View style={styles.notchLeft} />
-      <View style={styles.notchRight} />
-
-      {/* Status & Holder Section */}
-      <View style={styles.statusSection}>
-        <View style={styles.statusLeft}>
-          <Text style={styles.ticketNumberText}>Ticket #{ticketNumber}</Text>
-          <Text style={styles.ticketType}>General Admission</Text>
-        </View>
-        
-        <View style={[styles.statusBadge, isUsed ? styles.statusBadgeUsed : styles.statusBadgeValid]}>
-          <Text style={styles.statusBadgeText}>{isUsed ? 'USED' : 'VALID'}</Text>
-        </View>
+    <View style={styles.wrapper}>
+      <View style={styles.chipRow}>
+        <StatusChip status={statusKey} label={isUsed ? undefined : `Ticket ${ticketNumber}`} />
       </View>
 
-      {user && (
-        <View style={styles.holderRow}>
-          <User size={14} color={colors.textSecondary} />
-          <Text style={styles.holderText}>
-            Admit: {user.displayName || user.email}
-          </Text>
-        </View>
-      )}
-
-      {/* QR Code Area */}
-      <TouchableOpacity
-        style={styles.qrSection}
-        onPress={onQRPress}
-        activeOpacity={0.9}
-      >
-        <View style={styles.qrWrapper}>
-          <QRCode
-            value={ticket.id || 'no-ticket-id'}
-            size={200}
-            backgroundColor="#FFF"
-            logo={require('../assets/tikem_logo_color.png')}
-            logoSize={45}
-            logoBackgroundColor="white"
-            logoBorderRadius={5}
-          />
-        </View>
-        
-        <Text style={styles.qrInstruction}>
-          Show this code to staff at entry
-        </Text>
-        <Text style={styles.tapToEnlarge}>Tap to enlarge</Text>
-        
-        <View style={styles.orderInfo}>
-          <Text style={styles.orderLabel}>Order #{orderNumber}</Text>
-          <Text style={styles.ticketIdLabel}>
-            ID: {ticket.id?.slice(0, 12)}...
-          </Text>
-        </View>
+      {/* The one shared ticket identity — white inverted stub. Tap to enlarge. */}
+      <TouchableOpacity activeOpacity={0.95} onPress={onQRPress}>
+        <TicketQRCard
+          qrValue={ticketQrValue(ticket)}
+          eventTitle={eventTitle}
+          dateLabel={dateLabel}
+          tierName={tier}
+          holderName={holder ? `Admit: ${holder}` : undefined}
+          orderRef={orderRef.replace(/^TKM-/, '')}
+        />
       </TouchableOpacity>
+      <Text style={styles.tapHint}>Tap ticket to enlarge · show at entry</Text>
 
-      {isUsed && (
+      {isUsed && ticket?.checked_in_at && (
         <View style={styles.usedBanner}>
           <Text style={styles.usedBannerText}>
-            ✓ Checked in on {format(new Date(ticket.checked_in_at), 'MMM d, yyyy • h:mm a')}
+            ✓ Checked in {safeDate(ticket.checked_in_at, 'MMM d, yyyy · h:mm a') || ''}
           </Text>
         </View>
       )}
 
-      {/* Bottom Actions */}
-      <View style={styles.actionsSection}>
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={handleAddToWallet}
-          activeOpacity={0.8}
-        >
-          <Wallet size={18} color="#FFF" />
-          <Text style={styles.primaryButtonText}>Add to Wallet</Text>
-        </TouchableOpacity>
+      {/* Post-purchase action stack */}
+      <View style={styles.actions}>
+        <AddToWalletButton
+          ticketId={ticket?.id}
+          qrCodeData={ticketQrValue(ticket)}
+          eventTitle={eventTitle}
+          eventDate={dateLabel || ''}
+          venueName={event?.venue_name || ''}
+          ticketNumber={ticketNumber}
+          totalTickets={ticket?.quantity || 1}
+        />
 
-        <View style={styles.secondaryActions}>
+        <View style={styles.secondaryRow}>
+          <TouchableOpacity style={styles.secondaryButton} onPress={handleCalendar} activeOpacity={0.8}>
+            <CalendarPlus size={18} color={colors.text} />
+            <Text style={styles.secondaryButtonText}>Add to calendar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.secondaryButton} onPress={handleDirections} activeOpacity={0.8}>
+            <MapPin size={18} color={colors.text} />
+            <Text style={styles.secondaryButtonText}>Get directions</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.secondaryRow}>
           {onTransferPress && !isUsed && (
-            <TouchableOpacity
-              style={styles.secondaryButton}
-              onPress={onTransferPress}
-              activeOpacity={0.8}
-            >
-              <Send size={18} color={colors.primary} />
+            <TouchableOpacity style={styles.secondaryButton} onPress={onTransferPress} activeOpacity={0.8}>
+              <Send size={18} color={colors.text} />
               <Text style={styles.secondaryButtonText}>Transfer</Text>
             </TouchableOpacity>
           )}
-
-          <TouchableOpacity
-            style={styles.secondaryButton}
-            onPress={onViewEvent}
-            activeOpacity={0.8}
-          >
-            <ExternalLink size={18} color={colors.primary} />
-            <Text style={styles.secondaryButtonText}>Event Details</Text>
+          <TouchableOpacity style={styles.secondaryButton} onPress={onViewEvent} activeOpacity={0.8}>
+            <ExternalLink size={18} color={colors.text} />
+            <Text style={styles.secondaryButtonText}>View event</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -145,244 +152,56 @@ export default function TicketPassCard({
   );
 }
 
-const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
-  card: {
-    width: '100%',
-    backgroundColor: colors.surface,
-    borderRadius: 24,
-    overflow: 'visible',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.25,
-    shadowRadius: 24,
-    elevation: 12,
-  },
-  notchLeft: {
-    position: 'absolute',
-    left: -12,
-    top: '50%',
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#1a1a1a',
-    zIndex: 10,
-  },
-  notchRight: {
-    position: 'absolute',
-    right: -12,
-    top: '50%',
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#1a1a1a',
-    zIndex: 10,
-  },
-  eventHeader: {
-    height: 160,
-    position: 'relative',
-  },
-  eventImage: {
-    width: '100%',
-    height: '100%',
-  },
-  eventHeaderOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'flex-end',
-  },
-  eventHeaderContent: {
-    padding: 20,
-  },
-  eventTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  eventTitle: {
-    flex: 1,
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#FFF',
-    lineHeight: 26,
-    marginRight: 8,
-  },
-  featuredBadge: {
-    backgroundColor: 'rgba(251, 191, 36, 0.9)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  featuredBadgeText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#000',
-    letterSpacing: 0.5,
-  },
-  eventDetailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: 4,
-  },
-  eventDetailText: {
-    fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.9)',
-    flex: 1,
-  },
-  statusSection: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    borderStyle: 'dashed',
-  },
-  statusLeft: {
-    flex: 1,
-  },
-  ticketNumberText: {
-    fontFamily: font.mono,
-    fontSize: 16,
-    letterSpacing: 0.4,
-    color: colors.text,
-    marginBottom: 2,
-  },
-  ticketType: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-  statusBadge: {
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  statusBadgeValid: {
-    backgroundColor: '#10B981',
-  },
-  statusBadgeUsed: {
-    backgroundColor: '#64748B',
-  },
-  statusBadgeText: {
-    fontFamily: font.mono,
-    fontSize: 11,
-    color: '#FFF',
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-  },
-  holderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 16,
-  },
-  holderText: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-  qrSection: {
-    padding: 24,
-    alignItems: 'center',
-    backgroundColor: '#F9FAFB',
-  },
-  qrWrapper: {
-    backgroundColor: '#FFF',
-    padding: 20,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  qrInstruction: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.text,
-    marginTop: 16,
-    textAlign: 'center',
-  },
-  tapToEnlarge: {
-    fontSize: 12,
-    color: colors.primary,
-    marginTop: 4,
-    textAlign: 'center',
-  },
-  orderInfo: {
-    marginTop: 16,
-    alignItems: 'center',
-    gap: 4,
-  },
-  orderLabel: {
-    fontFamily: font.mono,
-    fontSize: 12,
-    letterSpacing: 0.4,
-    color: colors.text,
-  },
-  ticketIdLabel: {
-    fontSize: 11,
-    fontFamily: font.monoRegular,
-    letterSpacing: 0.4,
-    color: colors.textSecondary,
-  },
-  usedBanner: {
-    backgroundColor: 'rgba(16, 185, 129, 0.12)',
-    padding: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#10B981',
-  },
-  usedBannerText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#34D399',
-    textAlign: 'center',
-  },
-  actionsSection: {
-    padding: 20,
-    gap: 12,
-  },
-  primaryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    backgroundColor: colors.primary,
-    paddingVertical: 14,
-    borderRadius: 12,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  primaryButtonText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFF',
-  },
-  secondaryActions: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  secondaryButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    paddingVertical: 12,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: colors.primary,
-    backgroundColor: 'transparent',
-  },
-  secondaryButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.primary,
-  },
-});
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
+  StyleSheet.create({
+    wrapper: {
+      width: '100%',
+    },
+    chipRow: {
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    tapHint: {
+      fontSize: 12,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginTop: 12,
+    },
+    usedBanner: {
+      backgroundColor: colors.successLight,
+      paddingVertical: 10,
+      paddingHorizontal: 14,
+      borderRadius: 12,
+      marginTop: 12,
+    },
+    usedBannerText: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: colors.success,
+      textAlign: 'center',
+    },
+    actions: {
+      marginTop: 20,
+      gap: 12,
+    },
+    secondaryRow: {
+      flexDirection: 'row',
+      gap: 12,
+    },
+    // Dark-grey secondary pill (POSH §2.2): elevation step, no teal.
+    secondaryButton: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      paddingVertical: 14,
+      borderRadius: 999,
+      backgroundColor: colors.surfaceRaised,
+    },
+    secondaryButtonText: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: colors.text,
+    },
+  });

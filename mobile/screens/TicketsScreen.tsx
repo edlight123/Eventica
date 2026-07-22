@@ -20,6 +20,7 @@ import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { getPosterTheme } from '../lib/posterGradient';
 import EmptyState from '../components/EmptyState';
+import StatusChip from '../components/StatusChip';
 import { format } from 'date-fns';
 import { useFocusEffect } from '@react-navigation/native';
 import { consumeTicketsRefreshHint } from '../lib/ticketsRefreshHint';
@@ -182,6 +183,24 @@ export default function TicketsScreen({ navigation }: any) {
 
   const displayedTickets = activeTab === 'upcoming' ? upcomingTickets : pastTickets;
 
+  // Group events into date sections (by month) for a tidy, scannable list.
+  const sections = (() => {
+    const groups: { key: string; label: string; items: any[] }[] = [];
+    const indexByKey = new Map<string, number>();
+    for (const event of displayedTickets) {
+      const d = event.start_datetime ? new Date(event.start_datetime) : null;
+      const valid = d && !Number.isNaN(d.getTime());
+      const key = valid ? format(d as Date, 'yyyy-MM') : 'undated';
+      const label = valid ? format(d as Date, 'MMMM yyyy') : t('tickets.undated') || 'Undated';
+      if (!indexByKey.has(key)) {
+        indexByKey.set(key, groups.length);
+        groups.push({ key, label, items: [] });
+      }
+      groups[indexByKey.get(key)!].items.push(event);
+    }
+    return groups;
+  })();
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
@@ -226,56 +245,64 @@ export default function TicketsScreen({ navigation }: any) {
             onAction={activeTab === 'upcoming' ? () => navigation.navigate('Discover') : undefined}
           />
         ) : (
-          displayedTickets.map(event => (
-            <TouchableOpacity
-              key={event.id}
-              style={styles.ticketCard}
-              onPress={() => navigation.navigate('EventTickets', { eventId: event.id })}
-              activeOpacity={0.9}
-            >
-              <View style={styles.ticketThumb}>
-                <LinearGradient
-                  colors={getPosterTheme(event.id || event.title, event.category).colors}
-                  start={{ x: 0.1, y: 0 }}
-                  end={{ x: 0.9, y: 1 }}
-                  style={StyleSheet.absoluteFill}
-                />
-                {(event.banner_image_url || event.cover_image_url) && (
-                  <Image
-                    source={{ uri: event.banner_image_url || event.cover_image_url }}
-                    style={StyleSheet.absoluteFill}
-                    resizeMode="cover"
-                  />
-                )}
-              </View>
+          sections.map(section => (
+            <View key={section.key}>
+              <Text style={styles.sectionHeader}>{section.label}</Text>
+              {section.items.map(event => (
+                <TouchableOpacity
+                  key={event.id}
+                  style={styles.ticketCard}
+                  onPress={() => navigation.navigate('EventTickets', { eventId: event.id })}
+                  activeOpacity={0.9}
+                >
+                  <View style={styles.ticketThumb}>
+                    <LinearGradient
+                      colors={getPosterTheme(event.id || event.title, event.category).colors}
+                      start={{ x: 0.1, y: 0 }}
+                      end={{ x: 0.9, y: 1 }}
+                      style={StyleSheet.absoluteFill}
+                    />
+                    {(event.banner_image_url || event.cover_image_url) && (
+                      <Image
+                        source={{ uri: event.banner_image_url || event.cover_image_url }}
+                        style={StyleSheet.absoluteFill}
+                        resizeMode="cover"
+                      />
+                    )}
+                  </View>
 
-              <View style={styles.ticketBody}>
-                <Text style={styles.ticketTitle} numberOfLines={2}>{event.title}</Text>
+                  <View style={styles.ticketBody}>
+                    <View style={styles.ticketTopRow}>
+                      <StatusChip status={activeTab === 'upcoming' ? 'upcoming' : 'used'} />
+                    </View>
+                    <Text style={styles.ticketTitle} numberOfLines={2}>{event.title}</Text>
 
-                <View style={styles.ticketMetaRow}>
-                  <Calendar size={13} color={colors.textSecondary} />
-                  <Text style={styles.ticketMetaText} numberOfLines={1}>
-                    {event.start_datetime && format(event.start_datetime, 'EEE, MMM d • h:mm a')}
-                  </Text>
-                </View>
+                    <View style={styles.ticketMetaRow}>
+                      <Calendar size={13} color={colors.textSecondary} />
+                      <Text style={styles.ticketMetaText} numberOfLines={1}>
+                        {event.start_datetime && format(event.start_datetime, 'EEE, MMM d • h:mm a')}
+                      </Text>
+                    </View>
 
-                <View style={styles.ticketMetaRow}>
-                  <MapPin size={13} color={colors.textSecondary} />
-                  <Text style={styles.ticketMetaText} numberOfLines={1}>
-                    {event.venue_name}, {event.city}
-                  </Text>
-                </View>
+                    <View style={styles.ticketMetaRow}>
+                      <MapPin size={13} color={colors.textSecondary} />
+                      <Text style={styles.ticketMetaText} numberOfLines={1}>
+                        {event.venue_name}, {event.city}
+                      </Text>
+                    </View>
 
-                <View style={styles.ticketCountBadge}>
-                  <Ticket size={11} color={colors.primary} />
-                  <Text style={styles.ticketCountText}>
-                    {event.ticketCount} {event.ticketCount === 1 ? t('tickets.ticketSingular') : t('tickets.ticketPlural')}
-                  </Text>
-                </View>
-              </View>
+                    <View style={styles.ticketCountBadge}>
+                      <Ticket size={11} color={colors.textSecondary} />
+                      <Text style={styles.ticketCountText}>
+                        {event.ticketCount} {event.ticketCount === 1 ? t('tickets.ticketSingular') : t('tickets.ticketPlural')}
+                      </Text>
+                    </View>
+                  </View>
 
-              <ChevronRight size={20} color={colors.textTertiary} />
-            </TouchableOpacity>
+                  <ChevronRight size={20} color={colors.textTertiary} />
+                </TouchableOpacity>
+              ))}
+            </View>
           ))
         )}
       </ScrollView>
@@ -341,7 +368,19 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   content: {
     flex: 1,
   },
+  sectionHeader: {
+    fontFamily: font.mono,
+    fontSize: 12,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+    color: colors.textSecondary,
+    marginHorizontal: 16,
+    marginTop: 24,
+    marginBottom: 4,
+  },
   ticketCard: {
+    // Elevation, not a border (POSH §1): the card separates from the canvas by
+    // being a brighter surface, not by a 1px outline.
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
@@ -350,19 +389,21 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 12,
     padding: 12,
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   ticketThumb: {
     width: 64,
     height: 64,
-    borderRadius: 0,
+    borderRadius: 12,
     overflow: 'hidden',
     backgroundColor: colors.borderLight,
   },
   ticketBody: {
     flex: 1,
     gap: 5,
+  },
+  ticketTopRow: {
+    flexDirection: 'row',
+    marginBottom: 2,
   },
   ticketHeader: {
     marginBottom: 14,
@@ -397,7 +438,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     gap: 4,
     alignSelf: 'flex-start',
-    backgroundColor: colors.primarySoft,
+    backgroundColor: colors.surfaceRaised,
     paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: 999,
@@ -405,7 +446,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   ticketCountText: {
     fontFamily: font.mono,
-    color: colors.primary,
+    color: colors.textSecondary,
     fontSize: 10.5,
     letterSpacing: 0.4,
     textTransform: 'uppercase',

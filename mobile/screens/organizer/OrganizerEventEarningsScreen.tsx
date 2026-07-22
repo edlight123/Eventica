@@ -26,6 +26,9 @@ import { getEventById } from '../../lib/api/organizer'
 import { getVerificationRequest } from '../../lib/verification'
 import { getRequiredPayoutProfileIdForEventCountry, normalizeCountryCode } from '../../lib/payment-provider'
 import { RADIUS } from '../../config/brand'
+import { formatCurrency as fmtCurrency } from '../../lib/currency'
+import StatTriplet from '../../components/StatTriplet'
+import WhitePillCTA from '../../components/WhitePillCTA'
 
 type RouteParams = {
   OrganizerEventEarnings: {
@@ -143,10 +146,8 @@ export default function OrganizerEventEarningsScreen() {
     return { feeCents, payoutAmountCents }
   }, [allowInstantMoncash, availableToWithdraw, currency, prefunding?.available, prefunding?.enabled])
 
-  const formatCurrency = (cents: number, curr: string) => {
-    const symbol = String(curr).toUpperCase() === 'USD' ? '$' : 'G'
-    return `${symbol}${(cents / 100).toFixed(2)}`
-  }
+  // Centralized formatter (values are in cents server-side).
+  const formatCurrency = (cents: number, curr: string) => fmtCurrency(cents, curr, { fromCents: true })
 
   const webBaseUrl = process.env.EXPO_PUBLIC_WEB_URL || 'https://tikem.co'
 
@@ -601,6 +602,33 @@ export default function OrganizerEventEarningsScreen() {
 
         <View style={{ height: 12 }} />
 
+        {/* Performance triplet (POSH §2.3): Revenue / Tickets Sold / Net. */}
+        <StatTriplet
+          items={[
+            {
+              label: t('organizerEarnings.stats.revenue') || 'Revenue',
+              value:
+                typeof earnings?.grossSales === 'number'
+                  ? formatCurrency(earnings.grossSales, currency)
+                  : null,
+            },
+            {
+              label: t('organizerEarnings.stats.ticketsSold') || 'Tickets Sold',
+              value: typeof earnings?.ticketsSold === 'number' ? earnings.ticketsSold : null,
+            },
+            {
+              label: t('organizerEarnings.stats.net') || 'Net',
+              value:
+                typeof earnings?.netAmount === 'number'
+                  ? formatCurrency(earnings.netAmount, currency)
+                  : null,
+              tone: 'emerald',
+            },
+          ]}
+        />
+
+        <View style={{ height: 12 }} />
+
         {identityVerified === false ? (
           <View style={styles.notice}>
             <Ionicons name="shield-checkmark-outline" size={18} color={colors.textSecondary} />
@@ -639,19 +667,18 @@ export default function OrganizerEventEarningsScreen() {
           </View>
         ) : identityVerified === true ? (
           <>
-            <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: colors.primary }]}
+            {/* The one white-pill primary for this screen (POSH §2.2). */}
+            <WhitePillCTA
+              label={t('organizerEarnings.withdrawViaMoncash')}
               onPress={() => openWithdraw('moncash')}
-              activeOpacity={0.85}
-            >
-              <Ionicons name="phone-portrait-outline" size={20} color={colors.white} />
-              <Text style={styles.actionButtonText}>{t('organizerEarnings.withdrawViaMoncash')}</Text>
-            </TouchableOpacity>
+              icon={<Ionicons name="phone-portrait-outline" size={20} color="#000000" />}
+            />
 
             <View style={{ height: 12 }} />
 
+            {/* Secondary = dark-grey pill. */}
             <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: colors.surfaceRaised, borderWidth: 1, borderColor: colors.border }]}
+              style={[styles.actionButton, { backgroundColor: colors.surfaceRaised }]}
               onPress={() => openWithdraw('bank')}
               activeOpacity={0.85}
             >
@@ -730,15 +757,12 @@ export default function OrganizerEventEarningsScreen() {
                     keyboardType="number-pad"
                     style={styles.input}
                   />
-                  <TouchableOpacity
-                    style={[styles.primaryButton, submitting || isVerifyingCode ? styles.buttonDisabled : null]}
+                  <WhitePillCTA
+                    label={isVerifyingCode ? t('organizerEarnings.otp.verifying') : t('organizerEarnings.otp.verifyAndContinue')}
                     onPress={verifyOtpThenRetry}
+                    loading={isVerifyingCode}
                     disabled={submitting || isVerifyingCode}
-                  >
-                    <Text style={styles.primaryButtonText}>
-                      {isVerifyingCode ? t('organizerEarnings.otp.verifying') : t('organizerEarnings.otp.verifyAndContinue')}
-                    </Text>
-                  </TouchableOpacity>
+                  />
                 </View>
               ) : method === 'moncash' ? (
                 <View style={{ marginTop: 12 }}>
@@ -877,15 +901,13 @@ export default function OrganizerEventEarningsScreen() {
                 <TouchableOpacity style={styles.secondaryButton} onPress={() => setShowWithdraw(false)} disabled={submitting}>
                   <Text style={styles.secondaryButtonText}>{t('common.cancel')}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.primaryButton, submitting ? styles.buttonDisabled : null]}
+                <WhitePillCTA
+                  style={styles.footerPill}
+                  label={submitting ? t('organizerEarnings.submitting') : t('common.confirm')}
                   onPress={submit}
+                  loading={submitting}
                   disabled={submitting}
-                >
-                  <Text style={styles.primaryButtonText}>
-                    {submitting ? t('organizerEarnings.submitting') : t('common.confirm')}
-                  </Text>
-                </TouchableOpacity>
+                />
               </View>
             ) : null}
           </View>
@@ -1044,6 +1066,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     gap: 10,
     marginTop: 12,
+    alignItems: 'center',
+  },
+  footerPill: {
+    flex: 1,
   },
   primaryButton: {
     flex: 1,

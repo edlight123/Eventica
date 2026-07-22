@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Alert, TouchableOpacity, Platform } from 'react-native';
-import { Calendar, MapPin, User as UserIcon, Ticket as TicketIcon, Send, Star, RotateCcw } from 'lucide-react-native';
+import { Calendar, MapPin, User as UserIcon, Ticket as TicketIcon, Send, Star, RotateCcw, CalendarPlus, Navigation } from 'lucide-react-native';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useTheme } from '../contexts/ThemeContext';
 import { format } from 'date-fns';
-import QRCode from 'react-native-qrcode-svg';
 import TransferTicketModal from '../components/TransferTicketModal';
 import AddToWalletButton from '../components/AddToWalletButton';
+import TicketQRCard from '../components/TicketQRCard';
+import StatusChip from '../components/StatusChip';
 import { useI18n } from '../contexts/I18nContext';
 import { useNavigation } from '@react-navigation/native';
 import { font } from '../theme/tokens';
+import { formatCurrency } from '../lib/currency';
+import { ticketOrderRef, ticketTierLabel, ticketQrValue, ticketStatusKey } from '../lib/ticket';
+import { addToCalendar, openDirections } from '../lib/postPurchaseActions';
 
 export default function TicketDetailScreen({ route }: any) {
   const { colors } = useTheme();
@@ -143,34 +147,23 @@ export default function TicketDetailScreen({ route }: any) {
             <Text style={styles.eventTitle} numberOfLines={2}>{ticket.event_title}</Text>
           </View>
 
-          {/* Status Badge */}
-          <View style={[
-            styles.statusBadge,
-            isExpired && styles.statusExpired,
-            !isExpired && ticket.status === 'confirmed' && styles.statusConfirmed,
-            !isExpired && ticket.status === 'used' && styles.statusUsed,
-          ]}>
-            <Text style={styles.statusText}>
-              {statusLabel}
-            </Text>
+          {/* Status Chip — driven by ticket STATE (locked color map). */}
+          <View style={styles.statusChipRow}>
+            <StatusChip status={ticketStatusKey(ticket, isExpired)} label={statusLabel} />
           </View>
 
-          {/* QR Code Section */}
-          <View style={styles.qrSection}>
-            <View style={[styles.qrContainer, isExpired && styles.qrContainerDimmed]}>
-              <QRCode
-                value={ticket.qr_code || ticketId}
-                size={220}
-                backgroundColor="white"
-                color={colors.primary}
-                logo={require('../assets/tikem_logo_color.png')}
-                logoSize={48}
-                logoBackgroundColor="white"
-                logoBorderRadius={6}
-              />
-            </View>
+          {/* Inverted WHITE ticket + BLACK-on-white QR (the one shared identity) */}
+          <View style={[styles.qrSection, isExpired && styles.qrContainerDimmed]}>
+            <TicketQRCard
+              qrValue={ticketQrValue(ticket, ticketId)}
+              eventTitle={ticket.event_title}
+              dateLabel={ticket.event_date ? format(ticket.event_date, 'EEE, MMM d · h:mm a') : undefined}
+              tierName={ticketTierLabel(ticket)}
+              holderName={ticket.user_name ? `Admit: ${ticket.user_name}` : undefined}
+              orderRef={ticketOrderRef(ticket).replace(/^TKM-/, '')}
+            />
             <Text style={styles.qrInstruction}>
-              {isExpired 
+              {isExpired
                 ? t('ticketDetail.qr.expiredBody')
                 : t('ticketDetail.qr.instruction')
               }
@@ -281,12 +274,14 @@ export default function TicketDetailScreen({ route }: any) {
             </View>
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>{t('ticketDetail.details.price')}</Text>
-              <Text style={styles.detailValue}>{ticket.currency} {ticket.price}</Text>
+              <Text style={styles.detailValue}>
+                {formatCurrency(Number(ticket.price_paid ?? ticket.price ?? 0), ticket.currency)}
+              </Text>
             </View>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>{t('ticketDetail.details.ticketId')}</Text>
+              <Text style={styles.detailLabel}>{t('ticketDetail.details.orderRef') || 'Order'}</Text>
               <Text style={[styles.detailValue, styles.ticketId]} numberOfLines={1}>
-                {ticket.id}
+                {ticketOrderRef(ticket)}
               </Text>
             </View>
             <View style={styles.detailRow}>
@@ -297,18 +292,53 @@ export default function TicketDetailScreen({ route }: any) {
             </View>
           </View>
 
-          {/* Add to Wallet Button */}
+          {/* Add to Wallet + post-purchase action stack */}
           {(ticket.status === 'confirmed' || ticket.status === 'active') && (
             <View style={styles.walletSection}>
               <AddToWalletButton
                 ticketId={ticket.id}
-                qrCodeData={ticket.qr_code || ticket.id}
+                qrCodeData={ticketQrValue(ticket, ticketId)}
                 eventTitle={ticket.event_title}
                 eventDate={ticket.event_date ? format(ticket.event_date, 'MMMM dd, yyyy h:mm a') : ''}
                 venueName={ticket.venue_name}
                 ticketNumber={1}
                 totalTickets={ticket.quantity || 1}
               />
+
+              <View style={styles.postPurchaseRow}>
+                <TouchableOpacity
+                  style={styles.postPurchaseButton}
+                  onPress={() =>
+                    addToCalendar({
+                      title: ticket.event_title || 'Event',
+                      start: ticket.event_date || null,
+                      end: ticket.end_datetime ? new Date(ticket.end_datetime) : null,
+                      location: [ticket.venue_name, ticket.city].filter(Boolean).join(', '),
+                      details: `Tikèm ticket · ${ticketOrderRef(ticket)}`,
+                    })
+                  }
+                  activeOpacity={0.8}
+                >
+                  <CalendarPlus size={18} color={colors.text} />
+                  <Text style={styles.postPurchaseText}>{t('ticketDetail.actions.addToCalendar') || 'Add to calendar'}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.postPurchaseButton}
+                  onPress={() =>
+                    openDirections({
+                      venue: ticket.venue_name,
+                      address: ticket.address,
+                      city: ticket.city,
+                      lat: ticket.latitude ?? null,
+                      lng: ticket.longitude ?? null,
+                    })
+                  }
+                  activeOpacity={0.8}
+                >
+                  <Navigation size={18} color={colors.text} />
+                  <Text style={styles.postPurchaseText}>{t('ticketDetail.actions.getDirections') || 'Get directions'}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           )}
 
@@ -453,9 +483,33 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     letterSpacing: 0.8,
     textTransform: 'uppercase',
   },
+  statusChipRow: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
   qrSection: {
     alignItems: 'center',
     marginBottom: 32,
+  },
+  postPurchaseRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 12,
+  },
+  postPurchaseButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 14,
+    borderRadius: 999,
+    backgroundColor: colors.surfaceRaised,
+  },
+  postPurchaseText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
   },
   qrContainer: {
     backgroundColor: colors.surface,
