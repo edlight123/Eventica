@@ -4,7 +4,7 @@
 
 import { EventFilters } from './types'
 import { getDateRange, getPriceRange } from './utils'
-import { normalizeEventCategory } from './config'
+import { normalizeEventCategory, getCityMatchGroup } from './config'
 import { isBudgetFriendlyTicketPrice, isOverBudgetTicketPrice } from '@/lib/pricing'
 
 // Use the actual database event type structure
@@ -66,9 +66,16 @@ export function filterEvents(events: Event[], filters: EventFilters): Event[] {
     }
   }
   
-  // City filter
+  // City filter — metro-inclusive: a top-level city also matches its
+  // subdivisions (e.g. Port-au-Prince includes Pétion-Ville, Delmas). Match on
+  // either the event's city or its commune, since events store the neighborhood
+  // in either field.
   if (filters.city) {
-    filtered = filtered.filter(event => event.city === filters.city)
+    const group = new Set(getCityMatchGroup(filters.city).map(s => s.toLowerCase()))
+    filtered = filtered.filter(event =>
+      group.has(String(event.city || '').toLowerCase()) ||
+      group.has(String(event.commune || '').toLowerCase())
+    )
   }
   
   // Commune filter

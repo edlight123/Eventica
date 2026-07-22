@@ -25,6 +25,7 @@ import {
   Timestamp
 } from 'firebase/firestore'
 import { unstable_cache } from 'next/cache'
+import { getCityMatchGroup } from '@/lib/filters/config'
 
 export interface Event {
   id: string
@@ -251,9 +252,12 @@ export async function getDiscoverEvents(
           queryRef = queryRef.where('status', '==', 'published') as any
         }
 
-        // Apply filters
+        // Apply filters — metro-inclusive city match (city + its subdivisions).
         if (filters.city) {
-          queryRef = queryRef.where('city', '==', filters.city) as any
+          const cityGroup = getCityMatchGroup(filters.city)
+          queryRef = (cityGroup.length > 1
+            ? queryRef.where('city', 'in', cityGroup)
+            : queryRef.where('city', '==', filters.city)) as any
         }
 
         if (filters.category) {
@@ -475,7 +479,10 @@ export async function getAdminEvents(
     let queryRef = adminDb.collection('events').orderBy('created_at', 'desc')
 
     if (filters.city) {
-      queryRef = queryRef.where('city', '==', filters.city) as any
+      const cityGroup = getCityMatchGroup(filters.city)
+      queryRef = (cityGroup.length > 1
+        ? queryRef.where('city', 'in', cityGroup)
+        : queryRef.where('city', '==', filters.city)) as any
     }
 
     if (filters.category) {
