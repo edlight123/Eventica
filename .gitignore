@@ -31,6 +31,9 @@ yarn-debug.log*
 yarn-error.log*
 build-output.log
 
+# FUSE deleted-file artifacts (never real source)
+.fuse_hidden*
+
 # local env files
 .env*.local
 .env
