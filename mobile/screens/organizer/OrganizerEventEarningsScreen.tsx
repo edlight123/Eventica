@@ -641,11 +641,11 @@ export default function OrganizerEventEarningsScreen() {
               </Text>
               <TouchableOpacity
                 onPress={() => navigation.navigate('OrganizerVerification')}
-                style={[styles.actionButton, { backgroundColor: colors.primary, marginTop: 10 }]}
+                style={[styles.actionButton, { backgroundColor: colors.surfaceRaised, marginTop: 10 }]}
                 activeOpacity={0.85}
               >
-                <Ionicons name="shield-checkmark-outline" size={20} color={colors.white} />
-                <Text style={styles.actionButtonText}>Verify Identity</Text>
+                <Ionicons name="shield-checkmark-outline" size={20} color={colors.text} />
+                <Text style={[styles.actionButtonText, { color: colors.text }]}>Verify Identity</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -658,10 +658,10 @@ export default function OrganizerEventEarningsScreen() {
               </Text>
               <TouchableOpacity
                 onPress={() => navigation.navigate('OrganizerPayoutSettings')}
-                style={[styles.actionButton, { backgroundColor: colors.primary, marginTop: 10 }]}
+                style={[styles.actionButton, { backgroundColor: colors.surfaceRaised, marginTop: 10 }]}
               >
-                <Ionicons name="settings-outline" size={20} color={colors.white} />
-                <Text style={styles.actionButtonText}>{t('organizerEarnings.openPayoutSettings')}</Text>
+                <Ionicons name="settings-outline" size={20} color={colors.text} />
+                <Text style={[styles.actionButtonText, { color: colors.text }]}>{t('organizerEarnings.openPayoutSettings')}</Text>
               </TouchableOpacity>
             </View>
           </View>
