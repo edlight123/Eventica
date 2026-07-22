@@ -10,17 +10,43 @@
  */
 
 export const colors = {
-  // Canvas
-  bg: '#0A0A0A', // near-black app background
-  surface: '#161616', // cards
-  surfaceRaised: '#1F1F1F', // pressed / elevated cards, sheets
-  border: '#262626',
+  // Canvas & elevation — depth is a BRIGHTNESS STEP, not a border (POSH §1).
+  // Cards separate from the canvas by getting lighter, not by drawing a 1px box.
+  //   bg (#0A0A0A)  →  surface (#161616)  →  surfaceRaised (#1F1F1F)
+  bg: '#0A0A0A', // near-black app background — the frame
+  surface: '#161616', // elevated card (lowest step)
+  surfaceRaised: '#1F1F1F', // higher step: pressed / elevated cards, sheets, stat blocks
+  border: '#262626', // reserve for rare hairline dividers, not box outlines
 
-  // Teal accent scale (THE platform color)
-  teal: '#14B8A6', // primary — CTAs, active states, price, links
+  // Teal accent scale. Historically labelled "THE platform color", but under the
+  // POSH direction teal is a SPARING SEMANTIC accent (verified / active-tab /
+  // live-status / focus), never a decorative fill. Prefer the `accent*` aliases
+  // below at call sites so intent ("this means something") reads clearly.
+  // NOTE: `teal` is kept unchanged for backward compatibility — do not remove.
+  teal: '#14B8A6',
   tealBright: '#2DD4BF', // hover / pressed / active highlight
   tealMuted: 'rgba(20,184,166,0.14)', // chip fills, subtle backgrounds
   onTeal: '#04211E', // dark text / icon placed ON a solid teal button
+
+  // Semantic accent — an explicit alias of `teal`. Use where teal CARRIES MEANING.
+  accent: '#14B8A6',
+  accentMuted: 'rgba(20,184,166,0.14)',
+
+  // Locked status semantics (POSH §2.7) — one color never means two things.
+  amber: '#FCD34D', // action-needed / pending
+  amberMuted: 'rgba(252,211,77,0.16)',
+  red: '#F87171', // error / expired / void / declined / sold-out
+  redMuted: 'rgba(248,113,113,0.16)',
+  emerald: '#34D399', // success / paid
+  emeraldMuted: 'rgba(52,211,153,0.16)',
+  gold: '#E6C067', // verified (alternative to teal)
+
+  // Inverted / neutral helpers — the white primary pill and white ticket stub.
+  white: '#FFFFFF',
+  black: '#000000',
+  onWhite: '#000000', // text / icon placed ON the solid-white primary pill
+  onWhiteMuted: 'rgba(0,0,0,0.6)', // muted sub-label ON the white pill (price, etc.)
+  neutralMuted: 'rgba(255,255,255,0.10)', // grey chip fill (used / neutral status)
 
   // Text
   textPrimary: '#FFFFFF',
