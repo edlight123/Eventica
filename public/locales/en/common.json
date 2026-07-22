@@ -457,7 +457,15 @@
     "unlimited": "Unlimited"
   },
   "footer": {
-    "copyright": "© {{year}} Tikèm. All rights reserved."
+    "copyright": "© {{year}} Tikèm. All rights reserved.",
+    "landmark": "Site footer",
+    "tagline": "Discover and buy tickets for events in Haiti.",
+    "discover": "Discover",
+    "company": "Company",
+    "support": "Support",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "refunds": "Refunds"
   },
   "admin": {
     "search_placeholder": "Search events...",

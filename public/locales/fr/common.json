@@ -457,7 +457,15 @@
     "unlimited": "Illimité"
   },
   "footer": {
-    "copyright": "© {{year}} Tikèm. Tous droits réservés."
+    "copyright": "© {{year}} Tikèm. Tous droits réservés.",
+    "landmark": "Pied de page du site",
+    "tagline": "Découvrez et achetez des billets pour des événements en Haïti.",
+    "discover": "Découvrir",
+    "company": "Entreprise",
+    "support": "Assistance",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "refunds": "Remboursements"
   },
   "admin": {
     "search_placeholder": "Rechercher des événements...",
