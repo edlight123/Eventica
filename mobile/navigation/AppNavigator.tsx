@@ -106,6 +106,7 @@ export type RootStackParamList = {
   Review: { ticketId: string; eventId: string; eventTitle: string };
   OrganizerAnalytics: undefined;
   OrganizerRefunds: undefined;
+  Favorites: undefined;
 };
 
 export type AuthStackParamList = {
@@ -116,7 +117,6 @@ export type AuthStackParamList = {
 export type AttendeeTabParamList = {
   Home: undefined;
   Discover: undefined;
-  Favorites: undefined;
   Tickets: undefined;
   Profile: undefined;
 };
@@ -155,23 +155,27 @@ interface TabBarProps {
   state: any;
   descriptors: any;
   navigation: any;
-  tabs: Array<{ name: string; label: string; icon: string; activeIcon: string }>;
+  tabs: Array<{ name: string; label: string; icon: string; activeIcon: string; isCreate?: boolean }>;
 }
 
 function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
   const { colors, isDark } = useTheme();
-  const anims = useRef(tabs.map((_, i) => new Animated.Value(state.index === i ? 1 : 0))).current;
+  const anims = useRef(tabs.map(() => new Animated.Value(0))).current;
+
+  // Focus is resolved by ROUTE NAME (not index), because the `tabs` list can
+  // include a non-route action (Create) that has no entry in state.routes.
+  const activeRouteName = state.routes[state.index]?.name;
 
   useEffect(() => {
-    tabs.forEach((_, i) => {
+    tabs.forEach((tab, i) => {
       Animated.spring(anims[i], {
-        toValue: state.index === i ? 1 : 0,
+        toValue: tab.name === activeRouteName ? 1 : 0,
         tension: 80,
         friction: 10,
         useNativeDriver: true,
       }).start();
     });
-  }, [state.index]);
+  }, [activeRouteName]);
 
   const insets = useSafeAreaInsets();
 
@@ -182,14 +186,45 @@ function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
       paddingBottom: Math.max(insets.bottom, Platform.OS === 'ios' ? 20 : 8),
     }]}>
       {tabs.map((tab, index) => {
-        const isFocused = state.index === index;
+        // Emphasized center Create action — launches the create flow on the
+        // root stack rather than switching tabs. Rendered as a white FAB
+        // (primary-action convention), not a plain tab icon.
+        if (tab.isCreate) {
+          return (
+            <TouchableOpacity
+              key={tab.name}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                (navigation as any).navigate('CreateEvent');
+              }}
+              style={tabBarStyles.tab}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel={tab.label}
+            >
+              <View style={[tabBarStyles.createFab, { backgroundColor: colors.white }]}>
+                <Ionicons name="add" size={30} color="#000000" />
+              </View>
+              <Text
+                style={[tabBarStyles.label, { color: colors.textTertiary }]}
+                numberOfLines={1}
+                allowFontScaling={false}
+              >
+                {tab.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        }
+
+        const isFocused = tab.name === activeRouteName;
         const a = anims[index];
         const scale = a.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] });
         const lift = a.interpolate({ inputRange: [0, 1], outputRange: [0, -1] });
         const iconColor = isFocused ? colors.primary : colors.textTertiary;
 
         const onPress = () => {
-          const route = state.routes[index];
+          const route = state.routes.find((r: { name: string; key: string }) => r.name === tab.name);
+          if (!route) return;
           const event = navigation.emit({
             type: 'tabPress',
             target: route.key,
@@ -266,6 +301,14 @@ const tabBarStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  createFab: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: -10, // lift above the bar for emphasis
+  },
   label: {
     fontSize: 10.5,
     marginTop: 3,
@@ -279,10 +322,13 @@ const tabBarStyles = StyleSheet.create({
 
 function AttendeeTabNavigator() {
   const { t } = useI18n();
+  // Center "Create" is an emphasized action (not a tab screen) that launches
+  // the event-create flow — makes hosting one tap away for any user
+  // (publish-first). Favorites moved into Profile.
   const attendeeTabs = [
     { name: 'Home', label: t('tabs.home'), icon: 'home-outline', activeIcon: 'home' },
     { name: 'Discover', label: t('tabs.discover'), icon: 'search-outline', activeIcon: 'search' },
-    { name: 'Favorites', label: t('tabs.favorites'), icon: 'heart-outline', activeIcon: 'heart' },
+    { name: 'Create', label: t('tabs.create'), icon: 'add', activeIcon: 'add', isCreate: true },
     { name: 'Tickets', label: t('tabs.tickets'), icon: 'ticket-outline', activeIcon: 'ticket' },
     { name: 'Profile', label: t('tabs.profile'), icon: 'person-outline', activeIcon: 'person' },
   ];
@@ -293,7 +339,6 @@ function AttendeeTabNavigator() {
     >
       <AttendeeTab.Screen name="Home" component={HomeScreen} />
       <AttendeeTab.Screen name="Discover" component={DiscoverScreen} />
-      <AttendeeTab.Screen name="Favorites" component={FavoritesScreen} />
       <AttendeeTab.Screen name="Tickets" component={TicketsScreen} />
       <AttendeeTab.Screen name="Profile" component={ProfileScreen} />
     </AttendeeTab.Navigator>
@@ -565,6 +610,7 @@ export default function AppNavigator() {
               })}
             />
             <Stack.Screen name="EventDetail" component={EventDetailScreen} />
+            <Stack.Screen name="Favorites" component={FavoritesScreen} options={{ headerShown: false }} />
             <Stack.Screen name="CategoryEvents" component={CategoryEventsScreen} />
             <Stack.Screen name="EventTickets" component={EventTicketsScreen} />
             <Stack.Screen name="TicketDetail" component={TicketDetailScreen} />

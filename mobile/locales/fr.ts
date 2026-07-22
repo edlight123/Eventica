@@ -182,6 +182,7 @@ export default {
   tabs: {
     home: 'Accueil',
     discover: 'Découvrir',
+    create: 'Créer',
     favorites: 'Favoris',
     tickets: 'Billets',
     profile: 'Profil',
