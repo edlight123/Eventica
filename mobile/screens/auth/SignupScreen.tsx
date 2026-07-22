@@ -16,6 +16,7 @@ import { TikemWordmark } from '../../components/TikemWordmark';
 import { AuthBackground } from '../../components/auth/AuthBackground';
 import { AuthInput } from '../../components/auth/AuthInput';
 import WhitePillCTA from '../../components/WhitePillCTA';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { colors, spacing } from '../../theme/tokens';
 
 export default function SignupScreen({ navigation }: any) {
@@ -25,7 +26,20 @@ export default function SignupScreen({ navigation }: any) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signUp } = useAuth();
+  const { signUp, signInWithApple, appleAuthAvailable } = useAuth();
+
+  const handleAppleSignIn = async () => {
+    setLoading(true);
+    try {
+      await signInWithApple();
+    } catch (error: any) {
+      if (error?.code !== 'ERR_REQUEST_CANCELED') {
+        Alert.alert('Sign in with Apple', error?.message || 'Could not sign in with Apple.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const logoAnim = useRef(new Animated.Value(0)).current;
   const formAnim = useRef(new Animated.Value(50)).current;
@@ -120,11 +134,16 @@ export default function SignupScreen({ navigation }: any) {
                   style={styles.primary}
                 />
 
-                {/*
-                  APPLE SIGN-IN SLOT — a future "Sign up with Apple" SecondaryPill
-                  (or Apple's native button) goes here, under the primary. Left as
-                  a placeholder; a separate change wires up Apple auth.
-                */}
+                {/* Sign up with Apple — native HIG button; iOS + native module only. */}
+                {appleAuthAvailable && (
+                  <AppleAuthentication.AppleAuthenticationButton
+                    buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_UP}
+                    buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
+                    cornerRadius={28}
+                    style={styles.appleButton}
+                    onPress={handleAppleSignIn}
+                  />
+                )}
 
                 <View style={styles.linkButton}>
                   <Text style={styles.linkText} onPress={() => navigation.navigate('Login')}>
@@ -167,6 +186,11 @@ const styles = StyleSheet.create({
   },
   primary: {
     marginTop: spacing.xs,
+  },
+  appleButton: {
+    width: '100%',
+    height: 56,
+    marginTop: spacing.sm,
   },
   linkButton: {
     marginTop: spacing.xs,
