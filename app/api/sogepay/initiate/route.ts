@@ -5,6 +5,7 @@ import { getPaymentProviderForEventCountry, normalizeCountryCode } from '@/lib/p
 import { checkEventCapacity } from '@/lib/capacity'
 import { calculateDiscount } from '@/lib/promo-codes'
 import { resolveEventCountry } from '@/lib/event-country'
+import { hasEventAccess } from '@/lib/events/access-guard'
 
 export const runtime = 'nodejs'
 
@@ -32,6 +33,11 @@ export async function POST(request: Request) {
 
     if (eventError || !event) {
       return NextResponse.json({ error: 'Event not found' }, { status: 404 })
+    }
+
+    // Password-protected events: require a valid access grant before payment.
+    if (!(await hasEventAccess(event, eventId, user.id))) {
+      return NextResponse.json({ error: 'access_code_required' }, { status: 403 })
     }
 
     const eventCountry = (await resolveEventCountry(event)) || normalizeCountryCode(event.country)

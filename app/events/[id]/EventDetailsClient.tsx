@@ -233,6 +233,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                 eventTitle={event.title}
                 currency={event.currency || 'HTG'}
                 country={event.country}
+                isPasswordProtected={!!event.is_password_protected}
               />
             ) : (
               <a
@@ -451,14 +452,15 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                 <>
                   {user ? (
                     <>
-                      <BuyTicketButton 
-                        eventId={event.id} 
-                        userId={user.id} 
+                      <BuyTicketButton
+                        eventId={event.id}
+                        userId={user.id}
                         isFree={isFree}
                         ticketPrice={event.ticket_price || 0}
                         eventTitle={event.title}
                         currency={event.currency || 'HTG'}
                         country={event.country}
+                        isPasswordProtected={!!event.is_password_protected}
                       />
                       <div className="mt-4">
                         <FavoriteButton eventId={event.id} userId={user.id} initialIsFavorite={isFavorite} />

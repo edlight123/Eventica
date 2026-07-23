@@ -113,6 +113,12 @@ export interface EventDraft {
   // sharing a series_id. Ignored/hidden in edit mode.
   recurrence: 'none' | 'daily' | 'weekly' | 'monthly';
   recurrence_count: number;   // TOTAL occurrences incl. the first; clamp 2–52
+
+  // Password gate. When on, attendees must enter access_code (verified server-
+  // side) before buying. access_code is transient plaintext — it is hashed into
+  // the private/access subdoc on save and never read back (blank in edit mode).
+  is_password_protected: boolean;
+  access_code: string;
 }
 
 const CATEGORIES = [
@@ -344,6 +350,8 @@ export default function CreateEventFlowRefactored() {
     show_guestlist: true,
     recurrence: 'none',
     recurrence_count: 4,
+    is_password_protected: false,
+    access_code: '',
   });
 
   // Track keyboard visibility
@@ -435,6 +443,10 @@ export default function CreateEventFlowRefactored() {
           // series_id on the doc is left untouched — we read but don't act on it.)
           recurrence: 'none',
           recurrence_count: 4,
+          // Reflect the gate flag; the hash is write-only, so the code input
+          // stays blank (a blank code on save preserves the existing hash).
+          is_password_protected: Boolean((event as any).is_password_protected),
+          access_code: '',
         });
       }
     } catch (error) {
@@ -845,6 +857,18 @@ export default function CreateEventFlowRefactored() {
     if (eventDraft.recurrence !== 'none') {
       const clamped = Math.max(2, Math.min(52, Math.round(eventDraft.recurrence_count || 2)));
       if (clamped !== eventDraft.recurrence_count) updateDraft({ recurrence_count: clamped });
+    }
+
+    // Password protection: a weak/blank code is a footgun (an empty code makes
+    // the event permanently unpurchasable server-side, a short one is
+    // brute-forceable). Require a code on create and enforce a length floor.
+    if (eventDraft.is_password_protected) {
+      const code = eventDraft.access_code.trim();
+      if (!isEditMode && !code) {
+        errs.access_code = t('organizerCreateEventFlow.canvas.accessCodeRequired');
+      } else if (code && code.length < 6) {
+        errs.access_code = t('organizerCreateEventFlow.canvas.accessCodeTooShort');
+      }
     }
 
     setErrors(errs);
@@ -1628,6 +1652,43 @@ export default function CreateEventFlowRefactored() {
                       ios_backgroundColor={colors.border}
                     />
                   </View>
+
+                  {/* Password protection — gate ticketing behind an access code.
+                      The code is hashed on save (never stored in plaintext). */}
+                  <View style={styles.settingRow}>
+                    <View style={styles.settingTextCol}>
+                      <Text style={styles.settingLabel}>{t('organizerCreateEventFlow.canvas.passwordProtect')}</Text>
+                      <Text style={styles.settingHint}>{t('organizerCreateEventFlow.canvas.accessCodeHint')}</Text>
+                    </View>
+                    <Switch
+                      value={eventDraft.is_password_protected}
+                      onValueChange={(v) => updateDraft({ is_password_protected: v })}
+                      trackColor={{ false: colors.border, true: colors.primary }}
+                      thumbColor={colors.white}
+                      ios_backgroundColor={colors.border}
+                    />
+                  </View>
+
+                  {eventDraft.is_password_protected && (
+                    <>
+                      <InlineTextRow
+                        colors={colors}
+                        placeholder={
+                          isEditMode
+                            ? t('organizerCreateEventFlow.canvas.accessCodeEditPlaceholder')
+                            : t('organizerCreateEventFlow.canvas.accessCode')
+                        }
+                        value={eventDraft.access_code}
+                        onChangeText={(text) => updateDraft({ access_code: text })}
+                        error={!!errors.access_code}
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                      />
+                      {!!errors.access_code && (
+                        <Text style={styles.scheduleErrorText}>{errors.access_code}</Text>
+                      )}
+                    </>
+                  )}
                 </>
               )}
             </View>

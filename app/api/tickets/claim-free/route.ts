@@ -3,6 +3,7 @@ import { createClient } from '@/lib/firebase-db/server'
 import { adminDb } from '@/lib/firebase/admin'
 import { getCurrentUser } from '@/lib/auth'
 import { notifyTicketPurchase, notifyOrganizerTicketSale } from '@/lib/notifications/helpers'
+import { hasEventAccess } from '@/lib/events/access-guard'
 import { FieldValue } from 'firebase-admin/firestore'
 
 export async function POST(request: Request) {
@@ -37,6 +38,11 @@ export async function POST(request: Request) {
     }
 
     const event = { id: eventDoc.id, ...eventDoc.data() } as any
+
+    // Password-protected events: require a valid access grant before issuing tickets.
+    if (!(await hasEventAccess(event, eventId, user.id))) {
+      return NextResponse.json({ error: 'access_code_required' }, { status: 403 })
+    }
 
     // Verify event is free
     console.log('Event ticket price:', event.ticket_price)

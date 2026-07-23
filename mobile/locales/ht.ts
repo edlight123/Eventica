@@ -1305,7 +1305,19 @@ export default {
       salesStart: 'Vant kòmanse',
       salesEnd: 'Vant fini',
       saleEndBeforeStart: 'Fen vant lan dwe apre kòmansman an',
+      passwordProtect: 'Pwoteje evènman sa a ak yon modpas',
+      accessCode: 'Kòd aksè',
+      accessCodeHint: 'Patisipan yo dwe antre kòd sa a pou yo jwenn tikè.',
+      accessCodeEditPlaceholder: 'Antre yon nouvo kòd pou chanje l',
+      accessCodeRequired: 'Mete yon kòd aksè (oswa dezaktive pwoteksyon an).',
+      accessCodeTooShort: 'Sèvi ak omwen 6 karaktè.',
     },
+  },
+  eventAccess: {
+    locked: 'Evènman sa a mande yon kòd aksè',
+    enterCode: 'Antre kòd aksè a',
+    unlock: 'Debloke',
+    wrongCode: 'Kòd pa kòrèk. Eseye ankò.',
   },
 
   organizerCreateEvent: {

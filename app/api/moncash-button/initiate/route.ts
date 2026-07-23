@@ -5,6 +5,7 @@ import { calculateDiscount } from '@/lib/promo-codes'
 import { convertUsdToHtgAmount, getUsdToHtgRateWithSpread } from '@/lib/fx/usd-htg'
 import { inferCountryFromEventText } from '@/lib/event-country'
 import { checkEventCapacity } from '@/lib/capacity'
+import { hasEventAccess } from '@/lib/events/access-guard'
 import {
   createMonCashButtonCheckoutToken,
   getMonCashButtonRedirectUrl,
@@ -119,6 +120,11 @@ export async function POST(request: Request) {
 
     if (eventError || !event) {
       return NextResponse.json({ error: 'Event not found' }, { status: 404 })
+    }
+
+    // Password-protected events: require a valid access grant before payment.
+    if (!(await hasEventAccess(event, eventId, user.id))) {
+      return NextResponse.json({ error: 'access_code_required' }, { status: 403 })
     }
 
     // MonCash is Haiti-only. Do not fall back to organizer location here, otherwise

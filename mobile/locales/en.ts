@@ -493,7 +493,19 @@ export default {
       salesStart: 'Sales start',
       salesEnd: 'Sales end',
       saleEndBeforeStart: 'Sale end must be after sale start',
+      passwordProtect: 'Password-protect this event',
+      accessCode: 'Access code',
+      accessCodeHint: 'Attendees must enter this code to get tickets.',
+      accessCodeEditPlaceholder: 'Enter a new code to change it',
+      accessCodeRequired: 'Set an access code (or turn off password protection).',
+      accessCodeTooShort: 'Use at least 6 characters.',
     },
+  },
+  eventAccess: {
+    locked: 'This event requires an access code',
+    enterCode: 'Enter access code',
+    unlock: 'Unlock',
+    wrongCode: 'Incorrect code. Try again.',
   },
 
   organizerCreateEvent: {

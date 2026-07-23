@@ -170,6 +170,27 @@ service cloud.firestore {
           get(/databases/$(database)/documents/events/$(eventId)).data.organizer_id == request.auth.uid
         );
       }
+
+      // Private event data (e.g. password-protected access code hash).
+      // Never readable by clients (Admin SDK reads only). The organizer may
+      // write the hashed code; the raw code is never stored here.
+      match /private/{doc} {
+        allow read: if false;
+        allow write: if isEventOrganizer(eventId);
+      }
+
+      // Access grants - existence proves the user unlocked a password-protected
+      // event. Users may read their own grant (to skip the prompt); all writes
+      // are server-side (Admin SDK) after a correct code.
+      match /access_grants/{uid} {
+        allow read: if isSignedIn() && request.auth.uid == uid;
+        allow write: if false;
+      }
+
+      // Access attempts - brute-force throttle bookkeeping. Server-side only.
+      match /access_attempts/{uid} {
+        allow read, write: if false;
+      }
     }
     
     // Event updates collection (separate from events subcollection)
@@ -189,10 +210,17 @@ service cloud.firestore {
 
       // Ticket creation allowed for signed-in users creating their own ticket record.
       // (Some flows use user_id, others attendee_id.)
-      allow create: if isSignedIn() && (
-        request.resource.data.user_id == request.auth.uid ||
-        request.resource.data.attendee_id == request.auth.uid
-      );
+      // Additionally, when the referenced event is password-protected, the buyer
+      // must hold an access grant. Events without the field are unaffected.
+      allow create: if isSignedIn()
+        && (
+          request.resource.data.user_id == request.auth.uid ||
+          request.resource.data.attendee_id == request.auth.uid
+        )
+        && (
+          !get(/databases/$(database)/documents/events/$(request.resource.data.event_id)).data.get('is_password_protected', false)
+          || exists(/databases/$(database)/documents/events/$(request.resource.data.event_id)/access_grants/$(request.auth.uid))
+        );
 
       // Only allow event owners full control; staff may only update check-in related fields.
       allow update: if isSignedIn() && (

@@ -1307,7 +1307,19 @@ export default {
       salesStart: 'Début des ventes',
       salesEnd: 'Fin des ventes',
       saleEndBeforeStart: 'La fin des ventes doit être après le début',
+      passwordProtect: 'Protéger cet événement par mot de passe',
+      accessCode: 'Code d’accès',
+      accessCodeHint: 'Les participants doivent saisir ce code pour obtenir des billets.',
+      accessCodeEditPlaceholder: 'Saisissez un nouveau code pour le modifier',
+      accessCodeRequired: 'Définissez un code d’accès (ou désactivez la protection).',
+      accessCodeTooShort: 'Utilisez au moins 6 caractères.',
     },
+  },
+  eventAccess: {
+    locked: 'Cet événement nécessite un code d’accès',
+    enterCode: 'Saisir le code d’accès',
+    unlock: 'Déverrouiller',
+    wrongCode: 'Code incorrect. Réessayez.',
   },
 
   organizerCreateEvent: {

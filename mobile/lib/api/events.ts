@@ -4,6 +4,7 @@ import {
   addDoc,
   doc,
   updateDoc,
+  setDoc,
   Timestamp,
   serverTimestamp,
   query,
@@ -12,6 +13,32 @@ import {
   deleteDoc,
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import * as Crypto from 'expo-crypto';
+
+/**
+ * SHA-256 hex of the trimmed raw access code (trim only; case-sensitive).
+ * The plaintext code is NEVER stored — only this hash is written to the
+ * private/access doc. Returns null for a blank/whitespace-only code so callers
+ * can skip the write entirely.
+ */
+async function hashAccessCode(rawCode: string): Promise<string | null> {
+  const trimmed = (rawCode || '').trim();
+  if (!trimmed) return null;
+  return Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, trimmed);
+}
+
+/**
+ * Write the hashed access code to `events/{eventId}/private/access`.
+ * Client SDK setDoc — firestore.rules (owned by the web agent) must allow the
+ * organizer to write this path. Never call this with a plaintext code on the
+ * public event doc.
+ */
+async function writeAccessHash(eventId: string, codeHash: string): Promise<void> {
+  await setDoc(doc(db, 'events', eventId, 'private', 'access'), {
+    code_hash: codeHash,
+    updated_at: serverTimestamp(),
+  });
+}
 
 export interface CreateEventData {
   title: string;
@@ -60,6 +87,14 @@ export interface CreateEventData {
   recurrence?: 'none' | 'daily' | 'weekly' | 'monthly';
   /** TOTAL occurrences incl. the first. Only meaningful when recurring. Capped at 52. */
   recurrence_count?: number;
+  /** When true the event is gated behind an access code (public flag on the doc). */
+  is_password_protected?: boolean;
+  /**
+   * Transient plaintext access code. NEVER written to the public event doc — it
+   * is hashed (SHA-256) into the private/access subdoc only. Blank keeps any
+   * existing code on update.
+   */
+  access_code?: string;
 }
 
 /** Hard cap on how many occurrences a single recurring series may generate. */
@@ -227,6 +262,9 @@ export async function createEvent(
         show_on_explore: eventData.show_on_explore !== false,
         video_url: eventData.video_url || '',
         show_guestlist: eventData.show_guestlist !== false,
+        // Password gate — public flag only. The secret lives hashed in the
+        // private/access subdoc (written below), never on this doc.
+        is_password_protected: !!eventData.is_password_protected,
         is_published: publish,
         status: publish ? 'published' : 'draft',
         // Moderation defaults — every event must carry these or it goes invisible
@@ -270,6 +308,17 @@ export async function createEvent(
       });
 
       await Promise.all(tierPromises);
+
+      // Password gate — if protected AND a non-empty code was provided, hash it
+      // and write the private/access doc for THIS occurrence. Recurring series
+      // get one hash doc per occurrence. Plaintext is never persisted.
+      if (eventData.is_password_protected) {
+        const codeHash = await hashAccessCode(eventData.access_code || '');
+        if (codeHash) {
+          await writeAccessHash(docRef.id, codeHash);
+        }
+      }
+
       return docRef.id;
     };
 
@@ -375,6 +424,9 @@ export async function updateEvent(
       show_on_explore: eventData.show_on_explore !== false,
       video_url: eventData.video_url || '',
       show_guestlist: eventData.show_guestlist !== false,
+      // Password gate flag. When toggled OFF this becomes false and the old
+      // private/access hash is simply left in place (harmless — the gate is off).
+      is_password_protected: !!eventData.is_password_protected,
       updated_at: serverTimestamp(),
       // Only flip publication state when the caller explicitly asks (e.g. the
       // publish-vs-draft confirmation sheet); otherwise leave it untouched.
@@ -421,7 +473,18 @@ export async function updateEvent(
     });
 
     await Promise.all(tierPromises);
-    
+
+    // Password gate — only touch the private/access hash when the event is
+    // protected AND a new non-empty code was typed. A blank code in protected
+    // mode intentionally preserves the existing hash (organizer left it alone).
+    // When toggled off we leave the stale hash untouched (flag is false above).
+    if (eventData.is_password_protected) {
+      const codeHash = await hashAccessCode(eventData.access_code || '');
+      if (codeHash) {
+        await writeAccessHash(eventId, codeHash);
+      }
+    }
+
     console.log('Event updated successfully:', eventId);
   } catch (error) {
     console.error('Error updating event:', error);
