@@ -219,10 +219,20 @@ export default function EventDetailScreen({ route, navigation }: any) {
   };
 
   const openPromoVideo = async () => {
-    const url = (event as any)?.video_url;
-    if (typeof url !== 'string' || !url.trim()) return;
+    const raw = (event as any)?.video_url;
+    if (typeof raw !== 'string' || !raw.trim()) return;
+    const trimmed = raw.trim();
+    // The URL is organizer-supplied. Only open web links — a bare domain gets
+    // https:// prepended, but anything carrying another scheme (javascript:,
+    // file:, a custom app/deep-link scheme, etc.) is rejected outright.
+    const hasScheme = /^[a-z][a-z0-9+.-]*:/i.test(trimmed);
+    const candidate = hasScheme ? trimmed : `https://${trimmed}`;
+    if (!/^https?:\/\//i.test(candidate)) {
+      console.warn('Blocked non-http(s) promo video URL');
+      return;
+    }
     try {
-      await Linking.openURL(url.trim());
+      await Linking.openURL(candidate);
     } catch (error) {
       console.error('Error opening promo video:', error);
     }
