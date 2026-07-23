@@ -9,16 +9,20 @@ import {
   RefreshControl,
   Dimensions,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
+import { useLocaleFormat } from '../../lib/format';
 import { backendFetch } from '../../lib/api/backend';
 import { RADIUS } from '../../config/brand';
 import { Skeleton } from '../../components/Skeleton';
+import StatTriplet from '../../components/StatTriplet';
+import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
+import SegmentedTabs from '../../components/organizer/SegmentedTabs';
 import { format, subDays, startOfDay } from 'date-fns';
 
 const { width } = Dimensions.get('window');
@@ -47,7 +51,7 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
   const styles = getStyles(colors);
   const { userProfile } = useAuth();
   const { t } = useI18n();
-  const insets = useSafeAreaInsets();
+  const { formatMoney: fmtMoney } = useLocaleFormat();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [stats, setStats] = useState({
@@ -247,10 +251,11 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
     loadData();
   };
 
-  const formatMoney = (amount: number, currency: string = 'USD') => {
-    const symbol = currency === 'HTG' ? 'G' : '$';
-    return `${symbol}${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
+  // Delegate to the shared, currency-aware formatter so HTG renders as a suffixed
+  // code (`1,234.56 HTG`) and USD as a prefixed symbol (`$1,234.56`) — never a
+  // hardcoded `$`/`G`.
+  const formatMoney = (amount: number, currency: string = 'USD') =>
+    fmtMoney(amount, { currency });
 
   // Format revenue display showing both currencies if both exist
   const formatTotalRevenue = () => {
@@ -273,13 +278,7 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
   if (loading) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
-        <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>{t('analytics.title') || 'Analytics'}</Text>
-          <View style={{ width: 40 }} />
-        </View>
+        <OrganizerScreenHeader title={t('analytics.title') || 'Analytics'} onBack={() => navigation.goBack()} />
         <View style={{ padding: 16, gap: 16 }}>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {[0, 1, 2, 3].map((i) => (
@@ -296,13 +295,7 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('analytics.title') || 'Analytics'}</Text>
-        <View style={{ width: 40 }} />
-      </View>
+      <OrganizerScreenHeader title={t('analytics.title') || 'Analytics'} onBack={() => navigation.goBack()} />
 
       <ScrollView
         style={styles.scrollView}
@@ -313,59 +306,29 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
       >
         {/* Time Range Selector */}
         <View style={styles.timeRangeContainer}>
-          {(['7d', '30d', 'all'] as const).map((range) => (
-            <TouchableOpacity
-              key={range}
-              style={[styles.timeRangeButton, timeRange === range && styles.timeRangeButtonActive]}
-              onPress={() => setTimeRange(range)}
-            >
-              <Text style={[styles.timeRangeText, timeRange === range && styles.timeRangeTextActive]}>
-                {range === '7d' ? (t('analytics.7days') || '7 Days') :
-                 range === '30d' ? (t('analytics.30days') || '30 Days') :
-                 (t('analytics.allTime') || 'All Time')}
-              </Text>
-            </TouchableOpacity>
-          ))}
+          <SegmentedTabs
+            value={timeRange}
+            onChange={(key) => setTimeRange(key as '7d' | '30d' | 'all')}
+            tabs={[
+              { key: '7d', label: t('analytics.7days') || '7 Days' },
+              { key: '30d', label: t('analytics.30days') || '30 Days' },
+              { key: 'all', label: t('analytics.allTime') || 'All Time' },
+            ]}
+          />
         </View>
 
-        {/* Stats Cards */}
-        <View style={styles.statsGrid}>
-          <TouchableOpacity 
-            style={[styles.statCard, styles.statCardPrimary]}
-            onPress={() => navigation.navigate('OrganizerPayoutSettings')}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="cash-outline" size={24} color="#FFF" />
-            <Text style={styles.statValue} numberOfLines={1} adjustsFontSizeToFit>{formatTotalRevenue()}</Text>
-            <Text style={styles.statLabel}>{t('analytics.totalRevenue') || 'Total Revenue'}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.statCard}
-            onPress={() => navigation.goBack()}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="ticket-outline" size={24} color={colors.primary} />
-            <Text style={[styles.statValue, { color: colors.text }]}>{stats.totalTicketsSold}</Text>
-            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('analytics.ticketsSold') || 'Tickets Sold'}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.statCard}
-            onPress={() => navigation.goBack()}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="calendar-outline" size={24} color={colors.primary} />
-            <Text style={[styles.statValue, { color: colors.text }]}>{stats.totalEvents}</Text>
-            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('analytics.totalEvents') || 'Total Events'}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.statCard}
-            onPress={() => navigation.goBack()}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="eye-outline" size={24} color={colors.primary} />
-            <Text style={[styles.statValue, { color: colors.text }]}>{stats.publishedEvents}</Text>
-            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{t('analytics.published') || 'Published'}</Text>
-          </TouchableOpacity>
+        {/* Stats — the POSH metric grid (§2.3): neutral raised surface, teal only
+            as the revenue numeral accent. */}
+        <View style={styles.statsWrap}>
+          <StatTriplet
+            columns={2}
+            items={[
+              { label: t('analytics.totalRevenue') || 'Total Revenue', value: formatTotalRevenue(), tone: 'brand' },
+              { label: t('analytics.ticketsSold') || 'Tickets Sold', value: stats.totalTicketsSold },
+              { label: t('analytics.totalEvents') || 'Total Events', value: stats.totalEvents },
+              { label: t('analytics.published') || 'Published', value: stats.publishedEvents },
+            ]}
+          />
         </View>
 
         {/* Sales Chart */}
@@ -429,103 +392,21 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     backgroundColor: colors.background,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    marginTop: 12,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    backgroundColor: colors.background,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontFamily: 'InstrumentSerif_400Regular',
-    fontSize: 22,
-    fontWeight: '700',
-    letterSpacing: 0,
-    color: colors.text,
-  },
   scrollView: {
     flex: 1,
   },
   timeRangeContainer: {
-    flexDirection: 'row',
-    padding: 16,
-    gap: 8,
+    paddingVertical: 12,
   },
-  timeRangeButton: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: RADIUS.md,
-    backgroundColor: colors.surface,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  timeRangeButtonActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  timeRangeText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.textSecondary,
-  },
-  timeRangeTextActive: {
-    color: '#FFF',
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  statsWrap: {
     paddingHorizontal: 16,
-    gap: 8,
-  },
-  statCard: {
-    width: (width - 40) / 2,
-    padding: 16,
-    backgroundColor: colors.surface,
-    borderRadius: RADIUS.lg,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  statCardPrimary: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  statValue: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#FFF',
-    marginTop: 8,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.8)',
-    marginTop: 4,
-    textAlign: 'center',
+    paddingBottom: 4,
   },
   chartCard: {
     margin: 16,
     padding: 20,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
     borderRadius: RADIUS.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   chartTitle: {
     fontSize: 16,
@@ -562,10 +443,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     margin: 16,
     marginTop: 0,
     padding: 16,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
     borderRadius: RADIUS.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   sectionTitle: {
     fontSize: 16,

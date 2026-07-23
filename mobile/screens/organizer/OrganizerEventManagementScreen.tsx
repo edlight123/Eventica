@@ -25,8 +25,10 @@ import {
   cancelEvent,
 } from '../../lib/api/events';
 import { useI18n } from '../../contexts/I18nContext';
+import { useLocaleFormat } from '../../lib/format';
 import { RADIUS } from '../../config/brand';
 import { Skeleton } from '../../components/Skeleton';
+import ActionTileGrid from '../../components/organizer/ActionTileGrid';
 import { LinearGradient } from 'expo-linear-gradient';
 import { resolvePosterTheme } from '../../lib/posterGradient';
 
@@ -44,8 +46,8 @@ export default function OrganizerEventManagementScreen() {
   const { eventId } = route.params;
   const insets = useSafeAreaInsets();
 
-  const { t, language } = useI18n();
-  const locale = language === 'fr' ? 'fr-FR' : language === 'ht' ? 'fr-HT' : 'en-US';
+  const { t } = useI18n();
+  const { formatDate, formatTime } = useLocaleFormat();
 
   const [event, setEvent] = useState<OrganizerEvent | null>(null);
   const [isPaused, setIsPaused] = useState(false);
@@ -222,16 +224,8 @@ export default function OrganizerEventManagementScreen() {
     );
   }
 
-  const eventDate = new Date(event.start_datetime);
-  const formattedDate = eventDate.toLocaleDateString(locale, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-  const formattedTime = eventDate.toLocaleTimeString(locale, {
-    hour: 'numeric',
-    minute: '2-digit',
-  });
+  const formattedDate = formatDate(event.start_datetime);
+  const formattedTime = formatTime(event.start_datetime);
 
   return (
     <ScrollView
@@ -245,7 +239,7 @@ export default function OrganizerEventManagementScreen() {
         />
       }
     >
-      <StatusBar barStyle="light-content" backgroundColor="#000000" />
+      <StatusBar barStyle="light-content" />
 
       {/* Header with background image */}
       <View style={styles.header}>
@@ -281,32 +275,16 @@ export default function OrganizerEventManagementScreen() {
       {/* Quick Actions */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>{t('organizerEventManagement.sections.quickActions')}</Text>
-        <View style={styles.actionGrid}>
-          <TouchableOpacity style={styles.actionCard} onPress={handleScanTickets}>
-            <Ionicons name="qr-code-outline" size={32} color={colors.primary} />
-            <Text style={styles.actionText}>{t('organizerEventManagement.actions.scanTickets')}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionCard} onPress={handleManageStaff}>
-            <Ionicons name="people-outline" size={32} color={colors.primary} />
-            <Text style={styles.actionText}>{t('organizerEventManagement.actions.staff')}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionCard} onPress={handleViewAttendees}>
-            <Ionicons name="people-outline" size={32} color={colors.primary} />
-            <Text style={styles.actionText}>{t('organizerEventManagement.actions.viewAttendees')}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionCard} onPress={handleViewEarnings}>
-            <Ionicons name="cash-outline" size={32} color={colors.primary} />
-            <Text style={styles.actionText}>{t('organizerEventManagement.actions.earnings')}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionCard} onPress={handleEditEvent}>
-            <Ionicons name="create-outline" size={32} color={colors.primary} />
-            <Text style={styles.actionText}>{t('organizerEventManagement.actions.editEvent')}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionCard} onPress={handleViewPublicPage}>
-            <Ionicons name="eye-outline" size={32} color={colors.primary} />
-            <Text style={styles.actionText}>{t('organizerEventManagement.actions.viewPublicPage')}</Text>
-          </TouchableOpacity>
-        </View>
+        <ActionTileGrid
+          tiles={[
+            { key: 'scan', icon: 'qr-code-outline', label: t('organizerEventManagement.actions.scanTickets'), onPress: handleScanTickets },
+            { key: 'staff', icon: 'people-outline', label: t('organizerEventManagement.actions.staff'), onPress: handleManageStaff },
+            { key: 'attendees', icon: 'people-circle-outline', label: t('organizerEventManagement.actions.viewAttendees'), onPress: handleViewAttendees },
+            { key: 'earnings', icon: 'cash-outline', label: t('organizerEventManagement.actions.earnings'), onPress: handleViewEarnings },
+            { key: 'edit', icon: 'create-outline', label: t('organizerEventManagement.actions.editEvent'), onPress: handleEditEvent },
+            { key: 'public', icon: 'eye-outline', label: t('organizerEventManagement.actions.viewPublicPage'), onPress: handleViewPublicPage },
+          ]}
+        />
       </View>
 
       {/* Performance */}
@@ -487,35 +465,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
     marginBottom: 16,
   },
-  actionGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    rowGap: 12,
-  },
-  actionCard: {
-    width: '48%',
-    backgroundColor: colors.surface,
-    borderRadius: RADIUS.lg,
-    padding: 16,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  actionText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.text,
-    marginTop: 8,
-    textAlign: 'center',
-  },
   performanceCard: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
     borderRadius: RADIUS.lg,
     padding: 16,
     marginBottom: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   performanceHeader: {
     flexDirection: 'row',
@@ -531,7 +485,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   performanceValue: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: colors.primary,
+    color: colors.text,
   },
   progressBar: {
     height: 8,
@@ -551,11 +505,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     textAlign: 'right',
   },
   ticketBreakdown: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
     borderRadius: RADIUS.lg,
     padding: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   breakdownTitle: {
     fontSize: 14,
@@ -597,12 +549,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   controlButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
     padding: 16,
     borderRadius: RADIUS.lg,
     marginBottom: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   controlButtonText: {
     flex: 1,

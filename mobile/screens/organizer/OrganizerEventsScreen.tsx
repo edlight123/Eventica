@@ -7,8 +7,6 @@ import {
   TouchableOpacity,
   Image,
   RefreshControl,
-  ActivityIndicator,
-  StatusBar,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,13 +23,16 @@ import { useI18n } from '../../contexts/I18nContext';
 import { getOrganizerEvents, OrganizerEvent } from '../../lib/api/organizer';
 import { resolvePosterTheme } from '../../lib/posterGradient';
 import { RADIUS } from '../../config/brand';
+import { Skeleton } from '../../components/Skeleton';
 import EmptyState from '../../components/EmptyState';
 import StatusChip from '../../components/StatusChip';
+import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
+import SegmentedTabs from '../../components/organizer/SegmentedTabs';
 
 type EventStatus = 'draft' | 'published' | 'sold_out' | 'completed' | 'cancelled';
 
 export default function OrganizerEventsScreen() {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const styles = getStyles(colors);
   const navigation = useNavigation<NavigationProp>();
   const { userProfile } = useAuth();
@@ -88,6 +89,17 @@ export default function OrganizerEventsScreen() {
 
   const events = eventTab === 'upcoming' ? upcomingEvents : pastEvents;
 
+  const createButton = (
+    <TouchableOpacity
+      style={styles.createButton}
+      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+      onPress={() => navigation.navigate('CreateEvent')}
+    >
+      <Ionicons name="add" size={18} color={colors.text} />
+      <Text style={styles.createButtonText}>{t('organizerEvents.create')}</Text>
+    </TouchableOpacity>
+  );
+
   // Map an event status to the locked StatusChip semantic (POSH §2.7):
   //   published → live (teal) · draft → action-needed (amber) ·
   //   sold_out/cancelled → error (red) · completed → used (grey).
@@ -127,51 +139,32 @@ export default function OrganizerEventsScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={styles.loadingText}>{t('organizerEvents.loading')}</Text>
+      <View style={styles.container}>
+        <OrganizerScreenHeader title={t('organizerEvents.title')} right={createButton} />
+        <View style={styles.skeletonList}>
+          {[0, 1, 2].map((i) => (
+            <Skeleton key={i} width="100%" height={280} radius={RADIUS.lg} style={{ marginBottom: 16 }} />
+          ))}
+        </View>
       </View>
     );
   }
 
-  // Match the rest of the app: light background -> dark status bar text
-  // Header padding is safe-area aware.
-
   return (
     <View style={styles.container}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? colors.surface : colors.white} />
-
       {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-        <Text style={styles.headerTitle}>{t('organizerEvents.title')}</Text>
-        <TouchableOpacity
-          style={styles.createButton}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          onPress={() => (navigation as any).navigate('CreateEvent')}
-        >
-          <Ionicons name="add-circle" size={20} color={colors.primary} />
-          <Text style={styles.createButtonText}>{t('organizerEvents.create')}</Text>
-        </TouchableOpacity>
-      </View>
+      <OrganizerScreenHeader title={t('organizerEvents.title')} right={createButton} />
 
       {/* Segmented Control */}
-      <View style={styles.segmentedControl}>
-        <TouchableOpacity
-          style={[styles.segment, eventTab === 'upcoming' && styles.segmentActive]}
-          onPress={() => setEventTab('upcoming')}
-        >
-          <Text style={[styles.segmentText, eventTab === 'upcoming' && styles.segmentTextActive]}>
-            {t('organizerEvents.upcoming')} ({upcomingEvents.length})
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.segment, eventTab === 'past' && styles.segmentActive]}
-          onPress={() => setEventTab('past')}
-        >
-          <Text style={[styles.segmentText, eventTab === 'past' && styles.segmentTextActive]}>
-            {t('organizerEvents.past')} ({pastEvents.length})
-          </Text>
-        </TouchableOpacity>
+      <View style={styles.segmentedWrap}>
+        <SegmentedTabs
+          value={eventTab}
+          onChange={(key) => setEventTab(key as 'upcoming' | 'past')}
+          tabs={[
+            { key: 'upcoming', label: t('organizerEvents.upcoming'), count: upcomingEvents.length },
+            { key: 'past', label: t('organizerEvents.past'), count: pastEvents.length },
+          ]}
+        />
       </View>
 
       {/* Events List */}
@@ -194,7 +187,7 @@ export default function OrganizerEventsScreen() {
               ? t('organizerEvents.emptyUpcomingBody')
               : t('organizerEvents.emptyPastBody')}
             actionLabel={eventTab === 'upcoming' ? t('organizerDashboard.createEventCta') : undefined}
-            onAction={eventTab === 'upcoming' ? () => (navigation as any).navigate('CreateEvent') : undefined}
+            onAction={eventTab === 'upcoming' ? () => navigation.navigate('CreateEvent') : undefined}
           />
         ) : (
           events.map((event) => {
@@ -290,96 +283,30 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     backgroundColor: colors.background,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.background,
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: colors.textSecondary,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
+  skeletonList: {
+    paddingHorizontal: 16,
     paddingTop: 16,
-    paddingBottom: 16,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  headerTitle: {
-    fontFamily: 'InstrumentSerif_400Regular',
-    fontSize: 32,
-    fontWeight: 'bold',
-    letterSpacing: 0,
-    color: colors.text,
   },
   createButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.primarySoft,
+    backgroundColor: colors.surfaceRaised,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: RADIUS.sm,
+    borderRadius: RADIUS.full,
   },
   createButtonText: {
-    color: colors.primary,
+    color: colors.text,
     fontWeight: '600',
     fontSize: 14,
     marginLeft: 4,
   },
-  segmentedControl: {
-    flexDirection: 'row',
-    margin: 16,
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: RADIUS.md,
-    padding: 4,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  segment: {
-    flex: 1,
-    paddingVertical: 8,
-    alignItems: 'center',
-    borderRadius: RADIUS.sm,
-  },
-  segmentActive: {
-    backgroundColor: colors.primary,
-  },
-  segmentText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.textSecondary,
-  },
-  segmentTextActive: {
-    color: colors.white,
+  segmentedWrap: {
+    paddingVertical: 12,
   },
   scrollView: {
     flex: 1,
     paddingHorizontal: 16,
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 60,
-    paddingHorizontal: 40,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: colors.text,
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 20,
   },
   eventCard: {
     backgroundColor: colors.surfaceRaised,
@@ -407,17 +334,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
     flex: 1,
     marginRight: 12,
-  },
-  statusPill: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  statusText: {
-    color: colors.white,
-    fontSize: 11,
-    fontWeight: '600',
-    textTransform: 'uppercase',
   },
   eventDetails: {
     marginBottom: 12,
