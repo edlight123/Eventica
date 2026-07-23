@@ -3,6 +3,11 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { firebaseDb } from '@/lib/firebase-db/client'
+// Raw firebase SDK: the firebaseDb shim only handles top-level collections, so
+// the hashed access code is written straight to the events/{id}/private/access
+// subdoc via setDoc.
+import { db } from '@/lib/firebase/client'
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { isDemoMode } from '@/lib/demo'
 import { useToast } from '@/components/ui/Toast'
 import ImageUpload from '@/components/ImageUpload'
@@ -51,6 +56,71 @@ const ACCENTS: { hex: string; name: string }[] = [
   { hex: '#F97316', name: 'Orange' },
 ]
 
+/**
+ * Poster-theme swatches for the `theme_key` picker. Keys + gradients are copied
+ * verbatim from the THEMES map in `lib/posterGradient.ts` (which does not export
+ * the object) — the source of truth for the poster resolver. Persisting one of
+ * these keys pins the poster gradient everywhere the resolver runs; '' = Auto.
+ * No new colors are introduced here.
+ */
+const POSTER_THEME_SWATCHES: { key: string; bg: string }[] = [
+  { key: 'teal', bg: 'linear-gradient(155deg,#0f766e 0%,#06292c 100%)' },
+  { key: 'mint', bg: 'linear-gradient(155deg,#0f4f4b 0%,#1ec0a4 130%)' },
+  { key: 'night', bg: 'linear-gradient(155deg,#13322f 0%,#0a1a18 100%)' },
+  { key: 'violet', bg: 'linear-gradient(155deg,#134e4a 0%,#072420 100%)' },
+  { key: 'sun', bg: 'linear-gradient(155deg,#0d9488 0%,#0a3d39 100%)' },
+  { key: 'ember', bg: 'linear-gradient(155deg,#115e59 0%,#04201d 100%)' },
+  { key: 'gold', bg: 'linear-gradient(155deg,#0f766e 0%,#134e4a 130%)' },
+  { key: 'rose', bg: 'linear-gradient(155deg,#0c5e57 0%,#06302c 100%)' },
+  { key: 'ocean', bg: 'linear-gradient(155deg,#0f5b63 0%,#07232a 100%)' },
+  { key: 'forest', bg: 'linear-gradient(155deg,#114b3f 0%,#06231c 100%)' },
+]
+
+// Recurring-event cadence options for the "Repeats" selector (create-only).
+type Recurrence = 'none' | 'daily' | 'weekly' | 'monthly'
+const RECURRENCE_OPTIONS: { value: Recurrence; label: string }[] = [
+  { value: 'none', label: 'Never' },
+  { value: 'daily', label: 'Daily' },
+  { value: 'weekly', label: 'Weekly' },
+  { value: 'monthly', label: 'Monthly' },
+]
+/** Hard cap on how many occurrences a single recurring series may generate. */
+const MAX_RECURRENCE_COUNT = 52
+
+/**
+ * Shift a base datetime by `i` steps of the given cadence, preserving the
+ * time-of-day. Monthly steps clamp the day-of-month to the target month's
+ * length (e.g. Jan 31 + 1 month → Feb 28/29) so no occurrence rolls into the
+ * following month. Mirrors mobile/lib/api/events.ts:shiftDateByRecurrence.
+ */
+function shiftDateByRecurrence(base: Date, cadence: 'daily' | 'weekly' | 'monthly', i: number): Date {
+  const d = new Date(base.getTime())
+  if (cadence === 'daily') {
+    d.setDate(d.getDate() + i)
+  } else if (cadence === 'weekly') {
+    d.setDate(d.getDate() + i * 7)
+  } else {
+    const day = d.getDate()
+    d.setDate(1)
+    d.setMonth(d.getMonth() + i)
+    const lastDayOfMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()
+    d.setDate(Math.min(day, lastDayOfMonth))
+  }
+  return d
+}
+
+/**
+ * SHA-256 hex of a string, computed client-side via the Web Crypto API. Used to
+ * hash the trimmed access code before it is written to the private/access
+ * subdoc. The plaintext code is NEVER stored or logged.
+ */
+async function sha256Hex(text: string): Promise<string> {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+}
+
 interface EventComposerProps {
   userId: string
   isVerified?: boolean
@@ -66,6 +136,9 @@ interface TicketTier {
   name: string
   price: string
   qty: string
+  /** Optional per-tier sale window, stored as ISO 8601 strings ('' = no bound). */
+  salesStart?: string
+  salesEnd?: string
 }
 
 const pad2 = (n: number) => String(n).padStart(2, '0')
@@ -78,6 +151,21 @@ function splitISO(iso?: string | null): { date: string; time: string } {
     date: `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`,
     time: `${pad2(d.getHours())}:${pad2(d.getMinutes())}`,
   }
+}
+
+/** ISO string → value for a `<input type="datetime-local">` (local time), or ''. */
+function isoToLocalInput(iso?: string | null): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}`
+}
+
+/** `datetime-local` value → ISO string, or null when empty/invalid. */
+function localInputToISO(local?: string): string | null {
+  if (!local) return null
+  const d = new Date(local)
+  return Number.isNaN(d.getTime()) ? null : d.toISOString()
 }
 
 type GuestRole = 'Performer' | 'Host' | 'DJ' | 'Special Guest'
@@ -171,7 +259,11 @@ export default function EventComposer({
   const [startTime, setStartTime] = useState(start0.time)
   const [endDate, setEndDate] = useState(end0.date)
   const [endTime, setEndTime] = useState(end0.time)
-  const [recurring, setRecurring] = useState(!!event?.is_recurring)
+  // Recurrence is create-only; editing never regenerates a series, so the
+  // control is hidden in edit mode (mobile parity). A stored is_recurring on the
+  // event doc is preserved on edit but not acted upon.
+  const [recurrence, setRecurrence] = useState<Recurrence>('none')
+  const [recurrenceCount, setRecurrenceCount] = useState(4)
 
   // Details
   const [showDescription, setShowDescription] = useState(!!event?.description)
@@ -192,7 +284,11 @@ export default function EventComposer({
   // Tickets — multiple tiers
   const [tiers, setTiers] = useState<TicketTier[]>(
     initialTiers && initialTiers.length > 0
-      ? initialTiers
+      ? initialTiers.map((t) => ({
+          ...t,
+          salesStart: isoToLocalInput((t as any).salesStart ?? (t as any).sales_start),
+          salesEnd: isoToLocalInput((t as any).salesEnd ?? (t as any).sales_end),
+        }))
       : [{ id: makeId(), name: 'General Admission', price: '10', qty: '100' }]
   )
   const [enableWaitlist, setEnableWaitlist] = useState(!!event?.enable_waitlist)
@@ -228,10 +324,18 @@ export default function EventComposer({
   // Visibility extras
   const [showGuestlist, setShowGuestlist] = useState(event?.show_guestlist ?? true)
   const [showOnExplore, setShowOnExplore] = useState(event?.show_on_explore ?? true)
-  const [passwordProtected, setPasswordProtected] = useState(!!event?.password_protected)
+  // Password gate — public flag on the doc; the secret lives hashed in the
+  // private/access subdoc, never on the event doc. The code input stays blank in
+  // edit mode (the hash is write-only), so a blank code on save keeps it.
+  const [passwordProtected, setPasswordProtected] = useState(!!event?.is_password_protected)
+  const [accessCode, setAccessCode] = useState('')
 
   // Style
   const [spotifyUrl, setSpotifyUrl] = useState(event?.spotify_url || '')
+  // Optional promo video link (default '').
+  const [videoUrl, setVideoUrl] = useState(event?.video_url || '')
+  // Poster-theme override ('' = Auto). A valid key pins the poster gradient.
+  const [themeKey, setThemeKey] = useState<string>(event?.theme_key || '')
   const [titleFont, setTitleFont] = useState<'Default' | 'Serif' | 'Sans'>(event?.title_font || 'Default')
   const [accentColor, setAccentColor] = useState(event?.accent_color || '#14B8A6')
 
@@ -260,6 +364,22 @@ export default function EventComposer({
   const endInvalid = attempted && endBeforeStart
   const locationInvalid = attempted && needsLocation
 
+  // Per-tier sale window: when BOTH bounds are set, end must be after start.
+  const saleWindowInvalid = (t: TicketTier): boolean => {
+    if (!t.salesStart || !t.salesEnd) return false
+    const s = new Date(t.salesStart).getTime()
+    const e = new Date(t.salesEnd).getTime()
+    return Number.isFinite(s) && Number.isFinite(e) && e <= s
+  }
+  const anySaleWindowInvalid = sellMode === 'tickets' && tiers.some(saleWindowInvalid)
+
+  // Access code: required (min 6) when enabling protection on CREATE; on edit a
+  // blank code keeps the existing hash, but a typed code must still be >= 6.
+  const trimmedCode = accessCode.trim()
+  const accessCodeInvalid =
+    passwordProtected &&
+    ((!isEdit && trimmedCode.length < 6) || (trimmedCode.length > 0 && trimmedCode.length < 6))
+
   const tzLabel = (() => {
     const off = -new Date().getTimezoneOffset() / 60
     return `GMT${off >= 0 ? '+' : ''}${off}`
@@ -275,6 +395,10 @@ export default function EventComposer({
       name: t.name.trim() || 'General Admission',
       price: Number(t.price) || 0,
       quantity: Number(t.qty) || 0,
+      // Per-tier sale window as ISO strings (or null). Matches mobile's format so
+      // the web purchase routes and selector enforce/display identical bounds.
+      sales_start: localInputToISO(t.salesStart),
+      sales_end: localInputToISO(t.salesEnd),
     }))
     const firstTier = cleanTiers[0] || { name: 'General Admission', price: 0, quantity: 0 }
     const totalQty = cleanTiers.reduce((sum, t) => sum + t.quantity, 0)
@@ -299,11 +423,15 @@ export default function EventComposer({
       currency: normalizeEventCurrencyForCountry('HT', currency),
       banner_image_url: bannerUrl || null,
       is_online: isOnline,
-      is_recurring: recurring,
+      // Recurrence is create-only: on edit preserve the stored flag; on create it
+      // reflects the chosen cadence (per-occurrence metadata is stamped below).
+      is_recurring: isEdit ? !!event?.is_recurring : recurrence !== 'none',
       enable_waitlist: enableWaitlist,
       show_guestlist: showGuestlist,
       show_on_explore: showOnExplore,
-      password_protected: passwordProtected,
+      is_password_protected: passwordProtected,
+      video_url: videoUrl.trim(),
+      theme_key: themeKey || '',
       spotify_url: spotifyUrl.trim() || null,
       title_font: titleFont,
       accent_color: accentColor,
@@ -314,7 +442,13 @@ export default function EventComposer({
   // Replace the tier set for an event (mirrors the existing editor's behaviour).
   const syncTiers = async (
     eventId: string,
-    cleanTiers: Array<{ name: string; price: number; quantity: number }>,
+    cleanTiers: Array<{
+      name: string
+      price: number
+      quantity: number
+      sales_start: string | null
+      sales_end: string | null
+    }>,
     isRsvp: boolean
   ) => {
     await firebaseDb.from('ticket_tiers').delete().eq('event_id', eventId)
@@ -326,8 +460,9 @@ export default function EventComposer({
         total_quantity: t.quantity,
         sold_quantity: 0,
         description: null,
-        sales_start: null,
-        sales_end: null,
+        // Per-tier sale window (ISO 8601 strings, or null for no bound).
+        sales_start: t.sales_start,
+        sales_end: t.sales_end,
         sort_order: i,
       }))
       const { error } = await firebaseDb.from('ticket_tiers').insert(tiersToInsert)
@@ -364,10 +499,44 @@ export default function EventComposer({
       })
       return
     }
+    if (anySaleWindowInvalid) {
+      showToast({
+        type: 'error',
+        title: 'Check ticket sale windows',
+        message: 'A ticket’s sales end must be after its sales start.',
+        duration: 4000,
+      })
+      return
+    }
+    if (accessCodeInvalid) {
+      showToast({
+        type: 'error',
+        title: 'Set an access code',
+        message: isEdit
+          ? 'Access codes must be at least 6 characters.'
+          : 'Protected events need an access code of at least 6 characters.',
+        duration: 4000,
+      })
+      return
+    }
 
     setSaving(true)
     try {
       const { data, cleanTiers, isRsvp } = buildEventData()
+
+      // Hash + write the access code to events/{id}/private/access when the event
+      // is protected AND a non-empty code was typed. A blank code (edit mode)
+      // intentionally preserves any existing hash. Plaintext is never persisted.
+      const writeAccessHash = async (eventId: string) => {
+        if (!passwordProtected) return
+        const code = accessCode.trim()
+        if (!code) return
+        const codeHash = await sha256Hex(code)
+        await setDoc(doc(db, 'events', eventId, 'private', 'access'), {
+          code_hash: codeHash,
+          updated_at: serverTimestamp(),
+        })
+      }
 
       // ----- EDIT: update the existing event -----
       if (isEdit) {
@@ -379,6 +548,7 @@ export default function EventComposer({
         const { error } = await firebaseDb.from('events').update(data).eq('id', event.id)
         if (error) throw error
         await syncTiers(event.id, cleanTiers, isRsvp)
+        await writeAccessHash(event.id)
         showToast({ type: 'success', title: 'Changes saved', message: 'Your event has been updated.', duration: 3000 })
         router.refresh()
         return
@@ -395,9 +565,55 @@ export default function EventComposer({
         router.push('/organizer/events')
         return
       }
+
+      // Recurrence plan (CREATE-only — edit returns above and never regenerates).
+      // A real cadence generates `count` occurrences one cadence apart, all
+      // sharing a series_id. Anything else falls back to a single event.
+      const cadence = recurrence !== 'none' ? recurrence : null
+      const occurrenceCount = cadence
+        ? Math.max(2, Math.min(MAX_RECURRENCE_COUNT, Math.round(recurrenceCount || 2)))
+        : 1
+
+      if (cadence && occurrenceCount > 1) {
+        const seriesId = `series_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`
+        const baseStart = data.start_datetime ? new Date(data.start_datetime) : null
+        const baseEnd = data.end_datetime ? new Date(data.end_datetime) : null
+        let firstId = ''
+        for (let i = 0; i < occurrenceCount; i++) {
+          const occData = {
+            ...createData,
+            start_datetime: baseStart ? shiftDateByRecurrence(baseStart, cadence, i).toISOString() : null,
+            end_datetime: baseEnd ? shiftDateByRecurrence(baseEnd, cadence, i).toISOString() : null,
+            is_recurring: true,
+            recurrence: cadence,
+            series_id: seriesId,
+          }
+          const { data: occ, error: occErr } = await firebaseDb.from('events').insert(occData).select().single()
+          if (occErr) throw occErr
+          if (occ?.id) {
+            await syncTiers(occ.id, cleanTiers, isRsvp)
+            await writeAccessHash(occ.id)
+          }
+          if (i === 0) firstId = occ?.id || ''
+        }
+        showToast({
+          type: 'success',
+          title: 'Series created',
+          message: `${occurrenceCount} events created. Review the first, then Publish below.`,
+          duration: 4000,
+        })
+        if (firstId) router.push(`/organizer/events/${firstId}/edit`)
+        else router.push('/organizer/events')
+        router.refresh()
+        return
+      }
+
       const { data: created, error } = await firebaseDb.from('events').insert(createData).select().single()
       if (error) throw error
-      if (created?.id) await syncTiers(created.id, cleanTiers, isRsvp)
+      if (created?.id) {
+        await syncTiers(created.id, cleanTiers, isRsvp)
+        await writeAccessHash(created.id)
+      }
       showToast({ type: 'success', title: 'Draft created', message: 'Review the details, then Publish below.', duration: 4000 })
       router.push(`/organizer/events/${created.id}/edit`)
       router.refresh()
@@ -559,12 +775,50 @@ export default function EventComposer({
             {startInvalid && <p className="mt-1.5 text-sm text-red-300">Pick when your event starts.</p>}
             {endInvalid && <p className="mt-1.5 text-sm text-red-300">The end time must be after the start time.</p>}
 
-            <div className="mt-3 flex items-center justify-between rounded-xl border border-white/10 px-4 py-3.5">
-              <span className="flex items-center gap-2 text-[15px] text-white/80">
-                <Repeat className="h-4 w-4 text-white/50" /> Recurring Series
-              </span>
-              <Toggle on={recurring} onChange={setRecurring} label="Recurring series" />
-            </div>
+            {/* Repeats — create-only. Generates a series of independent events. */}
+            {!isEdit && (
+              <div className="mt-3 rounded-xl border border-white/10 px-4 py-3.5">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <span className="flex items-center gap-2 text-[15px] text-white/80">
+                    <Repeat className="h-4 w-4 text-white/50" /> Repeats
+                  </span>
+                  <div className="flex flex-wrap gap-2" role="group" aria-label="Repeats">
+                    {RECURRENCE_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setRecurrence(opt.value)}
+                        aria-pressed={recurrence === opt.value}
+                        className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${
+                          recurrence === opt.value
+                            ? 'border-brand-500 bg-brand-600 text-white'
+                            : 'border-white/10 bg-white/[0.03] text-white/70 hover:border-white/20 hover:text-white'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {recurrence !== 'none' && (
+                  <label className="mt-3 flex items-center justify-between gap-3 border-t border-white/10 pt-3">
+                    <span className="text-sm text-white/70">Number of occurrences (2–52)</span>
+                    <input
+                      type="number"
+                      min={2}
+                      max={MAX_RECURRENCE_COUNT}
+                      value={recurrenceCount}
+                      onChange={(e) => {
+                        const n = Math.round(Number(e.target.value) || 2)
+                        setRecurrenceCount(Math.max(2, Math.min(MAX_RECURRENCE_COUNT, n)))
+                      }}
+                      aria-label="Number of occurrences"
+                      className="w-20 rounded-lg border border-white/10 bg-transparent px-2.5 py-1.5 text-right text-sm text-white [color-scheme:dark] focus:outline-none focus:border-brand-400"
+                    />
+                  </label>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Event Details */}
@@ -705,6 +959,33 @@ export default function EventComposer({
                         <input type="number" min="0" value={tier.qty} onChange={(e) => updateTier(tier.id, { qty: e.target.value })} className={field} />
                       </label>
                     </div>
+                    {/* Optional per-tier sale window. Leave blank for no bound. */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <label className="block">
+                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">Sales start</span>
+                        <input
+                          type="datetime-local"
+                          value={tier.salesStart || ''}
+                          onChange={(e) => updateTier(tier.id, { salesStart: e.target.value })}
+                          aria-label={`Ticket type ${i + 1} sales start`}
+                          className={field}
+                        />
+                      </label>
+                      <label className="block">
+                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">Sales end</span>
+                        <input
+                          type="datetime-local"
+                          value={tier.salesEnd || ''}
+                          min={tier.salesStart || undefined}
+                          onChange={(e) => updateTier(tier.id, { salesEnd: e.target.value })}
+                          aria-label={`Ticket type ${i + 1} sales end`}
+                          className={field}
+                        />
+                      </label>
+                    </div>
+                    {saleWindowInvalid(tier) && (
+                      <p className="text-sm text-red-300">Sales end must be after sales start.</p>
+                    )}
                   </div>
                 ))}
 
@@ -810,15 +1091,18 @@ export default function EventComposer({
             <p className="mt-2 px-1 text-xs text-white/70">Available in the editor after you create the event.</p>
           </div>
 
-          {/* Media rows — not yet available */}
+          {/* Media rows */}
           <div className="mt-6 space-y-3">
-            <div className="flex items-center justify-between gap-3 text-[15px] text-white/70">
-              <span className="flex items-center gap-3">
-                <Youtube className="h-[18px] w-[18px]" /> YouTube Video
-              </span>
-              <span className="inline-flex select-none items-center rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-white/60">
-                Coming soon
-              </span>
+            {/* Promo video — optional link (persisted as video_url). */}
+            <div className="flex items-center gap-3 rounded-xl border border-white/10 px-4">
+              <Youtube className="h-[18px] w-[18px] shrink-0 text-white/50" />
+              <input
+                value={videoUrl}
+                onChange={(e) => setVideoUrl(e.target.value)}
+                placeholder="Promo video link (YouTube, Vimeo…)"
+                aria-label="Promo video link"
+                className="w-full bg-transparent py-3.5 text-[15px] text-white placeholder:text-white/40 focus:outline-none"
+              />
             </div>
             <div className="flex items-center justify-between gap-3 text-[15px] text-white/70">
               <span className="flex items-center gap-3">
@@ -838,11 +1122,33 @@ export default function EventComposer({
                 <span className="text-[15px] text-white/80">Show on Explore</span>
                 <Toggle on={showOnExplore} onChange={setShowOnExplore} label="Show on Explore" />
               </div>
-              <div className="flex items-center justify-between rounded-xl border border-white/10 px-4 py-3.5">
-                <span className="flex items-center gap-2 text-[15px] text-white/80">
-                  <Lock className="h-4 w-4 text-white/50" /> Password Protected Event
-                </span>
-                <Toggle on={passwordProtected} onChange={setPasswordProtected} label="Password protected event" />
+              <div className="rounded-xl border border-white/10 px-4 py-3.5">
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-[15px] text-white/80">
+                    <Lock className="h-4 w-4 text-white/50" /> Password Protected Event
+                  </span>
+                  <Toggle on={passwordProtected} onChange={setPasswordProtected} label="Password protected event" />
+                </div>
+                {passwordProtected && (
+                  <div className="mt-3 border-t border-white/10 pt-3">
+                    <input
+                      type="text"
+                      value={accessCode}
+                      onChange={(e) => setAccessCode(e.target.value)}
+                      placeholder={isEdit ? 'New access code (blank keeps current)' : 'Access code (min 6 characters)'}
+                      aria-label="Access code"
+                      autoComplete="off"
+                      className={`${field} ${accessCodeInvalid ? 'border-red-400/60' : ''}`}
+                    />
+                    {accessCodeInvalid ? (
+                      <p className="mt-1.5 text-sm text-red-300">Access codes must be at least 6 characters.</p>
+                    ) : (
+                      <p className="mt-1.5 text-xs text-white/50">
+                        Attendees must enter this code to view and buy. It&rsquo;s stored hashed — we never keep the plain code.
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -900,6 +1206,42 @@ export default function EventComposer({
                     />
                   ))}
                 </div>
+              </div>
+            </div>
+
+            {/* Poster theme — pins the poster gradient ('' = Auto). */}
+            <div className="space-y-3 rounded-xl border border-white/10 p-4">
+              <span className="flex items-center gap-2 text-sm text-white/80">
+                <Palette className="h-4 w-4 text-white/50" /> Poster Theme
+              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setThemeKey('')}
+                  aria-pressed={themeKey === ''}
+                  title="Auto"
+                  className={`flex h-8 items-center rounded-full border px-3 text-xs font-semibold transition-all ${
+                    themeKey === ''
+                      ? 'border-white bg-white text-black'
+                      : 'border-white/15 text-white/70 hover:text-white'
+                  }`}
+                >
+                  Auto
+                </button>
+                {POSTER_THEME_SWATCHES.map(({ key, bg }) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setThemeKey(key)}
+                    aria-label={key}
+                    aria-pressed={themeKey === key}
+                    title={key}
+                    className={`h-8 w-8 rounded-full transition-transform ${
+                      themeKey === key ? 'ring-2 ring-white ring-offset-2 ring-offset-[#0a0a0a]' : ''
+                    }`}
+                    style={{ backgroundImage: bg }}
+                  />
+                ))}
               </div>
             </div>
 

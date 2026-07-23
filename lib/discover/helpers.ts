@@ -163,6 +163,9 @@ export function filterEventsByLocation(events: Event[], city: string, commune?: 
 export function getUpcomingEvents(events: Event[], limit: number = 8): Event[] {
   const now = new Date()
   return events
+    // Exclude events the organizer opted out of Explore/discovery.
+    // Only `show_on_explore === false` hides an event; missing/undefined stays visible.
+    .filter(e => (e as any).show_on_explore !== false)
     .filter(e => new Date(e.start_datetime) > now)
     .sort((a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime())
     .slice(0, limit)
@@ -173,6 +176,9 @@ export function getUpcomingEvents(events: Event[], limit: number = 8): Event[] {
  */
 export function getFeaturedEvents(events: Event[], limit: number = 6): Event[] {
   return events
+    // Exclude events the organizer opted out of Explore/discovery.
+    // Only `show_on_explore === false` hides an event; missing/undefined stays visible.
+    .filter(e => (e as any).show_on_explore !== false)
     .filter(e => (e.tickets_sold || 0) > 0)
     .sort((a, b) => (b.tickets_sold || 0) - (a.tickets_sold || 0))
     .slice(0, limit)
