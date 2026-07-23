@@ -482,6 +482,13 @@ export default {
       ticketDescription: 'Ticket description (optional)',
       trailer: 'Watch promo video',
       aboutTicket: 'About this ticket',
+      repeats: 'Repeats',
+      repeatNever: 'Never',
+      repeatDaily: 'Daily',
+      repeatWeekly: 'Weekly',
+      repeatMonthly: 'Monthly',
+      repeatCount: 'Number of dates',
+      repeatHint: "We'll create {n} events on this schedule.",
     },
   },
 

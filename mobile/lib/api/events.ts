@@ -48,6 +48,44 @@ export interface CreateEventData {
   video_url?: string;
   /** Whether attendees can see the guest list. */
   show_guestlist?: boolean;
+  /**
+   * Recurring-event cadence (create-only). When set to a real cadence and
+   * `recurrence_count > 1`, createEvent generates that many independent event
+   * docs one cadence apart, all sharing a `series_id`. Defaults to 'none'.
+   */
+  recurrence?: 'none' | 'daily' | 'weekly' | 'monthly';
+  /** TOTAL occurrences incl. the first. Only meaningful when recurring. Capped at 52. */
+  recurrence_count?: number;
+}
+
+/** Hard cap on how many occurrences a single recurring series may generate. */
+const MAX_RECURRENCE_COUNT = 52;
+
+/**
+ * Shift a base datetime by `i` steps of the given cadence, preserving the
+ * time-of-day. Monthly steps clamp the day-of-month to the target month's
+ * length (e.g. Jan 31 + 1 month → Feb 28/29) so no occurrence rolls into the
+ * following month.
+ */
+function shiftDateByRecurrence(
+  base: Date,
+  cadence: 'daily' | 'weekly' | 'monthly',
+  i: number
+): Date {
+  const d = new Date(base.getTime());
+  if (cadence === 'daily') {
+    d.setDate(d.getDate() + i);
+  } else if (cadence === 'weekly') {
+    d.setDate(d.getDate() + i * 7);
+  } else {
+    // monthly — clamp day to the target month's length.
+    const day = d.getDate();
+    d.setDate(1);
+    d.setMonth(d.getMonth() + i);
+    const lastDayOfMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+    d.setDate(Math.min(day, lastDayOfMonth));
+  }
+  return d;
 }
 
 export interface SaveEventOptions {
@@ -101,12 +139,12 @@ export async function createEvent(
       coverImageUrl = await uploadEventImage(organizerId, eventData.banner_image_url);
     }
 
-    // Parse dates and times into proper datetime
-    const startDatetime = parseDateTimeString(
+    // Parse the base dates/times. Recurring occurrences are shifted from these.
+    const baseStartDatetime = parseDateTimeString(
       eventData.start_date,
       eventData.start_time
     );
-    const endDatetime = parseDateTimeString(
+    const baseEndDatetime = parseDateTimeString(
       eventData.end_date,
       eventData.end_time
     );
@@ -122,87 +160,127 @@ export async function createEvent(
       ...eventData.ticket_tiers.map(tier => parseFloat(tier.price) || 0)
     );
 
-    // Prepare Firestore document
-    const eventDoc = {
-      title: eventData.title,
-      description: eventData.description,
-      category: eventData.category,
-      // Both field names for compatibility
-      banner_image_url: coverImageUrl,
-      cover_image_url: coverImageUrl,
-      image_url: coverImageUrl,
-      venue_name: eventData.venue_name,
-      country: eventData.country || 'HT',
-      department: eventData.department || '',
-      city: eventData.city,
-      commune: eventData.commune || '',
-      address: eventData.address,
-      location: `${eventData.venue_name}, ${eventData.city}`,
-      start_datetime: Timestamp.fromDate(startDatetime),
-      end_datetime: Timestamp.fromDate(endDatetime),
-      timezone: eventData.timezone,
-      currency: eventData.currency,
-      ticket_tiers: eventData.ticket_tiers.map(tier => ({
-        name: tier.name,
-        price: parseFloat(tier.price) || 0,
-        quantity: parseInt(tier.quantity) || 0,
-        available: parseInt(tier.quantity) || 0,
-        description: tier.description || '',
-        unlimited: tier.unlimited || false,
-      })),
-      // Multiple field names for compatibility with web and mobile
-      ticket_price: lowestPrice,
-      total_capacity: totalCapacity,
-      total_tickets: totalCapacity,
-      capacity: totalCapacity,
-      tickets_sold: 0,
-      tickets_available: totalCapacity,
-      organizer_id: organizerId,
-      is_rsvp: eventData.is_rsvp || false,
-      // Advanced settings — default visible/on when the caller omits them.
-      show_on_explore: eventData.show_on_explore !== false,
-      video_url: eventData.video_url || '',
-      show_guestlist: eventData.show_guestlist !== false,
-      is_published: publish,
-      status: publish ? 'published' : 'draft',
-      // Moderation defaults — every event must carry these or it goes invisible
-      // to the admin events tabs (see event-moderation-data-model). Drafts too.
-      rejected: false,
-      reports_count: 0,
-      created_at: serverTimestamp(),
-      updated_at: serverTimestamp(),
-    };
+    // ── Recurrence plan ──────────────────────────────────────────────────
+    // A real cadence + count > 1 generates that many occurrences one cadence
+    // apart. Anything else falls back to a single event (unchanged behavior).
+    const cadence = eventData.recurrence && eventData.recurrence !== 'none'
+      ? eventData.recurrence
+      : null;
+    const requestedCount = Math.round(eventData.recurrence_count || 1);
+    const occurrenceCount = cadence
+      ? Math.max(1, Math.min(MAX_RECURRENCE_COUNT, requestedCount))
+      : 1;
+    const isRecurring = !!cadence && occurrenceCount > 1;
+    // One shared id ties every occurrence together as a series.
+    const seriesId = isRecurring
+      ? `series_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`
+      : null;
 
-    // Add to Firestore
-    const docRef = await addDoc(collection(db, 'events'), eventDoc);
-    
-    // Create separate ticket_tiers documents for each tier
-    const tierPromises = eventData.ticket_tiers.map(async (tier, index) => {
-      const tierDoc = {
-        event_id: docRef.id,
-        name: tier.name,
-        price: parseFloat(tier.price) || 0,
-        quantity: parseInt(tier.quantity) || 0,
-        total_quantity: parseInt(tier.quantity) || 0,
-        available: parseInt(tier.quantity) || 0,
-        sold_quantity: 0,
-        description: tier.description || tier.name,
-        unlimited: tier.unlimited || false,
-        sort_order: index,
-        is_active: true,
-        sales_start: null,
-        sales_end: null,
+    // Build one event doc + its ticket_tiers docs for a given occurrence.
+    const createOccurrence = async (startDatetime: Date, endDatetime: Date): Promise<string> => {
+      const eventDoc = {
+        title: eventData.title,
+        description: eventData.description,
+        category: eventData.category,
+        // Both field names for compatibility
+        banner_image_url: coverImageUrl,
+        cover_image_url: coverImageUrl,
+        image_url: coverImageUrl,
+        venue_name: eventData.venue_name,
+        country: eventData.country || 'HT',
+        department: eventData.department || '',
+        city: eventData.city,
+        commune: eventData.commune || '',
+        address: eventData.address,
+        location: `${eventData.venue_name}, ${eventData.city}`,
+        start_datetime: Timestamp.fromDate(startDatetime),
+        end_datetime: Timestamp.fromDate(endDatetime),
+        timezone: eventData.timezone,
+        currency: eventData.currency,
+        ticket_tiers: eventData.ticket_tiers.map(tier => ({
+          name: tier.name,
+          price: parseFloat(tier.price) || 0,
+          quantity: parseInt(tier.quantity) || 0,
+          available: parseInt(tier.quantity) || 0,
+          description: tier.description || '',
+          unlimited: tier.unlimited || false,
+        })),
+        // Multiple field names for compatibility with web and mobile
+        ticket_price: lowestPrice,
+        total_capacity: totalCapacity,
+        total_tickets: totalCapacity,
+        capacity: totalCapacity,
+        tickets_sold: 0,
+        tickets_available: totalCapacity,
+        organizer_id: organizerId,
+        is_rsvp: eventData.is_rsvp || false,
+        // Advanced settings — default visible/on when the caller omits them.
+        show_on_explore: eventData.show_on_explore !== false,
+        video_url: eventData.video_url || '',
+        show_guestlist: eventData.show_guestlist !== false,
+        is_published: publish,
+        status: publish ? 'published' : 'draft',
+        // Moderation defaults — every event must carry these or it goes invisible
+        // to the admin events tabs (see event-moderation-data-model). Drafts too.
+        rejected: false,
+        reports_count: 0,
+        // Recurrence metadata — only stamped on generated series occurrences so
+        // the single-event path keeps its existing doc shape untouched.
+        ...(isRecurring ? { recurrence: cadence, series_id: seriesId } : {}),
         created_at: serverTimestamp(),
         updated_at: serverTimestamp(),
       };
-      
-      return addDoc(collection(db, 'ticket_tiers'), tierDoc);
-    });
 
-    await Promise.all(tierPromises);
-    
-    console.log('Event created successfully:', docRef.id);
-    return docRef.id;
+      // Add the event doc to Firestore
+      const docRef = await addDoc(collection(db, 'events'), eventDoc);
+
+      // Create separate ticket_tiers documents for each tier
+      const tierPromises = eventData.ticket_tiers.map(async (tier, index) => {
+        const tierDoc = {
+          event_id: docRef.id,
+          name: tier.name,
+          price: parseFloat(tier.price) || 0,
+          quantity: parseInt(tier.quantity) || 0,
+          total_quantity: parseInt(tier.quantity) || 0,
+          available: parseInt(tier.quantity) || 0,
+          sold_quantity: 0,
+          description: tier.description || tier.name,
+          unlimited: tier.unlimited || false,
+          sort_order: index,
+          is_active: true,
+          sales_start: null,
+          sales_end: null,
+          created_at: serverTimestamp(),
+          updated_at: serverTimestamp(),
+        };
+
+        return addDoc(collection(db, 'ticket_tiers'), tierDoc);
+      });
+
+      await Promise.all(tierPromises);
+      return docRef.id;
+    };
+
+    // Non-recurring (or count <= 1): exactly one event, same as before.
+    if (!isRecurring) {
+      const id = await createOccurrence(baseStartDatetime, baseEndDatetime);
+      console.log('Event created successfully:', id);
+      return id;
+    }
+
+    // Recurring: create each occurrence in order, shifting start/end together.
+    // Occurrence 0 is the base; occurrence i is offset by i steps of the cadence.
+    let firstId = '';
+    for (let i = 0; i < occurrenceCount; i++) {
+      const startDatetime = shiftDateByRecurrence(baseStartDatetime, cadence!, i);
+      const endDatetime = shiftDateByRecurrence(baseEndDatetime, cadence!, i);
+      const id = await createOccurrence(startDatetime, endDatetime);
+      if (i === 0) firstId = id;
+    }
+
+    console.log(`Recurring series ${seriesId} created: ${occurrenceCount} events`);
+    // Keep the existing return contract: the FIRST occurrence's id.
+    return firstId;
   } catch (error) {
     console.error('Error creating event:', error);
     throw new Error('Failed to create event. Please try again.');

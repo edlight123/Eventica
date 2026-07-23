@@ -1294,6 +1294,13 @@ export default {
       ticketDescription: 'Deskripsyon tikè (opsyonèl)',
       trailer: 'Gade videyo pwomo',
       aboutTicket: 'Konsènan tikè sa a',
+      repeats: 'Repetisyon',
+      repeatNever: 'Jamè',
+      repeatDaily: 'Chak jou',
+      repeatWeekly: 'Chak semèn',
+      repeatMonthly: 'Chak mwa',
+      repeatCount: 'Kantite dat',
+      repeatHint: "N ap kreye {n} evènman sou orè sa a.",
     },
   },
 

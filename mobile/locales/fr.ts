@@ -1296,6 +1296,13 @@ export default {
       ticketDescription: 'Description du billet (facultatif)',
       trailer: 'Regarder la vidéo promo',
       aboutTicket: 'À propos de ce billet',
+      repeats: 'Récurrence',
+      repeatNever: 'Jamais',
+      repeatDaily: 'Chaque jour',
+      repeatWeekly: 'Chaque semaine',
+      repeatMonthly: 'Chaque mois',
+      repeatCount: 'Nombre de dates',
+      repeatHint: 'Nous créerons {n} événements selon ce calendrier.',
     },
   },
 

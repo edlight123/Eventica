@@ -103,11 +103,25 @@ export interface EventDraft {
   show_on_explore: boolean;   // false = share-by-link only, hidden from Discover
   video_url: string;          // optional promo video link
   show_guestlist: boolean;    // whether attendees can see who's going
+
+  // Recurring events (create-only). When recurrence !== 'none' the create flow
+  // generates `recurrence_count` independent occurrences one cadence apart, all
+  // sharing a series_id. Ignored/hidden in edit mode.
+  recurrence: 'none' | 'daily' | 'weekly' | 'monthly';
+  recurrence_count: number;   // TOTAL occurrences incl. the first; clamp 2–52
 }
 
 const CATEGORIES = [
   'Music', 'Sports', 'Arts', 'Business', 'Food & Drink',
   'Community', 'Education', 'Tech', 'Health', 'Other',
+];
+
+// Recurring-event cadence options for the "Repeats" selector (create-only).
+const RECURRENCE_OPTIONS: Array<{ value: EventDraft['recurrence']; labelKey: string }> = [
+  { value: 'none', labelKey: 'organizerCreateEventFlow.canvas.repeatNever' },
+  { value: 'daily', labelKey: 'organizerCreateEventFlow.canvas.repeatDaily' },
+  { value: 'weekly', labelKey: 'organizerCreateEventFlow.canvas.repeatWeekly' },
+  { value: 'monthly', labelKey: 'organizerCreateEventFlow.canvas.repeatMonthly' },
 ];
 
 const CATEGORY_LABEL_KEYS: Record<string, string> = {
@@ -314,6 +328,8 @@ export default function CreateEventFlowRefactored() {
     show_on_explore: true,
     video_url: '',
     show_guestlist: true,
+    recurrence: 'none',
+    recurrence_count: 4,
   });
 
   // Track keyboard visibility
@@ -397,6 +413,11 @@ export default function CreateEventFlowRefactored() {
           show_on_explore: (event as any).show_on_explore !== false,
           video_url: (event as any).video_url || '',
           show_guestlist: (event as any).show_guestlist !== false,
+          // Recurrence is create-only; editing never regenerates a series. The
+          // control is hidden in edit mode, so force 'none' here. (A stored
+          // series_id on the doc is left untouched — we read but don't act on it.)
+          recurrence: 'none',
+          recurrence_count: 4,
         });
       }
     } catch (error) {
@@ -729,6 +750,13 @@ export default function CreateEventFlowRefactored() {
           if (!Number.isFinite(qty) || qty <= 0) errs[`tier_${i}_quantity`] = t('organizerCreateEventFlow.validation.tierQuantity');
         }
       });
+    }
+
+    // Recurrence is create-only; clamp the count into 2–52 (no hard error — a
+    // bad value just gets corrected before generation).
+    if (eventDraft.recurrence !== 'none') {
+      const clamped = Math.max(2, Math.min(52, Math.round(eventDraft.recurrence_count || 2)));
+      if (clamped !== eventDraft.recurrence_count) updateDraft({ recurrence_count: clamped });
     }
 
     setErrors(errs);
@@ -1374,6 +1402,62 @@ export default function CreateEventFlowRefactored() {
 
               {advancedOpen && (
                 <>
+                  {/* Repeats — recurring-event generator (create-only; hidden in edit) */}
+                  {!isEditMode && (
+                    <View style={styles.repeatBlock}>
+                      <Text style={styles.chipLabel}>{t('organizerCreateEventFlow.canvas.repeats')}</Text>
+                      <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.chipScroll}
+                      >
+                        {RECURRENCE_OPTIONS.map((opt) => (
+                          <TouchableOpacity
+                            key={opt.value}
+                            style={[styles.chip, eventDraft.recurrence === opt.value && styles.chipActive]}
+                            onPress={() => updateDraft({ recurrence: opt.value })}
+                          >
+                            <Text style={[styles.chipText, eventDraft.recurrence === opt.value && styles.chipTextActive]}>
+                              {t(opt.labelKey)}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </ScrollView>
+
+                      {eventDraft.recurrence !== 'none' && (
+                        <>
+                          {/* Number of dates stepper (clamped 2–52) */}
+                          <View style={styles.stepperRow}>
+                            <Text style={styles.stepperLabel}>{t('organizerCreateEventFlow.canvas.repeatCount')}</Text>
+                            <View style={styles.stepper}>
+                              <TouchableOpacity
+                                style={styles.stepperBtn}
+                                onPress={() => updateDraft({ recurrence_count: Math.max(2, eventDraft.recurrence_count - 1) })}
+                                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                              >
+                                <Ionicons name="remove" size={20} color={colors.text} />
+                              </TouchableOpacity>
+                              <Text style={styles.stepperValue}>{eventDraft.recurrence_count}</Text>
+                              <TouchableOpacity
+                                style={styles.stepperBtn}
+                                onPress={() => updateDraft({ recurrence_count: Math.min(52, eventDraft.recurrence_count + 1) })}
+                                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                              >
+                                <Ionicons name="add" size={20} color={colors.text} />
+                              </TouchableOpacity>
+                            </View>
+                          </View>
+                          <View style={styles.infoRow}>
+                            <Ionicons name="repeat-outline" size={16} color={colors.textSecondary} />
+                            <Text style={styles.infoText}>
+                              {t('organizerCreateEventFlow.canvas.repeatHint').replace('{n}', String(eventDraft.recurrence_count))}
+                            </Text>
+                          </View>
+                        </>
+                      )}
+                    </View>
+                  )}
+
                   {/* Visibility — Show on Explore */}
                   <View style={styles.settingRow}>
                     <View style={styles.settingTextCol}>
@@ -1501,7 +1585,11 @@ export default function CreateEventFlowRefactored() {
           <View style={[styles.sheet, { paddingBottom: insets.bottom + 20 }]}>
             <View style={styles.sheetHandle} />
             <Text style={styles.sheetTitle}>{t('organizerCreateEventFlow.confirm.title')}</Text>
-            <Text style={styles.sheetBody}>{t('organizerCreateEventFlow.confirm.body')}</Text>
+            <Text style={styles.sheetBody}>
+              {eventDraft.recurrence !== 'none'
+                ? t('organizerCreateEventFlow.canvas.repeatHint').replace('{n}', String(eventDraft.recurrence_count))
+                : t('organizerCreateEventFlow.confirm.body')}
+            </Text>
 
             <WhitePillCTA
               label={t('organizerCreateEventFlow.confirm.publish')}
@@ -1971,6 +2059,44 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 13,
     color: colors.textSecondary,
     lineHeight: 18,
+  },
+
+  // ── Repeats (recurring events) ──
+  repeatBlock: {
+    paddingVertical: 14,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+    gap: 10,
+  },
+  stepperRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 6,
+  },
+  stepperLabel: {
+    fontSize: 15,
+    color: colors.text,
+  },
+  stepper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  stepperBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: RADIUS.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surfaceRaised,
+  },
+  stepperValue: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: colors.text,
+    minWidth: 28,
+    textAlign: 'center',
   },
 
   // ── Footer ──
