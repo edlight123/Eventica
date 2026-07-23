@@ -30,6 +30,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
@@ -898,9 +899,31 @@ export default function CreateEventFlowRefactored() {
                 </>
               ) : (
                 <View style={styles.flyerEmpty}>
-                  <Text style={styles.flyerTitle}>{t('organizerCreateEventFlow.canvas.flyerTitle')}</Text>
-                  <View style={styles.uploadPill}>
-                    <Text style={styles.uploadPillText}>{t('organizerCreateEventFlow.canvas.uploadFlyer')}</Text>
+                  {/* Poster-forward ambient base (matches the login backdrop) */}
+                  <LinearGradient
+                    colors={['#123230', '#0c1c1e', '#0A0A0A']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={StyleSheet.absoluteFill}
+                  />
+                  <View style={styles.flyerGlow} />
+                  {/* Faint raked flyer silhouettes */}
+                  <View style={[styles.posterSilhouette, styles.poster1]} />
+                  <View style={[styles.posterSilhouette, styles.poster2]} />
+                  <View style={[styles.posterSilhouette, styles.poster3]} />
+                  {/* Dashed upload-zone frame */}
+                  <View style={styles.flyerDashed} pointerEvents="none" />
+
+                  <View style={styles.flyerContent}>
+                    <View style={styles.flyerIconRing}>
+                      <Ionicons name="image-outline" size={30} color={colors.text} />
+                    </View>
+                    <Text style={styles.flyerTitle}>{t('organizerCreateEventFlow.canvas.flyerTitle')}</Text>
+                    <Text style={styles.flyerSubtitle}>{t('organizerCreateEvent.basics.aspectRatio')}</Text>
+                    <View style={styles.uploadPill}>
+                      <Ionicons name="arrow-up-circle" size={18} color="#000000" />
+                      <Text style={styles.uploadPillText}>{t('organizerCreateEventFlow.canvas.uploadFlyer')}</Text>
+                    </View>
                   </View>
                 </View>
               )}
@@ -1402,7 +1425,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
 
   // ── Flyer hero ──
   flyerHero: {
-    height: 380,
+    // True event-flyer proportions: 2:3 portrait, matching the picker crop.
+    aspectRatio: 2 / 3,
     borderRadius: RADIUS.xl,
     marginHorizontal: 16,
     marginBottom: 12,
@@ -1412,23 +1436,97 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'center',
   },
   flyerEmpty: {
+    ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 20,
+  },
+  flyerContent: {
+    alignItems: 'center',
+    gap: 14,
+    paddingHorizontal: 24,
+  },
+  flyerGlow: {
+    position: 'absolute',
+    top: -70,
+    left: -50,
+    width: 260,
+    height: 260,
+    borderRadius: 130,
+    backgroundColor: colors.primary,
+    opacity: 0.16,
+  },
+  posterSilhouette: {
+    position: 'absolute',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: 'rgba(255,255,255,0.025)',
+  },
+  poster1: {
+    width: 150,
+    height: 215,
+    top: 46,
+    left: -34,
+    transform: [{ rotate: '-15deg' }],
+  },
+  poster2: {
+    width: 140,
+    height: 200,
+    bottom: 60,
+    right: -30,
+    transform: [{ rotate: '12deg' }],
+  },
+  poster3: {
+    width: 96,
+    height: 138,
+    top: 150,
+    right: 44,
+    opacity: 0.6,
+    transform: [{ rotate: '-7deg' }],
+  },
+  flyerDashed: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    right: 12,
+    bottom: 12,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderColor: 'rgba(255,255,255,0.14)',
+  },
+  flyerIconRing: {
+    width: 62,
+    height: 62,
+    borderRadius: 31,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
+    backgroundColor: 'rgba(255,255,255,0.05)',
   },
   flyerTitle: {
     fontFamily: font.serif,
-    fontSize: 28,
-    lineHeight: 32,
+    fontSize: 30,
+    lineHeight: 34,
     color: colors.text,
     textAlign: 'center',
-    paddingHorizontal: 24,
+  },
+  flyerSubtitle: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginTop: -6,
   },
   uploadPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
     paddingHorizontal: 22,
     paddingVertical: 12,
     borderRadius: RADIUS.full,
     backgroundColor: colors.white,
+    marginTop: 4,
   },
   uploadPillText: {
     fontSize: 15,
