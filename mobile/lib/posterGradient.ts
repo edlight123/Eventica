@@ -111,9 +111,12 @@ export function getPosterGradient(
 /** Selectable theme keys for the organizer picker (every curated theme). */
 export const POSTER_THEME_KEYS: PosterThemeKey[] = ALL_KEYS
 
-/** Narrow an arbitrary string to a valid, non-empty PosterThemeKey. */
+/** Narrow an arbitrary string to a valid, non-empty PosterThemeKey.
+ * Uses hasOwnProperty (not `in`) so inherited Object.prototype keys like
+ * "constructor"/"toString" from a crafted event.theme_key can't slip through
+ * and return a non-theme (which would make `.colors` undefined and crash). */
 export function isPosterThemeKey(value: unknown): value is PosterThemeKey {
-  return typeof value === 'string' && value.length > 0 && value in THEMES
+  return typeof value === 'string' && Object.prototype.hasOwnProperty.call(THEMES, value)
 }
 
 /**
