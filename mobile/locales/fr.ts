@@ -1285,6 +1285,8 @@ export default {
       addTicketType: 'Ajouter un type de billet',
       advancedShow: 'Afficher les paramètres avancés',
       advancedHide: 'Masquer les paramètres avancés',
+      posterTheme: 'Thème de l\'affiche',
+      posterThemeAuto: 'Auto',
       visibility: 'Afficher dans Explorer',
       visibilityHint: 'Les événements publics apparaissent dans Découvrir. Désactivez pour partager par lien uniquement.',
       promoVideo: 'Lien de la vidéo promo (facultatif)',

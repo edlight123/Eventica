@@ -45,7 +45,7 @@ import WhitePillCTA from '../components/WhitePillCTA';
 import VerifiedBadge from '../components/VerifiedBadge';
 import PaymentModal from '../components/PaymentModal';
 import TieredTicketSelector from '../components/TieredTicketSelector';
-import { getPosterTheme } from '../lib/posterGradient';
+import { resolvePosterTheme } from '../lib/posterGradient';
 import FreeTicketModal from '../components/FreeTicketModal';
 import AddToCalendarButton from '../components/AddToCalendarButton';
 import JoinWaitlistButton from '../components/JoinWaitlistButton';
@@ -432,7 +432,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
         {/* Hero — same poster blurred as backdrop, sharp poster centered */}
         <View style={styles.heroContainer}>
           <LinearGradient
-            colors={getPosterTheme(event.id || event.title, event.category).colors}
+            colors={resolvePosterTheme(event, event.id || event.title, event.category).colors}
             start={{ x: 0.1, y: 0 }}
             end={{ x: 0.9, y: 1 }}
             style={StyleSheet.absoluteFill}
@@ -450,7 +450,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
           {/* Centered sharp poster */}
           <View style={styles.heroPoster}>
             <LinearGradient
-              colors={getPosterTheme(event.id || event.title, event.category).colors}
+              colors={resolvePosterTheme(event, event.id || event.title, event.category).colors}
               start={{ x: 0.1, y: 0 }}
               end={{ x: 0.9, y: 1 }}
               style={StyleSheet.absoluteFill}

@@ -1283,6 +1283,8 @@ export default {
       addTicketType: 'Ajoute yon kalite tikè',
       advancedShow: 'Montre paramèt avanse yo',
       advancedHide: 'Kache paramèt avanse yo',
+      posterTheme: 'Tèm afich la',
+      posterThemeAuto: 'Otomatik',
       visibility: 'Montre nan Eksplore',
       visibilityHint: 'Evènman piblik parèt nan Dekouvri. Fèmen l pou pataje pa lyen sèlman.',
       promoVideo: 'Lyen videyo pwomo (opsyonèl)',

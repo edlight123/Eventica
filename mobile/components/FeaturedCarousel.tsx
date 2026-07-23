@@ -5,7 +5,7 @@ import { Calendar, MapPin } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import PaginationDots from './PaginationDots';
 import { useI18n } from '../contexts/I18nContext';
-import { getPosterTheme } from '../lib/posterGradient';
+import { resolvePosterTheme } from '../lib/posterGradient';
 import { font } from '../theme/tokens';
 
 import { formatDateForLanguage } from '../lib/dates';
@@ -77,7 +77,7 @@ export default function FeaturedCarousel({ events, onEventPress }: FeaturedCarou
         }}
       >
         {events.map((event) => {
-          const theme = getPosterTheme(event.id || event.title, event.category);
+          const theme = resolvePosterTheme(event, event.id || event.title, event.category);
           return (
           <TouchableOpacity
             key={event.id}

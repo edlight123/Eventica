@@ -53,6 +53,7 @@ import {
 } from '../../data/haitiGeo';
 import WhitePillCTA from '../../components/WhitePillCTA';
 import { font } from '../../theme/tokens';
+import { POSTER_THEME_KEYS, resolvePosterTheme } from '../../lib/posterGradient';
 
 type RouteParams = {
   CreateEvent: undefined;
@@ -107,6 +108,10 @@ export interface EventDraft {
   show_on_explore: boolean;   // false = share-by-link only, hidden from Discover
   video_url: string;          // optional promo video link
   show_guestlist: boolean;    // whether attendees can see who's going
+
+  // Poster-theme override. '' = Auto (deterministic pick from seed/category);
+  // a valid PosterThemeKey pins the poster gradient for this event everywhere.
+  theme_key: string;
 
   // Recurring events (create-only). When recurrence !== 'none' the create flow
   // generates `recurrence_count` independent occurrences one cadence apart, all
@@ -348,6 +353,7 @@ export default function CreateEventFlowRefactored() {
     show_on_explore: true,
     video_url: '',
     show_guestlist: true,
+    theme_key: '',
     recurrence: 'none',
     recurrence_count: 4,
     is_password_protected: false,
@@ -438,6 +444,8 @@ export default function CreateEventFlowRefactored() {
           show_on_explore: (event as any).show_on_explore !== false,
           video_url: (event as any).video_url || '',
           show_guestlist: (event as any).show_guestlist !== false,
+          // Poster-theme override; default '' (Auto) when the field is absent.
+          theme_key: (event as any).theme_key || '',
           // Recurrence is create-only; editing never regenerates a series. The
           // control is hidden in edit mode, so force 'none' here. (A stored
           // series_id on the doc is left untouched — we read but don't act on it.)
@@ -1689,6 +1697,54 @@ export default function CreateEventFlowRefactored() {
                       )}
                     </>
                   )}
+
+                  {/* Poster theme — override the auto-picked gradient. Auto (default)
+                      clears the override; a swatch pins that theme everywhere the
+                      event's poster is rendered. */}
+                  <View style={styles.chipBlock}>
+                    <Text style={styles.chipLabel}>{t('organizerCreateEventFlow.canvas.posterTheme')}</Text>
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.chipScroll}
+                    >
+                      {/* Auto chip — selected when no override is set */}
+                      <TouchableOpacity
+                        style={[styles.chip, eventDraft.theme_key === '' && styles.chipActive]}
+                        onPress={() => updateDraft({ theme_key: '' })}
+                      >
+                        <Text style={[styles.chipText, eventDraft.theme_key === '' && styles.chipTextActive]}>
+                          {t('organizerCreateEventFlow.canvas.posterThemeAuto')}
+                        </Text>
+                      </TouchableOpacity>
+
+                      {/* One swatch per theme, rendered in that theme's gradient */}
+                      {POSTER_THEME_KEYS.map((key) => {
+                        const selected = eventDraft.theme_key === key;
+                        const theme = resolvePosterTheme({ theme_key: key });
+                        return (
+                          <TouchableOpacity
+                            key={key}
+                            style={[styles.themeSwatch, selected && styles.themeSwatchSelected]}
+                            activeOpacity={0.8}
+                            onPress={() => updateDraft({ theme_key: key })}
+                          >
+                            <LinearGradient
+                              colors={theme.colors}
+                              start={{ x: 0, y: 0 }}
+                              end={{ x: 1, y: 1 }}
+                              style={StyleSheet.absoluteFill}
+                            />
+                            {selected && (
+                              <View style={styles.themeSwatchCheck}>
+                                <Ionicons name="checkmark" size={16} color={colors.white} />
+                              </View>
+                            )}
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </ScrollView>
+                  </View>
                 </>
               )}
             </View>
@@ -2096,6 +2152,30 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   chipTextActive: {
     color: colors.white,
+  },
+
+  // ── Poster-theme swatches ──
+  themeSwatch: {
+    width: 56,
+    height: 40,
+    borderRadius: RADIUS.md,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: 'transparent',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  themeSwatchSelected: {
+    // Teal ring = the selected-state marker (semantic, matches chipActive).
+    borderColor: colors.primary,
+  },
+  themeSwatchCheck: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   // ── Commune search dropdown (Haiti) ──

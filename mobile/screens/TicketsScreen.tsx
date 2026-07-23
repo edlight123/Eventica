@@ -18,7 +18,7 @@ import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { getPosterTheme } from '../lib/posterGradient';
+import { resolvePosterTheme } from '../lib/posterGradient';
 import EmptyState from '../components/EmptyState';
 import StatusChip from '../components/StatusChip';
 import { format } from 'date-fns';
@@ -257,7 +257,7 @@ export default function TicketsScreen({ navigation }: any) {
                 >
                   <View style={styles.ticketThumb}>
                     <LinearGradient
-                      colors={getPosterTheme(event.id || event.title, event.category).colors}
+                      colors={resolvePosterTheme(event, event.id || event.title, event.category).colors}
                       start={{ x: 0.1, y: 0 }}
                       end={{ x: 0.9, y: 1 }}
                       style={StyleSheet.absoluteFill}

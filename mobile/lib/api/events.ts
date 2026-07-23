@@ -75,6 +75,12 @@ export interface CreateEventData {
   is_rsvp?: boolean;
   /** When false the event is hidden from Discover/Explore (share-by-link only). */
   show_on_explore?: boolean;
+  /**
+   * Organizer poster-theme override. A valid PosterThemeKey pins the poster
+   * gradient for this event; '' (default) = Auto (deterministic pick from the
+   * seed/category). Persisted so it wins wherever the poster is rendered.
+   */
+  theme_key?: string;
   /** Optional promo video link. */
   video_url?: string;
   /** Whether attendees can see the guest list. */
@@ -262,6 +268,9 @@ export async function createEvent(
         show_on_explore: eventData.show_on_explore !== false,
         video_url: eventData.video_url || '',
         show_guestlist: eventData.show_guestlist !== false,
+        // Organizer poster-theme override ('' = Auto). Resolvers fall back to the
+        // deterministic pick when this is empty/invalid.
+        theme_key: eventData.theme_key || '',
         // Password gate — public flag only. The secret lives hashed in the
         // private/access subdoc (written below), never on this doc.
         is_password_protected: !!eventData.is_password_protected,
@@ -424,6 +433,8 @@ export async function updateEvent(
       show_on_explore: eventData.show_on_explore !== false,
       video_url: eventData.video_url || '',
       show_guestlist: eventData.show_guestlist !== false,
+      // Organizer poster-theme override ('' = Auto); see createEvent.
+      theme_key: eventData.theme_key || '',
       // Password gate flag. When toggled OFF this becomes false and the old
       // private/access hash is simply left in place (harmless — the gate is off).
       is_password_protected: !!eventData.is_password_protected,

@@ -471,6 +471,8 @@ export default {
       addTicketType: 'Add ticket type',
       advancedShow: 'Show advanced settings',
       advancedHide: 'Hide advanced settings',
+      posterTheme: 'Poster theme',
+      posterThemeAuto: 'Auto',
       visibility: 'Show on Explore',
       visibilityHint: 'Public events appear in Discover. Turn off to share by link only.',
       promoVideo: 'Promo video link (optional)',

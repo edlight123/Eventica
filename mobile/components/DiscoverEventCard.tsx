@@ -5,7 +5,7 @@ import { Share2, Bookmark } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { safeFormatForLanguage } from '../lib/dates';
-import { getPosterTheme } from '../lib/posterGradient';
+import { resolvePosterTheme } from '../lib/posterGradient';
 import { font } from '../theme/tokens';
 import WhitePillCTA from './WhitePillCTA';
 import VerifiedBadge from './VerifiedBadge';
@@ -36,7 +36,7 @@ export default function DiscoverEventCard({
   const styles = getStyles(colors);
   const [imgLoaded, setImgLoaded] = useState(false);
 
-  const theme = getPosterTheme(event.id || event.title, event.category);
+  const theme = resolvePosterTheme(event, event.id || event.title, event.category);
   const hasImage = Boolean(event.banner_image_url || event.cover_image_url);
   const price = Number(event.ticket_price || 0);
   const isFree = !price || price === 0;
