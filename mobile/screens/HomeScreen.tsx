@@ -16,6 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Easing } from 'react-native';
 import { collection, query, where, getDocs, limit, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { filterExploreEvents } from '../lib/api/events';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useFilters } from '../contexts/FiltersContext';
@@ -147,10 +148,14 @@ export default function HomeScreen({ navigation }: any) {
         return aTime - bTime;
       });
 
+      // Hide events the organizer marked as not shown on Explore (unlisted).
+      // Missing field = visible, so existing events are unaffected.
+      const exploreEvents = filterExploreEvents(eventsData);
+
       // Filter out past events (be lenient - show events from past week that could be ongoing)
       const now = new Date();
       const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      const futureEvents: any[] = eventsData.filter((e) => {
+      const futureEvents: any[] = exploreEvents.filter((e) => {
         const start = e.start_datetime ? new Date(e.start_datetime) : null;
         const end = e.end_datetime ? new Date(e.end_datetime) : null;
         
@@ -162,7 +167,7 @@ export default function HomeScreen({ navigation }: any) {
         return true;
       });
 
-      const effectiveEvents = futureEvents.length > 0 ? futureEvents : eventsData;
+      const effectiveEvents = futureEvents.length > 0 ? futureEvents : exploreEvents;
       
       // Apply country filter - only show events from user's country
       const countryFiltered = effectiveEvents.filter((e) => 

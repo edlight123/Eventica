@@ -26,6 +26,7 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Modal,
+  Switch,
   KeyboardTypeOptions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -89,12 +90,19 @@ export interface EventDraft {
     name: string;
     price: string;
     quantity: string;
+    description: string;
+    unlimited: boolean;
   }>;
   currency: string;
 
   // Free RSVP path — no paid tiers, a single attendance cap instead.
   is_rsvp: boolean;
   capacity: string;
+
+  // Advanced settings (POSH secondary sections).
+  show_on_explore: boolean;   // false = share-by-link only, hidden from Discover
+  video_url: string;          // optional promo video link
+  show_guestlist: boolean;    // whether attendees can see who's going
 }
 
 const CATEGORIES = [
@@ -131,6 +139,12 @@ function InlineTextRow({
   keyboardType,
   maxLength,
   onFocus,
+  autoCapitalize,
+  // AutoFill is off by default: iOS was popping the password-manager "AutoFill"
+  // bubble over free-text fields like Venue. Callers can override per-field.
+  autoComplete = 'off',
+  textContentType = 'none',
+  autoCorrect = false,
 }: {
   colors: Colors;
   placeholder: string;
@@ -141,6 +155,10 @@ function InlineTextRow({
   keyboardType?: KeyboardTypeOptions;
   maxLength?: number;
   onFocus?: () => void;
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  autoComplete?: React.ComponentProps<typeof TextInput>['autoComplete'];
+  textContentType?: React.ComponentProps<typeof TextInput>['textContentType'];
+  autoCorrect?: boolean;
 }) {
   return (
     <View style={[inline.row, { borderBottomColor: error ? colors.error : colors.border }]}>
@@ -158,6 +176,10 @@ function InlineTextRow({
         multiline={!!multiline}
         keyboardType={keyboardType}
         maxLength={maxLength}
+        autoCapitalize={autoCapitalize}
+        autoComplete={autoComplete}
+        textContentType={textContentType}
+        autoCorrect={autoCorrect}
         textAlignVertical={multiline ? 'top' : 'center'}
       />
     </View>
@@ -251,6 +273,8 @@ export default function CreateEventFlowRefactored() {
   const [confirmVisible, setConfirmVisible] = useState(false);
   // Haiti commune search dropdown visibility.
   const [communeListOpen, setCommuneListOpen] = useState(false);
+  // Advanced-settings disclosure (POSH Show/Hide advanced settings).
+  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   // Date/time picker visibility (ported from Step3ScheduleRefactored).
   const [showStartDate, setShowStartDate] = useState(false);
@@ -283,10 +307,13 @@ export default function CreateEventFlowRefactored() {
     end_date: '',
     end_time: '',
     timezone: 'America/Port-au-Prince',
-    ticket_tiers: [{ name: 'General Admission', price: '0', quantity: '100' }],
+    ticket_tiers: [{ name: 'General Admission', price: '0', quantity: '100', description: '', unlimited: false }],
     currency: 'HTG',
     is_rsvp: false,
     capacity: '100',
+    show_on_explore: true,
+    video_url: '',
+    show_guestlist: true,
   });
 
   // Track keyboard visibility
@@ -325,12 +352,18 @@ export default function CreateEventFlowRefactored() {
 
         // Convert ticket_tiers from database format (numbers) to form format (strings)
         const formattedTicketTiers = event.ticket_tiers && Array.isArray(event.ticket_tiers) && event.ticket_tiers.length > 0
-          ? event.ticket_tiers.map((tier: any) => ({
-              name: tier.name || 'General Admission',
-              price: String(tier.price ?? 0),
-              quantity: String(tier.quantity ?? tier.available ?? 100),
-            }))
-          : [{ name: 'General Admission', price: '0', quantity: '100' }];
+          ? event.ticket_tiers.map((tier: any) => {
+              const unlimited = Boolean(tier.unlimited);
+              return {
+                name: tier.name || 'General Admission',
+                price: String(tier.price ?? 0),
+                // Unlimited tiers store a large sentinel; don't surface it as the field value.
+                quantity: unlimited ? '' : String(tier.quantity ?? tier.available ?? 100),
+                description: tier.description || '',
+                unlimited,
+              };
+            })
+          : [{ name: 'General Admission', price: '0', quantity: '100', description: '', unlimited: false }];
 
         const isRsvp = Boolean((event as any).is_rsvp);
 
@@ -360,6 +393,10 @@ export default function CreateEventFlowRefactored() {
           currency: event.currency || 'USD',
           is_rsvp: isRsvp,
           capacity: String((event as any).total_tickets ?? formattedTicketTiers[0]?.quantity ?? '100'),
+          // Advanced settings — default to visible/on when the field is absent.
+          show_on_explore: (event as any).show_on_explore !== false,
+          video_url: (event as any).video_url || '',
+          show_guestlist: (event as any).show_guestlist !== false,
         });
       }
     } catch (error) {
@@ -457,8 +494,14 @@ export default function CreateEventFlowRefactored() {
   };
 
   // ── Tickets (ported from Step4Tickets) ──
+  type Tier = EventDraft['ticket_tiers'][number];
   const addTier = () => {
-    updateDraft({ ticket_tiers: [...eventDraft.ticket_tiers, { name: '', price: '', quantity: '' }] });
+    updateDraft({
+      ticket_tiers: [
+        ...eventDraft.ticket_tiers,
+        { name: '', price: '', quantity: '', description: '', unlimited: false },
+      ],
+    });
   };
   const removeTier = (index: number) => {
     if (eventDraft.ticket_tiers.length > 1) {
@@ -469,6 +512,20 @@ export default function CreateEventFlowRefactored() {
     const newTiers = [...eventDraft.ticket_tiers];
     newTiers[index] = { ...newTiers[index], [field]: value };
     updateDraft({ ticket_tiers: newTiers });
+  };
+  // Patch multiple tier fields at once (accepts string + boolean values).
+  const patchTier = (index: number, patch: Partial<Tier>) => {
+    const newTiers = [...eventDraft.ticket_tiers];
+    newTiers[index] = { ...newTiers[index], ...patch };
+    updateDraft({ ticket_tiers: newTiers });
+  };
+  // Free-ticket toggle: on → price '0' & disabled; off → clear back to editable.
+  const toggleFreeTier = (index: number, isFree: boolean) => {
+    patchTier(index, { price: isFree ? '0' : '' });
+  };
+  // Unlimited-quantity toggle: on → hide qty; off → restore an editable qty.
+  const toggleUnlimitedTier = (index: number, isUnlimited: boolean) => {
+    patchTier(index, { unlimited: isUnlimited, quantity: isUnlimited ? '' : '100' });
   };
   const getCurrencySymbol = () => (eventDraft.currency === 'HTG' ? 'HTG' : '$');
 
@@ -663,10 +720,14 @@ export default function CreateEventFlowRefactored() {
     } else {
       eventDraft.ticket_tiers.forEach((tier, i) => {
         if (!tier.name.trim()) errs[`tier_${i}_name`] = t('organizerCreateEventFlow.validation.tierName');
+        // Free tier (price 0) is valid; only reject empty/negative/non-numeric.
         const price = parseFloat(tier.price);
         if (tier.price === '' || !Number.isFinite(price) || price < 0) errs[`tier_${i}_price`] = t('organizerCreateEventFlow.validation.tierPrice');
-        const qty = parseInt(tier.quantity || '0', 10);
-        if (!Number.isFinite(qty) || qty <= 0) errs[`tier_${i}_quantity`] = t('organizerCreateEventFlow.validation.tierQuantity');
+        // Unlimited tiers have no cap, so skip the quantity requirement.
+        if (!tier.unlimited) {
+          const qty = parseInt(tier.quantity || '0', 10);
+          if (!Number.isFinite(qty) || qty <= 0) errs[`tier_${i}_quantity`] = t('organizerCreateEventFlow.validation.tierQuantity');
+        }
       });
     }
 
@@ -686,17 +747,26 @@ export default function CreateEventFlowRefactored() {
 
   // Normalize the draft into the CreateEventData shape. RSVP events collapse to
   // a single free tier sized by the attendance cap.
+  // Unlimited tiers have no real cap; store a large sentinel so downstream
+  // availability logic (tickets_available, sold-out checks) keeps working.
+  const UNLIMITED_SENTINEL = '1000000';
   const buildEventData = () => {
     if (eventDraft.is_rsvp) {
       return {
         ...eventDraft,
         currency: eventDraft.currency || 'HTG',
         ticket_tiers: [
-          { name: 'RSVP', price: '0', quantity: eventDraft.capacity || '0' },
+          { name: 'RSVP', price: '0', quantity: eventDraft.capacity || '0', description: '', unlimited: false },
         ],
       };
     }
-    return eventDraft;
+    return {
+      ...eventDraft,
+      ticket_tiers: eventDraft.ticket_tiers.map((tier) => ({
+        ...tier,
+        quantity: tier.unlimited ? UNLIMITED_SENTINEL : tier.quantity,
+      })),
+    };
   };
 
   const handleSubmit = async (options: SaveEventOptions) => {
@@ -1171,7 +1241,10 @@ export default function CreateEventFlowRefactored() {
                     </TouchableOpacity>
                   </View>
 
-                  {eventDraft.ticket_tiers.map((tier, index) => (
+                  {eventDraft.ticket_tiers.map((tier, index) => {
+                    // Free = price parses to exactly 0 (blank price is "not set").
+                    const isFree = parseFloat(tier.price) === 0;
+                    return (
                     <View key={index} style={styles.tierCard}>
                       <View style={styles.tierHeader}>
                         <Text style={styles.tierTitle}>
@@ -1194,35 +1267,152 @@ export default function CreateEventFlowRefactored() {
                         onChangeText={(text) => updateTier(index, 'name', text)}
                         error={!!errors[`tier_${index}_name`]}
                       />
+
+                      {/* Free-ticket toggle — teal on-state (semantic) */}
+                      <View style={styles.tierToggleRow}>
+                        <Text style={styles.tierToggleLabel}>{t('organizerCreateEventFlow.canvas.freeTicket')}</Text>
+                        <Switch
+                          value={isFree}
+                          onValueChange={(v) => toggleFreeTier(index, v)}
+                          trackColor={{ false: colors.border, true: colors.primary }}
+                          thumbColor={colors.white}
+                          ios_backgroundColor={colors.border}
+                        />
+                      </View>
+
                       <View style={styles.tierSplit}>
+                        {/* Price hidden while free; shows a static "Free" chip instead. */}
                         <View style={styles.tierSplitCell}>
-                          <InlineTextRow
-                            colors={colors}
-                            placeholder={`${t('organizerCreateEvent.tickets.price')} (${getCurrencySymbol()}) *`}
-                            value={tier.price}
-                            onChangeText={(text) => updateTier(index, 'price', text)}
-                            error={!!errors[`tier_${index}_price`]}
-                            keyboardType="numeric"
-                          />
+                          {isFree ? (
+                            <View style={styles.tierStaticRow}>
+                              <Text style={styles.tierStaticText}>
+                                {getCurrencySymbol()} 0
+                              </Text>
+                            </View>
+                          ) : (
+                            <InlineTextRow
+                              colors={colors}
+                              placeholder={`${t('organizerCreateEvent.tickets.price')} (${getCurrencySymbol()}) *`}
+                              value={tier.price}
+                              onChangeText={(text) => updateTier(index, 'price', text)}
+                              error={!!errors[`tier_${index}_price`]}
+                              keyboardType="numeric"
+                            />
+                          )}
                         </View>
+                        {/* Quantity hidden while unlimited; shows "Unlimited" instead. */}
                         <View style={styles.tierSplitCell}>
-                          <InlineTextRow
-                            colors={colors}
-                            placeholder={t('organizerCreateEvent.tickets.quantity') + ' *'}
-                            value={tier.quantity}
-                            onChangeText={(text) => updateTier(index, 'quantity', text)}
-                            error={!!errors[`tier_${index}_quantity`]}
-                            keyboardType="numeric"
-                          />
+                          {tier.unlimited ? (
+                            <View style={styles.tierStaticRow}>
+                              <Text style={styles.tierStaticText}>
+                                {t('organizerCreateEventFlow.canvas.unlimitedLabel')}
+                              </Text>
+                            </View>
+                          ) : (
+                            <InlineTextRow
+                              colors={colors}
+                              placeholder={t('organizerCreateEvent.tickets.quantity') + ' *'}
+                              value={tier.quantity}
+                              onChangeText={(text) => updateTier(index, 'quantity', text)}
+                              error={!!errors[`tier_${index}_quantity`]}
+                              keyboardType="numeric"
+                            />
+                          )}
                         </View>
                       </View>
+
+                      {/* Unlimited-quantity toggle — teal on-state (semantic) */}
+                      <View style={styles.tierToggleRow}>
+                        <Text style={styles.tierToggleLabel}>{t('organizerCreateEventFlow.canvas.unlimitedQty')}</Text>
+                        <Switch
+                          value={tier.unlimited}
+                          onValueChange={(v) => toggleUnlimitedTier(index, v)}
+                          trackColor={{ false: colors.border, true: colors.primary }}
+                          thumbColor={colors.white}
+                          ios_backgroundColor={colors.border}
+                        />
+                      </View>
+
+                      <InlineTextRow
+                        colors={colors}
+                        placeholder={t('organizerCreateEventFlow.canvas.ticketDescription')}
+                        value={tier.description}
+                        onChangeText={(text) => updateTier(index, 'description', text)}
+                        multiline
+                        maxLength={500}
+                      />
                     </View>
-                  ))}
+                    );
+                  })}
 
                   <TouchableOpacity style={styles.addTierRow} onPress={addTier}>
                     <Ionicons name="add" size={20} color={colors.text} />
                     <Text style={styles.addTierText}>{t('organizerCreateEventFlow.canvas.addTicketType')}</Text>
                   </TouchableOpacity>
+                </>
+              )}
+            </View>
+
+            {/* ── Advanced settings disclosure (POSH Show/Hide advanced settings) ── */}
+            <View style={styles.canvasPad}>
+              <TouchableOpacity
+                style={styles.advancedToggle}
+                activeOpacity={0.7}
+                onPress={() => setAdvancedOpen((v) => !v)}
+              >
+                <Text style={styles.advancedToggleText}>
+                  {advancedOpen
+                    ? t('organizerCreateEventFlow.canvas.advancedHide')
+                    : t('organizerCreateEventFlow.canvas.advancedShow')}
+                </Text>
+                <Ionicons
+                  name={advancedOpen ? 'chevron-up' : 'chevron-down'}
+                  size={18}
+                  color={colors.textSecondary}
+                />
+              </TouchableOpacity>
+
+              {advancedOpen && (
+                <>
+                  {/* Visibility — Show on Explore */}
+                  <View style={styles.settingRow}>
+                    <View style={styles.settingTextCol}>
+                      <Text style={styles.settingLabel}>{t('organizerCreateEventFlow.canvas.visibility')}</Text>
+                      <Text style={styles.settingHint}>{t('organizerCreateEventFlow.canvas.visibilityHint')}</Text>
+                    </View>
+                    <Switch
+                      value={eventDraft.show_on_explore}
+                      onValueChange={(v) => updateDraft({ show_on_explore: v })}
+                      trackColor={{ false: colors.border, true: colors.primary }}
+                      thumbColor={colors.white}
+                      ios_backgroundColor={colors.border}
+                    />
+                  </View>
+
+                  {/* Promo video link */}
+                  <InlineTextRow
+                    colors={colors}
+                    placeholder={t('organizerCreateEventFlow.canvas.promoVideo')}
+                    value={eventDraft.video_url}
+                    onChangeText={(text) => updateDraft({ video_url: text })}
+                    keyboardType="url"
+                    autoCapitalize="none"
+                  />
+
+                  {/* Guest list visibility */}
+                  <View style={styles.settingRow}>
+                    <View style={styles.settingTextCol}>
+                      <Text style={styles.settingLabel}>{t('organizerCreateEventFlow.canvas.showGuestlist')}</Text>
+                      <Text style={styles.settingHint}>{t('organizerCreateEventFlow.canvas.showGuestlistHint')}</Text>
+                    </View>
+                    <Switch
+                      value={eventDraft.show_guestlist}
+                      onValueChange={(v) => updateDraft({ show_guestlist: v })}
+                      trackColor={{ false: colors.border, true: colors.primary }}
+                      thumbColor={colors.white}
+                      ios_backgroundColor={colors.border}
+                    />
+                  </View>
                 </>
               )}
             </View>
@@ -1719,6 +1909,68 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 15,
     fontWeight: '600',
     color: colors.text,
+  },
+  // Row for the per-tier Free / Unlimited switches.
+  tierToggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+  },
+  tierToggleLabel: {
+    fontSize: 15,
+    color: colors.text,
+  },
+  // Static replacement shown when Free (price) or Unlimited (qty) hides an input.
+  tierStaticRow: {
+    paddingVertical: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+  },
+  tierStaticText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: colors.text,
+  },
+
+  // ── Advanced settings disclosure ──
+  advancedToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 18,
+    marginTop: 12,
+  },
+  advancedToggleText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: colors.textSecondary,
+  },
+  settingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 16,
+    paddingVertical: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+  },
+  settingTextCol: {
+    flex: 1,
+    gap: 4,
+  },
+  settingLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  settingHint: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    lineHeight: 18,
   },
 
   // ── Footer ──

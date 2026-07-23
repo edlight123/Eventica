@@ -27,7 +27,8 @@ import {
   TrendingUp,
   Star,
   ExternalLink,
-  ChevronRight
+  ChevronRight,
+  PlayCircle
 } from 'lucide-react-native';
 import { doc, getDoc, collection, addDoc, Timestamp, query, where, getDocs, deleteDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -215,6 +216,16 @@ export default function EventDetailScreen({ route, navigation }: any) {
         { text: t('common.cancel'), style: 'cancel' }
       ]
     );
+  };
+
+  const openPromoVideo = async () => {
+    const url = (event as any)?.video_url;
+    if (typeof url !== 'string' || !url.trim()) return;
+    try {
+      await Linking.openURL(url.trim());
+    } catch (error) {
+      console.error('Error opening promo video:', error);
+    }
   };
 
   const navigateToOrganizerProfile = () => {
@@ -464,6 +475,19 @@ export default function EventDetailScreen({ route, navigation }: any) {
             <Text style={styles.description}>{event.description}</Text>
           </View>
 
+          {/* Promo Video — only when a valid URL is provided */}
+          {typeof (event as any).video_url === 'string' && (event as any).video_url.trim() !== '' && (
+            <TouchableOpacity
+              style={styles.promoVideoRow}
+              onPress={openPromoVideo}
+              activeOpacity={0.7}
+            >
+              <PlayCircle size={20} color={colors.primary} />
+              <Text style={styles.promoVideoText}>{t('organizerCreateEventFlow.canvas.trailer')}</Text>
+              <ExternalLink size={15} color={colors.textSecondary} />
+            </TouchableOpacity>
+          )}
+
           {/* Hosted By Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{t('eventDetail.sections.hostedBy')}</Text>
@@ -502,8 +526,10 @@ export default function EventDetailScreen({ route, navigation }: any) {
             </View>
           </View>
 
-          {/* Who's Going - social attendance */}
-          <WhosGoing eventId={eventId} />
+          {/* Who's Going - social attendance (hidden when organizer disables the guest list) */}
+          {(event as any).show_guestlist !== false && (
+            <WhosGoing eventId={eventId} />
+          )}
 
           {/* Bottom padding for floating CTA */}
           <View style={{ height: 120 }} />
@@ -884,7 +910,23 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
     lineHeight: 23,
   },
-  
+
+  // Promo video row
+  promoVideoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 16,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.borderLight,
+  },
+  promoVideoText: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '600',
+    color: colors.text,
+  },
+
   // Tags
   tagsContainer: {
     marginTop: 16,

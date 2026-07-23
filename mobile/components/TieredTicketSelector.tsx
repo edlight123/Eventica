@@ -26,6 +26,7 @@ interface TicketTier {
   sold_quantity: number;
   sales_start: string | null;
   sales_end: string | null;
+  unlimited?: boolean;
 }
 
 interface GroupDiscount {
@@ -321,9 +322,11 @@ export default function TieredTicketSelector({
                         styles.tierAvailability,
                         !isAvailable && styles.tierSoldOut
                       ]}>
-                        {isAvailable 
-                          ? `${available} ${t('ticketSelector.ticketsAvailable')}`
-                          : t('ticketSelector.soldOut')
+                        {tier.unlimited
+                          ? t('organizerCreateEventFlow.canvas.unlimitedLabel')
+                          : isAvailable
+                            ? `${available} ${t('ticketSelector.ticketsAvailable')}`
+                            : t('ticketSelector.soldOut')
                         }
                       </Text>
                     </View>

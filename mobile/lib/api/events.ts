@@ -35,15 +35,54 @@ export interface CreateEventData {
     name: string;
     price: string;
     quantity: string;
+    /** Optional per-tier blurb shown on the event detail page. */
+    description?: string;
+    /** When true the tier has no real cap (quantity carries a large sentinel). */
+    unlimited?: boolean;
   }>;
   /** Free RSVP event — no paid tiers; a single free tier caps attendance. */
   is_rsvp?: boolean;
+  /** When false the event is hidden from Discover/Explore (share-by-link only). */
+  show_on_explore?: boolean;
+  /** Optional promo video link. */
+  video_url?: string;
+  /** Whether attendees can see the guest list. */
+  show_guestlist?: boolean;
 }
 
 export interface SaveEventOptions {
   /** When false, the event is saved as an unpublished draft. Defaults to true
    *  (immediate publish) so existing callers keep their behavior. */
   publish?: boolean;
+}
+
+/**
+ * Explore/Discover visibility gate.
+ *
+ * Returns true when an event should appear in the public Discover list.
+ * An event is hidden ONLY when `show_on_explore` is explicitly `false`.
+ * A missing/undefined field is treated as VISIBLE so the many existing events
+ * created before this field shipped are unaffected. Apply this in-memory AFTER
+ * the Firestore query — never as a `where('show_on_explore','==',true)` clause,
+ * which would silently drop every doc that lacks the field.
+ */
+export function isVisibleOnExplore(event: { show_on_explore?: boolean } | null | undefined): boolean {
+  return (event as any)?.show_on_explore !== false;
+}
+
+/**
+ * Filter a fetched event list down to what's allowed on Explore/Discover.
+ * Excludes only events with `show_on_explore === false` (missing = visible).
+ *
+ * NOTE: the public Discover/Home queries currently live in the screens
+ * (mobile/screens/DiscoverScreen.tsx and mobile/screens/HomeScreen.tsx), which
+ * are outside this module's ownership. Those screens should import and apply
+ * this helper to the mapped results, e.g. `filterExploreEvents(eventsData)`,
+ * right after `getDocs(...).docs.map(...)`. TODO(discovery): wire this into
+ * DiscoverScreen/HomeScreen so the toggle takes effect end-to-end.
+ */
+export function filterExploreEvents<T extends { show_on_explore?: boolean }>(events: T[]): T[] {
+  return events.filter(isVisibleOnExplore);
 }
 
 /**
@@ -108,6 +147,8 @@ export async function createEvent(
         price: parseFloat(tier.price) || 0,
         quantity: parseInt(tier.quantity) || 0,
         available: parseInt(tier.quantity) || 0,
+        description: tier.description || '',
+        unlimited: tier.unlimited || false,
       })),
       // Multiple field names for compatibility with web and mobile
       ticket_price: lowestPrice,
@@ -118,6 +159,10 @@ export async function createEvent(
       tickets_available: totalCapacity,
       organizer_id: organizerId,
       is_rsvp: eventData.is_rsvp || false,
+      // Advanced settings — default visible/on when the caller omits them.
+      show_on_explore: eventData.show_on_explore !== false,
+      video_url: eventData.video_url || '',
+      show_guestlist: eventData.show_guestlist !== false,
       is_published: publish,
       status: publish ? 'published' : 'draft',
       // Moderation defaults — every event must carry these or it goes invisible
@@ -141,7 +186,8 @@ export async function createEvent(
         total_quantity: parseInt(tier.quantity) || 0,
         available: parseInt(tier.quantity) || 0,
         sold_quantity: 0,
-        description: tier.name,
+        description: tier.description || tier.name,
+        unlimited: tier.unlimited || false,
         sort_order: index,
         is_active: true,
         sales_start: null,
@@ -224,12 +270,18 @@ export async function updateEvent(
         price: parseFloat(tier.price) || 0,
         quantity: parseInt(tier.quantity) || 0,
         available: parseInt(tier.quantity) || 0,
+        description: tier.description || '',
+        unlimited: tier.unlimited || false,
       })),
       ticket_price: lowestPrice,
       total_capacity: totalCapacity,
       total_tickets: totalCapacity,
       capacity: totalCapacity,
       is_rsvp: eventData.is_rsvp || false,
+      // Advanced settings — default visible/on when the caller omits them.
+      show_on_explore: eventData.show_on_explore !== false,
+      video_url: eventData.video_url || '',
+      show_guestlist: eventData.show_guestlist !== false,
       updated_at: serverTimestamp(),
       // Only flip publication state when the caller explicitly asks (e.g. the
       // publish-vs-draft confirmation sheet); otherwise leave it untouched.
@@ -261,7 +313,8 @@ export async function updateEvent(
         total_quantity: parseInt(tier.quantity) || 0,
         available: parseInt(tier.quantity) || 0,
         sold_quantity: 0,
-        description: tier.name,
+        description: tier.description || tier.name,
+        unlimited: tier.unlimited || false,
         sort_order: index,
         is_active: true,
         sales_start: null,
