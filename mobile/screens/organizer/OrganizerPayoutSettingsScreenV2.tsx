@@ -26,6 +26,8 @@ import EmptyState from '../../components/EmptyState'
 import WhitePillCTA from '../../components/WhitePillCTA'
 import InfoNotice from '../../components/organizer/InfoNotice'
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader'
+import SelectField from '../../components/organizer/SelectField'
+import { HAITI_BANKS, OTHER_BANK } from '../../data/haitiBanks'
 import { Wallet } from 'lucide-react-native'
 
 type VerificationStatus = 'not_started' | 'pending' | 'verified' | 'failed'
@@ -81,6 +83,10 @@ export default function OrganizerPayoutSettingsScreenV2() {
     routingNumber: '',
     swift: '',
   })
+  // Tracks the bank-name DROPDOWN selection (one of HAITI_BANKS). When it is
+  // 'Other', a free-text field is revealed and the typed value is what lands in
+  // bankForm.bankName. For a listed bank, the dropdown value IS bankForm.bankName.
+  const [bankNameChoice, setBankNameChoice] = useState('')
 
   // MonCash form
   const [showMoncashForm, setShowMoncashForm] = useState(false)
@@ -180,6 +186,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
     setShowAddModal(false)
 
     if (type === 'bank') {
+      setBankNameChoice('')
       setShowBankForm(true)
     } else {
       setShowMoncashForm(true)
@@ -469,14 +476,8 @@ export default function OrganizerPayoutSettingsScreenV2() {
 
       {/* Bank Form Modal */}
       <Modal visible={showBankForm} animationType="slide" onRequestClose={() => setShowBankForm(false)}>
-        <View style={[styles.container, { paddingTop: insets.top }]}>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => setShowBankForm(false)} style={styles.backButton} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-              <Ionicons name="close" size={24} color={colors.text} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Add Bank Account</Text>
-            <View style={{ width: 40 }} />
-          </View>
+        <View style={styles.container}>
+          <OrganizerScreenHeader title="Add Bank Account" onBack={() => setShowBankForm(false)} />
 
           <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}>
             <Text style={styles.label}>Account Holder Name *</Text>
@@ -489,15 +490,29 @@ export default function OrganizerPayoutSettingsScreenV2() {
               selectionColor={colors.primary}
             />
 
-            <Text style={styles.label}>Bank Name *</Text>
-            <TextInput
-              style={styles.input}
-              value={bankForm.bankName}
-              onChangeText={(v) => setBankForm((s) => ({ ...s, bankName: v }))}
-              placeholder="Your bank name"
-              placeholderTextColor={colors.textTertiary}
-              selectionColor={colors.primary}
+            <SelectField
+              label="Bank Name *"
+              value={bankNameChoice}
+              options={HAITI_BANKS}
+              onSelect={(v) => {
+                setBankNameChoice(v)
+                // A listed bank writes straight into bankForm.bankName; 'Other'
+                // clears it so the revealed free-text field supplies the value.
+                setBankForm((s) => ({ ...s, bankName: v === OTHER_BANK ? '' : v }))
+              }}
+              placeholder="Select your bank"
+              sheetTitle="Select your bank"
             />
+            {bankNameChoice === OTHER_BANK && (
+              <TextInput
+                style={[styles.input, { marginTop: 12 }]}
+                value={bankForm.bankName}
+                onChangeText={(v) => setBankForm((s) => ({ ...s, bankName: v }))}
+                placeholder="Enter your bank name"
+                placeholderTextColor={colors.textTertiary}
+                selectionColor={colors.primary}
+              />
+            )}
 
             <Text style={styles.label}>Account Number *</Text>
             <TextInput
@@ -544,14 +559,8 @@ export default function OrganizerPayoutSettingsScreenV2() {
 
       {/* MonCash Form Modal */}
       <Modal visible={showMoncashForm} animationType="slide" onRequestClose={() => setShowMoncashForm(false)}>
-        <View style={[styles.container, { paddingTop: insets.top }]}>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => setShowMoncashForm(false)} style={styles.backButton} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-              <Ionicons name="close" size={24} color={colors.text} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Add Mobile Money</Text>
-            <View style={{ width: 40 }} />
-          </View>
+        <View style={styles.container}>
+          <OrganizerScreenHeader title="Add Mobile Money" onBack={() => setShowMoncashForm(false)} />
 
           <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}>
             <Text style={styles.label}>Provider</Text>
@@ -612,14 +621,8 @@ export default function OrganizerPayoutSettingsScreenV2() {
         animationType="slide"
         onRequestClose={() => setShowVerificationModal(false)}
       >
-        <View style={[styles.container, { paddingTop: insets.top }]}>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => setShowVerificationModal(false)} style={styles.backButton} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-              <Ionicons name="close" size={24} color={colors.text} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Verify Bank Account</Text>
-            <View style={{ width: 40 }} />
-          </View>
+        <View style={styles.container}>
+          <OrganizerScreenHeader title="Verify Bank Account" onBack={() => setShowVerificationModal(false)} />
 
           <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}>
             <View style={styles.card}>
