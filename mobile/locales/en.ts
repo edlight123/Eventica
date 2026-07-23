@@ -495,6 +495,22 @@ export default {
       salesStart: 'Sales start',
       salesEnd: 'Sales end',
       saleEndBeforeStart: 'Sale end must be after sale start',
+      // Per-tier entry-validity window (distinct from the sale window above).
+      validityPeriod: 'Set a validity period',
+      validFrom: 'Valid from',
+      validUntil: 'Valid until',
+      validEndBeforeStart: 'Valid-until must be after valid-from',
+      // Recurring: repeat by count vs until a date.
+      repeatByCount: 'For a number of dates',
+      repeatUntil: 'Until a date',
+      repeatUntilHint: "We'll create an event on this schedule up to that date.",
+      // Edit mode: propagate edits to every occurrence in a series.
+      applyToSeries: 'Apply changes to all events in this series',
+      // Display keys read by the scan/ticket layer.
+      ticketValidFromLabel: 'Valid from',
+      ticketValidUntilLabel: 'Valid until',
+      ticketNotYetValid: 'Not valid yet',
+      ticketExpired: 'Expired',
       passwordProtect: 'Password-protect this event',
       accessCode: 'Access code',
       accessCodeHint: 'Attendees must enter this code to get tickets.',

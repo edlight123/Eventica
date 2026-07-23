@@ -31,7 +31,39 @@ type ScanResult = {
   message?: string;
   checkedInTime?: Date;
   ticketId?: string;
+  // Soft, non-blocking validity warning derived from the matched tier's
+  // valid_from / valid_until window. Never blocks check-in — the tier link is
+  // name-based and fragile, so this is advisory only.
+  validityWarning?: string;
 };
+
+// Resolve a ticket's tier by NAME within the event's tier list and, if that
+// tier carries a validity window, return a human warning when `now` is outside
+// it. Returns undefined when there is no match, no window, or we're in-window.
+function resolveTierValidityWarning(
+  tiers: any[],
+  tierName: string,
+  locale: string,
+  t: (key: string) => string,
+): string | undefined {
+  if (!Array.isArray(tiers) || !tierName) return undefined;
+  const norm = (s: any) => String(s ?? '').trim().toLowerCase();
+  const target = norm(tierName);
+  const tier = tiers.find((x) => norm(x?.name) === target);
+  if (!tier) return undefined;
+
+  const now = new Date();
+  const from = tier.valid_from ? new Date(tier.valid_from) : null;
+  const until = tier.valid_until ? new Date(tier.valid_until) : null;
+
+  if (from && !isNaN(from.getTime()) && now < from) {
+    return `${t('organizerCreateEventFlow.canvas.ticketNotYetValid')} ${from.toLocaleString(locale)}`;
+  }
+  if (until && !isNaN(until.getTime()) && now > until) {
+    return `${t('organizerCreateEventFlow.canvas.ticketExpired')} ${until.toLocaleString(locale)}`;
+  }
+  return undefined;
+}
 
 export default function TicketScannerScreen() {
   const { colors } = useTheme();
@@ -127,6 +159,25 @@ export default function TicketScannerScreen() {
         tierName = t('common.generalAdmission');
       }
 
+      // Soft validity check (NON-BLOCKING): resolve the tier by name within the
+      // event's embedded tier list and warn if `now` is outside its
+      // valid_from / valid_until window. This never blocks check-in.
+      let validityWarning: string | undefined;
+      try {
+        const rawTierName =
+          ticketData.tier_name ||
+          ticketData.ticket_tier_name ||
+          ticketData.ticket_type ||
+          ticketData.ticketType ||
+          ticketData.tierName ||
+          tierName;
+        const eventSnap = await getDoc(doc(db, 'events', eventId));
+        const eventTiers = eventSnap.exists() ? (eventSnap.data()?.ticket_tiers || []) : [];
+        validityWarning = resolveTierValidityWarning(eventTiers, rawTierName, locale, t);
+      } catch (e) {
+        console.warn('Failed to resolve tier validity window:', e);
+      }
+
       // Verify ticket belongs to this event
       if (ticketData.event_id !== eventId) {
         setScanResult({
@@ -176,12 +227,13 @@ export default function TicketScannerScreen() {
         return;
       }
 
-      // Valid ticket - ready to check in
+      // Valid ticket - ready to check in (validity warning is advisory only)
       setScanResult({
         status: 'VALID',
         attendeeName,
         tierName,
         ticketId,
+        validityWarning,
       });
 
     } catch (error: any) {
@@ -346,6 +398,14 @@ export default function TicketScannerScreen() {
                 <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
               )}
             </View>
+
+            {/* Soft validity warning — advisory only, does NOT block check-in */}
+            {scanResult?.validityWarning && (
+              <View style={styles.validityWarning}>
+                <Ionicons name="warning-outline" size={20} color={colors.warning} />
+                <Text style={styles.validityWarningText}>{scanResult.validityWarning}</Text>
+              </View>
+            )}
 
             {/* Action Buttons */}
             <View style={styles.sheetActions}>
@@ -564,6 +624,24 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   loader: {
     marginTop: 16,
+  },
+  validityWarning: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: colors.warningLight,
+    borderWidth: 1,
+    borderColor: colors.warning + '55',
+    borderRadius: RADIUS.md,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    marginBottom: 16,
+  },
+  validityWarningText: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.warning,
   },
   sheetActions: {
     gap: 12,

@@ -97,6 +97,11 @@ export interface EventDraft {
     // = no bound. Empty by default (tier purchasable whenever the event is live).
     sale_start?: string;
     sale_end?: string;
+    // Optional per-tier ENTRY-admission window (distinct from the sale window
+    // above). ISO 8601 datetime strings; '' / undefined = admits anytime. Read
+    // by the scan/ticket layer to gate check-in ("Not valid yet" / "Expired").
+    valid_from?: string;
+    valid_until?: string;
   }>;
   currency: string;
 
@@ -118,6 +123,9 @@ export interface EventDraft {
   // sharing a series_id. Ignored/hidden in edit mode.
   recurrence: 'none' | 'daily' | 'weekly' | 'monthly';
   recurrence_count: number;   // TOTAL occurrences incl. the first; clamp 2–52
+  // Alternative to recurrence_count: repeat UNTIL this date (ISO YYYY-MM-DD)
+  // instead of by count. '' = use count. Only one mode is active at a time.
+  recurrence_end_date: string;
 
   // Password gate. When on, attendees must enter access_code (verified server-
   // side) before buying. access_code is transient plaintext — it is hashed into
@@ -312,15 +320,32 @@ export default function CreateEventFlowRefactored() {
   const [showEndTime, setShowEndTime] = useState(false);
   const [scheduleErrorKey, setScheduleErrorKey] = useState<string | null>(null);
 
-  // Per-tier sale-window pickers. One shared DateTimePicker modal is driven by
-  // this object (which tier, which bound, date vs time) so any number of tiers
-  // reuse the same picker infra as the schedule rows.
+  // Per-tier sale-window AND validity-window pickers. One shared DateTimePicker
+  // modal is driven by this object (which tier, which bound, date vs time) so any
+  // number of tiers reuse the same picker infra as the schedule rows. `field`
+  // covers both windows: start/end = SALE (purchase) window; validStart/validEnd
+  // = VALIDITY (entry-admission) window.
+  type SalePickerField = 'start' | 'end' | 'validStart' | 'validEnd';
   const [salePicker, setSalePicker] = useState<
-    { tierIndex: number; field: 'start' | 'end'; mode: 'date' | 'time' } | null
+    { tierIndex: number; field: SalePickerField; mode: 'date' | 'time' } | null
   >(null);
   // Which tiers have the "Set a sale period" switch revealed. Falls back to
   // "open" when a loaded tier already carries a bound (edit mode).
   const [salePeriodOpen, setSalePeriodOpen] = useState<Record<number, boolean>>({});
+  // Which tiers have the "Set a validity period" switch revealed (parallel to
+  // salePeriodOpen). Falls back to "open" when a loaded tier carries a bound.
+  const [validityPeriodOpen, setValidityPeriodOpen] = useState<Record<number, boolean>>({});
+
+  // Recurring "until date" picker visibility, and which repeat mode is active.
+  // 'count' = the 2–52 stepper (recurrence_count); 'until' = a date picker
+  // (recurrence_end_date). Only one mode drives generation at a time.
+  const [showRecurrenceEndDate, setShowRecurrenceEndDate] = useState(false);
+  const [recurrenceMode, setRecurrenceMode] = useState<'count' | 'until'>('count');
+
+  // Edit mode: whether to apply this edit to every event in the loaded series.
+  // series_id is captured from the loaded event (create/no-series → null).
+  const [seriesId, setSeriesId] = useState<string | null>(null);
+  const [applyToSeries, setApplyToSeries] = useState(false);
 
   const eventId = route.params?.eventId;
   const isEditMode = !!eventId;
@@ -356,6 +381,7 @@ export default function CreateEventFlowRefactored() {
     theme_key: '',
     recurrence: 'none',
     recurrence_count: 4,
+    recurrence_end_date: '',
     is_password_protected: false,
     access_code: '',
   });
@@ -408,6 +434,9 @@ export default function CreateEventFlowRefactored() {
                 // Restore any stored sale window (ISO strings) so editing keeps it.
                 sale_start: tier.sales_start || undefined,
                 sale_end: tier.sales_end || undefined,
+                // Restore any stored entry-validity window (ISO strings).
+                valid_from: tier.valid_from || undefined,
+                valid_until: tier.valid_until || undefined,
               };
             })
           : [{ name: 'General Admission', price: '0', quantity: '100', description: '', unlimited: false }];
@@ -451,11 +480,14 @@ export default function CreateEventFlowRefactored() {
           // series_id on the doc is left untouched — we read but don't act on it.)
           recurrence: 'none',
           recurrence_count: 4,
+          recurrence_end_date: '',
           // Reflect the gate flag; the hash is write-only, so the code input
           // stays blank (a blank code on save preserves the existing hash).
           is_password_protected: Boolean((event as any).is_password_protected),
           access_code: '',
         });
+        // Capture the series membership so edit mode can offer "apply to series".
+        setSeriesId((event as any).series_id || null);
       }
     } catch (error) {
       console.error('Error loading event:', error);
@@ -618,8 +650,22 @@ export default function CreateEventFlowRefactored() {
     setSalePeriodOpen((prev) => ({ ...prev, [index]: on }));
     if (!on) patchTier(index, { sale_start: undefined, sale_end: undefined });
   };
+  // A tier's validity-period section — parallel to sale period (see above).
+  const isValidityPeriodOpen = (index: number, tier: Tier): boolean =>
+    validityPeriodOpen[index] ?? (!!tier.valid_from || !!tier.valid_until);
+  const toggleValidityPeriod = (index: number, on: boolean) => {
+    setValidityPeriodOpen((prev) => ({ ...prev, [index]: on }));
+    if (!on) patchTier(index, { valid_from: undefined, valid_until: undefined });
+  };
+  // Map a picker field to the tier property it edits. start/end = sale window;
+  // validStart/validEnd = entry-validity window.
+  const salePickerKey = (field: SalePickerField): keyof Tier =>
+    field === 'start' ? 'sale_start'
+      : field === 'end' ? 'sale_end'
+      : field === 'validStart' ? 'valid_from'
+      : 'valid_until';
   // Open the shared picker for a given tier/bound/mode.
-  const openSalePicker = (index: number, field: 'start' | 'end', mode: 'date' | 'time') => {
+  const openSalePicker = (index: number, field: SalePickerField, mode: 'date' | 'time') => {
     closeAllPickers();
     Keyboard.dismiss();
     setSalePicker({ tierIndex: index, field, mode });
@@ -628,7 +674,7 @@ export default function CreateEventFlowRefactored() {
   const getSalePickerValue = (): Date => {
     if (!salePicker) return new Date();
     const tier = eventDraft.ticket_tiers[salePicker.tierIndex];
-    const iso = salePicker.field === 'start' ? tier?.sale_start : tier?.sale_end;
+    const iso = tier?.[salePickerKey(salePicker.field)] as string | undefined;
     const d = iso ? new Date(iso) : new Date();
     return isNaN(d.getTime()) ? new Date() : d;
   };
@@ -638,8 +684,8 @@ export default function CreateEventFlowRefactored() {
     if (Platform.OS === 'android') setSalePicker(null);
     if (!selected || !salePicker) return;
     const { tierIndex, field, mode } = salePicker;
-    const key = field === 'start' ? 'sale_start' : 'sale_end';
-    const existing = eventDraft.ticket_tiers[tierIndex]?.[key];
+    const key = salePickerKey(field);
+    const existing = eventDraft.ticket_tiers[tierIndex]?.[key] as string | undefined;
     const base = existing ? new Date(existing) : new Date();
     if (isNaN(base.getTime())) base.setTime(Date.now());
     if (mode === 'date') {
@@ -759,6 +805,11 @@ export default function CreateEventFlowRefactored() {
     if (Platform.OS === 'android') setShowEndDate(false);
     if (selectedDate) updateDraft({ end_date: selectedDate.toISOString().split('T')[0] });
   };
+  // Recurring "until date" — stores an ISO date (YYYY-MM-DD) in recurrence_end_date.
+  const handleRecurrenceEndDateChange = (event: any, selectedDate?: Date) => {
+    if (Platform.OS === 'android') setShowRecurrenceEndDate(false);
+    if (selectedDate) updateDraft({ recurrence_end_date: selectedDate.toISOString().split('T')[0] });
+  };
   const handleStartTimeChange = (event: any, selectedTime?: Date) => {
     if (Platform.OS === 'android') setShowStartTime(false);
     if (selectedTime) {
@@ -857,6 +908,14 @@ export default function CreateEventFlowRefactored() {
             errs[`tier_${i}_sale`] = t('organizerCreateEventFlow.canvas.saleEndBeforeStart');
           }
         }
+        // Validity window: when both bounds are set, valid_until must be after valid_from.
+        if (tier.valid_from && tier.valid_until) {
+          const vs = new Date(tier.valid_from).getTime();
+          const ve = new Date(tier.valid_until).getTime();
+          if (Number.isFinite(vs) && Number.isFinite(ve) && ve <= vs) {
+            errs[`tier_${i}_validity`] = t('organizerCreateEventFlow.canvas.validEndBeforeStart');
+          }
+        }
       });
     }
 
@@ -887,7 +946,8 @@ export default function CreateEventFlowRefactored() {
   const handleSave = () => {
     if (!validateForSubmit()) return;
     if (isEditMode) {
-      handleSubmit({});
+      // Propagate to siblings only when the event is in a series and opted in.
+      handleSubmit({ applyToSeries: !!seriesId && applyToSeries });
     } else {
       setConfirmVisible(true);
     }
@@ -1532,6 +1592,50 @@ export default function CreateEventFlowRefactored() {
                           )}
                         </>
                       )}
+
+                      {/* Validity period — optional per-tier entry-admission window
+                          (distinct from the sale window; teal on-state) */}
+                      <View style={styles.tierToggleRow}>
+                        <Text style={styles.tierToggleLabel}>{t('organizerCreateEventFlow.canvas.validityPeriod')}</Text>
+                        <Switch
+                          value={isValidityPeriodOpen(index, tier)}
+                          onValueChange={(v) => toggleValidityPeriod(index, v)}
+                          trackColor={{ false: colors.border, true: colors.primary }}
+                          thumbColor={colors.white}
+                          ios_backgroundColor={colors.border}
+                        />
+                      </View>
+
+                      {isValidityPeriodOpen(index, tier) && (
+                        <>
+                          <InlineDateTimeRow
+                            colors={colors}
+                            label={t('organizerCreateEventFlow.canvas.validFrom')}
+                            dateText={formatSaleDate(tier.valid_from)}
+                            timeText={formatSaleTime(tier.valid_from)}
+                            timePlaceholder={t('organizerCreateEvent.schedule.selectTime')}
+                            onPressDate={() => openSalePicker(index, 'validStart', 'date')}
+                            onPressTime={() => openSalePicker(index, 'validStart', 'time')}
+                            error={!!errors[`tier_${index}_validity`]}
+                          />
+                          <InlineDateTimeRow
+                            colors={colors}
+                            label={t('organizerCreateEventFlow.canvas.validUntil')}
+                            dateText={formatSaleDate(tier.valid_until)}
+                            timeText={formatSaleTime(tier.valid_until)}
+                            timePlaceholder={t('organizerCreateEvent.schedule.selectTime')}
+                            onPressDate={() => openSalePicker(index, 'validEnd', 'date')}
+                            onPressTime={() => openSalePicker(index, 'validEnd', 'time')}
+                            error={!!errors[`tier_${index}_validity`]}
+                          />
+                          {!!errors[`tier_${index}_validity`] && (
+                            <View style={styles.scheduleError}>
+                              <Ionicons name="alert-circle" size={16} color={colors.error} />
+                              <Text style={styles.scheduleErrorText}>{errors[`tier_${index}_validity`]}</Text>
+                            </View>
+                          )}
+                        </>
+                      )}
                     </View>
                     );
                   })}
@@ -1589,35 +1693,95 @@ export default function CreateEventFlowRefactored() {
 
                       {eventDraft.recurrence !== 'none' && (
                         <>
-                          {/* Number of dates stepper (clamped 2–52) */}
-                          <View style={styles.stepperRow}>
-                            <Text style={styles.stepperLabel}>{t('organizerCreateEventFlow.canvas.repeatCount')}</Text>
-                            <View style={styles.stepper}>
-                              <TouchableOpacity
-                                style={styles.stepperBtn}
-                                onPress={() => updateDraft({ recurrence_count: Math.max(2, eventDraft.recurrence_count - 1) })}
-                                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                              >
-                                <Ionicons name="remove" size={20} color={colors.text} />
-                              </TouchableOpacity>
-                              <Text style={styles.stepperValue}>{eventDraft.recurrence_count}</Text>
-                              <TouchableOpacity
-                                style={styles.stepperBtn}
-                                onPress={() => updateDraft({ recurrence_count: Math.min(52, eventDraft.recurrence_count + 1) })}
-                                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                              >
-                                <Ionicons name="add" size={20} color={colors.text} />
-                              </TouchableOpacity>
-                            </View>
+                          {/* Repeat mode: by Count vs Until a date (only one active) */}
+                          <View style={styles.currencyRow}>
+                            <TouchableOpacity
+                              style={[styles.currencyButton, recurrenceMode === 'count' && styles.currencyButtonActive]}
+                              onPress={() => { setRecurrenceMode('count'); updateDraft({ recurrence_end_date: '' }); }}
+                            >
+                              <Text style={[styles.currencyText, recurrenceMode === 'count' && styles.currencyTextActive]}>
+                                {t('organizerCreateEventFlow.canvas.repeatByCount')}
+                              </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              style={[styles.currencyButton, recurrenceMode === 'until' && styles.currencyButtonActive]}
+                              onPress={() => setRecurrenceMode('until')}
+                            >
+                              <Text style={[styles.currencyText, recurrenceMode === 'until' && styles.currencyTextActive]}>
+                                {t('organizerCreateEventFlow.canvas.repeatUntil')}
+                              </Text>
+                            </TouchableOpacity>
                           </View>
-                          <View style={styles.infoRow}>
-                            <Ionicons name="repeat-outline" size={16} color={colors.textSecondary} />
-                            <Text style={styles.infoText}>
-                              {t('organizerCreateEventFlow.canvas.repeatHint').replace('{n}', String(eventDraft.recurrence_count))}
-                            </Text>
-                          </View>
+
+                          {recurrenceMode === 'count' ? (
+                            <>
+                              {/* Number of dates stepper (clamped 2–52) */}
+                              <View style={styles.stepperRow}>
+                                <Text style={styles.stepperLabel}>{t('organizerCreateEventFlow.canvas.repeatCount')}</Text>
+                                <View style={styles.stepper}>
+                                  <TouchableOpacity
+                                    style={styles.stepperBtn}
+                                    onPress={() => updateDraft({ recurrence_count: Math.max(2, eventDraft.recurrence_count - 1) })}
+                                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                                  >
+                                    <Ionicons name="remove" size={20} color={colors.text} />
+                                  </TouchableOpacity>
+                                  <Text style={styles.stepperValue}>{eventDraft.recurrence_count}</Text>
+                                  <TouchableOpacity
+                                    style={styles.stepperBtn}
+                                    onPress={() => updateDraft({ recurrence_count: Math.min(52, eventDraft.recurrence_count + 1) })}
+                                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                                  >
+                                    <Ionicons name="add" size={20} color={colors.text} />
+                                  </TouchableOpacity>
+                                </View>
+                              </View>
+                              <View style={styles.infoRow}>
+                                <Ionicons name="repeat-outline" size={16} color={colors.textSecondary} />
+                                <Text style={styles.infoText}>
+                                  {t('organizerCreateEventFlow.canvas.repeatHint').replace('{n}', String(eventDraft.recurrence_count))}
+                                </Text>
+                              </View>
+                            </>
+                          ) : (
+                            <>
+                              {/* Until-date picker → recurrence_end_date */}
+                              <InlineDateTimeRow
+                                colors={colors}
+                                label={t('organizerCreateEventFlow.canvas.repeatUntil')}
+                                dateText={eventDraft.recurrence_end_date}
+                                timeText=""
+                                timePlaceholder=""
+                                onPressDate={() => { closeAllPickers(); Keyboard.dismiss(); setShowRecurrenceEndDate(true); }}
+                                onPressTime={() => { closeAllPickers(); Keyboard.dismiss(); setShowRecurrenceEndDate(true); }}
+                              />
+                              <View style={styles.infoRow}>
+                                <Ionicons name="repeat-outline" size={16} color={colors.textSecondary} />
+                                <Text style={styles.infoText}>
+                                  {t('organizerCreateEventFlow.canvas.repeatUntilHint')}
+                                </Text>
+                              </View>
+                            </>
+                          )}
                         </>
                       )}
+                    </View>
+                  )}
+
+                  {/* Apply-to-series — edit mode only, shown when the event is
+                      part of a recurring series (has a series_id). */}
+                  {isEditMode && !!seriesId && (
+                    <View style={styles.settingRow}>
+                      <View style={styles.settingTextCol}>
+                        <Text style={styles.settingLabel}>{t('organizerCreateEventFlow.canvas.applyToSeries')}</Text>
+                      </View>
+                      <Switch
+                        value={applyToSeries}
+                        onValueChange={setApplyToSeries}
+                        trackColor={{ false: colors.border, true: colors.primary }}
+                        thumbColor={colors.white}
+                        ios_backgroundColor={colors.border}
+                      />
                     </View>
                   )}
 
@@ -1817,12 +1981,16 @@ export default function CreateEventFlowRefactored() {
         <DateTimePicker value={getTimeValue(eventDraft.end_time)} mode="time" is24Hour={false} display="default" onChange={handleEndTimeChange} />
       )}
 
-      {/* Shared per-tier sale-window picker (iOS modal). One modal serves every
-          tier — salePicker holds which tier/bound/mode is being edited. */}
+      {/* Shared per-tier sale/validity-window picker (iOS modal). One modal serves
+          every tier — salePicker holds which tier/bound/mode is being edited. */}
       {renderPickerModal(
         salePicker !== null,
         salePicker?.field === 'end'
           ? t('organizerCreateEventFlow.canvas.salesEnd')
+          : salePicker?.field === 'validStart'
+          ? t('organizerCreateEventFlow.canvas.validFrom')
+          : salePicker?.field === 'validEnd'
+          ? t('organizerCreateEventFlow.canvas.validUntil')
           : t('organizerCreateEventFlow.canvas.salesStart'),
         getSalePickerValue(),
         salePicker?.mode || 'date',
@@ -1837,6 +2005,26 @@ export default function CreateEventFlowRefactored() {
           is24Hour={false}
           display="default"
           onChange={handleSalePickerChange}
+        />
+      )}
+
+      {/* Recurring "until date" picker → recurrence_end_date (create-only). */}
+      {renderPickerModal(
+        showRecurrenceEndDate,
+        t('organizerCreateEventFlow.canvas.repeatUntil'),
+        getDateValue(eventDraft.recurrence_end_date),
+        'date',
+        handleRecurrenceEndDateChange,
+        () => setShowRecurrenceEndDate(false),
+        eventDraft.start_date ? new Date(eventDraft.start_date) : undefined
+      )}
+      {Platform.OS === 'android' && showRecurrenceEndDate && (
+        <DateTimePicker
+          value={getDateValue(eventDraft.recurrence_end_date)}
+          mode="date"
+          display="default"
+          onChange={handleRecurrenceEndDateChange}
+          minimumDate={eventDraft.start_date ? new Date(eventDraft.start_date) : undefined}
         />
       )}
 

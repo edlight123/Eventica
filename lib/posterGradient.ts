@@ -19,7 +19,7 @@ export interface PosterTheme {
   light: boolean
 }
 
-const THEMES: Record<string, PosterTheme> = {
+export const THEMES: Record<string, PosterTheme> = {
   // One cohesive, on-brand family: deep teal / emerald / charcoal-teal posters.
   // Subtle variation keeps a grid of image-less events feeling premium and
   // editorial (never "rainbow"), always within the teal brand.

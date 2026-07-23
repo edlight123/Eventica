@@ -9,6 +9,7 @@ import {
   serverTimestamp,
   query,
   where,
+  getDoc,
   getDocs,
   deleteDoc,
 } from 'firebase/firestore';
@@ -70,6 +71,14 @@ export interface CreateEventData {
     sale_start?: string;
     /** Optional sale-window end — ISO 8601 datetime; empty/undefined = no upper bound. */
     sale_end?: string;
+    /**
+     * Optional per-tier ENTRY-admission window (distinct from the sale/purchase
+     * window above). ISO 8601 datetime; empty/undefined = admits anytime. Read by
+     * the scan/ticket-display layer to gate check-in ("Not valid yet"/"Expired").
+     */
+    valid_from?: string;
+    /** Optional entry-admission end — ISO 8601 datetime; empty/undefined = no upper bound. */
+    valid_until?: string;
   }>;
   /** Free RSVP event — no paid tiers; a single free tier caps attendance. */
   is_rsvp?: boolean;
@@ -93,6 +102,12 @@ export interface CreateEventData {
   recurrence?: 'none' | 'daily' | 'weekly' | 'monthly';
   /** TOTAL occurrences incl. the first. Only meaningful when recurring. Capped at 52. */
   recurrence_count?: number;
+  /**
+   * Recurring "until date" (create-only). ISO date (YYYY-MM-DD). When set with a
+   * real cadence, generate occurrences from the base date forward UNTIL this date
+   * (inclusive, capped at 52) INSTEAD of by `recurrence_count`. Empty = use count.
+   */
+  recurrence_end_date?: string;
   /** When true the event is gated behind an access code (public flag on the doc). */
   is_password_protected?: boolean;
   /**
@@ -137,6 +152,66 @@ export interface SaveEventOptions {
   /** When false, the event is saved as an unpublished draft. Defaults to true
    *  (immediate publish) so existing callers keep their behavior. */
   publish?: boolean;
+  /**
+   * Edit mode only. When true AND the target event carries a `series_id`, the
+   * same field updates are applied to every sibling occurrence in the series
+   * (EXCEPT each occurrence's own start/end datetimes and the series_id). No-op
+   * when the event has no series_id. Defaults to false (edit only this event).
+   */
+  applyToSeries?: boolean;
+}
+
+/**
+ * Build a `ticket_tiers` collection document for a given event/tier. Shared by
+ * create, update, and series-sync so every path persists the same tier shape,
+ * including the sale window and the entry-validity window.
+ */
+function buildTierCollectionDoc(
+  eventId: string,
+  tier: CreateEventData['ticket_tiers'][number],
+  index: number
+) {
+  return {
+    event_id: eventId,
+    name: tier.name,
+    price: parseFloat(tier.price) || 0,
+    quantity: parseInt(tier.quantity) || 0,
+    total_quantity: parseInt(tier.quantity) || 0,
+    available: parseInt(tier.quantity) || 0,
+    sold_quantity: 0,
+    description: tier.description || tier.name,
+    unlimited: tier.unlimited || false,
+    sort_order: index,
+    is_active: true,
+    // Per-tier sale/purchase window (ISO 8601 strings, or null for no bound).
+    sales_start: tier.sale_start ? tier.sale_start : null,
+    sales_end: tier.sale_end ? tier.sale_end : null,
+    // Per-tier ENTRY-admission window (ISO 8601 strings, or null for no bound).
+    valid_from: tier.valid_from ? tier.valid_from : null,
+    valid_until: tier.valid_until ? tier.valid_until : null,
+    created_at: serverTimestamp(),
+    updated_at: serverTimestamp(),
+  };
+}
+
+/**
+ * Build the embedded `ticket_tiers` array entry stored on the event doc. Mirrors
+ * the collection doc's business fields so readers using the embedded copy see
+ * the same sale + validity bounds.
+ */
+function buildTierEmbedded(tier: CreateEventData['ticket_tiers'][number]) {
+  return {
+    name: tier.name,
+    price: parseFloat(tier.price) || 0,
+    quantity: parseInt(tier.quantity) || 0,
+    available: parseInt(tier.quantity) || 0,
+    description: tier.description || '',
+    unlimited: tier.unlimited || false,
+    sales_start: tier.sale_start ? tier.sale_start : null,
+    sales_end: tier.sale_end ? tier.sale_end : null,
+    valid_from: tier.valid_from ? tier.valid_from : null,
+    valid_until: tier.valid_until ? tier.valid_until : null,
+  };
 }
 
 /**
@@ -206,16 +281,47 @@ export async function createEvent(
     );
 
     // ── Recurrence plan ──────────────────────────────────────────────────
-    // A real cadence + count > 1 generates that many occurrences one cadence
-    // apart. Anything else falls back to a single event (unchanged behavior).
+    // A real cadence generates a list of occurrence start/end pairs one cadence
+    // apart. Two modes when recurring:
+    //  • "Until date": step forward, keeping every occurrence whose START falls
+    //    on/before recurrence_end_date (inclusive), capped at MAX.
+    //  • "Count" (default): recurrence_count total occurrences, clamped to MAX.
+    // Anything else falls back to a single event (unchanged behavior).
     const cadence = eventData.recurrence && eventData.recurrence !== 'none'
       ? eventData.recurrence
       : null;
-    const requestedCount = Math.round(eventData.recurrence_count || 1);
-    const occurrenceCount = cadence
-      ? Math.max(1, Math.min(MAX_RECURRENCE_COUNT, requestedCount))
-      : 1;
-    const isRecurring = !!cadence && occurrenceCount > 1;
+
+    const occurrences: Array<{ start: Date; end: Date }> = [];
+    if (cadence) {
+      const endDateStr = (eventData.recurrence_end_date || '').trim();
+      if (endDateStr) {
+        // Until-date mode. End-of-day so an occurrence ON the end date counts.
+        const untilTime = new Date(`${endDateStr}T23:59:59`).getTime();
+        for (let i = 0; i < MAX_RECURRENCE_COUNT; i++) {
+          const start = shiftDateByRecurrence(baseStartDatetime, cadence, i);
+          if (Number.isFinite(untilTime) && start.getTime() > untilTime) break;
+          occurrences.push({ start, end: shiftDateByRecurrence(baseEndDatetime, cadence, i) });
+        }
+        // Guard against an end date before the base date: always keep occ 0.
+        if (occurrences.length === 0) {
+          occurrences.push({ start: baseStartDatetime, end: baseEndDatetime });
+        }
+      } else {
+        // Count mode.
+        const requestedCount = Math.round(eventData.recurrence_count || 1);
+        const count = Math.max(1, Math.min(MAX_RECURRENCE_COUNT, requestedCount));
+        for (let i = 0; i < count; i++) {
+          occurrences.push({
+            start: shiftDateByRecurrence(baseStartDatetime, cadence, i),
+            end: shiftDateByRecurrence(baseEndDatetime, cadence, i),
+          });
+        }
+      }
+    } else {
+      occurrences.push({ start: baseStartDatetime, end: baseEndDatetime });
+    }
+
+    const isRecurring = !!cadence && occurrences.length > 1;
     // One shared id ties every occurrence together as a series.
     const seriesId = isRecurring
       ? `series_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`
@@ -242,19 +348,10 @@ export async function createEvent(
         end_datetime: Timestamp.fromDate(endDatetime),
         timezone: eventData.timezone,
         currency: eventData.currency,
-        ticket_tiers: eventData.ticket_tiers.map(tier => ({
-          name: tier.name,
-          price: parseFloat(tier.price) || 0,
-          quantity: parseInt(tier.quantity) || 0,
-          available: parseInt(tier.quantity) || 0,
-          description: tier.description || '',
-          unlimited: tier.unlimited || false,
-          // Mirror the per-tier sale window into the event-doc array so mobile
-          // readers that use this embedded copy see the same bounds as the
-          // ticket_tiers collection docs. ISO strings stored as-is (or null).
-          sales_start: tier.sale_start ? tier.sale_start : null,
-          sales_end: tier.sale_end ? tier.sale_end : null,
-        })),
+        // Mirror the per-tier sale + validity windows into the event-doc array so
+        // mobile readers that use this embedded copy see the same bounds as the
+        // ticket_tiers collection docs. ISO strings stored as-is (or null).
+        ticket_tiers: eventData.ticket_tiers.map(buildTierEmbedded),
         // Multiple field names for compatibility with web and mobile
         ticket_price: lowestPrice,
         total_capacity: totalCapacity,
@@ -290,31 +387,11 @@ export async function createEvent(
       // Add the event doc to Firestore
       const docRef = await addDoc(collection(db, 'events'), eventDoc);
 
-      // Create separate ticket_tiers documents for each tier
-      const tierPromises = eventData.ticket_tiers.map(async (tier, index) => {
-        const tierDoc = {
-          event_id: docRef.id,
-          name: tier.name,
-          price: parseFloat(tier.price) || 0,
-          quantity: parseInt(tier.quantity) || 0,
-          total_quantity: parseInt(tier.quantity) || 0,
-          available: parseInt(tier.quantity) || 0,
-          sold_quantity: 0,
-          description: tier.description || tier.name,
-          unlimited: tier.unlimited || false,
-          sort_order: index,
-          is_active: true,
-          // Per-tier sale window (ISO 8601 strings, or null for no bound). Matches
-          // the web's `new Date().toISOString()` format so web purchase routes and
-          // the web selector enforce/display identical bounds.
-          sales_start: tier.sale_start ? tier.sale_start : null,
-          sales_end: tier.sale_end ? tier.sale_end : null,
-          created_at: serverTimestamp(),
-          updated_at: serverTimestamp(),
-        };
-
-        return addDoc(collection(db, 'ticket_tiers'), tierDoc);
-      });
+      // Create separate ticket_tiers documents for each tier. Field shape (incl.
+      // the sale + entry-validity windows) is shared via buildTierCollectionDoc.
+      const tierPromises = eventData.ticket_tiers.map((tier, index) =>
+        addDoc(collection(db, 'ticket_tiers'), buildTierCollectionDoc(docRef.id, tier, index))
+      );
 
       await Promise.all(tierPromises);
 
@@ -331,24 +408,21 @@ export async function createEvent(
       return docRef.id;
     };
 
-    // Non-recurring (or count <= 1): exactly one event, same as before.
+    // Non-recurring (single occurrence): exactly one event, same as before.
     if (!isRecurring) {
-      const id = await createOccurrence(baseStartDatetime, baseEndDatetime);
+      const id = await createOccurrence(occurrences[0].start, occurrences[0].end);
       console.log('Event created successfully:', id);
       return id;
     }
 
-    // Recurring: create each occurrence in order, shifting start/end together.
-    // Occurrence 0 is the base; occurrence i is offset by i steps of the cadence.
+    // Recurring: create each planned occurrence in order.
     let firstId = '';
-    for (let i = 0; i < occurrenceCount; i++) {
-      const startDatetime = shiftDateByRecurrence(baseStartDatetime, cadence!, i);
-      const endDatetime = shiftDateByRecurrence(baseEndDatetime, cadence!, i);
-      const id = await createOccurrence(startDatetime, endDatetime);
+    for (let i = 0; i < occurrences.length; i++) {
+      const id = await createOccurrence(occurrences[i].start, occurrences[i].end);
       if (i === 0) firstId = id;
     }
 
-    console.log(`Recurring series ${seriesId} created: ${occurrenceCount} events`);
+    console.log(`Recurring series ${seriesId} created: ${occurrences.length} events`);
     // Keep the existing return contract: the FIRST occurrence's id.
     return firstId;
   } catch (error) {
@@ -413,17 +487,9 @@ export async function updateEvent(
       end_datetime: Timestamp.fromDate(endDatetime),
       timezone: eventData.timezone,
       currency: eventData.currency,
-      ticket_tiers: eventData.ticket_tiers.map(tier => ({
-        name: tier.name,
-        price: parseFloat(tier.price) || 0,
-        quantity: parseInt(tier.quantity) || 0,
-        available: parseInt(tier.quantity) || 0,
-        description: tier.description || '',
-        unlimited: tier.unlimited || false,
-        // Mirror the per-tier sale window into the event-doc array (see createEvent).
-        sales_start: tier.sale_start ? tier.sale_start : null,
-        sales_end: tier.sale_end ? tier.sale_end : null,
-      })),
+      // Mirror the per-tier sale + validity windows into the event-doc array
+      // (see createEvent / buildTierEmbedded).
+      ticket_tiers: eventData.ticket_tiers.map(buildTierEmbedded),
       ticket_price: lowestPrice,
       total_capacity: totalCapacity,
       total_tickets: totalCapacity,
@@ -459,31 +525,48 @@ export async function updateEvent(
     const deletePromises = existingTiers.docs.map(doc => deleteDoc(doc.ref));
     await Promise.all(deletePromises);
 
-    // Create new ticket_tiers documents
-    const tierPromises = eventData.ticket_tiers.map(async (tier, index) => {
-      const tierDoc = {
-        event_id: eventId,
-        name: tier.name,
-        price: parseFloat(tier.price) || 0,
-        quantity: parseInt(tier.quantity) || 0,
-        total_quantity: parseInt(tier.quantity) || 0,
-        available: parseInt(tier.quantity) || 0,
-        sold_quantity: 0,
-        description: tier.description || tier.name,
-        unlimited: tier.unlimited || false,
-        sort_order: index,
-        is_active: true,
-        // Per-tier sale window (ISO 8601 strings, or null for no bound); see createEvent.
-        sales_start: tier.sale_start ? tier.sale_start : null,
-        sales_end: tier.sale_end ? tier.sale_end : null,
-        created_at: serverTimestamp(),
-        updated_at: serverTimestamp(),
-      };
-      
-      return addDoc(collection(db, 'ticket_tiers'), tierDoc);
-    });
+    // Create new ticket_tiers documents (shared shape incl. sale + validity).
+    const tierPromises = eventData.ticket_tiers.map((tier, index) =>
+      addDoc(collection(db, 'ticket_tiers'), buildTierCollectionDoc(eventId, tier, index))
+    );
 
     await Promise.all(tierPromises);
+
+    // ── Apply edits to the whole series ────────────────────────────────────
+    // When the caller opts in AND this event belongs to a series, propagate the
+    // SAME field updates to every sibling occurrence — EXCEPT each occurrence's
+    // own start/end datetimes and the series_id (siblings keep their own dates
+    // and stay in the series). Each sibling's ticket_tiers are re-synced too.
+    // Capped so a runaway series can't fan out unbounded writes.
+    if (options.applyToSeries) {
+      const targetSnap = await getDoc(eventRef);
+      const seriesId = targetSnap.exists() ? (targetSnap.data() as any)?.series_id : null;
+      if (seriesId) {
+        const siblingsSnap = await getDocs(
+          query(collection(db, 'events'), where('series_id', '==', seriesId))
+        );
+        // Everything shared across the series: drop the per-occurrence datetimes.
+        const { start_datetime, end_datetime, ...seriesShared } = updateData as any;
+        let processed = 0;
+        for (const sibling of siblingsSnap.docs) {
+          if (sibling.id === eventId) continue;        // target already updated
+          if (processed >= MAX_RECURRENCE_COUNT) break; // guard huge series
+          processed += 1;
+          await updateDoc(sibling.ref, seriesShared);
+          // Re-sync this sibling's ticket_tiers to match the edited tiers.
+          const sibExisting = await getDocs(
+            query(collection(db, 'ticket_tiers'), where('event_id', '==', sibling.id))
+          );
+          await Promise.all(sibExisting.docs.map((d) => deleteDoc(d.ref)));
+          await Promise.all(
+            eventData.ticket_tiers.map((tier, index) =>
+              addDoc(collection(db, 'ticket_tiers'), buildTierCollectionDoc(sibling.id, tier, index))
+            )
+          );
+        }
+        console.log(`Series ${seriesId}: applied edits to ${processed} sibling event(s).`);
+      }
+    }
 
     // Password gate — only touch the private/access hash when the event is
     // protected AND a new non-empty code was typed. A blank code in protected

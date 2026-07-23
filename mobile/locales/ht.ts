@@ -1307,6 +1307,22 @@ export default {
       salesStart: 'Vant kòmanse',
       salesEnd: 'Vant fini',
       saleEndBeforeStart: 'Fen vant lan dwe apre kòmansman an',
+      // Peryòd validite tikè a (diferan de peryòd vant lan pi wo a).
+      validityPeriod: 'Mete yon peryòd validite',
+      validFrom: 'Valab depi',
+      validUntil: 'Valab jiska',
+      validEndBeforeStart: 'Fen validite a dwe apre kòmansman an',
+      // Repetisyon: repete pa kantite oswa jiska yon dat.
+      repeatByCount: 'Pou yon kantite dat',
+      repeatUntil: 'Jiska yon dat',
+      repeatUntilHint: "N ap kreye yon evènman sou orè sa a jiska dat sa a.",
+      // Mòd edisyon: aplike chanjman yo sou tout seri a.
+      applyToSeries: 'Aplike chanjman yo sou tout evènman nan seri sa a',
+      // Kle afichaj pou kouch eskane/tikè a.
+      ticketValidFromLabel: 'Valab depi',
+      ticketValidUntilLabel: 'Valab jiska',
+      ticketNotYetValid: 'Poko valab',
+      ticketExpired: 'Ekspire',
       passwordProtect: 'Pwoteje evènman sa a ak yon modpas',
       accessCode: 'Kòd aksè',
       accessCodeHint: 'Patisipan yo dwe antre kòd sa a pou yo jwenn tikè.',

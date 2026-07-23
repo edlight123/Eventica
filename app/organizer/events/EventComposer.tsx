@@ -13,6 +13,7 @@ import { useToast } from '@/components/ui/Toast'
 import ImageUpload from '@/components/ImageUpload'
 import { DatePicker, TimePicker } from '@/components/ui/DateTimePickers'
 import { normalizeEventCurrencyForCountry, getAllowedEventCurrencies, type EventCurrency } from '@/lib/currency-policy'
+import { THEMES, type PosterThemeKey } from '@/lib/posterGradient'
 import {
   CalendarDays,
   Globe,
@@ -57,24 +58,14 @@ const ACCENTS: { hex: string; name: string }[] = [
 ]
 
 /**
- * Poster-theme swatches for the `theme_key` picker. Keys + gradients are copied
- * verbatim from the THEMES map in `lib/posterGradient.ts` (which does not export
- * the object) — the source of truth for the poster resolver. Persisting one of
- * these keys pins the poster gradient everywhere the resolver runs; '' = Auto.
- * No new colors are introduced here.
+ * Poster-theme swatches for the `theme_key` picker, derived from the single
+ * source of truth: the exported THEMES map in `lib/posterGradient.ts` (the
+ * poster resolver). Persisting one of these keys pins the poster gradient
+ * everywhere the resolver runs; '' = Auto. No colors are defined here.
  */
-const POSTER_THEME_SWATCHES: { key: string; bg: string }[] = [
-  { key: 'teal', bg: 'linear-gradient(155deg,#0f766e 0%,#06292c 100%)' },
-  { key: 'mint', bg: 'linear-gradient(155deg,#0f4f4b 0%,#1ec0a4 130%)' },
-  { key: 'night', bg: 'linear-gradient(155deg,#13322f 0%,#0a1a18 100%)' },
-  { key: 'violet', bg: 'linear-gradient(155deg,#134e4a 0%,#072420 100%)' },
-  { key: 'sun', bg: 'linear-gradient(155deg,#0d9488 0%,#0a3d39 100%)' },
-  { key: 'ember', bg: 'linear-gradient(155deg,#115e59 0%,#04201d 100%)' },
-  { key: 'gold', bg: 'linear-gradient(155deg,#0f766e 0%,#134e4a 130%)' },
-  { key: 'rose', bg: 'linear-gradient(155deg,#0c5e57 0%,#06302c 100%)' },
-  { key: 'ocean', bg: 'linear-gradient(155deg,#0f5b63 0%,#07232a 100%)' },
-  { key: 'forest', bg: 'linear-gradient(155deg,#114b3f 0%,#06231c 100%)' },
-]
+const POSTER_THEME_SWATCHES: { key: PosterThemeKey; bg: string }[] = (
+  Object.keys(THEMES) as PosterThemeKey[]
+).map((key) => ({ key, bg: THEMES[key].bg }))
 
 // Recurring-event cadence options for the "Repeats" selector (create-only).
 type Recurrence = 'none' | 'daily' | 'weekly' | 'monthly'
@@ -136,9 +127,16 @@ interface TicketTier {
   name: string
   price: string
   qty: string
-  /** Optional per-tier sale window, stored as ISO 8601 strings ('' = no bound). */
+  /** Optional per-tier SALE window, stored as ISO 8601 strings ('' = no bound). */
   salesStart?: string
   salesEnd?: string
+  /**
+   * Optional per-tier ENTRY (validity) window — when this ticket admits the
+   * holder, distinct from when it can be bought. ISO 8601 strings ('' = admits
+   * anytime). Matches mobile's valid_from / valid_until contract.
+   */
+  validFrom?: string
+  validUntil?: string
 }
 
 const pad2 = (n: number) => String(n).padStart(2, '0')
@@ -264,6 +262,10 @@ export default function EventComposer({
   // event doc is preserved on edit but not acted upon.
   const [recurrence, setRecurrence] = useState<Recurrence>('none')
   const [recurrenceCount, setRecurrenceCount] = useState(4)
+  // How the series length is bounded: 'count' generates N occurrences; 'until'
+  // steps by cadence until (and including) recurrenceEndDate (capped at 52).
+  const [recurrenceMode, setRecurrenceMode] = useState<'count' | 'until'>('count')
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState('')
 
   // Details
   const [showDescription, setShowDescription] = useState(!!event?.description)
@@ -288,6 +290,8 @@ export default function EventComposer({
           ...t,
           salesStart: isoToLocalInput((t as any).salesStart ?? (t as any).sales_start),
           salesEnd: isoToLocalInput((t as any).salesEnd ?? (t as any).sales_end),
+          validFrom: isoToLocalInput((t as any).validFrom ?? (t as any).valid_from),
+          validUntil: isoToLocalInput((t as any).validUntil ?? (t as any).valid_until),
         }))
       : [{ id: makeId(), name: 'General Admission', price: '10', qty: '100' }]
   )
@@ -343,6 +347,12 @@ export default function EventComposer({
   const [isPublished, setIsPublished] = useState(!!event?.is_published)
   const [publishing, setPublishing] = useState(false)
 
+  // Edit-only: when this event belongs to a recurring series, the organizer can
+  // opt to apply the shared field edits to every sibling (each keeps its own
+  // start/end datetimes and series_id).
+  const seriesId: string | undefined = isEdit ? event?.series_id : undefined
+  const [applyToSeries, setApplyToSeries] = useState(false)
+
   const [attempted, setAttempted] = useState(false)
   const [saving, setSaving] = useState(false)
 
@@ -373,6 +383,16 @@ export default function EventComposer({
   }
   const anySaleWindowInvalid = sellMode === 'tickets' && tiers.some(saleWindowInvalid)
 
+  // Per-tier entry (validity) window: when BOTH bounds are set, valid_until
+  // must be after valid_from.
+  const validityWindowInvalid = (t: TicketTier): boolean => {
+    if (!t.validFrom || !t.validUntil) return false
+    const s = new Date(t.validFrom).getTime()
+    const e = new Date(t.validUntil).getTime()
+    return Number.isFinite(s) && Number.isFinite(e) && e <= s
+  }
+  const anyValidityWindowInvalid = sellMode === 'tickets' && tiers.some(validityWindowInvalid)
+
   // Access code: required (min 6) when enabling protection on CREATE; on edit a
   // blank code keeps the existing hash, but a typed code must still be >= 6.
   const trimmedCode = accessCode.trim()
@@ -399,6 +419,10 @@ export default function EventComposer({
       // the web purchase routes and selector enforce/display identical bounds.
       sales_start: localInputToISO(t.salesStart),
       sales_end: localInputToISO(t.salesEnd),
+      // Per-tier ENTRY (validity) window as ISO strings (or null) — when the
+      // ticket admits the holder. Empty = admits anytime. Mobile contract.
+      valid_from: localInputToISO(t.validFrom),
+      valid_until: localInputToISO(t.validUntil),
     }))
     const firstTier = cleanTiers[0] || { name: 'General Admission', price: 0, quantity: 0 }
     const totalQty = cleanTiers.reduce((sum, t) => sum + t.quantity, 0)
@@ -448,6 +472,8 @@ export default function EventComposer({
       quantity: number
       sales_start: string | null
       sales_end: string | null
+      valid_from: string | null
+      valid_until: string | null
     }>,
     isRsvp: boolean
   ) => {
@@ -463,6 +489,9 @@ export default function EventComposer({
         // Per-tier sale window (ISO 8601 strings, or null for no bound).
         sales_start: t.sales_start,
         sales_end: t.sales_end,
+        // Per-tier entry (validity) window (ISO 8601 strings, or null).
+        valid_from: t.valid_from,
+        valid_until: t.valid_until,
         sort_order: i,
       }))
       const { error } = await firebaseDb.from('ticket_tiers').insert(tiersToInsert)
@@ -508,6 +537,15 @@ export default function EventComposer({
       })
       return
     }
+    if (anyValidityWindowInvalid) {
+      showToast({
+        type: 'error',
+        title: 'Check ticket validity windows',
+        message: 'A ticket’s valid until must be after its valid from.',
+        duration: 4000,
+      })
+      return
+    }
     if (accessCodeInvalid) {
       showToast({
         type: 'error',
@@ -549,7 +587,39 @@ export default function EventComposer({
         if (error) throw error
         await syncTiers(event.id, cleanTiers, isRsvp)
         await writeAccessHash(event.id)
-        showToast({ type: 'success', title: 'Changes saved', message: 'Your event has been updated.', duration: 3000 })
+
+        // Optionally fan the same edits out to every sibling in the series. Each
+        // sibling keeps its OWN start/end datetimes (and series_id); only the
+        // shared fields — and the tier set — are overwritten. Capped at 52.
+        let seriesApplied = 0
+        if (applyToSeries && seriesId) {
+          const { data: siblings } = await firebaseDb
+            .from('events')
+            .select('*')
+            .eq('series_id', seriesId)
+          const list = Array.isArray(siblings) ? siblings : []
+          // Drop each occurrence's own schedule so siblings keep their dates.
+          const { start_datetime, end_datetime, ...sharedData } = data
+          for (const sib of list) {
+            if (!sib?.id || sib.id === event.id) continue
+            if (seriesApplied >= MAX_RECURRENCE_COUNT) break
+            const { error: sibErr } = await firebaseDb.from('events').update(sharedData).eq('id', sib.id)
+            if (sibErr) throw sibErr
+            await syncTiers(sib.id, cleanTiers, isRsvp)
+            await writeAccessHash(sib.id)
+            seriesApplied++
+          }
+        }
+
+        showToast({
+          type: 'success',
+          title: 'Changes saved',
+          message:
+            seriesApplied > 0
+              ? `Your event and ${seriesApplied} other${seriesApplied === 1 ? '' : 's'} in the series were updated.`
+              : 'Your event has been updated.',
+          duration: 3000,
+        })
         router.refresh()
         return
       }
@@ -567,17 +637,37 @@ export default function EventComposer({
       }
 
       // Recurrence plan (CREATE-only — edit returns above and never regenerates).
-      // A real cadence generates `count` occurrences one cadence apart, all
-      // sharing a series_id. Anything else falls back to a single event.
+      // A real cadence generates occurrences one cadence apart, all sharing a
+      // series_id. The series length is bounded either by an explicit count OR,
+      // when the "Until a date" mode is chosen, by stepping the cadence from the
+      // base date until the chosen end date (inclusive). Both cap at 52.
       const cadence = recurrence !== 'none' ? recurrence : null
-      const occurrenceCount = cadence
-        ? Math.max(2, Math.min(MAX_RECURRENCE_COUNT, Math.round(recurrenceCount || 2)))
-        : 1
+      const baseStart = data.start_datetime ? new Date(data.start_datetime) : null
+      const baseEnd = data.end_datetime ? new Date(data.end_datetime) : null
+      // Inclusive end-of-day bound so an occurrence landing on the chosen date
+      // still counts. Only used when in "until" mode with a valid date.
+      const untilBound =
+        cadence && recurrenceMode === 'until' && recurrenceEndDate
+          ? new Date(`${recurrenceEndDate}T23:59:59`)
+          : null
+      const useUntil = !!(untilBound && !Number.isNaN(untilBound.getTime()) && baseStart)
+      let occurrenceCount: number
+      if (cadence && useUntil && baseStart && untilBound) {
+        let n = 0
+        for (let i = 0; i < MAX_RECURRENCE_COUNT; i++) {
+          if (shiftDateByRecurrence(baseStart, cadence, i).getTime() > untilBound.getTime()) break
+          n = i + 1
+        }
+        occurrenceCount = Math.max(1, n)
+      } else if (cadence) {
+        occurrenceCount = Math.max(2, Math.min(MAX_RECURRENCE_COUNT, Math.round(recurrenceCount || 2)))
+      } else {
+        occurrenceCount = 1
+      }
+      const recurrenceEndISO = useUntil && untilBound ? untilBound.toISOString() : null
 
       if (cadence && occurrenceCount > 1) {
         const seriesId = `series_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`
-        const baseStart = data.start_datetime ? new Date(data.start_datetime) : null
-        const baseEnd = data.end_datetime ? new Date(data.end_datetime) : null
         let firstId = ''
         for (let i = 0; i < occurrenceCount; i++) {
           const occData = {
@@ -587,6 +677,8 @@ export default function EventComposer({
             is_recurring: true,
             recurrence: cadence,
             series_id: seriesId,
+            // Only meaningful in "until" mode; null when the series is bounded by count.
+            recurrence_end_date: recurrenceEndISO,
           }
           const { data: occ, error: occErr } = await firebaseDb.from('events').insert(occData).select().single()
           if (occErr) throw occErr
@@ -801,21 +893,61 @@ export default function EventComposer({
                   </div>
                 </div>
                 {recurrence !== 'none' && (
-                  <label className="mt-3 flex items-center justify-between gap-3 border-t border-white/10 pt-3">
-                    <span className="text-sm text-white/70">Number of occurrences (2–52)</span>
-                    <input
-                      type="number"
-                      min={2}
-                      max={MAX_RECURRENCE_COUNT}
-                      value={recurrenceCount}
-                      onChange={(e) => {
-                        const n = Math.round(Number(e.target.value) || 2)
-                        setRecurrenceCount(Math.max(2, Math.min(MAX_RECURRENCE_COUNT, n)))
-                      }}
-                      aria-label="Number of occurrences"
-                      className="w-20 rounded-lg border border-white/10 bg-transparent px-2.5 py-1.5 text-right text-sm text-white [color-scheme:dark] focus:outline-none focus:border-brand-400"
-                    />
-                  </label>
+                  <div className="mt-3 space-y-3 border-t border-white/10 pt-3">
+                    {/* Bound the series either by a count or by an end date. */}
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <span className="text-sm text-white/70">Ends</span>
+                      <div className="flex flex-wrap gap-2" role="group" aria-label="Series length">
+                        {([
+                          ['count', 'For N dates'],
+                          ['until', 'Until a date'],
+                        ] as const).map(([val, label]) => (
+                          <button
+                            key={val}
+                            type="button"
+                            onClick={() => setRecurrenceMode(val)}
+                            aria-pressed={recurrenceMode === val}
+                            className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${
+                              recurrenceMode === val
+                                ? 'border-brand-500 bg-brand-600 text-white'
+                                : 'border-white/10 bg-white/[0.03] text-white/70 hover:border-white/20 hover:text-white'
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    {recurrenceMode === 'count' ? (
+                      <label className="flex items-center justify-between gap-3">
+                        <span className="text-sm text-white/70">Number of occurrences (2–52)</span>
+                        <input
+                          type="number"
+                          min={2}
+                          max={MAX_RECURRENCE_COUNT}
+                          value={recurrenceCount}
+                          onChange={(e) => {
+                            const n = Math.round(Number(e.target.value) || 2)
+                            setRecurrenceCount(Math.max(2, Math.min(MAX_RECURRENCE_COUNT, n)))
+                          }}
+                          aria-label="Number of occurrences"
+                          className="w-20 rounded-lg border border-white/10 bg-transparent px-2.5 py-1.5 text-right text-sm text-white [color-scheme:dark] focus:outline-none focus:border-brand-400"
+                        />
+                      </label>
+                    ) : (
+                      <label className="flex flex-wrap items-center justify-between gap-3">
+                        <span className="text-sm text-white/70">Repeat until (max 52 events)</span>
+                        <input
+                          type="date"
+                          min={startDate || undefined}
+                          value={recurrenceEndDate}
+                          onChange={(e) => setRecurrenceEndDate(e.target.value)}
+                          aria-label="Repeat until date"
+                          className="rounded-lg border border-white/10 bg-transparent px-2.5 py-1.5 text-sm text-white [color-scheme:dark] focus:outline-none focus:border-brand-400"
+                        />
+                      </label>
+                    )}
+                  </div>
                 )}
               </div>
             )}
@@ -985,6 +1117,34 @@ export default function EventComposer({
                     </div>
                     {saleWindowInvalid(tier) && (
                       <p className="text-sm text-red-300">Sales end must be after sales start.</p>
+                    )}
+                    {/* Optional per-tier entry (validity) window — when the ticket
+                        admits the holder. Leave blank to admit anytime. */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <label className="block">
+                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">Valid from</span>
+                        <input
+                          type="datetime-local"
+                          value={tier.validFrom || ''}
+                          onChange={(e) => updateTier(tier.id, { validFrom: e.target.value })}
+                          aria-label={`Ticket type ${i + 1} valid from`}
+                          className={field}
+                        />
+                      </label>
+                      <label className="block">
+                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">Valid until</span>
+                        <input
+                          type="datetime-local"
+                          value={tier.validUntil || ''}
+                          min={tier.validFrom || undefined}
+                          onChange={(e) => updateTier(tier.id, { validUntil: e.target.value })}
+                          aria-label={`Ticket type ${i + 1} valid until`}
+                          className={field}
+                        />
+                      </label>
+                    </div>
+                    {validityWindowInvalid(tier) && (
+                      <p className="text-sm text-red-300">Valid until must be after valid from.</p>
                     )}
                   </div>
                 ))}
@@ -1244,6 +1404,27 @@ export default function EventComposer({
                 ))}
               </div>
             </div>
+
+            {/* Series edit — apply shared field changes to every sibling. */}
+            {isEdit && seriesId && (
+              <label className="flex items-start gap-3 rounded-xl border border-white/10 px-4 py-3.5 text-left transition-colors hover:bg-white/[0.04]">
+                <input
+                  type="checkbox"
+                  checked={applyToSeries}
+                  onChange={(e) => setApplyToSeries(e.target.checked)}
+                  aria-label="Apply changes to all events in this series"
+                  className="mt-0.5 h-4 w-4 shrink-0 accent-brand-600 [color-scheme:dark]"
+                />
+                <span className="min-w-0">
+                  <span className="flex items-center gap-2 text-sm font-semibold text-white">
+                    <Repeat className="h-4 w-4 text-white/50" /> Apply changes to all events in this series
+                  </span>
+                  <span className="mt-0.5 block text-xs text-white/60">
+                    Updates every event in the series. Each keeps its own date &amp; time.
+                  </span>
+                </span>
+              </label>
+            )}
 
             {/* Save / Create */}
             <button

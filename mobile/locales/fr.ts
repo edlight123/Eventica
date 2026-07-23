@@ -1309,6 +1309,22 @@ export default {
       salesStart: 'Début des ventes',
       salesEnd: 'Fin des ventes',
       saleEndBeforeStart: 'La fin des ventes doit être après le début',
+      // Période de validité du billet (distincte de la période de vente).
+      validityPeriod: 'Définir une période de validité',
+      validFrom: 'Valide à partir du',
+      validUntil: "Valide jusqu'au",
+      validEndBeforeStart: 'La fin de validité doit être après le début',
+      // Récurrence : répéter par nombre ou jusqu’à une date.
+      repeatByCount: 'Pour un nombre de dates',
+      repeatUntil: "Jusqu'à une date",
+      repeatUntilHint: "Nous créerons un événement selon ce calendrier jusqu'à cette date.",
+      // Mode édition : appliquer les modifications à toute la série.
+      applyToSeries: 'Appliquer les modifications à tous les événements de cette série',
+      // Clés d’affichage lues par la couche scan/billet.
+      ticketValidFromLabel: 'Valide à partir du',
+      ticketValidUntilLabel: "Valide jusqu'au",
+      ticketNotYetValid: 'Pas encore valide',
+      ticketExpired: 'Expiré',
       passwordProtect: 'Protéger cet événement par mot de passe',
       accessCode: 'Code d’accès',
       accessCodeHint: 'Les participants doivent saisir ce code pour obtenir des billets.',
