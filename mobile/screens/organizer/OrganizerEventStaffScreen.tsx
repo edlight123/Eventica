@@ -4,6 +4,7 @@ import {
   Modal,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -26,6 +27,8 @@ import { useAuth } from '../../contexts/AuthContext'
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader'
 import StaffEventCard from '../../components/organizer/StaffEventCard'
 import StatusChip from '../../components/StatusChip'
+import InfoNotice from '../../components/organizer/InfoNotice'
+import SegmentedTabs from '../../components/organizer/SegmentedTabs'
 import WhitePillCTA from '../../components/WhitePillCTA'
 import { SecondaryPill } from '../../components/auth/SecondaryPill'
 
@@ -185,6 +188,14 @@ export default function OrganizerEventStaffScreen() {
     return true
   }, [method, targetEmail, targetPhone])
 
+  const openInviteModal = () => {
+    setTargetEmail('')
+    setTargetPhone('')
+    setViewAttendees(false)
+    setMethod('link')
+    setShowInviteModal(true)
+  }
+
   const createInvite = async () => {
     if (authLoading || !user) return
     if (!canSubmit) return
@@ -266,11 +277,30 @@ export default function OrganizerEventStaffScreen() {
     ])
   }
 
-  const renderInviteStatus = (invite: ApiInvite) => {
-    if (invite.revokedAt) return t('organizerStaff.inviteStatus.revoked')
-    if (invite.usedAt) return t('organizerStaff.inviteStatus.used')
-    return t('organizerStaff.inviteStatus.active')
+  // Presentational: map an invite to a semantic StatusChip status + label.
+  //   revoked → error · used → neutral · email/phone awaiting acceptance →
+  //   pending (action needed) · link ready to share → live/active.
+  const inviteState = (invite: ApiInvite): { key: string; label: string } => {
+    if (invite.revokedAt) return { key: 'error', label: t('organizerStaff.inviteStatus.revoked') }
+    if (invite.usedAt) return { key: 'neutral', label: t('organizerStaff.inviteStatus.used') }
+    if (invite.method === 'email' || invite.method === 'phone') {
+      return { key: 'pending', label: t('organizerStaff.inviteStatus.pending') }
+    }
+    return { key: 'live', label: t('organizerStaff.inviteStatus.active') }
   }
+
+  const inviteButton = (
+    <TouchableOpacity
+      style={[styles.inviteButton, authLoading ? styles.buttonDisabled : null]}
+      onPress={openInviteModal}
+      disabled={authLoading}
+      accessibilityRole="button"
+      accessibilityLabel={t('organizerStaff.inviteButton')}
+    >
+      <Ionicons name="add" size={18} color={colors.text} />
+      <Text style={styles.inviteButtonText}>{t('organizerStaff.inviteButton')}</Text>
+    </TouchableOpacity>
+  )
 
   if (loading) {
     return (
@@ -280,96 +310,127 @@ export default function OrganizerEventStaffScreen() {
           right={<Skeleton width={96} height={36} radius={RADIUS.md} />}
         />
         <View style={styles.content}>
-          <Skeleton width={120} height={18} radius={6} style={{ marginTop: 4, marginBottom: 10 }} />
-          {[0, 1, 2].map((i) => (
-            <Skeleton key={i} width="100%" height={64} radius={RADIUS.lg} style={{ marginBottom: 10 }} />
+          <Skeleton width="100%" height={56} radius={RADIUS.md} style={{ marginBottom: 20 }} />
+          {[0, 1].map((section) => (
+            <View key={section} style={{ marginBottom: 12 }}>
+              <Skeleton width={140} height={18} radius={6} style={{ marginBottom: 12 }} />
+              {[0, 1].map((i) => (
+                <Skeleton key={i} width="100%" height={72} radius={RADIUS.lg} style={{ marginBottom: 12 }} />
+              ))}
+            </View>
           ))}
         </View>
       </View>
     )
   }
 
+  const isEmpty = members.length === 0 && invites.length === 0
+
   return (
     <View style={styles.container}>
-      <OrganizerScreenHeader
-        title={t('organizerStaff.headerTitle')}
-        right={
-          <TouchableOpacity
-            style={[styles.inviteButton, authLoading ? styles.buttonDisabled : null]}
-            onPress={() => setShowInviteModal(true)}
-            disabled={authLoading}
-          >
-            <Ionicons name="add" size={18} color={colors.text} />
-            <Text style={styles.inviteButtonText}>{t('organizerStaff.inviteButton')}</Text>
-          </TouchableOpacity>
-        }
-      />
+      <OrganizerScreenHeader title={t('organizerStaff.headerTitle')} right={inviteButton} />
 
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: 32 + insets.bottom }]}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('organizerStaff.membersTitle')}</Text>
-          {members.length === 0 ? (
-            <EmptyState icon={Users} title={t('organizerStaff.emptyMembers')} compact />
-          ) : (
-            members.map((m) => {
-              const name = m.profile?.full_name || m.profile?.email || m.id
-              const detail = m.profile?.email || ''
-
-              return (
-                <View key={m.id} style={styles.cardWrap}>
-                  <StaffEventCard
-                    title={name}
-                    subtitle={detail || undefined}
-                    right={
-                      <TouchableOpacity
-                        onPress={() => removeMember(m.id)}
-                        style={[styles.dangerButton, authLoading ? styles.buttonDisabled : null]}
-                        disabled={authLoading}
-                      >
-                        <Text style={styles.dangerButtonText}>{t('organizerStaff.remove')}</Text>
-                      </TouchableOpacity>
-                    }
-                  />
-                </View>
-              )
-            })
-          )}
+        <View style={styles.notice}>
+          <InfoNotice icon="people-outline" text={t('organizerStaff.staffInfo')} />
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('organizerStaff.invitesTitle')}</Text>
-          {invites.length === 0 ? (
-            <EmptyState icon={Mail} title={t('organizerStaff.emptyInvites')} compact />
-          ) : (
-            invites.map((inv) => {
-              const target = inv.method === 'email' ? inv.targetEmail : inv.method === 'phone' ? inv.targetPhone : null
-              const label = target || t('organizerStaff.linkInvite')
-              const statusKey = inv.revokedAt ? 'error' : inv.usedAt ? 'neutral' : 'live'
+        {isEmpty ? (
+          <EmptyState
+            icon={Users}
+            title={t('organizerStaff.emptyAllTitle')}
+            subtitle={t('organizerStaff.emptyAllSubtitle')}
+            actionLabel={t('organizerStaff.inviteButton')}
+            onAction={openInviteModal}
+          />
+        ) : (
+          <>
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>{t('organizerStaff.membersTitle')}</Text>
+                {members.length > 0 ? <Text style={styles.sectionCount}>{members.length}</Text> : null}
+              </View>
+              {members.length === 0 ? (
+                <EmptyState icon={Users} title={t('organizerStaff.emptyMembers')} compact />
+              ) : (
+                members.map((m) => {
+                  const name = m.profile?.full_name || m.profile?.email || m.id
+                  const email = m.profile?.email || ''
+                  const subtitle = email && email !== name ? email : undefined
+                  const permission = m.permissions?.viewAttendees
+                    ? t('organizerStaff.memberPermissionFull')
+                    : t('organizerStaff.memberPermissionBasic')
 
-              return (
-                <View key={inv.id} style={styles.cardWrap}>
-                  <StaffEventCard
-                    title={label}
-                    right={
-                      <View style={styles.inviteRight}>
-                        <StatusChip status={statusKey} label={renderInviteStatus(inv)} />
-                        {!inv.revokedAt && !inv.usedAt ? (
-                          <TouchableOpacity
-                            onPress={() => revokeInvite(inv.id)}
-                            style={[styles.dangerButton, authLoading ? styles.buttonDisabled : null]}
-                            disabled={authLoading}
-                          >
-                            <Text style={styles.dangerButtonText}>{t('organizerStaff.revokeShort')}</Text>
-                          </TouchableOpacity>
-                        ) : null}
-                      </View>
-                    }
-                  />
-                </View>
-              )
-            })
-          )}
-        </View>
+                  return (
+                    <View key={m.id} style={styles.cardWrap}>
+                      <StaffEventCard
+                        title={name}
+                        subtitle={subtitle}
+                        meta={permission}
+                        right={
+                          <View style={styles.rightCol}>
+                            <StatusChip status="live" label={t('organizerStaff.inviteStatus.active')} />
+                            <TouchableOpacity
+                              onPress={() => removeMember(m.id)}
+                              style={[styles.dangerButton, authLoading ? styles.buttonDisabled : null]}
+                              disabled={authLoading}
+                              accessibilityRole="button"
+                              accessibilityLabel={t('organizerStaff.remove')}
+                            >
+                              <Text style={styles.dangerButtonText}>{t('organizerStaff.remove')}</Text>
+                            </TouchableOpacity>
+                          </View>
+                        }
+                      />
+                    </View>
+                  )
+                })
+              )}
+            </View>
+
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>{t('organizerStaff.invitesTitle')}</Text>
+                {invites.length > 0 ? <Text style={styles.sectionCount}>{invites.length}</Text> : null}
+              </View>
+              {invites.length === 0 ? (
+                <EmptyState icon={Mail} title={t('organizerStaff.emptyInvites')} compact />
+              ) : (
+                invites.map((inv) => {
+                  const target = inv.method === 'email' ? inv.targetEmail : inv.method === 'phone' ? inv.targetPhone : null
+                  const label = target || t('organizerStaff.linkInvite')
+                  const state = inviteState(inv)
+                  const canRevoke = !inv.revokedAt && !inv.usedAt
+
+                  return (
+                    <View key={inv.id} style={styles.cardWrap}>
+                      <StaffEventCard
+                        title={label}
+                        meta={t(`organizerStaff.methods.${inv.method}` as any)}
+                        right={
+                          <View style={styles.rightCol}>
+                            <StatusChip status={state.key} label={state.label} />
+                            {canRevoke ? (
+                              <TouchableOpacity
+                                onPress={() => revokeInvite(inv.id)}
+                                style={[styles.dangerButton, authLoading ? styles.buttonDisabled : null]}
+                                disabled={authLoading}
+                                accessibilityRole="button"
+                                accessibilityLabel={t('organizerStaff.revokeShort')}
+                              >
+                                <Text style={styles.dangerButtonText}>{t('organizerStaff.revokeShort')}</Text>
+                              </TouchableOpacity>
+                            ) : null}
+                          </View>
+                        }
+                      />
+                    </View>
+                  )
+                })
+              )}
+            </View>
+          </>
+        )}
       </ScrollView>
 
       <Modal visible={showInviteModal} animationType="slide" transparent onRequestClose={() => setShowInviteModal(false)}>
@@ -380,27 +441,23 @@ export default function OrganizerEventStaffScreen() {
               <TouchableOpacity
                 onPress={() => setShowInviteModal(false)}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                accessibilityRole="button"
+                accessibilityLabel={t('common.cancel')}
               >
                 <Ionicons name="close" size={22} color={colors.text} />
               </TouchableOpacity>
             </View>
 
             <Text style={styles.label}>{t('organizerStaff.methodLabel')}</Text>
-            <View style={styles.methodRow}>
-              {(['link', 'email', 'phone'] as InviteMethod[]).map((m) => {
-                const active = m === method
-                return (
-                  <TouchableOpacity
-                    key={m}
-                    style={[styles.methodPill, active ? styles.methodPillActive : null]}
-                    onPress={() => setMethod(m)}
-                  >
-                    <Text style={[styles.methodText, active ? styles.methodTextActive : null]}>
-                      {t(`organizerStaff.methods.${m}` as any)}
-                    </Text>
-                  </TouchableOpacity>
-                )
-              })}
+            <View style={styles.methodTabs}>
+              <SegmentedTabs
+                tabs={(['link', 'email', 'phone'] as InviteMethod[]).map((m) => ({
+                  key: m,
+                  label: t(`organizerStaff.methods.${m}` as any),
+                }))}
+                value={method}
+                onChange={(key: string) => setMethod(key as InviteMethod)}
+              />
             </View>
 
             {method === 'email' ? (
@@ -434,18 +491,19 @@ export default function OrganizerEventStaffScreen() {
               </>
             ) : null}
 
-            <TouchableOpacity
-              style={styles.checkboxRow}
-              onPress={() => setViewAttendees((v) => !v)}
-              activeOpacity={0.8}
-            >
-              <Ionicons
-                name={viewAttendees ? 'checkbox' : 'square-outline'}
-                size={22}
-                color={viewAttendees ? colors.primary : colors.textSecondary}
+            <View style={styles.toggleCard}>
+              <View style={styles.toggleText}>
+                <Text style={styles.toggleTitle}>{t('organizerStaff.viewAttendees')}</Text>
+                <Text style={styles.toggleHelp}>{t('organizerStaff.viewAttendeesHelp')}</Text>
+              </View>
+              <Switch
+                value={viewAttendees}
+                onValueChange={setViewAttendees}
+                trackColor={{ false: colors.border, true: colors.text }}
+                thumbColor={colors.white}
+                ios_backgroundColor={colors.border}
               />
-              <Text style={styles.checkboxText}>{t('organizerStaff.viewAttendees')}</Text>
-            </TouchableOpacity>
+            </View>
 
             <View style={styles.modalActions}>
               <WhitePillCTA
@@ -482,11 +540,31 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
 
   buttonDisabled: { opacity: 0.6 },
 
-  section: { marginTop: 12 },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: colors.text, marginBottom: 8 },
+  notice: { marginBottom: 4 },
+
+  section: { marginTop: 16 },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 10,
+  },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: colors.text },
+  sectionCount: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.textSecondary,
+    backgroundColor: colors.surfaceRaised,
+    minWidth: 22,
+    textAlign: 'center',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: RADIUS.full,
+    overflow: 'hidden',
+  },
 
   cardWrap: { marginBottom: SPACING.md },
-  inviteRight: { alignItems: 'flex-end', gap: 8 },
+  rightCol: { alignItems: 'flex-end', gap: 8 },
 
   dangerButton: {
     paddingHorizontal: 12,
@@ -526,21 +604,21 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.surfaceMuted,
   },
 
-  methodRow: { flexDirection: 'row', gap: 8, marginTop: 4 },
-  methodPill: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: RADIUS.full,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surfaceMuted,
-  },
-  methodPillActive: { borderColor: colors.primary, backgroundColor: colors.infoLight },
-  methodText: { color: colors.textSecondary, fontWeight: '700', fontSize: 12 },
-  methodTextActive: { color: colors.primary },
+  // SegmentedTabs pads itself horizontally; pull it back to the card edge.
+  methodTabs: { marginHorizontal: -16, marginTop: 2 },
 
-  checkboxRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 14 },
-  checkboxText: { color: colors.text, fontWeight: '600' },
+  toggleCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 16,
+    backgroundColor: colors.surfaceRaised,
+    borderRadius: RADIUS.md,
+    padding: 14,
+  },
+  toggleText: { flex: 1 },
+  toggleTitle: { color: colors.text, fontWeight: '700', fontSize: 14 },
+  toggleHelp: { color: colors.textSecondary, fontSize: 12, lineHeight: 17, marginTop: 3 },
 
   modalActions: { gap: 10, marginTop: 16 },
 })
