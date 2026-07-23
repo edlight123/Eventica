@@ -39,6 +39,10 @@ export interface CreateEventData {
     description?: string;
     /** When true the tier has no real cap (quantity carries a large sentinel). */
     unlimited?: boolean;
+    /** Optional sale-window start — ISO 8601 datetime; empty/undefined = no lower bound. */
+    sale_start?: string;
+    /** Optional sale-window end — ISO 8601 datetime; empty/undefined = no upper bound. */
+    sale_end?: string;
   }>;
   /** Free RSVP event — no paid tiers; a single free tier caps attendance. */
   is_rsvp?: boolean;
@@ -204,6 +208,11 @@ export async function createEvent(
           available: parseInt(tier.quantity) || 0,
           description: tier.description || '',
           unlimited: tier.unlimited || false,
+          // Mirror the per-tier sale window into the event-doc array so mobile
+          // readers that use this embedded copy see the same bounds as the
+          // ticket_tiers collection docs. ISO strings stored as-is (or null).
+          sales_start: tier.sale_start ? tier.sale_start : null,
+          sales_end: tier.sale_end ? tier.sale_end : null,
         })),
         // Multiple field names for compatibility with web and mobile
         ticket_price: lowestPrice,
@@ -248,8 +257,11 @@ export async function createEvent(
           unlimited: tier.unlimited || false,
           sort_order: index,
           is_active: true,
-          sales_start: null,
-          sales_end: null,
+          // Per-tier sale window (ISO 8601 strings, or null for no bound). Matches
+          // the web's `new Date().toISOString()` format so web purchase routes and
+          // the web selector enforce/display identical bounds.
+          sales_start: tier.sale_start ? tier.sale_start : null,
+          sales_end: tier.sale_end ? tier.sale_end : null,
           created_at: serverTimestamp(),
           updated_at: serverTimestamp(),
         };
@@ -350,6 +362,9 @@ export async function updateEvent(
         available: parseInt(tier.quantity) || 0,
         description: tier.description || '',
         unlimited: tier.unlimited || false,
+        // Mirror the per-tier sale window into the event-doc array (see createEvent).
+        sales_start: tier.sale_start ? tier.sale_start : null,
+        sales_end: tier.sale_end ? tier.sale_end : null,
       })),
       ticket_price: lowestPrice,
       total_capacity: totalCapacity,
@@ -395,8 +410,9 @@ export async function updateEvent(
         unlimited: tier.unlimited || false,
         sort_order: index,
         is_active: true,
-        sales_start: null,
-        sales_end: null,
+        // Per-tier sale window (ISO 8601 strings, or null for no bound); see createEvent.
+        sales_start: tier.sale_start ? tier.sale_start : null,
+        sales_end: tier.sale_end ? tier.sale_end : null,
         created_at: serverTimestamp(),
         updated_at: serverTimestamp(),
       };

@@ -92,6 +92,10 @@ export interface EventDraft {
     quantity: string;
     description: string;
     unlimited: boolean;
+    // Optional per-tier sale window. ISO 8601 datetime strings; '' / undefined
+    // = no bound. Empty by default (tier purchasable whenever the event is live).
+    sale_start?: string;
+    sale_end?: string;
   }>;
   currency: string;
 
@@ -297,6 +301,16 @@ export default function CreateEventFlowRefactored() {
   const [showEndTime, setShowEndTime] = useState(false);
   const [scheduleErrorKey, setScheduleErrorKey] = useState<string | null>(null);
 
+  // Per-tier sale-window pickers. One shared DateTimePicker modal is driven by
+  // this object (which tier, which bound, date vs time) so any number of tiers
+  // reuse the same picker infra as the schedule rows.
+  const [salePicker, setSalePicker] = useState<
+    { tierIndex: number; field: 'start' | 'end'; mode: 'date' | 'time' } | null
+  >(null);
+  // Which tiers have the "Set a sale period" switch revealed. Falls back to
+  // "open" when a loaded tier already carries a bound (edit mode).
+  const [salePeriodOpen, setSalePeriodOpen] = useState<Record<number, boolean>>({});
+
   const eventId = route.params?.eventId;
   const isEditMode = !!eventId;
 
@@ -377,6 +391,9 @@ export default function CreateEventFlowRefactored() {
                 quantity: unlimited ? '' : String(tier.quantity ?? tier.available ?? 100),
                 description: tier.description || '',
                 unlimited,
+                // Restore any stored sale window (ISO strings) so editing keeps it.
+                sale_start: tier.sales_start || undefined,
+                sale_end: tier.sales_end || undefined,
               };
             })
           : [{ name: 'General Admission', price: '0', quantity: '100', description: '', unlimited: false }];
@@ -549,6 +566,69 @@ export default function CreateEventFlowRefactored() {
     patchTier(index, { unlimited: isUnlimited, quantity: isUnlimited ? '' : '100' });
   };
   const getCurrencySymbol = () => (eventDraft.currency === 'HTG' ? 'HTG' : '$');
+
+  // ── Per-tier sale window ──────────────────────────────────────────────────
+  // Format an ISO datetime for the inline row: date as YYYY-MM-DD, time as
+  // h:mm AM/PM (mirrors the schedule rows' local-time display).
+  const formatSaleDate = (iso?: string): string => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+  const formatSaleTime = (iso?: string): string => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    const hours = d.getHours();
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12;
+    return `${displayHours}:${minutes} ${ampm}`;
+  };
+  // A tier's sale-period section is shown when the switch was flipped on, or when
+  // a loaded tier already carries a bound.
+  const isSalePeriodOpen = (index: number, tier: Tier): boolean =>
+    salePeriodOpen[index] ?? (!!tier.sale_start || !!tier.sale_end);
+  // Toggle the section. Turning it OFF clears that tier's window.
+  const toggleSalePeriod = (index: number, on: boolean) => {
+    setSalePeriodOpen((prev) => ({ ...prev, [index]: on }));
+    if (!on) patchTier(index, { sale_start: undefined, sale_end: undefined });
+  };
+  // Open the shared picker for a given tier/bound/mode.
+  const openSalePicker = (index: number, field: 'start' | 'end', mode: 'date' | 'time') => {
+    closeAllPickers();
+    Keyboard.dismiss();
+    setSalePicker({ tierIndex: index, field, mode });
+  };
+  // Seed value for the picker: the tier's current bound, or now.
+  const getSalePickerValue = (): Date => {
+    if (!salePicker) return new Date();
+    const tier = eventDraft.ticket_tiers[salePicker.tierIndex];
+    const iso = salePicker.field === 'start' ? tier?.sale_start : tier?.sale_end;
+    const d = iso ? new Date(iso) : new Date();
+    return isNaN(d.getTime()) ? new Date() : d;
+  };
+  // On pick, compose the new ISO datetime (patch only the changed component) and
+  // write it back to the tier.
+  const handleSalePickerChange = (event: any, selected?: Date) => {
+    if (Platform.OS === 'android') setSalePicker(null);
+    if (!selected || !salePicker) return;
+    const { tierIndex, field, mode } = salePicker;
+    const key = field === 'start' ? 'sale_start' : 'sale_end';
+    const existing = eventDraft.ticket_tiers[tierIndex]?.[key];
+    const base = existing ? new Date(existing) : new Date();
+    if (isNaN(base.getTime())) base.setTime(Date.now());
+    if (mode === 'date') {
+      base.setFullYear(selected.getFullYear(), selected.getMonth(), selected.getDate());
+    } else {
+      base.setHours(selected.getHours(), selected.getMinutes(), 0, 0);
+    }
+    patchTier(tierIndex, { [key]: base.toISOString() });
+  };
 
   // ── Date/time helpers (ported verbatim from Step3ScheduleRefactored) ──
   const closeAllPickers = () => {
@@ -748,6 +828,14 @@ export default function CreateEventFlowRefactored() {
         if (!tier.unlimited) {
           const qty = parseInt(tier.quantity || '0', 10);
           if (!Number.isFinite(qty) || qty <= 0) errs[`tier_${i}_quantity`] = t('organizerCreateEventFlow.validation.tierQuantity');
+        }
+        // Sale window: when both bounds are set, end must be after start.
+        if (tier.sale_start && tier.sale_end) {
+          const s = new Date(tier.sale_start).getTime();
+          const e = new Date(tier.sale_end).getTime();
+          if (Number.isFinite(s) && Number.isFinite(e) && e <= s) {
+            errs[`tier_${i}_sale`] = t('organizerCreateEventFlow.canvas.saleEndBeforeStart');
+          }
         }
       });
     }
@@ -1369,6 +1457,49 @@ export default function CreateEventFlowRefactored() {
                         multiline
                         maxLength={500}
                       />
+
+                      {/* Sale period — optional per-tier on-sale window (teal on-state) */}
+                      <View style={styles.tierToggleRow}>
+                        <Text style={styles.tierToggleLabel}>{t('organizerCreateEventFlow.canvas.salePeriod')}</Text>
+                        <Switch
+                          value={isSalePeriodOpen(index, tier)}
+                          onValueChange={(v) => toggleSalePeriod(index, v)}
+                          trackColor={{ false: colors.border, true: colors.primary }}
+                          thumbColor={colors.white}
+                          ios_backgroundColor={colors.border}
+                        />
+                      </View>
+
+                      {isSalePeriodOpen(index, tier) && (
+                        <>
+                          <InlineDateTimeRow
+                            colors={colors}
+                            label={t('organizerCreateEventFlow.canvas.salesStart')}
+                            dateText={formatSaleDate(tier.sale_start)}
+                            timeText={formatSaleTime(tier.sale_start)}
+                            timePlaceholder={t('organizerCreateEvent.schedule.selectTime')}
+                            onPressDate={() => openSalePicker(index, 'start', 'date')}
+                            onPressTime={() => openSalePicker(index, 'start', 'time')}
+                            error={!!errors[`tier_${index}_sale`]}
+                          />
+                          <InlineDateTimeRow
+                            colors={colors}
+                            label={t('organizerCreateEventFlow.canvas.salesEnd')}
+                            dateText={formatSaleDate(tier.sale_end)}
+                            timeText={formatSaleTime(tier.sale_end)}
+                            timePlaceholder={t('organizerCreateEvent.schedule.selectTime')}
+                            onPressDate={() => openSalePicker(index, 'end', 'date')}
+                            onPressTime={() => openSalePicker(index, 'end', 'time')}
+                            error={!!errors[`tier_${index}_sale`]}
+                          />
+                          {!!errors[`tier_${index}_sale`] && (
+                            <View style={styles.scheduleError}>
+                              <Ionicons name="alert-circle" size={16} color={colors.error} />
+                              <Text style={styles.scheduleErrorText}>{errors[`tier_${index}_sale`]}</Text>
+                            </View>
+                          )}
+                        </>
+                      )}
                     </View>
                     );
                   })}
@@ -1567,6 +1698,29 @@ export default function CreateEventFlowRefactored() {
       )}
       {Platform.OS === 'android' && showEndTime && (
         <DateTimePicker value={getTimeValue(eventDraft.end_time)} mode="time" is24Hour={false} display="default" onChange={handleEndTimeChange} />
+      )}
+
+      {/* Shared per-tier sale-window picker (iOS modal). One modal serves every
+          tier — salePicker holds which tier/bound/mode is being edited. */}
+      {renderPickerModal(
+        salePicker !== null,
+        salePicker?.field === 'end'
+          ? t('organizerCreateEventFlow.canvas.salesEnd')
+          : t('organizerCreateEventFlow.canvas.salesStart'),
+        getSalePickerValue(),
+        salePicker?.mode || 'date',
+        handleSalePickerChange,
+        () => setSalePicker(null)
+      )}
+      {/* Android inline sale-window picker (auto-dismissing native dialog) */}
+      {Platform.OS === 'android' && salePicker && (
+        <DateTimePicker
+          value={getSalePickerValue()}
+          mode={salePicker.mode}
+          is24Hour={false}
+          display="default"
+          onChange={handleSalePickerChange}
+        />
       )}
 
       {/* Confirmation-before-publish sheet with save-as-draft escape hatch */}

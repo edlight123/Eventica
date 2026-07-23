@@ -178,6 +178,14 @@ export default function TieredTicketSelector({
     return available > 0;
   };
 
+  // Format an ISO sale-start for the "On sale {date}" label (short month + day).
+  const formatOnSaleDate = (iso: string | null): string => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  };
+
   const getAvailableQuantity = (tier: TicketTier): number => {
     return tier.total_quantity - tier.sold_quantity;
   };
@@ -292,6 +300,12 @@ export default function TieredTicketSelector({
                 const available = getAvailableQuantity(tier);
                 const isAvailable = isTierAvailable(tier);
                 const quantity = tierQuantities[tier.id] || 0;
+                // On-sale gate (mirrors the web): empty bound = open. When not on
+                // sale the stepper is hidden (isAvailable is false) and a subdued
+                // label explains why instead of the generic sold-out copy.
+                const now = new Date();
+                const notYetOnSale = !!tier.sales_start && new Date(tier.sales_start) > now;
+                const salesEnded = !!tier.sales_end && new Date(tier.sales_end) < now;
                 
                 return (
                   <View
@@ -320,13 +334,18 @@ export default function TieredTicketSelector({
                       
                       <Text style={[
                         styles.tierAvailability,
-                        !isAvailable && styles.tierSoldOut
+                        notYetOnSale && styles.tierNotOnSale,
+                        !notYetOnSale && (salesEnded || !isAvailable) && styles.tierSoldOut,
                       ]}>
-                        {tier.unlimited
-                          ? t('organizerCreateEventFlow.canvas.unlimitedLabel')
-                          : isAvailable
-                            ? `${available} ${t('ticketSelector.ticketsAvailable')}`
-                            : t('ticketSelector.soldOut')
+                        {notYetOnSale
+                          ? t('ticketSelector.onSaleFrom').replace('{date}', formatOnSaleDate(tier.sales_start))
+                          : salesEnded
+                            ? t('ticketSelector.salesEnded')
+                            : tier.unlimited
+                              ? t('organizerCreateEventFlow.canvas.unlimitedLabel')
+                              : isAvailable
+                                ? `${available} ${t('ticketSelector.ticketsAvailable')}`
+                                : t('ticketSelector.soldOut')
                         }
                       </Text>
                     </View>
@@ -545,6 +564,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   tierSoldOut: {
     color: colors.error,
+  },
+  // Subdued (not error) styling for a tier that isn't on sale yet.
+  tierNotOnSale: {
+    color: colors.textSecondary,
   },
   quantitySelector: {
     flexDirection: 'row',
