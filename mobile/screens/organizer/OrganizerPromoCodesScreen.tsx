@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -12,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import {
   addDoc,
   collection,
@@ -31,6 +30,10 @@ import { useI18n } from '../../contexts/I18nContext';
 import { RADIUS } from '../../config/brand';
 import { Skeleton } from '../../components/Skeleton';
 import EmptyState from '../../components/EmptyState';
+import StatusChip from '../../components/StatusChip';
+import WhitePillCTA from '../../components/WhitePillCTA';
+import SecondaryPill from '../../components/auth/SecondaryPill';
+import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
 import { Tag } from 'lucide-react-native';
 import { getEventById } from '../../lib/api/organizer';
 
@@ -77,6 +80,7 @@ export default function OrganizerPromoCodesScreen() {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const route = useRoute<RouteProp<RouteParams, 'OrganizerPromoCodes'>>();
+  const navigation = useNavigation<any>();
   const { eventId } = route.params;
 
   const { t, language } = useI18n();
@@ -252,15 +256,12 @@ export default function OrganizerPromoCodesScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
+        <OrganizerScreenHeader
+          title={t('organizerPromoCodes.title')}
+          subtitle={eventTitle || undefined}
+          onBack={() => navigation.goBack()}
+        />
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <View style={styles.header}>
-            <Text style={styles.title}>{t('organizerPromoCodes.title')}</Text>
-            {!!eventTitle && (
-              <Text style={styles.subtitle} numberOfLines={2}>
-                {eventTitle}
-              </Text>
-            )}
-          </View>
           <View style={styles.section}>
             <Skeleton width="100%" height={52} radius={RADIUS.lg} style={{ marginBottom: 16 }} />
             <Skeleton width={140} height={18} radius={6} style={{ marginBottom: 12 }} />
@@ -275,16 +276,12 @@ export default function OrganizerPromoCodesScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <OrganizerScreenHeader
+        title={t('organizerPromoCodes.title')}
+        subtitle={eventTitle || undefined}
+        onBack={() => navigation.goBack()}
+      />
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-        <View style={styles.header}>
-          <Text style={styles.title}>{t('organizerPromoCodes.title')}</Text>
-          {!!eventTitle && (
-            <Text style={styles.subtitle} numberOfLines={2}>
-              {eventTitle}
-            </Text>
-          )}
-        </View>
-
         <View style={styles.section}>
           <TouchableOpacity style={styles.createToggle} onPress={() => setShowForm((v) => !v)} activeOpacity={0.8}>
             <View style={styles.createToggleLeft}>
@@ -364,25 +361,22 @@ export default function OrganizerPromoCodesScreen() {
               />
 
               <View style={styles.formActions}>
-                <TouchableOpacity
-                  style={[styles.formButton, styles.formButtonSecondary]}
+                <SecondaryPill
+                  style={styles.formActionPill}
+                  label={t('common.cancel')}
                   onPress={() => {
                     resetForm();
                     setShowForm(false);
                   }}
                   disabled={saving}
-                >
-                  <Text style={[styles.formButtonText, styles.formButtonTextSecondary]}>{t('common.cancel')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.formButton, saving && styles.formButtonDisabled]}
+                />
+                <WhitePillCTA
+                  style={styles.formActionPill}
+                  label={saving ? t('organizerPromoCodes.create.creating') : t('organizerPromoCodes.create.create')}
                   onPress={handleCreate}
+                  loading={saving}
                   disabled={saving}
-                >
-                  <Text style={styles.formButtonText}>
-                    {saving ? t('organizerPromoCodes.create.creating') : t('organizerPromoCodes.create.create')}
-                  </Text>
-                </TouchableOpacity>
+                />
               </View>
             </View>
           )}
@@ -408,16 +402,10 @@ export default function OrganizerPromoCodesScreen() {
                   <View style={styles.promoHeader}>
                     <View style={styles.promoHeaderLeft}>
                       <Text style={styles.promoCode}>{String(promo.code || '').toUpperCase()}</Text>
-                      <View
-                        style={[
-                          styles.statusPill,
-                          { backgroundColor: promo.is_active ? `${colors.success}20` : `${colors.textSecondary}20` },
-                        ]}
-                      >
-                        <Text style={[styles.statusText, { color: promo.is_active ? colors.success : colors.textSecondary }]}>
-                          {promo.is_active ? t('organizerPromoCodes.list.active') : t('organizerPromoCodes.list.inactive')}
-                        </Text>
-                      </View>
+                      <StatusChip
+                        status={promo.is_active ? 'active' : 'neutral'}
+                        label={promo.is_active ? t('organizerPromoCodes.list.active') : t('organizerPromoCodes.list.inactive')}
+                      />
                     </View>
 
                     <TouchableOpacity
@@ -468,32 +456,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   scrollContent: {
     padding: 20,
     paddingBottom: 40,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.background,
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: colors.textSecondary,
-  },
-  header: {
-    marginBottom: 12,
-  },
-  title: {
-    fontFamily: 'InstrumentSerif_400Regular',
-    fontSize: 28,
-    fontWeight: 'bold',
-    letterSpacing: 0,
-    color: colors.text,
-  },
-  subtitle: {
-    marginTop: 6,
-    fontSize: 14,
-    color: colors.textSecondary,
   },
   section: {
     marginTop: 16,
@@ -566,14 +528,14 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.background,
   },
   toggleButtonActive: {
-    backgroundColor: `${colors.primary}20`,
+    backgroundColor: colors.surfaceRaised,
   },
   toggleButtonText: {
     color: colors.textSecondary,
     fontWeight: '600',
   },
   toggleButtonTextActive: {
-    color: colors.primary,
+    color: colors.text,
   },
   formActions: {
     flexDirection: 'row',
@@ -581,40 +543,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 10,
     marginTop: 16,
   },
-  formButton: {
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    backgroundColor: colors.primary,
-    minWidth: 110,
-    alignItems: 'center',
-  },
-  formButtonSecondary: {
-    backgroundColor: colors.background,
-  },
-  formButtonDisabled: {
-    opacity: 0.6,
-  },
-  formButtonText: {
-    color: colors.white,
-    fontWeight: '700',
-  },
-  formButtonTextSecondary: {
-    color: colors.text,
-  },
-  emptyState: {
-    backgroundColor: colors.surface,
-    borderRadius: RADIUS.xl,
-    padding: 24,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  emptyText: {
-    marginTop: 10,
-    fontSize: 14,
-    color: colors.textSecondary,
-    textAlign: 'center',
+  formActionPill: {
+    flex: 1,
   },
   promoCard: {
     backgroundColor: colors.surface,
@@ -642,15 +572,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '800',
     color: colors.text,
   },
-  statusPill: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '700',
-  },
   iconButton: {
     padding: 6,
   },
@@ -675,18 +596,20 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 14,
   },
   actionButtonPrimary: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.surfaceRaised,
   },
   actionButtonSecondary: {
-    backgroundColor: `${colors.primary}20`,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   actionButtonText: {
     fontWeight: '700',
   },
   actionButtonTextPrimary: {
-    color: colors.white,
+    color: colors.text,
   },
   actionButtonTextSecondary: {
-    color: colors.primary,
+    color: colors.textSecondary,
   },
 });

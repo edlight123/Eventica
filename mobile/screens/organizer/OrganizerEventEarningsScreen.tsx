@@ -26,9 +26,13 @@ import { getEventById } from '../../lib/api/organizer'
 import { getVerificationRequest } from '../../lib/verification'
 import { getRequiredPayoutProfileIdForEventCountry, normalizeCountryCode } from '../../lib/payment-provider'
 import { RADIUS } from '../../config/brand'
+import { colors as tokenColors } from '../../theme/tokens'
 import { formatCurrency as fmtCurrency } from '../../lib/currency'
 import StatTriplet from '../../components/StatTriplet'
 import WhitePillCTA from '../../components/WhitePillCTA'
+import SecondaryPill from '../../components/auth/SecondaryPill'
+import InfoNotice from '../../components/organizer/InfoNotice'
+import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader'
 
 type RouteParams = {
   OrganizerEventEarnings: {
@@ -287,11 +291,11 @@ export default function OrganizerEventEarningsScreen() {
   const openWithdraw = async (nextMethod: 'moncash' | 'bank') => {
     if (!identityVerified) {
       Alert.alert(
-        'Verify your identity to withdraw',
-        "Complete identity verification before you can withdraw your earnings. It's quick and reviewed within 48 hours.",
+        t('organizerEarnings.identity.title'),
+        t('organizerEarnings.identity.alertBody'),
         [
           { text: t('common.cancel'), style: 'cancel' },
-          { text: 'Verify Identity', onPress: () => navigation.navigate('OrganizerVerification') },
+          { text: t('organizerEarnings.identity.cta'), onPress: () => navigation.navigate('OrganizerVerification') },
         ]
       )
       return
@@ -574,21 +578,11 @@ export default function OrganizerEventEarningsScreen() {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
 
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <Ionicons name="chevron-back" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <View style={styles.headerTextWrap}>
-          <Text style={styles.headerTitle}>{t('organizerEarnings.headerTitle')}</Text>
-          <Text style={styles.headerSubtitle} numberOfLines={1}>
-            {eventTitle || eventId}
-          </Text>
-        </View>
-      </View>
+      <OrganizerScreenHeader
+        title={t('organizerEarnings.headerTitle')}
+        subtitle={eventTitle || eventId}
+        onBack={() => navigation.goBack()}
+      />
 
       <ScrollView style={styles.scroll} contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}>
         <View style={styles.card}>
@@ -630,40 +624,27 @@ export default function OrganizerEventEarningsScreen() {
         <View style={{ height: 12 }} />
 
         {identityVerified === false ? (
-          <View style={styles.notice}>
-            <Ionicons name="shield-checkmark-outline" size={18} color={colors.textSecondary} />
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.noticeText, { fontWeight: '700', color: colors.text }]}>
-                Verify your identity to withdraw
-              </Text>
-              <Text style={[styles.noticeText, { marginTop: 4 }]}>
-                Complete a quick identity check to withdraw your earnings. Verification is reviewed within 48 hours.
-              </Text>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('OrganizerVerification')}
-                style={[styles.actionButton, { backgroundColor: colors.surfaceRaised, marginTop: 10 }]}
-                activeOpacity={0.85}
-              >
-                <Ionicons name="shield-checkmark-outline" size={20} color={colors.text} />
-                <Text style={[styles.actionButtonText, { color: colors.text }]}>Verify Identity</Text>
-              </TouchableOpacity>
-            </View>
+          <View style={styles.noticeStack}>
+            <InfoNotice
+              icon="shield-checkmark-outline"
+              text={t('organizerEarnings.identity.noticeBody')}
+            />
+            <SecondaryPill
+              style={styles.noticeCta}
+              label={t('organizerEarnings.identity.cta')}
+              icon={<Ionicons name="shield-checkmark-outline" size={20} color={colors.text} />}
+              onPress={() => navigation.navigate('OrganizerVerification')}
+            />
           </View>
         ) : requiresStripeConnect ? (
-          <View style={styles.notice}>
-            <Ionicons name="card-outline" size={18} color={colors.textSecondary} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.noticeText}>
-                {t('organizerEarnings.stripeNotice')}
-              </Text>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('OrganizerPayoutSettings')}
-                style={[styles.actionButton, { backgroundColor: colors.surfaceRaised, marginTop: 10 }]}
-              >
-                <Ionicons name="settings-outline" size={20} color={colors.text} />
-                <Text style={[styles.actionButtonText, { color: colors.text }]}>{t('organizerEarnings.openPayoutSettings')}</Text>
-              </TouchableOpacity>
-            </View>
+          <View style={styles.noticeStack}>
+            <InfoNotice icon="card-outline" text={t('organizerEarnings.stripeNotice')} />
+            <SecondaryPill
+              style={styles.noticeCta}
+              label={t('organizerEarnings.openPayoutSettings')}
+              icon={<Ionicons name="settings-outline" size={20} color={colors.text} />}
+              onPress={() => navigation.navigate('OrganizerPayoutSettings')}
+            />
           </View>
         ) : identityVerified === true ? (
           <>
@@ -671,32 +652,27 @@ export default function OrganizerEventEarningsScreen() {
             <WhitePillCTA
               label={t('organizerEarnings.withdrawViaMoncash')}
               onPress={() => openWithdraw('moncash')}
-              icon={<Ionicons name="phone-portrait-outline" size={20} color="#000000" />}
+              icon={<Ionicons name="phone-portrait-outline" size={20} color={tokenColors.onWhite} />}
             />
 
             <View style={{ height: 12 }} />
 
             {/* Secondary = dark-grey pill. */}
-            <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: colors.surfaceRaised }]}
+            <SecondaryPill
+              label={t('organizerEarnings.withdrawToBank')}
+              icon={<Ionicons name="business-outline" size={20} color={colors.text} />}
               onPress={() => openWithdraw('bank')}
-              activeOpacity={0.85}
-            >
-              <Ionicons name="business-outline" size={20} color={colors.text} />
-              <Text style={[styles.actionButtonText, { color: colors.text }]}>{t('organizerEarnings.withdrawToBank')}</Text>
-            </TouchableOpacity>
+            />
           </>
         ) : null}
 
         {!earnings ? (
-          <View style={styles.notice}>
-            <Ionicons name="alert-circle-outline" size={18} color={colors.textSecondary} />
-            <Text style={styles.noticeText}>{t('organizerEarnings.notices.noEarnings')}</Text>
+          <View style={styles.noticeStack}>
+            <InfoNotice icon="alert-circle-outline" text={t('organizerEarnings.notices.noEarnings')} />
           </View>
         ) : earnings?.settlementStatus !== 'ready' ? (
-          <View style={styles.notice}>
-            <Ionicons name="lock-closed-outline" size={18} color={colors.textSecondary} />
-            <Text style={styles.noticeText}>{t('organizerEarnings.notices.notReady')}</Text>
+          <View style={styles.noticeStack}>
+            <InfoNotice icon="lock-closed-outline" text={t('organizerEarnings.notices.notReady')} />
           </View>
         ) : null}
       </ScrollView>
@@ -922,35 +898,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     backgroundColor: colors.background,
   },
-  header: {
-    paddingTop: 16,
-    paddingBottom: 16,
-    paddingHorizontal: 16,
-    backgroundColor: colors.background,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  backButton: {
-    padding: 6,
-  },
-  headerTextWrap: {
-    flex: 1,
-  },
-  headerTitle: {
-    fontFamily: 'InstrumentSerif_400Regular',
-    fontSize: 22,
-    fontWeight: '700',
-    letterSpacing: 0,
-    color: colors.text,
-  },
-  headerSubtitle: {
-    marginTop: 4,
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
   scroll: {
     flex: 1,
   },
@@ -990,29 +937,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textSecondary,
     fontSize: 13,
   },
-  actionButton: {
-    borderRadius: RADIUS.md,
-    minHeight: 48,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-  },
-  actionButtonText: {
-    color: colors.white,
-    fontWeight: '700',
-    fontSize: 15,
-  },
-  notice: {
+  noticeStack: {
     marginTop: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
   },
-  noticeText: {
-    color: colors.textSecondary,
+  noticeCta: {
+    marginTop: 10,
   },
   modalBackdrop: {
     flex: 1,
@@ -1071,19 +1000,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   footerPill: {
     flex: 1,
   },
-  primaryButton: {
-    flex: 1,
-    backgroundColor: colors.primary,
-    borderRadius: RADIUS.md,
-    minHeight: 48,
-    paddingVertical: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  primaryButtonText: {
-    color: colors.white,
-    fontWeight: '700',
-  },
   secondaryButton: {
     flex: 1,
     backgroundColor: colors.surfaceMuted,
@@ -1097,9 +1013,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
     fontWeight: '700',
   },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
   radioRow: {
     flexDirection: 'row',
     gap: 8,
@@ -1111,7 +1024,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.surfaceMuted,
   },
   radioChipActive: {
-    backgroundColor: colors.primarySoft,
+    backgroundColor: colors.surfaceRaised,
   },
   radioChipText: {
     fontSize: 12,
@@ -1129,8 +1042,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 8,
   },
   destinationRowActive: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primarySoft,
+    borderColor: colors.textSecondary,
+    backgroundColor: colors.surfaceRaised,
   },
   destinationTitle: {
     fontWeight: '700',

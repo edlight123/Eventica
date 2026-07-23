@@ -1155,6 +1155,12 @@ export default {
     withdrawViaMoncash: 'Withdraw via MonCash',
     withdrawToBank: 'Withdraw to Bank',
     submitting: 'Submitting...',
+    identity: {
+      title: 'Verify your identity to withdraw',
+      alertBody: "Complete identity verification before you can withdraw your earnings. It's quick and reviewed within 48 hours.",
+      noticeBody: 'Complete a quick identity check to withdraw your earnings. Verification is reviewed within 48 hours.',
+      cta: 'Verify Identity',
+    },
     stripeConnectRequired: {
       title: 'Stripe Connect required',
       body: 'US/Canada payouts are handled via Stripe Connect. Manage payout details on the web payouts settings page.',

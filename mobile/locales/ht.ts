@@ -1030,6 +1030,12 @@ export default {
     withdrawViaMoncash: 'Retire via MonCash',
     withdrawToBank: 'Retire nan bank',
     submitting: 'Nap soumèt...',
+    identity: {
+      title: 'Verifye idantite w pou w retire',
+      alertBody: "Fè verifikasyon idantite anvan w ka retire lajan w. Li rapid epi n ap revize l nan 48 èdtan.",
+      noticeBody: "Fè yon ti verifikasyon idantite pou w retire lajan w. N ap revize verifikasyon an nan 48 èdtan.",
+      cta: 'Verifye idantite',
+    },
     stripeConnectRequired: {
       title: 'Stripe Connect obligatwa',
       body: 'Peman US/Canada jere atravè Stripe Connect. Jere detay peman yo sou paj web peman yo.',

@@ -1032,6 +1032,12 @@ export default {
     withdrawViaMoncash: 'Retirer via MonCash',
     withdrawToBank: 'Retirer vers la banque',
     submitting: 'Envoi…',
+    identity: {
+      title: 'Vérifiez votre identité pour retirer',
+      alertBody: "Terminez la vérification d'identité avant de pouvoir retirer vos gains. C'est rapide et examiné sous 48 heures.",
+      noticeBody: "Effectuez une vérification d'identité rapide pour retirer vos gains. La vérification est examinée sous 48 heures.",
+      cta: "Vérifier l'identité",
+    },
     stripeConnectRequired: {
       title: 'Stripe Connect requis',
       body: 'Les paiements US/Canada sont gérés via Stripe Connect. Gérez vos informations sur la page web des paiements.',

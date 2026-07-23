@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  ActivityIndicator,
   Alert,
   Modal,
   ScrollView,
@@ -14,16 +13,20 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import * as ImagePicker from 'expo-image-picker'
-import { collection, getDocs } from 'firebase/firestore'
 
 import { useTheme } from '../../contexts/ThemeContext';
-import { db } from '../../config/firebase'
 import { useAuth } from '../../contexts/AuthContext'
 import { useI18n } from '../../contexts/I18nContext'
-import { backendFetch, backendJson } from '../../lib/api/backend'
+import { backendFetch } from '../../lib/api/backend'
 import { getVerificationRequest } from '../../lib/verification'
 import { RADIUS } from '../../config/brand'
 import { Skeleton } from '../../components/Skeleton'
+import StatusChip from '../../components/StatusChip'
+import EmptyState from '../../components/EmptyState'
+import WhitePillCTA from '../../components/WhitePillCTA'
+import InfoNotice from '../../components/organizer/InfoNotice'
+import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader'
+import { Wallet } from 'lucide-react-native'
 
 type VerificationStatus = 'not_started' | 'pending' | 'verified' | 'failed'
 
@@ -102,17 +105,13 @@ export default function OrganizerPayoutSettingsScreenV2() {
   const [sendingPhoneCode, setSendingPhoneCode] = useState(false)
   const [verifyingPhoneCode, setVerifyingPhoneCode] = useState(false)
 
-  const statusPill = useCallback((status?: VerificationStatus) => {
-    if (status === 'verified') {
-      return { backgroundColor: `${colors.success}20`, textColor: colors.success, label: 'Verified', icon: 'checkmark-circle' }
-    }
-    if (status === 'pending') {
-      return { backgroundColor: `${colors.primary}20`, textColor: colors.primary, label: 'Under Review', icon: 'time' }
-    }
-    if (status === 'failed') {
-      return { backgroundColor: `${colors.error}20`, textColor: colors.error, label: 'Needs Attention', icon: 'alert-circle' }
-    }
-    return { backgroundColor: `${colors.textSecondary}20`, textColor: colors.textSecondary, label: 'Not Verified', icon: 'close-circle' }
+  // Maps a destination's verification status onto the shared StatusChip's locked
+  // semantic tones (POSH §2.7) — pending is amber, not teal.
+  const statusChip = useCallback((status?: VerificationStatus) => {
+    if (status === 'verified') return { status: 'verified', label: 'Verified' }
+    if (status === 'pending') return { status: 'pending', label: 'Under Review' }
+    if (status === 'failed') return { status: 'error', label: 'Needs Attention' }
+    return { status: 'neutral', label: 'Not Verified' }
   }, [])
 
   const loadDestinations = useCallback(async () => {
@@ -325,13 +324,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Payout Settings</Text>
-          <View style={{ width: 40 }} />
-        </View>
+        <OrganizerScreenHeader title="Payout Settings" onBack={() => navigation.goBack()} />
         <View style={{ padding: 16, gap: 12 }}>
           {[0, 1, 2].map((i) => (
             <Skeleton key={i} width="100%" height={140} radius={RADIUS.xl} />
@@ -343,59 +336,45 @@ export default function OrganizerPayoutSettingsScreenV2() {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Payout Settings</Text>
-        <View style={{ width: 40 }} />
-      </View>
+      <OrganizerScreenHeader title="Payout Settings" onBack={() => navigation.goBack()} />
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}>
         {/* Identity Verification Status */}
         {!identityVerified && (
-          <View style={[styles.card, { backgroundColor: `${colors.primary}10` }]}>
-            <View style={styles.row}>
-              <Ionicons name="shield-checkmark-outline" size={20} color={colors.primary} />
-              <View style={{ flex: 1, marginLeft: 10 }}>
-                <Text style={[styles.cardTitle, { color: colors.primary }]}>Identity Verification Required</Text>
-                <Text style={styles.metaText}>Complete identity verification to add payout methods and withdraw earnings. Reviewed within 48 hours.</Text>
-              </View>
-            </View>
-            <TouchableOpacity
-              style={[styles.primaryButton, { marginTop: 12 }]}
+          <View style={styles.identityBlock}>
+            <InfoNotice
+              icon="shield-checkmark-outline"
+              text="Identity verification is required before you can add payout methods and withdraw earnings. Reviewed within 48 hours."
+            />
+            <WhitePillCTA
+              style={styles.identityCta}
+              label="Verify Identity"
               onPress={() => navigation.navigate('OrganizerVerification')}
-            >
-              <Text style={styles.primaryButtonText}>Verify Identity</Text>
-            </TouchableOpacity>
+            />
           </View>
         )}
 
         {/* Destinations List */}
         {destinations.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Ionicons name="wallet-outline" size={64} color={colors.primary} />
-            <Text style={styles.emptyTitle}>No Payout Methods</Text>
-            <Text style={styles.emptyText}>
-              Add a bank account or mobile money to receive payments from your events.
-            </Text>
-            <TouchableOpacity style={styles.primaryButton} onPress={() => setShowAddModal(true)}>
-              <Ionicons name="add" size={20} color={colors.white} />
-              <Text style={styles.primaryButtonText}>Add Payout Method</Text>
-            </TouchableOpacity>
-          </View>
+          <EmptyState
+            icon={Wallet}
+            title="No Payout Methods"
+            subtitle="Add a bank account or mobile money to receive payments from your events."
+            actionLabel="Add Payout Method"
+            onAction={() => setShowAddModal(true)}
+          />
         ) : (
           <>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Payout Methods</Text>
               <TouchableOpacity style={styles.addButton} onPress={() => setShowAddModal(true)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                <Ionicons name="add" size={18} color={colors.primary} />
+                <Ionicons name="add" size={18} color={colors.text} />
                 <Text style={styles.addButtonText}>Add</Text>
               </TouchableOpacity>
             </View>
 
             {destinations.map((dest) => {
-              const pill = statusPill(dest.verificationStatus)
+              const chip = statusChip(dest.verificationStatus)
               const isBank = dest.type === 'bank'
 
               return (
@@ -420,10 +399,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
                           : (dest as MoncashDestination).phoneNumberLast4}
                       </Text>
                     </View>
-                    <View style={[styles.statusPill, { backgroundColor: pill.backgroundColor }]}>
-                      <Ionicons name={pill.icon as any} size={14} color={pill.textColor} />
-                      <Text style={[styles.statusPillText, { color: pill.textColor }]}>{pill.label}</Text>
-                    </View>
+                    <StatusChip status={chip.status} label={chip.label} />
                   </View>
 
                   {dest.verificationStatus !== 'verified' && (
@@ -463,7 +439,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
               onPress={() => handleAddMethodSelect('bank')}
               activeOpacity={0.7}
             >
-              <Ionicons name="card-outline" size={32} color={colors.primary} />
+              <Ionicons name="card-outline" size={32} color={colors.text} />
               <View style={{ flex: 1, marginLeft: 16 }}>
                 <Text style={styles.methodTitle}>Bank Account</Text>
                 <Text style={styles.methodDescription}>Receive payments directly to your bank account</Text>
@@ -476,7 +452,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
               onPress={() => handleAddMethodSelect('moncash')}
               activeOpacity={0.7}
             >
-              <Ionicons name="phone-portrait-outline" size={32} color={colors.primary} />
+              <Ionicons name="phone-portrait-outline" size={32} color={colors.text} />
               <View style={{ flex: 1, marginLeft: 16 }}>
                 <Text style={styles.methodTitle}>MonCash / NatCash</Text>
                 <Text style={styles.methodDescription}>Receive payments to your mobile money account</Text>
@@ -555,17 +531,13 @@ export default function OrganizerPayoutSettingsScreenV2() {
               autoCapitalize="characters"
             />
 
-            <TouchableOpacity
-              style={[styles.primaryButton, { marginTop: 24 }, savingBank && styles.primaryButtonDisabled]}
+            <WhitePillCTA
+              style={{ marginTop: 24 }}
+              label="Save Bank Account"
               onPress={handleSaveBank}
+              loading={savingBank}
               disabled={savingBank}
-            >
-              {savingBank ? (
-                <ActivityIndicator color={colors.white} />
-              ) : (
-                <Text style={styles.primaryButtonText}>Save Bank Account</Text>
-              )}
-            </TouchableOpacity>
+            />
           </ScrollView>
         </View>
       </Modal>
@@ -623,17 +595,13 @@ export default function OrganizerPayoutSettingsScreenV2() {
               keyboardType="phone-pad"
             />
 
-            <TouchableOpacity
-              style={[styles.primaryButton, { marginTop: 24 }, savingMoncash && styles.primaryButtonDisabled]}
+            <WhitePillCTA
+              style={{ marginTop: 24 }}
+              label="Save Mobile Money"
               onPress={handleSaveMoncash}
+              loading={savingMoncash}
               disabled={savingMoncash}
-            >
-              {savingMoncash ? (
-                <ActivityIndicator color={colors.white} />
-              ) : (
-                <Text style={styles.primaryButtonText}>Save Mobile Money</Text>
-              )}
-            </TouchableOpacity>
+            />
           </ScrollView>
         </View>
       </Modal>
@@ -654,7 +622,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
           </View>
 
           <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}>
-            <View style={[styles.card, { backgroundColor: `${colors.primary}10` }]}>
+            <View style={styles.card}>
               <Text style={styles.cardTitle}>Verification Required</Text>
               <Text style={styles.metaText}>
                 To receive payouts to this account, upload a document that shows:
@@ -713,21 +681,13 @@ export default function OrganizerPayoutSettingsScreenV2() {
               </View>
             )}
 
-            <TouchableOpacity
-              style={[
-                styles.primaryButton,
-                { marginTop: 24 },
-                (submittingVerification || !verificationAsset) && styles.primaryButtonDisabled,
-              ]}
+            <WhitePillCTA
+              style={{ marginTop: 24 }}
+              label="Submit for Review"
               onPress={handleSubmitVerification}
+              loading={submittingVerification}
               disabled={submittingVerification || !verificationAsset}
-            >
-              {submittingVerification ? (
-                <ActivityIndicator color={colors.white} />
-              ) : (
-                <Text style={styles.primaryButtonText}>Submit for Review</Text>
-              )}
-            </TouchableOpacity>
+            />
 
             <Text style={[styles.metaHint, { marginTop: 16, textAlign: 'center' }]}>
               Your document will be reviewed by our team within 1-2 business days. You'll receive a notification once
@@ -745,15 +705,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     backgroundColor: colors.background,
   },
-  loadingContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.background,
+  identityBlock: {
+    marginBottom: 12,
   },
-  loadingText: {
+  identityCta: {
     marginTop: 12,
-    color: colors.textSecondary,
   },
   header: {
     paddingHorizontal: 16,
@@ -814,27 +770,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexWrap: 'wrap',
     marginTop: 10,
   },
-  emptyState: {
-    backgroundColor: colors.surface,
-    borderRadius: RADIUS.lg,
-    padding: 32,
-    alignItems: 'center',
-    marginTop: 24,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.text,
-    marginTop: 16,
-  },
-  emptyText: {
-    marginTop: 8,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    fontSize: 14,
-  },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -854,10 +789,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 999,
-    backgroundColor: `${colors.primary}15`,
+    backgroundColor: colors.surfaceRaised,
   },
   addButtonText: {
-    color: colors.primary,
+    color: colors.text,
     fontWeight: '600',
     fontSize: 14,
   },
@@ -888,36 +823,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textSecondary,
     marginTop: 4,
     fontFamily: 'monospace',
-  },
-  statusPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-  },
-  statusPillText: {
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  primaryButton: {
-    backgroundColor: colors.primary,
-    minHeight: 48,
-    paddingVertical: 14,
-    borderRadius: RADIUS.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    gap: 8,
-  },
-  primaryButtonDisabled: {
-    opacity: 0.6,
-  },
-  primaryButtonText: {
-    color: colors.white,
-    fontWeight: '700',
-    fontSize: 16,
   },
   secondaryButton: {
     backgroundColor: colors.surfaceRaised,
@@ -1011,7 +916,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderColor: colors.border,
   },
   chipActive: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.surfaceRaised,
+    borderColor: colors.textSecondary,
   },
   chipText: {
     color: colors.text,
@@ -1019,6 +925,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 14,
   },
   chipTextActive: {
-    color: colors.white,
+    color: colors.text,
   },
 })
