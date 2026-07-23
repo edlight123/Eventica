@@ -17,6 +17,10 @@ import { doc, updateDoc, getDoc, Timestamp, serverTimestamp } from 'firebase/fir
 import { auth } from '../../config/firebase';
 import { useI18n } from '../../contexts/I18nContext';
 import { RADIUS } from '../../config/brand';
+import WhitePillCTA from '../../components/WhitePillCTA';
+import { SecondaryPill } from '../../components/auth/SecondaryPill';
+import EmptyState from '../../components/EmptyState';
+import { Camera } from 'lucide-react-native';
 
 type RouteParams = {
   TicketScanner: {
@@ -132,26 +136,11 @@ export default function TicketScannerScreen() {
     try {
       const ticketId = data;
 
-      // DEBUG: Log scan details
-      console.log('=== TICKET SCAN DEBUG ===');
-      console.log('QR Code Data:', ticketId);
-      console.log('Looking in collection: tickets');
-      console.log('Event ID:', eventId);
-      console.log('Firestore Config:', {
-        projectId: db.app.options.projectId,
-        // databaseId is not part of FirebaseOptions in this SDK build
-        databaseId: '(default)',
-      });
-
       // Get ticket from Firestore
       const ticketRef = doc(db, 'tickets', ticketId);
-      console.log('Ticket Ref Path:', ticketRef.path);
-      
       const ticketSnap = await getDoc(ticketRef);
-      console.log('Document exists:', ticketSnap.exists());
 
       if (!ticketSnap.exists()) {
-        console.log('Ticket not found in Firestore');
         setScanResult({
           status: 'NOT_FOUND',
           message: t('organizerTicketScanner.results.notFound'),
@@ -160,8 +149,6 @@ export default function TicketScannerScreen() {
       }
 
       const ticketData = ticketSnap.data();
-      console.log('Ticket Data:', JSON.stringify(ticketData, null, 2));
-      console.log('=== END DEBUG ===');
 
       const attendeeName =
         ticketData.attendee_name ||
@@ -334,11 +321,12 @@ export default function TicketScannerScreen() {
   if (!permission.granted) {
     return (
       <View style={styles.container}>
-        <Ionicons name="camera-outline" size={64} color={colors.textSecondary} />
-        <Text style={styles.message}>{t('organizerTicketScanner.permissions.required')}</Text>
-        <TouchableOpacity style={styles.button} onPress={requestPermission}>
-          <Text style={styles.buttonText}>{t('organizerTicketScanner.permissions.grant')}</Text>
-        </TouchableOpacity>
+        <EmptyState
+          icon={Camera}
+          title={t('organizerTicketScanner.permissions.required')}
+          actionLabel={t('organizerTicketScanner.permissions.grant')}
+          onAction={requestPermission}
+        />
       </View>
     );
   }
@@ -454,51 +442,29 @@ export default function TicketScannerScreen() {
             <View style={styles.sheetActions}>
               {scanResult?.status === 'VALID' ? (
                 scanResult?.validityBlock ? (
-                  // Out-of-window: the default green confirm is DISABLED. Staff
-                  // may still admit via the explicit, less-prominent override.
+                  // Out-of-window: the default confirm is DISABLED. Staff may
+                  // still admit via the explicit, less-prominent override.
                   <>
-                    <View
-                      style={[styles.actionButton, styles.primaryButton, styles.disabledButton]}
-                      pointerEvents="none"
-                    >
-                      <Text style={styles.primaryButtonText}>{t('organizerTicketScanner.actions.confirm')}</Text>
-                    </View>
+                    <WhitePillCTA label={t('organizerTicketScanner.actions.confirm')} disabled />
                     <TouchableOpacity
                       style={[styles.actionButton, styles.overrideButton]}
                       onPress={handleConfirmCheckIn}
                     >
                       <Text style={styles.overrideButtonText}>{overrideLabel}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.actionButton, styles.secondaryButton]}
-                      onPress={handleCloseSheet}
-                    >
-                      <Text style={styles.secondaryButtonText}>{t('common.cancel')}</Text>
-                    </TouchableOpacity>
+                    <SecondaryPill label={t('common.cancel')} onPress={handleCloseSheet} />
                   </>
                 ) : (
                   <>
-                    <TouchableOpacity
-                      style={[styles.actionButton, styles.primaryButton]}
+                    <WhitePillCTA
+                      label={t('organizerTicketScanner.actions.confirm')}
                       onPress={handleConfirmCheckIn}
-                    >
-                      <Text style={styles.primaryButtonText}>{t('organizerTicketScanner.actions.confirm')}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.actionButton, styles.secondaryButton]}
-                      onPress={handleCloseSheet}
-                    >
-                      <Text style={styles.secondaryButtonText}>{t('common.cancel')}</Text>
-                    </TouchableOpacity>
+                    />
+                    <SecondaryPill label={t('common.cancel')} onPress={handleCloseSheet} />
                   </>
                 )
               ) : (
-                <TouchableOpacity
-                  style={[styles.actionButton, styles.primaryButton]}
-                  onPress={handleCloseSheet}
-                >
-                  <Text style={styles.primaryButtonText}>{t('common.close')}</Text>
-                </TouchableOpacity>
+                <WhitePillCTA label={t('common.close')} onPress={handleCloseSheet} />
               )}
             </View>
           </View>

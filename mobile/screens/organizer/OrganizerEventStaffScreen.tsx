@@ -23,6 +23,11 @@ import { Skeleton } from '../../components/Skeleton'
 import EmptyState from '../../components/EmptyState'
 import { Users, Mail } from 'lucide-react-native'
 import { useAuth } from '../../contexts/AuthContext'
+import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader'
+import StaffEventCard from '../../components/organizer/StaffEventCard'
+import StatusChip from '../../components/StatusChip'
+import WhitePillCTA from '../../components/WhitePillCTA'
+import { SecondaryPill } from '../../components/auth/SecondaryPill'
 
 type RouteParams = {
   OrganizerEventStaff: {
@@ -74,12 +79,11 @@ export default function OrganizerEventStaffScreen() {
   const [viewAttendees, setViewAttendees] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
+  // Single header only: use the in-body OrganizerScreenHeader (serif) and hide
+  // the native navigation header to avoid a duplicate title bar.
   useEffect(() => {
-    navigation.setOptions({
-      headerTitle: t('organizerStaff.headerTitle'),
-      headerShown: true,
-    })
-  }, [navigation, t])
+    navigation.setOptions({ headerShown: false })
+  }, [navigation])
 
   const tsToIso = (value: any): string | null => {
     if (!value) return null
@@ -271,12 +275,12 @@ export default function OrganizerEventStaffScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
+        <OrganizerScreenHeader
+          title={t('organizerStaff.headerTitle')}
+          right={<Skeleton width={96} height={36} radius={RADIUS.md} />}
+        />
         <View style={styles.content}>
-          <View style={styles.headerRow}>
-            <Skeleton width={160} height={26} radius={7} />
-            <Skeleton width={96} height={36} radius={RADIUS.md} />
-          </View>
-          <Skeleton width={120} height={18} radius={6} style={{ marginTop: 12, marginBottom: 10 }} />
+          <Skeleton width={120} height={18} radius={6} style={{ marginTop: 4, marginBottom: 10 }} />
           {[0, 1, 2].map((i) => (
             <Skeleton key={i} width="100%" height={64} radius={RADIUS.lg} style={{ marginBottom: 10 }} />
           ))}
@@ -287,19 +291,21 @@ export default function OrganizerEventStaffScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: 32 + insets.bottom }]}>
-        <View style={styles.headerRow}>
-          <Text style={styles.title}>{t('organizerStaff.headerTitle')}</Text>
+      <OrganizerScreenHeader
+        title={t('organizerStaff.headerTitle')}
+        right={
           <TouchableOpacity
             style={[styles.inviteButton, authLoading ? styles.buttonDisabled : null]}
             onPress={() => setShowInviteModal(true)}
             disabled={authLoading}
           >
-            <Ionicons name="add" size={18} color={colors.white} />
+            <Ionicons name="add" size={18} color={colors.text} />
             <Text style={styles.inviteButtonText}>{t('organizerStaff.inviteButton')}</Text>
           </TouchableOpacity>
-        </View>
+        }
+      />
 
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: 32 + insets.bottom }]}>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('organizerStaff.membersTitle')}</Text>
           {members.length === 0 ? (
@@ -310,20 +316,20 @@ export default function OrganizerEventStaffScreen() {
               const detail = m.profile?.email || ''
 
               return (
-                <View key={m.id} style={styles.card}>
-                  <View style={styles.cardRow}>
-                    <View style={styles.cardTextWrap}>
-                      <Text style={styles.cardTitle} numberOfLines={1}>{name}</Text>
-                      {detail ? <Text style={styles.cardSubtitle} numberOfLines={1}>{detail}</Text> : null}
-                    </View>
-                    <TouchableOpacity
-                      onPress={() => removeMember(m.id)}
-                      style={[styles.dangerButton, authLoading ? styles.buttonDisabled : null]}
-                      disabled={authLoading}
-                    >
-                      <Text style={styles.dangerButtonText}>{t('organizerStaff.remove')}</Text>
-                    </TouchableOpacity>
-                  </View>
+                <View key={m.id} style={styles.cardWrap}>
+                  <StaffEventCard
+                    title={name}
+                    subtitle={detail || undefined}
+                    right={
+                      <TouchableOpacity
+                        onPress={() => removeMember(m.id)}
+                        style={[styles.dangerButton, authLoading ? styles.buttonDisabled : null]}
+                        disabled={authLoading}
+                      >
+                        <Text style={styles.dangerButtonText}>{t('organizerStaff.remove')}</Text>
+                      </TouchableOpacity>
+                    }
+                  />
                 </View>
               )
             })
@@ -338,24 +344,27 @@ export default function OrganizerEventStaffScreen() {
             invites.map((inv) => {
               const target = inv.method === 'email' ? inv.targetEmail : inv.method === 'phone' ? inv.targetPhone : null
               const label = target || t('organizerStaff.linkInvite')
+              const statusKey = inv.revokedAt ? 'error' : inv.usedAt ? 'neutral' : 'live'
 
               return (
-                <View key={inv.id} style={styles.card}>
-                  <View style={styles.cardRow}>
-                    <View style={styles.cardTextWrap}>
-                      <Text style={styles.cardTitle} numberOfLines={1}>{label}</Text>
-                      <Text style={styles.cardSubtitle} numberOfLines={1}>{renderInviteStatus(inv)}</Text>
-                    </View>
-                    {!inv.revokedAt && !inv.usedAt ? (
-                      <TouchableOpacity
-                        onPress={() => revokeInvite(inv.id)}
-                        style={[styles.dangerButton, authLoading ? styles.buttonDisabled : null]}
-                        disabled={authLoading}
-                      >
-                        <Text style={styles.dangerButtonText}>{t('organizerStaff.revokeShort')}</Text>
-                      </TouchableOpacity>
-                    ) : null}
-                  </View>
+                <View key={inv.id} style={styles.cardWrap}>
+                  <StaffEventCard
+                    title={label}
+                    right={
+                      <View style={styles.inviteRight}>
+                        <StatusChip status={statusKey} label={renderInviteStatus(inv)} />
+                        {!inv.revokedAt && !inv.usedAt ? (
+                          <TouchableOpacity
+                            onPress={() => revokeInvite(inv.id)}
+                            style={[styles.dangerButton, authLoading ? styles.buttonDisabled : null]}
+                            disabled={authLoading}
+                          >
+                            <Text style={styles.dangerButtonText}>{t('organizerStaff.revokeShort')}</Text>
+                          </TouchableOpacity>
+                        ) : null}
+                      </View>
+                    }
+                  />
                 </View>
               )
             })
@@ -439,22 +448,13 @@ export default function OrganizerEventStaffScreen() {
             </TouchableOpacity>
 
             <View style={styles.modalActions}>
-              <TouchableOpacity style={styles.secondaryButton} onPress={() => setShowInviteModal(false)}>
-                <Text style={styles.secondaryButtonText}>{t('common.cancel')}</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.primaryButton,
-                  !canSubmit || submitting || authLoading ? styles.primaryButtonDisabled : null,
-                ]}
+              <WhitePillCTA
+                label={t('organizerStaff.create')}
                 onPress={createInvite}
                 disabled={!canSubmit || submitting || authLoading}
-              >
-                <Text style={styles.primaryButtonText}>
-                  {submitting ? t('organizerStaff.creating') : t('organizerStaff.create')}
-                </Text>
-              </TouchableOpacity>
+                loading={submitting}
+              />
+              <SecondaryPill label={t('common.cancel')} onPress={() => setShowInviteModal(false)} />
             </View>
           </View>
         </View>
@@ -467,37 +467,26 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   container: { flex: 1, backgroundColor: colors.background },
   content: { padding: 16, paddingBottom: 32 },
 
-  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
-  title: { fontSize: 26, fontFamily: 'InstrumentSerif_400Regular', letterSpacing: 0, fontWeight: '700', color: colors.text },
-
   inviteButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.primary,
+    backgroundColor: colors.surfaceRaised,
+    borderWidth: 1,
+    borderColor: colors.border,
     paddingHorizontal: 14,
     paddingVertical: 9,
     borderRadius: RADIUS.md,
     gap: 6,
   },
-  inviteButtonText: { color: colors.white, fontWeight: '700' },
+  inviteButtonText: { color: colors.text, fontWeight: '700' },
 
   buttonDisabled: { opacity: 0.6 },
 
   section: { marginTop: 12 },
   sectionTitle: { fontSize: 16, fontWeight: '700', color: colors.text, marginBottom: 8 },
 
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: RADIUS.lg,
-    padding: SPACING.lg,
-    marginBottom: SPACING.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  cardRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
-  cardTextWrap: { flex: 1 },
-  cardTitle: { fontWeight: '700', color: colors.text },
-  cardSubtitle: { marginTop: 2, color: colors.textSecondary, fontSize: 12 },
+  cardWrap: { marginBottom: SPACING.md },
+  inviteRight: { alignItems: 'flex-end', gap: 8 },
 
   dangerButton: {
     paddingHorizontal: 12,
@@ -553,23 +542,5 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   checkboxRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 14 },
   checkboxText: { color: colors.text, fontWeight: '600' },
 
-  modalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 10, marginTop: 16 },
-  secondaryButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: RADIUS.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surfaceMuted,
-  },
-  secondaryButtonText: { color: colors.text, fontWeight: '700' },
-
-  primaryButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: RADIUS.md,
-    backgroundColor: colors.primary,
-  },
-  primaryButtonDisabled: { opacity: 0.6 },
-  primaryButtonText: { color: colors.white, fontWeight: '700' },
+  modalActions: { gap: 10, marginTop: 16 },
 })

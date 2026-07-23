@@ -19,6 +19,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { db } from '../../config/firebase';
 import { collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { useI18n } from '../../contexts/I18nContext';
+import InfoNotice from '../../components/organizer/InfoNotice';
 
 type RouteParams = {
   SendEventUpdate: {
@@ -150,7 +151,7 @@ export default function SendEventUpdateScreen() {
           ]}
         >
           {sending ? (
-            <ActivityIndicator size="small" color={colors.white} />
+            <ActivityIndicator size="small" color={colors.text} />
           ) : (
             <Text style={styles.sendButtonText}>{t('common.send')}</Text>
           )}
@@ -162,16 +163,12 @@ export default function SendEventUpdateScreen() {
         contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.eventInfo}>
-          <Ionicons name="calendar" size={20} color={colors.primary} />
-          <Text style={styles.eventTitle} numberOfLines={2}>{eventTitle}</Text>
+        <View style={styles.eventInfoWrap}>
+          <InfoNotice icon="calendar-outline" text={eventTitle} />
         </View>
 
-        <View style={styles.infoBox}>
-          <Ionicons name="information-circle" size={20} color={colors.primary} />
-          <Text style={styles.infoText}>
-            {t('organizerSendUpdate.infoText')}
-          </Text>
+        <View style={styles.infoWrap}>
+          <InfoNotice text={t('organizerSendUpdate.infoText')} />
         </View>
 
         <View style={styles.form}>
@@ -282,7 +279,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginLeft: 12,
   },
   sendButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.surfaceRaised,
+    borderWidth: 1,
+    borderColor: colors.border,
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 8,
@@ -291,45 +290,24 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   sendButtonDisabled: {
     backgroundColor: colors.border,
+    borderColor: colors.border,
   },
   sendButtonText: {
-    color: colors.white,
+    color: colors.text,
     fontSize: 16,
     fontWeight: '600',
   },
   content: {
     flex: 1,
   },
-  eventInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.primarySoft,
-    padding: 16,
-    margin: 16,
-    borderRadius: 12,
-  },
-  eventTitle: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.primary,
-    marginLeft: 8,
-  },
-  infoBox: {
-    flexDirection: 'row',
-    backgroundColor: colors.infoLight,
-    padding: 12,
+  eventInfoWrap: {
     marginHorizontal: 16,
-    marginBottom: 24,
-    borderRadius: 8,
-    borderLeftWidth: 4,
-    borderLeftColor: colors.primary,
+    marginTop: 16,
   },
-  infoText: {
-    flex: 1,
-    fontSize: 14,
-    color: colors.text,
-    marginLeft: 8,
+  infoWrap: {
+    marginHorizontal: 16,
+    marginTop: 12,
+    marginBottom: 24,
   },
   form: {
     paddingHorizontal: 16,
