@@ -31,25 +31,22 @@ type ScanResult = {
   message?: string;
   checkedInTime?: Date;
   ticketId?: string;
-  // Soft, non-blocking validity warning derived from the matched tier's
-  // valid_from / valid_until window. Never blocks check-in — the tier link is
-  // name-based and fragile, so this is advisory only.
-  validityWarning?: string;
+  // HARD validity block derived from the resolved tier's valid_from /
+  // valid_until ENTRY window. When set on a VALID ticket, the default green
+  // "Confirm check-in" action is disabled and the sheet shows this reason
+  // (red/error, with the date); a valid staff member can still admit via an
+  // explicit, less-prominent override that calls handleConfirmCheckIn.
+  validityBlock?: string;
 };
 
-// Resolve a ticket's tier by NAME within the event's tier list and, if that
-// tier carries a validity window, return a human warning when `now` is outside
-// it. Returns undefined when there is no match, no window, or we're in-window.
-function resolveTierValidityWarning(
-  tiers: any[],
-  tierName: string,
+// Given a resolved tier object, return a human block reason when `now` is
+// outside its valid_from / valid_until entry window, or undefined when the
+// tier is missing, carries no window, or we are in-window (empty bound = open).
+function computeTierValidityBlock(
+  tier: any,
   locale: string,
   t: (key: string) => string,
 ): string | undefined {
-  if (!Array.isArray(tiers) || !tierName) return undefined;
-  const norm = (s: any) => String(s ?? '').trim().toLowerCase();
-  const target = norm(tierName);
-  const tier = tiers.find((x) => norm(x?.name) === target);
   if (!tier) return undefined;
 
   const now = new Date();
@@ -65,6 +62,35 @@ function resolveTierValidityWarning(
   return undefined;
 }
 
+// Resolve a ticket's tier PREFERRING `tier_id`: match it within the event's
+// embedded ticket_tiers, else fetch ticket_tiers/{tier_id}. Fall back to a
+// name match against the event's tiers for older tickets lacking a tier_id.
+async function resolveTicketTier(
+  eventTiers: any[],
+  tierId: string | undefined,
+  tierName: string,
+): Promise<any | undefined> {
+  const tiers = Array.isArray(eventTiers) ? eventTiers : [];
+
+  if (typeof tierId === 'string' && tierId.length > 0) {
+    const byId = tiers.find(
+      (x) => String(x?.id ?? x?.tier_id ?? x?.tierId ?? '') === tierId,
+    );
+    if (byId) return byId;
+    try {
+      const tierSnap = await getDoc(doc(db, 'ticket_tiers', tierId));
+      if (tierSnap.exists()) return tierSnap.data();
+    } catch (e) {
+      console.warn('Failed to resolve tier from ticket_tiers:', e);
+    }
+  }
+
+  const norm = (s: any) => String(s ?? '').trim().toLowerCase();
+  const target = norm(tierName);
+  if (!target) return undefined;
+  return tiers.find((x) => norm(x?.name) === target);
+}
+
 export default function TicketScannerScreen() {
   const { colors } = useTheme();
   const styles = getStyles(colors);
@@ -74,6 +100,16 @@ export default function TicketScannerScreen() {
 
   const { t, language } = useI18n();
   const locale = language === 'fr' ? 'fr-FR' : language === 'ht' ? 'fr-HT' : 'en-US';
+
+  // Override label for admitting a ticket that is outside its validity window.
+  // Reuse an i18n key if present; fall back to an inline English string so the
+  // control never renders a raw key when the key is missing.
+  const overrideKey = 'organizerTicketScanner.actions.overrideCheckIn';
+  const overrideResolved = t(overrideKey);
+  const overrideLabel =
+    overrideResolved && overrideResolved !== overrideKey
+      ? overrideResolved
+      : 'Override — check in anyway';
 
   const [permission, requestPermission] = useCameraPermissions();
   const [flashOn, setFlashOn] = useState(false);
@@ -159,25 +195,6 @@ export default function TicketScannerScreen() {
         tierName = t('common.generalAdmission');
       }
 
-      // Soft validity check (NON-BLOCKING): resolve the tier by name within the
-      // event's embedded tier list and warn if `now` is outside its
-      // valid_from / valid_until window. This never blocks check-in.
-      let validityWarning: string | undefined;
-      try {
-        const rawTierName =
-          ticketData.tier_name ||
-          ticketData.ticket_tier_name ||
-          ticketData.ticket_type ||
-          ticketData.ticketType ||
-          ticketData.tierName ||
-          tierName;
-        const eventSnap = await getDoc(doc(db, 'events', eventId));
-        const eventTiers = eventSnap.exists() ? (eventSnap.data()?.ticket_tiers || []) : [];
-        validityWarning = resolveTierValidityWarning(eventTiers, rawTierName, locale, t);
-      } catch (e) {
-        console.warn('Failed to resolve tier validity window:', e);
-      }
-
       // Verify ticket belongs to this event
       if (ticketData.event_id !== eventId) {
         setScanResult({
@@ -227,13 +244,35 @@ export default function TicketScannerScreen() {
         return;
       }
 
-      // Valid ticket - ready to check in (validity warning is advisory only)
+      // HARD validity-window check. Resolve the tier PREFERRING ticket.tier_id
+      // (match the event's embedded ticket_tiers or fetch ticket_tiers/{id}),
+      // falling back to a name match for older tickets. If `now` is outside the
+      // tier's entry window this becomes a hard block (staff can still override).
+      let validityBlock: string | undefined;
+      try {
+        const eventSnap = await getDoc(doc(db, 'events', eventId));
+        const eventTiers = eventSnap.exists() ? (eventSnap.data()?.ticket_tiers || []) : [];
+        const rawTierName =
+          ticketData.tier_name ||
+          ticketData.ticket_tier_name ||
+          ticketData.ticket_type ||
+          ticketData.ticketType ||
+          ticketData.tierName ||
+          tierName;
+        const resolvedTier = await resolveTicketTier(eventTiers, tierId, rawTierName);
+        validityBlock = computeTierValidityBlock(resolvedTier, locale, t);
+      } catch (e) {
+        console.warn('Failed to resolve tier validity window:', e);
+      }
+
+      // Valid ticket - ready to check in. When validityBlock is set, the sheet
+      // hard-blocks the default confirm and only admits via an explicit override.
       setScanResult({
         status: 'VALID',
         attendeeName,
         tierName,
         ticketId,
-        validityWarning,
+        validityBlock,
       });
 
     } catch (error: any) {
@@ -367,14 +406,17 @@ export default function TicketScannerScreen() {
             <View style={styles.sheetHeader}>
               <Ionicons
                 name={
-                  scanResult?.status === 'VALID' || scanResult?.status === 'ALREADY_CHECKED_IN'
+                  (scanResult?.status === 'VALID' && !scanResult?.validityBlock) ||
+                  scanResult?.status === 'ALREADY_CHECKED_IN'
                     ? 'checkmark-circle'
                     : 'alert-circle'
                 }
                 size={64}
                 color={
                   scanResult?.status === 'VALID'
-                    ? colors.success
+                    ? scanResult?.validityBlock
+                      ? colors.error
+                      : colors.success
                     : scanResult?.status === 'ALREADY_CHECKED_IN'
                     ? colors.info
                     : colors.error
@@ -399,31 +441,57 @@ export default function TicketScannerScreen() {
               )}
             </View>
 
-            {/* Soft validity warning — advisory only, does NOT block check-in */}
-            {scanResult?.validityWarning && (
-              <View style={styles.validityWarning}>
-                <Ionicons name="warning-outline" size={20} color={colors.warning} />
-                <Text style={styles.validityWarningText}>{scanResult.validityWarning}</Text>
+            {/* HARD validity block banner — shown prominently in red/error with
+                the date when the ticket is outside its tier's entry window. */}
+            {scanResult?.status === 'VALID' && scanResult?.validityBlock && (
+              <View style={styles.validityBlock}>
+                <Ionicons name="alert-circle" size={20} color={colors.error} />
+                <Text style={styles.validityBlockText}>{scanResult.validityBlock}</Text>
               </View>
             )}
 
             {/* Action Buttons */}
             <View style={styles.sheetActions}>
               {scanResult?.status === 'VALID' ? (
-                <>
-                  <TouchableOpacity
-                    style={[styles.actionButton, styles.primaryButton]}
-                    onPress={handleConfirmCheckIn}
-                  >
-                    <Text style={styles.primaryButtonText}>{t('organizerTicketScanner.actions.confirm')}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.actionButton, styles.secondaryButton]}
-                    onPress={handleCloseSheet}
-                  >
-                    <Text style={styles.secondaryButtonText}>{t('common.cancel')}</Text>
-                  </TouchableOpacity>
-                </>
+                scanResult?.validityBlock ? (
+                  // Out-of-window: the default green confirm is DISABLED. Staff
+                  // may still admit via the explicit, less-prominent override.
+                  <>
+                    <View
+                      style={[styles.actionButton, styles.primaryButton, styles.disabledButton]}
+                      pointerEvents="none"
+                    >
+                      <Text style={styles.primaryButtonText}>{t('organizerTicketScanner.actions.confirm')}</Text>
+                    </View>
+                    <TouchableOpacity
+                      style={[styles.actionButton, styles.overrideButton]}
+                      onPress={handleConfirmCheckIn}
+                    >
+                      <Text style={styles.overrideButtonText}>{overrideLabel}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.actionButton, styles.secondaryButton]}
+                      onPress={handleCloseSheet}
+                    >
+                      <Text style={styles.secondaryButtonText}>{t('common.cancel')}</Text>
+                    </TouchableOpacity>
+                  </>
+                ) : (
+                  <>
+                    <TouchableOpacity
+                      style={[styles.actionButton, styles.primaryButton]}
+                      onPress={handleConfirmCheckIn}
+                    >
+                      <Text style={styles.primaryButtonText}>{t('organizerTicketScanner.actions.confirm')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.actionButton, styles.secondaryButton]}
+                      onPress={handleCloseSheet}
+                    >
+                      <Text style={styles.secondaryButtonText}>{t('common.cancel')}</Text>
+                    </TouchableOpacity>
+                  </>
+                )
               ) : (
                 <TouchableOpacity
                   style={[styles.actionButton, styles.primaryButton]}
@@ -625,23 +693,23 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   loader: {
     marginTop: 16,
   },
-  validityWarning: {
+  validityBlock: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: colors.warningLight,
+    backgroundColor: colors.errorLight,
     borderWidth: 1,
-    borderColor: colors.warning + '55',
+    borderColor: colors.error + '55',
     borderRadius: RADIUS.md,
     paddingVertical: 12,
     paddingHorizontal: 14,
     marginBottom: 16,
   },
-  validityWarningText: {
+  validityBlockText: {
     flex: 1,
     fontSize: 14,
-    fontWeight: '600',
-    color: colors.warning,
+    fontWeight: '700',
+    color: colors.error,
   },
   sheetActions: {
     gap: 12,
@@ -653,6 +721,19 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   primaryButton: {
     backgroundColor: colors.primary,
+  },
+  disabledButton: {
+    opacity: 0.4,
+  },
+  overrideButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: colors.error + '80',
+  },
+  overrideButtonText: {
+    color: colors.error,
+    fontSize: 15,
+    fontWeight: '600',
   },
   primaryButtonText: {
     color: colors.white,

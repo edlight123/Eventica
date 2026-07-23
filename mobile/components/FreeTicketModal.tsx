@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { Ticket, X, Plus, Minus } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
-import { collection, addDoc, doc, getDoc, updateDoc, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, doc, getDoc, updateDoc, Timestamp, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
 interface FreeTicketModalProps {
@@ -23,6 +23,8 @@ interface FreeTicketModalProps {
   userName: string;
   event: any;
   onSuccess: () => void;
+  /** Optional selected tier id; when absent the modal resolves the event's free/first tier. */
+  tierId?: string;
 }
 
 export default function FreeTicketModal({
@@ -35,6 +37,7 @@ export default function FreeTicketModal({
   userName,
   event,
   onSuccess,
+  tierId,
 }: FreeTicketModalProps) {
   const { colors } = useTheme();
   const styles = getStyles(colors);
@@ -76,9 +79,35 @@ export default function FreeTicketModal({
       console.log('User ID:', userId);
       console.log('Remaining tickets:', remainingTickets);
       
+      // Resolve a reliable tier_id to stamp on each ticket for scan-time tier lookup by id.
+      // Use the caller-provided tier when available; otherwise resolve the event's free/first
+      // ticket_tiers doc. Never block issuance on this — fall back to '' if unresolvable.
+      let resolvedTierId = tierId || '';
+      if (!resolvedTierId) {
+        try {
+          const tiersSnapshot = await getDocs(
+            query(collection(db, 'ticket_tiers'), where('event_id', '==', eventId))
+          );
+          const tierDocs = tiersSnapshot.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
+          if (tierDocs.length > 0) {
+            const freeTier = tierDocs.find((tt: any) => Number(tt.price) === 0);
+            const chosen =
+              freeTier ||
+              (tierDocs.length === 1
+                ? tierDocs[0]
+                : [...tierDocs].sort(
+                    (a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0)
+                  )[0]);
+            resolvedTierId = chosen?.id ? String(chosen.id) : '';
+          }
+        } catch (tierErr) {
+          console.warn('[FreeTicketModal] failed to resolve tier_id; using ""', tierErr);
+        }
+      }
+
       // Create tickets one by one with unique QR codes
       const createdTickets = [];
-      
+
       for (let i = 0; i < quantity; i++) {
         const qrCodeData = `ticket-${eventId}-${userId}-${Date.now()}-${i}`;
         
@@ -96,6 +125,7 @@ export default function FreeTicketModal({
           user_email: userEmail,
           user_name: userName,
           ticket_type: 'General Admission',
+          tier_id: resolvedTierId,
           quantity: 1,
           price: 0,
           currency: event.currency || 'HTG',

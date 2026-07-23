@@ -683,6 +683,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
         userEmail={userProfile?.email || user?.email || ''}
         userName={userProfile?.full_name || t('common.guest')}
         event={event}
+        tierId={selectedTierId || undefined}
         onSuccess={handleFreeTicketSuccess}
       />
 

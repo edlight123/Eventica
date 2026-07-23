@@ -16,6 +16,7 @@ import { adminDb } from '@/lib/firebase/admin'
 import { getPaymentProviderForEventCountry } from '@/lib/payment-provider'
 import { calculateFees } from '@/lib/fees'
 import { getPayoutProfile } from '@/lib/firestore/payout-profiles'
+import { hasEventAccess } from '@/lib/events/access-guard'
 
 // Lazy load Stripe to avoid build-time initialization
 function getStripe() {
@@ -102,6 +103,25 @@ export async function POST(request: Request) {
       await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
       return NextResponse.json({ error: 'Event not found' }, { status: 404 })
     }
+
+    // Password-protected events: require a valid access grant before any Stripe
+    // session is created (mirrors create-payment-intent). Without this, a
+    // password-gated event could be purchased through this legacy endpoint
+    // without ever entering the code.
+    if (!(await hasEventAccess(event, eventId, user.id))) {
+      await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
+      return NextResponse.json({ error: 'access_code_required' }, { status: 403 })
+    }
+
+    // Sale-window enforcement: intentionally NOT done here.
+    // Sale windows (sales_start / sales_end / is_active / sold-out) live on
+    // `ticket_tiers`, not on `events` — the events row this route loads carries
+    // no sale-bound columns (see types/database.ts). This legacy endpoint takes
+    // no tierId and prices off `event.ticket_price`, so it has no tier to check.
+    // Per-tier sale-window enforcement therefore lives in the tiered routes
+    // (create-payment-intent, sogepay/moncash initiate); this single-price route
+    // only enforces the password/access guard above. No event-level sale bounds
+    // are fabricated here.
 
     const provider = getPaymentProviderForEventCountry(event.country)
     if (provider === 'sogepay') {

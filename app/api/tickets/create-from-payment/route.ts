@@ -95,7 +95,8 @@ export async function POST(request: Request) {
         payment_id: paymentIntentId,
         status: 'valid',
         purchased_at: FieldValue.serverTimestamp(),
-        tier_id: paymentIntent.metadata.tierId || null,
+        // Stamp the exact tier id at issuance for reliable scan-time tier lookup by id.
+        tier_id: paymentIntent.metadata.tierId || '',
         tier_name: paymentIntent.metadata.tierName || 'General Admission',
         // Include event date fields for scanner
         start_datetime: eventDetails?.start_datetime || null,

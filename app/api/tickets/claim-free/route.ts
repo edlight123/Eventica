@@ -64,6 +64,31 @@ export async function POST(request: Request) {
       }, { status: 400 })
     }
 
+    // Resolve the event's free/default tier id so each issued ticket carries a reliable
+    // tier_id for scan-time validity lookup. Prefer a price-0 tier; else the only/first
+    // tier; '' if none. Never block a free-ticket claim on tier resolution.
+    let resolvedTierId = ''
+    try {
+      const tiersSnap = await adminDb
+        .collection('ticket_tiers')
+        .where('event_id', '==', eventId)
+        .get()
+      const tierDocs = tiersSnap.docs.map((d: any) => ({ id: d.id, ...d.data() }))
+      if (tierDocs.length > 0) {
+        const freeTier = tierDocs.find((t: any) => Number(t.price) === 0)
+        const chosen =
+          freeTier ||
+          (tierDocs.length === 1
+            ? tierDocs[0]
+            : [...tierDocs].sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0))[0])
+        resolvedTierId = chosen?.id ? String(chosen.id) : ''
+      }
+    } catch (tierErr) {
+      console.warn('[claim-free] failed to resolve tier_id; issuing with tier_id=""', {
+        message: (tierErr as any)?.message,
+      })
+    }
+
     // Create tickets one at a time to ensure each gets a unique ID
     const createdTickets = []
     for (let i = 0; i < ticketQuantity; i++) {
@@ -75,6 +100,7 @@ export async function POST(request: Request) {
         price_paid: 0,
         purchased_at: FieldValue.serverTimestamp(),
         tier_name: 'General Admission',
+        tier_id: resolvedTierId,
         // Include event date fields for scanner
         start_datetime: event.start_datetime || null,
         end_datetime: event.end_datetime || null,
