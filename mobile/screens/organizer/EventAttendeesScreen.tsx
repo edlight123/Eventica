@@ -7,13 +7,14 @@ import {
   TextInput,
   TouchableOpacity,
   RefreshControl,
+  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
-import { db } from '../../config/firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db, auth } from '../../config/firebase';
+import { collection, query, where, getDocs, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { useI18n } from '../../contexts/I18nContext';
 import { useLocaleFormat } from '../../lib/format';
 import ExportAttendeesButton from '../../components/ExportAttendeesButton';
@@ -66,6 +67,9 @@ export default function EventAttendeesScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'checked_in' | 'not_checked_in'>('all');
+  // Ticket ids with an in-flight check-in write — used to disable the row's
+  // button so a double-tap can't fire two updateDocs.
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     loadAttendees();
@@ -115,8 +119,72 @@ export default function EventAttendeesScreen() {
     }
   };
 
+  // Manual check-in for staff when the camera can't read a damaged/screenshot
+  // QR. Mirrors TicketScannerScreen's write EXACTLY (same fields), with an
+  // optimistic local update that reverts if the Firestore write fails.
+  const handleManualCheckIn = (attendee: Attendee) => {
+    if (pendingIds.has(attendee.id) || isCheckedIn(attendee)) return;
+
+    const name = attendee.attendee_name || attendee.attendee_email || t('common.attendee');
+
+    Alert.alert(
+      t('organizerAttendees.checkInConfirmTitle'),
+      t('organizerAttendees.checkInConfirmBody').replace('{name}', name),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('organizerAttendees.checkIn'),
+          onPress: async () => {
+            // Optimistic: flip the row to checked-in immediately and mark the
+            // ticket pending so the button is disabled while we write.
+            setPendingIds((prev) => new Set(prev).add(attendee.id));
+            setAttendees((prev) =>
+              prev.map((a) =>
+                a.id === attendee.id
+                  ? { ...a, checked_in: true, checked_in_at: new Date(), status: 'checked_in' }
+                  : a
+              )
+            );
+
+            try {
+              await updateDoc(doc(db, 'tickets', attendee.id), {
+                checked_in: true,
+                checked_in_at: serverTimestamp(),
+                checked_in_by: auth.currentUser?.uid || null,
+                updated_at: serverTimestamp(),
+              });
+            } catch (error) {
+              console.error('Error checking in attendee:', error);
+              // Revert the optimistic change to the exact prior values.
+              setAttendees((prev) =>
+                prev.map((a) =>
+                  a.id === attendee.id
+                    ? {
+                        ...a,
+                        checked_in: attendee.checked_in,
+                        checked_in_at: attendee.checked_in_at,
+                        status: attendee.status,
+                      }
+                    : a
+                )
+              );
+              Alert.alert(t('organizerAttendees.checkInFailed'));
+            } finally {
+              setPendingIds((prev) => {
+                const next = new Set(prev);
+                next.delete(attendee.id);
+                return next;
+              });
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const renderAttendee = ({ item }: { item: Attendee }) => {
     const checkedIn = isCheckedIn(item);
+    const pending = pendingIds.has(item.id);
 
     return (
       <View style={styles.attendeeCard}>
@@ -155,6 +223,19 @@ export default function EventAttendeesScreen() {
               {t('organizerAttendees.checkedInPrefix')}{formatDate(item.checked_in_at, 'MMM d, yyyy • h:mm a')}
             </Text>
           </View>
+        )}
+
+        {!checkedIn && (
+          <TouchableOpacity
+            style={[styles.checkInButton, pending && styles.checkInButtonDisabled]}
+            onPress={() => handleManualCheckIn(item)}
+            disabled={pending}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: pending }}
+          >
+            <Ionicons name="checkmark-circle-outline" size={18} color={colors.text} />
+            <Text style={styles.checkInButtonText}>{t('organizerAttendees.checkIn')}</Text>
+          </TouchableOpacity>
         )}
       </View>
     );
@@ -344,5 +425,27 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 12,
     color: colors.success,
     marginLeft: 4,
+  },
+  checkInButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'flex-start',
+    gap: 6,
+    marginTop: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceMuted,
+  },
+  checkInButtonDisabled: {
+    opacity: 0.45,
+  },
+  checkInButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
   },
 });

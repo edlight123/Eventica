@@ -867,6 +867,10 @@ export default {
       notCheckedIn: 'Non enregistré',
     },
     checkedInPrefix: 'Enregistré à ',
+    checkIn: 'Enregistrer',
+    checkInConfirmTitle: 'Enregistrer ?',
+    checkInConfirmBody: 'Enregistrer {name} ?',
+    checkInFailed: "Échec de l'enregistrement. Veuillez réessayer.",
     empty: {
       filtered: 'Aucun participant trouvé',
       default: 'Aucun participant pour le moment',

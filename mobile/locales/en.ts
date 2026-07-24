@@ -990,6 +990,10 @@ export default {
       notCheckedIn: 'Not Checked In',
     },
     checkedInPrefix: 'Checked in ',
+    checkIn: 'Check in',
+    checkInConfirmTitle: 'Check in?',
+    checkInConfirmBody: 'Check in {name}?',
+    checkInFailed: 'Could not check in. Please try again.',
     empty: {
       filtered: 'No attendees found',
       default: 'No attendees yet',

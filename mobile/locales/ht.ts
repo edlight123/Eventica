@@ -865,6 +865,10 @@ export default {
       notCheckedIn: 'Pa verifye',
     },
     checkedInPrefix: 'Verifye ',
+    checkIn: 'Verifye',
+    checkInConfirmTitle: 'Verifye?',
+    checkInConfirmBody: 'Verifye {name}?',
+    checkInFailed: 'Nou pa t kapab verifye. Tanpri eseye ankò.',
     empty: {
       filtered: 'Pa gen patisipan jwenn',
       default: 'Pa gen patisipan ankò',
