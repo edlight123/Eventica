@@ -229,6 +229,13 @@ export default function OrganizerDashboardScreen() {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.quickActionButton}
+            onPress={() => navigation.navigate('Scan')}
+          >
+            <Ionicons name="qr-code-outline" size={24} color={colors.text} />
+            <Text style={styles.quickActionText}>{t('tabs.scan') || 'Scan'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.quickActionButton}
             onPress={() => navigation.navigate('CreateEvent')}
           >
             <Ionicons name="add-circle-outline" size={24} color={colors.text} />
