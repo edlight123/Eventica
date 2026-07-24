@@ -7,28 +7,17 @@ Run these from `mobile/`. EAS is already logged in as **edlight** (`eas whoami` 
 - Bundle ID `co.tikem.mobile` — EAS can auto-register it during the first build (say "yes" when prompted), or create it in the Apple Developer portal.
 - `eas.json` is already set up (development / preview / production profiles).
 
-## Step 1 — Get env vars onto the build  ⚠️ REQUIRED
-`.env` is gitignored, so it is **not** uploaded to EAS build servers. Push the public
-`EXPO_PUBLIC_*` values to EAS environment variables (one time; they persist):
+## Step 1 — Get env vars onto the build  ✅ DONE
+`.env` is gitignored, so it isn't uploaded to EAS build servers. The 7 public
+`EXPO_PUBLIC_*` values (Firebase web config + API URL) have already been pushed to the
+**production** and **preview** EAS environments. Verify anytime with:
 
 ```bash
-cd mobile
-eas env:push production --path .env
-# (repeat for preview if you'll build that profile)
-eas env:push preview --path .env
-```
-
-These are all `EXPO_PUBLIC_*` client keys (Firebase web config + the API URL) — public
-by design (they ship in the app bundle), so this is safe. Verify:
-
-```bash
+cd /Users/tedjacquet/Tikem/mobile
 eas env:list production
 ```
 
-You should see EXPO_PUBLIC_FIREBASE_* and EXPO_PUBLIC_API_URL.
-
-> If `eas env:push` isn't available on your CLI version, instead add the same
-> `EXPO_PUBLIC_*` keys under `build.production.env` (and `build.preview.env`) in `eas.json`.
+(If you ever change `.env`, re-run `eas env:push production --path .env --force`.)
 
 ## Step 2 — Build the iOS app
 ```bash
