@@ -1,12 +1,12 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  Image,
   Animated,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Users } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
@@ -64,7 +64,6 @@ export default function PosterEventCard({
   const { t, language } = useI18n();
   const styles = getStyles(colors);
   const scale = useRef(new Animated.Value(1)).current;
-  const [imgLoaded, setImgLoaded] = useState(false);
 
   const hasImage = Boolean(event.banner_image_url);
   const theme = resolvePosterTheme(event, event.id || event.title, event.category);
@@ -122,11 +121,17 @@ export default function PosterEventCard({
             />
 
             {hasImage ? (
+              // expo-image: disk+memory cached so posters don't re-download on
+              // every scroll/render (the RN Image before this had no cache).
+              // recyclingKey keeps the right image on recycled rows; the built-in
+              // transition fades it in over the gradient fallback.
               <Image
                 source={{ uri: event.banner_image_url }}
-                style={[StyleSheet.absoluteFill, !imgLoaded && styles.imgHidden]}
-                resizeMode="cover"
-                onLoad={() => setImgLoaded(true)}
+                style={StyleSheet.absoluteFill}
+                contentFit="cover"
+                cachePolicy="memory-disk"
+                transition={200}
+                recyclingKey={event.id ? String(event.id) : undefined}
               />
             ) : (
               // Fallback poster: the wrapped event title becomes the artwork.
@@ -190,9 +195,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       borderRadius: radius.sm,
       overflow: 'hidden',
       backgroundColor: colors.surfaceMuted,
-    },
-    imgHidden: {
-      opacity: 0,
     },
     fallbackWrap: {
       ...StyleSheet.absoluteFillObject,
