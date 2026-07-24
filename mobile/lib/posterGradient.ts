@@ -101,6 +101,54 @@ export function getPosterGradient(
 }
 
 /* ----------------------------------------------------------------------------
+ * Organizer poster-theme override
+ * An organizer can optionally pin a specific poster theme on their event. When
+ * a valid `theme_key` is present on the event doc it WINS over the auto choice
+ * everywhere the poster/gradient is rendered. A missing/empty/invalid key falls
+ * back to the deterministic auto pick (`getPosterTheme`) — identical to before.
+ * -------------------------------------------------------------------------- */
+
+/** Selectable theme keys for the organizer picker (every curated theme). */
+export const POSTER_THEME_KEYS: PosterThemeKey[] = ALL_KEYS
+
+/** Narrow an arbitrary string to a valid, non-empty PosterThemeKey.
+ * Uses hasOwnProperty (not `in`) so inherited Object.prototype keys like
+ * "constructor"/"toString" from a crafted event.theme_key can't slip through
+ * and return a non-theme (which would make `.colors` undefined and crash). */
+export function isPosterThemeKey(value: unknown): value is PosterThemeKey {
+  return typeof value === 'string' && Object.prototype.hasOwnProperty.call(THEMES, value)
+}
+
+/**
+ * Resolve a poster theme for an event, honouring an organizer override.
+ * When `event.theme_key` is a valid key, returns that theme; otherwise falls
+ * back to the deterministic auto pick from the seed + category.
+ *
+ * `event` is intentionally typed `unknown` so any concrete event shape
+ * (Event, OrganizerEvent, a `{ theme_key }` literal, …) can be passed without a
+ * declared `theme_key`; the override is read defensively and a missing/invalid
+ * value resolves to the auto pick.
+ */
+export function resolvePosterTheme(
+  event: unknown,
+  seedFallback?: string | null,
+  category?: string | null,
+): PosterTheme {
+  const key = (event as { theme_key?: unknown } | null | undefined)?.theme_key
+  if (isPosterThemeKey(key)) return THEMES[key]
+  return getPosterTheme(seedFallback, category)
+}
+
+/** Gradient colour tuple for an event, honouring an organizer override. */
+export function resolvePosterColors(
+  event: unknown,
+  seedFallback?: string | null,
+  category?: string | null,
+): readonly [string, string, string] {
+  return resolvePosterTheme(event, seedFallback, category).colors
+}
+
+/* ----------------------------------------------------------------------------
  * Social proof avatars
  * Deterministic teal colour stack used for "X going" avatar clusters so the
  * little crowd stays on-brand (never rainbow).

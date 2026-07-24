@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Calendar, MapPin } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
-import { getPosterTheme } from '../lib/posterGradient';
+import { resolvePosterTheme } from '../lib/posterGradient';
 import { safeFormatForLanguage } from '../lib/dates';
 import { font, radius } from '../theme/tokens';
 
@@ -23,7 +23,7 @@ export default function EventListCard({ event, onPress }: EventListCardProps) {
   const { t, language } = useI18n();
   const styles = getStyles(colors);
 
-  const theme = getPosterTheme(event.id || event.title, event.category);
+  const theme = resolvePosterTheme(event, event.id || event.title, event.category);
 
   const price = Number(event.ticket_price || 0);
   const isFree = !price || price === 0;

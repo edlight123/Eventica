@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRouter } from 'next/navigation'
 import { firebaseDb as supabase } from '@/lib/firebase-db/client'
+import { db } from '@/lib/firebase/client'
+import { doc, getDoc } from 'firebase/firestore'
 import { isDemoMode } from '@/lib/demo'
 import { normalizeCountryCode } from '@/lib/payment-provider'
 import EventbriteStyleTicketSelector from '@/components/EventbriteStyleTicketSelector'
@@ -25,9 +27,10 @@ interface BuyTicketButtonProps {
   eventTitle?: string
   currency?: string
   country?: string
+  isPasswordProtected?: boolean
 }
 
-export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, eventTitle = 'Event', currency = 'HTG', country }: BuyTicketButtonProps) {
+export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, eventTitle = 'Event', currency = 'HTG', country, isPasswordProtected = false }: BuyTicketButtonProps) {
   const { t } = useTranslation('common')
   const router = useRouter()
   const { showToast } = useToast()
@@ -50,6 +53,103 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
 
   const countryCode = normalizeCountryCode(country)
   const isHaitiEvent = countryCode === 'HT'
+
+  // Password-protected access gate state.
+  // hasAccess: null = unknown (still checking), true/false once resolved.
+  const [hasAccess, setHasAccess] = useState<boolean | null>(isPasswordProtected ? null : true)
+  const [showCodePrompt, setShowCodePrompt] = useState(false)
+  const [codeInput, setCodeInput] = useState('')
+  const [codeError, setCodeError] = useState<string | null>(null)
+  const [verifyingCode, setVerifyingCode] = useState(false)
+  // Which action to resume after a successful unlock.
+  const pendingActionRef = useRef<'free' | 'paid' | null>(null)
+
+  // On mount, read the user's existing grant so we can skip the prompt if
+  // already unlocked. A client read of access_grants/{uid} is permitted by rules.
+  useEffect(() => {
+    if (!isPasswordProtected) {
+      setHasAccess(true)
+      return
+    }
+    if (isDemoMode()) {
+      setHasAccess(true)
+      return
+    }
+    let cancelled = false
+    ;(async () => {
+      try {
+        const snap = await getDoc(doc(db, 'events', eventId, 'access_grants', userId))
+        if (!cancelled) setHasAccess(snap.exists())
+      } catch {
+        if (!cancelled) setHasAccess(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [eventId, userId, isPasswordProtected])
+
+  function runPendingAction() {
+    const action = pendingActionRef.current
+    pendingActionRef.current = null
+    if (action === 'free') {
+      handleClaimFreeTicket()
+    } else if (action === 'paid') {
+      handleOpenPurchaseFlow()
+    }
+  }
+
+  // Entry-point gate: for password-protected events without a grant, prompt for
+  // the code before running the real purchase/claim flow.
+  function gateOrRun(action: 'free' | 'paid') {
+    if (isPasswordProtected && hasAccess !== true) {
+      pendingActionRef.current = action
+      setCodeInput('')
+      setCodeError(null)
+      setShowCodePrompt(true)
+      return
+    }
+    if (action === 'free') {
+      handleClaimFreeTicket()
+    } else {
+      handleOpenPurchaseFlow()
+    }
+  }
+
+  async function handleVerifyCode(e?: React.FormEvent) {
+    if (e) e.preventDefault()
+    const code = codeInput.trim()
+    if (!code) {
+      setCodeError(t('events.password_required', { defaultValue: 'Please enter the access code.' }))
+      return
+    }
+    setVerifyingCode(true)
+    setCodeError(null)
+    try {
+      const res = await fetch('/api/events/verify-access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventId, code }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (res.ok && data?.ok) {
+        setHasAccess(true)
+        setShowCodePrompt(false)
+        setCodeInput('')
+        runPendingAction()
+        return
+      }
+      if (res.status === 429) {
+        setCodeError(t('events.password_throttled', { defaultValue: 'Too many attempts. Please try again later.' }))
+      } else {
+        setCodeError(t('events.password_incorrect', { defaultValue: 'Incorrect access code. Please try again.' }))
+      }
+    } catch {
+      setCodeError(t('events.password_error', { defaultValue: 'Could not verify the code. Please try again.' }))
+    } finally {
+      setVerifyingCode(false)
+    }
+  }
 
   async function handleOpenPurchaseFlow() {
     if (loading || tierProbeLoading) return
@@ -463,6 +563,68 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
           aria-hidden="true"
         />
       )}
+
+      {showCodePrompt && (
+        <BottomSheet
+          isOpen={showCodePrompt}
+          onClose={() => {
+            if (verifyingCode) return
+            setShowCodePrompt(false)
+            pendingActionRef.current = null
+          }}
+          title={t('events.enter_access_code', { defaultValue: 'Enter access code' })}
+        >
+          <form onSubmit={handleVerifyCode} className="space-y-4">
+            <div className="flex items-center gap-2 text-sm text-white/70">
+              <span aria-hidden="true">🔒</span>
+              <span>
+                {t('events.password_protected_hint', {
+                  defaultValue: 'This event is password protected. Enter the code to continue.',
+                })}
+              </span>
+            </div>
+
+            <input
+              type="password"
+              autoFocus
+              value={codeInput}
+              onChange={(e) => setCodeInput(e.target.value)}
+              placeholder={t('events.access_code_placeholder', { defaultValue: 'Access code' })}
+              disabled={verifyingCode}
+              className="w-full rounded-lg bg-white/[0.03] border border-white/10 px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-brand-500 disabled:opacity-50"
+            />
+
+            {codeError && (
+              <div className="border border-red-200 text-red-300 px-4 py-3 rounded-lg text-sm">
+                {codeError}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={verifyingCode || !codeInput.trim()}
+              className="block w-full bg-brand-600 hover:bg-brand-700 text-white text-center font-semibold py-3 px-5 rounded-lg transition-colors disabled:opacity-50 min-h-[44px]"
+            >
+              {verifyingCode
+                ? t('events.processing')
+                : t('events.unlock', { defaultValue: 'Unlock' })}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (verifyingCode) return
+                setShowCodePrompt(false)
+                pendingActionRef.current = null
+              }}
+              disabled={verifyingCode}
+              className="w-full px-4 py-3 border border-white/10 rounded-lg font-medium text-white/70 hover:bg-white/10 disabled:opacity-50"
+            >
+              {t('common.cancel')}
+            </button>
+          </form>
+        </BottomSheet>
+      )}
       {isFree ? (
         <div className="space-y-4">
           {/* Quantity Selector for Free Tickets */}
@@ -493,8 +655,15 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
             </div>
           </div>
 
+          {isPasswordProtected && hasAccess !== true && (
+            <div className="flex items-center gap-2 text-sm text-white/70">
+              <span aria-hidden="true">🔒</span>
+              <span>{t('events.password_required', { defaultValue: 'Password required' })}</span>
+            </div>
+          )}
+
           <button
-            onClick={handleClaimFreeTicket}
+            onClick={() => gateOrRun('free')}
             disabled={loading}
             className="block w-full bg-brand-600 hover:bg-brand-700 text-white text-center font-semibold py-2.5 px-5 rounded-lg transition-colors disabled:opacity-50 min-h-[44px]"
           >
@@ -503,8 +672,15 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
         </div>
       ) : (
         <>
+          {isPasswordProtected && hasAccess !== true && (
+            <div className="mb-3 flex items-center gap-2 text-sm text-white/70">
+              <span aria-hidden="true">🔒</span>
+              <span>{t('events.password_required', { defaultValue: 'Password required' })}</span>
+            </div>
+          )}
+
           <button
-            onClick={handleOpenPurchaseFlow}
+            onClick={() => gateOrRun('paid')}
             disabled={loading || tierProbeLoading}
             className="block w-full bg-brand-600 hover:bg-brand-700 text-white text-center font-semibold py-2.5 px-5 rounded-lg transition-colors disabled:opacity-50 min-h-[44px]"
           >

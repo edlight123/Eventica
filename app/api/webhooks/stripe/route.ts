@@ -136,13 +136,16 @@ export async function POST(request: Request) {
           status: 'valid',
           qr_code_data: qrCodeData,
           purchased_at: new Date().toISOString(),
+          // Stamp the exact tier id at issuance so scan-time validity can look up the tier by
+          // id instead of by fragile name. '' when the checkout had no tier metadata.
+          tier_id: session.metadata.tierId || '',
         }
-        
+
         const insertResult = await supabase
           .from('tickets')
           .insert([ticketData])
           .select()
-        
+
         if (insertResult.error) {
           console.error('Failed to create ticket:', insertResult.error)
           await releaseInventoryReservation({
@@ -167,6 +170,7 @@ export async function POST(request: Request) {
                 attendee_id: session.client_reference_id,
                 status: 'confirmed',
                 ticket_type: createdTicket.tier_name || createdTicket.tierName || 'General Admission',
+                tier_id: session.metadata.tierId || '',
                 price_paid: ticketData.price_paid,
                 currency: ticketData.currency,
                 exchange_rate_used: ticketData.exchange_rate_used ?? null,
@@ -405,7 +409,7 @@ export async function POST(request: Request) {
           status: 'valid',
           qr_code_data: qrCodeData,
           purchased_at: new Date().toISOString(),
-          tier_id: paymentIntent.metadata.tierId || null,
+          tier_id: paymentIntent.metadata.tierId || '',
           tier_name: paymentIntent.metadata.tierName || 'General Admission',
         }
         
@@ -437,6 +441,7 @@ export async function POST(request: Request) {
                 attendee_id: paymentIntent.metadata.userId,
                 status: 'confirmed',
                 ticket_type: paymentIntent.metadata.tierName || 'General Admission',
+                tier_id: paymentIntent.metadata.tierId || '',
                 price_paid: ticketData.price_paid,
                 currency: ticketData.currency,
                 exchange_rate_used: ticketData.exchange_rate_used ?? null,

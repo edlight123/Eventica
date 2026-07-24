@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -7,19 +7,24 @@ import {
   TextInput,
   TouchableOpacity,
   RefreshControl,
-  StatusBar,
+  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
-import { db } from '../../config/firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db, auth } from '../../config/firebase';
+import { collection, query, where, getDocs, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { useI18n } from '../../contexts/I18nContext';
+import { useLocaleFormat } from '../../lib/format';
 import ExportAttendeesButton from '../../components/ExportAttendeesButton';
 import { SPACING, RADIUS } from '../../config/brand';
 import { Skeleton } from '../../components/Skeleton';
 import EmptyState from '../../components/EmptyState';
+import StatusChip from '../../components/StatusChip';
+import MoneyText from '../../components/MoneyText';
+import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
+import SegmentedTabs from '../../components/organizer/SegmentedTabs';
 import { Users } from 'lucide-react-native';
 
 type RouteParams = {
@@ -34,14 +39,19 @@ interface Attendee {
   attendee_email: string;
   tier_name: string;
   price_paid: number;
+  currency?: string;
   purchased_at: any;
   checked_in_at: any;
   checked_in?: boolean;
   status: string;
 }
 
+/** A ticket is checked in if any of the three signals say so. */
+const isCheckedIn = (a: Attendee): boolean =>
+  !!a.checked_in_at || a.checked_in === true || String(a.status || '').toLowerCase() === 'checked_in';
+
 export default function EventAttendeesScreen() {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const styles = getStyles(colors);
   const route = useRoute<RouteProp<RouteParams, 'EventAttendees'>>();
   const navigation = useNavigation();
@@ -49,15 +59,17 @@ export default function EventAttendeesScreen() {
 
   const insets = useSafeAreaInsets();
 
-  const { t, language } = useI18n();
-  const locale = language === 'fr' ? 'fr-FR' : language === 'ht' ? 'fr-HT' : 'en-US';
+  const { t } = useI18n();
+  const { formatDate } = useLocaleFormat();
 
   const [attendees, setAttendees] = useState<Attendee[]>([]);
-  const [filteredAttendees, setFilteredAttendees] = useState<Attendee[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'checked_in' | 'not_checked_in'>('all');
+  // Ticket ids with an in-flight check-in write — used to disable the row's
+  // button so a double-tap can't fire two updateDocs.
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     loadAttendees();
@@ -69,8 +81,21 @@ export default function EventAttendeesScreen() {
     setRefreshing(false);
   };
 
-  useEffect(() => {
-    filterAttendees();
+  // Derive the visible list from the source data + filters — no effect/state
+  // shadow copy to keep in sync.
+  const filteredAttendees = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return attendees.filter((a) => {
+      if (q && !(
+        a.attendee_name?.toLowerCase().includes(q) ||
+        a.attendee_email?.toLowerCase().includes(q)
+      )) {
+        return false;
+      }
+      if (filterStatus === 'checked_in') return isCheckedIn(a);
+      if (filterStatus === 'not_checked_in') return !isCheckedIn(a);
+      return true;
+    });
   }, [attendees, searchQuery, filterStatus]);
 
   const loadAttendees = async () => {
@@ -94,38 +119,72 @@ export default function EventAttendeesScreen() {
     }
   };
 
-  const filterAttendees = () => {
-    let filtered = [...attendees];
+  // Manual check-in for staff when the camera can't read a damaged/screenshot
+  // QR. Mirrors TicketScannerScreen's write EXACTLY (same fields), with an
+  // optimistic local update that reverts if the Firestore write fails.
+  const handleManualCheckIn = (attendee: Attendee) => {
+    if (pendingIds.has(attendee.id) || isCheckedIn(attendee)) return;
 
-    const isCheckedIn = (a: Attendee) => {
-      return !!a.checked_in_at || a.checked_in === true || String(a.status || '').toLowerCase() === 'checked_in';
-    };
+    const name = attendee.attendee_name || attendee.attendee_email || t('common.attendee');
 
-    // Filter by search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (a) =>
-          a.attendee_name?.toLowerCase().includes(query) ||
-          a.attendee_email?.toLowerCase().includes(query)
-      );
-    }
+    Alert.alert(
+      t('organizerAttendees.checkInConfirmTitle'),
+      t('organizerAttendees.checkInConfirmBody').replace('{name}', name),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('organizerAttendees.checkIn'),
+          onPress: async () => {
+            // Optimistic: flip the row to checked-in immediately and mark the
+            // ticket pending so the button is disabled while we write.
+            setPendingIds((prev) => new Set(prev).add(attendee.id));
+            setAttendees((prev) =>
+              prev.map((a) =>
+                a.id === attendee.id
+                  ? { ...a, checked_in: true, checked_in_at: new Date(), status: 'checked_in' }
+                  : a
+              )
+            );
 
-    // Filter by check-in status
-    if (filterStatus === 'checked_in') {
-      filtered = filtered.filter((a) => isCheckedIn(a));
-    } else if (filterStatus === 'not_checked_in') {
-      filtered = filtered.filter((a) => !isCheckedIn(a));
-    }
-
-    setFilteredAttendees(filtered);
+            try {
+              await updateDoc(doc(db, 'tickets', attendee.id), {
+                checked_in: true,
+                checked_in_at: serverTimestamp(),
+                checked_in_by: auth.currentUser?.uid || null,
+                updated_at: serverTimestamp(),
+              });
+            } catch (error) {
+              console.error('Error checking in attendee:', error);
+              // Revert the optimistic change to the exact prior values.
+              setAttendees((prev) =>
+                prev.map((a) =>
+                  a.id === attendee.id
+                    ? {
+                        ...a,
+                        checked_in: attendee.checked_in,
+                        checked_in_at: attendee.checked_in_at,
+                        status: attendee.status,
+                      }
+                    : a
+                )
+              );
+              Alert.alert(t('organizerAttendees.checkInFailed'));
+            } finally {
+              setPendingIds((prev) => {
+                const next = new Set(prev);
+                next.delete(attendee.id);
+                return next;
+              });
+            }
+          },
+        },
+      ]
+    );
   };
 
   const renderAttendee = ({ item }: { item: Attendee }) => {
-    const checkedIn = !!item.checked_in_at || item.checked_in === true || String(item.status || '').toLowerCase() === 'checked_in';
-    const purchaseDate = item.purchased_at?.toDate
-      ? item.purchased_at.toDate()
-      : new Date(item.purchased_at);
+    const checkedIn = isCheckedIn(item);
+    const pending = pendingIds.has(item.id);
 
     return (
       <View style={styles.attendeeCard}>
@@ -134,18 +193,10 @@ export default function EventAttendeesScreen() {
             <Text style={styles.attendeeName} numberOfLines={1}>{item.attendee_name || t('common.na')}</Text>
             <Text style={styles.attendeeEmail} numberOfLines={1}>{item.attendee_email || t('common.na')}</Text>
           </View>
-          <View style={[styles.statusBadge, checkedIn && styles.statusBadgeCheckedIn]}>
-            <Ionicons
-              name={checkedIn ? 'checkmark-circle' : 'time-outline'}
-              size={16}
-              color={checkedIn ? colors.success : colors.warning}
-            />
-            <Text
-              style={[styles.statusText, checkedIn && styles.statusTextCheckedIn]}
-            >
-              {checkedIn ? t('organizerAttendees.status.checkedIn') : t('organizerAttendees.status.notCheckedIn')}
-            </Text>
-          </View>
+          <StatusChip
+            status={checkedIn ? 'success' : 'pending'}
+            label={checkedIn ? t('organizerAttendees.status.checkedIn') : t('organizerAttendees.status.notCheckedIn')}
+          />
         </View>
 
         <View style={styles.attendeeDetails}>
@@ -155,14 +206,12 @@ export default function EventAttendeesScreen() {
           </View>
           <View style={styles.detailRow}>
             <Ionicons name="cash-outline" size={16} color={colors.textSecondary} />
-            <Text style={styles.detailText}>
-              ${item.price_paid?.toFixed(2) || '0.00'}
-            </Text>
+            <MoneyText amount={item.price_paid || 0} currency={item.currency as any} style={styles.priceText} />
           </View>
           <View style={styles.detailRow}>
             <Ionicons name="calendar-outline" size={16} color={colors.textSecondary} />
             <Text style={styles.detailText}>
-              {purchaseDate.toLocaleDateString(locale)}
+              {formatDate(item.purchased_at)}
             </Text>
           </View>
         </View>
@@ -171,13 +220,22 @@ export default function EventAttendeesScreen() {
           <View style={styles.checkedInInfo}>
             <Ionicons name="checkmark-circle" size={14} color={colors.success} />
             <Text style={styles.checkedInText}>
-              {t('organizerAttendees.checkedInPrefix')}{
-                item.checked_in_at.toDate
-                  ? item.checked_in_at.toDate().toLocaleString(locale)
-                  : new Date(item.checked_in_at).toLocaleString(locale)
-              }
+              {t('organizerAttendees.checkedInPrefix')}{formatDate(item.checked_in_at, 'MMM d, yyyy • h:mm a')}
             </Text>
           </View>
+        )}
+
+        {!checkedIn && (
+          <TouchableOpacity
+            style={[styles.checkInButton, pending && styles.checkInButtonDisabled]}
+            onPress={() => handleManualCheckIn(item)}
+            disabled={pending}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: pending }}
+          >
+            <Ionicons name="checkmark-circle-outline" size={18} color={colors.text} />
+            <Text style={styles.checkInButtonText}>{t('organizerAttendees.checkIn')}</Text>
+          </TouchableOpacity>
         )}
       </View>
     );
@@ -186,14 +244,7 @@ export default function EventAttendeesScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? colors.surface : colors.white} />
-        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>{t('organizerAttendees.headerTitle')}</Text>
-          <View style={styles.headerActions} />
-        </View>
+        <OrganizerScreenHeader title={t('organizerAttendees.headerTitle')} onBack={() => navigation.goBack()} />
         <View style={{ padding: SPACING.lg }}>
           {[0, 1, 2, 3, 4].map((i) => (
             <Skeleton key={i} width="100%" height={132} radius={RADIUS.lg} style={{ marginBottom: SPACING.md }} />
@@ -203,23 +254,17 @@ export default function EventAttendeesScreen() {
     );
   }
 
-  const checkedInCount = attendees.filter((a) => a.checked_in_at || a.checked_in === true || String(a.status || '').toLowerCase() === 'checked_in').length;
+  const checkedInCount = attendees.filter(isCheckedIn).length;
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? colors.surface : colors.white} />
-
       {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('organizerAttendees.headerTitle')}</Text>
-        <View style={styles.headerActions}>
-          <ExportAttendeesButton eventId={eventId} attendees={attendees} />
-        </View>
-      </View>
-      
+      <OrganizerScreenHeader
+        title={t('organizerAttendees.headerTitle')}
+        onBack={() => navigation.goBack()}
+        right={<ExportAttendeesButton eventId={eventId} attendees={attendees} />}
+      />
+
       {/* Stats Bar */}
       <View style={styles.statsBar}>
         <Text style={styles.statsBarText}>
@@ -246,52 +291,16 @@ export default function EventAttendeesScreen() {
       </View>
 
       {/* Filter tabs */}
-      <View style={styles.filterTabs}>
-        <TouchableOpacity
-          style={[styles.filterTab, filterStatus === 'all' && styles.filterTabActive]}
-          onPress={() => setFilterStatus('all')}
-        >
-          <Text
-            style={[
-              styles.filterTabText,
-              filterStatus === 'all' && styles.filterTabTextActive,
-            ]}
-          >
-            {t('organizerAttendees.filters.all')} ({attendees.length})
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.filterTab,
-            filterStatus === 'checked_in' && styles.filterTabActive,
+      <View style={styles.filterTabsWrap}>
+        <SegmentedTabs
+          value={filterStatus}
+          onChange={(key) => setFilterStatus(key as 'all' | 'checked_in' | 'not_checked_in')}
+          tabs={[
+            { key: 'all', label: t('organizerAttendees.filters.all'), count: attendees.length },
+            { key: 'checked_in', label: t('organizerAttendees.filters.checkedIn'), count: checkedInCount },
+            { key: 'not_checked_in', label: t('organizerAttendees.filters.notCheckedIn'), count: attendees.length - checkedInCount },
           ]}
-          onPress={() => setFilterStatus('checked_in')}
-        >
-          <Text
-            style={[
-              styles.filterTabText,
-              filterStatus === 'checked_in' && styles.filterTabTextActive,
-            ]}
-          >
-            {t('organizerAttendees.filters.checkedIn')} ({checkedInCount})
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.filterTab,
-            filterStatus === 'not_checked_in' && styles.filterTabActive,
-          ]}
-          onPress={() => setFilterStatus('not_checked_in')}
-        >
-          <Text
-            style={[
-              styles.filterTabText,
-              filterStatus === 'not_checked_in' && styles.filterTabTextActive,
-            ]}
-          >
-            {t('organizerAttendees.filters.notCheckedIn')} ({attendees.length - checkedInCount})
-          </Text>
-        </TouchableOpacity>
+        />
       </View>
 
       {/* Attendees list */}
@@ -323,54 +332,17 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     backgroundColor: colors.background,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingTop: 16,
-    paddingBottom: 16,
-    paddingHorizontal: 16,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  backButton: {
-    marginRight: 12,
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 22,
-    fontFamily: 'InstrumentSerif_400Regular',
-    letterSpacing: 0,
-    fontWeight: 'bold',
-    color: colors.text,
-  },
-  headerStats: {
-    backgroundColor: colors.primarySoft,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-  },
-  headerStatsText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.primary,
-  },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   statsBar: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.primarySoft,
-    paddingVertical: 8,
+    paddingTop: 8,
     paddingHorizontal: 16,
   },
   statsBarText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
-    color: colors.primary,
+    color: colors.textSecondary,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -389,45 +361,18 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 16,
     color: colors.text,
   },
-  filterTabs: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    marginBottom: 16,
-  },
-  filterTab: {
-    flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    marginHorizontal: 4,
-    borderRadius: 8,
-    backgroundColor: colors.surface,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  filterTabActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  filterTabText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  filterTabTextActive: {
-    color: colors.white,
+  filterTabsWrap: {
+    marginBottom: 12,
   },
   listContent: {
     paddingHorizontal: 16,
     paddingBottom: 20,
   },
   attendeeCard: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
     borderRadius: RADIUS.lg,
     padding: SPACING.lg,
     marginBottom: SPACING.md,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   attendeeHeader: {
     flexDirection: 'row',
@@ -449,26 +394,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 14,
     color: colors.textSecondary,
   },
-  statusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    backgroundColor: colors.warningLight,
-  },
-  statusBadgeCheckedIn: {
-    backgroundColor: colors.successLight,
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.warning,
-    marginLeft: 4,
-  },
-  statusTextCheckedIn: {
-    color: colors.success,
-  },
   attendeeDetails: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -483,6 +408,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textSecondary,
     marginLeft: 4,
   },
+  priceText: {
+    fontSize: 14,
+    marginLeft: 4,
+    color: colors.textSecondary,
+  },
   checkedInInfo: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -495,5 +425,27 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 12,
     color: colors.success,
     marginLeft: 4,
+  },
+  checkInButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'flex-start',
+    gap: 6,
+    marginTop: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceMuted,
+  },
+  checkInButtonDisabled: {
+    opacity: 0.45,
+  },
+  checkInButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
   },
 });

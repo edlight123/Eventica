@@ -17,9 +17,13 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { backendFetch } from '../../lib/api/backend';
+import { useLocaleFormat } from '../../lib/format';
 import { RADIUS } from '../../config/brand';
 import EmptyState from '../../components/EmptyState';
+import StatusChip from '../../components/StatusChip';
 import { Skeleton } from '../../components/Skeleton';
+import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
+import SegmentedTabs from '../../components/organizer/SegmentedTabs';
 import { Receipt } from 'lucide-react-native';
 import { format } from 'date-fns';
 
@@ -30,6 +34,8 @@ interface RefundRequest {
   attendee_email: string;
   attendee_name: string;
   amount: number;
+  /** Currency of the refund amount (event/ticket currency). Optional — defaults to the Haiti-first HTG. */
+  currency?: string;
   reason: string;
   requested_at: string;
   status: 'requested' | 'approved' | 'denied';
@@ -40,6 +46,7 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
   const styles = getStyles(colors);
   const { userProfile } = useAuth();
   const { t } = useI18n();
+  const { formatMoney } = useLocaleFormat();
   const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -105,6 +112,7 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
             attendee_email: data.attendee_email || '',
             attendee_name: data.attendee_name || '',
             amount: data.price_paid || data.price || 0,
+            currency: (event as any)?.currency || data.currency || undefined,
             reason: data.refund_reason || '',
             requested_at: data.refund_requested_at || data.created_at,
             status: data.refund_status,
@@ -191,23 +199,16 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
   if (loading) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
-        <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>{t('refunds.title') || 'Refund Requests'}</Text>
-          <View style={styles.badgeContainer} />
-        </View>
-        <View style={styles.filterContainer}>
-          {[0, 1, 2].map((i) => (
-            <View key={i} style={{ flex: 1 }}>
-              <Skeleton width="100%" height={40} radius={8} />
-            </View>
-          ))}
+        <OrganizerScreenHeader
+          title={t('refunds.title') || 'Refund Requests'}
+          onBack={() => navigation.goBack()}
+        />
+        <View style={styles.tabsWrap}>
+          <View style={styles.tabsSkeletonRow}>
+            {[0, 1, 2].map((i) => (
+              <Skeleton key={i} width={92} height={36} radius={999} />
+            ))}
+          </View>
         </View>
         <View style={{ padding: 16 }}>
           {[0, 1, 2, 3].map((i) => (
@@ -221,40 +222,29 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('refunds.title') || 'Refund Requests'}</Text>
-        <View style={styles.badgeContainer}>
-          {pendingCount > 0 && (
+      <OrganizerScreenHeader
+        title={t('refunds.title') || 'Refund Requests'}
+        onBack={() => navigation.goBack()}
+        right={
+          pendingCount > 0 ? (
             <View style={styles.badge}>
               <Text style={styles.badgeText}>{pendingCount}</Text>
             </View>
-          )}
-        </View>
-      </View>
+          ) : undefined
+        }
+      />
 
-      {/* Filter Tabs */}
-      <View style={styles.filterContainer}>
-        {(['pending', 'processed', 'all'] as const).map((filterOption) => (
-          <TouchableOpacity
-            key={filterOption}
-            style={[styles.filterButton, filter === filterOption && styles.filterButtonActive]}
-            onPress={() => setFilter(filterOption)}
-          >
-            <Text style={[styles.filterText, filter === filterOption && styles.filterTextActive]}>
-              {filterOption === 'pending' ? (t('refunds.pending') || 'Pending') :
-               filterOption === 'processed' ? (t('refunds.processed') || 'Processed') :
-               (t('refunds.all') || 'All')}
-              {filterOption === 'pending' && pendingCount > 0 && ` (${pendingCount})`}
-            </Text>
-          </TouchableOpacity>
-        ))}
+      {/* Filter Tabs — neutral segmented emphasis, no teal fill */}
+      <View style={styles.tabsWrap}>
+        <SegmentedTabs
+          tabs={[
+            { key: 'pending', label: t('refunds.pending') || 'Pending', count: pendingCount > 0 ? pendingCount : undefined },
+            { key: 'processed', label: t('refunds.processed') || 'Processed' },
+            { key: 'all', label: t('refunds.all') || 'All' },
+          ]}
+          value={filter}
+          onChange={(k: string) => setFilter(k as 'all' | 'pending' | 'processed')}
+        />
       </View>
 
       <ScrollView
@@ -277,23 +267,22 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
             <View key={request.id} style={styles.requestCard}>
               <View style={styles.requestHeader}>
                 <Text style={styles.eventTitle} numberOfLines={1}>{request.event_title}</Text>
-                <View style={[
-                  styles.statusBadge,
-                  request.status === 'requested' && styles.statusPending,
-                  request.status === 'approved' && styles.statusApproved,
-                  request.status === 'denied' && styles.statusDenied,
-                ]}>
-                  <Text style={[
-                    styles.statusText,
-                    request.status === 'requested' && styles.statusTextPending,
-                    request.status === 'approved' && styles.statusTextApproved,
-                    request.status === 'denied' && styles.statusTextDenied,
-                  ]}>
-                    {request.status === 'requested' ? (t('refunds.statusPending') || 'Pending') :
-                     request.status === 'approved' ? (t('refunds.statusApproved') || 'Approved') :
-                     (t('refunds.statusDenied') || 'Denied')}
-                  </Text>
-                </View>
+                <StatusChip
+                  status={
+                    request.status === 'requested'
+                      ? 'actionNeeded'
+                      : request.status === 'approved'
+                      ? 'success'
+                      : 'error'
+                  }
+                  label={
+                    request.status === 'requested'
+                      ? (t('refunds.statusPending') || 'Pending')
+                      : request.status === 'approved'
+                      ? (t('refunds.statusApproved') || 'Approved')
+                      : (t('refunds.statusDenied') || 'Denied')
+                  }
+                />
               </View>
 
               <View style={styles.requestDetails}>
@@ -303,7 +292,7 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
                 </View>
                 <View style={styles.detailRow}>
                   <Ionicons name="cash-outline" size={16} color={colors.textSecondary} />
-                  <Text style={styles.detailText}>${request.amount.toFixed(2)}</Text>
+                  <Text style={styles.detailText}>{formatMoney(request.amount, { currency: request.currency })}</Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Ionicons name="time-outline" size={16} color={colors.textSecondary} />
@@ -340,10 +329,10 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
                     disabled={processing === request.ticket_id}
                   >
                     {processing === request.ticket_id ? (
-                      <ActivityIndicator size="small" color="#FFF" />
+                      <ActivityIndicator size="small" color={colors.white} />
                     ) : (
                       <>
-                        <Ionicons name="checkmark-circle" size={18} color="#FFF" />
+                        <Ionicons name="checkmark-circle" size={18} color={colors.white} />
                         <Text style={styles.approveButtonText}>{t('refunds.approve') || 'Approve'}</Text>
                       </>
                     )}
@@ -365,40 +354,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     backgroundColor: colors.background,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    marginTop: 12,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    backgroundColor: colors.background,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontFamily: 'InstrumentSerif_400Regular',
-    fontSize: 22,
-    fontWeight: '700',
-    letterSpacing: 0,
-    color: colors.text,
-  },
-  badgeContainer: {
-    width: 40,
-    alignItems: 'flex-end',
-  },
   badge: {
     backgroundColor: colors.error,
     borderRadius: 10,
@@ -408,52 +363,21 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   badgeText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#FFF',
+    color: colors.white,
   },
-  filterContainer: {
-    flexDirection: 'row',
-    padding: 16,
-    gap: 8,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
+  tabsWrap: {
+    paddingVertical: 6,
+    borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
   },
-  filterButton: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 8,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-  },
-  filterButtonActive: {
-    backgroundColor: colors.primary,
-  },
-  filterText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.textSecondary,
-  },
-  filterTextActive: {
-    color: '#FFF',
+  tabsSkeletonRow: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 4,
   },
   scrollView: {
     flex: 1,
-  },
-  emptyState: {
-    alignItems: 'center',
-    padding: 48,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.text,
-    marginTop: 16,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginTop: 8,
-    textAlign: 'center',
   },
   requestCard: {
     margin: 16,
@@ -476,34 +400,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '700',
     color: colors.text,
     marginRight: 8,
-  },
-  statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  statusPending: {
-    backgroundColor: colors.warning + '1A',
-  },
-  statusApproved: {
-    backgroundColor: colors.success + '1A',
-  },
-  statusDenied: {
-    backgroundColor: colors.error + '1A',
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  statusTextPending: {
-    color: colors.warning,
-  },
-  statusTextApproved: {
-    color: colors.success,
-  },
-  statusTextDenied: {
-    color: colors.error,
   },
   requestDetails: {
     gap: 8,
@@ -565,6 +461,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   approveButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#FFF',
+    color: colors.white,
   },
 });

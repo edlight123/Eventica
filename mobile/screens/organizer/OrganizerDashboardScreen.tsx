@@ -6,11 +6,10 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
-  StatusBar,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useFocusEffect, CommonActions } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
@@ -25,6 +24,7 @@ import { Skeleton } from '../../components/Skeleton';
 import EmptyState from '../../components/EmptyState';
 import StatTriplet from '../../components/StatTriplet';
 import WhitePillCTA from '../../components/WhitePillCTA';
+import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
 import { Calendar } from 'lucide-react-native';
 
 export default function OrganizerDashboardScreen() {
@@ -74,16 +74,12 @@ export default function OrganizerDashboardScreen() {
     loadData();
   }, [loadData]);
 
+  const headerSubtitle = `${t('organizerDashboard.welcomeBack')}, ${userProfile?.full_name || t('organizerDashboard.organizerFallback')}`;
+
   if (loading) {
     return (
       <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor={colors.background} />
-        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-          <Text style={styles.headerTitle}>{t('organizerDashboard.title')}</Text>
-          <Text style={styles.headerSubtitle}>
-            {t('organizerDashboard.welcomeBack')}, {userProfile?.full_name || t('organizerDashboard.organizerFallback')}
-          </Text>
-        </View>
+        <OrganizerScreenHeader title={t('organizerDashboard.title')} subtitle={headerSubtitle} />
         <View style={styles.section}>
           <Skeleton width={150} height={22} radius={7} style={{ marginBottom: 16 }} />
           <Skeleton width="100%" height={148} radius={RADIUS.lg} style={{ marginBottom: 24 }} />
@@ -102,14 +98,8 @@ export default function OrganizerDashboardScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
       {/* Fixed Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-        <Text style={styles.headerTitle}>{t('organizerDashboard.title')}</Text>
-        <Text style={styles.headerSubtitle}>
-          {t('organizerDashboard.welcomeBack')}, {userProfile?.full_name || t('organizerDashboard.organizerFallback')}
-        </Text>
-      </View>
+      <OrganizerScreenHeader title={t('organizerDashboard.title')} subtitle={headerSubtitle} />
 
       <ScrollView
         style={styles.scrollContent}
@@ -155,11 +145,11 @@ export default function OrganizerDashboardScreen() {
                       navigation.navigate('TicketScanner', { eventId: event.id });
                     }}
                   >
-                    <Ionicons name="qr-code-outline" size={20} color={colors.primary} />
+                    <Ionicons name="qr-code-outline" size={20} color={colors.text} />
                     <Text style={styles.scanButtonText}>{t('tabs.scan')}</Text>
                   </TouchableOpacity>
                 </View>
-                
+
                 <View style={styles.eventDetails}>
                   <View style={styles.eventDetailRow}>
                     <Ionicons name="time-outline" size={16} color={colors.textSecondary} />
@@ -171,15 +161,14 @@ export default function OrganizerDashboardScreen() {
                   </View>
                 </View>
 
-                <View style={styles.eventStats}>
-                  <View style={styles.statItem}>
-                    <Text style={styles.statValue} numberOfLines={1}>{event.ticketsSold}/{event.capacity}</Text>
-                    <Text style={styles.statLabel}>{t('organizerDashboard.ticketsSold')}</Text>
-                  </View>
-                  <View style={styles.statItem}>
-                    <Text style={styles.statValue} numberOfLines={1}>{event.ticketsCheckedIn}</Text>
-                    <Text style={styles.statLabel}>{t('organizerDashboard.checkedIn')}</Text>
-                  </View>
+                <View style={styles.eventStatsWrap}>
+                  <StatTriplet
+                    columns={2}
+                    items={[
+                      { label: t('organizerDashboard.ticketsSold'), value: `${event.ticketsSold}/${event.capacity}` },
+                      { label: t('organizerDashboard.checkedIn'), value: event.ticketsCheckedIn },
+                    ]}
+                  />
                 </View>
               </TouchableOpacity>
             );
@@ -261,25 +250,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   scrollContent: {
     flex: 1,
   },
-  header: {
-    padding: 20,
-    paddingTop: 16,
-    backgroundColor: colors.background,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-  },
-  headerTitle: {
-    fontFamily: 'InstrumentSerif_400Regular',
-    fontSize: 32,
-    fontWeight: 'bold',
-    letterSpacing: 0,
-    color: colors.text,
-    marginBottom: 4,
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    color: colors.textSecondary,
-  },
   section: {
     padding: 20,
   },
@@ -291,7 +261,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     letterSpacing: -0.3,
   },
   eventCard: {
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: colors.surface,
     borderRadius: RADIUS.lg,
     padding: SPACING.lg,
     marginBottom: SPACING.md,
@@ -317,13 +287,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   scanButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.primarySoft,
+    backgroundColor: colors.surfaceRaised,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
   },
   scanButtonText: {
-    color: colors.primary,
+    color: colors.text,
     fontWeight: '600',
     marginLeft: 4,
   },
@@ -341,53 +311,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginLeft: 6,
     flex: 1,
   },
-  eventStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statValue: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.text,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    rowGap: SPACING.md,
-  },
-  statCard: {
-    width: '48%',
-    backgroundColor: colors.surface,
-    borderRadius: RADIUS.lg,
-    padding: SPACING.lg,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  statCardValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginTop: 8,
-    letterSpacing: -0.3,
-  },
-  statCardLabel: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginTop: 4,
-    textAlign: 'center',
+  eventStatsWrap: {
+    marginTop: 12,
   },
   quickActionsGrid: {
     flexDirection: 'row',

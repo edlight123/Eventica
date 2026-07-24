@@ -17,6 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Calendar, MapPin, Search, X, SlidersHorizontal, Users } from 'lucide-react-native';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { filterExploreEvents } from '../lib/api/events';
 import { useTheme } from '../contexts/ThemeContext';
 import { format } from 'date-fns';
 import { font } from '../theme/tokens';
@@ -261,17 +262,21 @@ export default function DiscoverScreen({ navigation, route }: any) {
         return aTime - bTime
       })
       
+      // Hide events the organizer marked as not shown on Explore (unlisted).
+      // Missing field = visible, so existing events are unaffected.
+      const exploreEvents = filterExploreEvents(eventsData as any[]);
+
       const now = new Date();
-      const futureEvents = eventsData.filter((event) => {
+      const futureEvents = exploreEvents.filter((event) => {
         const start = event.start_datetime ? new Date(event.start_datetime) : null
         const end = event.end_datetime ? new Date(event.end_datetime) : null
         const cutoff = end || start
         if (!cutoff) return false
         return cutoff >= now
       });
-      
-      console.log('[DiscoverScreen] Future events:', futureEvents.length, 'out of', eventsData.length, 'total');
-      setAllEvents(futureEvents.length > 0 ? futureEvents : eventsData);
+
+      console.log('[DiscoverScreen] Future events:', futureEvents.length, 'out of', exploreEvents.length, 'total');
+      setAllEvents(futureEvents.length > 0 ? futureEvents : exploreEvents);
     } catch (error) {
       console.error('[DiscoverScreen] Error fetching events:', error);
     } finally {

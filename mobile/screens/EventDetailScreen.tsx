@@ -12,7 +12,9 @@ import {
   Dimensions,
   Linking,
   Platform,
-  Animated
+  Animated,
+  Modal,
+  TextInput,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -27,10 +29,12 @@ import {
   TrendingUp,
   Star,
   ExternalLink,
-  ChevronRight
+  ChevronRight,
+  PlayCircle
 } from 'lucide-react-native';
 import { doc, getDoc, collection, addDoc, Timestamp, query, where, getDocs, deleteDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { backendJson } from '../lib/api/backend';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -41,7 +45,7 @@ import WhitePillCTA from '../components/WhitePillCTA';
 import VerifiedBadge from '../components/VerifiedBadge';
 import PaymentModal from '../components/PaymentModal';
 import TieredTicketSelector from '../components/TieredTicketSelector';
-import { getPosterTheme } from '../lib/posterGradient';
+import { resolvePosterTheme } from '../lib/posterGradient';
 import FreeTicketModal from '../components/FreeTicketModal';
 import AddToCalendarButton from '../components/AddToCalendarButton';
 import JoinWaitlistButton from '../components/JoinWaitlistButton';
@@ -69,6 +73,13 @@ export default function EventDetailScreen({ route, navigation }: any) {
   const [selectedTierPrice, setSelectedTierPrice] = useState<number>(0);
   const [ticketQuantity, setTicketQuantity] = useState(1);
   const [promoCode, setPromoCode] = useState<string | undefined>();
+  // Password-gate state. accessGranted: null = unknown/not-yet-checked, true =
+  // an access_grants/{uid} doc exists (or unlock succeeded), false = gated.
+  const [accessGranted, setAccessGranted] = useState<boolean | null>(null);
+  const [showAccessGate, setShowAccessGate] = useState(false);
+  const [accessCodeInput, setAccessCodeInput] = useState('');
+  const [unlocking, setUnlocking] = useState(false);
+  const [accessError, setAccessError] = useState('');
   const scrollY = useRef(new Animated.Value(0)).current;
   const floatingBarAnim = useRef(new Animated.Value(0)).current;
   const insets = useSafeAreaInsets();
@@ -88,6 +99,69 @@ export default function EventDetailScreen({ route, navigation }: any) {
       }).start();
     }
   }, [event]);
+
+  // Once the event (and its is_password_protected flag) is loaded, check whether
+  // the signed-in user already holds an access grant. Access proof is the mere
+  // existence of events/{id}/access_grants/{uid} (written only by the server
+  // verify endpoint). Non-protected events are always "granted".
+  useEffect(() => {
+    let cancelled = false;
+    const checkAccessGrant = async () => {
+      if (!event) return;
+      if (!event.is_password_protected) {
+        if (!cancelled) setAccessGranted(true);
+        return;
+      }
+      if (!user) {
+        if (!cancelled) setAccessGranted(false);
+        return;
+      }
+      try {
+        const grantSnap = await getDoc(doc(db, 'events', eventId, 'access_grants', user.uid));
+        if (!cancelled) setAccessGranted(grantSnap.exists());
+      } catch (err) {
+        console.error('Error checking access grant:', err);
+        if (!cancelled) setAccessGranted(false);
+      }
+    };
+    checkAccessGrant();
+    return () => {
+      cancelled = true;
+    };
+  }, [event, user, eventId]);
+
+  // Verify the typed code against the web endpoint. On { ok:true } the server
+  // has written the access grant; mark unlocked and continue into purchase.
+  const handleUnlock = async () => {
+    const code = accessCodeInput.trim();
+    if (!code || unlocking) return;
+    setUnlocking(true);
+    setAccessError('');
+    try {
+      const res = await backendJson<{ ok?: boolean }>('/api/events/verify-access', {
+        method: 'POST',
+        body: JSON.stringify({ eventId, code }),
+      });
+      if (res?.ok) {
+        setAccessGranted(true);
+        setShowAccessGate(false);
+        setAccessCodeInput('');
+        // Grant now exists downstream — proceed to the right purchase flow.
+        if (isFree) {
+          setShowFreeTicketModal(true);
+        } else {
+          setShowTierSelector(true);
+        }
+      } else {
+        setAccessError(t('eventAccess.wrongCode'));
+      }
+    } catch (err) {
+      // backendJson throws on non-2xx (403 wrong code) — treat as incorrect.
+      setAccessError(t('eventAccess.wrongCode'));
+    } finally {
+      setUnlocking(false);
+    }
+  };
 
   const fetchEventDetails = async () => {
     try {
@@ -217,6 +291,26 @@ export default function EventDetailScreen({ route, navigation }: any) {
     );
   };
 
+  const openPromoVideo = async () => {
+    const raw = (event as any)?.video_url;
+    if (typeof raw !== 'string' || !raw.trim()) return;
+    const trimmed = raw.trim();
+    // The URL is organizer-supplied. Only open web links — a bare domain gets
+    // https:// prepended, but anything carrying another scheme (javascript:,
+    // file:, a custom app/deep-link scheme, etc.) is rejected outright.
+    const hasScheme = /^[a-z][a-z0-9+.-]*:/i.test(trimmed);
+    const candidate = hasScheme ? trimmed : `https://${trimmed}`;
+    if (!/^https?:\/\//i.test(candidate)) {
+      console.warn('Blocked non-http(s) promo video URL');
+      return;
+    }
+    try {
+      await Linking.openURL(candidate);
+    } catch (error) {
+      console.error('Error opening promo video:', error);
+    }
+  };
+
   const navigateToOrganizerProfile = () => {
     if (event.organizer_id) {
       navigation.navigate('OrganizerProfile', { organizerId: event.organizer_id });
@@ -232,6 +326,14 @@ export default function EventDetailScreen({ route, navigation }: any) {
     // Prevent purchase for past events
     if (isPastEvent) {
       Alert.alert(t('eventDetail.purchase.pastTitle'), t('eventDetail.purchase.pastBody'));
+      return;
+    }
+
+    // Password gate — a protected event with no access grant must be unlocked
+    // (code verified server-side) before any purchase flow opens.
+    if (event.is_password_protected && accessGranted !== true) {
+      setAccessError('');
+      setShowAccessGate(true);
       return;
     }
 
@@ -330,7 +432,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
         {/* Hero — same poster blurred as backdrop, sharp poster centered */}
         <View style={styles.heroContainer}>
           <LinearGradient
-            colors={getPosterTheme(event.id || event.title, event.category).colors}
+            colors={resolvePosterTheme(event, event.id || event.title, event.category).colors}
             start={{ x: 0.1, y: 0 }}
             end={{ x: 0.9, y: 1 }}
             style={StyleSheet.absoluteFill}
@@ -348,7 +450,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
           {/* Centered sharp poster */}
           <View style={styles.heroPoster}>
             <LinearGradient
-              colors={getPosterTheme(event.id || event.title, event.category).colors}
+              colors={resolvePosterTheme(event, event.id || event.title, event.category).colors}
               start={{ x: 0.1, y: 0 }}
               end={{ x: 0.9, y: 1 }}
               style={StyleSheet.absoluteFill}
@@ -464,6 +566,19 @@ export default function EventDetailScreen({ route, navigation }: any) {
             <Text style={styles.description}>{event.description}</Text>
           </View>
 
+          {/* Promo Video — only when a valid URL is provided */}
+          {typeof (event as any).video_url === 'string' && (event as any).video_url.trim() !== '' && (
+            <TouchableOpacity
+              style={styles.promoVideoRow}
+              onPress={openPromoVideo}
+              activeOpacity={0.7}
+            >
+              <PlayCircle size={20} color={colors.primary} />
+              <Text style={styles.promoVideoText}>{t('organizerCreateEventFlow.canvas.trailer')}</Text>
+              <ExternalLink size={15} color={colors.textSecondary} />
+            </TouchableOpacity>
+          )}
+
           {/* Hosted By Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{t('eventDetail.sections.hostedBy')}</Text>
@@ -502,8 +617,10 @@ export default function EventDetailScreen({ route, navigation }: any) {
             </View>
           </View>
 
-          {/* Who's Going - social attendance */}
-          <WhosGoing eventId={eventId} />
+          {/* Who's Going - social attendance (hidden when organizer disables the guest list) */}
+          {(event as any).show_guestlist !== false && (
+            <WhosGoing eventId={eventId} />
+          )}
 
           {/* Bottom padding for floating CTA */}
           <View style={{ height: 120 }} />
@@ -566,8 +683,57 @@ export default function EventDetailScreen({ route, navigation }: any) {
         userEmail={userProfile?.email || user?.email || ''}
         userName={userProfile?.full_name || t('common.guest')}
         event={event}
+        tierId={selectedTierId || undefined}
         onSuccess={handleFreeTicketSuccess}
       />
+
+      {/* Password gate — code prompt shown when a protected event has no grant */}
+      <Modal
+        visible={showAccessGate}
+        transparent
+        animationType="fade"
+        onRequestClose={() => !unlocking && setShowAccessGate(false)}
+      >
+        <View style={styles.accessBackdrop}>
+          <TouchableOpacity
+            style={StyleSheet.absoluteFill}
+            activeOpacity={1}
+            onPress={() => !unlocking && setShowAccessGate(false)}
+          />
+          <View style={styles.accessCard}>
+            <Text style={styles.accessTitle}>🔒 {t('eventAccess.locked')}</Text>
+            <TextInput
+              style={styles.accessInput}
+              placeholder={t('eventAccess.enterCode')}
+              placeholderTextColor={colors.textSecondary}
+              value={accessCodeInput}
+              onChangeText={(text) => {
+                setAccessCodeInput(text);
+                if (accessError) setAccessError('');
+              }}
+              autoCapitalize="none"
+              autoCorrect={false}
+              selectionColor={colors.primary}
+              editable={!unlocking}
+              onSubmitEditing={handleUnlock}
+              returnKeyType="go"
+            />
+            {!!accessError && <Text style={styles.accessError}>{accessError}</Text>}
+            <TouchableOpacity
+              style={[styles.accessButton, (unlocking || !accessCodeInput.trim()) && styles.accessButtonDisabled]}
+              onPress={handleUnlock}
+              disabled={unlocking || !accessCodeInput.trim()}
+              activeOpacity={0.8}
+            >
+              {unlocking ? (
+                <ActivityIndicator size="small" color={T.onTeal} />
+              ) : (
+                <Text style={styles.accessButtonText}>{t('eventAccess.unlock')}</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       {/* Payment Modal */}
       <PaymentModal
@@ -884,7 +1050,23 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
     lineHeight: 23,
   },
-  
+
+  // Promo video row
+  promoVideoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 16,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.borderLight,
+  },
+  promoVideoText: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '600',
+    color: colors.text,
+  },
+
   // Tags
   tagsContainer: {
     marginTop: 16,
@@ -1150,5 +1332,56 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textSecondary,
     fontSize: 15,
     fontWeight: '600',
+  },
+
+  // ── Password gate modal ──
+  accessBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    paddingHorizontal: 28,
+  },
+  accessCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 18,
+    padding: 22,
+    gap: 14,
+  },
+  accessTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: colors.text,
+    textAlign: 'center',
+  },
+  accessInput: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: colors.text,
+    backgroundColor: colors.background,
+  },
+  accessError: {
+    fontSize: 13,
+    color: colors.error,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  accessButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 12,
+    paddingVertical: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  accessButtonDisabled: {
+    opacity: 0.5,
+  },
+  accessButtonText: {
+    color: T.onTeal,
+    fontSize: 16,
+    fontWeight: '800',
   },
 });

@@ -14,6 +14,7 @@ import { adminDb } from '@/lib/firebase/admin'
 import { getPaymentProviderForEventCountry } from '@/lib/payment-provider'
 import { calculateFees } from '@/lib/fees'
 import { getPayoutProfile } from '@/lib/firestore/payout-profiles'
+import { hasEventAccess } from '@/lib/events/access-guard'
 
 // Lazy load Stripe
 function getStripe() {
@@ -94,6 +95,12 @@ export async function POST(request: Request) {
     if (eventError || !event) {
       await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
       return NextResponse.json({ error: 'Event not found' }, { status: 404 })
+    }
+
+    // Password-protected events: require a valid access grant before payment.
+    if (!(await hasEventAccess(event, eventId, user.id))) {
+      await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
+      return NextResponse.json({ error: 'access_code_required' }, { status: 403 })
     }
 
     const provider = getPaymentProviderForEventCountry(event.country)

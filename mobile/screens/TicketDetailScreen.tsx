@@ -26,6 +26,9 @@ export default function TicketDetailScreen({ route }: any) {
   const [loading, setLoading] = useState(true);
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [pendingTransfer, setPendingTransfer] = useState<any>(null);
+  // Tier validity window, resolved from the event's tier list by matching the
+  // ticket's tier NAME. Null until (and unless) a window is found.
+  const [tierValidity, setTierValidity] = useState<{ from?: Date; until?: Date } | null>(null);
 
   useEffect(() => {
     fetchTicketDetails();
@@ -37,18 +40,55 @@ export default function TicketDetailScreen({ route }: any) {
       const ticketDoc = await getDoc(doc(db, 'tickets', ticketId));
       if (ticketDoc.exists()) {
         const data = ticketDoc.data();
-        setTicket({ 
-          id: ticketDoc.id, 
+        setTicket({
+          id: ticketDoc.id,
           ...data,
           event_date: data.event_date?.toDate ? data.event_date.toDate() : data.event_date ? new Date(data.event_date) : null,
           purchase_date: data.purchase_date?.toDate ? data.purchase_date.toDate() : data.purchase_date ? new Date(data.purchase_date) : null
         });
+        resolveTierValidity(data);
       }
     } catch (error) {
       console.error('Error fetching ticket:', error);
       Alert.alert(t('common.error'), t('ticketDetail.loadError'));
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Resolve the ticket's tier by NAME within the event's embedded tier list and
+  // surface its valid_from / valid_until window (subtle display only). Fails
+  // silently — no window, no matched tier, or no event just means no line shown.
+  const resolveTierValidity = async (ticketData: any) => {
+    try {
+      const eventId = ticketData.event_id;
+      const tierName =
+        ticketData.tier_name ||
+        ticketData.ticket_tier_name ||
+        ticketData.ticket_type ||
+        ticketData.ticketType ||
+        ticketData.tierName ||
+        '';
+      if (!eventId || !tierName) return;
+
+      const eventDoc = await getDoc(doc(db, 'events', eventId));
+      if (!eventDoc.exists()) return;
+
+      const tiers = eventDoc.data()?.ticket_tiers;
+      if (!Array.isArray(tiers)) return;
+      const norm = (s: any) => String(s ?? '').trim().toLowerCase();
+      const target = norm(tierName);
+      const tier = tiers.find((x: any) => norm(x?.name) === target);
+      if (!tier) return;
+
+      const from = tier.valid_from ? new Date(tier.valid_from) : null;
+      const until = tier.valid_until ? new Date(tier.valid_until) : null;
+      const win: { from?: Date; until?: Date } = {};
+      if (from && !isNaN(from.getTime())) win.from = from;
+      if (until && !isNaN(until.getTime())) win.until = until;
+      if (win.from || win.until) setTierValidity(win);
+    } catch (error) {
+      console.error('Error resolving tier validity:', error);
     }
   };
 
@@ -268,6 +308,18 @@ export default function TicketDetailScreen({ route }: any) {
               <Text style={styles.detailLabel}>{t('ticketDetail.details.type')}</Text>
               <Text style={styles.detailValue}>{ticket.ticket_type}</Text>
             </View>
+            {tierValidity?.from && (
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>{t('organizerCreateEventFlow.canvas.ticketValidFromLabel')}</Text>
+                <Text style={styles.detailValue}>{format(tierValidity.from, 'MMM dd, yyyy h:mm a')}</Text>
+              </View>
+            )}
+            {tierValidity?.until && (
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>{t('organizerCreateEventFlow.canvas.ticketValidUntilLabel')}</Text>
+                <Text style={styles.detailValue}>{format(tierValidity.until, 'MMM dd, yyyy h:mm a')}</Text>
+              </View>
+            )}
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>{t('ticketDetail.details.quantity')}</Text>
               <Text style={styles.detailValue}>{ticket.quantity}</Text>

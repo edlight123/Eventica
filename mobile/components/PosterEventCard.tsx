@@ -12,7 +12,7 @@ import { Users } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { safeFormatForLanguage } from '../lib/dates';
-import { getPosterTheme } from '../lib/posterGradient';
+import { resolvePosterTheme } from '../lib/posterGradient';
 import { font, radius } from '../theme/tokens';
 import type { BadgeStatus } from '../theme/badges';
 
@@ -67,7 +67,7 @@ export default function PosterEventCard({
   const [imgLoaded, setImgLoaded] = useState(false);
 
   const hasImage = Boolean(event.banner_image_url);
-  const theme = getPosterTheme(event.id || event.title, event.category);
+  const theme = resolvePosterTheme(event, event.id || event.title, event.category);
 
   const price = Number(event.ticket_price || 0);
   const isFree = !price || price === 0;
