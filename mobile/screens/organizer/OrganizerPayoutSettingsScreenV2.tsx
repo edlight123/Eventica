@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Alert,
   Modal,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -17,18 +18,21 @@ import * as ImagePicker from 'expo-image-picker'
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext'
 import { useI18n } from '../../contexts/I18nContext'
-import { backendFetch } from '../../lib/api/backend'
+import { backendFetch, backendJson } from '../../lib/api/backend'
 import { getVerificationRequest } from '../../lib/verification'
+import { useLocaleFormat } from '../../lib/format'
 import { RADIUS } from '../../config/brand'
 import { Skeleton } from '../../components/Skeleton'
 import StatusChip from '../../components/StatusChip'
 import EmptyState from '../../components/EmptyState'
 import WhitePillCTA from '../../components/WhitePillCTA'
+import MoneyText from '../../components/MoneyText'
 import InfoNotice from '../../components/organizer/InfoNotice'
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader'
+import SegmentedTabs from '../../components/organizer/SegmentedTabs'
 import SelectField from '../../components/organizer/SelectField'
 import { HAITI_BANKS, OTHER_BANK } from '../../data/haitiBanks'
-import { Wallet } from 'lucide-react-native'
+import { Receipt, Wallet } from 'lucide-react-native'
 
 type VerificationStatus = 'not_started' | 'pending' | 'verified' | 'failed'
 
@@ -57,17 +61,42 @@ type MoncashDestination = {
 
 type PayoutDestination = BankDestination | MoncashDestination
 
+// Read-only shape returned by GET /api/organizer/payout-history. Amounts are in
+// MINOR units (cents) per the payout doc model; currency is optional (HTG default).
+type PayoutHistoryItem = {
+  id: string
+  amount: number
+  status: string
+  method?: string
+  currency?: string
+  createdAt: string
+  updatedAt?: string
+}
+
+type PayoutTab = 'methods' | 'history'
+
 export default function OrganizerPayoutSettingsScreenV2() {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const navigation = useNavigation<any>()
   const insets = useSafeAreaInsets()
   const { t } = useI18n()
+  const { formatDate } = useLocaleFormat()
   const { user } = useAuth()
 
   const [loading, setLoading] = useState(true)
   const [destinations, setDestinations] = useState<PayoutDestination[]>([])
   const [identityVerified, setIdentityVerified] = useState(false)
+
+  // Methods vs History toggle (History is an additive, read-only view).
+  const [activeTab, setActiveTab] = useState<PayoutTab>('methods')
+  const [refreshing, setRefreshing] = useState(false)
+
+  // Payout history (lazily fetched the first time the History tab is shown).
+  const [payouts, setPayouts] = useState<PayoutHistoryItem[]>([])
+  const [payoutsLoading, setPayoutsLoading] = useState(false)
+  const [payoutsError, setPayoutsError] = useState(false)
+  const [payoutsLoaded, setPayoutsLoaded] = useState(false)
 
   // Add method modal
   const [showAddModal, setShowAddModal] = useState(false)
@@ -167,6 +196,75 @@ export default function OrganizerPayoutSettingsScreenV2() {
       load()
     }, [load])
   )
+
+  const loadPayouts = useCallback(async () => {
+    if (!user?.uid) return
+    setPayoutsLoading(true)
+    setPayoutsError(false)
+    try {
+      const data = await backendJson<{ payouts?: PayoutHistoryItem[] }>('/api/organizer/payout-history')
+      // Don't rely on the endpoint's ordering — sort newest first by createdAt.
+      const list = (data?.payouts || [])
+        .slice()
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      setPayouts(list)
+    } catch (e) {
+      console.error('Failed to load payout history:', e)
+      setPayoutsError(true)
+    } finally {
+      setPayoutsLoading(false)
+      setPayoutsLoaded(true)
+    }
+  }, [user?.uid])
+
+  // Fetch history the first time the tab is opened (and whenever a retry resets it).
+  useEffect(() => {
+    if (activeTab === 'history' && !payoutsLoaded && !payoutsLoading) {
+      loadPayouts()
+    }
+  }, [activeTab, payoutsLoaded, payoutsLoading, loadPayouts])
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true)
+    try {
+      if (activeTab === 'history') {
+        await loadPayouts()
+      } else {
+        await load()
+      }
+    } finally {
+      setRefreshing(false)
+    }
+  }, [activeTab, load, loadPayouts])
+
+  // Maps a payout status onto the shared StatusChip semantic tones + an i18n label.
+  const payoutStatusMeta = useCallback((status: string): { tone: string; labelKey: string | null } => {
+    switch (String(status).toLowerCase()) {
+      case 'completed':
+        return { tone: 'success', labelKey: 'completed' }
+      case 'processing':
+        return { tone: 'pending', labelKey: 'processing' }
+      case 'pending':
+        return { tone: 'pending', labelKey: 'pending' }
+      case 'failed':
+        return { tone: 'error', labelKey: 'failed' }
+      case 'cancelled':
+        return { tone: 'neutral', labelKey: 'cancelled' }
+      default:
+        return { tone: 'neutral', labelKey: null }
+    }
+  }, [])
+
+  const payoutMethodLabel = useCallback((method?: string): string => {
+    const key = String(method || '').toLowerCase()
+    if (key.includes('mobile') || key.includes('moncash') || key.includes('natcash')) {
+      return t('organizerPayoutSettings.payoutHistory.method.moncash')
+    }
+    if (key.includes('bank')) {
+      return t('organizerPayoutSettings.payoutHistory.method.bank')
+    }
+    return method || ''
+  }, [t])
 
   const handleAddMethodSelect = useCallback((type: 'bank' | 'moncash') => {
     if (!identityVerified) {
@@ -377,7 +475,25 @@ export default function OrganizerPayoutSettingsScreenV2() {
     <View style={styles.container}>
       <OrganizerScreenHeader title="Payout Settings" onBack={() => navigation.goBack()} />
 
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}>
+      <View style={styles.tabsWrap}>
+        <SegmentedTabs
+          tabs={[
+            { key: 'methods', label: t('organizerPayoutSettings.tabs.methods') },
+            { key: 'history', label: t('organizerPayoutSettings.tabs.history') },
+          ]}
+          value={activeTab}
+          onChange={(k) => setActiveTab(k as PayoutTab)}
+        />
+      </View>
+
+      <ScrollView
+        contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.textSecondary} />
+        }
+      >
+        {activeTab === 'methods' && (
+          <>
         {/* Identity Verification Status */}
         {!identityVerified && (
           <View style={styles.identityBlock}>
@@ -463,6 +579,54 @@ export default function OrganizerPayoutSettingsScreenV2() {
               )
             })}
           </>
+        )}
+          </>
+        )}
+
+        {activeTab === 'history' && (
+          payoutsLoading && !refreshing ? (
+            <View style={{ gap: 12 }}>
+              {[0, 1, 2].map((i) => (
+                <Skeleton key={i} width="100%" height={72} radius={RADIUS.lg} />
+              ))}
+            </View>
+          ) : payoutsError ? (
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>{t('organizerPayoutSettings.payoutHistory.errorTitle')}</Text>
+              <Text style={styles.metaText}>{t('organizerPayoutSettings.payoutHistory.error')}</Text>
+              <TouchableOpacity style={[styles.secondaryButton, { marginTop: 12 }]} onPress={loadPayouts}>
+                <Text style={styles.secondaryButtonText}>{t('organizerPayoutSettings.payoutHistory.retry')}</Text>
+              </TouchableOpacity>
+            </View>
+          ) : payouts.length === 0 ? (
+            <EmptyState
+              icon={Receipt}
+              title={t('organizerPayoutSettings.payoutHistory.emptyTitle')}
+              subtitle={t('organizerPayoutSettings.payoutHistory.empty')}
+            />
+          ) : (
+            payouts.map((p) => {
+              const meta = payoutStatusMeta(p.status)
+              const label = meta.labelKey
+                ? t(`organizerPayoutSettings.payoutHistory.status.${meta.labelKey}`)
+                : p.status
+              return (
+                <View key={p.id} style={styles.payoutRow}>
+                  <View style={{ flex: 1, marginRight: 12 }}>
+                    <MoneyText
+                      cents={p.amount}
+                      currency={(p.currency as any) || 'HTG'}
+                      style={styles.payoutAmount}
+                    />
+                    <Text style={styles.payoutMeta} numberOfLines={1}>
+                      {[payoutMethodLabel(p.method), formatDate(p.createdAt)].filter(Boolean).join(' · ')}
+                    </Text>
+                  </View>
+                  <StatusChip status={meta.tone} label={label} />
+                </View>
+              )
+            })
+          )
         )}
       </ScrollView>
 
@@ -745,6 +909,31 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   identityCta: {
     marginTop: 12,
+  },
+  tabsWrap: {
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    paddingBottom: 8,
+    paddingTop: 4,
+  },
+  payoutRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.surface,
+    borderRadius: RADIUS.lg,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  payoutAmount: {
+    fontSize: 17,
+  },
+  payoutMeta: {
+    marginTop: 4,
+    color: colors.textSecondary,
+    fontSize: 13,
   },
   header: {
     paddingHorizontal: 16,

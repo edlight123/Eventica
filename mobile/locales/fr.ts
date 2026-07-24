@@ -1068,6 +1068,29 @@ export default {
       openDashboard: 'Ouvrir le tableau de bord Stripe',
       dashboardTitle: 'Tableau de bord Stripe',
     },
+    tabs: {
+      methods: 'Méthodes',
+      history: 'Historique',
+    },
+    payoutHistory: {
+      title: 'Historique des paiements',
+      emptyTitle: 'Aucun paiement pour le moment',
+      empty: 'Vos paiements apparaîtront ici une fois vos gains retirés.',
+      errorTitle: "Impossible de charger l'historique",
+      error: "Une erreur est survenue lors du chargement de vos paiements. Tirez pour actualiser ou réessayez.",
+      retry: 'Réessayer',
+      method: {
+        bank: 'Banque',
+        moncash: 'MonCash',
+      },
+      status: {
+        completed: 'Effectué',
+        processing: 'En cours',
+        pending: 'En attente',
+        failed: 'Échoué',
+        cancelled: 'Annulé',
+      },
+    },
   },
 
   organizerEarnings: {

@@ -1066,6 +1066,29 @@ export default {
       openDashboard: 'Louvri tablodbò Stripe',
       dashboardTitle: 'Tablodbò Stripe',
     },
+    tabs: {
+      methods: 'Metòd',
+      history: 'Istorik',
+    },
+    payoutHistory: {
+      title: 'Istorik peman',
+      emptyTitle: 'Poko gen peman',
+      empty: 'Peman ou yo ap parèt isit la lè w fin retire lajan w.',
+      errorTitle: 'Nou pa ka chaje istorik peman an',
+      error: 'Gen yon pwoblèm pandan nou t ap chaje peman ou yo. Rale pou aktyalize oswa eseye ankò.',
+      retry: 'Eseye ankò',
+      method: {
+        bank: 'Bank',
+        moncash: 'MonCash',
+      },
+      status: {
+        completed: 'Fèt',
+        processing: 'Ap trete',
+        pending: 'An atant',
+        failed: 'Echwe',
+        cancelled: 'Anile',
+      },
+    },
   },
 
   organizerEarnings: {

@@ -1191,6 +1191,29 @@ export default {
       openDashboard: 'Open Stripe dashboard',
       dashboardTitle: 'Stripe dashboard',
     },
+    tabs: {
+      methods: 'Methods',
+      history: 'History',
+    },
+    payoutHistory: {
+      title: 'Payout history',
+      emptyTitle: 'No payouts yet',
+      empty: 'Your payouts will appear here once you withdraw your earnings.',
+      errorTitle: "Couldn't load payout history",
+      error: 'Something went wrong loading your payouts. Pull to refresh or try again.',
+      retry: 'Try again',
+      method: {
+        bank: 'Bank',
+        moncash: 'MonCash',
+      },
+      status: {
+        completed: 'Completed',
+        processing: 'Processing',
+        pending: 'Pending',
+        failed: 'Failed',
+        cancelled: 'Cancelled',
+      },
+    },
   },
 
   organizerEarnings: {
