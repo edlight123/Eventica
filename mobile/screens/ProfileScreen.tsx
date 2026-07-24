@@ -14,7 +14,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Bell, Briefcase, ChevronDown, ChevronRight, Compass, ExternalLink, Heart, LogOut, MapPin, Settings, User, Users } from 'lucide-react-native';
+import { Bell, Briefcase, ChevronRight, Compass, ExternalLink, Heart, LogOut, MapPin, Settings, User, Users } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { getDownloadURL, ref as storageRef, uploadBytes } from 'firebase/storage';
@@ -30,6 +30,7 @@ import { getStaffEventIds } from '../lib/staffAssignments';
 import { getVerificationRequest, type VerificationRequest } from '../lib/verification';
 import { useNavigation } from '@react-navigation/native';
 import { CITIES_BY_COUNTRY, COUNTRIES } from '../types/filters';
+import SelectField from '../components/organizer/SelectField';
 import { updateSocialProfile } from '../lib/api/social';
 import {
   DEFAULT_PRIVACY,
@@ -73,7 +74,6 @@ export default function ProfileScreen() {
   const [editedName, setEditedName] = useState(userProfile?.full_name || '');
   const [editedCity, setEditedCity] = useState(userProfile?.default_city || '');
   const [editedCountry, setEditedCountry] = useState(userProfile?.default_country || 'HT');
-  const [showCountryPicker, setShowCountryPicker] = useState(false);
 
   // Social profile + privacy (edited together with the rest of the profile form)
   const [editedBio, setEditedBio] = useState(userProfile?.bio || '');
@@ -93,7 +93,6 @@ export default function ProfileScreen() {
 
   const [phonePrefix, setPhonePrefix] = useState<'+509' | '+1'>('+509');
   const [phoneDigits, setPhoneDigits] = useState('');
-  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(0);
 
   const [verificationStatus, setVerificationStatus] = useState<VerificationRequest | null>(null);
@@ -286,22 +285,10 @@ export default function ProfileScreen() {
     }
   }, [isEditing, parsePhone, userProfile?.default_city, userProfile?.default_country, userProfile?.full_name, userProfile?.phone_number, userProfile?.bio, userProfile?.social_links?.instagram, userProfile?.social_links?.tiktok, userProfile?.social_links?.twitter, userProfile?.social_links?.facebook, userProfile?.privacy?.profile_visibility, userProfile?.privacy?.attendance_visibility, userProfile?.privacy?.discoverable_by_phone]);
 
-  // Get cities for selected country
+  // Cities available for the selected country — drives the City dropdown.
   const citiesForCountry = useMemo(() => {
     return CITIES_BY_COUNTRY[editedCountry] || CITIES_BY_COUNTRY['HT'] || [];
   }, [editedCountry]);
-
-  const allCities = useMemo(() => {
-    return citiesForCountry;
-  }, [citiesForCountry]);
-
-  const filteredCities = useMemo(() => {
-    const q = editedCity.trim().toLowerCase();
-    if (!q) return [];
-    return allCities
-      .filter((c) => c.toLowerCase().includes(q))
-      .slice(0, 8);
-  }, [allCities, editedCity]);
 
   const pickAndUploadAvatar = useCallback(async () => {
     if (!user?.uid) return;
@@ -573,77 +560,31 @@ export default function ProfileScreen() {
                 />
               </View>
 
-              <Text style={styles.fieldLabel}>{t('profile.defaultCountry') || 'Country'}</Text>
-              <TouchableOpacity
-                style={styles.countrySelector}
-                onPress={() => setShowCountryPicker(!showCountryPicker)}
-              >
-                <Text style={styles.countrySelectorText}>
-                  {COUNTRIES.find(c => c.code === editedCountry)?.name || 'Select Country'}
-                </Text>
-                <ChevronDown size={20} color={colors.textSecondary} />
-              </TouchableOpacity>
-              
-              {showCountryPicker && (
-                <View style={styles.countryList}>
-                  {COUNTRIES.map((country) => (
-                    <TouchableOpacity
-                      key={country.code}
-                      style={[
-                        styles.countryOption,
-                        editedCountry === country.code && styles.countryOptionActive
-                      ]}
-                      onPress={() => {
-                        setEditedCountry(country.code);
-                        setEditedCity(''); // Reset city when country changes
-                        setShowCountryPicker(false);
-                      }}
-                    >
-                      <Text style={[
-                        styles.countryOptionText,
-                        editedCountry === country.code && styles.countryOptionTextActive
-                      ]}>
-                        {country.name}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-
-              <Text style={styles.fieldLabel}>{t('profile.defaultCity')}</Text>
-              <TextInput
-                style={styles.input}
-                value={editedCity}
-                onChangeText={(value) => {
-                  setEditedCity(value);
-                  setShowCitySuggestions(true);
+              {/* Country + city as dependent dropdowns, both wired to the shared
+                  COUNTRIES / CITIES_BY_COUNTRY taxonomy used across the app so a
+                  profile location always matches a filterable place. */}
+              <SelectField
+                label={t('profile.defaultCountry') || 'Country'}
+                value={COUNTRIES.find(c => c.code === editedCountry)?.name || ''}
+                options={COUNTRIES.map(c => c.name)}
+                placeholder={t('profile.placeholders.country') || 'Select country'}
+                sheetTitle={t('profile.defaultCountry') || 'Country'}
+                onSelect={(name) => {
+                  const picked = COUNTRIES.find(c => c.name === name);
+                  if (!picked || picked.code === editedCountry) return;
+                  setEditedCountry(picked.code);
+                  setEditedCity(''); // City list depends on country — reset it.
                 }}
-                selectionColor={colors.primary}
-                onFocus={() => setShowCitySuggestions(true)}
-                onBlur={() => {
-                  // Let suggestion taps register before hiding.
-                  setTimeout(() => setShowCitySuggestions(false), 120);
-                }}
-                placeholder={t('profile.placeholders.city')}
-                placeholderTextColor={colors.textTertiary}
               />
 
-              {showCitySuggestions && filteredCities.length ? (
-                <View style={styles.suggestions}>
-                  {filteredCities.map((city) => (
-                    <TouchableOpacity
-                      key={city}
-                      style={styles.suggestionRow}
-                      onPress={() => {
-                        setEditedCity(city);
-                        setShowCitySuggestions(false);
-                      }}
-                    >
-                      <Text style={styles.suggestionText}>{city}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              ) : null}
+              <SelectField
+                label={t('profile.defaultCity')}
+                value={editedCity}
+                options={citiesForCountry}
+                placeholder={t('profile.placeholders.city')}
+                sheetTitle={t('profile.defaultCity')}
+                onSelect={setEditedCity}
+              />
 
               {/* Social handles + bio */}
               <View style={styles.formDivider} />
@@ -876,30 +817,39 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           )}
 
-          {canUseOrganizerMode && mode !== 'organizer' ? (
-            <TouchableOpacity style={styles.rowButton} onPress={() => setMode('organizer')}>
-              <View style={styles.rowLeft}>
-                <Text style={styles.rowText}>{t('profile.switchToOrganizer')}</Text>
-              </View>
-            </TouchableOpacity>
-          ) : null}
-
-          {canUseStaffTools && mode !== 'staff' ? (
-            <TouchableOpacity style={styles.rowButton} onPress={() => setMode('staff')}>
-              <View style={styles.rowLeft}>
-                <Text style={styles.rowText}>{t('profile.switchToStaff')}</Text>
-              </View>
-            </TouchableOpacity>
-          ) : null}
-
-          {mode !== 'attendee' ? (
-            <TouchableOpacity style={styles.rowButton} onPress={() => setMode('attendee')}>
-              <View style={styles.rowLeft}>
-                <Text style={styles.rowText}>{t('profile.switchToAttendee')}</Text>
-              </View>
-            </TouchableOpacity>
-          ) : null}
         </View>
+
+        {/* Role switching lives in its own segmented section (mirrors the
+            Preferences language pills) instead of bare, chevron-less rows mixed
+            into Actions — one clear "which hat am I wearing" control. Only shown
+            when the account actually has more than the attendee role. */}
+        {(canUseOrganizerMode || canUseStaffTools) ? (
+          <View style={styles.sectionCard}>
+            <Text style={styles.sectionTitle}>{t('profile.viewAs')}</Text>
+            <View style={styles.languageRow}>
+              {([
+                { key: 'attendee', label: t('profile.modeAttendee'), show: true },
+                { key: 'organizer', label: t('profile.modeOrganizer'), show: canUseOrganizerMode },
+                { key: 'staff', label: t('profile.modeStaff'), show: canUseStaffTools },
+              ] as const)
+                .filter((m) => m.show)
+                .map((m) => {
+                  const active = mode === m.key;
+                  return (
+                    <TouchableOpacity
+                      key={m.key}
+                      style={[styles.pill, active && styles.pillActive]}
+                      onPress={() => setMode(m.key)}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: active }}
+                    >
+                      <Text style={[styles.pillText, active && styles.pillTextActive]}>{m.label}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+            </View>
+          </View>
+        ) : null}
 
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>{t('profile.help')}</Text>
@@ -1033,59 +983,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   phoneInput: {
     flex: 1,
-  },
-  suggestions: {
-    marginTop: 8,
-    borderRadius: 12,
-    overflow: 'hidden',
-    backgroundColor: colors.surfaceRaised,
-  },
-  suggestionRow: {
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
-  },
-  suggestionText: {
-    fontSize: 14,
-    color: colors.text,
-  },
-  countrySelector: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: colors.surfaceRaised,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 14,
-    marginBottom: 8,
-  },
-  countrySelectorText: {
-    fontSize: 15,
-    color: colors.text,
-  },
-  countryList: {
-    marginBottom: 12,
-    borderRadius: 12,
-    overflow: 'hidden',
-    backgroundColor: colors.surfaceRaised,
-  },
-  countryOption: {
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
-  },
-  countryOptionActive: {
-    backgroundColor: `${colors.primary}15`,
-  },
-  countryOptionText: {
-    fontSize: 15,
-    color: colors.text,
-  },
-  countryOptionTextActive: {
-    color: colors.primary,
-    fontWeight: '600',
   },
   // Elevation, not borders (POSH §1): the card separates from the canvas by
   // being a brightness step lighter, never by drawing a 1px box.
