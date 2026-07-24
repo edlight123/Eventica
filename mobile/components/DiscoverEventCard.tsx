@@ -123,7 +123,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     poster: {
       width: '100%',
       height: Math.round((width - 32) * 1.15),
-      borderRadius: 0,
+      borderRadius: 16,
       overflow: 'hidden',
       backgroundColor: colors.surfaceMuted,
     },

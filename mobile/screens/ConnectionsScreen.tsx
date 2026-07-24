@@ -15,7 +15,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, Users, Search, Phone, Inbox, Send, UserPlus } from 'lucide-react-native';
 import * as Contacts from 'expo-contacts';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import ConnectButton from '../components/ConnectButton';
@@ -95,10 +95,14 @@ export default function ConnectionsScreen() {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const navigation: any = useNavigation();
+  const route: any = useRoute();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
 
-  const [tab, setTab] = useState<Tab>('friends');
+  // Arriving from Discover's "Sync contacts" CTA jumps straight to the Find tab
+  // and auto-starts the contact sync (feedback: don't make me tap twice).
+  const autoSync = route?.params?.autoSync === true;
+  const [tab, setTab] = useState<Tab>(autoSync ? 'find' : 'friends');
   const [overview, setOverview] = useState<ConnectionsOverview>({ friends: [], incoming: [], outgoing: [] });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -156,7 +160,7 @@ export default function ConnectionsScreen() {
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : tab === 'find' ? (
-        <FindTab colors={colors} onOpen={openProfile} onChange={loadOverview} onRequireAuth={goToLogin} insets={insets} />
+        <FindTab colors={colors} onOpen={openProfile} onChange={loadOverview} onRequireAuth={goToLogin} insets={insets} autoSync={autoSync} />
       ) : (
         <ScrollView
           contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 32 }}
@@ -272,7 +276,7 @@ function RequestsTab({ overview, colors, onOpen, onChange, onRequireAuth }: any)
   );
 }
 
-function FindTab({ colors, onOpen, onChange, onRequireAuth, insets }: any) {
+function FindTab({ colors, onOpen, onChange, onRequireAuth, insets, autoSync }: any) {
   const styles = getStyles(colors);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<UserSearchResult[]>([]);
@@ -331,6 +335,15 @@ function FindTab({ colors, onOpen, onChange, onRequireAuth, insets }: any) {
       setContactLoading(false);
     }
   }, []);
+
+  // Auto-start the sync once when arriving via Discover's "Sync contacts" CTA.
+  const didAutoSync = useRef(false);
+  useEffect(() => {
+    if (autoSync && !didAutoSync.current) {
+      didAutoSync.current = true;
+      syncContacts();
+    }
+  }, [autoSync, syncContacts]);
 
   return (
     <ScrollView

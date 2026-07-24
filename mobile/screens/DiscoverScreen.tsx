@@ -651,7 +651,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
             title={t('discover.following.emptyTitle')}
             subtitle={t('discover.following.emptySubtitle')}
             actionLabel={t('discover.following.syncContacts')}
-            onAction={() => navigation.navigate('Connections')}
+            onAction={() => navigation.navigate('Connections', { autoSync: true })}
           />
         )}
 
