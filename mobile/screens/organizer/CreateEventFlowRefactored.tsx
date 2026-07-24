@@ -1177,24 +1177,19 @@ export default function CreateEventFlowRefactored() {
                 </>
               ) : (
                 <View style={styles.flyerEmpty}>
-                  {/* Poster-forward ambient base (matches the login backdrop) */}
+                  {/* Clean, minimal base — a subtle near-black gradient with a
+                      single soft glow. No silhouettes/frames; the content leads. */}
                   <LinearGradient
-                    colors={['#123230', '#0c1c1e', '#0A0A0A']}
+                    colors={['#161616', '#0d0d0d', '#0A0A0A']}
                     start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
+                    end={{ x: 0.6, y: 1 }}
                     style={StyleSheet.absoluteFill}
                   />
                   <View style={styles.flyerGlow} />
-                  {/* Faint raked flyer silhouettes */}
-                  <View style={[styles.posterSilhouette, styles.poster1]} />
-                  <View style={[styles.posterSilhouette, styles.poster2]} />
-                  <View style={[styles.posterSilhouette, styles.poster3]} />
-                  {/* Dashed upload-zone frame */}
-                  <View style={styles.flyerDashed} pointerEvents="none" />
 
                   <View style={styles.flyerContent}>
                     <View style={styles.flyerIconRing}>
-                      <Ionicons name="image-outline" size={30} color={colors.text} />
+                      <Ionicons name="image-outline" size={28} color={colors.textSecondary} />
                     </View>
                     <Text style={styles.flyerTitle}>{t('organizerCreateEventFlow.canvas.flyerTitle')}</Text>
                     <Text style={styles.flyerSubtitle}>{t('organizerCreateEvent.basics.aspectRatio')}</Text>
@@ -2183,54 +2178,15 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 24,
   },
   flyerGlow: {
+    // A single soft, centered glow — minimal, low-opacity teal whisper.
     position: 'absolute',
-    top: -70,
-    left: -50,
-    width: 260,
-    height: 260,
-    borderRadius: 130,
+    top: '30%',
+    alignSelf: 'center',
+    width: 220,
+    height: 220,
+    borderRadius: 110,
     backgroundColor: colors.primary,
-    opacity: 0.16,
-  },
-  posterSilhouette: {
-    position: 'absolute',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
-    backgroundColor: 'rgba(255,255,255,0.025)',
-  },
-  poster1: {
-    width: 150,
-    height: 215,
-    top: 46,
-    left: -34,
-    transform: [{ rotate: '-15deg' }],
-  },
-  poster2: {
-    width: 140,
-    height: 200,
-    bottom: 60,
-    right: -30,
-    transform: [{ rotate: '12deg' }],
-  },
-  poster3: {
-    width: 96,
-    height: 138,
-    top: 150,
-    right: 44,
-    opacity: 0.6,
-    transform: [{ rotate: '-7deg' }],
-  },
-  flyerDashed: {
-    position: 'absolute',
-    top: 12,
-    left: 12,
-    right: 12,
-    bottom: 12,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1.5,
-    borderStyle: 'dashed',
-    borderColor: 'rgba(255,255,255,0.14)',
+    opacity: 0.07,
   },
   flyerIconRing: {
     width: 62,
