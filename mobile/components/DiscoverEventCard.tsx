@@ -137,7 +137,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       width: '100%',
       // Height comes from the image's real aspect ratio (set at runtime) so the
       // full poster always shows, uncropped.
-      borderRadius: 16,
+      borderRadius: 8,
       overflow: 'hidden',
       backgroundColor: colors.surfaceMuted,
     },
