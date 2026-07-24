@@ -109,6 +109,10 @@ export default function OrganizerEventManagementScreen() {
     navigation.navigate('OrganizerEventEarnings', { eventId });
   };
 
+  const handleViewComps = () => {
+    navigation.navigate('OrganizerComps', { eventId });
+  };
+
   const handleEditEvent = () => {
     navigation.navigate('EditEvent', { eventId });
   };
@@ -293,6 +297,7 @@ export default function OrganizerEventManagementScreen() {
             { key: 'staff', icon: 'people-outline', label: t('organizerEventManagement.actions.staff'), onPress: handleManageStaff },
             { key: 'attendees', icon: 'people-circle-outline', label: t('organizerEventManagement.actions.viewAttendees'), onPress: handleViewAttendees },
             { key: 'earnings', icon: 'cash-outline', label: t('organizerEventManagement.actions.earnings'), onPress: handleViewEarnings },
+            { key: 'comps', icon: 'gift-outline', label: t('organizerEventManagement.actions.comps'), onPress: handleViewComps },
             { key: 'edit', icon: 'create-outline', label: t('organizerEventManagement.actions.editEvent'), onPress: handleEditEvent },
             { key: 'share', icon: 'share-social-outline', label: t('organizerEventManagement.actions.shareEvent'), onPress: handleShareEvent },
             { key: 'public', icon: 'eye-outline', label: t('organizerEventManagement.actions.viewPublicPage'), onPress: handleViewPublicPage },
