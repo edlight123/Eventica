@@ -317,13 +317,16 @@ export default function TieredTicketSelector({
                   >
                     <View style={styles.tierInfo}>
                       <View style={styles.tierHeader}>
-                        <Text style={[
-                          styles.tierName,
-                          !isAvailable && styles.tierNameDisabled
-                        ]}>
+                        <Text
+                          style={[
+                            styles.tierName,
+                            !isAvailable && styles.tierNameDisabled
+                          ]}
+                          numberOfLines={2}
+                        >
                           {tier.name}
                         </Text>
-                        <Text style={styles.tierPrice}>
+                        <Text style={styles.tierPrice} numberOfLines={1}>
                           {tier.price.toLocaleString()} {displayCurrency}
                         </Text>
                       </View>
@@ -533,13 +536,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginRight: 12,
   },
   tierHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 4,
   },
   tierName: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
     color: colors.text,
   },
@@ -547,9 +548,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textTertiary,
   },
   tierPrice: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
     color: colors.text,
+    marginTop: 2,
   },
   tierDescription: {
     fontSize: 13,
