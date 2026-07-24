@@ -128,15 +128,14 @@ export default function OrganizerPayoutSettingsScreenV2() {
       const bankRes = await backendFetch('/api/organizer/payout-destinations/bank')
       if (bankRes.ok) {
         const data = await bankRes.json()
-        setDestinations((data?.destinations || []) as BankDestination[])
+        const list = (data?.destinations || []) as BankDestination[]
+        setDestinations(list)
+        return list
       }
-
-      // TODO: Load MonCash destinations once backend endpoint exists
-      // For now we can read from Firestore verificationDocuments/phone if needed
-
     } catch (e) {
       console.error('Failed to load destinations:', e)
     }
+    return [] as PayoutDestination[]
   }, [user?.uid])
 
   const loadIdentityStatus = useCallback(async () => {
@@ -238,8 +237,9 @@ export default function OrganizerPayoutSettingsScreenV2() {
             text: 'Verify Now',
             onPress: () => {
               setShowBankForm(false)
-              loadDestinations().then(() => {
-                const newDest = destinations.find((d) => d.id === data.destinationId)
+              // Use the freshly-loaded list (not the stale `destinations` closure).
+              loadDestinations().then((fresh) => {
+                const newDest = (fresh || []).find((d) => d.id === data.destinationId)
                 if (newDest) {
                   setSelectedDestination(newDest)
                   setShowVerificationModal(true)
@@ -258,13 +258,45 @@ export default function OrganizerPayoutSettingsScreenV2() {
     } finally {
       setSavingBank(false)
     }
-  }, [bankForm, destinations, loadDestinations])
+  }, [bankForm, loadDestinations])
 
   const handleSaveMoncash = useCallback(async () => {
-    // TODO: Implement MonCash destination save once backend endpoint exists
-    Alert.alert('Coming Soon', 'MonCash support will be added soon.')
-    setShowMoncashForm(false)
-  }, [])
+    if (!moncashForm.accountName.trim() || !moncashForm.phoneNumber.trim()) {
+      Alert.alert('Missing Information', 'Please enter the account holder name and phone number.')
+      return
+    }
+
+    setSavingMoncash(true)
+    try {
+      // Mobile-money payout lives on the Haiti payout profile (method: mobile_money),
+      // which is what the MonCash withdrawal flow reads.
+      const res = await backendFetch('/api/organizer/payout-profiles/haiti', {
+        method: 'POST',
+        body: JSON.stringify({
+          method: 'mobile_money',
+          mobileMoneyDetails: {
+            provider: moncashForm.provider,
+            phoneNumber: moncashForm.phoneNumber.trim(),
+            accountName: moncashForm.accountName.trim(),
+          },
+        }),
+      })
+
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(data?.error || data?.message || 'Failed to save mobile money')
+      }
+
+      Alert.alert('Mobile Money Saved', 'Your MonCash payout method has been saved.')
+      setMoncashForm({ provider: 'moncash', accountName: '', phoneNumber: '' })
+      setShowMoncashForm(false)
+      await loadDestinations()
+    } catch (e: any) {
+      Alert.alert('Error', e?.message || 'Failed to save mobile money')
+    } finally {
+      setSavingMoncash(false)
+    }
+  }, [moncashForm, loadDestinations])
 
   const pickVerificationDocument = useCallback(async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync()
