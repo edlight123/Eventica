@@ -94,6 +94,15 @@ export default function OrganizerTeamHubScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
         }
       >
+        <View style={styles.cardWrap}>
+          <StaffEventCard
+            title={t('organizerTeamHub.orgTeamEntry')}
+            subtitle={t('organizerTeamHub.orgTeamEntrySubtitle')}
+            onPress={() => navigation.navigate('OrganizerOrgTeam')}
+            right={<Users size={20} color={colors.textSecondary} strokeWidth={1.75} />}
+          />
+        </View>
+
         <View style={styles.notice}>
           <InfoNotice icon="people-outline" text={t('organizerTeamHub.infoNotice')} />
         </View>

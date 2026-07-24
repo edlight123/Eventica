@@ -35,6 +35,7 @@ import OrganizerEventManagementScreen from '../screens/organizer/OrganizerEventM
 import OrganizerEventEarningsScreen from '../screens/organizer/OrganizerEventEarningsScreen';
 import OrganizerEventStaffScreen from '../screens/organizer/OrganizerEventStaffScreen';
 import OrganizerTeamHubScreen from '../screens/organizer/OrganizerTeamHubScreen';
+import OrganizerOrgTeamScreen from '../screens/organizer/OrganizerOrgTeamScreen';
 import OrganizerPayoutSettingsScreen from '../screens/organizer/OrganizerPayoutSettingsScreenV2';
 import OrganizerPromoCodesScreen from '../screens/organizer/OrganizerPromoCodesScreen';
 import OrganizerCompsScreen from '../screens/organizer/OrganizerCompsScreen';
@@ -94,6 +95,7 @@ export type RootStackParamList = {
   OrganizerPayoutSettings: undefined;
   OrganizerEventStaff: { eventId: string };
   OrganizerTeamHub: undefined;
+  OrganizerOrgTeam: undefined;
   OrganizerPromoCodes: { eventId: string };
   OrganizerComps: { eventId: string };
   OrganizerVerification: undefined;
@@ -650,6 +652,7 @@ export default function AppNavigator() {
             <Stack.Screen name="OrganizerPayoutSettings" component={OrganizerPayoutSettingsScreen} options={{ headerShown: false }} />
             <Stack.Screen name="OrganizerEventStaff" component={OrganizerEventStaffScreen} options={{ headerShown: true }} />
             <Stack.Screen name="OrganizerTeamHub" component={OrganizerTeamHubScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="OrganizerOrgTeam" component={OrganizerOrgTeamScreen} options={{ headerShown: false }} />
             <Stack.Screen
               name="OrganizerPromoCodes"
               component={OrganizerPromoCodesScreen}
