@@ -334,22 +334,64 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
         {/* Sales Chart */}
         <View style={styles.chartCard}>
           <Text style={styles.chartTitle}>{t('analytics.salesOverTime') || 'Sales Over Time'}</Text>
-          <View style={styles.chartContainer}>
-            {chartData.map((item, index) => (
-              <View key={index} style={styles.chartBarContainer}>
-                <View style={styles.chartBarWrapper}>
-                  <View
-                    style={[
-                      styles.chartBar,
-                      { height: (item.sales / maxSales) * 100 || 4 },
-                    ]}
-                  />
-                </View>
-                <Text style={styles.chartLabel}>{item.date.split(' ')[1]}</Text>
-              </View>
-            ))}
-          </View>
+          {chartData.every((d) => (d.sales || 0) === 0) ? (
+            <Text style={styles.chartEmpty}>{t('analytics.noSalesInRange') || 'No sales yet in this range'}</Text>
+          ) : (
+            <View style={styles.chartContainer}>
+              {chartData.map((item, index) => {
+                const isPeak = item.sales === maxSales && item.sales > 0;
+                // Thin x-axis labels when the series is dense (e.g. 30 days).
+                const stride = Math.ceil(chartData.length / 8);
+                const showLabel = index % stride === 0 || index === chartData.length - 1;
+                return (
+                  <View key={index} style={styles.chartBarContainer}>
+                    {isPeak && <Text style={styles.chartPeakValue}>{item.sales}</Text>}
+                    <View style={styles.chartBarWrapper}>
+                      <View
+                        style={[
+                          styles.chartBar,
+                          { height: Math.max((item.sales / maxSales) * 100, item.sales > 0 ? 6 : 3) },
+                          !isPeak && styles.chartBarDim,
+                        ]}
+                      />
+                    </View>
+                    <Text style={styles.chartLabel} numberOfLines={1}>
+                      {showLabel ? item.date.split(' ')[1] : ''}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
+          )}
+          <View style={styles.chartBaseline} />
         </View>
+
+        {/* Derived insights — from already-loaded data, no extra fetch. */}
+        {stats.totalEvents > 0 && (
+          <View style={styles.statsWrap}>
+            <StatTriplet
+              columns={2}
+              items={[
+                {
+                  label: t('analytics.bestDay') || 'Best Day',
+                  value: (() => {
+                    const peak = chartData.reduce(
+                      (best, d) => ((d.sales || 0) > (best?.sales || 0) ? d : best),
+                      chartData[0]
+                    );
+                    return peak && (peak.sales || 0) > 0 ? peak.date : '—';
+                  })(),
+                },
+                {
+                  label: t('analytics.liveRate') || 'Published',
+                  value: stats.totalEvents
+                    ? `${Math.round((stats.publishedEvents / stats.totalEvents) * 100)}%`
+                    : '—',
+                },
+              ]}
+            />
+          </View>
+        )}
 
         {/* Top Events */}
         <View style={styles.sectionCard}>
@@ -432,7 +474,27 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     width: 24,
     backgroundColor: colors.primary,
     borderRadius: 6,
-    minHeight: 4,
+    minHeight: 3,
+  },
+  chartBarDim: {
+    opacity: 0.35,
+  },
+  chartPeakValue: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.primary,
+    marginBottom: 4,
+  },
+  chartBaseline: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: colors.border,
+    marginTop: 8,
+  },
+  chartEmpty: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    paddingVertical: 32,
   },
   chartLabel: {
     fontSize: 10,
