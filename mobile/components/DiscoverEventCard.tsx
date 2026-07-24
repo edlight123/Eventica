@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Share2, Bookmark } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
@@ -34,7 +35,6 @@ export default function DiscoverEventCard({
   const { colors } = useTheme();
   const { t, language } = useI18n();
   const styles = getStyles(colors);
-  const [imgLoaded, setImgLoaded] = useState(false);
 
   const theme = resolvePosterTheme(event, event.id || event.title, event.category);
   const hasImage = Boolean(event.banner_image_url || event.cover_image_url);
@@ -59,9 +59,11 @@ export default function DiscoverEventCard({
         {hasImage && (
           <Image
             source={{ uri: event.banner_image_url || event.cover_image_url }}
-            style={[StyleSheet.absoluteFill, !imgLoaded && { opacity: 0 }]}
-            resizeMode="cover"
-            onLoad={() => setImgLoaded(true)}
+            style={StyleSheet.absoluteFill}
+            contentFit="cover"
+            cachePolicy="memory-disk"
+            transition={200}
+            recyclingKey={event.id ? String(event.id) : undefined}
           />
         )}
       </TouchableOpacity>
@@ -122,7 +124,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     poster: {
       width: '100%',
-      height: Math.round((width - 32) * 1.15),
+      // 2:3 (portrait) so the full uploaded flyer shows without cropping.
+      height: Math.round((width - 32) * 1.5),
       borderRadius: 16,
       overflow: 'hidden',
       backgroundColor: colors.surfaceMuted,

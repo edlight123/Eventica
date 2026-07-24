@@ -1107,8 +1107,13 @@ export default function CreateEventFlowRefactored() {
                 activeOpacity={0.85}
                 onPress={() => chooseMode(false)}
               >
-                <Ionicons name="pricetags-outline" size={40} color={colors.text} />
-                <Text style={styles.entryTileLabel}>{t('organizerCreateEventFlow.entry.sellTitle')}</Text>
+                <View style={styles.entryTileIcon}>
+                  <Ionicons name="pricetags-outline" size={26} color={colors.text} />
+                </View>
+                <View style={styles.entryTileText}>
+                  <Text style={styles.entryTileLabel}>{t('organizerCreateEventFlow.entry.sellTitle')}</Text>
+                  <Text style={styles.entryTileDesc}>{t('organizerCreateEventFlow.entry.sellDesc')}</Text>
+                </View>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -1116,8 +1121,13 @@ export default function CreateEventFlowRefactored() {
                 activeOpacity={0.85}
                 onPress={() => chooseMode(true)}
               >
-                <Ionicons name="people-outline" size={40} color={colors.text} />
-                <Text style={styles.entryTileLabel}>{t('organizerCreateEventFlow.entry.rsvpTitle')}</Text>
+                <View style={styles.entryTileIcon}>
+                  <Ionicons name="people-outline" size={26} color={colors.text} />
+                </View>
+                <View style={styles.entryTileText}>
+                  <Text style={styles.entryTileLabel}>{t('organizerCreateEventFlow.entry.rsvpTitle')}</Text>
+                  <Text style={styles.entryTileDesc}>{t('organizerCreateEventFlow.entry.rsvpDesc')}</Text>
+                </View>
               </TouchableOpacity>
             </View>
 
@@ -2115,31 +2125,48 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 24,
-    gap: 28,
+    gap: 24,
   },
   entryTitle: {
     fontFamily: font.serif,
-    fontSize: 44,
-    lineHeight: 48,
+    fontSize: 40,
+    lineHeight: 44,
     color: colors.text,
   },
   entryTiles: {
     flexDirection: 'row',
-    gap: 16,
+    gap: 14,
   },
   entryTile: {
     flex: 1,
-    aspectRatio: 1,
+    minHeight: 190,
     borderRadius: RADIUS.xl,
     backgroundColor: colors.surfaceRaised,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+    padding: 18,
+    justifyContent: 'space-between',
+  },
+  entryTileIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 18,
+    backgroundColor: colors.surfaceMuted,
+  },
+  entryTileText: {
+    gap: 4,
   },
   entryTileLabel: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '700',
     color: colors.text,
+  },
+  entryTileDesc: {
+    fontSize: 13,
+    lineHeight: 18,
+    color: colors.textSecondary,
   },
   entrySubtitle: {
     fontSize: 14,
