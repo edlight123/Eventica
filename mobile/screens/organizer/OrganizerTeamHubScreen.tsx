@@ -8,6 +8,7 @@ import { Users } from 'lucide-react-native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
+import { useLocaleFormat } from '../../lib/format';
 import { getOrganizerEvents, OrganizerEvent } from '../../lib/api/organizer';
 import { RADIUS, SPACING } from '../../config/brand';
 import { Skeleton } from '../../components/Skeleton';
@@ -30,6 +31,7 @@ export default function OrganizerTeamHubScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { userProfile } = useAuth();
   const { t } = useI18n();
+  const { formatDate } = useLocaleFormat();
   const insets = useSafeAreaInsets();
 
   const [events, setEvents] = useState<OrganizerEvent[]>([]);
@@ -61,17 +63,6 @@ export default function OrganizerTeamHubScreen() {
     setRefreshing(true);
     loadEvents();
   }, [loadEvents]);
-
-  const formatDate = (iso?: string) => {
-    if (!iso) return '';
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return '';
-    return d.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  };
 
   if (loading) {
     return (
