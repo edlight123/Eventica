@@ -123,7 +123,8 @@ export default function OrganizerPayoutSettingsScreenV2() {
   const [moncashForm, setMoncashForm] = useState({
     provider: 'moncash',
     accountName: '',
-    phoneNumber: '',
+    // Pre-fill the Haiti country code so organizers only type the local digits.
+    phoneNumber: '+509 ',
   })
 
   // Verification flow for selected destination
@@ -286,6 +287,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
       setBankNameChoice('')
       setShowBankForm(true)
     } else {
+      setMoncashForm({ provider: 'moncash', accountName: '', phoneNumber: '+509 ' })
       setShowMoncashForm(true)
     }
   }, [identityVerified, navigation])
@@ -386,7 +388,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
       }
 
       Alert.alert('Mobile Money Saved', 'Your MonCash payout method has been saved.')
-      setMoncashForm({ provider: 'moncash', accountName: '', phoneNumber: '' })
+      setMoncashForm({ provider: 'moncash', accountName: '', phoneNumber: '+509 ' })
       setShowMoncashForm(false)
       await loadDestinations()
     } catch (e: any) {

@@ -185,9 +185,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       width: '100%',
       alignItems: 'center',
       justifyContent: 'center',
-      // Rounded per POSH §2.1 (~20px). Full-bleed hero/feed posters
-      // (DiscoverEventCard, EventDetail hero) intentionally stay square.
-      borderRadius: radius.lg,
+      // Rounded per POSH §2.1, softened ~50% per beta feedback. Full-bleed
+      // hero/feed posters (DiscoverEventCard, EventDetail hero) stay square.
+      borderRadius: radius.sm,
       overflow: 'hidden',
       backgroundColor: colors.surfaceMuted,
     },
