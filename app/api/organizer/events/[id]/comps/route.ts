@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { adminDb } from '@/lib/firebase/admin'
 import { getCurrentUser } from '@/lib/auth'
 import { FieldValue } from 'firebase-admin/firestore'
+import { sendEmail, getTicketConfirmationEmail } from '@/lib/email'
+import { generateTicketQRCode } from '@/lib/qrcode'
 
 /**
  * Issue complimentary (free) tickets for an event.
@@ -78,10 +80,51 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         purchased_at: FieldValue.serverTimestamp(),
         created_at: FieldValue.serverTimestamp(),
       })
+      // Give the QR a stable payload = the ticket id.
+      await ref.update({ qr_code_data: ref.id })
       created.push(ref.id)
     }
 
-    return NextResponse.json({ success: true, count: created.length, ticketIds: created })
+    // Best-effort: email the recipient their ticket(s) with a QR. Never let a
+    // mail failure fail the issuance — the tickets already exist and scan fine.
+    let emailed = false
+    if (recipientEmail && created.length > 0) {
+      try {
+        const startDate = event?.start_datetime?.toDate
+          ? event.start_datetime.toDate()
+          : event?.start_datetime
+            ? new Date(event.start_datetime)
+            : null
+        const eventDate = startDate
+          ? startDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+          : 'TBA'
+
+        for (const ticketId of created) {
+          const qrCodeDataURL = await generateTicketQRCode(ticketId)
+          const html = getTicketConfirmationEmail({
+            attendeeName: recipientName,
+            eventTitle: event?.title || 'Your event',
+            eventDate,
+            eventVenue: event?.venue_name || event?.city || '',
+            ticketId,
+            qrCodeDataURL,
+            ticketTier: 'Complimentary',
+            ticketPrice: 0,
+            currency: event?.currency || 'HTG',
+          })
+          await sendEmail({
+            to: recipientEmail,
+            subject: `Your ticket for ${event?.title || 'the event'}`,
+            html,
+          })
+        }
+        emailed = true
+      } catch (mailErr) {
+        console.warn('[comps] ticket issued but email failed', { message: (mailErr as any)?.message })
+      }
+    }
+
+    return NextResponse.json({ success: true, count: created.length, ticketIds: created, emailed })
   } catch (err: any) {
     return NextResponse.json({ error: err?.message || 'Failed to issue comps' }, { status: 500 })
   }
