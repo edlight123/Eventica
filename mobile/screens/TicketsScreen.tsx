@@ -7,9 +7,9 @@ import {
   TouchableOpacity, 
   RefreshControl,
   ActivityIndicator,
-  Image,
   StatusBar
 } from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Calendar, MapPin, Ticket, ChevronRight } from 'lucide-react-native';
@@ -21,6 +21,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { resolvePosterTheme } from '../lib/posterGradient';
 import EmptyState from '../components/EmptyState';
 import StatusChip from '../components/StatusChip';
+import WhitePillCTA from '../components/WhitePillCTA';
 import { format } from 'date-fns';
 import { useFocusEffect } from '@react-navigation/native';
 import { consumeTicketsRefreshHint } from '../lib/ticketsRefreshHint';
@@ -237,13 +238,32 @@ export default function TicketsScreen({ navigation }: any) {
         }
       >
         {displayedTickets.length === 0 ? (
-          <EmptyState
-            icon={Ticket}
-            title={activeTab === 'upcoming' ? t('tickets.emptyUpcomingTitle') : t('tickets.emptyPastTitle')}
-            subtitle={activeTab === 'upcoming' ? t('tickets.emptyUpcomingBody') : t('tickets.emptyPastBody')}
-            actionLabel={activeTab === 'upcoming' ? t('favorites.explore') : undefined}
-            onAction={activeTab === 'upcoming' ? () => navigation.navigate('Discover') : undefined}
-          />
+          <View style={styles.emptyWrap}>
+            {/* Poster-forward empty state: a branded gradient ring around the
+                ticket mark instead of a bare floating icon. */}
+            <View style={styles.emptyRing}>
+              <LinearGradient
+                colors={[colors.primary + '33', colors.primary + '0D']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={StyleSheet.absoluteFill}
+              />
+              <Ticket size={34} color={colors.primary} strokeWidth={1.75} />
+            </View>
+            <Text style={styles.emptyTitle}>
+              {activeTab === 'upcoming' ? t('tickets.emptyUpcomingTitle') : t('tickets.emptyPastTitle')}
+            </Text>
+            <Text style={styles.emptySubtitle}>
+              {activeTab === 'upcoming' ? t('tickets.emptyUpcomingBody') : t('tickets.emptyPastBody')}
+            </Text>
+            {activeTab === 'upcoming' && (
+              <WhitePillCTA
+                label={t('favorites.explore')}
+                onPress={() => navigation.navigate('Discover')}
+                style={styles.emptyCta}
+              />
+            )}
+          </View>
         ) : (
           sections.map(section => (
             <View key={section.key}>
@@ -266,7 +286,10 @@ export default function TicketsScreen({ navigation }: any) {
                       <Image
                         source={{ uri: event.banner_image_url || event.cover_image_url }}
                         style={StyleSheet.absoluteFill}
-                        resizeMode="cover"
+                        contentFit="cover"
+                        cachePolicy="memory-disk"
+                        transition={200}
+                        recyclingKey={event.id ? String(event.id) : undefined}
                       />
                     )}
                   </View>
@@ -478,26 +501,37 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     padding: 20,
   },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
+  emptyWrap: {
     alignItems: 'center',
-    padding: 40,
-    marginTop: 60,
+    paddingTop: 72,
+    paddingHorizontal: 32,
   },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
+  emptyRing: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.primary + '33',
+    marginBottom: 20,
   },
   emptyTitle: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontFamily: font.serif,
+    fontSize: 24,
     color: colors.text,
+    textAlign: 'center',
     marginBottom: 8,
   },
-  emptyText: {
-    fontSize: 16,
+  emptySubtitle: {
+    fontSize: 14,
+    lineHeight: 20,
     color: colors.textSecondary,
     textAlign: 'center',
+    marginBottom: 24,
+  },
+  emptyCta: {
+    minWidth: 200,
   },
 });
