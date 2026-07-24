@@ -14,11 +14,11 @@ import {
   ImageBackground,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import {
   Calendar,
   Users,
   Star,
-  ChevronLeft,
   MapPin,
   Globe,
   Mail,
@@ -389,8 +389,9 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
   const profileIsPublic = (organizer?.privacy?.profile_visibility || 'private') === 'public';
   const canSeeSocial = isSelf || friendship === 'friends' || profileIsPublic;
   const showConnect = friendshipLoaded && !isSelf && friendship !== 'self';
-  const showSocialCard =
-    showConnect || (canSeeSocial && (personalBio.length > 0 || personalSocial.length > 0));
+  // The connect action now sits inline next to the stats; the raised card is
+  // reserved for personal bio + social handles (only when there is any).
+  const showSocialCard = canSeeSocial && (personalBio.length > 0 || personalSocial.length > 0);
 
   const SOCIAL_META: Record<SocialPlatform, { label: string; color: string }> = {
     instagram: { label: 'Instagram', color: '#E4405F' },
@@ -418,18 +419,21 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
           {/* Dark scrim overlay for readability */}
           <View style={styles.heroScrim} />
 
-          {/* Circular Back Button */}
+          {/* Back Button — a clean chevron-back, consistent with the
+              organizer-surface headers (top-left, never over the avatar). */}
           <TouchableOpacity
-            style={[styles.backButton, { top: insets.top + 12 }]}
+            style={[styles.backButton, { top: insets.top + 8 }]}
             onPress={() => navigation.goBack()}
-            hitSlop={8}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            accessibilityRole="button"
+            accessibilityLabel={t('common.back')}
           >
-            <ChevronLeft size={24} color="#FFF" />
+            <Ionicons name="chevron-back" size={26} color="#FFF" />
           </TouchableOpacity>
 
           {/* Small Follow Button - Top Right */}
           <TouchableOpacity
-            style={[styles.followButtonSmall, { top: insets.top + 24 }, isFollowing && styles.followingButtonSmall]}
+            style={[styles.followButtonSmall, { top: insets.top + 8 }, isFollowing && styles.followingButtonSmall]}
             onPress={handleFollow}
           >
             <Text style={[styles.followButtonSmallText, isFollowing && styles.followingButtonSmallText]}>
@@ -437,8 +441,8 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
             </Text>
           </TouchableOpacity>
 
-          {/* Hero Content - Bottom Aligned */}
-          <View style={[styles.heroContent, { paddingTop: insets.top + 16 }]}>
+          {/* Hero Content - Bottom Aligned (clears the top-left back control) */}
+          <View style={styles.heroContent}>
             {/* Avatar */}
             <View style={styles.avatar}>
               {organizer.avatarUrl ? (
@@ -490,21 +494,24 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
             />
           </View>
 
-          {/* Friend connection + personal social */}
+          {/* Connect action — a quiet secondary pill inline under the stats,
+              not a prominent full-width card. */}
+          {showConnect ? (
+            <View style={styles.connectRow}>
+              <ConnectButton
+                targetUserId={organizerId}
+                initialState={friendship}
+                size="sm"
+                variant="secondary"
+                onChange={setFriendship}
+                onRequireAuth={() => navigation.navigate('Auth')}
+              />
+            </View>
+          ) : null}
+
+          {/* Personal social (bio + handles) */}
           {showSocialCard ? (
             <View style={styles.socialCard}>
-              {showConnect ? (
-                <View style={styles.connectRow}>
-                  <ConnectButton
-                    targetUserId={organizerId}
-                    initialState={friendship}
-                    size="md"
-                    onChange={setFriendship}
-                    onRequireAuth={() => navigation.navigate('Auth')}
-                  />
-                </View>
-              ) : null}
-
               {canSeeSocial && personalBio.length > 0 ? (
                 <Text style={styles.socialBio}>{personalBio}</Text>
               ) : null}
@@ -705,21 +712,23 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   // Premium Hero Section
   hero: {
     height: HERO_HEIGHT,
-    justifyContent: 'flex-start',
+    justifyContent: 'flex-end',
     backgroundColor: colors.surfaceRaised, // neutral fallback behind poster (not decorative teal)
   },
   heroScrim: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
   },
+  // A clean chevron-back in the top-left, on a subtle scrim disc for legibility
+  // over any hero image. Content is bottom-aligned so it never sits on this.
   backButton: {
     position: 'absolute',
     top: 16,
-    left: 16,
+    left: 12,
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
@@ -841,6 +850,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   connectRow: {
     alignItems: 'flex-start',
+    marginBottom: 24,
   },
   socialBio: {
     fontSize: 14,

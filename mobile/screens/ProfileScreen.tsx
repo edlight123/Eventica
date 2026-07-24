@@ -441,7 +441,7 @@ export default function ProfileScreen() {
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
 
       <View
-        style={[styles.header, { top: insets.top, paddingTop: 8 }]}
+        style={[styles.header, { top: 0, paddingTop: insets.top + 8 }]}
         onLayout={(e) => {
           const h = e.nativeEvent.layout.height;
           if (h && h !== headerHeight) setHeaderHeight(h);
@@ -473,8 +473,10 @@ export default function ProfileScreen() {
         contentContainerStyle={[
           styles.scrollContent,
           {
-            // Header is positioned below the safe-area; include that offset.
-            paddingTop: insets.top + headerHeight + 4,
+            // The header is opaque and spans the full top (incl. the safe-area
+            // strip), so its measured height already covers the notch offset —
+            // start the scroll content just below it, nothing bleeds behind it.
+            paddingTop: headerHeight + 4,
             paddingBottom: insets.bottom + 24,
           },
         ]}

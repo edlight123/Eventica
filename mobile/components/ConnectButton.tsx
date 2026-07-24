@@ -14,6 +14,12 @@ interface ConnectButtonProps {
   targetUserId: string;
   initialState: FriendshipState;
   size?: 'sm' | 'md';
+  /**
+   * 'primary' (default) renders the "Add friend" CTA as a solid white pill.
+   * 'secondary' renders it as a muted outline pill — for surfaces where the
+   * connect action should sit quietly next to a more important CTA.
+   */
+  variant?: 'primary' | 'secondary';
   onChange?: (state: FriendshipState) => void;
   onRequireAuth?: () => void;
 }
@@ -22,11 +28,13 @@ export default function ConnectButton({
   targetUserId,
   initialState,
   size = 'md',
+  variant = 'primary',
   onChange,
   onRequireAuth,
 }: ConnectButtonProps) {
   const { colors } = useTheme();
   const styles = getStyles(colors, size);
+  const secondary = variant === 'secondary';
   const { user } = useAuth();
   const [state, setState] = useState<FriendshipState>(initialState);
   const [loading, setLoading] = useState(false);
@@ -103,9 +111,17 @@ export default function ConnectButton({
 
   // none
   return (
-    <TouchableOpacity style={[styles.btn, styles.primary]} onPress={onSend} activeOpacity={0.8}>
-      <Ionicons name="person-add-outline" size={size === 'sm' ? 14 : 16} color="#000000" />
-      <Text style={[styles.text, styles.primaryText]}>Add friend</Text>
+    <TouchableOpacity
+      style={[styles.btn, secondary ? styles.neutral : styles.primary]}
+      onPress={onSend}
+      activeOpacity={0.8}
+    >
+      <Ionicons
+        name="person-add-outline"
+        size={size === 'sm' ? 14 : 16}
+        color={secondary ? colors.text : '#000000'}
+      />
+      <Text style={[styles.text, secondary ? { color: colors.text } : styles.primaryText]}>Add friend</Text>
     </TouchableOpacity>
   );
 }
