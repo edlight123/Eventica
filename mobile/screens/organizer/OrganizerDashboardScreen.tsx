@@ -23,7 +23,6 @@ import { SPACING, RADIUS } from '../../config/brand';
 import { Skeleton } from '../../components/Skeleton';
 import EmptyState from '../../components/EmptyState';
 import StatTriplet from '../../components/StatTriplet';
-import WhitePillCTA from '../../components/WhitePillCTA';
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
 import { Calendar } from 'lucide-react-native';
 
@@ -103,7 +102,7 @@ export default function OrganizerDashboardScreen() {
 
       <ScrollView
         style={styles.scrollContent}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -244,14 +243,6 @@ export default function OrganizerDashboardScreen() {
         </View>
       </View>
       </ScrollView>
-
-      {/* Persistent primary action — the one white pill on this surface (§2.2) */}
-      <View style={[styles.floatingCta, { bottom: insets.bottom + 16 }]} pointerEvents="box-none">
-        <WhitePillCTA
-          label={t('organizerDashboard.createEventCta')}
-          onPress={() => navigation.navigate('CreateEvent')}
-        />
-      </View>
     </View>
   );
 }
@@ -279,11 +270,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: RADIUS.lg,
     padding: SPACING.lg,
     marginBottom: SPACING.md,
-  },
-  floatingCta: {
-    position: 'absolute',
-    left: 20,
-    right: 20,
   },
   eventHeader: {
     flexDirection: 'row',
