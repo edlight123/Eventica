@@ -1376,9 +1376,17 @@ export default {
     analytics: 'Analytics',
     refunds: 'Refunds',
     payouts: 'Payouts',
+    team: 'Team',
     createEvent: 'Create',
     createEventCta: 'Create an event',
     pageVisits: 'Page Visits',
+  },
+
+  organizerTeamHub: {
+    title: 'Team',
+    infoNotice: 'Staff are managed per event. Pick an event to manage who can scan tickets and check people in.',
+    emptyTitle: 'No events yet',
+    emptySubtitle: 'Create an event first, then invite staff to help scan and check in guests.',
   },
 
   organizerEvents: {

@@ -1251,9 +1251,17 @@ export default {
     analytics: 'Estatistik',
     refunds: 'Ranbousman',
     payouts: 'Peman',
+    team: 'Ekip',
     createEvent: 'Kreye',
     createEventCta: 'Kreye yon evènman',
     pageVisits: 'Vizit paj',
+  },
+
+  organizerTeamHub: {
+    title: 'Ekip',
+    infoNotice: 'Ou jere estaf pa evènman. Chwazi yon evènman pou jere kiyès ki ka eskane biyè epi anrejistre moun.',
+    emptyTitle: 'Poko gen evènman',
+    emptySubtitle: 'Kreye yon evènman anvan, apre sa envite estaf pou ede eskane epi akeyi envite yo.',
   },
 
   organizerEvents: {

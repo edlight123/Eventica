@@ -220,7 +220,14 @@ export default function OrganizerDashboardScreen() {
             <Ionicons name="wallet-outline" size={24} color={colors.text} />
             <Text style={styles.quickActionText}>{t('organizerDashboard.payouts') || 'Payouts'}</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
+            style={styles.quickActionButton}
+            onPress={() => navigation.navigate('OrganizerTeamHub')}
+          >
+            <Ionicons name="people-outline" size={24} color={colors.text} />
+            <Text style={styles.quickActionText}>{t('organizerDashboard.team') || 'Team'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('CreateEvent')}
           >

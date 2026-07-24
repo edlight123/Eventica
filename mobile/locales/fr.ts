@@ -1253,9 +1253,17 @@ export default {
     analytics: 'Statistiques',
     refunds: 'Remboursements',
     payouts: 'Paiements',
+    team: 'Équipe',
     createEvent: 'Créer',
     createEventCta: 'Créer un événement',
     pageVisits: 'Vues de page',
+  },
+
+  organizerTeamHub: {
+    title: 'Équipe',
+    infoNotice: 'Le personnel est géré par événement. Choisissez un événement pour gérer qui peut scanner les billets et enregistrer les arrivées.',
+    emptyTitle: 'Aucun événement',
+    emptySubtitle: 'Créez d’abord un événement, puis invitez du personnel pour scanner et accueillir les invités.',
   },
 
   organizerEvents: {
