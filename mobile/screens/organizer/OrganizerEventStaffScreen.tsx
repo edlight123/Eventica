@@ -74,6 +74,7 @@ export default function OrganizerEventStaffScreen() {
   const [loading, setLoading] = useState(true)
   const [invites, setInvites] = useState<ApiInvite[]>([])
   const [members, setMembers] = useState<ApiMember[]>([])
+  const [permBusy, setPermBusy] = useState<string[]>([])
 
   const [showInviteModal, setShowInviteModal] = useState(false)
   const [method, setMethod] = useState<InviteMethod>('link')
@@ -277,6 +278,38 @@ export default function OrganizerEventStaffScreen() {
     ])
   }
 
+  // Toggle a member's view-attendees permission. Optimistic update with revert
+  // on failure; the per-member id sits in `permBusy` while the write is in flight.
+  const toggleMemberPermission = async (memberId: string, nextValue: boolean) => {
+    if (authLoading || !user || permBusy.includes(memberId)) return
+    setPermBusy((prev) => [...prev, memberId])
+    setMembers((prev) =>
+      prev.map((m) =>
+        m.id === memberId
+          ? { ...m, permissions: { ...m.permissions, viewAttendees: nextValue } }
+          : m
+      )
+    )
+    try {
+      await backendJson(`/api/staff/members/permissions`, {
+        method: 'POST',
+        body: JSON.stringify({ eventId, memberId, permissions: { viewAttendees: nextValue } }),
+      })
+    } catch (e: any) {
+      // Revert on failure.
+      setMembers((prev) =>
+        prev.map((m) =>
+          m.id === memberId
+            ? { ...m, permissions: { ...m.permissions, viewAttendees: !nextValue } }
+            : m
+        )
+      )
+      Alert.alert(t('common.error'), e?.message || t('organizerStaff.errors.permissionUpdateFailed'))
+    } finally {
+      setPermBusy((prev) => prev.filter((id) => id !== memberId))
+    }
+  }
+
   // Presentational: map an invite to a semantic StatusChip status + label.
   //   revoked → error · used → neutral · email/phone awaiting acceptance →
   //   pending (action needed) · link ready to share → live/active.
@@ -357,31 +390,56 @@ export default function OrganizerEventStaffScreen() {
                   const name = m.profile?.full_name || m.profile?.email || m.id
                   const email = m.profile?.email || ''
                   const subtitle = email && email !== name ? email : undefined
-                  const permission = m.permissions?.viewAttendees
-                    ? t('organizerStaff.memberPermissionFull')
-                    : t('organizerStaff.memberPermissionBasic')
+                  const isOwner = m.role === 'owner'
+                  const busy = permBusy.includes(m.id)
 
                   return (
                     <View key={m.id} style={styles.cardWrap}>
                       <StaffEventCard
                         title={name}
                         subtitle={subtitle}
-                        meta={permission}
+                        meta={isOwner ? t('organizerStaff.roleOwner') : undefined}
                         right={
                           <View style={styles.rightCol}>
                             <StatusChip status="live" label={t('organizerStaff.inviteStatus.active')} />
-                            <TouchableOpacity
-                              onPress={() => removeMember(m.id)}
-                              style={[styles.dangerButton, authLoading ? styles.buttonDisabled : null]}
-                              disabled={authLoading}
-                              accessibilityRole="button"
-                              accessibilityLabel={t('organizerStaff.remove')}
-                            >
-                              <Text style={styles.dangerButtonText}>{t('organizerStaff.remove')}</Text>
-                            </TouchableOpacity>
+                            {!isOwner && (
+                              <TouchableOpacity
+                                onPress={() => removeMember(m.id)}
+                                style={[styles.dangerButton, authLoading ? styles.buttonDisabled : null]}
+                                disabled={authLoading}
+                                accessibilityRole="button"
+                                accessibilityLabel={t('organizerStaff.remove')}
+                              >
+                                <Text style={styles.dangerButtonText}>{t('organizerStaff.remove')}</Text>
+                              </TouchableOpacity>
+                            )}
                           </View>
                         }
                       />
+                      {/* Permissions: check-in is always on; view-attendee-list is
+                          editable for non-owner members. */}
+                      <View style={styles.permRow}>
+                        <View style={styles.permTextCol}>
+                          <Text style={styles.permTitle}>{t('organizerStaff.canCheckIn')}</Text>
+                          <Text style={styles.permHelp}>{t('organizerStaff.canCheckInHelp')}</Text>
+                        </View>
+                        <Text style={styles.permAlways}>{t('common.yes')}</Text>
+                      </View>
+                      {!isOwner && (
+                        <View style={styles.permRow}>
+                          <View style={styles.permTextCol}>
+                            <Text style={styles.permTitle}>{t('organizerStaff.canViewAttendees')}</Text>
+                            <Text style={styles.permHelp}>{t('organizerStaff.viewAttendeesHelp')}</Text>
+                          </View>
+                          <Switch
+                            value={!!m.permissions?.viewAttendees}
+                            onValueChange={(v) => toggleMemberPermission(m.id, v)}
+                            disabled={busy || authLoading}
+                            trackColor={{ false: colors.surfaceMuted, true: colors.primary }}
+                            thumbColor={colors.white}
+                          />
+                        </View>
+                      )}
                     </View>
                   )
                 })
@@ -565,6 +623,18 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
 
   cardWrap: { marginBottom: SPACING.md },
   rightCol: { alignItems: 'flex-end', gap: 8 },
+  permRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+    paddingHorizontal: 4,
+    paddingTop: 10,
+  },
+  permTextCol: { flex: 1 },
+  permTitle: { color: colors.text, fontWeight: '600', fontSize: 13 },
+  permHelp: { color: colors.textSecondary, fontSize: 12, lineHeight: 16, marginTop: 2 },
+  permAlways: { color: colors.textSecondary, fontSize: 13, fontWeight: '600' },
 
   dangerButton: {
     paddingHorizontal: 12,

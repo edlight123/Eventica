@@ -960,6 +960,10 @@ export default {
     memberPermissionBasic: 'Aksè eskane',
     memberPermissionFull: 'Eskane + lis patisipan',
     viewAttendeesHelp: 'Staff toujou kapab anrejistre envite yo. Ouvri sa a pou yo ka wè lis patisipan yo tou.',
+    roleOwner: 'Pwopriyetè',
+    canCheckIn: 'Ka anrejistre',
+    canCheckInHelp: 'Eskane epi kite envite yo antre nan pòt la.',
+    canViewAttendees: 'Ka wè lis patisipan yo',
     emptyAllTitle: 'Bati ekip ou',
     emptyAllSubtitle: 'Envite staff pou eskane tikè epi anrejistre envite yo nan pòt la.',
     inviteStatus: {
@@ -1001,6 +1005,7 @@ export default {
       inviteFailed: 'Pa t kapab kreye envitasyon.',
       revokeFailed: 'Pa t kapab anile envitasyon.',
       removeFailed: 'Pa t kapab retire staff la.',
+      permissionUpdateFailed: 'Pa t kapab mete otorizasyon yo ajou.',
     },
   },
 

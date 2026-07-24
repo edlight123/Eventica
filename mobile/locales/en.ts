@@ -1085,6 +1085,10 @@ export default {
     memberPermissionBasic: 'Check-in access',
     memberPermissionFull: 'Check-in + attendee list',
     viewAttendeesHelp: 'Staff can always check guests in. Turn this on to also let them see the attendee list.',
+    roleOwner: 'Owner',
+    canCheckIn: 'Can check in',
+    canCheckInHelp: 'Scan and admit guests at the door.',
+    canViewAttendees: 'Can view attendee list',
     emptyAllTitle: 'Build your team',
     emptyAllSubtitle: 'Invite staff to scan tickets and check guests in at the door.',
     inviteStatus: {
@@ -1126,6 +1130,7 @@ export default {
       inviteFailed: 'Failed to create invite.',
       revokeFailed: 'Failed to revoke invite.',
       removeFailed: 'Failed to remove staff member.',
+      permissionUpdateFailed: 'Failed to update permissions.',
     },
   },
 

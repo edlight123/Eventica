@@ -962,6 +962,10 @@ export default {
     memberPermissionBasic: 'Accès au scan',
     memberPermissionFull: 'Scan + liste des participants',
     viewAttendeesHelp: 'Le staff peut toujours enregistrer les invités. Activez ceci pour lui montrer aussi la liste des participants.',
+    roleOwner: 'Propriétaire',
+    canCheckIn: 'Peut enregistrer',
+    canCheckInHelp: 'Scanner et admettre les invités à l’entrée.',
+    canViewAttendees: 'Peut voir la liste des participants',
     emptyAllTitle: 'Constituez votre équipe',
     emptyAllSubtitle: 'Invitez du staff pour scanner les billets et enregistrer les invités à l’entrée.',
     inviteStatus: {
@@ -1003,6 +1007,7 @@ export default {
       inviteFailed: 'Impossible de créer l’invitation.',
       revokeFailed: 'Impossible de révoquer l’invitation.',
       removeFailed: 'Impossible de retirer le membre.',
+      permissionUpdateFailed: 'Impossible de mettre à jour les autorisations.',
     },
   },
 
