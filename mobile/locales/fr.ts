@@ -285,6 +285,7 @@ export default {
     legal: 'Mentions légales',
     terms: 'Conditions',
     privacy: 'Confidentialité',
+    refundPolicy: 'Politique de remboursement',
   },
 
   verification: {

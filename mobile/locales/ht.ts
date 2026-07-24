@@ -285,6 +285,7 @@ export default {
     legal: 'Legal',
     terms: 'Tèm',
     privacy: 'Konfidansyalite',
+    refundPolicy: 'Politik ranbousman',
   },
 
   verification: {

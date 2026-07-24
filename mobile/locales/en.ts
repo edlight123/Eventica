@@ -241,6 +241,7 @@ export default {
     legal: 'Legal',
     terms: 'Terms',
     privacy: 'Privacy',
+    refundPolicy: 'Refund Policy',
   },
 
   verification: {
