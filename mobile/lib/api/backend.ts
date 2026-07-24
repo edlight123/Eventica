@@ -229,7 +229,11 @@ export async function backendJson<T>(path: string, init: FetchInit = {}): Promis
 
     const isNextNotFoundPage = res.status === 404 && matchedPath === '/404'
     if (!isNextNotFoundPage) {
-      console.error('[backendJson] Request failed', {
+      // 4xx are expected/handled outcomes (validation, auth, "profile required")
+      // that callers surface with their own UI — log them as warnings so they
+      // don't trip the dev red-box. Only 5xx (real server faults) use error.
+      const log = res.status >= 500 ? console.error : console.warn;
+      log('[backendJson] Request failed', {
         url: res.url,
         status: res.status,
         message: baseMessage || null,

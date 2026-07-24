@@ -84,6 +84,10 @@ export default function OrganizerEventEarningsScreen() {
   // Identity verification (KYC) is required before earnings can be withdrawn.
   // null = still checking, true = approved, false = not verified.
   const [identityVerified, setIdentityVerified] = useState<boolean | null>(null)
+  // Whether the organizer has ANY payout method configured (Haiti profile).
+  // null = unknown/loading. When false, guide them to set one up before they
+  // can hit the "Haiti payout profile required" wall on withdraw.
+  const [hasPayoutMethod, setHasPayoutMethod] = useState<boolean | null>(null)
 
   const requiresStripeConnect = useMemo(() => {
     const normalized = normalizeCountryCode(eventCountry)
@@ -211,6 +215,22 @@ export default function OrganizerEventEarningsScreen() {
     }
   }, [user?.uid])
 
+  // Whether a payout method exists (Haiti profile). Drives the "set up payouts"
+  // guidance so users don't hit the raw "Haiti payout profile required" error.
+  const loadPayoutMethod = useCallback(async () => {
+    if (!user?.uid) {
+      setHasPayoutMethod(null)
+      return
+    }
+    try {
+      const cfg = await backendJson<{ method?: string | null }>('/api/organizer/payout-config-summary')
+      setHasPayoutMethod(!!cfg?.method)
+    } catch {
+      // Unknown — don't block the UI; leave null so withdraw buttons still show.
+      setHasPayoutMethod(null)
+    }
+  }, [user?.uid])
+
   const loadEarnings = useCallback(async () => {
     setLoading(true)
     try {
@@ -278,6 +298,7 @@ export default function OrganizerEventEarningsScreen() {
     loadEarnings()
     loadPayoutRail()
     loadIdentityStatus()
+    loadPayoutMethod()
   }, [loadEarnings])
 
   useFocusEffect(
@@ -285,7 +306,8 @@ export default function OrganizerEventEarningsScreen() {
       loadEarnings()
       loadPayoutRail()
       loadIdentityStatus()
-    }, [loadEarnings, loadPayoutRail, loadIdentityStatus])
+      loadPayoutMethod()
+    }, [loadEarnings, loadPayoutRail, loadIdentityStatus, loadPayoutMethod])
   )
 
   const openWithdraw = async (nextMethod: 'moncash' | 'bank') => {
@@ -643,6 +665,21 @@ export default function OrganizerEventEarningsScreen() {
               style={styles.noticeCta}
               label={t('organizerEarnings.openPayoutSettings')}
               icon={<Ionicons name="settings-outline" size={20} color={colors.text} />}
+              onPress={() => navigation.navigate('OrganizerPayoutSettings')}
+            />
+          </View>
+        ) : identityVerified === true && hasPayoutMethod === false ? (
+          // Verified, but no payout method yet → guide to set one up instead of
+          // letting them tap Withdraw and hit "Haiti payout profile required".
+          <View style={styles.noticeStack}>
+            <InfoNotice
+              icon="wallet-outline"
+              text={t('organizerEarnings.noMethodNotice')}
+            />
+            <SecondaryPill
+              style={styles.noticeCta}
+              label={t('organizerEarnings.setUpPayouts')}
+              icon={<Ionicons name="wallet-outline" size={20} color={colors.text} />}
               onPress={() => navigation.navigate('OrganizerPayoutSettings')}
             />
           </View>

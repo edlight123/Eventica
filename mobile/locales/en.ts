@@ -1225,6 +1225,8 @@ export default {
     openPayoutSettings: 'Open payout settings',
     withdrawViaMoncash: 'Withdraw via MonCash',
     withdrawToBank: 'Withdraw to Bank',
+    noMethodNotice: 'Add a payout method (MonCash or bank) before you can withdraw your earnings.',
+    setUpPayouts: 'Set up payouts',
     submitting: 'Submitting...',
     identity: {
       title: 'Verify your identity to withdraw',

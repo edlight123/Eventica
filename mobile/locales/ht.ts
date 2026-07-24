@@ -1100,6 +1100,8 @@ export default {
     openPayoutSettings: 'Louvri paramèt peman',
     withdrawViaMoncash: 'Retire via MonCash',
     withdrawToBank: 'Retire nan bank',
+    noMethodNotice: 'Ajoute yon metòd peman (MonCash oswa bank) anvan w ka retire lajan w.',
+    setUpPayouts: 'Konfigire peman',
     submitting: 'Nap soumèt...',
     identity: {
       title: 'Verifye idantite w pou w retire',

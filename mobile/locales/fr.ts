@@ -1102,6 +1102,8 @@ export default {
     openPayoutSettings: 'Ouvrir les paramètres de paiement',
     withdrawViaMoncash: 'Retirer via MonCash',
     withdrawToBank: 'Retirer vers la banque',
+    noMethodNotice: 'Ajoutez un moyen de paiement (MonCash ou banque) avant de pouvoir retirer vos gains.',
+    setUpPayouts: 'Configurer les paiements',
     submitting: 'Envoi…',
     identity: {
       title: 'Vérifiez votre identité pour retirer',
