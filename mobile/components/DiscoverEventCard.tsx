@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Share2, Bookmark } from 'lucide-react-native';
@@ -11,7 +11,6 @@ import { font } from '../theme/tokens';
 import WhitePillCTA from './WhitePillCTA';
 import VerifiedBadge from './VerifiedBadge';
 
-const { width } = Dimensions.get('window');
 
 interface DiscoverEventCardProps {
   event: any;
@@ -38,6 +37,10 @@ export default function DiscoverEventCard({
 
   const theme = resolvePosterTheme(event, event.id || event.title, event.category);
   const hasImage = Boolean(event.banner_image_url || event.cover_image_url);
+  // Show the WHOLE poster: size the card to the image's real aspect ratio so
+  // nothing is cropped. Falls back to 2:3 until the image reports its size, and
+  // is clamped so an extreme ratio can't blow up or collapse the card.
+  const [aspectRatio, setAspectRatio] = useState<number>(2 / 3);
   const price = Number(event.ticket_price || 0);
   const isFree = !price || price === 0;
   const organizer = event.users?.full_name || event.organizer_name || '';
@@ -49,7 +52,7 @@ export default function DiscoverEventCard({
   return (
     <View style={styles.wrap}>
       {/* Poster */}
-      <TouchableOpacity activeOpacity={0.95} onPress={onPress} style={styles.poster}>
+      <TouchableOpacity activeOpacity={0.95} onPress={onPress} style={[styles.poster, { aspectRatio }]}>
         <LinearGradient
           colors={theme.colors}
           start={{ x: 0.1, y: 0 }}
@@ -60,10 +63,18 @@ export default function DiscoverEventCard({
           <Image
             source={{ uri: event.banner_image_url || event.cover_image_url }}
             style={StyleSheet.absoluteFill}
-            contentFit="cover"
+            contentFit="contain"
             cachePolicy="memory-disk"
             transition={200}
             recyclingKey={event.id ? String(event.id) : undefined}
+            onLoad={(e) => {
+              const w = e?.source?.width;
+              const h = e?.source?.height;
+              if (w && h) {
+                // Clamp: never wider than 3:2, never taller than 2:3.5.
+                setAspectRatio(Math.max(0.57, Math.min(1.5, w / h)));
+              }
+            }}
           />
         )}
       </TouchableOpacity>
@@ -124,8 +135,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     poster: {
       width: '100%',
-      // 2:3 (portrait) so the full uploaded flyer shows without cropping.
-      height: Math.round((width - 32) * 1.5),
+      // Height comes from the image's real aspect ratio (set at runtime) so the
+      // full poster always shows, uncropped.
       borderRadius: 16,
       overflow: 'hidden',
       backgroundColor: colors.surfaceMuted,
