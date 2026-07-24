@@ -10,6 +10,7 @@ import {
   Image,
   RefreshControl,
   StatusBar,
+  Share,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -114,6 +115,17 @@ export default function OrganizerEventManagementScreen() {
 
   const handleViewPublicPage = () => {
     navigation.navigate('EventDetail', { eventId });
+  };
+
+  const handleShareEvent = async () => {
+    try {
+      const url = `https://tikem.co/events/${eventId}`;
+      await Share.share({
+        message: `${event?.title || t('common.event')}\n\n${url}`,
+      });
+    } catch {
+      // Share sheet dismissed / unavailable — nothing to surface.
+    }
   };
 
   const handleManageStaff = async () => {
@@ -282,6 +294,7 @@ export default function OrganizerEventManagementScreen() {
             { key: 'attendees', icon: 'people-circle-outline', label: t('organizerEventManagement.actions.viewAttendees'), onPress: handleViewAttendees },
             { key: 'earnings', icon: 'cash-outline', label: t('organizerEventManagement.actions.earnings'), onPress: handleViewEarnings },
             { key: 'edit', icon: 'create-outline', label: t('organizerEventManagement.actions.editEvent'), onPress: handleEditEvent },
+            { key: 'share', icon: 'share-social-outline', label: t('organizerEventManagement.actions.shareEvent'), onPress: handleShareEvent },
             { key: 'public', icon: 'eye-outline', label: t('organizerEventManagement.actions.viewPublicPage'), onPress: handleViewPublicPage },
           ]}
         />

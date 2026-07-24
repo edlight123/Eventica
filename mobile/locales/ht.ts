@@ -912,6 +912,7 @@ export default {
       earnings: 'Revni',
       editEvent: 'Modifye evènman',
       viewPublicPage: 'Gade paj piblik',
+      shareEvent: 'Pataje evènman',
     },
     performance: {
       ticketSales: 'Vant biyè',

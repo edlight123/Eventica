@@ -1037,6 +1037,7 @@ export default {
       earnings: 'Earnings',
       editEvent: 'Edit Event',
       viewPublicPage: 'View Public Page',
+      shareEvent: 'Share Event',
     },
     performance: {
       ticketSales: 'Ticket Sales',

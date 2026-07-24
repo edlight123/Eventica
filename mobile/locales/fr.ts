@@ -914,6 +914,7 @@ export default {
       earnings: 'Revenus',
       editEvent: 'Modifier l’événement',
       viewPublicPage: 'Voir la page publique',
+      shareEvent: 'Partager l’événement',
     },
     performance: {
       ticketSales: 'Ventes de billets',
