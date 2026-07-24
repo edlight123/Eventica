@@ -326,13 +326,17 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: RADIUS.lg,
     padding: SPACING.lg,
     alignItems: 'center',
-    justifyContent: 'center',
+    // Left-align icon + label: centering each button's content made the icons
+    // land at different x-positions (labels vary in width), so the grid read as
+    // misaligned. Flex-start gives every icon a shared left edge.
+    justifyContent: 'flex-start',
     flexDirection: 'row',
   },
   quickActionText: {
     fontSize: 14,
     fontWeight: '600',
     color: colors.text,
-    marginLeft: 8,
+    marginLeft: 10,
+    flexShrink: 1,
   },
 });

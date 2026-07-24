@@ -1395,7 +1395,9 @@ export default {
     saveFailedCreate: "Échec de la création de l'événement. Veuillez réessayer.",
     saveFailedUpdate: "Échec de la mise à jour de l'événement. Veuillez réessayer.",
     entry: {
+      kicker: 'NOUVEL ÉVÉNEMENT',
       title: 'Lançons votre prochain événement',
+      lead: "Choisissez comment les gens entrent. Vous pourrez tout ajuster ensuite.",
       subtitle: 'Vous pourrez modifier les détails plus tard.',
       sellTitle: 'Vendre des billets',
       sellDesc: 'Définir les prix et les types de billets.',

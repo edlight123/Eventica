@@ -1393,7 +1393,9 @@ export default {
     saveFailedCreate: 'Pa t kapab kreye evènman an. Tanpri eseye ankò.',
     saveFailedUpdate: 'Pa t kapab mete evènman an ajou. Tanpri eseye ankò.',
     entry: {
+      kicker: 'NOUVO EVÈNMAN',
       title: 'Ann lanse pwochen evènman ou',
+      lead: 'Chwazi kijan moun antre. Ou ka ajiste tout bagay apre.',
       subtitle: 'Ou ka chanje detay yo pita.',
       sellTitle: 'Vann tikè',
       sellDesc: 'Mete pri ak kategori tikè.',

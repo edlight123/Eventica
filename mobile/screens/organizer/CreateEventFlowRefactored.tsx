@@ -295,6 +295,28 @@ const inline = StyleSheet.create({
   },
 });
 
+/**
+ * A faint graph-paper grid drawn purely with hairline-bordered flex cells — no
+ * image asset, no SVG dependency. Used behind the empty flyer state to give it
+ * a "design canvas" texture (à la Posh) instead of a floating glow blob.
+ */
+function GridCanvas({ lineColor, columns = 5, rows = 8 }: { lineColor: string; columns?: number; rows?: number }) {
+  return (
+    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+      <View style={[StyleSheet.absoluteFill, { flexDirection: 'row' }]}>
+        {Array.from({ length: columns }).map((_, i) => (
+          <View key={`c${i}`} style={{ flex: 1, borderRightWidth: StyleSheet.hairlineWidth, borderRightColor: lineColor }} />
+        ))}
+      </View>
+      <View style={StyleSheet.absoluteFill}>
+        {Array.from({ length: rows }).map((_, i) => (
+          <View key={`r${i}`} style={{ flex: 1, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: lineColor }} />
+        ))}
+      </View>
+    </View>
+  );
+}
+
 export default function CreateEventFlowRefactored() {
   const { colors } = useTheme();
   const styles = getStyles(colors);
@@ -525,8 +547,10 @@ export default function CreateEventFlowRefactored() {
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [2, 3],
+      // Keep the whole flyer: iOS's built-in crop editor only ever crops to a
+      // square (the `aspect` prop is Android-only), which chopped posters. No
+      // editing → the full poster is uploaded and the card sizes to its ratio.
+      allowsEditing: false,
       quality: 0.8,
     });
 
@@ -1099,7 +1123,11 @@ export default function CreateEventFlowRefactored() {
           </View>
 
           <View style={styles.entryBody}>
-            <Text style={styles.entryTitle}>{t('organizerCreateEventFlow.entry.title')}</Text>
+            <View style={styles.entryIntro}>
+              <Text style={styles.entryKicker}>{t('organizerCreateEventFlow.entry.kicker')}</Text>
+              <Text style={styles.entryTitle}>{t('organizerCreateEventFlow.entry.title')}</Text>
+              <Text style={styles.entryLead}>{t('organizerCreateEventFlow.entry.lead')}</Text>
+            </View>
 
             <View style={styles.entryTiles}>
               <TouchableOpacity
@@ -1108,12 +1136,13 @@ export default function CreateEventFlowRefactored() {
                 onPress={() => chooseMode(false)}
               >
                 <View style={styles.entryTileIcon}>
-                  <Ionicons name="pricetags-outline" size={26} color={colors.text} />
+                  <Ionicons name="pricetags-outline" size={24} color={colors.text} />
                 </View>
                 <View style={styles.entryTileText}>
                   <Text style={styles.entryTileLabel}>{t('organizerCreateEventFlow.entry.sellTitle')}</Text>
                   <Text style={styles.entryTileDesc}>{t('organizerCreateEventFlow.entry.sellDesc')}</Text>
                 </View>
+                <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -1122,12 +1151,13 @@ export default function CreateEventFlowRefactored() {
                 onPress={() => chooseMode(true)}
               >
                 <View style={styles.entryTileIcon}>
-                  <Ionicons name="people-outline" size={26} color={colors.text} />
+                  <Ionicons name="people-outline" size={24} color={colors.text} />
                 </View>
                 <View style={styles.entryTileText}>
                   <Text style={styles.entryTileLabel}>{t('organizerCreateEventFlow.entry.rsvpTitle')}</Text>
                   <Text style={styles.entryTileDesc}>{t('organizerCreateEventFlow.entry.rsvpDesc')}</Text>
                 </View>
+                <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
               </TouchableOpacity>
             </View>
 
@@ -1187,15 +1217,16 @@ export default function CreateEventFlowRefactored() {
                 </>
               ) : (
                 <View style={styles.flyerEmpty}>
-                  {/* Clean, minimal base — a subtle near-black gradient with a
-                      single soft glow. No silhouettes/frames; the content leads. */}
+                  {/* A design-canvas base: near-black gradient + a faint
+                      graph-paper grid (Posh-style) so the empty poster reads as
+                      a workspace to fill, not a blank void. */}
                   <LinearGradient
                     colors={['#161616', '#0d0d0d', '#0A0A0A']}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 0.6, y: 1 }}
                     style={StyleSheet.absoluteFill}
                   />
-                  <View style={styles.flyerGlow} />
+                  <GridCanvas lineColor="rgba(255,255,255,0.05)" />
 
                   <View style={styles.flyerContent}>
                     <View style={styles.flyerIconRing}>
@@ -2125,7 +2156,16 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 24,
-    gap: 24,
+    gap: 28,
+  },
+  entryIntro: {
+    gap: 12,
+  },
+  entryKicker: {
+    fontFamily: font.monoRegular,
+    fontSize: 12,
+    letterSpacing: 2,
+    color: colors.textTertiary,
   },
   entryTitle: {
     fontFamily: font.serif,
@@ -2133,19 +2173,25 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     lineHeight: 44,
     color: colors.text,
   },
+  entryLead: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: colors.textSecondary,
+    maxWidth: 320,
+  },
   entryTiles: {
-    flexDirection: 'row',
-    gap: 14,
+    gap: 12,
   },
   entryTile: {
-    flex: 1,
-    minHeight: 190,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
     borderRadius: RADIUS.xl,
     backgroundColor: colors.surfaceRaised,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border,
-    padding: 18,
-    justifyContent: 'space-between',
+    paddingVertical: 18,
+    paddingHorizontal: 18,
   },
   entryTileIcon: {
     width: 48,
@@ -2156,7 +2202,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.surfaceMuted,
   },
   entryTileText: {
-    gap: 4,
+    flex: 1,
+    gap: 3,
   },
   entryTileLabel: {
     fontSize: 17,
@@ -2203,17 +2250,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     gap: 14,
     paddingHorizontal: 24,
-  },
-  flyerGlow: {
-    // A single soft, centered glow — minimal, low-opacity teal whisper.
-    position: 'absolute',
-    top: '30%',
-    alignSelf: 'center',
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    backgroundColor: colors.primary,
-    opacity: 0.07,
   },
   flyerIconRing: {
     width: 62,

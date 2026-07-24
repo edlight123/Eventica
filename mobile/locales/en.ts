@@ -438,7 +438,9 @@ export default {
     saveFailedCreate: 'Failed to create event. Please try again.',
     saveFailedUpdate: 'Failed to update event. Please try again.',
     entry: {
+      kicker: 'NEW EVENT',
       title: "Let's launch your next event",
+      lead: 'Pick how people get in. You can fine-tune everything afterward.',
       subtitle: 'You can change the details later.',
       sellTitle: 'Sell tickets',
       sellDesc: 'Set prices and ticket tiers.',
