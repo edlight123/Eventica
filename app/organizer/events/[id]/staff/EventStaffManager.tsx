@@ -58,6 +58,7 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
     | null
   >(null)
   const [confirmBusy, setConfirmBusy] = useState(false)
+  const [permBusy, setPermBusy] = useState<Record<string, boolean>>({})
 
   const inviteMethodRef = useRef<HTMLSelectElement | null>(null)
 
@@ -274,6 +275,52 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
     [eventId, showToast]
   )
 
+  const handleToggleViewAttendees = useCallback(
+    async (memberId: string, next: boolean) => {
+      const applyValue = (value: boolean) =>
+        setMembers((prev) =>
+          prev.map((m) =>
+            m.id === memberId
+              ? { ...m, permissions: { ...m.permissions, viewAttendees: value } }
+              : m
+          )
+        )
+
+      // Optimistic update; revert if the request fails.
+      setPermBusy((prev) => ({ ...prev, [memberId]: true }))
+      applyValue(next)
+
+      try {
+        const res = await fetch('/api/staff/members/permissions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ eventId, memberId, permissions: { viewAttendees: next } }),
+        })
+        const json = await res.json().catch(() => ({}))
+        if (!res.ok) {
+          applyValue(!next)
+          showToast({ title: 'Error', message: String(json?.error || 'Failed to update permissions'), type: 'error' })
+          return
+        }
+        showToast({
+          title: 'Permissions updated',
+          message: next ? 'They can now view the attendee list.' : 'They can no longer view the attendee list.',
+          type: 'success',
+        })
+      } catch (err: any) {
+        applyValue(!next)
+        showToast({ title: 'Error', message: err?.message || 'Failed to update permissions', type: 'error' })
+      } finally {
+        setPermBusy((prev) => {
+          const nextState = { ...prev }
+          delete nextState[memberId]
+          return nextState
+        })
+      }
+    },
+    [eventId, showToast]
+  )
+
   const runPendingConfirm = useCallback(async () => {
     if (!pendingConfirm) return
     setConfirmBusy(true)
@@ -339,9 +386,35 @@ export default function EventStaffManager({ eventId }: { eventId: string }) {
                         )}
                       </td>
                       <td className="px-6 py-4 text-sm text-white/70">
-                        Check-in: {m.permissions?.checkin ? 'Yes' : 'No'}
-                        <br />
-                        View attendees: {m.permissions?.viewAttendees ? 'Yes' : 'No'}
+                        <div className="space-y-2">
+                          <div className="text-white/70">Can check in</div>
+                          {m.role === 'owner' ? (
+                            <div className="text-white/70">
+                              Can view attendee list: {m.permissions?.viewAttendees ? 'Yes' : 'No'}
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-3">
+                              <span className="text-white/70">Can view attendee list</span>
+                              <button
+                                type="button"
+                                role="switch"
+                                aria-checked={Boolean(m.permissions?.viewAttendees)}
+                                aria-label="Can view attendee list"
+                                disabled={Boolean(permBusy[m.id])}
+                                onClick={() => handleToggleViewAttendees(m.id, !m.permissions?.viewAttendees)}
+                                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-50 ${
+                                  m.permissions?.viewAttendees ? 'bg-brand-700' : 'bg-white/15'
+                                }`}
+                              >
+                                <span
+                                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                    m.permissions?.viewAttendees ? 'translate-x-6' : 'translate-x-1'
+                                  }`}
+                                />
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <button
