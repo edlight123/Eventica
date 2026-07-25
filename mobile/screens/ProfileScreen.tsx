@@ -38,7 +38,6 @@ import {
   type AttendanceVisibility,
   type ProfileVisibility,
 } from '../types/social';
-import StatTriplet from '../components/StatTriplet';
 import VerifiedBadge from '../components/VerifiedBadge';
 import StatusChip from '../components/StatusChip';
 import PosterEventCard from '../components/PosterEventCard';
@@ -510,14 +509,17 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          <View style={styles.statBlock}>
-            <StatTriplet
-              items={[
-                { label: t('profile.eventsAttended'), value: statsLoaded ? accountStats.eventsAttended : null },
-                { label: t('profile.following'), value: statsLoaded ? accountStats.following : null },
-                { label: t('profile.followers'), value: statsLoaded ? accountStats.followers : null },
-              ]}
-            />
+          <View style={styles.statsRow}>
+            {[
+              { label: t('profile.eventsAttended'), value: statsLoaded ? accountStats.eventsAttended : null },
+              { label: t('profile.following'), value: statsLoaded ? accountStats.following : null },
+              { label: t('profile.followers'), value: statsLoaded ? accountStats.followers : null },
+            ].map((s, i) => (
+              <View key={s.label} style={[styles.statItem, i > 0 && styles.statItemDivided]}>
+                <Text style={styles.statValue}>{s.value ?? '—'}</Text>
+                <Text style={styles.statLabel}>{s.label}</Text>
+              </View>
+            ))}
           </View>
 
           {isEditing ? (
@@ -986,19 +988,20 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   // Elevation, not borders (POSH §1): the card separates from the canvas by
   // being a brightness step lighter, never by drawing a 1px box.
+  // POSH: the profile identity sits directly on the black canvas — no raised
+  // card, no nested boxes. Just a compact avatar + name + a slim stat line.
   card: {
-    backgroundColor: colors.surface,
-    borderRadius: RADIUS.lg,
-    padding: 16,
+    paddingTop: 4,
+    paddingBottom: 8,
   },
   profileRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   avatar: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: colors.borderLight,
@@ -1048,8 +1051,30 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 12,
     color: colors.textSecondary,
   },
-  statBlock: {
-    marginTop: 16,
+  statsRow: {
+    flexDirection: 'row',
+    marginTop: 18,
+  },
+  statItem: {
+    flex: 1,
+  },
+  statItemDivided: {
+    borderLeftWidth: StyleSheet.hairlineWidth,
+    borderLeftColor: colors.borderLight,
+    paddingLeft: 16,
+  },
+  statValue: {
+    fontFamily: 'JetBrainsMono_500Medium',
+    fontSize: 19,
+    color: colors.text,
+    letterSpacing: -0.5,
+  },
+  statLabel: {
+    marginTop: 3,
+    fontSize: 10.5,
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    color: colors.textTertiary,
   },
   editForm: {
     marginTop: 16,

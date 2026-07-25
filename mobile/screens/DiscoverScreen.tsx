@@ -120,6 +120,12 @@ export default function DiscoverScreen({ navigation, route }: any) {
   // Animated header values
   const scrollY = useRef(new Animated.Value(0)).current;
   const scrollViewRef = useRef<ScrollView>(null);
+  // Measured height of the big serif masthead so we can collapse exactly it
+  // (freeing that space) on scroll while keeping the search pill + tabs pinned.
+  // Measured ONCE at rest — measuring again while the container is animating to
+  // height 0 can report the clipped value and lock the masthead collapsed.
+  const [headlineH, setHeadlineH] = useState(64);
+  const headlineMeasured = useRef(false);
   
   // Interpolations for collapsing header
   const headerHeight = scrollY.interpolate({
@@ -149,6 +155,18 @@ export default function DiscoverScreen({ navigation, route }: any) {
   const searchBarScale = scrollY.interpolate({
     inputRange: [0, 50],
     outputRange: [1, 0.98],
+    extrapolate: 'clamp',
+  });
+
+  // Collapse the masthead's height + fade it as the feed scrolls up.
+  const headlineCollapse = scrollY.interpolate({
+    inputRange: [0, 44],
+    outputRange: [headlineH, 0],
+    extrapolate: 'clamp',
+  });
+  const headlineOpacity = scrollY.interpolate({
+    inputRange: [0, 32],
+    outputRange: [1, 0],
     extrapolate: 'clamp',
   });
 
@@ -579,9 +597,22 @@ export default function DiscoverScreen({ navigation, route }: any) {
     <View style={styles.container}>
       {/* Posh-style header: oversized serif masthead + filter/search pill + tabs */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <Text style={styles.headline} numberOfLines={2}>
-          {t('discover.headline')}
-        </Text>
+        <Animated.View style={{ height: headlineCollapse, opacity: headlineOpacity, overflow: 'hidden' }}>
+          <Text
+            style={styles.headline}
+            numberOfLines={2}
+            onLayout={(e) => {
+              if (headlineMeasured.current) return;
+              const h = e.nativeEvent.layout.height;
+              if (h > 8) {
+                headlineMeasured.current = true;
+                setHeadlineH(h);
+              }
+            }}
+          >
+            {t('discover.headline')}
+          </Text>
+        </Animated.View>
         <View style={styles.searchPill}>
           {searchMode ? (
             <>
@@ -633,11 +664,16 @@ export default function DiscoverScreen({ navigation, route }: any) {
       </View>
 
       {/* Feed */}
-      <ScrollView
+      <Animated.ScrollView
         ref={scrollViewRef}
         style={styles.content}
         contentContainerStyle={[styles.feedContent, { paddingBottom: 32 + insets.bottom }]}
         showsVerticalScrollIndicator={false}
+        scrollEventThrottle={16}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: false }
+        )}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -662,7 +698,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
 
         {discoverTab === 'saved' &&
           renderFeed(savedEvents, t('discover.saved.emptyTitle'), t('discover.saved.emptySubtitle'))}
-      </ScrollView>
+      </Animated.ScrollView>
 
       <EventFiltersSheet />
 
