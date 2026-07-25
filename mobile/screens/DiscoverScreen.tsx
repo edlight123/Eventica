@@ -850,11 +850,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   headline: {
     fontFamily: 'InstrumentSerif_400Regular',
     fontSize: 40,
-    lineHeight: 42,
+    // Roomy enough that the serif ascenders aren't clipped by the collapsing
+    // header's overflow:hidden wrapper (a 42 line-height cropped the letters).
+    lineHeight: 52,
     letterSpacing: -0.5,
     color: colors.text,
     marginTop: 2,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   searchPill: {
     flexDirection: 'row',

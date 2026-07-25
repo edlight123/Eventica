@@ -7,6 +7,7 @@ import { AppModeProvider } from './contexts/AppModeContext';
 import { FiltersProvider } from './contexts/FiltersContext';
 import { I18nProvider } from './contexts/I18nContext';
 import AppNavigator from './navigation/AppNavigator';
+import BootScreen from './components/BootScreen';
 
 export default function App() {
   const [fontsLoaded, fontError] = useFonts({
@@ -17,7 +18,7 @@ export default function App() {
   });
 
   if (!fontsLoaded && !fontError) {
-    return null;
+    return <BootScreen />;
   }
 
   return (

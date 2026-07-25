@@ -12,6 +12,7 @@ import { useAppMode } from '../contexts/AppModeContext';
 import { ThemeProvider, useTheme } from '../contexts/ThemeContext';
 import { COLORS } from '../config/brand';
 import { getVerificationRequest } from '../lib/verification';
+import BootScreen from '../components/BootScreen';
 import { getPendingInvite } from '../lib/pendingInvite';
 import { clearPendingPayment, getPendingPayment } from '../lib/pendingPayment';
 import { addPushNotificationListeners, registerForPushNotificationsIfPossible } from '../lib/pushNotifications';
@@ -568,7 +569,7 @@ export default function AppNavigator() {
   }, [canUseOrganizerMode, loading, mode, modeLoading, navigationRef, user]);
 
   if (loading || modeLoading) {
-    return null; // or a loading screen
+    return <BootScreen />; // branded loading, never a black void
   }
 
   const MainTabNavigator = 
