@@ -16,8 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
-import { db } from '../../config/firebase';
-import { collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
+import { backendJson } from '../../lib/api/backend';
 import { useI18n } from '../../contexts/I18nContext';
 import InfoNotice from '../../components/organizer/InfoNotice';
 
@@ -63,50 +62,26 @@ export default function SendEventUpdateScreen() {
           onPress: async () => {
             setSending(true);
             try {
-              // Create event update
-              await addDoc(collection(db, 'event_updates'), {
-                event_id: eventId,
-                title: title.trim(),
-                message: message.trim(),
-                created_at: serverTimestamp(),
-              });
-
-              // Get all ticket holders
-              const ticketsQuery = query(
-                collection(db, 'tickets'),
-                where('event_id', '==', eventId),
-                where('status', 'in', ['active', 'checked_in', 'confirmed'])
-              );
-
-              const ticketsSnapshot = await getDocs(ticketsQuery);
-              const attendeeIds = new Set<string>();
-              
-              ticketsSnapshot.docs.forEach((doc) => {
-                const data = doc.data();
-                if (data.attendee_id) {
-                  attendeeIds.add(data.attendee_id);
+              // Server-side (Admin SDK): writes the event_update and fans out
+              // notifications to attendees. Doing this client-side used to require
+              // an open cross-user notification-write rule (audit M4).
+              const { notified } = await backendJson<{ success: boolean; notified: number }>(
+                '/api/organizer/event-update',
+                {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    eventId,
+                    title: title.trim(),
+                    message: message.trim(),
+                  }),
                 }
-              });
-
-              // Create notifications for all attendees
-              const notificationPromises = Array.from(attendeeIds).map((attendeeId) =>
-                addDoc(collection(db, 'users', attendeeId, 'notifications'), {
-                  type: 'event_update',
-                  title: `${t('organizerSendUpdate.notificationTitlePrefix')}${eventTitle}`,
-                  message: title,
-                  eventId: eventId,
-                  isRead: false,
-                  createdAt: serverTimestamp(),
-                })
               );
-
-              await Promise.all(notificationPromises);
 
               Alert.alert(
                 t('common.success'),
-                attendeeIds.size === 1
+                notified === 1
                   ? t('organizerSendUpdate.success.bodySingular')
-                  : `${t('organizerSendUpdate.success.bodyPluralPrefix')}${attendeeIds.size}${t('organizerSendUpdate.success.bodyPluralSuffix')}`,
+                  : `${t('organizerSendUpdate.success.bodyPluralPrefix')}${notified}${t('organizerSendUpdate.success.bodyPluralSuffix')}`,
                 [
                   {
                     text: t('common.ok'),

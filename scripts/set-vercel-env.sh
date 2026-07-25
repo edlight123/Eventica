@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+#
+# Interactively push production environment variables to Vercel.
+#
+# YOU run this and type the values — they go straight from your terminal into
+# Vercel's encrypted store. Secret values are read silently (not echoed, not
+# stored in this file or your shell history).
+#
+# Prereqs:
+#   npm i -g vercel      # or: npx vercel@latest ...
+#   vercel login
+#   vercel link          # once, from the repo root, to link this project
+#
+# Usage:
+#   ./scripts/set-vercel-env.sh
+#
+# After it finishes, redeploy so the new vars take effect:
+#   vercel --prod        # or push to your production branch
+#
+set -euo pipefail
+
+if ! command -v vercel >/dev/null 2>&1; then
+  echo "❌ Vercel CLI not found. Install it:  npm i -g vercel" >&2
+  exit 1
+fi
+
+# Set a Production env var, overwriting any existing value. Reads the value from
+# stdin so the secret never appears as a shell argument.
+set_env() {
+  local name="$1" value="$2"
+  # Remove an existing value first (ignore failure if it doesn't exist yet),
+  # then add fresh. --yes skips the interactive confirmation prompt.
+  vercel env rm "$name" production --yes >/dev/null 2>&1 || true
+  printf '%s' "$value" | vercel env add "$name" production >/dev/null
+  echo "  ✓ $name set"
+}
+
+prompt_secret() {  # $1 = var name, $2 = human hint
+  local val
+  read -rsp "  $1 ($2): " val; echo
+  if [ -n "$val" ]; then set_env "$1" "$val"; else echo "  – skipped $1 (empty)"; fi
+}
+
+ask() { read -rp "$1 [y/N] " a; [[ "$a" == "y" || "$a" == "Y" ]]; }
+
+echo "This sets PRODUCTION environment variables on the linked Vercel project."
+echo
+
+# ── 1. Public config (not a secret) ─────────────────────────────────────────
+if ask "Set NEXT_PUBLIC_APP_URL = https://tikem.co ?"; then
+  set_env "NEXT_PUBLIC_APP_URL" "https://tikem.co"
+fi
+echo
+
+# ── 2. MonCash go-live (secrets) ────────────────────────────────────────────
+if ask "Configure MonCash live payments now?"; then
+  prompt_secret "MONCASH_CLIENT_ID"  "Digicel client id"
+  prompt_secret "MONCASH_SECRET_KEY" "Digicel secret key"
+  set_env "MONCASH_MODE" "live"
+  set_env "MONCASH_MERCHANT_API_ENABLED" "true"
+  echo "  ℹ After redeploy, verify with: node scripts/verify-moncash.mjs"
+fi
+echo
+
+# ── 3. Deep links / universal links (semi-secret) ───────────────────────────
+if ask "Configure deep-link association (APPLE_TEAM_ID / Android fingerprint)?"; then
+  prompt_secret "APPLE_TEAM_ID"                   "Apple Developer Team ID"
+  prompt_secret "ANDROID_SHA256_CERT_FINGERPRINTS" "SHA-256 from 'eas credentials', comma-separated"
+fi
+echo
+
+echo "✅ Done. Now redeploy production:  vercel --prod   (or push your prod branch)"
