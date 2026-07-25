@@ -77,15 +77,16 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 12,
-    marginBottom: 8,
+    paddingTop: 8,
+    paddingBottom: 4,
+    marginBottom: 4,
     alignItems: 'flex-start',
   },
   heading: {
     fontFamily: font.mono,
     fontSize: 12,
     letterSpacing: 0.8,
-    marginBottom: 8,
+    marginBottom: 6,
     textTransform: 'uppercase',
   },
   unitsRow: {
@@ -99,7 +100,7 @@ const styles = StyleSheet.create({
   },
   unitValue: {
     fontFamily: font.mono,
-    fontSize: 28,
+    fontSize: 24,
     fontVariant: ['tabular-nums'],
   },
   unitLabel: {
@@ -110,9 +111,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   separator: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '700',
     marginHorizontal: 2,
-    marginBottom: 16,
+    marginBottom: 14,
   },
 });
