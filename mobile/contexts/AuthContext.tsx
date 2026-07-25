@@ -166,15 +166,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     // Production mode: Use Firebase
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
-      
+
       if (firebaseUser) {
-        await refreshUserProfile(firebaseUser.uid);
+        // Refresh the profile in the BACKGROUND — do NOT await it here. Offline,
+        // a cold-start getDoc can stall on Firestore's connection attempt, and
+        // awaiting it would leave `loading` true forever, so the app hangs on
+        // the splash and never launches with no internet. refreshUserProfile
+        // has its own try/catch and updates state when it resolves (cache or
+        // server). The app renders immediately either way.
+        refreshUserProfile(firebaseUser.uid);
       } else {
         setUserProfile(null);
       }
-      
+
       setLoading(false);
     });
 
