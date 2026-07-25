@@ -84,13 +84,11 @@ service cloud.firestore {
     // Users collection - users can read their own data; writes are restricted to
     // non-privileged profile fields to prevent role/verification escalation.
     match /users/{userId} {
-      // H4 (HELD): this read stays `isSignedIn()` for now so any signed-in user
-      // can still read another user's doc. The final owner-only lockdown
-      // (`allow read: if isOwner(userId)`) is a SEPARATE gated step the human
-      // performs AFTER public_profiles/{uid} is backfilled and all cross-user
-      // client reads have moved to it. Do NOT tighten this here. Server code
-      // uses the Admin SDK (bypasses rules) and is unaffected.
-      allow read: if isSignedIn();
+      // H4 (ENFORCED): a user's full doc (email, phone_number, privacy, etc.)
+      // is readable only by its owner. Cross-user display reads the SAFE
+      // public_profiles/{uid} projection instead; server code uses the Admin
+      // SDK (bypasses rules) and is unaffected.
+      allow read: if isOwner(userId);
 
       // Create: users may create their own profile but cannot self-assign privileged roles
       // or mark themselves verified.
@@ -111,15 +109,11 @@ service cloud.firestore {
       // Notifications subcollection - users can read their own, organizers can send to attendees
       match /notifications/{notificationId} {
         allow read: if isOwner(userId);
-        // M4 (HELD): the secure state is `create: if isOwner(userId)`, but the
-        // organizer "Send event update" flow still fans out notifications into
-        // attendees' feeds from the CLIENT (SendEventUpdateScreen). Locking this
-        // now would break that feature until a server (Admin SDK) fan-out
-        // endpoint ships and the mobile OTA propagates. Kept permissive on
-        // CREATE only — read/update/delete remain owner-scoped — until that
-        // migration lands. TODO: move event-update fan-out server-side, then
-        // set create back to isOwner(userId).
-        allow create: if isSignedIn();
+        // M4 (ENFORCED): only the feed owner may create client-side. Cross-user
+        // notification fan-out (organizer "Send event update") now goes through
+        // the Admin SDK endpoint POST /api/organizer/event-update, which
+        // bypasses rules — so client cross-user notification injection is closed.
+        allow create: if isOwner(userId);
         allow update, delete: if isOwner(userId);
       }
       
