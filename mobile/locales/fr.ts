@@ -1800,6 +1800,13 @@ export default {
       continue: 'Continuer le paiement',
       checkTickets: 'Voir mes billets',
       discard: 'Ignorer',
+      headerTitle: 'Paiement sécurisé',
+      secure: 'Paiement sécurisé',
+      connecting: 'Connexion au paiement sécurisé…',
+      cancelTitle: 'Annuler le paiement ?',
+      cancelBody: 'Votre billet n’est pas encore confirmé. Quitter le paiement ?',
+      cancelConfirm: 'Quitter',
+      cancelKeep: 'Continuer',
     },
   },
 

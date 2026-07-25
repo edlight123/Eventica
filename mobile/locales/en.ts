@@ -886,6 +886,13 @@ export default {
       continue: 'Continue Payment',
       checkTickets: 'Check Tickets',
       discard: 'Discard',
+      headerTitle: 'Secure checkout',
+      secure: 'Secured payment',
+      connecting: 'Connecting to secure payment…',
+      cancelTitle: 'Cancel payment?',
+      cancelBody: 'Your ticket isn’t confirmed yet. Leave the payment?',
+      cancelConfirm: 'Leave',
+      cancelKeep: 'Keep paying',
     },
   },
 

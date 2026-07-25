@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native'
+import { ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { useNavigation, useRoute } from '@react-navigation/native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Ionicons } from '@expo/vector-icons'
 import { WebView } from 'react-native-webview'
 import { useTheme } from '../contexts/ThemeContext';
 import { auth } from '../config/firebase'
@@ -18,10 +20,20 @@ type Params = {
 export default function PaymentWebViewScreen() {
   const { colors } = useTheme();
   const styles = getStyles(colors);
+  const insets = useSafeAreaInsets()
   const navigation = useNavigation<any>()
   const route = useRoute<any>()
   const { url, authToken, title, eventId } = (route.params || {}) as Params
   const { t } = useI18n()
+
+  // Host shown as a trust cue in the header (e.g. "tikem.co").
+  const hostLabel = useMemo(() => {
+    try {
+      return new URL(url).host.replace(/^www\./, '')
+    } catch {
+      return ''
+    }
+  }, [url])
 
   const webViewRef = useRef<WebView>(null)
   const [loading, setLoading] = useState(true)
@@ -87,6 +99,26 @@ export default function PaymentWebViewScreen() {
     [handledTerminal, navigation, t]
   )
 
+  // Closing mid-payment could drop an in-flight ticket purchase, so confirm
+  // first (unless the flow already reached a terminal success/failure).
+  const handleRequestClose = useCallback(() => {
+    if (handledTerminal) {
+      navigation.goBack()
+      return
+    }
+    Alert.alert(t('screens.payment.cancelTitle'), t('screens.payment.cancelBody'), [
+      { text: t('screens.payment.cancelKeep'), style: 'cancel' },
+      {
+        text: t('screens.payment.cancelConfirm'),
+        style: 'destructive',
+        onPress: () => {
+          clearPendingPayment().catch(() => {})
+          navigation.goBack()
+        },
+      },
+    ])
+  }, [handledTerminal, navigation, t])
+
   const onNavChange = useCallback(
     (nextUrl: string) => {
       if (!nextUrl || handledTerminal) return
@@ -112,20 +144,56 @@ export default function PaymentWebViewScreen() {
     [finishWithFailure, finishWithSuccess, handledTerminal, t]
   )
 
+  // Shared header: close (with cancel-confirm) + a secure-payment trust cue.
+  const header = (
+    <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
+      <TouchableOpacity
+        style={styles.headerButton}
+        onPress={handleRequestClose}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        accessibilityLabel={t('common.close')}
+      >
+        <Ionicons name="close" size={24} color={colors.text} />
+      </TouchableOpacity>
+      <View style={styles.headerCenter}>
+        <Text style={styles.headerTitle} numberOfLines={1}>
+          {title || t('screens.payment.headerTitle')}
+        </Text>
+        <View style={styles.secureRow}>
+          <Ionicons name="lock-closed" size={11} color={colors.textSecondary} />
+          <Text style={styles.secureText} numberOfLines={1}>
+            {hostLabel || t('screens.payment.secure')}
+          </Text>
+        </View>
+      </View>
+      {/* Spacer to keep the title centered opposite the close button. */}
+      <View style={styles.headerButton} />
+    </View>
+  )
+
+  const brandedLoading = (
+    <View style={styles.loadingOverlay}>
+      <ActivityIndicator size="large" color={colors.primary} />
+      <Text style={styles.loadingText}>{t('screens.payment.connecting')}</Text>
+    </View>
+  )
+
   if (!url) {
     return <View style={styles.center} />
   }
 
   if (needsAuthHeader && !resolvedAuthToken) {
     return (
-      <View style={styles.loadingOverlay}>
-        <ActivityIndicator size="large" color={colors.primary} />
+      <View style={styles.container}>
+        {header}
+        {brandedLoading}
       </View>
     )
   }
 
   return (
     <View style={styles.container}>
+      {header}
       <WebView
         ref={webViewRef}
         source={{
@@ -159,11 +227,7 @@ export default function PaymentWebViewScreen() {
         domStorageEnabled
       />
 
-      {loading ? (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-      ) : null}
+      {loading ? brandedLoading : null}
     </View>
   )
 }
@@ -177,6 +241,41 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     backgroundColor: colors.background,
   },
+  header: {
+    zIndex: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingBottom: 10,
+    backgroundColor: colors.background,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+  },
+  headerButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerCenter: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  secureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 2,
+  },
+  secureText: {
+    fontSize: 11,
+    color: colors.textSecondary,
+  },
   loadingOverlay: {
     position: 'absolute',
     top: 0,
@@ -186,5 +285,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.background,
+  },
+  loadingText: {
+    marginTop: 14,
+    fontSize: 13,
+    color: colors.textSecondary,
   },
 })

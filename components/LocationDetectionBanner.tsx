@@ -133,45 +133,39 @@ export function LocationDetectionBanner({
   return (
     <div
       className={`
-        fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-lg
+        fixed top-3 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-1.5rem)] max-w-xs
         transition-all duration-300 ease-out
         ${hasAnimatedIn
           ? 'opacity-100 translate-y-0'
-          : 'opacity-0 -translate-y-4'
+          : 'opacity-0 -translate-y-3'
         }
       `}
     >
-      {/* Flat, crisp card — no glass, glow, gradient, or shadow */}
-      <div className="rounded-2xl bg-[#0a0a0a] border border-white/10 p-4 sm:p-5">
-        <div className="min-w-0">
-          <span className="text-xs font-semibold text-brand-600 uppercase tracking-wide">
-            Location detected
-          </span>
-          <p className="text-white font-medium mt-1 mb-0.5">
-            It looks like you&apos;re in
-          </p>
-          <p className="text-lg sm:text-xl font-bold text-white truncate">
-            {location.displayName}
-          </p>
-
-          {/* Action buttons */}
-          <div className="flex items-center gap-2 mt-3">
-            <button
-              onClick={handleAccept}
-              disabled={isAccepting}
-              className="px-4 py-2.5 bg-gray-900 text-white text-sm font-semibold rounded-xl hover:bg-gray-800 disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
-            >
-              {isAccepting ? 'Saving…' : 'Use this location'}
-            </button>
-
-            <button
-              onClick={handleDismiss}
-              className="px-4 py-2.5 text-sm font-medium text-white/65 hover:text-white hover:bg-white/[0.04] rounded-xl transition-colors"
-            >
-              Not now
-            </button>
-          </div>
-        </div>
+      {/* Compact single-line pill: pin + "Events near {place}?" + Use / dismiss */}
+      <div className="flex items-center gap-2 rounded-full bg-[#0a0a0a] border border-white/10 pl-3.5 pr-1.5 py-1.5">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" className="shrink-0 text-brand-500" aria-hidden>
+          <path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+          <circle cx="12" cy="11" r="2" stroke="currentColor" strokeWidth="2" />
+        </svg>
+        <p className="flex-1 min-w-0 truncate text-[13px] text-white/70">
+          Events near <span className="font-semibold text-white">{location.displayName}</span>?
+        </p>
+        <button
+          onClick={handleAccept}
+          disabled={isAccepting}
+          className="shrink-0 rounded-full bg-white px-3 py-1.5 text-[13px] font-semibold text-black hover:opacity-90 disabled:opacity-60 transition-opacity"
+        >
+          {isAccepting ? '…' : 'Use'}
+        </button>
+        <button
+          onClick={handleDismiss}
+          aria-label="Not now"
+          className="shrink-0 flex h-7 w-7 items-center justify-center rounded-full text-white/50 hover:bg-white/[0.06] hover:text-white transition-colors"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </button>
       </div>
     </div>
   )

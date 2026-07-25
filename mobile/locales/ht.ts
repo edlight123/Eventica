@@ -1798,6 +1798,13 @@ export default {
       continue: 'Kontinye peman',
       checkTickets: 'Gade biyè yo',
       discard: 'Anile',
+      headerTitle: 'Peman sekirize',
+      secure: 'Peman sekirize',
+      connecting: 'N ap konekte ak peman sekirize a…',
+      cancelTitle: 'Anile peman an?',
+      cancelBody: 'Biyè w poko konfime. Ou vle kite peman an?',
+      cancelConfirm: 'Kite',
+      cancelKeep: 'Kontinye',
     },
   },
 

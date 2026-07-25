@@ -601,10 +601,7 @@ export default function AppNavigator() {
             <Stack.Screen
               name="PaymentWebView"
               component={PaymentWebViewScreen}
-              options={({ route }) => ({
-                headerShown: true,
-                headerTitle: (route as any)?.params?.title || t('screens.payment.complete'),
-              })}
+              options={{ headerShown: false }}
             />
             <Stack.Screen name="StripeConnectWebView" component={StripeConnectWebViewScreen} options={{ headerShown: false }} />
             <Stack.Screen
