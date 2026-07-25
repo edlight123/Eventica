@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
-import { format } from 'date-fns';
+import { safeFormatForLanguage } from '../lib/dates';
 import { useI18n } from '../contexts/I18nContext';
 
 interface AddToCalendarButtonProps {
@@ -31,7 +31,7 @@ interface AddToCalendarButtonProps {
 export default function AddToCalendarButton({ event, style }: AddToCalendarButtonProps) {
   const { colors } = useTheme();
   const styles = getStyles(colors);
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [showModal, setShowModal] = React.useState(false);
 
   const startDate = new Date(event.start_datetime);
@@ -138,7 +138,7 @@ export default function AddToCalendarButton({ event, style }: AddToCalendarButto
 
             <Text style={styles.eventPreview}>{event.title}</Text>
             <Text style={styles.datePreview}>
-              {format(startDate, 'EEEE, MMMM dd, yyyy')} • {format(startDate, 'h:mm a')}
+              {safeFormatForLanguage(startDate, 'EEEE, MMMM dd, yyyy', language)} • {safeFormatForLanguage(startDate, 'h:mm a', language)}
             </Text>
 
             <View style={styles.optionsContainer}>

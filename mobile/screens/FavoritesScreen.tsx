@@ -21,7 +21,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import EmptyState from '../components/EmptyState';
 import PosterEventCard from '../components/PosterEventCard';
 import { GridSkeleton } from '../components/Skeleton';
-import { format } from 'date-fns';
+import { safeFormatForLanguage } from '../lib/dates';
 
 const { width } = Dimensions.get('window');
 const FAV_COLUMN_WIDTH = (width - 32 - 12) / 2;
@@ -30,7 +30,7 @@ export default function FavoritesScreen({ navigation }: any) {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const { user } = useAuth();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const insets = useSafeAreaInsets();
   const [favoriteEvents, setFavoriteEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -135,7 +135,7 @@ export default function FavoritesScreen({ navigation }: any) {
   const handleShare = async (event: any) => {
     try {
       await Share.share({
-        message: `Check out ${event.title}!\n\nDate: ${event.start_datetime && format(event.start_datetime, 'EEEE, MMMM dd, yyyy')}\nVenue: ${event.venue_name}`,
+        message: `Check out ${event.title}!\n\nDate: ${event.start_datetime && safeFormatForLanguage(event.start_datetime, 'EEEE, MMMM dd, yyyy', language)}\nVenue: ${event.venue_name}`,
         title: event.title,
       });
     } catch (error) {

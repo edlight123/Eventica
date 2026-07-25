@@ -65,7 +65,8 @@ export default function TieredTicketSelector({
 }: TieredTicketSelectorProps) {
   const { colors } = useTheme();
   const styles = getStyles(colors);
-  const { t } = useI18n();
+  const { t, language } = useI18n();
+  const locale = language === 'fr' ? 'fr-FR' : language === 'ht' ? 'fr-HT' : 'en-US';
   const displayCurrency = String(currency || 'HTG').toUpperCase();
   const [tiers, setTiers] = useState<TicketTier[]>([]);
   const [groupDiscounts, setGroupDiscounts] = useState<GroupDiscount[]>([]);
@@ -183,7 +184,7 @@ export default function TieredTicketSelector({
     if (!iso) return '';
     const d = new Date(iso);
     if (isNaN(d.getTime())) return '';
-    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    return d.toLocaleDateString(locale, { month: 'short', day: 'numeric' });
   };
 
   const getAvailableQuantity = (tier: TicketTier): number => {

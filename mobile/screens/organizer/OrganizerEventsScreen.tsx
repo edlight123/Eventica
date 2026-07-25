@@ -36,7 +36,8 @@ export default function OrganizerEventsScreen() {
   const styles = getStyles(colors);
   const navigation = useNavigation<NavigationProp>();
   const { userProfile } = useAuth();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
+  const locale = language === 'fr' ? 'fr-FR' : language === 'ht' ? 'fr-HT' : 'en-US';
   const insets = useSafeAreaInsets();
   const [eventTab, setEventTab] = useState<'upcoming' | 'past'>('upcoming');
   const [allEvents, setAllEvents] = useState<OrganizerEvent[]>([]);
@@ -192,12 +193,12 @@ export default function OrganizerEventsScreen() {
         ) : (
           events.map((event) => {
             const eventDate = new Date(event.start_datetime);
-            const formattedDate = eventDate.toLocaleDateString('en-US', {
+            const formattedDate = eventDate.toLocaleDateString(locale, {
               month: 'short',
               day: 'numeric',
               year: 'numeric',
             });
-            const formattedTime = eventDate.toLocaleTimeString('en-US', {
+            const formattedTime = eventDate.toLocaleTimeString(locale, {
               hour: 'numeric',
               minute: '2-digit',
             });

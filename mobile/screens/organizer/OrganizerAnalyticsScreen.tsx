@@ -24,6 +24,7 @@ import StatTriplet from '../../components/StatTriplet';
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
 import SegmentedTabs from '../../components/organizer/SegmentedTabs';
 import { format, subDays, startOfDay } from 'date-fns';
+import { safeFormatForLanguage } from '../../lib/dates';
 
 const { width } = Dimensions.get('window');
 
@@ -50,7 +51,7 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const { userProfile } = useAuth();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const { formatMoney: fmtMoney } = useLocaleFormat();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -235,7 +236,7 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
       const chartDates = sortedDates.slice(-7);
       for (const dateKey of chartDates) {
         chart.push({
-          date: format(new Date(dateKey), 'MMM dd'),
+          date: safeFormatForLanguage(new Date(dateKey), 'MMM dd', language),
           sales: dailySales[dateKey]?.sales || 0,
           revenue: dailySales[dateKey]?.revenue || 0,
         });
@@ -356,7 +357,7 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
                       />
                     </View>
                     <Text style={styles.chartLabel} numberOfLines={1}>
-                      {showLabel ? item.date.split(' ')[1] : ''}
+                      {showLabel ? (item.date.match(/\d+/)?.[0] ?? '') : ''}
                     </Text>
                   </View>
                 );

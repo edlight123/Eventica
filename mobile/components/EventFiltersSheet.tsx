@@ -32,7 +32,8 @@ import { useTheme } from '../contexts/ThemeContext';
 export default function EventFiltersSheet() {
   const { colors } = useTheme();
   const styles = getStyles(colors);
-  const { t } = useI18n();
+  const { t, language } = useI18n();
+  const locale = language === 'fr' ? 'fr-FR' : language === 'ht' ? 'fr-HT' : 'en-US';
   const {
     draftFilters,
     isModalOpen,
@@ -191,7 +192,7 @@ export default function EventFiltersSheet() {
                     onPress={() => setShowDatePicker(true)}
                   >
                     <Text style={styles.selectedDateText}>
-                      {t('filters.selected')}: {new Date(draftFilters.pickedDate).toLocaleDateString()}
+                      {t('filters.selected')}: {new Date(draftFilters.pickedDate).toLocaleDateString(locale)}
                     </Text>
                     <Text style={styles.selectedDateHint}>{t('filters.tapToChange')}</Text>
                   </TouchableOpacity>

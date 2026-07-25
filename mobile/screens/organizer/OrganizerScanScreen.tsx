@@ -28,7 +28,8 @@ export default function OrganizerScanScreen() {
   const styles = getStyles(colors);
   const navigation = useNavigation<any>();
   const { userProfile } = useAuth();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
+  const locale = language === 'fr' ? 'fr-FR' : language === 'ht' ? 'fr-HT' : 'en-US';
   const insets = useSafeAreaInsets();
   const [todayEvents, setTodayEvents] = useState<TodayEvent[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<TodayEvent | null>(null);
@@ -71,7 +72,7 @@ export default function OrganizerScanScreen() {
   };
 
   const eventSubtitle = (e: TodayEvent) =>
-    `${new Date(e.start_datetime).toLocaleTimeString('en-US', {
+    `${new Date(e.start_datetime).toLocaleTimeString(locale, {
       hour: 'numeric',
       minute: '2-digit',
     })} • ${e.location}`;

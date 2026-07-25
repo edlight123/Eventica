@@ -31,7 +31,8 @@ export default function OrganizerDashboardScreen() {
   const styles = getStyles(colors);
   const navigation = useNavigation<any>();
   const { userProfile } = useAuth();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
+  const locale = language === 'fr' ? 'fr-FR' : language === 'ht' ? 'fr-HT' : 'en-US';
   const insets = useSafeAreaInsets();
   const [todayEvents, setTodayEvents] = useState<TodayEvent[]>([]);
   const [stats, setStats] = useState<OrganizerStats | null>(null);
@@ -122,7 +123,7 @@ export default function OrganizerDashboardScreen() {
           />
         ) : (
           todayEvents.map((event) => {
-            const eventTime = new Date(event.start_datetime).toLocaleTimeString('en-US', {
+            const eventTime = new Date(event.start_datetime).toLocaleTimeString(locale, {
               hour: 'numeric',
               minute: '2-digit',
             });

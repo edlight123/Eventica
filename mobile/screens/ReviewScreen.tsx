@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useTheme } from '../contexts/ThemeContext';
-import { format } from 'date-fns';
+import { safeFormatForLanguage } from '../lib/dates';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { SHADOWS, RADIUS } from '../config/brand';
@@ -25,7 +25,7 @@ export default function ReviewScreen({ route, navigation }: any) {
   const styles = getStyles(colors);
   const { ticketId, eventId, eventTitle } = route.params;
   const { user } = useAuth();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -172,7 +172,7 @@ export default function ReviewScreen({ route, navigation }: any) {
           <Text style={styles.eventTitle}>{eventTitle || ticket?.event_title}</Text>
           {ticket?.event_date && (
             <Text style={styles.eventDate}>
-              {format(new Date(ticket.event_date), 'MMMM dd, yyyy')}
+              {safeFormatForLanguage(ticket.event_date, 'MMMM dd, yyyy', language)}
             </Text>
           )}
         </View>

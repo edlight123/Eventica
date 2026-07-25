@@ -23,6 +23,7 @@ import EmptyState from '../components/EmptyState';
 import StatusChip from '../components/StatusChip';
 import WhitePillCTA from '../components/WhitePillCTA';
 import { format } from 'date-fns';
+import { safeFormatForLanguage } from '../lib/dates';
 import { useFocusEffect } from '@react-navigation/native';
 import { consumeTicketsRefreshHint } from '../lib/ticketsRefreshHint';
 import { font } from '../theme/tokens';
@@ -31,7 +32,7 @@ export default function TicketsScreen({ navigation }: any) {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const { user } = useAuth();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const insets = useSafeAreaInsets();
   const [upcomingTickets, setUpcomingTickets] = useState<any[]>([]);
   const [pastTickets, setPastTickets] = useState<any[]>([]);
@@ -193,7 +194,7 @@ export default function TicketsScreen({ navigation }: any) {
       const d = event.start_datetime ? new Date(event.start_datetime) : null;
       const valid = d && !Number.isNaN(d.getTime());
       const key = valid ? format(d as Date, 'yyyy-MM') : 'undated';
-      const label = valid ? format(d as Date, 'MMMM yyyy') : t('tickets.undated') || 'Undated';
+      const label = valid ? safeFormatForLanguage(d as Date, 'MMMM yyyy', language) : t('tickets.undated') || 'Undated';
       if (!indexByKey.has(key)) {
         indexByKey.set(key, groups.length);
         groups.push({ key, label, items: [] });
@@ -304,7 +305,7 @@ export default function TicketsScreen({ navigation }: any) {
                     <View style={styles.ticketMetaRow}>
                       <Calendar size={13} color={colors.textSecondary} />
                       <Text style={styles.ticketMetaText} numberOfLines={1}>
-                        {event.start_datetime && format(event.start_datetime, 'EEE, MMM d • h:mm a')}
+                        {event.start_datetime && safeFormatForLanguage(event.start_datetime, 'EEE, MMM d • h:mm a', language)}
                       </Text>
                     </View>
 

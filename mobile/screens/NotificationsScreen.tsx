@@ -35,7 +35,8 @@ export default function NotificationsScreen() {
   const navigation = useNavigation();
   const { user } = useAuth();
   const { setMode } = useAppMode();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
+  const locale = language === 'fr' ? 'fr-FR' : language === 'ht' ? 'fr-HT' : 'en-US';
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -506,7 +507,7 @@ export default function NotificationsScreen() {
 
                   <View style={styles.notificationFooter}>
                     <Text style={styles.notificationTime}>
-                      {new Date(notification.createdAt).toLocaleDateString('en-US', {
+                      {new Date(notification.createdAt).toLocaleDateString(locale, {
                         month: 'short',
                         day: 'numeric',
                         hour: 'numeric',

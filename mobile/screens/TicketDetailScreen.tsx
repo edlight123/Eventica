@@ -5,7 +5,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db } from '../config/firebase';
 import { useTheme } from '../contexts/ThemeContext';
-import { format } from 'date-fns';
+import { safeFormatForLanguage } from '../lib/dates';
 import TransferTicketModal from '../components/TransferTicketModal';
 import AddToWalletButton from '../components/AddToWalletButton';
 import TicketQRCard from '../components/TicketQRCard';
@@ -21,7 +21,7 @@ export default function TicketDetailScreen({ route }: any) {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const { ticketId } = route.params;
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const navigation = useNavigation<any>();
   const [ticket, setTicket] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -226,7 +226,7 @@ export default function TicketDetailScreen({ route }: any) {
             <TicketQRCard
               qrValue={ticketQrValue(ticket, ticketId)}
               eventTitle={ticket.event_title}
-              dateLabel={ticket.event_date ? format(ticket.event_date, 'EEE, MMM d · h:mm a') : undefined}
+              dateLabel={ticket.event_date ? safeFormatForLanguage(ticket.event_date, 'EEE, MMM d · h:mm a', language) : undefined}
               tierName={ticketTierLabel(ticket)}
               holderName={ticket.user_name ? `Admit: ${ticket.user_name}` : undefined}
               orderRef={ticketOrderRef(ticket).replace(/^TKM-/, '')}
@@ -255,7 +255,7 @@ export default function TicketDetailScreen({ route }: any) {
                   </Text>
                   {pendingTransfer.expires_at && (
                     <Text style={styles.pendingTransferExpiry}>
-                      {t('ticketDetail.transfer.expires')} {format(pendingTransfer.expires_at, 'MMM dd, yyyy h:mm a')}
+                      {t('ticketDetail.transfer.expires')} {safeFormatForLanguage(pendingTransfer.expires_at, 'MMM dd, yyyy h:mm a', language)}
                     </Text>
                   )}
                   <TouchableOpacity
@@ -296,10 +296,10 @@ export default function TicketDetailScreen({ route }: any) {
               <View style={styles.infoCardContent}>
                 <Text style={styles.infoCardLabel}>{t('ticketDetail.labels.dateTime')}</Text>
                 <Text style={styles.infoCardValue}>
-                  {ticket.event_date && format(ticket.event_date, 'MMM dd, yyyy')}
+                  {ticket.event_date && safeFormatForLanguage(ticket.event_date, 'MMM dd, yyyy', language)}
                 </Text>
                 <Text style={styles.infoCardSubvalue}>
-                  {ticket.event_date && format(ticket.event_date, 'h:mm a')}
+                  {ticket.event_date && safeFormatForLanguage(ticket.event_date, 'h:mm a', language)}
                 </Text>
               </View>
             </View>
@@ -340,13 +340,13 @@ export default function TicketDetailScreen({ route }: any) {
             {tierValidity?.from && (
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>{t('organizerCreateEventFlow.canvas.ticketValidFromLabel')}</Text>
-                <Text style={styles.detailValue}>{format(tierValidity.from, 'MMM dd, yyyy h:mm a')}</Text>
+                <Text style={styles.detailValue}>{safeFormatForLanguage(tierValidity.from, 'MMM dd, yyyy h:mm a', language)}</Text>
               </View>
             )}
             {tierValidity?.until && (
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>{t('organizerCreateEventFlow.canvas.ticketValidUntilLabel')}</Text>
-                <Text style={styles.detailValue}>{format(tierValidity.until, 'MMM dd, yyyy h:mm a')}</Text>
+                <Text style={styles.detailValue}>{safeFormatForLanguage(tierValidity.until, 'MMM dd, yyyy h:mm a', language)}</Text>
               </View>
             )}
             <View style={styles.detailRow}>
@@ -368,7 +368,7 @@ export default function TicketDetailScreen({ route }: any) {
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>{t('ticketDetail.details.purchaseDate')}</Text>
               <Text style={styles.detailValue}>
-                {ticket.purchase_date && format(ticket.purchase_date, 'MMM dd, yyyy')}
+                {ticket.purchase_date && safeFormatForLanguage(ticket.purchase_date, 'MMM dd, yyyy', language)}
               </Text>
             </View>
           </View>
@@ -380,7 +380,7 @@ export default function TicketDetailScreen({ route }: any) {
                 ticketId={ticket.id}
                 qrCodeData={ticketQrValue(ticket, ticketId)}
                 eventTitle={ticket.event_title}
-                eventDate={ticket.event_date ? format(ticket.event_date, 'MMMM dd, yyyy h:mm a') : ''}
+                eventDate={ticket.event_date ? safeFormatForLanguage(ticket.event_date, 'MMMM dd, yyyy h:mm a', language) : ''}
                 venueName={ticket.venue_name}
                 ticketNumber={1}
                 totalTickets={ticket.quantity || 1}

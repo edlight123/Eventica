@@ -22,12 +22,19 @@ export function getDateFnsLocale(language: Language) {
 // to locale-correct equivalents; unknown patterns pass through unchanged.
 const FR_PATTERN_MAP: Record<string, string> = {
   'EEE, MMM d · h:mm a': 'EEE d MMM · HH:mm',
+  'EEE, MMM d • h:mm a': 'EEE d MMM • HH:mm',
+  'MMM d, yyyy · h:mm a': 'd MMM yyyy · HH:mm',
   'EEE, MMM d': 'EEE d MMM',
   'EEEE, MMMM d, yyyy': 'EEEE d MMMM yyyy',
-  'EEEE, MMMM dd, yyyy': 'EEEE d MMMM yyyy',
+  'EEEE, MMMM dd, yyyy': 'EEEE dd MMMM yyyy',
   'MMMM d, yyyy': 'd MMMM yyyy',
+  'MMMM dd, yyyy': 'dd MMMM yyyy',
+  'MMMM dd, yyyy h:mm a': 'dd MMMM yyyy HH:mm',
   'MMM d, yyyy': 'd MMM yyyy',
+  'MMM dd, yyyy': 'dd MMM yyyy',
+  'MMM dd, yyyy h:mm a': 'dd MMM yyyy HH:mm',
   'MMM d': 'd MMM',
+  'MMM dd': 'dd MMM',
   'h:mm a': 'HH:mm',
 }
 

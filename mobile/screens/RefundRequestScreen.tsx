@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useTheme } from '../contexts/ThemeContext';
-import { format } from 'date-fns';
+import { safeFormatForLanguage } from '../lib/dates';
 import { useI18n } from '../contexts/I18nContext';
 import { SHADOWS, RADIUS } from '../config/brand';
 import { backendFetch } from '../lib/api/backend';
@@ -24,7 +24,7 @@ export default function RefundRequestScreen({ route, navigation }: any) {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const { ticketId } = route.params;
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const insets = useSafeAreaInsets();
   const [ticket, setTicket] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -153,7 +153,7 @@ export default function RefundRequestScreen({ route, navigation }: any) {
           <View style={styles.ticketRow}>
             <Ionicons name="calendar-outline" size={16} color={colors.textSecondary} />
             <Text style={styles.ticketInfo}>
-              {ticket.event_date && format(new Date(ticket.event_date), 'EEEE, MMMM dd, yyyy')}
+              {ticket.event_date && safeFormatForLanguage(ticket.event_date, 'EEEE, MMMM dd, yyyy', language)}
             </Text>
           </View>
           <View style={styles.ticketRow}>

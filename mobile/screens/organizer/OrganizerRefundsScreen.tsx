@@ -25,7 +25,7 @@ import { Skeleton } from '../../components/Skeleton';
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
 import SegmentedTabs from '../../components/organizer/SegmentedTabs';
 import { Receipt } from 'lucide-react-native';
-import { format } from 'date-fns';
+import { safeFormatForLanguage } from '../../lib/dates';
 
 interface RefundRequest {
   id: string;
@@ -45,7 +45,7 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const { userProfile } = useAuth();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const { formatMoney } = useLocaleFormat();
   const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
@@ -303,7 +303,7 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
                 <View style={styles.detailRow}>
                   <Ionicons name="time-outline" size={16} color={colors.textSecondary} />
                   <Text style={styles.detailText}>
-                    {request.requested_at && format(new Date(request.requested_at), 'MMM dd, yyyy h:mm a')}
+                    {request.requested_at && safeFormatForLanguage(request.requested_at, 'MMM dd, yyyy h:mm a', language)}
                   </Text>
                 </View>
               </View>

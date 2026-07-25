@@ -2,7 +2,9 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { CalendarPlus, MapPin, Send, ExternalLink } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
-import { format } from 'date-fns';
+import { useI18n } from '../contexts/I18nContext';
+import type { Language } from '../contexts/I18nContext';
+import { safeFormatForLanguage } from '../lib/dates';
 import TicketQRCard from './TicketQRCard';
 import StatusChip from './StatusChip';
 import AddToWalletButton from './AddToWalletButton';
@@ -19,12 +21,9 @@ interface TicketPassCardProps {
   onTransferPress?: () => void;
 }
 
-/** Guarded date → formatted label; returns undefined for missing/invalid dates. */
-function safeDate(value: any, pattern: string): string | undefined {
-  if (!value) return undefined;
-  const d = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(d.getTime())) return undefined;
-  return format(d, pattern);
+/** Guarded, locale-aware date → formatted label; returns undefined for missing/invalid dates. */
+function safeDate(value: any, pattern: string, language: Language): string | undefined {
+  return safeFormatForLanguage(value, pattern, language) || undefined;
 }
 
 function toDate(value: any): Date | null {
@@ -49,6 +48,7 @@ export default function TicketPassCard({
   onTransferPress,
 }: TicketPassCardProps) {
   const { colors } = useTheme();
+  const { language } = useI18n();
   const styles = getStyles(colors);
 
   const start = toDate(event?.start_datetime) || toDate(ticket?.event_date);
@@ -57,7 +57,7 @@ export default function TicketPassCard({
   const isUsed = !!ticket?.checked_in_at || String(ticket?.status || '').toLowerCase() === 'used';
 
   const eventTitle = event?.title || ticket?.event_title || 'Event';
-  const dateLabel = safeDate(start, 'EEE, MMM d · h:mm a');
+  const dateLabel = safeDate(start, 'EEE, MMM d · h:mm a', language);
   const tier = ticketTierLabel(ticket);
   const holder = user?.displayName || user?.email || undefined;
   const orderRef = ticketOrderRef(ticket);
@@ -107,7 +107,7 @@ export default function TicketPassCard({
       {isUsed && ticket?.checked_in_at && (
         <View style={styles.usedBanner}>
           <Text style={styles.usedBannerText}>
-            ✓ Checked in {safeDate(ticket.checked_in_at, 'MMM d, yyyy · h:mm a') || ''}
+            ✓ Checked in {safeDate(ticket.checked_in_at, 'MMM d, yyyy · h:mm a', language) || ''}
           </Text>
         </View>
       )}
