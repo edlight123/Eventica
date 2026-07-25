@@ -71,6 +71,24 @@ if (!isBuildTime && !getApps().length) {
 }
 
 export const adminAuth = app ? getAuth(app) : ({} as any)
-export const adminDb = app ? getFirestore(app) : ({} as any)
+
+// ignoreUndefinedProperties: without it, any .set()/.update() carrying an
+// `undefined` field value throws ("Cannot use 'undefined' as a Firestore
+// value") and fails the whole write — e.g. the Haiti payout save passed
+// bankDetails/allowInstantMoncash as undefined and every save errored with
+// "Failed to save payout settings". Stripping undefined at the driver level
+// is the standard, safe default and prevents this whole class of bug.
+function initAdminDb() {
+  if (!app) return {} as any
+  const db = getFirestore(app)
+  try {
+    db.settings({ ignoreUndefinedProperties: true })
+  } catch {
+    // settings() throws if the instance was already used/configured; the app
+    // only creates it here, so this is a no-op safety net.
+  }
+  return db
+}
+export const adminDb = initAdminDb()
 export const adminStorage = app ? getStorage(app) : ({} as any)
 export default app

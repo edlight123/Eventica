@@ -39,7 +39,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { colors as T, font } from '../theme/tokens';
-import { format } from 'date-fns';
+import { safeFormatForLanguage } from '../lib/dates';
 import { isValidDate } from '../lib/dates';
 import WhitePillCTA from '../components/WhitePillCTA';
 import VerifiedBadge from '../components/VerifiedBadge';
@@ -58,7 +58,7 @@ const POSTER_W = width * 0.86;
 export default function EventDetailScreen({ route, navigation }: any) {
   const { eventId } = route.params;
   const { user, userProfile } = useAuth();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const [event, setEvent] = useState<any>(null);
@@ -265,7 +265,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `${t('eventDetail.share.checkOut')} ${event.title}!\n\n${event.description?.substring(0, 100)}...\n\n${t('eventDetail.share.date')}: ${event.start_datetime && format(event.start_datetime, 'EEEE, MMMM dd, yyyy')}\n${t('eventDetail.share.venue')}: ${event.venue_name}\n${t('eventDetail.share.organizer')}: ${event.users?.full_name || event.organizer_name || t('eventDetail.organizerFallback')}\n\nhttps://tikem.co/events/${eventId}`,
+        message: `${t('eventDetail.share.checkOut')} ${event.title}!\n\n${event.description?.substring(0, 100)}...\n\n${t('eventDetail.share.date')}: ${event.start_datetime && safeFormatForLanguage(event.start_datetime, 'EEEE, MMMM dd, yyyy', language)}\n${t('eventDetail.share.venue')}: ${event.venue_name}\n${t('eventDetail.share.organizer')}: ${event.users?.full_name || event.organizer_name || t('eventDetail.organizerFallback')}\n\nhttps://tikem.co/events/${eventId}`,
         title: event.title,
       });
     } catch (error) {
@@ -515,11 +515,11 @@ export default function EventDetailScreen({ route, navigation }: any) {
               <Calendar size={18} color={colors.textSecondary} />
               <View style={styles.factText}>
                 <Text style={styles.factValue}>
-                  {startValid && format(startValid, 'EEEE, MMMM d, yyyy')}
+                  {startValid && safeFormatForLanguage(startValid, 'EEEE, MMMM d, yyyy', language)}
                 </Text>
                 <Text style={styles.factSub}>
-                  {startValid && format(startValid, 'h:mm a')}
-                  {endValid && ` – ${format(endValid, 'h:mm a')}`}
+                  {startValid && safeFormatForLanguage(startValid, 'h:mm a', language)}
+                  {endValid && ` – ${safeFormatForLanguage(endValid, 'h:mm a', language)}`}
                 </Text>
               </View>
             </View>
