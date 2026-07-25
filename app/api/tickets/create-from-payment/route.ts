@@ -149,6 +149,7 @@ export async function POST(request: Request) {
       const ticketData = {
         event_id: paymentIntent.metadata.eventId,
         attendee_id: paymentIntent.metadata.userId,
+        user_id: paymentIntent.metadata.userId,
         attendee_name: attendee?.full_name || attendee?.email || 'Guest',
         // Organizer-facing/event-currency amount.
         price_paid: Number.isFinite(priceInOriginalCurrency) && priceInOriginalCurrency > 0 ? priceInOriginalCurrency : pricePerTicket,

@@ -287,7 +287,11 @@ export default function TicketScannerScreen() {
       // status is allowed; anything else (refunded, revoked, void, cancelled, …)
       // is blocked so the scanner can't admit a refunded or voided ticket.
       const rawStatus = String(ticketData.status ?? '').trim().toLowerCase();
-      const statusAllowed = rawStatus === '' || rawStatus === 'valid' || rawStatus === 'active';
+      const statusAllowed =
+        rawStatus === '' ||
+        rawStatus === 'valid' ||
+        rawStatus === 'active' ||
+        rawStatus === 'confirmed';
       if (!statusAllowed) {
         setScanResult({
           status: 'CANCELLED',

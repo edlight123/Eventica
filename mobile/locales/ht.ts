@@ -843,6 +843,7 @@ export default {
     failed: 'Nou pa t kapab aksepte envitasyon an.',
     login: 'Konekte',
     close: 'Fèmen',
+    goHome: 'Tounen lakay',
     errors: {
       expired: 'Lyen envitasyon sa a ekspire. Mande òganizatè a yon nouvo.',
       alreadyClaimed: 'Lyen envitasyon sa a deja itilize. Mande òganizatè a yon nouvo.',

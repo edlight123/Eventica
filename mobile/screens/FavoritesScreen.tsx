@@ -12,7 +12,7 @@ import {
   Dimensions
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Heart, Share2, Ticket, Compass } from 'lucide-react-native';
+import { Heart, Share2, Ticket, Compass, ArrowLeft } from 'lucide-react-native';
 import { collection, query, where, getDocs, addDoc, deleteDoc, doc, getDocs as getDocsFirestore } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
@@ -171,6 +171,11 @@ export default function FavoritesScreen({ navigation }: any) {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+        {navigation.canGoBack() && (
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton} hitSlop={8}>
+            <ArrowLeft size={24} color={colors.text} />
+          </TouchableOpacity>
+        )}
         <Text style={styles.headerTitle}>{t('favorites.title')}</Text>
       </View>
 
@@ -187,7 +192,7 @@ export default function FavoritesScreen({ navigation }: any) {
             title={t('favorites.emptyTitle')}
             subtitle={t('favorites.emptyBody')}
             actionLabel={t('favorites.explore')}
-            onAction={() => navigation.navigate('Discover')}
+            onAction={() => navigation.navigate('Main', { screen: 'Discover' })}
           />
         ) : (
           <View style={styles.eventsGrid}>
@@ -241,6 +246,15 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.background,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    marginBottom: 8,
   },
   headerTitle: {
     fontFamily: 'InstrumentSerif_400Regular',

@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { X, Send, Copy, AlertCircle } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
+import { backendJson } from '../lib/api/backend';
 
 interface TransferTicketModalProps {
   visible: boolean;
@@ -70,23 +71,16 @@ export default function TransferTicketModal({
     setLoading(true);
 
     try {
-      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL || 'https://tikem.co'}/api/tickets/transfer/request`, {
+      // Use the authenticated backend helper so the Firebase token + session
+      // cookie are attached (a plain fetch is unauthenticated and 401s).
+      const data = await backendJson<any>('/api/tickets/transfer/request', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           ticketId,
           toEmail: toEmail.trim(),
           message: message.trim(),
         }),
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to transfer ticket');
-      }
 
       // Show transfer link if available
       if (data.transfer?.transferToken) {

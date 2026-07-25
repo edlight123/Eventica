@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     const ticketsSnapshot = await adminDb
       .collection('tickets')
       .where('event_id', '==', eventId)
-      .where('status', 'in', ['active', 'checked_in', 'confirmed'])
+      .where('status', 'in', ['active', 'valid', 'checked_in', 'confirmed'])
       .get()
 
     const attendeeIds = new Set<string>()

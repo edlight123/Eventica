@@ -92,14 +92,26 @@ export default function EventTicketsScreen({ route, navigation }: any) {
         });
       }
 
-      // Fetch tickets for this event and user
-      const ticketsQuery = query(
-        collection(db, 'tickets'),
-        where('event_id', '==', eventId),
-        where('user_id', '==', user.uid)
-      );
-      const ticketsSnapshot = await getDocs(ticketsQuery);
-      const ticketsData = ticketsSnapshot.docs.map(doc => ({
+      // Fetch tickets for this event and user. Paid tickets are stamped with
+      // `attendee_id` while free/legacy tickets use `user_id`, so query BOTH
+      // fields and merge de-duplicated by doc id.
+      const [byUserId, byAttendeeId] = await Promise.all([
+        getDocs(query(
+          collection(db, 'tickets'),
+          where('event_id', '==', eventId),
+          where('user_id', '==', user.uid)
+        )),
+        getDocs(query(
+          collection(db, 'tickets'),
+          where('event_id', '==', eventId),
+          where('attendee_id', '==', user.uid)
+        )),
+      ]);
+      const ticketDocsById = new Map<string, any>();
+      [...byUserId.docs, ...byAttendeeId.docs].forEach(doc => {
+        if (!ticketDocsById.has(doc.id)) ticketDocsById.set(doc.id, doc);
+      });
+      const ticketsData = Array.from(ticketDocsById.values()).map(doc => ({
         id: doc.id,
         ...doc.data(),
       }));

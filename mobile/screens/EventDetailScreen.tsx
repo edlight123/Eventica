@@ -372,7 +372,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
     Alert.alert(
       t('screens.payment.successTitle'),
       t('screens.payment.successBody'),
-      [{ text: t('common.ok'), onPress: () => navigation.navigate('Tickets') }]
+      [{ text: t('common.ok'), onPress: () => navigation.navigate('Main', { screen: 'Tickets' }) }]
     );
   };
 

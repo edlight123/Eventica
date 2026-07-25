@@ -153,19 +153,49 @@ export default function OrganizerPayoutSettingsScreenV2() {
   const loadDestinations = useCallback(async () => {
     if (!user?.uid) return
 
+    const combined: PayoutDestination[] = []
+
     try {
       // Load bank destinations from backend
       const bankRes = await backendFetch('/api/organizer/payout-destinations/bank')
       if (bankRes.ok) {
         const data = await bankRes.json()
         const list = (data?.destinations || []) as BankDestination[]
-        setDestinations(list)
-        return list
+        combined.push(...list)
       }
     } catch (e) {
       console.error('Failed to load destinations:', e)
     }
-    return [] as PayoutDestination[]
+
+    // Mobile-money (MonCash/NatCash) payout lives on the Haiti payout PROFILE,
+    // not the bank destinations endpoint. Surface it as a destination row so a
+    // saved MonCash method shows as configured instead of the empty state.
+    try {
+      const profileRes = await backendFetch('/api/organizer/payout-profiles/haiti')
+      if (profileRes.ok) {
+        const data = await profileRes.json()
+        const mm = data?.profile?.mobileMoneyDetails
+        if (mm && (mm.phoneNumber || mm.accountName)) {
+          const phone = String(mm.phoneNumber || '')
+          const digits = phone.replace(/\D/g, '')
+          const last4 = (digits || phone).slice(-4)
+          combined.push({
+            id: 'haiti-mobile-money',
+            type: 'moncash',
+            provider: String(mm.provider || 'moncash'),
+            phoneNumber: phone,
+            phoneNumberLast4: last4,
+            accountName: String(mm.accountName || ''),
+            verificationStatus: data?.profile?.verificationStatus?.phone as VerificationStatus | undefined,
+          })
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load Haiti payout profile:', e)
+    }
+
+    setDestinations(combined)
+    return combined
   }, [user?.uid])
 
   const loadIdentityStatus = useCallback(async () => {

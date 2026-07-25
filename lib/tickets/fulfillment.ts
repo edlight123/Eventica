@@ -292,6 +292,7 @@ export async function fulfillPaidOrder(params: {
             {
               event_id: pendingTx.event_id,
               attendee_id: pendingTx.user_id,
+              user_id: pendingTx.user_id,
               status: 'confirmed',
               ticket_type: selection.tierName || 'General Admission',
               tier_id: selection.tierId || '',

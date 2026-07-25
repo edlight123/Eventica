@@ -144,13 +144,14 @@ export default function InviteRedeemScreen({ route, navigation }: Props) {
           {status === 'error' && user ? (
             <TouchableOpacity
               onPress={() => {
-                setStatus('idle')
-                setMessage('')
-                // trigger effect by navigating to same route? simplest: just re-run by setting message; user can reopen link.
+                // A deep-linked cold start has no back stack, so clearing the
+                // message would strand the user. Reset to Main so there's
+                // always a forward path home.
+                navigation.reset({ index: 0, routes: [{ name: 'Main' as any }] })
               }}
               style={{ marginTop: 10, paddingVertical: 10, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: colors.border }}
             >
-              <Text style={{ color: colors.text, fontWeight: '600' }}>{t('inviteRedeem.close')}</Text>
+              <Text style={{ color: colors.text, fontWeight: '600' }}>{t('inviteRedeem.goHome')}</Text>
             </TouchableOpacity>
           ) : null}
         </View>

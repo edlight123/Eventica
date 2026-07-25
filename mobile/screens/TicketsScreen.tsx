@@ -47,14 +47,18 @@ export default function TicketsScreen({ navigation }: any) {
     }
 
     try {
-      // Fetch tickets
-      const q = query(
-        collection(db, 'tickets'),
-        where('user_id', '==', user.uid)
-      );
-      
-      const snapshot = await getDocs(q);
-      const ticketsData = snapshot.docs.map(doc => {
+      // Fetch tickets. Paid tickets are stamped with `attendee_id` while
+      // free/legacy tickets use `user_id`, so query BOTH fields and merge the
+      // results de-duplicated by doc id (a ticket may carry both fields).
+      const [byUserId, byAttendeeId] = await Promise.all([
+        getDocs(query(collection(db, 'tickets'), where('user_id', '==', user.uid))),
+        getDocs(query(collection(db, 'tickets'), where('attendee_id', '==', user.uid))),
+      ]);
+      const ticketDocsById = new Map<string, any>();
+      [...byUserId.docs, ...byAttendeeId.docs].forEach(doc => {
+        if (!ticketDocsById.has(doc.id)) ticketDocsById.set(doc.id, doc);
+      });
+      const ticketsData = Array.from(ticketDocsById.values()).map(doc => {
         const data = doc.data();
         return {
           id: doc.id,

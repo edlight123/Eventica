@@ -1092,6 +1092,7 @@ export default {
     failed: 'Failed to accept invite.',
     login: 'Log in',
     close: 'Close',
+    goHome: 'Go home',
     errors: {
       expired: 'This invite link has expired. Ask the organizer for a new one.',
       alreadyClaimed: 'This invite link was already used. Ask the organizer for a new one.',

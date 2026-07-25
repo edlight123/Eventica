@@ -845,6 +845,7 @@ export default {
     failed: 'Échec de l’acceptation de l’invitation.',
     login: 'Se connecter',
     close: 'Fermer',
+    goHome: 'Retour à l’accueil',
     errors: {
       expired: 'Ce lien d’invitation a expiré. Demandez-en un nouveau à l’organisateur.',
       alreadyClaimed: 'Ce lien d’invitation a déjà été utilisé. Demandez-en un nouveau à l’organisateur.',
