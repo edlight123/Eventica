@@ -903,7 +903,13 @@ export default {
       cancelled: 'Biyè sa a anile.',
       scanFailed: 'Pa t kapab eskane biyè a. Tanpri eseye ankò.',
       checkInSuccessful: 'Verifikasyon reyisi!',
+      checkInQueued: 'Verifye — l ap senkronize lè koneksyon tounen.',
       checkInFailed: 'Pa t kapab verifye biyè a. Tanpri eseye ankò.',
+      offlineNotCached: 'Ou offline e biyè sa a pa nan kach. Rekonekte yon fwa pou chaje lis envite a.',
+    },
+    offline: {
+      banner: 'Offline — verifikasyon yo ap senkronize lè ou rekonekte.',
+      ready: '{count} envite pare pou verifikasyon offline',
     },
   },
 

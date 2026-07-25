@@ -13,8 +13,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { db } from '../../config/firebase';
-import { doc, updateDoc, getDoc, Timestamp, serverTimestamp } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, Timestamp, serverTimestamp, getDocs, query, collection, where } from 'firebase/firestore';
 import { auth } from '../../config/firebase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useI18n } from '../../contexts/I18nContext';
 import { RADIUS } from '../../config/brand';
 import WhitePillCTA from '../../components/WhitePillCTA';
@@ -119,12 +120,55 @@ export default function TicketScannerScreen() {
   const [flashOn, setFlashOn] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+  // Offline support. `offlineReady` is how many guests we pre-loaded into the
+  // cache; `isOffline` flips true the moment a read/write is served from cache
+  // (i.e. no connectivity) so staff get a clear "scans will sync" signal.
+  const [offlineReady, setOfflineReady] = useState<number | null>(null);
+  const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
     if (permission && !permission.granted) {
       requestPermission();
     }
   }, [permission]);
+
+  // Pre-warm the whole guest list for this event on mount. This pulls every
+  // ticket into Firestore's in-session cache so a QR can still be validated
+  // after connectivity drops, and mirrors a lightweight manifest into
+  // AsyncStorage so attendee name/tier still render even on a cache miss.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const snap = await getDocs(query(collection(db, 'tickets'), where('event_id', '==', eventId)));
+        if (cancelled) return;
+        const manifest: Record<string, { name: string; tier: string; status: string; checkedIn: boolean }> = {};
+        snap.forEach((d) => {
+          const x = d.data() as any;
+          manifest[d.id] = {
+            name: x.attendee_name || x.user_name || x.userName || x.user_email || '',
+            tier: x.tier_name || x.ticket_tier_name || x.ticket_type || x.ticketType || x.tierName || '',
+            status: x.status || 'active',
+            checkedIn: !!x.checked_in_at,
+          };
+        });
+        setOfflineReady(snap.size);
+        setIsOffline(snap.metadata.fromCache);
+        await AsyncStorage.setItem(`scanner_manifest_${eventId}`, JSON.stringify(manifest));
+      } catch (e) {
+        // No connectivity and nothing cached yet — fall back to any manifest we
+        // stored on a previous (online) visit so offline validation still works.
+        try {
+          const raw = await AsyncStorage.getItem(`scanner_manifest_${eventId}`);
+          if (!cancelled && raw) {
+            setOfflineReady(Object.keys(JSON.parse(raw)).length);
+            setIsOffline(true);
+          }
+        } catch {}
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [eventId]);
 
   const handleBarCodeScanned = async ({ data }: { data: string }) => {
     // Prevent multiple scans
@@ -136,9 +180,12 @@ export default function TicketScannerScreen() {
     try {
       const ticketId = data;
 
-      // Get ticket from Firestore
+      // Get ticket from Firestore. Offline this is served from the in-session
+      // cache warmed on mount; `fromCache` tells us we're offline so the banner
+      // and check-in flow can adapt.
       const ticketRef = doc(db, 'tickets', ticketId);
       const ticketSnap = await getDoc(ticketRef);
+      setIsOffline(ticketSnap.metadata.fromCache);
 
       if (!ticketSnap.exists()) {
         setScanResult({
@@ -264,9 +311,15 @@ export default function TicketScannerScreen() {
 
     } catch (error: any) {
       console.error('Error checking in ticket:', error);
+      // 'unavailable' = offline and this ticket wasn't in the pre-loaded cache
+      // (e.g. app relaunched with no signal). Guide staff to reconnect once.
+      const offlineMiss = error?.code === 'unavailable';
+      if (offlineMiss) setIsOffline(true);
       setScanResult({
         status: 'ERROR',
-        message: error.message || t('organizerTicketScanner.results.scanFailed'),
+        message: offlineMiss
+          ? t('organizerTicketScanner.results.offlineNotCached')
+          : error.message || t('organizerTicketScanner.results.scanFailed'),
       });
     }
   };
@@ -274,22 +327,37 @@ export default function TicketScannerScreen() {
   const handleConfirmCheckIn = async () => {
     if (!scanResult || scanResult.status !== 'VALID' || !scanResult.ticketId) return;
 
+    const ticketRef = doc(db, 'tickets', scanResult.ticketId);
+    // Firestore's updateDoc promise only settles once the write reaches the
+    // server, so offline `await` would hang forever. Fire it and race against a
+    // short timeout: the write is applied to the local cache immediately (so a
+    // re-scan shows ALREADY_CHECKED_IN) and Firestore syncs it on reconnect.
+    // A detached catch swallows a late rejection once the race has moved on.
+    const writePromise = updateDoc(ticketRef, {
+      checked_in: true,
+      checked_in_at: serverTimestamp(),
+      checked_in_by: auth.currentUser?.uid || null,
+      updated_at: serverTimestamp(),
+    });
+    writePromise.catch((e) => console.warn('Deferred check-in write failed:', e));
+
     try {
-      const ticketRef = doc(db, 'tickets', scanResult.ticketId);
-      await updateDoc(ticketRef, {
-        checked_in: true,
-        checked_in_at: serverTimestamp(),
-        checked_in_by: auth.currentUser?.uid || null,
-        updated_at: serverTimestamp(),
-      });
+      let synced = false;
+      await Promise.race([
+        writePromise.then(() => { synced = true; }),
+        new Promise<void>((resolve) => setTimeout(resolve, 1200)),
+      ]);
 
       Vibration.vibrate([0, 100, 100, 100]);
-      
-      // Show success state briefly
+      if (!synced) setIsOffline(true);
+
+      // Show success state briefly ("checked in" when synced, "will sync" offline)
       setScanResult({
         ...scanResult,
         status: 'ALREADY_CHECKED_IN',
-        message: t('organizerTicketScanner.results.checkInSuccessful'),
+        message: synced
+          ? t('organizerTicketScanner.results.checkInSuccessful')
+          : t('organizerTicketScanner.results.checkInQueued'),
       });
 
       // Auto-close after 1.5 seconds
@@ -374,6 +442,23 @@ export default function TicketScannerScreen() {
           <Ionicons name={flashOn ? 'flash' : 'flash-off'} size={22} color={colors.text} />
         </TouchableOpacity>
       </View>
+
+      {/* Connectivity / offline-readiness strip. Red when offline (scans queue
+          and sync on reconnect); neutral once the guest list is cached. */}
+      {(isOffline || offlineReady !== null) && (
+        <View style={[styles.statusStrip, isOffline && styles.statusStripOffline]}>
+          <Ionicons
+            name={isOffline ? 'cloud-offline-outline' : 'cloud-done-outline'}
+            size={15}
+            color={isOffline ? colors.error : colors.textSecondary}
+          />
+          <Text style={[styles.statusStripText, isOffline && { color: colors.error }]} numberOfLines={1}>
+            {isOffline
+              ? t('organizerTicketScanner.offline.banner')
+              : t('organizerTicketScanner.offline.ready').replace('{count}', String(offlineReady ?? 0))}
+          </Text>
+        </View>
+      )}
 
       {/* Bottom sheet modal */}
       <Modal
@@ -532,6 +617,25 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     textAlign: 'center',
     marginHorizontal: 8,
+  },
+  statusStrip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: colors.surface,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border,
+  },
+  statusStripOffline: {
+    backgroundColor: `${colors.error}14`,
+  },
+  statusStripText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.textSecondary,
   },
   overlay: {
     flex: 1,

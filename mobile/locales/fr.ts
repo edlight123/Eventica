@@ -905,7 +905,13 @@ export default {
       cancelled: 'Ce billet a été annulé.',
       scanFailed: 'Impossible de scanner le billet. Veuillez réessayer.',
       checkInSuccessful: 'Entrée confirmée !',
+      checkInQueued: 'Enregistré — synchronisation dès le retour en ligne.',
       checkInFailed: 'Impossible d’enregistrer ce billet. Veuillez réessayer.',
+      offlineNotCached: 'Hors ligne et ce billet n’est pas en cache. Reconnectez-vous une fois pour charger la liste.',
+    },
+    offline: {
+      banner: 'Hors ligne — les entrées se synchroniseront à la reconnexion.',
+      ready: '{count} invités prêts pour l’enregistrement hors ligne',
     },
   },
 

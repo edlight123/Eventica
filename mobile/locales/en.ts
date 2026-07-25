@@ -1030,7 +1030,13 @@ export default {
       cancelled: 'This ticket has been cancelled.',
       scanFailed: 'Failed to scan ticket. Please try again.',
       checkInSuccessful: 'Check-in successful!',
+      checkInQueued: 'Checked in — will sync when back online.',
       checkInFailed: 'Failed to check in ticket. Please try again.',
+      offlineNotCached: 'Offline and this ticket isn’t cached. Reconnect once to load the guest list.',
+    },
+    offline: {
+      banner: 'Offline — check-ins will sync when you reconnect.',
+      ready: '{count} guests ready for offline check-in',
     },
   },
 

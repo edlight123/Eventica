@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Alert, TouchableOpacity, Platform } from 'react-native';
 import { Calendar, MapPin, User as UserIcon, Ticket as TicketIcon, Send, Star, RotateCcw, CalendarPlus, Navigation } from 'lucide-react-native';
 import { doc, getDoc } from 'firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db } from '../config/firebase';
 import { useTheme } from '../contexts/ThemeContext';
 import { format } from 'date-fns';
@@ -35,22 +36,50 @@ export default function TicketDetailScreen({ route }: any) {
     fetchPendingTransfer();
   }, [ticketId]);
 
+  const cacheKey = `ticket_cache_${ticketId}`;
+
   const fetchTicketDetails = async () => {
     try {
       const ticketDoc = await getDoc(doc(db, 'tickets', ticketId));
       if (ticketDoc.exists()) {
         const data = ticketDoc.data();
-        setTicket({
+        const built = {
           id: ticketDoc.id,
           ...data,
           event_date: data.event_date?.toDate ? data.event_date.toDate() : data.event_date ? new Date(data.event_date) : null,
           purchase_date: data.purchase_date?.toDate ? data.purchase_date.toDate() : data.purchase_date ? new Date(data.purchase_date) : null
-        });
+        };
+        setTicket(built);
         resolveTierValidity(data);
+        // Cache a JSON-safe copy so the attendee can still show their QR at the
+        // door with no signal (the QR is generated locally from this data).
+        try {
+          await AsyncStorage.setItem(cacheKey, JSON.stringify({
+            ...built,
+            event_date: built.event_date ? built.event_date.toISOString() : null,
+            purchase_date: built.purchase_date ? built.purchase_date.toISOString() : null,
+          }));
+        } catch {}
       }
     } catch (error) {
       console.error('Error fetching ticket:', error);
-      Alert.alert(t('common.error'), t('ticketDetail.loadError'));
+      // Offline and not in Firestore's session cache — fall back to the last
+      // cached copy so the QR still renders. Only error out if we have nothing.
+      try {
+        const raw = await AsyncStorage.getItem(cacheKey);
+        if (raw) {
+          const c = JSON.parse(raw);
+          setTicket({
+            ...c,
+            event_date: c.event_date ? new Date(c.event_date) : null,
+            purchase_date: c.purchase_date ? new Date(c.purchase_date) : null,
+          });
+        } else {
+          Alert.alert(t('common.error'), t('ticketDetail.loadError'));
+        }
+      } catch {
+        Alert.alert(t('common.error'), t('ticketDetail.loadError'));
+      }
     } finally {
       setLoading(false);
     }
