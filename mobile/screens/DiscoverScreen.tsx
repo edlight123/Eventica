@@ -12,6 +12,7 @@ import {
   Animated,
   RefreshControl,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Calendar, MapPin, Search, X, SlidersHorizontal, Users } from 'lucide-react-native';
@@ -593,8 +594,25 @@ export default function DiscoverScreen({ navigation, route }: any) {
       ))
     );
 
+  // Ambient backdrop: the top poster of the active list, heavily blurred and
+  // faded, so its colours wash faintly behind the header + feed instead of pure
+  // black. Fades to solid black lower down so content stays legible.
+  const ambientList = discoverTab === 'saved' ? savedEvents : feedEvents;
+  const ambientUri = ambientList[0]?.banner_image_url || ambientList[0]?.cover_image_url || null;
+
   return (
     <View style={styles.container}>
+      {ambientUri ? (
+        <View style={StyleSheet.absoluteFill} pointerEvents="none">
+          <Image source={{ uri: ambientUri }} style={styles.ambientImg} blurRadius={40} />
+          <LinearGradient
+            colors={['rgba(10,10,10,0.35)', 'rgba(10,10,10,0.9)', '#0A0A0A']}
+            locations={[0, 0.55, 0.82]}
+            style={StyleSheet.absoluteFill}
+          />
+        </View>
+      ) : null}
+
       {/* Posh-style header: oversized serif masthead + filter/search pill + tabs */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <Animated.View style={{ height: headlineCollapse, opacity: headlineOpacity, overflow: 'hidden' }}>
@@ -842,8 +860,16 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   content: {
     flex: 1,
   },
+  ambientImg: {
+    ...StyleSheet.absoluteFillObject,
+    width: undefined,
+    height: undefined,
+    opacity: 0.45,
+    resizeMode: 'cover',
+  },
   header: {
-    backgroundColor: colors.background,
+    // Transparent so the ambient poster wash shows behind the masthead + tabs.
+    backgroundColor: 'transparent',
     paddingHorizontal: 16,
     paddingBottom: 6,
   },

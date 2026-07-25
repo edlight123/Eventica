@@ -565,7 +565,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 6,
-    backgroundColor: colors.errorLight || colors.background,
+    backgroundColor: 'transparent',
   },
   clearAllText: {
     fontSize: 14,
@@ -625,19 +625,24 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingBottom: 32,
     gap: 8,
   },
-  // Elevation, not borders (POSH §1): raised surface, no 1px box. The teal left
-  // accent is kept as the semantic unread marker.
+  // Elevation, not borders (POSH §1): a clean raised surface with soft shadow —
+  // no colored strips or 1px box. Unread state is signalled only by the small
+  // teal dot next to the title (a sparing accent).
   notificationCard: {
     flexDirection: 'row',
     backgroundColor: colors.surfaceRaised,
     borderRadius: 16,
     padding: 16,
     gap: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: 'transparent',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 2,
   },
   notificationCardUnread: {
-    borderLeftColor: colors.primary,
+    shadowOpacity: 0.2,
+    elevation: 3,
   },
   iconContainer: {
     width: 40,

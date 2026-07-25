@@ -6,6 +6,7 @@ import { NavigationContainer, useNavigationContainerRef } from '@react-navigatio
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { useAuth } from '../contexts/AuthContext';
 import { useAppMode } from '../contexts/AppModeContext';
@@ -189,9 +190,16 @@ function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
   return (
     <View style={[tabBarStyles.container, {
       backgroundColor: colors.background,
-      borderTopColor: colors.border,
       paddingBottom: Math.max(insets.bottom, Platform.OS === 'ios' ? 20 : 8),
     }]}>
+      {/* Short top gradient fade (transparent → canvas) so scrolling content
+          dissolves into the bar instead of hitting a hard seam. No box, no
+          border — the bar reads as part of the black canvas (POSH). */}
+      <LinearGradient
+        colors={['transparent', colors.background]}
+        style={tabBarStyles.topFade}
+        pointerEvents="none"
+      />
       {tabs.map((tab, index) => {
         // Emphasized center Create action — launches the create flow on the
         // root stack rather than switching tabs. Rendered as a white FAB
@@ -282,13 +290,24 @@ const tabBarStyles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     paddingTop: 0,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    // Dark canvas: the hairline top border is the separator. No drop shadow.
+    // No seam: the bar shares the canvas background, has no top border and no
+    // shadow, so it reads as an integrated / floating strip rather than a box.
+    // Separation from scrolling content is handled by the `topFade` gradient.
+    borderTopWidth: 0,
     shadowColor: 'transparent',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0,
     shadowRadius: 0,
     elevation: 0,
+  },
+  // Sits just above the bar (bottom: '100%') and fades from transparent into
+  // the canvas background so content scrolling underneath melts into the bar.
+  topFade: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: '100%',
+    height: 24,
   },
   tab: {
     flex: 1,
