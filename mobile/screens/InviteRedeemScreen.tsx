@@ -11,25 +11,27 @@ import { deleteStaffInviteNotificationsByEvent, deleteStaffInviteNotificationsBy
 import { addStaffEventId } from '../lib/staffAssignments'
 import { backendJson } from '../lib/api/backend'
 import { useTheme } from '../contexts/ThemeContext';
+import { useI18n } from '../contexts/I18nContext';
 import { SHADOWS } from '../config/brand';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'InviteRedeem'>
 
-function getFriendlyError(message: string) {
+function getFriendlyError(message: string, t: (key: string) => string) {
   const lower = message.toLowerCase()
-  if (lower.includes('invite expired')) return 'This invite link has expired. Ask the organizer for a new one.'
-  if (lower.includes('already claimed')) return 'This invite link was already used. Ask the organizer for a new one.'
-  if (lower.includes('invite was revoked')) return 'This invite link was revoked. Ask the organizer for a new one.'
-  if (lower.includes('authentication required')) return 'Please log in to accept this invite.'
-  if (lower.includes('restricted to a different email')) return 'This invite is restricted to a different email address.'
-  if (lower.includes('restricted to a different phone')) return 'This invite is restricted to a different phone number.'
-  if (lower.includes('invite email mismatch')) return 'This invite is restricted to a different email address.'
-  if (lower.includes('invite phone mismatch')) return 'This invite is restricted to a different phone number.'
+  if (lower.includes('invite expired')) return t('inviteRedeem.errors.expired')
+  if (lower.includes('already claimed')) return t('inviteRedeem.errors.alreadyClaimed')
+  if (lower.includes('invite was revoked')) return t('inviteRedeem.errors.revoked')
+  if (lower.includes('authentication required')) return t('inviteRedeem.errors.authRequired')
+  if (lower.includes('restricted to a different email')) return t('inviteRedeem.errors.emailMismatch')
+  if (lower.includes('restricted to a different phone')) return t('inviteRedeem.errors.phoneMismatch')
+  if (lower.includes('invite email mismatch')) return t('inviteRedeem.errors.emailMismatch')
+  if (lower.includes('invite phone mismatch')) return t('inviteRedeem.errors.phoneMismatch')
   return message
 }
 
 export default function InviteRedeemScreen({ route, navigation }: Props) {
   const { colors } = useTheme();
+  const { t } = useI18n()
   const { user } = useAuth()
   const { setMode } = useAppMode()
 
@@ -50,18 +52,18 @@ export default function InviteRedeemScreen({ route, navigation }: Props) {
     const redeem = async () => {
       if (!eventId || !token) {
         setStatus('error')
-        setMessage('Invalid invite link.')
+        setMessage(t('inviteRedeem.invalidLink'))
         return
       }
 
       if (!user) {
         setStatus('idle')
-        setMessage('Log in to accept this invite.')
+        setMessage(t('inviteRedeem.loginToAccept'))
         return
       }
 
       setStatus('working')
-      setMessage('Accepting invite…')
+      setMessage(t('inviteRedeem.accepting'))
 
       try {
         await backendJson('/api/staff/invites/redeem', {
@@ -83,13 +85,13 @@ export default function InviteRedeemScreen({ route, navigation }: Props) {
         await setMode('staff')
 
         setStatus('success')
-        setMessage('Invite accepted. You can now check in attendees.')
+        setMessage(t('inviteRedeem.accepted'))
 
         // Jump straight into the scanner for this event.
         navigation.navigate('Main' as any)
         navigation.navigate('TicketScanner' as any, { eventId })
       } catch (e: any) {
-        const raw = e?.message ? String(e.message) : 'Failed to accept invite.'
+        const raw = e?.message ? String(e.message) : t('inviteRedeem.failed')
 
         // If the invite is already claimed, the notification is stale — clear it.
         if (user?.uid && raw.toLowerCase().includes('already claimed')) {
@@ -98,7 +100,7 @@ export default function InviteRedeemScreen({ route, navigation }: Props) {
         }
 
         setStatus('error')
-        setMessage(getFriendlyError(raw))
+        setMessage(getFriendlyError(raw, t))
       }
     }
 
@@ -115,10 +117,10 @@ export default function InviteRedeemScreen({ route, navigation }: Props) {
       <View style={{ flex: 1, padding: 20, justifyContent: 'center' }}>
         <View style={{ backgroundColor: colors.surface, borderRadius: 16, padding: 20, borderWidth: 1, borderColor: colors.border }}>
           <Text style={{ fontSize: 22, fontWeight: '700', color: colors.text, marginBottom: 8 }}>
-            Accept Staff Invite
+            {t('inviteRedeem.title')}
           </Text>
           <Text style={{ fontSize: 14, color: colors.textSecondary, marginBottom: 16 }}>
-            This will grant event-scoped check-in access.
+            {t('inviteRedeem.subtitle')}
           </Text>
 
           {status === 'working' ? (
@@ -135,7 +137,7 @@ export default function InviteRedeemScreen({ route, navigation }: Props) {
               onPress={goToLogin}
               style={{ backgroundColor: colors.primary, paddingVertical: 12, borderRadius: 12, alignItems: 'center' }}
             >
-              <Text style={{ color: '#fff', fontWeight: '700' }}>Log in</Text>
+              <Text style={{ color: '#fff', fontWeight: '700' }}>{t('inviteRedeem.login')}</Text>
             </TouchableOpacity>
           )}
 
@@ -148,7 +150,7 @@ export default function InviteRedeemScreen({ route, navigation }: Props) {
               }}
               style={{ marginTop: 10, paddingVertical: 10, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: colors.border }}
             >
-              <Text style={{ color: colors.text, fontWeight: '600' }}>Close</Text>
+              <Text style={{ color: colors.text, fontWeight: '600' }}>{t('inviteRedeem.close')}</Text>
             </TouchableOpacity>
           ) : null}
         </View>

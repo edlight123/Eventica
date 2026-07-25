@@ -402,6 +402,30 @@ export default function AppNavigator() {
   // Handle notification taps (deep links / URLs).
   useEffect(() => {
     const unsubscribe = addPushNotificationListeners((url) => {
+      // Only open URLs we trust: our own app scheme, or an https link on a Tikèm
+      // host. A malicious push payload must not be able to drive openURL to an
+      // arbitrary (e.g. phishing or app-scheme-hijacking) destination.
+      const isAllowedNotificationUrl = (raw: string): boolean => {
+        if (raw.startsWith('tikem://')) return true;
+        try {
+          const parsed = new URL(raw);
+          if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return false;
+          const host = parsed.host.toLowerCase();
+          return (
+            host === 'tikem.co' ||
+            host.endsWith('.tikem.co') ||
+            host === 'eventhaiti.vercel.app'
+          );
+        } catch {
+          return false;
+        }
+      };
+
+      if (!isAllowedNotificationUrl(url)) {
+        console.warn('Ignoring untrusted notification URL', url);
+        return;
+      }
+
       try {
         ExpoLinking.openURL(url);
       } catch (e) {

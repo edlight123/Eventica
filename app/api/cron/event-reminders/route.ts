@@ -182,7 +182,7 @@ export async function GET(request: Request) {
                       </p>
                       
                       <div style="text-align: center; margin-top: 30px;">
-                        <a href="${process.env.NEXT_PUBLIC_APP_URL}/tickets/${ticket.id}" 
+                        <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://tikem.co'}/tickets/${ticket.id}"
                            style="display: inline-block; background: #0d9488; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
                           View My Ticket
                         </a>

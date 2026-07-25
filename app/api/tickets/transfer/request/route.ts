@@ -212,7 +212,7 @@ export async function POST(request: NextRequest) {
               message: getTicketTransferSms({
                 senderName: sender?.full_name || sender?.name || 'A friend',
                 eventTitle: event?.title || 'Event',
-                transferUrl: `${process.env.NEXT_PUBLIC_APP_URL}/tickets/transfer/${transfer.transfer_token}`
+                transferUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://tikem.co'}/tickets/transfer/${transfer.transfer_token}`
               })
             })
           } catch (smsError) {

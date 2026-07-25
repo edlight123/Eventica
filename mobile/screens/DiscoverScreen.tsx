@@ -15,7 +15,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Calendar, MapPin, Search, X, SlidersHorizontal, Users } from 'lucide-react-native';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { filterExploreEvents } from '../lib/api/events';
 import { useTheme } from '../contexts/ThemeContext';
@@ -216,9 +216,10 @@ export default function DiscoverScreen({ navigation, route }: any) {
     try {
       const q = query(
         collection(db, 'events'),
-        where('is_published', '==', true)
+        where('is_published', '==', true),
+        limit(50)
       );
-      
+
       const snapshot = await getDocs(q);
       console.log('[DiscoverScreen] Fetched', snapshot.docs.length, 'published events');
       
@@ -262,9 +263,13 @@ export default function DiscoverScreen({ navigation, route }: any) {
         return aTime - bTime
       })
       
+      // Hide moderator-rejected events (client-side so we don't need a new
+      // composite index). Missing field = not rejected, so existing events show.
+      const notRejected = (eventsData as any[]).filter((e) => e.rejected !== true);
+
       // Hide events the organizer marked as not shown on Explore (unlisted).
       // Missing field = visible, so existing events are unaffected.
-      const exploreEvents = filterExploreEvents(eventsData as any[]);
+      const exploreEvents = filterExploreEvents(notRejected);
 
       const now = new Date();
       const futureEvents = exploreEvents.filter((event) => {

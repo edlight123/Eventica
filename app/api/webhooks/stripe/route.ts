@@ -31,6 +31,9 @@ function getStripe() {
 
 export async function POST(request: Request) {
   let stripeEvent: any = null
+  // Shared payment_intent-scoped claim id — set when handling payment_intent.succeeded so the
+  // outer catch can release it (the client-confirm route create-from-payment claims the same key).
+  let piFulfillId: string | null = null
   try {
     const stripe = getStripe()
     const body = await request.text()
@@ -193,12 +196,12 @@ export async function POST(request: Request) {
         }
       }
 
-      // Fetch event and attendee details separately (no joins with Firebase)
-      const eventQuery = await supabase.from('events').select('*')
-      const eventDetails = eventQuery.data?.find((e: any) => e.id === session.metadata.eventId)
-      
-      const attendeeQuery = await supabase.from('users').select('*')
-      const attendee = attendeeQuery.data?.find((u: any) => u.id === session.client_reference_id)
+      // Fetch event and attendee by document id (direct get — no full-collection scan).
+      const eventDoc = await adminDb.collection('events').doc(String(session.metadata.eventId)).get()
+      const eventDetails = eventDoc.exists ? { id: eventDoc.id, ...(eventDoc.data() as any) } : null
+
+      const attendeeDoc = await adminDb.collection('users').doc(String(session.client_reference_id)).get()
+      const attendee = attendeeDoc.exists ? { id: attendeeDoc.id, ...(attendeeDoc.data() as any) } : null
       
       // Create ticket object with joined data for email
       const ticket = createdTickets[0] ? {
@@ -348,7 +351,29 @@ export async function POST(request: Request) {
         })
         return NextResponse.json({ received: true, skipped: 'no_event_metadata' })
       }
-      
+
+      // Cross-path idempotency: the client "confirm payment" route (create-from-payment) may also
+      // fulfill this exact PaymentIntent. Both claim the SAME payment_intent-scoped key so only one
+      // path ever issues tickets / reserves inventory. If the other path already owns it, no-op.
+      piFulfillId = `pi_fulfill_${paymentIntent.id}`
+      const piFulfillClaim = await claimWebhookEvent({
+        provider: 'stripe',
+        eventId: piFulfillId,
+        eventType: 'payment_intent.fulfill',
+      })
+      if (piFulfillClaim.outcome !== 'claimed') {
+        console.log('[stripe] payment_intent already fulfilled by client-confirm path; skipping', {
+          paymentIntentId: paymentIntent.id,
+          outcome: piFulfillClaim.outcome,
+        })
+        await markWebhookEventCompleted({
+          provider: 'stripe',
+          eventId: event.id,
+          metadata: { type: event.type, skipped: 'already_fulfilled' },
+        })
+        return NextResponse.json({ received: true, skipped: 'already_fulfilled' })
+      }
+
       // Create tickets in database
       const supabase = await createClient()
       const quantity = parseInt(paymentIntent.metadata.quantity || '1', 10)
@@ -385,6 +410,13 @@ export async function POST(request: Request) {
         } catch (refundErr) {
           console.error('[stripe] failed to auto-refund oversold payment intent', refundErr)
         }
+        // Mark BOTH the webhook-event claim and the shared payment_intent claim completed so the
+        // client-confirm path also no-ops (the payment was refunded — no tickets should be issued).
+        await markWebhookEventCompleted({
+          provider: 'stripe',
+          eventId: piFulfillId,
+          metadata: { type: event.type, refunded: 'capacity_exceeded' },
+        })
         await markWebhookEventCompleted({
           provider: 'stripe',
           eventId: event.id,
@@ -515,11 +547,11 @@ export async function POST(request: Request) {
       
       // Send notifications (similar to checkout.session.completed)
       if (createdTickets.length > 0) {
-        const eventQuery = await supabase.from('events').select('*')
-        const eventDetails = eventQuery.data?.find((e: any) => e.id === paymentIntent.metadata.eventId)
-        
-        const attendeeQuery = await supabase.from('users').select('*')
-        const attendee = attendeeQuery.data?.find((u: any) => u.id === paymentIntent.metadata.userId)
+        const eventDoc = await adminDb.collection('events').doc(String(paymentIntent.metadata.eventId)).get()
+        const eventDetails = eventDoc.exists ? { id: eventDoc.id, ...(eventDoc.data() as any) } : null
+
+        const attendeeDoc = await adminDb.collection('users').doc(String(paymentIntent.metadata.userId)).get()
+        const attendee = attendeeDoc.exists ? { id: attendeeDoc.id, ...(attendeeDoc.data() as any) } : null
         
         console.log('👤 Attendee found:', attendee?.email || 'No attendee')
         console.log('🎫 Event found:', eventDetails?.title || 'No event')
@@ -547,6 +579,13 @@ export async function POST(request: Request) {
           console.error('Failed to send notification:', error)
         }
       }
+
+      // Mark the shared payment_intent claim completed so the client-confirm path no-ops.
+      await markWebhookEventCompleted({
+        provider: 'stripe',
+        eventId: piFulfillId,
+        metadata: { type: event.type, tickets: createdTickets.length },
+      })
     }
 
     // Mark the event fully processed so any future redelivery is a no-op.
@@ -566,6 +605,11 @@ export async function POST(request: Request) {
     // instead of being permanently blocked as "in progress".
     if (stripeEvent && HANDLED_EVENT_TYPES.has(stripeEvent.type)) {
       await releaseWebhookEvent({ provider: 'stripe', eventId: stripeEvent.id })
+    }
+    // Also release the shared payment_intent claim so the client-confirm path (or a retry) can
+    // re-fulfill instead of being stuck as "in progress".
+    if (piFulfillId) {
+      await releaseWebhookEvent({ provider: 'stripe', eventId: piFulfillId })
     }
 
     return NextResponse.json(

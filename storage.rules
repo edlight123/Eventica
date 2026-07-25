@@ -3,10 +3,14 @@ service firebase.storage {
   match /b/{bucket}/o {
     
     // Event banner images - allow authenticated users to upload
+    // H5: uploads are named `${uid}_${timestamp}.jpg` (see mobile uploadEventImage),
+    // so gate write/delete on the filename being prefixed with the uploader's uid.
+    // Storage rules can't reach Firestore, so this uid-in-path check is the
+    // strongest ownership signal available for this flat path.
     match /event-images/{imageId} {
       allow read: if true; // Public read for event banners
-      allow write: if request.auth != null; // Only authenticated users can upload
-      allow delete: if request.auth != null; // Only authenticated users can delete
+      allow write: if request.auth != null && imageId.matches('^' + request.auth.uid + '_.*');
+      allow delete: if request.auth != null && imageId.matches('^' + request.auth.uid + '_.*');
     }
     
     // Verification images - only accessible by user who uploaded or admins
@@ -31,10 +35,13 @@ service firebase.storage {
     }
     
     // Event photos/gallery
+    // H5: all uploads/deletes go through the server API (/api/event-photos,
+    // Admin SDK, which bypasses these rules) — there is no client-SDK write path.
+    // So deny client writes/deletes entirely; public read stays.
     match /event-photos/{eventId}/{allPaths=**} {
       allow read: if true; // Public read
-      allow write: if request.auth != null; // Authenticated users can upload
-      allow delete: if request.auth != null; // Authenticated users can delete
+      allow write: if false; // Server-side only via Admin SDK
+      allow delete: if false; // Server-side only via Admin SDK
     }
     
     // Payout receipts - admin only

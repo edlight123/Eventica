@@ -62,13 +62,12 @@ export async function GET(request: Request) {
       )
     }
 
-    // Fetch event details first
-    const eventQuery = await supabase.from('events').select('*')
-    const eventDetails = eventQuery.data?.find((e: any) => e.id === pendingTx.event_id)
-    
-    // Fetch attendee details
-    const attendeeQuery = await supabase.from('users').select('*')
-    const attendee = attendeeQuery.data?.find((u: any) => u.id === pendingTx.user_id)
+    // Fetch event and attendee by document id (direct get — no full-collection scan).
+    const eventDoc = await adminDb.collection('events').doc(String(pendingTx.event_id)).get()
+    const eventDetails = eventDoc.exists ? { id: eventDoc.id, ...(eventDoc.data() as any) } : null
+
+    const attendeeDoc = await adminDb.collection('users').doc(String(pendingTx.user_id)).get()
+    const attendee = attendeeDoc.exists ? { id: attendeeDoc.id, ...(attendeeDoc.data() as any) } : null
 
     // Create tickets one at a time to ensure each gets unique ID
     const quantity = pendingTx.quantity || 1

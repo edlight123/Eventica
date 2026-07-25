@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/firebase-db/server'
 import { processStripeRefund } from '@/lib/refunds'
+import { adminDb } from '@/lib/firebase/admin'
 
 export async function POST(request: Request) {
   try {
@@ -17,10 +18,11 @@ export async function POST(request: Request) {
       return Response.json({ error: 'Invalid request' }, { status: 400 })
     }
 
-    // Fetch the ticket with event details
+    // Fetch the ticket. NOTE: the Firestore shim ignores SQL-style joins ('*, events(*)'),
+    // so we fetch the event document separately below instead of relying on ticket.events.
     const { data: ticket, error: ticketError } = await supabase
       .from('tickets')
-      .select('*, events(*)')
+      .select('*')
       .eq('id', ticketId)
       .single()
 
@@ -28,8 +30,18 @@ export async function POST(request: Request) {
       return Response.json({ error: 'Ticket not found' }, { status: 404 })
     }
 
+    // Fetch the event document directly and verify organizer ownership explicitly.
+    const eventDoc = ticket.event_id
+      ? await adminDb.collection('events').doc(String(ticket.event_id)).get()
+      : null
+    const event = eventDoc?.exists ? { id: eventDoc.id, ...(eventDoc.data() as any) } : null
+
+    if (!event) {
+      return Response.json({ error: 'Event not found' }, { status: 404 })
+    }
+
     // Verify user is the organizer
-    if (ticket.events.organizer_id !== user.id) {
+    if (event.organizer_id !== user.id) {
       return Response.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
@@ -98,10 +110,10 @@ export async function POST(request: Request) {
       if (attendee?.email) {
         await sendEmail({
           to: attendee.email,
-          subject: `Refund ${action === 'approve' ? 'Approved' : 'Denied'} - ${ticket.events.title}`,
+          subject: `Refund ${action === 'approve' ? 'Approved' : 'Denied'} - ${event.title}`,
           html: getRefundProcessedEmail({
             attendeeName: attendee.full_name || 'Attendee',
-            eventTitle: ticket.events.title,
+            eventTitle: event.title,
             status: action === 'approve' ? 'approved' : 'denied',
             refundAmount: action === 'approve' ? refundAmount : 0,
             ticketId: ticketId
@@ -115,11 +127,11 @@ export async function POST(request: Request) {
           const { sendSms, getRefundApprovedSms, getRefundDeniedSms } = await import('@/lib/sms')
           const smsMessage = action === 'approve'
             ? getRefundApprovedSms({
-                eventTitle: ticket.events.title,
+                eventTitle: event.title,
                 amount: refundAmount
               })
             : getRefundDeniedSms({
-                eventTitle: ticket.events.title
+                eventTitle: event.title
               })
           
           await sendSms({

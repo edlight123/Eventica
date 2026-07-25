@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/firebase-db/server'
+import { adminDb } from '@/lib/firebase/admin'
 import { getCurrentUser } from '@/lib/auth'
 
 export async function GET(
@@ -14,29 +14,30 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const supabase = await createClient()
+    // Verify user owns this event (direct doc get — no full-collection scan)
+    const eventDoc = await adminDb.collection('events').doc(id).get()
+    const event = eventDoc.exists ? { id: eventDoc.id, ...(eventDoc.data() as any) } : null
 
-    // Verify user owns this event
-    const allEventsQuery = await supabase.from('events').select('*')
-    const allEvents = allEventsQuery.data || []
-    const event = allEvents.find((e: any) => e.id === id && e.organizer_id === user.id)
-
-    if (!event) {
+    if (!event || event.organizer_id !== user.id) {
       return NextResponse.json({ error: 'Event not found or unauthorized' }, { status: 404 })
     }
 
-    // Fetch all tickets for this event
-    const allTicketsQuery = await supabase.from('tickets').select('*')
-    const allTickets = allTicketsQuery.data || []
-    const eventTickets = allTickets.filter((t: any) => t.event_id === id)
+    // Fetch only this event's tickets (scoped query, not the whole collection)
+    const ticketsSnap = await adminDb.collection('tickets').where('event_id', '==', id).get()
+    const eventTickets = ticketsSnap.docs.map((d: any) => ({ id: d.id, ...d.data() }))
 
-    // Fetch all users
-    const allUsersQuery = await supabase.from('users').select('*')
-    const allUsers = allUsersQuery.data || []
-    const usersMap = new Map()
-    allUsers.forEach((u: any) => {
-      usersMap.set(u.id, u)
-    })
+    // Batch-resolve attendee users by document reference (getAll) instead of scanning all users.
+    const attendeeIds = Array.from(
+      new Set(eventTickets.map((t: any) => t.attendee_id).filter(Boolean))
+    ) as string[]
+    const usersMap = new Map<string, any>()
+    if (attendeeIds.length > 0) {
+      const refs = attendeeIds.map((uid) => adminDb.collection('users').doc(uid))
+      const userDocs = await adminDb.getAll(...refs)
+      userDocs.forEach((doc: any) => {
+        if (doc.exists) usersMap.set(doc.id, { id: doc.id, ...doc.data() })
+      })
+    }
 
     // Build CSV
     const headers = ['Ticket ID', 'Attendee Name', 'Email', 'Phone', 'Purchase Date', 'Price', 'Payment Method', 'Status', 'Checked In', 'Check-in Time']

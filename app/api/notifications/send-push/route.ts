@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getMessaging } from 'firebase-admin/messaging'
-import { getCurrentUser } from '@/lib/auth'
+import { requireAdmin } from '@/lib/auth'
 import app from '@/lib/firebase/admin'
 
 export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await getCurrentUser()
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    // Admin-only: this is a raw push primitive that can send to ARBITRARY device tokens.
+    // Leaving it open to any authenticated user lets anyone spam/phish other users' devices.
+    const { user, error: authError } = await requireAdmin()
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Admin access required' }, { status: 401 })
     }
 
     const { tokens, title, body, data } = await request.json()

@@ -85,25 +85,29 @@ export function useStaffEvents(): UseStaffEventsResult {
 
         const uniqueEventIds = Array.from(new Set(eventIds)).filter(Boolean);
 
-        // Verify access per event by reading the direct member doc.
+        // Verify access per event by reading the direct member doc. The reads
+        // are independent per id, so fan them out in parallel instead of awaiting
+        // each in sequence.
+        const memberSnaps = await Promise.all(
+          uniqueEventIds.map((eventId) => getDoc(doc(db, 'events', eventId, 'members', uid)))
+        );
         const allowedEventIds: string[] = [];
-        for (const eventId of uniqueEventIds) {
-          const memberSnap = await getDoc(doc(db, 'events', eventId, 'members', uid));
-          const member = memberSnap.exists() ? (memberSnap.data() as StaffMemberDoc) : null;
-          if (!memberSnap.exists()) continue;
-
+        memberSnaps.forEach((memberSnap, i) => {
+          if (!memberSnap.exists()) return;
+          const member = memberSnap.data() as StaffMemberDoc;
           const checkinFlag = member?.permissions?.checkin;
           // Back-compat: missing permissions should not hide assigned events.
-          if (checkinFlag === false) continue;
+          if (checkinFlag === false) return;
+          allowedEventIds.push(uniqueEventIds[i]);
+        });
 
-          allowedEventIds.push(eventId);
-        }
-
+        // Hydrate each allowed event's summary — again independent per id.
+        const eventSnaps = await Promise.all(
+          allowedEventIds.map((eventId) => getDoc(doc(db, 'events', eventId)))
+        );
         const loaded: StaffEventSummary[] = [];
-
-        for (const eventId of allowedEventIds) {
-          const eventSnap = await getDoc(doc(db, 'events', eventId));
-          if (!eventSnap.exists()) continue;
+        eventSnaps.forEach((eventSnap) => {
+          if (!eventSnap.exists()) return;
           const data = eventSnap.data() as any;
           loaded.push({
             id: eventSnap.id,
@@ -112,7 +116,7 @@ export function useStaffEvents(): UseStaffEventsResult {
             venue_name: data?.venue_name || '',
             city: data?.city || '',
           });
-        }
+        });
 
         if (options?.isCancelled?.()) return;
         setError(false);

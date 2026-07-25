@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, Dimensions, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Animated } from 'react-native';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
@@ -53,7 +54,14 @@ const CategoryCard = ({
         onPressOut={handlePressOut}
         activeOpacity={1}
       >
-        <Image source={{ uri: category.image }} style={styles.image} resizeMode="cover" />
+        <Image
+          source={{ uri: category.image }}
+          style={styles.image}
+          contentFit="cover"
+          cachePolicy="memory-disk"
+          transition={200}
+          recyclingKey={category.name}
+        />
         <LinearGradient
           colors={['rgba(0, 0, 0, 0.55)', 'rgba(0, 0, 0, 0.25)', 'rgba(0, 0, 0, 0.15)']}
           start={{ x: 0, y: 1 }}

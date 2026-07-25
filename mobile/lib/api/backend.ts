@@ -1,14 +1,13 @@
 import { auth } from '../../config/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 
-// NOTE: `tikem.co` is not live yet (NXDOMAIN), so it must NOT be the fallback —
-// every organizer web-API call would throw "Network request failed". Default to
-// the actual deployed web app. Override per-environment with EXPO_PUBLIC_API_URL
-// (and switch this default to https://tikem.co once that domain is pointed at prod).
+// `tikem.co` now resolves and points at prod, so it is the default fallback.
+// Override per-environment with EXPO_PUBLIC_API_URL (or EXPO_PUBLIC_WEB_URL),
+// e.g. to target the eventhaiti.vercel.app deployment or a local server.
 const API_URL = String(
   process.env.EXPO_PUBLIC_API_URL ||
     process.env.EXPO_PUBLIC_WEB_URL ||
-    'https://eventhaiti.vercel.app'
+    'https://tikem.co'
 ).replace(/\/$/, '')
 
 const DEBUG_API = process.env.EXPO_PUBLIC_DEBUG_API === 'true'

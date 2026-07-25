@@ -105,7 +105,15 @@ service cloud.firestore {
       // Notifications subcollection - users can read their own, organizers can send to attendees
       match /notifications/{notificationId} {
         allow read: if isOwner(userId);
-        allow create: if isSignedIn(); // Allow any authenticated user to create notifications
+        // M4 (HELD): the secure state is `create: if isOwner(userId)`, but the
+        // organizer "Send event update" flow still fans out notifications into
+        // attendees' feeds from the CLIENT (SendEventUpdateScreen). Locking this
+        // now would break that feature until a server (Admin SDK) fan-out
+        // endpoint ships and the mobile OTA propagates. Kept permissive on
+        // CREATE only — read/update/delete remain owner-scoped — until that
+        // migration lands. TODO: move event-update fan-out server-side, then
+        // set create back to isOwner(userId).
+        allow create: if isSignedIn();
         allow update, delete: if isOwner(userId);
       }
       
@@ -137,10 +145,23 @@ service cloud.firestore {
         && isCurrencyAllowedForCountry(request.resource.data.country, request.resource.data.currency);
 
       allow update: if isSignedIn() && (
-        resource.data.organizer_id == request.auth.uid ||
-        // Allow updating only tickets_sold field for ticket purchases
+        (
+          resource.data.organizer_id == request.auth.uid &&
+          // H3: moderation fields are client-immutable so a rejected/reported
+          // organizer can't re-surface their event. Admin SDK still writes them
+          // (it bypasses rules). is_published stays client-mutable so organizers
+          // can legitimately toggle publish. .get() defaults keep legacy docs
+          // that predate these fields writable.
+          request.resource.data.get('rejected', false) == resource.data.get('rejected', false) &&
+          request.resource.data.get('reports_count', 0) == resource.data.get('reports_count', 0)
+        ) ||
+        // Allow updating only tickets_sold for ticket purchases.
+        // H2: increase-only AND bounded delta (<= +20) to blunt sold-out griefing
+        // from the attendee free-claim path. TODO: move this counter fully
+        // server-side (Admin SDK) so clients can't touch it at all.
         (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['tickets_sold']) &&
-         request.resource.data.tickets_sold > resource.data.tickets_sold)
+         request.resource.data.tickets_sold > resource.data.tickets_sold &&
+         request.resource.data.tickets_sold <= resource.data.tickets_sold + 20)
 
       )
       // If country/currency changes, enforce policy.
@@ -196,8 +217,12 @@ service cloud.firestore {
     // Event updates collection (separate from events subcollection)
     match /event_updates/{updateId} {
       allow read: if true; // Anyone can read event updates
-      allow create: if isSignedIn(); // Any authenticated user can create
-      allow update, delete: if isSignedIn();
+      // M9: only the event's organizer may write, mirroring the in-event
+      // /events/{eventId}/updates subcollection gating.
+      allow create: if isSignedIn() &&
+        get(/databases/$(database)/documents/events/$(request.resource.data.event_id)).data.organizer_id == request.auth.uid;
+      allow update, delete: if isSignedIn() &&
+        get(/databases/$(database)/documents/events/$(resource.data.event_id)).data.organizer_id == request.auth.uid;
     }
     
     // Tickets collection - users can access their own tickets, organizers can access all tickets
@@ -212,10 +237,18 @@ service cloud.firestore {
       // (Some flows use user_id, others attendee_id.)
       // Additionally, when the referenced event is password-protected, the buyer
       // must hold an access grant. Events without the field are unaffected.
+      // C1: clients may only create FREE tickets (referenced event's ticket_price
+      // is 0 AND no price was paid). Paid tickets must be issued server-side
+      // (Admin SDK) after verified payment.
       allow create: if isSignedIn()
         && (
           request.resource.data.user_id == request.auth.uid ||
           request.resource.data.attendee_id == request.auth.uid
+        )
+        && get(/databases/$(database)/documents/events/$(request.resource.data.event_id)).data.ticket_price == 0
+        && (
+          !request.resource.data.keys().hasAny(['price_paid'])
+          || request.resource.data.price_paid == 0
         )
         && (
           !get(/databases/$(database)/documents/events/$(request.resource.data.event_id)).data.get('is_password_protected', false)
@@ -242,20 +275,24 @@ service cloud.firestore {
     // Ticket tiers - public read, organizers can manage their event's tiers
     match /ticket_tiers/{tierId} {
       allow read: if true; // Public read for event browsing
-      allow create: if isSignedIn();
+      // H1: only the parent event's organizer may create tiers.
+      allow create: if isSignedIn() && get(/databases/$(database)/documents/events/$(request.resource.data.event_id)).data.organizer_id == request.auth.uid;
       allow update, delete: if isSignedIn() && get(/databases/$(database)/documents/events/$(resource.data.event_id)).data.organizer_id == request.auth.uid;
     }
-    
+
     // Group discounts - public read, organizers can manage their event's discounts
     match /group_discounts/{discountId} {
       allow read: if true; // Public read for event browsing
-      allow create: if isSignedIn();
+      // H1: only the parent event's organizer may create discounts.
+      allow create: if isSignedIn() && get(/databases/$(database)/documents/events/$(request.resource.data.event_id)).data.organizer_id == request.auth.uid;
       allow update, delete: if isSignedIn() && get(/databases/$(database)/documents/events/$(resource.data.event_id)).data.organizer_id == request.auth.uid;
     }
     
     // Promo codes - organizers can manage their event's promo codes
     match /promo_codes/{promoCodeId} {
-      allow read: if isSignedIn();
+      // M8: owner-only client reads. Attendee-side redemption is validated
+      // server-side (Admin SDK), so clients never need to read these directly.
+      allow read: if isSignedIn() && get(/databases/$(database)/documents/events/$(resource.data.event_id)).data.organizer_id == request.auth.uid;
       allow write: if isSignedIn() && get(/databases/$(database)/documents/events/$(resource.data.event_id)).data.organizer_id == request.auth.uid;
     }
     
@@ -274,7 +311,9 @@ service cloud.firestore {
     // Reviews - authenticated users can create, authors can update/delete
     match /reviews/{reviewId} {
       allow read: if true;
-      allow create: if isSignedIn();
+      // M10: bind the review to its author so a signed-in user can't post as
+      // someone else.
+      allow create: if isSignedIn() && request.resource.data.user_id == request.auth.uid;
       allow update, delete: if isSignedIn() && resource.data.user_id == request.auth.uid;
     }
     

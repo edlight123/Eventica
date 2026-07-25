@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Image, TouchableOpacity, Dimensions, StyleSheet, ScrollView, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, Dimensions, StyleSheet, ScrollView, Animated } from 'react-native';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Calendar, MapPin } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
@@ -94,7 +95,14 @@ export default function FeaturedCarousel({ events, onEventPress }: FeaturedCarou
                 style={StyleSheet.absoluteFill}
               />
               {event.banner_image_url && (
-                <Image source={{ uri: event.banner_image_url }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                <Image
+                  source={{ uri: event.banner_image_url }}
+                  style={StyleSheet.absoluteFill}
+                  contentFit="cover"
+                  cachePolicy="memory-disk"
+                  transition={200}
+                  recyclingKey={event.id ? String(event.id) : undefined}
+                />
               )}
             </View>
 

@@ -148,9 +148,13 @@ export default function HomeScreen({ navigation }: any) {
         return aTime - bTime;
       });
 
+      // Hide moderator-rejected events (client-side so we don't need a new
+      // composite index). Missing field = not rejected, so existing events show.
+      const notRejected = eventsData.filter((e: any) => e.rejected !== true);
+
       // Hide events the organizer marked as not shown on Explore (unlisted).
       // Missing field = visible, so existing events are unaffected.
-      const exploreEvents = filterExploreEvents(eventsData);
+      const exploreEvents = filterExploreEvents(notRejected);
 
       // Filter out past events (be lenient - show events from past week that could be ongoing)
       const now = new Date();

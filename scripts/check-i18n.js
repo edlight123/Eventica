@@ -10,7 +10,14 @@ const path = require('path');
 
 const LOCALES_DIR = path.join(__dirname, '../public/locales');
 const LANGUAGES = ['en', 'fr', 'ht'];
-const NAMESPACES = ['common', 'auth', 'events', 'profile', 'admin'];
+
+// Derive namespaces dynamically from the reference locale (en) so every namespace file is
+// checked automatically — no need to keep this list in sync by hand when files are added.
+const NAMESPACES = fs
+  .readdirSync(path.join(LOCALES_DIR, 'en'))
+  .filter((file) => file.endsWith('.json'))
+  .map((file) => path.basename(file, '.json'))
+  .sort();
 
 // ANSI color codes
 const colors = {

@@ -18,6 +18,7 @@ import * as Contacts from 'expo-contacts';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useI18n } from '../contexts/I18nContext';
 import ConnectButton from '../components/ConnectButton';
 import VerifiedBadge from '../components/VerifiedBadge';
 import EmptyState from '../components/EmptyState';
@@ -98,6 +99,7 @@ export default function ConnectionsScreen() {
   const route: any = useRoute();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
+  const { t } = useI18n();
 
   // Arriving from Discover's "Sync contacts" CTA jumps straight to the Find tab
   // and auto-starts the contact sync (feedback: don't make me tap twice).
@@ -144,15 +146,15 @@ export default function ConnectionsScreen() {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} hitSlop={16}>
           <ChevronLeft size={26} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.topTitle}>Friends</Text>
+        <Text style={styles.topTitle}>{t('connections.title')}</Text>
         <View style={{ width: 26 }} />
       </View>
 
       {/* Tabs */}
       <View style={styles.tabs}>
-        <TabBtn label="Friends" count={overview.friends.length} active={tab === 'friends'} onPress={() => setTab('friends')} colors={colors} />
-        <TabBtn label="Requests" count={overview.incoming.length} highlight active={tab === 'requests'} onPress={() => setTab('requests')} colors={colors} />
-        <TabBtn label="Find" active={tab === 'find'} onPress={() => setTab('find')} colors={colors} />
+        <TabBtn label={t('connections.tabs.friends')} count={overview.friends.length} active={tab === 'friends'} onPress={() => setTab('friends')} colors={colors} />
+        <TabBtn label={t('connections.tabs.requests')} count={overview.incoming.length} highlight active={tab === 'requests'} onPress={() => setTab('requests')} colors={colors} />
+        <TabBtn label={t('connections.tabs.find')} active={tab === 'find'} onPress={() => setTab('find')} colors={colors} />
       </View>
 
       {loading ? (
@@ -208,12 +210,13 @@ function TabBtn({
 
 function FriendsTab({ overview, colors, onOpen, onChange, onRequireAuth }: any) {
   const styles = getStyles(colors);
+  const { t } = useI18n();
   if (overview.friends.length === 0) {
     return (
       <EmptyState
         icon={Users}
-        title="No friends yet"
-        subtitle="Find friends from your contacts or by searching their name."
+        title={t('connections.friends.emptyTitle')}
+        subtitle={t('connections.friends.emptySubtitle')}
       />
     );
   }
@@ -230,13 +233,14 @@ function FriendsTab({ overview, colors, onOpen, onChange, onRequireAuth }: any) 
 
 function RequestsTab({ overview, colors, onOpen, onChange, onRequireAuth }: any) {
   const styles = getStyles(colors);
+  const { t } = useI18n();
   const { incoming, outgoing } = overview;
   if (incoming.length === 0 && outgoing.length === 0) {
     return (
       <EmptyState
         icon={Inbox}
-        title="No pending requests"
-        subtitle="Friend requests you send or receive will appear here."
+        title={t('connections.requests.emptyTitle')}
+        subtitle={t('connections.requests.emptySubtitle')}
       />
     );
   }
@@ -246,7 +250,7 @@ function RequestsTab({ overview, colors, onOpen, onChange, onRequireAuth }: any)
         <View style={{ marginBottom: 20 }}>
           <View style={styles.sectionLabelRow}>
             <Inbox size={15} color={colors.textSecondary} />
-            <Text style={styles.sectionLabel}>Received</Text>
+            <Text style={styles.sectionLabel}>{t('connections.requests.received')}</Text>
           </View>
           <View style={styles.card}>
             {incoming.map((u: PublicUserSummary, i: number) => (
@@ -261,7 +265,7 @@ function RequestsTab({ overview, colors, onOpen, onChange, onRequireAuth }: any)
         <View>
           <View style={styles.sectionLabelRow}>
             <Send size={15} color={colors.textSecondary} />
-            <Text style={styles.sectionLabel}>Sent</Text>
+            <Text style={styles.sectionLabel}>{t('connections.requests.sent')}</Text>
           </View>
           <View style={styles.card}>
             {outgoing.map((u: PublicUserSummary, i: number) => (
@@ -278,6 +282,7 @@ function RequestsTab({ overview, colors, onOpen, onChange, onRequireAuth }: any)
 
 function FindTab({ colors, onOpen, onChange, onRequireAuth, insets, autoSync }: any) {
   const styles = getStyles(colors);
+  const { t } = useI18n();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<UserSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
@@ -310,8 +315,8 @@ function FindTab({ colors, onOpen, onChange, onRequireAuth, insets, autoSync }: 
       const { status } = await Contacts.requestPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert(
-          'Permission needed',
-          'Allow contact access to find friends already on Tikèm. Your contacts are only used to match and are never stored.'
+          t('connections.find.permissionTitle'),
+          t('connections.find.permissionBody')
         );
         return;
       }
@@ -324,17 +329,17 @@ function FindTab({ colors, onOpen, onChange, onRequireAuth, insets, autoSync }: 
         });
       });
       if (phones.length === 0) {
-        Alert.alert('No numbers found', 'We couldn\'t find any phone numbers in your contacts.');
+        Alert.alert(t('connections.find.noNumbersTitle'), t('connections.find.noNumbersBody'));
         setContactMatches([]);
         return;
       }
       setContactMatches(await matchContacts(phones));
     } catch (e: any) {
-      Alert.alert('Error', e?.message || 'Could not sync contacts. Please try again.');
+      Alert.alert(t('connections.find.errorTitle'), e?.message || t('connections.find.errorBody'));
     } finally {
       setContactLoading(false);
     }
-  }, []);
+  }, [t]);
 
   // Auto-start the sync once when arriving via Discover's "Sync contacts" CTA.
   const didAutoSync = useRef(false);
@@ -356,7 +361,7 @@ function FindTab({ colors, onOpen, onChange, onRequireAuth, insets, autoSync }: 
         <TextInput
           value={query}
           onChangeText={setQuery}
-          placeholder="Search by name or email"
+          placeholder={t('connections.find.searchPlaceholder')}
           placeholderTextColor={colors.textTertiary}
           selectionColor={colors.primary}
           style={styles.searchInput}
@@ -376,7 +381,7 @@ function FindTab({ colors, onOpen, onChange, onRequireAuth, insets, autoSync }: 
         </View>
       )}
       {query.trim().length >= 2 && !searching && results.length === 0 && (
-        <Text style={styles.noResults}>No people found for “{query}”.</Text>
+        <Text style={styles.noResults}>{t('connections.find.noResults').replace('{query}', query)}</Text>
       )}
 
       {/* Contact sync */}
@@ -386,9 +391,9 @@ function FindTab({ colors, onOpen, onChange, onRequireAuth, insets, autoSync }: 
             <Phone size={20} color={colors.textSecondary} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.contactTitle}>Find friends from contacts</Text>
+            <Text style={styles.contactTitle}>{t('connections.find.contactTitle')}</Text>
             <Text style={styles.contactSub}>
-              We only match numbers you already have. Your contacts are never stored.
+              {t('connections.find.contactSub')}
             </Text>
           </View>
         </View>
@@ -398,7 +403,7 @@ function FindTab({ colors, onOpen, onChange, onRequireAuth, insets, autoSync }: 
           ) : (
             <>
               <UserPlus size={16} color="#000000" />
-              <Text style={styles.syncBtnText}>Sync contacts</Text>
+              <Text style={styles.syncBtnText}>{t('connections.find.syncContacts')}</Text>
             </>
           )}
         </TouchableOpacity>
@@ -406,10 +411,10 @@ function FindTab({ colors, onOpen, onChange, onRequireAuth, insets, autoSync }: 
         {contactMatches !== null && (
           <View style={{ marginTop: 12 }}>
             {contactMatches.length === 0 ? (
-              <Text style={styles.noResults}>None of your contacts are on Tikèm yet — invite them!</Text>
+              <Text style={styles.noResults}>{t('connections.find.noContactMatches')}</Text>
             ) : (
               <View>
-                <Text style={styles.sectionLabel}>{contactMatches.length} on Tikèm</Text>
+                <Text style={styles.sectionLabel}>{t('connections.find.onTikem').replace('{count}', String(contactMatches.length))}</Text>
                 <View style={[styles.card, { marginTop: 8 }]}>
                   {contactMatches.map((m, i) => (
                     <View key={m.uid} style={i > 0 ? styles.divider : undefined}>

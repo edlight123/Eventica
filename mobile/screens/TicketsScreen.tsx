@@ -13,7 +13,7 @@ import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Calendar, MapPin, Ticket, ChevronRight } from 'lucide-react-native';
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy, documentId } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
@@ -73,28 +73,29 @@ export default function TicketsScreen({ navigation }: any) {
         ticketsByEvent.get(ticket.event_id).push(ticket);
       });
       
-      // Fetch event details for each event with tickets
+      // Fetch event details for all events with tickets in one batched pass.
+      // Firestore's `in` query accepts up to 30 values, so chunk the ids and
+      // issue one query per chunk instead of a getDocs per event (N+1).
       const eventIds = Array.from(ticketsByEvent.keys());
-      const eventsData = [];
-      
-      for (const eventId of eventIds) {
-        const eventQuery = query(
+      const eventsData: any[] = [];
+
+      for (let i = 0; i < eventIds.length; i += 30) {
+        const chunk = eventIds.slice(i, i + 30);
+        const eventsQuery = query(
           collection(db, 'events'),
-          where('__name__', '==', eventId)
+          where(documentId(), 'in', chunk)
         );
-        const eventSnapshot = await getDocs(eventQuery);
-        
-        if (!eventSnapshot.empty) {
-          const eventDoc = eventSnapshot.docs[0];
+        const eventsSnapshot = await getDocs(eventsQuery);
+        eventsSnapshot.docs.forEach(eventDoc => {
           const eventData = eventDoc.data();
           eventsData.push({
             id: eventDoc.id,
             ...eventData,
             start_datetime: eventData.start_datetime?.toDate ? eventData.start_datetime.toDate() : eventData.start_datetime ? new Date(eventData.start_datetime) : null,
             end_datetime: eventData.end_datetime?.toDate ? eventData.end_datetime.toDate() : eventData.end_datetime ? new Date(eventData.end_datetime) : null,
-            ticketCount: ticketsByEvent.get(eventId).length
+            ticketCount: ticketsByEvent.get(eventDoc.id).length
           });
-        }
+        });
       }
       
       // Separate upcoming and past events

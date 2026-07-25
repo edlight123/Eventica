@@ -145,11 +145,14 @@ export default function TicketScannerScreen() {
         const manifest: Record<string, { name: string; tier: string; status: string; checkedIn: boolean }> = {};
         snap.forEach((d) => {
           const x = d.data() as any;
+          // Do NOT persist attendee email (or any other PII beyond what the
+          // scanner needs to validate/display). Fall back to a generic label
+          // rather than caching the email address on disk.
           manifest[d.id] = {
-            name: x.attendee_name || x.user_name || x.userName || x.user_email || '',
+            name: x.attendee_name || x.user_name || x.userName || '',
             tier: x.tier_name || x.ticket_tier_name || x.ticket_type || x.ticketType || x.tierName || '',
             status: x.status || 'active',
-            checkedIn: !!x.checked_in_at,
+            checkedIn: !!x.checked_in_at || x.checked_in === true,
           };
         });
         setOfflineReady(snap.size);
@@ -167,7 +170,12 @@ export default function TicketScannerScreen() {
         } catch {}
       }
     })();
-    return () => { cancelled = true; };
+    // On unmount, drop the cached guest manifest so the (reduced) PII isn't left
+    // sitting in AsyncStorage after the scanning session ends.
+    return () => {
+      cancelled = true;
+      AsyncStorage.removeItem(`scanner_manifest_${eventId}`).catch(() => {});
+    };
   }, [eventId]);
 
   const handleBarCodeScanned = async ({ data }: { data: string }) => {
@@ -251,24 +259,36 @@ export default function TicketScannerScreen() {
         return;
       }
 
-      // Check if already checked in
-      if (ticketData.checked_in_at) {
-        const checkedInTime = ticketData.checked_in_at.toDate
-          ? ticketData.checked_in_at.toDate()
-          : new Date(ticketData.checked_in_at);
-        
+      // Check if already checked in. Offline, a pending serverTimestamp() write
+      // reads back as null, so checked_in_at can be missing on a ticket that was
+      // just checked in on this device — treat the boolean checked_in === true as
+      // authoritative too, otherwise the same QR would admit the guest twice.
+      if (ticketData.checked_in_at || ticketData.checked_in === true) {
+        const checkedInTime = ticketData.checked_in_at
+          ? (ticketData.checked_in_at.toDate
+              ? ticketData.checked_in_at.toDate()
+              : new Date(ticketData.checked_in_at))
+          : undefined;
+
         setScanResult({
           status: 'ALREADY_CHECKED_IN',
           attendeeName,
           tierName,
           checkedInTime,
-          message: `${t('organizerTicketScanner.results.alreadyCheckedInAtPrefix')}${checkedInTime.toLocaleString(locale)}`,
+          message: checkedInTime
+            ? `${t('organizerTicketScanner.results.alreadyCheckedInAtPrefix')}${checkedInTime.toLocaleString(locale)}`
+            : t('organizerTicketScanner.results.alreadyCheckedIn'),
         });
         return;
       }
 
-      // Check ticket status
-      if (ticketData.status === 'cancelled') {
+      // Check ticket status. Only genuinely sellable/valid tickets may proceed to
+      // check-in. Legacy tickets predate the status field, so a missing/empty
+      // status is allowed; anything else (refunded, revoked, void, cancelled, …)
+      // is blocked so the scanner can't admit a refunded or voided ticket.
+      const rawStatus = String(ticketData.status ?? '').trim().toLowerCase();
+      const statusAllowed = rawStatus === '' || rawStatus === 'valid' || rawStatus === 'active';
+      if (!statusAllowed) {
         setScanResult({
           status: 'CANCELLED',
           attendeeName,

@@ -40,11 +40,25 @@ export default function PaymentWebViewScreen() {
   const [handledTerminal, setHandledTerminal] = useState(false)
   const [resolvedAuthToken, setResolvedAuthToken] = useState<string | null>(authToken || null)
 
+  // The Firebase ID token may ONLY be attached to our own trusted hosts, never
+  // to an arbitrary redirect target — otherwise a hijacked/redirected checkout
+  // URL could exfiltrate the bearer token to a third party.
+  const isTrustedHost = useMemo(() => {
+    try {
+      const host = new URL(url).host.toLowerCase()
+      return host === 'tikem.co' || host === 'www.tikem.co' || host === 'eventhaiti.vercel.app'
+    } catch {
+      return false
+    }
+  }, [url])
+
   const needsAuthHeader = useMemo(() => {
     if (!url) return false
-    // MonCash checkout endpoint requires auth to render the form.
+    // MonCash checkout endpoint requires auth to render the form — but only ever
+    // send it to a trusted host.
+    if (!isTrustedHost) return false
     return url.includes('/api/moncash-button/checkout') || url.includes('/api/moncash-button/initiate')
-  }, [url])
+  }, [url, isTrustedHost])
 
   useEffect(() => {
     if (!url) return
@@ -198,7 +212,10 @@ export default function PaymentWebViewScreen() {
         ref={webViewRef}
         source={{
           uri: url,
-          headers: resolvedAuthToken ? { Authorization: `Bearer ${resolvedAuthToken}` } : undefined,
+          headers:
+            resolvedAuthToken && isTrustedHost
+              ? { Authorization: `Bearer ${resolvedAuthToken}` }
+              : undefined,
         }}
         onLoadStart={() => setLoading(true)}
         onLoadEnd={() => setLoading(false)}

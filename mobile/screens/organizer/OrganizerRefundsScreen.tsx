@@ -92,19 +92,25 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
         return;
       }
 
-      // Get tickets with refund requests
+      // Get tickets with refund requests. Batch the per-event ticket queries by
+      // chunking eventIds into `event_id in [...]` queries instead of issuing one
+      // query per event (N+1). Firestore caps a query at 30 disjunctions across
+      // all `in` filters, and refund_status already contributes 3, so keep each
+      // event_id chunk at <=10 (10 x 3 = 30).
+      const REFUND_STATUSES = ['requested', 'approved', 'denied'];
       const requests: RefundRequest[] = [];
-      for (const eventId of eventIds) {
+      for (let i = 0; i < eventIds.length; i += 10) {
+        const chunk = eventIds.slice(i, i + 10);
         const ticketsQuery = query(
           collection(db, 'tickets'),
-          where('event_id', '==', eventId),
-          where('refund_status', 'in', ['requested', 'approved', 'denied'])
+          where('event_id', 'in', chunk),
+          where('refund_status', 'in', REFUND_STATUSES)
         );
         const ticketsSnapshot = await getDocs(ticketsQuery);
-        
+
         ticketsSnapshot.docs.forEach(doc => {
           const data = doc.data();
-          const event = eventsMap.get(eventId);
+          const event = eventsMap.get(data.event_id);
           requests.push({
             id: doc.id,
             ticket_id: doc.id,

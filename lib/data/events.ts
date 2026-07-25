@@ -299,6 +299,7 @@ export async function getDiscoverEvents(
           total_tickets: data.total_tickets || data.capacity || 0,
           tickets_sold: data.tickets_sold || 0,
           show_on_explore: data.show_on_explore,
+          rejected: data.rejected,
           created_at: data.created_at?.toDate?.()?.toISOString() || data.created_at,
           updated_at: data.updated_at?.toDate?.()?.toISOString() || data.updated_at,
         }
@@ -309,6 +310,11 @@ export async function getDiscoverEvents(
       // (legacy events lack the field). Done in-memory so docs without the field aren't dropped.
       // Unlisted events remain reachable by direct link (single-event fetchers are unaffected).
       events = events.filter((event: Event) => event.show_on_explore !== false)
+
+      // Moderation: never surface events an admin has rejected. Only `rejected === true` hides an
+      // event; missing/undefined stays visible (legacy events lack the field). Done in-memory so
+      // docs without the field aren't dropped by a type-sensitive Firestore inequality query.
+      events = events.filter((event: Event) => (event as any).rejected !== true)
 
       // Apply search filter in memory (Firestore doesn't support text search)
       if (filters.search) {

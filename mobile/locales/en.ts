@@ -1034,6 +1034,7 @@ export default {
       wrongEvent: 'This ticket is for a different event.',
       expired: 'Event has already ended. This ticket cannot be checked in.',
       alreadyCheckedInAtPrefix: 'Already checked in at ',
+      alreadyCheckedIn: 'This ticket has already been checked in.',
       cancelled: 'This ticket has been cancelled.',
       scanFailed: 'Failed to scan ticket. Please try again.',
       checkInSuccessful: 'Check-in successful!',
@@ -1044,6 +1045,60 @@ export default {
     offline: {
       banner: 'Offline — check-ins will sync when you reconnect.',
       ready: '{count} guests ready for offline check-in',
+    },
+  },
+
+  connections: {
+    title: 'Friends',
+    tabs: {
+      friends: 'Friends',
+      requests: 'Requests',
+      find: 'Find',
+    },
+    friends: {
+      emptyTitle: 'No friends yet',
+      emptySubtitle: 'Find friends from your contacts or by searching their name.',
+    },
+    requests: {
+      emptyTitle: 'No pending requests',
+      emptySubtitle: 'Friend requests you send or receive will appear here.',
+      received: 'Received',
+      sent: 'Sent',
+    },
+    find: {
+      searchPlaceholder: 'Search by name or email',
+      noResults: 'No people found for “{query}”.',
+      contactTitle: 'Find friends from contacts',
+      contactSub: 'We only match numbers you already have. Your contacts are never stored.',
+      syncContacts: 'Sync contacts',
+      permissionTitle: 'Permission needed',
+      permissionBody: 'Allow contact access to find friends already on Tikèm. Your contacts are only used to match and are never stored.',
+      noNumbersTitle: 'No numbers found',
+      noNumbersBody: 'We couldn’t find any phone numbers in your contacts.',
+      errorTitle: 'Error',
+      errorBody: 'Could not sync contacts. Please try again.',
+      noContactMatches: 'None of your contacts are on Tikèm yet — invite them!',
+      onTikem: '{count} on Tikèm',
+    },
+  },
+
+  inviteRedeem: {
+    title: 'Accept Staff Invite',
+    subtitle: 'This will grant event-scoped check-in access.',
+    invalidLink: 'Invalid invite link.',
+    loginToAccept: 'Log in to accept this invite.',
+    accepting: 'Accepting invite…',
+    accepted: 'Invite accepted. You can now check in attendees.',
+    failed: 'Failed to accept invite.',
+    login: 'Log in',
+    close: 'Close',
+    errors: {
+      expired: 'This invite link has expired. Ask the organizer for a new one.',
+      alreadyClaimed: 'This invite link was already used. Ask the organizer for a new one.',
+      revoked: 'This invite link was revoked. Ask the organizer for a new one.',
+      authRequired: 'Please log in to accept this invite.',
+      emailMismatch: 'This invite is restricted to a different email address.',
+      phoneMismatch: 'This invite is restricted to a different phone number.',
     },
   },
 

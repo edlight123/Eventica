@@ -99,7 +99,7 @@ export async function GET(request: Request) {
         totalSales: affiliate.total_sales,
         totalCommission: affiliate.total_commission,
         monthlyEarnings,
-        referralUrl: `${process.env.NEXT_PUBLIC_APP_URL}?ref=${affiliate.code}`
+        referralUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://tikem.co'}?ref=${affiliate.code}`
       }
     })
   } catch (error) {

@@ -634,14 +634,7 @@ export async function withdrawFromEarnings(
     }
   }
 
-  // Validate withdrawal
-  if (effectiveAvailableToWithdraw < amount) {
-    return {
-      success: false,
-      error: `Insufficient funds. Available: ${effectiveAvailableToWithdraw}, Requested: ${amount}`,
-    }
-  }
-
+  // Fail-fast on the recomputed settlement policy before opening a transaction.
   if (effectiveSettlementStatus !== 'ready') {
     return {
       success: false,
@@ -649,19 +642,43 @@ export async function withdrawFromEarnings(
     }
   }
 
-  // Process withdrawal
-  const remaining = Math.max(0, effectiveAvailableToWithdraw - amount)
-  const newWithdrawn = withdrawnAmount + amount
-  await ref.update({
-    availableToWithdraw: remaining,
-    withdrawnAmount: newWithdrawn,
-    settlementStatus: remaining === 0 ? 'locked' : 'ready',
-    updatedAt: new Date().toISOString(),
-  })
+  // Atomic debit: re-read availableToWithdraw INSIDE a transaction and decrement it there, so two
+  // concurrent double-submits can't both pass the availability check and each debit the balance
+  // (which would authorize a double payout). Firestore serializes transactions touching the same
+  // doc, so the second attempt observes the reduced balance and is refused.
+  try {
+    const result = await adminDb.runTransaction(async (tx: any) => {
+      const snap = await tx.get(ref)
+      const cur = snap.exists ? (snap.data() as any) : {}
+      const available = Math.max(0, Number(cur?.availableToWithdraw || 0) || 0)
+      const withdrawn = Math.max(0, Number(cur?.withdrawnAmount || 0) || 0)
 
-  console.log(`✅ Withdrew ${amount} from event ${eventId} for payout ${payoutId}`)
+      if (available < amount) {
+        return {
+          success: false,
+          error: `Insufficient funds. Available: ${available}, Requested: ${amount}`,
+        } as { success: boolean; error?: string }
+      }
 
-  return { success: true }
+      const remaining = Math.max(0, available - amount)
+      const newWithdrawn = withdrawn + amount
+      tx.update(ref, {
+        availableToWithdraw: remaining,
+        withdrawnAmount: newWithdrawn,
+        settlementStatus: remaining === 0 ? 'locked' : 'ready',
+        updatedAt: new Date().toISOString(),
+      })
+      return { success: true } as { success: boolean; error?: string }
+    })
+
+    if (result.success) {
+      console.log(`✅ Withdrew ${amount} from event ${eventId} for payout ${payoutId}`)
+    }
+    return result
+  } catch (err) {
+    console.error(`❌ withdrawFromEarnings transaction failed for event ${eventId}:`, err)
+    return { success: false, error: 'Failed to process withdrawal' }
+  }
 }
 
 /**

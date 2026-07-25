@@ -8,10 +8,15 @@ const nextConfig = {
   // Compression and performance
   compress: true,
   poweredByHeader: false,
-  
+
+  // Strip console.* from production bundles, but keep error/warn for observability.
+  compiler: {
+    removeConsole: { exclude: ['error', 'warn'] },
+  },
+
   // Performance optimizations
   experimental: {
-    optimizePackageImports: ['lucide-react', 'date-fns', '@supabase/supabase-js'],
+    optimizePackageImports: ['lucide-react', 'date-fns'],
   },
   
   // Add headers for better caching and performance
@@ -94,10 +99,6 @@ const nextConfig = {
   
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**.supabase.co',
-      },
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',

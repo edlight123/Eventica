@@ -27,13 +27,22 @@ export default function CategoriesContent({ initialCategory }: CategoriesContent
       if (isDemoMode()) {
         setEvents(DEMO_EVENTS as Event[])
       } else {
-        const { data } = await firebaseDb
+        // Filter by category server-side (and cap the result) instead of fetching every
+        // published event and filtering in JS. Matches lib/data/events.ts getDiscoverEvents.
+        let query = firebaseDb
           .from('events')
           .select('*')
           .eq('is_published', true)
           .gte('start_datetime', new Date().toISOString())
+
+        if (initialCategory) {
+          query = query.eq('category', initialCategory)
+        }
+
+        const { data } = await query
           .order('start_datetime', { ascending: true })
-        
+          .limit(50)
+
         setEvents(data || [])
       }
     } finally {
@@ -45,9 +54,12 @@ export default function CategoriesContent({ initialCategory }: CategoriesContent
     loadEvents()
   }, [])
 
-  const filteredEvents = initialCategory 
+  const filteredEvents = (initialCategory
     ? events.filter(e => e.category === initialCategory)
     : events
+  // Moderation: never surface admin-rejected events (in-memory so legacy docs without the
+  // field aren't dropped by a type-sensitive Firestore inequality query).
+  ).filter((e: any) => e.rejected !== true)
 
   return (
     <PullToRefresh onRefresh={loadEvents}>

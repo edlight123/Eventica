@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Calendar, MapPin } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
@@ -46,7 +47,10 @@ export default function EventListCard({ event, onPress }: EventListCardProps) {
           <Image
             source={{ uri: event.banner_image_url }}
             style={StyleSheet.absoluteFill}
-            resizeMode="cover"
+            contentFit="cover"
+            cachePolicy="memory-disk"
+            transition={200}
+            recyclingKey={event.id ? String(event.id) : undefined}
           />
         ) : null}
       </View>

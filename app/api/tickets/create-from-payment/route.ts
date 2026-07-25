@@ -6,6 +6,16 @@ import { sendEmail, getTicketConfirmationEmail } from '@/lib/email'
 import { generateTicketQRCode } from '@/lib/qrcode'
 import { notifyTicketPurchase, notifyOrganizerTicketSale } from '@/lib/notifications/helpers'
 import { FieldValue } from 'firebase-admin/firestore'
+import {
+  buildTierSoldIncrements,
+  reserveInventoryAtomic,
+  releaseInventoryReservation,
+} from '@/lib/tickets/inventory'
+import {
+  claimWebhookEvent,
+  markWebhookEventCompleted,
+  releaseWebhookEvent,
+} from '@/lib/webhooks/idempotency'
 
 // Lazy load Stripe
 function getStripe() {
@@ -16,6 +26,8 @@ function getStripe() {
 }
 
 export async function POST(request: Request) {
+  // Scoped so the outer catch can release the shared fulfillment claim on failure.
+  let fulfillId: string | null = null
   try {
     const user = await getCurrentUser()
     
@@ -47,16 +59,72 @@ export async function POST(request: Request) {
 
     if (!existingTicketsSnapshot.empty) {
       console.log('✅ Tickets already exist for payment:', paymentIntentId)
-      return NextResponse.json({ 
-        success: true, 
+      return NextResponse.json({
+        success: true,
         ticketIds: existingTicketsSnapshot.docs.map((doc: any) => doc.id),
-        message: 'Tickets already created' 
+        message: 'Tickets already created'
+      })
+    }
+
+    // Shared idempotency claim keyed on the Stripe payment_intent id. The webhook's
+    // payment_intent.succeeded handler claims the SAME key, so whichever path (this client
+    // "confirm" call or the async webhook) runs first fulfills, and the other is a no-op.
+    // This closes the race where both paths pass the payment_id existence check and each
+    // create a duplicate set of tickets / double-increment inventory.
+    fulfillId = `pi_fulfill_${paymentIntentId}`
+    const claim = await claimWebhookEvent({
+      provider: 'stripe',
+      eventId: fulfillId,
+      eventType: 'payment_intent.client_confirm',
+    })
+    if (claim.outcome !== 'claimed') {
+      // Another path owns (or already finished) fulfillment. Return whatever tickets exist.
+      const snap = await adminDb
+        .collection('tickets')
+        .where('payment_id', '==', paymentIntentId)
+        .get()
+      return NextResponse.json({
+        success: true,
+        ticketIds: snap.docs.map((doc: any) => doc.id),
+        message: snap.empty ? 'Ticket creation already in progress' : 'Tickets already created',
       })
     }
 
     // Create tickets
     const quantity = parseInt(paymentIntent.metadata.quantity || '1', 10)
     const pricePerTicket = paymentIntent.amount / 100 / quantity
+
+    // Authoritative oversell gate: atomically reserve inventory BEFORE issuing tickets — the
+    // same gate the webhook uses. If the event/tier is now full, refund and stop.
+    const tierIncrements = buildTierSoldIncrements(
+      paymentIntent.metadata.tierId ? [{ tierId: paymentIntent.metadata.tierId, quantity }] : []
+    )
+    const reservation = await reserveInventoryAtomic({
+      eventId: paymentIntent.metadata.eventId,
+      quantity,
+      tierIncrements,
+      logPrefix: '[create-from-payment]',
+    })
+    if (!reservation.ok) {
+      console.error('[create-from-payment] capacity exceeded after payment — auto-refunding', {
+        paymentIntentId,
+        reason: reservation.reason,
+      })
+      try {
+        await stripe.refunds.create({ payment_intent: paymentIntentId })
+      } catch (refundErr) {
+        console.error('[create-from-payment] failed to auto-refund oversold payment', refundErr)
+      }
+      await markWebhookEventCompleted({
+        provider: 'stripe',
+        eventId: fulfillId,
+        metadata: { type: 'payment_intent.client_confirm', refunded: 'capacity_exceeded' },
+      })
+      return NextResponse.json(
+        { error: 'Event capacity exceeded; your payment has been refunded.' },
+        { status: 409 }
+      )
+    }
 
     // Fetch event details to include in tickets
     const eventDoc = await adminDb.collection('events').doc(paymentIntent.metadata.eventId).get()
@@ -126,18 +194,24 @@ export async function POST(request: Request) {
     }
 
     if (createdTickets.length === 0) {
+      // Return the reserved-but-unissued inventory and release the claim so a retry can re-fulfill.
+      await releaseInventoryReservation({
+        eventId: paymentIntent.metadata.eventId,
+        quantity,
+        tierIncrements,
+        logPrefix: '[create-from-payment]',
+      })
+      await releaseWebhookEvent({ provider: 'stripe', eventId: fulfillId })
       return NextResponse.json({ error: 'Failed to create tickets' }, { status: 500 })
     }
 
-    // Update tickets_sold count in Firestore using increment
-    await adminDb
-      .collection('events')
-      .doc(paymentIntent.metadata.eventId)
-      .update({ 
-        tickets_sold: FieldValue.increment(quantity)
-      })
-
-    console.log(`✅ Incremented tickets_sold for event ${paymentIntent.metadata.eventId} by ${quantity}`)
+    // Inventory was already reserved/incremented atomically by reserveInventoryAtomic above —
+    // do NOT increment again here. Mark the shared claim completed so the webhook no-ops.
+    await markWebhookEventCompleted({
+      provider: 'stripe',
+      eventId: fulfillId,
+      metadata: { type: 'payment_intent.client_confirm', tickets: createdTickets.length },
+    })
 
     // Send notification
     if (eventDetails) {
@@ -200,6 +274,11 @@ export async function POST(request: Request) {
     })
   } catch (error: any) {
     console.error('Ticket creation error:', error)
+    // Release the shared claim so Stripe's webhook (or a client retry) can re-fulfill this order
+    // instead of being permanently blocked as "in progress".
+    if (fulfillId) {
+      await releaseWebhookEvent({ provider: 'stripe', eventId: fulfillId })
+    }
     return NextResponse.json(
       { error: error.message || 'Failed to create tickets' },
       { status: 500 }

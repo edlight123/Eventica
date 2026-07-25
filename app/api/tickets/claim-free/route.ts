@@ -5,6 +5,7 @@ import { getCurrentUser } from '@/lib/auth'
 import { notifyTicketPurchase, notifyOrganizerTicketSale } from '@/lib/notifications/helpers'
 import { hasEventAccess } from '@/lib/events/access-guard'
 import { FieldValue } from 'firebase-admin/firestore'
+import { buildTierSoldIncrements, reserveInventoryAtomic } from '@/lib/tickets/inventory'
 
 export async function POST(request: Request) {
   try {
@@ -50,18 +51,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'This is not a free event' }, { status: 400 })
     }
 
-    // Check if tickets are still available
-    const remainingTickets = (event.total_tickets || 0) - (event.tickets_sold || 0)
-    console.log('Remaining tickets:', remainingTickets, 'Requested:', ticketQuantity)
-    
-    if (remainingTickets <= 0) {
-      return NextResponse.json({ error: 'No tickets available' }, { status: 400 })
-    }
-
-    if (remainingTickets < ticketQuantity) {
-      return NextResponse.json({ 
-        error: `Only ${remainingTickets} ticket${remainingTickets !== 1 ? 's' : ''} remaining` 
-      }, { status: 400 })
+    // Per-user dedup: never issue a second free ticket to the same user for the same event
+    // (prevents refresh/double-click and scripted abuse from claiming unlimited free inventory).
+    // Query by attendee_id only (single-field, auto-indexed) and filter the event in memory — a
+    // user holds few tickets, so this avoids needing a composite index.
+    const userTicketsSnap = await adminDb
+      .collection('tickets')
+      .where('attendee_id', '==', user.id)
+      .get()
+    const existing = userTicketsSnap.docs
+      .map((d: any) => ({ id: d.id, ...d.data() }))
+      .filter((t: any) => t.event_id === eventId)
+    if (existing.length > 0) {
+      console.log('User already has free ticket(s) for event:', eventId, 'count:', existing.length)
+      return NextResponse.json({
+        success: true,
+        tickets: existing,
+        count: existing.length,
+        message: 'You already claimed a ticket for this event.',
+      })
     }
 
     // Resolve the event's free/default tier id so each issued ticket carries a reliable
@@ -87,6 +95,28 @@ export async function POST(request: Request) {
       console.warn('[claim-free] failed to resolve tier_id; issuing with tier_id=""', {
         message: (tierErr as any)?.message,
       })
+    }
+
+    // Atomic capacity gate + increment (same helper the paid paths use). Reserving BEFORE issuing
+    // tickets serializes concurrent claims through a Firestore transaction so the event can't be
+    // oversold, and the increment is done here (no separate non-atomic update below).
+    const tierIncrements = buildTierSoldIncrements(
+      resolvedTierId ? [{ tierId: resolvedTierId, quantity: ticketQuantity }] : []
+    )
+    const reservation = await reserveInventoryAtomic({
+      eventId,
+      quantity: ticketQuantity,
+      tierIncrements,
+      logPrefix: '[claim-free]',
+    })
+    if (!reservation.ok) {
+      const remaining = Number(reservation.remaining ?? 0)
+      if (remaining <= 0) {
+        return NextResponse.json({ error: 'No tickets available' }, { status: 400 })
+      }
+      return NextResponse.json({
+        error: `Only ${remaining} ticket${remaining !== 1 ? 's' : ''} remaining`,
+      }, { status: 400 })
     }
 
     // Create tickets one at a time to ensure each gets a unique ID
@@ -122,15 +152,8 @@ export async function POST(request: Request) {
     
     console.log('Created tickets:', createdTickets.length)
 
-    // Update tickets_sold count in Firestore using increment
-    await adminDb
-      .collection('events')
-      .doc(eventId)
-      .update({ 
-        tickets_sold: FieldValue.increment(ticketQuantity)
-      })
-      
-    console.log(`✅ Incremented tickets_sold for event ${eventId} by ${ticketQuantity}`)
+    // NOTE: inventory was already reserved/incremented atomically by reserveInventoryAtomic above,
+    // so we intentionally do NOT increment tickets_sold again here.
 
     // Send in-app notification for free ticket claim
     try {

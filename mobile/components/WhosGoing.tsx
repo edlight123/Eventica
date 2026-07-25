@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Image } from 'expo-image';
 import { useNavigation } from '@react-navigation/native';
 import { Users, Lock } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
@@ -19,6 +20,10 @@ function Avatar({ user, size = 40 }: { user: PublicUserSummary; size?: number })
       <Image
         source={{ uri: user.photoURL }}
         style={{ width: size, height: size, borderRadius: size / 2, borderWidth: 2, borderColor: '#FFFFFF' }}
+        contentFit="cover"
+        cachePolicy="memory-disk"
+        transition={150}
+        recyclingKey={user.uid ? String(user.uid) : undefined}
       />
     );
   }
