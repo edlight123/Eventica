@@ -173,7 +173,10 @@ export default function EventDetailScreen({ route, navigation }: any) {
         let organizerData = null;
         if (data.organizer_id) {
           try {
-            const organizerDoc = await getDoc(doc(db, 'users', data.organizer_id));
+            // H4: cross-user read of the organizer's SAFE public projection
+            // (not users/{uid}). Falls back to a placeholder below if the
+            // projection isn't backfilled yet.
+            const organizerDoc = await getDoc(doc(db, 'public_profiles', data.organizer_id));
             if (organizerDoc.exists()) {
               organizerData = organizerDoc.data();
             }

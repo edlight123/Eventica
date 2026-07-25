@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import { adminDb } from '@/lib/firebase/admin';
+import { syncPublicProfileAdmin } from '@/lib/firestore/public-profile';
 
 export async function PUT(request: NextRequest) {
   try {
@@ -31,7 +32,10 @@ export async function PUT(request: NextRequest) {
       updated_at: new Date().toISOString(),
     });
 
-    return NextResponse.json({ 
+    // H4: mirror the SAFE display name into the public projection (phone stays private).
+    await syncPublicProfileAdmin(user.id, { full_name: full_name.trim() });
+
+    return NextResponse.json({
       success: true,
       message: 'Profile updated successfully' 
     });

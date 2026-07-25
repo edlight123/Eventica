@@ -13,10 +13,7 @@ import {
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
-import { collection, doc, getDoc, getDocs, orderBy, query } from 'firebase/firestore'
-
 import { useTheme } from '../../contexts/ThemeContext';
-import { db } from '../../config/firebase'
 import { backendJson } from '../../lib/api/backend'
 import { useI18n } from '../../contexts/I18nContext'
 import { SPACING, RADIUS } from '../../config/brand'
@@ -89,83 +86,19 @@ export default function OrganizerEventStaffScreen() {
     navigation.setOptions({ headerShown: false })
   }, [navigation])
 
-  const tsToIso = (value: any): string | null => {
-    if (!value) return null
-    try {
-      if (typeof value === 'string') return value
-      if (typeof value?.toDate === 'function') return value.toDate().toISOString()
-      if (value instanceof Date) return value.toISOString()
-    } catch {
-      // ignore
-    }
-    return null
-  }
-
-  const safeGetDocs = async (q: any, fallbackCol: any) => {
-    try {
-      return await getDocs(q)
-    } catch {
-      return await getDocs(fallbackCol)
-    }
-  }
-
   const refresh = useCallback(async () => {
     setLoading(true)
     try {
-      const invitesCol = collection(db, 'events', eventId, 'invites')
-      const membersCol = collection(db, 'events', eventId, 'members')
-
-      const [invitesSnap, membersSnap] = await Promise.all([
-        safeGetDocs(query(invitesCol, orderBy('createdAt', 'desc')), invitesCol),
-        safeGetDocs(query(membersCol, orderBy('createdAt', 'desc')), membersCol),
-      ])
-
-      const nextInvites: ApiInvite[] = invitesSnap.docs.map((d) => {
-        const data = d.data() as any
-        const rawMethod = String(data?.method || 'link')
-        const method: InviteMethod = rawMethod === 'email' ? 'email' : rawMethod === 'phone' ? 'phone' : 'link'
-
-        return {
-          id: d.id,
-          method,
-          targetEmail: data?.targetEmail ? String(data.targetEmail) : null,
-          targetPhone: data?.targetPhone ? String(data.targetPhone) : null,
-          expiresAt: tsToIso(data?.expiresAt),
-          revokedAt: tsToIso(data?.revokedAt),
-          usedAt: tsToIso(data?.usedAt),
-          usedBy: data?.usedBy ? String(data.usedBy) : null,
-          createdAt: tsToIso(data?.createdAt),
-        }
-      })
-
-      const memberDocs = membersSnap.docs
-      const profileSnaps = await Promise.all(
-        memberDocs.map((d) => getDoc(doc(db, 'users', d.id)))
+      // H4: staff invites + members (including each staffer's EMAIL, which is
+      // PII that only the event owner may see) come from the server endpoint
+      // (Admin SDK, organizer-gated) instead of a cross-user client Firestore
+      // read of users/{uid}. This keeps working after the users-read rule is
+      // locked down, and email no longer leaks via a client doc read.
+      const data = await backendJson<{ invites: ApiInvite[]; members: ApiMember[] }>(
+        `/api/organizer/events/${eventId}/staff`,
       )
-
-      const profileById: Record<string, { email: string | null; full_name: string | null }> = {}
-      profileSnaps.forEach((snap) => {
-        if (!snap.exists()) return
-        const data = snap.data() as any
-        profileById[snap.id] = {
-          email: data?.email ? String(data.email) : null,
-          full_name: data?.full_name ? String(data.full_name) : null,
-        }
-      })
-
-      const nextMembers: ApiMember[] = memberDocs.map((d) => {
-        const data = d.data() as any
-        return {
-          id: d.id,
-          role: String(data?.role || 'staff'),
-          permissions: (data?.permissions && typeof data.permissions === 'object' ? data.permissions : {}) as any,
-          createdAt: tsToIso(data?.createdAt),
-          profile: profileById[d.id] || { email: null, full_name: null },
-        }
-      })
-
-      setInvites(nextInvites)
-      setMembers(nextMembers)
+      setInvites(Array.isArray(data?.invites) ? data.invites : [])
+      setMembers(Array.isArray(data?.members) ? data.members : [])
     } catch (e: any) {
       Alert.alert(t('common.error'), e?.message || t('organizerStaff.errors.loadFailed'))
     } finally {

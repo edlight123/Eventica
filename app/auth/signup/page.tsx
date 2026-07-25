@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { auth, db } from '@/lib/firebase/client'
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
 import { doc, setDoc, getDoc } from 'firebase/firestore'
+import { syncPublicProfileClient } from '@/lib/firestore/public-profile-client'
 import Link from 'next/link'
 import { BRAND } from '@/config/brand'
 import { TikemWordmark } from '@/components/ui/TikemLogo'
@@ -49,14 +50,18 @@ export default function SignupPage() {
       })
 
       // Create user profile in Firestore
-      await setDoc(doc(db, 'users', user.uid), {
+      const newUserDoc = {
         email: user.email,
         full_name: fullName,
         phone_number: phoneNumber || null,
         role: 'attendee' as UserRole,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-      })
+      }
+      await setDoc(doc(db, 'users', user.uid), newUserDoc)
+
+      // H4: seed the cross-user-readable projection (best-effort; PII stripped).
+      await syncPublicProfileClient(user.uid, newUserDoc)
 
       // Create session cookie
       const idToken = await user.getIdToken()
@@ -90,14 +95,18 @@ export default function SignupPage() {
 
       if (!userDoc.exists()) {
         // Create user profile in Firestore
-        await setDoc(userDocRef, {
+        const newUserDoc = {
           email: user.email,
           full_name: user.displayName || '',
           phone_number: user.phoneNumber || null,
           role: 'attendee' as UserRole,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-        })
+        }
+        await setDoc(userDocRef, newUserDoc)
+
+        // H4: seed the cross-user-readable projection (best-effort; PII stripped).
+        await syncPublicProfileClient(user.uid, newUserDoc)
       }
 
       // Create session cookie

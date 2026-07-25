@@ -84,6 +84,12 @@ service cloud.firestore {
     // Users collection - users can read their own data; writes are restricted to
     // non-privileged profile fields to prevent role/verification escalation.
     match /users/{userId} {
+      // H4 (HELD): this read stays `isSignedIn()` for now so any signed-in user
+      // can still read another user's doc. The final owner-only lockdown
+      // (`allow read: if isOwner(userId)`) is a SEPARATE gated step the human
+      // performs AFTER public_profiles/{uid} is backfilled and all cross-user
+      // client reads have moved to it. Do NOT tighten this here. Server code
+      // uses the Admin SDK (bypasses rules) and is unaffected.
       allow read: if isSignedIn();
 
       // Create: users may create their own profile but cannot self-assign privileged roles
@@ -122,6 +128,18 @@ service cloud.firestore {
         allow read: if isOwner(userId);
         allow write: if isOwner(userId);
       }
+    }
+
+    // Public profiles (H4) - a minimal, read-only projection of a user's SAFE
+    // display fields (name, photo, is_verified, bio, username, organization
+    // name/logo). Cross-user display reads this instead of users/{uid} so that
+    // email/phone_number and other PII stop being client-readable. The owner
+    // writes their own projection (sync happens client-side and via Admin SDK on
+    // every profile write). No sensitive fields are ever stored here.
+    match /public_profiles/{uid} {
+      allow read: if isSignedIn();
+      allow create, update: if isOwner(uid);
+      allow delete: if false;
     }
 
     // Connections (friendships) - one document per user pair.

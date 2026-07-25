@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { auth, db } from '@/lib/firebase/client'
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { syncPublicProfileClient } from '@/lib/firestore/public-profile-client'
 import Link from 'next/link'
 import { BRAND } from '@/config/brand'
 import { TikemWordmark } from '@/components/ui/TikemLogo'
@@ -108,13 +109,17 @@ export default function LoginPage() {
 
       if (!userDoc.exists()) {
         // Create user document
-        await setDoc(userDocRef, {
+        const newUserDoc = {
           email: user.email,
           full_name: user.displayName || '',
           role: 'attendee',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-        })
+        }
+        await setDoc(userDocRef, newUserDoc)
+
+        // H4: seed the cross-user-readable projection (best-effort; PII stripped).
+        await syncPublicProfileClient(user.uid, newUserDoc)
       }
 
       // Create session cookie

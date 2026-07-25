@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import { adminDb, adminStorage } from '@/lib/firebase/admin';
+import { syncPublicProfileAdmin } from '@/lib/firestore/public-profile';
 
 export async function POST(request: NextRequest) {
   try {
@@ -69,9 +70,12 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString(),
     });
 
-    return NextResponse.json({ 
+    // H4: mirror the SAFE avatar URL into the public projection.
+    await syncPublicProfileAdmin(user.id, { photo_url: publicUrl });
+
+    return NextResponse.json({
       success: true,
-      photo_url: publicUrl 
+      photo_url: publicUrl
     });
   } catch (error) {
     console.error('Error uploading photo:', error);

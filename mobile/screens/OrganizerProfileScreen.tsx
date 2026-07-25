@@ -21,7 +21,6 @@ import {
   Star,
   MapPin,
   Globe,
-  Mail,
   MessageCircle,
   ChevronDown,
   ChevronUp,
@@ -38,7 +37,7 @@ import StatTriplet from '../components/StatTriplet';
 import VerifiedBadge from '../components/VerifiedBadge';
 import EmptyState from '../components/EmptyState';
 import { fetchConnections } from '../lib/api/social';
-import { socialUrlFor, type FriendshipState, type SocialPlatform } from '../types/social';
+import { type FriendshipState } from '../types/social';
 
 const { width } = Dimensions.get('window');
 const HERO_HEIGHT = 300;
@@ -122,16 +121,14 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
 
   const fetchOrganizerProfile = async () => {
     try {
-      const organizerDoc = await getDoc(doc(db, 'users', organizerId));
-      if (!organizerDoc.exists()) {
-        navigation.goBack();
-        return;
-      }
-
-      const organizerData = {
-        id: organizerDoc.id,
-        ...organizerDoc.data()
-      };
+      // H4: cross-user read of the organizer's SAFE public projection (name,
+      // photo, is_verified, bio, organization_name/logo) instead of users/{uid}.
+      // If the projection isn't backfilled yet, fall back to a name/avatar
+      // placeholder so the screen still renders (events below still load).
+      const organizerDoc = await getDoc(doc(db, 'public_profiles', organizerId));
+      const organizerData = organizerDoc.exists()
+        ? { id: organizerDoc.id, ...organizerDoc.data() }
+        : { id: organizerId };
       setOrganizer(organizerData);
 
       // Fetch events
@@ -290,25 +287,10 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
         color: '#000000',
       });
     }
-    
-    if (organizer?.whatsapp) {
-      links.push({
-        type: 'whatsapp',
-        url: `https://wa.me/${organizer.whatsapp}`,
-        icon: MessageCircle,
-        color: '#25D366',
-      });
-    }
-    
-    if (organizer?.email) {
-      links.push({
-        type: 'email',
-        url: `mailto:${organizer.email}`,
-        icon: Mail,
-        color: '#0F766E',
-      });
-    }
-    
+
+    // H4: whatsapp/email are contact PII and are NOT part of the public
+    // projection, so they are intentionally no longer surfaced here.
+
     return links;
   };
 
@@ -373,32 +355,22 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
   }
 
   const socialLinks = getSocialLinks();
-  const hostingSince = organizer.createdAt 
-    ? new Date(organizer.createdAt.seconds ? organizer.createdAt.seconds * 1000 : organizer.createdAt).getFullYear()
+  // "Hosting since" — account age. The projection stores created_at (snake);
+  // accept the legacy camelCase too. Value may be an ISO string or a Firestore
+  // Timestamp-like { seconds }.
+  const createdAtRaw = organizer.created_at ?? organizer.createdAt;
+  const hostingSince = createdAtRaw
+    ? new Date(createdAtRaw.seconds ? createdAtRaw.seconds * 1000 : createdAtRaw).getFullYear()
     : null;
   const subtitle = getSubtitle();
 
-  // Friend-graph: personal social handles + bio, gated by the profile owner's privacy.
+  // Connect (friend-request) action still sits inline next to the stats.
+  // H4: the former "personal bio + social handles" card was gated by the
+  // owner's privacy settings and read the personal `social_links` object —
+  // neither is part of the public projection, so that card has been removed
+  // (email/whatsapp/personal socials can't be exposed publicly).
   const isSelf = !!user && user.uid === organizerId;
-  const personalSocial: { platform: SocialPlatform; handle: string }[] = (
-    ['instagram', 'tiktok', 'twitter', 'facebook'] as SocialPlatform[]
-  )
-    .map((platform) => ({ platform, handle: String(organizer?.social_links?.[platform] || '').trim() }))
-    .filter((item) => item.handle.length > 0);
-  const personalBio = String(organizer?.bio || '').trim();
-  const profileIsPublic = (organizer?.privacy?.profile_visibility || 'private') === 'public';
-  const canSeeSocial = isSelf || friendship === 'friends' || profileIsPublic;
   const showConnect = friendshipLoaded && !isSelf && friendship !== 'self';
-  // The connect action now sits inline next to the stats; the raised card is
-  // reserved for personal bio + social handles (only when there is any).
-  const showSocialCard = canSeeSocial && (personalBio.length > 0 || personalSocial.length > 0);
-
-  const SOCIAL_META: Record<SocialPlatform, { label: string; color: string }> = {
-    instagram: { label: 'Instagram', color: '#E4405F' },
-    tiktok: { label: 'TikTok', color: colors.text },
-    twitter: { label: 'X', color: colors.text },
-    facebook: { label: 'Facebook', color: '#1877F2' },
-  };
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -449,7 +421,7 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
                 <Image source={{ uri: organizer.avatarUrl }} style={styles.avatarImage} />
               ) : (
                 <Text style={styles.avatarText}>
-                  {organizer.full_name[0].toUpperCase()}
+                  {(organizer.full_name?.[0] || '?').toUpperCase()}
                 </Text>
               )}
             </View>
@@ -467,8 +439,9 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
               <Text style={styles.subtitle}>{subtitle}</Text>
             )}
 
-            {/* Contact Button - Scrolls to bottom */}
-            {(organizer.whatsapp || organizer.phone || organizer.email || socialLinks.length > 0) && (
+            {/* Contact Button - Scrolls to bottom.
+                H4: gated only on public brand socials now (no email/whatsapp/phone). */}
+            {socialLinks.length > 0 && (
               <TouchableOpacity
                 style={styles.contactButtonHero}
                 onPress={scrollToBottom}
@@ -506,35 +479,6 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
                 onChange={setFriendship}
                 onRequireAuth={() => navigation.navigate('Auth')}
               />
-            </View>
-          ) : null}
-
-          {/* Personal social (bio + handles) */}
-          {showSocialCard ? (
-            <View style={styles.socialCard}>
-              {canSeeSocial && personalBio.length > 0 ? (
-                <Text style={styles.socialBio}>{personalBio}</Text>
-              ) : null}
-
-              {canSeeSocial && personalSocial.length > 0 ? (
-                <View style={styles.socialChipsRow}>
-                  {personalSocial.map(({ platform, handle }) => {
-                    const meta = SOCIAL_META[platform];
-                    return (
-                      <TouchableOpacity
-                        key={platform}
-                        style={[styles.socialChip, { borderColor: meta.color }]}
-                        onPress={() => Linking.openURL(socialUrlFor(platform, handle))}
-                        activeOpacity={0.7}
-                      >
-                        <Text style={[styles.socialChipText, { color: meta.color }]} numberOfLines={1}>
-                          {meta.label} @{handle.replace(/^@+/, '')}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              ) : null}
             </View>
           ) : null}
 

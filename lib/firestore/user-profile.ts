@@ -1,5 +1,6 @@
 import { db } from '@/lib/firebase/client'
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
+import { syncPublicProfileClient } from './public-profile-client'
 import {
   type SocialLinks,
   type PrivacySettings,
@@ -105,6 +106,12 @@ export async function createUserProfile(uid: string, profile: Partial<UserProfil
       created_at: serverTimestamp(),
       updated_at: serverTimestamp()
     })
+
+    // H4: seed the cross-user-readable projection (best-effort).
+    await syncPublicProfileClient(uid, {
+      full_name: profile.displayName || '',
+      photo_url: profile.photoURL || '',
+    })
   } catch (error) {
     console.error('Error creating user profile:', error)
     throw error
@@ -144,6 +151,9 @@ export async function updateUserProfile(uid: string, updates: Partial<UserProfil
     if (updates.notify !== undefined) updateData.notify = updates.notify
 
     await updateDoc(userRef, updateData)
+
+    // H4: mirror any SAFE fields that changed into the public projection.
+    await syncPublicProfileClient(uid, updateData)
   } catch (error) {
     console.error('Error updating user profile:', error)
     throw error

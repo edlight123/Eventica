@@ -5,6 +5,7 @@
 
 import { adminDb } from '@/lib/firebase/admin'
 import { FieldValue } from 'firebase-admin/firestore'
+import { syncPublicProfileAdmin } from './public-profile'
 import {
   type SocialLinks,
   type PrivacySettings,
@@ -113,6 +114,12 @@ export async function createUserProfileAdmin(uid: string, profile: Partial<UserP
       created_at: FieldValue.serverTimestamp(),
       updated_at: FieldValue.serverTimestamp()
     })
+
+    // H4: mirror SAFE fields into the cross-user-readable projection.
+    await syncPublicProfileAdmin(uid, {
+      full_name: profile.displayName || '',
+      photo_url: profile.photoURL || '',
+    })
   } catch (error) {
     console.error('Error creating user profile (admin):', error)
     throw error
@@ -152,6 +159,9 @@ export async function updateUserProfileAdmin(uid: string, updates: Partial<UserP
     if (updates.notify !== undefined) updateData.notify = updates.notify
 
     await userRef.update(updateData)
+
+    // H4: mirror any SAFE fields that changed into the public projection.
+    await syncPublicProfileAdmin(uid, updateData)
   } catch (error) {
     console.error('Error updating user profile (admin):', error)
     throw error

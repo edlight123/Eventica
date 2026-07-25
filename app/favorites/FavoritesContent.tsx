@@ -83,10 +83,13 @@ export default function FavoritesContent({ userId }: FavoritesContentProps) {
               orgBatches.push(organizerIds.slice(i, i + orgBatchSize))
             }
             
-            // Fetch all organizers in parallel batches
+            // Fetch all organizers in parallel batches.
+            // H4: cross-user read of the SAFE public projection (full_name,
+            // is_verified, ...) instead of users/{uid}. Missing projections fall
+            // back to the placeholder organizer below.
             const orgSnapshots = await Promise.all(
               orgBatches.map(batch => {
-                const usersRef = collection(db, 'users')
+                const usersRef = collection(db, 'public_profiles')
                 return getDocs(query(usersRef, where(documentId(), 'in', batch)))
               })
             )

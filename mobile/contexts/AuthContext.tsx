@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, onAuthStateChanged, signInWithEmailAndPassword, signOut as firebaseSignOut, createUserWithEmailAndPassword, GoogleAuthProvider, OAuthProvider, signInWithCredential } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db, isDemoMode } from '../config/firebase';
+import { syncPublicProfile } from '../lib/publicProfile';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
@@ -113,6 +114,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     await setDoc(doc(db, 'users', user.uid), trimmed, { merge: true });
+    // H4: keep the cross-user-readable projection in sync (best-effort).
+    await syncPublicProfile(user.uid, trimmed);
     await refreshUserProfile(user.uid);
   };
 
@@ -196,13 +199,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const userDoc = await getDoc(userDocRef);
 
       if (!userDoc.exists()) {
-        await setDoc(userDocRef, {
+        const newUserDoc = {
           email: user.email,
           full_name: user.displayName || '',
           role: 'attendee',
+          is_verified: false,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-        });
+        };
+        await setDoc(userDocRef, newUserDoc);
+        // H4: seed the cross-user-readable projection (best-effort; PII stripped).
+        await syncPublicProfile(user.uid, newUserDoc);
       }
     } catch (error: any) {
       console.error('Google Sign-In error:', error);
@@ -262,13 +269,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const existing = await getDoc(doc(db, 'users', uid));
       if (!existing.exists()) {
-        await setDoc(doc(db, 'users', uid), {
+        const newUserDoc = {
           email: userCredential.user.email || appleCredential.email || '',
           full_name: fullName || userCredential.user.displayName || '',
           role: 'attendee',
           created_at: new Date().toISOString(),
           is_verified: false,
-        });
+        };
+        await setDoc(doc(db, 'users', uid), newUserDoc);
+        // H4: seed the cross-user-readable projection (best-effort; PII stripped).
+        await syncPublicProfile(uid, newUserDoc);
       }
     } catch (e) {
       console.warn('Apple sign-in: could not seed user profile', e);
@@ -279,13 +289,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     
     // Create user profile in Firestore
-    await setDoc(doc(db, 'users', userCredential.user.uid), {
+    const newUserDoc = {
       email,
       full_name: fullName,
       role: 'attendee',
       created_at: new Date().toISOString(),
       is_verified: false,
-    });
+    };
+    await setDoc(doc(db, 'users', userCredential.user.uid), newUserDoc);
+    // H4: seed the cross-user-readable projection (best-effort; PII stripped).
+    await syncPublicProfile(userCredential.user.uid, newUserDoc);
   };
 
   const signOut = async () => {
