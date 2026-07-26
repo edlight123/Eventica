@@ -412,11 +412,9 @@ export default function HomeScreen({ navigation }: any) {
           <HomeFeedSkeleton />
         ) : (
           <>
-            {/* Oversized editorial masthead (POSH §2.5) — scaled-up serif,
-                wraps up to 2 lines. Keeps the serif title identity. */}
-            <Text style={styles.headline} numberOfLines={2}>
-              {t('home.headline')}
-            </Text>
+            {/* (Removed the redundant "À l'affiche" masthead per beta feedback —
+                the tikèm wordmark in the top bar already brands the screen; the
+                section titles below carry the hierarchy.) */}
 
             {/* For You */}
             {forYouEvents.length > 0 && (

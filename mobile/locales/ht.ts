@@ -1758,6 +1758,8 @@ export default {
       cancelBody: 'Biyè w poko konfime. Ou vle kite peman an?',
       cancelConfirm: 'Kite',
       cancelKeep: 'Kontinye',
+      tryAgain: 'Eseye ankò',
+      backToEvent: 'Retounen nan evènman an',
     },
   },
 

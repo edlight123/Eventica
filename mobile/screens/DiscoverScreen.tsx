@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   View, 
   Text, 
@@ -11,12 +11,15 @@ import {
   TextInput,
   Animated,
   RefreshControl,
+  Share,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Calendar, MapPin, Search, X, SlidersHorizontal, Users } from 'lucide-react-native';
-import { collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { collection, query, where, getDocs, limit, addDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { filterExploreEvents } from '../lib/api/events';
 import { useTheme } from '../contexts/ThemeContext';
@@ -107,6 +110,9 @@ export default function DiscoverScreen({ navigation, route }: any) {
   const [feedEvents, setFeedEvents] = useState<any[]>([]);
   const [discoverTab, setDiscoverTab] = useState<'forYou' | 'following' | 'saved'>('forYou');
   const [savedEvents, setSavedEvents] = useState<any[]>([]);
+  // Which events the user has bookmarked — drives the card's save icon state
+  // across all tabs (loaded once per user, updated optimistically on toggle).
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [searchMode, setSearchMode] = useState(false);
 
   const DATE_LABEL_KEYS: Record<DateFilter, string> = {
@@ -127,6 +133,11 @@ export default function DiscoverScreen({ navigation, route }: any) {
   // height 0 can report the clipped value and lock the masthead collapsed.
   const [headlineH, setHeadlineH] = useState(64);
   const headlineMeasured = useRef(false);
+  // Full (expanded) header height — the feed's top padding, so content scrolls
+  // UP behind the translucent header instead of starting below a solid strip.
+  // Measured once at rest (masthead expanded); a sane default until then.
+  const [headerH, setHeaderH] = useState(220);
+  const headerMeasured = useRef(false);
   
   // Interpolations for collapsing header
   const headerHeight = scrollY.interpolate({
@@ -313,6 +324,74 @@ export default function DiscoverScreen({ navigation, route }: any) {
     setRefreshing(true);
     fetchEvents();
   };
+
+  // Load the user's saved (favorited) event ids once so the bookmark icon shows
+  // the right state on every card, not just the Saved tab.
+  const loadSavedIds = useCallback(async () => {
+    if (!user) { setSavedIds(new Set()); return; }
+    try {
+      const favs = await getDocs(
+        query(collection(db, 'event_favorites'), where('user_id', '==', user.uid))
+      );
+      setSavedIds(new Set(favs.docs.map((d) => d.data().event_id)));
+    } catch (e) {
+      console.warn('[DiscoverScreen] Error loading saved ids:', e);
+    }
+  }, [user]);
+
+  useEffect(() => { loadSavedIds(); }, [loadSavedIds]);
+
+  // Share an event (native share sheet).
+  const handleShareEvent = useCallback(async (event: any) => {
+    try {
+      await Share.share({
+        title: event.title,
+        message: `${event.title}\n\nhttps://tikem.co/events/${event.id}`,
+      });
+    } catch (e) {
+      console.warn('[DiscoverScreen] Share failed:', e);
+    }
+  }, []);
+
+  // Toggle bookmark: optimistic UI + event_favorites write (add/remove).
+  const toggleSaveEvent = useCallback(async (event: any) => {
+    if (!user) {
+      Alert.alert(t('auth.loginRequiredTitle'), t('eventDetail.favorites.loginBody'));
+      return;
+    }
+    const id = event.id;
+    const wasSaved = savedIds.has(id);
+    setSavedIds((prev) => {
+      const next = new Set(prev);
+      if (wasSaved) next.delete(id); else next.add(id);
+      return next;
+    });
+    try {
+      if (wasSaved) {
+        const snap = await getDocs(query(
+          collection(db, 'event_favorites'),
+          where('user_id', '==', user.uid),
+          where('event_id', '==', id),
+        ));
+        await Promise.all(snap.docs.map((d) => deleteDoc(doc(db, 'event_favorites', d.id))));
+        setSavedEvents((prev) => prev.filter((e) => e.id !== id));
+      } else {
+        await addDoc(collection(db, 'event_favorites'), {
+          user_id: user.uid,
+          event_id: id,
+          created_at: Timestamp.now(),
+        });
+      }
+    } catch (e) {
+      console.warn('[DiscoverScreen] Toggle save failed:', e);
+      // Roll back the optimistic change on failure.
+      setSavedIds((prev) => {
+        const next = new Set(prev);
+        if (wasSaved) next.add(id); else next.delete(id);
+        return next;
+      });
+    }
+  }, [user, savedIds, t]);
 
   // Saved tab — the user's favorited events, matched against the loaded set.
   useEffect(() => {
@@ -589,7 +668,10 @@ export default function DiscoverScreen({ navigation, route }: any) {
         <DiscoverEventCard
           key={event.id}
           event={event}
+          saved={savedIds.has(event.id)}
           onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
+          onShare={() => handleShareEvent(event)}
+          onToggleSave={() => toggleSaveEvent(event)}
         />
       ))
     );
@@ -613,24 +695,24 @@ export default function DiscoverScreen({ navigation, route }: any) {
         </View>
       ) : null}
 
-      {/* Posh-style header: oversized serif masthead + filter/search pill + tabs */}
-      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <Animated.View style={{ height: headlineCollapse, opacity: headlineOpacity, overflow: 'hidden' }}>
-          <Text
-            style={styles.headline}
-            numberOfLines={2}
-            onLayout={(e) => {
-              if (headlineMeasured.current) return;
-              const h = e.nativeEvent.layout.height;
-              if (h > 8) {
-                headlineMeasured.current = true;
-                setHeadlineH(h);
-              }
-            }}
-          >
-            {t('discover.headline')}
-          </Text>
-        </Animated.View>
+      {/* Posh-style header: a translucent BLUR overlay the feed scrolls under, so
+          the poster shows through behind the search pill + tabs. */}
+      <View
+        style={[styles.header, { paddingTop: insets.top + 8 }]}
+        onLayout={(e) => {
+          if (headerMeasured.current) return;
+          const h = e.nativeEvent.layout.height;
+          if (h > 40) {
+            headerMeasured.current = true;
+            setHeaderH(h);
+          }
+        }}
+      >
+        <BlurView intensity={28} tint="dark" style={StyleSheet.absoluteFill} pointerEvents="none" />
+        <View style={styles.headerScrim} pointerEvents="none" />
+        <Text style={styles.headline} numberOfLines={1}>
+          {t('discover.headline')}
+        </Text>
         <View style={styles.searchPill}>
           {searchMode ? (
             <>
@@ -684,8 +766,8 @@ export default function DiscoverScreen({ navigation, route }: any) {
       {/* Feed */}
       <Animated.ScrollView
         ref={scrollViewRef}
-        style={styles.content}
-        contentContainerStyle={[styles.feedContent, { paddingBottom: 32 + insets.bottom }]}
+        style={styles.contentUnderHeader}
+        contentContainerStyle={[styles.feedContent, { paddingTop: headerH + 8, paddingBottom: 32 + insets.bottom }]}
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={16}
         onScroll={Animated.event(
@@ -860,6 +942,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   content: {
     flex: 1,
   },
+  // The feed fills the whole screen (behind the absolute header) so posters
+  // scroll up under the translucent header.
+  contentUnderHeader: {
+    flex: 1,
+  },
   ambientImg: {
     ...StyleSheet.absoluteFillObject,
     width: undefined,
@@ -868,10 +955,23 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     resizeMode: 'cover',
   },
   header: {
-    // Transparent so the ambient poster wash shows behind the masthead + tabs.
+    // Absolute translucent overlay: the feed scrolls UP behind it (posters show
+    // through the blur). overflow:hidden clips the BlurView to the header bounds.
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+    overflow: 'hidden',
     backgroundColor: 'transparent',
     paddingHorizontal: 16,
-    paddingBottom: 6,
+    paddingBottom: 10,
+  },
+  // A faint dark wash over the blur so the search text + tabs stay legible on
+  // top of any bright poster.
+  headerScrim: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(10,10,10,0.35)',
   },
   headline: {
     fontFamily: 'InstrumentSerif_400Regular',

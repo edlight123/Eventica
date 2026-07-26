@@ -893,6 +893,8 @@ export default {
       cancelBody: 'Your ticket isn’t confirmed yet. Leave the payment?',
       cancelConfirm: 'Leave',
       cancelKeep: 'Keep paying',
+      tryAgain: 'Try again',
+      backToEvent: 'Back to event',
     },
   },
 

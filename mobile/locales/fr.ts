@@ -1760,6 +1760,8 @@ export default {
       cancelBody: 'Votre billet n’est pas encore confirmé. Quitter le paiement ?',
       cancelConfirm: 'Quitter',
       cancelKeep: 'Continuer',
+      tryAgain: 'Réessayer',
+      backToEvent: 'Retour à l’événement',
     },
   },
 

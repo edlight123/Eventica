@@ -38,6 +38,7 @@ export default function PaymentWebViewScreen() {
   const webViewRef = useRef<WebView>(null)
   const [loading, setLoading] = useState(true)
   const [handledTerminal, setHandledTerminal] = useState(false)
+  const [failure, setFailure] = useState<{ reason?: string } | null>(null)
   const [resolvedAuthToken, setResolvedAuthToken] = useState<string | null>(authToken || null)
 
   // The Firebase ID token may ONLY be attached to our own trusted hosts, never
@@ -103,15 +104,20 @@ export default function PaymentWebViewScreen() {
 
       clearPendingPayment().catch(() => {})
 
-      Alert.alert(t('screens.payment.failedTitle'), message || t('screens.payment.failedBody'), [
-        {
-          text: t('common.ok'),
-          onPress: () => navigation.goBack(),
-        },
-      ])
+      // Show a branded in-screen failure state instead of a bare alert. We keep
+      // the user on the checkout screen so they can retry the same URL or exit.
+      setFailure({ reason: message })
     },
-    [handledTerminal, navigation, t]
+    [handledTerminal]
   )
+
+  const handleTryAgain = useCallback(() => {
+    setFailure(null)
+    setHandledTerminal(false)
+    setLoading(true)
+    // Retry the same checkout URL in the existing WebView.
+    webViewRef.current?.reload()
+  }, [])
 
   // Closing mid-payment could drop an in-flight ticket purchase, so confirm
   // first (unless the flow already reached a terminal success/failure).
@@ -192,6 +198,40 @@ export default function PaymentWebViewScreen() {
     </View>
   )
 
+  // Branded, full-screen failure state. Rendered as an overlay above the still-
+  // mounted WebView (below the header) so "Try again" can reload the same URL.
+  const brandedFailure = failure ? (
+    <View style={styles.failureOverlay}>
+      <View style={styles.failureContent}>
+        <View style={styles.failureIconRing}>
+          <Ionicons name="close-circle" size={56} color={colors.error} />
+        </View>
+        <Text style={styles.failureTitle}>{t('screens.payment.failedTitle')}</Text>
+        <Text style={styles.failureBody}>
+          {failure.reason || t('screens.payment.failedBody')}
+        </Text>
+        <TouchableOpacity
+          style={styles.failurePrimaryButton}
+          onPress={handleTryAgain}
+          activeOpacity={0.85}
+          accessibilityRole="button"
+          accessibilityLabel={t('screens.payment.tryAgain')}
+        >
+          <Text style={styles.failurePrimaryButtonText}>{t('screens.payment.tryAgain')}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.failureGhostButton}
+          onPress={() => navigation.goBack()}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={t('screens.payment.backToEvent')}
+        >
+          <Text style={styles.failureGhostButtonText}>{t('screens.payment.backToEvent')}</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  ) : null
+
   if (!url) {
     return <View style={styles.center} />
   }
@@ -244,7 +284,8 @@ export default function PaymentWebViewScreen() {
         domStorageEnabled
       />
 
-      {loading ? brandedLoading : null}
+      {loading && !failure ? brandedLoading : null}
+      {brandedFailure}
     </View>
   )
 }
@@ -306,6 +347,75 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   loadingText: {
     marginTop: 14,
     fontSize: 13,
+    color: colors.textSecondary,
+  },
+  failureOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 28,
+    backgroundColor: colors.background,
+  },
+  failureContent: {
+    width: '100%',
+    maxWidth: 360,
+    alignItems: 'center',
+  },
+  failureIconRing: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.errorLight,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.error,
+    marginBottom: 24,
+  },
+  failureTitle: {
+    fontFamily: 'InstrumentSerif_400Regular',
+    fontSize: 34,
+    lineHeight: 38,
+    color: colors.text,
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  failureBody: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: 32,
+  },
+  failurePrimaryButton: {
+    width: '100%',
+    height: 54,
+    borderRadius: 27,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.white,
+    marginBottom: 12,
+  },
+  failurePrimaryButtonText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0A0A0A',
+  },
+  failureGhostButton: {
+    width: '100%',
+    height: 50,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  failureGhostButtonText: {
+    fontSize: 15,
+    fontWeight: '600',
     color: colors.textSecondary,
   },
 })
