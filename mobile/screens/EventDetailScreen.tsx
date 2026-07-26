@@ -17,6 +17,7 @@ import {
   TextInput,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Image as ExpoImage } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { 
   Calendar, 
@@ -441,16 +442,19 @@ export default function EventDetailScreen({ route, navigation }: any) {
             style={StyleSheet.absoluteFill}
           />
           {(event.banner_image_url || event.cover_image_url) && (
-            <Image
+            <ExpoImage
               source={{ uri: event.banner_image_url || event.cover_image_url }}
               style={StyleSheet.absoluteFill}
-              resizeMode="cover"
+              contentFit="cover"
               blurRadius={28}
+              cachePolicy="memory-disk"
+              recyclingKey={event.id ? String(event.id) : undefined}
             />
           )}
           <View style={styles.heroBackdropScrim} />
 
-          {/* Centered sharp poster */}
+          {/* Centered sharp poster — expo-image so it reuses the memory-disk
+              cache the Discover/Home card already filled, showing instantly. */}
           <View style={styles.heroPoster}>
             <LinearGradient
               colors={resolvePosterTheme(event, event.id || event.title, event.category).colors}
@@ -459,10 +463,13 @@ export default function EventDetailScreen({ route, navigation }: any) {
               style={StyleSheet.absoluteFill}
             />
             {(event.banner_image_url || event.cover_image_url) && (
-              <Image
+              <ExpoImage
                 source={{ uri: event.banner_image_url || event.cover_image_url }}
                 style={StyleSheet.absoluteFill}
-                resizeMode="cover"
+                contentFit="cover"
+                cachePolicy="memory-disk"
+                transition={120}
+                recyclingKey={event.id ? String(event.id) : undefined}
               />
             )}
           </View>

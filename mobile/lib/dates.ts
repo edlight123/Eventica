@@ -18,24 +18,25 @@ export function getDateFnsLocale(language: Language) {
 
 // date-fns applies the locale's WORDS but respects the pattern's literal ORDER,
 // so "EEE, MMM d" renders "dim., août 9" in French — wrong. French/Kreyòl want
-// day-before-month and 24-hour time. Remap the app's (English-ordered) patterns
-// to locale-correct equivalents; unknown patterns pass through unchanged.
+// day-before-month ORDER. Time stays 12-hour (h:mm a) — Haiti uses AM/PM, not
+// 24-hour "military" time — so only the DATE order is remapped, not the clock.
+// Unknown patterns pass through unchanged.
 const FR_PATTERN_MAP: Record<string, string> = {
-  'EEE, MMM d · h:mm a': 'EEE d MMM · HH:mm',
-  'EEE, MMM d • h:mm a': 'EEE d MMM • HH:mm',
-  'MMM d, yyyy · h:mm a': 'd MMM yyyy · HH:mm',
+  'EEE, MMM d · h:mm a': 'EEE d MMM · h:mm a',
+  'EEE, MMM d • h:mm a': 'EEE d MMM • h:mm a',
+  'MMM d, yyyy · h:mm a': 'd MMM yyyy · h:mm a',
   'EEE, MMM d': 'EEE d MMM',
   'EEEE, MMMM d, yyyy': 'EEEE d MMMM yyyy',
   'EEEE, MMMM dd, yyyy': 'EEEE dd MMMM yyyy',
   'MMMM d, yyyy': 'd MMMM yyyy',
   'MMMM dd, yyyy': 'dd MMMM yyyy',
-  'MMMM dd, yyyy h:mm a': 'dd MMMM yyyy HH:mm',
+  'MMMM dd, yyyy h:mm a': 'dd MMMM yyyy h:mm a',
   'MMM d, yyyy': 'd MMM yyyy',
   'MMM dd, yyyy': 'dd MMM yyyy',
-  'MMM dd, yyyy h:mm a': 'dd MMM yyyy HH:mm',
+  'MMM dd, yyyy h:mm a': 'dd MMM yyyy h:mm a',
   'MMM d': 'd MMM',
   'MMM dd': 'dd MMM',
-  'h:mm a': 'HH:mm',
+  // 'h:mm a' (time only) passes through unchanged — 12-hour everywhere.
 }
 
 function localizePattern(pattern: string, language: Language): string {

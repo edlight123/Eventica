@@ -113,7 +113,7 @@ export default function AddToCalendarButton({ event, style }: AddToCalendarButto
         style={[styles.button, style]} 
         onPress={() => setShowModal(true)}
       >
-        <Ionicons name="calendar-outline" size={20} color={colors.primary} />
+        <Ionicons name="calendar-outline" size={20} color={colors.textSecondary} />
         <Text style={styles.buttonText}>{t('calendar.addToCalendar') || 'Add to Calendar'}</Text>
       </TouchableOpacity>
 
@@ -164,21 +164,23 @@ export default function AddToCalendarButton({ event, style }: AddToCalendarButto
 }
 
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
+  // POSH: a quiet secondary — raised surface, hairline border, neutral text.
+  // No teal fill/border (teal stays a sparing accent, not a button style).
   button: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
+    paddingVertical: 13,
     paddingHorizontal: 16,
-    backgroundColor: colors.primary + '10',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.primary + '30',
+    backgroundColor: colors.surfaceRaised,
+    borderRadius: 14,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
   },
   buttonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: colors.primary,
+    color: colors.text,
     marginLeft: 8,
   },
   modalOverlay: {
