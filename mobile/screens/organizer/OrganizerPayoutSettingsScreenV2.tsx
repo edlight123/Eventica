@@ -86,9 +86,9 @@ export default function OrganizerPayoutSettingsScreenV2() {
 
   const [loading, setLoading] = useState(true)
   const [destinations, setDestinations] = useState<PayoutDestination[]>([])
-  // Stripe Connect profile (US/CA/FR). Shown as its own status card so a
-  // diaspora organizer can see their onboarding is connected + resume it.
-  const [stripeProfile, setStripeProfile] = useState<{ accountLocation?: string; stripeAccountId?: string } | null>(null)
+  // Stripe Connect (US/CA/FR) live status. `verified` = onboarding fully
+  // complete (charges + payouts enabled); otherwise the card prompts to finish.
+  const [stripeProfile, setStripeProfile] = useState<{ connected: boolean; verified: boolean; country?: string } | null>(null)
   const [identityVerified, setIdentityVerified] = useState(false)
 
   // Methods vs History toggle (History is an additive, read-only view).
@@ -197,20 +197,24 @@ export default function OrganizerPayoutSettingsScreenV2() {
       console.error('Failed to load Haiti payout profile:', e)
     }
 
-    // Stripe Connect (US/CA/FR) — surfaced as its own status card below.
+    // Stripe Connect (US/CA/FR) — live status so the card reflects REAL
+    // onboarding completion (charges/payouts enabled), not just "account exists".
     try {
-      const stripeRes = await backendFetch('/api/organizer/payout-profiles/stripe-connect')
+      const stripeRes = await backendFetch('/api/organizer/stripe/status')
       if (stripeRes.ok) {
         const data = await stripeRes.json()
-        const p = data?.profile
-        if (p?.stripeAccountId) {
-          setStripeProfile({ accountLocation: p.accountLocation, stripeAccountId: p.stripeAccountId })
+        if (data?.connected) {
+          setStripeProfile({
+            connected: true,
+            verified: data?.status === 'verified',
+            country: data?.account?.country,
+          })
         } else {
           setStripeProfile(null)
         }
       }
     } catch (e) {
-      console.error('Failed to load Stripe payout profile:', e)
+      console.error('Failed to load Stripe status:', e)
     }
 
     setDestinations(combined)
@@ -651,7 +655,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
         )}
 
         {/* Destinations List */}
-        {destinations.length === 0 && !stripeProfile ? (
+        {destinations.length === 0 && !stripeProfile?.connected ? (
           <EmptyState
             icon={Wallet}
             title={t('organizerPayoutSettings.emptyMethods.title')}
@@ -669,31 +673,46 @@ export default function OrganizerPayoutSettingsScreenV2() {
               </TouchableOpacity>
             </View>
 
-            {stripeProfile ? (
+            {stripeProfile?.connected ? (
               <View style={styles.destinationCard}>
                 <View style={styles.destinationHeader}>
                   <Ionicons name="globe-outline" size={24} color={colors.text} />
                   <View style={{ flex: 1, marginLeft: 12 }}>
                     <Text style={styles.destinationTitle} numberOfLines={1}>{t('organizerPayoutSettings.stripe.title')}</Text>
                     <Text style={styles.destinationSubtitle} numberOfLines={1}>
-                      {stripeProfile.accountLocation === 'canada'
+                      {stripeProfile.country === 'CA'
                         ? t('organizerPayoutSettings.countries.canada')
-                        : stripeProfile.accountLocation === 'france'
+                        : stripeProfile.country === 'FR'
                           ? t('organizerPayoutSettings.countries.france')
                           : t('organizerPayoutSettings.countries.united_states')}{' · '}{t('organizerPayoutSettings.stripeCard.cardPayouts')}
                     </Text>
                   </View>
-                  <StatusChip status="verified" label={t('organizerPayoutSettings.stripeCard.connected')} />
+                  {stripeProfile.verified ? (
+                    <StatusChip status="verified" label={t('organizerPayoutSettings.stripeCard.connected')} />
+                  ) : (
+                    <StatusChip status="pending" label={t('organizerPayoutSettings.stripeCard.finishSetup')} />
+                  )}
                 </View>
+                {!stripeProfile.verified && (
+                  <Text style={styles.destinationMeta}>{t('organizerPayoutSettings.stripeCard.incompleteHint')}</Text>
+                )}
                 <TouchableOpacity
                   style={[styles.secondaryButton, { marginTop: 12 }]}
                   onPress={() =>
                     startStripeConnect(
-                      (stripeProfile.accountLocation as 'united_states' | 'canada' | 'france') || 'united_states'
+                      stripeProfile.country === 'CA'
+                        ? 'canada'
+                        : stripeProfile.country === 'FR'
+                          ? 'france'
+                          : 'united_states'
                     )
                   }
                 >
-                  <Text style={styles.secondaryButtonText}>{t('organizerPayoutSettings.stripeCard.manage')}</Text>
+                  <Text style={styles.secondaryButtonText}>
+                    {stripeProfile.verified
+                      ? t('organizerPayoutSettings.stripeCard.manage')
+                      : t('organizerPayoutSettings.stripeCard.finishSetup')}
+                  </Text>
                 </TouchableOpacity>
               </View>
             ) : null}

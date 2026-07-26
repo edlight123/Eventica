@@ -1094,6 +1094,8 @@ export default {
     stripeCard: {
       cardPayouts: 'Paiements par carte',
       connected: 'Connecté',
+      finishSetup: 'Terminer la configuration',
+      incompleteHint: 'Terminez la vérification Stripe pour recevoir vos paiements.',
       manage: 'Gérer sur Stripe',
     },
     destinationActions: {

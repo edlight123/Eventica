@@ -1092,6 +1092,8 @@ export default {
     stripeCard: {
       cardPayouts: 'Peman pa kat',
       connected: 'Konekte',
+      finishSetup: 'Fini konfigirasyon an',
+      incompleteHint: 'Fini verifikasyon Stripe a pou w resevwa peman.',
       manage: 'Jere sou Stripe',
     },
     destinationActions: {

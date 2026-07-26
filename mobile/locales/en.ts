@@ -1345,6 +1345,8 @@ export default {
     stripeCard: {
       cardPayouts: 'Card payouts',
       connected: 'Connected',
+      finishSetup: 'Finish setup',
+      incompleteHint: 'Complete Stripe verification to receive payouts.',
       manage: 'Manage on Stripe',
     },
     destinationActions: {
