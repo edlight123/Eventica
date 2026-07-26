@@ -86,6 +86,9 @@ export default function OrganizerPayoutSettingsScreenV2() {
 
   const [loading, setLoading] = useState(true)
   const [destinations, setDestinations] = useState<PayoutDestination[]>([])
+  // Stripe Connect profile (US/CA/FR). Shown as its own status card so a
+  // diaspora organizer can see their onboarding is connected + resume it.
+  const [stripeProfile, setStripeProfile] = useState<{ accountLocation?: string; stripeAccountId?: string } | null>(null)
   const [identityVerified, setIdentityVerified] = useState(false)
 
   // Methods vs History toggle (History is an additive, read-only view).
@@ -192,6 +195,22 @@ export default function OrganizerPayoutSettingsScreenV2() {
       }
     } catch (e) {
       console.error('Failed to load Haiti payout profile:', e)
+    }
+
+    // Stripe Connect (US/CA/FR) — surfaced as its own status card below.
+    try {
+      const stripeRes = await backendFetch('/api/organizer/payout-profiles/stripe-connect')
+      if (stripeRes.ok) {
+        const data = await stripeRes.json()
+        const p = data?.profile
+        if (p?.stripeAccountId) {
+          setStripeProfile({ accountLocation: p.accountLocation, stripeAccountId: p.stripeAccountId })
+        } else {
+          setStripeProfile(null)
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load Stripe payout profile:', e)
     }
 
     setDestinations(combined)
@@ -632,7 +651,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
         )}
 
         {/* Destinations List */}
-        {destinations.length === 0 ? (
+        {destinations.length === 0 && !stripeProfile ? (
           <EmptyState
             icon={Wallet}
             title="No Payout Methods"
@@ -649,6 +668,35 @@ export default function OrganizerPayoutSettingsScreenV2() {
                 <Text style={styles.addButtonText}>Add</Text>
               </TouchableOpacity>
             </View>
+
+            {stripeProfile ? (
+              <View style={styles.destinationCard}>
+                <View style={styles.destinationHeader}>
+                  <Ionicons name="globe-outline" size={24} color={colors.text} />
+                  <View style={{ flex: 1, marginLeft: 12 }}>
+                    <Text style={styles.destinationTitle} numberOfLines={1}>Stripe Connect</Text>
+                    <Text style={styles.destinationSubtitle} numberOfLines={1}>
+                      {stripeProfile.accountLocation === 'canada'
+                        ? 'Canada'
+                        : stripeProfile.accountLocation === 'france'
+                          ? 'France'
+                          : 'United States'}{' · Card payouts'}
+                    </Text>
+                  </View>
+                  <StatusChip status="verified" label="Connected" />
+                </View>
+                <TouchableOpacity
+                  style={[styles.secondaryButton, { marginTop: 12 }]}
+                  onPress={() =>
+                    startStripeConnect(
+                      (stripeProfile.accountLocation as 'united_states' | 'canada' | 'france') || 'united_states'
+                    )
+                  }
+                >
+                  <Text style={styles.secondaryButtonText}>Manage on Stripe</Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
 
             {destinations.map((dest) => {
               const chip = statusChip(dest.verificationStatus)
