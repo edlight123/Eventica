@@ -269,9 +269,12 @@ export default function OrganizerVerificationScreen() {
                             t('verification.organizerVerification.submit.successBody'),
                             [{ text: t('common.ok'), onPress: () => navigation.goBack() }]
                           );
-                        } catch (error) {
+                        } catch (error: any) {
                           console.error('Error submitting:', error);
-                          Alert.alert(t('common.error'), t('verification.organizerVerification.submit.failed'));
+                          Alert.alert(
+                            t('common.error'),
+                            error?.message || t('verification.organizerVerification.submit.failed')
+                          );
                         }
                       },
                     },

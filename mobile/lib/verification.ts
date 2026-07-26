@@ -17,6 +17,7 @@ import {
   getDownloadURL,
 } from 'firebase/storage';
 import * as ImagePicker from 'expo-image-picker';
+import { backendJson } from './api/backend';
 
 // Types
 export type VerificationStatus =
@@ -358,11 +359,35 @@ export async function updateVerificationFiles(
  */
 export async function submitVerificationForReview(userId: string): Promise<void> {
   try {
-    const docRef = doc(db, 'verification_requests', userId);
-    await updateDoc(docRef, {
-      status: 'pending_review',
-      submittedAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
+    // Submit through the SERVER endpoint (not a bare client updateDoc). The
+    // server marks the request pending_review, mirrors verification_status onto
+    // the user/organizer docs, and alerts the admin to review — a client-only
+    // write would leave the KYC submission invisible to review and unmirrored,
+    // so the organizer could wait forever and never get verified/paid.
+    const snap = await getDoc(doc(db, 'verification_requests', userId));
+    const files = (snap.exists() ? (snap.data() as any)?.files : null) || {};
+    const frontRaw = files?.governmentId?.front;
+    const backRaw = files?.governmentId?.back;
+    const selfieRaw = files?.selfie?.path;
+    if (!frontRaw || !backRaw || !selfieRaw) {
+      throw new Error(
+        'Please upload the front and back of your ID and a selfie before submitting.'
+      );
+    }
+
+    // Documents are stored as Storage paths; resolve to download URLs the
+    // reviewer can open. If a value is already an http(s) URL, use it as-is.
+    const resolve = async (v: string) =>
+      /^https?:\/\//i.test(v) ? v : await getDocumentDownloadURL(v);
+    const [idFrontUrl, idBackUrl, facePhotoUrl] = await Promise.all([
+      resolve(String(frontRaw)),
+      resolve(String(backRaw)),
+      resolve(String(selfieRaw)),
+    ]);
+
+    await backendJson('/api/organizer/submit-verification', {
+      method: 'POST',
+      body: JSON.stringify({ userId, idFrontUrl, idBackUrl, facePhotoUrl }),
     });
   } catch (error) {
     console.error('Error submitting verification:', error);
