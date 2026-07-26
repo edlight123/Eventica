@@ -70,39 +70,13 @@ export async function POST(req: NextRequest) {
     if (bankDestinationId) {
       resolvedDestinationId = String(bankDestinationId)
 
-      // Enforce that this specific destination has been verified.
-      // New schema uses verificationDocuments/bank_<destinationId>.
-      // Legacy primary bank verification used docId == "bank".
-      const verificationDocId = `bank_${resolvedDestinationId}`
-      const verificationRef = adminDb
-        .collection('organizers')
-        .doc(user.id)
-        .collection('verificationDocuments')
-
-      const [destinationVerificationSnap, legacyBankSnap] = await Promise.all([
-        verificationRef.doc(verificationDocId).get(),
-        resolvedDestinationId === 'bank_primary' ? verificationRef.doc('bank').get() : Promise.resolve(null as any),
-      ])
-
-      const status = (() => {
-        if (destinationVerificationSnap?.exists) return String((destinationVerificationSnap.data() as any)?.status || '')
-        if (resolvedDestinationId === 'bank_primary' && legacyBankSnap?.exists) {
-          return String((legacyBankSnap.data() as any)?.status || '')
-        }
-        return ''
-      })()
-
-      if (status !== 'verified') {
-        return NextResponse.json(
-          {
-            error: 'Bank account not verified',
-            message:
-              'This bank account must be verified before it can be used for withdrawals. Please submit a bank statement or void check for review in your payout settings.',
-          },
-          { status: 403 }
-        )
-      }
-
+      // Identity-only + manual review: filing a withdrawal REQUEST no longer
+      // requires the specific bank destination to be pre-"verified". No money
+      // moves here — this only creates a `pending` withdrawal_request. An admin
+      // verifies the destination and releases funds by hand, which is the actual
+      // gate. (The profile still had to reach `active` via identity verification
+      // upstream, and the destination must still exist — enforced by the 404
+      // below.)
       resolvedBankDetails = await getDecryptedBankDestination({
         organizerId: user.id,
         destinationId: resolvedDestinationId,

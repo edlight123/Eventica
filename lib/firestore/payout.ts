@@ -244,8 +244,19 @@ export const hasPayoutMethod = (config?: PayoutConfig | null): boolean =>
 const identityVerified = (config?: PayoutConfig | null) =>
   config?.verificationStatus?.identity === 'verified'
 
-const bankVerified = (config?: PayoutConfig | null) =>
-  config?.method !== 'bank_transfer' || config?.verificationStatus?.bank === 'verified'
+// Only Stripe/US-CA managed accounts require profile-level bank verification to
+// activate. The Haiti manual bank rail activates on IDENTITY alone (consistent
+// with the identity-only payout decision) — an admin verifies the destination
+// and releases every payout by hand, so pre-verification isn't the gate here.
+const bankVerified = (config?: PayoutConfig | null) => {
+  if (config?.method !== 'bank_transfer') return true
+  const provider = String(config?.payoutProvider || '').toLowerCase()
+  const loc = String(config?.accountLocation || '').toLowerCase()
+  const isManagedStripe =
+    provider === 'stripe_connect' || loc === 'united_states' || loc === 'canada'
+  if (isManagedStripe) return config?.verificationStatus?.bank === 'verified'
+  return true // Haiti manual bank rail — identity is the gate
+}
 
 // Haiti payouts are processed MANUALLY by an admin who reviews and releases each
 // request, so IDENTITY verification is the meaningful activation gate. Phone
