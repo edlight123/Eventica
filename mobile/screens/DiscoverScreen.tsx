@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { 
-  View, 
-  Text, 
-  ScrollView, 
-  StyleSheet, 
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
   Image,
@@ -13,6 +13,7 @@ import {
   RefreshControl,
   Share,
   Alert,
+  Keyboard,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
@@ -56,9 +57,6 @@ const HOME_CARD_WIDTH = Math.min(248, width * 0.62);
 const RAIL_INSET = 12;
 const RAIL_WIDTH = HOME_CARD_WIDTH + RAIL_INSET * 2;
 
-const HEADER_EXPANDED_HEIGHT = 145;
-const HEADER_COLLAPSED_HEIGHT = 70;
-
 // Location matching tolerant to accents, case and "City, ST" suffixes so the
 // town rails line up with whatever string is stored on each event's `city`.
 const normalizeCity = (s: any): string =>
@@ -81,11 +79,6 @@ export default function DiscoverScreen({ navigation, route }: any) {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const insets = useSafeAreaInsets();
-  // Keep the original content heights but base the top padding on the real
-  // device inset so the search bar never sits under the status bar. The
-  // expanded→collapsed delta stays 75, so the scroll input range is unchanged.
-  const expandedHeaderHeight = HEADER_EXPANDED_HEIGHT - 50 + insets.top;
-  const collapsedHeaderHeight = HEADER_COLLAPSED_HEIGHT - 50 + insets.top;
   const { appliedFilters, openFiltersModal, hasActiveFilters, countActiveFilters, applyFiltersDirectly, resetFilters, userCountry } = useFilters();
   const { user } = useAuth();
   const { t } = useI18n();
@@ -99,6 +92,10 @@ export default function DiscoverScreen({ navigation, route }: any) {
   const [friendsGoingCounts, setFriendsGoingCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  // Two-stage search: `searchText` is the instant TextInput value (drives the
+  // typeahead suggestions), `searchQuery` is the debounced value that actually
+  // re-filters the feed — so heavy re-renders don't fire on every keystroke.
+  const [searchText, setSearchText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState<DateFilter>('any');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -113,17 +110,9 @@ export default function DiscoverScreen({ navigation, route }: any) {
   // Which events the user has bookmarked — drives the card's save icon state
   // across all tabs (loaded once per user, updated optimistically on toggle).
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
-  const [searchMode, setSearchMode] = useState(false);
+  // Whether the search field is active — drives the typeahead suggestions panel.
+  const [searchFocused, setSearchFocused] = useState(false);
 
-  const DATE_LABEL_KEYS: Record<DateFilter, string> = {
-    'any': 'filters.dateOptions.any',
-    'today': 'filters.dateOptions.today',
-    'tomorrow': 'filters.dateOptions.tomorrow',
-    'this-week': 'filters.dateOptions.thisWeek',
-    'this-weekend': 'filters.dateOptions.thisWeekend',
-  };
-  const whenPillValue = selectedDate !== 'any' ? t(DATE_LABEL_KEYS[selectedDate]) : null;
-  
   // Animated header values
   const scrollY = useRef(new Animated.Value(0)).current;
   const scrollViewRef = useRef<ScrollView>(null);
@@ -139,37 +128,6 @@ export default function DiscoverScreen({ navigation, route }: any) {
   const [headerH, setHeaderH] = useState(220);
   const headerMeasured = useRef(false);
   
-  // Interpolations for collapsing header
-  const headerHeight = scrollY.interpolate({
-    inputRange: [0, HEADER_EXPANDED_HEIGHT - HEADER_COLLAPSED_HEIGHT],
-    outputRange: [expandedHeaderHeight, collapsedHeaderHeight],
-    extrapolate: 'clamp',
-  });
-
-  const titleOpacity = scrollY.interpolate({
-    inputRange: [0, 50],
-    outputRange: [1, 0],
-    extrapolate: 'clamp',
-  });
-
-  const titleTranslateY = scrollY.interpolate({
-    inputRange: [0, 50],
-    outputRange: [0, -20],
-    extrapolate: 'clamp',
-  });
-
-  const headerShadowOpacity = scrollY.interpolate({
-    inputRange: [0, 40],
-    outputRange: [0, 0.15],
-    extrapolate: 'clamp',
-  });
-
-  const searchBarScale = scrollY.interpolate({
-    inputRange: [0, 50],
-    outputRange: [1, 0.98],
-    extrapolate: 'clamp',
-  });
-
   // Collapse the masthead's height + fade it as the feed scrolls up.
   const headlineCollapse = scrollY.interpolate({
     inputRange: [0, 44],
@@ -186,6 +144,59 @@ export default function DiscoverScreen({ navigation, route }: any) {
     fetchEvents();
   }, []);
 
+  // Debounce the search field: re-filter the feed ~220ms after the user stops
+  // typing rather than on every keystroke.
+  useEffect(() => {
+    const id = setTimeout(() => setSearchQuery(searchText.trim()), 220);
+    return () => clearTimeout(id);
+  }, [searchText]);
+
+  // Clear the search box (used by the X button and the tab-press reset).
+  const clearSearch = useCallback(() => {
+    setSearchText('');
+    setSearchQuery('');
+  }, []);
+
+  // Apply a tapped suggestion: fill the box, filter immediately, dismiss panel.
+  const applySuggestion = useCallback((value: string) => {
+    setSearchText(value);
+    setSearchQuery(value.trim());
+    setSearchFocused(false);
+    Keyboard.dismiss();
+  }, []);
+
+  // Typeahead suggestions — matching event names first, then categories, venues
+  // and organizers. Derived from the instant `searchText` so it feels live.
+  const suggestions = useMemo(() => {
+    const q = searchText.trim().toLowerCase();
+    if (q.length < 2) return [] as { key: string; label: string; query: string; kind: string }[];
+    const seen = new Set<string>();
+    const out: { key: string; label: string; query: string; kind: string }[] = [];
+    const push = (label: any, query: string, kind: string) => {
+      const text = (label ?? '').toString().trim();
+      if (!text || out.length >= 7) return;
+      const dedupe = `${kind}:${text.toLowerCase()}`;
+      if (seen.has(dedupe)) return;
+      seen.add(dedupe);
+      out.push({ key: dedupe, label: text, query, kind });
+    };
+    // Pass 1: event titles (the primary match).
+    for (const e of allEvents) {
+      if (out.length >= 7) break;
+      if (e?.title && e.title.toLowerCase().includes(q)) push(e.title, e.title, 'event');
+    }
+    // Pass 2: categories (localized label), venues, organizers.
+    for (const e of allEvents) {
+      if (out.length >= 7) break;
+      const catLabel = e?.category ? getCategoryLabel(t, e.category) : '';
+      if (catLabel && catLabel.toLowerCase().includes(q)) push(catLabel, catLabel, 'category');
+      if (e?.venue_name && e.venue_name.toLowerCase().includes(q)) push(e.venue_name, e.venue_name, 'venue');
+      const organizer = e?.users?.organization_name || e?.users?.full_name || e?.organizer_name;
+      if (organizer && organizer.toLowerCase().includes(q)) push(organizer, organizer, 'organizer');
+    }
+    return out;
+  }, [allEvents, searchText, t]);
+
   // Listen for tab press to scroll to top and reset filters
   useEffect(() => {
     const unsubscribe = navigation.addListener('tabPress', (e: any) => {
@@ -197,7 +208,9 @@ export default function DiscoverScreen({ navigation, route }: any) {
         scrollViewRef.current?.scrollTo({ y: 0, animated: true });
         // Reset filters and search
         resetFilters();
+        setSearchText('');
         setSearchQuery('');
+        setSearchFocused(false);
         setSelectedDate('any');
         setSelectedCategories([]);
         setSelectedCity('');
@@ -434,13 +447,19 @@ export default function DiscoverScreen({ navigation, route }: any) {
   const filterBySearch = (events: any[]) => {
     if (!searchQuery.trim()) return events;
     const query = searchQuery.toLowerCase();
-    return events.filter(event => 
-      event.title?.toLowerCase().includes(query) ||
-      event.description?.toLowerCase().includes(query) ||
-      event.venue_name?.toLowerCase().includes(query) ||
-      event.city?.toLowerCase().includes(query) ||
-      event.category?.toLowerCase().includes(query)
-    );
+    return events.filter(event => {
+      const organizer = event.users?.organization_name || event.users?.full_name || event.organizer_name || '';
+      const categoryLabel = event.category ? getCategoryLabel(t, event.category) : '';
+      return (
+        event.title?.toLowerCase().includes(query) ||
+        event.description?.toLowerCase().includes(query) ||
+        event.venue_name?.toLowerCase().includes(query) ||
+        event.city?.toLowerCase().includes(query) ||
+        event.category?.toLowerCase().includes(query) ||
+        categoryLabel.toLowerCase().includes(query) ||
+        organizer.toLowerCase().includes(query)
+      );
+    });
   };
 
   const filterByDate = (events: any[]) => {
@@ -655,10 +674,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
     );
   }
 
-  const hasAnyFilters = hasActiveFilters() || searchQuery.trim() !== '' || route?.params?.trending || route?.params?.thisWeek || route?.params?.allEvents || selectedDate !== 'any' || selectedCategories.length > 0 || selectedCity !== '';
-
-  const dateSummary = selectedDate !== 'any' ? whenPillValue : t('filters.dateOptions.any');
-  const locationSummary = selectedCity || t('discover.allCities');
+  const activeFilterCount = countActiveFilters();
 
   const renderFeed = (list: any[], emptyTitle: string, emptySubtitle: string) =>
     list.length === 0 ? (
@@ -710,42 +726,58 @@ export default function DiscoverScreen({ navigation, route }: any) {
       >
         <BlurView intensity={28} tint="dark" style={StyleSheet.absoluteFill} pointerEvents="none" />
         <View style={styles.headerScrim} pointerEvents="none" />
-        <Text style={styles.headline} numberOfLines={1}>
-          {t('discover.headline')}
-        </Text>
+        {/* Masthead — collapses + fades on scroll, reappears on scroll up. */}
+        <Animated.View style={{ height: headlineCollapse, opacity: headlineOpacity, overflow: 'hidden' }}>
+          <View
+            onLayout={(e) => {
+              if (headlineMeasured.current) return;
+              const h = e.nativeEvent.layout.height;
+              if (h > 20) {
+                headlineMeasured.current = true;
+                setHeadlineH(h);
+              }
+            }}
+          >
+            <Text style={styles.headline} numberOfLines={1}>
+              {t('discover.headline')}
+            </Text>
+          </View>
+        </Animated.View>
+
+        {/* Search + filter are SEPARATE: the pill is a real text input, the
+            sliders button (right) opens the filter sheet. */}
         <View style={styles.searchPill}>
-          {searchMode ? (
-            <>
-              <Search size={20} color={colors.textSecondary} />
-              <TextInput
-                style={styles.searchInput}
-                placeholder={t('discover.searchPlaceholder')}
-                placeholderTextColor={colors.textSecondary}
-                selectionColor={colors.primary}
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                autoFocus
-              />
-              <TouchableOpacity onPress={() => { setSearchQuery(''); setSearchMode(false); }} hitSlop={8}>
-                <X size={20} color={colors.textSecondary} />
-              </TouchableOpacity>
-            </>
-          ) : (
-            <>
-              <TouchableOpacity onPress={() => setSearchMode(true)} hitSlop={8}>
-                <Search size={20} color={colors.textSecondary} />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.pillCenter} onPress={openFiltersModal} activeOpacity={0.7}>
-                <Text style={styles.pillText} numberOfLines={1}>
-                  <Text style={styles.pillTextStrong}>{dateSummary}</Text>
-                  <Text>  {locationSummary}</Text>
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={openFiltersModal} hitSlop={8}>
-                <SlidersHorizontal size={20} color={colors.text} />
-              </TouchableOpacity>
-            </>
-          )}
+          <Search size={20} color={colors.textSecondary} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder={t('discover.searchPlaceholder')}
+            placeholderTextColor={colors.textSecondary}
+            selectionColor={colors.primary}
+            value={searchText}
+            onChangeText={setSearchText}
+            onFocus={() => setSearchFocused(true)}
+            returnKeyType="search"
+            onSubmitEditing={() => setSearchFocused(false)}
+          />
+          {searchText.length > 0 ? (
+            <TouchableOpacity onPress={clearSearch} hitSlop={8}>
+              <X size={18} color={colors.textSecondary} />
+            </TouchableOpacity>
+          ) : null}
+          <View style={styles.pillDivider} />
+          <TouchableOpacity
+            onPress={openFiltersModal}
+            hitSlop={8}
+            style={styles.filterBtn}
+            accessibilityLabel={t('discover.filterButtonLabel')}
+          >
+            <SlidersHorizontal size={20} color={activeFilterCount > 0 ? colors.primary : colors.text} />
+            {activeFilterCount > 0 && (
+              <View style={styles.filterCountDot}>
+                <Text style={styles.filterCountText}>{activeFilterCount}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
         </View>
 
         <View style={styles.tabsRow}>
@@ -770,6 +802,8 @@ export default function DiscoverScreen({ navigation, route }: any) {
         contentContainerStyle={[styles.feedContent, { paddingTop: headerH + 8, paddingBottom: 32 + insets.bottom }]}
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={16}
+        keyboardShouldPersistTaps="handled"
+        onScrollBeginDrag={() => setSearchFocused(false)}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
           { useNativeDriver: false }
@@ -799,6 +833,28 @@ export default function DiscoverScreen({ navigation, route }: any) {
         {discoverTab === 'saved' &&
           renderFeed(savedEvents, t('discover.saved.emptyTitle'), t('discover.saved.emptySubtitle'))}
       </Animated.ScrollView>
+
+      {/* Typeahead suggestions — a floating panel dropped just below the header
+          while the user is typing. Sits above the feed, clear of the header. */}
+      {searchFocused && suggestions.length > 0 && (
+        <View style={[styles.suggestions, { top: headerH }]}>
+          <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill} pointerEvents="none" />
+          <View style={styles.suggestionsScrim} pointerEvents="none" />
+          <Text style={styles.suggestionsTitle}>{t('discover.suggestionsTitle')}</Text>
+          {suggestions.map((s) => (
+            <TouchableOpacity
+              key={s.key}
+              style={styles.suggestionRow}
+              onPress={() => applySuggestion(s.query)}
+              activeOpacity={0.7}
+            >
+              <Search size={16} color={colors.textSecondary} />
+              <Text style={styles.suggestionLabel} numberOfLines={1}>{s.label}</Text>
+              <Text style={styles.suggestionKind}>{t(`discover.suggestionKinds.${s.kind}`)}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
 
       <EventFiltersSheet />
 
@@ -995,21 +1051,77 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
-  pillCenter: {
-    flex: 1,
+  pillDivider: {
+    width: 1,
+    alignSelf: 'stretch',
+    marginVertical: 2,
+    backgroundColor: colors.border,
+  },
+  filterBtn: {
+    position: 'relative',
+    paddingLeft: 2,
+  },
+  filterCountDot: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    minWidth: 16,
+    height: 16,
+    paddingHorizontal: 4,
+    borderRadius: 8,
+    backgroundColor: colors.primary,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  pillText: {
-    fontFamily: font.monoRegular,
-    fontSize: 12,
-    letterSpacing: 0.4,
-    color: colors.textSecondary,
-  },
-  pillTextStrong: {
+  filterCountText: {
     fontFamily: font.mono,
-    fontSize: 12,
-    letterSpacing: 0.4,
+    fontSize: 10,
+    color: colors.background,
+    fontWeight: '700',
+  },
+  suggestions: {
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    zIndex: 20,
+    borderRadius: 16,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: 6,
+  },
+  suggestionsScrim: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(16,16,16,0.72)',
+  },
+  suggestionsTitle: {
+    fontFamily: font.mono,
+    fontSize: 10,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    color: colors.textTertiary,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
+  suggestionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  suggestionLabel: {
+    flex: 1,
+    fontSize: 15,
     color: colors.text,
+  },
+  suggestionKind: {
+    fontFamily: font.monoRegular,
+    fontSize: 10,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+    color: colors.textTertiary,
   },
   tabsRow: {
     flexDirection: 'row',

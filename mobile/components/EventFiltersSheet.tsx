@@ -20,7 +20,6 @@ import {
   CATEGORIES,
   COUNTRIES,
   CITIES_BY_COUNTRY,
-  getPriceFiltersForCountry,
   CURRENCY_BY_COUNTRY,
   DATE_OPTIONS,
   EVENT_TYPE_OPTIONS,
@@ -51,8 +50,36 @@ export default function EventFiltersSheet() {
   // country (HTG for Haiti, USD for US, CAD for Canada, EUR for France) rather
   // than being hardcoded to HTG. Thresholds + symbols come from CURRENCY_BY_COUNTRY.
   const filterCountry = draftFilters.country || 'HT';
-  const priceOptions = getPriceFiltersForCountry(filterCountry);
   const priceCurrencyCode = CURRENCY_BY_COUNTRY[filterCountry]?.code || 'HTG';
+  const priceCurrencySymbol = CURRENCY_BY_COUNTRY[filterCountry]?.symbol || 'HTG';
+
+  // The custom min–max range is now the STANDARD price control. Its ceiling and
+  // step scale with the selected country's currency (low-denomination HTG/DOP
+  // need a higher ceiling than USD/CAD/EUR).
+  const isHighDenomination = priceCurrencyCode === 'HTG' || priceCurrencyCode === 'DOP';
+  const priceCeiling = isHighDenomination ? 10000 : 200;
+  const priceStep = isHighDenomination ? 100 : 5;
+
+  const formatPrice = (amount: number) =>
+    priceCurrencySymbol === 'HTG' || priceCurrencySymbol === 'RD$'
+      ? `${amount} ${priceCurrencySymbol}`
+      : `${priceCurrencySymbol}${amount}`;
+
+  const priceIsCustom = draftFilters.price === 'custom';
+  const rangeMin = priceIsCustom ? draftFilters.customPriceRange?.min ?? 0 : 0;
+  const rawMax = priceIsCustom ? draftFilters.customPriceRange?.max ?? priceCeiling : priceCeiling;
+  // An upper bound at (or above) the ceiling means "and up" — stored as Infinity
+  // so applyFilters imposes no maximum.
+  const maxIsOpen = !Number.isFinite(rawMax) || rawMax >= priceCeiling;
+  const sliderMax = maxIsOpen ? priceCeiling : rawMax;
+  const rangeReadout =
+    draftFilters.price === 'free'
+      ? t('filters.priceOptions.free')
+      : !priceIsCustom
+        ? t('filters.priceOptions.any')
+        : maxIsOpen
+          ? `${formatPrice(rangeMin)}+`
+          : `${formatPrice(rangeMin)} – ${formatPrice(sliderMax)}`;
 
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -109,15 +136,26 @@ export default function EventFiltersSheet() {
     });
   };
 
-  const handleCustomPriceChange = (type: 'min' | 'max', value: number) => {
-    const currentRange = draftFilters.customPriceRange || { min: 0, max: 2000 };
+  const handleMinPrice = (value: number) => {
+    // Dragging the range switches the price filter to the custom standard.
+    const currentMax = priceIsCustom
+      ? draftFilters.customPriceRange?.max ?? Number.POSITIVE_INFINITY
+      : Number.POSITIVE_INFINITY;
     setDraftFilters({
       ...draftFilters,
       price: 'custom',
-      customPriceRange: {
-        ...currentRange,
-        [type]: value
-      }
+      customPriceRange: { min: value, max: Math.max(value, currentMax) },
+    });
+  };
+
+  const handleMaxPrice = (value: number) => {
+    const currentMin = priceIsCustom ? draftFilters.customPriceRange?.min ?? 0 : 0;
+    // At the ceiling the max is open-ended (Infinity) so pricey tickets show too.
+    const nextMax = value >= priceCeiling ? Number.POSITIVE_INFINITY : value;
+    setDraftFilters({
+      ...draftFilters,
+      price: 'custom',
+      customPriceRange: { min: Math.min(currentMin, value), max: nextMax },
     });
   };
 
@@ -237,75 +275,64 @@ export default function EventFiltersSheet() {
             </View>
           </View>
 
-          {/* Price Filter */}
+          {/* Price Filter — the custom min–max range is the standard control.
+              "Any" and "Free" remain as quick shortcuts. */}
           <View style={styles.section}>
             <Text style={styles.sectionLabel}>{t('filters.price').toUpperCase()}</Text>
+
             <View style={styles.chipsRow}>
-              {priceOptions.map(option => {
-                // Numeric buckets carry a currency-aware label (e.g. "≤ $5",
-                // "> 500 HTG"); any/free/custom stay translated.
-                const isBucket = option.value === '<=500' || option.value === '>500';
-                return (
-                  <TouchableOpacity
-                    key={option.value}
-                    style={[
-                      styles.chip,
-                      draftFilters.price === option.value && styles.chipActive
-                    ]}
-                    onPress={() => handlePriceChange(option.value)}
+              {(['any', 'free'] as const).map(value => (
+                <TouchableOpacity
+                  key={value}
+                  style={[styles.chip, draftFilters.price === value && styles.chipActive]}
+                  onPress={() => handlePriceChange(value)}
+                >
+                  <Text
+                    style={[styles.chipText, draftFilters.price === value && styles.chipTextActive]}
                   >
-                    <Text
-                      style={[
-                        styles.chipText,
-                        draftFilters.price === option.value && styles.chipTextActive
-                      ]}
-                    >
-                      {isBucket ? option.label : t(option.labelKey)}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+                    {t(`filters.priceOptions.${value}`)}
+                  </Text>
+                </TouchableOpacity>
+              ))}
             </View>
-            
-            {/* Custom Price Range Slider */}
-            {draftFilters.price === 'custom' && (
-              <View style={styles.priceSliderContainer}>
-                <View style={styles.priceRangeHeader}>
-                  <Text style={styles.priceRangeLabel}>
-                    {t('filters.min')}: {draftFilters.customPriceRange?.min || 0} {priceCurrencyCode}
-                  </Text>
-                  <Text style={styles.priceRangeLabel}>
-                    {t('filters.max')}: {draftFilters.customPriceRange?.max || 2000} {priceCurrencyCode}
-                  </Text>
+
+            <View style={styles.priceRangeCard}>
+              <View style={styles.priceRangeTop}>
+                <View style={styles.priceRangeTopText}>
+                  <Text style={styles.priceRangeCaption}>{t('filters.priceRange')}</Text>
+                  <Text style={styles.priceRangeValue}>{rangeReadout}</Text>
                 </View>
-                
-                <Text style={styles.sliderLabel}>{t('filters.minimumPrice')}</Text>
-                <Slider
-                  style={styles.slider}
-                  minimumValue={0}
-                  maximumValue={2000}
-                  step={50}
-                  value={draftFilters.customPriceRange?.min || 0}
-                  onValueChange={(value) => handleCustomPriceChange('min', value)}
-                  minimumTrackTintColor={colors.primary}
-                  maximumTrackTintColor={colors.border}
-                  thumbTintColor={colors.primary}
-                />
-                
-                <Text style={styles.sliderLabel}>{t('filters.maximumPrice')}</Text>
-                <Slider
-                  style={styles.slider}
-                  minimumValue={0}
-                  maximumValue={5000}
-                  step={100}
-                  value={draftFilters.customPriceRange?.max || 2000}
-                  onValueChange={(value) => handleCustomPriceChange('max', value)}
-                  minimumTrackTintColor={colors.primary}
-                  maximumTrackTintColor={colors.border}
-                  thumbTintColor={colors.primary}
-                />
+                <Text style={styles.priceRangeCurrency}>{priceCurrencyCode}</Text>
               </View>
-            )}
+
+              <Text style={styles.sliderLabel}>{t('filters.minimumPrice')}</Text>
+              <Slider
+                style={styles.slider}
+                minimumValue={0}
+                maximumValue={priceCeiling}
+                step={priceStep}
+                value={rangeMin}
+                onValueChange={handleMinPrice}
+                minimumTrackTintColor={colors.primary}
+                maximumTrackTintColor={colors.border}
+                thumbTintColor={colors.primary}
+              />
+
+              <Text style={styles.sliderLabel}>{t('filters.maximumPrice')}</Text>
+              <Slider
+                style={styles.slider}
+                minimumValue={0}
+                maximumValue={priceCeiling}
+                step={priceStep}
+                value={sliderMax}
+                onValueChange={handleMaxPrice}
+                minimumTrackTintColor={colors.primary}
+                maximumTrackTintColor={colors.border}
+                thumbTintColor={colors.primary}
+              />
+
+              <Text style={styles.priceRangeHint}>{t('filters.priceRangeHint')}</Text>
+            </View>
           </View>
 
           {/* Categories Filter */}
@@ -576,21 +603,42 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 13,
     color: colors.textSecondary,
   },
-  priceSliderContainer: {
+  priceRangeCard: {
     marginTop: 16,
     padding: 16,
     backgroundColor: colors.surfaceMuted,
     borderRadius: 12,
   },
-  priceRangeHeader: {
+  priceRangeTop: {
     flexDirection: 'row',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: 8,
   },
-  priceRangeLabel: {
-    fontSize: 16,
-    fontWeight: '600',
+  priceRangeTopText: {
+    flex: 1,
+  },
+  priceRangeCaption: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 1,
+    color: colors.textTertiary,
+    marginBottom: 4,
+  },
+  priceRangeValue: {
+    fontSize: 22,
+    fontWeight: '700',
     color: colors.text,
+  },
+  priceRangeCurrency: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.textSecondary,
+  },
+  priceRangeHint: {
+    fontSize: 12,
+    color: colors.textTertiary,
+    marginTop: 8,
   },
   sliderLabel: {
     fontSize: 14,

@@ -171,6 +171,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
+    // Belt-and-suspenders against a splash lock: onAuthStateChanged fires within
+    // a moment on cold start (the session is restored from AsyncStorage — no
+    // network needed), which flips `loading` false. But if the SDK ever stalls
+    // on a rare offline-init edge case, this fallback guarantees the app still
+    // leaves the branded boot screen instead of locking on it forever. Whichever
+    // happens first wins; the other is a no-op.
+    let settled = false;
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      setLoading(false);
+    };
+    const bootTimeout = setTimeout(settle, 6000);
+
     // Production mode: Use Firebase
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
@@ -187,10 +201,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUserProfile(null);
       }
 
-      setLoading(false);
+      clearTimeout(bootTimeout);
+      settle();
     });
 
-    return unsubscribe;
+    return () => {
+      clearTimeout(bootTimeout);
+      unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {

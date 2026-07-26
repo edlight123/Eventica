@@ -490,6 +490,14 @@ export default {
     headline: 'Dekouvri',
     searchPlaceholder: 'Chèche evènman, òganizasyon, moun…',
     searchActive: 'Chèche',
+    filterButtonLabel: 'Filtè',
+    suggestionsTitle: 'Sijesyon',
+    suggestionKinds: {
+      event: 'Evènman',
+      category: 'Kategori',
+      venue: 'Kote',
+      organizer: 'Òganizatè',
+    },
     tabs: {
       forYou: 'Pou ou',
       following: 'Swiv',
@@ -597,6 +605,8 @@ export default {
     tapToChange: 'Peze pou chanje',
     eventType: 'Kalite',
     price: 'Pri',
+    priceRange: 'Bidjè ou',
+    priceRangeHint: 'Rale pou defini ranje pri ou',
     minimumPrice: 'Pri minimòm',
     maximumPrice: 'Pri maksimòm',
     min: 'Min',

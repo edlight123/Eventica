@@ -42,6 +42,7 @@ import VerifiedBadge from '../components/VerifiedBadge';
 import StatusChip from '../components/StatusChip';
 import PosterEventCard from '../components/PosterEventCard';
 import EmptyState from '../components/EmptyState';
+import { Skeleton, PosterCardSkeleton } from '../components/Skeleton';
 
 // Use the same web origin as the API layer so support/legal links actually
 // resolve. tikem.co is not live yet, so it must NOT be the fallback; override
@@ -567,12 +568,16 @@ export default function ProfileScreen() {
 
           <View style={styles.statsRow}>
             {[
-              { label: t('profile.eventsAttended'), value: statsLoaded ? accountStats.eventsAttended : null },
-              { label: t('profile.following'), value: statsLoaded ? accountStats.following : null },
-              { label: t('profile.followers'), value: statsLoaded ? accountStats.followers : null },
+              { label: t('profile.eventsAttended'), value: accountStats.eventsAttended },
+              { label: t('profile.following'), value: accountStats.following },
+              { label: t('profile.followers'), value: accountStats.followers },
             ].map((s, i) => (
               <View key={s.label} style={[styles.statItem, i > 0 && styles.statItemDivided]}>
-                <Text style={styles.statValue}>{s.value ?? '—'}</Text>
+                {statsLoaded ? (
+                  <Text style={styles.statValue}>{s.value}</Text>
+                ) : (
+                  <Skeleton width={32} height={20} radius={6} />
+                )}
                 <Text style={styles.statLabel}>{s.label}</Text>
               </View>
             ))}
@@ -838,7 +843,15 @@ export default function ProfileScreen() {
         {!isEditing ? (
           <View style={styles.postersSection}>
             <Text style={styles.postersTitle}>{t('profile.postersTitle')}</Text>
-            {myEvents.length > 0 ? (
+            {!statsLoaded ? (
+              // Poster-shaped placeholders so the wall doesn't flash the empty
+              // state (or a blank gap) before tickets finish loading.
+              <View style={styles.postersGrid}>
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <PosterCardSkeleton key={i} width={PROFILE_POSTER_WIDTH} />
+                ))}
+              </View>
+            ) : myEvents.length > 0 ? (
               <View style={styles.postersGrid}>
                 {myEvents.map((event) => (
                   <PosterEventCard

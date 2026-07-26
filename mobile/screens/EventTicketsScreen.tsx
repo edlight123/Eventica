@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
@@ -68,6 +69,8 @@ export default function EventTicketsScreen({ route, navigation }: any) {
     }
   }, [loading, event]);
 
+  const cacheKey = `event_tickets_cache_${eventId}_${user?.uid ?? ''}`;
+
   const fetchEventAndTickets = async () => {
     if (!user) {
       setLoading(false);
@@ -81,16 +84,18 @@ export default function EventTicketsScreen({ route, navigation }: any) {
         where('__name__', '==', eventId)
       );
       const eventSnapshot = await getDocs(eventQuery);
-      
+
+      let resolvedEvent: any = null;
       if (!eventSnapshot.empty) {
         const eventDoc = eventSnapshot.docs[0];
         const eventData = eventDoc.data();
-        setEvent({
+        resolvedEvent = {
           id: eventDoc.id,
           ...eventData,
           start_datetime: eventData.start_datetime?.toDate ? eventData.start_datetime.toDate() : new Date(eventData.start_datetime),
           end_datetime: eventData.end_datetime?.toDate ? eventData.end_datetime.toDate() : new Date(eventData.end_datetime),
-        });
+        };
+        setEvent(resolvedEvent);
       }
 
       // Fetch tickets for this event and user. Paid tickets are stamped with
@@ -117,8 +122,38 @@ export default function EventTicketsScreen({ route, navigation }: any) {
         ...doc.data(),
       }));
       setTickets(ticketsData);
+
+      // Cache event + tickets so the QR passes still open with no signal.
+      if (resolvedEvent && ticketsData.length) {
+        try {
+          await AsyncStorage.setItem(cacheKey, JSON.stringify({
+            event: {
+              ...resolvedEvent,
+              start_datetime: resolvedEvent.start_datetime ? resolvedEvent.start_datetime.toISOString() : null,
+              end_datetime: resolvedEvent.end_datetime ? resolvedEvent.end_datetime.toISOString() : null,
+            },
+            tickets: ticketsData,
+          }));
+        } catch {}
+      }
     } catch (error) {
       console.error('Error fetching event and tickets:', error);
+      // Offline (or no session cache) — fall back to the last cached copy so the
+      // attendee can still pull up their pass/QR at the door.
+      try {
+        const raw = await AsyncStorage.getItem(cacheKey);
+        if (raw) {
+          const c = JSON.parse(raw);
+          if (c?.event) {
+            setEvent({
+              ...c.event,
+              start_datetime: c.event.start_datetime ? new Date(c.event.start_datetime) : null,
+              end_datetime: c.event.end_datetime ? new Date(c.event.end_datetime) : null,
+            });
+          }
+          if (Array.isArray(c?.tickets)) setTickets(c.tickets);
+        }
+      } catch {}
     } finally {
       setLoading(false);
     }

@@ -346,6 +346,56 @@ export function OrganizerProfileSkeleton() {
   );
 }
 
+/**
+ * ReviewScreen initial load: header (back + title), an event card, two
+ * star-rating blocks, a recommend row, a comment box, and a submit pill —
+ * mirrors the populated form instead of a bare centered spinner.
+ */
+export function ReviewSkeleton() {
+  const { colors } = useTheme();
+  return (
+    <View style={{ flex: 1 }}>
+      <View style={[styles.reviewHeader, { borderBottomColor: colors.border }]}>
+        <Skeleton width={24} height={24} radius={7} />
+        <Skeleton width={140} height={20} radius={7} />
+        <View style={{ width: 40 }} />
+      </View>
+
+      <View style={[styles.reviewCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <Skeleton width={'80%'} height={18} radius={6} />
+        <Skeleton width={'45%'} height={13} radius={5} style={{ marginTop: 8 } as ViewStyle} />
+      </View>
+
+      {Array.from({ length: 2 }).map((_, i) => (
+        <View key={i} style={[styles.reviewRatingBlock, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Skeleton width={'60%'} height={15} radius={6} />
+          <View style={styles.reviewStarsRow}>
+            {Array.from({ length: 5 }).map((__, s) => (
+              <Skeleton key={s} width={36} height={36} radius={8} />
+            ))}
+          </View>
+          <Skeleton width={80} height={12} radius={5} style={{ marginTop: 8 } as ViewStyle} />
+        </View>
+      ))}
+
+      <View style={[styles.reviewRatingBlock, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <Skeleton width={'70%'} height={15} radius={6} />
+        <View style={styles.reviewRecommendRow}>
+          <Skeleton width={110} height={48} radius={12} />
+          <Skeleton width={110} height={48} radius={12} />
+        </View>
+      </View>
+
+      <View style={styles.reviewComment}>
+        <Skeleton width={'55%'} height={15} radius={6} />
+        <Skeleton height={120} radius={12} style={{ marginTop: 16 } as ViewStyle} />
+      </View>
+
+      <Skeleton height={52} radius={12} style={styles.reviewSubmit as ViewStyle} />
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   // PosterEventCard content block (paddingTop 8, title then meta row).
   posterMeta: {
@@ -552,5 +602,47 @@ const styles = StyleSheet.create({
   profileContent: {
     paddingHorizontal: 16,
     paddingTop: 24,
+  },
+
+  // ReviewScreen: header, event card, rating/recommend blocks, comment, submit.
+  reviewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+  },
+  reviewCard: {
+    margin: 16,
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  reviewRatingBlock: {
+    marginHorizontal: 16,
+    marginTop: 8,
+    padding: 20,
+    borderRadius: 16,
+    borderWidth: 1,
+    alignItems: 'center',
+  },
+  reviewStarsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 16,
+  },
+  reviewRecommendRow: {
+    flexDirection: 'row',
+    gap: 16,
+    marginTop: 16,
+  },
+  reviewComment: {
+    marginHorizontal: 16,
+    marginTop: 16,
+  },
+  reviewSubmit: {
+    marginHorizontal: 16,
+    marginTop: 24,
   },
 });

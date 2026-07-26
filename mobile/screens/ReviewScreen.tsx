@@ -19,6 +19,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { SHADOWS, RADIUS } from '../config/brand';
 import { backendFetch } from '../lib/api/backend';
+import { ReviewSkeleton } from '../components/Skeleton';
 
 export default function ReviewScreen({ route, navigation }: any) {
   const { colors } = useTheme();
@@ -141,10 +142,8 @@ export default function ReviewScreen({ route, navigation }: any) {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
+      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+        <ReviewSkeleton />
       </SafeAreaView>
     );
   }

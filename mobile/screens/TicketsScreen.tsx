@@ -4,9 +4,8 @@ import {
   Text, 
   ScrollView, 
   StyleSheet, 
-  TouchableOpacity, 
+  TouchableOpacity,
   RefreshControl,
-  ActivityIndicator,
   StatusBar
 } from 'react-native';
 import { Image } from 'expo-image';
@@ -14,7 +13,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Calendar, MapPin, Ticket, ChevronRight } from 'lucide-react-native';
 import { collection, query, where, getDocs, orderBy, documentId } from 'firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db } from '../config/firebase';
+import { Skeleton } from '../components/Skeleton';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -27,6 +28,46 @@ import { safeFormatForLanguage } from '../lib/dates';
 import { useFocusEffect } from '@react-navigation/native';
 import { consumeTicketsRefreshHint } from '../lib/ticketsRefreshHint';
 import { font } from '../theme/tokens';
+
+// Offline-first cache: the door-scan moment is exactly when signal is worst, so
+// we persist the resolved upcoming/past event lists per user and hydrate them
+// instantly on launch. Dates are stored as ISO strings (JSON-safe) and revived
+// on read. The individual QR still renders offline from TicketDetail's own cache.
+const ticketsCacheKey = (uid: string) => `tickets_cache_${uid}`;
+
+const serializeEvents = (events: any[]) =>
+  events.map((e) => ({
+    ...e,
+    start_datetime: e.start_datetime ? new Date(e.start_datetime).toISOString() : null,
+    end_datetime: e.end_datetime ? new Date(e.end_datetime).toISOString() : null,
+  }));
+
+const reviveEvents = (events: any[]) =>
+  (events || []).map((e) => ({
+    ...e,
+    start_datetime: e.start_datetime ? new Date(e.start_datetime) : null,
+    end_datetime: e.end_datetime ? new Date(e.end_datetime) : null,
+  }));
+
+/** Placeholder rows that mirror the ticket-card layout (thumb + text lines). */
+function TicketsListSkeleton({ styles }: { styles: ReturnType<typeof getStyles> }) {
+  return (
+    <View>
+      <Skeleton width={120} height={12} radius={5} style={styles.skeletonSectionHeader} />
+      {Array.from({ length: 4 }).map((_, i) => (
+        <View key={i} style={styles.ticketCard}>
+          <Skeleton width={64} height={64} radius={12} />
+          <View style={styles.ticketBody}>
+            <Skeleton width={70} height={18} radius={9} />
+            <Skeleton width={'82%'} height={16} radius={6} style={{ marginTop: 2 }} />
+            <Skeleton width={'60%'} height={12} radius={5} style={{ marginTop: 4 }} />
+            <Skeleton width={'45%'} height={12} radius={5} />
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
 
 export default function TicketsScreen({ navigation }: any) {
   const { colors } = useTheme();
@@ -121,6 +162,14 @@ export default function TicketsScreen({ navigation }: any) {
       
       setUpcomingTickets(upcoming);
       setPastTickets(past);
+
+      // Persist for offline-first launch next time (see ticketsCacheKey note).
+      try {
+        await AsyncStorage.setItem(
+          ticketsCacheKey(user.uid),
+          JSON.stringify({ upcoming: serializeEvents(upcoming), past: serializeEvents(past) }),
+        );
+      } catch {}
     } catch (error) {
       console.error('Error fetching tickets:', error);
     } finally {
@@ -130,7 +179,26 @@ export default function TicketsScreen({ navigation }: any) {
   };
 
   useEffect(() => {
-    fetchTickets();
+    let cancelled = false;
+    (async () => {
+      // Offline-first: paint cached tickets instantly (no blank/spinner gap, and
+      // the list is available with no signal), then refresh from the network.
+      if (user) {
+        try {
+          const raw = await AsyncStorage.getItem(ticketsCacheKey(user.uid));
+          if (raw && !cancelled) {
+            const c = JSON.parse(raw);
+            setUpcomingTickets(reviveEvents(c.upcoming));
+            setPastTickets(reviveEvents(c.past));
+            setLoading(false);
+          }
+        } catch {}
+      }
+      if (!cancelled) fetchTickets();
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   useFocusEffect(
@@ -182,8 +250,20 @@ export default function TicketsScreen({ navigation }: any) {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+          <Text style={styles.headerTitle}>{t('tickets.title')}</Text>
+        </View>
+        <View style={styles.tabs}>
+          <View style={[styles.tab, styles.tabActive]}>
+            <Text style={[styles.tabText, styles.tabTextActive]}>{t('tickets.upcoming')}</Text>
+          </View>
+          <View style={styles.tab}>
+            <Text style={styles.tabText}>{t('tickets.past')}</Text>
+          </View>
+        </View>
+        <TicketsListSkeleton styles={styles} />
       </View>
     );
   }
@@ -406,6 +486,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginHorizontal: 16,
     marginTop: 24,
     marginBottom: 4,
+  },
+  skeletonSectionHeader: {
+    marginHorizontal: 16,
+    marginTop: 24,
+    marginBottom: 12,
   },
   ticketCard: {
     // Elevation, not a border (POSH §1): the card separates from the canvas by

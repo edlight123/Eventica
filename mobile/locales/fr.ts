@@ -492,6 +492,14 @@ export default {
     headline: 'Découvrir',
     searchPlaceholder: 'Rechercher événements, organisations, personnes…',
     searchActive: 'Recherche',
+    filterButtonLabel: 'Filtres',
+    suggestionsTitle: 'Suggestions',
+    suggestionKinds: {
+      event: 'Événement',
+      category: 'Catégorie',
+      venue: 'Lieu',
+      organizer: 'Organisateur',
+    },
     tabs: {
       forYou: 'Pour vous',
       following: 'Abonnements',
@@ -599,6 +607,8 @@ export default {
     tapToChange: 'Touchez pour modifier',
     eventType: 'Type',
     price: 'Prix',
+    priceRange: 'Votre budget',
+    priceRangeHint: 'Glissez pour définir votre plage de prix',
     minimumPrice: 'Prix minimum',
     maximumPrice: 'Prix maximum',
     min: 'Min',
