@@ -147,11 +147,11 @@ export default function OrganizerPayoutSettingsScreenV2() {
   // Maps a destination's verification status onto the shared StatusChip's locked
   // semantic tones (POSH §2.7) — pending is amber, not teal.
   const statusChip = useCallback((status?: VerificationStatus) => {
-    if (status === 'verified') return { status: 'verified', label: 'Verified' }
-    if (status === 'pending') return { status: 'pending', label: 'Under Review' }
-    if (status === 'failed') return { status: 'error', label: 'Needs Attention' }
-    return { status: 'neutral', label: 'Not Verified' }
-  }, [])
+    if (status === 'verified') return { status: 'verified', label: t('organizerPayoutSettings.status.verified') }
+    if (status === 'pending') return { status: 'pending', label: t('organizerPayoutSettings.status.underReview') }
+    if (status === 'failed') return { status: 'error', label: t('organizerPayoutSettings.status.needsAttention') }
+    return { status: 'neutral', label: t('organizerPayoutSettings.status.notVerified') }
+  }, [t])
 
   const loadDestinations = useCallback(async () => {
     if (!user?.uid) return
@@ -319,11 +319,11 @@ export default function OrganizerPayoutSettingsScreenV2() {
   const handleAddMethodSelect = useCallback((type: 'bank' | 'moncash') => {
     if (!identityVerified) {
       Alert.alert(
-        'Identity Verification Required',
-        'Please complete identity verification before adding payout methods.',
+        t('organizerPayoutSettings.identityRequired.title'),
+        t('organizerPayoutSettings.identityRequired.body'),
         [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Verify Identity', onPress: () => navigation.navigate('OrganizerVerification') },
+          { text: t('common.cancel'), style: 'cancel' },
+          { text: t('organizerPayoutSettings.verifyIdentity'), onPress: () => navigation.navigate('OrganizerVerification') },
         ]
       )
       return
@@ -339,7 +339,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
       setMoncashForm({ provider: 'moncash', accountName: '', phoneNumber: '+509 ' })
       setShowMoncashForm(true)
     }
-  }, [identityVerified, navigation])
+  }, [identityVerified, navigation, t])
 
   // Stripe Connect onboarding for events OUTSIDE Haiti (US/Canada/France).
   // The mobile payout screen was Haiti-only; this is the entry point that lets a
@@ -355,39 +355,39 @@ export default function OrganizerPayoutSettingsScreenV2() {
         if (res?.url) {
           navigation.navigate('StripeConnectWebView', { url: res.url })
         } else {
-          Alert.alert('Error', 'Could not start Stripe setup. Please try again.')
+          Alert.alert(t('common.error'), t('organizerPayoutSettings.stripeSetup.error'))
         }
       } catch (e: any) {
-        Alert.alert('Error', e?.message || 'Could not start Stripe setup. Please try again.')
+        Alert.alert(t('common.error'), e?.message || t('organizerPayoutSettings.stripeSetup.error'))
       }
     },
-    [navigation]
+    [navigation, t]
   )
 
   const handleAddStripe = useCallback(() => {
     if (!identityVerified) {
       Alert.alert(
-        'Identity Verification Required',
-        'Please complete identity verification before adding payout methods.',
+        t('organizerPayoutSettings.identityRequired.title'),
+        t('organizerPayoutSettings.identityRequired.body'),
         [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Verify Identity', onPress: () => navigation.navigate('OrganizerVerification') },
+          { text: t('common.cancel'), style: 'cancel' },
+          { text: t('organizerPayoutSettings.verifyIdentity'), onPress: () => navigation.navigate('OrganizerVerification') },
         ]
       )
       return
     }
     setShowAddModal(false)
-    Alert.alert('Set up Stripe', 'Which country is your account in?', [
-      { text: 'United States', onPress: () => startStripeConnect('united_states') },
-      { text: 'Canada', onPress: () => startStripeConnect('canada') },
-      { text: 'France', onPress: () => startStripeConnect('france') },
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(t('organizerPayoutSettings.stripeSetup.title'), t('organizerPayoutSettings.stripeSetup.question'), [
+      { text: t('organizerPayoutSettings.countries.united_states'), onPress: () => startStripeConnect('united_states') },
+      { text: t('organizerPayoutSettings.countries.canada'), onPress: () => startStripeConnect('canada') },
+      { text: t('organizerPayoutSettings.countries.france'), onPress: () => startStripeConnect('france') },
+      { text: t('common.cancel'), style: 'cancel' },
     ])
-  }, [identityVerified, navigation, startStripeConnect])
+  }, [identityVerified, navigation, startStripeConnect, t])
 
   const handleSaveBank = useCallback(async () => {
     if (!bankForm.accountName || !bankForm.bankName || !bankForm.accountNumber) {
-      Alert.alert('Missing Information', 'Please fill in all required bank details.')
+      Alert.alert(t('organizerPayoutSettings.alerts.missingInfoTitle'), t('organizerPayoutSettings.alerts.missingBankBody'))
       return
     }
 
@@ -412,14 +412,14 @@ export default function OrganizerPayoutSettingsScreenV2() {
         // Handle verification requirement
         if (data?.code === 'PAYOUT_CHANGE_VERIFICATION_REQUIRED') {
           Alert.alert(
-            'Security Verification Required',
-            data.message || 'Please verify this change via email before continuing.',
-            [{ text: 'OK' }]
+            t('organizerPayoutSettings.alerts.securityTitle'),
+            data.message || t('organizerPayoutSettings.alerts.securityBody'),
+            [{ text: t('common.ok') }]
           )
           setShowBankForm(false)
           return
         }
-        throw new Error(data?.error || data?.message || 'Failed to add bank account')
+        throw new Error(data?.error || data?.message || t('organizerPayoutSettings.alerts.failedAddBank'))
       }
 
       // Also set the Haiti payout PROFILE method to bank_transfer (and store the
@@ -453,9 +453,9 @@ export default function OrganizerPayoutSettingsScreenV2() {
             msg.includes('PAYOUT_CHANGE_VERIFICATION_REQUIRED')
           ) {
             Alert.alert(
-              'Security Verification Required',
-              'Please verify this change via email before continuing.',
-              [{ text: 'OK' }]
+              t('organizerPayoutSettings.alerts.securityTitle'),
+              t('organizerPayoutSettings.alerts.securityBody'),
+              [{ text: t('common.ok') }]
             )
             setShowBankForm(false)
             await loadDestinations()
@@ -469,11 +469,11 @@ export default function OrganizerPayoutSettingsScreenV2() {
       }
 
       Alert.alert(
-        'Bank Account Added',
-        'Your bank account has been saved. You must verify it before you can receive payouts.',
+        t('organizerPayoutSettings.alerts.bankAddedTitle'),
+        t('organizerPayoutSettings.alerts.bankAddedBody'),
         [
           {
-            text: 'Verify Now',
+            text: t('organizerPayoutSettings.alerts.verifyNow'),
             onPress: () => {
               setShowBankForm(false)
               // Use the freshly-loaded list (not the stale `destinations` closure).
@@ -486,22 +486,22 @@ export default function OrganizerPayoutSettingsScreenV2() {
               })
             },
           },
-          { text: 'Later', onPress: () => setShowBankForm(false) },
+          { text: t('organizerPayoutSettings.alerts.later'), onPress: () => setShowBankForm(false) },
         ]
       )
 
       setBankForm({ accountName: '', bankName: '', accountNumber: '', routingNumber: '', swift: '' })
       await loadDestinations()
     } catch (e: any) {
-      Alert.alert('Error', e?.message || 'Failed to save bank account')
+      Alert.alert(t('common.error'), e?.message || t('organizerPayoutSettings.alerts.failedSaveBank'))
     } finally {
       setSavingBank(false)
     }
-  }, [bankForm, loadDestinations])
+  }, [bankForm, loadDestinations, t])
 
   const handleSaveMoncash = useCallback(async () => {
     if (!moncashForm.accountName.trim() || !moncashForm.phoneNumber.trim()) {
-      Alert.alert('Missing Information', 'Please enter the account holder name and phone number.')
+      Alert.alert(t('organizerPayoutSettings.alerts.missingInfoTitle'), t('organizerPayoutSettings.alerts.missingMoncashBody'))
       return
     }
 
@@ -523,24 +523,24 @@ export default function OrganizerPayoutSettingsScreenV2() {
 
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        throw new Error(data?.error || data?.message || 'Failed to save mobile money')
+        throw new Error(data?.error || data?.message || t('organizerPayoutSettings.alerts.failedSaveMoncash'))
       }
 
-      Alert.alert('Mobile Money Saved', 'Your MonCash payout method has been saved.')
+      Alert.alert(t('organizerPayoutSettings.alerts.moncashSavedTitle'), t('organizerPayoutSettings.alerts.moncashSavedBody'))
       setMoncashForm({ provider: 'moncash', accountName: '', phoneNumber: '+509 ' })
       setShowMoncashForm(false)
       await loadDestinations()
     } catch (e: any) {
-      Alert.alert('Error', e?.message || 'Failed to save mobile money')
+      Alert.alert(t('common.error'), e?.message || t('organizerPayoutSettings.alerts.failedSaveMoncash'))
     } finally {
       setSavingMoncash(false)
     }
-  }, [moncashForm, loadDestinations])
+  }, [moncashForm, loadDestinations, t])
 
   const pickVerificationDocument = useCallback(async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync()
     if (perm.status !== 'granted') {
-      Alert.alert('Permission Required', 'Please allow photo library access to upload verification documents.')
+      Alert.alert(t('organizerPayoutSettings.alerts.permissionTitle'), t('organizerPayoutSettings.alerts.permissionBody'))
       return
     }
 
@@ -552,11 +552,11 @@ export default function OrganizerPayoutSettingsScreenV2() {
     if (!res.canceled && res.assets?.[0]) {
       setVerificationAsset(res.assets[0])
     }
-  }, [])
+  }, [t])
 
   const handleSubmitVerification = useCallback(async () => {
     if (!verificationAsset || !selectedDestination) {
-      Alert.alert('Missing Document', 'Please select a document to upload.')
+      Alert.alert(t('organizerPayoutSettings.alerts.missingDocTitle'), t('organizerPayoutSettings.alerts.missingDocBody'))
       return
     }
 
@@ -580,12 +580,12 @@ export default function OrganizerPayoutSettingsScreenV2() {
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data?.error || data?.message || 'Failed to submit verification')
+        throw new Error(data?.error || data?.message || t('organizerPayoutSettings.alerts.failedSubmit'))
       }
 
       Alert.alert(
-        'Verification Submitted',
-        'Your verification document has been submitted and is under review. You will be notified once it is approved.'
+        t('organizerPayoutSettings.alerts.submittedTitle'),
+        t('organizerPayoutSettings.alerts.submittedBody')
       )
 
       setShowVerificationModal(false)
@@ -593,16 +593,16 @@ export default function OrganizerPayoutSettingsScreenV2() {
       setSelectedDestination(null)
       await loadDestinations()
     } catch (e: any) {
-      Alert.alert('Error', e?.message || 'Failed to submit verification')
+      Alert.alert(t('common.error'), e?.message || t('organizerPayoutSettings.alerts.failedSubmit'))
     } finally {
       setSubmittingVerification(false)
     }
-  }, [verificationAsset, selectedDestination, verificationType, loadDestinations])
+  }, [verificationAsset, selectedDestination, verificationType, loadDestinations, t])
 
   if (loading) {
     return (
       <View style={styles.container}>
-        <OrganizerScreenHeader title="Payout Settings" onBack={() => navigation.goBack()} />
+        <OrganizerScreenHeader title={t('organizerPayoutSettings.headerTitle')} onBack={() => navigation.goBack()} />
         <View style={{ padding: 16, gap: 12 }}>
           {[0, 1, 2].map((i) => (
             <Skeleton key={i} width="100%" height={140} radius={RADIUS.xl} />
@@ -614,7 +614,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
 
   return (
     <View style={styles.container}>
-      <OrganizerScreenHeader title="Payout Settings" onBack={() => navigation.goBack()} />
+      <OrganizerScreenHeader title={t('organizerPayoutSettings.headerTitle')} onBack={() => navigation.goBack()} />
 
       <View style={styles.tabsWrap}>
         <SegmentedTabs
@@ -640,11 +640,11 @@ export default function OrganizerPayoutSettingsScreenV2() {
           <View style={styles.identityBlock}>
             <InfoNotice
               icon="shield-checkmark-outline"
-              text="Identity verification is required before you can add payout methods and withdraw earnings. Reviewed within 48 hours."
+              text={t('organizerPayoutSettings.identityNotice')}
             />
             <WhitePillCTA
               style={styles.identityCta}
-              label="Verify Identity"
+              label={t('organizerPayoutSettings.verifyIdentity')}
               onPress={() => navigation.navigate('OrganizerVerification')}
             />
           </View>
@@ -654,18 +654,18 @@ export default function OrganizerPayoutSettingsScreenV2() {
         {destinations.length === 0 && !stripeProfile ? (
           <EmptyState
             icon={Wallet}
-            title="No Payout Methods"
-            subtitle="Add a bank account or mobile money to receive payments from your events."
-            actionLabel="Add Payout Method"
+            title={t('organizerPayoutSettings.emptyMethods.title')}
+            subtitle={t('organizerPayoutSettings.emptyMethods.subtitle')}
+            actionLabel={t('organizerPayoutSettings.emptyMethods.action')}
             onAction={() => setShowAddModal(true)}
           />
         ) : (
           <>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Payout Methods</Text>
+              <Text style={styles.sectionTitle}>{t('organizerPayoutSettings.methodsSectionTitle')}</Text>
               <TouchableOpacity style={styles.addButton} onPress={() => setShowAddModal(true)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
                 <Ionicons name="add" size={18} color={colors.text} />
-                <Text style={styles.addButtonText}>Add</Text>
+                <Text style={styles.addButtonText}>{t('organizerPayoutSettings.add')}</Text>
               </TouchableOpacity>
             </View>
 
@@ -674,16 +674,16 @@ export default function OrganizerPayoutSettingsScreenV2() {
                 <View style={styles.destinationHeader}>
                   <Ionicons name="globe-outline" size={24} color={colors.text} />
                   <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Text style={styles.destinationTitle} numberOfLines={1}>Stripe Connect</Text>
+                    <Text style={styles.destinationTitle} numberOfLines={1}>{t('organizerPayoutSettings.stripe.title')}</Text>
                     <Text style={styles.destinationSubtitle} numberOfLines={1}>
                       {stripeProfile.accountLocation === 'canada'
-                        ? 'Canada'
+                        ? t('organizerPayoutSettings.countries.canada')
                         : stripeProfile.accountLocation === 'france'
-                          ? 'France'
-                          : 'United States'}{' · Card payouts'}
+                          ? t('organizerPayoutSettings.countries.france')
+                          : t('organizerPayoutSettings.countries.united_states')}{' · '}{t('organizerPayoutSettings.stripeCard.cardPayouts')}
                     </Text>
                   </View>
-                  <StatusChip status="verified" label="Connected" />
+                  <StatusChip status="verified" label={t('organizerPayoutSettings.stripeCard.connected')} />
                 </View>
                 <TouchableOpacity
                   style={[styles.secondaryButton, { marginTop: 12 }]}
@@ -693,7 +693,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
                     )
                   }
                 >
-                  <Text style={styles.secondaryButtonText}>Manage on Stripe</Text>
+                  <Text style={styles.secondaryButtonText}>{t('organizerPayoutSettings.stripeCard.manage')}</Text>
                 </TouchableOpacity>
               </View>
             ) : null}
@@ -759,7 +759,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
                       }}
                     >
                       <Text style={styles.secondaryButtonText}>
-                        {dest.verificationStatus === 'pending' ? 'View Status' : 'Verify Now'}
+                        {dest.verificationStatus === 'pending' ? t('organizerPayoutSettings.destinationActions.viewStatus') : t('organizerPayoutSettings.destinationActions.verifyNow')}
                       </Text>
                     </TouchableOpacity>
                   )}
@@ -822,8 +822,8 @@ export default function OrganizerPayoutSettingsScreenV2() {
       <Modal visible={showAddModal} transparent animationType="fade" onRequestClose={() => setShowAddModal(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add Payout Method</Text>
-            <Text style={styles.modalSubtitle}>Choose how you want to receive payments</Text>
+            <Text style={styles.modalTitle}>{t('organizerPayoutSettings.addModal.title')}</Text>
+            <Text style={styles.modalSubtitle}>{t('organizerPayoutSettings.addModal.subtitle')}</Text>
 
             <TouchableOpacity
               style={styles.methodOption}
@@ -832,8 +832,8 @@ export default function OrganizerPayoutSettingsScreenV2() {
             >
               <Ionicons name="card-outline" size={32} color={colors.text} />
               <View style={{ flex: 1, marginLeft: 16 }}>
-                <Text style={styles.methodTitle}>Bank Account</Text>
-                <Text style={styles.methodDescription}>Receive payments directly to your bank account</Text>
+                <Text style={styles.methodTitle}>{t('organizerPayoutSettings.methodOptions.bankTitle')}</Text>
+                <Text style={styles.methodDescription}>{t('organizerPayoutSettings.methodOptions.bankDescription')}</Text>
               </View>
               <Ionicons name="chevron-forward" size={24} color={colors.textSecondary} />
             </TouchableOpacity>
@@ -845,8 +845,8 @@ export default function OrganizerPayoutSettingsScreenV2() {
             >
               <Ionicons name="phone-portrait-outline" size={32} color={colors.text} />
               <View style={{ flex: 1, marginLeft: 16 }}>
-                <Text style={styles.methodTitle}>MonCash / NatCash</Text>
-                <Text style={styles.methodDescription}>Receive payments to your mobile money account</Text>
+                <Text style={styles.methodTitle}>{t('organizerPayoutSettings.methodOptions.moncashTitle')}</Text>
+                <Text style={styles.methodDescription}>{t('organizerPayoutSettings.methodOptions.moncashDescription')}</Text>
               </View>
               <Ionicons name="chevron-forward" size={24} color={colors.textSecondary} />
             </TouchableOpacity>
@@ -858,14 +858,14 @@ export default function OrganizerPayoutSettingsScreenV2() {
             >
               <Ionicons name="globe-outline" size={32} color={colors.text} />
               <View style={{ flex: 1, marginLeft: 16 }}>
-                <Text style={styles.methodTitle}>Stripe (US · Canada · France)</Text>
-                <Text style={styles.methodDescription}>Card payouts via Stripe Connect for events outside Haiti</Text>
+                <Text style={styles.methodTitle}>{t('organizerPayoutSettings.methodOptions.stripeTitle')}</Text>
+                <Text style={styles.methodDescription}>{t('organizerPayoutSettings.methodOptions.stripeDescription')}</Text>
               </View>
               <Ionicons name="chevron-forward" size={24} color={colors.textSecondary} />
             </TouchableOpacity>
 
             <TouchableOpacity style={[styles.secondaryButton, { marginTop: 16 }]} onPress={() => setShowAddModal(false)}>
-              <Text style={styles.secondaryButtonText}>Cancel</Text>
+              <Text style={styles.secondaryButtonText}>{t('common.cancel')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -874,21 +874,21 @@ export default function OrganizerPayoutSettingsScreenV2() {
       {/* Bank Form Modal */}
       <Modal visible={showBankForm} animationType="slide" onRequestClose={() => setShowBankForm(false)}>
         <View style={styles.container}>
-          <OrganizerScreenHeader title="Add Bank Account" onBack={() => setShowBankForm(false)} />
+          <OrganizerScreenHeader title={t('organizerPayoutSettings.bankForm.headerTitle')} onBack={() => setShowBankForm(false)} />
 
           <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}>
-            <Text style={styles.label}>Account Holder Name *</Text>
+            <Text style={styles.label}>{t('organizerPayoutSettings.bankForm.accountHolder')}</Text>
             <TextInput
               style={styles.input}
               value={bankForm.accountName}
               onChangeText={(v) => setBankForm((s) => ({ ...s, accountName: v }))}
-              placeholder="Full legal name"
+              placeholder={t('organizerPayoutSettings.bankForm.fullNamePlaceholder')}
               placeholderTextColor={colors.textTertiary}
               selectionColor={colors.primary}
             />
 
             <SelectField
-              label="Bank Name *"
+              label={t('organizerPayoutSettings.bankForm.bankName')}
               value={bankNameChoice}
               options={HAITI_BANKS}
               onSelect={(v) => {
@@ -897,47 +897,47 @@ export default function OrganizerPayoutSettingsScreenV2() {
                 // clears it so the revealed free-text field supplies the value.
                 setBankForm((s) => ({ ...s, bankName: v === OTHER_BANK ? '' : v }))
               }}
-              placeholder="Select your bank"
-              sheetTitle="Select your bank"
+              placeholder={t('organizerPayoutSettings.bankForm.selectBank')}
+              sheetTitle={t('organizerPayoutSettings.bankForm.selectBank')}
             />
             {bankNameChoice === OTHER_BANK && (
               <TextInput
                 style={[styles.input, { marginTop: 12 }]}
                 value={bankForm.bankName}
                 onChangeText={(v) => setBankForm((s) => ({ ...s, bankName: v }))}
-                placeholder="Enter your bank name"
+                placeholder={t('organizerPayoutSettings.bankForm.otherBankPlaceholder')}
                 placeholderTextColor={colors.textTertiary}
                 selectionColor={colors.primary}
               />
             )}
 
-            <Text style={styles.label}>Account Number *</Text>
+            <Text style={styles.label}>{t('organizerPayoutSettings.bankForm.accountNumber')}</Text>
             <TextInput
               style={styles.input}
               value={bankForm.accountNumber}
               onChangeText={(v) => setBankForm((s) => ({ ...s, accountNumber: v }))}
-              placeholder="Account number"
+              placeholder={t('organizerPayoutSettings.bankForm.accountNumberPlaceholder')}
               placeholderTextColor={colors.textTertiary}
               selectionColor={colors.primary}
               keyboardType="number-pad"
             />
 
-            <Text style={styles.label}>Routing Number (optional)</Text>
+            <Text style={styles.label}>{t('organizerPayoutSettings.bankForm.routingNumber')}</Text>
             <TextInput
               style={styles.input}
               value={bankForm.routingNumber}
               onChangeText={(v) => setBankForm((s) => ({ ...s, routingNumber: v }))}
-              placeholder="Routing number"
+              placeholder={t('organizerPayoutSettings.bankForm.routingNumberPlaceholder')}
               placeholderTextColor={colors.textTertiary}
               selectionColor={colors.primary}
             />
 
-            <Text style={styles.label}>SWIFT Code (optional)</Text>
+            <Text style={styles.label}>{t('organizerPayoutSettings.bankForm.swift')}</Text>
             <TextInput
               style={styles.input}
               value={bankForm.swift}
               onChangeText={(v) => setBankForm((s) => ({ ...s, swift: v }))}
-              placeholder="SWIFT code"
+              placeholder={t('organizerPayoutSettings.bankForm.swiftPlaceholder')}
               placeholderTextColor={colors.textTertiary}
               selectionColor={colors.primary}
               autoCapitalize="characters"
@@ -945,7 +945,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
 
             <WhitePillCTA
               style={{ marginTop: 24 }}
-              label="Save Bank Account"
+              label={t('organizerPayoutSettings.bankForm.save')}
               onPress={handleSaveBank}
               loading={savingBank}
               disabled={savingBank}
@@ -957,10 +957,10 @@ export default function OrganizerPayoutSettingsScreenV2() {
       {/* MonCash Form Modal */}
       <Modal visible={showMoncashForm} animationType="slide" onRequestClose={() => setShowMoncashForm(false)}>
         <View style={styles.container}>
-          <OrganizerScreenHeader title="Add Mobile Money" onBack={() => setShowMoncashForm(false)} />
+          <OrganizerScreenHeader title={t('organizerPayoutSettings.moncashForm.headerTitle')} onBack={() => setShowMoncashForm(false)} />
 
           <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}>
-            <Text style={styles.label}>Provider</Text>
+            <Text style={styles.label}>{t('organizerPayoutSettings.moncashForm.provider')}</Text>
             <View style={styles.row}>
               <TouchableOpacity
                 style={[styles.chip, moncashForm.provider === 'moncash' && styles.chipActive]}
@@ -980,17 +980,17 @@ export default function OrganizerPayoutSettingsScreenV2() {
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.label}>Account Name *</Text>
+            <Text style={styles.label}>{t('organizerPayoutSettings.moncashForm.accountName')}</Text>
             <TextInput
               style={styles.input}
               value={moncashForm.accountName}
               onChangeText={(v) => setMoncashForm((s) => ({ ...s, accountName: v }))}
-              placeholder="Full legal name"
+              placeholder={t('organizerPayoutSettings.bankForm.fullNamePlaceholder')}
               placeholderTextColor={colors.textTertiary}
               selectionColor={colors.primary}
             />
 
-            <Text style={styles.label}>Phone Number *</Text>
+            <Text style={styles.label}>{t('organizerPayoutSettings.moncashForm.phoneNumber')}</Text>
             <TextInput
               style={styles.input}
               value={moncashForm.phoneNumber}
@@ -1003,7 +1003,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
 
             <WhitePillCTA
               style={{ marginTop: 24 }}
-              label="Save Mobile Money"
+              label={t('organizerPayoutSettings.moncashForm.save')}
               onPress={handleSaveMoncash}
               loading={savingMoncash}
               disabled={savingMoncash}
@@ -1019,29 +1019,29 @@ export default function OrganizerPayoutSettingsScreenV2() {
         onRequestClose={() => setShowVerificationModal(false)}
       >
         <View style={styles.container}>
-          <OrganizerScreenHeader title="Verify Bank Account" onBack={() => setShowVerificationModal(false)} />
+          <OrganizerScreenHeader title={t('organizerPayoutSettings.verifyModal.headerTitle')} onBack={() => setShowVerificationModal(false)} />
 
           <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 24 }}>
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>Verification Required</Text>
+              <Text style={styles.cardTitle}>{t('organizerPayoutSettings.verifyModal.requiredTitle')}</Text>
               <Text style={styles.metaText}>
-                To receive payouts to this account, upload a document that shows:
+                {t('organizerPayoutSettings.verifyModal.requiredBody')}
               </Text>
               <View style={{ marginTop: 8 }}>
-                <Text style={styles.bulletPoint}>• Your account number</Text>
-                <Text style={styles.bulletPoint}>• Your name (matching your organizer profile)</Text>
-                <Text style={styles.bulletPoint}>• Your bank name</Text>
+                <Text style={styles.bulletPoint}>• {t('organizerPayoutSettings.verifyModal.bulletAccount')}</Text>
+                <Text style={styles.bulletPoint}>• {t('organizerPayoutSettings.verifyModal.bulletName')}</Text>
+                <Text style={styles.bulletPoint}>• {t('organizerPayoutSettings.verifyModal.bulletBank')}</Text>
               </View>
             </View>
 
-            <Text style={[styles.label, { marginTop: 16 }]}>Document Type</Text>
+            <Text style={[styles.label, { marginTop: 16 }]}>{t('organizerPayoutSettings.verifyModal.documentType')}</Text>
             <View style={styles.row}>
               <TouchableOpacity
                 style={[styles.chip, verificationType === 'bank_statement' && styles.chipActive]}
                 onPress={() => setVerificationType('bank_statement')}
               >
                 <Text style={[styles.chipText, verificationType === 'bank_statement' && styles.chipTextActive]}>
-                  Bank Statement
+                  {t('organizerPayoutSettings.verifyModal.bankStatement')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -1049,7 +1049,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
                 onPress={() => setVerificationType('void_check')}
               >
                 <Text style={[styles.chipText, verificationType === 'void_check' && styles.chipTextActive]}>
-                  Void Check
+                  {t('organizerPayoutSettings.verifyModal.voidCheck')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -1057,7 +1057,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
                 onPress={() => setVerificationType('utility_bill')}
               >
                 <Text style={[styles.chipText, verificationType === 'utility_bill' && styles.chipTextActive]}>
-                  Utility Bill
+                  {t('organizerPayoutSettings.verifyModal.utilityBill')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -1068,7 +1068,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
             >
               <Ionicons name="document-attach-outline" size={20} color={colors.text} />
               <Text style={styles.secondaryButtonText}>
-                {verificationAsset ? 'Change Document' : 'Choose Document'}
+                {verificationAsset ? t('organizerPayoutSettings.verifyModal.changeDocument') : t('organizerPayoutSettings.verifyModal.chooseDocument')}
               </Text>
             </TouchableOpacity>
 
@@ -1076,22 +1076,21 @@ export default function OrganizerPayoutSettingsScreenV2() {
               <View style={[styles.card, { marginTop: 12, backgroundColor: `${colors.success}10` }]}>
                 <Ionicons name="checkmark-circle" size={20} color={colors.success} />
                 <Text style={[styles.metaText, { marginLeft: 10, color: colors.success }]}>
-                  Document selected: {verificationAsset.fileName || 'Image'}
+                  {t('organizerPayoutSettings.verifyModal.documentSelected')}: {verificationAsset.fileName || t('organizerPayoutSettings.verifyModal.imageFallback')}
                 </Text>
               </View>
             )}
 
             <WhitePillCTA
               style={{ marginTop: 24 }}
-              label="Submit for Review"
+              label={t('organizerPayoutSettings.verifyModal.submit')}
               onPress={handleSubmitVerification}
               loading={submittingVerification}
               disabled={submittingVerification || !verificationAsset}
             />
 
             <Text style={[styles.metaHint, { marginTop: 16, textAlign: 'center' }]}>
-              Your document will be reviewed by our team within 1-2 business days. You'll receive a notification once
-              it's approved.
+              {t('organizerPayoutSettings.verifyModal.hint')}
             </Text>
           </ScrollView>
         </View>
