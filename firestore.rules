@@ -23,9 +23,11 @@ service cloud.firestore {
         ? (cur == 'CAD')
         : (c == 'US' || c == 'USA' || c == 'UNITED STATES' || c == 'UNITED_STATES')
           ? (cur == 'USD')
-          : (c == 'HT' || c == 'HAITI')
-            ? (cur == 'USD' || cur == 'HTG')
-            : (cur == 'USD');
+          : (c == 'FR' || c == 'FRA' || c == 'FRANCE')
+            ? (cur == 'EUR')
+            : (c == 'HT' || c == 'HAITI')
+              ? (cur == 'USD' || cur == 'HTG')
+              : (cur == 'USD');
     }
 
     function eventDoc(eventId) {

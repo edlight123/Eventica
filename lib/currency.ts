@@ -1,4 +1,4 @@
-export type Currency = 'USD' | 'HTG'
+export type Currency = 'USD' | 'HTG' | 'CAD' | 'EUR'
 
 export interface CurrencyConfig {
   code: string
@@ -18,6 +18,18 @@ export const CURRENCIES: Record<Currency, CurrencyConfig> = {
     code: 'HTG',
     symbol: 'G',
     name: 'Haitian Gourde',
+    decimals: 2
+  },
+  CAD: {
+    code: 'CAD',
+    symbol: 'CA$',
+    name: 'Canadian Dollar',
+    decimals: 2
+  },
+  EUR: {
+    code: 'EUR',
+    symbol: '€',
+    name: 'Euro',
     decimals: 2
   }
 }

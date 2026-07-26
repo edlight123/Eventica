@@ -39,9 +39,10 @@ function normalizeAppUrl(request: NextRequest) {
   return request.nextUrl.origin || 'http://localhost:3000'
 }
 
-function toStripeCountry(accountLocation: string): 'US' | 'CA' {
+function toStripeCountry(accountLocation: string): 'US' | 'CA' | 'FR' {
   const loc = String(accountLocation || '').toLowerCase()
   if (loc === 'canada' || loc === 'ca') return 'CA'
+  if (loc === 'france' || loc === 'fr') return 'FR'
   return 'US'
 }
 
@@ -64,9 +65,12 @@ export async function POST(request: NextRequest) {
       requestedLocation ||
       String(profile?.accountLocation || '').toLowerCase()
 
-    if (!accountLocation || (accountLocation !== 'united_states' && accountLocation !== 'canada')) {
+    if (
+      !accountLocation ||
+      (accountLocation !== 'united_states' && accountLocation !== 'canada' && accountLocation !== 'france')
+    ) {
       return NextResponse.json(
-        { error: 'Stripe Connect is only available for United States or Canada accounts.' },
+        { error: 'Stripe Connect is only available for United States, Canada, or France accounts.' },
         { status: 400 }
       )
     }

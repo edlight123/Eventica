@@ -17,7 +17,7 @@ import { getPaymentProviderForEventCountry } from '@/lib/payment-provider'
 import { calculateFees } from '@/lib/fees'
 import { getPayoutProfile } from '@/lib/firestore/payout-profiles'
 import { hasEventAccess } from '@/lib/events/access-guard'
-import { isPaidAllowed, countrySupport } from '@/lib/country-support'
+import { isPaidAllowed, countrySupport, defaultCurrencyForCountry } from '@/lib/country-support'
 
 // Lazy load Stripe to avoid build-time initialization
 function getStripe() {
@@ -230,7 +230,10 @@ export async function POST(request: Request) {
       line_items: [
         {
           price_data: {
-            currency: event.currency?.toLowerCase() || 'usd',
+            // Charge currency follows the event's stored currency; when absent,
+            // fall back to the country default (USD/CAD/EUR) — never hardcode USD,
+            // so FR (EUR) settles in EUR.
+            currency: (event.currency || defaultCurrencyForCountry(event.country)).toLowerCase(),
             product_data: {
               name: event.title,
               description: event.description?.substring(0, 200),

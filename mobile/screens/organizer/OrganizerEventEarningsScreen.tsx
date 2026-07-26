@@ -50,7 +50,7 @@ type BankDestination = {
 
 type EventEarnings = {
   availableToWithdraw: number
-  currency?: 'HTG' | 'USD'
+  currency?: 'HTG' | 'USD' | 'CAD' | 'EUR'
   settlementStatus?: 'pending' | 'ready' | 'locked' | string
   settlementReadyDate?: string | null
   lastCalculatedAt?: string | null
@@ -133,7 +133,7 @@ export default function OrganizerEventEarningsScreen() {
   const [pendingEndpoint, setPendingEndpoint] = useState<string | null>(null)
   const [pendingPayload, setPendingPayload] = useState<any | null>(null)
 
-  const currency = (earnings?.currency || 'HTG') as 'HTG' | 'USD'
+  const currency = (earnings?.currency || 'HTG') as 'HTG' | 'USD' | 'CAD' | 'EUR'
   const availableToWithdraw = useMemo(() => {
     if (!earnings) return 0
     if (earnings?.settlementStatus !== 'ready') return 0

@@ -174,8 +174,11 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Create withdrawal request
-    const currency = (String(earnings.currency || 'HTG').toUpperCase() === 'USD' ? 'USD' : 'HTG') as 'HTG' | 'USD'
+    // Create withdrawal request. Preserve the event's real currency in the record;
+    // a CAD/EUR event would withdraw via Stripe (not this Haiti bank rail), so never
+    // silently rewrite CAD/EUR to HTG.
+    const rawCurrency = String(earnings.currency || 'HTG').toUpperCase()
+    const currency = (['USD', 'CAD', 'EUR'].includes(rawCurrency) ? rawCurrency : 'HTG') as 'HTG' | 'USD' | 'CAD' | 'EUR'
 
     const accountNumber = String(resolvedBankDetails.accountNumber)
     const maskedAccountNumber = accountNumber.length > 4 ? `****${accountNumber.slice(-4)}` : accountNumber

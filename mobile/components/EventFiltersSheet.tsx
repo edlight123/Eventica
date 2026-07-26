@@ -17,11 +17,12 @@ import { useFilters } from '../contexts/FiltersContext';
 import { useI18n } from '../contexts/I18nContext';
 import { getCategoryLabel } from '../lib/categories';
 import { 
-  CATEGORIES, 
+  CATEGORIES,
   COUNTRIES,
   CITIES_BY_COUNTRY,
-  PRICE_FILTERS, 
-  DATE_OPTIONS, 
+  getPriceFiltersForCountry,
+  CURRENCY_BY_COUNTRY,
+  DATE_OPTIONS,
   EVENT_TYPE_OPTIONS,
   DateFilter,
   PriceFilter,
@@ -45,6 +46,13 @@ export default function EventFiltersSheet() {
   } = useFilters();
 
   const activeCount = countActiveFilters();
+
+  // Price buckets are currency-aware: they follow the currently-selected FILTER
+  // country (HTG for Haiti, USD for US, CAD for Canada, EUR for France) rather
+  // than being hardcoded to HTG. Thresholds + symbols come from CURRENCY_BY_COUNTRY.
+  const filterCountry = draftFilters.country || 'HT';
+  const priceOptions = getPriceFiltersForCountry(filterCountry);
+  const priceCurrencyCode = CURRENCY_BY_COUNTRY[filterCountry]?.code || 'HTG';
 
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -233,25 +241,30 @@ export default function EventFiltersSheet() {
           <View style={styles.section}>
             <Text style={styles.sectionLabel}>{t('filters.price').toUpperCase()}</Text>
             <View style={styles.chipsRow}>
-              {PRICE_FILTERS.map(option => (
-                <TouchableOpacity
-                  key={option.value}
-                  style={[
-                    styles.chip,
-                    draftFilters.price === option.value && styles.chipActive
-                  ]}
-                  onPress={() => handlePriceChange(option.value)}
-                >
-                  <Text
+              {priceOptions.map(option => {
+                // Numeric buckets carry a currency-aware label (e.g. "≤ $5",
+                // "> 500 HTG"); any/free/custom stay translated.
+                const isBucket = option.value === '<=500' || option.value === '>500';
+                return (
+                  <TouchableOpacity
+                    key={option.value}
                     style={[
-                      styles.chipText,
-                      draftFilters.price === option.value && styles.chipTextActive
+                      styles.chip,
+                      draftFilters.price === option.value && styles.chipActive
                     ]}
+                    onPress={() => handlePriceChange(option.value)}
                   >
-                    {t(option.labelKey)}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+                    <Text
+                      style={[
+                        styles.chipText,
+                        draftFilters.price === option.value && styles.chipTextActive
+                      ]}
+                    >
+                      {isBucket ? option.label : t(option.labelKey)}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
             
             {/* Custom Price Range Slider */}
@@ -259,10 +272,10 @@ export default function EventFiltersSheet() {
               <View style={styles.priceSliderContainer}>
                 <View style={styles.priceRangeHeader}>
                   <Text style={styles.priceRangeLabel}>
-                    {t('filters.min')}: {draftFilters.customPriceRange?.min || 0} HTG
+                    {t('filters.min')}: {draftFilters.customPriceRange?.min || 0} {priceCurrencyCode}
                   </Text>
                   <Text style={styles.priceRangeLabel}>
-                    {t('filters.max')}: {draftFilters.customPriceRange?.max || 2000} HTG
+                    {t('filters.max')}: {draftFilters.customPriceRange?.max || 2000} {priceCurrencyCode}
                   </Text>
                 </View>
                 

@@ -4,13 +4,15 @@
  *
  * Placement rules (fixed):
  *   USD → prefix symbol, grouped:   $1,234.56
+ *   CAD → prefix symbol, grouped:   CA$1,234.56
+ *   EUR → prefix symbol, grouped:   €1,234.56
  *   HTG → suffix code,   grouped:   1,234.56 HTG
  *
  * Amounts are in MAJOR units by default. Pass `{ fromCents: true }` for values
  * stored in minor units (the payout/earnings API works in cents).
  */
 
-export type CurrencyCode = 'HTG' | 'USD' | string;
+export type CurrencyCode = 'HTG' | 'USD' | 'CAD' | 'EUR' | string;
 
 interface FormatOptions {
   /** Divide the incoming amount by 100 (value is stored in cents). */
@@ -45,6 +47,8 @@ export function formatCurrency(
   });
 
   if (code === 'USD') return `$${grouped}`;
+  if (code === 'CAD') return `CA$${grouped}`;
+  if (code === 'EUR') return `€${grouped}`;
   // HTG (and any other unknown code) → suffix form.
   return `${grouped} ${code}`;
 }

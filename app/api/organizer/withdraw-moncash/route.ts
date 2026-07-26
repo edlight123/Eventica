@@ -112,7 +112,12 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const currency = (String(earnings.currency || 'HTG').toUpperCase() === 'USD' ? 'USD' : 'HTG') as 'HTG' | 'USD'
+    // Preserve the event's real currency in the record. This is the Haiti rail
+    // (MonCash executes in HTG; USD earnings are converted at withdrawal below).
+    // A CAD/EUR event would withdraw via Stripe, not here — but if one reaches
+    // this route we must NOT silently rewrite CAD/EUR to HTG.
+    const rawCurrency = String(earnings.currency || 'HTG').toUpperCase()
+    const currency = (['USD', 'CAD', 'EUR'].includes(rawCurrency) ? rawCurrency : 'HTG') as 'HTG' | 'USD' | 'CAD' | 'EUR'
 
     // Check if instant MonCash (prefunding) is available and allowed.
     const [platformConfigDoc] = await Promise.all([

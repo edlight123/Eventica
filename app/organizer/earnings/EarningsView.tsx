@@ -63,12 +63,12 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
   const [filter, setFilter] = useState<'all' | 'ready' | 'pending' | 'locked'>('all')
   const [payoutOpen, setPayoutOpen] = useState(false)
 
-  const formatCurrency = (cents: number, currencyOverride?: 'HTG' | 'USD' | 'CAD') => {
+  const formatCurrency = (cents: number, currencyOverride?: 'HTG' | 'USD' | 'CAD' | 'EUR') => {
     const amount = cents / 100
 
     const currency =
       currencyOverride ||
-      (summary.currency === 'HTG' || summary.currency === 'USD' || summary.currency === 'CAD' ? summary.currency : 'USD')
+      (summary.currency === 'HTG' || summary.currency === 'USD' || summary.currency === 'CAD' || summary.currency === 'EUR' ? summary.currency : 'USD')
 
     if (currency === 'HTG') {
       const formatted = amount.toLocaleString('en-US', {

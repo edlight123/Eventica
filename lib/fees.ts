@@ -167,7 +167,7 @@ export function isSettlementReady(settlementReadyDate: string): boolean {
  * @param currency - Currency code
  * @returns Formatted string
  */
-export function formatCurrency(cents: number, currency: 'HTG' | 'USD' | 'CAD' = 'HTG'): string {
+export function formatCurrency(cents: number, currency: 'HTG' | 'USD' | 'CAD' | 'EUR' = 'HTG'): string {
   const amount = (cents / 100).toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -175,6 +175,7 @@ export function formatCurrency(cents: number, currency: 'HTG' | 'USD' | 'CAD' = 
 
   if (currency === 'HTG') return `HTG ${amount}`
   if (currency === 'CAD') return `CAD ${amount}`
+  if (currency === 'EUR') return `€${amount}`
   return `$${amount}`
 }
 
@@ -187,7 +188,7 @@ export function formatCurrency(cents: number, currency: 'HTG' | 'USD' | 'CAD' = 
  */
 export function getFeeBreakdown(
   grossAmount: number,
-  currency: 'HTG' | 'USD' | 'CAD' = 'HTG'
+  currency: 'HTG' | 'USD' | 'CAD' | 'EUR' = 'HTG'
 ): {
   gross: string
   platformFee: string

@@ -54,7 +54,12 @@ import {
 import WhitePillCTA from '../../components/WhitePillCTA';
 import { font } from '../../theme/tokens';
 import { POSTER_THEME_KEYS, resolvePosterTheme } from '../../lib/posterGradient';
-import { isComingSoon, countryName } from '../../lib/countrySupport';
+import {
+  isComingSoon,
+  countryName,
+  currenciesForCountry,
+  defaultCurrencyForCountry,
+} from '../../lib/countrySupport';
 
 type RouteParams = {
   CreateEvent: undefined;
@@ -586,13 +591,16 @@ export default function CreateEventFlowRefactored() {
     // organizer may only create FREE/RSVP events there. Force the free path on
     // selection; the tickets section shows a "coming soon" notice instead of tiers.
     const forceRsvp = isComingSoon(countryCode) ? { is_rsvp: true } : {};
+    // Reset the event currency to the newly-selected country's default
+    // (US→USD, CA→CAD, FR→EUR, HT→HTG) so a stale currency never carries over.
+    const currency = defaultCurrencyForCountry(countryCode);
     if (countryCode === 'HT') {
       const dep = 'Ouest';
       const first = citiesForDepartment(dep)[0]?.name || '';
-      updateDraft({ country: 'HT', department: dep, city: first, commune: '', ...forceRsvp });
+      updateDraft({ country: 'HT', department: dep, city: first, commune: '', currency, ...forceRsvp });
     } else {
       const newCities = CITIES_BY_COUNTRY[countryCode] || [];
-      updateDraft({ country: countryCode, department: '', city: newCities[0] || '', commune: '', ...forceRsvp });
+      updateDraft({ country: countryCode, department: '', city: newCities[0] || '', commune: '', currency, ...forceRsvp });
     }
     setCommuneListOpen(false);
   };
@@ -658,7 +666,19 @@ export default function CreateEventFlowRefactored() {
   const toggleUnlimitedTier = (index: number, isUnlimited: boolean) => {
     patchTier(index, { unlimited: isUnlimited, quantity: isUnlimited ? '' : '100' });
   };
-  const getCurrencySymbol = () => (eventDraft.currency === 'HTG' ? 'HTG' : '$');
+  const getCurrencySymbol = () => {
+    switch (eventDraft.currency) {
+      case 'USD':
+        return '$';
+      case 'CAD':
+        return 'CA$';
+      case 'EUR':
+        return '€';
+      case 'HTG':
+      default:
+        return 'HTG';
+    }
+  };
 
   // ── Per-tier sale window ──────────────────────────────────────────────────
   // Format an ISO datetime for the inline row: date as YYYY-MM-DD, time as
@@ -1494,25 +1514,41 @@ export default function CreateEventFlowRefactored() {
                 </>
               ) : (
                 <>
-                  {/* Currency segmented control */}
-                  <View style={styles.currencyRow}>
-                    <TouchableOpacity
-                      style={[styles.currencyButton, eventDraft.currency === 'USD' && styles.currencyButtonActive]}
-                      onPress={() => updateDraft({ currency: 'USD' })}
-                    >
-                      <Text style={[styles.currencyText, eventDraft.currency === 'USD' && styles.currencyTextActive]}>
-                        {t('organizerCreateEvent.tickets.currencyUsd')}
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.currencyButton, eventDraft.currency === 'HTG' && styles.currencyButtonActive]}
-                      onPress={() => updateDraft({ currency: 'HTG' })}
-                    >
-                      <Text style={[styles.currencyText, eventDraft.currency === 'HTG' && styles.currencyTextActive]}>
-                        {t('organizerCreateEvent.tickets.currencyHtg')}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
+                  {/* Currency control — derives from the selected country.
+                      Multi-currency markets (HT → HTG/USD) get a chooser; single-
+                      currency markets (US→USD, CA→CAD, FR→EUR) show a fixed label. */}
+                  {(() => {
+                    const allowed = currenciesForCountry(selectedCountry);
+                    const options = allowed.length
+                      ? allowed
+                      : [defaultCurrencyForCountry(selectedCountry)];
+                    if (options.length <= 1) {
+                      return (
+                        <View style={styles.currencyRow}>
+                          <View style={[styles.currencyButton, styles.currencyButtonActive]}>
+                            <Text style={[styles.currencyText, styles.currencyTextActive]}>
+                              {options[0]}
+                            </Text>
+                          </View>
+                        </View>
+                      );
+                    }
+                    return (
+                      <View style={styles.currencyRow}>
+                        {options.map((cur) => (
+                          <TouchableOpacity
+                            key={cur}
+                            style={[styles.currencyButton, eventDraft.currency === cur && styles.currencyButtonActive]}
+                            onPress={() => updateDraft({ currency: cur })}
+                          >
+                            <Text style={[styles.currencyText, eventDraft.currency === cur && styles.currencyTextActive]}>
+                              {cur}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    );
+                  })()}
 
                   {eventDraft.ticket_tiers.map((tier, index) => {
                     // Free = price parses to exactly 0 (blank price is "not set").

@@ -15,7 +15,7 @@ import { getPaymentProviderForEventCountry } from '@/lib/payment-provider'
 import { calculateFees } from '@/lib/fees'
 import { getPayoutProfile } from '@/lib/firestore/payout-profiles'
 import { hasEventAccess } from '@/lib/events/access-guard'
-import { isPaidAllowed, countrySupport } from '@/lib/country-support'
+import { isPaidAllowed, countrySupport, defaultCurrencyForCountry } from '@/lib/country-support'
 
 // Lazy load Stripe
 function getStripe() {
@@ -207,8 +207,11 @@ export async function POST(request: Request) {
       }
     }
 
-    // Handle currency conversion for Stripe
-    const eventCurrency = (event.currency?.toUpperCase() || 'USD') as 'USD' | 'HTG' | 'CAD'
+    // Handle currency conversion for Stripe.
+    // Charge currency follows the event's stored currency; when absent, fall back
+    // to the country default (USD/CAD/EUR/HTG) — never hardcode USD, so FR (EUR)
+    // settles in EUR.
+    const eventCurrency = (event.currency?.toUpperCase() || defaultCurrencyForCountry(event.country).toUpperCase()) as string
     let stripeAmount = finalPrice
     let stripeCurrency = eventCurrency.toLowerCase()
     let exchangeRateUsed: number | null = null

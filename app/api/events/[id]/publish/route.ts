@@ -111,7 +111,7 @@ export async function POST(
           const stripeAccountId = stripeProfile?.stripeAccountId
           if (!stripeAccountId) {
             return NextResponse.json(
-              { error: 'Stripe Connect required to publish paid events in the US/Canada.' },
+              { error: 'Stripe Connect required to publish paid events in this country.' },
               { status: 403 }
             )
           }
@@ -121,7 +121,7 @@ export async function POST(
           const verifiedStripe = Boolean(account?.details_submitted && account?.charges_enabled && account?.payouts_enabled)
           if (!verifiedStripe) {
             return NextResponse.json(
-              { error: 'Stripe Connect onboarding required before publishing paid events in the US/Canada.' },
+              { error: 'Stripe Connect onboarding required before publishing paid events in this country.' },
               { status: 403 }
             )
           }

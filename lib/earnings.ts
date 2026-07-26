@@ -19,10 +19,11 @@ function toDateOrNull(value: any): Date | null {
   return isNaN(date.getTime()) ? null : date
 }
 
-function normalizeCurrency(raw: unknown): 'HTG' | 'USD' | 'CAD' {
+function normalizeCurrency(raw: unknown): 'HTG' | 'USD' | 'CAD' | 'EUR' {
   const upper = String(raw || '').toUpperCase()
   if (upper === 'USD') return 'USD'
   if (upper === 'CAD') return 'CAD'
+  if (upper === 'EUR') return 'EUR'
   return 'HTG'
 }
 
@@ -339,7 +340,7 @@ export type EventTierSalesBreakdownRow = {
   tierId: string | null
   tierName: string
   listedUnitPriceCents: number
-  listedCurrency: 'HTG' | 'USD' | 'CAD'
+  listedCurrency: 'HTG' | 'USD' | 'CAD' | 'EUR'
   ticketsSold: number
   grossSales: number
 }

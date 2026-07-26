@@ -1,14 +1,14 @@
 import { adminDb } from '@/lib/firebase/admin'
 import type { PayoutConfig } from '@/lib/firestore/payout'
 import { determinePayoutStatus, getOrganizerIdentityVerificationStatus } from '@/lib/firestore/payout'
-import { normalizeCountryCode } from '@/lib/payment-provider'
+import { countrySupport } from '@/lib/country-support'
 
 export type PayoutProfileId = 'haiti' | 'stripe_connect'
 
 export function getRequiredPayoutProfileIdForEventCountry(country: unknown): PayoutProfileId {
-  const code = normalizeCountryCode(country)
-  if (code === 'US' || code === 'CA') return 'stripe_connect'
-  // Default everything else to Haiti payout profile.
+  // Single source of truth: any Stripe Connect market (US/CA/FR) requires the
+  // stripe_connect payout profile; everything else defaults to Haiti.
+  if (countrySupport(country)?.requiredProfile === 'stripe_connect') return 'stripe_connect'
   return 'haiti'
 }
 

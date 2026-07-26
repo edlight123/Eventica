@@ -10,7 +10,7 @@ interface MoneyTextProps {
   /** Amount in MAJOR units. Ignored when `cents` is provided. */
   amount?: number;
   /** Currency code — defaults to HTG. Controls symbol/placement (never `$`). */
-  currency?: 'HTG' | 'USD' | 'CAD';
+  currency?: 'HTG' | 'USD' | 'CAD' | 'EUR';
   /** Fixed fraction digits (defaults to 2). */
   decimals?: number;
   style?: StyleProp<TextStyle>;

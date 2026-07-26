@@ -38,6 +38,11 @@ export interface CountrySupport {
   provider: PayoutProvider | null;
   /** Payout profile / KYC an organizer needs before disbursement, or null. */
   requiredProfile: RequiredPayoutProfile | null;
+  /** Currencies a PAID event may be priced in here (first = default). Empty for
+   *  free-only / coming-soon markets. Also used for currency-aware price filters. */
+  currencies: string[];
+  /** Default/display currency for this market. */
+  defaultCurrency: string;
 }
 
 export const COUNTRY_SUPPORT: Record<string, CountrySupport> = {
@@ -49,6 +54,8 @@ export const COUNTRY_SUPPORT: Record<string, CountrySupport> = {
     comingSoon: false,
     provider: 'moncash',
     requiredProfile: 'haiti',
+    currencies: ['HTG', 'USD'],
+    defaultCurrency: 'HTG',
   },
   US: {
     code: 'US',
@@ -58,6 +65,8 @@ export const COUNTRY_SUPPORT: Record<string, CountrySupport> = {
     comingSoon: false,
     provider: 'stripe_connect',
     requiredProfile: 'stripe_connect',
+    currencies: ['USD'],
+    defaultCurrency: 'USD',
   },
   CA: {
     code: 'CA',
@@ -67,6 +76,8 @@ export const COUNTRY_SUPPORT: Record<string, CountrySupport> = {
     comingSoon: false,
     provider: 'stripe_connect',
     requiredProfile: 'stripe_connect',
+    currencies: ['CAD'],
+    defaultCurrency: 'CAD',
   },
   FR: {
     code: 'FR',
@@ -76,6 +87,8 @@ export const COUNTRY_SUPPORT: Record<string, CountrySupport> = {
     comingSoon: false,
     provider: 'stripe_connect',
     requiredProfile: 'stripe_connect',
+    currencies: ['EUR'],
+    defaultCurrency: 'EUR',
   },
   DO: {
     code: 'DO',
@@ -85,6 +98,8 @@ export const COUNTRY_SUPPORT: Record<string, CountrySupport> = {
     comingSoon: true,
     provider: null,
     requiredProfile: null,
+    currencies: [],
+    defaultCurrency: 'USD',
   },
 };
 
@@ -133,4 +148,25 @@ export function isComingSoon(country: unknown): boolean {
 /** Display name for a country code, falling back to the code itself. */
 export function countryName(country: unknown): string {
   return countrySupport(country)?.name ?? String(country ?? '');
+}
+
+/** Payout provider backing paid events here ('moncash' | 'stripe_connect' | null). */
+export function providerForCountry(country: unknown): PayoutProvider | null {
+  return countrySupport(country)?.provider ?? null;
+}
+
+/** Currencies a paid event may use in this country (empty = free-only/unknown). */
+export function currenciesForCountry(country: unknown): string[] {
+  return countrySupport(country)?.currencies ?? [];
+}
+
+/** Default/display currency for this country (USD fallback for unknown). */
+export function defaultCurrencyForCountry(country: unknown): string {
+  return countrySupport(country)?.defaultCurrency ?? 'USD';
+}
+
+/** Whether a currency is allowed for a country's paid events. */
+export function isCurrencyAllowed(country: unknown, currency: unknown): boolean {
+  const cur = String(currency ?? '').toUpperCase();
+  return currenciesForCountry(country).includes(cur);
 }
