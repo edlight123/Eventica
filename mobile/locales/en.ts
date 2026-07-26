@@ -1117,6 +1117,7 @@ export default {
       viewAttendees: 'View Attendees',
       earnings: 'Earnings',
       comps: 'Free Tickets',
+      promoCodes: 'Promo Codes',
       editEvent: 'Edit Event',
       viewPublicPage: 'View Public Page',
       shareEvent: 'Share Event',
@@ -1314,6 +1315,7 @@ export default {
     stripeConnectRequired: {
       title: 'Stripe Connect required',
       body: 'US/Canada payouts are handled via Stripe Connect. Manage payout details on the web payouts settings page.',
+      cta: 'Set up Stripe',
     },
     notices: {
       noEarnings: 'No earnings record found for this event yet.',
@@ -1385,6 +1387,8 @@ export default {
       missingBankDetailsBody: 'Account holder, bank name, and account number are required.',
       selectAccountTitle: 'Select account',
       selectAccountBody: 'Please select a bank account.',
+      belowMinimumTitle: 'Minimum not reached',
+      belowMinimumBody: 'You need at least {min} to withdraw.',
     },
     errors: {
       loadFailed: 'Failed to load earnings',

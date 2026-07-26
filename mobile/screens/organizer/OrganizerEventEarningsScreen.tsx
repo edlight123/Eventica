@@ -73,6 +73,11 @@ export default function OrganizerEventEarningsScreen() {
   const { t } = useI18n()
   const insets = useSafeAreaInsets()
 
+  // Server rejects withdrawals below 5000 cents (50 units). Mirror it client-side
+  // so sub-minimum balances get a clear, currency-correct message instead of the
+  // server's hardcoded "$50.00" wall.
+  const MIN_WITHDRAWAL_CENTS = 5000
+
   const [loading, setLoading] = useState(true)
   const [eventTitle, setEventTitle] = useState<string>('')
   const [eventCountry, setEventCountry] = useState<string>('')
@@ -338,10 +343,38 @@ export default function OrganizerEventEarningsScreen() {
       return
     }
 
+    if (availableToWithdraw < MIN_WITHDRAWAL_CENTS) {
+      Alert.alert(
+        t('organizerEarnings.validation.belowMinimumTitle'),
+        t('organizerEarnings.validation.belowMinimumBody').replace('{min}', formatCurrency(MIN_WITHDRAWAL_CENTS, currency))
+      )
+      return
+    }
+
     if (requiresStripeConnect) {
       Alert.alert(
         t('organizerEarnings.stripeConnectRequired.title'),
-        t('organizerEarnings.stripeConnectRequired.body')
+        t('organizerEarnings.stripeConnectRequired.body'),
+        [
+          { text: t('common.cancel'), style: 'cancel' },
+          {
+            text: t('organizerEarnings.stripeConnectRequired.cta'),
+            onPress: async () => {
+              try {
+                const res = await backendJson<{ url?: string }>('/api/organizer/stripe/connect', {
+                  method: 'POST',
+                })
+                if (res?.url) {
+                  navigation.navigate('StripeConnectWebView', { url: res.url })
+                } else {
+                  Alert.alert(t('common.error'), t('organizerEarnings.errors.loadFailed'))
+                }
+              } catch (e: any) {
+                Alert.alert(t('common.error'), e?.message || t('organizerEarnings.errors.loadFailed'))
+              }
+            },
+          },
+        ]
       )
       return
     }
@@ -537,6 +570,14 @@ export default function OrganizerEventEarningsScreen() {
 
     if (availableToWithdraw <= 0) {
       Alert.alert(t('organizerEarnings.validation.nothingToWithdrawTitle'), t('organizerEarnings.validation.nothingToWithdrawBody'))
+      return
+    }
+
+    if (availableToWithdraw < MIN_WITHDRAWAL_CENTS) {
+      Alert.alert(
+        t('organizerEarnings.validation.belowMinimumTitle'),
+        t('organizerEarnings.validation.belowMinimumBody').replace('{min}', formatCurrency(MIN_WITHDRAWAL_CENTS, currency))
+      )
       return
     }
 

@@ -870,6 +870,7 @@ export default {
       viewAttendees: 'Voir les participants',
       earnings: 'Revenus',
       comps: 'Billets gratuits',
+      promoCodes: 'Codes promo',
       editEvent: 'Modifier l’événement',
       viewPublicPage: 'Voir la page publique',
       shareEvent: 'Partager l’événement',
@@ -1067,6 +1068,7 @@ export default {
     stripeConnectRequired: {
       title: 'Stripe Connect requis',
       body: 'Les paiements US/Canada sont gérés via Stripe Connect. Gérez vos informations sur la page web des paiements.',
+      cta: 'Configurer Stripe',
     },
     notices: {
       noEarnings: 'Aucun revenu enregistré pour cet événement pour le moment.',
@@ -1138,6 +1140,8 @@ export default {
       missingBankDetailsBody: 'Le titulaire, le nom de la banque et le numéro de compte sont requis.',
       selectAccountTitle: 'Sélectionner un compte',
       selectAccountBody: 'Veuillez sélectionner un compte bancaire.',
+      belowMinimumTitle: 'Minimum non atteint',
+      belowMinimumBody: 'Il vous faut au moins {min} pour retirer.',
     },
     errors: {
       loadFailed: 'Impossible de charger les revenus',

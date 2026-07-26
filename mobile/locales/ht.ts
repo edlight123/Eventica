@@ -868,6 +868,7 @@ export default {
       viewAttendees: 'Gade patisipan',
       earnings: 'Revni',
       comps: 'Biyè gratis',
+      promoCodes: 'Kòd pwomo',
       editEvent: 'Modifye evènman',
       viewPublicPage: 'Gade paj piblik',
       shareEvent: 'Pataje evènman',
@@ -1065,6 +1066,7 @@ export default {
     stripeConnectRequired: {
       title: 'Stripe Connect obligatwa',
       body: 'Peman US/Canada jere atravè Stripe Connect. Jere detay peman yo sou paj web peman yo.',
+      cta: 'Konfigire Stripe',
     },
     notices: {
       noEarnings: 'Pa gen dosye revni pou evènman sa a ankò.',
@@ -1136,6 +1138,8 @@ export default {
       missingBankDetailsBody: 'Mèt kont lan, non bank lan, ak nimewo kont lan obligatwa.',
       selectAccountTitle: 'Chwazi kont',
       selectAccountBody: 'Tanpri chwazi yon kont bank.',
+      belowMinimumTitle: 'Minimòm pa rive',
+      belowMinimumBody: 'Ou bezwen omwen {min} pou retire.',
     },
     errors: {
       loadFailed: 'Pa t kapab chaje revni yo',

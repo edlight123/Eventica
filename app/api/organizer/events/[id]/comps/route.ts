@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { adminDb } from '@/lib/firebase/admin'
+import { adminDb, adminAuth } from '@/lib/firebase/admin'
 import { getCurrentUser } from '@/lib/auth'
 import { FieldValue } from 'firebase-admin/firestore'
 import { sendEmail, getTicketConfirmationEmail } from '@/lib/email'
@@ -55,6 +55,20 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       // Tier resolution is best-effort; issue with tier_id='' if it fails.
     }
 
+    // If the recipient email maps to a real Firebase user, stamp the ticket with
+    // their uid so the comp shows up in their "My Tickets" and can be scanned by
+    // them. A missing account is expected (they may not have signed up yet) and
+    // must not fail issuance — the no-email/no-account path stays unchanged.
+    let recipientUid: string | null = null
+    if (recipientEmail) {
+      try {
+        const recipientUser = await adminAuth.getUserByEmail(recipientEmail)
+        recipientUid = recipientUser?.uid || null
+      } catch {
+        // No account for this email yet — issue the comp without attendee_id.
+      }
+    }
+
     const created: string[] = []
     for (let i = 0; i < quantity; i++) {
       const ref = await adminDb.collection('tickets').add({
@@ -62,6 +76,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         event_title: event?.title || '',
         source: 'comp',
         status: 'valid',
+        ...(recipientUid ? { attendee_id: recipientUid, user_id: recipientUid } : {}),
         price_paid: 0,
         currency: event?.currency || 'HTG',
         tier_id: tierId,
