@@ -6,6 +6,7 @@ import { convertUsdToHtgAmount, getUsdToHtgRateWithSpread } from '@/lib/fx/usd-h
 import { inferCountryFromEventText } from '@/lib/event-country'
 import { checkEventCapacity } from '@/lib/capacity'
 import { hasEventAccess } from '@/lib/events/access-guard'
+import { isPaidAllowed, countrySupport } from '@/lib/country-support'
 import {
   createMonCashButtonCheckoutToken,
   getMonCashButtonRedirectUrl,
@@ -125,6 +126,17 @@ export async function POST(request: Request) {
     // Password-protected events: require a valid access grant before payment.
     if (!(await hasEventAccess(event, eventId, user.id))) {
       return NextResponse.json({ error: 'access_code_required' }, { status: 403 })
+    }
+
+    // Defense in depth: never take money for a country whose payout rail isn't
+    // ready (coming-soon markets like the Dominican Republic). MonCash is Haiti-only
+    // so this is belt-and-suspenders, but keep the guard so no paid entry is exempt.
+    if (!isPaidAllowed(event.country)) {
+      const name = countrySupport(event.country)?.name || 'this country'
+      return NextResponse.json(
+        { error: `Payouts are not yet available in ${name}.` },
+        { status: 400 }
+      )
     }
 
     // MonCash is Haiti-only. Do not fall back to organizer location here, otherwise

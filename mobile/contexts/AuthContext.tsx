@@ -26,11 +26,15 @@ interface UserProfile {
   is_verified?: boolean;
   photo_url?: string;
   bio?: string;
+  // Organizer brand identity — shown wherever the organizer is displayed, in
+  // place of the personal full_name (and organization_logo for the avatar).
+  organization_name?: string;
+  organization_logo?: string;
   social_links?: SocialLinks;
   privacy?: PrivacySettings;
 }
 
-type UserProfilePatch = Partial<Pick<UserProfile, 'full_name' | 'phone_number' | 'default_city' | 'default_country' | 'default_subarea' | 'photo_url'>>;
+type UserProfilePatch = Partial<Pick<UserProfile, 'full_name' | 'phone_number' | 'default_city' | 'default_country' | 'default_subarea' | 'photo_url' | 'organization_name' | 'organization_logo'>>;
 
 interface AuthContextType {
   user: User | null;
@@ -103,6 +107,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     if (typeof trimmed.full_name === 'string') trimmed.full_name = trimmed.full_name.trim();
     if (typeof trimmed.default_city === 'string') trimmed.default_city = trimmed.default_city.trim();
+    if (typeof trimmed.organization_name === 'string') trimmed.organization_name = trimmed.organization_name.trim();
+    if (typeof trimmed.organization_logo === 'string') trimmed.organization_logo = trimmed.organization_logo.trim();
     if (typeof trimmed.phone_number === 'string') {
       const p = trimmed.phone_number.trim();
       trimmed.phone_number = p.length ? p : null;

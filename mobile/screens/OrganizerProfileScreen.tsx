@@ -417,19 +417,23 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
           <View style={styles.heroContent}>
             {/* Avatar */}
             <View style={styles.avatar}>
-              {organizer.avatarUrl ? (
-                <Image source={{ uri: organizer.avatarUrl }} style={styles.avatarImage} />
+              {(organizer.organization_logo || organizer.avatarUrl || organizer.photo_url) ? (
+                <Image
+                  source={{ uri: organizer.organization_logo || organizer.avatarUrl || organizer.photo_url }}
+                  style={styles.avatarImage}
+                />
               ) : (
                 <Text style={styles.avatarText}>
-                  {(organizer.full_name?.[0] || '?').toUpperCase()}
+                  {((organizer.organization_name || organizer.full_name)?.[0] || '?').toUpperCase()}
                 </Text>
               )}
             </View>
 
-            {/* Name + Verified Badge (consolidated to the shared VerifiedBadge) */}
+            {/* Name + Verified Badge. Organization brand overrides the personal
+                name here and everywhere the organizer is shown. */}
             <View style={styles.nameRow}>
               <Text style={styles.organizerName} numberOfLines={1}>
-                {organizer.full_name}
+                {organizer.organization_name || organizer.full_name}
               </Text>
               {organizer.is_verified && <VerifiedBadge size="small" showLabel />}
             </View>

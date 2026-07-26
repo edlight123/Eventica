@@ -267,6 +267,15 @@ export default {
     postersExplore: 'Explorer les évènements',
     actions: 'Actions',
     friends: 'Amis',
+    organization: {
+      sectionTitle: 'Organisation',
+      hint: 'Affiché partout où vous apparaissez en tant qu’organisateur, à la place de votre nom personnel.',
+      nameLabel: 'Nom de l’organisation',
+      namePlaceholder: 'Le nom de votre marque ou organisation',
+      logoLabel: 'Logo',
+      addLogo: 'Ajouter un logo',
+      changeLogo: 'Changer le logo',
+    },
     social: {
       sectionTitle: 'Réseaux sociaux',
       bio: 'Bio',
@@ -1441,6 +1450,7 @@ export default {
       accessCodeEditPlaceholder: 'Saisissez un nouveau code pour le modifier',
       accessCodeRequired: 'Définissez un code d’accès (ou désactivez la protection).',
       accessCodeTooShort: 'Utilisez au moins 6 caractères.',
+      paidComingSoon: 'Les événements payants arrivent bientôt en {country}. Pour l’instant, vous pouvez créer un événement RSVP gratuit.',
     },
   },
   eventAccess: {

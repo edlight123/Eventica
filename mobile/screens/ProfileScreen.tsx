@@ -74,6 +74,11 @@ export default function ProfileScreen() {
   const [editedCity, setEditedCity] = useState(userProfile?.default_city || '');
   const [editedCountry, setEditedCountry] = useState(userProfile?.default_country || 'HT');
 
+  // Organizer brand identity (edited alongside the rest of the profile form).
+  const [editedOrgName, setEditedOrgName] = useState(userProfile?.organization_name || '');
+  const [orgLogoUrl, setOrgLogoUrl] = useState(userProfile?.organization_logo || '');
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+
   // Social profile + privacy (edited together with the rest of the profile form)
   const [editedBio, setEditedBio] = useState(userProfile?.bio || '');
   const [editedInstagram, setEditedInstagram] = useState(userProfile?.social_links?.instagram || '');
@@ -272,6 +277,8 @@ export default function ProfileScreen() {
       setEditedName(userProfile?.full_name || '');
       setEditedCity(userProfile?.default_city || '');
       setEditedCountry(userProfile?.default_country || 'HT');
+      setEditedOrgName(userProfile?.organization_name || '');
+      setOrgLogoUrl(userProfile?.organization_logo || '');
       parsePhone(userProfile?.phone_number || '');
       setEditedBio(userProfile?.bio || '');
       setEditedInstagram(userProfile?.social_links?.instagram || '');
@@ -282,7 +289,7 @@ export default function ProfileScreen() {
       setAttendanceVisibility(userProfile?.privacy?.attendance_visibility || DEFAULT_PRIVACY.attendance_visibility);
       setDiscoverableByPhone(userProfile?.privacy?.discoverable_by_phone ?? DEFAULT_PRIVACY.discoverable_by_phone);
     }
-  }, [isEditing, parsePhone, userProfile?.default_city, userProfile?.default_country, userProfile?.full_name, userProfile?.phone_number, userProfile?.bio, userProfile?.social_links?.instagram, userProfile?.social_links?.tiktok, userProfile?.social_links?.twitter, userProfile?.social_links?.facebook, userProfile?.privacy?.profile_visibility, userProfile?.privacy?.attendance_visibility, userProfile?.privacy?.discoverable_by_phone]);
+  }, [isEditing, parsePhone, userProfile?.default_city, userProfile?.default_country, userProfile?.full_name, userProfile?.organization_name, userProfile?.organization_logo, userProfile?.phone_number, userProfile?.bio, userProfile?.social_links?.instagram, userProfile?.social_links?.tiktok, userProfile?.social_links?.twitter, userProfile?.social_links?.facebook, userProfile?.privacy?.profile_visibility, userProfile?.privacy?.attendance_visibility, userProfile?.privacy?.discoverable_by_phone]);
 
   // Cities available for the selected country — drives the City dropdown.
   const citiesForCountry = useMemo(() => {
@@ -334,6 +341,50 @@ export default function ProfileScreen() {
     }
   }, [loadAccountStats, t, updateUserProfile, user?.uid]);
 
+  const pickAndUploadOrgLogo = useCallback(async () => {
+    if (!user?.uid) return;
+
+    if (isDemoMode) {
+      Alert.alert(t('common.error'), 'Logo upload is disabled in demo mode.');
+      return;
+    }
+
+    try {
+      setUploadingLogo(true);
+
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) {
+        Alert.alert(t('common.error'), 'Photo permission is required.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.85,
+      });
+
+      if (result.canceled || !result.assets?.[0]?.uri) return;
+
+      const uri = result.assets[0].uri;
+      const res = await fetch(uri);
+      const blob = await res.blob();
+
+      const path = `org-logos/${user.uid}/logo_${Date.now()}.jpg`;
+      const fileRef = storageRef(storage, path);
+
+      await uploadBytes(fileRef, blob);
+      const url = await getDownloadURL(fileRef);
+      // Held in local state; persisted (with the name) when the form is saved.
+      setOrgLogoUrl(url);
+    } catch (e: any) {
+      Alert.alert(t('common.error'), e?.message || 'Failed to upload logo.');
+    } finally {
+      setUploadingLogo(false);
+    }
+  }, [t, user?.uid]);
+
   const saveProfile = useCallback(async () => {
     if (!user?.uid) return;
 
@@ -354,6 +405,11 @@ export default function ProfileScreen() {
         phone_number: combinedPhone,
         default_city: editedCity,
         default_country: editedCountry,
+        // Organizer brand identity — writes users/{uid} and mirrors into the
+        // public projection, so it shows wherever the organizer is displayed.
+        ...(canUseOrganizerMode
+          ? { organization_name: editedOrgName.trim(), organization_logo: orgLogoUrl || '' }
+          : {}),
       });
 
       // Persist social handles + bio + privacy via the shared backend endpoint.
@@ -388,7 +444,7 @@ export default function ProfileScreen() {
     } finally {
       setSaving(false);
     }
-  }, [appliedFilters, applyFiltersDirectly, editedBio, editedCity, editedCountry, editedFacebook, editedInstagram, editedName, editedTiktok, editedTwitter, attendanceVisibility, discoverableByPhone, profileVisibility, phoneDigits, phonePrefix, refreshUserProfile, setUserCountry, t, updateUserProfile, user?.uid]);
+  }, [appliedFilters, applyFiltersDirectly, canUseOrganizerMode, editedBio, editedCity, editedCountry, editedFacebook, editedInstagram, editedName, editedOrgName, editedTiktok, editedTwitter, orgLogoUrl, attendanceVisibility, discoverableByPhone, profileVisibility, phoneDigits, phonePrefix, refreshUserProfile, setUserCountry, t, updateUserProfile, user?.uid]);
 
   const confirmSignOut = useCallback(() => {
     Alert.alert(t('profile.signOutTitle'), t('profile.signOutBody'), [
@@ -587,6 +643,50 @@ export default function ProfileScreen() {
                 sheetTitle={t('profile.defaultCity')}
                 onSelect={setEditedCity}
               />
+
+              {/* Organization brand — organizers only. Shown wherever the
+                  organizer appears, in place of the personal name. */}
+              {canUseOrganizerMode ? (
+                <>
+                  <View style={styles.formDivider} />
+                  <Text style={styles.formSubsectionTitle}>{t('profile.organization.sectionTitle')}</Text>
+                  <Text style={styles.helperText}>{t('profile.organization.hint')}</Text>
+
+                  <Text style={styles.fieldLabel}>{t('profile.organization.nameLabel')}</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={editedOrgName}
+                    onChangeText={setEditedOrgName}
+                    placeholder={t('profile.organization.namePlaceholder')}
+                    placeholderTextColor={colors.textTertiary}
+                    selectionColor={colors.primary}
+                  />
+
+                  <Text style={styles.fieldLabel}>{t('profile.organization.logoLabel')}</Text>
+                  <TouchableOpacity
+                    style={styles.orgLogoRow}
+                    onPress={pickAndUploadOrgLogo}
+                    disabled={uploadingLogo}
+                    activeOpacity={0.7}
+                    accessibilityRole="button"
+                  >
+                    <View style={styles.orgLogoPreview}>
+                      {orgLogoUrl ? (
+                        <Image source={{ uri: orgLogoUrl }} style={styles.orgLogoImage} />
+                      ) : (
+                        <Briefcase size={22} color={colors.primary} />
+                      )}
+                    </View>
+                    <Text style={styles.orgLogoAction}>
+                      {uploadingLogo
+                        ? t('profile.saving')
+                        : orgLogoUrl
+                        ? t('profile.organization.changeLogo')
+                        : t('profile.organization.addLogo')}
+                    </Text>
+                  </TouchableOpacity>
+                </>
+              ) : null}
 
               {/* Social handles + bio */}
               <View style={styles.formDivider} />
@@ -1103,6 +1203,30 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 11,
     color: colors.textTertiary,
     textAlign: 'right',
+  },
+  orgLogoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 8,
+  },
+  orgLogoPreview: {
+    width: 56,
+    height: 56,
+    borderRadius: 12,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primarySoft,
+  },
+  orgLogoImage: {
+    width: '100%',
+    height: '100%',
+  },
+  orgLogoAction: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
   },
   helperText: {
     marginTop: 8,

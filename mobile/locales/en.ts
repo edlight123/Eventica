@@ -223,6 +223,15 @@ export default {
     postersExplore: 'Explore events',
     actions: 'Actions',
     friends: 'Friends',
+    organization: {
+      sectionTitle: 'Organization',
+      hint: 'Shown wherever you appear as the organizer, in place of your personal name.',
+      nameLabel: 'Organization name',
+      namePlaceholder: 'Your brand or organization name',
+      logoLabel: 'Logo',
+      addLogo: 'Add logo',
+      changeLogo: 'Change logo',
+    },
     social: {
       sectionTitle: 'Social',
       bio: 'Bio',
@@ -525,6 +534,8 @@ export default {
       accessCodeEditPlaceholder: 'Enter a new code to change it',
       accessCodeRequired: 'Set an access code (or turn off password protection).',
       accessCodeTooShort: 'Use at least 6 characters.',
+      // Coming-soon markets (e.g. Dominican Republic): paid tickets disabled, free/RSVP only.
+      paidComingSoon: 'Paid events are coming soon in {country}. For now you can create a free RSVP event.',
     },
   },
   eventAccess: {

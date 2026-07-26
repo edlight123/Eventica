@@ -5,6 +5,7 @@ import { createNotification } from '@/lib/notifications/helpers'
 import { sendPushNotification } from '@/lib/notification-triggers'
 import { resolveEventCountry } from '@/lib/event-country'
 import { normalizeCountryCode } from '@/lib/payment-provider'
+import { isComingSoon, countrySupport } from '@/lib/country-support'
 import { getPayoutProfile, getRequiredPayoutProfileIdForEventCountry } from '@/lib/firestore/payout-profiles'
 
 function getStripe() {
@@ -82,6 +83,18 @@ export async function POST(
         const resolvedCountry = await resolveEventCountry(eventData)
         const requiredProfileId = getRequiredPayoutProfileIdForEventCountry(resolvedCountry || eventData?.country)
 
+        // Coming-soon markets (Dominican Republic): payouts aren't wired yet, so a
+        // PAID event may not be published there. The country stays browsable and
+        // free/RSVP events publish normally — only priced events are blocked.
+        const countryForSupport = resolvedCountry || eventData?.country
+        if (isComingSoon(countryForSupport)) {
+          const name = countrySupport(countryForSupport)?.name || 'this country'
+          return NextResponse.json(
+            { error: `Paid events are coming soon in ${name}` },
+            { status: 403 }
+          )
+        }
+
         // Haiti (and other non-US/CA) events: no publish-time gate — KYC is enforced
         // at disbursement instead. Free/RSVP events remain unrestricted as before.
 
@@ -128,6 +141,20 @@ export async function POST(
     // Persist a normalized country code when we can determine it.
     if (resolvedCountry && resolvedCountry !== existingCountry) {
       updatePayload.country = resolvedCountry
+    }
+
+    // Stamp the denormalized organizer display name so event cards render the
+    // organizer correctly WITHOUT an extra profile read. The organization brand
+    // name wins over the personal full name (falls back to it when unset).
+    try {
+      const organizerDoc = await adminDb.collection('users').doc(user.id).get()
+      const organizerData = organizerDoc.exists ? organizerDoc.data() : null
+      const organizerName = String(
+        organizerData?.organization_name || organizerData?.full_name || ''
+      ).trim()
+      if (organizerName) updatePayload.organizer_name = organizerName
+    } catch (stampError) {
+      console.error('Error stamping organizer_name on publish:', stampError)
     }
 
     await adminDb.collection('events').doc(id).update(updatePayload)

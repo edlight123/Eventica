@@ -253,6 +253,21 @@ export async function createEvent(
 ): Promise<string> {
   const publish = options.publish !== false;
   try {
+    // Denormalized organizer display name stamped on each event doc so cards can
+    // render the organizer WITHOUT an extra profile read. The organization brand
+    // name wins over the personal full name (falls back to it when unset). Read
+    // from the SAFE public projection; best-effort (empty string on any failure).
+    let organizerName = '';
+    try {
+      const profileSnap = await getDoc(doc(db, 'public_profiles', organizerId));
+      if (profileSnap.exists()) {
+        const p = profileSnap.data() as any;
+        organizerName = String(p.organization_name || p.full_name || '').trim();
+      }
+    } catch (profileError) {
+      console.error('Error loading organizer profile for organizer_name stamp:', profileError);
+    }
+
     // Upload image to Firebase Storage if it's a local URI
     let coverImageUrl = eventData.banner_image_url;
     if (eventData.banner_image_url && eventData.banner_image_url.startsWith('file://')) {
@@ -360,6 +375,8 @@ export async function createEvent(
         tickets_sold: 0,
         tickets_available: totalCapacity,
         organizer_id: organizerId,
+        // Denormalized organizer display name (org brand preferred). See above.
+        organizer_name: organizerName,
         is_rsvp: eventData.is_rsvp || false,
         // Advanced settings — default visible/on when the caller omits them.
         show_on_explore: eventData.show_on_explore !== false,

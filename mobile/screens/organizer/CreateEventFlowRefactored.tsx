@@ -54,6 +54,7 @@ import {
 import WhitePillCTA from '../../components/WhitePillCTA';
 import { font } from '../../theme/tokens';
 import { POSTER_THEME_KEYS, resolvePosterTheme } from '../../lib/posterGradient';
+import { isComingSoon, countryName } from '../../lib/countrySupport';
 
 type RouteParams = {
   CreateEvent: undefined;
@@ -532,6 +533,15 @@ export default function CreateEventFlowRefactored() {
     setEventDraft(prev => ({ ...prev, ...updates }));
   };
 
+  // Coming-soon markets (e.g. Dominican Republic) allow FREE/RSVP events only:
+  // there's no payout rail yet. Force the free path whenever such a country is
+  // selected (covers edit mode / any entry path), so validation + save use RSVP.
+  useEffect(() => {
+    if (isComingSoon((eventDraft as any).country) && !eventDraft.is_rsvp) {
+      updateDraft({ is_rsvp: true });
+    }
+  }, [eventDraft.country, eventDraft.is_rsvp]);
+
   // Choose the entry mode (sell tickets vs free RSVP) and enter the canvas.
   const chooseMode = (rsvp: boolean) => {
     updateDraft({ is_rsvp: rsvp });
@@ -562,6 +572,9 @@ export default function CreateEventFlowRefactored() {
   // ── Location (ported from Step2Location) ──
   const selectedCountry = (eventDraft as any).country || 'HT';
   const isHaiti = selectedCountry === 'HT';
+  // Coming-soon markets (e.g. Dominican Republic): browsable + selectable, but no
+  // payout rail yet → paid tickets are disabled, only free/RSVP is allowed.
+  const countryComingSoon = isComingSoon(selectedCountry);
   // Non-Haiti countries keep the flat city list.
   const cities = CITIES_BY_COUNTRY[selectedCountry] || [];
   // Haiti gets a Département → City (arrondissement) → Commune cascade.
@@ -569,13 +582,17 @@ export default function CreateEventFlowRefactored() {
   const haitiCities = citiesForDepartment(department);
 
   const handleCountryChange = (countryCode: string) => {
+    // Coming-soon markets (e.g. Dominican Republic) have no payout rail yet, so an
+    // organizer may only create FREE/RSVP events there. Force the free path on
+    // selection; the tickets section shows a "coming soon" notice instead of tiers.
+    const forceRsvp = isComingSoon(countryCode) ? { is_rsvp: true } : {};
     if (countryCode === 'HT') {
       const dep = 'Ouest';
       const first = citiesForDepartment(dep)[0]?.name || '';
-      updateDraft({ country: 'HT', department: dep, city: first, commune: '' });
+      updateDraft({ country: 'HT', department: dep, city: first, commune: '', ...forceRsvp });
     } else {
       const newCities = CITIES_BY_COUNTRY[countryCode] || [];
-      updateDraft({ country: countryCode, department: '', city: newCities[0] || '', commune: '' });
+      updateDraft({ country: countryCode, department: '', city: newCities[0] || '', commune: '', ...forceRsvp });
     }
     setCommuneListOpen(false);
   };
@@ -1441,14 +1458,26 @@ export default function CreateEventFlowRefactored() {
             <View style={styles.canvasPad}>
               <View style={styles.sectionHeaderRow}>
                 <Text style={styles.sectionHeader}>{t('organizerCreateEventFlow.canvas.ticketsHeader')}</Text>
-                {!eventDraft.is_rsvp && (
+                {!eventDraft.is_rsvp && !countryComingSoon && (
                   <TouchableOpacity onPress={addTier} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
                     <Ionicons name="add-circle" size={26} color={colors.text} />
                   </TouchableOpacity>
                 )}
               </View>
 
-              {eventDraft.is_rsvp ? (
+              {countryComingSoon && (
+                <View style={styles.comingSoonNotice}>
+                  <Ionicons name="time-outline" size={16} color={colors.textSecondary} />
+                  <Text style={styles.comingSoonNoticeText}>
+                    {t('organizerCreateEventFlow.canvas.paidComingSoon').replace(
+                      '{country}',
+                      countryName(selectedCountry)
+                    )}
+                  </Text>
+                </View>
+              )}
+
+              {(eventDraft.is_rsvp || countryComingSoon) ? (
                 <>
                   <InlineTextRow
                     colors={colors}
@@ -2429,6 +2458,23 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingVertical: 14,
   },
   infoText: {
+    flex: 1,
+    fontSize: 13,
+    color: colors.textSecondary,
+  },
+  comingSoonNotice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    marginTop: 10,
+    borderRadius: RADIUS.md,
+    backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+  },
+  comingSoonNoticeText: {
     flex: 1,
     fontSize: 13,
     color: colors.textSecondary,

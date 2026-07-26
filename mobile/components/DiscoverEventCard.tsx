@@ -43,7 +43,9 @@ export default function DiscoverEventCard({
   const [aspectRatio, setAspectRatio] = useState<number>(2 / 3);
   const price = Number(event.ticket_price || 0);
   const isFree = !price || price === 0;
-  const organizer = event.users?.full_name || event.organizer_name || '';
+  // Prefer the organization brand name; the denormalized `organizer_name` on
+  // the event doc is stamped with org-name-or-full-name at create/publish.
+  const organizer = event.users?.organization_name || event.users?.full_name || event.organizer_name || '';
 
   // Guarded — an invalid/missing date yields '' instead of crashing date-fns.
   const dateLabel = safeFormatForLanguage(event.start_datetime, 'EEE, MMM d · h:mm a', language);

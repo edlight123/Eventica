@@ -111,9 +111,15 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
         total_tickets: totalFromTiers || eventData.total_tickets || 0,
         users: organizerData ? {
           full_name: organizerData.full_name || 'Event Organizer',
+          // Organization brand overrides the personal name wherever the
+          // organizer is displayed (falls back to full_name when unset).
+          organization_name: organizerData.organization_name || '',
+          organization_logo: organizerData.organization_logo || '',
           is_verified: organizerData.is_verified ?? false
         } : {
           full_name: 'Event Organizer',
+          organization_name: '',
+          organization_logo: '',
           is_verified: false
         }
       }
@@ -201,9 +207,15 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
         is_published: data.is_published,
         users: organizerData ? {
           full_name: organizerData.full_name || 'Event Organizer',
+          // Organization brand overrides the personal name wherever the
+          // organizer is displayed (falls back to full_name when unset).
+          organization_name: organizerData.organization_name || '',
+          organization_logo: organizerData.organization_logo || '',
           is_verified: organizerData.is_verified ?? false
         } : {
           full_name: 'Event Organizer',
+          organization_name: '',
+          organization_logo: '',
           is_verified: false
         }
       }

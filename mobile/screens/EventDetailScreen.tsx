@@ -193,9 +193,15 @@ export default function EventDetailScreen({ route, navigation }: any) {
           end_datetime: data.end_datetime?.toDate ? data.end_datetime.toDate() : data.end_datetime ? new Date(data.end_datetime) : null,
           users: organizerData ? {
             full_name: organizerData.full_name || '',
+            // Organization brand overrides the personal name wherever the
+            // organizer is shown (falls back to full_name when unset).
+            organization_name: organizerData.organization_name || '',
+            organization_logo: organizerData.organization_logo || '',
             is_verified: organizerData.is_verified ?? false
           } : {
             full_name: '',
+            organization_name: '',
+            organization_logo: '',
             is_verified: false
           }
         });
@@ -266,7 +272,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `${t('eventDetail.share.checkOut')} ${event.title}!\n\n${event.description?.substring(0, 100)}...\n\n${t('eventDetail.share.date')}: ${event.start_datetime && safeFormatForLanguage(event.start_datetime, 'EEEE, MMMM dd, yyyy', language)}\n${t('eventDetail.share.venue')}: ${event.venue_name}\n${t('eventDetail.share.organizer')}: ${event.users?.full_name || event.organizer_name || t('eventDetail.organizerFallback')}\n\nhttps://tikem.co/events/${eventId}`,
+        message: `${t('eventDetail.share.checkOut')} ${event.title}!\n\n${event.description?.substring(0, 100)}...\n\n${t('eventDetail.share.date')}: ${event.start_datetime && safeFormatForLanguage(event.start_datetime, 'EEEE, MMMM dd, yyyy', language)}\n${t('eventDetail.share.venue')}: ${event.venue_name}\n${t('eventDetail.share.organizer')}: ${event.users?.organization_name || event.users?.full_name || event.organizer_name || t('eventDetail.organizerFallback')}\n\nhttps://tikem.co/events/${eventId}`,
         title: event.title,
       });
     } catch (error) {
@@ -599,13 +605,22 @@ export default function EventDetailScreen({ route, navigation }: any) {
                 activeOpacity={0.7}
               >
                 <View style={styles.hostedByAvatar}>
-                  <Text style={styles.hostedByAvatarText}>
-                    {(event.users?.full_name || event.organizer_name || 'E')[0].toUpperCase()}
-                  </Text>
+                  {event.users?.organization_logo ? (
+                    <ExpoImage
+                      source={{ uri: event.users.organization_logo }}
+                      style={styles.hostedByAvatarImage}
+                      contentFit="cover"
+                      cachePolicy="memory-disk"
+                    />
+                  ) : (
+                    <Text style={styles.hostedByAvatarText}>
+                      {(event.users?.organization_name || event.users?.full_name || event.organizer_name || 'E')[0].toUpperCase()}
+                    </Text>
+                  )}
                 </View>
                 <View style={styles.hostedByInfo}>
                   <Text style={styles.hostedByName}>
-                    {event.users?.full_name || event.organizer_name || t('eventDetail.organizerFallback')}
+                    {event.users?.organization_name || event.users?.full_name || event.organizer_name || t('eventDetail.organizerFallback')}
                   </Text>
                   {(event.users?.is_verified || event.is_verified) && (
                     <VerifiedBadge
@@ -1129,6 +1144,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: '#FFF',
     fontSize: 20,
     fontWeight: '700',
+  },
+  hostedByAvatarImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 24,
   },
   hostedByInfo: {
     flex: 1,

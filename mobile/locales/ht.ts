@@ -267,6 +267,15 @@ export default {
     postersExplore: 'Dekouvri evènman',
     actions: 'Aksyon',
     friends: 'Zanmi',
+    organization: {
+      sectionTitle: 'Òganizasyon',
+      hint: 'Li parèt tout kote ou parèt kòm òganizatè, nan plas non pèsonèl ou.',
+      nameLabel: 'Non òganizasyon an',
+      namePlaceholder: 'Non mak oswa òganizasyon ou',
+      logoLabel: 'Logo',
+      addLogo: 'Ajoute yon logo',
+      changeLogo: 'Chanje logo a',
+    },
     social: {
       sectionTitle: 'Rezo sosyal',
       bio: 'Bio',
@@ -1439,6 +1448,7 @@ export default {
       accessCodeEditPlaceholder: 'Antre yon nouvo kòd pou chanje l',
       accessCodeRequired: 'Mete yon kòd aksè (oswa dezaktive pwoteksyon an).',
       accessCodeTooShort: 'Sèvi ak omwen 6 karaktè.',
+      paidComingSoon: 'Evènman peyan yo ap vini talè nan {country}. Pou kounye a ou ka kreye yon evènman RSVP gratis.',
     },
   },
   eventAccess: {

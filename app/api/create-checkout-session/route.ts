@@ -17,6 +17,7 @@ import { getPaymentProviderForEventCountry } from '@/lib/payment-provider'
 import { calculateFees } from '@/lib/fees'
 import { getPayoutProfile } from '@/lib/firestore/payout-profiles'
 import { hasEventAccess } from '@/lib/events/access-guard'
+import { isPaidAllowed, countrySupport } from '@/lib/country-support'
 
 // Lazy load Stripe to avoid build-time initialization
 function getStripe() {
@@ -122,6 +123,18 @@ export async function POST(request: Request) {
     // (create-payment-intent, sogepay/moncash initiate); this single-price route
     // only enforces the password/access guard above. No event-level sale bounds
     // are fabricated here.
+
+    // Defense in depth: never take money for a country whose payout rail isn't
+    // ready (coming-soon markets like the Dominican Republic). Publish is already
+    // gated, but block at the payment entry too in case a paid event slipped through.
+    if (!isPaidAllowed(event.country)) {
+      const name = countrySupport(event.country)?.name || 'this country'
+      await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
+      return NextResponse.json(
+        { error: `Payouts are not yet available in ${name}.` },
+        { status: 400 }
+      )
+    }
 
     const provider = getPaymentProviderForEventCountry(event.country)
     if (provider === 'sogepay') {

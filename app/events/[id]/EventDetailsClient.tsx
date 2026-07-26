@@ -38,6 +38,10 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
   const isTrending = (event.tickets_sold || 0) > 10
   const selloutSoon = !isSoldOut && ticketsRemaining !== null && ticketsRemaining < 10
   const posterTheme = getPosterTheme(event.id || event.title, event.category)
+  // Organization brand overrides the personal name wherever the organizer is
+  // shown (falls back to full_name, then a generic label).
+  const organizerLabel = event.users?.organization_name || event.users?.full_name || 'Event Organizer'
+  const organizerInitial = (event.users?.organization_name || event.users?.full_name || 'E')[0].toUpperCase()
 
   return (
     <div className="min-h-screen pb-mobile-nav md:pb-8">
@@ -46,7 +50,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
         title={event.title}
         category={event.category}
         bannerUrl={event.banner_image_url}
-        organizerName={event.users?.full_name || 'Event Organizer'}
+        organizerName={organizerLabel}
         isVerified={event.users?.is_verified || false}
         organizerId={event.organizer_id}
         isVIP={isVIP}
@@ -145,12 +149,17 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
 
               {/* Organizer */}
               <a href={`/profile/organizer/${event.organizer_id}`} className="inline-flex items-center gap-3 mb-7 hover:opacity-80 transition-opacity">
-                <div className="w-11 h-11 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full flex items-center justify-center text-white font-bold text-base">
-                  {(event.users?.full_name || 'E')[0].toUpperCase()}
+                <div className="w-11 h-11 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full flex items-center justify-center text-white font-bold text-base overflow-hidden">
+                  {event.users?.organization_logo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={event.users.organization_logo} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    organizerInitial
+                  )}
                 </div>
                 <div>
                   <p className="text-white font-semibold text-sm md:text-base">
-                    {event.users?.full_name || 'Event Organizer'}
+                    {organizerLabel}
                   </p>
                   {event.users?.is_verified && (
                     <div className="flex items-center gap-1 text-brand-300 text-xs md:text-sm">
@@ -277,7 +286,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
         city={event.city}
         startDatetime={event.start_datetime}
         endDatetime={event.end_datetime || event.start_datetime}
-        organizerName={event.users?.full_name || 'Event Organizer'}
+        organizerName={organizerLabel}
         organizerId={event.organizer_id}
         isVerified={event.users?.is_verified || false}
         shareButton={
@@ -394,12 +403,17 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                 {t('events.organizer')}
               </h2>
               <a href={`/profile/organizer/${event.organizer_id}`} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors">
-                <div className="w-14 h-14 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                  {(event.users?.full_name || 'E')[0].toUpperCase()}
+                <div className="w-14 h-14 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full flex items-center justify-center text-white font-bold text-xl overflow-hidden">
+                  {event.users?.organization_logo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={event.users.organization_logo} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    organizerInitial
+                  )}
                 </div>
                 <div>
                   <p className="font-semibold text-white text-base">
-                    {event.users?.full_name || 'Event Organizer'}
+                    {organizerLabel}
                   </p>
                   {event.users?.is_verified && (
                     <div className="flex items-center gap-1 text-brand-400 text-sm mt-1">
