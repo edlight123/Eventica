@@ -33,6 +33,7 @@ import WhitePillCTA from '../../components/WhitePillCTA'
 import SecondaryPill from '../../components/auth/SecondaryPill'
 import InfoNotice from '../../components/organizer/InfoNotice'
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader'
+import { EarningsSkeleton } from '../../components/Skeleton'
 
 type RouteParams = {
   OrganizerEventEarnings: {
@@ -630,9 +631,14 @@ export default function OrganizerEventEarningsScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={styles.loadingText}>{t('organizerEarnings.loading')}</Text>
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+        <OrganizerScreenHeader
+          title={t('organizerEarnings.headerTitle')}
+          subtitle={eventTitle || eventId}
+          onBack={() => navigation.goBack()}
+        />
+        <EarningsSkeleton />
       </View>
     )
   }

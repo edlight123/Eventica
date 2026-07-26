@@ -27,6 +27,7 @@ import {
 import { addStaffEventId } from '../lib/staffAssignments';
 import { backendJson } from '../lib/api/backend';
 import EmptyState from '../components/EmptyState';
+import { NotificationsSkeleton } from '../components/Skeleton';
 import type { Notification } from '../types/notifications';
 
 export default function NotificationsScreen() {
@@ -371,9 +372,7 @@ export default function NotificationsScreen() {
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
+        <NotificationsSkeleton />
       </SafeAreaView>
     );
   }

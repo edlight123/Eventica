@@ -171,6 +171,181 @@ export function GridSkeleton({ count = 6 }: { count?: number }) {
   );
 }
 
+const EVENT_POSTER_W = SCREEN_W * 0.86; // EventDetailScreen POSTER_W
+
+/** Three evenly-spaced stat columns (value over label) — mirrors StatTriplet. */
+function StatTripletSkeleton() {
+  return (
+    <View style={styles.statTriplet}>
+      {Array.from({ length: 3 }).map((_, i) => (
+        <View key={i} style={styles.statCol}>
+          <Skeleton width={46} height={22} radius={7} />
+          <Skeleton width={58} height={11} radius={5} style={{ marginTop: 8 } as ViewStyle} />
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/**
+ * EventDetailScreen initial load: a centered poster hero, a two-line title,
+ * a couple of meta rows, an about block, and a floating CTA pill.
+ */
+export function EventDetailSkeleton() {
+  const { colors } = useTheme();
+  return (
+    <View style={{ flex: 1 }}>
+      <View style={[styles.eventHero, { backgroundColor: colors.surfaceMuted }]}>
+        <Skeleton height={undefined as any} radius={0} style={{ width: EVENT_POSTER_W, aspectRatio: 4 / 5 } as ViewStyle} />
+      </View>
+      <View style={styles.eventContent}>
+        <Skeleton width={'82%'} height={30} radius={8} />
+        <Skeleton width={'54%'} height={30} radius={8} style={{ marginTop: 8 } as ViewStyle} />
+        <View style={styles.eventFacts}>
+          {Array.from({ length: 2 }).map((_, i) => (
+            <View key={i} style={styles.eventFactRow}>
+              <Skeleton width={18} height={18} radius={5} />
+              <View style={styles.eventFactText}>
+                <Skeleton width={'62%'} height={13} radius={6} />
+                <Skeleton width={'40%'} height={11} radius={5} />
+              </View>
+            </View>
+          ))}
+        </View>
+        <View style={styles.eventSection}>
+          <Skeleton width={120} height={18} radius={7} />
+          <Skeleton width={'100%'} height={13} radius={6} style={{ marginTop: 14 } as ViewStyle} />
+          <Skeleton width={'92%'} height={13} radius={6} style={{ marginTop: 8 } as ViewStyle} />
+          <Skeleton width={'70%'} height={13} radius={6} style={{ marginTop: 8 } as ViewStyle} />
+        </View>
+      </View>
+      <View style={styles.eventFloatingCta}>
+        <Skeleton height={54} radius={16} />
+      </View>
+    </View>
+  );
+}
+
+/** TicketDetailScreen initial load: title, status chip, QR-card block, info rows. */
+export function TicketDetailSkeleton() {
+  const { colors } = useTheme();
+  return (
+    <View style={styles.ticketDetail}>
+      <Skeleton width={'70%'} height={28} radius={8} />
+      <Skeleton width={96} height={26} radius={13} style={{ alignSelf: 'center', marginTop: 18 } as ViewStyle} />
+      <Skeleton height={360} radius={20} style={{ width: '86%', alignSelf: 'center', marginTop: 24 } as ViewStyle} />
+      <Skeleton width={'60%'} height={13} radius={6} style={{ alignSelf: 'center', marginTop: 16 } as ViewStyle} />
+      <View style={styles.ticketInfoCards}>
+        {Array.from({ length: 3 }).map((_, i) => (
+          <View key={i} style={[styles.ticketInfoCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Skeleton width={40} height={40} radius={20} />
+            <View style={styles.ticketInfoText}>
+              <Skeleton width={'40%'} height={11} radius={5} />
+              <Skeleton width={'70%'} height={14} radius={6} />
+            </View>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+/** EventTicketsScreen initial load: centered event title + a large ticket-pass card. */
+export function TicketPassSkeleton() {
+  return (
+    <View style={styles.ticketPass}>
+      <Skeleton width={'70%'} height={24} radius={8} style={{ alignSelf: 'center' } as ViewStyle} />
+      <Skeleton width={120} height={12} radius={6} style={{ alignSelf: 'center', marginTop: 10 } as ViewStyle} />
+      <Skeleton height={480} radius={24} style={{ width: '100%', marginTop: 28 } as ViewStyle} />
+    </View>
+  );
+}
+
+/** NotificationsScreen initial load: elevated cards with an icon and two text lines. */
+export function NotificationsSkeleton({ count = 6 }: { count?: number }) {
+  const { colors } = useTheme();
+  return (
+    <View style={styles.notifList}>
+      {Array.from({ length: count }).map((_, i) => (
+        <View key={i} style={[styles.notifCard, { backgroundColor: colors.surfaceRaised }]}>
+          <Skeleton width={40} height={40} radius={12} />
+          <View style={styles.notifBody}>
+            <Skeleton width={'70%'} height={14} radius={6} />
+            <Skeleton width={'92%'} height={12} radius={5} />
+            <Skeleton width={90} height={11} radius={5} style={{ marginTop: 2 } as ViewStyle} />
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/** People rows (Connections): a card of avatar + name + connect-pill rows. */
+export function PeopleRowsSkeleton({ count = 7 }: { count?: number }) {
+  const { colors } = useTheme();
+  return (
+    <View style={styles.peopleWrap}>
+      <View style={[styles.peopleCard, { backgroundColor: colors.surface }]}>
+        {Array.from({ length: count }).map((_, i) => (
+          <View
+            key={i}
+            style={[
+              styles.peopleRow,
+              i > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border },
+            ]}
+          >
+            <Skeleton width={44} height={44} radius={22} />
+            <View style={{ flex: 1 }}>
+              <Skeleton width={'55%'} height={14} radius={6} />
+            </View>
+            <Skeleton width={74} height={32} radius={16} />
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+/** OrganizerEventEarningsScreen initial load: balance card + stat triplet + CTA pills. */
+export function EarningsSkeleton() {
+  const { colors } = useTheme();
+  return (
+    <View style={styles.earnings}>
+      <View style={[styles.earningsCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <Skeleton width={'40%'} height={12} radius={6} />
+        <Skeleton width={'62%'} height={34} radius={9} style={{ marginTop: 10 } as ViewStyle} />
+        <Skeleton width={'50%'} height={12} radius={6} style={{ marginTop: 14 } as ViewStyle} />
+      </View>
+      <View style={{ height: 12 }} />
+      <StatTripletSkeleton />
+      <View style={{ height: 24 }} />
+      <Skeleton height={52} radius={14} />
+      <Skeleton height={52} radius={14} style={{ marginTop: 12 } as ViewStyle} />
+    </View>
+  );
+}
+
+/** OrganizerProfileScreen initial load: hero (avatar + name), stat triplet, event grid. */
+export function OrganizerProfileSkeleton() {
+  const { colors } = useTheme();
+  return (
+    <View style={{ flex: 1 }}>
+      <View style={[styles.profileHero, { backgroundColor: colors.surfaceRaised }]}>
+        <Skeleton width={70} height={70} radius={35} />
+        <Skeleton width={'60%'} height={34} radius={9} style={{ marginTop: 12 } as ViewStyle} />
+        <Skeleton width={'40%'} height={13} radius={6} style={{ marginTop: 10 } as ViewStyle} />
+      </View>
+      <View style={styles.profileContent}>
+        <StatTripletSkeleton />
+        <View style={{ height: 24 }} />
+        <Skeleton width={160} height={24} radius={8} />
+        <Skeleton width={120} height={13} radius={6} style={{ marginTop: 8 } as ViewStyle} />
+      </View>
+      <GridSkeleton count={4} />
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   // PosterEventCard content block (paddingTop 8, title then meta row).
   posterMeta: {
@@ -251,5 +426,131 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingHorizontal: 16,
     paddingTop: 16,
+  },
+
+  // StatTriplet: three centered columns spread across the row.
+  statTriplet: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  statCol: {
+    flex: 1,
+    alignItems: 'center',
+  },
+
+  // EventDetailScreen: hero (height 600, centered poster), content pad 18.
+  eventHero: {
+    height: 600,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  eventContent: {
+    paddingHorizontal: 18,
+    paddingTop: 12,
+  },
+  eventFacts: {
+    marginTop: 22,
+    gap: 22,
+  },
+  eventFactRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 14,
+  },
+  eventFactText: {
+    flex: 1,
+    gap: 8,
+  },
+  eventSection: {
+    marginTop: 24,
+  },
+  eventFloatingCta: {
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    bottom: 28,
+  },
+
+  // TicketDetailScreen: content padding 20.
+  ticketDetail: {
+    flex: 1,
+    padding: 20,
+  },
+  ticketInfoCards: {
+    marginTop: 28,
+    gap: 16,
+  },
+  ticketInfoCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    gap: 12,
+  },
+  ticketInfoText: {
+    flex: 1,
+    gap: 8,
+  },
+
+  // EventTicketsScreen: pass card pager.
+  ticketPass: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingTop: 12,
+  },
+
+  // NotificationsScreen list: gutter 16, top 16, gap 8.
+  notifList: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    gap: 8,
+  },
+  notifCard: {
+    flexDirection: 'row',
+    borderRadius: 16,
+    padding: 16,
+    gap: 12,
+  },
+  notifBody: {
+    flex: 1,
+    gap: 6,
+  },
+
+  // ConnectionsScreen people rows.
+  peopleWrap: {
+    padding: 16,
+  },
+  peopleCard: {
+    borderRadius: 16,
+    paddingHorizontal: 14,
+  },
+  peopleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 12,
+  },
+
+  // OrganizerEventEarningsScreen: content padding 16.
+  earnings: {
+    padding: 16,
+  },
+  earningsCard: {
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+  },
+
+  // OrganizerProfileScreen: hero (height 300, bottom-aligned) + content.
+  profileHero: {
+    height: 300,
+    justifyContent: 'flex-end',
+    padding: 20,
+    paddingBottom: 16,
+  },
+  profileContent: {
+    paddingHorizontal: 16,
+    paddingTop: 24,
   },
 });

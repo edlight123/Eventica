@@ -22,6 +22,7 @@ import { useI18n } from '../contexts/I18nContext';
 import ConnectButton from '../components/ConnectButton';
 import VerifiedBadge from '../components/VerifiedBadge';
 import EmptyState from '../components/EmptyState';
+import { PeopleRowsSkeleton } from '../components/Skeleton';
 import {
   fetchConnections,
   searchUsers,
@@ -158,9 +159,7 @@ export default function ConnectionsScreen() {
       </View>
 
       {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
+        <PeopleRowsSkeleton />
       ) : tab === 'find' ? (
         <FindTab colors={colors} onOpen={openProfile} onChange={loadOverview} onRequireAuth={goToLogin} insets={insets} autoSync={autoSync} />
       ) : (

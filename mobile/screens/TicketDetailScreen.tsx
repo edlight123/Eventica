@@ -16,6 +16,7 @@ import { font } from '../theme/tokens';
 import { formatCurrency } from '../lib/currency';
 import { ticketOrderRef, ticketTierLabel, ticketQrValue, ticketStatusKey } from '../lib/ticket';
 import { addToCalendar, openDirections } from '../lib/postPurchaseActions';
+import { TicketDetailSkeleton } from '../components/Skeleton';
 
 export default function TicketDetailScreen({ route }: any) {
   const { colors } = useTheme();
@@ -179,8 +180,8 @@ export default function TicketDetailScreen({ route }: any) {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
+      <View style={styles.container}>
+        <TicketDetailSkeleton />
       </View>
     );
   }

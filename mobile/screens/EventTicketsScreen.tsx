@@ -23,6 +23,7 @@ import { ArrowLeft } from 'lucide-react-native';
 import TicketPassCard from '../components/TicketPassCard';
 import QRCodeModal from '../components/QRCodeModal';
 import TransferTicketModal from '../components/TransferTicketModal';
+import { TicketPassSkeleton } from '../components/Skeleton';
 import { font } from '../theme/tokens';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -125,10 +126,8 @@ export default function EventTicketsScreen({ route, navigation }: any) {
 
   if (loading) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+        <TicketPassSkeleton />
       </SafeAreaView>
     );
   }

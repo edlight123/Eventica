@@ -53,6 +53,7 @@ import JoinWaitlistButton from '../components/JoinWaitlistButton';
 import FollowButton from '../components/FollowButton';
 import CountdownTimer from '../components/CountdownTimer';
 import WhosGoing from '../components/WhosGoing';
+import { EventDetailSkeleton } from '../components/Skeleton';
 const { width } = Dimensions.get('window');
 const POSTER_W = width * 0.86;
 
@@ -385,11 +386,8 @@ export default function EventDetailScreen({ route, navigation }: any) {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>{t('eventDetail.loading')}</Text>
-        </View>
+      <SafeAreaView style={styles.container} edges={['bottom']}>
+        <EventDetailSkeleton />
       </SafeAreaView>
     );
   }

@@ -36,6 +36,7 @@ import PosterEventCard from '../components/PosterEventCard';
 import StatTriplet from '../components/StatTriplet';
 import VerifiedBadge from '../components/VerifiedBadge';
 import EmptyState from '../components/EmptyState';
+import { OrganizerProfileSkeleton } from '../components/Skeleton';
 import { fetchConnections } from '../lib/api/social';
 import { type FriendshipState } from '../types/social';
 
@@ -326,11 +327,8 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>{t('organizerProfile.loading')}</Text>
-        </View>
+      <SafeAreaView style={styles.container} edges={['bottom']}>
+        <OrganizerProfileSkeleton />
       </SafeAreaView>
     );
   }
