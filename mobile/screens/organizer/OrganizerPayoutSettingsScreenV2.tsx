@@ -359,6 +359,52 @@ export default function OrganizerPayoutSettingsScreenV2() {
         throw new Error(data?.error || data?.message || 'Failed to add bank account')
       }
 
+      // Also set the Haiti payout PROFILE method to bank_transfer (and store the
+      // bank details on it) so the profile exists and withdraw-bank's
+      // `method === 'bank_transfer'` check passes. The haiti route masks/persists
+      // the details; the destinations endpoint above owns per-destination
+      // verification. Switching methods flips the single Haiti profile method —
+      // that's expected (one active method at a time).
+      try {
+        const profileRes = await backendFetch('/api/organizer/payout-profiles/haiti', {
+          method: 'POST',
+          body: JSON.stringify({
+            method: 'bank_transfer',
+            bankDetails: {
+              accountName: bankForm.accountName.trim(),
+              bankName: bankForm.bankName.trim(),
+              accountNumber: bankForm.accountNumber.trim(),
+              routingNumber: bankForm.routingNumber.trim() || undefined,
+              swift: bankForm.swift.trim() || undefined,
+            },
+          }),
+        })
+
+        const profileData = await profileRes.json().catch(() => ({}))
+        if (!profileRes.ok) {
+          const msg = String(profileData?.message || profileData?.error || '')
+          // Preserve OTP step-up: switching an existing method may require a
+          // recent security verification before the profile change is accepted.
+          if (
+            profileData?.code === 'PAYOUT_CHANGE_VERIFICATION_REQUIRED' ||
+            msg.includes('PAYOUT_CHANGE_VERIFICATION_REQUIRED')
+          ) {
+            Alert.alert(
+              'Security Verification Required',
+              'Please verify this change via email before continuing.',
+              [{ text: 'OK' }]
+            )
+            setShowBankForm(false)
+            await loadDestinations()
+            return
+          }
+          // Non-fatal: the bank destination itself was saved. Log and continue.
+          console.warn('Failed to set Haiti profile method to bank_transfer:', msg)
+        }
+      } catch (e) {
+        console.warn('Failed to set Haiti profile method to bank_transfer:', e)
+      }
+
       Alert.alert(
         'Bank Account Added',
         'Your bank account has been saved. You must verify it before you can receive payouts.',
@@ -596,9 +642,27 @@ export default function OrganizerPayoutSettingsScreenV2() {
                         setSelectedDestination(dest)
                         if (isBank) {
                           setShowVerificationModal(true)
+                        } else if (identityVerified) {
+                          // MonCash activates on identity verification alone; payouts
+                          // are then reviewed and released manually by our team.
+                          Alert.alert(
+                            t('organizerPayoutSettings.moncashVerify.readyTitle'),
+                            t('organizerPayoutSettings.moncashVerify.readyBody')
+                          )
                         } else {
-                          // Phone verification flow for MonCash
-                          Alert.alert('Coming Soon', 'MonCash verification will be added soon.')
+                          // Route to the identity verification flow — that is now the
+                          // only gate for MonCash payouts.
+                          Alert.alert(
+                            t('organizerPayoutSettings.moncashVerify.title'),
+                            t('organizerPayoutSettings.moncashVerify.body'),
+                            [
+                              { text: t('organizerPayoutSettings.moncashVerify.cancel'), style: 'cancel' },
+                              {
+                                text: t('organizerPayoutSettings.moncashVerify.verifyCta'),
+                                onPress: () => navigation.navigate('OrganizerVerification'),
+                              },
+                            ]
+                          )
                         }
                       }}
                     >

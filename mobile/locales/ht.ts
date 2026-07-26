@@ -1043,6 +1043,14 @@ export default {
         cancelled: 'Anile',
       },
     },
+    moncashVerify: {
+      title: 'Verifye idantite w',
+      body: 'Peman MonCash yo aktive lè idantite w verifye. Apre sa, ekip nou an ap revize epi lage chak retrè a lamen.',
+      verifyCta: 'Verifye idantite',
+      cancel: 'Anile',
+      readyTitle: 'Tout bagay pare',
+      readyBody: 'Idantite w verifye, kidonk peman MonCash yo aktive. Ekip nou an revize chak retrè anvan li lage l.',
+    },
   },
 
   organizerEarnings: {

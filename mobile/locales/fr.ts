@@ -1045,6 +1045,14 @@ export default {
         cancelled: 'Annulé',
       },
     },
+    moncashVerify: {
+      title: 'Vérifiez votre identité',
+      body: "Les paiements MonCash sont activés une fois votre identité vérifiée. Chaque retrait est ensuite examiné et validé manuellement par notre équipe.",
+      verifyCta: "Vérifier l'identité",
+      cancel: 'Annuler',
+      readyTitle: 'Tout est prêt',
+      readyBody: "Votre identité est vérifiée, les paiements MonCash sont donc activés. Chaque retrait est examiné par notre équipe avant d'être versé.",
+    },
   },
 
   organizerEarnings: {

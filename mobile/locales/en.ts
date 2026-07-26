@@ -1292,6 +1292,14 @@ export default {
         cancelled: 'Cancelled',
       },
     },
+    moncashVerify: {
+      title: 'Verify your identity',
+      body: 'MonCash payouts are enabled once your identity is verified. Each withdrawal is then reviewed and released manually by our team.',
+      verifyCta: 'Verify identity',
+      cancel: 'Cancel',
+      readyTitle: "You're all set",
+      readyBody: 'Your identity is verified, so MonCash payouts are enabled. Each withdrawal is reviewed by our team before it is released.',
+    },
   },
 
   organizerEarnings: {

@@ -198,6 +198,7 @@ export interface Payout {
   id: string
   organizerId: string
   amount: number // in cents
+  currency?: string // HTG (default), USD, etc.
   status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled'
   method: PayoutMethod
   failureReason?: string
@@ -246,8 +247,13 @@ const identityVerified = (config?: PayoutConfig | null) =>
 const bankVerified = (config?: PayoutConfig | null) =>
   config?.method !== 'bank_transfer' || config?.verificationStatus?.bank === 'verified'
 
-const phoneVerified = (config?: PayoutConfig | null) =>
-  config?.method !== 'mobile_money' || config?.verificationStatus?.phone === 'verified'
+// Haiti payouts are processed MANUALLY by an admin who reviews and releases each
+// request, so IDENTITY verification is the meaningful activation gate. Phone
+// (MonCash) verification is NO LONGER required to activate the mobile_money rail:
+// an unverified phone cannot misdirect funds because a human confirms every
+// payout. Bank and Stripe/US-CA logic are unaffected (phoneVerified only ever
+// gated the mobile_money method, which returned true for all other methods).
+const phoneVerified = (_config?: PayoutConfig | null) => true
 
 export function determinePayoutStatus(config: PayoutConfig | null): PayoutStatus {
   if (!config || !hasPayoutMethod(config)) {
@@ -265,6 +271,11 @@ export function determinePayoutStatus(config: PayoutConfig | null): PayoutStatus
     }
   }
 
+  // Payouts are reviewed and released manually by an admin, so identity
+  // verification is the activation gate. For the Haiti mobile_money (MonCash)
+  // rail, identity alone activates the profile (phoneVerified is now always
+  // true). Bank transfers additionally require bank-destination verification,
+  // and Stripe/US-CA accounts follow their existing bank/identity checks.
   if (identityVerified(config) && bankVerified(config) && phoneVerified(config)) {
     return 'active'
   }
@@ -653,40 +664,64 @@ export async function updatePayoutProfileConfig(
  */
 export async function getPayoutHistory(organizerId: string, limit: number = 10): Promise<Payout[]> {
   try {
-    const payoutsSnapshot = await adminDb
-      .collection('organizers')
-      .doc(organizerId)
-      .collection('payouts')
+    // Withdrawals are written to the top-level `withdrawal_requests` collection by
+    // the withdraw-moncash / withdraw-bank routes. The legacy
+    // organizers/{id}/payouts subcollection is never written by the live flow, so
+    // reading it always returned an empty history. We read the collection that
+    // actually receives records. Ordering is done in-memory to avoid requiring a
+    // composite index (organizerId + createdAt desc).
+    const snapshot = await adminDb
+      .collection('withdrawal_requests')
+      .where('organizerId', '==', organizerId)
       .get()
 
-    const payouts = payoutsSnapshot.docs.map((doc: any) => {
-      const data = doc.data()
-      
-      const convertTimestamp = (value: any, fallback: string = new Date().toISOString()): string => {
-        if (!value) return fallback
-        if (value.toDate && typeof value.toDate === 'function') {
-          return value.toDate().toISOString()
-        }
-        if (typeof value === 'string') return value
-        if (value instanceof Date) return value.toISOString()
-        try {
-          return new Date(value).toISOString()
-        } catch {
-          return fallback
-        }
+    const convertTimestamp = (value: any, fallback: string = new Date().toISOString()): string => {
+      if (!value) return fallback
+      if (value.toDate && typeof value.toDate === 'function') {
+        return value.toDate().toISOString()
       }
+      if (typeof value === 'string') return value
+      if (value instanceof Date) return value.toISOString()
+      try {
+        return new Date(value).toISOString()
+      } catch {
+        return fallback
+      }
+    }
+
+    // withdrawal_requests store method as 'moncash' | 'bank'; map onto PayoutMethod.
+    const normalizeMethod = (m: any): PayoutMethod =>
+      String(m || '').toLowerCase() === 'bank' ? 'bank_transfer' : 'mobile_money'
+
+    const normalizeStatus = (s: any): Payout['status'] => {
+      const v = String(s || 'pending').toLowerCase()
+      if (v === 'completed' || v === 'processing' || v === 'failed' || v === 'cancelled') return v
+      return 'pending'
+    }
+
+    const payouts: Payout[] = snapshot.docs.map((doc: any) => {
+      const data = doc.data()
+      const createdAt = convertTimestamp(data.createdAt)
 
       return {
         id: doc.id,
         organizerId: data.organizerId,
-        amount: data.amount || 0,
-        status: data.status || 'pending',
-        method: data.method,
+        amount: data.amount || 0, // cents
+        currency: data.currency || 'HTG',
+        status: normalizeStatus(data.status),
+        method: normalizeMethod(data.method),
         failureReason: data.failureReason,
-        scheduledDate: convertTimestamp(data.scheduledDate),
-        processedDate: data.processedDate ? convertTimestamp(data.processedDate) : undefined,
-        createdAt: convertTimestamp(data.createdAt),
-        updatedAt: convertTimestamp(data.updatedAt)
+        scheduledDate: createdAt,
+        processedDate: data.processedAt ? convertTimestamp(data.processedAt) : undefined,
+        completedAt: data.completedAt ? convertTimestamp(data.completedAt) : undefined,
+        createdAt,
+        updatedAt: convertTimestamp(data.updatedAt, createdAt),
+        // Fields below are part of the Payout shape but not tracked on
+        // withdrawal_requests; default them so downstream consumers don't crash.
+        requestedBy: data.organizerId,
+        ticketIds: [],
+        periodStart: createdAt,
+        periodEnd: createdAt,
       }
     })
 
