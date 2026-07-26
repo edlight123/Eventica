@@ -322,6 +322,50 @@ export default function OrganizerPayoutSettingsScreenV2() {
     }
   }, [identityVerified, navigation])
 
+  // Stripe Connect onboarding for events OUTSIDE Haiti (US/Canada/France).
+  // The mobile payout screen was Haiti-only; this is the entry point that lets a
+  // diaspora organizer declare their country and start Stripe onboarding, which
+  // creates the connected account the checkout destination-charge path pays into.
+  const startStripeConnect = useCallback(
+    async (accountLocation: 'united_states' | 'canada' | 'france') => {
+      try {
+        const res = await backendJson<{ url?: string }>('/api/organizer/stripe/connect', {
+          method: 'POST',
+          body: JSON.stringify({ accountLocation }),
+        })
+        if (res?.url) {
+          navigation.navigate('StripeConnectWebView', { url: res.url })
+        } else {
+          Alert.alert('Error', 'Could not start Stripe setup. Please try again.')
+        }
+      } catch (e: any) {
+        Alert.alert('Error', e?.message || 'Could not start Stripe setup. Please try again.')
+      }
+    },
+    [navigation]
+  )
+
+  const handleAddStripe = useCallback(() => {
+    if (!identityVerified) {
+      Alert.alert(
+        'Identity Verification Required',
+        'Please complete identity verification before adding payout methods.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Verify Identity', onPress: () => navigation.navigate('OrganizerVerification') },
+        ]
+      )
+      return
+    }
+    setShowAddModal(false)
+    Alert.alert('Set up Stripe', 'Which country is your account in?', [
+      { text: 'United States', onPress: () => startStripeConnect('united_states') },
+      { text: 'Canada', onPress: () => startStripeConnect('canada') },
+      { text: 'France', onPress: () => startStripeConnect('france') },
+      { text: 'Cancel', style: 'cancel' },
+    ])
+  }, [identityVerified, navigation, startStripeConnect])
+
   const handleSaveBank = useCallback(async () => {
     if (!bankForm.accountName || !bankForm.bankName || !bankForm.accountNumber) {
       Alert.alert('Missing Information', 'Please fill in all required bank details.')
@@ -755,6 +799,19 @@ export default function OrganizerPayoutSettingsScreenV2() {
               <View style={{ flex: 1, marginLeft: 16 }}>
                 <Text style={styles.methodTitle}>MonCash / NatCash</Text>
                 <Text style={styles.methodDescription}>Receive payments to your mobile money account</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color={colors.textSecondary} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.methodOption}
+              onPress={handleAddStripe}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="globe-outline" size={32} color={colors.text} />
+              <View style={{ flex: 1, marginLeft: 16 }}>
+                <Text style={styles.methodTitle}>Stripe (US · Canada · France)</Text>
+                <Text style={styles.methodDescription}>Card payouts via Stripe Connect for events outside Haiti</Text>
               </View>
               <Ionicons name="chevron-forward" size={24} color={colors.textSecondary} />
             </TouchableOpacity>
