@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { forwardRef, useState } from 'react';
 import {
   View,
   TextInput,
@@ -23,41 +23,55 @@ interface AuthInputProps extends Omit<TextInputProps, 'style'> {
  * toggle. Depth is a brightness step — the cell lifts from surface → raised on
  * focus rather than drawing a louder border.
  */
-export function AuthInput({ icon: Icon, isPassword, ...rest }: AuthInputProps) {
-  const [focused, setFocused] = useState(false);
-  const [hidden, setHidden] = useState(true);
+export const AuthInput = forwardRef<TextInput, AuthInputProps>(
+  ({ icon: Icon, isPassword, ...rest }, ref) => {
+    const [focused, setFocused] = useState(false);
+    const [hidden, setHidden] = useState(true);
 
-  const activeColor = focused ? colors.accent : colors.textTertiary;
+    const activeColor = focused ? colors.accent : colors.textTertiary;
+    // Chain the caller's focus/blur handlers (used for return-key advancing)
+    // through our own focus-ring state.
+    const { onFocus, onBlur } = rest;
 
-  return (
-    <View style={[styles.cell, focused && styles.cellFocused]}>
-      <Icon size={20} color={activeColor} strokeWidth={2} />
-      <TextInput
-        style={styles.input}
-        placeholderTextColor={colors.textTertiary}
-        selectionColor={colors.accent}
-        secureTextEntry={isPassword ? hidden : false}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        {...rest}
-      />
-      {isPassword ? (
-        <Pressable
-          onPress={() => setHidden((h) => !h)}
-          hitSlop={10}
-          accessibilityRole="button"
-          accessibilityLabel={hidden ? 'Show password' : 'Hide password'}
-        >
-          {hidden ? (
-            <Eye size={20} color={colors.textTertiary} strokeWidth={2} />
-          ) : (
-            <EyeOff size={20} color={colors.accent} strokeWidth={2} />
-          )}
-        </Pressable>
-      ) : null}
-    </View>
-  );
-}
+    return (
+      <View style={[styles.cell, focused && styles.cellFocused]}>
+        <Icon size={20} color={activeColor} strokeWidth={2} />
+        <TextInput
+          ref={ref}
+          style={styles.input}
+          placeholderTextColor={colors.textTertiary}
+          selectionColor={colors.accent}
+          secureTextEntry={isPassword ? hidden : false}
+          {...rest}
+          onFocus={(e) => {
+            setFocused(true);
+            onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            setFocused(false);
+            onBlur?.(e);
+          }}
+        />
+        {isPassword ? (
+          <Pressable
+            onPress={() => setHidden((h) => !h)}
+            hitSlop={10}
+            accessibilityRole="button"
+            accessibilityLabel={hidden ? 'Show password' : 'Hide password'}
+          >
+            {hidden ? (
+              <Eye size={20} color={colors.textTertiary} strokeWidth={2} />
+            ) : (
+              <EyeOff size={20} color={colors.accent} strokeWidth={2} />
+            )}
+          </Pressable>
+        ) : null}
+      </View>
+    );
+  },
+);
+
+AuthInput.displayName = 'AuthInput';
 
 const styles = StyleSheet.create({
   cell: {

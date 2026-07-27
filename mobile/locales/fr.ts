@@ -95,12 +95,31 @@ export default {
   },
   auth: {
     loginRequiredTitle: 'Connexion requise',
+    apple: {
+      title: 'Se connecter avec Apple',
+      genericError: 'Impossible de se connecter avec Apple.',
+    },
+    errors: {
+      invalidCredential: 'E-mail ou mot de passe invalide.',
+      invalidEmail: 'Cette adresse e-mail n’est pas valide.',
+      emailAlreadyInUse: 'Un compte existe déjà avec cet e-mail.',
+      networkRequestFailed: 'Erreur réseau. Vérifiez votre connexion et réessayez.',
+      tooManyRequests: 'Trop de tentatives. Veuillez réessayer plus tard.',
+      weakPassword: 'Le mot de passe doit contenir au moins 6 caractères.',
+      userNotFound: 'Aucun compte trouvé avec cet e-mail.',
+      wrongPassword: 'E-mail ou mot de passe invalide.',
+      generic: 'Une erreur est survenue. Veuillez réessayer.',
+    },
     login: {
       errors: {
         fillAllFields: 'Veuillez remplir tous les champs.',
         loginFailedTitle: 'Échec de connexion',
         invalidCredentials: 'E-mail ou mot de passe invalide.',
       },
+      forgotPassword: 'Mot de passe oublié ?',
+      enterEmailFirst: 'Saisissez d’abord votre e-mail ci-dessus, puis touchez Mot de passe oublié.',
+      resetSentTitle: 'Vérifiez votre e-mail',
+      resetSentBody: 'Si un compte existe pour cet e-mail, nous avons envoyé un lien de réinitialisation.',
       google: {
         title: 'Connexion Google',
         configRequired: 'La connexion Google n’est pas configurée.',
@@ -183,6 +202,8 @@ export default {
       signUp: "S’inscrire",
       haveAccount: 'Déjà un compte ?',
       signIn: 'Se connecter',
+      or: 'OU',
+      continueWithGoogle: 'Continuer avec Google',
     },
   },
   tabs: {

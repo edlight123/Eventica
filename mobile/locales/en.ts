@@ -93,12 +93,31 @@ export default {
   },
   auth: {
     loginRequiredTitle: 'Login Required',
+    apple: {
+      title: 'Sign in with Apple',
+      genericError: 'Could not sign in with Apple.',
+    },
+    errors: {
+      invalidCredential: 'Invalid email or password.',
+      invalidEmail: 'That email address is not valid.',
+      emailAlreadyInUse: 'An account already exists with this email.',
+      networkRequestFailed: 'Network error. Check your connection and try again.',
+      tooManyRequests: 'Too many attempts. Please try again later.',
+      weakPassword: 'Password must be at least 6 characters.',
+      userNotFound: 'No account found with this email.',
+      wrongPassword: 'Invalid email or password.',
+      generic: 'Something went wrong. Please try again.',
+    },
     login: {
       errors: {
         fillAllFields: 'Please fill in all fields.',
         loginFailedTitle: 'Login failed',
         invalidCredentials: 'Invalid email or password.',
       },
+      forgotPassword: 'Forgot password?',
+      enterEmailFirst: 'Enter your email above first, then tap Forgot password.',
+      resetSentTitle: 'Check your email',
+      resetSentBody: 'If an account exists for that email, we sent a password reset link.',
       google: {
         title: 'Google Sign-In',
         configRequired: 'Google sign-in is not configured.',
@@ -139,6 +158,8 @@ export default {
       signUp: 'Sign Up',
       haveAccount: 'Already have an account?',
       signIn: 'Sign In',
+      or: 'OR',
+      continueWithGoogle: 'Continue with Google',
     },
   },
   tabs: {
