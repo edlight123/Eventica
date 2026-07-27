@@ -213,7 +213,14 @@ export default function OrganizerDashboardScreen() {
             <Ionicons name="refresh-outline" size={24} color={colors.text} />
             <Text style={styles.quickActionText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{t('organizerDashboard.refunds') || 'Refunds'}</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
+            style={styles.quickActionButton}
+            onPress={() => navigation.navigate('OrganizerAnalytics')}
+          >
+            <Ionicons name="cash-outline" size={24} color={colors.text} />
+            <Text style={styles.quickActionText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{t('organizerDashboard.earnings') || 'Earnings'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('OrganizerPayoutSettings')}
           >

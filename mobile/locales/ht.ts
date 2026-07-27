@@ -318,6 +318,14 @@ export default {
       discoverableHint: 'Nou itilize l sèlman pou matche kontak ou ki deja sou Tikèm.',
     },
     createEvent: 'Kreye evènman',
+    notificationsA11y: 'Notifikasyon',
+    uploads: {
+      avatarDemoDisabled: 'Telechajman foto pwofil dezaktive nan mòd demo.',
+      logoDemoDisabled: 'Telechajman logo dezaktive nan mòd demo.',
+      photoPermissionRequired: 'Otorizasyon foto obligatwa.',
+      photoUploadFailed: 'Telechajman foto a echwe.',
+      logoUploadFailed: 'Telechajman logo a echwe.',
+    },
     help: 'Èd',
     helpCenter: 'Sant èd',
     legal: 'Legal',
@@ -460,6 +468,7 @@ export default {
         approved: 'Apwouve',
       },
       stepsTitle: 'Etap verifikasyon',
+      startMeta: '3 etap · ~5 min · kat idantite obligatwa',
       steps: {
         organizerInfo: {
           title: 'Enfòmasyon òganizatè',
@@ -487,6 +496,7 @@ export default {
         successBody: 'Demann ou soumèt pou revizyon. N ap avèti ou lè yo trete li.',
         failed: 'Pa t kapab soumèt demann lan',
         button: 'Soumèt pou revizyon',
+        reviewTimeNote: 'Verifikasyon an revize anjeneral nan 48 èdtan. N ap avèti ou lè li fini.',
       },
       pendingNotice: 'Demann ou sou revizyon. N ap avèti ou lè yo trete li.',
       comingSoon: 'Byento',
@@ -626,6 +636,7 @@ export default {
   },
   notifications: {
     clearAllButton: 'Efase tout',
+    markAllRead: 'Make tout kòm li',
     clearAllTitle: 'Efase tout notifikasyon',
     clearAllBody: 'Ou vle efase tout notifikasyon yo? Sa pa ka retounen.',
     clearAllConfirm: 'Efase tout',
@@ -1240,6 +1251,13 @@ export default {
     headerTitle: 'Revni evènman',
     availableToWithdraw: 'Disponib pou w retire',
     settlement: 'Règleman',
+    availableOn: 'Disponib',
+    availableOnUnknown: 'Lè li regle',
+    settlementLabels: {
+      ready: 'Pare',
+      pending: 'An atant',
+      locked: 'Bloke',
+    },
     stripeNotice: 'Peman US/Canada pase atravè Stripe Connect. Jere detay peman yo sou web la.',
     openPayoutSettings: 'Louvri paramèt peman',
     withdrawViaMoncash: 'Retire via MonCash',
@@ -1261,6 +1279,7 @@ export default {
     notices: {
       noEarnings: 'Pa gen dosye revni pou evènman sa a ankò.',
       notReady: 'Revni yo poko pare pou w retire.',
+      notReadyWithDate: 'Revni yo ap disponib pou retrè {date}.',
     },
     modal: {
       titleMoncash: 'Mande retrè MonCash',
@@ -1397,6 +1416,7 @@ export default {
     quickActions: 'Aksyon rapid',
     analytics: 'Estatistik',
     refunds: 'Ranbousman',
+    earnings: 'Revni',
     payouts: 'Peman',
     team: 'Ekip',
     createEvent: 'Kreye',
@@ -1562,6 +1582,7 @@ export default {
       tierPrice: 'Antre yon pri valab',
       tierQuantity: 'Antre yon kantite',
       capacity: 'Antre yon limit envite',
+      fixErrors: 'Tanpri korije {n} chan pou w kontinye.',
     },
     canvas: {
       flyerTitle: 'Konsevwa paj evènman ou',
@@ -1623,6 +1644,8 @@ export default {
       accessCodeRequired: 'Mete yon kòd aksè (oswa dezaktive pwoteksyon an).',
       accessCodeTooShort: 'Sèvi ak omwen 6 karaktè.',
       paidComingSoon: 'Evènman peyan yo ap vini talè nan {country}. Pou kounye a ou ka kreye yon evènman RSVP gratis.',
+      stripePayoutNotice: 'Evènman peyan nan Etazini ak Kanada bezwen peman Stripe Connect konfigire anvan ou ka pibliye.',
+      stripePayoutCta: 'Konfigire peman',
     },
   },
   eventAccess: {

@@ -274,6 +274,14 @@ export default {
       discoverableHint: 'Used only to match your contacts who are already on Tikèm.',
     },
     createEvent: 'Create event',
+    notificationsA11y: 'Notifications',
+    uploads: {
+      avatarDemoDisabled: 'Avatar upload is disabled in demo mode.',
+      logoDemoDisabled: 'Logo upload is disabled in demo mode.',
+      photoPermissionRequired: 'Photo permission is required.',
+      photoUploadFailed: 'Failed to upload photo.',
+      logoUploadFailed: 'Failed to upload logo.',
+    },
     help: 'Help',
     helpCenter: 'Help Center',
     legal: 'Legal',
@@ -416,6 +424,7 @@ export default {
         approved: 'Approved',
       },
       stepsTitle: 'Verification Steps',
+      startMeta: '3 steps · ~5 min · government ID required',
       steps: {
         organizerInfo: {
           title: 'Organizer Information',
@@ -444,6 +453,7 @@ export default {
           'Your application has been submitted for review. We will notify you once it is processed.',
         failed: 'Failed to submit application',
         button: 'Submit for Review',
+        reviewTimeNote: "Verification is typically reviewed within 48 hours. We'll notify you once it's done.",
       },
       pendingNotice: "Your application is under review. We'll notify you once it's processed.",
       comingSoon: 'Coming soon',
@@ -505,6 +515,7 @@ export default {
       tierPrice: 'Enter a valid price',
       tierQuantity: 'Enter a quantity',
       capacity: 'Enter a guest cap',
+      fixErrors: 'Please fix {n} field(s) to continue.',
     },
     canvas: {
       flyerTitle: 'Design your event page',
@@ -567,6 +578,9 @@ export default {
       accessCodeTooShort: 'Use at least 6 characters.',
       // Coming-soon markets (e.g. Dominican Republic): paid tickets disabled, free/RSVP only.
       paidComingSoon: 'Paid events are coming soon in {country}. For now you can create a free RSVP event.',
+      // US/Canada paid events require Stripe Connect payouts before publishing.
+      stripePayoutNotice: 'Paid events in the US and Canada need Stripe Connect payouts set up before you can publish.',
+      stripePayoutCta: 'Set up payouts',
     },
   },
   eventAccess: {
@@ -851,6 +865,7 @@ export default {
   },
   notifications: {
     clearAllButton: 'Clear all',
+    markAllRead: 'Mark all read',
     clearAllTitle: 'Clear All Notifications',
     clearAllBody: 'Are you sure you want to delete all notifications? This action cannot be undone.',
     clearAllConfirm: 'Clear All',
@@ -1493,6 +1508,13 @@ export default {
     headerTitle: 'Event Earnings',
     availableToWithdraw: 'Available to withdraw',
     settlement: 'Settlement',
+    availableOn: 'Available',
+    availableOnUnknown: 'Once settled',
+    settlementLabels: {
+      ready: 'Ready',
+      pending: 'Pending',
+      locked: 'Locked',
+    },
     stripeNotice: 'US/Canada payouts are handled via Stripe Connect. Manage payout details on the web.',
     openPayoutSettings: 'Open payout settings',
     withdrawViaMoncash: 'Withdraw via MonCash',
@@ -1514,6 +1536,7 @@ export default {
     notices: {
       noEarnings: 'No earnings record found for this event yet.',
       notReady: 'Earnings are not ready for withdrawal.',
+      notReadyWithDate: 'Earnings will be available for withdrawal on {date}.',
     },
     modal: {
       titleMoncash: 'Request MonCash Withdrawal',
@@ -1650,6 +1673,7 @@ export default {
     quickActions: 'Quick Actions',
     analytics: 'Analytics',
     refunds: 'Refunds',
+    earnings: 'Earnings',
     payouts: 'Payouts',
     team: 'Team',
     createEvent: 'Create',

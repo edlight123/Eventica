@@ -276,7 +276,7 @@ export default function ProfileScreen() {
     if (!user?.uid) return;
 
     if (isDemoMode) {
-      Alert.alert(t('common.error'), 'Avatar upload is disabled in demo mode.');
+      Alert.alert(t('common.error'), t('profile.uploads.avatarDemoDisabled'));
       return;
     }
 
@@ -285,7 +285,7 @@ export default function ProfileScreen() {
 
       const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!perm.granted) {
-        Alert.alert(t('common.error'), 'Photo permission is required.');
+        Alert.alert(t('common.error'), t('profile.uploads.photoPermissionRequired'));
         return;
       }
 
@@ -311,7 +311,7 @@ export default function ProfileScreen() {
 
       await loadAccountStats();
     } catch (e: any) {
-      Alert.alert(t('common.error'), e?.message || 'Failed to upload photo.');
+      Alert.alert(t('common.error'), e?.message || t('profile.uploads.photoUploadFailed'));
     } finally {
       setUploadingPhoto(false);
     }
@@ -321,7 +321,7 @@ export default function ProfileScreen() {
     if (!user?.uid) return;
 
     if (isDemoMode) {
-      Alert.alert(t('common.error'), 'Logo upload is disabled in demo mode.');
+      Alert.alert(t('common.error'), t('profile.uploads.logoDemoDisabled'));
       return;
     }
 
@@ -330,7 +330,7 @@ export default function ProfileScreen() {
 
       const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!perm.granted) {
-        Alert.alert(t('common.error'), 'Photo permission is required.');
+        Alert.alert(t('common.error'), t('profile.uploads.photoPermissionRequired'));
         return;
       }
 
@@ -355,7 +355,7 @@ export default function ProfileScreen() {
       // Held in local state; persisted (with the name) when the form is saved.
       setOrgLogoUrl(url);
     } catch (e: any) {
-      Alert.alert(t('common.error'), e?.message || 'Failed to upload logo.');
+      Alert.alert(t('common.error'), e?.message || t('profile.uploads.logoUploadFailed'));
     } finally {
       setUploadingLogo(false);
     }
@@ -471,7 +471,7 @@ export default function ProfileScreen() {
           <TouchableOpacity
             style={styles.headerIconButton}
             onPress={() => navigation.navigate('Notifications', { userId: user?.uid || '' })}
-            accessibilityLabel="Notifications"
+            accessibilityLabel={t('profile.notificationsA11y')}
             hitSlop={8}
           >
             <Bell size={22} color={colors.text} />
@@ -901,23 +901,17 @@ export default function ProfileScreen() {
             <ChevronRight size={18} color={colors.textTertiary} />
           </TouchableOpacity>
 
-          {canUseOrganizerMode ? (
-            <TouchableOpacity style={styles.rowButton} onPress={() => navigation.navigate('CreateEvent')}>
-              <View style={styles.rowLeft}>
-                <Briefcase size={18} color={colors.primary} />
-                <Text style={styles.rowText}>{t('profile.createEvent')}</Text>
-              </View>
-              <ChevronRight size={18} color={colors.textTertiary} />
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity style={styles.rowButton} onPress={() => navigation.navigate('OrganizerVerification')}>
-              <View style={styles.rowLeft}>
-                <Briefcase size={18} color={colors.primary} />
-                <Text style={styles.rowText}>{t('profile.becomeOrganizer')}</Text>
-              </View>
-              <ChevronRight size={18} color={colors.textTertiary} />
-            </TouchableOpacity>
-          )}
+          {/* Publish-first: anyone can create an event (the center Create FAB
+              already lets unverified users through). KYC is deferred to payout,
+              so this row always routes to CreateEvent instead of gating
+              unverified users into verification here. */}
+          <TouchableOpacity style={styles.rowButton} onPress={() => navigation.navigate('CreateEvent')}>
+            <View style={styles.rowLeft}>
+              <Briefcase size={18} color={colors.primary} />
+              <Text style={styles.rowText}>{t('profile.createEvent')}</Text>
+            </View>
+            <ChevronRight size={18} color={colors.textTertiary} />
+          </TouchableOpacity>
 
         </View>
 

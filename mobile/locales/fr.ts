@@ -318,6 +318,14 @@ export default {
       discoverableHint: 'Utilisé uniquement pour retrouver vos contacts déjà sur Tikèm.',
     },
     createEvent: 'Créer un événement',
+    notificationsA11y: 'Notifications',
+    uploads: {
+      avatarDemoDisabled: 'Le téléversement de photo de profil est désactivé en mode démo.',
+      logoDemoDisabled: 'Le téléversement de logo est désactivé en mode démo.',
+      photoPermissionRequired: 'L’autorisation d’accès aux photos est requise.',
+      photoUploadFailed: 'Échec du téléversement de la photo.',
+      logoUploadFailed: 'Échec du téléversement du logo.',
+    },
     help: 'Aide',
     helpCenter: 'Centre d’aide',
     legal: 'Mentions légales',
@@ -460,6 +468,7 @@ export default {
         approved: 'Approuvé',
       },
       stepsTitle: 'Étapes de vérification',
+      startMeta: '3 étapes · ~5 min · pièce d’identité requise',
       steps: {
         organizerInfo: {
           title: 'Informations organisateur',
@@ -488,6 +497,7 @@ export default {
           'Votre demande a été soumise pour examen. Nous vous notifierons une fois traitée.',
         failed: 'Impossible de soumettre la demande',
         button: 'Soumettre pour examen',
+        reviewTimeNote: 'La vérification est généralement examinée sous 48 heures. Nous vous notifierons une fois terminée.',
       },
       pendingNotice:
         'Votre demande est en cours d’examen. Nous vous notifierons une fois traitée.',
@@ -628,6 +638,7 @@ export default {
   },
   notifications: {
     clearAllButton: 'Tout effacer',
+    markAllRead: 'Tout marquer comme lu',
     clearAllTitle: 'Tout effacer',
     clearAllBody: 'Supprimer toutes les notifications ? Cette action est irréversible.',
     clearAllConfirm: 'Tout effacer',
@@ -1242,6 +1253,13 @@ export default {
     headerTitle: 'Revenus de l’événement',
     availableToWithdraw: 'Disponible à retirer',
     settlement: 'Règlement',
+    availableOn: 'Disponible',
+    availableOnUnknown: 'Une fois réglé',
+    settlementLabels: {
+      ready: 'Prêt',
+      pending: 'En attente',
+      locked: 'Bloqué',
+    },
     stripeNotice: 'Les paiements US/Canada passent par Stripe Connect. Gérez vos informations de paiement sur le web.',
     openPayoutSettings: 'Ouvrir les paramètres de paiement',
     withdrawViaMoncash: 'Retirer via MonCash',
@@ -1263,6 +1281,7 @@ export default {
     notices: {
       noEarnings: 'Aucun revenu enregistré pour cet événement pour le moment.',
       notReady: 'Les revenus ne sont pas encore disponibles pour retrait.',
+      notReadyWithDate: 'Les revenus seront disponibles pour retrait le {date}.',
     },
     modal: {
       titleMoncash: 'Demander un retrait MonCash',
@@ -1399,6 +1418,7 @@ export default {
     quickActions: 'Actions rapides',
     analytics: 'Statistiques',
     refunds: 'Remboursements',
+    earnings: 'Revenus',
     payouts: 'Paiements',
     team: 'Équipe',
     createEvent: 'Créer',
@@ -1564,6 +1584,7 @@ export default {
       tierPrice: 'Saisissez un prix valide',
       tierQuantity: 'Saisissez une quantité',
       capacity: 'Saisissez une limite',
+      fixErrors: 'Veuillez corriger {n} champ(s) pour continuer.',
     },
     canvas: {
       flyerTitle: 'Concevez votre page d’événement',
@@ -1625,6 +1646,8 @@ export default {
       accessCodeRequired: 'Définissez un code d’accès (ou désactivez la protection).',
       accessCodeTooShort: 'Utilisez au moins 6 caractères.',
       paidComingSoon: 'Les événements payants arrivent bientôt en {country}. Pour l’instant, vous pouvez créer un événement RSVP gratuit.',
+      stripePayoutNotice: 'Les événements payants aux États-Unis et au Canada nécessitent la configuration des paiements Stripe Connect avant publication.',
+      stripePayoutCta: 'Configurer les paiements',
     },
   },
   eventAccess: {

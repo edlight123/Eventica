@@ -379,9 +379,24 @@ export default function NotificationsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Clear All button (top right) - no duplicate title */}
+      {/* Header actions: Mark all read (left) + Clear all (right) */}
       {notifications.length > 0 && (
         <View style={styles.header}>
+          {unreadCount > 0 ? (
+            <TouchableOpacity
+              onPress={handleMarkAllAsRead}
+              style={styles.markAllButton}
+              activeOpacity={0.7}
+              hitSlop={8}
+            >
+              <CheckCheck size={16} color={colors.primary} />
+              <Text style={styles.markAllText}>
+                {t('notifications.markAllRead')} ({unreadCount})
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <View />
+          )}
           <TouchableOpacity
             onPress={handleClearAll}
             disabled={isClearing}
@@ -552,13 +567,27 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'flex-end', // Clear all button aligned right
+    justifyContent: 'space-between', // Mark all read (left) + Clear all (right)
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12, // Reduced from 16 for minimal spacing
     backgroundColor: colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+  },
+  markAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    backgroundColor: 'transparent',
+  },
+  markAllText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
   },
   clearAllButton: {
     paddingHorizontal: 12,
