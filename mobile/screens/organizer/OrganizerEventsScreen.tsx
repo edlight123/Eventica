@@ -223,7 +223,7 @@ export default function OrganizerEventsScreen() {
               <TouchableOpacity
                 key={event.id}
                 style={styles.eventCard}
-                onPress={() => navigation.navigate('OrganizerEventManagement', { eventId: event.id })}
+                onPress={() => navigation.navigate('OrganizerEventManagement', { eventId: event.id, event })}
               >
                 {/* Vertical poster thumbnail on the left. Real image when we have
                     one; otherwise the poster gradient with a small centered

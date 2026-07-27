@@ -38,6 +38,33 @@ export interface OrganizerEvent {
   currency?: string;
 }
 
+export interface EventTicketBreakdown {
+  ticketsSold: number;
+  ticketsCheckedIn: number;
+  capacity: number;
+  ticketTypes: Array<{
+    name: string;
+    sold: number;
+    capacity: number;
+  }>;
+}
+
+// Light in-memory cache so re-opening the Manage Event screen (or any subpage
+// that needs the event) paints instantly instead of flashing a skeleton while a
+// Firestore round-trip completes. Populated on every successful fetch; the
+// screen still refreshes in the background so numbers stay live. Session-scoped
+// (cleared on app restart) — no persistence needed for the instant-reopen win.
+const eventCache = new Map<string, OrganizerEvent>();
+const breakdownCache = new Map<string, EventTicketBreakdown>();
+
+export function getCachedEvent(eventId: string): OrganizerEvent | undefined {
+  return eventCache.get(eventId);
+}
+
+export function getCachedBreakdown(eventId: string): EventTicketBreakdown | undefined {
+  return breakdownCache.get(eventId);
+}
+
 export interface OrganizerStats {
   totalEvents: number;
   upcomingEvents: number;
@@ -317,7 +344,7 @@ export async function getEventById(eventId: string): Promise<OrganizerEvent | nu
     }
 
     const data = eventDoc.data();
-    return {
+    const event = {
       id: eventDoc.id,
       ...data,
       start_datetime:
@@ -337,6 +364,9 @@ export async function getEventById(eventId: string): Promise<OrganizerEvent | nu
           ? data.updated_at.toDate().toISOString()
           : data.updated_at,
     } as OrganizerEvent;
+
+    eventCache.set(eventId, event);
+    return event;
   } catch (error) {
     console.error('Error fetching event:', error);
     return null;
@@ -346,16 +376,7 @@ export async function getEventById(eventId: string): Promise<OrganizerEvent | nu
 /**
  * Get ticket breakdown for an event
  */
-export async function getEventTicketBreakdown(eventId: string): Promise<{
-  ticketsSold: number;
-  ticketsCheckedIn: number;
-  capacity: number;
-  ticketTypes: Array<{
-    name: string;
-    sold: number;
-    capacity: number;
-  }>;
-}> {
+export async function getEventTicketBreakdown(eventId: string): Promise<EventTicketBreakdown> {
   try {
     const [event, ticketsSnapshot, tiersSnapshot] = await Promise.all([
       getEventById(eventId),
@@ -411,12 +432,14 @@ export async function getEventTicketBreakdown(eventId: string): Promise<{
       capacity: data.capacity,
     }));
 
-    return {
+    const breakdown: EventTicketBreakdown = {
       ticketsSold,
       ticketsCheckedIn,
       capacity: event.total_tickets || 0,
       ticketTypes,
     };
+    breakdownCache.set(eventId, breakdown);
+    return breakdown;
   } catch (error) {
     console.error('Error fetching event ticket breakdown:', error);
     return {

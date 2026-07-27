@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useLayoutEffect } from 'react';
+import React, { useState, useCallback, useLayoutEffect } from 'react';
 import {
   View,
   Text,
@@ -17,7 +17,10 @@ import { useTheme } from '../../contexts/ThemeContext';
 import {
   getEventById,
   getEventTicketBreakdown,
+  getCachedEvent,
+  getCachedBreakdown,
   OrganizerEvent,
+  EventTicketBreakdown,
 } from '../../lib/api/organizer';
 import {
   toggleEventPublication,
@@ -34,8 +37,18 @@ import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHea
 type RouteParams = {
   OrganizerEventManagement: {
     eventId: string;
+    event?: OrganizerEvent;
   };
 };
+
+// Derive a first-paint ticket breakdown from the fields the list already carries
+// (sold + capacity). Ticket-type rows fill in once the background refresh lands.
+const seedBreakdownFromEvent = (e: OrganizerEvent): EventTicketBreakdown => ({
+  ticketsSold: e.tickets_sold ?? 0,
+  ticketsCheckedIn: 0,
+  capacity: e.total_tickets ?? 0,
+  ticketTypes: [],
+});
 
 export default function OrganizerEventManagementScreen() {
   const { colors } = useTheme();
@@ -54,15 +67,18 @@ export default function OrganizerEventManagementScreen() {
   const { t } = useI18n();
   const { formatDate, formatTime } = useLocaleFormat();
 
-  const [event, setEvent] = useState<OrganizerEvent | null>(null);
-  const [isPaused, setIsPaused] = useState(false);
-  const [ticketData, setTicketData] = useState<{
-    ticketsSold: number;
-    ticketsCheckedIn: number;
-    capacity: number;
-    ticketTypes: Array<{ name: string; sold: number; capacity: number }>;
-  } | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Seed from the nav param (the list already holds the event) or the in-memory
+  // cache from a previous open, so the header + known fields paint on mount with
+  // no Firestore round-trip. Falls back to a skeleton only on a true cold open.
+  const seedEvent = route.params.event ?? getCachedEvent(eventId) ?? null;
+  const seedBreakdown =
+    getCachedBreakdown(eventId) ?? (seedEvent ? seedBreakdownFromEvent(seedEvent) : null);
+
+  const [event, setEvent] = useState<OrganizerEvent | null>(seedEvent);
+  const [isPaused, setIsPaused] = useState(seedEvent ? !seedEvent.is_published : false);
+  const [ticketData, setTicketData] = useState<EventTicketBreakdown | null>(seedBreakdown);
+  // Only block on a full-screen skeleton when we have nothing to show yet.
+  const [loading, setLoading] = useState(!seedEvent);
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
@@ -71,11 +87,9 @@ export default function OrganizerEventManagementScreen() {
     setRefreshing(false);
   };
 
-  useEffect(() => {
-    loadEventData();
-  }, [eventId]);
-
-  // Reload event data when screen comes into focus (e.g., after editing)
+  // Refresh on focus (covers initial mount + returning after an edit). The
+  // background fetch reconciles the seeded values with live numbers; it never
+  // flips `loading` back on, so a seeded screen never regresses to a skeleton.
   useFocusEffect(
     useCallback(() => {
       loadEventData();
