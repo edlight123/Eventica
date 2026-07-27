@@ -847,43 +847,49 @@ export default function OrganizerPayoutSettingsScreenV2() {
             <TouchableOpacity
               style={styles.methodOption}
               onPress={() => handleAddMethodSelect('bank')}
-              activeOpacity={0.7}
+              activeOpacity={0.75}
             >
-              <Ionicons name="card-outline" size={32} color={colors.text} />
-              <View style={{ flex: 1, marginLeft: 16 }}>
-                <Text style={styles.methodTitle}>{t('organizerPayoutSettings.methodOptions.bankTitle')}</Text>
-                <Text style={styles.methodDescription}>{t('organizerPayoutSettings.methodOptions.bankDescription')}</Text>
+              <View style={styles.methodIcon}>
+                <Ionicons name="card-outline" size={22} color={colors.text} />
               </View>
-              <Ionicons name="chevron-forward" size={24} color={colors.textSecondary} />
+              <View style={styles.methodText}>
+                <Text style={styles.methodTitle}>{t('organizerPayoutSettings.methodOptions.bankTitle')}</Text>
+                <Text style={styles.methodDescription} numberOfLines={2}>{t('organizerPayoutSettings.methodOptions.bankDescription')}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.methodOption}
               onPress={() => handleAddMethodSelect('moncash')}
-              activeOpacity={0.7}
+              activeOpacity={0.75}
             >
-              <Ionicons name="phone-portrait-outline" size={32} color={colors.text} />
-              <View style={{ flex: 1, marginLeft: 16 }}>
-                <Text style={styles.methodTitle}>{t('organizerPayoutSettings.methodOptions.moncashTitle')}</Text>
-                <Text style={styles.methodDescription}>{t('organizerPayoutSettings.methodOptions.moncashDescription')}</Text>
+              <View style={styles.methodIcon}>
+                <Ionicons name="phone-portrait-outline" size={22} color={colors.text} />
               </View>
-              <Ionicons name="chevron-forward" size={24} color={colors.textSecondary} />
+              <View style={styles.methodText}>
+                <Text style={styles.methodTitle}>{t('organizerPayoutSettings.methodOptions.moncashTitle')}</Text>
+                <Text style={styles.methodDescription} numberOfLines={2}>{t('organizerPayoutSettings.methodOptions.moncashDescription')}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.methodOption}
               onPress={handleAddStripe}
-              activeOpacity={0.7}
+              activeOpacity={0.75}
             >
-              <Ionicons name="globe-outline" size={32} color={colors.text} />
-              <View style={{ flex: 1, marginLeft: 16 }}>
-                <Text style={styles.methodTitle}>{t('organizerPayoutSettings.methodOptions.stripeTitle')}</Text>
-                <Text style={styles.methodDescription}>{t('organizerPayoutSettings.methodOptions.stripeDescription')}</Text>
+              <View style={styles.methodIcon}>
+                <Ionicons name="globe-outline" size={22} color={colors.text} />
               </View>
-              <Ionicons name="chevron-forward" size={24} color={colors.textSecondary} />
+              <View style={styles.methodText}>
+                <Text style={styles.methodTitle}>{t('organizerPayoutSettings.methodOptions.stripeTitle')}</Text>
+                <Text style={styles.methodDescription} numberOfLines={2}>{t('organizerPayoutSettings.methodOptions.stripeDescription')}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.secondaryButton, { marginTop: 16 }]} onPress={() => setShowAddModal(false)}>
+            <TouchableOpacity style={[styles.secondaryButton, { marginTop: 8 }]} onPress={() => setShowAddModal(false)}>
               <Text style={styles.secondaryButtonText}>{t('common.cancel')}</Text>
             </TouchableOpacity>
           </View>
@@ -1294,44 +1300,60 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   modalContent: {
     backgroundColor: colors.surface,
     borderRadius: RADIUS['2xl'],
-    padding: 24,
+    padding: 20,
     width: '100%',
     maxWidth: 400,
     borderWidth: 1,
     borderColor: colors.border,
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontSize: 22,
+    fontWeight: '800',
+    letterSpacing: -0.3,
     color: colors.text,
-    textAlign: 'center',
   },
   modalSubtitle: {
     fontSize: 14,
+    lineHeight: 20,
     color: colors.textSecondary,
-    textAlign: 'center',
-    marginTop: 8,
-    marginBottom: 24,
+    marginTop: 6,
+    marginBottom: 22,
   },
   methodOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    borderRadius: RADIUS.md,
+    gap: 14,
+    padding: 14,
+    borderRadius: RADIUS.lg,
     backgroundColor: colors.surfaceRaised,
-    marginBottom: 12,
+    marginBottom: 10,
     borderWidth: 1,
     borderColor: colors.border,
+  },
+  methodIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  methodText: {
+    flex: 1,
   },
   methodTitle: {
     fontSize: 16,
     fontWeight: '700',
+    letterSpacing: -0.2,
     color: colors.text,
   },
   methodDescription: {
     fontSize: 13,
+    lineHeight: 18,
     color: colors.textSecondary,
-    marginTop: 4,
+    marginTop: 3,
   },
   label: {
     marginTop: 16,

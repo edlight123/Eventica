@@ -396,10 +396,66 @@ export function ReviewSkeleton() {
   );
 }
 
+/**
+ * PaymentWebViewScreen loading state: mirrors a checkout/payment form instead
+ * of a bare centered spinner — a merchant/total summary card, two labelled
+ * input-field placeholders, and a full-width pay-button pill.
+ */
+export function PaymentSkeleton() {
+  const { colors } = useTheme();
+  return (
+    <View style={styles.payment}>
+      <View style={[styles.paymentSummary, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <View style={styles.paymentRow}>
+          <Skeleton width={'46%'} height={14} radius={6} />
+          <Skeleton width={72} height={22} radius={7} />
+        </View>
+        <View style={[styles.paymentDivider, { backgroundColor: colors.border }]} />
+        <View style={styles.paymentRow}>
+          <Skeleton width={'34%'} height={12} radius={5} />
+          <Skeleton width={90} height={12} radius={5} />
+        </View>
+      </View>
+
+      {Array.from({ length: 2 }).map((_, i) => (
+        <View key={i} style={styles.paymentField}>
+          <Skeleton width={i === 0 ? '40%' : '52%'} height={12} radius={5} />
+          <Skeleton height={52} radius={12} style={{ marginTop: 10 } as ViewStyle} />
+        </View>
+      ))}
+
+      <Skeleton height={54} radius={27} style={{ marginTop: 28 } as ViewStyle} />
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   // PosterEventCard content block (paddingTop 8, title then meta row).
   posterMeta: {
     paddingTop: 8,
+  },
+
+  // PaymentWebViewScreen checkout-form skeleton.
+  payment: {
+    paddingHorizontal: 20,
+    paddingTop: 8,
+  },
+  paymentSummary: {
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 18,
+  },
+  paymentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  paymentDivider: {
+    height: StyleSheet.hairlineWidth,
+    marginVertical: 16,
+  },
+  paymentField: {
+    marginTop: 22,
   },
   posterMetaRow: {
     flexDirection: 'row',
