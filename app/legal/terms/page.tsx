@@ -1,11 +1,17 @@
 import { getCurrentUser } from '@/lib/auth'
-import { getContentPage } from '@/lib/content-pages'
+import { getContentPage, resolveLocale } from '@/lib/content-pages'
 import ContentPageView from '@/components/ContentPageView'
 
 export const dynamic = 'force-dynamic'
 
 export default async function TermsOfServicePage() {
-  const [user, page] = await Promise.all([getCurrentUser(), getContentPage('terms')])
+  // Locale comes from the signed-in user's saved language (server-readable);
+  // anonymous visitors fall back to English.
+  const user = await getCurrentUser()
+  const locale = resolveLocale((user as { language?: string } | null)?.language)
+  const page = await getContentPage('terms', locale)
 
-  return <ContentPageView page={page} user={user} fallbackTitle="Terms of Service" />
+  return (
+    <ContentPageView page={page} user={user} fallbackTitle="Terms of Service" locale={locale} />
+  )
 }

@@ -1,7 +1,7 @@
 import Navbar from '@/components/Navbar'
 import MobileNavWrapper from '@/components/MobileNavWrapper'
 import type { getCurrentUser } from '@/lib/auth'
-import type { ContentPage, ContentBlock } from '@/lib/content-pages'
+import type { ContentPage, ContentBlock, Locale } from '@/lib/content-pages'
 
 type CurrentUser = Awaited<ReturnType<typeof getCurrentUser>>
 
@@ -11,6 +11,19 @@ interface ContentPageViewProps {
   user: CurrentUser
   /** Title to show in the shell when `page` is null. */
   fallbackTitle?: string
+  /** Locale the content was resolved for; used to localize the draft note. */
+  locale?: Locale
+}
+
+/**
+ * Localized "this translation is a draft" note. The app's runtime i18n is
+ * client-only (react-i18next via localStorage), so a server component can't use
+ * it here — we localize this single line inline from the resolved locale.
+ */
+const DRAFT_NOTE: Record<Locale, string> = {
+  en: 'Draft translation — being reviewed. The English version is the reference.',
+  fr: 'Traduction provisoire — en cours de révision. La version anglaise fait référence.',
+  ht: 'Tradiksyon pwovizwa — n ap revize l. Vèsyon anglè a se referans lan.',
 }
 
 /** Render a single content block using the same markup the pages used inline. */
@@ -61,7 +74,12 @@ function Block({ block }: { block: ContentBlock }) {
  * pages used inline: dark canvas, navbars, max-width container, an <h1> title
  * with a "Last updated" line, and the bordered `prose prose-teal` content box.
  */
-export default function ContentPageView({ page, user, fallbackTitle }: ContentPageViewProps) {
+export default function ContentPageView({
+  page,
+  user,
+  fallbackTitle,
+  locale = 'en',
+}: ContentPageViewProps) {
   const title = page?.title || fallbackTitle || 'Content'
 
   return (
@@ -75,6 +93,12 @@ export default function ContentPageView({ page, user, fallbackTitle }: ContentPa
         {page?.updated ? (
           <p className="text-[11px] sm:text-[13px] md:text-base text-white/65 mb-4 sm:mb-6 md:mb-8">
             Last updated: {page.updated}
+          </p>
+        ) : null}
+
+        {page?.draft ? (
+          <p className="text-[11px] sm:text-[13px] md:text-sm text-amber-300/90 mb-4 sm:mb-6">
+            {DRAFT_NOTE[locale] ?? DRAFT_NOTE.en}
           </p>
         ) : null}
 

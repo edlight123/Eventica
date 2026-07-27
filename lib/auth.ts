@@ -120,6 +120,9 @@ export async function getCurrentUser() {
     phone_number: userData?.phone_number || null,
     is_verified: userData?.is_verified || false,
     verification_status: userData?.verification_status || 'none',
+    // The user's saved UI language ('en' | 'fr' | 'ht'). Client i18n persists it
+    // here (see PreferencesCard), making it the one server-readable locale source.
+    language: userData?.language || 'en',
     created_at,
     updated_at
   } as any
