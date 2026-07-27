@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Modal,
   View,
@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { X } from 'lucide-react-native';
 import QRCode from 'react-native-qrcode-svg';
+import * as Brightness from 'expo-brightness';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 
@@ -30,6 +31,29 @@ interface QRCodeModalProps {
 
 export default function QRCodeModal({ visible, onClose, qrValue, ticketNumber }: QRCodeModalProps) {
   const { t } = useI18n();
+
+  // Boost brightness to max while the enlarged QR is up (dim-door scanning),
+  // restore the prior brightness when it closes or unmounts.
+  useEffect(() => {
+    if (!visible) return;
+    let previous: number | null = null;
+    let active = true;
+    (async () => {
+      try {
+        previous = await Brightness.getBrightnessAsync();
+        if (active) await Brightness.setBrightnessAsync(1);
+      } catch {}
+    })();
+    return () => {
+      active = false;
+      (async () => {
+        try {
+          if (previous != null) await Brightness.setBrightnessAsync(previous);
+        } catch {}
+      })();
+    };
+  }, [visible]);
+
   return (
     <Modal
       visible={visible}

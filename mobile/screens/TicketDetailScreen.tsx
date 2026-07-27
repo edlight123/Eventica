@@ -17,6 +17,7 @@ import { formatCurrency } from '../lib/currency';
 import { ticketOrderRef, ticketTierLabel, ticketQrValue, ticketStatusKey } from '../lib/ticket';
 import { addToCalendar, openDirections } from '../lib/postPurchaseActions';
 import { TicketDetailSkeleton } from '../components/Skeleton';
+import { useMaxBrightnessWhileFocused } from '../lib/useMaxBrightness';
 
 export default function TicketDetailScreen({ route }: any) {
   const { colors } = useTheme();
@@ -24,6 +25,8 @@ export default function TicketDetailScreen({ route }: any) {
   const { ticketId } = route.params;
   const { t, language } = useI18n();
   const navigation = useNavigation<any>();
+  // Max out brightness so the QR scans at a dim venue door; restore on leave.
+  useMaxBrightnessWhileFocused();
   const [ticket, setTicket] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showTransferModal, setShowTransferModal] = useState(false);

@@ -26,6 +26,7 @@ import QRCodeModal from '../components/QRCodeModal';
 import TransferTicketModal from '../components/TransferTicketModal';
 import { TicketPassSkeleton } from '../components/Skeleton';
 import { ticketQrValue } from '../lib/ticket';
+import { useMaxBrightnessWhileFocused } from '../lib/useMaxBrightness';
 import { font } from '../theme/tokens';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -35,6 +36,8 @@ export default function EventTicketsScreen({ route, navigation }: any) {
   const { eventId } = route.params;
   const { user } = useAuth();
   const { t } = useI18n();
+  // Max out brightness on the pass so the QR scans at a dim door; restore on leave.
+  useMaxBrightnessWhileFocused();
   const [event, setEvent] = useState<any>(null);
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
