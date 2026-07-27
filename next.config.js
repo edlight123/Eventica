@@ -1,3 +1,35 @@
+// Honeypot: well-known scanner/attacker probe paths that this app never serves.
+// Requests to any of these are rewritten to the decoy responder
+// (app/api/honeypot/[[...slug]]/route.ts), which logs the hit and returns
+// believable fake content. These are deliberately chosen to NOT overlap with
+// any real route (no /admin, no /api/*, no /.well-known, no /manifest).
+const HONEYPOT_DECOY_PATHS = [
+  '/.env',
+  '/.env.local',
+  '/.env.production',
+  '/.env.backup',
+  '/.git/config',
+  '/.git/HEAD',
+  '/wp-admin',
+  '/wp-login.php',
+  '/wp-config.php',
+  '/wp-config.php.bak',
+  '/xmlrpc.php',
+  '/phpmyadmin',
+  '/phpmyadmin/index.php',
+  '/pma',
+  '/adminer.php',
+  '/.aws/credentials',
+  '/server-status',
+  '/.svn/entries',
+  '/backup.sql',
+  '/backup.zip',
+  '/database.sql',
+  '/dump.sql',
+  '/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php',
+  '/cgi-bin/luci',
+]
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Force new build ID to invalidate Vercel cache
@@ -94,6 +126,13 @@ const nextConfig = {
         source: '/.well-known/assetlinks.json',
         destination: '/api/well-known/assetlinks',
       },
+      // Honeypot: route scanner probe paths to the decoy responder. The
+      // original probed path is preserved as the destination slug so the
+      // handler can pick an appropriate fake response.
+      ...HONEYPOT_DECOY_PATHS.map((source) => ({
+        source,
+        destination: `/api/honeypot${source}`,
+      })),
     ]
   },
   
