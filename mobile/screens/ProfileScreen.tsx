@@ -907,25 +907,6 @@ export default function ProfileScreen() {
         ) : null}
 
         <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>{t('profile.preferences')}</Text>
-
-          <View style={styles.languageRow}>
-            {(['en', 'fr', 'ht'] as const).map((lang) => {
-              const active = language === lang;
-              return (
-                <TouchableOpacity
-                  key={lang}
-                  style={[styles.pill, active && styles.pillActive]}
-                  onPress={() => setLanguage(lang)}
-                >
-                  <Text style={[styles.pillText, active && styles.pillTextActive]}>{lang.toUpperCase()}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
-
-        <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>{t('profile.actions')}</Text>
 
           <TouchableOpacity style={styles.rowButton} onPress={() => navigation.navigate('Favorites')}>
@@ -962,6 +943,25 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           )}
 
+        </View>
+
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>{t('profile.preferences')}</Text>
+
+          <View style={styles.languageRow}>
+            {(['en', 'fr', 'ht'] as const).map((lang) => {
+              const active = language === lang;
+              return (
+                <TouchableOpacity
+                  key={lang}
+                  style={[styles.pill, active && styles.pillActive]}
+                  onPress={() => setLanguage(lang)}
+                >
+                  <Text style={[styles.pillText, active && styles.pillTextActive]}>{lang.toUpperCase()}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
 
         {/* Role switching lives in its own segmented section (mirrors the

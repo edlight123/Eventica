@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,10 +8,11 @@ import {
   ScrollView,
   SafeAreaView,
   Platform,
-  TextInput
+  TextInput,
+  PanResponder,
+  LayoutChangeEvent
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import Slider from '@react-native-community/slider';
 import { X } from 'lucide-react-native';
 import { useFilters } from '../contexts/FiltersContext';
 import { useI18n } from '../contexts/I18nContext';
@@ -28,6 +29,106 @@ import {
   EventTypeFilter
 } from '../types/filters';
 import { useTheme } from '../contexts/ThemeContext';
+
+type RangeSliderProps = {
+  min: number;
+  max: number;
+  step: number;
+  low: number;
+  high: number;
+  onChange: (low: number, high: number) => void;
+  colors: ReturnType<typeof useTheme>['colors'];
+};
+
+/**
+ * A pure-JS dual-thumb range slider — min + max on ONE track. Built with
+ * PanResponder so it needs no native module (the installed
+ * @react-native-community/slider is single-thumb only, which is why the price
+ * range used to be two stacked sliders). OTA-safe.
+ */
+function RangeSlider({ min, max, step, low, high, onChange, colors }: RangeSliderProps) {
+  const THUMB = 26;
+  const [trackW, setTrackW] = useState(0);
+  const usable = Math.max(1, trackW - THUMB);
+
+  const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+  const valueToX = (v: number, u: number) => ((clamp(v, min, max) - min) / (max - min || 1)) * u;
+  const xToValue = (x: number, u: number) => {
+    const raw = min + (clamp(x, 0, u) / u) * (max - min);
+    return clamp(Math.round(raw / step) * step, min, max);
+  };
+
+  // The PanResponders are created once; refs feed them the latest values so
+  // their closures never go stale.
+  const refs = useRef({ low, high, usable, onChange }).current;
+  refs.low = low;
+  refs.high = high;
+  refs.usable = usable;
+  refs.onChange = onChange;
+  const startVal = useRef(0);
+
+  const lowPan = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        startVal.current = refs.low;
+      },
+      onPanResponderMove: (_e, g) => {
+        const u = refs.usable;
+        const v = Math.min(xToValue(valueToX(startVal.current, u) + g.dx, u), refs.high);
+        refs.onChange(v, refs.high);
+      },
+    }),
+  ).current;
+
+  const highPan = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        startVal.current = refs.high;
+      },
+      onPanResponderMove: (_e, g) => {
+        const u = refs.usable;
+        const v = Math.max(xToValue(valueToX(startVal.current, u) + g.dx, u), refs.low);
+        refs.onChange(refs.low, v);
+      },
+    }),
+  ).current;
+
+  const lowX = valueToX(low, usable);
+  const highX = valueToX(high, usable);
+
+  return (
+    <View style={rangeStyles.wrap} onLayout={(e: LayoutChangeEvent) => setTrackW(e.nativeEvent.layout.width)}>
+      <View style={[rangeStyles.track, { backgroundColor: colors.border }]} />
+      <View
+        style={[
+          rangeStyles.fill,
+          { backgroundColor: colors.primary, left: lowX + THUMB / 2, width: Math.max(0, highX - lowX) },
+        ]}
+      />
+      <View
+        {...lowPan.panHandlers}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        style={[rangeStyles.thumb, { left: lowX, backgroundColor: colors.primary, borderColor: colors.background }]}
+      />
+      <View
+        {...highPan.panHandlers}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        style={[rangeStyles.thumb, { left: highX, backgroundColor: colors.primary, borderColor: colors.background }]}
+      />
+    </View>
+  );
+}
+
+const rangeStyles = StyleSheet.create({
+  wrap: { height: 44, justifyContent: 'center', marginTop: 6, marginBottom: 2 },
+  track: { height: 4, borderRadius: 2, marginHorizontal: 13 },
+  fill: { position: 'absolute', top: 20, height: 4, borderRadius: 2 },
+  thumb: { position: 'absolute', top: 9, width: 26, height: 26, borderRadius: 13, borderWidth: 2 },
+});
 
 export default function EventFiltersSheet() {
   const { colors } = useTheme();
@@ -136,26 +237,15 @@ export default function EventFiltersSheet() {
     });
   };
 
-  const handleMinPrice = (value: number) => {
-    // Dragging the range switches the price filter to the custom standard.
-    const currentMax = priceIsCustom
-      ? draftFilters.customPriceRange?.max ?? Number.POSITIVE_INFINITY
-      : Number.POSITIVE_INFINITY;
+  // Single dual-thumb range handler. Dragging either thumb switches the price
+  // filter to the custom standard. At the ceiling the max is open-ended
+  // (Infinity) so pricey tickets aren't excluded ("min+" readout).
+  const handleRange = (lo: number, hi: number) => {
+    const nextMax = hi >= priceCeiling ? Number.POSITIVE_INFINITY : hi;
     setDraftFilters({
       ...draftFilters,
       price: 'custom',
-      customPriceRange: { min: value, max: Math.max(value, currentMax) },
-    });
-  };
-
-  const handleMaxPrice = (value: number) => {
-    const currentMin = priceIsCustom ? draftFilters.customPriceRange?.min ?? 0 : 0;
-    // At the ceiling the max is open-ended (Infinity) so pricey tickets show too.
-    const nextMax = value >= priceCeiling ? Number.POSITIVE_INFINITY : value;
-    setDraftFilters({
-      ...draftFilters,
-      price: 'custom',
-      customPriceRange: { min: Math.min(currentMin, value), max: nextMax },
+      customPriceRange: { min: lo, max: nextMax },
     });
   };
 
@@ -305,30 +395,14 @@ export default function EventFiltersSheet() {
                 <Text style={styles.priceRangeCurrency}>{priceCurrencyCode}</Text>
               </View>
 
-              <Text style={styles.sliderLabel}>{t('filters.minimumPrice')}</Text>
-              <Slider
-                style={styles.slider}
-                minimumValue={0}
-                maximumValue={priceCeiling}
+              <RangeSlider
+                min={0}
+                max={priceCeiling}
                 step={priceStep}
-                value={rangeMin}
-                onValueChange={handleMinPrice}
-                minimumTrackTintColor={colors.primary}
-                maximumTrackTintColor={colors.border}
-                thumbTintColor={colors.primary}
-              />
-
-              <Text style={styles.sliderLabel}>{t('filters.maximumPrice')}</Text>
-              <Slider
-                style={styles.slider}
-                minimumValue={0}
-                maximumValue={priceCeiling}
-                step={priceStep}
-                value={sliderMax}
-                onValueChange={handleMaxPrice}
-                minimumTrackTintColor={colors.primary}
-                maximumTrackTintColor={colors.border}
-                thumbTintColor={colors.primary}
+                low={rangeMin}
+                high={sliderMax}
+                onChange={handleRange}
+                colors={colors}
               />
 
               <Text style={styles.priceRangeHint}>{t('filters.priceRangeHint')}</Text>
