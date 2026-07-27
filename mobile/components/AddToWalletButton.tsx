@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Wallet, Download } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
+import { useI18n } from '../contexts/I18nContext';
 import { backendFetch } from '../lib/api/backend';
 
 interface AddToWalletButtonProps {
@@ -33,6 +34,7 @@ export default function AddToWalletButton({
   totalTickets,
 }: AddToWalletButtonProps) {
   const { colors } = useTheme();
+  const { t } = useI18n();
   const styles = getStyles(colors);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -89,16 +91,16 @@ export default function AddToWalletButton({
       }
 
       Alert.alert(
-        'Success',
-        'Your ticket has been added to your wallet!',
-        [{ text: 'OK' }]
+        t('common.success'),
+        t('addToWallet.successBody'),
+        [{ text: t('common.ok') }]
       );
     } catch (error) {
       console.error('Error adding to wallet:', error);
       Alert.alert(
-        'Error',
-        'Failed to add ticket to wallet. Please try again.',
-        [{ text: 'OK' }]
+        t('common.error'),
+        t('addToWallet.errorBody'),
+        [{ text: t('common.ok') }]
       );
     } finally {
       setIsGenerating(false);
@@ -107,9 +109,9 @@ export default function AddToWalletButton({
 
   const handleDownloadQR = () => {
     Alert.alert(
-      'Download QR Code',
-      'Take a screenshot of this ticket to save the QR code, or use the "Add to Wallet" feature for easy access.',
-      [{ text: 'OK' }]
+      t('addToWallet.downloadTitle'),
+      t('addToWallet.downloadBody'),
+      [{ text: t('common.ok') }]
     );
   };
 
@@ -125,13 +127,13 @@ export default function AddToWalletButton({
         {isGenerating ? (
           <View style={styles.buttonContent}>
             <ActivityIndicator size="small" color={colors.background} />
-            <Text style={styles.walletButtonText}>Generating...</Text>
+            <Text style={styles.walletButtonText}>{t('addToWallet.generating')}</Text>
           </View>
         ) : (
           <View style={styles.buttonContent}>
             <Wallet size={20} color={colors.background} />
             <Text style={styles.walletButtonText}>
-              Add to {Platform.OS === 'ios' ? 'Apple' : 'Google'} Wallet
+              {Platform.OS === 'ios' ? t('addToWallet.appleWallet') : t('addToWallet.googleWallet')}
             </Text>
           </View>
         )}
@@ -145,7 +147,7 @@ export default function AddToWalletButton({
       >
         <View style={styles.buttonContent}>
           <Download size={18} color={colors.text} />
-          <Text style={styles.downloadButtonText}>Save Image</Text>
+          <Text style={styles.downloadButtonText}>{t('addToWallet.saveImage')}</Text>
         </View>
       </TouchableOpacity>
     </View>

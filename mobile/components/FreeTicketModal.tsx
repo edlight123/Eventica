@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ticket, X, Plus, Minus } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
+import { useI18n } from '../contexts/I18nContext';
 import { collection, addDoc, doc, getDoc, updateDoc, Timestamp, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
@@ -40,9 +41,15 @@ export default function FreeTicketModal({
   tierId,
 }: FreeTicketModalProps) {
   const { colors } = useTheme();
+  const { t } = useI18n();
   const styles = getStyles(colors);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
+
+  // t() has no interpolation: substitute {count} manually. `rc` replaces the
+  // placeholder; `pc` also picks the singular/plural variant by count.
+  const rc = (key: string, n: number) => t(key).replace('{count}', String(n));
+  const pc = (base: string, n: number) => rc(`${base}.${n === 1 ? 'one' : 'other'}`, n);
 
   const remainingTickets = (event.total_tickets || 0) - (event.tickets_sold || 0);
   const maxQuantity = Math.min(10, remainingTickets);
@@ -61,12 +68,12 @@ export default function FreeTicketModal({
 
   const handleClaimTickets = async () => {
     if (remainingTickets <= 0) {
-      Alert.alert('Sold Out', 'No tickets available');
+      Alert.alert(t('freeTicket.soldOutTitle'), t('freeTicket.soldOutBody'));
       return;
     }
 
     if (quantity > remainingTickets) {
-      Alert.alert('Limited Availability', `Only ${remainingTickets} ticket${remainingTickets !== 1 ? 's' : ''} remaining`);
+      Alert.alert(t('freeTicket.limitedTitle'), pc('freeTicket.limitedBody', remainingTickets));
       return;
     }
 
@@ -170,15 +177,15 @@ export default function FreeTicketModal({
       // Call onSuccess after a short delay to ensure modal is closed
       setTimeout(() => {
         Alert.alert(
-          'Success!',
-          `${quantity} free ticket${quantity !== 1 ? 's' : ''} claimed successfully!`,
+          t('freeTicket.successTitle'),
+          pc('freeTicket.successBody', quantity),
           [
-            { 
-              text: 'View Tickets', 
-              onPress: onSuccess 
+            {
+              text: t('freeTicket.viewTickets'),
+              onPress: onSuccess
             },
             {
-              text: 'OK',
+              text: t('common.ok'),
               style: 'cancel'
             }
           ]
@@ -187,7 +194,7 @@ export default function FreeTicketModal({
     } catch (error) {
       console.error('=== ERROR CLAIMING TICKETS ===');
       console.error('Error details:', error);
-      Alert.alert('Error', 'Failed to claim tickets. Please try again.');
+      Alert.alert(t('common.error'), t('freeTicket.errorBody'));
     } finally {
       setLoading(false);
     }
@@ -209,7 +216,7 @@ export default function FreeTicketModal({
               <View style={styles.iconCircle}>
                 <Ticket size={24} color={colors.primary} />
               </View>
-              <Text style={styles.headerTitle}>Claim Free Ticket</Text>
+              <Text style={styles.headerTitle}>{t('freeTicket.title')}</Text>
             </View>
             <TouchableOpacity onPress={onClose} style={styles.closeButton} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
               <X size={24} color={colors.text} />
@@ -221,15 +228,15 @@ export default function FreeTicketModal({
             <Text style={styles.eventTitle} numberOfLines={2}>
               {eventTitle}
             </Text>
-            <Text style={styles.freeLabel}>FREE EVENT</Text>
+            <Text style={styles.freeLabel}>{t('freeTicket.freeEvent')}</Text>
           </View>
 
           {/* Quantity Selector */}
           <View style={styles.quantitySection}>
             <View style={styles.quantityHeader}>
-              <Text style={styles.sectionLabel}>Ticket Quantity</Text>
+              <Text style={styles.sectionLabel}>{t('freeTicket.quantityLabel')}</Text>
               <Text style={styles.availabilityText}>
-                {remainingTickets} available
+                {rc('freeTicket.availableCount', remainingTickets)}
               </Text>
             </View>
             
@@ -245,7 +252,7 @@ export default function FreeTicketModal({
               <View style={styles.quantityDisplay}>
                 <Text style={styles.quantityNumber}>{quantity}</Text>
                 <Text style={styles.quantityLabel}>
-                  {quantity === 1 ? 'Ticket' : 'Tickets'}
+                  {quantity === 1 ? t('freeTicket.ticketWord.one') : t('freeTicket.ticketWord.other')}
                 </Text>
               </View>
               
@@ -260,7 +267,7 @@ export default function FreeTicketModal({
 
             {quantity >= maxQuantity && maxQuantity < 10 && (
               <Text style={styles.limitText}>
-                Maximum {maxQuantity} ticket{maxQuantity !== 1 ? 's' : ''} available
+                {pc('freeTicket.maxNote', maxQuantity)}
               </Text>
             )}
           </View>
@@ -268,8 +275,8 @@ export default function FreeTicketModal({
           {/* Summary */}
           <View style={styles.summary}>
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Total</Text>
-              <Text style={styles.summaryValue}>FREE</Text>
+              <Text style={styles.summaryLabel}>{t('freeTicket.total')}</Text>
+              <Text style={styles.summaryValue}>{t('freeTicket.free')}</Text>
             </View>
           </View>
 
@@ -280,7 +287,7 @@ export default function FreeTicketModal({
               style={styles.cancelButton}
               disabled={loading}
             >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
+              <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
             </TouchableOpacity>
             
             <TouchableOpacity
@@ -292,7 +299,7 @@ export default function FreeTicketModal({
                 <ActivityIndicator color="#FFF" />
               ) : (
                 <Text style={styles.claimButtonText}>
-                  Claim {quantity} Ticket{quantity !== 1 ? 's' : ''}
+                  {pc('freeTicket.claimButton', quantity)}
                 </Text>
               )}
             </TouchableOpacity>

@@ -1838,6 +1838,7 @@ export default {
   ticketDetail: {
     loadError: 'Failed to load ticket details',
     notFound: 'Ticket not found',
+    admit: 'Admit:',
     status: {
       expired: 'EXPIRED',
       confirmed: 'CONFIRMED',
@@ -1872,12 +1873,77 @@ export default {
       quantity: 'Quantity',
       price: 'Price',
       ticketId: 'Ticket ID',
+      orderRef: 'Order',
       purchaseDate: 'Purchase Date',
+    },
+    actions: {
+      addToCalendar: 'Add to calendar',
+      getDirections: 'Get directions',
+      requestRefund: 'Request Refund',
+      refundSubtitle: 'Get your money back',
+      leaveReview: 'Leave a Review',
+      reviewSubtitle: 'Share your experience',
+    },
+    refund: {
+      pending: 'Refund Pending',
+      approved: 'Refund Approved',
+      denied: 'Refund Denied',
     },
     footer: {
       keepSafe: 'Keep this ticket safe',
       qrEntryPass: 'This QR code is your entry pass to the event',
     },
+  },
+
+  freeTicket: {
+    title: 'Claim Free Ticket',
+    freeEvent: 'FREE EVENT',
+    quantityLabel: 'Ticket Quantity',
+    availableCount: '{count} available',
+    ticketWord: { one: 'Ticket', other: 'Tickets' },
+    maxNote: {
+      one: 'Maximum {count} ticket available',
+      other: 'Maximum {count} tickets available',
+    },
+    total: 'Total',
+    free: 'FREE',
+    claimButton: { one: 'Claim {count} Ticket', other: 'Claim {count} Tickets' },
+    soldOutTitle: 'Sold Out',
+    soldOutBody: 'No tickets available',
+    limitedTitle: 'Limited Availability',
+    limitedBody: {
+      one: 'Only {count} ticket remaining',
+      other: 'Only {count} tickets remaining',
+    },
+    successTitle: 'Success!',
+    successBody: {
+      one: '{count} free ticket claimed successfully!',
+      other: '{count} free tickets claimed successfully!',
+    },
+    viewTickets: 'View Tickets',
+    errorBody: 'Failed to claim tickets. Please try again.',
+  },
+
+  ticketPass: {
+    ticketNumber: 'Ticket {count}',
+    admit: 'Admit:',
+    tapHint: 'Tap ticket to enlarge · show at entry',
+    checkedIn: 'Checked in',
+    addToCalendar: 'Add to calendar',
+    getDirections: 'Get directions',
+    transfer: 'Transfer',
+    viewEvent: 'View event',
+  },
+
+  addToWallet: {
+    appleWallet: 'Add to Apple Wallet',
+    googleWallet: 'Add to Google Wallet',
+    generating: 'Generating…',
+    saveImage: 'Save Image',
+    successBody: 'Your ticket has been added to your wallet!',
+    errorBody: 'Failed to add ticket to wallet. Please try again.',
+    downloadTitle: 'Download QR Code',
+    downloadBody: 'Take a screenshot of this ticket to save the QR code, or use the "Add to Wallet" feature for easy access.',
   },
 
   analytics: {

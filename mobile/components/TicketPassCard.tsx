@@ -48,7 +48,7 @@ export default function TicketPassCard({
   onTransferPress,
 }: TicketPassCardProps) {
   const { colors } = useTheme();
-  const { language } = useI18n();
+  const { language, t } = useI18n();
   const styles = getStyles(colors);
 
   const start = toDate(event?.start_datetime) || toDate(ticket?.event_date);
@@ -56,7 +56,7 @@ export default function TicketPassCard({
   const isExpired = end ? new Date() > end : false;
   const isUsed = !!ticket?.checked_in_at || String(ticket?.status || '').toLowerCase() === 'used';
 
-  const eventTitle = event?.title || ticket?.event_title || 'Event';
+  const eventTitle = event?.title || ticket?.event_title || t('common.event');
   const dateLabel = safeDate(start, 'EEE, MMM d · h:mm a', language);
   const tier = ticketTierLabel(ticket);
   const holder = user?.displayName || user?.email || undefined;
@@ -88,7 +88,7 @@ export default function TicketPassCard({
   return (
     <View style={styles.wrapper}>
       <View style={styles.chipRow}>
-        <StatusChip status={statusKey} label={isUsed ? undefined : `Ticket ${ticketNumber}`} />
+        <StatusChip status={statusKey} label={isUsed ? undefined : t('ticketPass.ticketNumber').replace('{count}', String(ticketNumber))} />
       </View>
 
       {/* The one shared ticket identity — white inverted stub. Tap to enlarge. */}
@@ -98,16 +98,16 @@ export default function TicketPassCard({
           eventTitle={eventTitle}
           dateLabel={dateLabel}
           tierName={tier}
-          holderName={holder ? `Admit: ${holder}` : undefined}
+          holderName={holder ? `${t('ticketPass.admit')} ${holder}` : undefined}
           orderRef={orderRef.replace(/^TKM-/, '')}
         />
       </TouchableOpacity>
-      <Text style={styles.tapHint}>Tap ticket to enlarge · show at entry</Text>
+      <Text style={styles.tapHint}>{t('ticketPass.tapHint')}</Text>
 
       {isUsed && ticket?.checked_in_at && (
         <View style={styles.usedBanner}>
           <Text style={styles.usedBannerText}>
-            ✓ Checked in {safeDate(ticket.checked_in_at, 'MMM d, yyyy · h:mm a', language) || ''}
+            ✓ {t('ticketPass.checkedIn')} {safeDate(ticket.checked_in_at, 'MMM d, yyyy · h:mm a', language) || ''}
           </Text>
         </View>
       )}
@@ -127,11 +127,11 @@ export default function TicketPassCard({
         <View style={styles.secondaryRow}>
           <TouchableOpacity style={styles.secondaryButton} onPress={handleCalendar} activeOpacity={0.8}>
             <CalendarPlus size={18} color={colors.text} />
-            <Text style={styles.secondaryButtonText}>Add to calendar</Text>
+            <Text style={styles.secondaryButtonText}>{t('ticketPass.addToCalendar')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.secondaryButton} onPress={handleDirections} activeOpacity={0.8}>
             <MapPin size={18} color={colors.text} />
-            <Text style={styles.secondaryButtonText}>Get directions</Text>
+            <Text style={styles.secondaryButtonText}>{t('ticketPass.getDirections')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -139,12 +139,12 @@ export default function TicketPassCard({
           {onTransferPress && !isUsed && (
             <TouchableOpacity style={styles.secondaryButton} onPress={onTransferPress} activeOpacity={0.8}>
               <Send size={18} color={colors.text} />
-              <Text style={styles.secondaryButtonText}>Transfer</Text>
+              <Text style={styles.secondaryButtonText}>{t('ticketPass.transfer')}</Text>
             </TouchableOpacity>
           )}
           <TouchableOpacity style={styles.secondaryButton} onPress={onViewEvent} activeOpacity={0.8}>
             <ExternalLink size={18} color={colors.text} />
-            <Text style={styles.secondaryButtonText}>View event</Text>
+            <Text style={styles.secondaryButtonText}>{t('ticketPass.viewEvent')}</Text>
           </TouchableOpacity>
         </View>
       </View>
