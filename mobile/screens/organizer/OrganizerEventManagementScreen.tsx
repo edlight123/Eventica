@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useLayoutEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator,
   Alert,
-  Image,
   RefreshControl,
   StatusBar,
   Share,
@@ -28,10 +26,10 @@ import {
 import { useI18n } from '../../contexts/I18nContext';
 import { useLocaleFormat } from '../../lib/format';
 import { RADIUS } from '../../config/brand';
+import { font } from '../../theme/tokens';
 import { Skeleton } from '../../components/Skeleton';
 import ActionTileGrid from '../../components/organizer/ActionTileGrid';
-import { LinearGradient } from 'expo-linear-gradient';
-import { resolvePosterTheme } from '../../lib/posterGradient';
+import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
 
 type RouteParams = {
   OrganizerEventManagement: {
@@ -46,6 +44,12 @@ export default function OrganizerEventManagementScreen() {
   const navigation = useNavigation<any>();
   const { eventId } = route.params;
   const insets = useSafeAreaInsets();
+
+  // The stack registers this route with a generic "Manage Event" nav bar. Hide it
+  // so the in-screen POSH header (serif event title + back arrow) is the only one.
+  useLayoutEffect(() => {
+    navigation.setOptions({ headerShown: false });
+  }, [navigation]);
 
   const { t } = useI18n();
   const { formatDate, formatTime } = useLocaleFormat();
@@ -220,16 +224,22 @@ export default function OrganizerEventManagementScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <StatusBar barStyle="light-content" />
-        <Skeleton width="100%" height={260} radius={0} />
-        <View style={{ padding: 20, gap: 16 }}>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 12 }}>
+        <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+        <OrganizerScreenHeader
+          title={t('organizerEventManagement.headerTitle')}
+          onBack={() => navigation.goBack()}
+        />
+        <View style={styles.skeletonBody}>
+          <Skeleton width={120} height={12} radius={6} style={{ marginBottom: 16 }} />
+          <View style={styles.skeletonGrid}>
             {[0, 1, 2, 3].map((i) => (
               <Skeleton key={i} width="48%" height={96} radius={RADIUS.lg} />
             ))}
           </View>
+          <Skeleton width={120} height={12} radius={6} style={{ marginTop: 28, marginBottom: 16 }} />
           <Skeleton width="100%" height={120} radius={RADIUS.lg} />
-          <Skeleton width="100%" height={160} radius={RADIUS.lg} />
+          <Skeleton width={120} height={12} radius={6} style={{ marginTop: 28, marginBottom: 16 }} />
+          <Skeleton width="100%" height={168} radius={RADIUS.lg} />
         </View>
       </View>
     );
@@ -237,9 +247,16 @@ export default function OrganizerEventManagementScreen() {
 
   if (!event || !ticketData) {
     return (
-      <View style={styles.loadingContainer}>
-        <Ionicons name="alert-circle-outline" size={64} color={colors.error} />
-        <Text style={styles.errorText}>{t('organizerEventManagement.notFound')}</Text>
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+        <OrganizerScreenHeader
+          title={t('organizerEventManagement.headerTitle')}
+          onBack={() => navigation.goBack()}
+        />
+        <View style={styles.errorWrap}>
+          <Ionicons name="alert-circle-outline" size={56} color={colors.error} />
+          <Text style={styles.errorText}>{t('organizerEventManagement.notFound')}</Text>
+        </View>
       </View>
     );
   }
@@ -248,53 +265,31 @@ export default function OrganizerEventManagementScreen() {
   const formattedTime = formatTime(event.start_datetime);
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          tintColor={colors.primary}
-        />
-      }
-    >
-      <StatusBar barStyle="light-content" />
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
 
-      {/* Header with background image */}
-      <View style={styles.header}>
-        <LinearGradient
-          colors={resolvePosterTheme(event, event.id || event.title, (event as any).category).colors}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.backgroundImage}
-        />
-        {event.cover_image_url && (
-          <Image 
-            source={{ uri: event.cover_image_url }} 
-            style={styles.backgroundImage}
-            resizeMode="cover"
+      {/* POSH header: serif event title + back arrow, matching the rest of the app. */}
+      <OrganizerScreenHeader
+        title={event.title}
+        subtitle={`${formattedDate} • ${formattedTime}`}
+        onBack={() => navigation.goBack()}
+      />
+
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
           />
-        )}
-        <View style={styles.overlay} />
-        <View style={[styles.headerContent, { paddingTop: insets.top + 16 }]}>
-          <Text style={styles.headerTitle} numberOfLines={2}>{event.title}</Text>
-          <View style={styles.headerInfo}>
-            <Ionicons name="calendar-outline" size={16} color={colors.white} />
-            <Text style={styles.headerInfoText}>
-              {formattedDate} • {formattedTime}
-            </Text>
-          </View>
-          <View style={styles.headerInfo}>
-            <Ionicons name="location-outline" size={16} color={colors.white} />
-            <Text style={styles.headerInfoText} numberOfLines={1}>{event.location}</Text>
-          </View>
-        </View>
-      </View>
-
+        }
+      >
       {/* Quick Actions */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>{t('organizerEventManagement.sections.quickActions')}</Text>
+        <Text style={styles.sectionLabel}>{t('organizerEventManagement.sections.quickActions')}</Text>
         <ActionTileGrid
           tiles={[
             { key: 'scan', icon: 'qr-code-outline', label: t('organizerEventManagement.actions.scanTickets'), onPress: handleScanTickets },
@@ -312,7 +307,7 @@ export default function OrganizerEventManagementScreen() {
 
       {/* Performance */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>{t('organizerEventManagement.sections.performance')}</Text>
+        <Text style={styles.sectionLabel}>{t('organizerEventManagement.sections.performance')}</Text>
         <View style={styles.performanceCard}>
           <View style={styles.performanceHeader}>
             <Text style={styles.performanceTitle}>{t('organizerEventManagement.performance.ticketSales')}</Text>
@@ -376,7 +371,7 @@ export default function OrganizerEventManagementScreen() {
 
       {/* Event Controls */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>{t('organizerEventManagement.sections.eventControls')}</Text>
+        <Text style={styles.sectionLabel}>{t('organizerEventManagement.sections.eventControls')}</Text>
         <TouchableOpacity style={styles.controlButton} onPress={handleToggleSales}>
           <Ionicons 
             name={isPaused ? "play-circle-outline" : "pause-circle-outline"} 
@@ -396,14 +391,15 @@ export default function OrganizerEventManagementScreen() {
           <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
         </TouchableOpacity>
         {event?.status !== 'cancelled' && (
-          <TouchableOpacity style={[styles.controlButton, styles.dangerButton]} onPress={handleCancelEvent}>
+          <TouchableOpacity style={styles.controlButton} onPress={handleCancelEvent}>
             <Ionicons name="close-circle-outline" size={24} color={colors.error} />
             <Text style={[styles.controlButtonText, styles.dangerText]}>{t('organizerEventManagement.controls.cancelEvent')}</Text>
             <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
           </TouchableOpacity>
         )}
       </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -412,87 +408,49 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     backgroundColor: colors.background,
   },
-  loadingContainer: {
+  scroll: {
+    flex: 1,
+  },
+  skeletonBody: {
+    padding: 20,
+  },
+  skeletonGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  errorWrap: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.background,
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: colors.textSecondary,
+    padding: 20,
   },
   errorText: {
     marginTop: 12,
-    fontSize: 18,
+    fontSize: 16,
     color: colors.error,
     fontWeight: '600',
-  },
-  header: {
-    height: 224,
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  backgroundImage: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: '100%',
-    height: '100%',
-  },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  headerContent: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    padding: 20,
-    paddingTop: 16,
-    position: 'relative',
-    zIndex: 1,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontFamily: 'InstrumentSerif_400Regular',
-    letterSpacing: 0,
-    fontWeight: 'bold',
-    color: colors.white,
-    marginBottom: 8,
-  },
-  headerInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  headerInfoText: {
-    flex: 1,
-    fontSize: 14,
-    color: colors.white,
-    marginLeft: 6,
-    opacity: 0.9,
+    textAlign: 'center',
   },
   section: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 24,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 16,
+  // Mono, uppercase eyebrow — the app's `sectionHeader` treatment (POSH §2.7).
+  sectionLabel: {
+    fontFamily: font.mono,
+    fontSize: 12,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+    color: colors.textSecondary,
+    marginBottom: 14,
   },
+  // Cards separate from the canvas by a brightness step, not a border (POSH §1).
   performanceCard: {
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: colors.surface,
     borderRadius: RADIUS.lg,
     padding: 16,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   performanceHeader: {
     flexDirection: 'row',
@@ -501,18 +459,18 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 12,
   },
   performanceTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
     color: colors.text,
   },
   performanceValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontFamily: font.mono,
+    fontSize: 18,
     color: colors.text,
   },
   progressBar: {
     height: 8,
-    backgroundColor: colors.border,
+    backgroundColor: colors.surfaceRaised,
     borderRadius: 4,
     overflow: 'hidden',
     marginBottom: 8,
@@ -523,24 +481,27 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: 4,
   },
   progressText: {
-    fontSize: 12,
+    fontFamily: font.monoRegular,
+    fontSize: 11.5,
+    letterSpacing: 0.3,
     color: colors.textSecondary,
     textAlign: 'right',
   },
   ticketBreakdown: {
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: colors.surface,
     borderRadius: RADIUS.lg,
     padding: 16,
   },
   breakdownTitle: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: font.mono,
+    fontSize: 11,
+    letterSpacing: 0.8,
     color: colors.textSecondary,
-    marginBottom: 12,
+    marginBottom: 14,
     textTransform: 'uppercase',
   },
   ticketTypeRow: {
-    marginBottom: 12,
+    marginBottom: 14,
   },
   ticketTypeInfo: {
     flexDirection: 'row',
@@ -554,13 +515,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginRight: 12,
   },
   ticketTypeStats: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: font.mono,
+    fontSize: 13,
     color: colors.textSecondary,
   },
   miniProgressBar: {
     height: 4,
-    backgroundColor: colors.border,
+    backgroundColor: colors.surfaceRaised,
     borderRadius: 2,
     overflow: 'hidden',
   },
@@ -572,20 +533,17 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   controlButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surfaceRaised,
+    gap: 12,
+    backgroundColor: colors.surface,
     padding: 16,
     borderRadius: RADIUS.lg,
     marginBottom: 12,
   },
   controlButtonText: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 15,
+    fontWeight: '500',
     color: colors.text,
-    marginLeft: 12,
-  },
-  dangerButton: {
-    borderWidth: 1,
-    borderColor: colors.error,
   },
   dangerText: {
     color: colors.error,
