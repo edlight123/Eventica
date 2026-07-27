@@ -260,6 +260,7 @@ export default {
 
   contentPage: {
     updatedPrefix: 'Updated',
+    draftNote: 'Draft translation — being reviewed. The English version is the reference.',
     unavailableTitle: 'Content unavailable',
     unavailableBody: 'We couldn’t load this content. Please check your connection and try again.',
   },

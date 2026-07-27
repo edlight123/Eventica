@@ -304,6 +304,7 @@ export default {
 
   contentPage: {
     updatedPrefix: 'Mis à jour le',
+    draftNote: 'Traduction provisoire — en cours de révision. La version anglaise fait référence.',
     unavailableTitle: 'Contenu indisponible',
     unavailableBody: 'Impossible de charger ce contenu. Vérifiez votre connexion et réessayez.',
   },

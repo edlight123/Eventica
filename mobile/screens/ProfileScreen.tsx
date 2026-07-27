@@ -465,7 +465,8 @@ export default function ProfileScreen() {
           if (h && h !== headerHeight) setHeaderHeight(h);
         }}
       >
-        <Text style={styles.headerTitle}>{t('profile.account')}</Text>
+        {/* No "Compte" masthead — the avatar + name below is the identity. The
+            top bar is just the notification + settings actions. */}
         <View style={styles.headerActions}>
           <TouchableOpacity
             style={styles.headerIconButton}
@@ -1044,7 +1045,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderBottomColor: colors.borderLight,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
   },
   headerTitle: {
     fontFamily: 'InstrumentSerif_400Regular',

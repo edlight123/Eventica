@@ -304,6 +304,7 @@ export default {
 
   contentPage: {
     updatedPrefix: 'Mizajou',
+    draftNote: 'Tradiksyon pwovizwa — n ap revize l. Vèsyon anglè a se referans lan.',
     unavailableTitle: 'Kontni pa disponib',
     unavailableBody: 'Nou pa t kapab chaje kontni sa a. Tanpri tcheke koneksyon ou epi eseye ankò.',
   },

@@ -19,7 +19,8 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { Skeleton } from '../components/Skeleton';
 import { font } from '../theme/tokens';
-import type { ContentBlock, ContentPage } from '../types/contentPage';
+import { resolveLocalizedContent } from '../types/contentPage';
+import type { ContentBlock, LocalizedContent } from '../types/contentPage';
 
 // Collapsible sections animate their height. LayoutAnimation is on by default on
 // iOS; Android needs this one-time opt-in (old arch).
@@ -36,7 +37,17 @@ type QA = { question: string; answer: ContentBlock[] };
 // Split the flat block list into an intro (blocks before the first h2) and
 // collapsible sections (one per h2). Role prefixes on support categories drive
 // the Attendee/Organizer filter and are stripped from the displayed title.
-function parseSections(blocks: ContentBlock[]): { intro: ContentBlock[]; sections: Section[] } {
+function rolePrefix(label: string): RegExp {
+  const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`^${escaped}\\s*[—–-]\\s*`);
+}
+
+function parseSections(
+  blocks: ContentBlock[],
+  roleLabels?: { attendee: string; organizer: string },
+): { intro: ContentBlock[]; sections: Section[] } {
+  const attendeeRe = rolePrefix(roleLabels?.attendee || 'Attendee');
+  const organizerRe = rolePrefix(roleLabels?.organizer || 'Organizer');
   const intro: ContentBlock[] = [];
   const sections: Section[] = [];
   let current: Section | null = null;
@@ -44,12 +55,12 @@ function parseSections(blocks: ContentBlock[]): { intro: ContentBlock[]; section
     if (b.type === 'heading' && b.level === 2) {
       let title = b.text;
       let role: Role = 'common';
-      if (/^Attendee —/.test(title)) {
+      if (attendeeRe.test(title)) {
         role = 'attendee';
-        title = title.replace(/^Attendee —\s*/, '');
-      } else if (/^Organizer —/.test(title)) {
+        title = title.replace(attendeeRe, '');
+      } else if (organizerRe.test(title)) {
         role = 'organizer';
-        title = title.replace(/^Organizer —\s*/, '');
+        title = title.replace(organizerRe, '');
       }
       current = { title, role, blocks: [] };
       sections.push(current);
@@ -91,12 +102,12 @@ function splitQA(blocks: ContentBlock[]): { lead: ContentBlock[]; questions: QA[
 export default function ContentPageScreen({ route, navigation }: any) {
   const { colors, isDark } = useTheme();
   const styles = getStyles(colors);
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const insets = useSafeAreaInsets();
   const slug: string = route?.params?.slug;
   const routeTitle: string | undefined = route?.params?.title;
 
-  const [page, setPage] = useState<ContentPage | null>(null);
+  const [docData, setDocData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
   const [role, setRole] = useState<'attendee' | 'organizer'>('attendee');
@@ -112,20 +123,20 @@ export default function ContentPageScreen({ route, navigation }: any) {
     try {
       const snap = await getDoc(doc(db, 'content_pages', slug));
       if (snap.exists()) {
-        const data = { slug, ...(snap.data() as any) } as ContentPage;
-        setPage(data);
+        const data = { slug, ...(snap.data() as any) };
+        setDocData(data);
         try {
           await AsyncStorage.setItem(cacheKey, JSON.stringify(data));
         } catch {}
       } else {
         const raw = await AsyncStorage.getItem(cacheKey);
-        if (raw) setPage(JSON.parse(raw));
+        if (raw) setDocData(JSON.parse(raw));
         else setFailed(true);
       }
     } catch {
       try {
         const raw = await AsyncStorage.getItem(cacheKey);
-        if (raw) setPage(JSON.parse(raw));
+        if (raw) setDocData(JSON.parse(raw));
         else setFailed(true);
       } catch {
         setFailed(true);
@@ -139,7 +150,14 @@ export default function ContentPageScreen({ route, navigation }: any) {
     load();
   }, [load]);
 
-  const { intro, sections } = useMemo(() => parseSections(page?.blocks || []), [page]);
+  const content: LocalizedContent | null = useMemo(
+    () => resolveLocalizedContent(docData, language),
+    [docData, language],
+  );
+  const { intro, sections } = useMemo(
+    () => parseSections(content?.blocks || [], content?.roleLabels),
+    [content],
+  );
 
   // Support: only the selected role's categories (+ common sections). Others: all.
   const visibleSections = useMemo(
@@ -176,7 +194,7 @@ export default function ContentPageScreen({ route, navigation }: any) {
     setOpenQuestions(new Set());
   };
 
-  const headerTitle = page?.title || routeTitle || '';
+  const headerTitle = content?.title || routeTitle || '';
 
   const header = (
     <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
@@ -203,7 +221,7 @@ export default function ContentPageScreen({ route, navigation }: any) {
 
       {loading ? (
         <ContentSkeleton colors={colors} />
-      ) : failed || !page ? (
+      ) : failed || !content ? (
         <View style={styles.centerState}>
           <Text style={styles.emptyTitle}>{t('contentPage.unavailableTitle')}</Text>
           <Text style={styles.emptyBody}>{t('contentPage.unavailableBody')}</Text>
@@ -218,11 +236,17 @@ export default function ContentPageScreen({ route, navigation }: any) {
           contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 40 }}
           showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.pageTitle}>{page.title}</Text>
-          {page.updated ? (
+          <Text style={styles.pageTitle}>{content.title}</Text>
+          {content.updated ? (
             <Text style={styles.updated}>
-              {t('contentPage.updatedPrefix')} {page.updated}
+              {t('contentPage.updatedPrefix')} {content.updated}
             </Text>
+          ) : null}
+
+          {content.draft ? (
+            <View style={styles.draftNote}>
+              <Text style={styles.draftNoteText}>{t('contentPage.draftNote')}</Text>
+            </View>
           ) : null}
 
           {/* Intro (e.g. the Help Center hero line) shown above the accordion. */}
@@ -451,6 +475,18 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       letterSpacing: 0.3,
       color: colors.textTertiary,
       marginTop: 8,
+    },
+    draftNote: {
+      marginTop: 16,
+      backgroundColor: colors.warningLight,
+      borderRadius: 10,
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+    },
+    draftNoteText: {
+      fontSize: 12.5,
+      lineHeight: 18,
+      color: colors.warning,
     },
 
     // Attendee / Organizer segmented filter (Help Center).
