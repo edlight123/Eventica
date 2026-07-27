@@ -138,6 +138,14 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // Legal/help content (terms, privacy, refunds, support) — the single source
+    // both web and mobile render. Public read; content is seeded/edited only via
+    // the Admin SDK (server), never by clients.
+    match /content_pages/{slug} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // Connections (friendships) - one document per user pair.
     // Participants may read; all writes go through server APIs (Admin SDK),
     // so client writes are disabled.
