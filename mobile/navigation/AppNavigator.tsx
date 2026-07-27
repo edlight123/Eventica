@@ -172,9 +172,18 @@ interface TabBarProps {
   tabs: Array<{ name: string; label: string; icon: string; activeIcon: string; isCreate?: boolean }>;
 }
 
+// Whether the signed-in account can use organizer mode. Computed once in
+// AppNavigator (role/verification) and provided here so CustomTabBar can gate
+// the double-tap-Profile-to-switch gesture without re-running that query.
+const OrganizerAccessContext = React.createContext(false);
+
 function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
   const { colors, isDark } = useTheme();
+  const { mode, setMode } = useAppMode();
+  const canSwitchMode = React.useContext(OrganizerAccessContext);
   const anims = useRef(tabs.map(() => new Animated.Value(0))).current;
+  // Tracks the last Profile-tab tap so a quick second tap toggles mode.
+  const lastProfileTapRef = useRef(0);
 
   // Focus is resolved by ROUTE NAME (not index), because the `tabs` list can
   // include a non-route action (Create) that has no entry in state.routes.
@@ -246,6 +255,21 @@ function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
         const onPress = () => {
           const route = state.routes.find((r: { name: string; key: string }) => r.name === tab.name);
           if (!route) return;
+
+          // Double-tap the Profile tab (organizer-capable accounts only) to
+          // switch between attendee and organizer mode. A single tap keeps its
+          // normal navigate / scroll-to-top behavior; other tabs are unaffected.
+          if (tab.name === 'Profile' && canSwitchMode) {
+            const now = Date.now();
+            if (now - lastProfileTapRef.current < 300) {
+              lastProfileTapRef.current = 0;
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setMode(mode === 'organizer' ? 'attendee' : 'organizer');
+              return;
+            }
+            lastProfileTapRef.current = now;
+          }
+
           const event = navigation.emit({
             type: 'tabPress',
             target: route.key,
@@ -624,6 +648,7 @@ export default function AppNavigator() {
 
   return (
     <ThemeProvider>
+    <OrganizerAccessContext.Provider value={canUseOrganizerMode}>
     <NavigationContainer ref={navigationRef} linking={linking as any}>
       <Stack.Navigator
         screenOptions={{
@@ -726,6 +751,7 @@ export default function AppNavigator() {
         )}
       </Stack.Navigator>
     </NavigationContainer>
+    </OrganizerAccessContext.Provider>
     </ThemeProvider>
   );
 }

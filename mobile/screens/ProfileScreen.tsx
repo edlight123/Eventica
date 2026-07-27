@@ -89,7 +89,6 @@ export default function ProfileScreen() {
 
   const [phonePrefix, setPhonePrefix] = useState<'+509' | '+1'>('+509');
   const [phoneDigits, setPhoneDigits] = useState('');
-  const [headerHeight, setHeaderHeight] = useState(0);
 
   const [verificationStatus, setVerificationStatus] = useState<VerificationRequest | null>(null);
   const [accountStats, setAccountStats] = useState({ eventsAttended: 0, following: 0, followers: 0 });
@@ -458,44 +457,15 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.container} edges={[]}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
 
-      <View
-        style={[styles.header, { top: 0, paddingTop: insets.top + 8 }]}
-        onLayout={(e) => {
-          const h = e.nativeEvent.layout.height;
-          if (h && h !== headerHeight) setHeaderHeight(h);
-        }}
-      >
-        {/* No "Compte" masthead — the avatar + name below is the identity. The
-            top bar is just the notification + settings actions. */}
-        <View style={styles.headerActions}>
-          <TouchableOpacity
-            style={styles.headerIconButton}
-            onPress={() => navigation.navigate('Notifications', { userId: user?.uid || '' })}
-            accessibilityLabel={t('profile.notificationsA11y')}
-            hitSlop={8}
-          >
-            <Bell size={22} color={colors.text} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.headerIconButton}
-            onPress={() => setIsEditing((v) => !v)}
-            accessibilityLabel={t('profile.edit')}
-            hitSlop={8}
-          >
-            <Settings size={22} color={colors.text} />
-          </TouchableOpacity>
-        </View>
-      </View>
-
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={[
           styles.scrollContent,
           {
-            // The header is opaque and spans the full top (incl. the safe-area
-            // strip), so its measured height already covers the notch offset —
-            // start the scroll content just below it, nothing bleeds behind it.
-            paddingTop: headerHeight + 4,
+            // No separate top bar anymore — the notification + settings icons
+            // live on the identity row itself (top-right), so the avatar/name
+            // sits right below the notch with no dead gap (beta feedback).
+            paddingTop: insets.top + 12,
             paddingBottom: insets.bottom + 24,
           },
         ]}
@@ -539,6 +509,27 @@ export default function ProfileScreen() {
               </View>
 
               {isEditing ? <Text style={styles.editHint}>{t('profile.editProfileHint')}</Text> : null}
+            </View>
+
+            {/* Actions ride on the identity row (top-right), aligned with the
+                avatar/name — no separate absolute top bar, so there's no gap. */}
+            <View style={styles.headerActions}>
+              <TouchableOpacity
+                style={styles.headerIconButton}
+                onPress={() => navigation.navigate('Notifications', { userId: user?.uid || '' })}
+                accessibilityLabel={t('profile.notificationsA11y')}
+                hitSlop={8}
+              >
+                <Bell size={22} color={colors.text} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.headerIconButton}
+                onPress={() => setIsEditing((v) => !v)}
+                accessibilityLabel={t('profile.edit')}
+                hitSlop={8}
+              >
+                <Settings size={22} color={colors.text} />
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -1026,28 +1017,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     backgroundColor: colors.background,
   },
-  header: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 20,
-    paddingHorizontal: 16,
-    paddingBottom: 10,
-    backgroundColor: colors.background,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-  },
-  headerTitle: {
-    fontFamily: 'InstrumentSerif_400Regular',
-    fontSize: 40,
-    fontWeight: '700',
-    letterSpacing: -0.5,
-    color: colors.text,
-  },
   headerIconButton: {
     padding: 8,
     borderRadius: 20,
@@ -1057,6 +1026,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+    // Ride the top of the identity row (aligned with the name), not centered
+    // against the avatar — keeps the bell/gear at the top-right corner.
+    alignSelf: 'flex-start',
+    marginLeft: 4,
   },
   scroll: {
     flex: 1,
