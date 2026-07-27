@@ -18,9 +18,25 @@ try {
   // dotenv not installed — rely on the ambient environment instead.
 }
 
-// Initialize Firebase Admin exactly like scripts/check-events.js.
+// Initialize Firebase Admin. Parse the service-account JSON resiliently: when
+// the key is loaded from .env.local its private_key contains real newlines,
+// which break a naive JSON.parse — so on failure we escape the control chars,
+// then restore \n in the private_key for the cert (mirrors upload-guides.mjs).
 if (!admin.apps.length) {
-  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY || '{}')
+  const raw = process.env.FIREBASE_SERVICE_ACCOUNT_KEY
+  if (!raw) {
+    console.error('Missing FIREBASE_SERVICE_ACCOUNT_KEY (set it in .env.local).')
+    process.exit(1)
+  }
+  let serviceAccount
+  try {
+    serviceAccount = JSON.parse(raw)
+  } catch {
+    serviceAccount = JSON.parse(raw.replace(/\r/g, '').replace(/\n/g, '\\n').replace(/\t/g, '\\t'))
+  }
+  if (typeof serviceAccount.private_key === 'string') {
+    serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n')
+  }
 
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
