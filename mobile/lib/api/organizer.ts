@@ -285,8 +285,6 @@ export async function getTodayEvents(
     const eventsWithTickets = await Promise.all(
       todayEvents.map(async (event) => {
         try {
-          console.log(`[getTodayEvents] Event ${event.title} tickets_sold field:`, event.tickets_sold);
-          
           // Get checked-in count from tickets collection.
           // NOTE: Avoid `checked_in_at != null` which can require additional ordering/indexing
           // and may fail silently here (caught and returns 0). The scanner sets `checked_in: true`.
@@ -306,9 +304,7 @@ export async function getTodayEvents(
             ticketsCheckedIn: checkedInSnapshot.size,
             capacity: event.total_tickets || 0,
           };
-          
-          console.log(`[getTodayEvents] Event ${event.title} result:`, result);
-          
+
           return result;
         } catch (error) {
           console.error(`Error fetching tickets for event ${event.id}:`, error);
