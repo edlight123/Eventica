@@ -39,6 +39,7 @@ export default {
     selectRating: 'Tanpri chwazi yon nòt',
     tapToRate: 'Peze pou bay nòt',
     eventRatingLabel: 'Kijan evènman an te ye?',
+    organizerRatingLabel: 'Kijan òganizatè a te ye? (opsyonèl)',
     wouldRecommend: 'M ap rekòmande evènman sa a',
     commentLabel: 'Avi w',
     commentPlaceholder: 'Pataje detay sou eksperyans ou…',
@@ -357,6 +358,7 @@ export default {
       failedToPickImageFromLibrary: 'Pa t kapab chwazi foto nan galri a',
     },
     organizerInfo: {
+      savedSuccessfully: 'Enfòmasyon ou yo anrejistre.',
       title: 'Enfòmasyon òganizatè',
       subtitle: 'Di nou sou ou ak òganizasyon ou.',
       fields: {
@@ -466,6 +468,9 @@ export default {
       status: {
         underReview: 'Sou revizyon',
         approved: 'Apwouve',
+        rejected: 'Refize',
+        changesRequested: 'Chanjman mande',
+        reviewNotes: 'Nòt revizyon',
       },
       stepsTitle: 'Etap verifikasyon',
       startMeta: '3 etap · ~5 min · kat idantite obligatwa',
@@ -603,6 +608,7 @@ export default {
     eventsCount: 'evènman',
   },
   tickets: {
+    undated: 'San dat',
     title: 'Biyè mwen',
     loginRequiredBody: 'Tanpri konekte pou wè biyè ou yo',
     upcoming: 'k ap vini',
@@ -844,6 +850,13 @@ export default {
     },
   },
 
+  export: {
+    exportCSV: 'Ekspòte CSV',
+    downloadStarted: 'Telechajman kòmanse',
+    noAttendees: 'Pa gen patisipan pou ekspòte',
+    error: 'Ekspòtasyon patisipan yo echwe',
+  },
+
   organizerTicketScanner: {
     headerTitle: 'Eskane biyè',
     permissions: {
@@ -1014,6 +1027,61 @@ export default {
       loadFailed: 'Nou pa ka chaje biyè gratis yo.',
       nameRequired: 'Non moun k ap resevwa a obligatwa.',
       issueFailed: 'Nou pa t ka bay biyè gratis yo.',
+    },
+  },
+
+  organizerPromoCodes: {
+    title: 'Kòd pwomo',
+    create: {
+      show: 'Nouvo kòd pwomo',
+      hide: 'Kache fòmilè a',
+      title: 'Kreye yon kòd pwomo',
+      create: 'Kreye',
+      creating: 'N ap kreye…',
+    },
+    fields: {
+      code: 'Kòd',
+      discountType: 'Kalite rabè',
+      discountValue: 'Valè rabè a',
+      maxUses: 'Kantite maksimòm itilizasyon',
+      expiresAt: 'Dat ekspirasyon',
+    },
+    placeholders: {
+      code: 'egz. ETE20',
+      discountValue: 'egz. 10',
+      maxUses: 'Kite vid pou san limit',
+      expiresAt: 'AAAA-MM-JJ',
+    },
+    discountTypes: {
+      percentage: 'Pousantaj',
+      fixed: 'Montan fiks',
+    },
+    list: {
+      title: 'Kòd pwomo',
+      empty: 'Poko gen kòd pwomo',
+      uses: 'Itilizasyon',
+      unlimited: 'San limit',
+      expires: 'Ekspire',
+      active: 'Aktif',
+      inactive: 'Inaktif',
+      activate: 'Aktive',
+      deactivate: 'Dezaktive',
+    },
+    delete: {
+      title: 'Efase kòd pwomo a',
+      body: 'Èske ou sèten ou vle efase kòd pwomo sa a?',
+      confirm: 'Efase',
+    },
+    errors: {
+      loadFailed: 'Pa kapab chaje kòd pwomo yo.',
+      missingFields: 'Tanpri antre yon kòd ak yon valè rabè.',
+      invalidDiscount: 'Antre yon rabè ki pi gwo pase zero.',
+      invalidMaxUses: 'Antre yon kantite maksimòm itilizasyon ki valab.',
+      invalidExpiresAt: 'Antre yon dat ekspirasyon ki valab.',
+      duplicateCode: 'Gen deja yon kòd pwomo ak kòd sa a.',
+      createFailed: 'Kreyasyon kòd pwomo a echwe.',
+      updateFailed: 'Mizajou kòd pwomo a echwe.',
+      deleteFailed: 'Efasman kòd pwomo a echwe.',
     },
   },
 
@@ -1254,6 +1322,11 @@ export default {
     settlement: 'Règleman',
     availableOn: 'Disponib',
     availableOnUnknown: 'Lè li regle',
+    stats: {
+      revenue: 'Revni',
+      ticketsSold: 'Biyè vandi',
+      net: 'Nèt',
+    },
     settlementLabels: {
       ready: 'Pare',
       pending: 'An atant',
@@ -2060,6 +2133,31 @@ export default {
     topEvents: 'Evènman ki pi byen mache',
     noData: 'Pa gen vant biyè ankò',
     tickets: 'biyè',
+  },
+
+  refund: {
+    title: 'Mande ranbousman',
+    generalAdmission: 'Antre jeneral',
+    amountPaid: 'Montan peye',
+    deadlinePassed: 'Dat limit pou ranbousman an pase. Ou dwe mande ranbousman omwen 24 èdtan anvan evènman an.',
+    selectReasonTitle: 'Poukisa ou bezwen yon ranbousman?',
+    additionalDetails: 'Plis detay',
+    reasonPlaceholder: 'Tanpri esplike rezon ou…',
+    policyNote: 'Se òganizatè evènman an ki egzamine demann ranbousman yo. W ap resevwa yon notifikasyon pa imèl lè demann ou an fin trete.',
+    submit: 'Voye demann lan',
+    selectReason: 'Tanpri chwazi yon rezon',
+    enterReason: 'Tanpri bay yon rezon',
+    submitted: 'Demann ranbousman an voye. Òganizatè a ap egzamine demann ou an.',
+    submitError: 'Voye demann ranbousman an echwe',
+    loadError: 'Pa kapab chaje detay biyè a',
+    ticketNotFound: 'Biyè pa jwenn',
+    reasons: {
+      scheduleConflict: 'Konfli orè',
+      cannotAttend: 'Mwen pa ka vini ankò',
+      boughtWrong: 'Achte move biyè',
+      financial: 'Rezon finansye',
+      other: 'Lòt rezon',
+    },
   },
 
   refunds: {
