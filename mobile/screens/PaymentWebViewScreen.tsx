@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
@@ -9,6 +9,7 @@ import { auth } from '../config/firebase'
 import { clearPendingPayment, setPendingPayment } from '../lib/pendingPayment'
 import { setTicketsRefreshHint } from '../lib/ticketsRefreshHint'
 import { useI18n } from '../contexts/I18nContext'
+import { PaymentSkeleton } from '../components/Skeleton'
 
 type Params = {
   url: string
@@ -213,10 +214,11 @@ export default function PaymentWebViewScreen() {
     </View>
   )
 
+  // Content-shaped loading state: a checkout/payment-form skeleton instead of a
+  // bare centered spinner. Offset below the header so the summary card is visible.
   const brandedLoading = (
-    <View style={styles.loadingOverlay}>
-      <ActivityIndicator size="large" color={colors.primary} />
-      <Text style={styles.loadingText}>{t('screens.payment.connecting')}</Text>
+    <View style={[styles.loadingOverlay, { paddingTop: insets.top + 64 }]}>
+      <PaymentSkeleton />
     </View>
   )
 
@@ -362,14 +364,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     left: 0,
     right: 0,
     bottom: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: colors.background,
-  },
-  loadingText: {
-    marginTop: 14,
-    fontSize: 13,
-    color: colors.textSecondary,
   },
   failureOverlay: {
     position: 'absolute',
