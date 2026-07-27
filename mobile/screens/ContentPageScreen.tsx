@@ -1,7 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  StatusBar,
+  LayoutAnimation,
+  Platform,
+  UIManager,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, RotateCcw } from 'lucide-react-native';
+import { ArrowLeft, ChevronDown, ChevronUp, RotateCcw } from 'lucide-react-native';
 import { doc, getDoc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db } from '../config/firebase';
@@ -11,15 +21,72 @@ import { Skeleton } from '../components/Skeleton';
 import { font } from '../theme/tokens';
 import type { ContentBlock, ContentPage } from '../types/contentPage';
 
+// Collapsible sections animate their height. LayoutAnimation is on by default on
+// iOS; Android needs this one-time opt-in (old arch).
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
+const animate = () => LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+
+type Role = 'attendee' | 'organizer' | 'common';
+type Section = { title: string; role: Role; blocks: ContentBlock[] };
+type QA = { question: string; answer: ContentBlock[] };
+
+// Split the flat block list into an intro (blocks before the first h2) and
+// collapsible sections (one per h2). Role prefixes on support categories drive
+// the Attendee/Organizer filter and are stripped from the displayed title.
+function parseSections(blocks: ContentBlock[]): { intro: ContentBlock[]; sections: Section[] } {
+  const intro: ContentBlock[] = [];
+  const sections: Section[] = [];
+  let current: Section | null = null;
+  for (const b of blocks || []) {
+    if (b.type === 'heading' && b.level === 2) {
+      let title = b.text;
+      let role: Role = 'common';
+      if (/^Attendee —/.test(title)) {
+        role = 'attendee';
+        title = title.replace(/^Attendee —\s*/, '');
+      } else if (/^Organizer —/.test(title)) {
+        role = 'organizer';
+        title = title.replace(/^Organizer —\s*/, '');
+      }
+      current = { title, role, blocks: [] };
+      sections.push(current);
+    } else if (current) {
+      current.blocks.push(b);
+    } else {
+      intro.push(b);
+    }
+  }
+  return { intro, sections };
+}
+
+// Within a support section, split into a lead (blocks before the first question)
+// and Q&A items (each h3 question + the blocks that answer it).
+function splitQA(blocks: ContentBlock[]): { lead: ContentBlock[]; questions: QA[] } {
+  const lead: ContentBlock[] = [];
+  const questions: QA[] = [];
+  let current: QA | null = null;
+  for (const b of blocks) {
+    if (b.type === 'heading' && b.level === 3) {
+      current = { question: b.text, answer: [] };
+      questions.push(current);
+    } else if (current) {
+      current.answer.push(b);
+    } else {
+      lead.push(b);
+    }
+  }
+  return { lead, questions };
+}
+
 /**
  * Renders a legal/help page from Firestore `content_pages/{slug}` NATIVELY in
- * POSH style — the same single source the web app renders, so mobile never
- * drifts from the canonical terms / privacy / refunds / support copy.
- *
- * Route params: { slug: string; title?: string }. The optional `title` fills
- * the header immediately (no empty bar while loading); the doc's own title
- * replaces it once loaded. Content is cached in AsyncStorage after a successful
- * load so it still renders offline (mirrors TicketDetailScreen's pattern).
+ * POSH style — the same single source the web app renders. Content is shown as a
+ * collapsible accordion: each h2 is a tap-to-open section, and on the Help Center
+ * each question is its own tap-to-expand FAQ row (with an Attendee/Organizer
+ * filter). Cached in AsyncStorage so it still renders offline.
  */
 export default function ContentPageScreen({ route, navigation }: any) {
   const { colors, isDark } = useTheme();
@@ -32,7 +99,11 @@ export default function ContentPageScreen({ route, navigation }: any) {
   const [page, setPage] = useState<ContentPage | null>(null);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
+  const [role, setRole] = useState<'attendee' | 'organizer'>('attendee');
+  const [openSections, setOpenSections] = useState<Set<number>>(new Set());
+  const [openQuestions, setOpenQuestions] = useState<Set<string>>(new Set());
 
+  const isFaq = slug === 'support';
   const cacheKey = `content_page_cache_${slug}`;
 
   const load = React.useCallback(async () => {
@@ -43,18 +114,15 @@ export default function ContentPageScreen({ route, navigation }: any) {
       if (snap.exists()) {
         const data = { slug, ...(snap.data() as any) } as ContentPage;
         setPage(data);
-        // Cache the doc JSON so legal/help content works with no signal.
         try {
           await AsyncStorage.setItem(cacheKey, JSON.stringify(data));
         } catch {}
       } else {
-        // No live doc — try the last cached copy before giving up.
         const raw = await AsyncStorage.getItem(cacheKey);
         if (raw) setPage(JSON.parse(raw));
         else setFailed(true);
       }
     } catch {
-      // Offline / fetch error — hydrate from cache so the page still renders.
       try {
         const raw = await AsyncStorage.getItem(cacheKey);
         if (raw) setPage(JSON.parse(raw));
@@ -70,6 +138,43 @@ export default function ContentPageScreen({ route, navigation }: any) {
   useEffect(() => {
     load();
   }, [load]);
+
+  const { intro, sections } = useMemo(() => parseSections(page?.blocks || []), [page]);
+
+  // Support: only the selected role's categories (+ common sections). Others: all.
+  const visibleSections = useMemo(
+    () =>
+      sections
+        .map((s, i) => ({ section: s, index: i }))
+        .filter(({ section }) => (isFaq ? section.role === role || section.role === 'common' : true)),
+    [sections, isFaq, role],
+  );
+
+  const toggleSection = (index: number) => {
+    animate();
+    setOpenSections((prev) => {
+      const next = new Set(prev);
+      next.has(index) ? next.delete(index) : next.add(index);
+      return next;
+    });
+  };
+
+  const toggleQuestion = (key: string) => {
+    animate();
+    setOpenQuestions((prev) => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+  };
+
+  const switchRole = (next: 'attendee' | 'organizer') => {
+    if (next === role) return;
+    animate();
+    setRole(next);
+    setOpenSections(new Set());
+    setOpenQuestions(new Set());
+  };
 
   const headerTitle = page?.title || routeTitle || '';
 
@@ -120,13 +225,140 @@ export default function ContentPageScreen({ route, navigation }: any) {
             </Text>
           ) : null}
 
-          <View style={styles.blocks}>
-            {page.blocks?.map((block, i) => (
-              <Block key={i} block={block} styles={styles} colors={colors} />
+          {/* Intro (e.g. the Help Center hero line) shown above the accordion. */}
+          {intro.map((block, i) => (
+            <Block key={`intro-${i}`} block={block} styles={styles} colors={colors} />
+          ))}
+
+          {/* Attendee / Organizer filter (Help Center only). */}
+          {isFaq ? (
+            <View style={styles.roleToggle}>
+              {(['attendee', 'organizer'] as const).map((r) => {
+                const active = role === r;
+                return (
+                  <TouchableOpacity
+                    key={r}
+                    style={[styles.rolePill, active && styles.rolePillActive]}
+                    onPress={() => switchRole(r)}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: active }}
+                  >
+                    <Text style={[styles.rolePillText, active && styles.rolePillTextActive]}>
+                      {r === 'attendee' ? t('profile.modeAttendee') : t('profile.modeOrganizer')}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          ) : null}
+
+          <View style={styles.sections}>
+            {visibleSections.map(({ section, index }) => (
+              <AccordionSection
+                key={index}
+                section={section}
+                open={openSections.has(index)}
+                onToggle={() => toggleSection(index)}
+                isFaq={isFaq}
+                sectionIndex={index}
+                openQuestions={openQuestions}
+                onToggleQuestion={toggleQuestion}
+                styles={styles}
+                colors={colors}
+              />
             ))}
           </View>
         </ScrollView>
       )}
+    </View>
+  );
+}
+
+function AccordionSection({
+  section,
+  open,
+  onToggle,
+  isFaq,
+  sectionIndex,
+  openQuestions,
+  onToggleQuestion,
+  styles,
+  colors,
+}: {
+  section: Section;
+  open: boolean;
+  onToggle: () => void;
+  isFaq: boolean;
+  sectionIndex: number;
+  openQuestions: Set<string>;
+  onToggleQuestion: (key: string) => void;
+  styles: ReturnType<typeof getStyles>;
+  colors: ReturnType<typeof useTheme>['colors'];
+}) {
+  const { lead, questions } = useMemo(() => splitQA(section.blocks), [section.blocks]);
+  const asFaq = isFaq && questions.length > 0;
+
+  return (
+    <View style={styles.sectionCard}>
+      <TouchableOpacity
+        style={styles.sectionHeader}
+        onPress={onToggle}
+        activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityState={{ expanded: open }}
+      >
+        <Text style={styles.sectionTitle}>{section.title}</Text>
+        {open ? (
+          <ChevronUp size={18} color={colors.textSecondary} />
+        ) : (
+          <ChevronDown size={18} color={colors.textSecondary} />
+        )}
+      </TouchableOpacity>
+
+      {open ? (
+        <View style={styles.sectionBody}>
+          {asFaq ? (
+            <>
+              {lead.map((block, i) => (
+                <Block key={`lead-${i}`} block={block} styles={styles} colors={colors} />
+              ))}
+              {questions.map((qa, qi) => {
+                const key = `${sectionIndex}:${qi}`;
+                const qOpen = openQuestions.has(key);
+                return (
+                  <View key={key} style={styles.qaItem}>
+                    <TouchableOpacity
+                      style={styles.qaHeader}
+                      onPress={() => onToggleQuestion(key)}
+                      activeOpacity={0.7}
+                      accessibilityRole="button"
+                      accessibilityState={{ expanded: qOpen }}
+                    >
+                      <Text style={styles.qaQuestion}>{qa.question}</Text>
+                      {qOpen ? (
+                        <ChevronUp size={16} color={colors.textTertiary} />
+                      ) : (
+                        <ChevronDown size={16} color={colors.textTertiary} />
+                      )}
+                    </TouchableOpacity>
+                    {qOpen ? (
+                      <View style={styles.qaAnswer}>
+                        {qa.answer.map((block, i) => (
+                          <Block key={i} block={block} styles={styles} colors={colors} />
+                        ))}
+                      </View>
+                    ) : null}
+                  </View>
+                );
+              })}
+            </>
+          ) : (
+            section.blocks.map((block, i) => (
+              <Block key={i} block={block} styles={styles} colors={colors} />
+            ))
+          )}
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -142,9 +374,7 @@ function Block({
 }) {
   switch (block.type) {
     case 'heading':
-      return (
-        <Text style={block.level === 3 ? styles.heading3 : styles.heading2}>{block.text}</Text>
-      );
+      return <Text style={block.level === 3 ? styles.heading3 : styles.heading2}>{block.text}</Text>;
     case 'paragraph':
       return <Text style={styles.paragraph}>{block.text}</Text>;
     case 'list':
@@ -180,20 +410,14 @@ function Block({
   }
 }
 
-/** Content skeleton: a title line, a caption, and a few heading/paragraph blocks. */
+/** Content skeleton: a title line, a caption, and a few collapsed-section bars. */
 function ContentSkeleton({ colors }: { colors: ReturnType<typeof useTheme>['colors'] }) {
   return (
     <View style={{ padding: 20 }}>
       <Skeleton width={'70%'} height={30} radius={8} />
       <Skeleton width={'34%'} height={12} radius={6} style={{ marginTop: 12 }} />
-      {Array.from({ length: 3 }).map((_, i) => (
-        <View key={i} style={{ marginTop: 28 }}>
-          <Skeleton width={'46%'} height={18} radius={7} />
-          <Skeleton width={'100%'} height={13} radius={6} style={{ marginTop: 14 }} />
-          <Skeleton width={'96%'} height={13} radius={6} style={{ marginTop: 8 }} />
-          <Skeleton width={'88%'} height={13} radius={6} style={{ marginTop: 8 }} />
-          <Skeleton width={'64%'} height={13} radius={6} style={{ marginTop: 8 }} />
-        </View>
+      {Array.from({ length: 6 }).map((_, i) => (
+        <Skeleton key={i} width={'100%'} height={54} radius={14} style={{ marginTop: 12 }} />
       ))}
     </View>
   );
@@ -228,33 +452,112 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       color: colors.textTertiary,
       marginTop: 8,
     },
-    blocks: {
+
+    // Attendee / Organizer segmented filter (Help Center).
+    roleToggle: {
+      flexDirection: 'row',
+      gap: 8,
       marginTop: 20,
+    },
+    rolePill: {
+      flex: 1,
+      paddingVertical: 10,
+      borderRadius: 999,
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    rolePillActive: {
+      backgroundColor: colors.primarySoft,
+      borderColor: colors.primary,
+    },
+    rolePillText: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: colors.textSecondary,
+    },
+    rolePillTextActive: {
+      color: colors.primary,
+      fontWeight: '700',
+    },
+
+    sections: {
+      marginTop: 16,
+      gap: 10,
+    },
+    // Collapsible section: an elevated surface card (POSH — separation by
+    // brightness, not a 1px outline).
+    sectionCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 14,
+      overflow: 'hidden',
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 12,
+      paddingVertical: 16,
+      paddingHorizontal: 16,
+    },
+    sectionTitle: {
+      flex: 1,
+      fontFamily: font.serif,
+      fontSize: 18,
+      color: colors.text,
+    },
+    sectionBody: {
+      paddingHorizontal: 16,
+      paddingBottom: 8,
+    },
+
+    // FAQ question row (nested tap-to-expand inside a support section).
+    qaItem: {
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: colors.border,
+    },
+    qaHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 10,
+      paddingVertical: 14,
+    },
+    qaQuestion: {
+      flex: 1,
+      fontSize: 15,
+      fontWeight: '600',
+      color: colors.text,
+      lineHeight: 21,
+    },
+    qaAnswer: {
+      paddingBottom: 14,
     },
 
     heading2: {
-      fontSize: 20,
-      fontWeight: '700',
-      color: colors.text,
-      marginTop: 28,
-      marginBottom: 4,
-    },
-    heading3: {
-      fontSize: 16,
+      fontSize: 18,
       fontWeight: '700',
       color: colors.text,
       marginTop: 20,
+      marginBottom: 2,
+    },
+    heading3: {
+      fontSize: 15,
+      fontWeight: '700',
+      color: colors.text,
+      marginTop: 16,
       marginBottom: 2,
     },
     paragraph: {
       fontSize: 15,
       lineHeight: 24,
       color: colors.textSecondary,
-      marginTop: 12,
+      marginTop: 10,
     },
 
     list: {
-      marginTop: 12,
+      marginTop: 10,
       gap: 8,
     },
     listItem: {
@@ -276,7 +579,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
 
     // POSH callout: left teal accent bar on a teal-tinted raised box.
     callout: {
-      marginTop: 20,
+      marginTop: 16,
       backgroundColor: colors.primarySoft,
       borderLeftWidth: 3,
       borderLeftColor: colors.primary,
