@@ -934,6 +934,7 @@ export default {
 
   organizerEventManagement: {
     loading: 'Nap chaje evènman an...',
+    headerTitle: 'Jere evènman',
     notFound: 'Evènman pa jwenn',
     sections: {
       quickActions: 'Aksyon rapid',

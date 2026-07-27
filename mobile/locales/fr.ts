@@ -936,6 +936,7 @@ export default {
 
   organizerEventManagement: {
     loading: 'Chargement de l’événement…',
+    headerTitle: 'Gérer l’événement',
     notFound: 'Événement introuvable',
     sections: {
       quickActions: 'Actions rapides',

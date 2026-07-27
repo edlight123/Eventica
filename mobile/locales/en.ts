@@ -1191,6 +1191,7 @@ export default {
 
   organizerEventManagement: {
     loading: 'Loading event...',
+    headerTitle: 'Manage Event',
     notFound: 'Event not found',
     sections: {
       quickActions: 'Quick Actions',
