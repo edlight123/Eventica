@@ -23,6 +23,8 @@ interface WhitePillCTAProps {
   loading?: boolean;
   /** Optional leading icon (rendered black to match the label). */
   icon?: React.ReactNode;
+  /** Compact size — a shorter, tighter pill for dense contexts (e.g. feed cards). */
+  compact?: boolean;
   style?: ViewStyle;
 }
 
@@ -42,6 +44,7 @@ export default function WhitePillCTA({
   disabled = false,
   loading = false,
   icon,
+  compact = false,
   style,
 }: WhitePillCTAProps) {
   const isDisabled = disabled || loading;
@@ -55,6 +58,7 @@ export default function WhitePillCTA({
       accessibilityLabel={subLabel ? `${label}, ${subLabel}` : label}
       style={({ pressed }) => [
         styles.button,
+        compact && styles.buttonCompact,
         pressed && !isDisabled && styles.pressed,
         isDisabled && styles.disabled,
         style,
@@ -65,11 +69,11 @@ export default function WhitePillCTA({
       ) : (
         <>
           {icon ? <View style={styles.icon}>{icon}</View> : null}
-          <Text style={styles.label} numberOfLines={1}>
+          <Text style={[styles.label, compact && styles.labelCompact]} numberOfLines={1}>
             {label}
           </Text>
           {subLabel ? (
-            <Text style={styles.subLabel} numberOfLines={1}>
+            <Text style={[styles.subLabel, compact && styles.subLabelCompact]} numberOfLines={1}>
               {subLabel}
             </Text>
           ) : null}
@@ -90,6 +94,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     backgroundColor: colors.white,
   },
+  buttonCompact: {
+    height: 46,
+    paddingHorizontal: spacing.lg,
+    gap: spacing.xs,
+  },
   pressed: {
     // Slight dim on press — no color shift, stays white.
     opacity: 0.88,
@@ -106,10 +115,16 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.onWhite,
   },
+  labelCompact: {
+    fontSize: 14,
+  },
   subLabel: {
     ...type.label,
     fontSize: 14,
     fontWeight: '500',
     color: colors.onWhiteMuted,
+  },
+  subLabelCompact: {
+    fontSize: 12,
   },
 });

@@ -8,17 +8,14 @@ import {
   ActivityIndicator,
   Image,
   Dimensions,
-  TextInput,
-  Animated,
   RefreshControl,
   Share,
   Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Calendar, MapPin, Search, X, SlidersHorizontal, Users } from 'lucide-react-native';
+import { Calendar, MapPin, Search, SlidersHorizontal, Users } from 'lucide-react-native';
 import { collection, query, where, getDocs, limit, addDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { filterExploreEvents } from '../lib/api/events';
@@ -56,9 +53,6 @@ const HOME_CARD_WIDTH = Math.min(248, width * 0.62);
 const RAIL_INSET = 12;
 const RAIL_WIDTH = HOME_CARD_WIDTH + RAIL_INSET * 2;
 
-const HEADER_EXPANDED_HEIGHT = 145;
-const HEADER_COLLAPSED_HEIGHT = 70;
-
 // Location matching tolerant to accents, case and "City, ST" suffixes so the
 // town rails line up with whatever string is stored on each event's `city`.
 const normalizeCity = (s: any): string =>
@@ -81,11 +75,6 @@ export default function DiscoverScreen({ navigation, route }: any) {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const insets = useSafeAreaInsets();
-  // Keep the original content heights but base the top padding on the real
-  // device inset so the search bar never sits under the status bar. The
-  // expanded→collapsed delta stays 75, so the scroll input range is unchanged.
-  const expandedHeaderHeight = HEADER_EXPANDED_HEIGHT - 50 + insets.top;
-  const collapsedHeaderHeight = HEADER_COLLAPSED_HEIGHT - 50 + insets.top;
   const { appliedFilters, openFiltersModal, hasActiveFilters, countActiveFilters, applyFiltersDirectly, resetFilters, userCountry } = useFilters();
   const { user } = useAuth();
   const { t } = useI18n();
@@ -113,74 +102,13 @@ export default function DiscoverScreen({ navigation, route }: any) {
   // Which events the user has bookmarked — drives the card's save icon state
   // across all tabs (loaded once per user, updated optimistically on toggle).
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
-  const [searchMode, setSearchMode] = useState(false);
 
-  const DATE_LABEL_KEYS: Record<DateFilter, string> = {
-    'any': 'filters.dateOptions.any',
-    'today': 'filters.dateOptions.today',
-    'tomorrow': 'filters.dateOptions.tomorrow',
-    'this-week': 'filters.dateOptions.thisWeek',
-    'this-weekend': 'filters.dateOptions.thisWeekend',
-  };
-  const whenPillValue = selectedDate !== 'any' ? t(DATE_LABEL_KEYS[selectedDate]) : null;
-  
-  // Animated header values
-  const scrollY = useRef(new Animated.Value(0)).current;
   const scrollViewRef = useRef<ScrollView>(null);
-  // Measured height of the big serif masthead so we can collapse exactly it
-  // (freeing that space) on scroll while keeping the search pill + tabs pinned.
-  // Measured ONCE at rest — measuring again while the container is animating to
-  // height 0 can report the clipped value and lock the masthead collapsed.
-  const [headlineH, setHeadlineH] = useState(64);
-  const headlineMeasured = useRef(false);
-  // Full (expanded) header height — the feed's top padding, so content scrolls
-  // UP behind the translucent header instead of starting below a solid strip.
-  // Measured once at rest (masthead expanded); a sane default until then.
-  const [headerH, setHeaderH] = useState(220);
+  // Full header height — the feed's top padding, so content scrolls UP behind
+  // the transparent header instead of starting below a solid strip. Measured
+  // once at rest; a sane default until then.
+  const [headerH, setHeaderH] = useState(160);
   const headerMeasured = useRef(false);
-  
-  // Interpolations for collapsing header
-  const headerHeight = scrollY.interpolate({
-    inputRange: [0, HEADER_EXPANDED_HEIGHT - HEADER_COLLAPSED_HEIGHT],
-    outputRange: [expandedHeaderHeight, collapsedHeaderHeight],
-    extrapolate: 'clamp',
-  });
-
-  const titleOpacity = scrollY.interpolate({
-    inputRange: [0, 50],
-    outputRange: [1, 0],
-    extrapolate: 'clamp',
-  });
-
-  const titleTranslateY = scrollY.interpolate({
-    inputRange: [0, 50],
-    outputRange: [0, -20],
-    extrapolate: 'clamp',
-  });
-
-  const headerShadowOpacity = scrollY.interpolate({
-    inputRange: [0, 40],
-    outputRange: [0, 0.15],
-    extrapolate: 'clamp',
-  });
-
-  const searchBarScale = scrollY.interpolate({
-    inputRange: [0, 50],
-    outputRange: [1, 0.98],
-    extrapolate: 'clamp',
-  });
-
-  // Collapse the masthead's height + fade it as the feed scrolls up.
-  const headlineCollapse = scrollY.interpolate({
-    inputRange: [0, 44],
-    outputRange: [headlineH, 0],
-    extrapolate: 'clamp',
-  });
-  const headlineOpacity = scrollY.interpolate({
-    inputRange: [0, 32],
-    outputRange: [1, 0],
-    extrapolate: 'clamp',
-  });
 
   useEffect(() => {
     fetchEvents();
@@ -657,9 +585,6 @@ export default function DiscoverScreen({ navigation, route }: any) {
 
   const hasAnyFilters = hasActiveFilters() || searchQuery.trim() !== '' || route?.params?.trending || route?.params?.thisWeek || route?.params?.allEvents || selectedDate !== 'any' || selectedCategories.length > 0 || selectedCity !== '';
 
-  const dateSummary = selectedDate !== 'any' ? whenPillValue : t('filters.dateOptions.any');
-  const locationSummary = selectedCity || t('discover.allCities');
-
   const renderFeed = (list: any[], emptyTitle: string, emptySubtitle: string) =>
     list.length === 0 ? (
       <EmptyState icon={Search} title={emptyTitle} subtitle={emptySubtitle} />
@@ -695,8 +620,9 @@ export default function DiscoverScreen({ navigation, route }: any) {
         </View>
       ) : null}
 
-      {/* Posh-style header: a translucent BLUR overlay the feed scrolls under, so
-          the poster shows through behind the search pill + tabs. */}
+      {/* Posh-style header: a transparent overlay the feed scrolls under (no
+          blur box) so the poster shows cleanly through behind the search entry +
+          tabs. A faint scrim keeps the controls legible on bright posters. */}
       <View
         style={[styles.header, { paddingTop: insets.top + 8 }]}
         onLayout={(e) => {
@@ -708,44 +634,23 @@ export default function DiscoverScreen({ navigation, route }: any) {
           }
         }}
       >
-        <BlurView intensity={28} tint="dark" style={StyleSheet.absoluteFill} pointerEvents="none" />
         <View style={styles.headerScrim} pointerEvents="none" />
-        <Text style={styles.headline} numberOfLines={1}>
-          {t('discover.headline')}
-        </Text>
-        <View style={styles.searchPill}>
-          {searchMode ? (
-            <>
-              <Search size={20} color={colors.textSecondary} />
-              <TextInput
-                style={styles.searchInput}
-                placeholder={t('discover.searchPlaceholder')}
-                placeholderTextColor={colors.textSecondary}
-                selectionColor={colors.primary}
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                autoFocus
-              />
-              <TouchableOpacity onPress={() => { setSearchQuery(''); setSearchMode(false); }} hitSlop={8}>
-                <X size={20} color={colors.textSecondary} />
-              </TouchableOpacity>
-            </>
-          ) : (
-            <>
-              <TouchableOpacity onPress={() => setSearchMode(true)} hitSlop={8}>
-                <Search size={20} color={colors.textSecondary} />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.pillCenter} onPress={openFiltersModal} activeOpacity={0.7}>
-                <Text style={styles.pillText} numberOfLines={1}>
-                  <Text style={styles.pillTextStrong}>{dateSummary}</Text>
-                  <Text>  {locationSummary}</Text>
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={openFiltersModal} hitSlop={8}>
-                <SlidersHorizontal size={20} color={colors.text} />
-              </TouchableOpacity>
-            </>
-          )}
+        <View style={styles.searchRow}>
+          {/* Tapping the search pill opens the dedicated full-screen Search. */}
+          <TouchableOpacity
+            style={styles.searchPill}
+            onPress={() => navigation.navigate('Search')}
+            activeOpacity={0.75}
+          >
+            <Search size={20} color={colors.textSecondary} />
+            <Text style={styles.searchPlaceholder} numberOfLines={1}>
+              {t('discover.searchPlaceholder')}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.filterBtn} onPress={openFiltersModal} activeOpacity={0.7}>
+            <SlidersHorizontal size={20} color={colors.text} />
+            {hasActiveFilters() && <View style={styles.filterDot} />}
+          </TouchableOpacity>
         </View>
 
         <View style={styles.tabsRow}>
@@ -764,16 +669,12 @@ export default function DiscoverScreen({ navigation, route }: any) {
       </View>
 
       {/* Feed */}
-      <Animated.ScrollView
+      <ScrollView
         ref={scrollViewRef}
         style={styles.contentUnderHeader}
         contentContainerStyle={[styles.feedContent, { paddingTop: headerH + 8, paddingBottom: 32 + insets.bottom }]}
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={16}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: false }
-        )}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -798,7 +699,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
 
         {discoverTab === 'saved' &&
           renderFeed(savedEvents, t('discover.saved.emptyTitle'), t('discover.saved.emptySubtitle'))}
-      </Animated.ScrollView>
+      </ScrollView>
 
       <EventFiltersSheet />
 
@@ -955,8 +856,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     resizeMode: 'cover',
   },
   header: {
-    // Absolute translucent overlay: the feed scrolls UP behind it (posters show
-    // through the blur). overflow:hidden clips the BlurView to the header bounds.
+    // Absolute TRANSPARENT overlay (no blur box): the feed scrolls UP behind it
+    // so the poster shows cleanly through behind the search entry + tabs.
     position: 'absolute',
     top: 0,
     left: 0,
@@ -967,24 +868,19 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 16,
     paddingBottom: 10,
   },
-  // A faint dark wash over the blur so the search text + tabs stay legible on
-  // top of any bright poster.
+  // A faint dark scrim so the search text + tabs stay legible on top of any
+  // bright poster — no frosted panel, just a subtle wash.
   headerScrim: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(10,10,10,0.35)',
   },
-  headline: {
-    fontFamily: 'InstrumentSerif_400Regular',
-    fontSize: 40,
-    // Roomy enough that the serif ascenders aren't clipped by the collapsing
-    // header's overflow:hidden wrapper (a 42 line-height cropped the letters).
-    lineHeight: 52,
-    letterSpacing: -0.5,
-    color: colors.text,
-    marginTop: 2,
-    marginBottom: 8,
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
   searchPill: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
@@ -995,32 +891,42 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
-  pillCenter: {
+  searchPlaceholder: {
     flex: 1,
-    alignItems: 'center',
-  },
-  pillText: {
-    fontFamily: font.monoRegular,
-    fontSize: 12,
-    letterSpacing: 0.4,
+    fontSize: 15,
     color: colors.textSecondary,
   },
-  pillTextStrong: {
-    fontFamily: font.mono,
-    fontSize: 12,
-    letterSpacing: 0.4,
-    color: colors.text,
+  filterBtn: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
+  filterDot: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.primary,
+  },
+  // Smaller, tighter segment tabs (POSH — compact, understated).
   tabsRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 28,
-    paddingTop: 16,
-    paddingBottom: 4,
+    gap: 18,
+    paddingTop: 12,
+    paddingBottom: 2,
   },
   tabText: {
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: '700',
+    letterSpacing: 0.2,
     color: colors.textTertiary,
   },
   tabTextActive: {

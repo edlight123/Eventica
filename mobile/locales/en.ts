@@ -767,6 +767,16 @@ export default {
       onlineSubtitle: 'Join from anywhere',
     },
   },
+  search: {
+    featuredEvents: 'Featured Events',
+    events: 'Events',
+    organizations: 'Organizations',
+    people: 'People',
+    noResults: 'No results',
+    noResultsSubtitle: 'Try a different name or keyword.',
+    eventCount: 'event',
+    eventsCount: 'events',
+  },
   tickets: {
     title: 'My Tickets',
     loginRequiredBody: 'Please login to view your tickets',

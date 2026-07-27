@@ -542,6 +542,16 @@ export default {
       onlineSubtitle: 'Antre soti nenpòt kote',
     },
   },
+  search: {
+    featuredEvents: 'Evènman ki make',
+    events: 'Evènman',
+    organizations: 'Òganizasyon',
+    people: 'Moun',
+    noResults: 'Pa gen rezilta',
+    noResultsSubtitle: 'Eseye yon lòt non oswa mo kle.',
+    eventCount: 'evènman',
+    eventsCount: 'evènman',
+  },
   tickets: {
     title: 'Biyè mwen',
     loginRequiredBody: 'Tanpri konekte pou wè biyè ou yo',

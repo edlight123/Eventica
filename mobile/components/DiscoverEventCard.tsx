@@ -115,6 +115,7 @@ export default function DiscoverEventCard({
           variant="rsvp"
           label={t('common.rsvp')}
           onPress={onPress}
+          compact
           style={styles.cta}
         />
       ) : (
@@ -123,6 +124,7 @@ export default function DiscoverEventCard({
           label={t('home.getTickets')}
           subLabel={`${t('common.from')} ${price.toLocaleString()} ${event.currency || 'HTG'}`}
           onPress={onPress}
+          compact
           style={styles.cta}
         />
       )}
