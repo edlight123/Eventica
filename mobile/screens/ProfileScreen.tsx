@@ -14,7 +14,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Bell, Briefcase, ChevronRight, Compass, ExternalLink, Heart, LogOut, MapPin, Settings, User, Users } from 'lucide-react-native';
+import { Bell, Briefcase, ChevronRight, Compass, FileText, Heart, HelpCircle, LogOut, MapPin, RotateCcw, Settings, Shield, User, Users } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { getDownloadURL, ref as storageRef, uploadBytes } from 'firebase/storage';
@@ -141,6 +141,15 @@ export default function ProfileScreen() {
     const city = (userProfile?.default_city || '').trim();
     return city.length ? city : t('profile.notSet');
   }, [userProfile?.default_city, t]);
+
+  // Keep help/legal content INSIDE the app (open in the in-app browser) rather
+  // than kicking the user out to Safari.
+  const openInApp = useCallback(
+    (url: string, title: string) => {
+      navigation.navigate('InAppWebView', { url, title });
+    },
+    [navigation],
+  );
 
   const openWebUrl = useCallback(
     async (url: string) => {
@@ -945,25 +954,6 @@ export default function ProfileScreen() {
 
         </View>
 
-        <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>{t('profile.preferences')}</Text>
-
-          <View style={styles.languageRow}>
-            {(['en', 'fr', 'ht'] as const).map((lang) => {
-              const active = language === lang;
-              return (
-                <TouchableOpacity
-                  key={lang}
-                  style={[styles.pill, active && styles.pillActive]}
-                  onPress={() => setLanguage(lang)}
-                >
-                  <Text style={[styles.pillText, active && styles.pillTextActive]}>{lang.toUpperCase()}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
-
         {/* Role switching lives in its own segmented section (mirrors the
             Preferences language pills) instead of bare, chevron-less rows mixed
             into Actions — one clear "which hat am I wearing" control. Only shown
@@ -999,41 +989,60 @@ export default function ProfileScreen() {
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>{t('profile.help')}</Text>
 
-          <TouchableOpacity style={styles.rowButton} onPress={() => openWebUrl(`${WEBSITE_BASE_URL}/support`)}>
+          <TouchableOpacity style={styles.rowButton} onPress={() => openInApp(`${WEBSITE_BASE_URL}/support`, t('profile.helpCenter'))}>
             <View style={styles.rowLeft}>
-              <ExternalLink size={18} color={colors.primary} />
+              <HelpCircle size={18} color={colors.primary} />
               <Text style={styles.rowText}>{t('profile.helpCenter')}</Text>
             </View>
-            <ExternalLink size={18} color={colors.textSecondary} />
+            <ChevronRight size={18} color={colors.textTertiary} />
           </TouchableOpacity>
         </View>
 
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>{t('profile.legal')}</Text>
 
-          <TouchableOpacity style={styles.rowButton} onPress={() => openWebUrl(`${WEBSITE_BASE_URL}/legal/terms`)}>
+          <TouchableOpacity style={styles.rowButton} onPress={() => openInApp(`${WEBSITE_BASE_URL}/legal/terms`, t('profile.terms'))}>
             <View style={styles.rowLeft}>
-              <ExternalLink size={18} color={colors.primary} />
+              <FileText size={18} color={colors.primary} />
               <Text style={styles.rowText}>{t('profile.terms')}</Text>
             </View>
-            <ExternalLink size={18} color={colors.textSecondary} />
+            <ChevronRight size={18} color={colors.textTertiary} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.rowButton} onPress={() => openWebUrl(`${WEBSITE_BASE_URL}/legal/privacy`)}>
+          <TouchableOpacity style={styles.rowButton} onPress={() => openInApp(`${WEBSITE_BASE_URL}/legal/privacy`, t('profile.privacy'))}>
             <View style={styles.rowLeft}>
-              <ExternalLink size={18} color={colors.primary} />
+              <Shield size={18} color={colors.primary} />
               <Text style={styles.rowText}>{t('profile.privacy')}</Text>
             </View>
-            <ExternalLink size={18} color={colors.textSecondary} />
+            <ChevronRight size={18} color={colors.textTertiary} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.rowButton} onPress={() => openWebUrl(`${WEBSITE_BASE_URL}/legal/refunds`)}>
+          <TouchableOpacity style={styles.rowButton} onPress={() => openInApp(`${WEBSITE_BASE_URL}/legal/refunds`, t('profile.refundPolicy'))}>
             <View style={styles.rowLeft}>
-              <ExternalLink size={18} color={colors.primary} />
+              <RotateCcw size={18} color={colors.primary} />
               <Text style={styles.rowText}>{t('profile.refundPolicy')}</Text>
             </View>
-            <ExternalLink size={18} color={colors.textSecondary} />
+            <ChevronRight size={18} color={colors.textTertiary} />
           </TouchableOpacity>
+        </View>
+
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>{t('profile.preferences')}</Text>
+
+          <View style={styles.languageRow}>
+            {(['en', 'fr', 'ht'] as const).map((lang) => {
+              const active = language === lang;
+              return (
+                <TouchableOpacity
+                  key={lang}
+                  style={[styles.pill, active && styles.pillActive]}
+                  onPress={() => setLanguage(lang)}
+                >
+                  <Text style={[styles.pillText, active && styles.pillTextActive]}>{lang.toUpperCase()}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
 
         <View style={styles.sectionCard}>
