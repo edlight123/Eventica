@@ -59,6 +59,7 @@ export default {
   common: {
     free: 'Gratis',
     from: 'apati',
+    at: 'nan',
     rsvp: 'RSVP',
     viewAll: 'Gade tout',
     ok: 'OK',
@@ -66,6 +67,8 @@ export default {
     no: 'Non',
     cancel: 'Anile',
     retry: 'Eseye ankò',
+    loadErrorTitle: 'Nou pa ka chaje',
+    loadErrorSubtitle: 'Tcheke koneksyon ou epi eseye ankò.',
     remove: 'Retire',
     accept: 'Aksepte',
     decline: 'Refize',
@@ -546,6 +549,7 @@ export default {
     eventsFound: 'evènman jwenn',
     noEventsFound: 'Pa gen evènman jwenn',
     tryAdjusting: 'Eseye chanje filtè yo pou wè plis evènman',
+    clearFilters: 'Efase filtè yo',
     noEventsAvailable: 'Pa gen evènman disponib',
     checkBackSoon: 'Tounen byento pou nouvo evènman!',
     sections: {

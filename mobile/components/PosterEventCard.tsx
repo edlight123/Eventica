@@ -13,6 +13,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { safeFormatForLanguage } from '../lib/dates';
 import { resolvePosterTheme } from '../lib/posterGradient';
+import { formatPrice } from '../lib/currency';
 import { font, radius } from '../theme/tokens';
 import type { BadgeStatus } from '../theme/badges';
 
@@ -88,7 +89,7 @@ export default function PosterEventCard({
     : venue;
 
   // Tier 2 — grey price · venue.
-  const priceLabel = isFree ? t('common.free') : `${event.currency || 'HTG'} ${price.toLocaleString()}`;
+  const priceLabel = isFree ? t('common.free') : formatPrice(price, event.currency);
   const tier2Line = [priceLabel, showMeta ? place : ''].filter(Boolean).join('  ·  ');
 
   const friendsLabel =

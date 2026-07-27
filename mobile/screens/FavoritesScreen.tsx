@@ -4,10 +4,9 @@ import {
   Text, 
   ScrollView, 
   StyleSheet, 
-  TouchableOpacity, 
+  TouchableOpacity,
   RefreshControl,
   Alert,
-  Share,
   StatusBar,
   Dimensions
 } from 'react-native';
@@ -21,7 +20,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import EmptyState from '../components/EmptyState';
 import PosterEventCard from '../components/PosterEventCard';
 import { GridSkeleton } from '../components/Skeleton';
-import { safeFormatForLanguage } from '../lib/dates';
+import { shareEvent } from '../lib/share';
 
 const { width } = Dimensions.get('window');
 const FAV_COLUMN_WIDTH = (width - 32 - 12) / 2;
@@ -30,7 +29,7 @@ export default function FavoritesScreen({ navigation }: any) {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const { user } = useAuth();
-  const { t, language } = useI18n();
+  const { t } = useI18n();
   const insets = useSafeAreaInsets();
   const [favoriteEvents, setFavoriteEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -132,16 +131,7 @@ export default function FavoritesScreen({ navigation }: any) {
     );
   };
 
-  const handleShare = async (event: any) => {
-    try {
-      await Share.share({
-        message: `Check out ${event.title}!\n\nDate: ${event.start_datetime && safeFormatForLanguage(event.start_datetime, 'EEEE, MMMM dd, yyyy', language)}\nVenue: ${event.venue_name}`,
-        title: event.title,
-      });
-    } catch (error) {
-      console.error('Error sharing:', error);
-    }
-  };
+  const handleShare = (event: any) => shareEvent(event);
 
   if (!user) {
     return (

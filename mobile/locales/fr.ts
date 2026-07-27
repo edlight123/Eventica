@@ -59,6 +59,7 @@ export default {
   common: {
     free: 'Gratuit',
     from: 'à partir de',
+    at: 'à',
     rsvp: 'RSVP',
     viewAll: 'Voir tout',
     ok: 'OK',
@@ -66,6 +67,8 @@ export default {
     no: 'Non',
     cancel: 'Annuler',
     retry: 'Réessayer',
+    loadErrorTitle: 'Chargement impossible',
+    loadErrorSubtitle: 'Vérifiez votre connexion et réessayez.',
     remove: 'Retirer',
     accept: 'Accepter',
     decline: 'Refuser',
@@ -548,6 +551,7 @@ export default {
     eventsFound: 'événements trouvés',
     noEventsFound: 'Aucun événement trouvé',
     tryAdjusting: 'Essayez d’ajuster vos filtres pour voir plus d’événements',
+    clearFilters: 'Effacer les filtres',
     noEventsAvailable: 'Aucun événement disponible',
     checkBackSoon: 'Revenez bientôt pour de nouveaux événements !',
     sections: {

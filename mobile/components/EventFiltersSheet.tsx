@@ -17,6 +17,7 @@ import { X } from 'lucide-react-native';
 import { useFilters } from '../contexts/FiltersContext';
 import { useI18n } from '../contexts/I18nContext';
 import { getCategoryLabel } from '../lib/categories';
+import { formatPrice } from '../lib/currency';
 import { 
   CATEGORIES,
   COUNTRIES,
@@ -152,7 +153,6 @@ export default function EventFiltersSheet() {
   // than being hardcoded to HTG. Thresholds + symbols come from CURRENCY_BY_COUNTRY.
   const filterCountry = draftFilters.country || 'HT';
   const priceCurrencyCode = CURRENCY_BY_COUNTRY[filterCountry]?.code || 'HTG';
-  const priceCurrencySymbol = CURRENCY_BY_COUNTRY[filterCountry]?.symbol || 'HTG';
 
   // The custom min–max range is now the STANDARD price control. Its ceiling and
   // step scale with the selected country's currency (low-denomination HTG/DOP
@@ -161,10 +161,9 @@ export default function EventFiltersSheet() {
   const priceCeiling = isHighDenomination ? 10000 : 200;
   const priceStep = isHighDenomination ? 100 : 5;
 
-  const formatPrice = (amount: number) =>
-    priceCurrencySymbol === 'HTG' || priceCurrencySymbol === 'RD$'
-      ? `${amount} ${priceCurrencySymbol}`
-      : `${priceCurrencySymbol}${amount}`;
+  // Shared price formatter keyed by the selected country's currency code so the
+  // readout ("1,500 HTG" / "$25" / "RD$300") matches the cards everywhere.
+  const priceLabel = (amount: number) => formatPrice(amount, priceCurrencyCode);
 
   const priceIsCustom = draftFilters.price === 'custom';
   const rangeMin = priceIsCustom ? draftFilters.customPriceRange?.min ?? 0 : 0;
@@ -179,8 +178,8 @@ export default function EventFiltersSheet() {
       : !priceIsCustom
         ? t('filters.priceOptions.any')
         : maxIsOpen
-          ? `${formatPrice(rangeMin)}+`
-          : `${formatPrice(rangeMin)} – ${formatPrice(sliderMax)}`;
+          ? `${priceLabel(rangeMin)}+`
+          : `${priceLabel(rangeMin)} – ${priceLabel(sliderMax)}`;
 
   const [showDatePicker, setShowDatePicker] = useState(false);
 

@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   Platform,
   StatusBar,
-  Share,
   Image,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -23,7 +22,7 @@ import { useFilters } from '../contexts/FiltersContext';
 import { BRAND } from '../config/brand';
 import { useTheme } from '../contexts/ThemeContext';
 import { COUNTRY_NAMES } from '../utils/deviceLocation';
-import { MapPin, ChevronDown, Inbox } from 'lucide-react-native';
+import { MapPin, ChevronDown, Inbox, CloudOff } from 'lucide-react-native';
 import LocationDetectionBanner from '../components/LocationDetectionBanner';
 import LocationPickerSheet from '../components/LocationPickerSheet';
 import { DEFAULT_FILTERS } from '../types/filters';
@@ -39,6 +38,7 @@ import EmptyState from '../components/EmptyState';
 import { HomeFeedSkeleton } from '../components/Skeleton';
 import { isBudgetFriendlyTicketPrice } from '../lib/pricing';
 import { getCategoryLabel } from '../lib/categories';
+import { shareEvent } from '../lib/share';
 import { font } from '../theme/tokens';
 
 // Tolerant city matching (accents/case/"City, ST") so the Near You rail lines up
@@ -84,6 +84,7 @@ export default function HomeScreen({ navigation }: any) {
   const [newEvents, setNewEvents] = useState<any[]>([]);
   const [categoryRails, setCategoryRails] = useState<{ category: string; events: any[] }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [locationSheetOpen, setLocationSheetOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
@@ -97,6 +98,7 @@ export default function HomeScreen({ navigation }: any) {
   const lastTabPressRef = useRef(0);
 
   const fetchEvents = async () => {
+    setError(false);
     try {
       // Get all published events
       const q = query(
@@ -239,24 +241,16 @@ export default function HomeScreen({ navigation }: any) {
         .map((c) => ({ category: c, events: byCategory[c].slice(0, 10) }))
         .filter((r) => r.events.length > 0);
       setCategoryRails(catRails);
-    } catch (error) {
-      console.error('Error fetching events:', error);
+    } catch (err) {
+      console.error('Error fetching events:', err);
+      setError(true);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
 
-  const handleShare = async (event: any) => {
-    try {
-      await Share.share({
-        message: `Check out ${event.title}! ${event.description || ''}`,
-        title: event.title,
-      });
-    } catch (error) {
-      console.error('Error sharing:', error);
-    }
-  };
+  const handleShare = (event: any) => shareEvent(event);
 
   useEffect(() => {
     fetchEvents();
@@ -410,6 +404,14 @@ export default function HomeScreen({ navigation }: any) {
         <Animated.View style={{ height: headerSpacerHeight }} />
         {loading ? (
           <HomeFeedSkeleton />
+        ) : error && events.length === 0 ? (
+          <EmptyState
+            icon={CloudOff}
+            title={t('common.loadErrorTitle')}
+            subtitle={t('common.loadErrorSubtitle')}
+            actionLabel={t('common.retry')}
+            onAction={onRefresh}
+          />
         ) : (
           <>
             {/* (Removed the redundant "À l'affiche" masthead per beta feedback —

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -11,13 +11,14 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, Search as SearchIcon, X, Building2, User } from 'lucide-react-native';
+import { ArrowLeft, Search as SearchIcon, X, Building2, User, CloudOff } from 'lucide-react-native';
 import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { filterExploreEvents } from '../lib/api/events';
 import { searchUsers, type UserSearchResult } from '../lib/api/social';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
+import { getCategoryLabel } from '../lib/categories';
 import { font } from '../theme/tokens';
 import EventListCard from '../components/EventListCard';
 import EmptyState from '../components/EmptyState';
@@ -49,60 +50,62 @@ export default function SearchScreen({ navigation }: any) {
 
   const [allEvents, setAllEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [queryText, setQueryText] = useState('');
   const [people, setPeople] = useState<UserSearchResult[]>([]);
   const [peopleLoading, setPeopleLoading] = useState(false);
 
   // Reuse the exact same published-events fetch the Discover feed relies on.
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const q = query(
-          collection(db, 'events'),
-          where('is_published', '==', true),
-          limit(50)
-        );
-        const snapshot = await getDocs(q);
-        const eventsData = snapshot.docs.map((docSnap) => {
-          const data = docSnap.data();
-          let startDate = null;
-          if (data.start_datetime) {
-            if (typeof data.start_datetime.toDate === 'function') startDate = data.start_datetime.toDate();
-            else if (data.start_datetime.seconds) startDate = new Date(data.start_datetime.seconds * 1000);
-            else startDate = new Date(data.start_datetime);
-          }
-          let endDate = null;
-          if (data.end_datetime) {
-            if (typeof data.end_datetime.toDate === 'function') endDate = data.end_datetime.toDate();
-            else if (data.end_datetime.seconds) endDate = new Date(data.end_datetime.seconds * 1000);
-            else endDate = new Date(data.end_datetime);
-          }
-          return { id: docSnap.id, ...data, start_datetime: startDate, end_datetime: endDate };
-        });
+  const loadEvents = useCallback(async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const q = query(
+        collection(db, 'events'),
+        where('is_published', '==', true),
+        limit(50)
+      );
+      const snapshot = await getDocs(q);
+      const eventsData = snapshot.docs.map((docSnap) => {
+        const data = docSnap.data();
+        let startDate = null;
+        if (data.start_datetime) {
+          if (typeof data.start_datetime.toDate === 'function') startDate = data.start_datetime.toDate();
+          else if (data.start_datetime.seconds) startDate = new Date(data.start_datetime.seconds * 1000);
+          else startDate = new Date(data.start_datetime);
+        }
+        let endDate = null;
+        if (data.end_datetime) {
+          if (typeof data.end_datetime.toDate === 'function') endDate = data.end_datetime.toDate();
+          else if (data.end_datetime.seconds) endDate = new Date(data.end_datetime.seconds * 1000);
+          else endDate = new Date(data.end_datetime);
+        }
+        return { id: docSnap.id, ...data, start_datetime: startDate, end_datetime: endDate };
+      });
 
-        // Hide rejected + unlisted events, then future-only (same rules as Discover).
-        const notRejected = (eventsData as any[]).filter((e) => e.rejected !== true);
-        const exploreEvents = filterExploreEvents(notRejected);
-        const now = new Date();
-        const futureEvents = exploreEvents.filter((event) => {
-          const start = event.start_datetime ? new Date(event.start_datetime) : null;
-          const end = event.end_datetime ? new Date(event.end_datetime) : null;
-          const cutoff = end || start;
-          if (!cutoff) return false;
-          return cutoff >= now;
-        });
-        if (active) setAllEvents(futureEvents.length > 0 ? futureEvents : exploreEvents);
-      } catch (error) {
-        console.error('[SearchScreen] Error fetching events:', error);
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
-    return () => {
-      active = false;
-    };
+      // Hide rejected + unlisted events, then future-only (same rules as Discover).
+      const notRejected = (eventsData as any[]).filter((e) => e.rejected !== true);
+      const exploreEvents = filterExploreEvents(notRejected);
+      const now = new Date();
+      const futureEvents = exploreEvents.filter((event) => {
+        const start = event.start_datetime ? new Date(event.start_datetime) : null;
+        const end = event.end_datetime ? new Date(event.end_datetime) : null;
+        const cutoff = end || start;
+        if (!cutoff) return false;
+        return cutoff >= now;
+      });
+      setAllEvents(futureEvents.length > 0 ? futureEvents : exploreEvents);
+    } catch (err) {
+      console.error('[SearchScreen] Error fetching events:', err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadEvents();
+  }, [loadEvents]);
 
   // Auto-focus the input on mount (POSH-style dedicated search).
   useEffect(() => {
@@ -146,9 +149,28 @@ export default function SearchScreen({ navigation }: any) {
     return Array.from(map.values());
   }, [allEvents]);
 
+  // Match across every field the old Discover feed searched — title, venue,
+  // city, category label and description — so venue/neighborhood/category
+  // queries surface events, not just title matches.
   const matchedEvents = useMemo(
-    () => (q ? allEvents.filter((e) => normalize(e.title).includes(q)) : []),
-    [allEvents, q]
+    () =>
+      q
+        ? allEvents.filter((e) => {
+            const haystack = normalize(
+              [
+                e.title,
+                e.venue_name,
+                e.city,
+                getCategoryLabel(t, e.category),
+                e.description,
+              ]
+                .filter(Boolean)
+                .join(' ')
+            );
+            return haystack.includes(q);
+          })
+        : [],
+    [allEvents, q, t]
   );
 
   const matchedOrganizers = useMemo(
@@ -263,6 +285,16 @@ export default function SearchScreen({ navigation }: any) {
       {loading ? (
         <View style={styles.loading}>
           <ActivityIndicator color={colors.primary} />
+        </View>
+      ) : error ? (
+        <View style={styles.loading}>
+          <EmptyState
+            icon={CloudOff}
+            title={t('common.loadErrorTitle')}
+            subtitle={t('common.loadErrorSubtitle')}
+            actionLabel={t('common.retry')}
+            onAction={loadEvents}
+          />
         </View>
       ) : (
         <ScrollView
