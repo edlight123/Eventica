@@ -71,7 +71,7 @@ export default function HomeScreen({ navigation }: any) {
   const { colors, isDark } = useTheme();
   const styles = getStyles(colors);
   const { user, userProfile } = useAuth();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const { userCountry, applyFiltersDirectly } = useFilters();
   const insets = useSafeAreaInsets();
   const [events, setEvents] = useState<any[]>([]);
@@ -250,7 +250,7 @@ export default function HomeScreen({ navigation }: any) {
     }
   };
 
-  const handleShare = (event: any) => shareEvent(event);
+  const handleShare = (event: any) => shareEvent(event, language);
 
   useEffect(() => {
     fetchEvents();

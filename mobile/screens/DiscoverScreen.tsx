@@ -78,7 +78,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
   const insets = useSafeAreaInsets();
   const { appliedFilters, openFiltersModal, hasActiveFilters, countActiveFilters, applyFiltersDirectly, resetFilters, userCountry } = useFilters();
   const { user } = useAuth();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   
   const [allEvents, setAllEvents] = useState<any[]>([]);
   const [featuredEvents, setFeaturedEvents] = useState<any[]>([]);
@@ -304,7 +304,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
   useEffect(() => { loadSavedIds(); }, [loadSavedIds]);
 
   // Share an event (native share sheet) via the shared, localized helper.
-  const handleShareEvent = useCallback((event: any) => shareEvent(event), []);
+  const handleShareEvent = useCallback((event: any) => shareEvent(event, language), [language]);
 
   // Clear every active filter (context + local) so the "Clear filters" CTA on an
   // empty feed brings the full list back.

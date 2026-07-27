@@ -29,7 +29,7 @@ export default function FavoritesScreen({ navigation }: any) {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const { user } = useAuth();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const insets = useSafeAreaInsets();
   const [favoriteEvents, setFavoriteEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -131,7 +131,7 @@ export default function FavoritesScreen({ navigation }: any) {
     );
   };
 
-  const handleShare = (event: any) => shareEvent(event);
+  const handleShare = (event: any) => shareEvent(event, language);
 
   if (!user) {
     return (
