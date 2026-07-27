@@ -526,7 +526,7 @@ const pages = [
       { type: 'heading', level: 3, text: 'Can I buy tickets without creating an account?' },
       {
         type: 'paragraph',
-        text: 'You need an Tikèm account to purchase tickets. This keeps tickets secure and lets you manage transfers, refunds, and support requests. Creating an account only takes a minute.',
+        text: 'You need a Tikèm account to purchase tickets. This keeps tickets secure and lets you manage transfers, refunds, and support requests. Creating an account only takes a minute.',
       },
 
       { type: 'heading', level: 2, text: 'Attendee — Event Access' },
