@@ -245,17 +245,9 @@ export default function TicketsScreen({ navigation }: any) {
       >
         {displayedTickets.length === 0 ? (
           <View style={styles.emptyWrap}>
-            {/* Poster-forward empty state: a branded gradient ring around the
-                ticket mark instead of a bare floating icon. */}
-            <View style={styles.emptyRing}>
-              <LinearGradient
-                colors={[colors.primary + '33', colors.primary + '0D']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={StyleSheet.absoluteFill}
-              />
-              <Ticket size={34} color={colors.primary} strokeWidth={1.75} />
-            </View>
+            {/* Just the ticket mark on the canvas — no ring, no gradient disc
+                (beta feedback: the circle was too much). */}
+            <Ticket size={40} color={colors.primary} strokeWidth={1.5} style={styles.emptyIcon} />
             <Text style={styles.emptyTitle}>
               {activeTab === 'upcoming' ? t('tickets.emptyUpcomingTitle') : t('tickets.emptyPastTitle')}
             </Text>
@@ -512,15 +504,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingTop: 72,
     paddingHorizontal: 32,
   },
-  emptyRing: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: colors.primary + '33',
+  emptyIcon: {
     marginBottom: 20,
   },
   emptyTitle: {
