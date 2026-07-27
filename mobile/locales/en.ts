@@ -59,6 +59,7 @@ export default {
   common: {
     free: 'Free',
     from: 'from',
+    at: 'at',
     rsvp: 'RSVP',
     viewAll: 'View All',
     ok: 'OK',
@@ -66,6 +67,8 @@ export default {
     no: 'No',
     cancel: 'Cancel',
     retry: 'Retry',
+    loadErrorTitle: "Couldn't load",
+    loadErrorSubtitle: 'Check your connection and try again.',
     remove: 'Remove',
     accept: 'Accept',
     decline: 'Decline',
@@ -792,6 +795,7 @@ export default {
     eventsFound: 'events found',
     noEventsFound: 'No events found',
     tryAdjusting: 'Try adjusting your filters to see more events',
+    clearFilters: 'Clear filters',
     noEventsAvailable: 'No events available',
     checkBackSoon: 'Check back soon for new events!',
     sections: {

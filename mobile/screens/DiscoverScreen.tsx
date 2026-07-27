@@ -9,14 +9,13 @@ import {
   Image,
   Dimensions,
   RefreshControl,
-  Share,
   Alert,
   Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Calendar, MapPin, Search, SlidersHorizontal, Users } from 'lucide-react-native';
+import { Calendar, MapPin, Search, SlidersHorizontal, Users, CloudOff } from 'lucide-react-native';
 import { collection, query, where, getDocs, limit, addDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { filterExploreEvents } from '../lib/api/events';
@@ -43,6 +42,7 @@ import { applyFilters } from '../utils/filterUtils';
 import { DEFAULT_FILTERS, getFeaturedCities } from '../types/filters';
 import { getDateRange } from '../utils/filters';
 import { fetchFriendsGoingCounts } from '../lib/api/social';
+import { shareEvent } from '../lib/share';
 
 const { width } = Dimensions.get('window');
 const GRID_GAP = 16;
@@ -88,6 +88,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
   const [filteredEvents, setFilteredEvents] = useState<any[]>([]);
   const [friendsGoingCounts, setFriendsGoingCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState<DateFilter>('any');
@@ -202,6 +203,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
   }, [allEvents, appliedFilters, searchQuery, selectedDate, selectedCategories, selectedCity, route?.params]);
 
   const fetchEvents = async () => {
+    setError(false);
     try {
       const q = query(
         collection(db, 'events'),
@@ -271,8 +273,9 @@ export default function DiscoverScreen({ navigation, route }: any) {
 
       console.log('[DiscoverScreen] Future events:', futureEvents.length, 'out of', exploreEvents.length, 'total');
       setAllEvents(futureEvents.length > 0 ? futureEvents : exploreEvents);
-    } catch (error) {
-      console.error('[DiscoverScreen] Error fetching events:', error);
+    } catch (err) {
+      console.error('[DiscoverScreen] Error fetching events:', err);
+      setError(true);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -300,17 +303,18 @@ export default function DiscoverScreen({ navigation, route }: any) {
 
   useEffect(() => { loadSavedIds(); }, [loadSavedIds]);
 
-  // Share an event (native share sheet).
-  const handleShareEvent = useCallback(async (event: any) => {
-    try {
-      await Share.share({
-        title: event.title,
-        message: `${event.title}\n\nhttps://tikem.co/events/${event.id}`,
-      });
-    } catch (e) {
-      console.warn('[DiscoverScreen] Share failed:', e);
-    }
-  }, []);
+  // Share an event (native share sheet) via the shared, localized helper.
+  const handleShareEvent = useCallback((event: any) => shareEvent(event), []);
+
+  // Clear every active filter (context + local) so the "Clear filters" CTA on an
+  // empty feed brings the full list back.
+  const handleClearFilters = useCallback(() => {
+    resetFilters();
+    setSearchQuery('');
+    setSelectedDate('any');
+    setSelectedCategories([]);
+    setSelectedCity('');
+  }, [resetFilters]);
 
   // Toggle bookmark: optimistic UI + event_favorites write (add/remove).
   const toggleSaveEvent = useCallback(async (event: any) => {
@@ -616,9 +620,20 @@ export default function DiscoverScreen({ navigation, route }: any) {
 
   const hasAnyFilters = hasActiveFilters() || searchQuery.trim() !== '' || route?.params?.trending || route?.params?.thisWeek || route?.params?.allEvents || selectedDate !== 'any' || selectedCategories.length > 0 || selectedCity !== '';
 
-  const renderFeed = (list: any[], emptyTitle: string, emptySubtitle: string) =>
+  const renderFeed = (
+    list: any[],
+    emptyTitle: string,
+    emptySubtitle: string,
+    emptyAction?: { label: string; onAction: () => void },
+  ) =>
     list.length === 0 ? (
-      <EmptyState icon={Search} title={emptyTitle} subtitle={emptySubtitle} />
+      <EmptyState
+        icon={Search}
+        title={emptyTitle}
+        subtitle={emptySubtitle}
+        actionLabel={emptyAction?.label}
+        onAction={emptyAction?.onAction}
+      />
     ) : (
       list.map((event) => (
         <DiscoverEventCard
@@ -692,7 +707,11 @@ export default function DiscoverScreen({ navigation, route }: any) {
             </TouchableOpacity>
             <TouchableOpacity style={styles.filterBtn} onPress={openFiltersModal} activeOpacity={0.7}>
               <SlidersHorizontal size={20} color={colors.text} />
-              {hasActiveFilters() && <View style={styles.filterDot} />}
+              {countActiveFilters() > 0 && (
+                <View style={styles.filterCountBadge}>
+                  <Text style={styles.filterCountText}>{countActiveFilters()}</Text>
+                </View>
+              )}
             </TouchableOpacity>
           </View>
 
@@ -725,7 +744,11 @@ export default function DiscoverScreen({ navigation, route }: any) {
           </TouchableOpacity>
           <TouchableOpacity style={styles.filterBtn} onPress={openFiltersModal} activeOpacity={0.7}>
             <SlidersHorizontal size={20} color={colors.text} />
-            {hasActiveFilters() && <View style={styles.filterDot} />}
+            {countActiveFilters() > 0 && (
+              <View style={styles.filterCountBadge}>
+                <Text style={styles.filterCountText}>{countActiveFilters()}</Text>
+              </View>
+            )}
           </TouchableOpacity>
         </Animated.View>
       </View>
@@ -750,21 +773,40 @@ export default function DiscoverScreen({ navigation, route }: any) {
           />
         }
       >
-        {discoverTab === 'forYou' &&
-          renderFeed(feedEvents, t('discover.noEventsFound'), t('discover.tryAdjusting'))}
-
-        {discoverTab === 'following' && (
+        {error && allEvents.length === 0 ? (
           <EmptyState
-            icon={Users}
-            title={t('discover.following.emptyTitle')}
-            subtitle={t('discover.following.emptySubtitle')}
-            actionLabel={t('discover.following.syncContacts')}
-            onAction={() => navigation.navigate('Connections', { autoSync: true })}
+            icon={CloudOff}
+            title={t('common.loadErrorTitle')}
+            subtitle={t('common.loadErrorSubtitle')}
+            actionLabel={t('common.retry')}
+            onAction={onRefresh}
           />
-        )}
+        ) : (
+          <>
+            {discoverTab === 'forYou' &&
+              renderFeed(
+                feedEvents,
+                t('discover.noEventsFound'),
+                t('discover.tryAdjusting'),
+                hasActiveFilters()
+                  ? { label: t('discover.clearFilters'), onAction: handleClearFilters }
+                  : undefined,
+              )}
 
-        {discoverTab === 'saved' &&
-          renderFeed(savedEvents, t('discover.saved.emptyTitle'), t('discover.saved.emptySubtitle'))}
+            {discoverTab === 'following' && (
+              <EmptyState
+                icon={Users}
+                title={t('discover.following.emptyTitle')}
+                subtitle={t('discover.following.emptySubtitle')}
+                actionLabel={t('discover.following.syncContacts')}
+                onAction={() => navigation.navigate('Connections', { autoSync: true })}
+              />
+            )}
+
+            {discoverTab === 'saved' &&
+              renderFeed(savedEvents, t('discover.saved.emptyTitle'), t('discover.saved.emptySubtitle'))}
+          </>
+        )}
       </ScrollView>
 
       <EventFiltersSheet />
@@ -993,6 +1035,26 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     height: 8,
     borderRadius: 4,
     backgroundColor: colors.primary,
+  },
+  // Active-filter COUNT badge on the round filter button (replaces the bare dot).
+  filterCountBadge: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    minWidth: 18,
+    height: 18,
+    paddingHorizontal: 5,
+    borderRadius: 9,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: colors.background,
+  },
+  filterCountText: {
+    color: '#FFF',
+    fontSize: 10,
+    fontWeight: '800',
   },
   // Smaller, tighter segment tabs (POSH — compact, understated).
   tabsRow: {

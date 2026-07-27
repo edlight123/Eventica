@@ -7,6 +7,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { safeFormatForLanguage } from '../lib/dates';
 import { resolvePosterTheme } from '../lib/posterGradient';
+import { formatPrice } from '../lib/currency';
 import { font } from '../theme/tokens';
 import WhitePillCTA from './WhitePillCTA';
 import VerifiedBadge from './VerifiedBadge';
@@ -95,7 +96,7 @@ export default function DiscoverEventCard({
           )}
           {(dateLabel || venue) && (
             <Text style={styles.meta} numberOfLines={2}>
-              {[dateLabel, venue].filter(Boolean).join(' at ')}
+              {[dateLabel, venue].filter(Boolean).join(` ${t('common.at')} `)}
             </Text>
           )}
         </View>
@@ -122,7 +123,7 @@ export default function DiscoverEventCard({
         <WhitePillCTA
           variant="paid"
           label={t('home.getTickets')}
-          subLabel={`${t('common.from')} ${price.toLocaleString()} ${event.currency || 'HTG'}`}
+          subLabel={`${t('common.from')} ${formatPrice(price, event.currency)}`}
           onPress={onPress}
           compact
           style={styles.cta}

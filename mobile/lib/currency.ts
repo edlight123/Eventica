@@ -6,6 +6,7 @@
  *   USD → prefix symbol, grouped:   $1,234.56
  *   CAD → prefix symbol, grouped:   CA$1,234.56
  *   EUR → prefix symbol, grouped:   €1,234.56
+ *   DOP → prefix symbol, grouped:   RD$1,234.56
  *   HTG → suffix code,   grouped:   1,234.56 HTG
  *
  * Amounts are in MAJOR units by default. Pass `{ fromCents: true }` for values
@@ -49,6 +50,7 @@ export function formatCurrency(
   if (code === 'USD') return `$${grouped}`;
   if (code === 'CAD') return `CA$${grouped}`;
   if (code === 'EUR') return `€${grouped}`;
+  if (code === 'DOP') return `RD$${grouped}`;
   // HTG (and any other unknown code) → suffix form.
   return `${grouped} ${code}`;
 }
@@ -60,4 +62,14 @@ export function formatCurrency(
 export function formatPriceShort(amount: number, currency?: string | null): string {
   const whole = Number.isFinite(amount) && Math.abs(amount - Math.round(amount)) < 1e-9;
   return formatCurrency(amount, currency, { decimals: whole ? 0 : 2 });
+}
+
+/**
+ * The single card/list price helper — consistent symbol + placement everywhere
+ * an event price is shown (poster cards, list rows, "from" CTAs, filter readout)
+ * so we never render three different shapes ("HTG 500" / "from 500 HTG" / "$500")
+ * for the same amount. Whole amounts drop the decimals to stay tight.
+ */
+export function formatPrice(amount: number, currency?: string | null): string {
+  return formatPriceShort(amount, currency);
 }

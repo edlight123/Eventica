@@ -7,6 +7,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { resolvePosterTheme } from '../lib/posterGradient';
 import { safeFormatForLanguage } from '../lib/dates';
+import { formatPrice } from '../lib/currency';
 import { font, radius } from '../theme/tokens';
 
 interface EventListCardProps {
@@ -84,7 +85,7 @@ export default function EventListCard({ event, onPress }: EventListCardProps) {
             <Text style={styles.priceFree}>{t('common.free').toUpperCase()}</Text>
           ) : (
             <Text style={styles.price}>
-              {event.currency || 'HTG'} {price.toLocaleString()}
+              {formatPrice(price, event.currency)}
             </Text>
           )}
         </View>
