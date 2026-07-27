@@ -303,7 +303,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.surfaceRaised,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: RADIUS.full,
+    borderRadius: 14,
   },
   createButtonText: {
     color: colors.text,

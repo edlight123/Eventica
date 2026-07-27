@@ -1138,7 +1138,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   radioChip: {
     paddingVertical: 8,
     paddingHorizontal: 10,
-    borderRadius: 999,
+    borderRadius: 10,
     backgroundColor: colors.surfaceMuted,
   },
   radioChipActive: {

@@ -2413,7 +2413,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 8,
     paddingHorizontal: 22,
     paddingVertical: 12,
-    borderRadius: RADIUS.full,
+    borderRadius: 14,
     backgroundColor: colors.white,
     marginTop: 4,
   },
@@ -2435,7 +2435,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 6,
     paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: RADIUS.full,
+    borderRadius: 14,
     backgroundColor: 'rgba(0,0,0,0.55)',
   },
   changeFlyerText: {
@@ -2478,7 +2478,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   chip: {
     paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: RADIUS.full,
+    borderRadius: 10,
     backgroundColor: colors.surfaceRaised,
   },
   chipActive: {
@@ -2814,7 +2814,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'center',
     height: 56,
     paddingHorizontal: 24,
-    borderRadius: RADIUS.full,
+    borderRadius: 14,
     backgroundColor: colors.surfaceRaised,
   },
   backButtonText: {
