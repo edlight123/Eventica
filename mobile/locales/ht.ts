@@ -302,6 +302,12 @@ export default {
     refundPolicy: 'Politik ranbousman',
   },
 
+  contentPage: {
+    updatedPrefix: 'Mizajou',
+    unavailableTitle: 'Kontni pa disponib',
+    unavailableBody: 'Nou pa t kapab chaje kontni sa a. Tanpri tcheke koneksyon ou epi eseye ankò.',
+  },
+
   verification: {
     common: {
       saveAndContinue: 'Sove epi kontinye',

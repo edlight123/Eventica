@@ -258,6 +258,12 @@ export default {
     refundPolicy: 'Refund Policy',
   },
 
+  contentPage: {
+    updatedPrefix: 'Updated',
+    unavailableTitle: 'Content unavailable',
+    unavailableBody: 'We couldn’t load this content. Please check your connection and try again.',
+  },
+
   verification: {
     common: {
       saveAndContinue: 'Save & Continue',
