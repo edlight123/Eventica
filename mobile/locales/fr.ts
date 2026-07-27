@@ -302,6 +302,12 @@ export default {
     refundPolicy: 'Politique de remboursement',
   },
 
+  contentPage: {
+    updatedPrefix: 'Mis à jour le',
+    unavailableTitle: 'Contenu indisponible',
+    unavailableBody: 'Impossible de charger ce contenu. Vérifiez votre connexion et réessayez.',
+  },
+
   verification: {
     common: {
       saveAndContinue: 'Enregistrer et continuer',

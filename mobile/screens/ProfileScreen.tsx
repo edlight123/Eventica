@@ -3,7 +3,6 @@ import {
   Alert,
   Dimensions,
   Image,
-  Linking,
   RefreshControl,
   ScrollView,
   StatusBar,
@@ -44,14 +43,6 @@ import PosterEventCard from '../components/PosterEventCard';
 import EmptyState from '../components/EmptyState';
 import { Skeleton, PosterCardSkeleton } from '../components/Skeleton';
 
-// Use the same web origin as the API layer so support/legal links actually
-// resolve. tikem.co is not live yet, so it must NOT be the fallback; override
-// with EXPO_PUBLIC_API_URL (switch the default once the domain is pointed).
-const WEBSITE_BASE_URL = String(
-  process.env.EXPO_PUBLIC_API_URL ||
-    process.env.EXPO_PUBLIC_WEB_URL ||
-    'https://eventhaiti.vercel.app'
-).replace(/\/$/, '');
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 // Two-column poster wall inside the 16px-padded scroll content (12px gutter).
 const PROFILE_POSTER_WIDTH = (SCREEN_WIDTH - 32 - 12) / 2;
@@ -141,22 +132,6 @@ export default function ProfileScreen() {
     const city = (userProfile?.default_city || '').trim();
     return city.length ? city : t('profile.notSet');
   }, [userProfile?.default_city, t]);
-
-  const openWebUrl = useCallback(
-    async (url: string) => {
-      try {
-        const canOpen = await Linking.canOpenURL(url);
-        if (!canOpen) {
-          Alert.alert(t('common.error'), t('organizerEarnings.errors.unableToOpenLinkTitle'));
-          return;
-        }
-        await Linking.openURL(url);
-      } catch {
-        Alert.alert(t('common.error'), t('organizerEarnings.errors.unableToOpenLinkTitle'));
-      }
-    },
-    [t]
-  );
 
   const loadVerificationStatus = useCallback(async () => {
     if (!user?.uid) {
@@ -999,7 +974,7 @@ export default function ProfileScreen() {
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>{t('profile.help')}</Text>
 
-          <TouchableOpacity style={styles.rowButton} onPress={() => openWebUrl(`${WEBSITE_BASE_URL}/support`)}>
+          <TouchableOpacity style={styles.rowButton} onPress={() => navigation.navigate('ContentPage', { slug: 'support', title: t('profile.helpCenter') })}>
             <View style={styles.rowLeft}>
               <ExternalLink size={18} color={colors.primary} />
               <Text style={styles.rowText}>{t('profile.helpCenter')}</Text>
@@ -1011,7 +986,7 @@ export default function ProfileScreen() {
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>{t('profile.legal')}</Text>
 
-          <TouchableOpacity style={styles.rowButton} onPress={() => openWebUrl(`${WEBSITE_BASE_URL}/legal/terms`)}>
+          <TouchableOpacity style={styles.rowButton} onPress={() => navigation.navigate('ContentPage', { slug: 'terms', title: t('profile.terms') })}>
             <View style={styles.rowLeft}>
               <ExternalLink size={18} color={colors.primary} />
               <Text style={styles.rowText}>{t('profile.terms')}</Text>
@@ -1019,7 +994,7 @@ export default function ProfileScreen() {
             <ExternalLink size={18} color={colors.textSecondary} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.rowButton} onPress={() => openWebUrl(`${WEBSITE_BASE_URL}/legal/privacy`)}>
+          <TouchableOpacity style={styles.rowButton} onPress={() => navigation.navigate('ContentPage', { slug: 'privacy', title: t('profile.privacy') })}>
             <View style={styles.rowLeft}>
               <ExternalLink size={18} color={colors.primary} />
               <Text style={styles.rowText}>{t('profile.privacy')}</Text>
@@ -1027,7 +1002,7 @@ export default function ProfileScreen() {
             <ExternalLink size={18} color={colors.textSecondary} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.rowButton} onPress={() => openWebUrl(`${WEBSITE_BASE_URL}/legal/refunds`)}>
+          <TouchableOpacity style={styles.rowButton} onPress={() => navigation.navigate('ContentPage', { slug: 'refunds', title: t('profile.refundPolicy') })}>
             <View style={styles.rowLeft}>
               <ExternalLink size={18} color={colors.primary} />
               <Text style={styles.rowText}>{t('profile.refundPolicy')}</Text>
