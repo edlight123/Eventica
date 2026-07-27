@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import {
   addDoc,
@@ -31,9 +32,9 @@ import { useI18n } from '../../contexts/I18nContext';
 import { RADIUS } from '../../config/brand';
 import { font } from '../../theme/tokens';
 import { formatCurrency } from '../../lib/currency';
+import { safeFormatForLanguage } from '../../lib/dates';
 import { Skeleton } from '../../components/Skeleton';
 import EmptyState from '../../components/EmptyState';
-import StatusChip from '../../components/StatusChip';
 import WhitePillCTA from '../../components/WhitePillCTA';
 import SecondaryPill from '../../components/auth/SecondaryPill';
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
@@ -101,6 +102,9 @@ export default function OrganizerPromoCodesScreen() {
 
   const [eventTitle, setEventTitle] = useState<string>('');
   const [eventCurrency, setEventCurrency] = useState<string>('HTG');
+  // Full event doc kept around so the per-code share message can enrich itself
+  // with the event's date + location (guarded — a sparse event still shares).
+  const [eventData, setEventData] = useState<any>(null);
   const [promoCodes, setPromoCodes] = useState<PromoCodeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -112,7 +116,10 @@ export default function OrganizerPromoCodesScreen() {
   const [discountValue, setDiscountValue] = useState('');
   const [limitType, setLimitType] = useState<LimitType>('unlimited');
   const [maxUses, setMaxUses] = useState('');
-  const [expiresAt, setExpiresAt] = useState('');
+  // Expiry is optional; null means "no expiry". Stored as a Date, serialized to
+  // an ISO string on create (the shape the create logic already expects).
+  const [expiresAt, setExpiresAt] = useState<Date | null>(null);
+  const [showExpiryPicker, setShowExpiryPicker] = useState(false);
 
   const promoCodesCollection = useMemo(() => collection(db, 'promo_codes'), []);
 
@@ -132,6 +139,7 @@ export default function OrganizerPromoCodesScreen() {
 
       setEventTitle(event?.title || '');
       setEventCurrency(event?.currency || 'HTG');
+      setEventData(event || null);
       setPromoCodes(promos);
     } catch (e) {
       console.error('Failed to load promo codes', e);
@@ -157,7 +165,20 @@ export default function OrganizerPromoCodesScreen() {
     setDiscountValue('');
     setLimitType('unlimited');
     setMaxUses('');
-    setExpiresAt('');
+    setExpiresAt(null);
+    setShowExpiryPicker(false);
+  };
+
+  // Native date picker → store the picked Date (or dismiss). Mirrors the
+  // iOS-keeps-open / Android-closes handling from components/EventFiltersSheet.tsx.
+  const handleExpiryChange = (event: any, selectedDate?: Date) => {
+    setShowExpiryPicker(Platform.OS === 'ios');
+    if (event?.type === 'set' && selectedDate) {
+      setExpiresAt(selectedDate);
+    }
+    if (Platform.OS === 'android') {
+      setShowExpiryPicker(false);
+    }
   };
 
   const handleCreate = async () => {
@@ -183,15 +204,8 @@ export default function OrganizerPromoCodesScreen() {
     }
     const finalMaxUses = limitType === 'limited' ? maxUsesNum : null;
 
-    let expiresAtValue: string | null = null;
-    if ((expiresAt || '').trim()) {
-      const parsed = new Date(expiresAt.trim());
-      if (Number.isNaN(parsed.getTime())) {
-        Alert.alert(t('common.error'), t('organizerPromoCodes.errors.invalidExpiresAt'));
-        return;
-      }
-      expiresAtValue = parsed.toISOString();
-    }
+    const expiresAtValue: string | null =
+      expiresAt && !Number.isNaN(expiresAt.getTime()) ? expiresAt.toISOString() : null;
 
     const exists = promoCodes.some((p) => String(p.code || '').toUpperCase() === trimmedCode);
     if (exists) {
@@ -272,13 +286,33 @@ export default function OrganizerPromoCodesScreen() {
     const template = capped
       ? t('organizerPromoCodes.share.blurbFirstN')
       : t('organizerPromoCodes.share.blurbOpen');
-    const message = template
+    const promoLine = template
       .replace('{code}', String(promo.code || '').toUpperCase())
       .replace('{discount}', discount)
       .replace('{at}', atClause)
       .replace('{n}', String(promo.max_uses ?? ''));
+
+    // Enrich with the event's own date · location, each part guarded so a sparse
+    // event still shares cleanly.
+    const when = eventData?.start_datetime
+      ? safeFormatForLanguage(eventData.start_datetime, 'EEE, MMM d · h:mm a', language)
+      : '';
+    const whereRaw = [eventData?.venue_name, eventData?.city, eventData?.location].find(
+      (v) => typeof v === 'string' && v.trim().length > 0
+    );
+    const where = typeof whereRaw === 'string' ? whereRaw.trim() : '';
+    const meta = [when, where].filter(Boolean).join(' · ');
+
+    // The canonical tikem.co event URL. Passed as Share's `url` too so iMessage /
+    // WhatsApp render a rich Open Graph preview (this is how the event poster
+    // surfaces in the share — the image can't be attached as bytes).
+    const url = `https://www.tikem.co/events/${eventId}`;
+
+    const body = [promoLine, meta].filter(Boolean).join('\n');
+    const message = `${body}\n\n${url}`;
+
     try {
-      await Share.share({ message });
+      await Share.share({ message, url });
     } catch (e) {
       console.warn('[promo-share] Share failed:', e);
     }
@@ -416,14 +450,39 @@ export default function OrganizerPromoCodesScreen() {
               )}
 
               <Text style={styles.label}>{t('organizerPromoCodes.fields.expiresAt')}</Text>
-              <TextInput
-                style={styles.input}
-                value={expiresAt}
-                onChangeText={setExpiresAt}
-                placeholder={t('organizerPromoCodes.placeholders.expiresAt')}
-                placeholderTextColor={colors.textTertiary}
-                selectionColor={colors.primary}
-              />
+              <View style={styles.dateFieldRow}>
+                <TouchableOpacity
+                  style={styles.dateField}
+                  onPress={() => setShowExpiryPicker(true)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[styles.dateFieldText, !expiresAt && styles.dateFieldPlaceholder]}>
+                    {expiresAt
+                      ? safeFormatForLanguage(expiresAt, 'EEE, MMM d, yyyy', language)
+                      : t('organizerPromoCodes.placeholders.expiresAt')}
+                  </Text>
+                  <Ionicons name="calendar-outline" size={18} color={colors.textSecondary} />
+                </TouchableOpacity>
+                {expiresAt ? (
+                  <TouchableOpacity
+                    style={styles.dateClearButton}
+                    onPress={() => setExpiresAt(null)}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    accessibilityLabel={t('common.remove')}
+                  >
+                    <Ionicons name="close" size={18} color={colors.textSecondary} />
+                  </TouchableOpacity>
+                ) : null}
+              </View>
+              {showExpiryPicker && (
+                <DateTimePicker
+                  value={expiresAt || new Date()}
+                  mode="date"
+                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                  onChange={handleExpiryChange}
+                  minimumDate={new Date()}
+                />
+              )}
 
               <View style={styles.formActions}>
                 <SecondaryPill
@@ -476,14 +535,21 @@ export default function OrganizerPromoCodesScreen() {
                   <View style={styles.promoHeader}>
                     <View style={styles.promoHeaderLeft}>
                       <Text style={styles.promoCode}>{String(promo.code || '').toUpperCase()}</Text>
-                      {fullyClaimed ? (
-                        <StatusChip status="neutral" label={t('organizerPromoCodes.list.fullyClaimed')} />
-                      ) : (
-                        <StatusChip
-                          status={promo.is_active ? 'active' : 'neutral'}
-                          label={promo.is_active ? t('organizerPromoCodes.list.active') : t('organizerPromoCodes.list.inactive')}
+                      <View style={styles.statusInline}>
+                        <View
+                          style={[
+                            styles.statusDot,
+                            { backgroundColor: !fullyClaimed && promo.is_active ? colors.primary : colors.textTertiary },
+                          ]}
                         />
-                      )}
+                        <Text style={styles.statusLabel}>
+                          {fullyClaimed
+                            ? t('organizerPromoCodes.list.fullyClaimed')
+                            : promo.is_active
+                              ? t('organizerPromoCodes.list.active')
+                              : t('organizerPromoCodes.list.inactive')}
+                        </Text>
+                      </View>
                     </View>
 
                     <View style={styles.promoHeaderActions}>
@@ -643,9 +709,44 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   toggleButton: {
     flex: 1,
-    borderRadius: 10,
+    borderRadius: 14,
     paddingVertical: 10,
     alignItems: 'center',
+    backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  dateFieldRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  dateField: {
+    flex: 1,
+    backgroundColor: colors.background,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  dateFieldText: {
+    flex: 1,
+    color: colors.text,
+  },
+  dateFieldPlaceholder: {
+    color: colors.textTertiary,
+  },
+  dateClearButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: colors.background,
     borderWidth: 1,
     borderColor: colors.border,
@@ -672,8 +773,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   promoCard: {
     backgroundColor: colors.surfaceRaised,
-    borderRadius: RADIUS.xl,
-    padding: 16,
+    borderRadius: 14,
+    padding: 14,
     marginBottom: 10,
     borderWidth: 1,
     borderColor: colors.border,
@@ -685,7 +786,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   promoHeaderLeft: {
     flexDirection: 'row',
@@ -693,6 +794,23 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 10,
     flex: 1,
     flexWrap: 'wrap',
+  },
+  statusInline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  statusLabel: {
+    fontFamily: font.mono,
+    fontSize: 11,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+    color: colors.textSecondary,
   },
   promoHeaderActions: {
     flexDirection: 'row',
@@ -714,7 +832,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '700',
   },
   claimedRow: {
-    marginTop: 10,
+    marginTop: 8,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -726,11 +844,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textSecondary,
   },
   progressBar: {
-    height: 8,
+    height: 6,
     backgroundColor: colors.background,
-    borderRadius: 4,
+    borderRadius: 3,
     overflow: 'hidden',
-    marginTop: 8,
+    marginTop: 6,
   },
   progressFill: {
     height: '100%',
@@ -738,19 +856,19 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: 4,
   },
   promoMeta: {
-    marginTop: 10,
+    marginTop: 6,
     fontFamily: font.monoRegular,
     fontSize: 12,
     color: colors.textSecondary,
   },
   promoActions: {
-    marginTop: 14,
+    marginTop: 10,
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },
   actionButton: {
-    borderRadius: 10,
-    paddingVertical: 10,
+    borderRadius: 14,
+    paddingVertical: 9,
     paddingHorizontal: 14,
   },
   actionButtonPrimary: {

@@ -1012,7 +1012,7 @@ export default {
       discountValue: 'ex. 10',
       maxUses: 'Laisser vide pour illimité',
       quantity: 'ex. 200 personnes',
-      expiresAt: 'AAAA-MM-JJ',
+      expiresAt: 'Appuyez pour choisir une date (facultatif)',
     },
     discountTypes: {
       percentage: 'Pourcentage',
