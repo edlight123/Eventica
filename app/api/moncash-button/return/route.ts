@@ -23,6 +23,7 @@ import {
   releaseInventoryReservation,
 } from '@/lib/tickets/inventory'
 import { addTicketToEarnings } from '@/lib/earnings'
+import { redeemPromoInTransaction } from '@/lib/promo-codes'
 
 export const runtime = 'nodejs'
 
@@ -600,6 +601,33 @@ async function handleMonCashButtonReturn(request: Request): Promise<NextResponse
             })
           }
         }
+      }
+    }
+
+    // Redeem the promo code atomically (Firestore) — the SINGLE redemption point for this order.
+    // We hold the exclusive fulfillment claim (claimOrderForFulfillment) from here on, so this
+    // runs exactly once per paid order; a duplicate Return/Alert hit short-circuits earlier as
+    // already_completed / in_progress. pendingTx.promo_code_id is the resolved promo doc id
+    // stamped at initiate only when a discount was applied. If the cap filled between initiate
+    // and confirm we keep the issued tickets and only log; redemption never throws.
+    if (createdTickets.length > 0 && pendingTx.promo_code_id) {
+      try {
+        const redeem = await redeemPromoInTransaction({
+          promoId: String(pendingTx.promo_code_id),
+          qty: Number(pendingTx.quantity || createdTickets.length || 1),
+          userId: pendingTx.user_id ? String(pendingTx.user_id) : null,
+          eventId: pendingTx.event_id ? String(pendingTx.event_id) : null,
+          discountApplied:
+            pendingTx.promo_discount_total != null ? Number(pendingTx.promo_discount_total) : null,
+        })
+        if (redeem.capReached) {
+          console.warn('[moncash_button] promo cap reached at confirm; tickets kept, not over-counted', {
+            promoId: String(pendingTx.promo_code_id),
+            eventId: pendingTx.event_id,
+          })
+        }
+      } catch (promoErr) {
+        console.error('[moncash_button] promo redemption failed', (promoErr as any)?.message)
       }
     }
 

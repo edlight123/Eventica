@@ -3,7 +3,7 @@ import { createClient } from '@/lib/firebase-db/server'
 import { getCurrentUser } from '@/lib/auth'
 import { getPaymentProviderForEventCountry, normalizeCountryCode } from '@/lib/payment-provider'
 import { checkEventCapacity } from '@/lib/capacity'
-import { calculateDiscount } from '@/lib/promo-codes'
+import { calculateDiscount, resolvePromoCode, promoHasCapacity, type PromoDoc } from '@/lib/promo-codes'
 import { resolveEventCountry } from '@/lib/event-country'
 import { hasEventAccess } from '@/lib/events/access-guard'
 
@@ -168,28 +168,28 @@ export async function POST(request: Request) {
       ]
     }
 
-    // Apply promo code to the per-ticket unitPrice (simple/consistent with other flows).
-    let promoCodeId: string | null = promoCode ? String(promoCode) : null
-    let promo = null
-    if (promoCodeId) {
-      const { data: promoRow, error: promoErr } = await supabase
-        .from('promo_codes')
-        .select('*')
-        .eq('id', promoCodeId)
-        .single()
-
-      if (!promoErr && promoRow) {
-        promo = promoRow
-      } else {
-        promoCodeId = null
-      }
+    // Apply promo code to the per-ticket unitPrice (Firestore, consistent with other flows).
+    // resolvePromoCode accepts either the Firestore doc id or the raw code. We only apply the
+    // discount when the promo still has capacity; the "first N buyers" cap is enforced atomically
+    // at CONFIRM time (in the Sogepay callback via fulfillPaidOrder), so an abandoned redirect
+    // never consumes a slot and a full promo just charges full price.
+    let promo: PromoDoc | null = null
+    if (promoCode) {
+      const resolved = await resolvePromoCode(String(eventId), String(promoCode))
+      if (resolved && promoHasCapacity(resolved)) promo = resolved
     }
+    // Resolved promo doc id stored on the pending transaction so the confirm-time redeem targets
+    // the exact promo; null when no discount was applied (nothing to redeem).
+    const promoCodeId: string | null = promo?.id || null
 
+    // Total discount applied across the order (event currency), recorded on the redemption.
+    let promoDiscountTotal = 0
     const discountedSelections = selections.map((s) => {
       let unitPrice = Number(s.unitPrice || 0)
       if (promo) {
-        const { discountedPrice } = calculateDiscount(unitPrice, promo)
+        const { discountedPrice, discountAmount } = calculateDiscount(unitPrice, promo)
         unitPrice = discountedPrice
+        promoDiscountTotal += discountAmount * s.quantity
       }
       return { ...s, unitPrice }
     })
@@ -234,6 +234,7 @@ export async function POST(request: Request) {
         exchange_rate_used: null,
         tier_selections: discountedSelections,
         promo_code_id: promoCodeId,
+        promo_discount_total: promoDiscountTotal || null,
       })
       .select('*')
       .single()

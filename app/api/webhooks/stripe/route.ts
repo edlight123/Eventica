@@ -3,7 +3,7 @@ import { createClient } from '@/lib/firebase-db/server'
 import { sendEmail, getTicketConfirmationEmail } from '@/lib/email'
 import { generateTicketQRCode } from '@/lib/qrcode'
 import { sendWhatsAppMessage, getTicketConfirmationWhatsApp } from '@/lib/whatsapp'
-import { trackPromoCodeUsage, calculateDiscount } from '@/lib/promo-codes'
+import { redeemPromoInTransaction } from '@/lib/promo-codes'
 import { notifyTicketPurchase, notifyOrganizerTicketSale } from '@/lib/notifications/helpers'
 import { addTicketToEarnings } from '@/lib/earnings'
 import { adminDb } from '@/lib/firebase/admin'
@@ -210,25 +210,38 @@ export async function POST(request: Request) {
         attendee
       } : null
 
-      // Track promo code usage if applicable
-      if (session.metadata.promoCodeId && session.metadata.originalPrice) {
-        const { data: promoCode } = await supabase
-          .from('promo_codes')
-          .select('*')
-          .eq('id', session.metadata.promoCodeId)
-          .single()
-
-        if (promoCode) {
-          const originalPrice = parseFloat(session.metadata.originalPrice)
-          const { discountAmount } = calculateDiscount(originalPrice, promoCode)
-          
-          await trackPromoCodeUsage(
-            session.metadata.promoCodeId,
-            session.client_reference_id,
-            ticket.id,
-            discountAmount,
-            supabase
-          )
+      // Redeem the promo code atomically (Firestore) — the SINGLE redemption point
+      // for hosted-checkout orders. create-checkout-session already resolved the promo
+      // and stamped its Firestore doc id into metadata.promoCodeId ONLY when a discount
+      // was actually applied. The whole checkout.session.completed handler runs at most
+      // once per order (idempotency claim on event.id above), so redeeming the full
+      // order quantity here in one transaction never double-counts. If the "first N
+      // buyers" cap filled between pricing and confirmation, we KEEP the already-issued
+      // tickets (buyer paid the discounted price) and simply log the over-cap; we never
+      // throw, so promo bookkeeping can never fail ticket issuance.
+      if (session.metadata.promoCodeId) {
+        try {
+          const originalPrice = parseFloat(session.metadata.originalPrice || '0')
+          const finalPrice = parseFloat(session.metadata.finalPrice || '0')
+          const perTicketDiscount =
+            Number.isFinite(originalPrice) && Number.isFinite(finalPrice)
+              ? Math.max(0, originalPrice - finalPrice)
+              : 0
+          const redeem = await redeemPromoInTransaction({
+            promoId: session.metadata.promoCodeId,
+            qty: quantity,
+            userId: session.client_reference_id,
+            eventId: session.metadata.eventId,
+            discountApplied: perTicketDiscount * quantity,
+          })
+          if (redeem.capReached) {
+            console.warn('[stripe] promo cap reached at confirm (checkout.session); tickets kept, not over-counted', {
+              promoId: session.metadata.promoCodeId,
+              eventId: session.metadata.eventId,
+            })
+          }
+        } catch (promoErr) {
+          console.error('[stripe] promo redemption failed (checkout.session)', (promoErr as any)?.message)
         }
       }
 
@@ -498,27 +511,36 @@ export async function POST(request: Request) {
       
       console.log(`📊 Total tickets created: ${createdTickets.length} for user ${paymentIntent.metadata.userId}`)
 
-      // Track promo code usage (embedded payments)
-      if (createdTickets.length > 0 && paymentIntent.metadata.promoCodeId && paymentIntent.metadata.originalPrice) {
-        const { data: promoCode } = await supabase
-          .from('promo_codes')
-          .select('*')
-          .eq('id', paymentIntent.metadata.promoCodeId)
-          .single()
-
-        if (promoCode) {
-          const originalPrice = parseFloat(paymentIntent.metadata.originalPrice)
-          const { discountAmount } = calculateDiscount(originalPrice, promoCode)
-          const firstTicket = createdTickets[0]
-          if (firstTicket?.id) {
-            await trackPromoCodeUsage(
-              paymentIntent.metadata.promoCodeId,
-              paymentIntent.metadata.userId,
-              firstTicket.id,
-              discountAmount,
-              supabase
-            )
+      // Redeem the promo code atomically (Firestore) — the SINGLE redemption point for
+      // embedded (create-payment-intent) orders. create-payment-intent resolved the promo
+      // and stamped its Firestore doc id into metadata.promoCodeId ONLY when a discount was
+      // actually applied. The shared payment_intent-scoped claim above guarantees exactly one
+      // path (this webhook OR the client-confirm route) fulfills this PaymentIntent, so
+      // redeeming the full order quantity here once never double-counts. Cap-reached at
+      // confirm keeps the issued tickets and only logs; never throws.
+      if (createdTickets.length > 0 && paymentIntent.metadata.promoCodeId) {
+        try {
+          const originalPrice = parseFloat(paymentIntent.metadata.originalPrice || '0')
+          const finalPrice = parseFloat(paymentIntent.metadata.finalPrice || '0')
+          const perTicketDiscount =
+            Number.isFinite(originalPrice) && Number.isFinite(finalPrice)
+              ? Math.max(0, originalPrice - finalPrice)
+              : 0
+          const redeem = await redeemPromoInTransaction({
+            promoId: paymentIntent.metadata.promoCodeId,
+            qty: quantity,
+            userId: paymentIntent.metadata.userId,
+            eventId: paymentIntent.metadata.eventId,
+            discountApplied: perTicketDiscount * quantity,
+          })
+          if (redeem.capReached) {
+            console.warn('[stripe] promo cap reached at confirm (payment_intent); tickets kept, not over-counted', {
+              promoId: paymentIntent.metadata.promoCodeId,
+              eventId: paymentIntent.metadata.eventId,
+            })
           }
+        } catch (promoErr) {
+          console.error('[stripe] promo redemption failed (payment_intent)', (promoErr as any)?.message)
         }
       }
 

@@ -22,6 +22,7 @@ import { generateTicketQRCode } from '@/lib/qrcode'
 import { sendEmail, getTicketConfirmationEmail } from '@/lib/email'
 import { sendWhatsAppMessage, getTicketConfirmationWhatsApp } from '@/lib/whatsapp'
 import { notifyTicketPurchase as notifyTicketPurchaseNotification } from '@/lib/notifications/helpers'
+import { redeemPromoInTransaction } from '@/lib/promo-codes'
 
 // Window after which a stuck "processing" claim is considered stale and may be re-claimed
 // (e.g. if a previous fulfillment attempt crashed mid-way).
@@ -320,6 +321,33 @@ export async function fulfillPaidOrder(params: {
           })
         }
       }
+    }
+  }
+
+  // Redeem the promo code atomically (Firestore) — the SINGLE redemption point for any order
+  // fulfilled through this shared pipeline (currently Sogepay). We hold the exclusive fulfillment
+  // claim (claimOrderForFulfillment) from here on, so this runs exactly once per paid order.
+  // pendingTx.promo_code_id is the resolved promo doc id, stamped at initiate only when a discount
+  // was applied. If the "first N buyers" cap filled between initiate and confirm we keep the
+  // issued tickets and only log the over-cap; redemption never throws.
+  if (createdTickets.length > 0 && pendingTx.promo_code_id) {
+    try {
+      const redeem = await redeemPromoInTransaction({
+        promoId: String(pendingTx.promo_code_id),
+        qty: Number(pendingTx.quantity || createdTickets.length || 1),
+        userId: pendingTx.user_id ? String(pendingTx.user_id) : null,
+        eventId: pendingTx.event_id ? String(pendingTx.event_id) : null,
+        discountApplied:
+          pendingTx.promo_discount_total != null ? Number(pendingTx.promo_discount_total) : null,
+      })
+      if (redeem.capReached) {
+        console.warn(`${logPrefix} promo cap reached at confirm; tickets kept, not over-counted`, {
+          promoId: String(pendingTx.promo_code_id),
+          eventId: pendingTx.event_id,
+        })
+      }
+    } catch (promoErr) {
+      console.error(`${logPrefix} promo redemption failed`, (promoErr as any)?.message)
     }
   }
 

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/firebase-db/server'
 import { getCurrentUser } from '@/lib/auth'
-import { calculateDiscount } from '@/lib/promo-codes'
+import { calculateDiscount, resolvePromoCode, promoHasCapacity } from '@/lib/promo-codes'
 import { 
   isBlacklisted, 
   shouldRateLimit, 
@@ -191,18 +191,19 @@ export async function POST(request: Request) {
       }
     }
 
-    // Apply promo code if provided
-    let promoCode = null
+    // Apply promo code if provided (Firestore). resolvePromoCode accepts either the
+    // Firestore doc id OR the raw code string (the incoming `promoCodeId` field may
+    // carry either). We only apply the discount when the promo still has capacity;
+    // the cap is enforced atomically at CONFIRM time in the Stripe webhook, so a
+    // promo that fills up before payment simply charges full price (never blocks the
+    // sale). `resolvedPromoId` is stamped into metadata so the webhook redeems the
+    // exact promo doc — and only when a discount was actually applied here.
+    let resolvedPromoId = ''
     if (promoCodeId) {
-      const { data, error } = await supabase
-        .from('promo_codes')
-        .select('*')
-        .eq('id', promoCodeId)
-        .single()
-
-      if (!error && data) {
-        promoCode = data
-        const { discountedPrice } = calculateDiscount(finalPrice, promoCode)
+      const promo = await resolvePromoCode(String(eventId), String(promoCodeId))
+      if (promo && promoHasCapacity(promo)) {
+        resolvedPromoId = promo.id
+        const { discountedPrice } = calculateDiscount(finalPrice, promo)
         finalPrice = discountedPrice
       }
     }
@@ -275,7 +276,7 @@ export async function POST(request: Request) {
         quantity: quantity.toString(),
         tierId: tierId || '',
         tierName,
-        promoCodeId: promoCodeId || '',
+        promoCodeId: resolvedPromoId,
         originalPrice: basePriceBeforePromo.toString(),
         finalPrice: finalPrice.toString(),
         currency: stripeCurrency,

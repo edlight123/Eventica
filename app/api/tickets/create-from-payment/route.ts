@@ -16,6 +16,7 @@ import {
   markWebhookEventCompleted,
   releaseWebhookEvent,
 } from '@/lib/webhooks/idempotency'
+import { redeemPromoInTransaction } from '@/lib/promo-codes'
 
 // Lazy load Stripe
 function getStripe() {
@@ -213,6 +214,38 @@ export async function POST(request: Request) {
       eventId: fulfillId,
       metadata: { type: 'payment_intent.client_confirm', tickets: createdTickets.length },
     })
+
+    // Redeem the promo code atomically (Firestore). This client-confirm path and the Stripe
+    // webhook's payment_intent.succeeded handler share the pi_fulfill_<id> claim, so exactly ONE
+    // of them ever fulfills a given order — whichever won reaches here and redeems once (no
+    // double-count). metadata.promoCodeId is the resolved Firestore doc id, stamped by
+    // create-payment-intent only when a discount was actually applied. If the cap filled between
+    // pricing and confirm we keep the issued tickets and only log; redemption never throws.
+    if (paymentIntent.metadata.promoCodeId) {
+      try {
+        const originalPrice = parseFloat(paymentIntent.metadata.originalPrice || '0')
+        const finalPrice = parseFloat(paymentIntent.metadata.finalPrice || '0')
+        const perTicketDiscount =
+          Number.isFinite(originalPrice) && Number.isFinite(finalPrice)
+            ? Math.max(0, originalPrice - finalPrice)
+            : 0
+        const redeem = await redeemPromoInTransaction({
+          promoId: paymentIntent.metadata.promoCodeId,
+          qty: quantity,
+          userId: paymentIntent.metadata.userId,
+          eventId: paymentIntent.metadata.eventId,
+          discountApplied: perTicketDiscount * quantity,
+        })
+        if (redeem.capReached) {
+          console.warn('[create-from-payment] promo cap reached at confirm; tickets kept, not over-counted', {
+            promoId: paymentIntent.metadata.promoCodeId,
+            eventId: paymentIntent.metadata.eventId,
+          })
+        }
+      } catch (promoErr) {
+        console.error('[create-from-payment] promo redemption failed', (promoErr as any)?.message)
+      }
+    }
 
     // Send notification
     if (eventDetails) {
