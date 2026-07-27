@@ -66,7 +66,11 @@ export const font = {
   monoRegular: 'JetBrainsMono_400Regular',
 } as const;
 
-export const radius = { none: 0, sm: 8, md: 12, lg: 16, xl: 20, pill: 999 } as const;
+// `pill: 999` is retained ONLY for true circles (avatars, round icon buttons,
+// dots, spinners). Under the platform-wide de-pill, WIDE stadium shapes use a
+// rounded rectangle instead: `button` for buttons/toggles/tabs/CTAs, `chip` for
+// small chips / badges / counts.
+export const radius = { none: 0, sm: 8, chip: 10, md: 12, button: 14, lg: 16, xl: 20, pill: 999 } as const;
 
 export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 } as const;
 

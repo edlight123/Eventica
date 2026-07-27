@@ -6,8 +6,6 @@ import {
   Animated,
   ViewStyle,
 } from 'react-native';
-import { Star, TrendingUp, Sparkles, Ticket, AlertCircle } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { BADGE_COLORS, BadgeStatus } from '../theme/badges';
 import { useI18n } from '../contexts/I18nContext';
 import { font } from '../theme/tokens';
@@ -22,12 +20,31 @@ const STATUS_KEY: Record<BadgeStatus, keyof typeof BADGE_COLORS> = {
   'Sold Out': 'soldOut',
 };
 
+/**
+ * Single dot + label color per status. Gradient statuses (VIP/Trending/New)
+ * collapse to a representative teal from their family; solid statuses reuse
+ * their semantic `text` hue. The label always renders IN this color.
+ */
+const STATUS_COLOR: Record<BadgeStatus, string> = {
+  VIP: '#2DD4BF',
+  Trending: '#14B8A6',
+  New: '#2DD4BF',
+  Free: BADGE_COLORS.free.text,
+  'Last Chance': BADGE_COLORS.lastChance.text,
+  'Sold Out': BADGE_COLORS.soldOut.text,
+};
+
 export interface EventStatusBadgeProps {
   status: BadgeStatus;
   size?: 'small' | 'large';
   style?: ViewStyle;
 }
 
+/**
+ * Status badge under the platform-wide de-pill: a 6px colored dot + an uppercase
+ * label in the status color, inline, with NO filled pill background. VIP and
+ * Trending keep their premium pulse animation.
+ */
 export default function EventStatusBadge({ status, size = 'small', style }: EventStatusBadgeProps) {
   const { t } = useI18n();
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -67,117 +84,51 @@ export default function EventStatusBadge({ status, size = 'small', style }: Even
     }
   }, [status, scaleAnim, opacityAnim]);
 
-  const getIcon = () => {
-    const iconSize = size === 'small' ? 10 : 14;
-    const iconColor = '#FFF';
+  const color = STATUS_COLOR[status] ?? STATUS_COLOR.New;
+  const fontSize = size === 'small' ? 10 : 12;
+  const label = t(`badges.${String(status).toLowerCase().replace(/\s+/g, '')}`);
+  const accessibilityLabel = `${label} ${t('badges.event')}`;
 
-    switch (status) {
-      case 'VIP':
-        return <Star size={iconSize} color={iconColor} fill={iconColor} />;
-      case 'Trending':
-        return <TrendingUp size={iconSize} color={iconColor} />;
-      case 'New':
-        return <Sparkles size={iconSize} color={iconColor} />;
-      case 'Free':
-        return <Ticket size={iconSize} color={BADGE_COLORS.free.text} />;
-      case 'Last Chance':
-        return <AlertCircle size={iconSize} color={BADGE_COLORS.lastChance.text} />;
-      case 'Sold Out':
-        return null;
-      default:
-        return null;
-    }
-  };
+  const content = (
+    <View style={styles.content}>
+      <View style={[styles.dot, { backgroundColor: color }]} />
+      <Text style={[styles.label, { fontSize, color }]}>{label}</Text>
+    </View>
+  );
 
-  const getBadgeContent = () => {
-    const colors = BADGE_COLORS[STATUS_KEY[status]] ?? BADGE_COLORS.new;
-    const isGradient = 'gradient' in colors;
-    const fontSize = size === 'small' ? 10 : 12;
-    const paddingHorizontal = size === 'small' ? 8 : 12;
-    const paddingVertical = size === 'small' ? 4 : 6;
-    const label = t(`badges.${String(status).toLowerCase().replace(/\s+/g, '')}`);
-    const accessibilityLabel = `${label} ${t('badges.event')}`;
+  const animated = status === 'VIP' || status === 'Trending';
 
-    if (isGradient) {
-      return (
-        <Animated.View
-          style={[
-            { transform: [{ scale: scaleAnim }], opacity: opacityAnim },
-            style,
-          ]}
-          accessible={true}
-          accessibilityLabel={accessibilityLabel}
-          accessibilityRole="text"
-        >
-          <LinearGradient
-            colors={colors.gradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={[
-              styles.badge,
-              {
-                paddingHorizontal,
-                paddingVertical,
-                shadowColor: colors.shadow,
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.4,
-                shadowRadius: 4,
-                elevation: 4,
-              },
-            ]}
-          >
-            <View style={styles.badgeContent}>
-              {getIcon()}
-              <Text style={[styles.badgeText, { fontSize, color: colors.text }]}>
-                {label}
-              </Text>
-            </View>
-          </LinearGradient>
-        </Animated.View>
-      );
-    }
-
-    return (
-      <View
-        style={[
-          styles.badge,
-          {
-            backgroundColor: colors.background,
-            borderWidth: 1,
-            borderColor: colors.border,
-            paddingHorizontal,
-            paddingVertical,
-          },
-          style,
-        ]}
-        accessible={true}
-        accessibilityLabel={accessibilityLabel}
-        accessibilityRole="text"
-      >
-        <View style={styles.badgeContent}>
-          {getIcon()}
-          <Text style={[styles.badgeText, { fontSize, color: colors.text }]}>
-            {label}
-          </Text>
-        </View>
-      </View>
-    );
-  };
-
-  return getBadgeContent();
+  return (
+    <Animated.View
+      style={[
+        styles.badge,
+        animated && { transform: [{ scale: scaleAnim }], opacity: opacityAnim },
+        style,
+      ]}
+      accessible={true}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityRole="text"
+    >
+      {content}
+    </Animated.View>
+  );
 }
 
 const styles = StyleSheet.create({
   badge: {
-    borderRadius: 999,
     alignSelf: 'flex-start',
   },
-  badgeContent: {
+  content: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
   },
-  badgeText: {
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 999,
+  },
+  label: {
     fontFamily: font.mono,
     letterSpacing: 0.6,
     textTransform: 'uppercase',

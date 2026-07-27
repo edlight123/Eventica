@@ -78,7 +78,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       gap: 6,
       paddingHorizontal: 14,
       paddingVertical: 9,
-      borderRadius: 999,
+      borderRadius: 14,
       backgroundColor: 'transparent',
     },
     tabActive: {
@@ -100,7 +100,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       minWidth: 20,
       paddingHorizontal: 6,
       paddingVertical: 1,
-      borderRadius: 999,
+      borderRadius: 10,
       backgroundColor: colors.border,
       alignItems: 'center',
       justifyContent: 'center',

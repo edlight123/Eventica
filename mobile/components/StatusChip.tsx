@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle } from 'react-native';
-import { colors, radius, spacing, font } from '../theme/tokens';
+import { colors, font } from '../theme/tokens';
 
 export interface StatusTone {
   /** Solid dot + text color. */
@@ -72,8 +72,9 @@ interface StatusChipProps {
 }
 
 /**
- * A small dot + short label chip. Never color-only — the text label always
- * ships alongside the dot so meaning is legible without relying on color.
+ * A small dot + uppercase label, rendered inline with NO background fill
+ * (platform-wide de-pill). Never color-only — the text label always ships
+ * alongside the dot so meaning is legible without relying on color.
  */
 export default function StatusChip({ status, label }: StatusChipProps) {
   const tone = statusTone(status);
@@ -81,7 +82,7 @@ export default function StatusChip({ status, label }: StatusChipProps) {
 
   return (
     <View
-      style={[styles.chip, { backgroundColor: tone.fill }]}
+      style={styles.chip}
       accessible
       accessibilityRole="text"
       accessibilityLabel={text}
@@ -100,13 +101,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'flex-start',
     gap: 6,
-    paddingHorizontal: spacing.sm + 2,
-    paddingVertical: 5,
-    borderRadius: radius.pill,
   },
   dot: {
-    width: 7,
-    height: 7,
+    width: 6,
+    height: 6,
     borderRadius: 999,
   },
   label: {

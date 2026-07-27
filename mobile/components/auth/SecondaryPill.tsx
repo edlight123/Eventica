@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: spacing.sm,
     height: 56,
-    borderRadius: radius.pill,
+    borderRadius: radius.button,
     paddingHorizontal: spacing.xl,
     backgroundColor: colors.surfaceRaised,
     borderWidth: 1,
