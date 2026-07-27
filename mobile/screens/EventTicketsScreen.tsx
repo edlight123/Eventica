@@ -25,6 +25,7 @@ import TicketPassCard from '../components/TicketPassCard';
 import QRCodeModal from '../components/QRCodeModal';
 import TransferTicketModal from '../components/TransferTicketModal';
 import { TicketPassSkeleton } from '../components/Skeleton';
+import { ticketQrValue } from '../lib/ticket';
 import { font } from '../theme/tokens';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -288,7 +289,7 @@ export default function EventTicketsScreen({ route, navigation }: any) {
         <QRCodeModal
           visible={qrModalVisible}
           onClose={() => setQrModalVisible(false)}
-          ticketId={selectedTicket.id}
+          qrValue={ticketQrValue(selectedTicket)}
           ticketNumber={`${t('tickets.ticketSingular')} #${tickets.indexOf(selectedTicket) + 1}`}
         />
       )}

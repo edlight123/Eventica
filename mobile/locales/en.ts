@@ -1811,6 +1811,7 @@ export default {
   ticketSelector: {
     title: 'Select Tickets',
     chooseTickets: 'Choose Tickets',
+    oneTypePerOrder: 'One ticket type per order',
     ticketsAvailable: 'tickets available',
     soldOut: 'Sold Out',
     onSaleFrom: 'On sale {date}',
@@ -1829,6 +1830,11 @@ export default {
     orderSummary: 'Order Summary',
     selectTickets: 'Select tickets',
     total: 'Total',
+  },
+
+  qrModal: {
+    title: 'Scan Code',
+    instruction: 'Present this code to venue staff for entry',
   },
 
   eventTickets: {

@@ -11,17 +11,25 @@ import {
 import { X } from 'lucide-react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { useTheme } from '../contexts/ThemeContext';
+import { useI18n } from '../contexts/I18nContext';
 
 const { width } = Dimensions.get('window');
 
 interface QRCodeModalProps {
   visible: boolean;
   onClose: () => void;
-  ticketId: string;
+  /**
+   * The resolved value to encode — MUST match what the scanner expects
+   * (`ticketQrValue(ticket)` = signed `qr_code` when present, else the doc id).
+   * Passing the raw doc id here would produce an unscannable QR for tickets
+   * that carry a distinct `qr_code` (e.g. free tickets).
+   */
+  qrValue: string;
   ticketNumber: string;
 }
 
-export default function QRCodeModal({ visible, onClose, ticketId, ticketNumber }: QRCodeModalProps) {
+export default function QRCodeModal({ visible, onClose, qrValue, ticketNumber }: QRCodeModalProps) {
+  const { t } = useI18n();
   return (
     <Modal
       visible={visible}
@@ -41,12 +49,12 @@ export default function QRCodeModal({ visible, onClose, ticketId, ticketNumber }
 
           {/* QR Code */}
           <View style={styles.qrContainer}>
-            <Text style={styles.title}>Scan Code</Text>
+            <Text style={styles.title}>{t('qrModal.title')}</Text>
             <Text style={styles.subtitle}>{ticketNumber}</Text>
-            
+
             <View style={styles.qrWrapper}>
               <QRCode
-                value={ticketId}
+                value={qrValue}
                 size={Math.min(width - 80, 320)}
                 backgroundColor="#FFF"
                 logo={require('../assets/tikem_logo_color.png')}
@@ -57,7 +65,7 @@ export default function QRCodeModal({ visible, onClose, ticketId, ticketNumber }
             </View>
             
             <Text style={styles.instruction}>
-              Present this code to venue staff for entry
+              {t('qrModal.instruction')}
             </Text>
           </View>
         </View>

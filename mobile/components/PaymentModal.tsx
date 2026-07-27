@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   ScrollView,
-  Alert,
 } from 'react-native';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
@@ -132,8 +131,10 @@ function PaymentForm({
 
       if (paymentIntent?.status === 'Succeeded') {
         // Step 3: Create tickets (backend will handle this via webhook, but we can also confirm here)
+        // Success is announced by the caller (EventDetail.handlePaymentSuccess),
+        // which shows the single success Alert and routes to Tickets. Firing our
+        // own Alert here would double up, so we just hand off and close.
         onSuccess('stripe', paymentIntent.id);
-        Alert.alert(t('common.success'), t('screens.payment.successBody'));
         onClose();
       }
     } catch (err: any) {
@@ -373,21 +374,23 @@ function PaymentForm({
             <Text style={styles.sectionTitle}>{t('paymentModal.cardDetails')}</Text>
             <CardField
               postalCodeEnabled={false}
-              placeholder={{
-                number: '4242 4242 4242 4242',
-              }}
+              // The 4242… test number and the test-card hint below are dev-only
+              // affordances — never surface them to real card users in prod.
+              placeholder={__DEV__ ? { number: '4242 4242 4242 4242' } : undefined}
               cardStyle={styles.cardInput}
               style={styles.cardFieldContainer}
               onCardChange={(cardDetails: any) => {
                 setCardComplete(cardDetails.complete);
               }}
             />
-            <View style={styles.testCardHint}>
-              <AlertCircle size={14} color={colors.textSecondary} />
-              <Text style={styles.testCardHintText}>
-                {t('paymentModal.testCardHint')}
-              </Text>
-            </View>
+            {__DEV__ && (
+              <View style={styles.testCardHint}>
+                <AlertCircle size={14} color={colors.textSecondary} />
+                <Text style={styles.testCardHintText}>
+                  {t('paymentModal.testCardHint')}
+                </Text>
+              </View>
+            )}
           </View>
         )}
 

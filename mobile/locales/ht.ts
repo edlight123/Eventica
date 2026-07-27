@@ -1825,6 +1825,7 @@ export default {
   ticketSelector: {
     title: 'Chwazi biyè',
     chooseTickets: 'Chwazi biyè',
+    oneTypePerOrder: 'Yon sèl kalite biyè pou chak kòmand',
     ticketsAvailable: 'biyè disponib',
     soldOut: 'Fini',
     onSaleFrom: 'An vant {date}',
@@ -1843,6 +1844,11 @@ export default {
     orderSummary: 'Rezime kòmand',
     selectTickets: 'Chwazi biyè',
     total: 'Total',
+  },
+
+  qrModal: {
+    title: 'Eskane kòd la',
+    instruction: 'Montre kòd sa a bay anplwaye yo nan antre a',
   },
 
   eventTickets: {

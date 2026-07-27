@@ -15,6 +15,7 @@ import { db } from '../config/firebase';
 import { useI18n } from '../contexts/I18nContext';
 import { normalizePromoValidationResponse } from '../lib/promoCodes';
 import { useTheme } from '../contexts/ThemeContext';
+import { formatCurrency } from '../lib/currency';
 import WhitePillCTA from './WhitePillCTA';
 
 interface TicketTier {
@@ -248,11 +249,18 @@ export default function TieredTicketSelector({
     const currentQty = tierQuantities[tierId] || 0;
     const available = getAvailableQuantity(tier);
     const newQty = Math.max(0, Math.min(currentQty + delta, available, 10));
-    
-    setTierQuantities(prev => ({
-      ...prev,
-      [tierId]: newQty
-    }));
+
+    // Single-tier enforcement: only ONE ticket type may have a quantity at a
+    // time. The purchase contract issues `firstTierWithQty` but charges the
+    // combined `getTotalPrice()`; across mixed tiers that overcharges and
+    // mis-issues. Keeping exactly one tier active makes the two consistent.
+    // Raising a different tier resets the others to 0; decrementing keeps the
+    // (already single) active tier.
+    setTierQuantities(prev => {
+      const next: TierQuantity = delta > 0 ? {} : { ...prev };
+      next[tierId] = newQty;
+      return next;
+    });
   };
 
   const handlePurchase = () => {
@@ -297,6 +305,7 @@ export default function TieredTicketSelector({
             {/* Tier Selection with Quantities */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>{t('ticketSelector.chooseTickets')}</Text>
+              <Text style={styles.helperLine}>{t('ticketSelector.oneTypePerOrder')}</Text>
               {tiers.map(tier => {
                 const available = getAvailableQuantity(tier);
                 const isAvailable = isTierAvailable(tier);
@@ -328,7 +337,7 @@ export default function TieredTicketSelector({
                           {tier.name}
                         </Text>
                         <Text style={styles.tierPrice} numberOfLines={1}>
-                          {tier.price.toLocaleString()} {displayCurrency}
+                          {formatCurrency(tier.price, displayCurrency)}
                         </Text>
                       </View>
                       
@@ -431,7 +440,7 @@ export default function TieredTicketSelector({
                         ? promoValidation.discount_percentage
                           ? `✓ ${promoValidation.discount_percentage}% ${t('ticketSelector.discountApplied')}`
                           : promoValidation.discount_amount
-                            ? `✓ ${promoValidation.discount_amount} ${displayCurrency} ${t('ticketSelector.discountApplied')}`
+                            ? `✓ ${formatCurrency(promoValidation.discount_amount, displayCurrency)} ${t('ticketSelector.discountApplied')}`
                             : `✓ ${t('ticketSelector.discountApplied')}`
                         : `✗ ${promoValidation.error}`
                       }
@@ -459,14 +468,14 @@ export default function TieredTicketSelector({
               </View>
               <View style={styles.priceContainer}>
                 <Text style={styles.totalPrice}>
-                  {getTotalPrice().toLocaleString()} {displayCurrency}
+                  {formatCurrency(getTotalPrice(), displayCurrency)}
                 </Text>
               </View>
             </View>
             <WhitePillCTA
               variant="paid"
               label={t('ticketSelector.continueToPayment')}
-              subLabel={`${getTotalPrice().toLocaleString()} ${displayCurrency}`}
+              subLabel={formatCurrency(getTotalPrice(), displayCurrency)}
               onPress={handlePurchase}
             />
           </View>
@@ -515,6 +524,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 16,
     fontWeight: '600',
     color: colors.text,
+    marginBottom: 12,
+  },
+  helperLine: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginTop: -6,
     marginBottom: 12,
   },
   tierCard: {
