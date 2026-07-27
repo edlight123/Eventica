@@ -572,38 +572,45 @@ export default function ProfileScreen() {
                 key: 'attended',
                 label: t('profile.eventsAttended'),
                 value: accountStats.eventsAttended,
+                // Events you have tickets to.
                 onPress: () => navigation.navigate('Main', { screen: 'Tickets' }),
               },
               {
                 key: 'following',
                 label: t('profile.following'),
                 value: accountStats.following,
-                onPress: () => navigation.navigate('Connections', { initialTab: 'friends' }),
+                // Your own subscriptions — the organizers/channels you follow.
+                onPress: () => navigation.navigate('Subscriptions'),
               },
               {
                 key: 'followers',
                 label: t('profile.followers'),
                 value: accountStats.followers,
-                onPress: () => navigation.navigate('Connections', { initialTab: 'friends' }),
+                // People who follow you: shown as a COUNT only — we don't expose
+                // who they are (privacy). So this stat is not tappable.
+                onPress: undefined,
               },
-            ].map((s, i) => (
-              <TouchableOpacity
-                key={s.key}
-                style={[styles.statItem, i > 0 && styles.statItemDivided]}
-                onPress={statsLoaded ? s.onPress : undefined}
-                disabled={!statsLoaded}
-                activeOpacity={0.6}
-                accessibilityRole="button"
-                accessibilityLabel={s.label}
-              >
-                {statsLoaded ? (
-                  <Text style={styles.statValue}>{s.value}</Text>
-                ) : (
-                  <Skeleton width={32} height={20} radius={6} />
-                )}
-                <Text style={styles.statLabel} numberOfLines={1}>{s.label}</Text>
-              </TouchableOpacity>
-            ))}
+            ].map((s, i) => {
+              const tappable = statsLoaded && !!s.onPress;
+              return (
+                <TouchableOpacity
+                  key={s.key}
+                  style={[styles.statItem, i > 0 && styles.statItemDivided]}
+                  onPress={tappable ? s.onPress : undefined}
+                  disabled={!tappable}
+                  activeOpacity={tappable ? 0.6 : 1}
+                  accessibilityRole={tappable ? 'button' : 'text'}
+                  accessibilityLabel={s.label}
+                >
+                  {statsLoaded ? (
+                    <Text style={styles.statValue}>{s.value}</Text>
+                  ) : (
+                    <Skeleton width={32} height={20} radius={6} />
+                  )}
+                  <Text style={styles.statLabel} numberOfLines={1}>{s.label}</Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
 
           {isEditing ? (

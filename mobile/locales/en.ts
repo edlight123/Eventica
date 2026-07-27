@@ -798,6 +798,12 @@ export default {
     ticketPlural: 'Tickets',
     viewTickets: 'View Tickets',
   },
+  subscriptions: {
+    title: 'Subscriptions',
+    emptyTitle: 'No subscriptions yet',
+    emptyBody: 'Organizers you follow will appear here.',
+    unknownOrganizer: 'Organizer',
+  },
   favorites: {
     title: 'Favorites',
     loginRequiredBody: 'Please login to view your favorite events',

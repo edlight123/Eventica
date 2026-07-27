@@ -575,6 +575,12 @@ export default {
     ticketPlural: 'Billets',
     viewTickets: 'Voir les billets',
   },
+  subscriptions: {
+    title: 'Abonnements',
+    emptyTitle: 'Aucun abonnement',
+    emptyBody: 'Les organisateurs que vous suivez apparaîtront ici.',
+    unknownOrganizer: 'Organisateur',
+  },
   favorites: {
     title: 'Favoris',
     loginRequiredBody: 'Veuillez vous connecter pour voir vos favoris',

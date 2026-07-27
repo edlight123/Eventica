@@ -573,6 +573,12 @@ export default {
     ticketPlural: 'Biyè',
     viewTickets: 'Gade biyè yo',
   },
+  subscriptions: {
+    title: 'Abònman',
+    emptyTitle: 'Poko gen abònman',
+    emptyBody: 'Òganizatè ou swiv yo ap parèt isit la.',
+    unknownOrganizer: 'Òganizatè',
+  },
   favorites: {
     title: 'Favori',
     loginRequiredBody: 'Tanpri konekte pou wè evènman favori ou yo',
