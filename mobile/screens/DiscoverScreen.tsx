@@ -11,6 +11,7 @@ import {
   RefreshControl,
   Share,
   Alert,
+  Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect } from '@react-navigation/native';
@@ -109,6 +110,36 @@ export default function DiscoverScreen({ navigation, route }: any) {
   // once at rest; a sane default until then.
   const [headerH, setHeaderH] = useState(160);
   const headerMeasured = useRef(false);
+
+  // Header collapse-on-scroll: as the feed scrolls down we crossfade the full
+  // search pill + tabs out and a compact search/filter icon row in, so the
+  // poster fills the screen. Layout/opacity animation → useNativeDriver:false.
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const COLLAPSE_AT = 72;
+
+  useEffect(() => {
+    const id = scrollY.addListener(({ value }) => {
+      setIsCollapsed((prev) => {
+        if (!prev && value > COLLAPSE_AT) return true;
+        // Hysteresis so it doesn't flicker right at the threshold.
+        if (prev && value < COLLAPSE_AT - 20) return false;
+        return prev;
+      });
+    });
+    return () => scrollY.removeListener(id);
+  }, [scrollY]);
+
+  const expandedOpacity = scrollY.interpolate({
+    inputRange: [0, COLLAPSE_AT],
+    outputRange: [1, 0],
+    extrapolate: 'clamp',
+  });
+  const collapsedOpacity = scrollY.interpolate({
+    inputRange: [COLLAPSE_AT * 0.5, COLLAPSE_AT],
+    outputRange: [0, 1],
+    extrapolate: 'clamp',
+  });
 
   useEffect(() => {
     fetchEvents();
@@ -620,11 +651,13 @@ export default function DiscoverScreen({ navigation, route }: any) {
         </View>
       ) : null}
 
-      {/* Posh-style header: a transparent overlay the feed scrolls under (no
-          blur box) so the poster shows cleanly through behind the search entry +
-          tabs. A faint scrim keeps the controls legible on bright posters. */}
+      {/* Posh-style header: a fully transparent overlay the feed scrolls under
+          (no scrim box) so the poster shows cleanly through. Only a very subtle
+          top-only gradient keeps the controls legible on bright posters. On
+          scroll it collapses to a compact search + filter icon row. */}
       <View
         style={[styles.header, { paddingTop: insets.top + 8 }]}
+        pointerEvents="box-none"
         onLayout={(e) => {
           if (headerMeasured.current) return;
           const h = e.nativeEvent.layout.height;
@@ -634,38 +667,67 @@ export default function DiscoverScreen({ navigation, route }: any) {
           }
         }}
       >
-        <View style={styles.headerScrim} pointerEvents="none" />
-        <View style={styles.searchRow}>
-          {/* Tapping the search pill opens the dedicated full-screen Search. */}
+        <LinearGradient
+          colors={['rgba(10,10,10,0.5)', 'rgba(10,10,10,0)']}
+          style={styles.headerGradient}
+          pointerEvents="none"
+        />
+
+        {/* Expanded state: full search pill + tabs. */}
+        <Animated.View
+          style={{ opacity: expandedOpacity }}
+          pointerEvents={isCollapsed ? 'none' : 'box-none'}
+        >
+          <View style={styles.searchRow}>
+            {/* Tapping the search pill opens the dedicated full-screen Search. */}
+            <TouchableOpacity
+              style={styles.searchPill}
+              onPress={() => navigation.navigate('Search')}
+              activeOpacity={0.75}
+            >
+              <Search size={20} color={colors.textSecondary} />
+              <Text style={styles.searchPlaceholder} numberOfLines={1}>
+                {t('discover.searchPlaceholder')}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.filterBtn} onPress={openFiltersModal} activeOpacity={0.7}>
+              <SlidersHorizontal size={20} color={colors.text} />
+              {hasActiveFilters() && <View style={styles.filterDot} />}
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.tabsRow}>
+            {([
+              { key: 'forYou', label: t('discover.tabs.forYou') },
+              { key: 'following', label: t('discover.tabs.following') },
+              { key: 'saved', label: t('discover.tabs.saved') },
+            ] as const).map((tab) => (
+              <TouchableOpacity key={tab.key} onPress={() => setDiscoverTab(tab.key)} hitSlop={8}>
+                <Text style={[styles.tabText, discoverTab === tab.key && styles.tabTextActive]}>
+                  {tab.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </Animated.View>
+
+        {/* Collapsed state: compact search + filter icons only (max poster). */}
+        <Animated.View
+          style={[styles.collapsedRow, { top: insets.top + 8, opacity: collapsedOpacity }]}
+          pointerEvents={isCollapsed ? 'box-none' : 'none'}
+        >
           <TouchableOpacity
-            style={styles.searchPill}
+            style={styles.filterBtn}
             onPress={() => navigation.navigate('Search')}
-            activeOpacity={0.75}
+            activeOpacity={0.7}
           >
-            <Search size={20} color={colors.textSecondary} />
-            <Text style={styles.searchPlaceholder} numberOfLines={1}>
-              {t('discover.searchPlaceholder')}
-            </Text>
+            <Search size={20} color={colors.text} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.filterBtn} onPress={openFiltersModal} activeOpacity={0.7}>
             <SlidersHorizontal size={20} color={colors.text} />
             {hasActiveFilters() && <View style={styles.filterDot} />}
           </TouchableOpacity>
-        </View>
-
-        <View style={styles.tabsRow}>
-          {([
-            { key: 'forYou', label: t('discover.tabs.forYou') },
-            { key: 'following', label: t('discover.tabs.following') },
-            { key: 'saved', label: t('discover.tabs.saved') },
-          ] as const).map((tab) => (
-            <TouchableOpacity key={tab.key} onPress={() => setDiscoverTab(tab.key)} hitSlop={8}>
-              <Text style={[styles.tabText, discoverTab === tab.key && styles.tabTextActive]}>
-                {tab.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        </Animated.View>
       </View>
 
       {/* Feed */}
@@ -675,6 +737,10 @@ export default function DiscoverScreen({ navigation, route }: any) {
         contentContainerStyle={[styles.feedContent, { paddingTop: headerH + 8, paddingBottom: 32 + insets.bottom }]}
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={16}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: false }
+        )}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -856,23 +922,36 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     resizeMode: 'cover',
   },
   header: {
-    // Absolute TRANSPARENT overlay (no blur box): the feed scrolls UP behind it
-    // so the poster shows cleanly through behind the search entry + tabs.
+    // Absolute FULLY-TRANSPARENT overlay (no scrim box): the feed scrolls UP
+    // behind it so the poster shows cleanly through behind the search + tabs.
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     zIndex: 10,
-    overflow: 'hidden',
     backgroundColor: 'transparent',
     paddingHorizontal: 16,
     paddingBottom: 10,
   },
-  // A faint dark scrim so the search text + tabs stay legible on top of any
-  // bright poster — no frosted panel, just a subtle wash.
-  headerScrim: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(10,10,10,0.35)',
+  // Very subtle top-only gradient — just enough contrast for legibility on
+  // bright posters, fading to fully transparent (no box, no frosted panel).
+  headerGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '100%',
+  },
+  // Collapsed header: a compact search + filter icon row pinned to the top,
+  // shown when the feed is scrolled down for maximum poster visibility.
+  collapsedRow: {
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: 10,
   },
   searchRow: {
     flexDirection: 'row',
