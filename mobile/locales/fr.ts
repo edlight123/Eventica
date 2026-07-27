@@ -552,6 +552,16 @@ export default {
       onlineSubtitle: 'Rejoignez depuis n’importe où',
     },
   },
+  search: {
+    featuredEvents: 'Événements à la une',
+    events: 'Événements',
+    organizations: 'Organisations',
+    people: 'Personnes',
+    noResults: 'Aucun résultat',
+    noResultsSubtitle: 'Essayez un autre nom ou mot-clé.',
+    eventCount: 'événement',
+    eventsCount: 'événements',
+  },
   tickets: {
     title: 'Mes billets',
     loginRequiredBody: 'Veuillez vous connecter pour voir vos billets',

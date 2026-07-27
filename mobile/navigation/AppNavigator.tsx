@@ -25,6 +25,7 @@ import SignupScreen from '../screens/auth/SignupScreen';
 // Attendee Screens
 import HomeScreen from '../screens/HomeScreen';
 import DiscoverScreen from '../screens/DiscoverScreen';
+import SearchScreen from '../screens/SearchScreen';
 import FavoritesScreen from '../screens/FavoritesScreen';
 import TicketsScreen from '../screens/TicketsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
@@ -82,6 +83,7 @@ export type RootStackParamList = {
   Auth: undefined;
   Main: undefined;
   InviteRedeem: { eventId?: string; token?: string };
+  Search: undefined;
   PaymentWebView: { url: string; title?: string; authToken?: string | null; eventId?: string };
   StripeConnectWebView: { url: string };
   InAppWebView: { url: string; title?: string };
@@ -657,6 +659,7 @@ export default function AppNavigator() {
               })}
             />
             <Stack.Screen name="EventDetail" component={EventDetailScreen} />
+            <Stack.Screen name="Search" component={SearchScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Favorites" component={FavoritesScreen} options={{ headerShown: false }} />
             <Stack.Screen name="CategoryEvents" component={CategoryEventsScreen} />
             <Stack.Screen name="EventTickets" component={EventTicketsScreen} />
