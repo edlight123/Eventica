@@ -28,6 +28,7 @@ import EmptyState from '../../components/EmptyState';
 import StatusChip from '../../components/StatusChip';
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
 import SegmentedTabs from '../../components/organizer/SegmentedTabs';
+import { TikemWordmark } from '../../components/TikemWordmark';
 
 type EventStatus = 'draft' | 'published' | 'sold_out' | 'completed' | 'cancelled';
 
@@ -219,15 +220,22 @@ export default function OrganizerEventsScreen() {
                 style={styles.eventCard}
                 onPress={() => navigation.navigate('OrganizerEventManagement', { eventId: event.id })}
               >
-                <View style={styles.eventImage}>
+                {/* Real cover → full banner. No cover → a compact branded strip
+                    (small wordmark on the poster gradient) instead of a big
+                    empty color block. */}
+                <View style={event.cover_image_url ? styles.eventImage : styles.eventStrip}>
                   <LinearGradient
                     colors={resolvePosterTheme(event, event.id || event.title, event.category).colors}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={StyleSheet.absoluteFill}
                   />
-                  {!!event.cover_image_url && (
+                  {event.cover_image_url ? (
                     <Image source={{ uri: event.cover_image_url }} style={StyleSheet.absoluteFill} />
+                  ) : (
+                    <View style={styles.eventStripBrand}>
+                      <TikemWordmark fontSize={20} />
+                    </View>
                   )}
                 </View>
                 <View style={styles.eventContent}>
@@ -319,6 +327,19 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     width: '100%',
     height: 160,
     backgroundColor: colors.surfaceMuted,
+  },
+  // No-image events: a slim branded strip instead of a tall empty color block.
+  eventStrip: {
+    width: '100%',
+    height: 64,
+    backgroundColor: colors.surfaceMuted,
+    overflow: 'hidden',
+  },
+  eventStripBrand: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    opacity: 0.9,
   },
   eventContent: {
     padding: 16,

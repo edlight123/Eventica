@@ -30,12 +30,12 @@ interface ActionTileGridProps {
 function renderIcon(icon: ActionTileIcon, color: string): React.ReactNode {
   // Ionicons glyph name.
   if (typeof icon === 'string') {
-    return <Ionicons name={icon as any} size={24} color={color} />;
+    return <Ionicons name={icon as any} size={19} color={color} />;
   }
   // Lucide (or any) component reference.
   if (typeof icon === 'function') {
     const IconComp = icon as LucideIcon;
-    return <IconComp size={24} color={color} />;
+    return <IconComp size={19} color={color} />;
   }
   // Already-rendered node.
   return icon as React.ReactNode;
@@ -56,11 +56,12 @@ export default function ActionTileGrid({ tiles }: ActionTileGridProps) {
           key={tile.key}
           style={styles.tile}
           onPress={tile.onPress}
+          activeOpacity={0.7}
           accessibilityRole="button"
           accessibilityLabel={tile.label}
         >
           <View style={styles.iconWrap}>{renderIcon(tile.icon, colors.text)}</View>
-          <Text style={styles.label} numberOfLines={2}>
+          <Text style={styles.label} numberOfLines={1}>
             {tile.label}
           </Text>
         </TouchableOpacity>
@@ -74,24 +75,30 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     grid: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: 12,
+      gap: 10,
     },
     tile: {
-      // Two columns with a 12px gap between them.
+      // Two columns; a compact horizontal row (icon + label) instead of a tall
+      // stacked tile — reads tighter and more polished with 8+ actions.
       width: '48%',
       flexGrow: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
       backgroundColor: colors.surfaceRaised,
-      borderRadius: radius.lg,
-      paddingVertical: 18,
-      paddingHorizontal: 16,
+      borderRadius: radius.md,
+      paddingVertical: 13,
+      paddingHorizontal: 14,
       gap: 10,
     },
     iconWrap: {
-      height: 24,
+      width: 19,
+      height: 19,
+      alignItems: 'center',
       justifyContent: 'center',
     },
     label: {
-      fontSize: 14,
+      flex: 1,
+      fontSize: 13.5,
       fontWeight: '600',
       color: colors.text,
     },
