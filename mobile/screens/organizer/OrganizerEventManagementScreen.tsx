@@ -268,11 +268,22 @@ export default function OrganizerEventManagementScreen() {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
 
-      {/* POSH header: serif event title + back arrow, matching the rest of the app. */}
+      {/* POSH header: serif event title + back arrow, matching the rest of the app.
+          Share moved out of the tile grid into a header icon (beta feedback). */}
       <OrganizerScreenHeader
         title={event.title}
         subtitle={`${formattedDate} • ${formattedTime}`}
         onBack={() => navigation.goBack()}
+        right={
+          <TouchableOpacity
+            onPress={handleShareEvent}
+            style={styles.headerShareButton}
+            accessibilityRole="button"
+            accessibilityLabel={t('organizerEventManagement.actions.shareEvent')}
+          >
+            <Ionicons name="share-outline" size={22} color={colors.text} />
+          </TouchableOpacity>
+        }
       />
 
       <ScrollView
@@ -299,7 +310,6 @@ export default function OrganizerEventManagementScreen() {
             { key: 'comps', icon: 'gift-outline', label: t('organizerEventManagement.actions.comps'), onPress: handleViewComps },
             { key: 'promo', icon: 'pricetag-outline', label: t('organizerEventManagement.actions.promoCodes'), onPress: handlePromoCodes },
             { key: 'edit', icon: 'create-outline', label: t('organizerEventManagement.actions.editEvent'), onPress: handleEditEvent },
-            { key: 'share', icon: 'share-social-outline', label: t('organizerEventManagement.actions.shareEvent'), onPress: handleShareEvent },
             { key: 'public', icon: 'eye-outline', label: t('organizerEventManagement.actions.viewPublicPage'), onPress: handleViewPublicPage },
           ]}
         />
@@ -410,6 +420,14 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   scroll: {
     flex: 1,
+  },
+  // 44px tap target for the header share icon, keeping the glyph optically centered.
+  headerShareButton: {
+    width: 44,
+    height: 44,
+    marginRight: -10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   skeletonBody: {
     padding: 20,
