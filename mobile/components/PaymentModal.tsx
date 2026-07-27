@@ -8,8 +8,8 @@ import {
   ActivityIndicator,
   ScrollView,
   Alert,
-  Platform,
 } from 'react-native';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
 import { X, CreditCard, Lock, Smartphone, AlertCircle } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
@@ -19,8 +19,12 @@ import { useI18n } from '../contexts/I18nContext';
 import WhitePillCTA from './WhitePillCTA';
 import { formatCurrency } from '../lib/currency';
 
-// Check if we're in Expo Go (Stripe won't work)
-const isExpoGo = !(Platform as any).constants?.expoConfig;
+// Expo Go can't load native modules like Stripe. Detect it reliably via
+// expo-constants. (The old `Platform.constants.expoConfig` check was always
+// undefined in standalone/TestFlight builds too, so the app wrongly believed
+// EVERY build was Expo Go — hiding Stripe card checkout and showing a bogus
+// "not available in Expo Go" warning to real users.)
+const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
 
 // Conditionally import Stripe only if not in Expo Go
 let StripeProvider: any;
@@ -455,8 +459,15 @@ export default function PaymentModal(props: PaymentModalProps) {
   const { t } = useI18n();
   const { colors } = useTheme();
   const styles = getStyles(colors);
-  // If in Expo Go or Stripe not available, render without StripeProvider
-  if (isExpoGo || !StripeProvider) {
+
+  // Haiti events pay via MonCash/NatCash and never touch Stripe, so they must
+  // render the plain form even when the Stripe SDK/key is absent — otherwise a
+  // missing publishable key would wrongly block Haitian checkout below.
+  const isHaitiEvent = ['HT', 'HAITI'].includes(String(props.country || '').toUpperCase());
+
+  // If it's a Haiti event, we're in Expo Go, or Stripe isn't available, render
+  // without StripeProvider.
+  if (isHaitiEvent || isExpoGo || !StripeProvider) {
     return (
       <Modal
         visible={props.visible}

@@ -17,6 +17,28 @@ type Params = {
   eventId?: string
 }
 
+// Hosts we may attach the Firebase bearer to. The MonCash checkout page needs
+// the token to render its form — if the host isn't trusted, the header is
+// withheld and the page comes back BLANK (exactly the "stuck on a white page"
+// bug). We trust our known production domains plus whatever backend the app is
+// configured to call (the redirect always lives on our own backend). An
+// untrusted/hijacked redirect target still never receives the token.
+const TRUSTED_PAYMENT_HOSTS = new Set(
+  [
+    'tikem.co',
+    'www.tikem.co',
+    'jointikem.vercel.app',
+    'eventhaiti.vercel.app',
+    (() => {
+      try {
+        return new URL(process.env.EXPO_PUBLIC_API_URL || '').host.toLowerCase()
+      } catch {
+        return ''
+      }
+    })(),
+  ].filter(Boolean),
+)
+
 export default function PaymentWebViewScreen() {
   const { colors } = useTheme();
   const styles = getStyles(colors);
@@ -47,7 +69,7 @@ export default function PaymentWebViewScreen() {
   const isTrustedHost = useMemo(() => {
     try {
       const host = new URL(url).host.toLowerCase()
-      return host === 'tikem.co' || host === 'www.tikem.co' || host === 'eventhaiti.vercel.app'
+      return TRUSTED_PAYMENT_HOSTS.has(host)
     } catch {
       return false
     }
