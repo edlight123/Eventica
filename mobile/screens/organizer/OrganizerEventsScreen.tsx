@@ -23,6 +23,7 @@ import { useI18n } from '../../contexts/I18nContext';
 import { getOrganizerEvents, OrganizerEvent } from '../../lib/api/organizer';
 import { resolvePosterTheme } from '../../lib/posterGradient';
 import { RADIUS } from '../../config/brand';
+import { font } from '../../theme/tokens';
 import { Skeleton } from '../../components/Skeleton';
 import EmptyState from '../../components/EmptyState';
 import StatusChip from '../../components/StatusChip';
@@ -317,17 +318,19 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     paddingHorizontal: 16,
   },
+  // No card background (POSH poster-forward): the poster + text sit directly on
+  // the canvas, so the artwork carries the card, not a grey container.
   eventCard: {
     flexDirection: 'row',
-    backgroundColor: colors.surfaceRaised,
-    borderRadius: RADIUS.lg,
-    marginBottom: 16,
-    overflow: 'hidden',
+    gap: 14,
+    marginBottom: 24,
   },
-  // Vertical poster thumbnail on the left (portrait ~4:5).
+  // Vertical poster thumbnail on the left (portrait ~4:5). Rounded here since
+  // the card no longer clips it.
   eventThumb: {
     width: 104,
     aspectRatio: 4 / 5,
+    borderRadius: 14,
     backgroundColor: colors.surfaceMuted,
     overflow: 'hidden',
   },
@@ -340,21 +343,22 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   eventContent: {
     flex: 1,
-    padding: 14,
+    paddingVertical: 2,
     justifyContent: 'space-between',
   },
   eventHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   eventTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: font.serif,
+    fontSize: 20,
     color: colors.text,
     flex: 1,
     marginRight: 10,
+    lineHeight: 24,
   },
   eventDetails: {
     marginBottom: 12,
