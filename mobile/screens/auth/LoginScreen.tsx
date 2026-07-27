@@ -3,8 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
+  ScrollView,
   Alert,
   Animated,
 } from 'react-native';
@@ -88,8 +87,19 @@ export default function LoginScreen({ navigation }: any) {
 
   return (
     <AuthBackground>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
-        <View style={[styles.content, { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom + spacing.xl }]}>
+      {/* A ScrollView that insets for the keyboard (automaticallyAdjustKeyboard-
+          Insets) and scrolls the focused field into view — instead of a
+          KeyboardAvoidingView whose flex:1 spacer collapsed and snapped the whole
+          form to the top when the email field was focused. Layout is unchanged
+          when the keyboard is closed. */}
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom + spacing.xl }]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+        automaticallyAdjustKeyboardInsets
+      >
           {/* Brand wordmark, centered in the upper band above the form */}
           <Animated.View style={[styles.brand, { opacity: headlineOpacity, transform: [{ translateY: headlineTranslate }] }]}>
             <TikemWordmark fontSize={64} />
@@ -157,8 +167,7 @@ export default function LoginScreen({ navigation }: any) {
               </View>
             </View>
           </Animated.View>
-        </View>
-      </KeyboardAvoidingView>
+      </ScrollView>
     </AuthBackground>
   );
 }
@@ -168,7 +177,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    flex: 1,
+    flexGrow: 1,
     paddingHorizontal: spacing.xl,
   },
   brand: {
