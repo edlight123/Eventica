@@ -80,6 +80,7 @@ import OrganizerVerificationScreen from '../screens/verification/OrganizerVerifi
 import OrganizerInfoFormScreen from '../screens/verification/OrganizerInfoFormScreen';
 import GovernmentIDUploadScreen from '../screens/verification/GovernmentIDUploadScreen';
 import SelfieUploadScreen from '../screens/verification/SelfieUploadScreen';
+import type { OrganizerEvent } from '../lib/api/organizer';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -98,7 +99,9 @@ export type RootStackParamList = {
   OrganizerProfile: { organizerId: string };
   Notifications: { userId: string };
   Connections: { initialTab?: 'friends' | 'requests' | 'find'; autoSync?: boolean } | undefined;
-  OrganizerEventManagement: { eventId: string };
+  // `event` seeds the Manage Event screen with the list's already-loaded fields
+  // for an instant first paint; it then refreshes the fuller data in the background.
+  OrganizerEventManagement: { eventId: string; event?: OrganizerEvent };
   OrganizerEventEarnings: { eventId: string };
   OrganizerPayoutSettings: undefined;
   OrganizerEventStaff: { eventId: string };
