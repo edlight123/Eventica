@@ -39,6 +39,7 @@ export default {
     selectRating: 'Veuillez sélectionner une note',
     tapToRate: 'Touchez pour noter',
     eventRatingLabel: 'Comment était l’événement ?',
+    organizerRatingLabel: 'Comment était l’organisateur ? (facultatif)',
     wouldRecommend: 'Je recommande cet événement',
     commentLabel: 'Votre avis',
     commentPlaceholder: 'Partagez des détails sur votre expérience…',
@@ -357,6 +358,7 @@ export default {
       failedToPickImageFromLibrary: 'Impossible de choisir une image dans la photothèque',
     },
     organizerInfo: {
+      savedSuccessfully: 'Vos informations ont été enregistrées.',
       title: 'Informations organisateur',
       subtitle: 'Parlez-nous de vous et de votre organisation.',
       fields: {
@@ -466,6 +468,9 @@ export default {
       status: {
         underReview: 'En cours d’examen',
         approved: 'Approuvé',
+        rejected: 'Refusé',
+        changesRequested: 'Modifications demandées',
+        reviewNotes: 'Notes de révision',
       },
       stepsTitle: 'Étapes de vérification',
       startMeta: '3 étapes · ~5 min · pièce d’identité requise',
@@ -605,6 +610,7 @@ export default {
     eventsCount: 'événements',
   },
   tickets: {
+    undated: 'Sans date',
     title: 'Mes billets',
     loginRequiredBody: 'Veuillez vous connecter pour voir vos billets',
     upcoming: 'à venir',
@@ -846,6 +852,13 @@ export default {
     },
   },
 
+  export: {
+    exportCSV: 'Exporter CSV',
+    downloadStarted: 'Téléchargement démarré',
+    noAttendees: 'Aucun participant à exporter',
+    error: 'Échec de l’exportation des participants',
+  },
+
   organizerTicketScanner: {
     headerTitle: 'Scanner un billet',
     permissions: {
@@ -1016,6 +1029,61 @@ export default {
       loadFailed: 'Impossible de charger les billets gratuits.',
       nameRequired: 'Le nom du destinataire est requis.',
       issueFailed: 'Échec de l’émission des billets gratuits.',
+    },
+  },
+
+  organizerPromoCodes: {
+    title: 'Codes promo',
+    create: {
+      show: 'Nouveau code promo',
+      hide: 'Masquer le formulaire',
+      title: 'Créer un code promo',
+      create: 'Créer',
+      creating: 'Création…',
+    },
+    fields: {
+      code: 'Code',
+      discountType: 'Type de réduction',
+      discountValue: 'Valeur de la réduction',
+      maxUses: 'Utilisations max',
+      expiresAt: 'Date d’expiration',
+    },
+    placeholders: {
+      code: 'ex. ETE20',
+      discountValue: 'ex. 10',
+      maxUses: 'Laisser vide pour illimité',
+      expiresAt: 'AAAA-MM-JJ',
+    },
+    discountTypes: {
+      percentage: 'Pourcentage',
+      fixed: 'Montant fixe',
+    },
+    list: {
+      title: 'Codes promo',
+      empty: 'Aucun code promo pour l’instant',
+      uses: 'Utilisations',
+      unlimited: 'Illimité',
+      expires: 'Expire le',
+      active: 'Actif',
+      inactive: 'Inactif',
+      activate: 'Activer',
+      deactivate: 'Désactiver',
+    },
+    delete: {
+      title: 'Supprimer le code promo',
+      body: 'Voulez-vous vraiment supprimer ce code promo ?',
+      confirm: 'Supprimer',
+    },
+    errors: {
+      loadFailed: 'Impossible de charger les codes promo.',
+      missingFields: 'Veuillez saisir un code et une valeur de réduction.',
+      invalidDiscount: 'Saisissez une réduction supérieure à zéro.',
+      invalidMaxUses: 'Saisissez un nombre maximal d’utilisations valide.',
+      invalidExpiresAt: 'Saisissez une date d’expiration valide.',
+      duplicateCode: 'Un code promo avec ce code existe déjà.',
+      createFailed: 'Échec de la création du code promo.',
+      updateFailed: 'Échec de la mise à jour du code promo.',
+      deleteFailed: 'Échec de la suppression du code promo.',
     },
   },
 
@@ -1256,6 +1324,11 @@ export default {
     settlement: 'Règlement',
     availableOn: 'Disponible',
     availableOnUnknown: 'Une fois réglé',
+    stats: {
+      revenue: 'Revenus',
+      ticketsSold: 'Billets vendus',
+      net: 'Net',
+    },
     settlementLabels: {
       ready: 'Prêt',
       pending: 'En attente',
@@ -2062,6 +2135,31 @@ export default {
     topEvents: 'Événements les plus performants',
     noData: 'Aucune vente de billets pour le moment',
     tickets: 'billets',
+  },
+
+  refund: {
+    title: 'Demander un remboursement',
+    generalAdmission: 'Admission générale',
+    amountPaid: 'Montant payé',
+    deadlinePassed: 'Le délai de remboursement est dépassé. Les remboursements doivent être demandés au moins 24 heures avant l’événement.',
+    selectReasonTitle: 'Pourquoi souhaitez-vous un remboursement ?',
+    additionalDetails: 'Détails supplémentaires',
+    reasonPlaceholder: 'Veuillez expliquer votre raison…',
+    policyNote: 'Les demandes de remboursement sont examinées par l’organisateur de l’événement. Vous recevrez une notification par e-mail une fois votre demande traitée.',
+    submit: 'Envoyer la demande',
+    selectReason: 'Veuillez sélectionner une raison',
+    enterReason: 'Veuillez indiquer une raison',
+    submitted: 'Demande de remboursement envoyée. L’organisateur examinera votre demande.',
+    submitError: 'Échec de l’envoi de la demande de remboursement',
+    loadError: 'Impossible de charger les détails du billet',
+    ticketNotFound: 'Billet introuvable',
+    reasons: {
+      scheduleConflict: 'Conflit d’horaire',
+      cannotAttend: 'Je ne peux plus y assister',
+      boughtWrong: 'Mauvais billets achetés',
+      financial: 'Raisons financières',
+      other: 'Autre raison',
+    },
   },
 
   refunds: {

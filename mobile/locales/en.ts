@@ -39,6 +39,7 @@ export default {
     selectRating: 'Please select a rating',
     tapToRate: 'Tap to rate',
     eventRatingLabel: 'How was the event?',
+    organizerRatingLabel: 'How was the organizer? (optional)',
     wouldRecommend: 'I would recommend this event',
     commentLabel: 'Your review',
     commentPlaceholder: 'Share details about your experience…',
@@ -313,6 +314,7 @@ export default {
       failedToPickImageFromLibrary: 'Failed to pick image from library',
     },
     organizerInfo: {
+      savedSuccessfully: 'Your information has been saved.',
       title: 'Organizer Information',
       subtitle: 'Tell us about you and your organization.',
       fields: {
@@ -422,6 +424,9 @@ export default {
       status: {
         underReview: 'Under Review',
         approved: 'Approved',
+        rejected: 'Rejected',
+        changesRequested: 'Changes Requested',
+        reviewNotes: 'Review Notes',
       },
       stepsTitle: 'Verification Steps',
       startMeta: '3 steps · ~5 min · government ID required',
@@ -832,6 +837,7 @@ export default {
     eventsCount: 'events',
   },
   tickets: {
+    undated: 'Undated',
     title: 'My Tickets',
     loginRequiredBody: 'Please login to view your tickets',
     upcoming: 'upcoming',
@@ -1101,6 +1107,13 @@ export default {
     },
   },
 
+  export: {
+    exportCSV: 'Export CSV',
+    downloadStarted: 'Download started',
+    noAttendees: 'No attendees to export',
+    error: 'Failed to export attendees',
+  },
+
   organizerTicketScanner: {
     headerTitle: 'Scan Ticket',
     permissions: {
@@ -1271,6 +1284,61 @@ export default {
       loadFailed: 'Unable to load complimentary tickets.',
       nameRequired: 'Recipient name is required.',
       issueFailed: 'Failed to issue comp tickets.',
+    },
+  },
+
+  organizerPromoCodes: {
+    title: 'Promo Codes',
+    create: {
+      show: 'New promo code',
+      hide: 'Hide form',
+      title: 'Create a promo code',
+      create: 'Create',
+      creating: 'Creating…',
+    },
+    fields: {
+      code: 'Code',
+      discountType: 'Discount type',
+      discountValue: 'Discount value',
+      maxUses: 'Max uses',
+      expiresAt: 'Expires at',
+    },
+    placeholders: {
+      code: 'e.g. SUMMER20',
+      discountValue: 'e.g. 10',
+      maxUses: 'Leave blank for unlimited',
+      expiresAt: 'YYYY-MM-DD',
+    },
+    discountTypes: {
+      percentage: 'Percentage',
+      fixed: 'Fixed amount',
+    },
+    list: {
+      title: 'Promo codes',
+      empty: 'No promo codes yet',
+      uses: 'Uses',
+      unlimited: 'Unlimited',
+      expires: 'Expires',
+      active: 'Active',
+      inactive: 'Inactive',
+      activate: 'Activate',
+      deactivate: 'Deactivate',
+    },
+    delete: {
+      title: 'Delete promo code',
+      body: 'Are you sure you want to delete this promo code?',
+      confirm: 'Delete',
+    },
+    errors: {
+      loadFailed: 'Unable to load promo codes.',
+      missingFields: 'Please enter a code and discount value.',
+      invalidDiscount: 'Enter a discount greater than zero.',
+      invalidMaxUses: 'Enter a valid maximum number of uses.',
+      invalidExpiresAt: 'Enter a valid expiration date.',
+      duplicateCode: 'A promo code with this code already exists.',
+      createFailed: 'Failed to create promo code.',
+      updateFailed: 'Failed to update promo code.',
+      deleteFailed: 'Failed to delete promo code.',
     },
   },
 
@@ -1511,6 +1579,11 @@ export default {
     settlement: 'Settlement',
     availableOn: 'Available',
     availableOnUnknown: 'Once settled',
+    stats: {
+      revenue: 'Revenue',
+      ticketsSold: 'Tickets Sold',
+      net: 'Net',
+    },
     settlementLabels: {
       ready: 'Ready',
       pending: 'Pending',
@@ -2019,6 +2092,31 @@ export default {
     topEvents: 'Top Performing Events',
     noData: 'No ticket sales yet',
     tickets: 'tickets',
+  },
+
+  refund: {
+    title: 'Request Refund',
+    generalAdmission: 'General Admission',
+    amountPaid: 'Amount Paid',
+    deadlinePassed: 'Refund deadline has passed. Refunds must be requested at least 24 hours before the event.',
+    selectReasonTitle: 'Why do you need a refund?',
+    additionalDetails: 'Additional Details',
+    reasonPlaceholder: 'Please explain your reason...',
+    policyNote: 'Refund requests are reviewed by the event organizer. You will receive an email notification once your request has been processed.',
+    submit: 'Submit Request',
+    selectReason: 'Please select a reason',
+    enterReason: 'Please provide a reason',
+    submitted: 'Refund request submitted. The organizer will review your request.',
+    submitError: 'Failed to submit refund request',
+    loadError: 'Failed to load ticket details',
+    ticketNotFound: 'Ticket not found',
+    reasons: {
+      scheduleConflict: 'Schedule conflict',
+      cannotAttend: 'Can\'t attend anymore',
+      boughtWrong: 'Bought wrong tickets',
+      financial: 'Financial reasons',
+      other: 'Other reason',
+    },
   },
 
   refunds: {
