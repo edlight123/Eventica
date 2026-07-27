@@ -11,7 +11,7 @@
  *   sheet gates publishing in create mode, with a save-as-draft escape hatch.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -335,7 +335,13 @@ export default function CreateEventFlowRefactored() {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [loadingEvent, setLoadingEvent] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
+  // How many fields failed validation on the last Save attempt. Drives the
+  // "Fix N field(s)" banner so off-screen errors don't make Create look broken.
+  const [errorCount, setErrorCount] = useState(0);
   const [confirmVisible, setConfirmVisible] = useState(false);
+  // Ref to the single scrolling canvas so a failed Save can scroll the user back
+  // to the top where the error banner + first required fields live.
+  const scrollRef = useRef<ScrollView>(null);
   // Haiti commune search dropdown visibility.
   const [communeListOpen, setCommuneListOpen] = useState(false);
   // Advanced-settings disclosure (POSH Show/Hide advanced settings).
@@ -580,6 +586,17 @@ export default function CreateEventFlowRefactored() {
   // Coming-soon markets (e.g. Dominican Republic): browsable + selectable, but no
   // payout rail yet → paid tickets are disabled, only free/RSVP is allowed.
   const countryComingSoon = isComingSoon(selectedCountry);
+  // US/Canada paid events require Stripe Connect payouts before they can publish.
+  // Surface an inline notice the moment such a combination is set, rather than
+  // only dead-ending at Save (see handleSubmit).
+  const isStripeCountry = selectedCountry === 'US' || selectedCountry === 'CA';
+  const hasPaidTier =
+    !eventDraft.is_rsvp &&
+    eventDraft.ticket_tiers.some((tier) => {
+      const price = parseFloat(tier.price);
+      return Number.isFinite(price) && price > 0;
+    });
+  const showStripePayoutNotice = isStripeCountry && hasPaidTier;
   // Non-Haiti countries keep the flat city list.
   const cities = CITIES_BY_COUNTRY[selectedCountry] || [];
   // Haiti gets a Département → City (arrondissement) → Commune cascade.
@@ -1000,12 +1017,18 @@ export default function CreateEventFlowRefactored() {
     }
 
     setErrors(errs);
+    setErrorCount(Object.keys(errs).length);
     return Object.keys(errs).length === 0;
   };
 
   // Save: validate, then confirm-to-publish (create) or submit directly (edit).
   const handleSave = () => {
-    if (!validateForSubmit()) return;
+    if (!validateForSubmit()) {
+      // Off-screen errors made Create feel broken: scroll back to the top so the
+      // "Fix N field(s)" banner and the first required fields are visible.
+      scrollRef.current?.scrollTo({ y: 0, animated: true });
+      return;
+    }
     if (isEditMode) {
       // Propagate to siblings only when the event is in a series and opted in.
       handleSubmit({ applyToSeries: !!seriesId && applyToSeries });
@@ -1076,7 +1099,14 @@ export default function CreateEventFlowRefactored() {
           setConfirmVisible(false);
           Alert.alert(
             t('organizerEarnings.stripeConnectRequired.title'),
-            t('organizerEarnings.stripeConnectRequired.body')
+            t('organizerEarnings.stripeConnectRequired.body'),
+            [
+              { text: t('common.cancel'), style: 'cancel' },
+              {
+                text: t('organizerEarnings.openPayoutSettings'),
+                onPress: () => (navigation as any).navigate('OrganizerPayoutSettings'),
+              },
+            ]
           );
           return;
         }
@@ -1084,7 +1114,14 @@ export default function CreateEventFlowRefactored() {
         setConfirmVisible(false);
         Alert.alert(
           t('organizerEarnings.stripeConnectRequired.title'),
-          t('organizerEarnings.stripeConnectRequired.body')
+          t('organizerEarnings.stripeConnectRequired.body'),
+          [
+            { text: t('common.cancel'), style: 'cancel' },
+            {
+              text: t('organizerEarnings.openPayoutSettings'),
+              onPress: () => (navigation as any).navigate('OrganizerPayoutSettings'),
+            },
+          ]
         );
         return;
       }
@@ -1229,6 +1266,7 @@ export default function CreateEventFlowRefactored() {
 
           {/* Single scrolling canvas */}
           <ScrollView
+            ref={scrollRef}
             style={styles.content}
             contentContainerStyle={{
               paddingBottom: isKeyboardVisible ? 24 : 140,
@@ -1237,6 +1275,17 @@ export default function CreateEventFlowRefactored() {
             showsVerticalScrollIndicator={false}
             automaticallyAdjustKeyboardInsets={true}
           >
+            {/* Validation banner — surfaces the count of failed fields when Save
+                is blocked, so errors below the fold don't read as a dead button. */}
+            {errorCount > 0 && (
+              <View style={styles.errorBanner}>
+                <Ionicons name="alert-circle" size={18} color={colors.error} />
+                <Text style={styles.errorBannerText}>
+                  {t('organizerCreateEventFlow.validation.fixErrors').replace('{n}', String(errorCount))}
+                </Text>
+              </View>
+            )}
+
             {/* Flyer hero (POSH IMG_1847) */}
             <TouchableOpacity style={styles.flyerHero} activeOpacity={0.9} onPress={pickImage}>
               {eventDraft.banner_image_url ? (
@@ -1494,6 +1543,25 @@ export default function CreateEventFlowRefactored() {
                       countryName(selectedCountry)
                     )}
                   </Text>
+                </View>
+              )}
+
+              {showStripePayoutNotice && (
+                <View style={styles.stripeNotice}>
+                  <Ionicons name="card-outline" size={18} color={colors.text} />
+                  <View style={styles.stripeNoticeBody}>
+                    <Text style={styles.stripeNoticeText}>
+                      {t('organizerCreateEventFlow.canvas.stripePayoutNotice')}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => (navigation as any).navigate('OrganizerPayoutSettings')}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    >
+                      <Text style={styles.stripeNoticeCta}>
+                        {t('organizerCreateEventFlow.canvas.stripePayoutCta')}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               )}
 
@@ -2514,6 +2582,53 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     fontSize: 13,
     color: colors.textSecondary,
+  },
+  // Inline US/CA paid-payout guidance at the top of the tickets section.
+  stripeNotice: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    marginTop: 10,
+    borderRadius: RADIUS.md,
+    backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+  },
+  stripeNoticeBody: {
+    flex: 1,
+    gap: 6,
+  },
+  stripeNoticeText: {
+    fontSize: 13,
+    lineHeight: 18,
+    color: colors.textSecondary,
+  },
+  stripeNoticeCta: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.primary,
+  },
+  // Save-blocked validation banner (top of canvas).
+  errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginHorizontal: 16,
+    marginBottom: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: RADIUS.md,
+    backgroundColor: colors.error + '15',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.error + '40',
+  },
+  errorBannerText: {
+    flex: 1,
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.error,
   },
 
   // ── Tickets ──

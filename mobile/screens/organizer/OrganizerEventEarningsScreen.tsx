@@ -71,8 +71,9 @@ export default function OrganizerEventEarningsScreen() {
   const { eventId } = route.params
 
   const { user } = useAuth()
-  const { t } = useI18n()
+  const { t, language } = useI18n()
   const insets = useSafeAreaInsets()
+  const dateLocale = language === 'fr' ? 'fr-FR' : language === 'ht' ? 'fr-HT' : 'en-US'
 
   // Server rejects withdrawals below 5000 cents (50 units). Mirror it client-side
   // so sub-minimum balances get a clear, currency-correct message instead of the
@@ -162,6 +163,31 @@ export default function OrganizerEventEarningsScreen() {
 
   // Centralized formatter (values are in cents server-side).
   const formatCurrency = (cents: number, curr: string) => fmtCurrency(cents, curr, { fromCents: true })
+
+  // Map the raw settlement status ('ready'/'pending'/'locked') to a localized
+  // label instead of printing the DB value.
+  const settlementStatusLabel = useMemo(() => {
+    const raw = String(earnings?.settlementStatus || 'pending')
+    const key = raw === 'ready' ? 'ready' : raw === 'locked' ? 'locked' : 'pending'
+    return t(`organizerEarnings.settlementLabels.${key}`)
+  }, [earnings?.settlementStatus, t])
+
+  // The loaded settlement date ("Available Aug 3"), formatted for the current
+  // locale. Only meaningful while funds are not yet ready to withdraw.
+  const settlementReadyDateLabel = useMemo(() => {
+    const raw = earnings?.settlementReadyDate
+    if (!raw) return ''
+    const d = new Date(raw)
+    if (isNaN(d.getTime())) return ''
+    return d.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric' })
+  }, [earnings?.settlementReadyDate, dateLocale])
+
+  const notReadyReason = useMemo(() => {
+    if (settlementReadyDateLabel) {
+      return t('organizerEarnings.notices.notReadyWithDate').replace('{date}', settlementReadyDateLabel)
+    }
+    return t('organizerEarnings.notices.notReady')
+  }, [settlementReadyDateLabel, t])
 
   const webBaseUrl = process.env.EXPO_PUBLIC_WEB_URL || 'https://tikem.co'
 
@@ -659,8 +685,16 @@ export default function OrganizerEventEarningsScreen() {
           <Text style={styles.amountText} numberOfLines={1} adjustsFontSizeToFit>{formatCurrency(availableToWithdraw, currency)}</Text>
           <View style={styles.rowBetween}>
             <Text style={styles.metaText}>{t('organizerEarnings.settlement')}</Text>
-            <Text style={styles.metaText}>{String(earnings?.settlementStatus || 'pending')}</Text>
+            <Text style={styles.metaText}>{settlementStatusLabel}</Text>
           </View>
+          {/* When funds aren't ready, tie the zeroed balance to the reason + date
+              so "Available to withdraw: 0" doesn't read as an error. */}
+          {earnings && earnings.settlementStatus !== 'ready' ? (
+            <View style={styles.rowBetween}>
+              <Text style={styles.metaText}>{t('organizerEarnings.availableOn')}</Text>
+              <Text style={styles.metaText}>{settlementReadyDateLabel || t('organizerEarnings.availableOnUnknown')}</Text>
+            </View>
+          ) : null}
         </View>
 
         <View style={{ height: 12 }} />
@@ -756,7 +790,7 @@ export default function OrganizerEventEarningsScreen() {
           </View>
         ) : earnings?.settlementStatus !== 'ready' ? (
           <View style={styles.noticeStack}>
-            <InfoNotice icon="lock-closed-outline" text={t('organizerEarnings.notices.notReady')} />
+            <InfoNotice icon="lock-closed-outline" text={notReadyReason} />
           </View>
         ) : null}
       </ScrollView>

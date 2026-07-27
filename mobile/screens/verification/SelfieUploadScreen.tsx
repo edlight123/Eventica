@@ -257,14 +257,11 @@ export default function SelfieUploadScreen() {
         <View style={styles.instructionsCard}>
           <Ionicons name="camera" size={32} color={colors.primary} />
           <Text style={styles.instructionsTitle}>{t('verification.selfie.instructions.title')}</Text>
+          {/* The 3 tips that most affect whether a verification passes. */}
           <View style={styles.tipsList}>
-            <Text style={styles.tipItem}>✓ {t('verification.selfie.tips.selfieMode')}</Text>
             <Text style={styles.tipItem}>✓ {t('verification.selfie.tips.holdIdNextToFace')}</Text>
-            <Text style={styles.tipItem}>✓ {t('verification.selfie.tips.centerFace')}</Text>
             <Text style={styles.tipItem}>✓ {t('verification.selfie.tips.faceVisible')}</Text>
             <Text style={styles.tipItem}>✓ {t('verification.selfie.tips.idReadable')}</Text>
-            <Text style={styles.tipItem}>✓ {t('verification.selfie.tips.lighting')}</Text>
-            <Text style={styles.tipItem}>✓ {t('verification.selfie.tips.lookAtCamera')}</Text>
           </View>
         </View>
 

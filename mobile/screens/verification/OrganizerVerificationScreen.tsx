@@ -183,6 +183,11 @@ export default function OrganizerVerificationScreen() {
         {/* Steps */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('verification.organizerVerification.stepsTitle')}</Text>
+          {/* At-a-glance expectations before starting KYC. */}
+          <View style={styles.startMetaRow}>
+            <Ionicons name="information-circle-outline" size={16} color={colors.textSecondary} />
+            <Text style={styles.startMeta}>{t('verification.organizerVerification.startMeta')}</Text>
+          </View>
 
           <TouchableOpacity
             style={styles.stepCard}
@@ -285,7 +290,7 @@ export default function OrganizerVerificationScreen() {
               <Text style={styles.submitButtonText}>{t('verification.organizerVerification.submit.button')}</Text>
             </TouchableOpacity>
             <Text style={styles.reviewTimeNote}>
-              Verification is typically reviewed within 48 hours. We'll notify you once it's done.
+              {t('verification.organizerVerification.submit.reviewTimeNote')}
             </Text>
           </View>
         )}
@@ -423,6 +428,18 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '600',
     color: colors.text,
     marginBottom: 12,
+  },
+  startMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: -4,
+    marginBottom: 14,
+  },
+  startMeta: {
+    flex: 1,
+    fontSize: 13,
+    color: colors.textSecondary,
   },
   stepCard: {
     flexDirection: 'row',
