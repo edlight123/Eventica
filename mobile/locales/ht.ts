@@ -1010,7 +1010,7 @@ export default {
       discountValue: 'egz. 10',
       maxUses: 'Kite vid pou san limit',
       quantity: 'egz. 200 moun',
-      expiresAt: 'AAAA-MM-JJ',
+      expiresAt: 'Peze pou chwazi yon dat (opsyonèl)',
     },
     discountTypes: {
       percentage: 'Pousantaj',

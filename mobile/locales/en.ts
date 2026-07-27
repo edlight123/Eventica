@@ -1311,7 +1311,7 @@ export default {
       discountValue: 'e.g. 10',
       maxUses: 'Leave blank for unlimited',
       quantity: 'e.g. 200 people',
-      expiresAt: 'YYYY-MM-DD',
+      expiresAt: 'Tap to set a date (optional)',
     },
     discountTypes: {
       percentage: 'Percentage',
