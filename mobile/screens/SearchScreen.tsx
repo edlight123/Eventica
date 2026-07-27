@@ -398,7 +398,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       alignItems: 'center',
       gap: 8,
       backgroundColor: colors.surface,
-      borderRadius: 999,
+      borderRadius: 14,
       borderWidth: 1,
       borderColor: colors.border,
       paddingHorizontal: 14,

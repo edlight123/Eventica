@@ -498,7 +498,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     rolePill: {
       flex: 1,
       paddingVertical: 10,
-      borderRadius: 999,
+      borderRadius: 14,
       alignItems: 'center',
       backgroundColor: colors.surface,
       borderWidth: 1,
@@ -672,7 +672,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       gap: 8,
       paddingHorizontal: 20,
       paddingVertical: 12,
-      borderRadius: 999,
+      borderRadius: 14,
       backgroundColor: colors.surfaceRaised,
     },
     retryText: {

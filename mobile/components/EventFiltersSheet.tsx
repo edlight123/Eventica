@@ -541,7 +541,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 6,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 11,
+    borderRadius: 10,
   },
   activeBadgeText: {
     color: '#FFF',
@@ -577,7 +577,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   chip: {
     paddingHorizontal: 16,
     paddingVertical: 11,
-    borderRadius: 999,
+    borderRadius: 14,
     backgroundColor: colors.surfaceRaised,
   },
   chipActive: {
@@ -637,7 +637,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   resetButton: {
     flex: 1,
     paddingVertical: 16,
-    borderRadius: 999,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -649,7 +649,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   applyButton: {
     flex: 2,
     paddingVertical: 16,
-    borderRadius: 999,
+    borderRadius: 14,
     backgroundColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',

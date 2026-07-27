@@ -1052,7 +1052,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   prefixPill: {
     paddingHorizontal: 10,
     paddingVertical: 10,
-    borderRadius: 999,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: colors.borderLight,
     backgroundColor: colors.surface,
@@ -1377,7 +1377,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   pill: {
     paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: 999,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,

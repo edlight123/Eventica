@@ -687,7 +687,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 16,
     justifyContent: 'center',
     backgroundColor: '#FFF',
-    borderRadius: 20,
+    borderRadius: 14,
     zIndex: 10,
   },
   followingButtonSmall: {
@@ -812,7 +812,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderRadius: 999,
+    borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 7,
     maxWidth: '100%',

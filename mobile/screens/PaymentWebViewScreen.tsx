@@ -419,7 +419,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   failurePrimaryButton: {
     width: '100%',
     height: 54,
-    borderRadius: 27,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.white,
@@ -433,7 +433,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   failureGhostButton: {
     width: '100%',
     height: 50,
-    borderRadius: 25,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
