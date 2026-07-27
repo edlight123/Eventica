@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
-import { createClient } from '@/lib/firebase-db/server'
 import { adminDb } from '@/lib/firebase/admin'
 import {
   getPromoExpiresAt,
@@ -10,8 +9,22 @@ import {
   promoDiscountFields,
 } from '@/lib/promo-code-shared'
 
+// Promo codes are stored in Firestore `promo_codes` (the same store the mobile app
+// writes to and the checkout path reads). All routes here use the Admin SDK.
+
+async function assertEventOwnedByUser(eventId: string, userId: string): Promise<
+  { ok: true } | { ok: false; status: number; error: string }
+> {
+  const eventDoc = await adminDb.collection('events').doc(eventId).get()
+  if (!eventDoc.exists) return { ok: false, status: 404, error: 'Event not found' }
+  const eventData = eventDoc.data() as any
+  const organizerId = eventData?.organizer_id ?? eventData?.organizerId
+  if (organizerId !== userId) return { ok: false, status: 403, error: 'Unauthorized' }
+  return { ok: true }
+}
+
 /**
- * Create promo code for an event
+ * Create promo code for an event (Firestore).
  */
 export async function POST(req: NextRequest) {
   try {
@@ -27,98 +40,66 @@ export async function POST(req: NextRequest) {
     const { eventId, code, discountType, discountValue, maxUses, validFrom, validUntil } = await req.json()
 
     if (!eventId || !code || !discountType || discountValue === undefined) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    const supabase = await createClient()
-
-    // Verify event belongs to user (events are in Firebase)
-    const eventDoc = await adminDb.collection('events').doc(eventId).get()
-    
-    if (!eventDoc.exists) {
-      return NextResponse.json(
-        { error: 'Event not found' },
-        { status: 404 }
-      )
-    }
-    
-    const eventData = eventDoc.data()
-    if (eventData?.organizer_id !== user.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 403 }
-      )
+    // Verify event belongs to user.
+    const ownership = await assertEventOwnedByUser(String(eventId), user.id)
+    if (!ownership.ok) {
+      return NextResponse.json({ error: ownership.error }, { status: ownership.status })
     }
 
-    // Check if code already exists for this event
-    const { data: existingCodes, error: existingCodeError } = await supabase
-      .from('promo_codes')
-      .select('id')
-      .eq('event_id', eventId)
-      .eq('code', code.toUpperCase())
+    const normalizedCode = String(code).toUpperCase()
+
+    // Check if code already exists for this event.
+    const existing = await adminDb
+      .collection('promo_codes')
+      .where('event_id', '==', eventId)
+      .where('code', '==', normalizedCode)
       .limit(1)
+      .get()
 
-    if (existingCodeError) {
-      console.warn('Error checking existing promo code:', existingCodeError)
-    }
-
-    if (existingCodes && existingCodes.length > 0) {
+    if (!existing.empty) {
       return NextResponse.json(
         { error: 'Promo code already exists for this event' },
         { status: 400 }
       )
     }
 
-    // Create promo code
-    const promoId = `promo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-
     const expiresAt = validUntil || null
 
+    // Fields mirror what the mobile "create promo" screen writes so both paths are
+    // consistent. uses_count starts at 0 and is only ever bumped server-side via
+    // redeemPromoInTransaction (clients cannot touch it — see firestore.rules).
     const promoData = {
-      id: promoId,
       event_id: eventId,
-      code: code.toUpperCase(),
+      code: normalizedCode,
       discount_type: discountType,
-      discount_value: discountValue,
-      max_uses: maxUses || null,
-      // Canonical fields used by the organizer UI & mobile
+      discount_value: Number(discountValue),
+      max_uses: maxUses ?? null,
       is_active: true,
       uses_count: 0,
       expires_at: expiresAt,
-      // Legacy compatibility (some code paths still read these)
+      // Legacy compatibility (some code paths still read these).
       valid_from: validFrom || null,
       valid_until: validUntil || null,
       created_at: new Date().toISOString(),
     }
 
-    console.log('Creating promo code with data:', promoData)
+    const ref = await adminDb.collection('promo_codes').add(promoData)
+    // Store the id inside the doc too, for callers that read data.id.
+    await ref.set({ id: ref.id }, { merge: true })
 
-    const { error: insertError } = await supabase.from('promo_codes').insert(promoData)
-
-    if (insertError) {
-      console.error('Error creating promo code:', insertError)
-      return NextResponse.json(
-        { error: 'Failed to create promo code', details: insertError.message },
-        { status: 500 }
-      )
-    }
-
-    console.log('Promo code created successfully:', promoId)
-    return NextResponse.json({ success: true, promoId })
+    console.log('Promo code created successfully:', ref.id)
+    return NextResponse.json({ success: true, promoId: ref.id })
   } catch (error) {
     console.error('Error in POST /api/promo-codes:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
 /**
- * Toggle promo code active state (organizer only)
+ * Toggle promo code active state (organizer only) — Firestore.
  */
 export async function PATCH(req: NextRequest) {
   try {
@@ -136,38 +117,22 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    const supabase = await createClient()
-
-    // Verify promo belongs to one of the organizer's events
-    const { data: promo, error: promoError } = await supabase
-      .from('promo_codes')
-      .select('id,event_id')
-      .eq('id', promoId)
-      .single()
-
-    if (promoError || !promo?.event_id) {
+    const promoRef = adminDb.collection('promo_codes').doc(String(promoId))
+    const promoSnap = await promoRef.get()
+    if (!promoSnap.exists) {
       return NextResponse.json({ error: 'Promo code not found' }, { status: 404 })
     }
 
-    const { data: event, error: eventError } = await supabase
-      .from('events')
-      .select('organizer_id')
-      .eq('id', promo.event_id)
-      .single()
-
-    if (eventError || !event || event.organizer_id !== user.id) {
+    const promo = promoSnap.data() as any
+    const ownership = await assertEventOwnedByUser(String(promo.event_id), user.id)
+    if (!ownership.ok) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
-    const { error: updateError } = await supabase
-      .from('promo_codes')
-      .update({ is_active: isActive })
-      .eq('id', promoId)
-
-    if (updateError) {
-      console.error('Error updating promo code:', updateError)
-      return NextResponse.json({ error: 'Failed to update promo code' }, { status: 500 })
-    }
+    await promoRef.set(
+      { is_active: isActive, updated_at: new Date().toISOString() },
+      { merge: true }
+    )
 
     return NextResponse.json({ success: true })
   } catch (error) {
@@ -177,7 +142,7 @@ export async function PATCH(req: NextRequest) {
 }
 
 /**
- * Validate promo code
+ * Validate promo code (Firestore).
  */
 export async function GET(req: NextRequest) {
   try {
@@ -192,46 +157,33 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    const supabase = await createClient()
+    const normalizedCode = String(code).toUpperCase()
+    const snap = await adminDb
+      .collection('promo_codes')
+      .where('event_id', '==', eventId)
+      .where('code', '==', normalizedCode)
+      .limit(1)
+      .get()
 
-    const { data: promoCode, error } = await supabase
-      .from('promo_codes')
-      .select('*')
-      .eq('event_id', eventId)
-      .eq('code', code.toUpperCase())
-      .single()
-
-    if (error || !promoCode) {
-      return NextResponse.json(
-        { valid: false, error: 'Invalid promo code' },
-        { status: 404 }
-      )
+    if (snap.empty) {
+      return NextResponse.json({ valid: false, error: 'Invalid promo code' }, { status: 404 })
     }
 
-    // Check if code is still valid
+    const promoCode = { id: snap.docs[0].id, ...(snap.docs[0].data() as any) }
     const now = new Date()
 
     if (!isPromoActive(promoCode)) {
-      return NextResponse.json(
-        { valid: false, error: 'Promo code is inactive' },
-        { status: 400 }
-      )
+      return NextResponse.json({ valid: false, error: 'Promo code is inactive' }, { status: 400 })
     }
-    
+
     const startAt = getPromoStartAt(promoCode)
     if (startAt && startAt > now) {
-      return NextResponse.json(
-        { valid: false, error: 'Promo code not yet valid' },
-        { status: 400 }
-      )
+      return NextResponse.json({ valid: false, error: 'Promo code not yet valid' }, { status: 400 })
     }
 
     const expiresAt = getPromoExpiresAt(promoCode)
     if (expiresAt && expiresAt < now) {
-      return NextResponse.json(
-        { valid: false, error: 'Promo code has expired' },
-        { status: 400 }
-      )
+      return NextResponse.json({ valid: false, error: 'Promo code has expired' }, { status: 400 })
     }
 
     const usesCount = getPromoUsesCount(promoCode)
@@ -244,9 +196,9 @@ export async function GET(req: NextRequest) {
 
     const discount = promoDiscountFields(promoCode)
 
-    return NextResponse.json({ 
-      valid: true, 
-      // Mobile client expects these legacy fields
+    return NextResponse.json({
+      valid: true,
+      // Mobile client expects these legacy fields.
       discount_percentage: discount.discount_percentage,
       discount_amount: discount.discount_amount,
       promoCode: {
@@ -254,19 +206,16 @@ export async function GET(req: NextRequest) {
         code: promoCode.code,
         discountType: discount.discountType,
         discountValue: discount.discountValue,
-      }
+      },
     })
   } catch (error) {
     console.error('Error in GET /api/promo-codes:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
 /**
- * Delete promo code
+ * Delete promo code (Firestore).
  */
 export async function DELETE(req: NextRequest) {
   try {
@@ -283,48 +232,25 @@ export async function DELETE(req: NextRequest) {
     const promoId = searchParams.get('promoId')
 
     if (!promoId) {
-      return NextResponse.json(
-        { error: 'Promo ID is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Promo ID is required' }, { status: 400 })
     }
 
-    const supabase = await createClient()
-
-    // Verify promo belongs to user's event
-    const { data: promo } = await supabase
-      .from('promo_codes')
-      .select('*, events(organizer_id)')
-      .eq('id', promoId)
-      .single()
-
-    if (!promo || promo.events?.organizer_id !== user.id) {
-      return NextResponse.json(
-        { error: 'Promo code not found or unauthorized' },
-        { status: 404 }
-      )
+    const promoRef = adminDb.collection('promo_codes').doc(String(promoId))
+    const promoSnap = await promoRef.get()
+    if (!promoSnap.exists) {
+      return NextResponse.json({ error: 'Promo code not found or unauthorized' }, { status: 404 })
     }
 
-    // Delete promo code
-    const { error: deleteError } = await supabase
-      .from('promo_codes')
-      .delete()
-      .eq('id', promoId)
-
-    if (deleteError) {
-      console.error('Error deleting promo code:', deleteError)
-      return NextResponse.json(
-        { error: 'Failed to delete promo code' },
-        { status: 500 }
-      )
+    const promo = promoSnap.data() as any
+    const ownership = await assertEventOwnedByUser(String(promo.event_id), user.id)
+    if (!ownership.ok) {
+      return NextResponse.json({ error: 'Promo code not found or unauthorized' }, { status: 404 })
     }
 
+    await promoRef.delete()
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error in DELETE /api/promo-codes:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
