@@ -1378,6 +1378,7 @@ export default {
     title: 'Équipe',
     orgTeamEntry: 'Équipe et tâches de l’organisation',
     orgTeamEntrySubtitle: 'Rôles et répartition des tâches pour toute votre organisation',
+    infoToggle: 'Comment fonctionne le personnel ?',
     infoNotice: 'Le personnel est géré par événement. Choisissez un événement pour gérer qui peut scanner les billets et enregistrer les arrivées.',
     emptyTitle: 'Aucun événement',
     emptySubtitle: 'Créez d’abord un événement, puis invitez du personnel pour scanner et accueillir les invités.',

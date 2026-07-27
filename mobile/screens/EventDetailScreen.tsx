@@ -645,8 +645,8 @@ export default function EventDetailScreen({ route, navigation }: any) {
             <WhosGoing eventId={eventId} />
           )}
 
-          {/* Bottom padding for floating CTA */}
-          <View style={{ height: 120 }} />
+          {/* Bottom padding so the floating CTA never overlaps page content */}
+          <View style={{ height: 160 }} />
         </View>
       </Animated.ScrollView>
 
@@ -667,11 +667,11 @@ export default function EventDetailScreen({ route, navigation }: any) {
         ]}
       >
         {isPastEvent ? (
-          <View style={styles.ctaDisabled}>
+          <View style={[styles.ctaDisabled, styles.floatingCtaPill]}>
             <Text style={styles.ctaDisabledText}>{t('eventDetail.floating.eventEnded')}</Text>
           </View>
         ) : isSoldOut ? (
-          <View style={styles.ctaDisabled}>
+          <View style={[styles.ctaDisabled, styles.floatingCtaPill]}>
             <Text style={styles.ctaDisabledText}>{t('badges.soldout')}</Text>
           </View>
         ) : (
@@ -683,6 +683,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
             subLabel={isFree ? undefined : priceSubLabel}
             onPress={handlePurchaseTicket}
             loading={purchasing}
+            style={styles.floatingCtaPill}
           />
         )}
       </Animated.View>
@@ -1258,12 +1259,19 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textSecondary,
   },
 
-  // Floating Bottom CTA — transparent bar, single full-width button (Posh-style)
+  // Floating Bottom CTA — transparent bar centering a narrower pill (Posh-style).
+  // Centered + content-hugging so it no longer spans edge-to-edge over the
+  // date/venue content beneath it.
   floatingBottomCard: {
     position: 'absolute',
-    left: 16,
-    right: 16,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 24,
+    alignItems: 'center',
     backgroundColor: 'transparent',
+  },
+  floatingCtaPill: {
+    maxWidth: '100%',
   },
   ctaButton: {
     backgroundColor: colors.primary,

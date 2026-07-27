@@ -1629,6 +1629,7 @@ export default {
     title: 'Team',
     orgTeamEntry: 'Organization team & tasks',
     orgTeamEntrySubtitle: 'Roles and task allocation for your whole organization',
+    infoToggle: 'How does staffing work?',
     infoNotice: 'Staff are managed per event. Pick an event to manage who can scan tickets and check people in.',
     emptyTitle: 'No events yet',
     emptySubtitle: 'Create an event first, then invite staff to help scan and check in guests.',
