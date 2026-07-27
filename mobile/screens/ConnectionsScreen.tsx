@@ -105,7 +105,13 @@ export default function ConnectionsScreen() {
   // Arriving from Discover's "Sync contacts" CTA jumps straight to the Find tab
   // and auto-starts the contact sync (feedback: don't make me tap twice).
   const autoSync = route?.params?.autoSync === true;
-  const [tab, setTab] = useState<Tab>(autoSync ? 'find' : 'friends');
+  // Callers (e.g. the Profile stats) can request an initial tab.
+  const initialTab: Tab = autoSync
+    ? 'find'
+    : (['friends', 'requests', 'find'] as const).includes(route?.params?.initialTab)
+      ? route.params.initialTab
+      : 'friends';
+  const [tab, setTab] = useState<Tab>(initialTab);
   const [overview, setOverview] = useState<ConnectionsOverview>({ friends: [], incoming: [], outgoing: [] });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);

@@ -568,18 +568,41 @@ export default function ProfileScreen() {
 
           <View style={styles.statsRow}>
             {[
-              { label: t('profile.eventsAttended'), value: accountStats.eventsAttended },
-              { label: t('profile.following'), value: accountStats.following },
-              { label: t('profile.followers'), value: accountStats.followers },
+              {
+                key: 'attended',
+                label: t('profile.eventsAttended'),
+                value: accountStats.eventsAttended,
+                onPress: () => navigation.navigate('Main', { screen: 'Tickets' }),
+              },
+              {
+                key: 'following',
+                label: t('profile.following'),
+                value: accountStats.following,
+                onPress: () => navigation.navigate('Connections', { initialTab: 'friends' }),
+              },
+              {
+                key: 'followers',
+                label: t('profile.followers'),
+                value: accountStats.followers,
+                onPress: () => navigation.navigate('Connections', { initialTab: 'friends' }),
+              },
             ].map((s, i) => (
-              <View key={s.label} style={[styles.statItem, i > 0 && styles.statItemDivided]}>
+              <TouchableOpacity
+                key={s.key}
+                style={[styles.statItem, i > 0 && styles.statItemDivided]}
+                onPress={statsLoaded ? s.onPress : undefined}
+                disabled={!statsLoaded}
+                activeOpacity={0.6}
+                accessibilityRole="button"
+                accessibilityLabel={s.label}
+              >
                 {statsLoaded ? (
                   <Text style={styles.statValue}>{s.value}</Text>
                 ) : (
                   <Skeleton width={32} height={20} radius={6} />
                 )}
-                <Text style={styles.statLabel}>{s.label}</Text>
-              </View>
+                <Text style={styles.statLabel} numberOfLines={1}>{s.label}</Text>
+              </TouchableOpacity>
             ))}
           </View>
 
@@ -1167,27 +1190,34 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   statsRow: {
     flexDirection: 'row',
     marginTop: 18,
+    alignItems: 'stretch',
   },
+  // Each column is evenly weighted and centered so the three read as one
+  // balanced, intentional row (beta feedback: felt non-uniform).
   statItem: {
     flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 6,
   },
   statItemDivided: {
     borderLeftWidth: StyleSheet.hairlineWidth,
     borderLeftColor: colors.borderLight,
-    paddingLeft: 16,
   },
   statValue: {
     fontFamily: 'JetBrainsMono_500Medium',
     fontSize: 19,
     color: colors.text,
     letterSpacing: -0.5,
+    textAlign: 'center',
   },
   statLabel: {
-    marginTop: 3,
+    marginTop: 4,
     fontSize: 10.5,
     letterSpacing: 0.6,
     textTransform: 'uppercase',
     color: colors.textTertiary,
+    textAlign: 'center',
   },
   editForm: {
     marginTop: 16,

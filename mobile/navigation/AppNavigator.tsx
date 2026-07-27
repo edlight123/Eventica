@@ -91,7 +91,7 @@ export type RootStackParamList = {
   TicketDetail: { ticketId: string };
   OrganizerProfile: { organizerId: string };
   Notifications: { userId: string };
-  Connections: undefined;
+  Connections: { initialTab?: 'friends' | 'requests' | 'find'; autoSync?: boolean } | undefined;
   OrganizerEventManagement: { eventId: string };
   OrganizerEventEarnings: { eventId: string };
   OrganizerPayoutSettings: undefined;
