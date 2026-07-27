@@ -550,7 +550,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     textAlign: 'center',
     paddingHorizontal: 7,
     paddingVertical: 2,
-    borderRadius: RADIUS.full,
+    borderRadius: 10,
     overflow: 'hidden',
   },
 

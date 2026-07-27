@@ -1237,7 +1237,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 4,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 999,
+    borderRadius: 14,
     backgroundColor: colors.surfaceRaised,
   },
   addButtonText: {
@@ -1375,7 +1375,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   chip: {
     paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: 999,
+    borderRadius: 10,
     backgroundColor: colors.surfaceRaised,
     borderWidth: 1,
     borderColor: colors.border,
