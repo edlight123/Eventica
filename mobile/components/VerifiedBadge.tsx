@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
-    borderRadius: radius.pill,
+    borderRadius: 10,
     backgroundColor: colors.accentMuted,
   },
   label: {

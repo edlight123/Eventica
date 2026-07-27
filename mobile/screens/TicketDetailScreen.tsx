@@ -590,7 +590,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'center',
     gap: 8,
     paddingVertical: 14,
-    borderRadius: 999,
+    borderRadius: 14,
     backgroundColor: colors.surfaceRaised,
   },
   postPurchaseText: {

@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
-    borderRadius: radius.pill,
+    borderRadius: 10,
     borderWidth: 1,
   },
   inactive: {

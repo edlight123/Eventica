@@ -577,7 +577,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   chip: {
     paddingHorizontal: 16,
     paddingVertical: 11,
-    borderRadius: 14,
+    borderRadius: 10,
     backgroundColor: colors.surfaceRaised,
   },
   chipActive: {

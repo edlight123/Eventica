@@ -62,7 +62,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       gap: 8,
       paddingHorizontal: 16,
       paddingVertical: 10,
-      borderRadius: RADIUS.full,
+      borderRadius: 10,
       backgroundColor: colors.surface,
       borderWidth: 1,
       borderColor: colors.border,
