@@ -457,6 +457,12 @@
     "total_tickets": "{{count}} total",
     "unlimited": "Illimité"
   },
+  "app_cta": {
+    "title": "Obtenez l'application Tikèm",
+    "subtitle": "Découvrez des événements et achetez des billets plus vite sur iPhone et Android.",
+    "get": "Obtenir l'application",
+    "dismiss": "Plus tard"
+  },
   "footer": {
     "copyright": "© {{year}} Tikèm. Tous droits réservés.",
     "landmark": "Pied de page du site",
