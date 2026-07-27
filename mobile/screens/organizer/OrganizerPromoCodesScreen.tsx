@@ -4,6 +4,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TextInput,
@@ -28,6 +29,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { RADIUS } from '../../config/brand';
+import { font } from '../../theme/tokens';
+import { formatCurrency } from '../../lib/currency';
 import { Skeleton } from '../../components/Skeleton';
 import EmptyState from '../../components/EmptyState';
 import StatusChip from '../../components/StatusChip';
@@ -44,6 +47,7 @@ type RouteParams = {
 };
 
 type DiscountType = 'percentage' | 'fixed';
+type LimitType = 'limited' | 'unlimited';
 
 type PromoCodeDoc = {
   code: string;
@@ -89,6 +93,7 @@ export default function OrganizerPromoCodesScreen() {
   const locale = language === 'fr' ? 'fr-FR' : language === 'ht' ? 'fr-HT' : 'en-US';
 
   const [eventTitle, setEventTitle] = useState<string>('');
+  const [eventCurrency, setEventCurrency] = useState<string>('HTG');
   const [promoCodes, setPromoCodes] = useState<PromoCodeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -98,6 +103,7 @@ export default function OrganizerPromoCodesScreen() {
   const [code, setCode] = useState('');
   const [discountType, setDiscountType] = useState<DiscountType>('percentage');
   const [discountValue, setDiscountValue] = useState('');
+  const [limitType, setLimitType] = useState<LimitType>('unlimited');
   const [maxUses, setMaxUses] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
 
@@ -118,6 +124,7 @@ export default function OrganizerPromoCodesScreen() {
       ]);
 
       setEventTitle(event?.title || '');
+      setEventCurrency(event?.currency || 'HTG');
       setPromoCodes(promos);
     } catch (e) {
       console.error('Failed to load promo codes', e);
@@ -141,6 +148,7 @@ export default function OrganizerPromoCodesScreen() {
     setCode('');
     setDiscountType('percentage');
     setDiscountValue('');
+    setLimitType('unlimited');
     setMaxUses('');
     setExpiresAt('');
   };
@@ -160,10 +168,13 @@ export default function OrganizerPromoCodesScreen() {
       return;
     }
 
-    if (maxUses && (maxUsesNum === null || maxUsesNum < 1)) {
+    // "Limited quantity" means the code is capped at the first N buyers; an
+    // unlimited code never carries a cap (max_uses stays null).
+    if (limitType === 'limited' && (maxUsesNum === null || maxUsesNum < 1)) {
       Alert.alert(t('common.error'), t('organizerPromoCodes.errors.invalidMaxUses'));
       return;
     }
+    const finalMaxUses = limitType === 'limited' ? maxUsesNum : null;
 
     let expiresAtValue: string | null = null;
     if ((expiresAt || '').trim()) {
@@ -189,7 +200,7 @@ export default function OrganizerPromoCodesScreen() {
         organizer_id: userProfile?.id || null,
         discount_type: discountType,
         discount_value: discount,
-        max_uses: maxUsesNum ?? null,
+        max_uses: finalMaxUses,
         expires_at: expiresAtValue,
         is_active: true,
         uses_count: 0,
@@ -236,21 +247,41 @@ export default function OrganizerPromoCodesScreen() {
     ]);
   };
 
+  // The discount as a short, human fragment: "20% off" / "500.00 HTG off".
+  const discountFragment = (promo: PromoCodeItem) => {
+    if (promo.discount_type === 'percentage') {
+      return t('organizerPromoCodes.share.percentOff').replace('{value}', String(promo.discount_value));
+    }
+    const amount = formatCurrency(promo.discount_value, eventCurrency);
+    return t('organizerPromoCodes.share.amountOff').replace('{amount}', amount);
+  };
+
+  const handleShare = async (promo: PromoCodeItem) => {
+    const discount = discountFragment(promo);
+    const capped = promo.max_uses != null && promo.max_uses > 0;
+    const atClause = eventTitle
+      ? t('organizerPromoCodes.share.atEvent').replace('{event}', eventTitle)
+      : '';
+    const template = capped
+      ? t('organizerPromoCodes.share.blurbFirstN')
+      : t('organizerPromoCodes.share.blurbOpen');
+    const message = template
+      .replace('{code}', String(promo.code || '').toUpperCase())
+      .replace('{discount}', discount)
+      .replace('{at}', atClause)
+      .replace('{n}', String(promo.max_uses ?? ''));
+    try {
+      await Share.share({ message });
+    } catch (e) {
+      console.warn('[promo-share] Share failed:', e);
+    }
+  };
+
   const renderDiscount = (promo: PromoCodeItem) => {
     if (promo.discount_type === 'percentage') {
       return `-${promo.discount_value}%`;
     }
-
-    try {
-      const formatted = new Intl.NumberFormat(locale, {
-        style: 'currency',
-        currency: 'USD',
-        maximumFractionDigits: 2,
-      }).format(promo.discount_value);
-      return `-${formatted}`;
-    } catch {
-      return `-${promo.discount_value}`;
-    }
+    return `-${formatCurrency(promo.discount_value, eventCurrency)}`;
   };
 
   if (loading) {
@@ -295,6 +326,7 @@ export default function OrganizerPromoCodesScreen() {
 
           {showForm && (
             <View style={styles.formCard}>
+              <Text style={styles.formEyebrow}>{t('organizerPromoCodes.create.eyebrow')}</Text>
               <Text style={styles.formTitle}>{t('organizerPromoCodes.create.title')}</Text>
 
               <Text style={styles.label}>{t('organizerPromoCodes.fields.code')}</Text>
@@ -339,16 +371,42 @@ export default function OrganizerPromoCodesScreen() {
                 selectionColor={colors.primary}
               />
 
-              <Text style={styles.label}>{t('organizerPromoCodes.fields.maxUses')}</Text>
-              <TextInput
-                style={styles.input}
-                value={maxUses}
-                onChangeText={setMaxUses}
-                keyboardType="numeric"
-                placeholder={t('organizerPromoCodes.placeholders.maxUses')}
-                placeholderTextColor={colors.textTertiary}
-                selectionColor={colors.primary}
-              />
+              <Text style={styles.label}>{t('organizerPromoCodes.fields.quantity')}</Text>
+              <View style={styles.toggleRow}>
+                <TouchableOpacity
+                  style={[styles.toggleButton, limitType === 'unlimited' && styles.toggleButtonActive]}
+                  onPress={() => setLimitType('unlimited')}
+                >
+                  <Text style={[styles.toggleButtonText, limitType === 'unlimited' && styles.toggleButtonTextActive]}>
+                    {t('organizerPromoCodes.limitTypes.unlimited')}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.toggleButton, limitType === 'limited' && styles.toggleButtonActive]}
+                  onPress={() => setLimitType('limited')}
+                >
+                  <Text style={[styles.toggleButtonText, limitType === 'limited' && styles.toggleButtonTextActive]}>
+                    {t('organizerPromoCodes.limitTypes.limited')}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {limitType === 'limited' && (
+                <>
+                  <TextInput
+                    style={[styles.input, styles.inputSpaced]}
+                    value={maxUses}
+                    onChangeText={setMaxUses}
+                    keyboardType="numeric"
+                    placeholder={t('organizerPromoCodes.placeholders.quantity')}
+                    placeholderTextColor={colors.textTertiary}
+                    selectionColor={colors.primary}
+                  />
+                  <Text style={styles.helperText}>
+                    {t('organizerPromoCodes.create.limitHelper').replace('{n}', (maxUses || '200').trim())}
+                  </Text>
+                </>
+              )}
 
               <Text style={styles.label}>{t('organizerPromoCodes.fields.expiresAt')}</Text>
               <TextInput
@@ -394,34 +452,69 @@ export default function OrganizerPromoCodesScreen() {
                 ? expiry.toLocaleString(locale, { year: 'numeric', month: 'short', day: 'numeric' })
                 : null;
 
-              const maxUsesText = promo.max_uses ? String(promo.max_uses) : t('organizerPromoCodes.list.unlimited');
-              const usesText = `${promo.uses_count || 0} / ${maxUsesText}`;
+              const used = promo.uses_count || 0;
+              const cap = promo.max_uses;
+              const capped = cap != null && cap > 0;
+              const fullyClaimed = capped && used >= (cap as number);
+              const pct = capped ? Math.min(100, Math.round((used / (cap as number)) * 100)) : 0;
+
+              const claimedText = capped
+                ? t('organizerPromoCodes.list.claimed')
+                    .replace('{used}', String(used))
+                    .replace('{total}', String(cap))
+                : t('organizerPromoCodes.list.used').replace('{used}', String(used));
 
               return (
-                <View key={promo.id} style={styles.promoCard}>
+                <View key={promo.id} style={[styles.promoCard, fullyClaimed && styles.promoCardClaimed]}>
                   <View style={styles.promoHeader}>
                     <View style={styles.promoHeaderLeft}>
                       <Text style={styles.promoCode}>{String(promo.code || '').toUpperCase()}</Text>
-                      <StatusChip
-                        status={promo.is_active ? 'active' : 'neutral'}
-                        label={promo.is_active ? t('organizerPromoCodes.list.active') : t('organizerPromoCodes.list.inactive')}
-                      />
+                      {fullyClaimed ? (
+                        <StatusChip status="neutral" label={t('organizerPromoCodes.list.fullyClaimed')} />
+                      ) : (
+                        <StatusChip
+                          status={promo.is_active ? 'active' : 'neutral'}
+                          label={promo.is_active ? t('organizerPromoCodes.list.active') : t('organizerPromoCodes.list.inactive')}
+                        />
+                      )}
                     </View>
 
-                    <TouchableOpacity
-                      style={styles.iconButton}
-                      onPress={() => handleDelete(promo)}
-                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                    >
-                      <Ionicons name="trash-outline" size={18} color={colors.error} />
-                    </TouchableOpacity>
+                    <View style={styles.promoHeaderActions}>
+                      <TouchableOpacity
+                        style={styles.iconButton}
+                        onPress={() => handleShare(promo)}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                        accessibilityLabel={t('organizerPromoCodes.share.action')}
+                      >
+                        <Ionicons name="share-outline" size={18} color={colors.primary} />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.iconButton}
+                        onPress={() => handleDelete(promo)}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                        accessibilityLabel={t('organizerPromoCodes.delete.confirm')}
+                      >
+                        <Ionicons name="trash-outline" size={18} color={colors.error} />
+                      </TouchableOpacity>
+                    </View>
                   </View>
 
                   <Text style={styles.promoDetail}>{renderDiscount(promo)}</Text>
-                  <Text style={styles.promoMeta}>
-                    {t('organizerPromoCodes.list.uses')}: {usesText}
-                    {expiryText ? ` • ${t('organizerPromoCodes.list.expires')}: ${expiryText}` : ''}
-                  </Text>
+
+                  <View style={styles.claimedRow}>
+                    <Text style={styles.claimedText}>{claimedText}</Text>
+                  </View>
+                  {capped && (
+                    <View style={styles.progressBar}>
+                      <View style={[styles.progressFill, { width: `${pct}%` }]} />
+                    </View>
+                  )}
+
+                  {expiryText ? (
+                    <Text style={styles.promoMeta}>
+                      {t('organizerPromoCodes.list.expires')}: {expiryText}
+                    </Text>
+                  ) : null}
 
                   <View style={styles.promoActions}>
                     <TouchableOpacity
@@ -461,10 +554,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 16,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 12,
+    fontFamily: font.mono,
+    fontSize: 12,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    color: colors.textSecondary,
+    marginBottom: 14,
   },
   createToggle: {
     backgroundColor: colors.surface,
@@ -487,24 +582,34 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '600',
   },
   formCard: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
     borderRadius: RADIUS.xl,
-    padding: 14,
+    padding: 16,
     marginTop: 12,
     borderWidth: 1,
     borderColor: colors.border,
   },
+  formEyebrow: {
+    fontFamily: font.mono,
+    fontSize: 11,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+    color: colors.textSecondary,
+    marginBottom: 4,
+  },
   formTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: font.serif,
+    fontSize: 24,
     color: colors.text,
     marginBottom: 10,
   },
   label: {
-    marginTop: 10,
+    marginTop: 14,
     marginBottom: 6,
-    fontSize: 12,
-    fontWeight: '600',
+    fontFamily: font.mono,
+    fontSize: 11,
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
     color: colors.textSecondary,
   },
   input: {
@@ -516,6 +621,15 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingVertical: 12,
     color: colors.text,
   },
+  inputSpaced: {
+    marginTop: 10,
+  },
+  helperText: {
+    marginTop: 8,
+    fontSize: 13,
+    lineHeight: 18,
+    color: colors.textSecondary,
+  },
   toggleRow: {
     flexDirection: 'row',
     gap: 10,
@@ -526,33 +640,39 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingVertical: 10,
     alignItems: 'center',
     backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   toggleButtonActive: {
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   toggleButtonText: {
     color: colors.textSecondary,
     fontWeight: '600',
   },
   toggleButtonTextActive: {
-    color: colors.text,
+    color: colors.white,
   },
   formActions: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     gap: 10,
-    marginTop: 16,
+    marginTop: 20,
   },
   formActionPill: {
     flex: 1,
   },
   promoCard: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
     borderRadius: RADIUS.xl,
-    padding: 14,
+    padding: 16,
     marginBottom: 10,
     borderWidth: 1,
     borderColor: colors.border,
+  },
+  promoCardClaimed: {
+    opacity: 0.6,
   },
   promoHeader: {
     flexDirection: 'row',
@@ -567,26 +687,57 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     flexWrap: 'wrap',
   },
+  promoHeaderActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
   promoCode: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '800',
+    letterSpacing: 0.5,
     color: colors.text,
   },
   iconButton: {
     padding: 6,
   },
   promoDetail: {
-    fontSize: 14,
+    fontSize: 15,
     color: colors.text,
-    fontWeight: '600',
+    fontWeight: '700',
+  },
+  claimedRow: {
+    marginTop: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  claimedText: {
+    fontFamily: font.mono,
+    fontSize: 12,
+    letterSpacing: 0.3,
+    color: colors.textSecondary,
+  },
+  progressBar: {
+    height: 8,
+    backgroundColor: colors.background,
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginTop: 8,
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: colors.primary,
+    borderRadius: 4,
   },
   promoMeta: {
-    marginTop: 6,
+    marginTop: 10,
+    fontFamily: font.monoRegular,
     fontSize: 12,
     color: colors.textSecondary,
   },
   promoActions: {
-    marginTop: 12,
+    marginTop: 14,
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },
@@ -596,7 +747,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 14,
   },
   actionButtonPrimary: {
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: colors.primary,
   },
   actionButtonSecondary: {
     backgroundColor: 'transparent',
@@ -607,7 +758,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '700',
   },
   actionButtonTextPrimary: {
-    color: colors.text,
+    color: colors.white,
   },
   actionButtonTextSecondary: {
     color: colors.textSecondary,

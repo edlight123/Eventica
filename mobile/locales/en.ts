@@ -1292,26 +1292,42 @@ export default {
     create: {
       show: 'New promo code',
       hide: 'Hide form',
+      eyebrow: 'New code',
       title: 'Create a promo code',
       create: 'Create',
       creating: 'Creating…',
+      limitHelper: 'The first {n} people to use this code get the discount.',
     },
     fields: {
       code: 'Code',
       discountType: 'Discount type',
       discountValue: 'Discount value',
       maxUses: 'Max uses',
+      quantity: 'Quantity',
       expiresAt: 'Expires at',
     },
     placeholders: {
       code: 'e.g. SUMMER20',
       discountValue: 'e.g. 10',
       maxUses: 'Leave blank for unlimited',
+      quantity: 'e.g. 200 people',
       expiresAt: 'YYYY-MM-DD',
     },
     discountTypes: {
       percentage: 'Percentage',
       fixed: 'Fixed amount',
+    },
+    limitTypes: {
+      limited: 'Limited quantity',
+      unlimited: 'Unlimited',
+    },
+    share: {
+      action: 'Share',
+      percentOff: '{value}% off',
+      amountOff: '{amount} off',
+      atEvent: ' at {event}',
+      blurbFirstN: 'Use code {code} for {discount}{at} — first {n} people only!',
+      blurbOpen: 'Use code {code} for {discount}{at}!',
     },
     list: {
       title: 'Promo codes',
@@ -1323,6 +1339,9 @@ export default {
       inactive: 'Inactive',
       activate: 'Activate',
       deactivate: 'Deactivate',
+      claimed: '{used} of {total} claimed',
+      used: '{used} used',
+      fullyClaimed: 'Fully claimed',
     },
     delete: {
       title: 'Delete promo code',

@@ -1037,26 +1037,42 @@ export default {
     create: {
       show: 'Nouveau code promo',
       hide: 'Masquer le formulaire',
+      eyebrow: 'Nouveau code',
       title: 'Créer un code promo',
       create: 'Créer',
       creating: 'Création…',
+      limitHelper: 'Les {n} premières personnes à utiliser ce code obtiennent la réduction.',
     },
     fields: {
       code: 'Code',
       discountType: 'Type de réduction',
       discountValue: 'Valeur de la réduction',
       maxUses: 'Utilisations max',
+      quantity: 'Quantité',
       expiresAt: 'Date d’expiration',
     },
     placeholders: {
       code: 'ex. ETE20',
       discountValue: 'ex. 10',
       maxUses: 'Laisser vide pour illimité',
+      quantity: 'ex. 200 personnes',
       expiresAt: 'AAAA-MM-JJ',
     },
     discountTypes: {
       percentage: 'Pourcentage',
       fixed: 'Montant fixe',
+    },
+    limitTypes: {
+      limited: 'Quantité limitée',
+      unlimited: 'Illimité',
+    },
+    share: {
+      action: 'Partager',
+      percentOff: '{value} % de réduction',
+      amountOff: '{amount} de réduction',
+      atEvent: ' à {event}',
+      blurbFirstN: 'Utilise le code {code} pour {discount}{at} — réservé aux {n} premières personnes !',
+      blurbOpen: 'Utilise le code {code} pour {discount}{at} !',
     },
     list: {
       title: 'Codes promo',
@@ -1068,6 +1084,9 @@ export default {
       inactive: 'Inactif',
       activate: 'Activer',
       deactivate: 'Désactiver',
+      claimed: '{used} sur {total} utilisés',
+      used: '{used} utilisés',
+      fullyClaimed: 'Épuisé',
     },
     delete: {
       title: 'Supprimer le code promo',
