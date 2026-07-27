@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Tikèm",
+    "name": "Tik\u00e8m",
     "slug": "tikem",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -21,7 +21,14 @@
         "applinks:www.tikem.co"
       ],
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.71580084056-uk9npqpsmm9sfdfe03k2ot3ha7qtv9h8"
+            ]
+          }
+        ]
       }
     },
     "android": {
@@ -77,7 +84,7 @@
       [
         "expo-contacts",
         {
-          "contactsPermission": "Allow Tikèm to access your contacts to find friends who are already on Tikèm. Your contacts are only used to match and are never stored."
+          "contactsPermission": "Allow Tik\u00e8m to access your contacts to find friends who are already on Tik\u00e8m. Your contacts are only used to match and are never stored."
         }
       ]
     ],
