@@ -20,6 +20,7 @@ export interface OrganizerEvent {
   location: string;
   city: string;
   cover_image_url?: string;
+  banner_image_url?: string;
   organizer_id: string;
   is_published: boolean;
   tickets_sold: number;
