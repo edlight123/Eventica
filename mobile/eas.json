@@ -25,7 +25,7 @@
       },
       "channel": "production",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://tikem.co"
+        "EXPO_PUBLIC_API_URL": "https://www.tikem.co"
       }
     }
   },
