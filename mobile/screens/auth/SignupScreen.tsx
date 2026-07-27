@@ -5,6 +5,10 @@ import {
   StyleSheet,
   Alert,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  TextInput,
   Animated,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,9 +18,35 @@ import { useI18n } from '../../contexts/I18nContext';
 import { AuthBackground } from '../../components/auth/AuthBackground';
 import { AuthHeadline } from '../../components/auth/AuthHeadline';
 import { AuthInput } from '../../components/auth/AuthInput';
+import { SecondaryPill } from '../../components/auth/SecondaryPill';
 import WhitePillCTA from '../../components/WhitePillCTA';
 import * as AppleAuthentication from 'expo-apple-authentication';
-import { colors, spacing } from '../../theme/tokens';
+import { colors, spacing, type } from '../../theme/tokens';
+
+// Map a Firebase auth error code to a localized message key. We never surface
+// error.message (raw English) — unknown codes fall back to a generic string.
+function firebaseErrorKey(code?: string): string {
+  switch (code) {
+    case 'auth/invalid-credential':
+      return 'auth.errors.invalidCredential';
+    case 'auth/invalid-email':
+      return 'auth.errors.invalidEmail';
+    case 'auth/email-already-in-use':
+      return 'auth.errors.emailAlreadyInUse';
+    case 'auth/network-request-failed':
+      return 'auth.errors.networkRequestFailed';
+    case 'auth/too-many-requests':
+      return 'auth.errors.tooManyRequests';
+    case 'auth/weak-password':
+      return 'auth.errors.weakPassword';
+    case 'auth/user-not-found':
+      return 'auth.errors.userNotFound';
+    case 'auth/wrong-password':
+      return 'auth.errors.wrongPassword';
+    default:
+      return 'auth.errors.generic';
+  }
+}
 
 export default function SignupScreen({ navigation }: any) {
   const { t } = useI18n();
@@ -26,7 +56,10 @@ export default function SignupScreen({ navigation }: any) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signUp, signInWithApple, appleAuthAvailable } = useAuth();
+  const { signUp, signInWithGoogle, signInWithApple, appleAuthAvailable } = useAuth();
+  const emailRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
+  const confirmRef = useRef<TextInput>(null);
 
   const handleAppleSignIn = async () => {
     setLoading(true);
@@ -34,8 +67,20 @@ export default function SignupScreen({ navigation }: any) {
       await signInWithApple();
     } catch (error: any) {
       if (error?.code !== 'ERR_REQUEST_CANCELED') {
-        Alert.alert('Sign in with Apple', error?.message || 'Could not sign in with Apple.');
+        Alert.alert(t('auth.apple.title'), t('auth.apple.genericError'));
       }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    try {
+      await signInWithGoogle();
+    } catch (error: any) {
+      const msg = error?.code ? t(firebaseErrorKey(error.code)) : t('auth.login.google.configRequired');
+      Alert.alert(t('auth.login.google.title'), msg);
     } finally {
       setLoading(false);
     }
@@ -71,9 +116,9 @@ export default function SignupScreen({ navigation }: any) {
     }
     setLoading(true);
     try {
-      await signUp(email, password, fullName);
+      await signUp(email.trim().toLowerCase(), password, fullName.trim());
     } catch (error: any) {
-      Alert.alert(t('auth.signup.errors.signupFailedTitle'), error.message || t('auth.signup.errors.couldNotCreateAccount'));
+      Alert.alert(t('auth.signup.errors.signupFailedTitle'), t(firebaseErrorKey(error?.code)));
     } finally {
       setLoading(false);
     }
@@ -84,6 +129,14 @@ export default function SignupScreen({ navigation }: any) {
 
   return (
     <AuthBackground>
+      {/* iOS uses the ScrollView's automaticallyAdjustKeyboardInsets; Android
+          ignores it, so a KeyboardAvoidingView with behavior="height" handles
+          Android. undefined behavior on iOS keeps it a no-op there and avoids
+          the flex-collapse snap-to-top. */}
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? undefined : 'height'}
+      >
       <ScrollView
         style={styles.flex}
         contentContainerStyle={[
@@ -116,31 +169,55 @@ export default function SignupScreen({ navigation }: any) {
                 value={fullName}
                 onChangeText={setFullName}
                 autoComplete="name"
+                textContentType="name"
+                editable={!loading}
+                returnKeyType="next"
+                blurOnSubmit={false}
+                onSubmitEditing={() => emailRef.current?.focus()}
               />
               <AuthInput
+                ref={emailRef}
                 icon={Mail}
                 placeholder={t('auth.signup.placeholders.email')}
                 value={email}
                 onChangeText={setEmail}
                 autoCapitalize="none"
                 autoComplete="email"
+                textContentType="emailAddress"
                 keyboardType="email-address"
+                editable={!loading}
+                returnKeyType="next"
+                blurOnSubmit={false}
+                onSubmitEditing={() => passwordRef.current?.focus()}
               />
               <AuthInput
+                ref={passwordRef}
                 icon={Lock}
                 isPassword
                 placeholder={t('auth.signup.placeholders.password')}
                 value={password}
                 onChangeText={setPassword}
                 autoCapitalize="none"
+                autoComplete="new-password"
+                textContentType="newPassword"
+                editable={!loading}
+                returnKeyType="next"
+                blurOnSubmit={false}
+                onSubmitEditing={() => confirmRef.current?.focus()}
               />
               <AuthInput
+                ref={confirmRef}
                 icon={Lock}
                 isPassword
                 placeholder={t('auth.signup.placeholders.confirmPassword')}
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 autoCapitalize="none"
+                autoComplete="new-password"
+                textContentType="newPassword"
+                editable={!loading}
+                returnKeyType="go"
+                onSubmitEditing={handleSignup}
               />
 
               {/* Primary action — the one white pill per screen (POSH §2.2) */}
@@ -149,6 +226,19 @@ export default function SignupScreen({ navigation }: any) {
                 onPress={handleSignup}
                 loading={loading}
                 style={styles.primary}
+              />
+
+              <View style={styles.divider}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>{t('auth.signup.or')}</Text>
+                <View style={styles.dividerLine} />
+              </View>
+
+              {/* Secondary action — dark-grey pill, never teal */}
+              <SecondaryPill
+                label={t('auth.signup.continueWithGoogle')}
+                onPress={handleGoogleSignIn}
+                disabled={loading}
               />
 
               {/* Sign up with Apple — native HIG button; iOS + native module only. */}
@@ -162,15 +252,22 @@ export default function SignupScreen({ navigation }: any) {
                 />
               )}
 
-              <View style={styles.linkButton}>
-                <Text style={styles.linkText} onPress={() => navigation.navigate('Login')}>
+              <Pressable
+                onPress={() => navigation.navigate('Login')}
+                disabled={loading}
+                hitSlop={8}
+                accessibilityRole="button"
+                style={styles.linkButton}
+              >
+                <Text style={styles.linkText}>
                   {t('auth.signup.haveAccount')}{' '}
                   <Text style={styles.linkTextBold}>{t('auth.signup.signIn')}</Text>
                 </Text>
-              </View>
+              </Pressable>
             </View>
           </Animated.View>
       </ScrollView>
+      </KeyboardAvoidingView>
     </AuthBackground>
   );
 }
@@ -209,5 +306,20 @@ const styles = StyleSheet.create({
   linkTextBold: {
     color: colors.tealBright,
     fontWeight: '700',
+  },
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: spacing.xs,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+  },
+  dividerText: {
+    ...type.caption,
+    marginHorizontal: 14,
+    color: colors.textTertiary,
   },
 });

@@ -95,12 +95,31 @@ export default {
   },
   auth: {
     loginRequiredTitle: 'Ou dwe konekte',
+    apple: {
+      title: 'Konekte ak Apple',
+      genericError: 'Nou pa t kapab konekte ak Apple.',
+    },
+    errors: {
+      invalidCredential: 'Imèl oswa modpas pa bon.',
+      invalidEmail: 'Adrès imèl sa a pa valab.',
+      emailAlreadyInUse: 'Gen yon kont ki deja egziste ak imèl sa a.',
+      networkRequestFailed: 'Erè rezo. Tcheke koneksyon ou epi eseye ankò.',
+      tooManyRequests: 'Twòp esè. Tanpri eseye ankò pita.',
+      weakPassword: 'Modpas la dwe gen omwen 6 karaktè.',
+      userNotFound: 'Nou pa jwenn okenn kont ak imèl sa a.',
+      wrongPassword: 'Imèl oswa modpas pa bon.',
+      generic: 'Gen yon pwoblèm ki rive. Tanpri eseye ankò.',
+    },
     login: {
       errors: {
         fillAllFields: 'Tanpri ranpli tout chan yo.',
         loginFailedTitle: 'Koneksyon echwe',
         invalidCredentials: 'Imèl oswa modpas pa bon.',
       },
+      forgotPassword: 'Ou bliye modpas?',
+      enterEmailFirst: 'Antre imèl ou anwo a dabò, apre sa peze Ou bliye modpas.',
+      resetSentTitle: 'Tcheke imèl ou',
+      resetSentBody: 'Si gen yon kont pou imèl sa a, nou voye yon lyen pou reyajiste modpas la.',
       google: {
         title: 'Konekte ak Google',
         configRequired: 'Koneksyon Google pa configure.',
@@ -183,6 +202,8 @@ export default {
       signUp: 'Enskri',
       haveAccount: 'Ou deja gen kont?',
       signIn: 'Konekte',
+      or: 'OSWA',
+      continueWithGoogle: 'Kontinye ak Google',
     },
   },
   tabs: {

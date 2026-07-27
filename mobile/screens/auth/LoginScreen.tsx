@@ -4,11 +4,17 @@ import {
   Text,
   StyleSheet,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  TextInput,
   Alert,
   Animated,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Mail, Lock } from 'lucide-react-native';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from '../../config/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { AuthBackground } from '../../components/auth/AuthBackground';
@@ -19,6 +25,31 @@ import * as AppleAuthentication from 'expo-apple-authentication';
 import WhitePillCTA from '../../components/WhitePillCTA';
 import { colors, spacing, type } from '../../theme/tokens';
 
+// Map a Firebase auth error code to a localized message key. We never surface
+// error.message (raw English) — unknown codes fall back to a generic string.
+function firebaseErrorKey(code?: string): string {
+  switch (code) {
+    case 'auth/invalid-credential':
+      return 'auth.errors.invalidCredential';
+    case 'auth/invalid-email':
+      return 'auth.errors.invalidEmail';
+    case 'auth/email-already-in-use':
+      return 'auth.errors.emailAlreadyInUse';
+    case 'auth/network-request-failed':
+      return 'auth.errors.networkRequestFailed';
+    case 'auth/too-many-requests':
+      return 'auth.errors.tooManyRequests';
+    case 'auth/weak-password':
+      return 'auth.errors.weakPassword';
+    case 'auth/user-not-found':
+      return 'auth.errors.userNotFound';
+    case 'auth/wrong-password':
+      return 'auth.errors.wrongPassword';
+    default:
+      return 'auth.errors.generic';
+  }
+}
+
 export default function LoginScreen({ navigation }: any) {
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
@@ -26,6 +57,7 @@ export default function LoginScreen({ navigation }: any) {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { signIn, signInWithGoogle, signInWithApple, appleAuthAvailable } = useAuth();
+  const passwordRef = useRef<TextInput>(null);
 
   // Entrance animations — headline settles first, then the form cluster rises.
   const headlineAnim = useRef(new Animated.Value(0)).current;
@@ -49,9 +81,26 @@ export default function LoginScreen({ navigation }: any) {
     }
     setLoading(true);
     try {
-      await signIn(email, password);
+      await signIn(email.trim().toLowerCase(), password);
     } catch (error: any) {
-      Alert.alert(t('auth.login.errors.loginFailedTitle'), error.message || t('auth.login.errors.invalidCredentials'));
+      Alert.alert(t('auth.login.errors.loginFailedTitle'), t(firebaseErrorKey(error?.code)));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    const trimmed = email.trim();
+    if (!trimmed) {
+      Alert.alert(t('common.error'), t('auth.login.enterEmailFirst'));
+      return;
+    }
+    setLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, trimmed.toLowerCase());
+      Alert.alert(t('auth.login.resetSentTitle'), t('auth.login.resetSentBody'));
+    } catch (error: any) {
+      Alert.alert(t('common.error'), t(firebaseErrorKey(error?.code)));
     } finally {
       setLoading(false);
     }
@@ -62,7 +111,10 @@ export default function LoginScreen({ navigation }: any) {
     try {
       await signInWithGoogle();
     } catch (error: any) {
-      Alert.alert(t('auth.login.google.title'), error.message || t('auth.login.google.configRequired'));
+      // Firebase codes map to localized messages; the unconfigured-build case
+      // (a plain Error, no code) falls back to the config-required copy.
+      const msg = error?.code ? t(firebaseErrorKey(error.code)) : t('auth.login.google.configRequired');
+      Alert.alert(t('auth.login.google.title'), msg);
     } finally {
       setLoading(false);
     }
@@ -75,7 +127,7 @@ export default function LoginScreen({ navigation }: any) {
     } catch (error: any) {
       // User-cancelled (ERR_REQUEST_CANCELED) is not an error worth alerting.
       if (error?.code !== 'ERR_REQUEST_CANCELED') {
-        Alert.alert('Sign in with Apple', error?.message || 'Could not sign in with Apple.');
+        Alert.alert(t('auth.apple.title'), t('auth.apple.genericError'));
       }
     } finally {
       setLoading(false);
@@ -87,11 +139,16 @@ export default function LoginScreen({ navigation }: any) {
 
   return (
     <AuthBackground>
-      {/* A ScrollView that insets for the keyboard (automaticallyAdjustKeyboard-
-          Insets) and scrolls the focused field into view — instead of a
-          KeyboardAvoidingView whose flex:1 spacer collapsed and snapped the whole
-          form to the top when the email field was focused. Layout is unchanged
-          when the keyboard is closed. */}
+      {/* iOS relies on the ScrollView's automaticallyAdjustKeyboardInsets to
+          scroll the focused field into view (a KeyboardAvoidingView's flex:1
+          spacer collapsed and snapped the form to the top). Android ignores that
+          prop, so we wrap in a KeyboardAvoidingView with behavior="height" for
+          Android only — undefined on iOS keeps it a no-op there and avoids the
+          double-adjust jump. */}
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? undefined : 'height'}
+      >
       <ScrollView
         style={styles.flex}
         contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom + spacing.xl }]}
@@ -115,16 +172,38 @@ export default function LoginScreen({ navigation }: any) {
                 onChangeText={setEmail}
                 autoCapitalize="none"
                 autoComplete="email"
+                textContentType="emailAddress"
                 keyboardType="email-address"
+                editable={!loading}
+                returnKeyType="next"
+                blurOnSubmit={false}
+                onSubmitEditing={() => passwordRef.current?.focus()}
               />
               <AuthInput
+                ref={passwordRef}
                 icon={Lock}
                 isPassword
                 placeholder={t('auth.login.placeholders.password')}
                 value={password}
                 onChangeText={setPassword}
                 autoCapitalize="none"
+                autoComplete="current-password"
+                textContentType="password"
+                editable={!loading}
+                returnKeyType="go"
+                onSubmitEditing={handleLogin}
               />
+
+              {/* Forgot password — sends a reset email to the entered address */}
+              <Pressable
+                onPress={handleForgotPassword}
+                disabled={loading}
+                hitSlop={8}
+                accessibilityRole="button"
+                style={styles.forgot}
+              >
+                <Text style={styles.forgotText}>{t('auth.login.forgotPassword')}</Text>
+              </Pressable>
 
               {/* Primary action — the one white pill per screen (POSH §2.2) */}
               <WhitePillCTA
@@ -159,15 +238,22 @@ export default function LoginScreen({ navigation }: any) {
                 />
               )}
 
-              <View style={styles.linkButton}>
-                <Text style={styles.linkText} onPress={() => navigation.navigate('Signup')}>
+              <Pressable
+                onPress={() => navigation.navigate('Signup')}
+                disabled={loading}
+                hitSlop={8}
+                accessibilityRole="button"
+                style={styles.linkButton}
+              >
+                <Text style={styles.linkText}>
                   {t('auth.login.noAccount')}{' '}
                   <Text style={styles.linkTextBold}>{t('auth.login.signUp')}</Text>
                 </Text>
-              </View>
+              </Pressable>
             </View>
           </Animated.View>
       </ScrollView>
+      </KeyboardAvoidingView>
     </AuthBackground>
   );
 }
@@ -190,6 +276,14 @@ const styles = StyleSheet.create({
   },
   primary: {
     marginTop: spacing.xs,
+  },
+  forgot: {
+    alignSelf: 'flex-end',
+    marginTop: -spacing.xs,
+  },
+  forgotText: {
+    color: colors.textSecondary,
+    fontSize: 13,
   },
   appleButton: {
     width: '100%',
