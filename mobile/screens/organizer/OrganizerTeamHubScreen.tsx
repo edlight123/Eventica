@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Ionicons } from '@expo/vector-icons';
 import { Users } from 'lucide-react-native';
 
 import { useTheme } from '../../contexts/ThemeContext';
@@ -37,6 +38,9 @@ export default function OrganizerTeamHubScreen() {
   const [events, setEvents] = useState<OrganizerEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  // Description collapsed by default for a clean page; tap the info affordance
+  // to reveal the full per-event staffing explainer.
+  const [showInfo, setShowInfo] = useState(false);
 
   const loadEvents = useCallback(async () => {
     if (!userProfile?.id) {
@@ -104,7 +108,27 @@ export default function OrganizerTeamHubScreen() {
         </View>
 
         <View style={styles.notice}>
-          <InfoNotice icon="people-outline" text={t('organizerTeamHub.infoNotice')} />
+          <TouchableOpacity
+            style={styles.infoToggle}
+            onPress={() => setShowInfo((v) => !v)}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityState={{ expanded: showInfo }}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Ionicons name="information-circle-outline" size={16} color={colors.textSecondary} />
+            <Text style={styles.infoToggleText}>{t('organizerTeamHub.infoToggle')}</Text>
+            <Ionicons
+              name={showInfo ? 'chevron-up' : 'chevron-down'}
+              size={14}
+              color={colors.textSecondary}
+            />
+          </TouchableOpacity>
+          {showInfo && (
+            <View style={styles.infoBody}>
+              <InfoNotice icon="people-outline" text={t('organizerTeamHub.infoNotice')} />
+            </View>
+          )}
         </View>
 
         {events.length === 0 ? (
@@ -138,5 +162,18 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     container: { flex: 1, backgroundColor: colors.background },
     content: { padding: 16 },
     notice: { marginBottom: SPACING.md },
+    infoToggle: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      alignSelf: 'flex-start',
+      gap: 6,
+      paddingVertical: 6,
+    },
+    infoToggleText: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: colors.textSecondary,
+    },
+    infoBody: { marginTop: SPACING.sm },
     cardWrap: { marginBottom: SPACING.md },
   });

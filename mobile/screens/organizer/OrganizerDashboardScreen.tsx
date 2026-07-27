@@ -204,42 +204,42 @@ export default function OrganizerDashboardScreen() {
             onPress={() => navigation.navigate('OrganizerAnalytics')}
           >
             <Ionicons name="bar-chart-outline" size={24} color={colors.text} />
-            <Text style={styles.quickActionText}>{t('organizerDashboard.analytics') || 'Analytics'}</Text>
+            <Text style={styles.quickActionText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{t('organizerDashboard.analytics') || 'Analytics'}</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('OrganizerRefunds')}
           >
             <Ionicons name="refresh-outline" size={24} color={colors.text} />
-            <Text style={styles.quickActionText}>{t('organizerDashboard.refunds') || 'Refunds'}</Text>
+            <Text style={styles.quickActionText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{t('organizerDashboard.refunds') || 'Refunds'}</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('OrganizerPayoutSettings')}
           >
             <Ionicons name="wallet-outline" size={24} color={colors.text} />
-            <Text style={styles.quickActionText}>{t('organizerDashboard.payouts') || 'Payouts'}</Text>
+            <Text style={styles.quickActionText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{t('organizerDashboard.payouts') || 'Payouts'}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('OrganizerTeamHub')}
           >
             <Ionicons name="people-outline" size={24} color={colors.text} />
-            <Text style={styles.quickActionText}>{t('organizerDashboard.team') || 'Team'}</Text>
+            <Text style={styles.quickActionText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{t('organizerDashboard.team') || 'Team'}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('Scan')}
           >
             <Ionicons name="qr-code-outline" size={24} color={colors.text} />
-            <Text style={styles.quickActionText}>{t('tabs.scan') || 'Scan'}</Text>
+            <Text style={styles.quickActionText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{t('tabs.scan') || 'Scan'}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('CreateEvent')}
           >
             <Ionicons name="add-circle-outline" size={24} color={colors.text} />
-            <Text style={styles.quickActionText}>{t('organizerDashboard.createEvent') || 'Create'}</Text>
+            <Text style={styles.quickActionText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{t('organizerDashboard.createEvent') || 'Create'}</Text>
           </TouchableOpacity>
         </View>
       </View>

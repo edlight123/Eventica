@@ -1370,6 +1370,7 @@ export default {
     title: 'Ekip',
     orgTeamEntry: 'Ekip ak travay òganizasyon an',
     orgTeamEntrySubtitle: 'Wòl ak repatisyon travay pou tout òganizasyon ou an',
+    infoToggle: 'Kijan estaf la fonksyone?',
     infoNotice: 'Ou jere estaf pa evènman. Chwazi yon evènman pou jere kiyès ki ka eskane biyè epi anrejistre moun.',
     emptyTitle: 'Poko gen evènman',
     emptySubtitle: 'Kreye yon evènman anvan, apre sa envite estaf pou ede eskane epi akeyi envite yo.',
