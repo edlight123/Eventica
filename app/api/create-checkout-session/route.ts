@@ -3,7 +3,7 @@ import { createClient } from '@/lib/firebase-db/server'
 import { getCurrentUser } from '@/lib/auth'
 import { sendEmail, getTicketConfirmationEmail } from '@/lib/email'
 import { generateTicketQRCode } from '@/lib/qrcode'
-import { calculateDiscount } from '@/lib/promo-codes'
+import { calculateDiscount, resolvePromoCode, promoHasCapacity } from '@/lib/promo-codes'
 import { 
   isBlacklisted, 
   shouldRateLimit, 
@@ -172,19 +172,20 @@ export async function POST(request: Request) {
     }
 
     let finalPrice = event.ticket_price
-    let promoCode = null
+    // Firestore doc id of the promo actually applied — stamped into Stripe metadata so the
+    // webhook (checkout.session.completed) redeems the exact promo doc, and ONLY when a discount
+    // was truly applied here. Empty string = no promo (charge full price).
+    let resolvedPromoId = ''
 
-    // Apply promo code if provided
+    // Apply promo code if provided (Firestore). resolvePromoCode accepts either the Firestore
+    // doc id OR the raw code. We only apply the discount when the promo still has capacity; the
+    // "first N buyers" cap is enforced atomically at CONFIRM time in the Stripe webhook, so a
+    // promo that fills before payment simply charges full price and never blocks the sale.
     if (promoCodeId) {
-      const { data, error } = await supabase
-        .from('promo_codes')
-        .select('*')
-        .eq('id', promoCodeId)
-        .single()
-
-      if (!error && data) {
-        promoCode = data
-        const { discountedPrice } = calculateDiscount(event.ticket_price, promoCode)
+      const promo = await resolvePromoCode(String(eventId), String(promoCodeId))
+      if (promo && promoHasCapacity(promo)) {
+        resolvedPromoId = promo.id
+        const { discountedPrice } = calculateDiscount(event.ticket_price, promo)
         finalPrice = discountedPrice
       }
     }
@@ -262,8 +263,12 @@ export async function POST(request: Request) {
         eventId,
         userId: user.id,
         quantity: quantity.toString(),
-        promoCodeId: promoCodeId || '',
+        // Resolved Firestore promo doc id (only set when a discount was applied), so the
+        // webhook redeems the exact promo. originalPrice/finalPrice let the webhook compute
+        // the per-order discount recorded on the redemption.
+        promoCodeId: resolvedPromoId,
         originalPrice: event.ticket_price.toString(),
+        finalPrice: finalPrice.toString(),
         payoutProvider: provider,
         stripeConnectAccountId: stripeConnectAccountId || '',
       },

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/firebase-db/server'
 import { getCurrentUser } from '@/lib/auth'
-import { calculateDiscount } from '@/lib/promo-codes'
+import { calculateDiscount, resolvePromoCode, promoHasCapacity, type PromoDoc } from '@/lib/promo-codes'
 import { convertUsdToHtgAmount, getUsdToHtgRateWithSpread } from '@/lib/fx/usd-htg'
 import { inferCountryFromEventText } from '@/lib/event-country'
 import { checkEventCapacity } from '@/lib/capacity'
@@ -149,12 +149,18 @@ export async function POST(request: Request) {
       )
     }
 
-    // Promo code (optional)
-    let promo = null
+    // Promo code (optional, Firestore). resolvePromoCode accepts either the Firestore doc id or
+    // the raw code. We only apply the discount when the promo still has capacity; the "first N
+    // buyers" cap is enforced atomically at CONFIRM time (in the return handler), so an
+    // abandoned redirect never consumes a slot and a full promo just charges full price.
+    let promo: PromoDoc | null = null
     if (promoCode) {
-      const { data } = await supabase.from('promo_codes').select('*').eq('id', promoCode).single()
-      if (data) promo = data
+      const resolved = await resolvePromoCode(String(eventId), String(promoCode))
+      if (resolved && promoHasCapacity(resolved)) promo = resolved
     }
+    // Total discount applied across the order (event currency), recorded on the promo
+    // redemption at confirm time. Accumulated as each selection is priced below.
+    let promoDiscountTotal = 0
 
     // Normalize tier selections
     let normalizedSelections: { tierId: string | null; tierName: string; quantity: number; unitPrice: number }[] = []
@@ -187,8 +193,9 @@ export async function POST(request: Request) {
 
         let unitPrice = tier.price
         if (promo) {
-          const { discountedPrice } = calculateDiscount(unitPrice, promo)
+          const { discountedPrice, discountAmount } = calculateDiscount(unitPrice, promo)
           unitPrice = discountedPrice
+          promoDiscountTotal += discountAmount * selection.quantity
         }
 
         normalizedSelections.push({
@@ -235,8 +242,9 @@ export async function POST(request: Request) {
       }
 
       if (promo) {
-        const { discountedPrice } = calculateDiscount(unitPrice, promo)
+        const { discountedPrice, discountAmount } = calculateDiscount(unitPrice, promo)
         unitPrice = discountedPrice
+        promoDiscountTotal += discountAmount * quantity
       }
 
       normalizedSelections = [
@@ -330,7 +338,10 @@ export async function POST(request: Request) {
       exchange_rate_provider: exchangeRateProvider,
       exchange_rate_fetched_at: exchangeRateFetchedAt,
       tier_selections: chargeSelections,
-      promo_code_id: promoCode || null,
+      // Store the RESOLVED promo doc id (not the raw input) so the confirm-time redeem targets
+      // the exact promo; null when no discount was applied (charge full price, nothing to redeem).
+      promo_code_id: promo?.id || null,
+      promo_discount_total: promoDiscountTotal || null,
       moncash_button_token: null,
       mobile_money_provider: normalizedProvider,
     })

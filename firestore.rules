@@ -310,12 +310,42 @@ service cloud.firestore {
       allow update, delete: if isSignedIn() && get(/databases/$(database)/documents/events/$(resource.data.event_id)).data.organizer_id == request.auth.uid;
     }
     
-    // Promo codes - organizers can manage their event's promo codes
+    // Promo codes - organizers manage their own event's promo codes. The redemption
+    // counter (uses_count) is NEVER client-writable: the "first N buyers" cap is
+    // enforced atomically server-side (Admin SDK, redeemPromoInTransaction), so a
+    // client must not be able to reset/decrement the counter to bypass the cap.
     match /promo_codes/{promoCodeId} {
-      // M8: owner-only client reads. Attendee-side redemption is validated
-      // server-side (Admin SDK), so clients never need to read these directly.
-      allow read: if isSignedIn() && get(/databases/$(database)/documents/events/$(resource.data.event_id)).data.organizer_id == request.auth.uid;
-      allow write: if isSignedIn() && get(/databases/$(database)/documents/events/$(resource.data.event_id)).data.organizer_id == request.auth.uid;
+      // M8: reads stay organizer-only (this is the "clients may read" access for the
+      // only client that needs it — the owning organizer). Attendee-side validation
+      // and redemption run server-side via the Admin SDK, so attendees never read
+      // promo codes directly, and public-readable codes would let anyone harvest
+      // active discounts. create validates the INCOMING event_id; read/update/delete
+      // validate the STORED doc's event_id.
+      allow read: if isSignedIn()
+        && get(/databases/$(database)/documents/events/$(resource.data.event_id)).data.organizer_id == request.auth.uid;
+
+      allow create: if isSignedIn()
+        && get(/databases/$(database)/documents/events/$(request.resource.data.event_id)).data.organizer_id == request.auth.uid;
+
+      // Organizers may edit discount/expiry/active flags, but uses_count and event_id
+      // are immutable from the client (.get defaults keep legacy docs updatable).
+      allow update: if isSignedIn()
+        && get(/databases/$(database)/documents/events/$(resource.data.event_id)).data.organizer_id == request.auth.uid
+        && request.resource.data.get('uses_count', 0) == resource.data.get('uses_count', 0)
+        && request.resource.data.event_id == resource.data.event_id;
+
+      allow delete: if isSignedIn()
+        && get(/databases/$(database)/documents/events/$(resource.data.event_id)).data.organizer_id == request.auth.uid;
+    }
+
+    // Promo code redemptions - append-only ledger of who redeemed which promo,
+    // written EXCLUSIVELY by the Admin SDK inside redeemPromoInTransaction. Never
+    // client-writable (that would let a buyer fake/skip a redemption) and never
+    // client-readable (contains other buyers' user ids / discounts). Server reads
+    // via the Admin SDK bypass these rules.
+    match /promo_code_usage/{usageId} {
+      allow read: if false;
+      allow write: if false;
     }
     
     // Favorites - users can only access their own favorites
