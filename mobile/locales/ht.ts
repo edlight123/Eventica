@@ -991,26 +991,42 @@ export default {
     create: {
       show: 'Nouvo kòd pwomo',
       hide: 'Kache fòmilè a',
+      eyebrow: 'Nouvo kòd',
       title: 'Kreye yon kòd pwomo',
       create: 'Kreye',
       creating: 'N ap kreye…',
+      limitHelper: 'Se {n} premye moun ki itilize kòd sa a k ap jwenn rabè a.',
     },
     fields: {
       code: 'Kòd',
       discountType: 'Kalite rabè',
       discountValue: 'Valè rabè a',
       maxUses: 'Kantite maksimòm itilizasyon',
+      quantity: 'Kantite',
       expiresAt: 'Dat ekspirasyon',
     },
     placeholders: {
       code: 'egz. ETE20',
       discountValue: 'egz. 10',
       maxUses: 'Kite vid pou san limit',
+      quantity: 'egz. 200 moun',
       expiresAt: 'AAAA-MM-JJ',
     },
     discountTypes: {
       percentage: 'Pousantaj',
       fixed: 'Montan fiks',
+    },
+    limitTypes: {
+      limited: 'Kantite limite',
+      unlimited: 'San limit',
+    },
+    share: {
+      action: 'Pataje',
+      percentOff: '{value}% rabè',
+      amountOff: '{amount} rabè',
+      atEvent: ' nan {event}',
+      blurbFirstN: 'Itilize kòd {code} pou {discount}{at} — se {n} premye moun sèlman!',
+      blurbOpen: 'Itilize kòd {code} pou {discount}{at}!',
     },
     list: {
       title: 'Kòd pwomo',
@@ -1022,6 +1038,9 @@ export default {
       inactive: 'Inaktif',
       activate: 'Aktive',
       deactivate: 'Dezaktive',
+      claimed: '{used} sou {total} pran',
+      used: '{used} itilize',
+      fullyClaimed: 'Tout pran',
     },
     delete: {
       title: 'Efase kòd pwomo a',
