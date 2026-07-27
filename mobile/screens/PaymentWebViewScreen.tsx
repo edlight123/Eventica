@@ -306,6 +306,13 @@ export default function PaymentWebViewScreen() {
         startInLoadingState
         javaScriptEnabled
         domStorageEnabled
+        // Keep the checkout form steady when the number/PIN fields are focused:
+        // stop iOS from auto-shifting the WebView's content insets as the
+        // keyboard shows/hides (the main cause of the page "jumping around").
+        automaticallyAdjustContentInsets={false}
+        contentInsetAdjustmentBehavior="never"
+        keyboardDisplayRequiresUserAction={false}
+        hideKeyboardAccessoryView
       />
 
       {loading && !failure ? brandedLoading : null}
