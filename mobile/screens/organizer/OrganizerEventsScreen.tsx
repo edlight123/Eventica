@@ -145,7 +145,7 @@ export default function OrganizerEventsScreen() {
         <OrganizerScreenHeader title={t('organizerEvents.title')} right={createButton} />
         <View style={styles.skeletonList}>
           {[0, 1, 2].map((i) => (
-            <Skeleton key={i} width="100%" height={280} radius={RADIUS.lg} style={{ marginBottom: 16 }} />
+            <Skeleton key={i} width="100%" height={140} radius={RADIUS.lg} style={{ marginBottom: 16 }} />
           ))}
         </View>
       </View>
@@ -214,27 +214,31 @@ export default function OrganizerEventsScreen() {
               displayStatus = 'draft';
             }
 
+            // Attendee-side reads banner first, then cover. Match that so the
+            // real poster shows on the organizer list too.
+            const posterUri = event.banner_image_url || event.cover_image_url;
+
             return (
               <TouchableOpacity
                 key={event.id}
                 style={styles.eventCard}
                 onPress={() => navigation.navigate('OrganizerEventManagement', { eventId: event.id })}
               >
-                {/* Real cover → full banner. No cover → a compact branded strip
-                    (small wordmark on the poster gradient) instead of a big
-                    empty color block. */}
-                <View style={event.cover_image_url ? styles.eventImage : styles.eventStrip}>
+                {/* Vertical poster thumbnail on the left. Real image when we have
+                    one; otherwise the poster gradient with a small centered
+                    wordmark (branded-strip treatment adapted to a portrait thumb). */}
+                <View style={styles.eventThumb}>
                   <LinearGradient
                     colors={resolvePosterTheme(event, event.id || event.title, event.category).colors}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={StyleSheet.absoluteFill}
                   />
-                  {event.cover_image_url ? (
-                    <Image source={{ uri: event.cover_image_url }} style={StyleSheet.absoluteFill} />
+                  {posterUri ? (
+                    <Image source={{ uri: posterUri }} style={StyleSheet.absoluteFill} />
                   ) : (
-                    <View style={styles.eventStripBrand}>
-                      <TikemWordmark fontSize={20} />
+                    <View style={styles.eventThumbBrand}>
+                      <TikemWordmark fontSize={16} />
                     </View>
                   )}
                 </View>
@@ -268,14 +272,10 @@ export default function OrganizerEventsScreen() {
                         {event.tickets_sold || 0} / {event.total_tickets || 0} {t('common.sold')}
                       </Text>
                     </View>
-                    <TouchableOpacity
-                      style={styles.manageButton}
-                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                      onPress={() => navigation.navigate('OrganizerEventManagement', { eventId: event.id })}
-                    >
+                    <View style={styles.manageButton}>
                       <Text style={styles.manageButtonText}>{t('organizerEvents.manage')}</Text>
                       <Ionicons name="chevron-forward" size={16} color={colors.primary} />
-                    </TouchableOpacity>
+                    </View>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -318,44 +318,43 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 16,
   },
   eventCard: {
+    flexDirection: 'row',
     backgroundColor: colors.surfaceRaised,
     borderRadius: RADIUS.lg,
     marginBottom: 16,
     overflow: 'hidden',
   },
-  eventImage: {
-    width: '100%',
-    height: 160,
-    backgroundColor: colors.surfaceMuted,
-  },
-  // No-image events: a slim branded strip instead of a tall empty color block.
-  eventStrip: {
-    width: '100%',
-    height: 64,
+  // Vertical poster thumbnail on the left (portrait ~4:5).
+  eventThumb: {
+    width: 104,
+    aspectRatio: 4 / 5,
     backgroundColor: colors.surfaceMuted,
     overflow: 'hidden',
   },
-  eventStripBrand: {
+  eventThumbBrand: {
     ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
     opacity: 0.9,
+    paddingHorizontal: 8,
   },
   eventContent: {
-    padding: 16,
+    flex: 1,
+    padding: 14,
+    justifyContent: 'space-between',
   },
   eventHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   eventTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: colors.text,
     flex: 1,
-    marginRight: 12,
+    marginRight: 10,
   },
   eventDetails: {
     marginBottom: 12,
