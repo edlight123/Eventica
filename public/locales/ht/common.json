@@ -457,6 +457,12 @@
     "total_tickets": "{{count}} total",
     "unlimited": "San limit"
   },
+  "app_cta": {
+    "title": "Jwenn aplikasyon Tikèm nan",
+    "subtitle": "Dekouvri evènman epi achte tikè pi vit sou iPhone ak Android.",
+    "get": "Jwenn aplikasyon an",
+    "dismiss": "Pita"
+  },
   "footer": {
     "copyright": "© {{year}} Tikèm. Tout dwa rezève.",
     "landmark": "Pye paj sit la",
