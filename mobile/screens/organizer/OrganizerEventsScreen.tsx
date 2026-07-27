@@ -330,7 +330,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   eventThumb: {
     width: 104,
     aspectRatio: 4 / 5,
-    borderRadius: 14,
+    // ~10% max roundness per beta feedback (104px * 0.10 ≈ 10).
+    borderRadius: 10,
     backgroundColor: colors.surfaceMuted,
     overflow: 'hidden',
   },

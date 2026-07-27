@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -86,6 +86,13 @@ export default function OrganizerPromoCodesScreen() {
   const route = useRoute<RouteProp<RouteParams, 'OrganizerPromoCodes'>>();
   const navigation = useNavigation<any>();
   const { eventId } = route.params;
+
+  // Hide the default native nav bar — this screen renders its own serif
+  // OrganizerScreenHeader, so the native "‹ Manage Event / Promo Codes" bar
+  // would double up on top of it.
+  useLayoutEffect(() => {
+    navigation.setOptions({ headerShown: false });
+  }, [navigation]);
 
   const { t, language } = useI18n();
   const { userProfile } = useAuth();
