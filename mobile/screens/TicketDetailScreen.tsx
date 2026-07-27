@@ -223,13 +223,15 @@ export default function TicketDetailScreen({ route }: any) {
           </View>
 
           {/* Inverted WHITE ticket + BLACK-on-white QR (the one shared identity) */}
-          <View style={[styles.qrSection, isExpired && styles.qrContainerDimmed]}>
+          {/* QR stays FULL opacity even when expired — a late/edge scan must still
+              work; "expired" is conveyed by the status chip + expiredBody copy. */}
+          <View style={styles.qrSection}>
             <TicketQRCard
               qrValue={ticketQrValue(ticket, ticketId)}
               eventTitle={ticket.event_title}
               dateLabel={ticket.event_date ? safeFormatForLanguage(ticket.event_date, 'EEE, MMM d · h:mm a', language) : undefined}
               tierName={ticketTierLabel(ticket)}
-              holderName={ticket.user_name ? `Admit: ${ticket.user_name}` : undefined}
+              holderName={ticket.user_name ? `${t('ticketDetail.admit')} ${ticket.user_name}` : undefined}
               orderRef={ticketOrderRef(ticket).replace(/^TKM-/, '')}
             />
             <Text style={styles.qrInstruction}>
@@ -605,9 +607,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     elevation: 6,
     borderWidth: 1,
     borderColor: colors.border,
-  },
-  qrContainerDimmed: {
-    opacity: 0.5, // Dim the QR code for expired tickets
   },
   qrInstruction: {
     fontSize: 15,

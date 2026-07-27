@@ -1881,6 +1881,7 @@ export default {
   ticketDetail: {
     loadError: 'Impossible de charger les détails du billet',
     notFound: 'Billet introuvable',
+    admit: 'Admis :',
     status: {
       expired: 'EXPIRÉ',
       confirmed: 'CONFIRMÉ',
@@ -1915,12 +1916,77 @@ export default {
       quantity: 'Quantité',
       price: 'Prix',
       ticketId: 'ID du billet',
+      orderRef: 'Commande',
       purchaseDate: 'Date d’achat',
+    },
+    actions: {
+      addToCalendar: 'Ajouter au calendrier',
+      getDirections: 'Itinéraire',
+      requestRefund: 'Demander un remboursement',
+      refundSubtitle: 'Récupérez votre argent',
+      leaveReview: 'Laisser un avis',
+      reviewSubtitle: 'Partagez votre expérience',
+    },
+    refund: {
+      pending: 'Remboursement en attente',
+      approved: 'Remboursement approuvé',
+      denied: 'Remboursement refusé',
     },
     footer: {
       keepSafe: 'Conservez ce billet en sécurité',
       qrEntryPass: 'Ce QR code est votre pass d’entrée',
     },
+  },
+
+  freeTicket: {
+    title: 'Réclamer un billet gratuit',
+    freeEvent: 'ÉVÉNEMENT GRATUIT',
+    quantityLabel: 'Nombre de billets',
+    availableCount: '{count} disponibles',
+    ticketWord: { one: 'Billet', other: 'Billets' },
+    maxNote: {
+      one: 'Maximum {count} billet disponible',
+      other: 'Maximum {count} billets disponibles',
+    },
+    total: 'Total',
+    free: 'GRATUIT',
+    claimButton: { one: 'Réclamer {count} billet', other: 'Réclamer {count} billets' },
+    soldOutTitle: 'Complet',
+    soldOutBody: 'Aucun billet disponible',
+    limitedTitle: 'Disponibilité limitée',
+    limitedBody: {
+      one: 'Plus que {count} billet restant',
+      other: 'Plus que {count} billets restants',
+    },
+    successTitle: 'Réussi !',
+    successBody: {
+      one: '{count} billet gratuit réclamé avec succès !',
+      other: '{count} billets gratuits réclamés avec succès !',
+    },
+    viewTickets: 'Voir les billets',
+    errorBody: 'Échec de la réclamation des billets. Veuillez réessayer.',
+  },
+
+  ticketPass: {
+    ticketNumber: 'Billet {count}',
+    admit: 'Admis :',
+    tapHint: 'Touchez le billet pour l’agrandir · à présenter à l’entrée',
+    checkedIn: 'Enregistré le',
+    addToCalendar: 'Ajouter au calendrier',
+    getDirections: 'Itinéraire',
+    transfer: 'Transférer',
+    viewEvent: 'Voir l’événement',
+  },
+
+  addToWallet: {
+    appleWallet: 'Ajouter à Apple Wallet',
+    googleWallet: 'Ajouter à Google Wallet',
+    generating: 'Génération…',
+    saveImage: 'Enregistrer l’image',
+    successBody: 'Votre billet a été ajouté à votre wallet !',
+    errorBody: 'Échec de l’ajout du billet au wallet. Veuillez réessayer.',
+    downloadTitle: 'Télécharger le QR code',
+    downloadBody: 'Faites une capture d’écran de ce billet pour enregistrer le QR code, ou utilisez la fonction « Ajouter au wallet » pour un accès facile.',
   },
 
   screens: {

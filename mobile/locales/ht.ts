@@ -1879,6 +1879,7 @@ export default {
   ticketDetail: {
     loadError: 'Pa t kapab chaje detay biyè a',
     notFound: 'Biyè pa jwenn',
+    admit: 'Admèt:',
     status: {
       expired: 'EXPIRÉ',
       confirmed: 'KONFIME',
@@ -1913,12 +1914,77 @@ export default {
       quantity: 'Kantite',
       price: 'Pri',
       ticketId: 'ID biyè',
+      orderRef: 'Kòmand',
       purchaseDate: 'Dat achte',
+    },
+    actions: {
+      addToCalendar: 'Ajoute nan kalandriye',
+      getDirections: 'Jwenn direksyon',
+      requestRefund: 'Mande ranbousman',
+      refundSubtitle: 'Reprann lajan ou',
+      leaveReview: 'Kite yon avi',
+      reviewSubtitle: 'Pataje eksperyans ou',
+    },
+    refund: {
+      pending: 'Ranbousman an atant',
+      approved: 'Ranbousman apwouve',
+      denied: 'Ranbousman refize',
     },
     footer: {
       keepSafe: 'Kenbe biyè sa a an sekirite',
       qrEntryPass: 'QR code sa a se pas ou pou antre nan evènman an',
     },
+  },
+
+  freeTicket: {
+    title: 'Pran biyè gratis la',
+    freeEvent: 'EVÈNMAN GRATIS',
+    quantityLabel: 'Kantite biyè',
+    availableCount: '{count} disponib',
+    ticketWord: { one: 'Biyè', other: 'Biyè' },
+    maxNote: {
+      one: 'Maksimòm {count} biyè disponib',
+      other: 'Maksimòm {count} biyè disponib',
+    },
+    total: 'Total',
+    free: 'GRATIS',
+    claimButton: { one: 'Pran {count} biyè', other: 'Pran {count} biyè' },
+    soldOutTitle: 'Tout biyè vann',
+    soldOutBody: 'Pa gen biyè disponib',
+    limitedTitle: 'Kantite limite',
+    limitedBody: {
+      one: 'Se {count} biyè ki rete',
+      other: 'Se {count} biyè ki rete',
+    },
+    successTitle: 'Reyisi!',
+    successBody: {
+      one: 'Ou pran {count} biyè gratis avèk siksè!',
+      other: 'Ou pran {count} biyè gratis avèk siksè!',
+    },
+    viewTickets: 'Gade biyè yo',
+    errorBody: 'Nou pa t kapab pran biyè yo. Tanpri eseye ankò.',
+  },
+
+  ticketPass: {
+    ticketNumber: 'Biyè {count}',
+    admit: 'Admèt:',
+    tapHint: 'Peze biyè a pou agrandi l · montre l nan antre a',
+    checkedIn: 'Chèk-in fèt',
+    addToCalendar: 'Ajoute nan kalandriye',
+    getDirections: 'Jwenn direksyon',
+    transfer: 'Transfere',
+    viewEvent: 'Gade evènman an',
+  },
+
+  addToWallet: {
+    appleWallet: 'Ajoute nan Apple Wallet',
+    googleWallet: 'Ajoute nan Google Wallet',
+    generating: 'Ap jenere…',
+    saveImage: 'Anrejistre imaj la',
+    successBody: 'Biyè ou a ajoute nan wallet ou a!',
+    errorBody: 'Nou pa t kapab ajoute biyè a nan wallet la. Tanpri eseye ankò.',
+    downloadTitle: 'Telechaje QR code la',
+    downloadBody: 'Pran yon kapti ekran biyè sa a pou anrejistre QR code la, oswa itilize fonksyon « Ajoute nan Wallet » pou aksè fasil.',
   },
 
   screens: {
