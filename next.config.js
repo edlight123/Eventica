@@ -57,17 +57,28 @@ const nextConfig = {
     // origins: Stripe (checkout), Firebase/Google (auth, Firestore, storage,
     // FCM), self-hosted next/font fonts, and Unsplash/GCS images.
     //
-    // Shipped as Report-Only first because this is a live payments app — a
-    // slightly-off enforcing policy could break Stripe checkout or Google
-    // sign-in. Report-Only surfaces any violations in the browser console
-    // WITHOUT blocking anything. Once the console is clean in production,
-    // switch the header key below to 'Content-Security-Policy' to enforce.
+    // This policy is ENFORCED (not Report-Only). It shipped as Report-Only
+    // first because this is a live payments app and a slightly-off enforcing
+    // policy could break Stripe checkout or Google sign-in; the directives
+    // below were then audited against every external origin the client
+    // actually touches before flipping the header key.
+    //
+    // Two notes for anyone tightening this further:
+    //   - `form-action` MUST keep the MonCash/NatCash hosts. The NatCash
+    //     "Hosted Page" flow (app/api/moncash-button/checkout/route.ts) serves
+    //     a self-origin page that auto-submits a <form> POST to the gateway.
+    //     Under a bare `form-action 'self'` the browser blocks that POST and
+    //     NatCash checkout fails outright.
+    //   - Plain <a href> navigations (Google/Apple Maps, wa.me, Google
+    //     Calendar) are top-level navigations and are NOT restricted by this
+    //     policy, so they need no directive.
     const contentSecurityPolicy = [
       "default-src 'self'",
       "base-uri 'self'",
       "object-src 'none'",
       "frame-ancestors 'none'",
-      "form-action 'self'",
+      // See the form-action note above — removing these breaks NatCash.
+      "form-action 'self' https://moncashbutton.digicelgroup.com https://sandbox.moncashbutton.digicelgroup.com",
       "img-src 'self' data: blob: https://images.unsplash.com https://storage.googleapis.com https://firebasestorage.googleapis.com https://*.googleusercontent.com",
       "font-src 'self' data:",
       // Next.js injects inline styles; recharts sets inline SVG styles.
@@ -75,7 +86,10 @@ const nextConfig = {
       // 'unsafe-inline'/'unsafe-eval' are required by Next's runtime today;
       // tighten to a nonce/hash-based policy as a follow-up.
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://apis.google.com https://www.gstatic.com",
-      "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.stripe.com https://m.stripe.network https://*.stripe.com",
+      // wss://*.googleapis.com covers Firestore's WebChannel transport, which
+      // backs the app's onSnapshot realtime listeners. Without it an enforcing
+      // policy can silently kill live dashboard updates.
+      "connect-src 'self' https://*.googleapis.com wss://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.stripe.com https://m.stripe.network https://*.stripe.com",
       "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://*.firebaseapp.com https://accounts.google.com",
       "worker-src 'self' blob:",
       "manifest-src 'self'",
@@ -150,9 +164,10 @@ const nextConfig = {
             value: 'camera=(self), microphone=(), geolocation=(), browsing-topics=()',
           },
           {
-            // See the contentSecurityPolicy note above. Report-Only for now;
-            // rename to 'Content-Security-Policy' to enforce.
-            key: 'Content-Security-Policy-Report-Only',
+            // ENFORCED. See the contentSecurityPolicy note above before
+            // editing any directive — `form-action` in particular is
+            // load-bearing for NatCash checkout.
+            key: 'Content-Security-Policy',
             value: contentSecurityPolicy,
           },
         ],

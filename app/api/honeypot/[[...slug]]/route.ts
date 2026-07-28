@@ -25,6 +25,29 @@ import { NextResponse, type NextRequest } from 'next/server'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
+/**
+ * Every decoy response uses HTTP 404 — the same status these paths would
+ * return if the honeypot did not exist.
+ *
+ * Why: the honeypot's actual security value is the `[honeypot]` log line, and
+ * that fires on every hit regardless of the status code we return. Serving the
+ * decoys with 200 bought a marginal amount of extra attacker time-wasting, but
+ * cost us something real — every external security scanner reported
+ * `/.env`, `/.git/HEAD`, `/.aws/credentials`, `/server-status` and the `*.sql`
+ * paths as CRITICAL "exposed sensitive path" findings, because the only thing
+ * a scanner checks is "did this path return 200?". For a live payments app
+ * that ships security-scan output to partners and processors, a permanent
+ * shelf of false-positive criticals is worse than useless: it buries real
+ * findings and invites account review.
+ *
+ * A 404 keeps everything that mattered — the log line, the decoy body (which
+ * a human or a body-parsing bot still reads and still wastes time on) — while
+ * making automated scanners correctly conclude there is nothing here.
+ *
+ * Do not change this back to 200 without a plan for the scanner noise.
+ */
+const DECOY_STATUS = 404
+
 type DecoyKind =
   | 'wordpress'
   | 'dotenv'
@@ -166,12 +189,12 @@ async function handle(
       })
   )
 
-  const html = (body: string, status = 200): Response =>
+  const html = (body: string, status = DECOY_STATUS): Response =>
     new NextResponse(body, {
       status,
       headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' },
     })
-  const text = (body: string, status = 200): Response =>
+  const text = (body: string, status = DECOY_STATUS): Response =>
     new NextResponse(body, {
       status,
       headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },
@@ -192,7 +215,7 @@ async function handle(
       return text('Apache Server Status for localhost\nServer uptime: unknown\n')
     case 'backup':
       return new NextResponse('-- SQL dump\n-- (empty)\n', {
-        status: 200,
+        status: DECOY_STATUS,
         headers: {
           'Content-Type': 'application/octet-stream',
           'Content-Disposition': 'attachment; filename=backup.sql',
@@ -204,10 +227,7 @@ async function handle(
       return html('')
     case 'generic':
     default:
-      return new NextResponse('Not Found', {
-        status: 404,
-        headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },
-      })
+      return text('Not Found')
   }
 }
 

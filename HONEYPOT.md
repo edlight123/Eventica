@@ -15,9 +15,33 @@ makes it a very clean signal.
    probed path, returns believable fake content (a fake WordPress login page,
    a fake `.env`, a fake `phpMyAdmin` page, etc.), and logs the hit.
 
-The response is realistic enough to make a scanner think it found something,
-which wastes its time and keeps it engaged instead of moving on to real
-endpoints.
+## Decoys return HTTP 404
+
+Every decoy response carries a **404** status — the same status these paths
+would return if the honeypot did not exist. The fake body is still served.
+
+This matters because the honeypot's real value is the `[honeypot]` log line,
+and that fires on every hit **regardless of the status code**. Serving decoys
+with `200` bought a marginal amount of extra attacker time-wasting but cost
+something concrete: every external security scanner reported `/.env`,
+`/.git/HEAD`, `/.aws/credentials`, `/server-status` and the `*.sql` paths as
+CRITICAL *"exposed sensitive path"* findings, because the only thing a scanner
+checks is *did this path return 200?*
+
+For a live payments app whose scan output gets read by partners and payment
+processors, a permanent shelf of false-positive criticals is worse than
+useless — it buries real findings and invites account review.
+
+With a 404 we keep both halves of the original design:
+
+- **The signal** — the structured log line, unchanged.
+- **The deception** — a human or a body-parsing bot still reads the fake
+  `.env` and still wastes time on it. Only status-code-driven scanners (i.e.
+  all of them) correctly conclude there is nothing here.
+
+`__tests__/unit/honeypot-decoy.test.ts` asserts this for every path in
+`HONEYPOT_DECOY_PATHS`, so adding a new decoy path cannot silently reintroduce
+a `200`. Don't change `DECOY_STATUS` back without a plan for the scanner noise.
 
 ## What gets logged
 
@@ -54,10 +78,17 @@ The `[honeypot]` log line is the integration point. To turn logs into alerts:
 
 ```bash
 npm run dev
-curl -i http://localhost:3000/.env           # fake env file
-curl -i http://localhost:3000/wp-login.php    # fake WordPress login
+curl -i http://localhost:3000/.env            # 404 + fake env file
+curl -i http://localhost:3000/wp-login.php    # 404 + fake WordPress login
 curl -i -X POST http://localhost:3000/wp-login.php \
   --data 'log=admin&pwd=hunter2'              # captured in the logs
 ```
 
-Each request prints a `[honeypot] …` line in the dev server console.
+Each request prints a `[honeypot] …` line in the dev server console. Note the
+`404` in the status line — that is expected, see above.
+
+Unit tests:
+
+```bash
+npx jest __tests__/unit/honeypot-decoy.test.ts
+```
