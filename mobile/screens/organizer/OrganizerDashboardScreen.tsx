@@ -203,42 +203,42 @@ export default function OrganizerDashboardScreen() {
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('OrganizerAnalytics')}
           >
-            <Ionicons name="bar-chart-outline" size={24} color={colors.text} />
+            <Ionicons name="bar-chart-outline" size={20} color={colors.text} />
             <Text style={styles.quickActionText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{t('organizerDashboard.analytics') || 'Analytics'}</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('OrganizerRefunds')}
           >
-            <Ionicons name="refresh-outline" size={24} color={colors.text} />
+            <Ionicons name="refresh-outline" size={20} color={colors.text} />
             <Text style={styles.quickActionText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{t('organizerDashboard.refunds') || 'Refunds'}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.quickActionButton}
-            onPress={() => navigation.navigate('OrganizerAnalytics')}
+            onPress={() => navigation.navigate('OrganizerEarningsHub')}
           >
-            <Ionicons name="cash-outline" size={24} color={colors.text} />
+            <Ionicons name="cash-outline" size={20} color={colors.text} />
             <Text style={styles.quickActionText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{t('organizerDashboard.earnings') || 'Earnings'}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('OrganizerPayoutSettings')}
           >
-            <Ionicons name="wallet-outline" size={24} color={colors.text} />
+            <Ionicons name="wallet-outline" size={20} color={colors.text} />
             <Text style={styles.quickActionText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{t('organizerDashboard.payouts') || 'Payouts'}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('OrganizerTeamHub')}
           >
-            <Ionicons name="people-outline" size={24} color={colors.text} />
+            <Ionicons name="people-outline" size={20} color={colors.text} />
             <Text style={styles.quickActionText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{t('organizerDashboard.team') || 'Team'}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.quickActionButton}
             onPress={() => navigation.navigate('Scan')}
           >
-            <Ionicons name="qr-code-outline" size={24} color={colors.text} />
+            <Ionicons name="qr-code-outline" size={20} color={colors.text} />
             <Text style={styles.quickActionText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{t('tabs.scan') || 'Scan'}</Text>
           </TouchableOpacity>
           {/* No Create tile here (per beta feedback): the odd 7th tile broke the
@@ -258,14 +258,18 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   scrollContent: {
     flex: 1,
   },
+  // Tighter vertical rhythm so all three sections (Today / This Week / Quick
+  // Actions) fit one screen without scrolling (beta feedback).
   section: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 14,
+    paddingBottom: 6,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 19,
     fontWeight: 'bold',
     color: colors.text,
-    marginBottom: 16,
+    marginBottom: 12,
     letterSpacing: -0.3,
   },
   eventCard: {
@@ -321,13 +325,14 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    rowGap: SPACING.md,
+    rowGap: 10,
   },
   quickActionButton: {
     width: '48%',
     backgroundColor: colors.surfaceRaised,
     borderRadius: RADIUS.lg,
-    padding: SPACING.lg,
+    paddingVertical: 13,
+    paddingHorizontal: 14,
     alignItems: 'center',
     // Left-align icon + label: centering each button's content made the icons
     // land at different x-positions (labels vary in width), so the grid read as

@@ -1293,12 +1293,26 @@ export default function CreateEventFlowRefactored() {
             <TouchableOpacity style={styles.flyerHero} activeOpacity={0.9} onPress={pickImage}>
               {eventDraft.banner_image_url ? (
                 <>
+                  {/* Blurred cover copy fills the 2:3 frame; the poster itself is
+                      contained on top so non-2:3 uploads never get zoomed/cropped
+                      (tester: "the poster is zoomed"). */}
                   <Image
                     source={{ uri: eventDraft.banner_image_url }}
                     style={StyleSheet.absoluteFill}
                     contentFit="cover"
+                    blurRadius={24}
                   />
-                  <View style={styles.flyerOverlay} />
+                  <Image
+                    source={{ uri: eventDraft.banner_image_url }}
+                    style={StyleSheet.absoluteFill}
+                    contentFit="contain"
+                  />
+                  {/* Top-only scrim keeps the Change-flyer pill readable without
+                      dimming the whole poster. */}
+                  <LinearGradient
+                    colors={['rgba(0,0,0,0.45)', 'rgba(0,0,0,0)']}
+                    style={styles.flyerOverlay}
+                  />
                   <View style={styles.changeFlyerPill}>
                     <Ionicons name="camera-outline" size={16} color={colors.white} />
                     <Text style={styles.changeFlyerText}>{t('organizerCreateEventFlow.canvas.changeFlyer')}</Text>
@@ -2426,8 +2440,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: '#000000',
   },
   flyerOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.28)',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 90,
   },
   changeFlyerPill: {
     position: 'absolute',

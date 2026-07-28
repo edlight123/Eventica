@@ -1329,9 +1329,15 @@ export default {
       blurbFirstN: 'Use code {code} for {discount}{at} — first {n} people only!',
       blurbOpen: 'Use code {code} for {discount}{at}!',
     },
+    tabs: {
+      active: 'Active',
+      expired: 'Expired',
+    },
     list: {
       title: 'Promo codes',
       empty: 'No promo codes yet',
+      emptyActive: 'No active codes',
+      emptyExpired: 'No expired codes',
       uses: 'Uses',
       unlimited: 'Unlimited',
       expires: 'Expires',
@@ -1748,6 +1754,13 @@ export default {
     startScanning: 'Start Scanning',
     noEventTitle: 'No Event Selected',
     noEventBody: 'Please select an event to scan tickets.',
+  },
+
+  organizerEarningsHub: {
+    title: 'Earnings',
+    subtitle: 'Pick an event to view its earnings',
+    empty: 'No events yet',
+    sold: '{n} tickets sold',
   },
 
   organizerDashboard: {

@@ -438,15 +438,18 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   scrollView: {
     flex: 1,
   },
+  // One consistent vertical beat (14) between blocks — the mixed 16/4/0 margins
+  // read as "spacing issues" to testers.
   timeRangeContainer: {
-    paddingVertical: 12,
+    paddingVertical: 10,
   },
   statsWrap: {
     paddingHorizontal: 16,
-    paddingBottom: 4,
+    marginBottom: 14,
   },
   chartCard: {
-    margin: 16,
+    marginHorizontal: 16,
+    marginBottom: 14,
     padding: 20,
     backgroundColor: colors.surfaceRaised,
     borderRadius: RADIUS.xl,
@@ -503,8 +506,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 8,
   },
   sectionCard: {
-    margin: 16,
-    marginTop: 0,
+    marginHorizontal: 16,
+    marginBottom: 14,
     padding: 16,
     backgroundColor: colors.surfaceRaised,
     borderRadius: RADIUS.xl,

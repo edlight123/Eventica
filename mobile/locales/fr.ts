@@ -1030,9 +1030,15 @@ export default {
       blurbFirstN: 'Utilise le code {code} pour {discount}{at} — réservé aux {n} premières personnes !',
       blurbOpen: 'Utilise le code {code} pour {discount}{at} !',
     },
+    tabs: {
+      active: 'Actifs',
+      expired: 'Expirés',
+    },
     list: {
       title: 'Codes promo',
       empty: 'Aucun code promo pour l’instant',
+      emptyActive: 'Aucun code actif',
+      emptyExpired: 'Aucun code expiré',
       uses: 'Utilisations',
       unlimited: 'Illimité',
       expires: 'Expire le',
@@ -1449,6 +1455,13 @@ export default {
     startScanning: 'Commencer le scan',
     noEventTitle: 'Aucun événement sélectionné',
     noEventBody: 'Veuillez sélectionner un événement pour scanner les billets.',
+  },
+
+  organizerEarningsHub: {
+    title: 'Revenus',
+    subtitle: 'Choisissez un événement pour voir ses revenus',
+    empty: 'Aucun événement pour l’instant',
+    sold: '{n} billets vendus',
   },
 
   organizerDashboard: {

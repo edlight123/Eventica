@@ -38,6 +38,7 @@ import OrganizerEventsScreen from '../screens/organizer/OrganizerEventsScreen';
 import OrganizerScanScreen from '../screens/organizer/OrganizerScanScreen';
 import OrganizerEventManagementScreen from '../screens/organizer/OrganizerEventManagementScreen';
 import OrganizerEventEarningsScreen from '../screens/organizer/OrganizerEventEarningsScreen';
+import OrganizerEarningsHubScreen from '../screens/organizer/OrganizerEarningsHubScreen';
 import OrganizerEventStaffScreen from '../screens/organizer/OrganizerEventStaffScreen';
 import OrganizerTeamHubScreen from '../screens/organizer/OrganizerTeamHubScreen';
 import OrganizerOrgTeamScreen from '../screens/organizer/OrganizerOrgTeamScreen';
@@ -103,6 +104,7 @@ export type RootStackParamList = {
   // for an instant first paint; it then refreshes the fuller data in the background.
   OrganizerEventManagement: { eventId: string; event?: OrganizerEvent };
   OrganizerEventEarnings: { eventId: string };
+  OrganizerEarningsHub: undefined;
   OrganizerPayoutSettings: undefined;
   OrganizerEventStaff: { eventId: string };
   OrganizerTeamHub: undefined;
@@ -727,6 +729,7 @@ export default function AppNavigator() {
             />
             <Stack.Screen name="OrganizerEventManagement" component={OrganizerEventManagementScreen} options={{ headerShown: true, headerTitle: 'Manage Event' }} />
             <Stack.Screen name="OrganizerEventEarnings" component={OrganizerEventEarningsScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="OrganizerEarningsHub" component={OrganizerEarningsHubScreen} options={{ headerShown: false }} />
             <Stack.Screen name="OrganizerPayoutSettings" component={OrganizerPayoutSettingsScreen} options={{ headerShown: false }} />
             <Stack.Screen name="OrganizerEventStaff" component={OrganizerEventStaffScreen} options={{ headerShown: true }} />
             <Stack.Screen name="OrganizerTeamHub" component={OrganizerTeamHubScreen} options={{ headerShown: false }} />

@@ -38,6 +38,7 @@ import EmptyState from '../../components/EmptyState';
 import WhitePillCTA from '../../components/WhitePillCTA';
 import SecondaryPill from '../../components/auth/SecondaryPill';
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
+import SegmentedTabs from '../../components/organizer/SegmentedTabs';
 import { Tag } from 'lucide-react-native';
 import { getEventById } from '../../lib/api/organizer';
 
@@ -108,6 +109,9 @@ export default function OrganizerPromoCodesScreen() {
   const [promoCodes, setPromoCodes] = useState<PromoCodeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  // Active vs Expired list filter — "expired" collects everything no longer
+  // claimable: past expiry, fully claimed, or deactivated.
+  const [listTab, setListTab] = useState<'active' | 'expired'>('active');
 
   // Form state
   const [showForm, setShowForm] = useState(false);
@@ -309,10 +313,17 @@ export default function OrganizerPromoCodesScreen() {
     const url = `https://www.tikem.co/events/${eventId}`;
 
     const body = [promoLine, meta].filter(Boolean).join('\n');
-    const message = `${body}\n\n${url}`;
 
     try {
-      await Share.share({ message, url });
+      if (Platform.OS === 'ios') {
+        // iOS attaches `url` as its own rich-preview bubble (that's what renders
+        // the event poster via Open Graph) — putting it in the message too made
+        // the link appear twice AND suppressed the preview card.
+        await Share.share({ message: body, url });
+      } else {
+        // Android ignores `url`, so the link must live in the message.
+        await Share.share({ message: `${body}\n\n${url}` });
+      }
     } catch (e) {
       console.warn('[promo-share] Share failed:', e);
     }
@@ -324,6 +335,20 @@ export default function OrganizerPromoCodesScreen() {
     }
     return `-${formatCurrency(promo.discount_value, eventCurrency)}`;
   };
+
+  // A code is "expired" once it can no longer be claimed: past its expiry date,
+  // fully claimed, or manually deactivated.
+  const isExpired = useCallback((promo: PromoCodeItem) => {
+    const expiry = parseExpiresAt(promo.expires_at);
+    const past = expiry != null && expiry.getTime() < Date.now();
+    const fullyClaimed =
+      promo.max_uses != null && promo.max_uses > 0 && (promo.uses_count || 0) >= promo.max_uses;
+    return past || fullyClaimed || !promo.is_active;
+  }, []);
+
+  const activeCodes = useMemo(() => promoCodes.filter((p) => !isExpired(p)), [promoCodes, isExpired]);
+  const expiredCodes = useMemo(() => promoCodes.filter((p) => isExpired(p)), [promoCodes, isExpired]);
+  const visibleCodes = listTab === 'active' ? activeCodes : expiredCodes;
 
   if (loading) {
     return (
@@ -338,7 +363,7 @@ export default function OrganizerPromoCodesScreen() {
             <Skeleton width="100%" height={52} radius={RADIUS.lg} style={{ marginBottom: 16 }} />
             <Skeleton width={140} height={18} radius={6} style={{ marginBottom: 12 }} />
             {[0, 1, 2].map((i) => (
-              <Skeleton key={i} width="100%" height={120} radius={RADIUS.xl} style={{ marginBottom: 10 }} />
+              <Skeleton key={i} width="100%" height={84} radius={14} style={{ marginBottom: 8 }} />
             ))}
           </View>
         </ScrollView>
@@ -354,8 +379,7 @@ export default function OrganizerPromoCodesScreen() {
         onBack={() => navigation.goBack()}
       />
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-        <View style={styles.section}>
-          {showForm && (
+        {showForm && (
             <View style={styles.formCard}>
               <Text style={styles.formEyebrow}>{t('organizerPromoCodes.create.eyebrow')}</Text>
               <Text style={styles.formTitle}>{t('organizerPromoCodes.create.title')}</Text>
@@ -493,8 +517,7 @@ export default function OrganizerPromoCodesScreen() {
                 />
               </View>
             </View>
-          )}
-        </View>
+        )}
 
         <View style={styles.section}>
           {/* Section label row with the create action beside it (moved down from
@@ -515,10 +538,35 @@ export default function OrganizerPromoCodesScreen() {
             )}
           </View>
 
+          {/* Active / Expired filter — past discounts stay reachable without
+              stretching the default list. */}
+          {promoCodes.length > 0 && (
+            <View style={styles.tabsWrap}>
+              <SegmentedTabs
+                tabs={[
+                  { key: 'active', label: t('organizerPromoCodes.tabs.active'), count: activeCodes.length },
+                  { key: 'expired', label: t('organizerPromoCodes.tabs.expired'), count: expiredCodes.length },
+                ]}
+                value={listTab}
+                onChange={(key) => setListTab(key as 'active' | 'expired')}
+              />
+            </View>
+          )}
+
           {promoCodes.length === 0 ? (
             <EmptyState icon={Tag} title={t('organizerPromoCodes.list.empty')} compact />
+          ) : visibleCodes.length === 0 ? (
+            <EmptyState
+              icon={Tag}
+              title={
+                listTab === 'active'
+                  ? t('organizerPromoCodes.list.emptyActive')
+                  : t('organizerPromoCodes.list.emptyExpired')
+              }
+              compact
+            />
           ) : (
-            promoCodes.map((promo) => {
+            visibleCodes.map((promo) => {
               const expiry = parseExpiresAt(promo.expires_at);
               const expiryText = expiry
                 ? expiry.toLocaleString(locale, { year: 'numeric', month: 'short', day: 'numeric' })
@@ -536,11 +584,15 @@ export default function OrganizerPromoCodesScreen() {
                     .replace('{total}', String(cap))
                 : t('organizerPromoCodes.list.used').replace('{used}', String(used));
 
+              // Compact card (tester: "at most 2/3 of the height"): discount sits
+              // inline with the code, claimed + expiry share one meta line, and
+              // the toggle is an inline text action instead of a tall button.
               return (
                 <View key={promo.id} style={[styles.promoCard, fullyClaimed && styles.promoCardClaimed]}>
                   <View style={styles.promoHeader}>
                     <View style={styles.promoHeaderLeft}>
                       <Text style={styles.promoCode}>{String(promo.code || '').toUpperCase()}</Text>
+                      <Text style={styles.promoDetail}>{renderDiscount(promo)}</Text>
                       <View style={styles.statusInline}>
                         <View
                           style={[
@@ -578,38 +630,26 @@ export default function OrganizerPromoCodesScreen() {
                     </View>
                   </View>
 
-                  <Text style={styles.promoDetail}>{renderDiscount(promo)}</Text>
-
                   <View style={styles.claimedRow}>
-                    <Text style={styles.claimedText}>{claimedText}</Text>
+                    <Text style={styles.claimedText} numberOfLines={1}>
+                      {[claimedText, expiryText ? `${t('organizerPromoCodes.list.expires')}: ${expiryText}` : null]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => handleToggleActive(promo)}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    >
+                      <Text style={styles.inlineToggleText}>
+                        {promo.is_active ? t('organizerPromoCodes.list.deactivate') : t('organizerPromoCodes.list.activate')}
+                      </Text>
+                    </TouchableOpacity>
                   </View>
                   {capped && (
                     <View style={styles.progressBar}>
                       <View style={[styles.progressFill, { width: `${pct}%` }]} />
                     </View>
                   )}
-
-                  {expiryText ? (
-                    <Text style={styles.promoMeta}>
-                      {t('organizerPromoCodes.list.expires')}: {expiryText}
-                    </Text>
-                  ) : null}
-
-                  <View style={styles.promoActions}>
-                    <TouchableOpacity
-                      style={[styles.actionButton, promo.is_active ? styles.actionButtonSecondary : styles.actionButtonPrimary]}
-                      onPress={() => handleToggleActive(promo)}
-                    >
-                      <Text
-                        style={[
-                          styles.actionButtonText,
-                          promo.is_active ? styles.actionButtonTextSecondary : styles.actionButtonTextPrimary,
-                        ]}
-                      >
-                        {promo.is_active ? t('organizerPromoCodes.list.deactivate') : t('organizerPromoCodes.list.activate')}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
                 </View>
               );
             })
@@ -626,11 +666,20 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.background,
   },
   scrollContent: {
-    padding: 20,
+    // Tight top padding — the tester flagged a dead gap between the header
+    // hairline and the section label.
+    paddingHorizontal: 20,
+    paddingTop: 12,
     paddingBottom: 40,
   },
   section: {
-    marginTop: 16,
+    marginTop: 4,
+  },
+  // SegmentedTabs carries its own 16px horizontal padding; pull it back so the
+  // tabs align with the 20px content gutter.
+  tabsWrap: {
+    marginHorizontal: -16,
+    marginBottom: 10,
   },
   sectionTitle: {
     fontFamily: font.mono,
@@ -783,8 +832,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   promoCard: {
     backgroundColor: colors.surfaceRaised,
     borderRadius: 14,
-    padding: 14,
-    marginBottom: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 11,
+    marginBottom: 8,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -841,15 +891,24 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '700',
   },
   claimedRow: {
-    marginTop: 8,
+    marginTop: 7,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 10,
   },
   claimedText: {
+    flex: 1,
     fontFamily: font.mono,
     fontSize: 12,
     letterSpacing: 0.3,
+    color: colors.textSecondary,
+  },
+  // Inline text toggle (Deactivate / Activate) — replaces the old tall
+  // bottom-row button so the card stays short.
+  inlineToggleText: {
+    fontSize: 13,
+    fontWeight: '600',
     color: colors.textSecondary,
   },
   progressBar: {
@@ -863,38 +922,5 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     height: '100%',
     backgroundColor: colors.primary,
     borderRadius: 4,
-  },
-  promoMeta: {
-    marginTop: 6,
-    fontFamily: font.monoRegular,
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
-  promoActions: {
-    marginTop: 10,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  actionButton: {
-    borderRadius: 14,
-    paddingVertical: 9,
-    paddingHorizontal: 14,
-  },
-  actionButtonPrimary: {
-    backgroundColor: colors.primary,
-  },
-  actionButtonSecondary: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  actionButtonText: {
-    fontWeight: '700',
-  },
-  actionButtonTextPrimary: {
-    color: colors.white,
-  },
-  actionButtonTextSecondary: {
-    color: colors.textSecondary,
   },
 });

@@ -1373,7 +1373,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   // Compact inline card action (Manage on Stripe / Verify Now) — replaces the
   // old full-width 48px secondary bar inside method cards.
   inlineAction: {
-    alignSelf: 'flex-start',
+    // Tester feedback: the card action reads better anchored to the right edge
+    // (under the status chip) than dangling bottom-left under the icon.
+    alignSelf: 'flex-end',
     marginTop: 10,
     paddingHorizontal: 12,
     paddingVertical: 7,

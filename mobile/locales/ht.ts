@@ -1028,9 +1028,15 @@ export default {
       blurbFirstN: 'Itilize kòd {code} pou {discount}{at} — se {n} premye moun sèlman!',
       blurbOpen: 'Itilize kòd {code} pou {discount}{at}!',
     },
+    tabs: {
+      active: 'Aktif',
+      expired: 'Ekspire',
+    },
     list: {
       title: 'Kòd pwomo',
       empty: 'Poko gen kòd pwomo',
+      emptyActive: 'Pa gen kòd aktif',
+      emptyExpired: 'Pa gen kòd ki ekspire',
       uses: 'Itilizasyon',
       unlimited: 'San limit',
       expires: 'Ekspire',
@@ -1447,6 +1453,13 @@ export default {
     startScanning: 'Kòmanse eskane',
     noEventTitle: 'Pa gen evènman chwazi',
     noEventBody: 'Tanpri chwazi yon evènman pou eskane biyè yo.',
+  },
+
+  organizerEarningsHub: {
+    title: 'Kòb ou fè',
+    subtitle: 'Chwazi yon evènman pou wè kòb li fè',
+    empty: 'Poko gen evènman',
+    sold: '{n} tikè vann',
   },
 
   organizerDashboard: {

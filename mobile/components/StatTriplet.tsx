@@ -61,7 +61,7 @@ export default function StatTriplet({ items, columns = 3 }: StatTripletProps) {
             return (
               <View
                 key={`${rowIdx}-${cellIdx}`}
-                style={[styles.cell, cellIdx > 0 && styles.cellDivider]}
+                style={[styles.cell, cellIdx === 0 && styles.cellFirst, cellIdx > 0 && styles.cellDivider]}
               >
                 <Text style={styles.label} numberOfLines={1}>
                   {item.label}
@@ -85,11 +85,12 @@ export default function StatTriplet({ items, columns = 3 }: StatTripletProps) {
 }
 
 const styles = StyleSheet.create({
+  // No filled box (beta feedback: "I don't like the stats boxes background") —
+  // numerals sit directly on the canvas, structured only by hairline dividers.
   container: {
-    backgroundColor: colors.surfaceRaised,
     borderRadius: radius.lg,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: 0,
   },
   row: {
     flexDirection: 'row',
@@ -105,6 +106,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: spacing.sm,
     justifyContent: 'flex-start',
+  },
+  // Without the filled box, the leading cell aligns flush with the content gutter.
+  cellFirst: {
+    paddingLeft: 0,
   },
   cellDivider: {
     borderLeftWidth: StyleSheet.hairlineWidth,
