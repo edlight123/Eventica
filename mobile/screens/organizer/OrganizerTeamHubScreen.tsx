@@ -105,7 +105,7 @@ export default function OrganizerTeamHubScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <OrganizerScreenHeader title={t('organizerTeamHub.title')} />
+        <OrganizerScreenHeader title={t('organizerTeamHub.title')} onBack={() => navigation.goBack()} />
         <View style={styles.content}>
           <Skeleton width={120} height={12} radius={5} style={{ marginBottom: 14 }} />
           {[0, 1].map((i) => (
@@ -128,7 +128,9 @@ export default function OrganizerTeamHubScreen() {
 
   return (
     <View style={styles.container}>
-      <OrganizerScreenHeader title={t('organizerTeamHub.title')} />
+      {/* Pushed from the dashboard — without onBack this screen was a dead end
+          (no chevron, and the tab bar is covered by the push). */}
+      <OrganizerScreenHeader title={t('organizerTeamHub.title')} onBack={() => navigation.goBack()} />
 
       <ScrollView
         contentContainerStyle={[styles.content, { paddingBottom: 32 + insets.bottom }]}
