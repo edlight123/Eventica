@@ -352,19 +352,23 @@ export default function OrganizerPromoCodesScreen() {
         title={t('organizerPromoCodes.title')}
         subtitle={eventTitle || undefined}
         onBack={() => navigation.goBack()}
+        right={
+          !showForm ? (
+            <TouchableOpacity
+              style={styles.newCodeButton}
+              onPress={() => setShowForm(true)}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              accessibilityRole="button"
+              accessibilityLabel={t('organizerPromoCodes.create.show')}
+            >
+              <Ionicons name="add" size={18} color={colors.text} />
+              <Text style={styles.newCodeButtonText}>{t('organizerPromoCodes.create.show')}</Text>
+            </TouchableOpacity>
+          ) : undefined
+        }
       />
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.section}>
-          <TouchableOpacity style={styles.createToggle} onPress={() => setShowForm((v) => !v)} activeOpacity={0.8}>
-            <View style={styles.createToggleLeft}>
-              <Ionicons name="pricetag-outline" size={20} color={colors.primary} />
-              <Text style={styles.createToggleText}>
-                {showForm ? t('organizerPromoCodes.create.hide') : t('organizerPromoCodes.create.show')}
-              </Text>
-            </View>
-            <Ionicons name={showForm ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textSecondary} />
-          </TouchableOpacity>
-
           {showForm && (
             <View style={styles.formCard}>
               <Text style={styles.formEyebrow}>{t('organizerPromoCodes.create.eyebrow')}</Text>
@@ -634,25 +638,21 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textSecondary,
     marginBottom: 14,
   },
-  createToggle: {
-    backgroundColor: colors.surface,
-    borderRadius: RADIUS.lg,
-    padding: 14,
+  // Header "＋ New code" action (mirrors OrganizerEventsScreen's create button)
+  // — replaces the old chevron-dropdown accordion the tester disliked.
+  newCodeButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: colors.surfaceRaised,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 14,
   },
-  createToggleLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  createToggleText: {
-    fontSize: 15,
+  newCodeButtonText: {
     color: colors.text,
     fontWeight: '600',
+    fontSize: 14,
+    marginLeft: 4,
   },
   formCard: {
     backgroundColor: colors.surfaceRaised,

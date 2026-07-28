@@ -5,9 +5,9 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Image,
   RefreshControl,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -219,6 +219,15 @@ export default function OrganizerEventsScreen() {
             // real poster shows on the organizer list too.
             const posterUri = event.banner_image_url || event.cover_image_url;
 
+            // `location` is often empty; fall back to venue_name/city/commune/
+            // address (same fields the attendee card composes) so the pin row
+            // isn't a lonely icon with no text.
+            const locationLabel =
+              (event.location && event.location.trim()) ||
+              [event.venue_name, (event as any).city, event.commune, event.address]
+                .filter((s) => s && String(s).trim())
+                .join(', ');
+
             return (
               <TouchableOpacity
                 key={event.id}
@@ -236,7 +245,16 @@ export default function OrganizerEventsScreen() {
                     style={StyleSheet.absoluteFill}
                   />
                   {posterUri ? (
-                    <Image source={{ uri: posterUri }} style={StyleSheet.absoluteFill} />
+                    // expo-image: cached posters paint instantly (no green-gradient
+                    // flash before load), new ones fade in over the gradient.
+                    <Image
+                      source={{ uri: posterUri }}
+                      style={StyleSheet.absoluteFill}
+                      contentFit="cover"
+                      cachePolicy="memory-disk"
+                      transition={200}
+                      recyclingKey={event.id ? String(event.id) : undefined}
+                    />
                   ) : (
                     <View style={styles.eventThumbBrand}>
                       <TikemWordmark fontSize={16} />
@@ -258,12 +276,14 @@ export default function OrganizerEventsScreen() {
                       <Ionicons name="time-outline" size={16} color={colors.textSecondary} style={styles.detailIcon} />
                       <Text style={styles.detailText}>{formattedTime}</Text>
                     </View>
-                    <View style={styles.detailRow}>
-                      <Ionicons name="location-outline" size={16} color={colors.textSecondary} />
-                      <Text style={styles.detailText} numberOfLines={1}>
-                        {event.location}
-                      </Text>
-                    </View>
+                    {locationLabel ? (
+                      <View style={styles.detailRow}>
+                        <Ionicons name="location-outline" size={16} color={colors.textSecondary} />
+                        <Text style={styles.detailText} numberOfLines={1}>
+                          {locationLabel}
+                        </Text>
+                      </View>
+                    ) : null}
                   </View>
 
                   <View style={styles.eventFooter}>
