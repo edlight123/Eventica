@@ -314,6 +314,14 @@ service cloud.firestore {
     // counter (uses_count) is NEVER client-writable: the "first N buyers" cap is
     // enforced atomically server-side (Admin SDK, redeemPromoInTransaction), so a
     // client must not be able to reset/decrement the counter to bypass the cap.
+    // Organizer activation funnel: one doc per organizer, written by the
+    // mobile Getting Started checklist with its four computed booleans
+    // (create/publish/payouts/team). Owner-only from clients; the admin
+    // dashboard reads via the Admin SDK (bypasses rules).
+    match /organizer_activation/{userId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
     match /promo_codes/{promoCodeId} {
       // M8: reads stay organizer-only (this is the "clients may read" access for the
       // only client that needs it — the owning organizer). Attendee-side validation

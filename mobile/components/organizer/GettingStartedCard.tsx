@@ -3,6 +3,8 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { db } from '../../config/firebase';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
@@ -19,6 +21,23 @@ type Steps = {
   payouts: boolean;
   team: boolean;
 };
+
+// Activation funnel telemetry: mirror the snapshot to Firestore, but only when
+// it differs from what we last stored (the AsyncStorage cache doubles as the
+// dedupe key) — a focus-driven recheck must not spam writes. Fire-and-forget.
+function logActivation(uid: string, steps: Steps) {
+  const completed = steps.create && steps.publish && steps.payouts && steps.team;
+  setDoc(
+    doc(db, 'organizer_activation', uid),
+    {
+      ...steps,
+      completed,
+      updated_at: serverTimestamp(),
+      ...(completed ? { completed_at: serverTimestamp() } : {}),
+    },
+    { merge: true }
+  ).catch((e) => console.warn('[GettingStarted] activation log failed:', e));
+}
 
 /**
  * Activation checklist for new organizers (dashboard): create → publish →
@@ -48,7 +67,8 @@ export default function GettingStartedCard() {
           const hiddenFlag = await AsyncStorage.getItem(hideKey(uid));
           if (hiddenFlag) return; // stays hidden forever once done/dismissed
 
-          // Instant paint from cache while the live check runs.
+          // Instant paint from cache while the live check runs. Also the
+          // telemetry dedupe key — we only log when the snapshot changes.
           const cached = await AsyncStorage.getItem(cacheKey(uid));
           if (alive && cached) {
             setSteps(JSON.parse(cached));
@@ -83,7 +103,8 @@ export default function GettingStartedCard() {
           if (!alive) return;
 
           if (next.create && next.publish && next.payouts && next.team) {
-            // Fully activated — retire the card permanently.
+            // Fully activated — log the completion, retire the card permanently.
+            logActivation(uid, next);
             setHidden(true);
             await AsyncStorage.setItem(hideKey(uid), 'done');
             await AsyncStorage.removeItem(cacheKey(uid));
@@ -92,7 +113,11 @@ export default function GettingStartedCard() {
 
           setSteps(next);
           setHidden(false);
-          await AsyncStorage.setItem(cacheKey(uid), JSON.stringify(next));
+          const serialized = JSON.stringify(next);
+          if (serialized !== cached) {
+            logActivation(uid, next);
+            await AsyncStorage.setItem(cacheKey(uid), serialized);
+          }
         } catch (e) {
           console.warn('[GettingStarted] check failed:', e);
         }
