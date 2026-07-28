@@ -487,7 +487,10 @@ export default function CreateEventFlowRefactored() {
           title: event.title || '',
           description: event.description || '',
           category: event.category || '',
-          banner_image_url: event.cover_image_url || '',
+          // The poster is stored in banner_image_url (cover_image_url is a
+          // legacy fallback) — reading only cover left edit mode showing the
+          // empty "Upload Flyer" state for events that DO have a poster.
+          banner_image_url: (event as any).banner_image_url || event.cover_image_url || '',
           venue_name: event.venue_name || '',
           country: (event as any).country || 'HT',
           department: resolvedDepartment,

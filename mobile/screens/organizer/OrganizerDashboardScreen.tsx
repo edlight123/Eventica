@@ -241,13 +241,8 @@ export default function OrganizerDashboardScreen() {
             <Ionicons name="qr-code-outline" size={24} color={colors.text} />
             <Text style={styles.quickActionText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{t('tabs.scan') || 'Scan'}</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.quickActionButton}
-            onPress={() => navigation.navigate('CreateEvent')}
-          >
-            <Ionicons name="add-circle-outline" size={24} color={colors.text} />
-            <Text style={styles.quickActionText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{t('organizerDashboard.createEvent') || 'Create'}</Text>
-          </TouchableOpacity>
+          {/* No Create tile here (per beta feedback): the odd 7th tile broke the
+              2-col grid, and Create already lives in My Events' header button. */}
         </View>
       </View>
       </ScrollView>

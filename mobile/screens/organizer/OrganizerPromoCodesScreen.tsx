@@ -352,20 +352,6 @@ export default function OrganizerPromoCodesScreen() {
         title={t('organizerPromoCodes.title')}
         subtitle={eventTitle || undefined}
         onBack={() => navigation.goBack()}
-        right={
-          !showForm ? (
-            <TouchableOpacity
-              style={styles.newCodeButton}
-              onPress={() => setShowForm(true)}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              accessibilityRole="button"
-              accessibilityLabel={t('organizerPromoCodes.create.show')}
-            >
-              <Ionicons name="add" size={18} color={colors.text} />
-              <Text style={styles.newCodeButtonText}>{t('organizerPromoCodes.create.show')}</Text>
-            </TouchableOpacity>
-          ) : undefined
-        }
       />
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.section}>
@@ -511,7 +497,23 @@ export default function OrganizerPromoCodesScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('organizerPromoCodes.list.title')}</Text>
+          {/* Section label row with the create action beside it (moved down from
+              the screen header per beta feedback). */}
+          <View style={styles.sectionTitleRow}>
+            <Text style={styles.sectionTitle}>{t('organizerPromoCodes.list.title')}</Text>
+            {!showForm && (
+              <TouchableOpacity
+                style={styles.newCodeButton}
+                onPress={() => setShowForm(true)}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                accessibilityRole="button"
+                accessibilityLabel={t('organizerPromoCodes.create.show')}
+              >
+                <Ionicons name="add" size={16} color={colors.text} />
+                <Text style={styles.newCodeButtonText}>{t('organizerPromoCodes.create.show')}</Text>
+              </TouchableOpacity>
+            )}
+          </View>
 
           {promoCodes.length === 0 ? (
             <EmptyState icon={Tag} title={t('organizerPromoCodes.list.empty')} compact />
@@ -636,10 +638,17 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     letterSpacing: 1,
     textTransform: 'uppercase',
     color: colors.textSecondary,
+  },
+  // Section label + create action on one row (the label's old marginBottom
+  // moves to the row so lone-label usages elsewhere stay unaffected).
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 14,
   },
-  // Header "＋ New code" action (mirrors OrganizerEventsScreen's create button)
-  // — replaces the old chevron-dropdown accordion the tester disliked.
+  // "＋ New code" action beside the section label (mirrors OrganizerEventsScreen's
+  // create button) — replaces the old chevron-dropdown accordion.
   newCodeButton: {
     flexDirection: 'row',
     alignItems: 'center',

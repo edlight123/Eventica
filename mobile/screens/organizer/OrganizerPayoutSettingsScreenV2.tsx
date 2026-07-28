@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Alert,
   Modal,
@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import * as ImagePicker from 'expo-image-picker'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext'
@@ -22,6 +23,7 @@ import { backendFetch, backendJson } from '../../lib/api/backend'
 import { getVerificationRequest } from '../../lib/verification'
 import { useLocaleFormat } from '../../lib/format'
 import { RADIUS } from '../../config/brand'
+import { font } from '../../theme/tokens'
 import { Skeleton } from '../../components/Skeleton'
 import StatusChip from '../../components/StatusChip'
 import EmptyState from '../../components/EmptyState'
@@ -75,16 +77,31 @@ type PayoutHistoryItem = {
 
 type PayoutTab = 'methods' | 'history'
 
+// Instant-open cache (mirrors TicketsScreen): the last-loaded payout methods +
+// verification status paint immediately on open while the network refreshes
+// silently in the background.
+const payoutCacheKey = (uid: string) => `payout_settings_cache_${uid}`
+
 export default function OrganizerPayoutSettingsScreenV2() {
   const { colors } = useTheme();
-  const styles = getStyles(colors);
+  const styles = useMemo(() => getStyles(colors), [colors]);
   const navigation = useNavigation<any>()
   const insets = useSafeAreaInsets()
   const { t } = useI18n()
   const { formatDate } = useLocaleFormat()
   const { user } = useAuth()
 
+  // FIRST-PAINT gate only. `loading` starts true and flips false exactly once —
+  // when the cache seed or the first network load paints. Background refreshes
+  // (focus regain, pull-to-refresh) must NEVER flip it back: doing so unmounted
+  // the whole ScrollView into skeletons mid-scroll, which testers saw as the
+  // page "reloading on its own".
   const [loading, setLoading] = useState(true)
+  // True once a live server load has landed — gates cache writes and stops a
+  // slow cache read from clobbering fresher server data.
+  const serverLoadedRef = useRef(false)
+  // Dedupes overlapping loads (mount focus + pull-to-refresh, etc.).
+  const loadInFlightRef = useRef(false)
   const [destinations, setDestinations] = useState<PayoutDestination[]>([])
   // Stripe Connect (US/CA/FR) live status. `verified` = onboarding fully
   // complete (charges + payouts enabled); otherwise the card prompts to finish.
@@ -232,19 +249,56 @@ export default function OrganizerPayoutSettingsScreenV2() {
     }
   }, [user?.uid])
 
+  // Background-safe load: keeps the current content on screen while fetching.
+  // It never sets `loading` back to true, so a refresh can't swap the tree to
+  // skeletons after first paint.
   const load = useCallback(async () => {
-    setLoading(true)
+    if (loadInFlightRef.current) return
+    loadInFlightRef.current = true
     try {
       await Promise.all([loadDestinations(), loadIdentityStatus()])
+      serverLoadedRef.current = true
     } finally {
       setLoading(false)
+      loadInFlightRef.current = false
     }
   }, [loadDestinations, loadIdentityStatus])
 
+  // Instant paint: seed from the AsyncStorage cache so subsequent opens show
+  // methods + verification status immediately (never a blank screen), while the
+  // focus effect below refreshes from the network in the background.
   useEffect(() => {
-    load()
-  }, [load])
+    if (!user?.uid) return
+    let cancelled = false
+    const uid = user.uid
+    ;(async () => {
+      try {
+        const raw = await AsyncStorage.getItem(payoutCacheKey(uid))
+        if (raw && !cancelled && !serverLoadedRef.current) {
+          const c = JSON.parse(raw)
+          if (Array.isArray(c?.destinations)) setDestinations(c.destinations)
+          setStripeProfile(c?.stripeProfile ?? null)
+          setIdentityVerified(!!c?.identityVerified)
+          setLoading(false)
+        }
+      } catch {}
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [user?.uid])
 
+  // Persist after every live load so the next open paints from cache. Gated on
+  // serverLoadedRef so a cache seed never rewrites itself (or clears newer data).
+  useEffect(() => {
+    if (!user?.uid || !serverLoadedRef.current) return
+    AsyncStorage.setItem(
+      payoutCacheKey(user.uid),
+      JSON.stringify({ destinations, stripeProfile, identityVerified }),
+    ).catch(() => {})
+  }, [user?.uid, destinations, stripeProfile, identityVerified, loading])
+
+  // Refresh on focus (fires on mount too) — silently, in the background.
   useFocusEffect(
     useCallback(() => {
       load()
@@ -603,19 +657,6 @@ export default function OrganizerPayoutSettingsScreenV2() {
     }
   }, [verificationAsset, selectedDestination, verificationType, loadDestinations, t])
 
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <OrganizerScreenHeader title={t('organizerPayoutSettings.headerTitle')} onBack={() => navigation.goBack()} />
-        <View style={{ padding: 16, gap: 12 }}>
-          {[0, 1, 2].map((i) => (
-            <Skeleton key={i} width="100%" height={140} radius={RADIUS.xl} />
-          ))}
-        </View>
-      </View>
-    )
-  }
-
   return (
     <View style={styles.container}>
       <OrganizerScreenHeader title={t('organizerPayoutSettings.headerTitle')} onBack={() => navigation.goBack()} />
@@ -637,6 +678,30 @@ export default function OrganizerPayoutSettingsScreenV2() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.textSecondary} />
         }
       >
+        {/* First-ever load only: header + tabs are already painted above; the
+            content area shows method-card-shaped skeletons. After first paint
+            this branch never shows again — background refreshes keep the data. */}
+        {loading ? (
+          <View>
+            <View style={styles.sectionHeader}>
+              <Skeleton width={130} height={12} radius={5} />
+              <Skeleton width={64} height={28} radius={10} />
+            </View>
+            {[0, 1, 2].map((i) => (
+              <View key={i} style={styles.destinationCard}>
+                <View style={styles.destinationHeader}>
+                  <Skeleton width={32} height={32} radius={10} />
+                  <View style={{ flex: 1, marginLeft: 10, gap: 7 }}>
+                    <Skeleton width="52%" height={14} radius={6} />
+                    <Skeleton width="38%" height={11} radius={5} />
+                  </View>
+                  <Skeleton width={72} height={11} radius={5} />
+                </View>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <>
         {activeTab === 'methods' && (
           <>
         {/* Identity Verification Status */}
@@ -676,8 +741,10 @@ export default function OrganizerPayoutSettingsScreenV2() {
             {stripeProfile?.connected ? (
               <View style={styles.destinationCard}>
                 <View style={styles.destinationHeader}>
-                  <Ionicons name="globe-outline" size={24} color={colors.text} />
-                  <View style={{ flex: 1, marginLeft: 12 }}>
+                  <View style={styles.methodIconTile}>
+                    <Ionicons name="globe-outline" size={16} color={colors.text} />
+                  </View>
+                  <View style={styles.destinationBody}>
                     <Text style={styles.destinationTitle} numberOfLines={1}>{t('organizerPayoutSettings.stripe.title')}</Text>
                     <Text style={styles.destinationSubtitle} numberOfLines={1}>
                       {stripeProfile.country === 'CA'
@@ -694,10 +761,11 @@ export default function OrganizerPayoutSettingsScreenV2() {
                   )}
                 </View>
                 {!stripeProfile.verified && (
-                  <Text style={styles.destinationMeta}>{t('organizerPayoutSettings.stripeCard.incompleteHint')}</Text>
+                  <Text style={styles.destinationHint}>{t('organizerPayoutSettings.stripeCard.incompleteHint')}</Text>
                 )}
                 <TouchableOpacity
-                  style={[styles.secondaryButton, { marginTop: 12 }]}
+                  style={styles.inlineAction}
+                  hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
                   onPress={() =>
                     startStripeConnect(
                       stripeProfile.country === 'CA'
@@ -708,7 +776,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
                     )
                   }
                 >
-                  <Text style={styles.secondaryButtonText}>
+                  <Text style={styles.inlineActionText}>
                     {stripeProfile.verified
                       ? t('organizerPayoutSettings.stripeCard.manage')
                       : t('organizerPayoutSettings.stripeCard.finishSetup')}
@@ -724,23 +792,25 @@ export default function OrganizerPayoutSettingsScreenV2() {
               return (
                 <View key={dest.id} style={styles.destinationCard}>
                   <View style={styles.destinationHeader}>
-                    <Ionicons
-                      name={isBank ? 'card-outline' : 'phone-portrait-outline'}
-                      size={24}
-                      color={colors.text}
-                    />
-                    <View style={{ flex: 1, marginLeft: 12 }}>
+                    <View style={styles.methodIconTile}>
+                      <Ionicons
+                        name={isBank ? 'card-outline' : 'phone-portrait-outline'}
+                        size={16}
+                        color={colors.text}
+                      />
+                    </View>
+                    <View style={styles.destinationBody}>
                       <Text style={styles.destinationTitle} numberOfLines={1}>
                         {isBank ? (dest as BankDestination).bankName : (dest as MoncashDestination).provider}
                       </Text>
                       <Text style={styles.destinationSubtitle} numberOfLines={1}>
                         {isBank ? (dest as BankDestination).accountName : (dest as MoncashDestination).accountName}
-                      </Text>
-                      <Text style={styles.destinationMeta}>
-                        ••••{' '}
-                        {isBank
-                          ? (dest as BankDestination).accountNumberLast4
-                          : (dest as MoncashDestination).phoneNumberLast4}
+                        <Text style={styles.destinationDigits}>
+                          {'   •••• '}
+                          {isBank
+                            ? (dest as BankDestination).accountNumberLast4
+                            : (dest as MoncashDestination).phoneNumberLast4}
+                        </Text>
                       </Text>
                     </View>
                     <StatusChip status={chip.status} label={chip.label} />
@@ -748,7 +818,8 @@ export default function OrganizerPayoutSettingsScreenV2() {
 
                   {dest.verificationStatus !== 'verified' && (
                     <TouchableOpacity
-                      style={[styles.secondaryButton, { marginTop: 12 }]}
+                      style={styles.inlineAction}
+                      hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
                       onPress={() => {
                         setSelectedDestination(dest)
                         if (isBank) {
@@ -834,6 +905,8 @@ export default function OrganizerPayoutSettingsScreenV2() {
               )
             })
           )
+        )}
+          </>
         )}
       </ScrollView>
 
@@ -1247,31 +1320,70 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   destinationCard: {
     backgroundColor: colors.surface,
-    borderRadius: RADIUS.lg,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderRadius: 14,
+    padding: 13,
+    marginBottom: 10,
   },
   destinationHeader: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
+  },
+  // Compact 32px icon container so the row reads tight (was a bare 24px icon
+  // with loose margins).
+  methodIconTile: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: colors.surfaceRaised,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  destinationBody: {
+    flex: 1,
+    marginLeft: 10,
+    marginRight: 8,
   },
   destinationTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
     color: colors.text,
   },
   destinationSubtitle: {
-    fontSize: 14,
+    fontSize: 13,
     color: colors.textSecondary,
     marginTop: 2,
+  },
+  destinationDigits: {
+    fontFamily: font.monoRegular,
+    fontSize: 12,
+    color: colors.textTertiary,
+  },
+  destinationHint: {
+    fontSize: 12,
+    lineHeight: 17,
+    color: colors.textSecondary,
+    marginTop: 8,
   },
   destinationMeta: {
     fontSize: 12,
     color: colors.textSecondary,
     marginTop: 4,
     fontFamily: 'monospace',
+  },
+  // Compact inline card action (Manage on Stripe / Verify Now) — replaces the
+  // old full-width 48px secondary bar inside method cards.
+  inlineAction: {
+    alignSelf: 'flex-start',
+    marginTop: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 10,
+    backgroundColor: colors.surfaceRaised,
+  },
+  inlineActionText: {
+    color: colors.text,
+    fontWeight: '600',
+    fontSize: 13,
   },
   secondaryButton: {
     backgroundColor: colors.surfaceRaised,
