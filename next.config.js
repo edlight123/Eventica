@@ -51,8 +51,37 @@ const nextConfig = {
     optimizePackageImports: ['lucide-react', 'date-fns'],
   },
   
-  // Add headers for better caching and performance
+  // Add headers for better caching, performance, and security
   async headers() {
+    // Content-Security-Policy allowlist derived from the app's real external
+    // origins: Stripe (checkout), Firebase/Google (auth, Firestore, storage,
+    // FCM), self-hosted next/font fonts, and Unsplash/GCS images.
+    //
+    // Shipped as Report-Only first because this is a live payments app — a
+    // slightly-off enforcing policy could break Stripe checkout or Google
+    // sign-in. Report-Only surfaces any violations in the browser console
+    // WITHOUT blocking anything. Once the console is clean in production,
+    // switch the header key below to 'Content-Security-Policy' to enforce.
+    const contentSecurityPolicy = [
+      "default-src 'self'",
+      "base-uri 'self'",
+      "object-src 'none'",
+      "frame-ancestors 'none'",
+      "form-action 'self'",
+      "img-src 'self' data: blob: https://images.unsplash.com https://storage.googleapis.com https://firebasestorage.googleapis.com https://*.googleusercontent.com",
+      "font-src 'self' data:",
+      // Next.js injects inline styles; recharts sets inline SVG styles.
+      "style-src 'self' 'unsafe-inline'",
+      // 'unsafe-inline'/'unsafe-eval' are required by Next's runtime today;
+      // tighten to a nonce/hash-based policy as a follow-up.
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://apis.google.com https://www.gstatic.com",
+      "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.stripe.com https://m.stripe.network https://*.stripe.com",
+      "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://*.firebaseapp.com https://accounts.google.com",
+      "worker-src 'self' blob:",
+      "manifest-src 'self'",
+      "media-src 'self' blob:",
+    ].join('; ')
+
     return [
       {
         // Cache static assets aggressively
@@ -107,6 +136,24 @@ const nextConfig = {
           {
             key: 'X-XSS-Protection',
             value: '1; mode=block',
+          },
+          {
+            // Don't leak full URLs (which can contain ids/tokens) to third parties.
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
+            // Camera is allowed same-origin because ticket check-in scans QR
+            // codes via getUserMedia (html5-qrcode / jsqr). Microphone and
+            // geolocation are unused by the app, so both are denied.
+            key: 'Permissions-Policy',
+            value: 'camera=(self), microphone=(), geolocation=(), browsing-topics=()',
+          },
+          {
+            // See the contentSecurityPolicy note above. Report-Only for now;
+            // rename to 'Content-Security-Policy' to enforce.
+            key: 'Content-Security-Policy-Report-Only',
+            value: contentSecurityPolicy,
           },
         ],
       },
