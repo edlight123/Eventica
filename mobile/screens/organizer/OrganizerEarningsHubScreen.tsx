@@ -67,7 +67,7 @@ export default function OrganizerEarningsHubScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {!loaded ? (
           [0, 1, 2].map((i) => (
-            <Skeleton key={i} width="100%" height={72} radius={14} style={{ marginBottom: 10 }} />
+            <Skeleton key={i} width="100%" height={85} radius={10} style={{ marginBottom: 18 }} />
           ))
         ) : events.length === 0 ? (
           <EmptyState icon={Wallet} title={t('organizerEarningsHub.empty')} compact />
@@ -132,19 +132,18 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       paddingTop: 14,
       paddingBottom: 40,
     },
+    // Background-less rows (beta feedback: "remove the boxes background, and
+    // make the posters bigger") — the poster carries the row, like My Events.
     row: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: colors.surface,
-      borderRadius: 14,
-      padding: 12,
-      marginBottom: 10,
-      gap: 12,
+      marginBottom: 18,
+      gap: 14,
     },
     poster: {
-      width: 40,
-      height: 54,
-      borderRadius: 8,
+      width: 64,
+      height: 85,
+      borderRadius: 10,
       backgroundColor: colors.surfaceRaised,
     },
     posterFallback: {
@@ -155,12 +154,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       flex: 1,
     },
     rowTitle: {
-      fontSize: 15,
+      fontSize: 17,
       fontWeight: '700',
       color: colors.text,
     },
     rowMeta: {
-      marginTop: 3,
+      marginTop: 4,
       fontFamily: font.monoRegular,
       fontSize: 12,
       color: colors.textSecondary,

@@ -1789,6 +1789,11 @@ export default {
 
   organizerTeamHub: {
     title: 'Team',
+    teamSection: 'Team',
+    manageTeam: 'Manage',
+    emptyTeam: 'No team members yet — invite your first',
+    invited: 'Invited',
+    eventStaffingSection: 'Event staffing',
     orgTeamEntry: 'Organization team & tasks',
     orgTeamEntrySubtitle: 'Roles and task allocation for your whole organization',
     infoToggle: 'How does staffing work?',

@@ -26,7 +26,7 @@ import { getEventById } from '../../lib/api/organizer'
 import { getVerificationRequest } from '../../lib/verification'
 import { getRequiredPayoutProfileIdForEventCountry, normalizeCountryCode } from '../../lib/payment-provider'
 import { RADIUS } from '../../config/brand'
-import { colors as tokenColors } from '../../theme/tokens'
+import { colors as tokenColors, font } from '../../theme/tokens'
 import { formatCurrency as fmtCurrency } from '../../lib/currency'
 import StatTriplet from '../../components/StatTriplet'
 import WhitePillCTA from '../../components/WhitePillCTA'
@@ -1029,16 +1029,20 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 10,
     color: colors.textSecondary,
   },
+  // De-boxed hero (beta feedback: no grayed box backgrounds) — the balance sits
+  // directly on the canvas, closed by a hairline before the stats triplet.
   card: {
-    backgroundColor: colors.surface,
-    borderRadius: RADIUS.lg,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: colors.border,
+    paddingVertical: 6,
+    paddingBottom: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
   },
   cardLabel: {
     color: colors.textSecondary,
-    fontSize: 13,
+    fontSize: 11,
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    fontFamily: font.mono,
   },
   amountText: {
     marginTop: 8,

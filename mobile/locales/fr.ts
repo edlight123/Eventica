@@ -1490,6 +1490,11 @@ export default {
 
   organizerTeamHub: {
     title: 'Équipe',
+    teamSection: 'Équipe',
+    manageTeam: 'Gérer',
+    emptyTeam: 'Aucun membre pour l’instant — invitez le premier',
+    invited: 'Invité',
+    eventStaffingSection: 'Personnel par événement',
     orgTeamEntry: 'Équipe et tâches de l’organisation',
     orgTeamEntrySubtitle: 'Rôles et répartition des tâches pour toute votre organisation',
     infoToggle: 'Comment fonctionne le personnel ?',

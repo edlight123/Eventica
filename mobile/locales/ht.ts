@@ -1488,6 +1488,11 @@ export default {
 
   organizerTeamHub: {
     title: 'Ekip',
+    teamSection: 'Ekip',
+    manageTeam: 'Jere',
+    emptyTeam: 'Poko gen manm — envite premye a',
+    invited: 'Envite',
+    eventStaffingSection: 'Estaf pa evènman',
     orgTeamEntry: 'Ekip ak travay òganizasyon an',
     orgTeamEntrySubtitle: 'Wòl ak repatisyon travay pou tout òganizasyon ou an',
     infoToggle: 'Kijan estaf la fonksyone?',

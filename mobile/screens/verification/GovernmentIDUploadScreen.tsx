@@ -3,6 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
+  ScrollView,
   TouchableOpacity,
   Image,
   Alert,
@@ -85,11 +86,13 @@ export default function GovernmentIDUploadScreen() {
       const url = await getDocumentDownloadURL(storagePath);
       setFrontPreview(url);
 
-      // Update Firestore
+      // Update Firestore — never include an undefined side: Firestore's
+      // updateDoc rejects `undefined` field values outright ("Unsupported
+      // field value"), which used to kill the very first upload.
       await updateVerificationFiles(userProfile.id, {
         governmentId: {
           front: storagePath,
-          back: backPath || undefined,
+          ...(backPath ? { back: backPath } : {}),
           uploadedAt: new Date(),
         },
       });
@@ -122,10 +125,10 @@ export default function GovernmentIDUploadScreen() {
       const url = await getDocumentDownloadURL(storagePath);
       setBackPreview(url);
 
-      // Update Firestore
+      // Same undefined-guard as the front upload.
       await updateVerificationFiles(userProfile.id, {
         governmentId: {
-          front: frontPath || undefined,
+          ...(frontPath ? { front: frontPath } : {}),
           back: storagePath,
           uploadedAt: new Date(),
         },
@@ -231,7 +234,9 @@ export default function GovernmentIDUploadScreen() {
         <View style={{ width: 40 }} />
       </View>
 
-      <View style={styles.content}>
+      {/* Scrollable — with both previews loaded the content is taller than the
+          viewport, and testers couldn't reach the ID Back section at all. */}
+      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
         {/* Instructions */}
         <View style={styles.instructionsCard}>
           <Ionicons name="information-circle" size={32} color={colors.primary} />
@@ -315,7 +320,7 @@ export default function GovernmentIDUploadScreen() {
             </TouchableOpacity>
           )}
         </View>
-      </View>
+      </ScrollView>
 
       {/* Continue Button */}
       <View style={[styles.footer, { paddingBottom: 16 + insets.bottom }]}>
@@ -366,7 +371,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   content: {
     flex: 1,
+  },
+  contentContainer: {
     padding: 16,
+    paddingBottom: 24,
   },
   instructionsCard: {
     padding: 16,

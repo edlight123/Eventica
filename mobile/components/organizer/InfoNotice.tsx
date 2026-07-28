@@ -50,14 +50,15 @@ export default function InfoNotice({ icon, text, children, tone = 'neutral' }: I
 
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
   StyleSheet.create({
+    // No filled wash (beta feedback: no grayed box backgrounds anywhere on the
+    // organizer side) — icon + muted text directly on the canvas.
     card: {
       flexDirection: 'row',
       alignItems: 'flex-start',
       gap: 10,
-      backgroundColor: colors.surfaceRaised,
       borderRadius: radius.md,
-      paddingVertical: 12,
-      paddingHorizontal: 14,
+      paddingVertical: 10,
+      paddingHorizontal: 2,
     },
     iconWrap: {
       paddingTop: 1,

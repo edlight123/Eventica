@@ -337,10 +337,20 @@ export async function updateVerificationFiles(
     }
 
     const currentData = docSnap.exists() ? docSnap.data() as VerificationRequest : null;
-    const updatedFiles = {
-      ...(currentData?.files || {}),
-      ...filesData,
-    };
+    // Deep-merge one level (governmentId/selfie) so a partial write (e.g. front
+    // only) never wipes the stored other side, and strip undefined values —
+    // Firestore's updateDoc throws on any `undefined` field.
+    const stripUndefined = (obj: Record<string, any>) =>
+      Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined));
+    const currentFiles: Record<string, any> = currentData?.files || {};
+    const updatedFiles: Record<string, any> = { ...currentFiles };
+    for (const [key, value] of Object.entries(filesData)) {
+      if (value === undefined) continue;
+      updatedFiles[key] =
+        value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date)
+          ? stripUndefined({ ...(currentFiles[key] || {}), ...value })
+          : value;
+    }
 
     console.log(`[Verification] Updating files for user: ${userId}`);
     await updateDoc(docRef, {
