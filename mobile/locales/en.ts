@@ -285,6 +285,8 @@ export default {
     },
     help: 'Help',
     helpCenter: 'Help Center',
+    guides: 'Guides & Resources',
+    modeSwitchTip: 'Tip: double-tap the Profile tab anytime to switch modes.',
     legal: 'Legal',
     terms: 'Terms',
     privacy: 'Privacy',
@@ -1754,6 +1756,28 @@ export default {
     startScanning: 'Start Scanning',
     noEventTitle: 'No Event Selected',
     noEventBody: 'Please select an event to scan tickets.',
+  },
+
+  welcome: {
+    skip: 'Skip',
+    next: 'Next',
+    explore: 'Explore events',
+    host: 'I want to host an event',
+    slide1Title: 'Welcome to Tikèm',
+    slide1Body: 'Discover concerts, parties, and culture across Haiti and the diaspora — every event a poster worth stopping for.',
+    slide2Title: 'Your ticket is a QR code',
+    slide2Body: 'Buy with MonCash or card. Your ticket lives in the app — even offline — and gets scanned at the door.',
+    slide3Title: 'Host your own event',
+    slide3Body: 'Create and publish an event in minutes, free. Sell tickets, then verify once to cash out via MonCash or bank.',
+  },
+
+  gettingStarted: {
+    title: 'Getting started',
+    hide: 'Hide',
+    create: 'Create your first event',
+    publish: 'Publish it',
+    payouts: 'Set up payouts',
+    team: 'Invite your door team',
   },
 
   organizerEarningsHub: {

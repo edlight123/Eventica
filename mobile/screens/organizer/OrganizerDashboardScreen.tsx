@@ -24,6 +24,7 @@ import { Skeleton } from '../../components/Skeleton';
 import EmptyState from '../../components/EmptyState';
 import StatTriplet from '../../components/StatTriplet';
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
+import GettingStartedCard from '../../components/organizer/GettingStartedCard';
 import { Calendar } from 'lucide-react-native';
 
 export default function OrganizerDashboardScreen() {
@@ -112,6 +113,9 @@ export default function OrganizerDashboardScreen() {
           />
         }
       >
+        {/* Activation checklist — only renders while steps remain (new organizers). */}
+        <GettingStartedCard />
+
         {/* Today's Events */}
         <View style={styles.section}>
         <Text style={styles.sectionTitle}>{t('organizerDashboard.todaysEvents')}</Text>

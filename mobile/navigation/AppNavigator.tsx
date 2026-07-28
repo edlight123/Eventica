@@ -68,6 +68,7 @@ import ConnectionsScreen from '../screens/ConnectionsScreen';
 import PaymentWebViewScreen from '../screens/PaymentWebViewScreen';
 import StripeConnectWebViewScreen from '../screens/StripeConnectWebViewScreen';
 import InAppWebViewScreen from '../screens/InAppWebViewScreen';
+import FirstRunWelcome from '../components/FirstRunWelcome';
 import { useI18n } from '../contexts/I18nContext';
 
 // New Feature Screens
@@ -756,6 +757,10 @@ export default function AppNavigator() {
           </>
         )}
       </Stack.Navigator>
+      {/* One-time welcome (mounts outside the navigator tree; navigates via ref). */}
+      {user ? (
+        <FirstRunWelcome onCreateEvent={() => navigationRef.navigate('CreateEvent' as any)} />
+      ) : null}
     </NavigationContainer>
     </OrganizerAccessContext.Provider>
     </ThemeProvider>

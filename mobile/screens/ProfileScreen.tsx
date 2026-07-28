@@ -13,7 +13,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Bell, Briefcase, ChevronRight, Compass, FileText, Heart, HelpCircle, LogOut, MapPin, RotateCcw, Settings, Shield, User, Users } from 'lucide-react-native';
+import { Bell, BookOpen, Briefcase, ChevronRight, Compass, FileText, Heart, HelpCircle, LogOut, MapPin, RotateCcw, Settings, Shield, User, Users } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { getDownloadURL, ref as storageRef, uploadBytes } from 'firebase/storage';
@@ -935,6 +935,11 @@ export default function ProfileScreen() {
                   );
                 })}
             </View>
+            {/* Discoverability: the double-tap gesture on the Profile tab is
+                invisible otherwise. Plain caption — no one-time state to manage. */}
+            {canUseOrganizerMode ? (
+              <Text style={styles.modeSwitchTip}>{t('profile.modeSwitchTip')}</Text>
+            ) : null}
           </View>
         ) : null}
 
@@ -945,6 +950,24 @@ export default function ProfileScreen() {
             <View style={styles.rowLeft}>
               <HelpCircle size={18} color={colors.primary} />
               <Text style={styles.rowText}>{t('profile.helpCenter')}</Text>
+            </View>
+            <ChevronRight size={18} color={colors.textTertiary} />
+          </TouchableOpacity>
+
+          {/* Step-by-step guides (attendee + organizer) — the web /resources
+              library rendered in-app, already localized en/fr/ht. */}
+          <TouchableOpacity
+            style={styles.rowButton}
+            onPress={() =>
+              navigation.navigate('InAppWebView', {
+                url: 'https://www.tikem.co/resources',
+                title: t('profile.guides'),
+              })
+            }
+          >
+            <View style={styles.rowLeft}>
+              <BookOpen size={18} color={colors.primary} />
+              <Text style={styles.rowText}>{t('profile.guides')}</Text>
             </View>
             <ChevronRight size={18} color={colors.textTertiary} />
           </TouchableOpacity>
@@ -1373,6 +1396,14 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 10,
     paddingHorizontal: 16,
     paddingBottom: 14,
+  },
+  modeSwitchTip: {
+    paddingHorizontal: 16,
+    marginTop: -4,
+    paddingBottom: 12,
+    fontSize: 12,
+    lineHeight: 17,
+    color: colors.textTertiary,
   },
   pill: {
     paddingHorizontal: 14,

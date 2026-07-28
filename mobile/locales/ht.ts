@@ -285,6 +285,8 @@ export default {
     },
     help: 'Èd',
     helpCenter: 'Sant èd',
+    guides: 'Gid ak resous',
+    modeSwitchTip: 'Konsèy: peze onglet Pwofil la de fwa pou chanje mòd.',
     legal: 'Legal',
     terms: 'Tèm',
     privacy: 'Konfidansyalite',
@@ -1453,6 +1455,28 @@ export default {
     startScanning: 'Kòmanse eskane',
     noEventTitle: 'Pa gen evènman chwazi',
     noEventBody: 'Tanpri chwazi yon evènman pou eskane biyè yo.',
+  },
+
+  welcome: {
+    skip: 'Sote',
+    next: 'Kontinye',
+    explore: 'Eksplore evènman yo',
+    host: 'Mwen vle òganize yon evènman',
+    slide1Title: 'Byenveni sou Tikèm',
+    slide1Body: 'Dekouvri konsè, fèt ak kilti ann Ayiti ak nan dyaspora a — chak evènman gen yon afich ki fè w kanpe.',
+    slide2Title: 'Tikè w se yon kòd QR',
+    slide2Body: 'Peye ak MonCash oswa kat. Tikè w rete nan app la — menm san entènèt — epi yo eskane l nan pòt la.',
+    slide3Title: 'Òganize pwòp evènman pa w',
+    slide3Body: 'Kreye epi pibliye yon evènman nan kèk minit, gratis. Vann tikè, apre sa verifye yon sèl fwa pou retire kòb ou via MonCash oswa bank.',
+  },
+
+  gettingStarted: {
+    title: 'Kòmanse',
+    hide: 'Kache',
+    create: 'Kreye premye evènman w',
+    publish: 'Pibliye li',
+    payouts: 'Konfigire peman ou',
+    team: 'Envite ekip pòt ou a',
   },
 
   organizerEarningsHub: {

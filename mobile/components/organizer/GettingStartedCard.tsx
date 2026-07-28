@@ -1,0 +1,237 @@
+import React, { useCallback, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useTheme } from '../../contexts/ThemeContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { useI18n } from '../../contexts/I18nContext';
+import { backendFetch, backendJson } from '../../lib/api/backend';
+import { getOrganizerEvents } from '../../lib/api/organizer';
+import { font } from '../../theme/tokens';
+
+const hideKey = (uid: string) => `tikem_org_checklist_hidden_${uid}`;
+const cacheKey = (uid: string) => `tikem_org_checklist_${uid}`;
+
+type Steps = {
+  create: boolean;
+  publish: boolean;
+  payouts: boolean;
+  team: boolean;
+};
+
+/**
+ * Activation checklist for new organizers (dashboard): create → publish →
+ * payouts → door team, each row computed from real account state and linking
+ * straight to the screen that completes it. Auto-hides forever once every step
+ * is done (or when dismissed via Hide). Cached per-user so it paints instantly;
+ * refreshes in the background on focus.
+ */
+export default function GettingStartedCard() {
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
+  const navigation = useNavigation<any>();
+  const { userProfile } = useAuth();
+  const { t } = useI18n();
+
+  const [steps, setSteps] = useState<Steps | null>(null);
+  const [hidden, setHidden] = useState(true);
+
+  useFocusEffect(
+    useCallback(() => {
+      let alive = true;
+      const uid = userProfile?.id;
+      if (!uid) return;
+
+      (async () => {
+        try {
+          const hiddenFlag = await AsyncStorage.getItem(hideKey(uid));
+          if (hiddenFlag) return; // stays hidden forever once done/dismissed
+
+          // Instant paint from cache while the live check runs.
+          const cached = await AsyncStorage.getItem(cacheKey(uid));
+          if (alive && cached) {
+            setSteps(JSON.parse(cached));
+            setHidden(false);
+          }
+
+          const [eventsRes, bankRes, haitiRes, stripeRes, teamRes] = await Promise.allSettled([
+            getOrganizerEvents(uid, 5),
+            backendFetch('/api/organizer/payout-destinations/bank').then((r) => (r.ok ? r.json() : null)),
+            backendFetch('/api/organizer/payout-profiles/haiti').then((r) => (r.ok ? r.json() : null)),
+            backendFetch('/api/organizer/stripe/status').then((r) => (r.ok ? r.json() : null)),
+            backendJson<{ members?: any[] }>('/api/organizer/team'),
+          ]);
+
+          const events = eventsRes.status === 'fulfilled' ? eventsRes.value || [] : [];
+          const bank = bankRes.status === 'fulfilled' ? bankRes.value : null;
+          const haiti = haitiRes.status === 'fulfilled' ? haitiRes.value : null;
+          const stripe = stripeRes.status === 'fulfilled' ? stripeRes.value : null;
+          const team = teamRes.status === 'fulfilled' ? teamRes.value : null;
+
+          const mm = haiti?.profile?.mobileMoneyDetails;
+          const next: Steps = {
+            create: events.length > 0,
+            publish: events.some((e) => e.is_published),
+            payouts:
+              (bank?.destinations || []).length > 0 ||
+              Boolean(mm && (mm.phoneNumber || mm.accountName)) ||
+              Boolean(stripe?.connected),
+            team: (team?.members || []).length > 0,
+          };
+
+          if (!alive) return;
+
+          if (next.create && next.publish && next.payouts && next.team) {
+            // Fully activated — retire the card permanently.
+            setHidden(true);
+            await AsyncStorage.setItem(hideKey(uid), 'done');
+            await AsyncStorage.removeItem(cacheKey(uid));
+            return;
+          }
+
+          setSteps(next);
+          setHidden(false);
+          await AsyncStorage.setItem(cacheKey(uid), JSON.stringify(next));
+        } catch (e) {
+          console.warn('[GettingStarted] check failed:', e);
+        }
+      })();
+
+      return () => {
+        alive = false;
+      };
+    }, [userProfile?.id])
+  );
+
+  const dismiss = useCallback(() => {
+    setHidden(true);
+    if (userProfile?.id) AsyncStorage.setItem(hideKey(userProfile.id), 'dismissed').catch(() => {});
+  }, [userProfile?.id]);
+
+  if (hidden || !steps) return null;
+
+  const rows = [
+    {
+      key: 'create',
+      done: steps.create,
+      label: t('gettingStarted.create'),
+      onPress: () => navigation.navigate('CreateEvent'),
+    },
+    {
+      key: 'publish',
+      done: steps.publish,
+      label: t('gettingStarted.publish'),
+      onPress: () => navigation.navigate('Main', { screen: 'MyEvents' }),
+    },
+    {
+      key: 'payouts',
+      done: steps.payouts,
+      label: t('gettingStarted.payouts'),
+      onPress: () => navigation.navigate('OrganizerPayoutSettings'),
+    },
+    {
+      key: 'team',
+      done: steps.team,
+      label: t('gettingStarted.team'),
+      onPress: () => navigation.navigate('OrganizerTeamHub'),
+    },
+  ];
+  const doneCount = rows.filter((r) => r.done).length;
+
+  return (
+    <View style={styles.section}>
+      <View style={styles.titleRow}>
+        <Text style={styles.title}>{t('gettingStarted.title')}</Text>
+        <Text style={styles.progress}>
+          {doneCount}/{rows.length}
+        </Text>
+        <TouchableOpacity
+          onPress={dismiss}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          accessibilityRole="button"
+          accessibilityLabel={t('gettingStarted.hide')}
+        >
+          <Text style={styles.hide}>{t('gettingStarted.hide')}</Text>
+        </TouchableOpacity>
+      </View>
+
+      {rows.map((row, i) => (
+        <TouchableOpacity
+          key={row.key}
+          style={[styles.row, i > 0 && styles.rowDivider]}
+          onPress={row.onPress}
+          disabled={row.done}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityState={{ checked: row.done }}
+        >
+          <Ionicons
+            name={row.done ? 'checkmark-circle' : 'ellipse-outline'}
+            size={20}
+            color={row.done ? colors.primary : colors.textTertiary}
+          />
+          <Text style={[styles.rowLabel, row.done && styles.rowLabelDone]} numberOfLines={1}>
+            {row.label}
+          </Text>
+          {!row.done && <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />}
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+}
+
+const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
+  StyleSheet.create({
+    // De-boxed (platform rule): rows on the canvas, hairline dividers only.
+    section: {
+      paddingHorizontal: 20,
+      paddingTop: 14,
+      paddingBottom: 6,
+    },
+    titleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      marginBottom: 4,
+    },
+    title: {
+      flex: 1,
+      fontFamily: font.mono,
+      fontSize: 12,
+      letterSpacing: 1,
+      textTransform: 'uppercase',
+      color: colors.textSecondary,
+    },
+    progress: {
+      fontFamily: font.mono,
+      fontSize: 12,
+      color: colors.textSecondary,
+      fontVariant: ['tabular-nums'],
+    },
+    hide: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: colors.textTertiary,
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      paddingVertical: 11,
+    },
+    rowDivider: {
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: colors.border,
+    },
+    rowLabel: {
+      flex: 1,
+      fontSize: 15,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    rowLabelDone: {
+      color: colors.textTertiary,
+      textDecorationLine: 'line-through',
+    },
+  });

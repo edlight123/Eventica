@@ -285,6 +285,8 @@ export default {
     },
     help: 'Aide',
     helpCenter: 'Centre d’aide',
+    guides: 'Guides et ressources',
+    modeSwitchTip: 'Astuce : touchez deux fois l’onglet Profil pour changer de mode.',
     legal: 'Mentions légales',
     terms: 'Conditions',
     privacy: 'Confidentialité',
@@ -1455,6 +1457,28 @@ export default {
     startScanning: 'Commencer le scan',
     noEventTitle: 'Aucun événement sélectionné',
     noEventBody: 'Veuillez sélectionner un événement pour scanner les billets.',
+  },
+
+  welcome: {
+    skip: 'Passer',
+    next: 'Suivant',
+    explore: 'Explorer les événements',
+    host: 'Je veux organiser un événement',
+    slide1Title: 'Bienvenue sur Tikèm',
+    slide1Body: 'Découvrez concerts, fêtes et culture en Haïti et dans la diaspora — chaque événement a une affiche qui vaut le détour.',
+    slide2Title: 'Votre billet est un code QR',
+    slide2Body: 'Payez avec MonCash ou par carte. Votre billet vit dans l’app — même hors ligne — et se scanne à l’entrée.',
+    slide3Title: 'Organisez votre propre événement',
+    slide3Body: 'Créez et publiez un événement en quelques minutes, gratuitement. Vendez des billets, puis vérifiez votre identité une seule fois pour encaisser via MonCash ou banque.',
+  },
+
+  gettingStarted: {
+    title: 'Premiers pas',
+    hide: 'Masquer',
+    create: 'Créez votre premier événement',
+    publish: 'Publiez-le',
+    payouts: 'Configurez vos paiements',
+    team: 'Invitez votre équipe d’entrée',
   },
 
   organizerEarningsHub: {
