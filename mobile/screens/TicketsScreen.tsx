@@ -23,6 +23,7 @@ import { resolvePosterTheme } from '../lib/posterGradient';
 import EmptyState from '../components/EmptyState';
 import StatusChip from '../components/StatusChip';
 import WhitePillCTA from '../components/WhitePillCTA';
+import SegmentedTabs from '../components/organizer/SegmentedTabs';
 import { format } from 'date-fns';
 import { safeFormatForLanguage } from '../lib/dates';
 import { useFocusEffect } from '@react-navigation/native';
@@ -256,12 +257,14 @@ export default function TicketsScreen({ navigation }: any) {
           <Text style={styles.headerTitle}>{t('tickets.title')}</Text>
         </View>
         <View style={styles.tabs}>
-          <View style={[styles.tab, styles.tabActive]}>
-            <Text style={[styles.tabText, styles.tabTextActive]}>{t('tickets.upcoming')}</Text>
-          </View>
-          <View style={styles.tab}>
-            <Text style={styles.tabText}>{t('tickets.past')}</Text>
-          </View>
+          <SegmentedTabs
+            tabs={[
+              { key: 'upcoming', label: t('tickets.upcoming') },
+              { key: 'past', label: t('tickets.past') },
+            ]}
+            value="upcoming"
+            onChange={() => {}}
+          />
         </View>
         <TicketsListSkeleton styles={styles} />
       </View>
@@ -295,24 +298,17 @@ export default function TicketsScreen({ navigation }: any) {
         <Text style={styles.headerTitle}>{t('tickets.title')}</Text>
       </View>
 
-      {/* Tabs */}
+      {/* Tabs — quiet token tabs (beta feedback: the old full-width teal-
+          underline band pulled focus from the tickets themselves). */}
       <View style={styles.tabs}>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'upcoming' && styles.tabActive]}
-          onPress={() => setActiveTab('upcoming')}
-        >
-          <Text style={[styles.tabText, activeTab === 'upcoming' && styles.tabTextActive]}>
-            {t('tickets.upcoming')} ({upcomingTickets.length})
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'past' && styles.tabActive]}
-          onPress={() => setActiveTab('past')}
-        >
-          <Text style={[styles.tabText, activeTab === 'past' && styles.tabTextActive]}>
-            {t('tickets.past')} ({pastTickets.length})
-          </Text>
-        </TouchableOpacity>
+        <SegmentedTabs
+          tabs={[
+            { key: 'upcoming', label: t('tickets.upcoming'), count: upcomingTickets.length },
+            { key: 'past', label: t('tickets.past'), count: pastTickets.length },
+          ]}
+          value={activeTab}
+          onChange={(key) => setActiveTab(key as 'upcoming' | 'past')}
+        />
       </View>
 
       <ScrollView
@@ -442,29 +438,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '500',
   },
   tabs: {
-    flexDirection: 'row',
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 16,
-    alignItems: 'center',
-    borderBottomWidth: 3,
-    borderBottomColor: 'transparent',
-  },
-  tabActive: {
-    borderBottomColor: colors.primary,
-  },
-  tabText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: colors.textSecondary,
-  },
-  tabTextActive: {
-    color: colors.primary,
-    fontWeight: '700',
+    paddingVertical: 6,
   },
   content: {
     flex: 1,
