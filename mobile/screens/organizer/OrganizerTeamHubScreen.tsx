@@ -232,6 +232,7 @@ export default function OrganizerTeamHubScreen() {
               <StaffEventCard
                 title={event.title}
                 subtitle={formatDate(event.start_datetime)}
+                posterUri={event.banner_image_url || event.cover_image_url || null}
                 onPress={() =>
                   navigation.navigate('OrganizerEventStaff', { eventId: event.id })
                 }

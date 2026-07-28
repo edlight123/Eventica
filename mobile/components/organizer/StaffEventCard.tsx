@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { radius } from '../../theme/tokens';
+import { Image } from 'expo-image';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
 
 interface StaffEventCardProps {
@@ -9,19 +10,27 @@ interface StaffEventCardProps {
   subtitle?: string;
   /** Tertiary muted line, e.g. a date or "Tap to open scanner". */
   meta?: string;
+  /**
+   * Event poster (banner_image_url || cover_image_url). Pass a value (or null)
+   * to opt into the poster tile — null renders an icon fallback. Omit entirely
+   * for non-event rows (people, invites), which stay text-only.
+   */
+  posterUri?: string | null;
   onPress?: () => void;
   /** Trailing node (chevron, status chip, checkmark, etc.). */
   right?: React.ReactNode;
 }
 
 /**
- * A list card for an event in staff / scan lists. Separates from the canvas by
- * ELEVATION (a raised surface), not a 1px box border.
+ * A poster-forward, background-less event row for staff / scan / team lists
+ * (beta feedback: no gray box backgrounds; "I would like to see the event
+ * poster"). The poster carries the row, like My Events and the Earnings hub.
  */
 export default function StaffEventCard({
   title,
   subtitle,
   meta,
+  posterUri,
   onPress,
   right,
 }: StaffEventCardProps) {
@@ -32,9 +41,25 @@ export default function StaffEventCard({
     <TouchableOpacity
       style={styles.card}
       onPress={onPress}
+      activeOpacity={0.7}
       accessibilityRole="button"
       accessibilityLabel={title}
     >
+      {posterUri !== undefined &&
+        (posterUri ? (
+          <Image
+            source={{ uri: posterUri }}
+            style={styles.poster}
+            contentFit="cover"
+            cachePolicy="memory-disk"
+            transition={150}
+            recyclingKey={posterUri}
+          />
+        ) : (
+          <View style={[styles.poster, styles.posterFallback]}>
+            <Ionicons name="image-outline" size={16} color={colors.textTertiary} />
+          </View>
+        ))}
       <View style={styles.textCol}>
         <Text style={styles.title} numberOfLines={2}>
           {title}
@@ -60,11 +85,18 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     card: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 12,
+      gap: 14,
+      paddingVertical: 8,
+    },
+    poster: {
+      width: 56,
+      height: 74,
+      borderRadius: 10,
       backgroundColor: colors.surfaceRaised,
-      borderRadius: radius.lg,
-      paddingVertical: 16,
-      paddingHorizontal: 16,
+    },
+    posterFallback: {
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     textCol: {
       flex: 1,
@@ -75,12 +107,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       color: colors.text,
     },
     subtitle: {
-      marginTop: 6,
+      marginTop: 4,
       fontSize: 13,
       color: colors.textSecondary,
     },
     meta: {
-      marginTop: 4,
+      marginTop: 3,
       fontSize: 12,
       color: colors.textTertiary,
     },

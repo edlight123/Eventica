@@ -1293,15 +1293,9 @@ export default function CreateEventFlowRefactored() {
             <TouchableOpacity style={styles.flyerHero} activeOpacity={0.9} onPress={pickImage}>
               {eventDraft.banner_image_url ? (
                 <>
-                  {/* Blurred cover copy fills the 2:3 frame; the poster itself is
-                      contained on top so non-2:3 uploads never get zoomed/cropped
-                      (tester: "the poster is zoomed"). */}
-                  <Image
-                    source={{ uri: eventDraft.banner_image_url }}
-                    style={StyleSheet.absoluteFill}
-                    contentFit="cover"
-                    blurRadius={24}
-                  />
+                  {/* Contained (never cropped) on the plain canvas — the earlier
+                      blurred-cover backdrop made the poster hard to read
+                      (tester: "remove the overlay background behind the poster"). */}
                   <Image
                     source={{ uri: eventDraft.banner_image_url }}
                     style={StyleSheet.absoluteFill}
@@ -2387,7 +2381,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginHorizontal: 16,
     marginBottom: 12,
     overflow: 'hidden',
-    backgroundColor: colors.surfaceRaised,
+    // Pure canvas black so a contained (non-2:3) poster letterboxes invisibly
+    // instead of sitting in a gray box.
+    backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -2819,12 +2815,14 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
 
   // ── Footer ──
+  // Footer sits on the canvas itself — the old colors.surface band + boxed Back
+  // button read as a "weird background" strip (beta feedback).
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
     gap: 12,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.border,
     paddingBottom: Platform.OS === 'ios' ? 32 : 16,
@@ -2833,14 +2831,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     justifyContent: 'center',
     height: 56,
-    paddingHorizontal: 24,
-    borderRadius: 14,
-    backgroundColor: colors.surfaceRaised,
+    paddingHorizontal: 18,
   },
   backButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.text,
+    color: colors.textSecondary,
   },
   footerCta: {
     flex: 1,

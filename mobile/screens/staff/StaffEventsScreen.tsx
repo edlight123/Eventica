@@ -66,6 +66,7 @@ export default function StaffEventsScreen() {
             title={item.title}
             subtitle={`${item.venue_name ? item.venue_name : t('common.venue')}${item.city ? ` • ${item.city}` : ''}`}
             meta={t('staffEvents.openScanner')}
+            posterUri={(item as any).banner_image_url || (item as any).cover_image_url || null}
             onPress={() => (navigation as any).navigate('TicketScanner', { eventId: item.id })}
           />
         )}
