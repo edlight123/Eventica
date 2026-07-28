@@ -82,6 +82,11 @@ type PayoutTab = 'methods' | 'history'
 // silently in the background.
 const payoutCacheKey = (uid: string) => `payout_settings_cache_${uid}`
 
+// Feature flag: launching MonCash-only — the NatCash provider option is hidden
+// for new payout methods (existing NatCash destinations still display). Flip to
+// true to bring it back. Mirrors NATCASH_ENABLED in components/PaymentModal.tsx.
+const NATCASH_ENABLED = false
+
 export default function OrganizerPayoutSettingsScreenV2() {
   const { colors } = useTheme();
   const styles = useMemo(() => getStyles(colors), [colors]);
@@ -1068,14 +1073,19 @@ export default function OrganizerPayoutSettingsScreenV2() {
                   MonCash
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.chip, moncashForm.provider === 'natcash' && styles.chipActive]}
-                onPress={() => setMoncashForm((s) => ({ ...s, provider: 'natcash' }))}
-              >
-                <Text style={[styles.chipText, moncashForm.provider === 'natcash' && styles.chipTextActive]}>
-                  NatCash
-                </Text>
-              </TouchableOpacity>
+              {/* NatCash hidden for launch (MonCash-only). A previously saved
+                  NatCash destination still renders in the list; only the
+                  option to pick it for NEW methods is gated. */}
+              {NATCASH_ENABLED && (
+                <TouchableOpacity
+                  style={[styles.chip, moncashForm.provider === 'natcash' && styles.chipActive]}
+                  onPress={() => setMoncashForm((s) => ({ ...s, provider: 'natcash' }))}
+                >
+                  <Text style={[styles.chipText, moncashForm.provider === 'natcash' && styles.chipTextActive]}>
+                    NatCash
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
 
             <Text style={styles.label}>{t('organizerPayoutSettings.moncashForm.accountName')}</Text>

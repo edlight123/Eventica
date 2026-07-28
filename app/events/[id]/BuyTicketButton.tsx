@@ -19,6 +19,10 @@ const EmbeddedStripePayment = dynamic(() => import('./EmbeddedStripePayment'), {
 // show only MonCash/NatCash (no card option). Flip to true to re-enable the Sogepay card flow.
 const SOGEPAY_ENABLED = false
 
+// Feature flag: launching MonCash-only — NatCash hidden for now. The purchase
+// handler and backend path stay intact; flip to true to bring the option back.
+const NATCASH_ENABLED = false
+
 interface BuyTicketButtonProps {
   eventId: string
   userId: string
@@ -881,6 +885,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
                     )}
                   </button>
 
+                  {NATCASH_ENABLED && (
                   <button
                     onClick={() => handlePurchase('natcash')}
                     disabled={loading}
@@ -908,6 +913,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
                       </svg>
                     )}
                   </button>
+                  )}
                 </>
               )}
             </div>

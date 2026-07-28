@@ -47,6 +47,10 @@ const STRIPE_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY!;
 // show only MonCash/NatCash. Flip to true to re-enable the Sogepay card option.
 const SOGEPAY_ENABLED = false;
 
+// Feature flag: launching MonCash-only — NatCash hidden for now. The handler
+// and backend path stay intact; flip to true to bring the option back.
+const NATCASH_ENABLED = false;
+
 interface PaymentModalProps {
   visible: boolean;
   onClose: () => void;
@@ -349,7 +353,7 @@ function PaymentForm({
           )}
 
           {/* NatCash (Haiti only) */}
-          {isHaitiEvent && (
+          {isHaitiEvent && NATCASH_ENABLED && (
             <TouchableOpacity
               style={[
                 styles.methodButton,

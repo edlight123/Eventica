@@ -7,6 +7,11 @@ import { StatusChip, type ChipTone } from '@/components/ui/kit'
 import { updatePayoutProfileConfig } from './actions'
 import { useRouter } from 'next/navigation'
 
+// Feature flag: launching MonCash-only — NatCash hidden as a provider choice
+// for new payout methods (saved NatCash configs still display). Mirrors the
+// NATCASH_ENABLED flags in BuyTicketButton and the mobile app.
+const NATCASH_ENABLED = false
+
 type BankDestination = {
   id: string
   bankName: string
@@ -1225,7 +1230,7 @@ export default function PayoutsPageNew({
                               <label htmlFor="step-provider" className="mb-2 block text-sm font-medium text-white/70">Provider</label>
                               <select id="step-provider" value={formData.provider} onChange={(e) => setFormData({ ...formData, provider: e.target.value })} className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
                                 <option value="moncash">MonCash</option>
-                                <option value="natcash">Natcash</option>
+                                {NATCASH_ENABLED && <option value="natcash">Natcash</option>}
                               </select>
                             </div>
                             {Boolean(config?.mobileMoneyDetails?.phoneNumberLast4) && !isChangingMobileNumber ? (
@@ -2138,7 +2143,7 @@ export default function PayoutsPageNew({
                             className="w-full px-3 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                           >
                             <option value="moncash">MonCash</option>
-                            <option value="natcash">Natcash</option>
+                            {NATCASH_ENABLED && <option value="natcash">Natcash</option>}
                           </select>
                         </div>
 
