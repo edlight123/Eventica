@@ -21,7 +21,6 @@ import {
   ScrollView,
   Alert,
   Platform,
-  KeyboardAvoidingView,
   Keyboard,
   SafeAreaView,
   ActivityIndicator,
@@ -333,6 +332,10 @@ export default function CreateEventFlowRefactored() {
   const { t } = useI18n();
   const [saving, setSaving] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  // Measured height of the pinned footer, so the canvas's bottom padding clears it
+  // by a real amount rather than a guessed constant. Seeded with the static height
+  // (16 top pad + 56 button + 32 iOS bottom pad) for the first frame.
+  const [footerHeight, setFooterHeight] = useState(104);
   const [loadingEvent, setLoadingEvent] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   // How many fields failed validation on the last Save attempt. Drives the
@@ -1246,11 +1249,20 @@ export default function CreateEventFlowRefactored() {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? -50 : 0}
-    >
+    // Plain View, deliberately NOT a KeyboardAvoidingView. The canvas used to be
+    // wrapped in <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={-50}>
+    // while the ScrollView below ALSO ran automaticallyAdjustKeyboardInsets. Two
+    // keyboard-avoidance mechanisms fought over the same layout: the ScrollView
+    // added a keyboard-sized contentInset.bottom (measured against the full-height
+    // frame) at the same moment the KAV shrank that frame by keyboardHeight - 50.
+    // On dismissal the inset was recomputed against the still-shrunken frame, so it
+    // resolved to 0 overlap and the shrink/inset from the show pass survived —
+    // leaving a scrollable void far past the end of the form that grew with every
+    // focus/blur cycle ("scroll up infinitely" into empty black). iOS avoidance now
+    // comes only from automaticallyAdjustKeyboardInsets, the same single-mechanism
+    // pattern LoginScreen/SignupScreen settled on; Android keeps relying on the
+    // window resize (the old KAV was already a no-op there, behavior={undefined}).
+    <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.wrapper}>
           {/* Header */}
@@ -1271,12 +1283,19 @@ export default function CreateEventFlowRefactored() {
           <ScrollView
             ref={scrollRef}
             style={styles.content}
+            // Bottom padding is exactly the pinned footer's measured height (plus a
+            // small gap) so the last field clears the footer and nothing more. The
+            // footer unmounts while the keyboard is up, so the pad drops with it —
+            // no leftover empty band. automaticallyAdjustKeyboardInsets is the ONLY
+            // keyboard-avoidance mechanism on this screen (see the wrapper comment):
+            // it insets the bottom by the real keyboard overlap and undoes it on
+            // dismiss, which keeps the scrollable area bounded by the form itself.
             contentContainerStyle={{
-              paddingBottom: isKeyboardVisible ? 24 : 140,
+              paddingBottom: isKeyboardVisible ? 24 : footerHeight + 24,
             }}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
-            automaticallyAdjustKeyboardInsets={true}
+            automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
           >
             {/* Validation banner — surfaces the count of failed fields when Save
                 is blocked, so errors below the fold don't read as a dead button. */}
@@ -2096,7 +2115,10 @@ export default function CreateEventFlowRefactored() {
 
           {/* Footer — persistent, hidden when keyboard is visible (POSH IMG_1848) */}
           {!isKeyboardVisible && (
-            <View style={styles.footer}>
+            <View
+              style={styles.footer}
+              onLayout={(e) => setFooterHeight(e.nativeEvent.layout.height)}
+            >
               <TouchableOpacity style={styles.backButton} onPress={confirmExit}>
                 <Text style={styles.backButtonText}>{t('common.back')}</Text>
               </TouchableOpacity>
@@ -2251,7 +2273,7 @@ export default function CreateEventFlowRefactored() {
           </View>
         </View>
       </Modal>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 

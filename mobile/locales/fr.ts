@@ -5,6 +5,9 @@ export default {
     country: 'Pays',
     area: 'Zone',
     allAreas: 'Toutes les zones',
+    searchPlaceholder: 'Rechercher une zone',
+    clearSearch: 'Effacer la recherche',
+    noAreasMatch: 'Aucune zone ne correspond',
   },
   calendar: {
     addToCalendar: 'Ajouter au calendrier',
@@ -708,9 +711,8 @@ export default {
     cardDetails: 'Détails de la carte',
     testCardHint: 'Carte de test : 4242 4242 4242 4242',
     info: {
-      redirectPrefix: 'Vous serez redirigé vers ',
-      redirectSuffix: ' pour terminer votre paiement.',
-      afterPayment: 'Après le paiement, vous reviendrez ici automatiquement.',
+      redirectPrefix: 'Vous finaliserez ce paiement sur ',
+      redirectSuffix: ', puis vous reviendrez ici automatiquement.',
     },
     totalAmount: 'Total',
     securedBy: 'Paiement sécurisé',

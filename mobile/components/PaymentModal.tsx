@@ -398,22 +398,15 @@ function PaymentForm({
           </View>
         )}
 
-        {/* Phone Number Input for Mobile Money */}
+        {/* Mobile Money redirect hint — quiet inline helper text, never a boxed callout */}
         {(paymentMethod === 'moncash' || paymentMethod === 'natcash') && (
-          <View style={styles.section}>
-            <View style={styles.infoBox}>
-              <AlertCircle size={18} color={colors.primary} />
-              <Text style={styles.infoText}>
-                {t('paymentModal.info.redirectPrefix')}
-                {paymentMethod === 'moncash'
-                  ? t('paymentModal.methods.moncash')
-                  : t('paymentModal.methods.natcash')}
-                {t('paymentModal.info.redirectSuffix')}
-                {'\n'}
-                {t('paymentModal.info.afterPayment')}
-              </Text>
-            </View>
-          </View>
+          <Text style={styles.infoText} numberOfLines={2}>
+            {t('paymentModal.info.redirectPrefix')}
+            {paymentMethod === 'moncash'
+              ? t('paymentModal.methods.moncash')
+              : t('paymentModal.methods.natcash')}
+            {t('paymentModal.info.redirectSuffix')}
+          </Text>
         )}
 
         {/* Error Message */}
@@ -635,21 +628,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 12,
     color: colors.textSecondary,
   },
-  infoBox: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12,
-    padding: 16,
-    backgroundColor: colors.primarySoft,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
   infoText: {
-    flex: 1,
-    fontSize: 14,
-    color: colors.text,
-    lineHeight: 20,
+    fontSize: 12,
+    lineHeight: 16,
+    color: colors.textSecondary,
+    paddingHorizontal: 2,
   },
   errorContainer: {
     marginTop: 16,

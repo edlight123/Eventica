@@ -48,7 +48,9 @@ type RangeSliderProps = {
  * range used to be two stacked sliders). OTA-safe.
  */
 function RangeSlider({ min, max, step, low, high, onChange, colors }: RangeSliderProps) {
-  const THUMB = 26;
+  // Compact thumb (16pt visible) — the touch target is grown back to ~44pt with
+  // hitSlop below so the control stays easy to drag while reading as a small dot.
+  const THUMB = 16;
   const [trackW, setTrackW] = useState(0);
   const usable = Math.max(1, trackW - THUMB);
 
@@ -112,23 +114,24 @@ function RangeSlider({ min, max, step, low, high, onChange, colors }: RangeSlide
       />
       <View
         {...lowPan.panHandlers}
-        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        hitSlop={{ top: 14, bottom: 14, left: 12, right: 12 }}
         style={[rangeStyles.thumb, { left: lowX, backgroundColor: colors.primary, borderColor: colors.background }]}
       />
       <View
         {...highPan.panHandlers}
-        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        hitSlop={{ top: 14, bottom: 14, left: 12, right: 12 }}
         style={[rangeStyles.thumb, { left: highX, backgroundColor: colors.primary, borderColor: colors.background }]}
       />
     </View>
   );
 }
 
+// Slim track + 16pt thumbs. Effective touch target stays 44 x 40pt via hitSlop.
 const rangeStyles = StyleSheet.create({
-  wrap: { height: 44, justifyContent: 'center', marginTop: 6, marginBottom: 2 },
-  track: { height: 4, borderRadius: 2, marginHorizontal: 13 },
-  fill: { position: 'absolute', top: 20, height: 4, borderRadius: 2 },
-  thumb: { position: 'absolute', top: 9, width: 26, height: 26, borderRadius: 13, borderWidth: 2 },
+  wrap: { height: 20, justifyContent: 'center' },
+  track: { height: 3, borderRadius: 1.5, marginHorizontal: 8 },
+  fill: { position: 'absolute', top: 8.5, height: 3, borderRadius: 1.5 },
+  thumb: { position: 'absolute', top: 2, width: 16, height: 16, borderRadius: 8, borderWidth: 2 },
 });
 
 export default function EventFiltersSheet() {
@@ -386,12 +389,18 @@ export default function EventFiltersSheet() {
             </View>
 
             <View style={styles.priceRangeCard}>
+              {/* Label, readout and currency share ONE compact line so the card
+                  stays a strip instead of a full-height block. */}
               <View style={styles.priceRangeTop}>
-                <View style={styles.priceRangeTopText}>
-                  <Text style={styles.priceRangeCaption}>{t('filters.priceRange')}</Text>
-                  <Text style={styles.priceRangeValue}>{rangeReadout}</Text>
+                <Text style={styles.priceRangeCaption} numberOfLines={1}>
+                  {t('filters.priceRange')}
+                </Text>
+                <View style={styles.priceRangeReadout}>
+                  <Text style={styles.priceRangeValue} numberOfLines={1}>
+                    {rangeReadout}
+                  </Text>
+                  <Text style={styles.priceRangeCurrency}>{priceCurrencyCode}</Text>
                 </View>
-                <Text style={styles.priceRangeCurrency}>{priceCurrencyCode}</Text>
               </View>
 
               <RangeSlider
@@ -403,8 +412,6 @@ export default function EventFiltersSheet() {
                 onChange={handleRange}
                 colors={colors}
               />
-
-              <Text style={styles.priceRangeHint}>{t('filters.priceRangeHint')}</Text>
             </View>
           </View>
 
@@ -625,6 +632,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
     fontWeight: '700',
   },
+  // The footer reads as a deliberate surface: one brightness step above the
+  // canvas (surfaceRaised over background) plus a 1pt top rule, instead of the
+  // near-invisible #161616-on-#0A0A0A smudge it used to be.
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -632,7 +642,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: Platform.OS === 'ios' ? 24 : 16,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
   resetButton: {
     flex: 1,
@@ -641,10 +653,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     justifyContent: 'center',
   },
+  // Full-strength label (16.5:1 on the footer) but no fill — Apply keeps the
+  // white pill, so the hierarchy is carried by the surface, not by dimming text.
   resetButtonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: colors.textSecondary,
+    color: colors.text,
   },
   applyButton: {
     flex: 2,
@@ -676,42 +690,42 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 13,
     color: colors.textSecondary,
   },
+  // Compact budget strip: one label/readout line + a slim slider. Kept small on
+  // purpose — it used to eat ~157pt of the sheet.
   priceRangeCard: {
-    marginTop: 16,
-    padding: 16,
+    marginTop: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     backgroundColor: colors.surfaceMuted,
-    borderRadius: 12,
+    borderRadius: 10,
   },
   priceRangeTop: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  priceRangeTopText: {
-    flex: 1,
+    gap: 8,
   },
   priceRangeCaption: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '700',
-    letterSpacing: 1,
-    color: colors.textTertiary,
-    marginBottom: 4,
+    letterSpacing: 0.8,
+    color: colors.textSecondary,
+  },
+  priceRangeReadout: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 5,
+    flexShrink: 1,
   },
   priceRangeValue: {
-    fontSize: 22,
+    fontSize: 14,
     fontWeight: '700',
     color: colors.text,
   },
   priceRangeCurrency: {
-    fontSize: 13,
+    fontSize: 10,
     fontWeight: '600',
     color: colors.textSecondary,
-  },
-  priceRangeHint: {
-    fontSize: 12,
-    color: colors.textTertiary,
-    marginTop: 8,
   },
   sliderLabel: {
     fontSize: 14,

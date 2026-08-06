@@ -18,6 +18,50 @@ type Params = {
   eventId?: string
 }
 
+// Digicel's hosted MonCash page (we 303-redirect to it from
+// /api/moncash-button/checkout) ships a desktop-width layout and its number/PIN
+// inputs are smaller than 16px. iOS therefore auto-zooms the page when a field
+// is focused, which is what leaves the "Secure Payment" card pushed off-centre
+// and clipped at the right edge. Their HTML is not ours to change, so we pin the
+// viewport and normalise the input font size from this side instead.
+//
+// Deliberately conservative: no width/overflow rewriting of their layout. If
+// their card is wider than the screen the user can still pan to reach it — the
+// bug being fixed is the focus zoom, not the card's own width.
+const FIT_VIEWPORT_JS = `
+(function () {
+  function pinViewport() {
+    try {
+      if (!document.head) return
+      var meta = document.querySelector('meta[name="viewport"]')
+      if (!meta) {
+        meta = document.createElement('meta')
+        meta.setAttribute('name', 'viewport')
+        document.head.appendChild(meta)
+      }
+      meta.setAttribute(
+        'content',
+        'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'
+      )
+
+      if (!document.getElementById('tikem-no-focus-zoom')) {
+        var style = document.createElement('style')
+        style.id = 'tikem-no-focus-zoom'
+        // 16px is the threshold below which iOS zooms into a focused field.
+        style.textContent = 'input,select,textarea{font-size:16px !important}'
+        document.head.appendChild(style)
+      }
+    } catch (e) {}
+  }
+
+  pinViewport()
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', pinViewport)
+  }
+})();
+true;
+`
+
 // Hosts we may attach the Firebase bearer to. The MonCash checkout page needs
 // the token to render its form — if the host isn't trusted, the header is
 // withheld and the page comes back BLANK (exactly the "stuck on a white page"
@@ -313,6 +357,10 @@ export default function PaymentWebViewScreen() {
         contentInsetAdjustmentBehavior="never"
         keyboardDisplayRequiresUserAction={false}
         hideKeyboardAccessoryView
+        // Pin the viewport as early as possible (before-load), then again after
+        // load in case the page rewrote its own <head>. Both runs are idempotent.
+        injectedJavaScriptBeforeContentLoaded={FIT_VIEWPORT_JS}
+        injectedJavaScript={FIT_VIEWPORT_JS}
       />
 
       {loading && !failure ? brandedLoading : null}

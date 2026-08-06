@@ -5,6 +5,9 @@ export default {
     country: 'Country',
     area: 'Area',
     allAreas: 'All areas',
+    searchPlaceholder: 'Search areas',
+    clearSearch: 'Clear search',
+    noAreasMatch: 'No areas match',
   },
   calendar: {
     addToCalendar: 'Add to Calendar',
@@ -1007,9 +1010,8 @@ export default {
     cardDetails: 'Card details',
     testCardHint: 'Test card: 4242 4242 4242 4242',
     info: {
-      redirectPrefix: 'You will be redirected to ',
-      redirectSuffix: ' to complete your payment.',
-      afterPayment: 'After payment, you will return here automatically.',
+      redirectPrefix: 'You’ll finish this payment on ',
+      redirectSuffix: ', then come back here automatically.',
     },
     totalAmount: 'Total',
     securedBy: 'Secured checkout',

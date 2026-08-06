@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -7,14 +7,30 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { MapPin, Check, X } from 'lucide-react-native';
+import { MapPin, Check, X, Search as SearchIcon } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useFilters } from '../contexts/FiltersContext';
 import { COUNTRIES, getFeaturedCities } from '../types/filters';
 import { RADIUS, SPACING } from '../config/brand';
+
+// Accent/case-insensitive match so "petion" finds "Pétion-Ville" and "cote"
+// finds "Côte-des-Arcadins". Deliberately not locale-aware collation: strip
+// combining marks so every language typed on any keyboard hits the same rows.
+const normalize = (s: any): string =>
+  (s ?? '')
+    .toString()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+const matchesQuery = (candidate: string, query: string): boolean =>
+  normalize(candidate).includes(normalize(query));
 
 interface LocationPickerSheetProps {
   visible: boolean;
@@ -42,7 +58,22 @@ export default function LocationPickerSheet({
   const insets = useSafeAreaInsets();
   const styles = getStyles(colors);
 
+  const [areaQuery, setAreaQuery] = useState('');
+
   const cities = getFeaturedCities(userCountry);
+  const trimmedQuery = areaQuery.trim();
+
+  // "All areas" is the clear-selection affordance, not a searchable row, so it
+  // is rendered outside this list and always stays on top.
+  const visibleCities = useMemo(
+    () => (trimmedQuery ? cities.filter((city) => matchesQuery(city, trimmedQuery)) : cities),
+    [cities, trimmedQuery]
+  );
+
+  // A filter left over from a previous visit would make the list look empty.
+  useEffect(() => {
+    if (!visible) setAreaQuery('');
+  }, [visible]);
 
   const renderCityRow = (label: string, value: string) => {
     const active = selectedCity === value;
@@ -62,66 +93,117 @@ export default function LocationPickerSheet({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable style={styles.backdrop} onPress={onClose} />
-      <View style={[styles.sheet, { paddingBottom: insets.bottom + 16 }]}>
-        <View style={styles.handle} />
+      <KeyboardAvoidingView
+        style={styles.overlay}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <Pressable style={styles.backdrop} onPress={onClose} />
+        <View style={[styles.sheet, { paddingBottom: insets.bottom + 16 }]}>
+          <View style={styles.handle} />
 
-        <View style={styles.header}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.title}>{t('location.title')}</Text>
-            <Text style={styles.subtitle}>{t('location.subtitle')}</Text>
+          <View style={styles.header}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.title}>{t('location.title')}</Text>
+              <Text style={styles.subtitle}>{t('location.subtitle')}</Text>
+            </View>
+            <TouchableOpacity style={styles.closeBtn} onPress={onClose} activeOpacity={0.8} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+              <X size={20} color={colors.text} />
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity style={styles.closeBtn} onPress={onClose} activeOpacity={0.8} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <X size={20} color={colors.text} />
-          </TouchableOpacity>
-        </View>
 
-        {/* Country switcher */}
-        <Text style={styles.sectionLabel}>{t('location.country').toUpperCase()}</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.countryRow}
-        >
-          {COUNTRIES.map((c) => {
-            const active = userCountry === c.code;
-            return (
+          {/* Country switcher */}
+          <Text style={styles.sectionLabel}>{t('location.country').toUpperCase()}</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.countryRow}
+          >
+            {COUNTRIES.map((c) => {
+              const active = userCountry === c.code;
+              return (
+                <TouchableOpacity
+                  key={c.code}
+                  style={[styles.countryChip, active && styles.countryChipActive]}
+                  onPress={() => {
+                    // Drop the filter: the new country's towns are different, and a
+                    // stale query would make its list look empty.
+                    setAreaQuery('');
+                    setUserCountry(c.code);
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.countryChipText, active && styles.countryChipTextActive]}>
+                    {c.name}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+
+          {/* Area search — scopes the list below it. Never auto-focused: the
+              keyboard must not cover the towns the moment the sheet opens. */}
+          <View style={styles.searchField}>
+            <SearchIcon size={18} color={colors.textSecondary} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder={t('location.searchPlaceholder')}
+              placeholderTextColor={colors.textSecondary}
+              selectionColor={colors.primary}
+              value={areaQuery}
+              onChangeText={setAreaQuery}
+              returnKeyType="search"
+              autoCapitalize="none"
+              autoCorrect={false}
+              accessibilityLabel={t('location.searchPlaceholder')}
+            />
+            {areaQuery.length > 0 && (
               <TouchableOpacity
-                key={c.code}
-                style={[styles.countryChip, active && styles.countryChipActive]}
-                onPress={() => setUserCountry(c.code)}
-                activeOpacity={0.8}
+                onPress={() => setAreaQuery('')}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel={t('location.clearSearch')}
               >
-                <Text style={[styles.countryChipText, active && styles.countryChipTextActive]}>
-                  {c.name}
-                </Text>
+                <X size={18} color={colors.textSecondary} />
               </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
+            )}
+          </View>
 
-        {/* Cities */}
-        <Text style={styles.sectionLabel}>{t('location.area').toUpperCase()}</Text>
-        <ScrollView style={styles.cityList} showsVerticalScrollIndicator={false}>
-          {renderCityRow(t('location.allAreas'), '')}
-          {cities.map((city) => renderCityRow(city, city))}
-        </ScrollView>
-      </View>
+          {/* Cities */}
+          <Text style={styles.sectionLabel}>{t('location.area').toUpperCase()}</Text>
+          <ScrollView
+            style={styles.cityList}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+          >
+            {renderCityRow(t('location.allAreas'), '')}
+            {visibleCities.map((city) => renderCityRow(city, city))}
+            {trimmedQuery.length > 0 && visibleCities.length === 0 && (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyTitle}>{t('location.noAreasMatch')}</Text>
+                <Text style={styles.emptyQuery} numberOfLines={2}>
+                  “{trimmedQuery}”
+                </Text>
+              </View>
+            )}
+          </ScrollView>
+        </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
 
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
   StyleSheet.create({
-    backdrop: {
+    overlay: {
       flex: 1,
+      justifyContent: 'flex-end',
       backgroundColor: 'rgba(0,0,0,0.6)',
     },
+    backdrop: {
+      ...StyleSheet.absoluteFillObject,
+    },
     sheet: {
-      position: 'absolute',
-      left: 0,
-      right: 0,
-      bottom: 0,
       backgroundColor: colors.surface,
       borderTopLeftRadius: RADIUS.xl,
       borderTopRightRadius: RADIUS.xl,
@@ -194,9 +276,48 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     countryChipTextActive: {
       color: colors.white,
     },
+    searchField: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      backgroundColor: colors.surfaceMuted,
+      borderRadius: RADIUS.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+      marginTop: 14,
+      marginBottom: 18,
+    },
+    searchInput: {
+      flex: 1,
+      fontSize: 15,
+      color: colors.text,
+      padding: 0,
+    },
     cityList: {
+      // Shrink to whatever the sheet has left (RN defaults flexShrink to 0) so
+      // the list scrolls inside itself instead of being clipped — matters most
+      // when the keyboard is up and the sheet is short.
+      flexShrink: 1,
       marginTop: 14,
       marginBottom: 4,
+    },
+    emptyState: {
+      paddingVertical: 24,
+      paddingHorizontal: 14,
+      alignItems: 'center',
+    },
+    emptyTitle: {
+      fontSize: 15,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    emptyQuery: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      marginTop: 4,
+      textAlign: 'center',
     },
     cityRow: {
       flexDirection: 'row',

@@ -5,6 +5,9 @@ export default {
     country: 'Peyi',
     area: 'Zòn',
     allAreas: 'Tout zòn yo',
+    searchPlaceholder: 'Chèche yon zòn',
+    clearSearch: 'Efase rechèch la',
+    noAreasMatch: 'Pa gen zòn ki koresponn',
   },
   calendar: {
     addToCalendar: 'Ajoute nan kalandriye',
@@ -706,9 +709,8 @@ export default {
     cardDetails: 'Detay kat la',
     testCardHint: 'Kat tès: 4242 4242 4242 4242',
     info: {
-      redirectPrefix: 'W ap voye sou ',
-      redirectSuffix: ' pou fini peman an.',
-      afterPayment: 'Apre peman an, w ap tounen isit la otomatikman.',
+      redirectPrefix: 'W ap fini peman sa a sou ',
+      redirectSuffix: ', epi w ap tounen isit la otomatikman.',
     },
     totalAmount: 'Total',
     securedBy: 'Peman sekirize',
