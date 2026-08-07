@@ -45,7 +45,8 @@ import { isValidDate } from '../lib/dates';
 import WhitePillCTA from '../components/WhitePillCTA';
 import VerifiedBadge from '../components/VerifiedBadge';
 import PaymentModal from '../components/PaymentModal';
-import TieredTicketSelector from '../components/TieredTicketSelector';
+import TieredTicketSelector, { PurchaseSelectionMeta } from '../components/TieredTicketSelector';
+import { resolveEventPricing } from '../lib/ticketPricing';
 import { resolvePosterTheme } from '../lib/posterGradient';
 import FreeTicketModal from '../components/FreeTicketModal';
 import AddToCalendarButton from '../components/AddToCalendarButton';
@@ -75,6 +76,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
   const [showTierSelector, setShowTierSelector] = useState(false);
   const [showFreeTicketModal, setShowFreeTicketModal] = useState(false);
   const [selectedTierId, setSelectedTierId] = useState<string | null>(null);
+  const [selectedTierName, setSelectedTierName] = useState<string>('');
   const [selectedTierPrice, setSelectedTierPrice] = useState<number>(0);
   const [ticketQuantity, setTicketQuantity] = useState(1);
   const [promoCode, setPromoCode] = useState<string | undefined>();
@@ -351,11 +353,15 @@ export default function EventDetailScreen({ route, navigation }: any) {
       return;
     }
 
-    // For free events, show free ticket modal
+    // Free-ONLY event: nothing to choose, claim directly. Clear any tier picked
+    // in an earlier flow so the server resolves the event's free tier itself and
+    // the sheet owns the quantity (see lockedQuantity below).
     if (isFree) {
+      setSelectedTierId(null);
+      setSelectedTierName('');
       setShowFreeTicketModal(true);
     } else {
-      // For paid events, show tier selector
+      // Paid or mixed: the buyer must pick a tier.
       setShowTierSelector(true);
     }
   };
@@ -367,15 +373,32 @@ export default function EventDetailScreen({ route, navigation }: any) {
     navigation.navigate('Main', { screen: 'Tickets' });
   };
 
-  const handleTierSelection = (tierId: string, finalPrice: number, quantity: number, promo?: string) => {
+  const handleTierSelection = (
+    tierId: string,
+    finalPrice: number,
+    quantity: number,
+    promo?: string,
+    meta?: PurchaseSelectionMeta
+  ) => {
     // Store tier selection
     setSelectedTierId(tierId);
     setSelectedTierPrice(finalPrice);
     setTicketQuantity(quantity);
     setPromoCode(promo);
-    
-    // Close tier selector and open payment modal
+    setSelectedTierName(meta?.tierName || '');
+
     setShowTierSelector(false);
+
+    // A zero total goes to the free-claim path, never to a gateway. Sending 0 to
+    // MonCash/Stripe would either be rejected outright (Stripe enforces a minimum
+    // charge) or leave a dangling pending transaction the buyer can't complete —
+    // and the ticket would never be issued. Note this also covers a paid tier
+    // discounted to 0 by a 100%-off promo.
+    if (meta?.isFree ?? finalPrice <= 0) {
+      setShowFreeTicketModal(true);
+      return;
+    }
+
     setShowPaymentModal(true);
   };
 
@@ -413,8 +436,15 @@ export default function EventDetailScreen({ route, navigation }: any) {
 
   const remainingTickets = (event.total_tickets || 0) - (event.tickets_sold || 0);
   const isSoldOut = remainingTickets <= 0 && (event.total_tickets || 0) > 0;
-  const isFree = !event.ticket_price || event.ticket_price === 0;
-  
+  // Freeness is a property of the TIER SET, not of `event.ticket_price`.
+  // `ticket_price` holds the LOWEST tier price, so an event offering a free tier
+  // alongside a paid one has ticket_price === 0 — testing it sent every buyer
+  // straight to the free-claim modal and hid the paid tier entirely.
+  const pricing = resolveEventPricing(event);
+  // `isFree` now means "there is no paid way in", i.e. tier selection can be
+  // skipped. A mixed event is NOT free: the buyer must choose a tier.
+  const isFree = pricing.isFreeOnly;
+
   // Prevent purchase only after the event has ended (not after it has started).
   const purchaseCutoffDate = event.end_datetime || event.start_datetime;
   const isPastEvent = purchaseCutoffDate && new Date(purchaseCutoffDate) < new Date();
@@ -427,7 +457,21 @@ export default function EventDetailScreen({ route, navigation }: any) {
   // Guarded dates — never hand an Invalid Date to date-fns `format` (it throws).
   const startValid = isValidDate(event.start_datetime) ? event.start_datetime : null;
   const endValid = isValidDate(event.end_datetime) ? event.end_datetime : null;
-  const priceSubLabel = `${t('common.from')} ${(event.ticket_price || 0).toLocaleString()} ${event.currency || 'HTG'}`;
+  // Price sub-label for the paid CTA. A mixed event reads "Free – 1,500 HTG"
+  // rather than "from 0 HTG", which would imply everything is free. When the tier
+  // set isn't visible on the doc (legacy events) `lowestPaidPrice` is null and we
+  // show no amount at all instead of guessing one.
+  const priceSubLabel = (() => {
+    const currency = event.currency || 'HTG';
+    if (pricing.kind === 'mixed') {
+      return pricing.lowestPaidPrice != null
+        ? `${t('common.free')} – ${pricing.lowestPaidPrice.toLocaleString()} ${currency}`
+        : undefined;
+    }
+    const from = pricing.lowestPaidPrice ?? Number(event.ticket_price || 0);
+    if (!(from > 0)) return undefined;
+    return `${t('common.from')} ${from.toLocaleString()} ${currency}`;
+  })();
 
   // Compact countdown prefix. `t()` echoes the key back when it is missing from
   // the dictionaries, so fall back to English until `eventDetail.startsIn` lands.
@@ -724,6 +768,10 @@ export default function EventDetailScreen({ route, navigation }: any) {
         userName={userProfile?.full_name || t('common.guest')}
         event={event}
         tierId={selectedTierId || undefined}
+        tierName={selectedTierName || undefined}
+        // `selectedTierId` is only ever set by the tier selector, where the buyer
+        // already chose a quantity — don't ask a second time in that case.
+        lockedQuantity={selectedTierId ? ticketQuantity : undefined}
         onSuccess={handleFreeTicketSuccess}
       />
 

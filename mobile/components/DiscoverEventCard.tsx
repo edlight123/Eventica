@@ -8,6 +8,7 @@ import { useI18n } from '../contexts/I18nContext';
 import { safeFormatForLanguage } from '../lib/dates';
 import { resolvePosterTheme } from '../lib/posterGradient';
 import { formatPrice } from '../lib/currency';
+import { resolveEventPricing } from '../lib/ticketPricing';
 import { font } from '../theme/tokens';
 import WhitePillCTA from './WhitePillCTA';
 import VerifiedBadge from './VerifiedBadge';
@@ -42,8 +43,12 @@ export default function DiscoverEventCard({
   // nothing is cropped. Falls back to 2:3 until the image reports its size, and
   // is clamped so an extreme ratio can't blow up or collapse the card.
   const [aspectRatio, setAspectRatio] = useState<number>(2 / 3);
-  const price = Number(event.ticket_price || 0);
-  const isFree = !price || price === 0;
+  // See EventListCard: `ticket_price` is the lowest tier price, so it cannot
+  // decide freeness once free and paid tiers coexist on one event. A mixed event
+  // gets the paid CTA — the buyer picks the free tier on the detail screen.
+  const pricing = resolveEventPricing(event);
+  const isFree = pricing.isFreeOnly;
+  const price = pricing.lowestPaidPrice ?? Number(event.ticket_price || 0);
   // Prefer the organization brand name; the denormalized `organizer_name` on
   // the event doc is stamped with org-name-or-full-name at create/publish.
   const organizer = event.users?.organization_name || event.users?.full_name || event.organizer_name || '';

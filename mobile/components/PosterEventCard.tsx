@@ -14,6 +14,7 @@ import { useI18n } from '../contexts/I18nContext';
 import { safeFormatForLanguage } from '../lib/dates';
 import { resolvePosterTheme } from '../lib/posterGradient';
 import { formatPrice } from '../lib/currency';
+import { resolveEventPricing } from '../lib/ticketPricing';
 import { font, radius } from '../theme/tokens';
 import type { BadgeStatus } from '../theme/badges';
 
@@ -69,8 +70,11 @@ export default function PosterEventCard({
   const hasImage = Boolean(event.banner_image_url);
   const theme = resolvePosterTheme(event, event.id || event.title, event.category);
 
-  const price = Number(event.ticket_price || 0);
-  const isFree = !price || price === 0;
+  // See EventListCard: `ticket_price` is the lowest tier price, so it cannot
+  // decide freeness once free and paid tiers coexist on one event.
+  const pricing = resolveEventPricing(event);
+  const isFree = pricing.isFreeOnly;
+  const price = pricing.lowestPaidPrice ?? Number(event.ticket_price || 0);
 
   // Date is guarded — an invalid/missing start_datetime yields '' rather than
   // crashing date-fns (POSH constraint: never crash on a bad date).

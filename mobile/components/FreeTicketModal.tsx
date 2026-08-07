@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Modal,
   View,
@@ -11,8 +11,7 @@ import {
 import { Ticket, X, Plus, Minus } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
-import { collection, addDoc, doc, getDoc, updateDoc, Timestamp, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { backendJson } from '../lib/api/backend';
 
 interface FreeTicketModalProps {
   visible: boolean;
@@ -24,8 +23,17 @@ interface FreeTicketModalProps {
   userName: string;
   event: any;
   onSuccess: () => void;
-  /** Optional selected tier id; when absent the modal resolves the event's free/first tier. */
+  /** Optional selected tier id; when absent the server resolves the event's free tier. */
   tierId?: string;
+  /** Optional tier name, shown instead of the generic "FREE EVENT" label. */
+  tierName?: string;
+  /**
+   * Quantity already chosen upstream (the tier selector). When set, this modal
+   * confirms that quantity instead of asking again — a second stepper would let
+   * the buyer silently contradict the tier-level availability they just picked
+   * against.
+   */
+  lockedQuantity?: number;
 }
 
 export default function FreeTicketModal({
@@ -39,6 +47,8 @@ export default function FreeTicketModal({
   event,
   onSuccess,
   tierId,
+  tierName,
+  lockedQuantity,
 }: FreeTicketModalProps) {
   const { colors } = useTheme();
   const { t } = useI18n();
@@ -51,8 +61,18 @@ export default function FreeTicketModal({
   const rc = (key: string, n: number) => t(key).replace('{count}', String(n));
   const pc = (base: string, n: number) => rc(`${base}.${n === 1 ? 'one' : 'other'}`, n);
 
+  const isLocked = typeof lockedQuantity === 'number' && lockedQuantity > 0;
   const remainingTickets = (event.total_tickets || 0) - (event.tickets_sold || 0);
   const maxQuantity = Math.min(10, remainingTickets);
+  // The quantity actually claimed: the upstream selection when locked, else the
+  // stepper value.
+  const claimQuantity = isLocked ? (lockedQuantity as number) : quantity;
+
+  // Reset the stepper whenever the sheet reopens so a previous order's count
+  // never carries over into the next claim.
+  useEffect(() => {
+    if (visible) setQuantity(1);
+  }, [visible]);
 
   const handleIncrease = () => {
     if (quantity < maxQuantity) {
@@ -72,7 +92,7 @@ export default function FreeTicketModal({
       return;
     }
 
-    if (quantity > remainingTickets) {
+    if (claimQuantity > remainingTickets) {
       Alert.alert(t('freeTicket.limitedTitle'), pc('freeTicket.limitedBody', remainingTickets));
       return;
     }
@@ -81,104 +101,40 @@ export default function FreeTicketModal({
 
     try {
       console.log('=== CLAIMING FREE TICKETS ===');
-      console.log('Event ID:', eventId);
-      console.log('Quantity:', quantity);
-      console.log('User ID:', userId);
-      console.log('Remaining tickets:', remainingTickets);
-      
-      // Resolve a reliable tier_id to stamp on each ticket for scan-time tier lookup by id.
-      // Use the caller-provided tier when available; otherwise resolve the event's free/first
-      // ticket_tiers doc. Never block issuance on this — fall back to '' if unresolvable.
-      let resolvedTierId = tierId || '';
-      if (!resolvedTierId) {
-        try {
-          const tiersSnapshot = await getDocs(
-            query(collection(db, 'ticket_tiers'), where('event_id', '==', eventId))
-          );
-          const tierDocs = tiersSnapshot.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
-          if (tierDocs.length > 0) {
-            const freeTier = tierDocs.find((tt: any) => Number(tt.price) === 0);
-            const chosen =
-              freeTier ||
-              (tierDocs.length === 1
-                ? tierDocs[0]
-                : [...tierDocs].sort(
-                    (a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0)
-                  )[0]);
-            resolvedTierId = chosen?.id ? String(chosen.id) : '';
-          }
-        } catch (tierErr) {
-          console.warn('[FreeTicketModal] failed to resolve tier_id; using ""', tierErr);
+      console.log('Event ID:', eventId, 'Tier:', tierId || '(auto)');
+      console.log('Quantity:', claimQuantity, 'User ID:', userId);
+
+      // Issue through the server (Admin SDK) rather than writing `tickets` docs
+      // from the client. The endpoint is the ONLY free-issuance path that runs the
+      // full guard set: password-gate access grant, tier price/is_active/sale
+      // window, per-user free-claim dedup, and the SAME atomic
+      // reserveInventoryAtomic transaction the paid fulfillments use — so
+      // concurrent claims can't oversell the event or the tier. The previous
+      // client-side write incremented `tickets_sold` with a read-modify-write,
+      // which silently loses increments under concurrency.
+      const result = await backendJson<{ count?: number; message?: string }>(
+        '/api/tickets/claim-free',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            eventId,
+            quantity: claimQuantity,
+            ...(tierId ? { tierId } : {}),
+          }),
         }
-      }
+      );
 
-      // Create tickets one by one with unique QR codes
-      const createdTickets = [];
+      const issued = Number(result?.count ?? claimQuantity) || claimQuantity;
+      console.log('=== SUCCESS ===', issued);
 
-      for (let i = 0; i < quantity; i++) {
-        const qrCodeData = `ticket-${eventId}-${userId}-${Date.now()}-${i}`;
-        
-        // Ensure event_date is a Timestamp or convert it
-        let eventDate = event.start_datetime;
-        if (eventDate && !(eventDate instanceof Timestamp)) {
-          // Convert Date to Timestamp if needed
-          eventDate = Timestamp.fromDate(eventDate instanceof Date ? eventDate : new Date(eventDate));
-        }
-        
-        const ticketData = {
-          event_id: eventId,
-          event_title: eventTitle,
-          user_id: userId,
-          user_email: userEmail,
-          user_name: userName,
-          ticket_type: 'General Admission',
-          tier_id: resolvedTierId,
-          quantity: 1,
-          price: 0,
-          currency: event.currency || 'HTG',
-          status: 'confirmed',
-          purchase_date: Timestamp.now(),
-          event_date: eventDate,
-          qr_code: qrCodeData,
-          venue_name: event.venue_name,
-          city: event.city,
-          organizer_name: event.users?.full_name || event.organizer_name || 'Event Organizer',
-          checked_in: false,
-          checked_in_at: null,
-        };
-
-        const ticketRef = await addDoc(collection(db, 'tickets'), ticketData);
-        createdTickets.push({ id: ticketRef.id, ...ticketData });
-        console.log(`Created ticket ${i + 1}/${quantity}:`, ticketRef.id);
-      }
-
-      console.log('All tickets created successfully:', createdTickets.length);
-
-      // Update tickets_sold count
-      const eventRef = doc(db, 'events', eventId);
-      const eventDoc = await getDoc(eventRef);
-      
-      if (eventDoc.exists()) {
-        const currentTicketsSold = eventDoc.data().tickets_sold || 0;
-        await updateDoc(eventRef, {
-          tickets_sold: currentTicketsSold + quantity,
-        });
-        console.log('Updated tickets_sold:', currentTicketsSold, '->', currentTicketsSold + quantity);
-      } else {
-        console.warn('Event document not found for updating tickets_sold');
-      }
-
-      console.log('=== SUCCESS ===');
-      
-      // Success - close modal and call success callback
       setLoading(false);
       onClose();
-      
+
       // Call onSuccess after a short delay to ensure modal is closed
       setTimeout(() => {
         Alert.alert(
           t('freeTicket.successTitle'),
-          pc('freeTicket.successBody', quantity),
+          pc('freeTicket.successBody', issued),
           [
             {
               text: t('freeTicket.viewTickets'),
@@ -191,10 +147,17 @@ export default function FreeTicketModal({
           ]
         );
       }, 300);
-    } catch (error) {
+    } catch (error: any) {
       console.error('=== ERROR CLAIMING TICKETS ===');
       console.error('Error details:', error);
-      Alert.alert(t('common.error'), t('freeTicket.errorBody'));
+      // backendJson throws with the server's `error` message (sold out, sales not
+      // started, tier not free, ...). Surface it when present — the generic copy
+      // would hide a specific, actionable reason.
+      const serverMessage = typeof error?.message === 'string' ? error.message.trim() : '';
+      Alert.alert(
+        t('common.error'),
+        serverMessage ? serverMessage.replace(/\s*\[https?:\/\/[^\]]*\]\s*$/, '') : t('freeTicket.errorBody')
+      );
     } finally {
       setLoading(false);
     }
@@ -228,10 +191,13 @@ export default function FreeTicketModal({
             <Text style={styles.eventTitle} numberOfLines={2}>
               {eventTitle}
             </Text>
-            <Text style={styles.freeLabel}>{t('freeTicket.freeEvent')}</Text>
+            {/* On a mixed free+paid event the generic "FREE EVENT" line would be a
+                lie — name the free tier the buyer actually picked instead. */}
+            <Text style={styles.freeLabel}>{tierName || t('freeTicket.freeEvent')}</Text>
           </View>
 
-          {/* Quantity Selector */}
+          {/* Quantity — a stepper when this sheet owns the choice, otherwise a
+              read-only confirmation of the quantity picked in the tier selector. */}
           <View style={styles.quantitySection}>
             <View style={styles.quantityHeader}>
               <Text style={styles.sectionLabel}>{t('freeTicket.quantityLabel')}</Text>
@@ -239,7 +205,17 @@ export default function FreeTicketModal({
                 {rc('freeTicket.availableCount', remainingTickets)}
               </Text>
             </View>
-            
+
+            {isLocked ? (
+              <View style={styles.quantityDisplay}>
+                <Text style={styles.quantityNumber}>{claimQuantity}</Text>
+                <Text style={styles.quantityLabel}>
+                  {claimQuantity === 1
+                    ? t('freeTicket.ticketWord.one')
+                    : t('freeTicket.ticketWord.other')}
+                </Text>
+              </View>
+            ) : (
             <View style={styles.quantityControls}>
               <TouchableOpacity
                 onPress={handleDecrease}
@@ -264,8 +240,9 @@ export default function FreeTicketModal({
                 <Plus size={20} color={quantity >= maxQuantity || loading ? colors.textSecondary : colors.primary} />
               </TouchableOpacity>
             </View>
+            )}
 
-            {quantity >= maxQuantity && maxQuantity < 10 && (
+            {!isLocked && quantity >= maxQuantity && maxQuantity < 10 && (
               <Text style={styles.limitText}>
                 {pc('freeTicket.maxNote', maxQuantity)}
               </Text>
@@ -299,7 +276,7 @@ export default function FreeTicketModal({
                 <ActivityIndicator color="#FFF" />
               ) : (
                 <Text style={styles.claimButtonText}>
-                  {pc('freeTicket.claimButton', quantity)}
+                  {pc('freeTicket.claimButton', claimQuantity)}
                 </Text>
               )}
             </TouchableOpacity>

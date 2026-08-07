@@ -8,6 +8,7 @@ import { useI18n } from '../contexts/I18nContext';
 import { resolvePosterTheme } from '../lib/posterGradient';
 import { safeFormatForLanguage } from '../lib/dates';
 import { formatPrice } from '../lib/currency';
+import { resolveEventPricing } from '../lib/ticketPricing';
 import { font, radius } from '../theme/tokens';
 
 interface EventListCardProps {
@@ -27,8 +28,12 @@ export default function EventListCard({ event, onPress }: EventListCardProps) {
 
   const theme = resolvePosterTheme(event, event.id || event.title, event.category);
 
-  const price = Number(event.ticket_price || 0);
-  const isFree = !price || price === 0;
+  // `ticket_price` is the LOWEST tier price, so it is 0 for any event carrying a
+  // free tier — including one that also sells paid tiers. Such an event must not
+  // be labelled "FREE"; show its cheapest PAID price instead.
+  const pricing = resolveEventPricing(event);
+  const isFree = pricing.isFreeOnly;
+  const price = pricing.lowestPaidPrice ?? Number(event.ticket_price || 0);
 
   // Guarded — an invalid/missing date yields '' instead of crashing date-fns.
   const dateLabel = safeFormatForLanguage(event.start_datetime, 'EEE, MMM d · h:mm a', language);

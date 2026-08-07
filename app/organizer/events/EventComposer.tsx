@@ -383,6 +383,18 @@ export default function EventComposer({
   }
   const anySaleWindowInvalid = sellMode === 'tickets' && tiers.some(saleWindowInvalid)
 
+  // "Free" and "not filled in" must never be the same thing: `Number('') || 0`
+  // is 0, so a blank price field would silently save the tier as a FREE tier and
+  // give the ticket away. Require an explicit value (0 is allowed, and is how the
+  // organizer says "free"); reject blank and negative.
+  const tierPriceUnset = (t: TicketTier): boolean => {
+    const raw = String(t.price ?? '').trim()
+    if (raw === '') return true
+    const n = Number(raw)
+    return !Number.isFinite(n) || n < 0
+  }
+  const anyTierPriceUnset = sellMode === 'tickets' && tiers.some(tierPriceUnset)
+
   // Per-tier entry (validity) window: when BOTH bounds are set, valid_until
   // must be after valid_from.
   const validityWindowInvalid = (t: TicketTier): boolean => {
@@ -440,7 +452,12 @@ export default function EventComposer({
       address: isOnline ? '' : address.trim(),
       start_datetime: composeISO(startDate, startTime),
       end_datetime: composeISO(endDate, endTime),
+      // `ticket_price` is a "from"/display figure only. It is 0 for any event
+      // carrying a free tier, so it can NOT answer "is this event free" once free
+      // and paid tiers coexist — `has_paid_tiers` is the authoritative signal for
+      // every reader (see mobile/lib/ticketPricing.ts).
       ticket_price: isRsvp ? 0 : firstTier.price,
+      has_paid_tiers: !isRsvp && cleanTiers.some((t) => Number(t.price || 0) > 0),
       total_tickets: isRsvp ? 0 : totalQty,
       ticket_name: isRsvp ? 'RSVP' : firstTier.name,
       guestlist: cleanGuests,
@@ -525,6 +542,15 @@ export default function EventComposer({
         title: 'Add a location',
         message: 'In-person events need a venue, address, or city.',
         duration: 4000,
+      })
+      return
+    }
+    if (anyTierPriceUnset) {
+      showToast({
+        type: 'error',
+        title: 'Set a price for every ticket type',
+        message: 'Enter 0 to make a ticket type free. A blank price is not the same as free.',
+        duration: 5000,
       })
       return
     }

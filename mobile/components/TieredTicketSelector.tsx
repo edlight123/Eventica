@@ -16,6 +16,7 @@ import { useI18n } from '../contexts/I18nContext';
 import { normalizePromoValidationResponse } from '../lib/promoCodes';
 import { useTheme } from '../contexts/ThemeContext';
 import { formatCurrency } from '../lib/currency';
+import { computeSelectionTotal, isFreeTier } from '../lib/ticketPricing';
 import WhitePillCTA from './WhitePillCTA';
 
 interface TicketTier {
@@ -44,11 +45,28 @@ interface PromoCodeValidation {
   error?: string;
 }
 
+/** Extra context about the chosen tier, so the caller can route and label the order. */
+export interface PurchaseSelectionMeta {
+  /** Display name of the chosen tier (e.g. "Free RSVP"). */
+  tierName: string;
+  /**
+   * True when the order costs nothing. The caller MUST issue such an order
+   * through the free-claim path rather than any payment gateway.
+   */
+  isFree: boolean;
+}
+
 interface TieredTicketSelectorProps {
   eventId: string;
   visible: boolean;
   onClose: () => void;
-  onPurchase: (tierId: string, finalPrice: number, quantity: number, promoCode?: string) => void;
+  onPurchase: (
+    tierId: string,
+    finalPrice: number,
+    quantity: number,
+    promoCode?: string,
+    meta?: PurchaseSelectionMeta
+  ) => void;
   currency?: string;
 }
 
@@ -226,36 +244,34 @@ export default function TieredTicketSelector({
     return Object.values(tierQuantities).reduce((sum, qty) => sum + qty, 0);
   };
 
+  /**
+   * Order total in MAJOR units. Summing and discounting happens on integer cents
+   * inside `computeSelectionTotal` so repeated adds and a percentage discount
+   * can't accumulate binary-float error (the old version summed floats and only
+   * rounded at the very end).
+   */
   const getTotalPrice = (): number => {
-    let total = 0;
-    tiers.forEach(tier => {
-      const qty = tierQuantities[tier.id] || 0;
-      if (qty > 0) {
-        total += tier.price * qty;
-      }
-    });
+    const selections = tiers
+      .map(tier => ({ price: tier.price, quantity: tierQuantities[tier.id] || 0 }))
+      .filter(s => s.quantity > 0);
 
-    // Apply promo code discount
+    // Promo code wins over the group discount (same precedence as before).
     if (promoValidation?.valid) {
-      if (promoValidation.discount_percentage) {
-        total = total * (1 - promoValidation.discount_percentage / 100);
-      } else if (promoValidation.discount_amount) {
-        total = Math.max(0, total - promoValidation.discount_amount);
-      }
+      return computeSelectionTotal(selections, {
+        percentage: promoValidation.discount_percentage,
+        amount: promoValidation.discount_amount,
+      });
     }
-    // Apply group discount
-    else {
-      const totalQty = getTotalQuantity();
-      const groupDiscount = groupDiscounts
-        .filter(d => d.min_quantity <= totalQty && d.is_active)
-        .sort((a, b) => b.discount_percentage - a.discount_percentage)[0];
-      
-      if (groupDiscount) {
-        total = total * (1 - groupDiscount.discount_percentage / 100);
-      }
-    }
-    
-    return Math.round(total * 100) / 100;
+
+    const totalQty = getTotalQuantity();
+    const groupDiscount = groupDiscounts
+      .filter(d => d.min_quantity <= totalQty && d.is_active)
+      .sort((a, b) => b.discount_percentage - a.discount_percentage)[0];
+
+    return computeSelectionTotal(
+      selections,
+      groupDiscount ? { percentage: groupDiscount.discount_percentage } : null
+    );
   };
 
   const updateTierQuantity = (tierId: string, delta: number) => {
@@ -287,9 +303,14 @@ export default function TieredTicketSelector({
     
     const quantity = tierQuantities[firstTierWithQty.id] || 0;
     const finalPrice = getTotalPrice();
-    
-    onPurchase(firstTierWithQty.id, finalPrice, quantity, promoCode || undefined);
-    
+
+    onPurchase(firstTierWithQty.id, finalPrice, quantity, promoCode || undefined, {
+      tierName: firstTierWithQty.name,
+      // A 0 total (a free tier, or a 100%-off promo on a paid one) must not reach
+      // a gateway — the caller uses this to pick the free-claim path.
+      isFree: finalPrice <= 0,
+    });
+
     // Reset state
     setTierQuantities({});
     setPromoCode('');
@@ -377,8 +398,12 @@ export default function TieredTicketSelector({
                         >
                           {tier.name}
                         </Text>
+                        {/* A zero-price tier reads as "Free", never "0.00 HTG" —
+                            an amount implies a charge that will never happen. */}
                         <Text style={styles.tierPrice} numberOfLines={1}>
-                          {formatCurrency(tier.price, displayCurrency)}
+                          {isFreeTier(tier)
+                            ? t('common.free')
+                            : formatCurrency(tier.price, displayCurrency)}
                         </Text>
                       </View>
 
@@ -521,12 +546,18 @@ export default function TieredTicketSelector({
         )}
 
         {/* Footer with Purchase Button */}
-        {getTotalQuantity() > 0 && !loading && (
+        {getTotalQuantity() > 0 && !loading && (() => {
+          const totalQuantity = getTotalQuantity();
+          const totalPrice = getTotalPrice();
+          // A zero total must never promise a payment step: no gateway can take
+          // 0, and the caller routes this order down the free-claim path instead.
+          const isFreeOrder = totalPrice <= 0;
+          return (
           <View style={styles.footer}>
             <View style={styles.totalContainer}>
               <View>
                 <Text style={styles.totalLabel}>
-                  {getTotalQuantity()} {getTotalQuantity() === 1 ? t('ticketSelector.ticketSingular') : t('ticketSelector.ticketPlural')}
+                  {totalQuantity} {totalQuantity === 1 ? t('ticketSelector.ticketSingular') : t('ticketSelector.ticketPlural')}
                 </Text>
                 {(promoValidation?.valid) && (
                   <Text style={styles.discountLabel}>
@@ -536,18 +567,26 @@ export default function TieredTicketSelector({
               </View>
               <View style={styles.priceContainer}>
                 <Text style={styles.totalPrice}>
-                  {formatCurrency(getTotalPrice(), displayCurrency)}
+                  {isFreeOrder ? t('common.free') : formatCurrency(totalPrice, displayCurrency)}
                 </Text>
               </View>
             </View>
             {/* No subLabel: the amount lives once, in the total above. */}
             <WhitePillCTA
-              variant="paid"
-              label={t('ticketSelector.continueToPayment')}
+              variant={isFreeOrder ? 'rsvp' : 'paid'}
+              label={
+                isFreeOrder
+                  ? t(`freeTicket.claimButton.${totalQuantity === 1 ? 'one' : 'other'}`).replace(
+                      '{count}',
+                      String(totalQuantity)
+                    )
+                  : t('ticketSelector.continueToPayment')
+              }
               onPress={handlePurchase}
             />
           </View>
-        )}
+          );
+        })()}
       </View>
     </Modal>
   );

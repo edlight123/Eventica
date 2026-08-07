@@ -15,6 +15,7 @@ import {
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import * as Crypto from 'expo-crypto';
+import { hasPaidTier } from '../ticketPricing';
 
 /**
  * SHA-256 hex of the trimmed raw access code (trim only; case-sensitive).
@@ -290,10 +291,14 @@ export async function createEvent(
       0
     );
 
-    // Get the lowest ticket price for compatibility
+    // Get the lowest ticket price for compatibility ("from" display only).
     const lowestPrice = Math.min(
       ...eventData.ticket_tiers.map(tier => parseFloat(tier.price) || 0)
     );
+    // Explicit freeness flag. `lowestPrice` is 0 for ANY event carrying a free
+    // tier, so it cannot answer "is this event free" once free and paid tiers
+    // coexist — readers must use this instead (see lib/ticketPricing.ts).
+    const hasPaidTiers = !eventData.is_rsvp && hasPaidTier(eventData.ticket_tiers);
 
     // ── Recurrence plan ──────────────────────────────────────────────────
     // A real cadence generates a list of occurrence start/end pairs one cadence
@@ -367,8 +372,11 @@ export async function createEvent(
         // mobile readers that use this embedded copy see the same bounds as the
         // ticket_tiers collection docs. ISO strings stored as-is (or null).
         ticket_tiers: eventData.ticket_tiers.map(buildTierEmbedded),
-        // Multiple field names for compatibility with web and mobile
+        // Multiple field names for compatibility with web and mobile.
+        // ticket_price is the LOWEST tier price — a "from" figure for display.
+        // Never test it for freeness; use has_paid_tiers.
         ticket_price: lowestPrice,
+        has_paid_tiers: hasPaidTiers,
         total_capacity: totalCapacity,
         total_tickets: totalCapacity,
         capacity: totalCapacity,
@@ -480,10 +488,11 @@ export async function updateEvent(
       0
     );
 
-    // Get the lowest ticket price for compatibility
+    // Lowest tier price — "from" display only (see createEvent).
     const lowestPrice = Math.min(
       ...eventData.ticket_tiers.map(tier => parseFloat(tier.price) || 0)
     );
+    const hasPaidTiers = !eventData.is_rsvp && hasPaidTier(eventData.ticket_tiers);
 
     // Prepare update data
     const updateData = {
@@ -508,6 +517,7 @@ export async function updateEvent(
       // (see createEvent / buildTierEmbedded).
       ticket_tiers: eventData.ticket_tiers.map(buildTierEmbedded),
       ticket_price: lowestPrice,
+      has_paid_tiers: hasPaidTiers,
       total_capacity: totalCapacity,
       total_tickets: totalCapacity,
       capacity: totalCapacity,
