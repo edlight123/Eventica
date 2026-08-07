@@ -7,6 +7,36 @@ import { hasEventAccess } from '@/lib/events/access-guard'
 import { FieldValue } from 'firebase-admin/firestore'
 import { buildTierSoldIncrements, reserveInventoryAtomic } from '@/lib/tickets/inventory'
 
+/** Hard cap on how many free tickets one claim may issue, across all tiers. */
+const MAX_FREE_TICKETS_PER_CLAIM = 10
+
+/** One validated line of a claim: which tier, how many, and what to name the tickets. */
+interface TierClaim {
+  /** '' for a legacy event with no tier docs — those tickets carry no tier_id. */
+  tierId: string
+  tierName: string
+  quantity: number
+}
+
+/**
+ * Normalize and merge a `selections: [{ tierId, quantity }]` payload.
+ * Duplicate tier ids are summed so "2 + 3 of the same tier" is one line of 5, and
+ * non-positive / unparseable quantities are dropped rather than silently issued.
+ */
+function normalizeSelections(
+  raw: unknown
+): Array<{ tierId: string; quantity: number }> {
+  if (!Array.isArray(raw)) return []
+  const merged = new Map<string, number>()
+  for (const entry of raw) {
+    const tierId = String((entry as any)?.tierId ?? '').trim()
+    const qty = Math.trunc(Number((entry as any)?.quantity ?? 0))
+    if (!tierId || !Number.isFinite(qty) || qty <= 0) continue
+    merged.set(tierId, (merged.get(tierId) || 0) + qty)
+  }
+  return Array.from(merged.entries()).map(([tierId, quantity]) => ({ tierId, quantity }))
+}
+
 /**
  * Sale-window / active / sold-out gate for a tier, mirroring the paid initiate
  * routes so a FREE tier is held to exactly the same rules as a paid one.
@@ -45,19 +75,50 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // `tierId` is optional. When supplied (an event offering free AND paid tiers
-    // side by side, where the buyer explicitly picked the free one) that exact
-    // tier is validated and used. When absent the event's free/default tier is
-    // resolved as before, so the plain free-event flow is unchanged.
-    const { eventId, quantity = 1, tierId } = await request.json()
-    console.log('Event ID:', eventId, 'Quantity:', quantity, 'Tier:', tierId || '(auto)')
+    // TWO accepted payload shapes:
+    //
+    //  1. `{ eventId, tierId?, quantity? }` — the ORIGINAL shape. Mobile build 10
+    //     is in testers' hands sending exactly this, so its behavior is frozen:
+    //     one tier (explicit via `tierId`, or auto-resolved to the event's free
+    //     tier), `quantity` clamped to 1..10.
+    //  2. `{ eventId, selections: [{ tierId, quantity }] }` — the web selector has
+    //     no single-tier enforcement, so a free cart can span several tiers and
+    //     quantities. Each line is validated independently and the whole claim is
+    //     reserved atomically (all-or-nothing).
+    //
+    // `selections` wins when present and non-empty; otherwise shape 1 runs verbatim.
+    const { eventId, quantity = 1, tierId, selections } = await request.json()
+    const requestedSelections = normalizeSelections(selections)
+    const useSelections = requestedSelections.length > 0
+    console.log(
+      'Event ID:', eventId,
+      'Quantity:', quantity,
+      'Tier:', tierId || '(auto)',
+      'Selections:', useSelections ? JSON.stringify(requestedSelections) : '(none)'
+    )
 
     if (!eventId) {
       return NextResponse.json({ error: 'Event ID is required' }, { status: 400 })
     }
 
-    // Validate quantity
-    const ticketQuantity = Math.min(Math.max(1, quantity), 10) // Max 10 tickets per claim
+    if (Array.isArray(selections) && selections.length > 0 && !useSelections) {
+      // Caller sent a selections array but every line was unusable.
+      return NextResponse.json({ error: 'No valid ticket selections provided' }, { status: 400 })
+    }
+
+    // Validate quantity. For the selections shape the total across all tiers is
+    // capped — and REFUSED rather than truncated, since silently trimming a
+    // multi-tier cart would issue an order the buyer never asked for.
+    const selectionsTotal = requestedSelections.reduce((sum, s) => sum + s.quantity, 0)
+    if (useSelections && selectionsTotal > MAX_FREE_TICKETS_PER_CLAIM) {
+      return NextResponse.json(
+        { error: `You can claim at most ${MAX_FREE_TICKETS_PER_CLAIM} free tickets at a time.` },
+        { status: 400 }
+      )
+    }
+    const ticketQuantity = useSelections
+      ? selectionsTotal
+      : Math.min(Math.max(1, quantity), MAX_FREE_TICKETS_PER_CLAIM)
     console.log('Validated quantity:', ticketQuantity)
 
     // Fetch event details from Firestore
@@ -84,8 +145,9 @@ export async function POST(request: Request) {
     // free ticket on any event whose cheapest tier happens to be 0. The tier's
     // OWN price is the authority, and it is held to the same sale-window /
     // is_active / sold-out gate as the paid routes.
-    let resolvedTierId = ''
-    let resolvedTierName = ''
+    //
+    // Both payload shapes end up as the same list of validated `TierClaim` lines.
+    let claims: TierClaim[] = []
 
     let tierDocs: any[] = []
     try {
@@ -98,7 +160,32 @@ export async function POST(request: Request) {
       console.warn('[claim-free] failed to load tiers', { message: (tierErr as any)?.message })
     }
 
-    if (tierId) {
+    if (useSelections) {
+      // Multi-tier claim. EVERY line is held to exactly the same gate as the
+      // single-tier path: belongs to this event, its OWN price is 0, is_active,
+      // inside the sale window, and not sold out. One bad line fails the claim —
+      // partial issuance would charge the buyer's per-event free allowance for an
+      // order they didn't get.
+      const now = new Date()
+      for (const sel of requestedSelections) {
+        const tier = tierDocs.find((t: any) => String(t.id) === sel.tierId)
+        if (!tier) {
+          return NextResponse.json({ error: 'Ticket tier not found for this event' }, { status: 404 })
+        }
+        if (Number(tier.price || 0) > 0) {
+          return NextResponse.json({ error: 'This ticket tier is not free' }, { status: 400 })
+        }
+        const onSale = tierIsOnSale(tier, now)
+        if (!onSale.ok) {
+          return NextResponse.json({ error: onSale.reason }, { status: 400 })
+        }
+        claims.push({
+          tierId: String(tier.id),
+          tierName: String(tier.name || 'General Admission'),
+          quantity: sel.quantity,
+        })
+      }
+    } else if (tierId) {
       // Explicit tier: it must belong to THIS event, be free, and be on sale.
       const tier = tierDocs.find((t: any) => String(t.id) === String(tierId))
       if (!tier) {
@@ -111,8 +198,11 @@ export async function POST(request: Request) {
       if (!onSale.ok) {
         return NextResponse.json({ error: onSale.reason }, { status: 400 })
       }
-      resolvedTierId = String(tier.id)
-      resolvedTierName = String(tier.name || 'General Admission')
+      claims = [{
+        tierId: String(tier.id),
+        tierName: String(tier.name || 'General Admission'),
+        quantity: ticketQuantity,
+      }]
     } else if (tierDocs.length > 0) {
       // No explicit tier: pick the event's free tier. If NO tier is free, the
       // event has nothing to give away — refuse rather than issuing a ticket for
@@ -131,14 +221,19 @@ export async function POST(request: Request) {
           { status: 400 }
         )
       }
-      resolvedTierId = String(onSaleFree.id)
-      resolvedTierName = String(onSaleFree.name || 'General Admission')
+      claims = [{
+        tierId: String(onSaleFree.id),
+        tierName: String(onSaleFree.name || 'General Admission'),
+        quantity: ticketQuantity,
+      }]
     } else {
       // Legacy event with no tier docs at all: fall back to the event-level price.
       if (Number(event.ticket_price || 0) > 0) {
         return NextResponse.json({ error: 'This is not a free event' }, { status: 400 })
       }
-      resolvedTierName = 'General Admission'
+      // Empty tierId — these tickets carry no tier and only count toward the
+      // event-level tickets_sold (buildTierSoldIncrements skips them).
+      claims = [{ tierId: '', tierName: 'General Admission', quantity: ticketQuantity }]
     }
 
     // Per-user dedup: never issue a second FREE ticket to the same user for the same
@@ -169,8 +264,14 @@ export async function POST(request: Request) {
     // Atomic capacity gate + increment (same helper the paid paths use). Reserving BEFORE issuing
     // tickets serializes concurrent claims through a Firestore transaction so the event can't be
     // oversold, and the increment is done here (no separate non-atomic update below).
+    //
+    // ALL-OR-NOTHING for a multi-tier claim: one call with every tier increment, so
+    // the whole order is checked and committed inside a single transaction. If any
+    // one tier lacks capacity the buyer gets nothing and can retry, rather than
+    // being left with a partial order that has already burned their one free claim
+    // for this event.
     const tierIncrements = buildTierSoldIncrements(
-      resolvedTierId ? [{ tierId: resolvedTierId, quantity: ticketQuantity }] : []
+      claims.map((c) => ({ tierId: c.tierId, quantity: c.quantity }))
     )
     const reservation = await reserveInventoryAtomic({
       eventId,
@@ -188,37 +289,40 @@ export async function POST(request: Request) {
       }, { status: 400 })
     }
 
-    // Create tickets one at a time to ensure each gets a unique ID
+    // Create tickets one at a time to ensure each gets a unique ID, tier by tier so
+    // every ticket carries the tier it was actually claimed against.
     const createdTickets = []
-    for (let i = 0; i < ticketQuantity; i++) {
-      const ticketData = {
-        event_id: eventId,
-        attendee_id: user.id,
-        attendee_name: user.full_name || user.email || 'Guest',
-        status: 'valid',
-        price_paid: 0,
-        currency: event.currency || 'HTG',
-        payment_method: 'free',
-        purchased_at: FieldValue.serverTimestamp(),
-        tier_name: resolvedTierName || 'General Admission',
-        tier_id: resolvedTierId,
-        // Include event date fields for scanner
-        start_datetime: event.start_datetime || null,
-        end_datetime: event.end_datetime || null,
-        event_date: event.start_datetime || null,
-        venue_name: event.venue_name || null,
-        city: event.city || null,
+    for (const claim of claims) {
+      for (let i = 0; i < claim.quantity; i++) {
+        const ticketData = {
+          event_id: eventId,
+          attendee_id: user.id,
+          attendee_name: user.full_name || user.email || 'Guest',
+          status: 'valid',
+          price_paid: 0,
+          currency: event.currency || 'HTG',
+          payment_method: 'free',
+          purchased_at: FieldValue.serverTimestamp(),
+          tier_name: claim.tierName || 'General Admission',
+          tier_id: claim.tierId,
+          // Include event date fields for scanner
+          start_datetime: event.start_datetime || null,
+          end_datetime: event.end_datetime || null,
+          event_date: event.start_datetime || null,
+          venue_name: event.venue_name || null,
+          city: event.city || null,
+        }
+
+        const ticketRef = await adminDb.collection('tickets').add(ticketData)
+
+        // Now update with QR code data using the actual ticket ID
+        await ticketRef.update({ qr_code_data: ticketRef.id })
+
+        const createdTicketDoc = await ticketRef.get()
+        const createdTicket = { id: createdTicketDoc.id, ...createdTicketDoc.data() }
+        createdTickets.push(createdTicket)
+        console.log('Created ticket:', createdTicket.id, 'with QR:', createdTicket.id)
       }
-      
-      const ticketRef = await adminDb.collection('tickets').add(ticketData)
-      
-      // Now update with QR code data using the actual ticket ID
-      await ticketRef.update({ qr_code_data: ticketRef.id })
-      
-      const createdTicketDoc = await ticketRef.get()
-      const createdTicket = { id: createdTicketDoc.id, ...createdTicketDoc.data() }
-      createdTickets.push(createdTicket)
-      console.log('Created ticket:', createdTicket.id, 'with QR:', createdTicket.id)
     }
     
     console.log('Created tickets:', createdTickets.length)
@@ -250,10 +354,19 @@ export async function POST(request: Request) {
     }
 
     console.log('=== SUCCESS ===')
-    return NextResponse.json({ 
-      success: true, 
+    // `issued` says exactly what was created, per tier — a multi-tier claim's
+    // caller must be able to see which tiers it actually got, not just a count.
+    // Additive only: `success` / `tickets` / `count` / `message` keep the shape
+    // and the wording shipped clients (mobile build 10) already parse.
+    return NextResponse.json({
+      success: true,
       tickets: createdTickets,
       count: ticketQuantity,
+      issued: claims.map((c) => ({
+        tierId: c.tierId || null,
+        tierName: c.tierName,
+        quantity: c.quantity,
+      })),
       message: `${ticketQuantity} free ticket${ticketQuantity !== 1 ? 's' : ''} claimed successfully!`
     })
   } catch (error: any) {

@@ -9,6 +9,7 @@ import { doc, getDoc } from 'firebase/firestore'
 import { isDemoMode } from '@/lib/demo'
 import { normalizeCountryCode } from '@/lib/payment-provider'
 import EventbriteStyleTicketSelector from '@/components/EventbriteStyleTicketSelector'
+import { allSelectionsFree, computeSelectionTotal } from '@/lib/ticketPricing'
 import BottomSheet from '@/components/ui/BottomSheet'
 import { useToast } from '@/components/ui/Toast'
 import dynamic from 'next/dynamic'
@@ -294,9 +295,26 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
     return () => window.clearInterval(id)
   }, [isMonCashPopupOpen])
 
-  async function handleClaimFreeTicket() {
+  /**
+   * Issue free tickets without touching a payment gateway.
+   *
+   * Called two ways:
+   *  - no argument: the whole event is free (no tier selection was shown), so the
+   *    server resolves the event's free tier itself. This is the original payload
+   *    shape and is left byte-identical.
+   *  - with `selections`: the buyer picked specific FREE tiers out of an event that
+   *    also sells paid ones. Every tier and quantity is sent so the server can
+   *    validate and reserve each one.
+   */
+  async function handleClaimFreeTicket(
+    selections?: { tierId: string; quantity: number; tierName?: string }[]
+  ) {
     setLoading(true)
     setError(null)
+
+    const claimedQuantity = selections?.length
+      ? selections.reduce((sum, s) => sum + s.quantity, 0)
+      : quantity
 
     try {
       if (isDemoMode()) {
@@ -304,19 +322,23 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
         showToast({
           type: 'success',
           title: 'Free ticket claimed!',
-          message: `${quantity} ticket${quantity !== 1 ? 's' : ''} added to your collection`,
+          message: `${claimedQuantity} ticket${claimedQuantity !== 1 ? 's' : ''} added to your collection`,
           duration: 4000
         })
         router.push('/tickets')
         return
       }
 
-      console.log('Claiming free tickets for event:', eventId, 'Quantity:', quantity)
-      
+      console.log('Claiming free tickets for event:', eventId, 'Quantity:', claimedQuantity)
+
       const response = await fetch('/api/tickets/claim-free', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ eventId, quantity }),
+        body: JSON.stringify(
+          selections?.length
+            ? { eventId, selections: selections.map(s => ({ tierId: s.tierId, quantity: s.quantity })) }
+            : { eventId, quantity }
+        ),
       })
 
       const data = await response.json()
@@ -541,7 +563,25 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
     if (!selections || selections.length === 0) return
 
     const totalQuantity = selections.reduce((sum, s) => sum + s.quantity, 0)
-    const totalPrice = selections.reduce((sum, s) => sum + (s.price * s.quantity), 0)
+    const totalPrice = computeSelectionTotal(selections)
+
+    // Every selected tier costs 0 → issue the tickets directly. Sending this to a
+    // payment initiator would produce a 0-amount gateway call: Stripe rejects a
+    // 0 PaymentIntent, and MonCash would write a pending transaction of 0 and
+    // redirect the buyer to pay nothing.
+    //
+    // The test is `allSelectionsFree` (each tier's OWN price is 0), NOT
+    // `totalPrice === 0`. A paid cart discounted to 0 by a 100%-off promo also
+    // totals 0, but /api/tickets/claim-free requires the tier itself to be free
+    // and would refuse it — so that case must stay on the checkout path.
+    if (allSelectionsFree(selections)) {
+      setShowTieredModal(false)
+      setSelectedTiers(selections)
+      setSelectedTierId(selections[0].tierId)
+      setQuantity(totalQuantity)
+      handleClaimFreeTicket(selections)
+      return
+    }
 
     // Store all selections for multi-tier support
     setSelectedTiers(selections)

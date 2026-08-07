@@ -6,7 +6,7 @@ import { isValid, parseISO } from 'date-fns'
 import type { Database } from '@/types/database'
 import {
   formatEventDate,
-  getPriceLabel,
+  getEventPriceLabel,
   getLocationSummary,
   getEventCue,
   isEventBookmarked,
@@ -36,7 +36,9 @@ export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
 
   const cue = getEventCue(event)
   const friendsGoing = useFriendsGoingCount(event.id)
-  const priceLabel = getPriceLabel(event.ticket_price, event.currency)
+  // Not `getPriceLabel(event.ticket_price, …)`: `ticket_price` is the lowest tier
+  // price, so an event with a free tier next to paid ones would read "Free".
+  const priceLabel = getEventPriceLabel(event as any)
   // Venue-first: the venue name adds variety and is rarely redundant; fall back
   // to the city/commune summary only when there's no venue (e.g. online events).
   const venue = (event.venue_name || '').trim() || getLocationSummary(event.city, event.commune)

@@ -206,6 +206,12 @@ export async function getEventById(eventId: string): Promise<Event | null> {
         end_datetime: data?.end_datetime?.toDate?.()?.toISOString() || data?.end_datetime,
         capacity: data?.capacity,
         ticket_price: data?.ticket_price,
+        // Pricing classification signals (see lib/ticketPricing.ts). `ticket_price`
+        // is the LOWEST tier price and is 0 for any event that offers a free tier
+        // alongside paid ones, so it cannot decide freeness on its own. These two
+        // explicit flags are what `resolveEventPricing` trusts first.
+        is_rsvp: data?.is_rsvp ?? undefined,
+        has_paid_tiers: data?.has_paid_tiers ?? undefined,
         image_url: data?.banner_image_url || data?.image_url,
         banner_image_url: data?.banner_image_url || data?.image_url,
         currency: data?.currency || 'HTG',
@@ -293,6 +299,9 @@ export async function getDiscoverEvents(
           end_datetime: data.end_datetime?.toDate?.()?.toISOString() || data.end_datetime,
           capacity: data.capacity,
           ticket_price: data.ticket_price,
+          // Pricing classification signals — see lib/ticketPricing.ts.
+          is_rsvp: data?.is_rsvp ?? undefined,
+          has_paid_tiers: data?.has_paid_tiers ?? undefined,
           image_url: data.banner_image_url || data.image_url,
           banner_image_url: data.banner_image_url || data.image_url,
           currency: data.currency || 'HTG',
@@ -415,6 +424,11 @@ export async function getOrganizerEvents(
         end_datetime: data.end_datetime?.toDate?.()?.toISOString() || data.end_datetime,
         capacity: data.capacity,
         ticket_price: data.ticket_price,
+        // Pricing classification signals — see lib/ticketPricing.ts. `ticket_price`
+        // is the LOWEST tier price, so it is 0 for an event that offers a free tier
+        // next to paid ones and cannot decide freeness on its own.
+        is_rsvp: data?.is_rsvp ?? undefined,
+        has_paid_tiers: data?.has_paid_tiers ?? undefined,
         image_url: data.banner_image_url || data.image_url,
         banner_image_url: data.banner_image_url || data.image_url,
         currency: data.currency || 'HTG',
@@ -533,6 +547,11 @@ export async function getAdminEvents(
         end_datetime: data.end_datetime?.toDate?.()?.toISOString() || data.end_datetime,
         capacity: data.capacity,
         ticket_price: data.ticket_price,
+        // Pricing classification signals — see lib/ticketPricing.ts. `ticket_price`
+        // is the LOWEST tier price, so it is 0 for an event that offers a free tier
+        // next to paid ones and cannot decide freeness on its own.
+        is_rsvp: data?.is_rsvp ?? undefined,
+        has_paid_tiers: data?.has_paid_tiers ?? undefined,
         image_url: data.banner_image_url || data.image_url,
         banner_image_url: data.banner_image_url || data.image_url,
         currency: data.currency || 'HTG',
@@ -614,6 +633,11 @@ export async function getOrganizerEventsClient(
           : data.end_datetime,
         capacity: data.capacity,
         ticket_price: data.ticket_price,
+        // Pricing classification signals — see lib/ticketPricing.ts. `ticket_price`
+        // is the LOWEST tier price, so it is 0 for an event that offers a free tier
+        // next to paid ones and cannot decide freeness on its own.
+        is_rsvp: data?.is_rsvp ?? undefined,
+        has_paid_tiers: data?.has_paid_tiers ?? undefined,
         image_url: data.banner_image_url || data.image_url,
         banner_image_url: data.banner_image_url || data.image_url,
         currency: data.currency || 'HTG',

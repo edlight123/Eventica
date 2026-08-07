@@ -16,6 +16,7 @@ import { format } from 'date-fns'
 import Image from 'next/image'
 import Badge from '@/components/ui/Badge'
 import { getPosterTheme } from '@/lib/posterGradient'
+import { resolveEventPricing } from '@/lib/ticketPricing'
 
 interface EventDetailsClientProps {
   event: any
@@ -30,7 +31,14 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
   const startDate = new Date(event.start_datetime)
   const isSoldOut = (event.total_tickets && event.tickets_sold >= event.total_tickets) || false
   const ticketsRemaining = event.total_tickets ? event.total_tickets - (event.tickets_sold || 0) : null
-  const isFree = !event.ticket_price || event.ticket_price === 0
+  // Freeness comes from the TIER SET, never from `event.ticket_price` (which is the
+  // lowest tier price, hence 0 whenever a free tier sits next to a paid one — that
+  // old test hid tier selection and made the paid tiers unsellable).
+  const pricing = resolveEventPricing(event)
+  const isFree = pricing.isFreeOnly
+  // What to show as the headline price. For a 'mixed' event we advertise the
+  // cheapest PAID tier (rendered as a "Free – X" range), never "from 0".
+  const headlinePrice = pricing.lowestPaidPrice ?? (Number(event.ticket_price) || 0)
   const isPastEvent = event.end_datetime ? new Date(event.end_datetime) < new Date() : new Date(event.start_datetime) < new Date()
   
   // Premium badge logic
@@ -238,7 +246,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                 eventId={event.id}
                 userId={user.id}
                 isFree={isFree}
-                ticketPrice={event.ticket_price || 0}
+                ticketPrice={headlinePrice}
                 eventTitle={event.title}
                 currency={event.currency || 'HTG'}
                 country={event.country}
@@ -270,8 +278,9 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
         city={event.city}
         address={event.address || ''}
         commune={event.commune || ''}
-        isFree={Boolean(event.is_free || !event.ticket_price || event.ticket_price === 0)}
-        ticketPrice={event.ticket_price || 0}
+        isFree={isFree}
+        hasFreeOption={pricing.kind === 'mixed'}
+        ticketPrice={headlinePrice}
         currency={event.currency || 'HTG'}
         remainingTickets={ticketsRemaining || 0}
         isSoldOut={isSoldOut}
@@ -442,10 +451,22 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                     <p className="label-mono text-3xl font-semibold uppercase text-brand-400">{t('common.free')}</p>
                     <p className="label-mono text-[11px] uppercase text-white/70 mt-1.5">{t('events.no_ticket_required')}</p>
                   </div>
+                ) : pricing.kind === 'mixed' ? (
+                  // Free AND paid tiers coexist. Showing the denormalized
+                  // `ticket_price` here would read "0" (it is the lowest tier
+                  // price); show the honest range instead.
+                  <div>
+                    <p className="label-mono text-3xl font-semibold text-brand-400">
+                      <span className="uppercase">{t('common.free')}</span>
+                      <span className="text-white/70"> – </span>
+                      <span className="text-base text-white/70">{event.currency || 'HTG'}</span> {headlinePrice.toLocaleString()}
+                    </p>
+                    <p className="label-mono text-[11px] uppercase text-white/70 mt-1.5">{t('events.per_ticket')}</p>
+                  </div>
                 ) : (
                   <div>
                     <p className="label-mono text-3xl font-semibold text-brand-400">
-                      <span className="text-base text-white/70">{event.currency || 'HTG'}</span> {(event.ticket_price || 0).toLocaleString()}
+                      <span className="text-base text-white/70">{event.currency || 'HTG'}</span> {headlinePrice.toLocaleString()}
                     </p>
                     <p className="label-mono text-[11px] uppercase text-white/70 mt-1.5">{t('events.per_ticket')}</p>
                   </div>
@@ -470,7 +491,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                         eventId={event.id}
                         userId={user.id}
                         isFree={isFree}
-                        ticketPrice={event.ticket_price || 0}
+                        ticketPrice={headlinePrice}
                         eventTitle={event.title}
                         currency={event.currency || 'HTG'}
                         country={event.country}

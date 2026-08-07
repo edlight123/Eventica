@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { format, isValid } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 import { getPosterTheme, getAvatarColors } from '@/lib/posterGradient'
+import { getCardPriceDisplay } from '@/lib/discover/helpers'
 
 interface Event {
   id: string
@@ -44,7 +45,9 @@ export default function EventCardHorizontal({ event, userCity }: EventCardHorizo
   const ticketsSold = Number(event.tickets_sold) || 0
   const remainingTickets = totalTickets > 0 ? Math.max(0, totalTickets - ticketsSold) : null
   const isSoldOut = totalTickets > 0 && remainingTickets === 0
-  const isFree = !event.ticket_price || event.ticket_price === 0
+  // Freeness comes from the tier set, not from `ticket_price` (the LOWEST tier
+  // price, hence 0 for an event that has a free tier next to paid ones).
+  const priceDisplay = getCardPriceDisplay(event as any)
   const isTrending = ticketsSold > 10
   const selloutSoon = !isSoldOut && remainingTickets !== null && remainingTickets < 10
 
@@ -137,12 +140,18 @@ export default function EventCardHorizontal({ event, userCity }: EventCardHorizo
             </div>
 
             <div className="shrink-0 font-grotesk text-sm font-bold text-brand-300">
-              {isFree ? (
+              {priceDisplay.kind === 'free' ? (
                 t('common.free')
+              ) : priceDisplay.kind === 'unknown' ? (
+                // Paid tiers exist but this projection doesn't carry their prices —
+                // say nothing rather than advertise the 0 in `ticket_price`.
+                t('events.see_tickets', { defaultValue: 'See tickets' })
               ) : (
                 <>
-                  <span className="text-[10px] font-semibold uppercase tracking-wide text-white/70">{t('common.from')} </span>
-                  {Number(event.ticket_price).toLocaleString()} <span className="text-[11px] font-medium text-white/70">{event.currency}</span>
+                  <span className="text-[10px] font-semibold uppercase tracking-wide text-white/70">
+                    {priceDisplay.kind === 'range' ? `${t('common.free')} – ` : `${t('common.from')} `}
+                  </span>
+                  {priceDisplay.price.toLocaleString()} <span className="text-[11px] font-medium text-white/70">{event.currency}</span>
                 </>
               )}
             </div>

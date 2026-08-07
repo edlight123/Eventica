@@ -5,6 +5,7 @@
 import { format, isToday, isTomorrow, isThisWeek, parseISO } from 'date-fns'
 import type { Database } from '@/types/database'
 import { isBudgetFriendlyTicketPrice } from '@/lib/pricing'
+import { resolveEventPricing, type EventPricingLike } from '@/lib/ticketPricing'
 
 type Event = Database['public']['Tables']['events']['Row']
 
@@ -30,7 +31,12 @@ export function formatEventDate(datetime: string): string {
 }
 
 /**
- * Get price label for display
+ * Get price label from a bare price.
+ *
+ * ⚠️ Prefer `getCardPriceDisplay` / `getEventPriceLabel` when you have the whole
+ * event: a lone price CANNOT tell free from mixed, because `ticket_price` is the
+ * LOWEST tier price and is therefore 0 for an event that offers a free tier next
+ * to paid ones — this function would call that event "Free".
  */
 export function getPriceLabel(price: number, currency?: string): string {
   const curr = currency || 'HTG'
@@ -38,6 +44,56 @@ export function getPriceLabel(price: number, currency?: string): string {
   const formattedPrice = price.toLocaleString()
   if (price <= 500) return `From ${formattedPrice} ${curr}`
   return `From ${formattedPrice} ${curr}`
+}
+
+/**
+ * How a card should present an event's price, decided from the TIER SET rather
+ * than the denormalized `ticket_price`. See lib/ticketPricing.ts.
+ *
+ *  - `free`    every way in is free → "Free"
+ *  - `from`    everything costs money → "From X"
+ *  - `range`   free AND paid tiers, and we know the cheapest paid one → "Free – X"
+ *  - `unknown` at least one tier costs money, but this projection doesn't carry the
+ *              tier set so the cheapest PAID price is unknowable. Render a
+ *              price-free label. Never fall back to `ticket_price` here: it is 0
+ *              for exactly this case, which is how a paid event came to advertise
+ *              itself as free.
+ */
+export type CardPriceDisplay =
+  | { kind: 'free' }
+  | { kind: 'from'; price: number }
+  | { kind: 'range'; price: number }
+  | { kind: 'unknown' }
+
+export function getCardPriceDisplay(event: EventPricingLike | null | undefined): CardPriceDisplay {
+  const pricing = resolveEventPricing(event)
+  if (pricing.isFreeOnly) return { kind: 'free' }
+
+  // `lowestPaidPrice` is only known when the tier set travelled with the event.
+  // Otherwise fall back to `ticket_price` ONLY when it is positive — a positive
+  // lowest-tier price means every tier costs at least that much.
+  const legacyPrice = Number(event?.ticket_price ?? 0)
+  const price = pricing.lowestPaidPrice ?? (legacyPrice > 0 ? legacyPrice : null)
+  if (price == null) return { kind: 'unknown' }
+  return pricing.hasFreeTier ? { kind: 'range', price } : { kind: 'from', price }
+}
+
+/** English price label for an event, honest about mixed free/paid tier sets. */
+export function getEventPriceLabel(
+  event: (EventPricingLike & { currency?: string | null }) | null | undefined
+): string {
+  const curr = event?.currency || 'HTG'
+  const display = getCardPriceDisplay(event)
+  switch (display.kind) {
+    case 'free':
+      return 'Free'
+    case 'from':
+      return `From ${display.price.toLocaleString()} ${curr}`
+    case 'range':
+      return `Free – ${display.price.toLocaleString()} ${curr}`
+    default:
+      return 'See tickets'
+  }
 }
 
 /**

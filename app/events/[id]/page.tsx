@@ -105,9 +105,21 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
         return sum + (data.total_quantity || data.quantity || 0)
       }, 0)
 
+      // Price-only shadow of the tier set, so the client can classify this event's
+      // pricing (free / paid / mixed) without `ticket_price` — which is the LOWEST
+      // tier price and therefore 0 for any event that has a free tier next to paid
+      // ones. `getEventById` intentionally drops the event doc's embedded
+      // `ticket_tiers` array (rich objects break client serialization), so we
+      // rebuild a minimal `{ price }[]` from the authoritative `ticket_tiers`
+      // collection we already fetched above. See lib/ticketPricing.ts.
+      const tierPriceShadow = tiersSnapshot.docs.map((doc: any) => ({
+        price: Number(doc.data()?.price ?? 0) || 0,
+      }))
+
       // Combine event and organizer data
       event = {
         ...eventData,
+        ticket_tiers: tierPriceShadow,
         total_tickets: totalFromTiers || eventData.total_tickets || 0,
         users: organizerData ? {
           full_name: organizerData.full_name || 'Event Organizer',
@@ -131,8 +143,12 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
 
   const remainingTickets = (event.total_tickets || 0) - (event.tickets_sold || 0)
   const isSoldOut = remainingTickets <= 0 && (event.total_tickets || 0) > 0
-  const isFree = !event.ticket_price || event.ticket_price === 0
-  
+  // Freeness is NOT derived here. `!ticket_price` was wrong (ticket_price is the
+  // lowest tier price, so a free tier next to a paid one read as "free") and the
+  // value was never used — the real classification happens in EventDetailsClient
+  // via `resolveEventPricing` from lib/ticketPricing.ts, off the tier set attached
+  // above.
+
   // Premium badge logic
   const isVIP = (event.ticket_price || 0) > 100
   const isTrending = (event.tickets_sold || 0) > 10

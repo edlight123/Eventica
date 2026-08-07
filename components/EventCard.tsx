@@ -6,6 +6,7 @@ import { format, isValid } from 'date-fns'
 import { ShieldCheck } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { getPosterTheme } from '@/lib/posterGradient'
+import { getCardPriceDisplay } from '@/lib/discover/helpers'
 
 interface Event {
   id: string
@@ -49,8 +50,9 @@ export default function EventCard({ event, priority = false, index = 0, userCity
   const remainingTickets = totalTickets > 0 ? Math.max(0, totalTickets - ticketsSold) : null
   const isSoldOut = totalTickets > 0 ? remainingTickets === 0 : false
 
-  const ticketPrice = toFiniteNumber((event as any).ticket_price, 0)
-  const isFree = ticketPrice === 0
+  // Freeness comes from the tier set, not from `ticket_price` (the LOWEST tier
+  // price, hence 0 for an event that has a free tier next to paid ones).
+  const priceDisplay = getCardPriceDisplay(event as any)
 
   const startDate = new Date(event.start_datetime)
   const validDate = isValid(startDate)
@@ -144,12 +146,20 @@ export default function EventCard({ event, priority = false, index = 0, userCity
               )}
             </span>
             <span className="shrink-0 text-right">
-              {isFree ? (
+              {priceDisplay.kind === 'free' ? (
                 <span className="label-mono text-[12px] font-semibold uppercase text-brand-300">{t('common.free')}</span>
+              ) : priceDisplay.kind === 'unknown' ? (
+                // Paid tiers exist but this projection doesn't carry their prices —
+                // say nothing rather than advertise the 0 in `ticket_price`.
+                <span className="label-mono text-[12px] font-semibold uppercase text-brand-300">
+                  {t('events.see_tickets', { defaultValue: 'See tickets' })}
+                </span>
               ) : (
                 <span className="label-mono text-[12px] font-semibold text-brand-300">
-                  <span className="text-[9px] uppercase text-white/70">{t('common.from')} </span>
-                  {ticketPrice.toLocaleString()} <span className="text-[10px] text-white/70">{event.currency}</span>
+                  <span className="text-[9px] uppercase text-white/70">
+                    {priceDisplay.kind === 'range' ? `${t('common.free')} – ` : `${t('common.from')} `}
+                  </span>
+                  {priceDisplay.price.toLocaleString()} <span className="text-[10px] text-white/70">{event.currency}</span>
                 </span>
               )}
             </span>

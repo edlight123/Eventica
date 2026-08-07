@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Minus, Plus } from 'lucide-react'
+import { allSelectionsFree, computeSelectionTotal, isFreeTier } from '@/lib/ticketPricing'
 
 interface TicketTier {
   id: string
@@ -116,24 +117,32 @@ export default function EventbriteStyleTicketSelector({
     return Object.values(quantities).reduce((sum, qty) => sum + qty, 0)
   }
 
+  /** The tiers the buyer has actually put in the cart, with unit price and quantity. */
+  const getSelections = () =>
+    tiers
+      .filter((tier) => (quantities[tier.id] || 0) > 0)
+      .map((tier) => ({
+        tierId: tier.id,
+        quantity: quantities[tier.id],
+        price: tier.price,
+        tierName: tier.name,
+      }))
+
+  // Money math runs on integer cents inside computeSelectionTotal, so 3 × 10.10 is
+  // exactly 30.30 and a percentage promo can't leave binary-float dust behind.
   const getTotalPrice = (): number => {
-    let total = tiers.reduce((sum, tier) => {
-      const qty = quantities[tier.id] || 0
-      return sum + (tier.price * qty)
-    }, 0)
+    const discount = promoValidation?.valid && promoValidation.promoCode
+      ? promoValidation.promoCode.discountType === 'percentage'
+        ? { percentage: promoValidation.promoCode.discountValue }
+        : { amount: promoValidation.promoCode.discountValue }
+      : null
 
-    // Apply promo code discount
-    if (promoValidation?.valid && promoValidation.promoCode) {
-      const { discountType, discountValue } = promoValidation.promoCode
-      if (discountType === 'percentage') {
-        total = total * (1 - discountValue / 100)
-      } else {
-        total = Math.max(0, total - discountValue)
-      }
-    }
-
-    return total
+    return computeSelectionTotal(getSelections(), discount)
   }
+
+  /** Format a unit/line amount, showing a genuine zero as "Free" rather than "0.00 HTG". */
+  const formatMoney = (amount: number): string =>
+    amount === 0 ? t('common.free') : `${amount.toFixed(2)} ${currency}`
 
   const validatePromoCode = async () => {
     if (!promoCode.trim() || !userId) return
@@ -167,14 +176,7 @@ export default function EventbriteStyleTicketSelector({
   const handlePurchase = () => {
     if (!userId) return
 
-    const selections = tiers
-      .filter(tier => quantities[tier.id] > 0)
-      .map(tier => ({
-        tierId: tier.id,
-        quantity: quantities[tier.id],
-        price: tier.price,
-        tierName: tier.name
-      }))
+    const selections = getSelections()
 
     if (selections.length === 0) return
 
@@ -196,6 +198,10 @@ export default function EventbriteStyleTicketSelector({
 
   const totalTickets = getTotalTickets()
   const totalPrice = getTotalPrice()
+  // Free ISSUANCE is decided by each selected tier's OWN price, not by the total.
+  // A cart zeroed by a 100%-off promo still has to go through checkout — the
+  // free-claim endpoint requires the tier itself to cost 0 and would refuse it.
+  const isFreeOrder = allSelectionsFree(getSelections())
 
   return (
     <div className="space-y-4">
@@ -228,7 +234,7 @@ export default function EventbriteStyleTicketSelector({
                   )}
                   <div className="flex items-center gap-3 mt-2 text-sm">
                     <span className="font-medium text-brand-400">
-                      {tier.price.toFixed(2)} {currency}
+                      {isFreeTier(tier) ? t('common.free') : `${tier.price.toFixed(2)} ${currency}`}
                     </span>
                     <span className={available > 0 ? 'text-white/65' : 'text-red-400'}>
                       {available > 0 ? `${available} ${t('ticket.available')}` : t('ticket.sold_out')}
@@ -319,7 +325,9 @@ export default function EventbriteStyleTicketSelector({
                     {quantities[tier.id]}× {tier.name}
                   </span>
                   <span className="text-white">
-                    {(tier.price * quantities[tier.id]).toFixed(2)} {currency}
+                    {formatMoney(
+                      computeSelectionTotal([{ price: tier.price, quantity: quantities[tier.id] }])
+                    )}
                   </span>
                 </div>
               ))}
@@ -337,7 +345,7 @@ export default function EventbriteStyleTicketSelector({
             )}
             <div className="border-t border-white/10 pt-2 flex justify-between font-semibold text-lg">
               <span>{t('events.total')} ({totalTickets} {t('ticket.ticket')}{totalTickets !== 1 ? 's' : ''})</span>
-              <span className="text-brand-400">{totalPrice.toFixed(2)} {currency}</span>
+              <span className="text-brand-400">{formatMoney(totalPrice)}</span>
             </div>
           </div>
         </div>
@@ -349,11 +357,15 @@ export default function EventbriteStyleTicketSelector({
         disabled={!userId || totalTickets === 0}
         className="w-full bg-brand-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-brand-700 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed"
       >
-        {!userId 
-          ? t('events.sign_in_to_purchase') 
+        {!userId
+          ? t('events.sign_in_to_purchase')
           : totalTickets === 0
           ? t('events.select_tickets')
-          : `${t('events.checkout')} - ${totalPrice.toFixed(2)} ${currency}`
+          : isFreeOrder
+          ? totalTickets === 1
+            ? t('events.get_free_ticket', { defaultValue: 'Get free ticket' })
+            : t('events.get_free_tickets', { defaultValue: 'Get free tickets' })
+          : `${t('events.checkout')} - ${formatMoney(totalPrice)}`
         }
       </button>
     </div>

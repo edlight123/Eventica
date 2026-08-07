@@ -11,6 +11,12 @@ interface MobileKeyFactsProps {
   address: string
   commune: string
   isFree: boolean
+  /**
+   * True for a 'mixed' event (free AND paid tiers side by side). `ticketPrice` is
+   * then the cheapest PAID tier and the price reads as a "Free – X" range, so we
+   * never advertise "0" for an event that actually charges.
+   */
+  hasFreeOption?: boolean
   ticketPrice: number
   currency: string
   remainingTickets: number
@@ -24,6 +30,7 @@ export default function MobileKeyFacts({
   address,
   commune,
   isFree,
+  hasFreeOption = false,
   ticketPrice,
   currency,
   remainingTickets,
@@ -93,6 +100,9 @@ export default function MobileKeyFacts({
           ) : (
             <>
               <p className="label-mono text-[13px] font-semibold text-brand-300">
+                {hasFreeOption && (
+                  <span className="uppercase">{t('free').toUpperCase()} – </span>
+                )}
                 {ticketPrice.toLocaleString()} <span className="text-[11px] text-white/45">{currency}</span>
               </p>
               <p className="label-mono text-[11px] uppercase text-white/55">{t('per_ticket')}</p>
