@@ -176,15 +176,12 @@ service cloud.firestore {
           // that predate these fields writable.
           request.resource.data.get('rejected', false) == resource.data.get('rejected', false) &&
           request.resource.data.get('reports_count', 0) == resource.data.get('reports_count', 0)
-        ) ||
-        // Allow updating only tickets_sold for ticket purchases.
-        // H2: increase-only AND bounded delta (<= +20) to blunt sold-out griefing
-        // from the attendee free-claim path. TODO: move this counter fully
-        // server-side (Admin SDK) so clients can't touch it at all.
-        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['tickets_sold']) &&
-         request.resource.data.tickets_sold > resource.data.tickets_sold &&
-         request.resource.data.tickets_sold <= resource.data.tickets_sold + 20)
-
+        )
+        // H2 closed: the tickets_sold clause is gone. That counter is now written
+        // only by lib/tickets/inventory.ts via FieldValue.increment on the Admin
+        // SDK, inside the same transaction that reserves capacity — so a client
+        // has no reason to touch it, and can no longer grief an event to
+        // sold-out by inflating it.
       )
       // If country/currency changes, enforce policy.
       && (
@@ -255,27 +252,19 @@ service cloud.firestore {
         canViewAttendees(ticketEventId())
       );
 
-      // Ticket creation allowed for signed-in users creating their own ticket record.
-      // (Some flows use user_id, others attendee_id.)
-      // Additionally, when the referenced event is password-protected, the buyer
-      // must hold an access grant. Events without the field are unaffected.
-      // C1: clients may only create FREE tickets (referenced event's ticket_price
-      // is 0 AND no price was paid). Paid tickets must be issued server-side
-      // (Admin SDK) after verified payment.
-      allow create: if isSignedIn()
-        && (
-          request.resource.data.user_id == request.auth.uid ||
-          request.resource.data.attendee_id == request.auth.uid
-        )
-        && get(/databases/$(database)/documents/events/$(request.resource.data.event_id)).data.ticket_price == 0
-        && (
-          !request.resource.data.keys().hasAny(['price_paid'])
-          || request.resource.data.price_paid == 0
-        )
-        && (
-          !get(/databases/$(database)/documents/events/$(request.resource.data.event_id)).data.get('is_password_protected', false)
-          || exists(/databases/$(database)/documents/events/$(request.resource.data.event_id)/access_grants/$(request.auth.uid))
-        );
+      // Clients may no longer create tickets at all. Free claims go through
+      // /api/tickets/claim-free (Admin SDK), which enforces what rules cannot:
+      // tier ownership, the tier's own price being 0, its is_active and
+      // sales-window gates, the per-user limit, and reserveInventoryAtomic.
+      //
+      // The old rule keyed on `events.ticket_price == 0`. That field is the
+      // LOWEST tier price, so once one event could carry a free tier AND a paid
+      // tier, it opened on mixed events too — and it never validated tier_id.
+      // A signed-in user could self-issue `price_paid: 0` against the 1,500 HTG
+      // tier and the scanner would admit them, since it checks event/expiry/
+      // duplicate/status but never payment. It also skipped the atomic
+      // reservation, so it oversold.
+      allow create: if false;
 
       // Only allow event owners full control; staff may only update check-in related fields.
       allow update: if isSignedIn() && (
