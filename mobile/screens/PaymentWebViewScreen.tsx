@@ -54,13 +54,239 @@ const FIT_VIEWPORT_JS = `
     } catch (e) {}
   }
 
-  pinViewport()
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', pinViewport)
-  }
+  // Guarded like pinViewport's body: a document that can't be read must not
+  // throw out of the injected script, or it takes the rest of the injection
+  // (the card-reveal pass appended below) down with it.
+  try {
+    pinViewport()
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', pinViewport)
+    }
+  } catch (e) {}
 })();
 true;
 `
+
+// Second half of the same problem: with the viewport pinned, Digicel's card is
+// now centred and unclipped but it LANDS about 40% down the viewport, behind a
+// tall empty band, so the PIN field and the red Pay button sit under the
+// keyboard until the user scrolls. We cannot edit their HTML and cannot load
+// their live page to inspect it, so this pass is measurement-driven only:
+//
+//   1. find the card without relying on ANY of their class names,
+//   2. scroll it to the top of the viewport (scrollIntoView, which also works
+//      if their layout scrolls an inner wrapper rather than the document),
+//   3. only if scrolling could not fix it — i.e. the band is layout, not
+//      scrollable content — tighten measurably huge top padding/margins and
+//      desktop-sized vertical centering on the card's own ancestors.
+//
+// Everything is wrapped so a throw can never block the page or undo the
+// viewport pin above, it only ever pulls the card UP (never pushes it down, so
+// it cannot fight iOS scrolling a focused field into view), and if the card
+// cannot be found the page is left exactly as the server sent it.
+const REVEAL_CARD_JS = `
+(function () {
+  try {
+    var KEY = '__tikemRevealPayCard'
+    // Runs twice (before-content + after-load). The second run reuses the
+    // installed instance instead of wiring up a duplicate set of listeners.
+    if (window[KEY]) {
+      if (typeof window[KEY].run === 'function') window[KEY].run()
+      return
+    }
+
+    var GAP = 12
+    var MAX_ATTEMPTS = 8
+    var attempts = 0
+    var settled = false
+
+    function viewportHeight() {
+      try {
+        var visual = window.visualViewport && window.visualViewport.height
+        return (
+          visual ||
+          window.innerHeight ||
+          (document.documentElement && document.documentElement.clientHeight) ||
+          0
+        )
+      } catch (e) {
+        return 0
+      }
+    }
+
+    function isVisible(el) {
+      if (!el || !el.getBoundingClientRect) return false
+      var r = el.getBoundingClientRect()
+      return r.height > 0 && r.width > 0
+    }
+
+    // Climb at most 3 levels to the outermost ancestor that still looks like a
+    // card (not as tall as the page), so we align the card's own top edge —
+    // heading included — rather than a bare input in the middle of it.
+    function cardish(el) {
+      var out = el
+      var node = el
+      var limit = viewportHeight() * 0.85
+      for (var i = 0; i < 3; i++) {
+        node = node.parentElement
+        if (!node || node === document.body || node === document.documentElement) break
+        var r = node.getBoundingClientRect()
+        if (!r || r.height <= 0) break
+        if (limit > 0 && r.height > limit) break
+        out = node
+      }
+      return out
+    }
+
+    function findTarget() {
+      if (!document.querySelectorAll) return null
+
+      // 1. The checkout form itself — strongest signal, no class names involved.
+      var forms = document.querySelectorAll('form')
+      for (var i = 0; i < forms.length; i++) {
+        if (isVisible(forms[i]) && forms[i].querySelector('input')) return cardish(forms[i])
+      }
+
+      // 2. No usable form: the first credential-ish field on the page.
+      var field = document.querySelector(
+        'input[type="password"],input[type="tel"],input[type="number"],input[type="text"]'
+      )
+      if (isVisible(field)) return cardish(field)
+
+      // 3. Still nothing: a heading/label/button whose text reads like the card.
+      var nodes = document.querySelectorAll('h1,h2,h3,h4,legend,label,button,[type="submit"]')
+      for (var j = 0; j < nodes.length; j++) {
+        var text = (nodes[j].textContent || '').trim()
+        if (
+          text &&
+          text.length < 80 &&
+          /(secure\\s*payment|payment|paiement|moncash|payer|peye)/i.test(text) &&
+          isVisible(nodes[j])
+        ) {
+          return cardish(nodes[j])
+        }
+      }
+
+      // 4. Give up. The page stays exactly as it is today: usable, scrollable.
+      return null
+    }
+
+    // Returns true when the card's top is where we want it (or close enough).
+    function align(el) {
+      var top = el.getBoundingClientRect().top
+      // Already at/above the top of the viewport: nothing to pull up, and we
+      // must not push it back down.
+      if (top <= GAP + 4) return true
+      try {
+        el.style.scrollMarginTop = GAP + 'px'
+      } catch (e) {}
+      try {
+        el.scrollIntoView({ block: 'start', inline: 'nearest' })
+      } catch (e2) {
+        try {
+          el.scrollIntoView(true)
+        } catch (e3) {}
+      }
+      var height = viewportHeight()
+      return el.getBoundingClientRect().top <= (height ? height * 0.25 : GAP + 4)
+    }
+
+    // Last resort, and only after align() proved the page cannot scroll far
+    // enough: the band above the card is layout. Tighten only gaps we have
+    // MEASURED as oversized, only via inline styles, and only on the vertical
+    // axis so the horizontal centering that already works is left intact.
+    function collapse(el) {
+      var height = viewportHeight()
+      if (!height || !window.getComputedStyle) return
+      var node = el.parentElement
+      for (var i = 0; i < 6 && node && node !== document.documentElement; i++) {
+        if (node.getAttribute && node.getAttribute('data-tikem-tightened') !== '1') {
+          var cs = window.getComputedStyle(node)
+          if (cs) {
+            if (parseFloat(cs.paddingTop) > 48) node.style.paddingTop = GAP + 'px'
+            if (parseFloat(cs.marginTop) > 48) node.style.marginTop = GAP + 'px'
+            var display = String(cs.display || '')
+            var tall = node.getBoundingClientRect().height >= height * 0.9
+            if (tall && display.indexOf('flex') >= 0) {
+              var column = String(cs.flexDirection || 'row').indexOf('column') === 0
+              // Vertical axis is justify-content in a column, align-items in a row.
+              if (column && cs.justifyContent === 'center') node.style.justifyContent = 'flex-start'
+              if (!column && cs.alignItems === 'center') node.style.alignItems = 'flex-start'
+            } else if (tall && display.indexOf('grid') >= 0) {
+              if (cs.alignItems === 'center') node.style.alignItems = 'start'
+              if (cs.alignContent === 'center') node.style.alignContent = 'start'
+            }
+            if (node.setAttribute) node.setAttribute('data-tikem-tightened', '1')
+          }
+        }
+        node = node.parentElement
+      }
+    }
+
+    function reveal() {
+      try {
+        var el = findTarget()
+        if (!el) return false
+        if (align(el)) return true
+        collapse(el)
+        align(el)
+        return true
+      } catch (e) {
+        return false
+      }
+    }
+
+    function attempt() {
+      if (settled) return
+      attempts += 1
+      if (reveal()) {
+        settled = true
+        return
+      }
+      // The card may not be in the DOM yet; back off and look again.
+      if (attempts < MAX_ATTEMPTS) setTimeout(attempt, 150 * attempts)
+    }
+
+    function run() {
+      if (settled) {
+        reveal()
+        return
+      }
+      attempt()
+    }
+
+    window[KEY] = { run: run }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run)
+    }
+    window.addEventListener('load', function () {
+      setTimeout(run, 60)
+    })
+    // Focusing a field (and the keyboard resizing the visual viewport) can
+    // shift the card back down — re-assert once things have settled.
+    document.addEventListener(
+      'focusin',
+      function () {
+        setTimeout(run, 300)
+      },
+      true
+    )
+    if (window.visualViewport && window.visualViewport.addEventListener) {
+      window.visualViewport.addEventListener('resize', function () {
+        setTimeout(run, 250)
+      })
+    }
+
+    run()
+  } catch (e) {}
+})();
+true;
+`
+
+// Injected as one script: pin the viewport first (the fix that already works),
+// then bring the payment card into view.
+const PAGE_FIT_JS = FIT_VIEWPORT_JS + '\n' + REVEAL_CARD_JS
 
 // Hosts we may attach the Firebase bearer to. The MonCash checkout page needs
 // the token to render its form — if the host isn't trusted, the header is
@@ -359,8 +585,8 @@ export default function PaymentWebViewScreen() {
         hideKeyboardAccessoryView
         // Pin the viewport as early as possible (before-load), then again after
         // load in case the page rewrote its own <head>. Both runs are idempotent.
-        injectedJavaScriptBeforeContentLoaded={FIT_VIEWPORT_JS}
-        injectedJavaScript={FIT_VIEWPORT_JS}
+        injectedJavaScriptBeforeContentLoaded={PAGE_FIT_JS}
+        injectedJavaScript={PAGE_FIT_JS}
       />
 
       {loading && !failure ? brandedLoading : null}

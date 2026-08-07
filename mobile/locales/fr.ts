@@ -1893,6 +1893,8 @@ export default {
   },
 
   eventDetail: {
+    // Préfixe uniquement — composé en `${startsIn} 2d 11h` par CountdownTimer.
+    startsIn: 'Commence dans',
     loading: 'Chargement des détails…',
     notFound: 'Événement introuvable',
     loadError: 'Impossible de charger les détails de l’événement',
@@ -1974,6 +1976,7 @@ export default {
     onSaleFrom: 'En vente le {date}',
     salesEnded: 'Ventes terminées',
     promoTitle: 'Code promo (optionnel)',
+    havePromoCode: 'Vous avez un code promo ?',
     promoPlaceholder: 'Entrer le code',
     apply: 'Appliquer',
     discountApplied: 'de réduction appliquée',
@@ -2112,6 +2115,20 @@ export default {
   screens: {
     notifications: {
       title: 'Notifications',
+    },
+    stripeConnect: {
+      title: 'Stripe Connect',
+      secure: 'Connexion sécurisée',
+      leaveTitle: 'Quitter la configuration des paiements ?',
+      leaveBody:
+        "Votre compte Stripe n'est pas encore terminé. Si vous quittez maintenant, vous devrez revenir le compléter avant de pouvoir recevoir des paiements.",
+      keepGoing: 'Continuer',
+      leave: 'Quitter',
+      failedTitle: 'Impossible de charger Stripe',
+      failedBody:
+        "Nous n'avons pas pu accéder à la page sécurisée de Stripe. Vérifiez votre connexion et réessayez — les informations déjà envoyées sont enregistrées chez Stripe.",
+      tryAgain: 'Réessayer',
+      backToPayouts: 'Retour aux paramètres de paiement',
     },
     payment: {
       complete: 'Finaliser le paiement',

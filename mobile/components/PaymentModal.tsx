@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
-import { X, CreditCard, Lock, Smartphone, AlertCircle } from 'lucide-react-native';
+import { X, CreditCard, Lock, Smartphone, AlertCircle, Check } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { auth } from '../config/firebase';
 import { backendJson } from '../lib/api/backend';
@@ -287,18 +287,34 @@ function PaymentForm({
           {/* Stripe Card Payment - Only show if Stripe is available and not Haiti */}
           {!isHaitiEvent && !isExpoGo && StripeProvider && (
             <TouchableOpacity
-              style={[
-                styles.methodButton,
-                paymentMethod === 'stripe' && styles.methodButtonActive,
-              ]}
+              style={styles.methodRow}
               onPress={() => setPaymentMethod('stripe')}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: paymentMethod === 'stripe' }}
             >
               <View style={styles.methodIcon}>
-                <CreditCard size={24} color={paymentMethod === 'stripe' ? colors.primary : colors.textSecondary} />
+                <CreditCard size={20} color={paymentMethod === 'stripe' ? colors.primary : colors.textTertiary} />
               </View>
               <View style={styles.methodContent}>
-                <Text style={styles.methodTitle}>{t('paymentModal.methods.card')}</Text>
-                <Text style={styles.methodSubtitle}>{t('paymentModal.methods.cardBrands')}</Text>
+                <Text
+                  style={[
+                    styles.methodTitle,
+                    paymentMethod === 'stripe' && styles.methodTitleActive,
+                  ]}
+                >
+                  {t('paymentModal.methods.card')}
+                </Text>
+                <Text
+                  style={[
+                    styles.methodSubtitle,
+                    paymentMethod === 'stripe' && styles.methodSubtitleActive,
+                  ]}
+                >
+                  {t('paymentModal.methods.cardBrands')}
+                </Text>
+              </View>
+              <View style={styles.methodCheck}>
+                {paymentMethod === 'stripe' && <Check size={18} color={colors.primary} />}
               </View>
             </TouchableOpacity>
           )}
@@ -306,18 +322,34 @@ function PaymentForm({
           {/* Sogepay Card Payment (Haiti) — hidden until Sogepay goes live */}
           {isHaitiEvent && SOGEPAY_ENABLED && (
             <TouchableOpacity
-              style={[
-                styles.methodButton,
-                paymentMethod === 'sogepay' && styles.methodButtonActive,
-              ]}
+              style={styles.methodRow}
               onPress={() => setPaymentMethod('sogepay')}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: paymentMethod === 'sogepay' }}
             >
               <View style={styles.methodIcon}>
-                <CreditCard size={24} color={paymentMethod === 'sogepay' ? colors.primary : colors.textSecondary} />
+                <CreditCard size={20} color={paymentMethod === 'sogepay' ? colors.primary : colors.textTertiary} />
               </View>
               <View style={styles.methodContent}>
-                <Text style={styles.methodTitle}>{t('paymentModal.methods.card')}</Text>
-                <Text style={styles.methodSubtitle}>{t('paymentModal.methods.sogepay')}</Text>
+                <Text
+                  style={[
+                    styles.methodTitle,
+                    paymentMethod === 'sogepay' && styles.methodTitleActive,
+                  ]}
+                >
+                  {t('paymentModal.methods.card')}
+                </Text>
+                <Text
+                  style={[
+                    styles.methodSubtitle,
+                    paymentMethod === 'sogepay' && styles.methodSubtitleActive,
+                  ]}
+                >
+                  {t('paymentModal.methods.sogepay')}
+                </Text>
+              </View>
+              <View style={styles.methodCheck}>
+                {paymentMethod === 'sogepay' && <Check size={18} color={colors.primary} />}
               </View>
             </TouchableOpacity>
           )}
@@ -336,18 +368,34 @@ function PaymentForm({
           {/* MonCash (Haiti only) */}
           {isHaitiEvent && (
             <TouchableOpacity
-              style={[
-                styles.methodButton,
-                paymentMethod === 'moncash' && styles.methodButtonActive,
-              ]}
+              style={styles.methodRow}
               onPress={() => setPaymentMethod('moncash')}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: paymentMethod === 'moncash' }}
             >
               <View style={styles.methodIcon}>
-                <Smartphone size={24} color={paymentMethod === 'moncash' ? colors.primary : colors.textSecondary} />
+                <Smartphone size={20} color={paymentMethod === 'moncash' ? colors.primary : colors.textTertiary} />
               </View>
               <View style={styles.methodContent}>
-                <Text style={styles.methodTitle}>{t('paymentModal.methods.moncash')}</Text>
-                <Text style={styles.methodSubtitle}>{t('paymentModal.methods.haitiMobileMoney')}</Text>
+                <Text
+                  style={[
+                    styles.methodTitle,
+                    paymentMethod === 'moncash' && styles.methodTitleActive,
+                  ]}
+                >
+                  {t('paymentModal.methods.moncash')}
+                </Text>
+                <Text
+                  style={[
+                    styles.methodSubtitle,
+                    paymentMethod === 'moncash' && styles.methodSubtitleActive,
+                  ]}
+                >
+                  {t('paymentModal.methods.haitiMobileMoney')}
+                </Text>
+              </View>
+              <View style={styles.methodCheck}>
+                {paymentMethod === 'moncash' && <Check size={18} color={colors.primary} />}
               </View>
             </TouchableOpacity>
           )}
@@ -355,18 +403,34 @@ function PaymentForm({
           {/* NatCash (Haiti only) */}
           {isHaitiEvent && NATCASH_ENABLED && (
             <TouchableOpacity
-              style={[
-                styles.methodButton,
-                paymentMethod === 'natcash' && styles.methodButtonActive,
-              ]}
+              style={styles.methodRow}
               onPress={() => setPaymentMethod('natcash')}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: paymentMethod === 'natcash' }}
             >
               <View style={styles.methodIcon}>
-                <Smartphone size={24} color={paymentMethod === 'natcash' ? colors.primary : colors.textSecondary} />
+                <Smartphone size={20} color={paymentMethod === 'natcash' ? colors.primary : colors.textTertiary} />
               </View>
               <View style={styles.methodContent}>
-                <Text style={styles.methodTitle}>{t('paymentModal.methods.natcash')}</Text>
-                <Text style={styles.methodSubtitle}>{t('paymentModal.methods.haitiMobileMoney')}</Text>
+                <Text
+                  style={[
+                    styles.methodTitle,
+                    paymentMethod === 'natcash' && styles.methodTitleActive,
+                  ]}
+                >
+                  {t('paymentModal.methods.natcash')}
+                </Text>
+                <Text
+                  style={[
+                    styles.methodSubtitle,
+                    paymentMethod === 'natcash' && styles.methodSubtitleActive,
+                  ]}
+                >
+                  {t('paymentModal.methods.haitiMobileMoney')}
+                </Text>
+              </View>
+              <View style={styles.methodCheck}>
+                {paymentMethod === 'natcash' && <Check size={18} color={colors.primary} />}
               </View>
             </TouchableOpacity>
           )}
@@ -441,11 +505,12 @@ function PaymentForm({
           <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
         </TouchableOpacity>
 
+        {/* The amount lives in the Total row above — repeating it on the button
+            read as unpolished to testers, so the CTA is just the verb. */}
         <WhitePillCTA
           variant="paid"
           style={styles.payButtonPill}
           label={t('paymentModal.pay')}
-          subLabel={formatCurrency(totalAmount, currency)}
           loading={processing}
           disabled={processing || (paymentMethod === 'stripe' && !cardComplete)}
           onPress={handlePayment}
@@ -553,49 +618,54 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 20,
   },
   section: {
-    marginTop: 24,
+    marginTop: 20,
   },
+  // Quiet overline so the method rows themselves are the loudest thing here.
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 12,
     fontWeight: '600',
-    color: colors.text,
-    marginBottom: 12,
+    letterSpacing: 0.7,
+    textTransform: 'uppercase',
+    color: colors.textTertiary,
+    marginBottom: 4,
   },
-  methodButton: {
+  // Payment methods read as plain rows on the black canvas — no tinted card, no
+  // heavy border, no filled icon chip. Selection is carried by a teal check plus
+  // full-strength label text, with unselected rows sitting back a step.
+  methodRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: colors.border,
-    marginBottom: 12,
-    backgroundColor: colors.surface,
-  },
-  methodButtonActive: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primarySoft,
+    paddingVertical: 14,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
   },
   methodIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: colors.surfaceMuted,
+    width: 26,
     alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
+    marginRight: 14,
   },
   methodContent: {
     flex: 1,
   },
   methodTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
+    color: colors.textSecondary,
+    marginBottom: 1,
+  },
+  methodTitleActive: {
     color: colors.text,
-    marginBottom: 2,
   },
   methodSubtitle: {
-    fontSize: 14,
+    fontSize: 13,
+    color: colors.textTertiary,
+  },
+  methodSubtitleActive: {
     color: colors.textSecondary,
+  },
+  methodCheck: {
+    width: 20,
+    alignItems: 'flex-end',
   },
   cardFieldContainer: {
     height: 50,
@@ -632,7 +702,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 12,
     lineHeight: 16,
     color: colors.textSecondary,
-    paddingHorizontal: 2,
+    marginTop: 10,
   },
   errorContainer: {
     marginTop: 16,

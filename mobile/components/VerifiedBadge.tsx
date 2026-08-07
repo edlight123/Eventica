@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle } from 'react-native';
 import { ShieldCheck } from 'lucide-react-native';
-import { colors, radius, spacing, font } from '../theme/tokens';
+import { colors, font } from '../theme/tokens';
 
 export type VerifiedBadgeSize = 'small' | 'medium' | 'large';
 
@@ -61,15 +61,14 @@ export default function VerifiedBadge({
 }
 
 const styles = StyleSheet.create({
+  // Deliberately NOT a filled pill: the owner's standing rule is a mark + label,
+  // never a tinted capsule. The teal shield already carries the meaning, so the
+  // background was doing nothing but adding weight.
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
     gap: 4,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    borderRadius: 10,
-    backgroundColor: colors.accentMuted,
   },
   label: {
     fontFamily: font.mono,

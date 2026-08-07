@@ -9,7 +9,7 @@ import {
   TextInput,
   ActivityIndicator,
 } from 'react-native';
-import { X, Check, Minus, Plus, Tag } from 'lucide-react-native';
+import { X, Check, Minus, Plus, Tag, ChevronDown, ChevronUp } from 'lucide-react-native';
 import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useI18n } from '../contexts/I18nContext';
@@ -56,6 +56,17 @@ interface TierQuantity {
   [tierId: string]: number;
 }
 
+/**
+ * Below this remaining count the availability line is worth the pixels ("3
+ * available"); above it the tier is effectively plentiful and the line is
+ * dropped so a list of 5+ tiers stays scannable. Matches the 10-per-order cap
+ * in `updateTierQuantity` — once stock is under the cap it constrains the buyer.
+ */
+const LOW_STOCK_THRESHOLD = 10;
+
+/** Visible stepper buttons are 28pt; this slop lifts the touch target to 44pt. */
+const STEPPER_HIT_SLOP = { top: 8, bottom: 8, left: 8, right: 8 };
+
 
 export default function TieredTicketSelector({
   eventId,
@@ -78,6 +89,11 @@ export default function TieredTicketSelector({
   const [promoCode, setPromoCode] = useState('');
   const [promoValidation, setPromoValidation] = useState<PromoCodeValidation | null>(null);
   const [validatingPromo, setValidatingPromo] = useState(false);
+  // Promo entry is collapsed behind a quiet toggle — it's optional, so it
+  // shouldn't cost a permanent labelled section. Any validation result (applied
+  // OR failed) forces it open so an applied code can never hide behind a tap.
+  const [promoOpen, setPromoOpen] = useState(false);
+  const promoExpanded = promoOpen || !!promoValidation;
 
   useEffect(() => {
     if (visible) {
@@ -278,6 +294,7 @@ export default function TieredTicketSelector({
     setTierQuantities({});
     setPromoCode('');
     setPromoValidation(null);
+    setPromoOpen(false);
   };
 
   return (
@@ -304,9 +321,16 @@ export default function TieredTicketSelector({
           <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
             {/* Tier Selection with Quantities */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>{t('ticketSelector.chooseTickets')}</Text>
-              <Text style={styles.helperLine}>{t('ticketSelector.oneTypePerOrder')}</Text>
-              {tiers.map(tier => {
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionLabel}>{t('ticketSelector.chooseTickets')}</Text>
+                {tiers.length > 1 && (
+                  <Text style={styles.sectionHint} numberOfLines={1}>
+                    {t('ticketSelector.oneTypePerOrder')}
+                  </Text>
+                )}
+              </View>
+
+              {tiers.map((tier, index) => {
                 const available = getAvailableQuantity(tier);
                 const isAvailable = isTierAvailable(tier);
                 const quantity = tierQuantities[tier.id] || 0;
@@ -316,23 +340,40 @@ export default function TieredTicketSelector({
                 const now = new Date();
                 const notYetOnSale = !!tier.sales_start && new Date(tier.sales_start) > now;
                 const salesEnded = !!tier.sales_end && new Date(tier.sales_end) < now;
-                
+                const isSoldOut = !notYetOnSale && !salesEnded && !tier.unlimited && !isAvailable;
+                // One quiet note per row, same precedence as before, except a
+                // plentiful tier (unlimited, or stock above the per-order cap)
+                // says nothing at all instead of spending a line on it.
+                const note = notYetOnSale
+                  ? t('ticketSelector.onSaleFrom').replace('{date}', formatOnSaleDate(tier.sales_start))
+                  : salesEnded
+                    ? t('ticketSelector.salesEnded')
+                    : tier.unlimited
+                      ? null
+                      : !isAvailable
+                        ? t('ticketSelector.soldOut')
+                        : available <= LOW_STOCK_THRESHOLD
+                          ? `${available} ${t('ticketSelector.available')}`
+                          : null;
+                const atMax = quantity >= available || quantity >= 10;
+
                 return (
                   <View
                     key={tier.id}
                     style={[
-                      styles.tierCard,
-                      !isAvailable && styles.tierCardDisabled,
+                      styles.tierRow,
+                      index === tiers.length - 1 && styles.tierRowLast,
+                      !isAvailable && styles.tierRowDisabled,
                     ]}
                   >
-                    <View style={styles.tierInfo}>
-                      <View style={styles.tierHeader}>
+                    <View style={styles.tierMain}>
+                      <View style={styles.tierTitleLine}>
                         <Text
                           style={[
                             styles.tierName,
-                            !isAvailable && styles.tierNameDisabled
+                            !isAvailable && styles.tierNameDisabled,
                           ]}
-                          numberOfLines={2}
+                          numberOfLines={1}
                         >
                           {tier.name}
                         </Text>
@@ -340,115 +381,142 @@ export default function TieredTicketSelector({
                           {formatCurrency(tier.price, displayCurrency)}
                         </Text>
                       </View>
-                      
-                      {tier.description && (
-                        <Text style={styles.tierDescription}>{tier.description}</Text>
+
+                      {(note || tier.description) && (
+                        <View style={styles.tierMetaLine}>
+                          {note && (
+                            <Text
+                              style={[
+                                styles.tierMeta,
+                                isSoldOut && styles.tierMetaSoldOut,
+                              ]}
+                              numberOfLines={1}
+                            >
+                              {note}
+                            </Text>
+                          )}
+                          {!!note && !!tier.description && (
+                            <Text style={styles.tierMetaDot}>·</Text>
+                          )}
+                          {!!tier.description && (
+                            <Text style={styles.tierMetaDescription} numberOfLines={1}>
+                              {tier.description}
+                            </Text>
+                          )}
+                        </View>
                       )}
-                      
-                      <Text style={[
-                        styles.tierAvailability,
-                        notYetOnSale && styles.tierNotOnSale,
-                        !notYetOnSale && (salesEnded || !isAvailable) && styles.tierSoldOut,
-                      ]}>
-                        {notYetOnSale
-                          ? t('ticketSelector.onSaleFrom').replace('{date}', formatOnSaleDate(tier.sales_start))
-                          : salesEnded
-                            ? t('ticketSelector.salesEnded')
-                            : tier.unlimited
-                              ? t('organizerCreateEventFlow.canvas.unlimitedLabel')
-                              : isAvailable
-                                ? `${available} ${t('ticketSelector.ticketsAvailable')}`
-                                : t('ticketSelector.soldOut')
-                        }
-                      </Text>
                     </View>
-                    
-                    {/* Quantity Selector */}
-                    {isAvailable && (
-                      <View style={styles.quantitySelector}>
-                        <TouchableOpacity
-                          onPress={() => updateTierQuantity(tier.id, -1)}
-                          disabled={quantity === 0}
-                          style={[
-                            styles.quantityButton,
-                            quantity === 0 && styles.quantityButtonDisabled
-                          ]}
-                        >
-                          <Minus size={20} color={quantity === 0 ? colors.textTertiary : colors.primary} />
-                        </TouchableOpacity>
-                        
-                        <Text style={styles.quantityText}>{quantity}</Text>
-                        
-                        <TouchableOpacity
-                          onPress={() => updateTierQuantity(tier.id, 1)}
-                          disabled={quantity >= available || quantity >= 10}
-                          style={[
-                            styles.quantityButton,
-                            (quantity >= available || quantity >= 10) && styles.quantityButtonDisabled
-                          ]}
-                        >
-                          <Plus size={20} color={(quantity >= available || quantity >= 10) ? colors.textTertiary : colors.primary} />
-                        </TouchableOpacity>
-                      </View>
-                    )}
+
+                    {/* Quantity Selector (width reserved even when hidden) */}
+                    <View style={styles.stepper}>
+                      {isAvailable && (
+                        <>
+                          <TouchableOpacity
+                            onPress={() => updateTierQuantity(tier.id, -1)}
+                            disabled={quantity === 0}
+                            hitSlop={STEPPER_HIT_SLOP}
+                            style={[
+                              styles.stepperButton,
+                              quantity === 0 && styles.stepperButtonDisabled,
+                            ]}
+                          >
+                            <Minus size={16} color={quantity === 0 ? colors.textTertiary : colors.primary} />
+                          </TouchableOpacity>
+
+                          <Text style={styles.stepperCount}>{quantity}</Text>
+
+                          <TouchableOpacity
+                            onPress={() => updateTierQuantity(tier.id, 1)}
+                            disabled={atMax}
+                            hitSlop={STEPPER_HIT_SLOP}
+                            style={[
+                              styles.stepperButton,
+                              atMax && styles.stepperButtonDisabled,
+                            ]}
+                          >
+                            <Plus size={16} color={atMax ? colors.textTertiary : colors.primary} />
+                          </TouchableOpacity>
+                        </>
+                      )}
+                    </View>
                   </View>
                 );
               })}
-            </View>
 
-            {/* Promo Code */}
-            {getTotalQuantity() > 0 && (
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>{t('ticketSelector.promoTitle')}</Text>
-                <View style={styles.promoContainer}>
-                  <View style={styles.promoInputContainer}>
-                    <Tag size={20} color={colors.textSecondary} />
-                    <TextInput
-                      style={styles.promoInput}
-                      placeholder={t('ticketSelector.promoPlaceholder')}
-                      placeholderTextColor={colors.textTertiary}
-                      selectionColor={colors.primary}
-                      value={promoCode}
-                      onChangeText={setPromoCode}
-                      autoCapitalize="characters"
-                      onSubmitEditing={validatePromoCode}
-                    />
-                  </View>
+              {/* Promo Code — collapsed behind a quiet toggle */}
+              {getTotalQuantity() > 0 && (
+                <View style={styles.promoBlock}>
                   <TouchableOpacity
-                    style={styles.promoApplyButton}
-                    onPress={validatePromoCode}
-                    disabled={!promoCode.trim() || validatingPromo}
+                    style={styles.promoToggle}
+                    onPress={() => setPromoOpen(prev => !prev)}
+                    accessibilityRole="button"
+                    accessibilityState={{ expanded: promoExpanded }}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                   >
-                    {validatingPromo ? (
-                      <ActivityIndicator size="small" color={colors.white} />
+                    <Tag size={14} color={colors.textSecondary} />
+                    <Text style={styles.promoToggleText}>{t('ticketSelector.havePromoCode')}</Text>
+                    {promoExpanded ? (
+                      <ChevronUp size={14} color={colors.textTertiary} />
                     ) : (
-                      <Text style={styles.promoApplyButtonText}>{t('ticketSelector.apply')}</Text>
+                      <ChevronDown size={14} color={colors.textTertiary} />
                     )}
                   </TouchableOpacity>
+
+                  {promoExpanded && (
+                    <>
+                      <View style={styles.promoRow}>
+                        <TextInput
+                          style={styles.promoInput}
+                          placeholder={t('ticketSelector.promoPlaceholder')}
+                          placeholderTextColor={colors.textTertiary}
+                          selectionColor={colors.primary}
+                          value={promoCode}
+                          onChangeText={setPromoCode}
+                          autoCapitalize="characters"
+                          onSubmitEditing={validatePromoCode}
+                        />
+                        <TouchableOpacity
+                          style={styles.promoApplyButton}
+                          onPress={validatePromoCode}
+                          disabled={!promoCode.trim() || validatingPromo}
+                        >
+                          {validatingPromo ? (
+                            <ActivityIndicator size="small" color={colors.text} />
+                          ) : (
+                            <Text
+                              style={[
+                                styles.promoApplyButtonText,
+                                (!promoCode.trim() || validatingPromo) && styles.promoApplyButtonTextDisabled,
+                              ]}
+                            >
+                              {t('ticketSelector.apply')}
+                            </Text>
+                          )}
+                        </TouchableOpacity>
+                      </View>
+
+                      {promoValidation && (
+                        <Text
+                          style={[
+                            styles.promoResultText,
+                            { color: promoValidation.valid ? colors.success : colors.error },
+                          ]}
+                        >
+                          {promoValidation.valid
+                            ? promoValidation.discount_percentage
+                              ? `✓ ${promoValidation.discount_percentage}% ${t('ticketSelector.discountApplied')}`
+                              : promoValidation.discount_amount
+                                ? `✓ ${formatCurrency(promoValidation.discount_amount, displayCurrency)} ${t('ticketSelector.discountApplied')}`
+                                : `✓ ${t('ticketSelector.discountApplied')}`
+                            : `✗ ${promoValidation.error}`
+                          }
+                        </Text>
+                      )}
+                    </>
+                  )}
                 </View>
-                
-                {promoValidation && (
-                  <View style={[
-                    styles.promoResult,
-                    { backgroundColor: promoValidation.valid ? colors.success + '20' : colors.error + '20' }
-                  ]}>
-                    <Text style={[
-                      styles.promoResultText,
-                      { color: promoValidation.valid ? colors.success : colors.error }
-                    ]}>
-                      {promoValidation.valid 
-                        ? promoValidation.discount_percentage
-                          ? `✓ ${promoValidation.discount_percentage}% ${t('ticketSelector.discountApplied')}`
-                          : promoValidation.discount_amount
-                            ? `✓ ${formatCurrency(promoValidation.discount_amount, displayCurrency)} ${t('ticketSelector.discountApplied')}`
-                            : `✓ ${t('ticketSelector.discountApplied')}`
-                        : `✗ ${promoValidation.error}`
-                      }
-                    </Text>
-                  </View>
-                )}
-              </View>
-            )}
+              )}
+            </View>
           </ScrollView>
         )}
 
@@ -472,10 +540,10 @@ export default function TieredTicketSelector({
                 </Text>
               </View>
             </View>
+            {/* No subLabel: the amount lives once, in the total above. */}
             <WhitePillCTA
               variant="paid"
               label={t('ticketSelector.continueToPayment')}
-              subLabel={formatCurrency(getTotalPrice(), displayCurrency)}
               onPress={handlePurchase}
             />
           </View>
@@ -516,46 +584,62 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
   },
   section: {
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    paddingHorizontal: 20,
+    paddingTop: 14,
+    paddingBottom: 8,
   },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 12,
+  // Eyebrow + inline hint on ONE line, replacing the old stacked
+  // title (16/600 + 12pt marginBottom) and subtitle rows.
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    gap: 12,
+    marginBottom: 8,
   },
-  helperLine: {
+  sectionLabel: {
     fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
     color: colors.textSecondary,
-    marginTop: -6,
-    marginBottom: 12,
   },
-  tierCard: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    backgroundColor: colors.surface,
+  sectionHint: {
+    flexShrink: 1,
+    fontSize: 11,
+    color: colors.textTertiary,
+  },
+  // Quiet row on the black canvas, separated by a hairline — no card, no fill.
+  tierRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 12,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
-  tierCardDisabled: {
+  // The promo block carries its own top hairline, so the last tier drops its
+  // divider to avoid a double rule.
+  tierRowLast: {
+    borderBottomWidth: 0,
+  },
+  tierRowDisabled: {
     opacity: 0.5,
-    backgroundColor: colors.background,
   },
-  tierInfo: {
+  tierMain: {
     flex: 1,
-    marginRight: 12,
+    minWidth: 0,
   },
-  tierHeader: {
-    alignItems: 'flex-start',
-    marginBottom: 4,
+  tierTitleLine: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 10,
   },
   tierName: {
+    // flex (not flexShrink) so the price is pushed to the trailing edge and
+    // prices line up in a column down a list of 5+ tiers.
+    flex: 1,
     fontSize: 15,
     fontWeight: '600',
     color: colors.text,
@@ -565,52 +649,59 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   tierPrice: {
     fontSize: 15,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: colors.text,
-    marginTop: 2,
   },
-  tierDescription: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginTop: 4,
-    marginBottom: 4,
-  },
-  tierAvailability: {
-    fontSize: 12,
-    color: colors.success,
-    fontWeight: '500',
-  },
-  tierSoldOut: {
-    color: colors.error,
-  },
-  // Subdued (not error) styling for a tier that isn't on sale yet.
-  tierNotOnSale: {
-    color: colors.textSecondary,
-  },
-  quantitySelector: {
+  tierMetaLine: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.background,
-    borderRadius: 8,
-    padding: 4,
+    gap: 5,
+    marginTop: 2,
   },
-  quantityButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 6,
-    backgroundColor: colors.surface,
+  tierMeta: {
+    fontSize: 11,
+    color: colors.textSecondary,
+  },
+  tierMetaSoldOut: {
+    color: colors.error,
+  },
+  tierMetaDot: {
+    fontSize: 11,
+    color: colors.textTertiary,
+  },
+  tierMetaDescription: {
+    flexShrink: 1,
+    fontSize: 11,
+    color: colors.textTertiary,
+  },
+  // Outlined 28pt glyph buttons (44pt touch target via STEPPER_HIT_SLOP) —
+  // deliberately unfilled so the row stays quiet.
+  stepper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    // 28 + 8 + 20 + 8 + 28 — reserved even on unavailable rows (where the
+    // controls are omitted) so the price column stays aligned.
+    minWidth: 92,
+  },
+  stepperButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  quantityButtonDisabled: {
-    opacity: 0.3,
+  stepperButtonDisabled: {
+    opacity: 0.4,
   },
-  quantityText: {
-    fontSize: 16,
-    fontWeight: '600',
+  stepperCount: {
+    fontSize: 15,
+    fontWeight: '700',
     color: colors.text,
-    marginHorizontal: 16,
-    minWidth: 24,
+    marginHorizontal: 8,
+    minWidth: 20,
     textAlign: 'center',
   },
   discountNote: {
@@ -620,54 +711,64 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.success,
     fontWeight: '600',
   },
-  promoContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  promoBlock: {
+    marginTop: 4,
+    paddingBottom: 4,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
-  promoInputContainer: {
+  promoToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 12,
+  },
+  promoToggleText: {
     flex: 1,
+    fontSize: 13,
+    fontWeight: '500',
+    color: colors.textSecondary,
+  },
+  promoRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    height: 48,
+    marginBottom: 4,
   },
   promoInput: {
     flex: 1,
-    fontSize: 16,
+    height: 44,
+    fontSize: 15,
     color: colors.text,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 10,
+    paddingHorizontal: 12,
   },
   promoApplyButton: {
-    backgroundColor: colors.surfaceRaised,
-    borderRadius: 8,
-    paddingHorizontal: 20,
-    height: 48,
+    height: 44,
+    paddingHorizontal: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 80,
   },
   promoApplyButtonText: {
-    color: colors.text,
-    fontSize: 16,
-    fontWeight: '600',
+    color: colors.primary,
+    fontSize: 14,
+    fontWeight: '700',
   },
-  promoResult: {
-    marginTop: 8,
-    padding: 12,
-    borderRadius: 8,
+  promoApplyButtonTextDisabled: {
+    color: colors.textTertiary,
   },
   promoResultText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
+    marginBottom: 6,
   },
   footer: {
     padding: 20,
     borderTopWidth: 1,
     borderTopColor: colors.border,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
   },
   totalContainer: {
     flexDirection: 'row',

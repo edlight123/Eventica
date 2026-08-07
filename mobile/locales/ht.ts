@@ -1891,6 +1891,8 @@ export default {
   },
 
   eventDetail: {
+    // Prefiks sèlman — konpoze kòm `${startsIn} 2d 11h` nan CountdownTimer.
+    startsIn: 'Kòmanse nan',
     loading: 'Nap chaje detay evènman an…',
     notFound: 'Evènman pa jwenn',
     loadError: 'Pa t kapab chaje detay evènman an',
@@ -1972,6 +1974,7 @@ export default {
     onSaleFrom: 'An vant {date}',
     salesEnded: 'Vant fini',
     promoTitle: 'Kòd pwomo (opsyonèl)',
+    havePromoCode: 'Ou gen yon kòd pwomo?',
     promoPlaceholder: 'Mete kòd la',
     apply: 'Aplike',
     discountApplied: 'rabè aplike',
@@ -2110,6 +2113,20 @@ export default {
   screens: {
     notifications: {
       title: 'Notifikasyon',
+    },
+    stripeConnect: {
+      title: 'Stripe Connect',
+      secure: 'Koneksyon sekirize',
+      leaveTitle: 'Kite konfigirasyon peman an?',
+      leaveBody:
+        "Kont Stripe ou a poko fini. Si ou kite kounye a, w ap bezwen tounen fini l anvan ou ka resevwa lajan.",
+      keepGoing: 'Kontinye',
+      leave: 'Kite',
+      failedTitle: 'Nou pa t ka chaje Stripe',
+      failedBody:
+        "Nou pa t ka rive sou paj sekirize Stripe la. Tcheke koneksyon ou epi eseye ankò — enfòmasyon ou te deja voye yo sere lakay Stripe.",
+      tryAgain: 'Eseye ankò',
+      backToPayouts: 'Tounen nan paramèt peman',
     },
     payment: {
       complete: 'Fini peman',

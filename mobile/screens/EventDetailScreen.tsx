@@ -57,6 +57,9 @@ import { EventDetailSkeleton } from '../components/Skeleton';
 const { width } = Dimensions.get('window');
 const POSTER_W = width * 0.86;
 
+// Dictionary key for the compact countdown prefix ("Starts in").
+const STARTS_IN_KEY = 'eventDetail.startsIn';
+
 export default function EventDetailScreen({ route, navigation }: any) {
   const { eventId } = route.params;
   const { user, userProfile } = useAuth();
@@ -426,6 +429,11 @@ export default function EventDetailScreen({ route, navigation }: any) {
   const endValid = isValidDate(event.end_datetime) ? event.end_datetime : null;
   const priceSubLabel = `${t('common.from')} ${(event.ticket_price || 0).toLocaleString()} ${event.currency || 'HTG'}`;
 
+  // Compact countdown prefix. `t()` echoes the key back when it is missing from
+  // the dictionaries, so fall back to English until `eventDetail.startsIn` lands.
+  const startsInLabel =
+    t(STARTS_IN_KEY) === STARTS_IN_KEY ? 'Starts in' : t(STARTS_IN_KEY);
+
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <Animated.ScrollView 
@@ -514,11 +522,6 @@ export default function EventDetailScreen({ route, navigation }: any) {
           {/* Title block — text-first, under the poster */}
           <Text style={styles.title}>{event.title}</Text>
 
-          {/* Countdown to event */}
-          {startValid && startValid > new Date() && (
-            <CountdownTimer targetDate={startValid} />
-          )}
-
           {/* Key facts — clean text rows. Icons are neutral grey; teal stays
               reserved for semantic use (verified / links / live). */}
           <View style={styles.factList}>
@@ -532,6 +535,12 @@ export default function EventDetailScreen({ route, navigation }: any) {
                   {startValid && safeFormatForLanguage(startValid, 'h:mm a', language)}
                   {endValid && ` – ${safeFormatForLanguage(endValid, 'h:mm a', language)}`}
                 </Text>
+                {/* Compact live countdown, one line, attached to the date it counts
+                    down to (replaces the old tall DAYS/HOURS/MINS block). Delete
+                    this line + the CountdownTimer import to drop the feature. */}
+                {startValid && startValid > new Date() && (
+                  <CountdownTimer targetDate={startValid} label={startsInLabel} style={styles.factCountdown} />
+                )}
               </View>
             </View>
 
@@ -620,13 +629,20 @@ export default function EventDetailScreen({ route, navigation }: any) {
                   <Text style={styles.hostedByName}>
                     {event.users?.organization_name || event.users?.full_name || event.organizer_name || t('eventDetail.organizerFallback')}
                   </Text>
+                  {/* House rule: no filled status pills. Bare shield glyph + quiet
+                      teal label — no background, no border. VerifiedBadge without
+                      `showLabel` renders just the icon, so the shared badge stays
+                      untouched for the screens that still use its pill form. */}
                   {(event.users?.is_verified || event.is_verified) && (
-                    <VerifiedBadge
-                      showLabel
-                      label={t('eventDetail.verified')}
-                      size="small"
+                    <View
                       style={styles.verifiedBadgeInline}
-                    />
+                      accessible
+                      accessibilityRole="text"
+                      accessibilityLabel={t('eventDetail.verified')}
+                    >
+                      <VerifiedBadge size="small" label={t('eventDetail.verified')} />
+                      <Text style={styles.verifiedTextInline}>{t('eventDetail.verified')}</Text>
+                    </View>
                   )}
                 </View>
                 <ChevronRight size={16} color={colors.textSecondary} />
@@ -980,6 +996,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     height: StyleSheet.hairlineWidth,
     backgroundColor: colors.borderLight,
   },
+  // Compact countdown line inside the date row (see CountdownTimer).
+  factCountdown: {
+    marginTop: 2,
+  },
   sectionTitleMain: {
     fontSize: 22,
     fontWeight: '700',
@@ -1161,12 +1181,17 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   verifiedBadgeInline: {
     flexDirection: 'row',
     alignItems: 'center',
+    alignSelf: 'flex-start',
     gap: 4,
   },
+  // Quiet mono label, teal because teal here CARRIES MEANING (verified).
+  // No backgroundColor / borderWidth — deliberately not a pill.
   verifiedTextInline: {
-    fontSize: 12,
-    color: '#0F766E',
-    fontWeight: '500',
+    fontFamily: font.mono,
+    fontSize: 10,
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
+    color: colors.primary,
   },
   viewProfileButton: {
     flexDirection: 'row',

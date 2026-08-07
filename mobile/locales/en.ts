@@ -969,6 +969,23 @@ export default {
     notifications: {
       title: 'Notifications',
     },
+    // Stripe Connect onboarding host. Stripe only offers a hosted page here
+    // (no native RN onboarding component), so these strings dress our chrome
+    // around their form.
+    stripeConnect: {
+      title: 'Stripe Connect',
+      secure: 'Secure connection',
+      leaveTitle: 'Leave payout setup?',
+      leaveBody:
+        "Your Stripe account isn't finished yet. If you leave now you'll need to come back and complete it before you can receive payouts.",
+      keepGoing: 'Keep setting up',
+      leave: 'Leave',
+      failedTitle: "Couldn't load Stripe",
+      failedBody:
+        "We couldn't reach Stripe's secure setup page. Check your connection and try again — any details you already submitted are saved with Stripe.",
+      tryAgain: 'Try again',
+      backToPayouts: 'Back to payout settings',
+    },
     payment: {
       complete: 'Complete Payment',
       successTitle: 'Payment Successful!',
@@ -1922,6 +1939,8 @@ export default {
   },
 
   eventDetail: {
+    // Prefix only — composed as `${startsIn} 2d 11h` by CountdownTimer.
+    startsIn: 'Starts in',
     loading: 'Loading event details...',
     notFound: 'Event not found',
     loadError: 'Failed to load event details',
@@ -2003,6 +2022,8 @@ export default {
     onSaleFrom: 'On sale {date}',
     salesEnded: 'Sales ended',
     promoTitle: 'Promo Code (Optional)',
+    // Collapsed-toggle label. promoTitle stays for the expanded section header.
+    havePromoCode: 'Have a promo code?',
     promoPlaceholder: 'Enter code',
     apply: 'Apply',
     discountApplied: 'discount applied',

@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
 import { safeFormatForLanguage } from '../lib/dates';
 import { useI18n } from '../contexts/I18nContext';
+import { radius } from '../theme/tokens';
 
 interface AddToCalendarButtonProps {
   event: {
@@ -113,7 +114,6 @@ export default function AddToCalendarButton({ event, style }: AddToCalendarButto
         style={[styles.button, style]} 
         onPress={() => setShowModal(true)}
       >
-        <Ionicons name="calendar-outline" size={20} color={colors.textSecondary} />
         <Text style={styles.buttonText}>{t('calendar.addToCalendar') || 'Add to Calendar'}</Text>
       </TouchableOpacity>
 
@@ -166,14 +166,16 @@ export default function AddToCalendarButton({ event, style }: AddToCalendarButto
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   // POSH: a quiet secondary — raised surface, hairline border, neutral text.
   // No teal fill/border (teal stays a sparing accent, not a button style).
+  // Label-only (no calendar glyph) and squared off to `radius.md`, the radius the
+  // other quiet/secondary buttons on the event page use — the softer
+  // `radius.button` is reserved for the primary white CTA.
   button: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 13,
     paddingHorizontal: 16,
     backgroundColor: colors.surfaceRaised,
-    borderRadius: 14,
+    borderRadius: radius.md,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border,
   },
@@ -181,7 +183,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 14,
     fontWeight: '600',
     color: colors.text,
-    marginLeft: 8,
+    textAlign: 'center',
   },
   modalOverlay: {
     flex: 1,

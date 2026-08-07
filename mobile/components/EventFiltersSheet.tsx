@@ -127,12 +127,29 @@ function RangeSlider({ min, max, step, low, high, onChange, colors }: RangeSlide
 }
 
 // Slim track + 16pt thumbs. Effective touch target stays 44 x 40pt via hitSlop.
+// The track runs edge-to-edge of its wrap (no marginHorizontal) so its ends land
+// exactly on the section's horizontal margins; the thumbs travel inside
+// [0, trackW - THUMB] so at either extreme they sit flush with the track end and
+// never overhang the content edge.
 const rangeStyles = StyleSheet.create({
   wrap: { height: 20, justifyContent: 'center' },
-  track: { height: 3, borderRadius: 1.5, marginHorizontal: 8 },
+  track: { height: 3, borderRadius: 1.5 },
   fill: { position: 'absolute', top: 8.5, height: 3, borderRadius: 1.5 },
   thumb: { position: 'absolute', top: 2, width: 16, height: 16, borderRadius: 8, borderWidth: 2 },
 });
+
+// Every filter chip / segment is visually 30pt tall (see getStyles) so the rows
+// read as compact. hitSlop grows the effective touch target back to the 44pt
+// minimum: (44 - 30) / 2 = 7pt top+bottom, plus 4pt each side (half the 8pt
+// column gutter) so neighbouring chips never claim the same pixel.
+const CHIP_HIT_SLOP = { top: 7, bottom: 7, left: 4, right: 4 } as const;
+// Segments are full-bleed inside their track, so only the vertical axis needs
+// growing: (44 - 28) / 2 = 8pt.
+const SEGMENT_HIT_SLOP = { top: 8, bottom: 8, left: 0, right: 0 } as const;
+
+// Used only for the very first frame, before the footer reports its height via
+// onLayout. Matches the measured iOS footer (16 top + 51 button + 24 bottom).
+const FOOTER_HEIGHT_FALLBACK = Platform.OS === 'ios' ? 91 : 83;
 
 export default function EventFiltersSheet() {
   const { colors } = useTheme();
@@ -185,6 +202,14 @@ export default function EventFiltersSheet() {
           : `${priceLabel(rangeMin)} – ${priceLabel(sliderMax)}`;
 
   const [showDatePicker, setShowDatePicker] = useState(false);
+
+  // The last row of chips used to end up jammed against — and visually cut off
+  // by — the pinned footer's top rule. The scroll content now ends with the
+  // footer's MEASURED height plus 24pt of breathing room (replacing a hardcoded
+  // 100pt spacer), so whatever the footer grows to, the final row can always be
+  // scrolled fully clear of it.
+  const [footerHeight, setFooterHeight] = useState(0);
+  const scrollBottomPadding = (footerHeight || FOOTER_HEIGHT_FALLBACK) + 24;
 
   const handleDateChange = (date: DateFilter) => {
     if (date === 'pick-date') {
@@ -283,8 +308,9 @@ export default function EventFiltersSheet() {
         </View>
 
         {/* Scrollable Content */}
-        <ScrollView 
+        <ScrollView
           style={styles.content}
+          contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
           showsVerticalScrollIndicator={false}
         >
           {/* Date Filter */}
@@ -299,6 +325,7 @@ export default function EventFiltersSheet() {
                     draftFilters.date === option.value && styles.chipActive
                   ]}
                   onPress={() => handleDateChange(option.value)}
+                  hitSlop={CHIP_HIT_SLOP}
                 >
                   <Text
                     style={[
@@ -353,6 +380,7 @@ export default function EventFiltersSheet() {
                     draftFilters.eventType === option.value && styles.segmentActive
                   ]}
                   onPress={() => handleEventTypeChange(option.value)}
+                  hitSlop={SEGMENT_HIT_SLOP}
                 >
                   <Text
                     style={[
@@ -378,6 +406,7 @@ export default function EventFiltersSheet() {
                   key={value}
                   style={[styles.chip, draftFilters.price === value && styles.chipActive]}
                   onPress={() => handlePriceChange(value)}
+                  hitSlop={CHIP_HIT_SLOP}
                 >
                   <Text
                     style={[styles.chipText, draftFilters.price === value && styles.chipTextActive]}
@@ -388,9 +417,13 @@ export default function EventFiltersSheet() {
               ))}
             </View>
 
-            <View style={styles.priceRangeCard}>
-              {/* Label, readout and currency share ONE compact line so the card
-                  stays a strip instead of a full-height block. */}
+            {/* No card, no box: the budget control sits straight on the canvas
+                and reads as grouped purely through spacing (18pt off the chips,
+                8pt to its own slider) — same rhythm as every other section. */}
+            <View style={styles.priceRangeBlock}>
+              {/* Caption, readout and currency all carry the SAME explicit
+                  lineHeight, so their text boxes are identical in height and the
+                  glyphs land on one shared baseline despite the size difference. */}
               <View style={styles.priceRangeTop}>
                 <Text style={styles.priceRangeCaption} numberOfLines={1}>
                   {t('filters.priceRange')}
@@ -427,6 +460,7 @@ export default function EventFiltersSheet() {
                     draftFilters.categories.includes(category) && styles.chipActive
                   ]}
                   onPress={() => handleCategoryToggle(category)}
+                  hitSlop={CHIP_HIT_SLOP}
                 >
                   <Text
                     style={[
@@ -453,6 +487,7 @@ export default function EventFiltersSheet() {
                     (draftFilters.country || 'HT') === country.code && styles.chipActive
                   ]}
                   onPress={() => setDraftFilters({ ...draftFilters, country: country.code, city: '' })}
+                  hitSlop={CHIP_HIT_SLOP}
                 >
                   <Text
                     style={[
@@ -476,6 +511,7 @@ export default function EventFiltersSheet() {
                     draftFilters.city === city && styles.chipActive
                   ]}
                   onPress={() => handleCityChange(city)}
+                  hitSlop={CHIP_HIT_SLOP}
                 >
                   <Text
                     style={[
@@ -489,13 +525,13 @@ export default function EventFiltersSheet() {
               ))}
             </View>
           </View>
-
-          {/* Bottom padding for footer */}
-          <View style={{ height: 100 }} />
         </ScrollView>
 
         {/* Footer with Actions */}
-        <View style={styles.footer}>
+        <View
+          style={styles.footer}
+          onLayout={(e: LayoutChangeEvent) => setFooterHeight(e.nativeEvent.layout.height)}
+        >
           <TouchableOpacity
             style={styles.resetButton}
             onPress={resetFilters}
@@ -576,22 +612,35 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 12,
     letterSpacing: 1,
   },
+  // Justified wrap: chips keep their natural (label-sized) width for the purpose
+  // of line-breaking, then flexGrow shares each line's leftover space between
+  // that line's chips. Result — every row is flush left AND right, so the grid
+  // reads as a uniform block instead of a ragged stack, with no truncation.
   chipsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    columnGap: 8,
+    rowGap: 10,
   },
+  // 30pt visible height: 7 + 16 (chipText lineHeight) + 7. Touch target is
+  // restored to 44pt with CHIP_HIT_SLOP.
   chip: {
-    paddingHorizontal: 16,
-    paddingVertical: 11,
-    borderRadius: 10,
+    flexGrow: 1,
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: colors.surfaceRaised,
   },
   chipActive: {
     backgroundColor: colors.white,
   },
+  // lineHeight is explicit so every chip is exactly the same height whatever the
+  // label or the device's font metrics.
   chipText: {
-    fontSize: 14,
+    fontSize: 13,
+    lineHeight: 16,
     fontWeight: '500',
     color: colors.textSecondary,
   },
@@ -599,32 +648,35 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.background,
     fontWeight: '700',
   },
+  // Shrunk in step with the chips so DATE / EVENT TYPE / CATEGORIES read as one
+  // family: 34pt tall overall (3 + 28 + 3) against the chips' 30pt.
   segmentedControl: {
     flexDirection: 'row',
     backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: 4,
+    borderRadius: 9,
+    padding: 3,
   },
   segment: {
     flex: 1,
-    paddingVertical: 10,
+    paddingVertical: 6,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 8,
+    borderRadius: 6,
   },
   segmentFirst: {
-    borderTopLeftRadius: 8,
-    borderBottomLeftRadius: 8,
+    borderTopLeftRadius: 6,
+    borderBottomLeftRadius: 6,
   },
   segmentLast: {
-    borderTopRightRadius: 8,
-    borderBottomRightRadius: 8,
+    borderTopRightRadius: 6,
+    borderBottomRightRadius: 6,
   },
   segmentActive: {
     backgroundColor: colors.surfaceRaised,
   },
   segmentText: {
-    fontSize: 14,
+    fontSize: 13,
+    lineHeight: 16,
     fontWeight: '500',
     color: colors.textSecondary,
   },
@@ -690,52 +742,45 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 13,
     color: colors.textSecondary,
   },
-  // Compact budget strip: one label/readout line + a slim slider. Kept small on
-  // purpose — it used to eat ~157pt of the sheet.
-  priceRangeCard: {
-    marginTop: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: 10,
+  // Compact budget control, now UNBOXED: no background, no radius, no inner
+  // padding, so the slider spans the full content width and its ends line up
+  // with the section margins. Grouping comes from the 18pt gap above it.
+  priceRangeBlock: {
+    marginTop: 18,
   },
+  // flex-end + a shared lineHeight on all three labels puts the caption, the
+  // value and the currency on one baseline.
   priceRangeTop: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     justifyContent: 'space-between',
+    marginBottom: 8,
     gap: 8,
   },
   priceRangeCaption: {
-    fontSize: 10,
+    fontSize: 11,
+    lineHeight: 18,
     fontWeight: '700',
     letterSpacing: 0.8,
-    color: colors.textSecondary,
+    color: colors.textTertiary,
   },
   priceRangeReadout: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'flex-end',
     gap: 5,
     flexShrink: 1,
   },
   priceRangeValue: {
-    fontSize: 14,
+    fontSize: 15,
+    lineHeight: 18,
     fontWeight: '700',
     color: colors.text,
   },
   priceRangeCurrency: {
-    fontSize: 10,
+    fontSize: 11,
+    lineHeight: 18,
     fontWeight: '600',
-    color: colors.textSecondary,
-  },
-  sliderLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: colors.textSecondary,
-    marginBottom: 8,
-    marginTop: 8,
-  },
-  slider: {
-    width: '100%',
-    height: 40,
+    letterSpacing: 0.5,
+    color: colors.textTertiary,
   },
 });
