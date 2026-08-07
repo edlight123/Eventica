@@ -2109,6 +2109,21 @@ export default {
   },
 
   freeTicket: {
+    continueToCheckout: 'Continue to checkout',
+    errors: {
+      promoInvalid: 'This promo code is no longer valid for this event.',
+      promoExhausted: 'This promo code has reached its usage limit.',
+      promoNotFree: 'This promo code does not cover the full price of these tickets.',
+      promoRequiresTier: 'Choose a ticket type before using this promo code.',
+      promoFailed: 'We could not apply this promo code. Please try again.',
+      notFree: 'These tickets are not free.',
+      tierUnavailable: 'This ticket type is no longer available.',
+      salesNotStarted: 'Ticket sales have not started yet.',
+      salesEnded: 'Ticket sales have ended.',
+      limited: 'There are not enough tickets left for this order.',
+      tooMany: 'You can claim at most 10 free tickets at a time.',
+      accessCode: 'This event needs an access code.',
+    },
     title: 'Claim Free Ticket',
     freeEvent: 'FREE EVENT',
     quantityLabel: 'Ticket Quantity',

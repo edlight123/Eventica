@@ -2060,6 +2060,21 @@ export default {
   },
 
   freeTicket: {
+    continueToCheckout: 'Kontinye nan peman an',
+    errors: {
+      promoInvalid: 'Kòd pwomo sa a pa valab ankò pou evènman sa a.',
+      promoExhausted: 'Kòd pwomo sa a rive nan limit itilizasyon l.',
+      promoNotFree: 'Kòd pwomo sa a pa kouvri tout pri tikè sa yo.',
+      promoRequiresTier: 'Chwazi yon tip tikè anvan ou itilize kòd pwomo sa a.',
+      promoFailed: 'Nou pa t ka aplike kòd pwomo sa a. Tanpri eseye ankò.',
+      notFree: 'Tikè sa yo pa gratis.',
+      tierUnavailable: 'Tip tikè sa a pa disponib ankò.',
+      salesNotStarted: 'Vant tikè yo poko kòmanse.',
+      salesEnded: 'Vant tikè yo fini.',
+      limited: 'Pa gen ase tikè ki rete pou kòmand sa a.',
+      tooMany: 'Ou ka pran maksimòm 10 tikè gratis alafwa.',
+      accessCode: 'Evènman sa a mande yon kòd aksè.',
+    },
     title: 'Pran biyè gratis la',
     freeEvent: 'EVÈNMAN GRATIS',
     quantityLabel: 'Kantite biyè',

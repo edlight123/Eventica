@@ -22,7 +22,12 @@ const state: any = {
   existingTickets: [] as any[],
   added: [] as any[],
   reserveCalls: [] as any[],
+  releaseCalls: [] as any[],
   reserveResult: { ok: true } as any,
+  /** Fake `promo_codes` collection, keyed by doc id. */
+  promos: {} as Record<string, any>,
+  /** Every doc written to `promo_code_usage`. */
+  usageWrites: [] as any[],
   event: {
     id: 'evt1',
     title: 'Test Event',
@@ -50,46 +55,97 @@ jest.mock('@/lib/tickets/inventory', () => {
       state.reserveCalls.push(params)
       return state.reserveResult
     }),
+    releaseInventoryReservation: jest.fn(async (params: any) => {
+      state.releaseCalls.push(params)
+    }),
   }
 })
-jest.mock('@/lib/firebase/admin', () => ({
-  adminDb: {
-    collection(name: string) {
-      if (name === 'events') {
-        return {
-          doc: () => ({ get: async () => ({ exists: true, id: 'evt1', data: () => state.event }) }),
-        }
+
+/**
+ * Fake Firestore. `promo_codes` / `promo_code_usage` / `runTransaction` are modelled
+ * for real so the route runs the REAL `resolvePromoCode` + `redeemPromoInTransaction`
+ * from lib/promo-codes — event scoping, is_active, expiry and the atomic usage cap are
+ * therefore exercised as shipped, not re-implemented by a stub.
+ */
+jest.mock('@/lib/firebase/admin', () => {
+  const promoQuery = (filters: Array<[string, any]> = []): any => ({
+    where: (field: string, _op: string, value: any) => promoQuery([...filters, [field, value]]),
+    limit: () => promoQuery(filters),
+    get: async () => {
+      const matched = Object.entries(state.promos)
+        .map(([id, d]: any) => ({ id, ...d }))
+        .filter((row: any) => filters.every(([f, v]) => String(row[f]) === String(v)))
+      return {
+        empty: matched.length === 0,
+        docs: matched.map((m: any) => ({ id: m.id, data: () => state.promos[m.id] })),
       }
-      if (name === 'ticket_tiers') {
-        return {
-          where: () => ({
-            get: async () => ({ docs: state.tiers.map((t: any) => ({ id: t.id, data: () => t })) }),
-          }),
-        }
-      }
-      if (name === 'tickets') {
-        return {
-          where: () => ({
-            get: async () => ({
-              docs: state.existingTickets.map((t: any) => ({ id: t.id, data: () => t })),
-            }),
-          }),
-          add: async (data: any) => {
-            const id = `tkt${state.added.length + 1}`
-            const stored = { ...data, id }
-            state.added.push(stored)
-            return {
-              id,
-              update: async (patch: any) => Object.assign(stored, patch),
-              get: async () => ({ id, data: () => stored }),
-            }
-          },
-        }
-      }
-      throw new Error(`unexpected collection ${name}`)
     },
-  },
-}))
+  })
+
+  const promoDocRef = (id: string) => ({
+    id,
+    get: async () => ({
+      exists: Boolean(state.promos[id]),
+      id,
+      data: () => state.promos[id],
+    }),
+  })
+
+  return {
+    adminDb: {
+      runTransaction: async (fn: any) =>
+        fn({
+          get: async (ref: any) => ref.get(),
+          update: (ref: any, patch: any) => {
+            state.promos[ref.id] = { ...state.promos[ref.id], ...patch }
+          },
+          set: (ref: any, data: any) => {
+            state.usageWrites.push({ id: ref.id, ...data })
+          },
+        }),
+      collection(name: string) {
+        if (name === 'events') {
+          return {
+            doc: () => ({ get: async () => ({ exists: true, id: 'evt1', data: () => state.event }) }),
+          }
+        }
+        if (name === 'ticket_tiers') {
+          return {
+            where: () => ({
+              get: async () => ({ docs: state.tiers.map((t: any) => ({ id: t.id, data: () => t })) }),
+            }),
+          }
+        }
+        if (name === 'promo_codes') {
+          return { doc: (id: string) => promoDocRef(id), ...promoQuery() }
+        }
+        if (name === 'promo_code_usage') {
+          return { doc: () => ({ id: `usage${state.usageWrites.length + 1}` }) }
+        }
+        if (name === 'tickets') {
+          return {
+            where: () => ({
+              get: async () => ({
+                docs: state.existingTickets.map((t: any) => ({ id: t.id, data: () => t })),
+              }),
+            }),
+            add: async (data: any) => {
+              const id = `tkt${state.added.length + 1}`
+              const stored = { ...data, id }
+              state.added.push(stored)
+              return {
+                id,
+                update: async (patch: any) => Object.assign(stored, patch),
+                get: async () => ({ id, data: () => stored }),
+              }
+            },
+          }
+        }
+        throw new Error(`unexpected collection ${name}`)
+      },
+    },
+  }
+})
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { POST } = require('@/app/api/tickets/claim-free/route')
@@ -107,7 +163,89 @@ function reset() {
   state.existingTickets = []
   state.added = []
   state.reserveCalls = []
+  state.releaseCalls = []
   state.reserveResult = { ok: true }
+  state.promos = {
+    // 100% off, unlimited: zeroes any paid tier on evt1.
+    promoFull: {
+      event_id: 'evt1',
+      code: 'FREE100',
+      discount_type: 'percentage',
+      discount_value: 100,
+      max_uses: null,
+      uses_count: 0,
+      is_active: true,
+    },
+    // 50% off: leaves money on the table, must never reach this endpoint.
+    promoHalf: {
+      event_id: 'evt1',
+      code: 'HALF',
+      discount_type: 'percentage',
+      discount_value: 50,
+      max_uses: null,
+      uses_count: 0,
+      is_active: true,
+    },
+    // Fixed amount that exactly covers the 1,500 HTG paid tier.
+    promoFixed: {
+      event_id: 'evt1',
+      code: 'MINUS1500',
+      discount_type: 'fixed_amount',
+      discount_value: 1500,
+      max_uses: 5,
+      uses_count: 0,
+      is_active: true,
+    },
+    promoExpired: {
+      event_id: 'evt1',
+      code: 'OLD100',
+      discount_type: 'percentage',
+      discount_value: 100,
+      max_uses: null,
+      uses_count: 0,
+      is_active: true,
+      expires_at: '2020-01-01T00:00:00.000Z',
+    },
+    promoInactive: {
+      event_id: 'evt1',
+      code: 'OFF100',
+      discount_type: 'percentage',
+      discount_value: 100,
+      max_uses: null,
+      uses_count: 0,
+      is_active: false,
+    },
+    promoUsedUp: {
+      event_id: 'evt1',
+      code: 'SPENT',
+      discount_type: 'percentage',
+      discount_value: 100,
+      max_uses: 2,
+      uses_count: 2,
+      is_active: true,
+    },
+    // Same 100%-off deal, but it belongs to a DIFFERENT event.
+    promoOtherEvent: {
+      event_id: 'evt2',
+      code: 'FREE100',
+      discount_type: 'percentage',
+      discount_value: 100,
+      max_uses: null,
+      uses_count: 0,
+      is_active: true,
+    },
+    // One slot left: enough to pass the soft capacity check, not enough for a 3-ticket claim.
+    promoOneLeft: {
+      event_id: 'evt1',
+      code: 'LASTONE',
+      discount_type: 'percentage',
+      discount_value: 100,
+      max_uses: 1,
+      uses_count: 0,
+      is_active: true,
+    },
+  }
+  state.usageWrites = []
   jest.clearAllMocks()
 }
 
@@ -284,5 +422,185 @@ describe('NEW shape {eventId, selections}', () => {
     const body = await (await POST(req({ eventId: 'evt1', selections: [{ tierId: 'freeA', quantity: 2 }] }))).json()
     expect(body.message).toBe('You already claimed a ticket for this event.')
     expect(state.added).toHaveLength(0)
+  })
+})
+
+/**
+ * PROMO path: `promoCode` on either payload shape.
+ *
+ * The server never trusts the caller's arithmetic. It loads the tier price from
+ * Firestore, loads the promo from `promo_codes`, recomputes the discount with the
+ * same `calculateDiscount` the paid initiators use, and issues only when ITS OWN
+ * total is exactly 0.
+ */
+describe('PROMO-ZEROED claims {…, promoCode}', () => {
+  beforeEach(reset)
+
+  it('issues free tickets for a PAID tier when a 100%-off promo zeroes it (legacy shape)', async () => {
+    const res = await POST(req({ eventId: 'evt1', tierId: 'paidA', quantity: 2, promoCode: 'FREE100' }))
+    const body = await res.json()
+    expect(res.status).toBe(200)
+    expect(body.count).toBe(2)
+    expect(body.promoApplied).toBe(true)
+    expect(body.issued).toEqual([{ tierId: 'paidA', tierName: 'General Admission', quantity: 2 }])
+    expect(state.added).toHaveLength(2)
+    // Issued as a genuine free ticket, with an audit trail back to the promo.
+    expect(state.added[0].price_paid).toBe(0)
+    expect(state.added[0].promo_code_id).toBe('promoFull')
+    expect(state.added[0].original_price).toBe(1500)
+    // Same single atomic reservation as any other claim.
+    expect(state.reserveCalls).toEqual([
+      { eventId: 'evt1', quantity: 2, tierIncrements: [{ tierId: 'paidA', quantity: 2 }], logPrefix: '[claim-free]' },
+    ])
+  })
+
+  it('accepts the promo DOC ID as well as the raw code (same as the paid initiators)', async () => {
+    const res = await POST(req({ eventId: 'evt1', tierId: 'paidA', quantity: 1, promoCode: 'promoFull' }))
+    expect(res.status).toBe(200)
+    expect(state.added).toHaveLength(1)
+  })
+
+  it('issues a promo-zeroed multi-tier cart through the selections shape', async () => {
+    const res = await POST(req({
+      eventId: 'evt1',
+      selections: [{ tierId: 'paidA', quantity: 1 }, { tierId: 'freeA', quantity: 1 }],
+      promoCode: 'FREE100',
+    }))
+    const body = await res.json()
+    expect(res.status).toBe(200)
+    expect(body.count).toBe(2)
+    expect(state.added.map((t: any) => t.tier_id)).toEqual(['paidA', 'freeA'])
+  })
+
+  it('REFUSES a promo that only partially discounts — that belongs on checkout', async () => {
+    const res = await POST(req({ eventId: 'evt1', tierId: 'paidA', quantity: 1, promoCode: 'HALF' }))
+    const body = await res.json()
+    expect(res.status).toBe(400)
+    expect(body.code).toBe('promo_not_free')
+    expect(state.added).toHaveLength(0)
+    expect(state.reserveCalls).toHaveLength(0)
+    expect(state.usageWrites).toHaveLength(0)
+  })
+
+  it('REFUSES an expired promo', async () => {
+    const res = await POST(req({ eventId: 'evt1', tierId: 'paidA', quantity: 1, promoCode: 'promoExpired' }))
+    expect(res.status).toBe(400)
+    expect((await res.json()).code).toBe('promo_invalid')
+    expect(state.added).toHaveLength(0)
+  })
+
+  it('REFUSES an inactive promo', async () => {
+    const res = await POST(req({ eventId: 'evt1', tierId: 'paidA', quantity: 1, promoCode: 'promoInactive' }))
+    expect(res.status).toBe(400)
+    expect((await res.json()).code).toBe('promo_invalid')
+    expect(state.added).toHaveLength(0)
+  })
+
+  it('REFUSES a promo whose usage limit is already spent', async () => {
+    const res = await POST(req({ eventId: 'evt1', tierId: 'paidA', quantity: 1, promoCode: 'promoUsedUp' }))
+    expect(res.status).toBe(400)
+    expect((await res.json()).code).toBe('promo_exhausted')
+    expect(state.added).toHaveLength(0)
+    expect(state.reserveCalls).toHaveLength(0)
+  })
+
+  it('REFUSES a promo that belongs to a DIFFERENT event', async () => {
+    const res = await POST(req({ eventId: 'evt1', tierId: 'paidA', quantity: 1, promoCode: 'promoOtherEvent' }))
+    expect(res.status).toBe(400)
+    expect((await res.json()).code).toBe('promo_invalid')
+    expect(state.added).toHaveLength(0)
+  })
+
+  it('REFUSES an unknown promo code', async () => {
+    const res = await POST(req({ eventId: 'evt1', tierId: 'paidA', quantity: 1, promoCode: 'NOPE' }))
+    expect(res.status).toBe(400)
+    expect((await res.json()).code).toBe('promo_invalid')
+  })
+
+  it('still refuses a PAID tier claimed free with NO promo (the original bug)', async () => {
+    const res = await POST(req({ eventId: 'evt1', tierId: 'paidA', quantity: 1 }))
+    const body = await res.json()
+    expect(res.status).toBe(400)
+    expect(body.error).toBe('This ticket tier is not free')
+    expect(body.code).toBe('tier_not_free')
+    expect(state.added).toHaveLength(0)
+  })
+
+  it('records the redemption EXACTLY once: uses_count += qty and one usage doc', async () => {
+    const res = await POST(req({ eventId: 'evt1', tierId: 'paidA', quantity: 3, promoCode: 'MINUS1500' }))
+    expect(res.status).toBe(200)
+    expect(state.added).toHaveLength(3)
+    expect(state.promos.promoFixed.uses_count).toBe(3)
+    expect(state.usageWrites).toHaveLength(1)
+    expect(state.usageWrites[0]).toMatchObject({
+      promo_code_id: 'promoFixed',
+      user_id: 'u1',
+      event_id: 'evt1',
+      qty: 3,
+      discount_applied: 4500,
+    })
+  })
+
+  it('does NOT burn a promo use when the tier was already free (nothing was discounted)', async () => {
+    const res = await POST(req({ eventId: 'evt1', tierId: 'freeA', quantity: 2, promoCode: 'MINUS1500' }))
+    expect(res.status).toBe(200)
+    expect(state.promos.promoFixed.uses_count).toBe(0)
+    expect(state.usageWrites).toHaveLength(0)
+    expect(state.added[0].promo_code_id).toBeUndefined()
+  })
+
+  it('refuses and RELEASES the reservation when the atomic cap check loses the race', async () => {
+    // max_uses 1 passes the soft capacity check, but 3 tickets cannot be redeemed.
+    const res = await POST(req({ eventId: 'evt1', tierId: 'paidA', quantity: 3, promoCode: 'LASTONE' }))
+    expect(res.status).toBe(400)
+    expect((await res.json()).code).toBe('promo_exhausted')
+    expect(state.added).toHaveLength(0)
+    expect(state.promos.promoOneLeft.uses_count).toBe(0)
+    expect(state.usageWrites).toHaveLength(0)
+    // Inventory reserved a moment earlier must be handed back.
+    expect(state.releaseCalls).toEqual([
+      { eventId: 'evt1', quantity: 3, tierIncrements: [{ tierId: 'paidA', quantity: 3 }], logPrefix: '[claim-free]' },
+    ])
+  })
+
+  it('keeps every non-promo guard: a promo cannot rescue a sold-out or closed tier', async () => {
+    state.tiers[2].sold_quantity = 100
+    let res = await POST(req({ eventId: 'evt1', tierId: 'paidA', quantity: 1, promoCode: 'FREE100' }))
+    expect((await res.json()).code).toBe('tier_sold_out')
+    expect(state.added).toHaveLength(0)
+    reset()
+    state.tiers[2].is_active = false
+    res = await POST(req({ eventId: 'evt1', tierId: 'paidA', quantity: 1, promoCode: 'FREE100' }))
+    expect((await res.json()).code).toBe('tier_inactive')
+    reset()
+    res = await POST(req({ eventId: 'evt1', tierId: 'someone-elses-tier', promoCode: 'FREE100' }))
+    expect(res.status).toBe(404)
+    expect((await res.json()).code).toBe('tier_not_found')
+  })
+
+  it('will not guess WHICH paid tier to zero when no tier is named', async () => {
+    state.tiers = [state.tiers[2]] // paid tiers only
+    const res = await POST(req({ eventId: 'evt1', quantity: 1, promoCode: 'FREE100' }))
+    expect(res.status).toBe(400)
+    expect((await res.json()).code).toBe('promo_requires_tier')
+    expect(state.added).toHaveLength(0)
+  })
+
+  it('still honors the per-user free-claim limit on the promo path', async () => {
+    state.existingTickets = [{ id: 'old1', event_id: 'evt1', price_paid: 0 }]
+    const body = await (await POST(req({ eventId: 'evt1', tierId: 'paidA', quantity: 1, promoCode: 'FREE100' }))).json()
+    expect(body.message).toBe('You already claimed a ticket for this event.')
+    expect(state.added).toHaveLength(0)
+    expect(state.usageWrites).toHaveLength(0)
+  })
+
+  it('caps a promo claim at 10 tickets like any other', async () => {
+    const res = await POST(req({
+      eventId: 'evt1',
+      selections: [{ tierId: 'paidA', quantity: 11 }],
+      promoCode: 'FREE100',
+    }))
+    expect(res.status).toBe(400)
+    expect((await res.json()).code).toBe('too_many_tickets')
   })
 })

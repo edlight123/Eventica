@@ -54,6 +54,17 @@ export interface PurchaseSelectionMeta {
    * through the free-claim path rather than any payment gateway.
    */
   isFree: boolean;
+  /**
+   * Order total BEFORE any discount, in major units. Kept so the caller can show
+   * the real price if a promo-zeroed order has to fall back to checkout.
+   */
+  grossPrice: number;
+  /**
+   * The order only reaches 0 because of the promo code — the tiers themselves
+   * cost money. A hint for routing/labelling only: the server re-validates the
+   * promo and has the final say on whether anything is issued for free.
+   */
+  promoZeroed: boolean;
 }
 
 interface TieredTicketSelectorProps {
@@ -303,12 +314,16 @@ export default function TieredTicketSelector({
     
     const quantity = tierQuantities[firstTierWithQty.id] || 0;
     const finalPrice = getTotalPrice();
+    // Undiscounted total, on integer cents like every other amount here.
+    const grossPrice = computeSelectionTotal([{ price: firstTierWithQty.price, quantity }]);
 
     onPurchase(firstTierWithQty.id, finalPrice, quantity, promoCode || undefined, {
       tierName: firstTierWithQty.name,
       // A 0 total (a free tier, or a 100%-off promo on a paid one) must not reach
       // a gateway — the caller uses this to pick the free-claim path.
       isFree: finalPrice <= 0,
+      grossPrice,
+      promoZeroed: finalPrice <= 0 && grossPrice > 0,
     });
 
     // Reset state

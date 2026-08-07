@@ -78,6 +78,10 @@ export default function EventDetailScreen({ route, navigation }: any) {
   const [selectedTierId, setSelectedTierId] = useState<string | null>(null);
   const [selectedTierName, setSelectedTierName] = useState<string>('');
   const [selectedTierPrice, setSelectedTierPrice] = useState<number>(0);
+  // Undiscounted total for the current selection. Used when a promo-zeroed claim
+  // is refused by the server and the buyer continues to normal checkout — showing
+  // the discounted 0 there would promise a price we can't honor.
+  const [selectedTierGrossPrice, setSelectedTierGrossPrice] = useState<number>(0);
   const [ticketQuantity, setTicketQuantity] = useState(1);
   const [promoCode, setPromoCode] = useState<string | undefined>();
   // Password-gate state. accessGranted: null = unknown/not-yet-checked, true =
@@ -359,6 +363,11 @@ export default function EventDetailScreen({ route, navigation }: any) {
     if (isFree) {
       setSelectedTierId(null);
       setSelectedTierName('');
+      // Drop any promo left over from an earlier tier selection: an all-free event
+      // has nothing to discount, and a stale code would be sent (and re-validated,
+      // possibly redeemed) for a claim that never needed it.
+      setPromoCode(undefined);
+      setSelectedTierGrossPrice(0);
       setShowFreeTicketModal(true);
     } else {
       // Paid or mixed: the buyer must pick a tier.
@@ -383,6 +392,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
     // Store tier selection
     setSelectedTierId(tierId);
     setSelectedTierPrice(finalPrice);
+    setSelectedTierGrossPrice(meta?.grossPrice ?? finalPrice);
     setTicketQuantity(quantity);
     setPromoCode(promo);
     setSelectedTierName(meta?.tierName || '');
@@ -392,13 +402,26 @@ export default function EventDetailScreen({ route, navigation }: any) {
     // A zero total goes to the free-claim path, never to a gateway. Sending 0 to
     // MonCash/Stripe would either be rejected outright (Stripe enforces a minimum
     // charge) or leave a dangling pending transaction the buyer can't complete —
-    // and the ticket would never be issued. Note this also covers a paid tier
-    // discounted to 0 by a 100%-off promo.
+    // and the ticket would never be issued. This also covers a paid tier discounted
+    // to 0 by a 100%-off promo: the code travels with the claim and the SERVER
+    // re-validates it, refusing (with a checkout fallback) if it disagrees.
     if (meta?.isFree ?? finalPrice <= 0) {
       setShowFreeTicketModal(true);
       return;
     }
 
+    setShowPaymentModal(true);
+  };
+
+  /**
+   * The server refused a promo-zeroed free claim (code spent, expired, or only a
+   * partial discount). Send the buyer to normal checkout at the UNDISCOUNTED price
+   * — the payment initiators re-validate the same promo and will apply whatever
+   * discount actually still holds.
+   */
+  const handleClaimCheckoutFallback = () => {
+    setShowFreeTicketModal(false);
+    setSelectedTierPrice(selectedTierGrossPrice);
     setShowPaymentModal(true);
   };
 
@@ -772,6 +795,10 @@ export default function EventDetailScreen({ route, navigation }: any) {
         // `selectedTierId` is only ever set by the tier selector, where the buyer
         // already chose a quantity — don't ask a second time in that case.
         lockedQuantity={selectedTierId ? ticketQuantity : undefined}
+        // Only meaningful with an explicit tier — the server refuses a promo it
+        // would have to guess a tier for.
+        promoCode={selectedTierId ? promoCode : undefined}
+        onCheckoutFallback={selectedTierId ? handleClaimCheckoutFallback : undefined}
         onSuccess={handleFreeTicketSuccess}
       />
 

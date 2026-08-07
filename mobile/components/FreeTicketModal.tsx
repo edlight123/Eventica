@@ -13,6 +13,21 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { backendJson } from '../lib/api/backend';
 
+/**
+ * Refusals caused by the promo code rather than by the tickets themselves. For
+ * these the order is still purchasable at its real price, so the buyer is offered
+ * normal checkout instead of a dead end.
+ */
+const PROMO_FAILURE_CODES = new Set([
+  'promo_invalid',
+  'promo_exhausted',
+  'promo_not_free',
+  'promo_requires_tier',
+  'promo_redeem_failed',
+  // A paid tier reaching the free path at all means the discount didn't hold.
+  'tier_not_free',
+]);
+
 interface FreeTicketModalProps {
   visible: boolean;
   onClose: () => void;
@@ -34,6 +49,20 @@ interface FreeTicketModalProps {
    * against.
    */
   lockedQuantity?: number;
+  /**
+   * Promo code the buyer applied in the tier selector (raw code or promo doc id).
+   * Forwarded so the SERVER can re-validate it and decide whether the order really
+   * prices out at 0 — the client's arithmetic is never the authority. Without this
+   * a 100%-off code on a PAID tier lands here and is refused ("not free"), which
+   * is the bug this thread fixes.
+   */
+  promoCode?: string;
+  /**
+   * Escape hatch for a claim the server refuses on promo grounds (code invalid,
+   * spent, or only a partial discount). Lets the buyer continue to normal
+   * checkout instead of being stranded in a sheet that can't succeed.
+   */
+  onCheckoutFallback?: () => void;
 }
 
 export default function FreeTicketModal({
@@ -49,6 +78,8 @@ export default function FreeTicketModal({
   tierId,
   tierName,
   lockedQuantity,
+  promoCode,
+  onCheckoutFallback,
 }: FreeTicketModalProps) {
   const { colors } = useTheme();
   const { t } = useI18n();
@@ -60,6 +91,10 @@ export default function FreeTicketModal({
   // placeholder; `pc` also picks the singular/plural variant by count.
   const rc = (key: string, n: number) => t(key).replace('{count}', String(n));
   const pc = (base: string, n: number) => rc(`${base}.${n === 1 ? 'one' : 'other'}`, n);
+  // t() echoes the key back when it is missing from the dictionaries (same guard
+  // as `eventDetail.startsIn` in EventDetailScreen), so every string added here
+  // reads as English until the keys land centrally — never as a raw key.
+  const tf = (key: string, fallback: string) => (t(key) === key ? fallback : t(key));
 
   const isLocked = typeof lockedQuantity === 'number' && lockedQuantity > 0;
   const remainingTickets = (event.total_tickets || 0) - (event.tickets_sold || 0);
@@ -83,6 +118,50 @@ export default function FreeTicketModal({
   const handleDecrease = () => {
     if (quantity > 1) {
       setQuantity(quantity - 1);
+    }
+  };
+
+  /**
+   * Map a `code` from /api/tickets/claim-free to buyer-facing copy. Anything
+   * unrecognised (including an old server that sends no code at all) falls back
+   * to the existing generic line rather than leaking English server text.
+   */
+  const localizedClaimError = (code: string): string => {
+    switch (code) {
+      case 'promo_invalid':
+        return tf('freeTicket.errors.promoInvalid', 'This promo code is no longer valid for this event.');
+      case 'promo_exhausted':
+        return tf('freeTicket.errors.promoExhausted', 'This promo code has reached its usage limit.');
+      case 'promo_not_free':
+        return tf(
+          'freeTicket.errors.promoNotFree',
+          'This promo code does not cover the full price of these tickets.'
+        );
+      case 'promo_requires_tier':
+        return tf('freeTicket.errors.promoRequiresTier', 'Choose a ticket type before using this promo code.');
+      case 'promo_redeem_failed':
+        return tf('freeTicket.errors.promoFailed', 'We could not apply this promo code. Please try again.');
+      case 'tier_not_free':
+      case 'event_not_free':
+        return tf('freeTicket.errors.notFree', 'These tickets are not free.');
+      case 'tier_inactive':
+      case 'tier_not_found':
+        return tf('freeTicket.errors.tierUnavailable', 'This ticket type is no longer available.');
+      case 'tier_not_started':
+        return tf('freeTicket.errors.salesNotStarted', 'Ticket sales have not started yet.');
+      case 'tier_sales_ended':
+        return tf('freeTicket.errors.salesEnded', 'Ticket sales have ended.');
+      case 'tier_sold_out':
+      case 'no_tickets_available':
+        return t('freeTicket.soldOutBody');
+      case 'limited_availability':
+        return tf('freeTicket.errors.limited', 'There are not enough tickets left for this order.');
+      case 'too_many_tickets':
+        return tf('freeTicket.errors.tooMany', 'You can claim at most 10 free tickets at a time.');
+      case 'access_code_required':
+        return tf('freeTicket.errors.accessCode', 'This event needs an access code.');
+      default:
+        return t('freeTicket.errorBody');
     }
   };
 
@@ -120,6 +199,10 @@ export default function FreeTicketModal({
             eventId,
             quantity: claimQuantity,
             ...(tierId ? { tierId } : {}),
+            // Routing hint only: the server re-resolves this code against the
+            // event's own promo docs and recomputes the discount before it agrees
+            // that anything is free.
+            ...(promoCode ? { promoCode } : {}),
           }),
         }
       );
@@ -150,13 +233,30 @@ export default function FreeTicketModal({
     } catch (error: any) {
       console.error('=== ERROR CLAIMING TICKETS ===');
       console.error('Error details:', error);
-      // backendJson throws with the server's `error` message (sold out, sales not
-      // started, tier not free, ...). Surface it when present — the generic copy
-      // would hide a specific, actionable reason.
-      const serverMessage = typeof error?.message === 'string' ? error.message.trim() : '';
+      // The server sends a stable `code` alongside its English `error` string.
+      // Localize off the code; the raw server sentence is for logs only and must
+      // never be the copy a buyer reads.
+      const code = typeof error?.code === 'string' ? error.code : '';
+      const message = localizedClaimError(code);
+      // A promo refusal isn't a dead end — the buyer can still pay for the ticket.
+      const canFallBack = Boolean(onCheckoutFallback) && PROMO_FAILURE_CODES.has(code);
+
       Alert.alert(
         t('common.error'),
-        serverMessage ? serverMessage.replace(/\s*\[https?:\/\/[^\]]*\]\s*$/, '') : t('freeTicket.errorBody')
+        message,
+        canFallBack
+          ? [
+              { text: t('common.cancel'), style: 'cancel' },
+              {
+                text: tf('freeTicket.continueToCheckout', 'Continue to checkout'),
+                onPress: () => {
+                  onClose();
+                  // Let the sheet finish dismissing before the next one opens.
+                  setTimeout(() => onCheckoutFallback?.(), 300);
+                },
+              },
+            ]
+          : undefined
       );
     } finally {
       setLoading(false);

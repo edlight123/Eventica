@@ -2062,6 +2062,21 @@ export default {
   },
 
   freeTicket: {
+    continueToCheckout: 'Continuer vers le paiement',
+    errors: {
+      promoInvalid: "Ce code promo n'est plus valable pour cet événement.",
+      promoExhausted: "Ce code promo a atteint sa limite d'utilisation.",
+      promoNotFree: 'Ce code promo ne couvre pas la totalité du prix de ces billets.',
+      promoRequiresTier: "Choisissez un type de billet avant d'utiliser ce code promo.",
+      promoFailed: "Nous n'avons pas pu appliquer ce code promo. Veuillez réessayer.",
+      notFree: 'Ces billets ne sont pas gratuits.',
+      tierUnavailable: "Ce type de billet n'est plus disponible.",
+      salesNotStarted: "La vente des billets n'a pas encore commencé.",
+      salesEnded: 'La vente des billets est terminée.',
+      limited: 'Il ne reste pas assez de billets pour cette commande.',
+      tooMany: 'Vous pouvez réclamer au maximum 10 billets gratuits à la fois.',
+      accessCode: "Cet événement nécessite un code d'accès.",
+    },
     title: 'Réclamer un billet gratuit',
     freeEvent: 'ÉVÉNEMENT GRATUIT',
     quantityLabel: 'Nombre de billets',

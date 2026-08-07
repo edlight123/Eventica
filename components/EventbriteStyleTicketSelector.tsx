@@ -36,7 +36,16 @@ interface EventbriteStyleTicketSelectorProps {
   eventId: string
   userId: string | null
   currency?: string
-  onPurchase: (selections: { tierId: string; quantity: number; price: number; tierName?: string }[], promoCodeId?: string) => void
+  /**
+   * `discountedTotal` is what THIS component computed after applying the promo —
+   * a routing hint only (it decides whether to try the free-claim endpoint). The
+   * server re-prices the order from Firestore and has the final say.
+   */
+  onPurchase: (
+    selections: { tierId: string; quantity: number; price: number; tierName?: string }[],
+    promoCodeId?: string,
+    discountedTotal?: number
+  ) => void
 }
 
 export default function EventbriteStyleTicketSelector({ 
@@ -180,7 +189,7 @@ export default function EventbriteStyleTicketSelector({
 
     if (selections.length === 0) return
 
-    onPurchase(selections, promoValidation?.promoCode?.id)
+    onPurchase(selections, promoValidation?.promoCode?.id, getTotalPrice())
   }
 
   if (loading) {

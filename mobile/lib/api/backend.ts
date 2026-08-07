@@ -240,7 +240,19 @@ export async function backendJson<T>(path: string, init: FetchInit = {}): Promis
       })
     }
 
-    throw new Error(`${message}${extra} [${res.url}]`)
+    // Carry the machine-readable parts of the failure on the Error itself. The
+    // message is an English server string that must never be shown to a buyer as
+    // is; callers localize off `code` (and fall back to their own copy when the
+    // endpoint doesn't send one).
+    const err = new Error(`${message}${extra} [${res.url}]`) as Error & {
+      code?: string
+      status?: number
+      payload?: any
+    }
+    err.code = typeof (data as any)?.code === 'string' ? (data as any).code : undefined
+    err.status = res.status
+    err.payload = data
+    throw err
   }
 
   return data as T

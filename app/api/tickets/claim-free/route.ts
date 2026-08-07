@@ -5,10 +5,32 @@ import { getCurrentUser } from '@/lib/auth'
 import { notifyTicketPurchase, notifyOrganizerTicketSale } from '@/lib/notifications/helpers'
 import { hasEventAccess } from '@/lib/events/access-guard'
 import { FieldValue } from 'firebase-admin/firestore'
-import { buildTierSoldIncrements, reserveInventoryAtomic } from '@/lib/tickets/inventory'
+import {
+  buildTierSoldIncrements,
+  releaseInventoryReservation,
+  reserveInventoryAtomic,
+} from '@/lib/tickets/inventory'
+import {
+  calculateDiscount,
+  promoHasCapacity,
+  redeemPromoInTransaction,
+  resolvePromoCode,
+  type PromoDoc,
+} from '@/lib/promo-codes'
+import { computeSelectionTotal, toCents } from '@/lib/ticketPricing'
 
 /** Hard cap on how many free tickets one claim may issue, across all tiers. */
 const MAX_FREE_TICKETS_PER_CLAIM = 10
+
+/**
+ * Error responses carry BOTH a human-readable English `error` (unchanged wording,
+ * so shipped clients and logs keep working) and a stable machine `code`. Clients
+ * localize off `code` — mobile build 10 ignores it, newer clients use it instead
+ * of showing raw English server copy to a buyer.
+ */
+function fail(error: string, code: string, status = 400) {
+  return NextResponse.json({ error, code }, { status })
+}
 
 /** One validated line of a claim: which tier, how many, and what to name the tickets. */
 interface TierClaim {
@@ -16,6 +38,8 @@ interface TierClaim {
   tierId: string
   tierName: string
   quantity: number
+  /** The tier's OWN price, straight from Firestore (major units). Never client-supplied. */
+  unitPrice: number
 }
 
 /**
@@ -41,27 +65,44 @@ function normalizeSelections(
  * Sale-window / active / sold-out gate for a tier, mirroring the paid initiate
  * routes so a FREE tier is held to exactly the same rules as a paid one.
  */
-function tierIsOnSale(tier: any, now: Date): { ok: true } | { ok: false; reason: string } {
-  if (tier?.is_active === false) return { ok: false, reason: 'This ticket tier is not available.' }
+function tierIsOnSale(
+  tier: any,
+  now: Date
+): { ok: true } | { ok: false; reason: string; code: string } {
+  if (tier?.is_active === false) {
+    return { ok: false, reason: 'This ticket tier is not available.', code: 'tier_inactive' }
+  }
 
   const salesStart = tier?.sales_start ? new Date(tier.sales_start) : null
   const salesEnd = tier?.sales_end ? new Date(tier.sales_end) : null
 
   if (salesStart && !Number.isNaN(salesStart.getTime()) && salesStart > now) {
-    return { ok: false, reason: 'Ticket sales for this tier have not started yet.' }
+    return {
+      ok: false,
+      reason: 'Ticket sales for this tier have not started yet.',
+      code: 'tier_not_started',
+    }
   }
   if (salesEnd && !Number.isNaN(salesEnd.getTime()) && salesEnd < now) {
-    return { ok: false, reason: 'Ticket sales for this tier have ended.' }
+    return { ok: false, reason: 'Ticket sales for this tier have ended.', code: 'tier_sales_ended' }
   }
 
   // 0 / missing total ⇒ unlimited (matches reserveInventoryAtomic's convention).
   const total = Number(tier?.total_quantity ?? tier?.quantity ?? 0)
   if (Number.isFinite(total) && total > 0) {
     const sold = Number(tier?.sold_quantity || 0)
-    if (total - sold <= 0) return { ok: false, reason: 'This ticket tier is sold out.' }
+    if (total - sold <= 0) {
+      return { ok: false, reason: 'This ticket tier is sold out.', code: 'tier_sold_out' }
+    }
   }
 
   return { ok: true }
+}
+
+/** A tier/event price as stored in Firestore, coerced to a finite non-negative number. */
+function storedPrice(value: unknown): number {
+  const n = Number(value ?? 0)
+  return Number.isFinite(n) && n > 0 ? n : 0
 }
 
 export async function POST(request: Request) {
@@ -72,7 +113,7 @@ export async function POST(request: Request) {
     console.log('User:', user?.id, user?.email)
 
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return fail('Unauthorized', 'unauthorized', 401)
     }
 
     // TWO accepted payload shapes:
@@ -87,23 +128,32 @@ export async function POST(request: Request) {
     //     reserved atomically (all-or-nothing).
     //
     // `selections` wins when present and non-empty; otherwise shape 1 runs verbatim.
-    const { eventId, quantity = 1, tierId, selections } = await request.json()
+    //
+    // OPTIONAL `promoCode` (raw code OR promo doc id, exactly like the paid
+    // initiators accept) turns this into "issue a claim that the SERVER prices at
+    // 0 after applying the promo". Nothing about the client's belief is trusted:
+    // the tier price comes from Firestore, the promo comes from `promo_codes`, and
+    // the discount is recomputed here. When `promoCode` is absent every code path
+    // below behaves exactly as it did before.
+    const { eventId, quantity = 1, tierId, selections, promoCode } = await request.json()
     const requestedSelections = normalizeSelections(selections)
     const useSelections = requestedSelections.length > 0
+    const requestedPromo = String(promoCode ?? '').trim()
     console.log(
       'Event ID:', eventId,
       'Quantity:', quantity,
       'Tier:', tierId || '(auto)',
-      'Selections:', useSelections ? JSON.stringify(requestedSelections) : '(none)'
+      'Selections:', useSelections ? JSON.stringify(requestedSelections) : '(none)',
+      'Promo:', requestedPromo ? '(provided)' : '(none)'
     )
 
     if (!eventId) {
-      return NextResponse.json({ error: 'Event ID is required' }, { status: 400 })
+      return fail('Event ID is required', 'missing_event_id', 400)
     }
 
     if (Array.isArray(selections) && selections.length > 0 && !useSelections) {
       // Caller sent a selections array but every line was unusable.
-      return NextResponse.json({ error: 'No valid ticket selections provided' }, { status: 400 })
+      return fail('No valid ticket selections provided', 'no_valid_selections', 400)
     }
 
     // Validate quantity. For the selections shape the total across all tiers is
@@ -111,9 +161,10 @@ export async function POST(request: Request) {
     // multi-tier cart would issue an order the buyer never asked for.
     const selectionsTotal = requestedSelections.reduce((sum, s) => sum + s.quantity, 0)
     if (useSelections && selectionsTotal > MAX_FREE_TICKETS_PER_CLAIM) {
-      return NextResponse.json(
-        { error: `You can claim at most ${MAX_FREE_TICKETS_PER_CLAIM} free tickets at a time.` },
-        { status: 400 }
+      return fail(
+        `You can claim at most ${MAX_FREE_TICKETS_PER_CLAIM} free tickets at a time.`,
+        'too_many_tickets',
+        400
       )
     }
     const ticketQuantity = useSelections
@@ -127,15 +178,47 @@ export async function POST(request: Request) {
     console.log('Event fetch result:', { exists: eventDoc.exists, id: eventDoc.id })
 
     if (!eventDoc.exists) {
-      return NextResponse.json({ error: 'Event not found' }, { status: 404 })
+      return fail('Event not found', 'event_not_found', 404)
     }
 
     const event = { id: eventDoc.id, ...eventDoc.data() } as any
 
     // Password-protected events: require a valid access grant before issuing tickets.
     if (!(await hasEventAccess(event, eventId, user.id))) {
-      return NextResponse.json({ error: 'access_code_required' }, { status: 403 })
+      return fail('access_code_required', 'access_code_required', 403)
     }
+
+    // ── Promo code, re-validated SERVER-SIDE ────────────────────────────────────
+    // Same lookup + same rules as the paid initiators
+    // (app/api/moncash-button/initiate/route.ts:157-160,
+    //  app/api/create-payment-intent/route.ts:202-208): resolvePromoCode enforces
+    // "belongs to THIS event" + is_active + not expired, and promoHasCapacity
+    // enforces the usage cap softly here (the cap is enforced ATOMICALLY at
+    // redemption below). The difference from the paid path: an unusable promo
+    // there just charges full price, whereas here it must REFUSE — silently
+    // dropping the discount would hand out a paid ticket for nothing.
+    let promo: PromoDoc | null = null
+    if (requestedPromo) {
+      const resolved = await resolvePromoCode(String(eventId), requestedPromo)
+      if (!resolved) {
+        return fail('This promo code is not valid for this event.', 'promo_invalid', 400)
+      }
+      if (!promoHasCapacity(resolved)) {
+        return fail('This promo code has reached its usage limit.', 'promo_exhausted', 400)
+      }
+      promo = resolved
+    }
+
+    /**
+     * What the SERVER says one ticket of this tier costs after the promo.
+     * The only pricing authority in this route — `calculateDiscount` is the exact
+     * function both paid initiators use, so a code discounts identically here.
+     */
+    const chargedUnitPrice = (price: number): number =>
+      promo ? calculateDiscount(price, promo).discountedPrice : price
+
+    /** True when the server's own math makes this tier cost exactly nothing. */
+    const zeroesToFree = (price: number): boolean => toCents(chargedUnitPrice(price)) === 0
 
     // Resolve WHICH tier is being claimed, and prove it is actually free.
     //
@@ -170,71 +253,121 @@ export async function POST(request: Request) {
       for (const sel of requestedSelections) {
         const tier = tierDocs.find((t: any) => String(t.id) === sel.tierId)
         if (!tier) {
-          return NextResponse.json({ error: 'Ticket tier not found for this event' }, { status: 404 })
+          return fail('Ticket tier not found for this event', 'tier_not_found', 404)
         }
-        if (Number(tier.price || 0) > 0) {
-          return NextResponse.json({ error: 'This ticket tier is not free' }, { status: 400 })
+        const price = storedPrice(tier.price)
+        if (!zeroesToFree(price)) {
+          // With a promo the buyer's expectation was "this is free", so name the
+          // real reason: the promo does not fully cover this tier. Partial
+          // discounts belong on the paid checkout path.
+          return promo
+            ? fail(
+                'This promo code does not make these tickets free.',
+                'promo_not_free',
+                400
+              )
+            : fail('This ticket tier is not free', 'tier_not_free', 400)
         }
         const onSale = tierIsOnSale(tier, now)
         if (!onSale.ok) {
-          return NextResponse.json({ error: onSale.reason }, { status: 400 })
+          return fail(onSale.reason, onSale.code, 400)
         }
         claims.push({
           tierId: String(tier.id),
           tierName: String(tier.name || 'General Admission'),
           quantity: sel.quantity,
+          unitPrice: price,
         })
       }
     } else if (tierId) {
-      // Explicit tier: it must belong to THIS event, be free, and be on sale.
+      // Explicit tier: it must belong to THIS event, price out at 0 (on its own or
+      // via the promo), and be on sale.
       const tier = tierDocs.find((t: any) => String(t.id) === String(tierId))
       if (!tier) {
-        return NextResponse.json({ error: 'Ticket tier not found for this event' }, { status: 404 })
+        return fail('Ticket tier not found for this event', 'tier_not_found', 404)
       }
-      if (Number(tier.price || 0) > 0) {
-        return NextResponse.json({ error: 'This ticket tier is not free' }, { status: 400 })
+      const price = storedPrice(tier.price)
+      if (!zeroesToFree(price)) {
+        return promo
+          ? fail('This promo code does not make these tickets free.', 'promo_not_free', 400)
+          : fail('This ticket tier is not free', 'tier_not_free', 400)
       }
       const onSale = tierIsOnSale(tier, new Date())
       if (!onSale.ok) {
-        return NextResponse.json({ error: onSale.reason }, { status: 400 })
+        return fail(onSale.reason, onSale.code, 400)
       }
       claims = [{
         tierId: String(tier.id),
         tierName: String(tier.name || 'General Admission'),
         quantity: ticketQuantity,
+        unitPrice: price,
       }]
     } else if (tierDocs.length > 0) {
       // No explicit tier: pick the event's free tier. If NO tier is free, the
       // event has nothing to give away — refuse rather than issuing a ticket for
       // a paid tier at no charge.
+      //
+      // A promo deliberately does NOT widen this branch: choosing which PAID tier a
+      // 100%-off code should zero is a decision only the buyer can make, and
+      // guessing would hand out (say) the VIP tier because it happened to sort
+      // first. The caller must name the tier.
       const freeTiers = tierDocs
-        .filter((t: any) => Number(t.price || 0) === 0)
+        .filter((t: any) => storedPrice(t.price) === 0)
         .sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0))
       if (freeTiers.length === 0) {
-        return NextResponse.json({ error: 'This is not a free event' }, { status: 400 })
+        return promo
+          ? fail('Select a ticket type to use this promo code.', 'promo_requires_tier', 400)
+          : fail('This is not a free event', 'event_not_free', 400)
       }
       const onSaleFree = freeTiers.find((t: any) => tierIsOnSale(t, new Date()).ok)
       if (!onSaleFree) {
         const reason = tierIsOnSale(freeTiers[0], new Date())
-        return NextResponse.json(
-          { error: reason.ok ? 'No tickets available' : reason.reason },
-          { status: 400 }
-        )
+        return reason.ok
+          ? fail('No tickets available', 'no_tickets_available', 400)
+          : fail(reason.reason, reason.code, 400)
       }
       claims = [{
         tierId: String(onSaleFree.id),
         tierName: String(onSaleFree.name || 'General Admission'),
         quantity: ticketQuantity,
+        unitPrice: storedPrice(onSaleFree.price),
       }]
     } else {
       // Legacy event with no tier docs at all: fall back to the event-level price.
-      if (Number(event.ticket_price || 0) > 0) {
-        return NextResponse.json({ error: 'This is not a free event' }, { status: 400 })
+      const price = storedPrice(event.ticket_price)
+      if (!zeroesToFree(price)) {
+        return promo
+          ? fail('This promo code does not make these tickets free.', 'promo_not_free', 400)
+          : fail('This is not a free event', 'event_not_free', 400)
       }
       // Empty tierId — these tickets carry no tier and only count toward the
       // event-level tickets_sold (buildTierSoldIncrements skips them).
-      claims = [{ tierId: '', tierName: 'General Admission', quantity: ticketQuantity }]
+      claims = [{ tierId: '', tierName: 'General Admission', quantity: ticketQuantity, unitPrice: price }]
     }
+
+    // ── Final price gate ────────────────────────────────────────────────────────
+    // Independent of every branch above: recompute the whole order from the prices
+    // this route READ OUT OF FIRESTORE and refuse unless the server's own total is
+    // exactly 0. Money math runs on integer cents (computeSelectionTotal) so a
+    // percentage promo can't leave a fraction of a gourde behind and slip through
+    // as "close enough to free".
+    const grossTotalCents = toCents(
+      computeSelectionTotal(claims.map((c) => ({ price: c.unitPrice, quantity: c.quantity })))
+    )
+    const netTotalCents = toCents(
+      computeSelectionTotal(
+        claims.map((c) => ({ price: chargedUnitPrice(c.unitPrice), quantity: c.quantity }))
+      )
+    )
+    if (netTotalCents !== 0) {
+      console.warn('[claim-free] refusing non-zero claim', { eventId, netTotalCents })
+      return promo
+        ? fail('This promo code does not make these tickets free.', 'promo_not_free', 400)
+        : fail('This ticket tier is not free', 'tier_not_free', 400)
+    }
+    // How much the promo actually took off. 0 means the tiers were already free and
+    // the promo did nothing — in that case we must NOT burn one of its uses below.
+    const promoDiscountCents = Math.max(0, grossTotalCents - netTotalCents)
 
     // Per-user dedup: never issue a second FREE ticket to the same user for the same
     // event (prevents refresh/double-click and scripted abuse from claiming unlimited
@@ -282,11 +415,52 @@ export async function POST(request: Request) {
     if (!reservation.ok) {
       const remaining = Number(reservation.remaining ?? 0)
       if (remaining <= 0) {
-        return NextResponse.json({ error: 'No tickets available' }, { status: 400 })
+        return fail('No tickets available', 'no_tickets_available', 400)
       }
-      return NextResponse.json({
-        error: `Only ${remaining} ticket${remaining !== 1 ? 's' : ''} remaining`,
-      }, { status: 400 })
+      return fail(
+        `Only ${remaining} ticket${remaining !== 1 ? 's' : ''} remaining`,
+        'limited_availability',
+        400
+      )
+    }
+
+    // ── Promo redemption: the authoritative usage-cap gate ──────────────────────
+    // Same helper the paid pipeline calls (lib/tickets/fulfillment.ts:335), which
+    // re-reads uses_count/max_uses inside a Firestore transaction and only then
+    // increments + writes the `promo_code_usage` record. Two differences from the
+    // paid path, both deliberate:
+    //   • it runs BEFORE tickets exist, so a cap-reached code can still be refused
+    //     cleanly (the paid path has already taken money, so it keeps the tickets
+    //     and just logs);
+    //   • ANY non-redemption is fatal here. If we cannot record the redemption we
+    //     must not give the ticket away, otherwise a single-use code would issue
+    //     unlimited free tickets.
+    // The reservation made just above is released so the refusal doesn't leak
+    // inventory.
+    if (promo && promoDiscountCents > 0) {
+      const redeem = await redeemPromoInTransaction({
+        promoId: promo.id,
+        qty: ticketQuantity,
+        userId: user.id,
+        eventId,
+        discountApplied: promoDiscountCents / 100,
+      })
+      if (!redeem.redeemed) {
+        await releaseInventoryReservation({
+          eventId,
+          quantity: ticketQuantity,
+          tierIncrements,
+          logPrefix: '[claim-free]',
+        })
+        console.warn('[claim-free] promo redemption refused', {
+          eventId,
+          promoId: promo.id,
+          capReached: redeem.capReached,
+        })
+        return redeem.capReached
+          ? fail('This promo code has reached its usage limit.', 'promo_exhausted', 400)
+          : fail('Could not apply this promo code. Please try again.', 'promo_redeem_failed', 400)
+      }
     }
 
     // Create tickets one at a time to ensure each gets a unique ID, tier by tier so
@@ -311,6 +485,11 @@ export async function POST(request: Request) {
           event_date: event.start_datetime || null,
           venue_name: event.venue_name || null,
           city: event.city || null,
+          // Audit trail for a promo-zeroed ticket. Added ONLY when a promo actually
+          // paid for it, so a plain free claim keeps its exact historical doc shape.
+          ...(promo && promoDiscountCents > 0
+            ? { promo_code_id: promo.id, original_price: claim.unitPrice }
+            : {}),
         }
 
         const ticketRef = await adminDb.collection('tickets').add(ticketData)
@@ -367,13 +546,12 @@ export async function POST(request: Request) {
         tierName: c.tierName,
         quantity: c.quantity,
       })),
+      // Additive: tells the caller a promo (not a 0-price tier) paid for this claim.
+      promoApplied: Boolean(promo && promoDiscountCents > 0),
       message: `${ticketQuantity} free ticket${ticketQuantity !== 1 ? 's' : ''} claimed successfully!`
     })
   } catch (error: any) {
     console.error('Claim free ticket error:', error)
-    return NextResponse.json(
-      { error: error.message || 'Failed to claim free ticket' },
-      { status: 500 }
-    )
+    return fail(error.message || 'Failed to claim free ticket', 'server_error', 500)
   }
 }

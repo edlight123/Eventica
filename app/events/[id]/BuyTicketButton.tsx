@@ -24,6 +24,20 @@ const SOGEPAY_ENABLED = false
 // handler and backend path stay intact; flip to true to bring the option back.
 const NATCASH_ENABLED = false
 
+/**
+ * Refusals from /api/tickets/claim-free that the buyer can still recover from by
+ * paying. Everything else (sold out, sales closed, …) is a real dead end.
+ */
+const PROMO_FAILURE_CODES = new Set([
+  'promo_invalid',
+  'promo_exhausted',
+  'promo_not_free',
+  'promo_requires_tier',
+  'promo_redeem_failed',
+  // A paid tier reaching the free endpoint at all means the discount didn't hold.
+  'tier_not_free',
+])
+
 interface BuyTicketButtonProps {
   eventId: string
   userId: string
@@ -93,6 +107,67 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
       cancelled = true
     }
   }, [eventId, userId, isPasswordProtected])
+
+  /**
+   * Buyer-facing copy for a `code` returned by /api/tickets/claim-free. The
+   * endpoint's English `error` string is for logs; what the buyer reads is
+   * localized here (with an English defaultValue until the keys land).
+   */
+  function localizedClaimError(code: string): string {
+    switch (code) {
+      case 'promo_invalid':
+        return t('events.claim_promo_invalid', {
+          defaultValue: 'This promo code is no longer valid for this event.',
+        })
+      case 'promo_exhausted':
+        return t('events.claim_promo_exhausted', {
+          defaultValue: 'This promo code has reached its usage limit.',
+        })
+      case 'promo_not_free':
+        return t('events.claim_promo_not_free', {
+          defaultValue: 'This promo code does not cover the full price of these tickets.',
+        })
+      case 'promo_requires_tier':
+        return t('events.claim_promo_requires_tier', {
+          defaultValue: 'Choose a ticket type before using this promo code.',
+        })
+      case 'promo_redeem_failed':
+        return t('events.claim_promo_failed', {
+          defaultValue: 'We could not apply this promo code. Please try again.',
+        })
+      case 'tier_not_free':
+      case 'event_not_free':
+        return t('events.claim_not_free', { defaultValue: 'These tickets are not free.' })
+      case 'tier_inactive':
+      case 'tier_not_found':
+        return t('events.claim_tier_unavailable', {
+          defaultValue: 'This ticket type is no longer available.',
+        })
+      case 'tier_not_started':
+        return t('events.claim_sales_not_started', {
+          defaultValue: 'Ticket sales have not started yet.',
+        })
+      case 'tier_sales_ended':
+        return t('events.claim_sales_ended', { defaultValue: 'Ticket sales have ended.' })
+      case 'tier_sold_out':
+      case 'no_tickets_available':
+        return t('events.claim_sold_out', { defaultValue: 'These tickets are sold out.' })
+      case 'limited_availability':
+        return t('events.claim_limited', {
+          defaultValue: 'There are not enough tickets left for this order.',
+        })
+      case 'too_many_tickets':
+        return t('events.claim_too_many', {
+          defaultValue: 'You can claim at most 10 free tickets at a time.',
+        })
+      case 'access_code_required':
+        return t('events.password_required', { defaultValue: 'Password required' })
+      default:
+        return t('events.claim_generic_error', {
+          defaultValue: 'Could not claim your ticket. Please try again.',
+        })
+    }
+  }
 
   function runPendingAction() {
     const action = pendingActionRef.current
@@ -298,16 +373,21 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
   /**
    * Issue free tickets without touching a payment gateway.
    *
-   * Called two ways:
+   * Called three ways:
    *  - no argument: the whole event is free (no tier selection was shown), so the
    *    server resolves the event's free tier itself. This is the original payload
    *    shape and is left byte-identical.
    *  - with `selections`: the buyer picked specific FREE tiers out of an event that
    *    also sells paid ones. Every tier and quantity is sent so the server can
    *    validate and reserve each one.
+   *  - with `selections` AND `promoCodeId`: paid tiers the buyer's promo code takes
+   *    to 0. The code is forwarded so the SERVER can re-resolve it, recompute the
+   *    discount and decide for itself whether the order is really free. If it
+   *    disagrees the buyer is handed back to checkout rather than left stuck.
    */
   async function handleClaimFreeTicket(
-    selections?: { tierId: string; quantity: number; tierName?: string }[]
+    selections?: { tierId: string; quantity: number; tierName?: string }[],
+    promoCodeId?: string
   ) {
     setLoading(true)
     setError(null)
@@ -336,17 +416,43 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(
           selections?.length
-            ? { eventId, selections: selections.map(s => ({ tierId: s.tierId, quantity: s.quantity })) }
+            ? {
+                eventId,
+                selections: selections.map(s => ({ tierId: s.tierId, quantity: s.quantity })),
+                ...(promoCodeId ? { promoCode: promoCodeId } : {}),
+              }
             : { eventId, quantity }
         ),
       })
 
       const data = await response.json()
-      
+
       console.log('Claim response:', data)
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to claim ticket')
+        // A promo refusal is recoverable: the order still has a real price, so put
+        // the buyer on the checkout path instead of leaving them with a dead end.
+        if (promoCodeId && PROMO_FAILURE_CODES.has(String(data?.code || ''))) {
+          setLoading(false)
+          setError(null)
+          showToast({
+            type: 'info',
+            title: t('events.promo_free_claim_failed_title', {
+              defaultValue: 'This promo code needs checkout',
+            }),
+            message: localizedClaimError(String(data?.code || '')),
+            duration: 6000,
+          })
+          // The paid-branch state (tiers, promo, quantity) was already staged by
+          // handleTieredPurchase, so opening the sheet resumes a normal purchase.
+          setShowModal(true)
+          return
+        }
+        const claimError = new Error(localizedClaimError(String(data?.code || ''))) as Error & {
+          code?: string
+        }
+        claimError.code = data?.code
+        throw claimError
       }
 
       // Show success toast and redirect
@@ -361,11 +467,15 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
       router.refresh()
     } catch (err: any) {
       console.error('Claim error:', err)
-      setError(err.message || 'Failed to claim ticket')
+      // `err.message` is already localized when it came from a coded server
+      // refusal above; anything else (network/parse failure) gets the generic
+      // localized line rather than a raw English exception string.
+      const message = err?.code ? err.message : localizedClaimError('')
+      setError(message)
       showToast({
         type: 'error',
-        title: 'Failed to claim ticket',
-        message: err.message || 'Please try again later',
+        title: t('events.claim_failed_title', { defaultValue: 'Could not claim your ticket' }),
+        message,
         duration: 4000
       })
       setLoading(false)
@@ -558,22 +668,18 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
 
   const handleTieredPurchase = (
     selections: { tierId: string; quantity: number; price: number; tierName?: string }[],
-    promoCodeId?: string
+    promoCodeId?: string,
+    discountedTotal?: number
   ) => {
     if (!selections || selections.length === 0) return
 
     const totalQuantity = selections.reduce((sum, s) => sum + s.quantity, 0)
     const totalPrice = computeSelectionTotal(selections)
 
-    // Every selected tier costs 0 → issue the tickets directly. Sending this to a
-    // payment initiator would produce a 0-amount gateway call: Stripe rejects a
-    // 0 PaymentIntent, and MonCash would write a pending transaction of 0 and
-    // redirect the buyer to pay nothing.
-    //
-    // The test is `allSelectionsFree` (each tier's OWN price is 0), NOT
-    // `totalPrice === 0`. A paid cart discounted to 0 by a 100%-off promo also
-    // totals 0, but /api/tickets/claim-free requires the tier itself to be free
-    // and would refuse it — so that case must stay on the checkout path.
+    // Every selected tier costs 0 on its OWN price → issue the tickets directly.
+    // Sending this to a payment initiator would produce a 0-amount gateway call:
+    // Stripe rejects a 0 PaymentIntent, and MonCash would write a pending
+    // transaction of 0 and redirect the buyer to pay nothing.
     if (allSelectionsFree(selections)) {
       setShowTieredModal(false)
       setSelectedTiers(selections)
@@ -588,14 +694,32 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
 
     // Persist promo code (id) so payment APIs can apply the discount.
     setPromoCode(promoCodeId)
-    
+
     // For backward compatibility, also set the first tier
     const firstSelection = selections[0]
     setSelectedTierId(firstSelection.tierId)
     setSelectedTierPrice(totalPrice / totalQuantity) // Average price (for display compatibility)
     setQuantity(totalQuantity)
-    
+
     setShowTieredModal(false)
+
+    // PAID tiers a promo code takes to zero. This total is the CLIENT's arithmetic
+    // and is treated as nothing more than a routing hint: it only decides which
+    // endpoint to try first. /api/tickets/claim-free re-resolves the promo against
+    // the event's own records, recomputes the discount from the Firestore tier
+    // prices, and issues only if ITS total is 0 — otherwise it refuses and the
+    // handler above reopens this checkout sheet (whose state is already staged
+    // just above, so nothing is lost).
+    //
+    // Routing on the discounted total rather than sending it to a gateway is the
+    // whole point: `create-payment-intent` would compute amountCents = 0 (Stripe
+    // rejects it) and `moncash-button/initiate` would write a 0-amount pending
+    // transaction and redirect.
+    if (promoCodeId && typeof discountedTotal === 'number' && discountedTotal <= 0 && totalPrice > 0) {
+      handleClaimFreeTicket(selections, promoCodeId)
+      return
+    }
+
     setShowModal(true)
   }
 
