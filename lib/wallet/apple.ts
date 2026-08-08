@@ -12,7 +12,7 @@
  * event, the date, the venue, the tier and the ticket's EXISTING QR payload.
  */
 
-import { PKPass } from 'passkit-generator'
+import type { PKPass as PKPassType } from 'passkit-generator'
 import type { AppleWalletConfig } from './config'
 import type { WalletTicket } from './ticket-access'
 
@@ -38,7 +38,18 @@ function formatPassDate(iso: string | null): string {
  * @throws if the certificate material is rejected by the signer. Callers turn
  *         that into a specific error code — never into a silent success.
  */
-export function buildApplePkpass(ticket: WalletTicket, config: AppleWalletConfig): Buffer {
+export async function buildApplePkpass(
+  ticket: WalletTicket,
+  config: AppleWalletConfig
+): Promise<Buffer> {
+  // Loaded on demand, NOT at module scope. `next build` imports every route
+  // module to collect page data, so a top-level import drags passkit-generator
+  // (plus node-forge and joi) into the same process that renders 199 static
+  // pages — which OOM'd the build. Nothing here runs until a pass is requested.
+  const { PKPass } = (await import('passkit-generator')) as {
+    PKPass: typeof PKPassType
+  }
+
   const pass = new PKPass(
     {
       // Apple will not open a pass without an icon; `logo.png` is what shows in

@@ -60,7 +60,7 @@ export async function GET(
 
     let pkpass: Buffer
     try {
-      pkpass = buildApplePkpass(access.ticket, appleConfig)
+      pkpass = await buildApplePkpass(access.ticket, appleConfig)
     } catch (error: any) {
       // Bad/mismatched certificate material lands here. Say so specifically
       // instead of pretending the pass was produced.
