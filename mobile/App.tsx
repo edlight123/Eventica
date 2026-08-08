@@ -1,3 +1,6 @@
+// Side-effect import: arms the native splash hold. Must come before anything
+// that can render, so keep it first.
+import './lib/splash';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts, InstrumentSerif_400Regular, InstrumentSerif_400Regular_Italic } from '@expo-google-fonts/instrument-serif';
