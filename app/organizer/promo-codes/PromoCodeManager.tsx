@@ -370,7 +370,7 @@ export default function PromoCodeManager({
 
             <div>
               <label className="label-mono block text-xs uppercase text-white/60 mb-1.5">
-                Max Uses <span className="normal-case font-normal">(optional)</span>
+                Max Discounted Tickets <span className="normal-case font-normal">(optional)</span>
               </label>
               <input
                 type="number"
@@ -380,6 +380,12 @@ export default function PromoCodeManager({
                 className="w-full rounded-lg border border-white/15 bg-transparent px-4 py-2.5 text-white placeholder:text-white/30 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
                 placeholder="Unlimited"
               />
+              {/* The cap counts TICKETS, not orders: fulfillment increments
+                  uses_count by the order quantity. Saying so here stops an
+                  organizer reading "50" as "the first 50 customers". */}
+              <p className="mt-1.5 text-xs text-white/40">
+                Counts tickets, not orders — a 10-ticket order uses 10.
+              </p>
             </div>
 
             <div>
