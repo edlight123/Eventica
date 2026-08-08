@@ -13,6 +13,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTabBarSpace } from '../hooks/useTabBarSpace';
 import { Bell, BookOpen, Briefcase, ChevronRight, Compass, FileText, Heart, HelpCircle, LogOut, MapPin, RotateCcw, Settings, Shield, User, Users } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { collection, getDocs, query, where } from 'firebase/firestore';
@@ -56,6 +57,9 @@ export default function ProfileScreen() {
   const { language, setLanguage, t } = useI18n();
   const { setUserCountry, applyFiltersDirectly, appliedFilters } = useFilters();
   const insets = useSafeAreaInsets();
+  // The tab bar is a translucent overlay, so reserve its height here or the
+  // last row ends up sitting behind it.
+  const tabBarSpace = useTabBarSpace();
 
   const [refreshing, setRefreshing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -466,7 +470,7 @@ export default function ProfileScreen() {
             // live on the identity row itself (top-right), so the avatar/name
             // sits right below the notch with no dead gap (beta feedback).
             paddingTop: insets.top + 12,
-            paddingBottom: insets.bottom + 24,
+            paddingBottom: tabBarSpace + 24,
           },
         ]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshAll} />}

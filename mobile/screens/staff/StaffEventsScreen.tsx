@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTabBarSpace } from '../../hooks/useTabBarSpace';
 import { Ticket } from 'lucide-react-native';
 import { auth } from '../../config/firebase';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -18,7 +18,9 @@ export default function StaffEventsScreen() {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const navigation = useNavigation();
-  const insets = useSafeAreaInsets();
+  // The tab bar is a translucent overlay, so reserve its height here or the
+  // last row ends up sitting behind it.
+  const tabBarSpace = useTabBarSpace();
   const { t } = useI18n();
 
   const { events, loading, refreshing, refresh } = useStaffEvents();
@@ -47,7 +49,7 @@ export default function StaffEventsScreen() {
         onRefresh={refresh}
         contentContainerStyle={[
           styles.list,
-          { paddingBottom: 16 + insets.bottom },
+          { paddingBottom: 16 + tabBarSpace },
           events.length === 0 && styles.listEmpty,
         ]}
         ListEmptyComponent={

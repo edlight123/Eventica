@@ -8,7 +8,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { Image } from 'expo-image';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTabBarSpace } from '../../hooks/useTabBarSpace';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -40,7 +40,9 @@ export default function OrganizerEventsScreen() {
   const { userProfile } = useAuth();
   const { t, language } = useI18n();
   const locale = language === 'fr' ? 'fr-FR' : language === 'ht' ? 'fr-HT' : 'en-US';
-  const insets = useSafeAreaInsets();
+  // The tab bar is a translucent overlay, so reserve its height here or the
+  // last row ends up sitting behind it.
+  const tabBarSpace = useTabBarSpace();
   const [eventTab, setEventTab] = useState<'upcoming' | 'past'>('upcoming');
   const [allEvents, setAllEvents] = useState<OrganizerEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -173,7 +175,7 @@ export default function OrganizerEventsScreen() {
       {/* Events List */}
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+        contentContainerStyle={{ paddingBottom: tabBarSpace + 24 }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}

@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useTabBarSpace } from '../../hooks/useTabBarSpace';
 import { Ticket } from 'lucide-react-native';
 import { auth } from '../../config/firebase';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -29,6 +30,9 @@ export default function StaffScanScreen() {
   const navigation = useNavigation();
   const uid = auth.currentUser?.uid || null;
   const { t } = useI18n();
+  // The tab bar is a translucent overlay, so reserve its height here or the
+  // last row ends up sitting behind it.
+  const tabBarSpace = useTabBarSpace();
 
   const { events, loading, refreshing, refresh } = useStaffEvents();
   const [selectedEvent, setSelectedEvent] = useState<StaffEventSummary | null>(null);
@@ -66,7 +70,7 @@ export default function StaffScanScreen() {
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: 24 + tabBarSpace }]}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.primary} />
         }

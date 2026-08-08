@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTabBarSpace } from '../hooks/useTabBarSpace';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Calendar, MapPin, Ticket, ChevronRight } from 'lucide-react-native';
 import { collection, query, where, getDocs, orderBy, documentId } from 'firebase/firestore';
@@ -76,6 +77,9 @@ export default function TicketsScreen({ navigation }: any) {
   const { user } = useAuth();
   const { t, language } = useI18n();
   const insets = useSafeAreaInsets();
+  // The tab bar is a translucent overlay, so reserve its height here or the
+  // last row ends up sitting behind it.
+  const tabBarSpace = useTabBarSpace();
   const [upcomingTickets, setUpcomingTickets] = useState<any[]>([]);
   const [pastTickets, setPastTickets] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
@@ -313,7 +317,7 @@ export default function TicketsScreen({ navigation }: any) {
 
       <ScrollView
         style={styles.content}
-        contentContainerStyle={{ paddingBottom: 24 + insets.bottom }}
+        contentContainerStyle={{ paddingBottom: 24 + tabBarSpace }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} colors={[colors.primary]} />

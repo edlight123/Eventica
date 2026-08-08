@@ -330,14 +330,21 @@ export function OrganizerProfileSkeleton() {
   const { colors } = useTheme();
   return (
     <View style={{ flex: 1 }}>
+      {/* Mirrors the compacted header: a 52px avatar INLINE beside the name,
+          meta line beneath, then a single quiet stats line — so the placeholder
+          and the real screen are the same height and nothing jumps on load. */}
       <View style={[styles.profileHero, { backgroundColor: colors.surfaceRaised }]}>
-        <Skeleton width={70} height={70} radius={35} />
-        <Skeleton width={'60%'} height={34} radius={9} style={{ marginTop: 12 } as ViewStyle} />
-        <Skeleton width={'40%'} height={13} radius={6} style={{ marginTop: 10 } as ViewStyle} />
+        <View style={styles.profileIdentityRow}>
+          <Skeleton width={52} height={52} radius={26} />
+          <View style={{ flex: 1 }}>
+            <Skeleton width={'75%'} height={30} radius={8} />
+            <Skeleton width={'45%'} height={13} radius={6} style={{ marginTop: 6 } as ViewStyle} />
+          </View>
+        </View>
       </View>
       <View style={styles.profileContent}>
-        <StatTripletSkeleton />
-        <View style={{ height: 24 }} />
+        <Skeleton width={'62%'} height={18} radius={6} />
+        <View style={{ height: 20 }} />
         <Skeleton width={160} height={24} radius={8} />
         <Skeleton width={120} height={13} radius={6} style={{ marginTop: 8 } as ViewStyle} />
       </View>
@@ -650,14 +657,20 @@ const styles = StyleSheet.create({
 
   // OrganizerProfileScreen: hero (height 300, bottom-aligned) + content.
   profileHero: {
-    height: 300,
+    minHeight: 232, // matches OrganizerProfileScreen HERO_MIN_HEIGHT
     justifyContent: 'flex-end',
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 12,
     paddingBottom: 16,
+  },
+  profileIdentityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   profileContent: {
     paddingHorizontal: 16,
-    paddingTop: 24,
+    paddingTop: 16,
   },
 
   // ReviewScreen: header, event card, rating/recommend blocks, comment, submit.

@@ -53,6 +53,7 @@ import AddToCalendarButton from '../components/AddToCalendarButton';
 import JoinWaitlistButton from '../components/JoinWaitlistButton';
 import FollowButton from '../components/FollowButton';
 import CountdownTimer from '../components/CountdownTimer';
+import VenueStaticMap from '../components/VenueStaticMap';
 import WhosGoing from '../components/WhosGoing';
 import { EventDetailSkeleton } from '../components/Skeleton';
 const { width } = Dimensions.get('window');
@@ -623,6 +624,18 @@ export default function EventDetailScreen({ route, navigation }: any) {
               </View>
               <ExternalLink size={15} color={colors.textSecondary} />
             </TouchableOpacity>
+
+            {/* Static map of the venue — a plain image, no native map module, so
+                it ships without a fresh EAS build. Tapping it runs the SAME
+                `openInMaps` handler as the ⧉ on the row above. Renders nothing
+                when the event has no coordinates or no tile provider key is
+                configured (see lib/staticMap.ts). */}
+            <VenueStaticMap
+              event={event}
+              onPress={openInMaps}
+              accessibilityLabel={t('eventDetail.maps.title')}
+              style={styles.venueMap}
+            />
           </View>
 
           {/* Quick Actions - Calendar & Waitlist */}
@@ -1074,6 +1087,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   // Compact countdown line inside the date row (see CountdownTimer).
   factCountdown: {
     marginTop: 2,
+  },
+  // Static venue map, tucked under the location row. Indented to the row's text
+  // column so it reads as part of that row, not as a new section.
+  venueMap: {
+    marginLeft: 32, // 18px icon + 14px factRow gap
+    marginBottom: 14,
   },
   sectionTitleMain: {
     fontSize: 22,

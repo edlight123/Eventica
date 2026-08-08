@@ -12,6 +12,7 @@ import {
   Image,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTabBarSpace } from '../hooks/useTabBarSpace';
 import { Easing } from 'react-native';
 import { collection, query, where, getDocs, limit, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -74,6 +75,9 @@ export default function HomeScreen({ navigation }: any) {
   const { t, language } = useI18n();
   const { userCountry, applyFiltersDirectly } = useFilters();
   const insets = useSafeAreaInsets();
+  // The tab bar is a translucent overlay, so reserve its height here or the
+  // last row ends up sitting behind it.
+  const tabBarSpace = useTabBarSpace();
   const [events, setEvents] = useState<any[]>([]);
   const [featuredEvents, setFeaturedEvents] = useState<any[]>([]);
   const [trendingEvents, setTrendingEvents] = useState<any[]>([]);
@@ -525,7 +529,7 @@ export default function HomeScreen({ navigation }: any) {
             )}
 
             {/* Bottom Spacing */}
-            <View style={{ height: 32 + insets.bottom }} />
+            <View style={{ height: 32 + tabBarSpace }} />
           </>
         )}
       </ScrollView>

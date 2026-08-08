@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTabBarSpace } from '../../hooks/useTabBarSpace';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -34,7 +34,9 @@ export default function OrganizerDashboardScreen() {
   const { userProfile } = useAuth();
   const { t, language } = useI18n();
   const locale = language === 'fr' ? 'fr-FR' : language === 'ht' ? 'fr-HT' : 'en-US';
-  const insets = useSafeAreaInsets();
+  // The tab bar is a translucent overlay, so reserve its height here or the
+  // last row ends up sitting behind it.
+  const tabBarSpace = useTabBarSpace();
   const [todayEvents, setTodayEvents] = useState<TodayEvent[]>([]);
   const [stats, setStats] = useState<OrganizerStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -104,7 +106,7 @@ export default function OrganizerDashboardScreen() {
 
       <ScrollView
         style={styles.scrollContent}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+        contentContainerStyle={{ paddingBottom: tabBarSpace + 24 }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}

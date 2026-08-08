@@ -8,6 +8,7 @@ import {
   StatusBar,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTabBarSpace } from '../../hooks/useTabBarSpace';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { Calendar } from 'lucide-react-native';
@@ -31,6 +32,9 @@ export default function OrganizerScanScreen() {
   const { t, language } = useI18n();
   const locale = language === 'fr' ? 'fr-FR' : language === 'ht' ? 'fr-HT' : 'en-US';
   const insets = useSafeAreaInsets();
+  // The tab bar is a translucent overlay, so reserve its height here or the
+  // last row ends up sitting behind it.
+  const tabBarSpace = useTabBarSpace();
   const [todayEvents, setTodayEvents] = useState<TodayEvent[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<TodayEvent | null>(null);
   const [loading, setLoading] = useState(true);
@@ -106,7 +110,7 @@ export default function OrganizerScanScreen() {
         <Text style={styles.headerSubtitle}>{t('organizerScan.subtitle')}</Text>
       </View>
 
-      <View style={styles.content}>
+      <View style={[styles.content, { paddingBottom: tabBarSpace }]}>
         <View style={styles.instructions}>
           <InfoNotice>
             {`${t('organizerScan.howTitle')}\n1. ${t('organizerScan.howStep1')}\n2. ${t('organizerScan.howStep2')}\n3. ${t('organizerScan.howStep3')}\n4. ${t('organizerScan.howStep4')}`}

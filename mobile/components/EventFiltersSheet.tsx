@@ -6,12 +6,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   Platform,
   TextInput,
   PanResponder,
   LayoutChangeEvent
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { X } from 'lucide-react-native';
 import { useFilters } from '../contexts/FiltersContext';
@@ -147,14 +147,20 @@ const CHIP_HIT_SLOP = { top: 7, bottom: 7, left: 4, right: 4 } as const;
 // growing: (44 - 28) / 2 = 8pt.
 const SEGMENT_HIT_SLOP = { top: 8, bottom: 8, left: 0, right: 0 } as const;
 
-// Used only for the very first frame, before the footer reports its height via
-// onLayout. Matches the measured iOS footer (16 top + 51 button + 24 bottom).
-const FOOTER_HEIGHT_FALLBACK = Platform.OS === 'ios' ? 91 : 83;
+// Fixed part of the footer's height: 16pt top padding + the 51pt-tall buttons.
+// The variable part is the bottom safe-area inset the footer now absorbs (see
+// `footerBottomPad`), and the sum is only used for the very first frame, before
+// the footer reports its real height via onLayout.
+const FOOTER_FIXED_HEIGHT = 67;
+// Floor for the footer's bottom padding on devices with no home indicator
+// (insets.bottom === 0), so the buttons never sit flush on the sheet edge.
+const FOOTER_MIN_BOTTOM_PAD = 16;
 
 export default function EventFiltersSheet() {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const { t, language } = useI18n();
+  const insets = useSafeAreaInsets();
   const locale = language === 'fr' ? 'fr-FR' : language === 'ht' ? 'fr-HT' : 'en-US';
   const {
     draftFilters,
@@ -209,7 +215,13 @@ export default function EventFiltersSheet() {
   // 100pt spacer), so whatever the footer grows to, the final row can always be
   // scrolled fully clear of it.
   const [footerHeight, setFooterHeight] = useState(0);
-  const scrollBottomPadding = (footerHeight || FOOTER_HEIGHT_FALLBACK) + 24;
+  // The footer — not an outer SafeAreaView — owns the bottom inset, so its
+  // surface runs all the way to the physical bottom edge of the sheet. With an
+  // outer SafeAreaView the inset was reserved BELOW the footer, which is what
+  // left a black strip under it (the footer read as a floating slab).
+  const footerBottomPad = Math.max(insets.bottom, FOOTER_MIN_BOTTOM_PAD);
+  const scrollBottomPadding =
+    (footerHeight || FOOTER_FIXED_HEIGHT + footerBottomPad) + 24;
 
   const handleDateChange = (date: DateFilter) => {
     if (date === 'pick-date') {
@@ -287,7 +299,10 @@ export default function EventFiltersSheet() {
       presentationStyle="pageSheet"
       onRequestClose={closeFiltersModal}
     >
-      <SafeAreaView style={styles.container}>
+      {/* Plain View, not SafeAreaView: in a pageSheet the top edge is already
+          clear of the status bar, and the bottom inset is absorbed by the
+          footer itself so nothing is left over beneath it. */}
+      <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -529,7 +544,7 @@ export default function EventFiltersSheet() {
 
         {/* Footer with Actions */}
         <View
-          style={styles.footer}
+          style={[styles.footer, { paddingBottom: footerBottomPad }]}
           onLayout={(e: LayoutChangeEvent) => setFooterHeight(e.nativeEvent.layout.height)}
         >
           <TouchableOpacity
@@ -547,7 +562,7 @@ export default function EventFiltersSheet() {
             </Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
     </Modal>
   );
 }
@@ -684,17 +699,17 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
     fontWeight: '700',
   },
-  // The footer reads as a deliberate surface: one brightness step above the
-  // canvas (surfaceRaised over background) plus a 1pt top rule, instead of the
-  // near-invisible #161616-on-#0A0A0A smudge it used to be.
+  // The footer sits on the black canvas: a raised (surfaceRaised) fill read as
+  // a grey slab floating above the sheet's bottom edge. Separation is carried
+  // by the 1pt top rule alone; `paddingBottom` is applied at the call site so
+  // the black runs through the home-indicator inset with no gap beneath it.
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     paddingHorizontal: 20,
     paddingTop: 16,
-    paddingBottom: Platform.OS === 'ios' ? 24 : 16,
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: colors.background,
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
@@ -705,8 +720,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // Full-strength label (16.5:1 on the footer) but no fill — Apply keeps the
-  // white pill, so the hierarchy is carried by the surface, not by dimming text.
+  // Full-strength label (19.8:1 on the black footer) but no fill — Apply keeps
+  // the white pill, so hierarchy is carried by the fill, not by dimming Reset.
   resetButtonText: {
     fontSize: 15,
     fontWeight: '600',

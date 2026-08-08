@@ -15,6 +15,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTabBarSpace } from '../hooks/useTabBarSpace';
 import { Calendar, MapPin, Search, SlidersHorizontal, Users, CloudOff } from 'lucide-react-native';
 import { collection, query, where, getDocs, limit, addDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -76,6 +77,9 @@ export default function DiscoverScreen({ navigation, route }: any) {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const insets = useSafeAreaInsets();
+  // The tab bar is a translucent overlay, so reserve its height here or the
+  // last row ends up sitting behind it.
+  const tabBarSpace = useTabBarSpace();
   const { appliedFilters, openFiltersModal, hasActiveFilters, countActiveFilters, applyFiltersDirectly, resetFilters, userCountry } = useFilters();
   const { user } = useAuth();
   const { t, language } = useI18n();
@@ -757,7 +761,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
       <ScrollView
         ref={scrollViewRef}
         style={styles.contentUnderHeader}
-        contentContainerStyle={[styles.feedContent, { paddingTop: headerH + 8, paddingBottom: 32 + insets.bottom }]}
+        contentContainerStyle={[styles.feedContent, { paddingTop: headerH + 8, paddingBottom: 32 + tabBarSpace }]}
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={16}
         onScroll={Animated.event(

@@ -1,11 +1,12 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { AppState, Alert, View, TouchableOpacity, Text, StyleSheet, Platform, Animated } from 'react-native';
+import React, { useContext, useRef, useState, useEffect } from 'react';
+import { AppState, Alert, View, TouchableOpacity, Text, StyleSheet, Platform, Animated, LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ExpoLinking from 'expo-linking';
 import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator, BottomTabBarHeightCallbackContext } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { useAuth } from '../contexts/AuthContext';
@@ -14,6 +15,7 @@ import { ThemeProvider, useTheme } from '../contexts/ThemeContext';
 import { COLORS } from '../config/brand';
 import { getVerificationRequest } from '../lib/verification';
 import BootScreen from '../components/BootScreen';
+import { hideSplash } from '../lib/splash';
 import { getPendingInvite } from '../lib/pendingInvite';
 import { clearPendingPayment, getPendingPayment } from '../lib/pendingPayment';
 import { addPushNotificationListeners, registerForPushNotificationsIfPossible } from '../lib/pushNotifications';
@@ -207,18 +209,44 @@ function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
   }, [activeRouteName]);
 
   const insets = useSafeAreaInsets();
+  // BottomTabView owns the tab-bar height that screens read through
+  // `useTabBarSpace()`. Because this bar is now an overlay (see below) that
+  // height is the ONLY thing keeping the last feed row clear of it, so report
+  // the real measured value instead of leaving the navigator's default guess.
+  const setTabBarHeight = useContext(BottomTabBarHeightCallbackContext);
 
   return (
-    <View style={[tabBarStyles.container, {
-      backgroundColor: colors.background,
-      paddingBottom: Math.max(insets.bottom, Platform.OS === 'ios' ? 20 : 8),
-    }]}>
+    <View
+      style={[tabBarStyles.container, {
+        paddingBottom: Math.max(insets.bottom, Platform.OS === 'ios' ? 20 : 8),
+      }]}
+      onLayout={(e: LayoutChangeEvent) => setTabBarHeight?.(e.nativeEvent.layout.height)}
+    >
+      {/* Translucent chrome, iOS-idiomatic: a dark blur layer plus a near-solid
+          canvas tint on top. Feed content passing underneath reads as a soft
+          glow rather than a hard black band, while TAB_BAR_TINT_OPACITY keeps
+          enough of the canvas that 10.5pt labels stay legible even when a
+          near-white poster is scrolling through. */}
+      <BlurView
+        intensity={TAB_BAR_BLUR_INTENSITY}
+        tint="dark"
+        style={StyleSheet.absoluteFill}
+        pointerEvents="none"
+      />
+      <View
+        style={[
+          StyleSheet.absoluteFill,
+          { backgroundColor: colors.background, opacity: TAB_BAR_TINT_OPACITY },
+        ]}
+        pointerEvents="none"
+      />
       {/* Short top gradient fade (transparent → canvas) so scrolling content
-          dissolves into the bar instead of hitting a hard seam. No box, no
-          border — the bar reads as part of the black canvas (POSH). */}
+          dissolves into the bar instead of hitting a hard seam. Its opacity
+          matches the bar's tint so the fade lands exactly on the bar's own
+          value — no seam, no box, no border (POSH). */}
       <LinearGradient
         colors={['transparent', colors.background]}
-        style={tabBarStyles.topFade}
+        style={[tabBarStyles.topFade, { opacity: TAB_BAR_TINT_OPACITY }]}
         pointerEvents="none"
       />
       {tabs.map((tab, index) => {
@@ -322,13 +350,37 @@ function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
   );
 }
 
+// How see-through the bar is. The canvas tint sits on top of the blur, so the
+// visible amount of feed content is ~(1 - TAB_BAR_TINT_OPACITY) BEFORE the
+// blur's own dark tint is counted — i.e. this is the legibility floor even on
+// Android, where the blur may degrade to a plain overlay.
+//
+// The binding constraint is the dim inactive label (textTertiary #6B6B6B),
+// which only manages 3.7:1 on the pure black canvas to begin with. Contrast of
+// that label against the bar, tint alone, worst case = a near-white poster
+// (#F0F0F0) scrolling directly underneath:
+//     0.80 → 2.20:1 (washed out)   0.86 → 2.69:1   0.90 → 3.02:1
+// 0.90 is the lightest value that holds the label at/above 3:1 in that worst
+// case while still letting bright content glow through. Active teal (5.8:1+)
+// and the white Create FAB are never the limiting factor.
+const TAB_BAR_TINT_OPACITY = 0.9;
+const TAB_BAR_BLUR_INTENSITY = 40;
+
 const tabBarStyles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     paddingTop: 0,
-    // No seam: the bar shares the canvas background, has no top border and no
-    // shadow, so it reads as an integrated / floating strip rather than a box.
-    // Separation from scrolling content is handled by the `topFade` gradient.
+    // Overlay, not a band in the layout flow: content scrolls UNDER the bar so
+    // it can show through the blur. Screens reserve room for it with
+    // `useTabBarSpace()` (fed by the onLayout above) — without that padding the
+    // last row would sit behind the bar instead of clearing it.
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    // No seam: no top border and no shadow, so it reads as an integrated
+    // floating strip rather than a box. Separation from scrolling content is
+    // handled by the `topFade` gradient.
     borderTopWidth: 0,
     shadowColor: 'transparent',
     shadowOffset: { width: 0, height: 0 },
@@ -624,7 +676,9 @@ export default function AppNavigator() {
   }, [canUseOrganizerMode, loading, mode, modeLoading, navigationRef, user]);
 
   if (loading || modeLoading) {
-    return <BootScreen />; // branded loading, never a black void
+    // Normally still hidden behind the held native splash; drawn to match it
+    // so the fallback path (slow/offline boot) has no visible seam either.
+    return <BootScreen />;
   }
 
   const MainTabNavigator = 
@@ -655,7 +709,9 @@ export default function AppNavigator() {
   return (
     <ThemeProvider>
     <OrganizerAccessContext.Provider value={canUseOrganizerMode}>
-    <NavigationContainer ref={navigationRef} linking={linking as any}>
+    {/* Drop the native splash only once the first real screen is mounted, so
+        the launch is splash -> app rather than splash -> boot screen -> app. */}
+    <NavigationContainer ref={navigationRef} linking={linking as any} onReady={hideSplash}>
       <Stack.Navigator
         screenOptions={{
           headerShown: false,

@@ -31,9 +31,9 @@ import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { font } from '../theme/tokens';
 import ConnectButton from '../components/ConnectButton';
 import PosterEventCard from '../components/PosterEventCard';
-import StatTriplet from '../components/StatTriplet';
 import VerifiedBadge from '../components/VerifiedBadge';
 import EmptyState from '../components/EmptyState';
 import { OrganizerProfileSkeleton } from '../components/Skeleton';
@@ -41,7 +41,18 @@ import { fetchConnections } from '../lib/api/social';
 import { type FriendshipState } from '../types/social';
 
 const { width } = Dimensions.get('window');
-const HERO_HEIGHT = 300;
+// Beta feedback ("all this space wasted"): the hero was a fixed 300px tower of
+// avatar → name → subtitle → contact button before a single event appeared. It
+// is now a *minimum* height that hugs a single compact identity row, leaving
+// enough cover art above it to clear the absolutely-positioned back / Follow
+// controls (which sit at insets.top + 8 and cost no flow height).
+//
+// Floor math: the Follow pill bottoms out at insets.top + 8 + 40 ≈ 107 on a
+// notched iPhone. heroContent is bottom-aligned and is at most 126 tall
+// (12 pad + 56 identity row + 10 + 32 contact chip + 16 pad), of which the
+// first 12 is padding — so the first pixel of the name lands at
+// HERO_MIN_HEIGHT − 114. 232 puts that at 118, an 11px gap under the pill.
+const HERO_MIN_HEIGHT = 232;
 // Two-column flyer grid inside the 16px-padded content area.
 const PROFILE_COLUMN_WIDTH = (width - 32 - 12) / 2;
 
@@ -370,6 +381,14 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
   const isSelf = !!user && user.uid === organizerId;
   const showConnect = friendshipLoaded && !isSelf && friendship !== 'self';
 
+  // The same three figures the old StatTriplet showed, rendered as one line.
+  // Nothing is dropped — only the typographic weight is.
+  const statItems = [
+    { label: t('organizerProfile.stats.events'), value: String(stats.totalEvents || 0) },
+    { label: t('organizerProfile.stats.followers'), value: String(stats.followerCount || 0) },
+    { label: t('organizerProfile.stats.sold'), value: (stats.totalTicketsSold || 0).toLocaleString() },
+  ];
+
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView
@@ -411,44 +430,60 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
             </Text>
           </TouchableOpacity>
 
-          {/* Hero Content - Bottom Aligned (clears the top-left back control) */}
+          {/* Hero Content — bottom-aligned, and now a SINGLE identity row:
+              the avatar sits beside the name instead of stacked above it, and
+              verified + category · city share one meta line beneath the name.
+              That collapses four stacked blocks into one. */}
           <View style={styles.heroContent}>
-            {/* Avatar */}
-            <View style={styles.avatar}>
-              {(organizer.organization_logo || organizer.avatarUrl || organizer.photo_url) ? (
-                <Image
-                  source={{ uri: organizer.organization_logo || organizer.avatarUrl || organizer.photo_url }}
-                  style={styles.avatarImage}
-                />
-              ) : (
-                <Text style={styles.avatarText}>
-                  {((organizer.organization_name || organizer.full_name)?.[0] || '?').toUpperCase()}
+            <View style={styles.identityRow}>
+              {/* Avatar — 70 → 52; inline, so it costs no row of its own. */}
+              <View style={styles.avatar}>
+                {(organizer.organization_logo || organizer.avatarUrl || organizer.photo_url) ? (
+                  <Image
+                    source={{ uri: organizer.organization_logo || organizer.avatarUrl || organizer.photo_url }}
+                    style={styles.avatarImage}
+                  />
+                ) : (
+                  <Text style={styles.avatarText}>
+                    {((organizer.organization_name || organizer.full_name)?.[0] || '?').toUpperCase()}
+                  </Text>
+                )}
+              </View>
+
+              <View style={styles.identityText}>
+                {/* Organization brand overrides the personal name here and
+                    everywhere the organizer is shown. */}
+                <Text style={styles.organizerName} numberOfLines={1}>
+                  {organizer.organization_name || organizer.full_name}
                 </Text>
-              )}
+
+                {/* Verified mark + category · city on one line. VerifiedBadge is
+                    a bare teal glyph + label — never a filled pill. */}
+                {(organizer.is_verified || !!subtitle) && (
+                  <View style={styles.metaRow}>
+                    {organizer.is_verified && <VerifiedBadge size="small" showLabel />}
+                    {organizer.is_verified && !!subtitle && (
+                      <Text style={styles.metaDot}>·</Text>
+                    )}
+                    {!!subtitle && (
+                      <Text style={styles.subtitle} numberOfLines={1}>
+                        {subtitle}
+                      </Text>
+                    )}
+                  </View>
+                )}
+              </View>
             </View>
 
-            {/* Name + Verified Badge. Organization brand overrides the personal
-                name here and everywhere the organizer is shown. */}
-            <View style={styles.nameRow}>
-              <Text style={styles.organizerName} numberOfLines={1}>
-                {organizer.organization_name || organizer.full_name}
-              </Text>
-              {organizer.is_verified && <VerifiedBadge size="small" showLabel />}
-            </View>
-
-            {/* Subtitle - Category · City */}
-            {subtitle && (
-              <Text style={styles.subtitle}>{subtitle}</Text>
-            )}
-
-            {/* Contact Button - Scrolls to bottom.
+            {/* Contact — scrolls to the socials at the bottom. Was a full-width
+                button; now a compact self-start chip so it doesn't eat a row.
                 H4: gated only on public brand socials now (no email/whatsapp/phone). */}
             {socialLinks.length > 0 && (
               <TouchableOpacity
                 style={styles.contactButtonHero}
                 onPress={scrollToBottom}
               >
-                <MessageCircle size={16} color="#FFF" />
+                <MessageCircle size={14} color="#FFF" />
                 <Text style={styles.contactButtonHeroText}>{t('organizerProfile.contactSocial')}</Text>
               </TouchableOpacity>
             )}
@@ -457,16 +492,17 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
 
         <View style={styles.content}>
 
-          {/* Performance triplet — the shared StatTriplet on every host surface
-              (POSH §2.3). "•••" shows while the fetch is still in flight. */}
-          <View style={styles.statBlock}>
-            <StatTriplet
-              items={[
-                { label: t('organizerProfile.stats.events'), value: loading ? null : stats.totalEvents || 0 },
-                { label: t('organizerProfile.stats.followers'), value: loading ? null : stats.followerCount || 0 },
-                { label: t('organizerProfile.stats.sold'), value: loading ? null : stats.totalTicketsSold.toLocaleString() },
-              ]}
-            />
+          {/* Stats — one quiet mono line rather than a full-width row of three
+              27px numerals. All three figures are kept, just at reading size:
+              "4 EVENTS · 4 FOLLOWERS · 0 SOLD". */}
+          <View style={styles.statLine}>
+            {statItems.map((item, i) => (
+              <React.Fragment key={item.label}>
+                {i > 0 && <Text style={styles.statSep}>·</Text>}
+                <Text style={styles.statValue}>{item.value}</Text>
+                <Text style={styles.statLabel}>{item.label}</Text>
+              </React.Fragment>
+            ))}
           </View>
 
           {/* Connect action — a quiet secondary pill inline under the stats,
@@ -657,7 +693,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
 
   // Premium Hero Section
   hero: {
-    height: HERO_HEIGHT,
+    minHeight: HERO_MIN_HEIGHT,
     justifyContent: 'flex-end',
     backgroundColor: colors.surfaceRaised, // neutral fallback behind poster (not decorative teal)
   },
@@ -705,20 +741,29 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: '#FFF',
   },
   heroContent: {
-    padding: 20,
-    paddingTop: 16,
-    paddingBottom: 6,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 16,
+  },
+  // Avatar beside the name, not above it.
+  identityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  identityText: {
+    flex: 1,
+    gap: 4,
   },
   avatar: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     backgroundColor: '#FFF',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 3,
+    borderWidth: 2,
     borderColor: '#FFF',
-    marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
@@ -728,22 +773,17 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   avatarImage: {
     width: '100%',
     height: '100%',
-    borderRadius: 32,
+    borderRadius: 24,
   },
   avatarText: {
-    fontSize: 28,
+    fontSize: 22,
     fontWeight: '700',
     color: colors.primary,
   },
-  nameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 6,
-  },
   organizerName: {
     fontFamily: 'InstrumentSerif_400Regular',
-    fontSize: 40,
+    fontSize: 30,
+    lineHeight: 36,
     fontWeight: '700',
     letterSpacing: -0.5,
     color: '#FFF',
@@ -751,39 +791,79 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 4,
   },
+  // Verified mark + category · city on one line under the name.
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  metaDot: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.6)',
+  },
   subtitle: {
-    fontSize: 14,
+    flexShrink: 1,
+    fontSize: 13,
+    lineHeight: 16,
     color: 'rgba(255, 255, 255, 0.95)',
-    marginBottom: 12,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
   },
+  // Compact self-start chip, not a full-width button.
   contactButtonHero: {
     flexDirection: 'row',
+    alignSelf: 'flex-start',
     alignItems: 'center',
-    justifyContent: 'center',
     gap: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-    marginTop: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.16)',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.28)',
+    marginTop: 10,
   },
   contactButtonHeroText: {
     color: '#FFF',
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: '600',
   },
 
   // Content
   content: {
     padding: 16,
-    paddingTop: 24,
+    paddingTop: 16,
   },
-  statBlock: {
-    marginBottom: 24,
+  // One quiet line of figures instead of a full-width triplet of big numerals.
+  statLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 5,
+    marginBottom: 20,
+  },
+  statValue: {
+    fontFamily: font.mono,
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '700',
+    color: colors.text,
+    fontVariant: ['tabular-nums'],
+  },
+  statLabel: {
+    fontFamily: font.mono,
+    fontSize: 11,
+    lineHeight: 18,
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    color: colors.textSecondary,
+  },
+  statSep: {
+    fontSize: 11,
+    lineHeight: 18,
+    color: colors.textTertiary,
+    marginHorizontal: 3,
   },
 
   // Friend connection + personal social. Elevation, not a 1px box (POSH §1).
