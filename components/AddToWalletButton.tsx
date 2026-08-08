@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Wallet, Download, Smartphone } from 'lucide-react'
 import { format } from 'date-fns'
 
@@ -15,9 +15,77 @@ interface AddToWalletButtonProps {
 export default function AddToWalletButton({ ticket, event, qrElementId = 'ticket-qr-code' }: AddToWalletButtonProps) {
   const [isDownloading, setIsDownloading] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
+  /**
+   * What the server can actually issue (GET /api/wallet/generate — booleans
+   * only). `null` = not known yet. A wallet row is hidden outright once we know
+   * this deployment has no certificates for it, so the menu never offers a
+   * click that must fail. "Download PDF" is unaffected and always available.
+   */
+  const [walletCapability, setWalletCapability] = useState<{ apple: boolean; google: boolean } | null>(null)
+  const [isAddingToWallet, setIsAddingToWallet] = useState<'ios' | 'android' | null>(null)
 
   // Close dropdown when clicking outside
   const dropdownRef = useState<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/wallet/generate')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled || !data) return
+        setWalletCapability({ apple: Boolean(data.apple), google: Boolean(data.google) })
+      })
+      .catch(() => {
+        // Leave it unknown; the rows stay visible and explain themselves on click.
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  /**
+   * Ask the server for a wallet link for THIS ticket and follow it.
+   * The server re-verifies that the signed-in user owns the ticket and re-reads
+   * the ticket's existing QR payload — nothing here is trusted.
+   */
+  const addToWallet = async (platform: 'ios' | 'android') => {
+    setIsAddingToWallet(platform)
+    try {
+      const response = await fetch('/api/wallet/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ticketId: ticket?.id, platform }),
+      })
+      const data = await response.json().catch(() => ({} as any))
+
+      if (!response.ok) {
+        if (data?.code === 'apple_wallet_not_configured' || data?.code === 'google_wallet_not_configured') {
+          // Permanent for this deployment — say so, and stop offering it.
+          setWalletCapability((prev) => ({
+            apple: platform === 'ios' ? false : Boolean(prev?.apple),
+            google: platform === 'android' ? false : Boolean(prev?.google),
+          }))
+          alert('Wallet passes aren’t available yet. Use "Download PDF" to save your ticket.')
+          return
+        }
+        alert(data?.error || 'Could not create your wallet pass.')
+        return
+      }
+
+      const url = platform === 'ios' ? data?.passUrl : data?.saveUrl
+      if (!url) {
+        alert('Wallet passes aren’t available yet. Use "Download PDF" to save your ticket.')
+        return
+      }
+      window.location.href = url
+    } catch (error) {
+      console.error('Error adding to wallet:', error)
+      alert('Could not create your wallet pass.')
+    } finally {
+      setIsAddingToWallet(null)
+      setShowOptions(false)
+    }
+  }
 
   const handleDownloadPDF = async () => {
     setIsDownloading(true)
@@ -282,15 +350,8 @@ export default function AddToWalletButton({ ticket, event, qrElementId = 'ticket
     }
   }
 
-  const handleAddToAppleWallet = () => {
-    // For now, show instructions
-    alert('Apple Wallet integration coming soon! Use "Download PDF" to save your ticket.')
-  }
-
-  const handleAddToGooglePay = () => {
-    // For now, show instructions
-    alert('Google Pay integration coming soon! Use "Download PDF" to save your ticket.')
-  }
+  const handleAddToAppleWallet = () => addToWallet('ios')
+  const handleAddToGooglePay = () => addToWallet('android')
 
   return (
     <div className="relative">
@@ -328,31 +389,41 @@ export default function AddToWalletButton({ ticket, event, qrElementId = 'ticket
             </div>
           </button>
 
-          <button
-            onClick={handleAddToAppleWallet}
-            className="w-full flex items-center gap-3 px-6 py-4 hover:bg-[#0a0a0a] transition-colors text-left border-b border-white/10"
-          >
-            <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
-              <Wallet className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <div className="font-bold text-white">Apple Wallet</div>
-              <div className="text-xs text-white/65">For iPhone users</div>
-            </div>
-          </button>
+          {walletCapability?.apple !== false && (
+            <button
+              onClick={handleAddToAppleWallet}
+              disabled={isAddingToWallet !== null}
+              className="w-full flex items-center gap-3 px-6 py-4 hover:bg-[#0a0a0a] transition-colors text-left border-b border-white/10 disabled:opacity-50"
+            >
+              <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
+                <Wallet className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <div className="font-bold text-white">Apple Wallet</div>
+                <div className="text-xs text-white/65">
+                  {isAddingToWallet === 'ios' ? 'Preparing your pass…' : 'For iPhone users'}
+                </div>
+              </div>
+            </button>
+          )}
 
-          <button
-            onClick={handleAddToGooglePay}
-            className="w-full flex items-center gap-3 px-6 py-4 hover:bg-[#0a0a0a] transition-colors text-left"
-          >
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Smartphone className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <div className="font-bold text-white">Google Pay</div>
-              <div className="text-xs text-white/65">For Android users</div>
-            </div>
-          </button>
+          {walletCapability?.google !== false && (
+            <button
+              onClick={handleAddToGooglePay}
+              disabled={isAddingToWallet !== null}
+              className="w-full flex items-center gap-3 px-6 py-4 hover:bg-[#0a0a0a] transition-colors text-left disabled:opacity-50"
+            >
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Smartphone className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <div className="font-bold text-white">Google Wallet</div>
+                <div className="text-xs text-white/65">
+                  {isAddingToWallet === 'android' ? 'Preparing your pass…' : 'For Android users'}
+                </div>
+              </div>
+            </button>
+          )}
         </div>
       )}
     </div>

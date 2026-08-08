@@ -51,19 +51,85 @@ const reviveEvents = (events: any[]) =>
     end_datetime: e.end_datetime ? new Date(e.end_datetime) : null,
   }));
 
-/** Placeholder rows that mirror the ticket-card layout (thumb + text lines). */
+/** Portrait poster thumb — the app's artwork is 2:3, so a square thumb cropped it. */
+const POSTER_W = 60;
+const POSTER_H = Math.round((POSTER_W * 3) / 2); // 90
+
+// Dictionary keys for the two lifecycle labels the ticket detail screen never
+// needed. `t()` echoes the key back when it is missing, so both are read through
+// `withDictionaryFallback` until they land in the locale files.
+const REFUNDED_KEY = 'ticketDetail.status.refunded';
+const CANCELLED_KEY = 'ticketDetail.status.cancelled';
+
+const withDictionaryFallback = (t: (key: string) => string, key: string, fallback: string) =>
+  t(key) === key ? fallback : t(key);
+
+/** How a group's tickets break down across the states a row can report. */
+type TicketStatusSummary = {
+  /** Still admits someone (valid / confirmed / active, never scanned). */
+  active: number;
+  used: number;
+  refunded: number;
+  cancelled: number;
+};
+
+/**
+ * Roll an event's tickets into that summary. `checked_in_at` wins over `status`
+ * (same precedence as `ticketStatusKey` in lib/ticket), and refunded/cancelled
+ * tickets are counted apart because they no longer admit anyone.
+ */
+function summarizeTicketStatuses(tickets: any[]): TicketStatusSummary {
+  const summary: TicketStatusSummary = { active: 0, used: 0, refunded: 0, cancelled: 0 };
+  for (const ticket of tickets || []) {
+    const raw = String(ticket?.status || '').toLowerCase();
+    if (raw === 'refunded') summary.refunded++;
+    else if (raw === 'cancelled' || raw === 'canceled') summary.cancelled++;
+    else if (ticket?.checked_in_at || raw === 'used' || raw === 'checked_in') summary.used++;
+    else summary.active++;
+  }
+  return summary;
+}
+
+/**
+ * One status for a whole event group, mapped onto StatusChip's locked semantic
+ * tones (dot + label, never a filled pill). Any ticket that still admits you
+ * decides the row — that is the thing the attendee acts on; only when none is
+ * left do the spent states (used, then refunded/cancelled) speak.
+ * Past + unscanned reads EXPIRED, exactly as TicketDetailScreen labels it.
+ */
+function rowStatusFor(
+  summary: TicketStatusSummary | undefined,
+  isPast: boolean,
+  t: (key: string) => string
+): { status: string; label: string } {
+  const s = summary;
+  const spent = s ? s.used + s.refunded + s.cancelled : 0;
+  // No summary at all (a list hydrated from an older cache) falls through here.
+  if (!s || s.active > 0 || spent === 0) {
+    return isPast
+      ? { status: 'expired', label: t('ticketDetail.status.expired') }
+      : { status: 'upcoming', label: t('tickets.upcoming') };
+  }
+  if (s.used > 0) return { status: 'used', label: t('ticketDetail.status.used') };
+  if (s.refunded > 0) {
+    return { status: 'void', label: withDictionaryFallback(t, REFUNDED_KEY, 'Refunded') };
+  }
+  return { status: 'void', label: withDictionaryFallback(t, CANCELLED_KEY, 'Cancelled') };
+}
+
+/** Placeholder rows that mirror the ticket-row layout (poster + text lines). */
 function TicketsListSkeleton({ styles }: { styles: ReturnType<typeof getStyles> }) {
   return (
     <View>
       <Skeleton width={120} height={12} radius={5} style={styles.skeletonSectionHeader} />
       {Array.from({ length: 4 }).map((_, i) => (
-        <View key={i} style={styles.ticketCard}>
-          <Skeleton width={64} height={64} radius={12} />
+        <View key={i} style={styles.ticketRow}>
+          <Skeleton width={POSTER_W} height={POSTER_H} radius={8} />
           <View style={styles.ticketBody}>
-            <Skeleton width={70} height={18} radius={9} />
-            <Skeleton width={'82%'} height={16} radius={6} style={{ marginTop: 2 }} />
-            <Skeleton width={'60%'} height={12} radius={5} style={{ marginTop: 4 }} />
-            <Skeleton width={'45%'} height={12} radius={5} />
+            <Skeleton width={'88%'} height={18} radius={6} />
+            <Skeleton width={'64%'} height={12} radius={5} style={{ marginTop: 6 }} />
+            <Skeleton width={'50%'} height={12} radius={5} style={{ marginTop: 6 }} />
+            <Skeleton width={'40%'} height={11} radius={5} style={{ marginTop: 8 }} />
           </View>
         </View>
       ))}
@@ -139,12 +205,15 @@ export default function TicketsScreen({ navigation }: any) {
         const eventsSnapshot = await getDocs(eventsQuery);
         eventsSnapshot.docs.forEach(eventDoc => {
           const eventData = eventDoc.data();
+          const eventTickets = ticketsByEvent.get(eventDoc.id) || [];
           eventsData.push({
             id: eventDoc.id,
             ...eventData,
             start_datetime: eventData.start_datetime?.toDate ? eventData.start_datetime.toDate() : eventData.start_datetime ? new Date(eventData.start_datetime) : null,
             end_datetime: eventData.end_datetime?.toDate ? eventData.end_datetime.toDate() : eventData.end_datetime ? new Date(eventData.end_datetime) : null,
-            ticketCount: ticketsByEvent.get(eventDoc.id).length
+            ticketCount: eventTickets.length,
+            // Plain counts — JSON-safe, so the offline cache carries them too.
+            ticketStatusSummary: summarizeTicketStatuses(eventTickets),
           });
         });
       }
@@ -346,63 +415,81 @@ export default function TicketsScreen({ navigation }: any) {
           sections.map(section => (
             <View key={section.key}>
               <Text style={styles.sectionHeader}>{section.label}</Text>
-              {section.items.map(event => (
-                <TouchableOpacity
-                  key={event.id}
-                  style={styles.ticketCard}
-                  onPress={() => navigation.navigate('EventTickets', { eventId: event.id })}
-                  activeOpacity={0.9}
-                >
-                  <View style={styles.ticketThumb}>
-                    <LinearGradient
-                      colors={resolvePosterTheme(event, event.id || event.title, event.category).colors}
-                      start={{ x: 0.1, y: 0 }}
-                      end={{ x: 0.9, y: 1 }}
-                      style={StyleSheet.absoluteFill}
-                    />
-                    {(event.banner_image_url || event.cover_image_url) && (
-                      <Image
-                        source={{ uri: event.banner_image_url || event.cover_image_url }}
+              {section.items.map((event, index) => {
+                const rowStatus = rowStatusFor(event.ticketStatusSummary, activeTab === 'past', t);
+                const dateLabel = event.start_datetime
+                  ? safeFormatForLanguage(event.start_datetime, 'EEE, MMM d • h:mm a', language)
+                  : '';
+                // Join only the parts we actually have, or a missing venue leaves
+                // a dangling ", Port-au-Prince".
+                const placeLabel = [event.venue_name, event.city].filter(Boolean).join(', ');
+
+                return (
+                  <TouchableOpacity
+                    key={event.id}
+                    style={[
+                      styles.ticketRow,
+                      index === section.items.length - 1 && styles.ticketRowLast,
+                    ]}
+                    onPress={() => navigation.navigate('EventTickets', { eventId: event.id })}
+                    activeOpacity={0.6}
+                  >
+                    {/* Portrait poster (2:3) — a square thumb cropped the artwork. */}
+                    <View style={styles.ticketPoster}>
+                      <LinearGradient
+                        colors={resolvePosterTheme(event, event.id || event.title, event.category).colors}
+                        start={{ x: 0.1, y: 0 }}
+                        end={{ x: 0.9, y: 1 }}
                         style={StyleSheet.absoluteFill}
-                        contentFit="cover"
-                        cachePolicy="memory-disk"
-                        transition={200}
-                        recyclingKey={event.id ? String(event.id) : undefined}
                       />
-                    )}
-                  </View>
-
-                  <View style={styles.ticketBody}>
-                    <View style={styles.ticketTopRow}>
-                      <StatusChip status={activeTab === 'upcoming' ? 'upcoming' : 'used'} />
-                    </View>
-                    <Text style={styles.ticketTitle} numberOfLines={2}>{event.title}</Text>
-
-                    <View style={styles.ticketMetaRow}>
-                      <Calendar size={13} color={colors.textSecondary} />
-                      <Text style={styles.ticketMetaText} numberOfLines={1}>
-                        {event.start_datetime && safeFormatForLanguage(event.start_datetime, 'EEE, MMM d • h:mm a', language)}
-                      </Text>
+                      {(event.banner_image_url || event.cover_image_url) && (
+                        <Image
+                          source={{ uri: event.banner_image_url || event.cover_image_url }}
+                          style={StyleSheet.absoluteFill}
+                          contentFit="cover"
+                          cachePolicy="memory-disk"
+                          transition={200}
+                          recyclingKey={event.id ? String(event.id) : undefined}
+                        />
+                      )}
                     </View>
 
-                    <View style={styles.ticketMetaRow}>
-                      <MapPin size={13} color={colors.textSecondary} />
-                      <Text style={styles.ticketMetaText} numberOfLines={1}>
-                        {event.venue_name}, {event.city}
-                      </Text>
+                    <View style={styles.ticketBody}>
+                      <Text style={styles.ticketTitle} numberOfLines={2}>{event.title}</Text>
+
+                      {!!dateLabel && (
+                        <View style={styles.ticketMetaRow}>
+                          <Calendar size={12} color={colors.textSecondary} />
+                          <Text style={styles.ticketMetaText} numberOfLines={1}>{dateLabel}</Text>
+                        </View>
+                      )}
+
+                      {!!placeLabel && (
+                        <View style={styles.ticketMetaRow}>
+                          <MapPin size={12} color={colors.textSecondary} />
+                          <Text style={styles.ticketMetaText} numberOfLines={1}>{placeLabel}</Text>
+                        </View>
+                      )}
+
+                      {/* Status and count share ONE line, pinned to opposite edges,
+                          so neither leaves an empty tail and the counts align in a
+                          column down the list. Dot + label, never a filled pill;
+                          the count is a label, so no chip either. */}
+                      <View style={styles.ticketStatusLine}>
+                        <StatusChip status={rowStatus.status} label={rowStatus.label} />
+                        <View style={styles.ticketCountGroup}>
+                          <Ticket size={11} color={colors.textTertiary} />
+                          <Text style={styles.ticketCountText} numberOfLines={1}>
+                            {event.ticketCount} {event.ticketCount === 1 ? t('tickets.ticketSingular') : t('tickets.ticketPlural')}
+                          </Text>
+                        </View>
+                      </View>
                     </View>
 
-                    <View style={styles.ticketCountBadge}>
-                      <Ticket size={11} color={colors.textSecondary} />
-                      <Text style={styles.ticketCountText}>
-                        {event.ticketCount} {event.ticketCount === 1 ? t('tickets.ticketSingular') : t('tickets.ticketPlural')}
-                      </Text>
-                    </View>
-                  </View>
-
-                  <ChevronRight size={20} color={colors.textTertiary} />
-                </TouchableOpacity>
-              ))}
+                    <ChevronRight size={18} color={colors.textTertiary} />
+                  </TouchableOpacity>
+                );
+              })}
             </View>
           ))
         )}
@@ -462,41 +549,33 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 24,
     marginBottom: 12,
   },
-  ticketCard: {
-    // Elevation, not a border (POSH §1): the card separates from the canvas by
-    // being a brighter surface, not by a 1px outline.
+  // No card: the row sits directly on the black canvas and is separated by a
+  // hairline (same idiom as the tier rows in TieredTicketSelector). Dropping the
+  // fill hands the full row width back to the content.
+  ticketRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    backgroundColor: colors.surface,
+    gap: 14,
     marginHorizontal: 16,
-    marginTop: 12,
-    padding: 12,
-    borderRadius: 16,
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
   },
-  ticketThumb: {
-    width: 64,
-    height: 64,
-    borderRadius: 12,
+  // Last row of a month group — the next section header supplies the break.
+  ticketRowLast: {
+    borderBottomWidth: 0,
+  },
+  ticketPoster: {
+    width: POSTER_W,
+    height: POSTER_H,
+    borderRadius: 8,
     overflow: 'hidden',
     backgroundColor: colors.borderLight,
   },
   ticketBody: {
     flex: 1,
+    minWidth: 0,
     gap: 5,
-  },
-  ticketTopRow: {
-    flexDirection: 'row',
-    marginBottom: 2,
-  },
-  ticketHeader: {
-    marginBottom: 14,
-  },
-  ticketTitleContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: 8,
   },
   ticketTitle: {
     fontFamily: font.serif,
@@ -517,16 +596,18 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     letterSpacing: 0.3,
     color: colors.textSecondary,
   },
-  ticketCountBadge: {
+  ticketStatusLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+    marginTop: 1,
+  },
+  ticketCountGroup: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    alignSelf: 'flex-start',
-    backgroundColor: colors.surfaceRaised,
-    paddingHorizontal: 9,
-    paddingVertical: 4,
-    borderRadius: 10,
-    marginTop: 2,
+    flexShrink: 0,
   },
   ticketCountText: {
     fontFamily: font.mono,
@@ -534,26 +615,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 10.5,
     letterSpacing: 0.4,
     textTransform: 'uppercase',
-  },
-  ticketDate: {
-    fontSize: 14,
-    color: colors.text,
-    marginBottom: 6,
-  },
-  ticketVenue: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginBottom: 12,
-  },
-  ticketFooter: {
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  viewTicketsText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.primary,
   },
   emptyContainer: {
     flex: 1,

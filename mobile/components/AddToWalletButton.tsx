@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -24,6 +24,22 @@ interface AddToWalletButtonProps {
   totalTickets: number;
 }
 
+/**
+ * Dictionary keys for the "wallet passes aren't set up yet" copy. `t()` echoes
+ * an unknown key straight back, so every use goes through `label()` below and
+ * falls back to English until the keys land in mobile/locales/*.
+ * (Same guard as EventDetailScreen's STARTS_IN_KEY.)
+ */
+const UNAVAILABLE_TITLE_KEY = 'addToWallet.unavailableTitle';
+const UNAVAILABLE_BODY_KEY = 'addToWallet.unavailableBody';
+
+/**
+ * Server error codes that mean "this will never work here, don't tell the user
+ * to retry" (app/api/wallet/generate/route.ts). Anything else is treated as a
+ * transient failure.
+ */
+const NOT_CONFIGURED_CODES = ['apple_wallet_not_configured', 'google_wallet_not_configured'];
+
 export default function AddToWalletButton({
   ticketId,
   qrCodeData,
@@ -37,18 +53,76 @@ export default function AddToWalletButton({
   const { t } = useI18n();
   const styles = getStyles(colors);
   const [isGenerating, setIsGenerating] = useState(false);
+  /**
+   * Whether THIS platform's wallet is available on the server.
+   * `null` = not known yet: keep showing the button, because a failed probe must
+   * not hide a feature that actually works. `false` hides it outright, so the
+   * user is never offered a tap that cannot succeed.
+   */
+  const [walletAvailable, setWalletAvailable] = useState<boolean | null>(null);
+  const mounted = useRef(true);
+
+  /** `t()` with an English fallback for keys that may not exist yet. */
+  const label = useCallback(
+    (key: string, fallback: string) => (t(key) === key ? fallback : t(key)),
+    [t]
+  );
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
+  // Cheap capability probe: booleans only, no ticket involved. Lets us hide the
+  // button on a deployment that has no wallet certificates instead of failing
+  // on tap.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const response = await backendFetch('/api/wallet/generate', { method: 'GET' });
+        if (!response.ok) return;
+        const capability = await response.json();
+        if (cancelled || !mounted.current) return;
+        const supported = Platform.OS === 'ios' ? capability?.apple : capability?.google;
+        setWalletAvailable(Boolean(supported));
+      } catch {
+        // Leave it unknown — the button stays visible and any real failure is
+        // explained on tap.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const showUnavailable = useCallback(() => {
+    setWalletAvailable(false);
+    Alert.alert(
+      label(UNAVAILABLE_TITLE_KEY, 'Wallet passes aren’t available yet'),
+      label(
+        UNAVAILABLE_BODY_KEY,
+        'Adding tickets to your phone’s wallet isn’t set up yet. Use “Save Image” to keep your QR code handy.'
+      ),
+      [{ text: t('common.ok') }]
+    );
+  }, [label, t]);
 
   const handleAddToWallet = async () => {
     setIsGenerating(true);
 
     try {
-      // Call API to generate wallet pass. Route through backendFetch so the
-      // request hits the real (absolute) API host WITH auth headers — a bare
-      // relative fetch was unauthenticated and never reached the backend.
+      // Route through backendFetch so the request hits the real (absolute) API
+      // host WITH auth headers — a bare relative fetch was unauthenticated and
+      // never reached the backend.
       const response = await backendFetch('/api/wallet/generate', {
         method: 'POST',
         body: JSON.stringify({
           ticketId,
+          // Sent for logging/compat only: the server re-reads the ticket's own
+          // QR payload from Firestore and ignores anything supplied here.
           qrCodeData,
           eventTitle,
           eventDate,
@@ -59,51 +133,36 @@ export default function AddToWalletButton({
         }),
       });
 
+      const data = await response.json().catch(() => ({} as any));
+
       if (!response.ok) {
-        throw new Error('Failed to generate wallet pass');
+        if (NOT_CONFIGURED_CODES.includes(String(data?.code))) {
+          showUnavailable();
+          return;
+        }
+        throw new Error(String(data?.code || `wallet_request_failed_${response.status}`));
       }
 
-      const data = await response.json();
-
-      if (Platform.OS === 'ios') {
-        // For iOS - Apple Wallet
-        // The API should return a URL to the .pkpass file
-        if (data.passUrl) {
-          // Open the pass URL which will prompt to add to Apple Wallet
-          const canOpen = await Linking.canOpenURL(data.passUrl);
-          if (canOpen) {
-            await Linking.openURL(data.passUrl);
-          } else {
-            throw new Error('Cannot open Apple Wallet');
-          }
-        }
-      } else if (Platform.OS === 'android') {
-        // For Android - Google Wallet
-        // The API should return a URL to add to Google Wallet
-        if (data.saveUrl) {
-          const canOpen = await Linking.canOpenURL(data.saveUrl);
-          if (canOpen) {
-            await Linking.openURL(data.saveUrl);
-          } else {
-            throw new Error('Cannot open Google Wallet');
-          }
-        }
+      const url = Platform.OS === 'ios' ? data?.passUrl : data?.saveUrl;
+      if (!url) {
+        // A 200 with no link is a server bug, not something a retry fixes.
+        showUnavailable();
+        return;
       }
 
-      Alert.alert(
-        t('common.success'),
-        t('addToWallet.successBody'),
-        [{ text: t('common.ok') }]
-      );
+      const canOpen = await Linking.canOpenURL(url);
+      if (!canOpen) {
+        throw new Error('cannot_open_wallet_url');
+      }
+      await Linking.openURL(url);
+
+      // The OS takes over from here; the pass is added in Wallet, not in-app.
+      Alert.alert(t('common.success'), t('addToWallet.successBody'), [{ text: t('common.ok') }]);
     } catch (error) {
       console.error('Error adding to wallet:', error);
-      Alert.alert(
-        t('common.error'),
-        t('addToWallet.errorBody'),
-        [{ text: t('common.ok') }]
-      );
+      Alert.alert(t('common.error'), t('addToWallet.errorBody'), [{ text: t('common.ok') }]);
     } finally {
-      setIsGenerating(false);
+      if (mounted.current) setIsGenerating(false);
     }
   };
 
@@ -117,27 +176,30 @@ export default function AddToWalletButton({
 
   return (
     <View style={styles.container}>
-      {/* Add to Wallet Button */}
-      <TouchableOpacity
-        style={styles.walletButton}
-        onPress={handleAddToWallet}
-        disabled={isGenerating}
-        activeOpacity={0.7}
-      >
-        {isGenerating ? (
-          <View style={styles.buttonContent}>
-            <ActivityIndicator size="small" color={colors.background} />
-            <Text style={styles.walletButtonText}>{t('addToWallet.generating')}</Text>
-          </View>
-        ) : (
-          <View style={styles.buttonContent}>
-            <Wallet size={20} color={colors.background} />
-            <Text style={styles.walletButtonText}>
-              {Platform.OS === 'ios' ? t('addToWallet.appleWallet') : t('addToWallet.googleWallet')}
-            </Text>
-          </View>
-        )}
-      </TouchableOpacity>
+      {/* Add to Wallet Button — hidden entirely when the server cannot issue
+          passes for this platform, so we never offer a tap that must fail. */}
+      {walletAvailable !== false && (
+        <TouchableOpacity
+          style={styles.walletButton}
+          onPress={handleAddToWallet}
+          disabled={isGenerating}
+          activeOpacity={0.7}
+        >
+          {isGenerating ? (
+            <View style={styles.buttonContent}>
+              <ActivityIndicator size="small" color={colors.background} />
+              <Text style={styles.walletButtonText}>{t('addToWallet.generating')}</Text>
+            </View>
+          ) : (
+            <View style={styles.buttonContent}>
+              <Wallet size={20} color={colors.background} />
+              <Text style={styles.walletButtonText}>
+                {Platform.OS === 'ios' ? t('addToWallet.appleWallet') : t('addToWallet.googleWallet')}
+              </Text>
+            </View>
+          )}
+        </TouchableOpacity>
+      )}
 
       {/* Download QR Button */}
       <TouchableOpacity

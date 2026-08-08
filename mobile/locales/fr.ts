@@ -2010,6 +2010,8 @@ export default {
       confirmed: 'CONFIRMÉ',
       used: 'UTILISÉ',
       active: 'ACTIF',
+      refunded: 'REMBOURSÉ',
+      cancelled: 'ANNULÉ',
     },
     qr: {
       expiredBody: 'Ce billet est pour un événement passé et ne peut plus être utilisé.',
@@ -2117,6 +2119,9 @@ export default {
   },
 
   addToWallet: {
+    unavailableTitle: 'Les cartes Wallet ne sont pas encore disponibles',
+    unavailableBody:
+      "L'ajout de billets au wallet de votre téléphone n'est pas encore configuré. Utilisez « Save Image » pour garder votre code QR à portée de main.",
     appleWallet: 'Ajouter à Apple Wallet',
     googleWallet: 'Ajouter à Google Wallet',
     generating: 'Génération…',

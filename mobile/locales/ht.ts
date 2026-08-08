@@ -2008,6 +2008,8 @@ export default {
       confirmed: 'KONFIME',
       used: 'ITILIZE',
       active: 'AKTIF',
+      refunded: 'RANBOUSE',
+      cancelled: 'ANILE',
     },
     qr: {
       expiredBody: 'Biyè sa a se pou yon evènman ki pase epi li pa ka itilize ankò.',
@@ -2115,6 +2117,9 @@ export default {
   },
 
   addToWallet: {
+    unavailableTitle: 'Kat Wallet yo poko disponib',
+    unavailableBody:
+      'Fonksyon pou mete tikè nan wallet telefòn ou an poko konfigire. Sèvi ak "Save Image" pou w kenbe kòd QR ou a.',
     appleWallet: 'Ajoute nan Apple Wallet',
     googleWallet: 'Ajoute nan Google Wallet',
     generating: 'Ap jenere…',

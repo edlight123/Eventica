@@ -2057,6 +2057,8 @@ export default {
       confirmed: 'CONFIRMED',
       used: 'USED',
       active: 'ACTIVE',
+      refunded: 'REFUNDED',
+      cancelled: 'CANCELLED',
     },
     qr: {
       expiredBody: 'This ticket is for a past event and can no longer be used.',
@@ -2164,6 +2166,9 @@ export default {
   },
 
   addToWallet: {
+    unavailableTitle: "Wallet passes aren't available yet",
+    unavailableBody:
+      'Adding tickets to your phone\'s wallet isn\'t set up yet. Use "Save Image" to keep your QR code handy.',
     appleWallet: 'Add to Apple Wallet',
     googleWallet: 'Add to Google Wallet',
     generating: 'Generating…',
