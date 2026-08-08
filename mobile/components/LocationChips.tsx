@@ -31,7 +31,7 @@ export function LocationChips({ cities, selectedCity, onSelectCity }: LocationCh
         onPress={() => onSelectCity(value)}
         activeOpacity={0.8}
       >
-        <MapPin size={14} color={isActive ? colors.white : colors.primary} />
+        <MapPin size={14} color={isActive ? colors.onPrimary : colors.primary} />
         <Text style={[styles.chipText, isActive && styles.chipTextActive]} numberOfLines={1}>
           {label}
         </Text>
@@ -79,6 +79,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       letterSpacing: 0.2,
     },
     chipTextActive: {
-      color: colors.white,
+      color: colors.onPrimary,
     },
   });

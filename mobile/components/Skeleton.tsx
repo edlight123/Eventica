@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, View, ViewStyle, DimensionValue, Dimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../contexts/ThemeContext';
 
 const { width: SCREEN_W } = Dimensions.get('window');
@@ -8,6 +9,10 @@ const { width: SCREEN_W } = Dimensions.get('window');
 const HOME_CARD_WIDTH = Math.min(248, SCREEN_W * 0.62); // EventRail CARD_WIDTH
 const FAV_COLUMN_WIDTH = (SCREEN_W - 32 - 12) / 2; // FavoritesScreen grid column
 const DISCOVER_POSTER_H = Math.round((SCREEN_W - 32) * 1.15); // DiscoverEventCard poster
+// OrganizerProfileScreen HERO_IDENTITY_OFFSET (control top 8 + control 40 + gap 10):
+// the identity block is top-anchored under the back/Follow controls, so the
+// placeholder has to start at the same insets.top + 58 or the header jumps.
+const PROFILE_IDENTITY_OFFSET = 58;
 
 interface SkeletonProps {
   width?: DimensionValue;
@@ -328,17 +333,27 @@ export function EarningsSkeleton() {
 /** OrganizerProfileScreen initial load: hero (avatar + name), stat triplet, event grid. */
 export function OrganizerProfileSkeleton() {
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   return (
     <View style={{ flex: 1 }}>
       {/* Mirrors the compacted header: a 52px avatar INLINE beside the name,
           meta line beneath, then a single quiet stats line — so the placeholder
-          and the real screen are the same height and nothing jumps on load. */}
-      <View style={[styles.profileHero, { backgroundColor: colors.surfaceRaised }]}>
+          and the real screen are the same height and nothing jumps on load.
+          Like the real hero it is TOP-anchored under the (absent here) back /
+          Follow controls rather than bottom-aligned in a fixed-height box. */}
+      <View
+        style={[
+          styles.profileHero,
+          { backgroundColor: colors.surfaceRaised, paddingTop: insets.top + PROFILE_IDENTITY_OFFSET },
+        ]}
+      >
         <View style={styles.profileIdentityRow}>
           <Skeleton width={52} height={52} radius={26} />
+          {/* 36 (name lineHeight) + 4 (gap) + 18 (meta line) = the real 58pt
+              identity column, so the hero lands at the same height. */}
           <View style={{ flex: 1 }}>
-            <Skeleton width={'75%'} height={30} radius={8} />
-            <Skeleton width={'45%'} height={13} radius={6} style={{ marginTop: 6 } as ViewStyle} />
+            <Skeleton width={'75%'} height={36} radius={8} />
+            <Skeleton width={'45%'} height={18} radius={6} style={{ marginTop: 4 } as ViewStyle} />
           </View>
         </View>
       </View>
@@ -655,12 +670,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
 
-  // OrganizerProfileScreen: hero (height 300, bottom-aligned) + content.
+  // OrganizerProfileScreen: hero (content-driven height, top-anchored identity
+  // block — paddingTop is applied inline from the safe-area inset) + content.
   profileHero: {
-    minHeight: 232, // matches OrganizerProfileScreen HERO_MIN_HEIGHT
-    justifyContent: 'flex-end',
     paddingHorizontal: 20,
-    paddingTop: 12,
     paddingBottom: 16,
   },
   profileIdentityRow: {

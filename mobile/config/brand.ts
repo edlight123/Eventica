@@ -18,6 +18,10 @@ export const COLORS = {
   // Soft teal wash used for chips / selected states / icon tiles.
   primarySoft: '#F0FDFA',
   primarySoftText: '#0F766E',
+  // Label / icon colour placed ON a solid `primary` fill (selected chips).
+  // Light theme's primary is the dark teal #0F766E, so white is the readable
+  // pairing there (5.5:1).
+  onPrimary: '#FFFFFF',
   background: '#F9FAFB',
   surface: '#FFFFFF',
   // Subtle off-white surface for nested cards / inputs.
@@ -54,6 +58,10 @@ export const DARK_COLORS: typeof COLORS = {
   secondaryLight: T.tealBright,
   primarySoft: '#0E2624',
   primarySoftText: T.tealBright,
+  // ON a solid teal chip. White would only reach 2.5:1 against #14B8A6 — this
+  // near-black teal (tokens.onTeal) reaches 6.8:1, so selected-chip labels stay
+  // legible now that selection is a full teal fill rather than a tint.
+  onPrimary: T.onTeal,
   background: T.bg,
   surface: T.surface,
   surfaceMuted: '#101012',

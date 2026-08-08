@@ -648,8 +648,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'center',
     backgroundColor: colors.surfaceRaised,
   },
+  // Selected = a solid TEAL fill, matching every other selection chip in the
+  // app (Discover's FilterPill — the collapsed form of these very filters — is
+  // already teal). White is reserved here for the one PRIMARY ACTION, the Apply
+  // button in the footer; using it for selection too made "Any date" look like
+  // a second button rather than a chosen value.
   chipActive: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.primary,
   },
   // lineHeight is explicit so every chip is exactly the same height whatever the
   // label or the device's font metrics.
@@ -660,7 +665,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textSecondary,
   },
   chipTextActive: {
-    color: colors.background,
+    color: colors.onPrimary,
     fontWeight: '700',
   },
   // Shrunk in step with the chips so DATE / EVENT TYPE / CATEGORIES read as one

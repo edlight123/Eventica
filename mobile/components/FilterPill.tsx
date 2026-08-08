@@ -2,7 +2,6 @@ import React from 'react';
 import { Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { ChevronDown, X } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
-import { colors as T } from '../theme/tokens';
 
 interface FilterPillProps {
   /** Default label shown when no value is selected (e.g. "Where"). */
@@ -38,10 +37,10 @@ export default function FilterPill({ label, value, onPress, onClear }: FilterPil
           hitSlop={{ top: 8, bottom: 8, left: 6, right: 8 }}
           style={styles.clearBtn}
         >
-          <X size={14} color={T.onTeal} />
+          <X size={14} color={colors.onPrimary} />
         </TouchableOpacity>
       ) : (
-        <ChevronDown size={15} color={active ? T.onTeal : colors.textSecondary} />
+        <ChevronDown size={15} color={active ? colors.onPrimary : colors.textSecondary} />
       )}
     </TouchableOpacity>
   );
@@ -71,7 +70,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       maxWidth: 150,
     },
     textActive: {
-      color: T.onTeal,
+      color: colors.onPrimary,
     },
     clearBtn: {
       marginLeft: -1,

@@ -23,7 +23,6 @@ import {
   Globe,
   MessageCircle,
   ChevronDown,
-  ChevronUp,
   ExternalLink,
 } from 'lucide-react-native';
 import { doc, getDoc, collection, query, where, getDocs, addDoc, deleteDoc, Timestamp } from 'firebase/firestore';
@@ -41,20 +40,33 @@ import { fetchConnections } from '../lib/api/social';
 import { type FriendshipState } from '../types/social';
 
 const { width } = Dimensions.get('window');
-// Beta feedback ("all this space wasted"): the hero was a fixed 300px tower of
-// avatar → name → subtitle → contact button before a single event appeared. It
-// is now a *minimum* height that hugs a single compact identity row, leaving
-// enough cover art above it to clear the absolutely-positioned back / Follow
-// controls (which sit at insets.top + 8 and cost no flow height).
-//
-// Floor math: the Follow pill bottoms out at insets.top + 8 + 40 ≈ 107 on a
-// notched iPhone. heroContent is bottom-aligned and is at most 126 tall
-// (12 pad + 56 identity row + 10 + 32 contact chip + 16 pad), of which the
-// first 12 is padding — so the first pixel of the name lands at
-// HERO_MIN_HEIGHT − 114. 232 puts that at 118, an 11px gap under the pill.
-const HERO_MIN_HEIGHT = 232;
+// Hero geometry. Build 13 gave the hero a fixed 232pt floor and bottom-aligned
+// the identity block inside it, which made the block's Y a function of
+// (floor − its own height): every optional part it lost (contact chip, meta
+// line) pushed the avatar *further down* into dead cover art — up to ~70pt of
+// gap under the controls for an organizer with no public socials. The block is
+// now anchored to the TOP of the hero, directly under the absolutely-positioned
+// back chevron / Follow pill, and the hero's height is whatever its content
+// needs. These three numbers are the only thing standing between the safe-area
+// top and the avatar:
+const HERO_CONTROL_TOP = 8;   // controls sit at insets.top + this
+const HERO_CONTROL_SIZE = 40; // …and are this tall (both chevron and pill)
+const HERO_IDENTITY_GAP = 10; // clearance under both controls
+// Distance from the safe-area top to the first pixel of the identity block.
+const HERO_IDENTITY_OFFSET = HERO_CONTROL_TOP + HERO_CONTROL_SIZE + HERO_IDENTITY_GAP;
 // Two-column flyer grid inside the 16px-padded content area.
 const PROFILE_COLUMN_WIDTH = (width - 32 - 12) / 2;
+// Past events are shown inline (three rows of the two-up grid) with a quiet
+// "Show all" beneath, so a decade-old organizer can't produce endless scroll.
+const PAST_EVENTS_PREVIEW = 6;
+// Dictionary key for that affordance — see the guarded fallback below.
+const PAST_SHOW_ALL_KEY = 'organizerProfile.pastShowAll';
+
+/** Milliseconds for a Date that may be missing/invalid, so sorts never NaN. */
+const timeOf = (d: Date | null | undefined) => {
+  const ms = d instanceof Date ? d.getTime() : NaN;
+  return Number.isFinite(ms) ? ms : 0;
+};
 
 interface SocialLink {
   type: 'website' | 'instagram' | 'facebook' | 'tiktok' | 'whatsapp' | 'email';
@@ -77,7 +89,7 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
   const [pastEvents, setPastEvents] = useState<any[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followDocId, setFollowDocId] = useState<string | null>(null);
-  const [showPastEvents, setShowPastEvents] = useState(false);
+  const [showAllPastEvents, setShowAllPastEvents] = useState(false);
   const [stats, setStats] = useState({
     followerCount: 0,
     totalEvents: 0,
@@ -167,6 +179,10 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
 
         totalSold += data.tickets_sold || 0;
 
+        // An event is over once it *ends*; multi-day events stay "upcoming"
+        // while they are running. `end_datetime` is optional on event docs, so
+        // a single-session event falls back to its start. (`event_date` is a
+        // ticket-doc field in this codebase, never an event-doc one.)
         const cutoff = eventData.end_datetime || eventData.start_datetime;
         if (cutoff && cutoff >= now) {
           upcoming.push(eventData);
@@ -175,8 +191,13 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
         }
       });
 
-      upcoming.sort((a, b) => a.start_datetime.getTime() - b.start_datetime.getTime());
-      past.sort((a, b) => b.start_datetime.getTime() - a.start_datetime.getTime());
+      // Upcoming: soonest first. Past: most recent first, on the same cutoff
+      // field the split used, so the ordering matches the filter.
+      upcoming.sort((a, b) => timeOf(a.start_datetime) - timeOf(b.start_datetime));
+      past.sort(
+        (a, b) =>
+          timeOf(b.end_datetime || b.start_datetime) - timeOf(a.end_datetime || a.start_datetime)
+      );
 
       setUpcomingEvents(upcoming);
       setPastEvents(past);
@@ -316,13 +337,23 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
     scrollViewRef.current?.scrollToEnd({ animated: true });
   };
 
-  const renderEventCard = (event: any, isCompact = false) => (
+  const renderEventCard = (event: any) => (
     <PosterEventCard
       key={event.id}
       event={event}
       width={PROFILE_COLUMN_WIDTH}
       onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
     />
+  );
+
+  // Past events use the very same card (same poster, same caption, same tap
+  // target → EventDetail); only its opacity is dropped so the row reads as
+  // archive rather than inventory. No "PAST" pill — the house style dims, it
+  // doesn't badge.
+  const renderPastEventCard = (event: any) => (
+    <View key={event.id} style={styles.pastCard}>
+      {renderEventCard(event)}
+    </View>
   );
 
   const getSubtitle = () => {
@@ -383,6 +414,15 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
 
   // The same three figures the old StatTriplet showed, rendered as one line.
   // Nothing is dropped — only the typographic weight is.
+  // Past events: newest first, capped at PAST_EVENTS_PREVIEW until the viewer
+  // asks for the rest. `t()` echoes a missing key back, so the "Show all"
+  // affordance falls back to English until the dictionaries carry it.
+  const visiblePastEvents = showAllPastEvents
+    ? pastEvents
+    : pastEvents.slice(0, PAST_EVENTS_PREVIEW);
+  const showAllPastLabel =
+    t(PAST_SHOW_ALL_KEY) === PAST_SHOW_ALL_KEY ? 'Show all' : t(PAST_SHOW_ALL_KEY);
+
   const statItems = [
     { label: t('organizerProfile.stats.events'), value: String(stats.totalEvents || 0) },
     { label: t('organizerProfile.stats.followers'), value: String(stats.followerCount || 0) },
@@ -411,7 +451,7 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
           {/* Back Button — a clean chevron-back, consistent with the
               organizer-surface headers (top-left, never over the avatar). */}
           <TouchableOpacity
-            style={[styles.backButton, { top: insets.top + 8 }]}
+            style={[styles.backButton, { top: insets.top + HERO_CONTROL_TOP }]}
             onPress={() => navigation.goBack()}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             accessibilityRole="button"
@@ -422,7 +462,11 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
 
           {/* Small Follow Button - Top Right */}
           <TouchableOpacity
-            style={[styles.followButtonSmall, { top: insets.top + 8 }, isFollowing && styles.followingButtonSmall]}
+            style={[
+              styles.followButtonSmall,
+              { top: insets.top + HERO_CONTROL_TOP },
+              isFollowing && styles.followingButtonSmall,
+            ]}
             onPress={handleFollow}
           >
             <Text style={[styles.followButtonSmallText, isFollowing && styles.followingButtonSmallText]}>
@@ -430,11 +474,13 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
             </Text>
           </TouchableOpacity>
 
-          {/* Hero Content — bottom-aligned, and now a SINGLE identity row:
-              the avatar sits beside the name instead of stacked above it, and
-              verified + category · city share one meta line beneath the name.
-              That collapses four stacked blocks into one. */}
-          <View style={styles.heroContent}>
+          {/* Hero Content — TOP-anchored (build 13 shipped it bottom-aligned
+              inside a 232pt floor, which left dead cover art above it). It is a
+              SINGLE identity row: the avatar sits beside the name instead of
+              stacked above it, and verified + category · city share one meta
+              line beneath the name. paddingTop clears the back chevron and the
+              Follow pill by HERO_IDENTITY_GAP at every safe-area inset. */}
+          <View style={[styles.heroContent, { paddingTop: insets.top + HERO_IDENTITY_OFFSET }]}>
             <View style={styles.identityRow}>
               {/* Avatar — 70 → 52; inline, so it costs no row of its own. */}
               <View style={styles.avatar}>
@@ -534,7 +580,7 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
 
             {upcomingEvents.length > 0 ? (
               <View style={styles.eventsGrid}>
-                {upcomingEvents.map((event) => renderEventCard(event, false))}
+                {upcomingEvents.map((event) => renderEventCard(event))}
               </View>
             ) : (
               <EmptyState
@@ -550,35 +596,38 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
             )}
           </View>
 
-          {/* Past Events (Collapsible) */}
+          {/* Past Events — beta feedback: these used to be hidden behind a
+              collapsed accordion, so the profile read as "Upcoming only". They
+              now render inline, dimmed, newest first. The whole section is
+              omitted (header included) when the organizer has no history. */}
           {pastEvents.length > 0 && (
             <View style={styles.section}>
-              <TouchableOpacity
-                style={styles.collapsibleHeader}
-                onPress={() => setShowPastEvents(!showPastEvents)}
-              >
-                <View>
-                  <Text style={styles.sectionTitle}>{t('organizerProfile.pastTitle')}</Text>
-                  <Text style={styles.sectionSubtitle}>
-                    {pastEvents.length}{' '}
-                    {t(
-                      pastEvents.length === 1
-                        ? 'organizerProfile.pastCountSingular'
-                        : 'organizerProfile.pastCountPlural'
-                    )}
-                  </Text>
-                </View>
-                {showPastEvents ? (
-                  <ChevronUp size={24} color={colors.text} />
-                ) : (
-                  <ChevronDown size={24} color={colors.text} />
+              <Text style={styles.sectionTitle}>{t('organizerProfile.pastTitle')}</Text>
+              <Text style={styles.sectionSubtitle}>
+                {pastEvents.length}{' '}
+                {t(
+                  pastEvents.length === 1
+                    ? 'organizerProfile.pastCountSingular'
+                    : 'organizerProfile.pastCountPlural'
                 )}
-              </TouchableOpacity>
+              </Text>
 
-              {showPastEvents && (
-                <View style={styles.eventsGrid}>
-                  {pastEvents.slice(0, 6).map((event) => renderEventCard(event, true))}
-                </View>
+              <View style={styles.eventsGrid}>
+                {visiblePastEvents.map((event) => renderPastEventCard(event))}
+              </View>
+
+              {/* Quiet text affordance, not a filled pill. */}
+              {pastEvents.length > visiblePastEvents.length && (
+                <TouchableOpacity
+                  style={styles.showAllRow}
+                  onPress={() => setShowAllPastEvents(true)}
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.showAllText}>
+                    {showAllPastLabel} ({pastEvents.length})
+                  </Text>
+                  <ChevronDown size={14} color={colors.primary} />
+                </TouchableOpacity>
               )}
             </View>
           )}
@@ -692,9 +741,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
 
   // Premium Hero Section
+  // Content-driven height: no fixed floor, no bottom alignment. The identity
+  // block's own paddingTop (insets.top + HERO_IDENTITY_OFFSET) is what keeps it
+  // clear of the controls, so the hero is exactly as tall as it needs to be.
   hero: {
-    minHeight: HERO_MIN_HEIGHT,
-    justifyContent: 'flex-end',
     backgroundColor: colors.surfaceRaised, // neutral fallback behind poster (not decorative teal)
   },
   heroScrim: {
@@ -740,9 +790,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   followingButtonSmallText: {
     color: '#FFF',
   },
+  // paddingTop is applied inline (insets.top + HERO_IDENTITY_OFFSET) — it is
+  // what holds the block clear of the controls at any safe-area inset.
   heroContent: {
     paddingHorizontal: 20,
-    paddingTop: 12,
     paddingBottom: 16,
   },
   // Avatar beside the name, not above it.
@@ -933,18 +984,36 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textSecondary,
     marginBottom: 16,
   },
-  collapsibleHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
 
   // Events
   eventsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
+  },
+  // "It's over" without a badge: the identical card, held back. Poster and
+  // caption dim together so the row reads as archive at a glance (POSH: no
+  // filled PAST pill, no tinted card).
+  pastCard: {
+    width: PROFILE_COLUMN_WIDTH,
+    opacity: 0.55,
+  },
+  // Quiet inline "Show all (N)" — a text link, never a filled pill. Teal is
+  // used here in its reserved role: a link.
+  showAllRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 4,
+    paddingVertical: 12,
+    marginTop: 4,
+  },
+  showAllText: {
+    fontFamily: font.mono,
+    fontSize: 12,
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    color: colors.primary,
   },
   // About Section
   aboutText: {

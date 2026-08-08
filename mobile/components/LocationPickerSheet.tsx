@@ -274,7 +274,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       color: colors.text,
     },
     countryChipTextActive: {
-      color: colors.white,
+      color: colors.onPrimary,
     },
     searchField: {
       flexDirection: 'row',

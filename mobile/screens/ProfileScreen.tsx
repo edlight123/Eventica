@@ -470,7 +470,13 @@ export default function ProfileScreen() {
             // live on the identity row itself (top-right), so the avatar/name
             // sits right below the notch with no dead gap (beta feedback).
             paddingTop: insets.top + 12,
-            paddingBottom: tabBarSpace + 24,
+            // ONE bottom reservation, not three. `tabBarSpace` is the whole
+            // clearance the overlay tab bar needs; the +16 is the visible margin
+            // between the last row and the bar. There used to be a trailing 24pt
+            // spacer View stacked on top of this (and, before the bar became an
+            // overlay, the bar's own in-flow height on top of THAT), which is why
+            // the list ran on into ~178pt of black past "Sign Out".
+            paddingBottom: tabBarSpace + 16,
           },
         ]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refreshAll} />}
@@ -1032,8 +1038,6 @@ export default function ProfileScreen() {
             </View>
           </TouchableOpacity>
         </View>
-
-        <View style={{ height: 24 }} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -1094,7 +1098,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
   },
   prefixPillTextActive: {
-    color: colors.surface,
+    color: colors.onPrimary,
   },
   phoneInput: {
     flex: 1,
@@ -1290,7 +1294,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textSecondary,
   },
   segmentBtnTextActive: {
-    color: colors.white,
+    color: colors.onPrimary,
   },
   toggleRow: {
     marginTop: 16,
@@ -1417,16 +1421,19 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderColor: colors.border,
     backgroundColor: colors.surface,
   },
+  // Selected = a SOLID teal fill with no border of its own (the border colour
+  // matches the fill purely so the chip doesn't resize between states). The
+  // teal-tinted, teal-outlined treatment it replaces read as "maybe selected".
   pillActive: {
     borderColor: colors.primary,
-    backgroundColor: colors.primarySoft,
+    backgroundColor: colors.primary,
   },
   pillText: {
     fontWeight: '800',
     color: colors.textSecondary,
   },
   pillTextActive: {
-    color: colors.white,
+    color: colors.onPrimary,
   },
   rowButton: {
     paddingHorizontal: 16,

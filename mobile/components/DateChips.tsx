@@ -83,6 +83,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textSecondary,
   },
   chipTextActive: {
-    color: colors.white,
+    color: colors.onPrimary,
   },
 });

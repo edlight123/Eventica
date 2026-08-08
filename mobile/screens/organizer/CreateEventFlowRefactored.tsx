@@ -1333,11 +1333,13 @@ export default function CreateEventFlowRefactored() {
                 </>
               ) : (
                 <View style={styles.flyerEmpty}>
-                  {/* A design-canvas base: near-black gradient + a faint
-                      graph-paper grid (Posh-style) so the empty poster reads as
-                      a workspace to fill, not a blank void. */}
+                  {/* A design-canvas base: a light-GREY slab (the elevation
+                      ladder's top steps) + a faint graph-paper grid (Posh-style)
+                      so the empty poster reads as a workspace to fill. It used
+                      to run down to the canvas colour itself, which made the
+                      dropzone near-black and indistinguishable from the page. */}
                   <LinearGradient
-                    colors={['#161616', '#0d0d0d', '#0A0A0A']}
+                    colors={[colors.border, colors.surfaceRaised, colors.surface]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 0.6, y: 1 }}
                     style={StyleSheet.absoluteFill}
@@ -1345,9 +1347,7 @@ export default function CreateEventFlowRefactored() {
                   <GridCanvas lineColor="rgba(255,255,255,0.05)" />
 
                   <View style={styles.flyerContent}>
-                    <View style={styles.flyerIconRing}>
-                      <Ionicons name="image-outline" size={28} color={colors.textSecondary} />
-                    </View>
+                    <Ionicons name="image-outline" size={28} color={colors.textSecondary} />
                     <Text style={styles.flyerTitle}>{t('organizerCreateEventFlow.canvas.flyerTitle')}</Text>
                     <Text style={styles.flyerSubtitle}>{t('organizerCreateEvent.basics.aspectRatio')}</Text>
                     <View style={styles.uploadPill}>
@@ -2277,6 +2277,13 @@ export default function CreateEventFlowRefactored() {
   );
 }
 
+/**
+ * Corner radius of the flyer panel. Off the shared RADIUS scale on purpose —
+ * its top step (`xl` = 20) is the app's ordinary card rounding, and this panel
+ * is meant to read markedly rounder than an ordinary card.
+ */
+const FLYER_RADIUS = 40;
+
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
     flex: 1,
@@ -2399,7 +2406,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   flyerHero: {
     // True event-flyer proportions: 2:3 portrait, matching the picker crop.
     aspectRatio: 2 / 3,
-    borderRadius: RADIUS.xl,
+    // Deliberately rounder than the RADIUS scale's top step (xl = 20): at ~10%
+    // of the panel's width this reads as a soft, almost-capsule slab rather
+    // than a rounded rectangle, which is what the dropzone was asked for.
+    borderRadius: FLYER_RADIUS,
     marginHorizontal: 16,
     marginBottom: 12,
     overflow: 'hidden',
@@ -2418,16 +2428,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     gap: 14,
     paddingHorizontal: 24,
-  },
-  flyerIconRing: {
-    width: 62,
-    height: 62,
-    borderRadius: 31,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)',
-    backgroundColor: 'rgba(255,255,255,0.05)',
   },
   flyerTitle: {
     fontFamily: font.serif,
@@ -2529,7 +2529,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
   },
   chipTextActive: {
-    color: colors.white,
+    color: colors.onPrimary,
   },
 
   // ── Poster-theme swatches ──
@@ -2693,7 +2693,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
   },
   currencyTextActive: {
-    color: colors.white,
+    color: colors.onPrimary,
   },
   tierCard: {
     backgroundColor: colors.surface,

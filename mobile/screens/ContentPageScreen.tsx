@@ -505,7 +505,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       borderColor: colors.border,
     },
     rolePillActive: {
-      backgroundColor: colors.primarySoft,
+      backgroundColor: colors.primary,
       borderColor: colors.primary,
     },
     rolePillText: {
@@ -514,7 +514,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       color: colors.textSecondary,
     },
     rolePillTextActive: {
-      color: colors.primary,
+      color: colors.onPrimary,
       fontWeight: '700',
     },
 

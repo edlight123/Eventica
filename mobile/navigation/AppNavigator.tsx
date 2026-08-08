@@ -215,6 +215,16 @@ function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
   // the real measured value instead of leaving the navigator's default guess.
   const setTabBarHeight = useContext(BottomTabBarHeightCallbackContext);
 
+  // Scrim stops, derived from the canvas colour so nothing is hardcoded.
+  const scrim = React.useMemo(() => ({
+    clear: withAlpha(colors.background, 0),
+    fadeEarly: withAlpha(colors.background, 0.1),
+    fadeLate: withAlpha(colors.background, 0.34),
+    seam: withAlpha(colors.background, TAB_BAR_SCRIM_SEAM_ALPHA),
+    barMid: withAlpha(colors.background, 0.88),
+    barBottom: withAlpha(colors.background, 0.94),
+  }), [colors.background]);
+
   return (
     <View
       style={[tabBarStyles.container, {
@@ -222,6 +232,37 @@ function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
       }]}
       onLayout={(e: LayoutChangeEvent) => setTabBarHeight?.(e.nativeEvent.layout.height)}
     >
+      {/* ── Bottom scrim (two continuous halves) ───────────────────────────
+          A translucent bar takes on whatever is behind it, so a poster under
+          one half of the bar and black canvas under the other made it read as
+          two different tones across its width (tester feedback, build 13). The
+          fix is not a more opaque bar — it's darkening the BACKDROP with a
+          bottom-anchored gradient so whatever scrolls under the bar arrives at
+          roughly the same value across the full width.
+
+          It is split into two elements only so each has device-independent
+          geometry: the first (`topScrim`) covers the fixed
+          TAB_BAR_SCRIM_EXTRA band above the bar; the second fills the bar
+          itself, whose height varies with the home-indicator inset. The first
+          ends and the second starts at TAB_BAR_SCRIM_SEAM_ALPHA, so together
+          they read as one continuous ramp on any device.
+
+          Both sit BEFORE the BlurView, i.e. behind it: the blur then samples
+          the already-darkened backdrop, and the canvas tint still goes on top.
+          The bar keeps its translucency — over the black canvas the scrim is
+          the canvas colour and changes nothing at all. */}
+      <LinearGradient
+        colors={[scrim.clear, scrim.fadeEarly, scrim.fadeLate, scrim.seam]}
+        locations={[0, 0.35, 0.7, 1]}
+        style={tabBarStyles.topScrim}
+        pointerEvents="none"
+      />
+      <LinearGradient
+        colors={[scrim.seam, scrim.barMid, scrim.barBottom]}
+        locations={[0, 0.55, 1]}
+        style={StyleSheet.absoluteFill}
+        pointerEvents="none"
+      />
       {/* Translucent chrome, iOS-idiomatic: a dark blur layer plus a near-solid
           canvas tint on top. Feed content passing underneath reads as a soft
           glow rather than a hard black band, while TAB_BAR_TINT_OPACITY keeps
@@ -238,15 +279,6 @@ function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
           StyleSheet.absoluteFill,
           { backgroundColor: colors.background, opacity: TAB_BAR_TINT_OPACITY },
         ]}
-        pointerEvents="none"
-      />
-      {/* Short top gradient fade (transparent → canvas) so scrolling content
-          dissolves into the bar instead of hitting a hard seam. Its opacity
-          matches the bar's tint so the fade lands exactly on the bar's own
-          value — no seam, no box, no border (POSH). */}
-      <LinearGradient
-        colors={['transparent', colors.background]}
-        style={[tabBarStyles.topFade, { opacity: TAB_BAR_TINT_OPACITY }]}
         pointerEvents="none"
       />
       {tabs.map((tab, index) => {
@@ -363,8 +395,40 @@ function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
 // 0.90 is the lightest value that holds the label at/above 3:1 in that worst
 // case while still letting bright content glow through. Active teal (5.8:1+)
 // and the white Create FAB are never the limiting factor.
+//
+// The backdrop scrim below now pre-darkens that near-white poster before the
+// tint sees it, so the same 0.90 buys more: the worst case improves from
+// 3.02:1 to 3.57:1 at the bar's top edge and 3.65:1 at the label row (vs
+// 3.72:1 over the plain black canvas). Legibility therefore no longer depends
+// on raising this value — leave it at 0.90.
 const TAB_BAR_TINT_OPACITY = 0.9;
 const TAB_BAR_BLUR_INTENSITY = 40;
+
+// How far the backdrop scrim reaches ABOVE the bar. Ending the ramp at the
+// bar's own top edge would just relocate the seam, so the fade needs room to
+// run out: 64pt is 8× the bar's 8pt rhythm, ~2.7× the 24pt fade it replaces and
+// roughly 3/4 of the bar's own height (~84pt with a home indicator), which is
+// long enough that the eye reads a vignette rather than an edge — while still
+// dimming under 8% of an 844pt screen, so feed content stays browsable.
+const TAB_BAR_SCRIM_EXTRA = 64;
+
+// Where the two scrim halves meet — the bar's top edge, and therefore the
+// weakest point of the scrim anywhere behind the bar (it only strengthens
+// downward). That makes it the legibility worst case: see the contrast note on
+// TAB_BAR_TINT_OPACITY, which this does not change.
+const TAB_BAR_SCRIM_SEAM_ALPHA = 0.72;
+
+/**
+ * `#RRGGBB` → `rgba(...)` so gradient stops can be DERIVED from a theme token
+ * (`colors.background`) instead of hardcoding a literal. Non-hex input (e.g. an
+ * already-rgba token) is passed through untouched.
+ */
+function withAlpha(hex: string, alpha: number): string {
+  const match = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!match) return hex;
+  const value = parseInt(match[1], 16);
+  return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, ${alpha})`;
+}
 
 const tabBarStyles = StyleSheet.create({
   container: {
@@ -380,7 +444,7 @@ const tabBarStyles = StyleSheet.create({
     bottom: 0,
     // No seam: no top border and no shadow, so it reads as an integrated
     // floating strip rather than a box. Separation from scrolling content is
-    // handled by the `topFade` gradient.
+    // handled by the top half of the backdrop scrim.
     borderTopWidth: 0,
     shadowColor: 'transparent',
     shadowOffset: { width: 0, height: 0 },
@@ -388,14 +452,15 @@ const tabBarStyles = StyleSheet.create({
     shadowRadius: 0,
     elevation: 0,
   },
-  // Sits just above the bar (bottom: '100%') and fades from transparent into
-  // the canvas background so content scrolling underneath melts into the bar.
-  topFade: {
+  // Upper half of the backdrop scrim. `bottom: '100%'` pins it directly on top
+  // of the bar (the container's overflow is visible), so its bottom stop meets
+  // the bar-height gradient's top stop exactly — one continuous ramp, no seam.
+  topScrim: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: '100%',
-    height: 24,
+    height: TAB_BAR_SCRIM_EXTRA,
   },
   tab: {
     flex: 1,
