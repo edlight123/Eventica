@@ -1,16 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, Inbox } from 'lucide-react-native';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
-import EventListCard from '../components/EventListCard';
-import { ListSkeleton } from '../components/Skeleton';
+import PosterEventCard from '../components/PosterEventCard';
+import ChromeBlur from '../components/ChromeBlur';
+import { GridSkeleton } from '../components/Skeleton';
 import EmptyState from '../components/EmptyState';
 import { getCategoryLabel } from '../lib/categories';
 import { applyHomeFeed } from '../lib/homeFeeds';
+
+// Fixed column width rather than flex: with an ODD number of events the last
+// card in a flex grid stretches to the full row. Matches FavoritesScreen's
+// grid and GridSkeleton's FAV_COLUMN_WIDTH so the placeholder and the real
+// content line up exactly. 32 = the list's 16pt side padding, 12 = the gutter.
+const COLUMN_WIDTH = (Dimensions.get('window').width - 32 - 12) / 2;
 
 export default function CategoryEventsScreen({ navigation, route }: any) {
   const { colors } = useTheme();
@@ -79,6 +86,7 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <ChromeBlur edge="top" />
         <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={12}>
           <ChevronLeft size={24} color={colors.text} />
         </TouchableOpacity>
@@ -97,14 +105,20 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
       </View>
 
       {loading ? (
-        <ListSkeleton />
+        <GridSkeleton />
       ) : (
         <FlatList
           data={events}
           keyExtractor={(item) => item.id}
+          // A two-column poster grid, NOT a row list. You arrive here from a
+          // rail of poster art; landing on plain text rows read as a different
+          // product. Same card the rail uses, so the section simply unfolds.
+          numColumns={2}
+          columnWrapperStyle={styles.gridRow}
           renderItem={({ item }) => (
-            <EventListCard
+            <PosterEventCard
               event={item}
+              width={COLUMN_WIDTH}
               onPress={() => navigation.navigate('EventDetail', { eventId: item.id })}
             />
           )}
@@ -137,28 +151,26 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       paddingBottom: 12,
     },
     headerText: {
-    flex: 1,
-  },
-  headerSubtitle: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  headerTitle: {
       flex: 1,
+    },
+    headerSubtitle: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    headerTitle: {
       fontFamily: 'InstrumentSerif_400Regular',
       fontSize: 26,
       color: colors.text,
       letterSpacing: 0,
     },
-    loader: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
+    gridRow: {
+      gap: 12,
+      justifyContent: 'flex-start',
     },
     listContent: {
       paddingHorizontal: 16,
-      paddingTop: 8,
+      paddingTop: 12,
       paddingBottom: 32,
       flexGrow: 1,
     },
