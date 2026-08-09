@@ -6,12 +6,13 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  Alert,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   StatusBar,
 } from 'react-native';
+import { radius } from '../../theme/tokens';
+import { useAppAlert } from '../../components/AppAlert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
@@ -35,6 +36,7 @@ export default function SendEventUpdateScreen() {
   const { eventId, eventTitle } = route.params;
 
   const { t } = useI18n();
+  const showAlert = useAppAlert();
   const insets = useSafeAreaInsets();
 
   const [title, setTitle] = useState('');
@@ -43,16 +45,16 @@ export default function SendEventUpdateScreen() {
 
   const handleSend = async () => {
     if (!title.trim()) {
-      Alert.alert(t('common.error'), t('organizerSendUpdate.errors.missingTitle'));
+      showAlert(t('common.error'), t('organizerSendUpdate.errors.missingTitle'));
       return;
     }
 
     if (!message.trim()) {
-      Alert.alert(t('common.error'), t('organizerSendUpdate.errors.missingMessage'));
+      showAlert(t('common.error'), t('organizerSendUpdate.errors.missingMessage'));
       return;
     }
 
-    Alert.alert(
+    showAlert(
       t('organizerSendUpdate.confirm.title'),
       t('organizerSendUpdate.confirm.body'),
       [
@@ -77,7 +79,7 @@ export default function SendEventUpdateScreen() {
                 }
               );
 
-              Alert.alert(
+              showAlert(
                 t('common.success'),
                 notified === 1
                   ? t('organizerSendUpdate.success.bodySingular')
@@ -91,7 +93,7 @@ export default function SendEventUpdateScreen() {
               );
             } catch (error: any) {
               console.error('Error sending update:', error);
-              Alert.alert(t('common.error'), t('organizerSendUpdate.errors.sendFailed'));
+              showAlert(t('common.error'), t('organizerSendUpdate.errors.sendFailed'));
             } finally {
               setSending(false);
             }
@@ -259,7 +261,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderColor: colors.border,
     paddingVertical: 8,
     paddingHorizontal: 16,
-    borderRadius: 8,
+    borderRadius: radius.sm,
     minWidth: 70,
     alignItems: 'center',
   },
@@ -297,7 +299,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 8,
+    borderRadius: radius.sm,
     padding: 12,
     fontSize: 16,
     color: colors.text,
@@ -326,7 +328,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   exampleCard: {
     backgroundColor: colors.surface,
-    borderRadius: 8,
+    borderRadius: radius.sm,
     padding: 12,
     marginBottom: 8,
     borderWidth: 1,

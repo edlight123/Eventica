@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.sm,
-    height: 54,
+    height: 56,
     borderRadius: radius.lg,
     paddingHorizontal: spacing.lg,
   },

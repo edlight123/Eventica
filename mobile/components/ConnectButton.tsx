@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, View, Alert } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -9,6 +9,8 @@ import {
   removeConnection,
 } from '../lib/api/social';
 import type { FriendshipState } from '../types/social';
+import { useAppAlert } from './AppAlert';
+import { radius } from '../theme/tokens';
 
 interface ConnectButtonProps {
   targetUserId: string;
@@ -33,6 +35,7 @@ export default function ConnectButton({
   onRequireAuth,
 }: ConnectButtonProps) {
   const { colors } = useTheme();
+  const showAlert = useAppAlert();
   const styles = getStyles(colors, size);
   const secondary = variant === 'secondary';
   const { user } = useAuth();
@@ -55,7 +58,7 @@ export default function ConnectButton({
     try {
       await fn();
     } catch (e: any) {
-      Alert.alert('Error', e?.message || 'Something went wrong. Please try again.');
+      showAlert('Error', e?.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -139,7 +142,7 @@ const getStyles = (colors: any, size: 'sm' | 'md') =>
       gap: 6,
       paddingVertical: size === 'sm' ? 7 : 10,
       paddingHorizontal: size === 'sm' ? 12 : 18,
-      borderRadius: 12,
+      borderRadius: radius.md,
     },
     // POSH §2.2: the primary connect action is a solid white pill with black
     // text — teal is reserved for semantic marks, never the primary CTA.

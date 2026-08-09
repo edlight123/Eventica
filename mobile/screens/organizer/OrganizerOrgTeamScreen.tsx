@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  Alert,
   Modal,
   RefreshControl,
   ScrollView,
@@ -10,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import { useAppAlert } from '../../components/AppAlert'
 import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
@@ -75,6 +75,7 @@ export default function OrganizerOrgTeamScreen() {
   const navigation = useNavigation<any>()
   const insets = useSafeAreaInsets()
   const { t } = useI18n()
+  const showAlert = useAppAlert();
   const { user, userProfile } = useAuth()
 
   const [tab, setTab] = useState<'team' | 'tasks'>('team')
@@ -113,7 +114,7 @@ export default function OrganizerOrgTeamScreen() {
       setMembers(Array.isArray(teamRes?.members) ? teamRes.members : [])
       setTasks(Array.isArray(tasksRes?.tasks) ? tasksRes.tasks : [])
     } catch (e: any) {
-      Alert.alert(t('common.error'), e?.message || t('organizerOrgTeam.errors.loadFailed'))
+      showAlert(t('common.error'), e?.message || t('organizerOrgTeam.errors.loadFailed'))
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -180,7 +181,7 @@ export default function OrganizerOrgTeamScreen() {
       setShowAddMember(false)
       await refresh()
     } catch (e: any) {
-      Alert.alert(t('common.error'), e?.message || t('organizerOrgTeam.errors.addMemberFailed'))
+      showAlert(t('common.error'), e?.message || t('organizerOrgTeam.errors.addMemberFailed'))
     } finally {
       setSubmitting(false)
     }
@@ -197,14 +198,14 @@ export default function OrganizerOrgTeamScreen() {
       setActiveMember((prev) => (prev && prev.id === member.id ? { ...prev, role } : prev))
       await refresh()
     } catch (e: any) {
-      Alert.alert(t('common.error'), e?.message || t('organizerOrgTeam.errors.updateMemberFailed'))
+      showAlert(t('common.error'), e?.message || t('organizerOrgTeam.errors.updateMemberFailed'))
     } finally {
       setSubmitting(false)
     }
   }
 
   const removeMember = (member: TeamMember) => {
-    Alert.alert(
+    showAlert(
       t('organizerOrgTeam.removeMember'),
       t('organizerOrgTeam.removeMemberConfirm'),
       [
@@ -220,7 +221,7 @@ export default function OrganizerOrgTeamScreen() {
               setActiveMember(null)
               await refresh()
             } catch (e: any) {
-              Alert.alert(
+              showAlert(
                 t('common.error'),
                 e?.message || t('organizerOrgTeam.errors.removeMemberFailed')
               )
@@ -259,7 +260,7 @@ export default function OrganizerOrgTeamScreen() {
       setShowNewTask(false)
       await refresh()
     } catch (e: any) {
-      Alert.alert(t('common.error'), e?.message || t('organizerOrgTeam.errors.addTaskFailed'))
+      showAlert(t('common.error'), e?.message || t('organizerOrgTeam.errors.addTaskFailed'))
     } finally {
       setSubmitting(false)
     }
@@ -279,12 +280,12 @@ export default function OrganizerOrgTeamScreen() {
     } catch (e: any) {
       setTasks((prev) => prev.map((x) => (x.id === task.id ? { ...x, status: previous } : x)))
       setActiveTask((prev) => (prev && prev.id === task.id ? { ...prev, status: previous } : prev))
-      Alert.alert(t('common.error'), e?.message || t('organizerOrgTeam.errors.updateTaskFailed'))
+      showAlert(t('common.error'), e?.message || t('organizerOrgTeam.errors.updateTaskFailed'))
     }
   }
 
   const removeTask = (task: OrgTask) => {
-    Alert.alert(t('organizerOrgTeam.removeTask'), t('organizerOrgTeam.removeTaskConfirm'), [
+    showAlert(t('organizerOrgTeam.removeTask'), t('organizerOrgTeam.removeTaskConfirm'), [
       { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('common.remove'),
@@ -297,7 +298,7 @@ export default function OrganizerOrgTeamScreen() {
             setActiveTask(null)
             await refresh()
           } catch (e: any) {
-            Alert.alert(
+            showAlert(
               t('common.error'),
               e?.message || t('organizerOrgTeam.errors.removeTaskFailed')
             )

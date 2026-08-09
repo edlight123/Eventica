@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   StatusBar,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -21,12 +20,16 @@ import {
   submitVerificationForReview,
   type VerificationRequest,
 } from '../../lib/verification';
+import { useAppAlert } from '../../components/AppAlert';
+import StatusChip from '../../components/StatusChip';
+import { radius } from '../../theme/tokens';
 
 const SUBMITTED_STATUSES = ['pending', 'pending_review', 'in_review', 'approved'] as const;
 const LOCKED_STATUSES = ['pending', 'pending_review', 'in_review'] as const;
 
 export default function OrganizerVerificationScreen() {
   const { colors, isDark } = useTheme();
+  const showAlert = useAppAlert();
   const styles = getStyles(colors);
   const navigation = useNavigation();
   const { userProfile } = useAuth();
@@ -54,7 +57,7 @@ export default function OrganizerVerificationScreen() {
 
       // Redirect if already approved
       if (verificationRequest.status === 'approved') {
-        Alert.alert(
+        showAlert(
           t('verification.organizerVerification.alerts.alreadyVerifiedTitle'),
           t('verification.organizerVerification.alerts.alreadyVerifiedBody'),
           [{ text: t('common.ok'), onPress: () => navigation.goBack() }]
@@ -63,7 +66,7 @@ export default function OrganizerVerificationScreen() {
       }
     } catch (error) {
       console.error('Error loading verification:', error);
-      Alert.alert(t('common.error'), t('verification.organizerVerification.alerts.failedToLoad'));
+      showAlert(t('common.error'), t('verification.organizerVerification.alerts.failedToLoad'));
     } finally {
       setLoading(false);
     }
@@ -155,27 +158,31 @@ export default function OrganizerVerificationScreen() {
             />
           </View>
           {isLocked && (
-            <View style={styles.statusBadge}>
-              <Ionicons name="time-outline" size={16} color={colors.warning} />
-              <Text style={styles.statusBadgeText}>{t('verification.organizerVerification.status.underReview')}</Text>
+            <View style={styles.statusRow}>
+              <StatusChip
+                status="pending"
+                label={t('verification.organizerVerification.status.underReview')}
+              />
             </View>
           )}
           {request.status === 'approved' && (
-            <View style={[styles.statusBadge, { backgroundColor: colors.success + '20' }]}>
-              <Ionicons name="checkmark-circle" size={16} color={colors.success} />
-              <Text style={[styles.statusBadgeText, { color: colors.success }]}>
-                {t('verification.organizerVerification.status.approved')}
-              </Text>
+            <View style={styles.statusRow}>
+              <StatusChip
+                status="success"
+                label={t('verification.organizerVerification.status.approved')}
+              />
             </View>
           )}
           {isRejected && (
-            <View style={[styles.statusBadge, { backgroundColor: colors.error + '20' }]}>
-              <Ionicons name="close-circle" size={16} color={colors.error} />
-              <Text style={[styles.statusBadgeText, { color: colors.error }]}>
-                {request.status === 'changes_requested'
-                  ? t('verification.organizerVerification.status.changesRequested')
-                  : t('verification.organizerVerification.status.rejected')}
-              </Text>
+            <View style={styles.statusRow}>
+              <StatusChip
+                status="declined"
+                label={
+                  request.status === 'changes_requested'
+                    ? t('verification.organizerVerification.status.changesRequested')
+                    : t('verification.organizerVerification.status.rejected')
+                }
+              />
             </View>
           )}
         </View>
@@ -258,7 +265,7 @@ export default function OrganizerVerificationScreen() {
             <TouchableOpacity
               style={styles.submitButton}
               onPress={async () => {
-                Alert.alert(
+                showAlert(
                   t('verification.organizerVerification.submit.confirmTitle'),
                   t('verification.organizerVerification.submit.confirmBody'),
                   [
@@ -269,14 +276,14 @@ export default function OrganizerVerificationScreen() {
                         try {
                           if (!userProfile?.id) return;
                           await submitVerificationForReview(userProfile.id);
-                          Alert.alert(
+                          showAlert(
                             t('common.success'),
                             t('verification.organizerVerification.submit.successBody'),
                             [{ text: t('common.ok'), onPress: () => navigation.goBack() }]
                           );
                         } catch (error: any) {
                           console.error('Error submitting:', error);
-                          Alert.alert(
+                          showAlert(
                             t('common.error'),
                             error?.message || t('verification.organizerVerification.submit.failed')
                           );
@@ -340,10 +347,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   retryButton: {
     marginTop: 20,
     paddingHorizontal: 24,
-    minHeight: 48,
+    minHeight: 44,
     justifyContent: 'center',
     backgroundColor: colors.primary,
-    borderRadius: 16,
+    borderRadius: radius.lg,
   },
   retryButtonText: {
     color: colors.white,
@@ -375,7 +382,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     margin: 16,
     padding: 20,
     backgroundColor: colors.surface,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -406,19 +413,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.primary,
     borderRadius: 4,
   },
-  statusBadge: {
+  // Status reads as a dot + label (StatusChip), never a filled capsule — the
+  // chip owns its own color, so the row here only carries the spacing.
+  statusRow: {
     marginTop: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 8,
-    backgroundColor: colors.warning + '20',
-    borderRadius: 8,
-  },
-  statusBadgeText: {
-    marginLeft: 6,
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.warning,
   },
   section: {
     margin: 16,
@@ -446,7 +444,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     padding: 16,
     backgroundColor: colors.surface,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     marginBottom: 12,
     borderWidth: 1,
     borderColor: colors.border,
@@ -472,10 +470,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   submitButton: {
     backgroundColor: colors.primary,
-    minHeight: 48,
+    minHeight: 56,
     paddingVertical: 14,
     paddingHorizontal: 16,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -494,7 +492,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     margin: 16,
     padding: 16,
     backgroundColor: colors.warning + '20',
-    borderRadius: 16,
+    borderRadius: radius.lg,
     flexDirection: 'row',
     alignItems: 'center',
   },

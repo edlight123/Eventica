@@ -17,6 +17,7 @@ import { backendJson } from '../lib/api/backend';
 import { useI18n } from '../contexts/I18nContext';
 import WhitePillCTA from './WhitePillCTA';
 import { formatCurrency } from '../lib/currency';
+import { radius } from '../theme/tokens';
 
 // Expo Go can't load native modules like Stripe. Detect it reliably via
 // expo-constants. (The old `Platform.constants.expoConfig` check was always
@@ -675,12 +676,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: '#FFFFFF',
     borderColor: '#E5E7EB',
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: radius.sm,
   },
   phoneInput: {
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 12,
+    borderRadius: radius.md,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
@@ -708,7 +709,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 16,
     padding: 16,
     backgroundColor: colors.error + '15',
-    borderRadius: 12,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.error,
   },
@@ -758,7 +759,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   cancelButton: {
     flex: 1,
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: radius.md,
     borderWidth: 2,
     borderColor: colors.border,
     alignItems: 'center',
@@ -772,7 +773,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   payButton: {
     flex: 2,
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: radius.md,
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
@@ -794,7 +795,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 12,
     padding: 16,
     backgroundColor: 'rgba(245, 158, 11, 0.12)',
-    borderRadius: 12,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: 'rgba(245, 158, 11, 0.4)',
     marginBottom: 12,

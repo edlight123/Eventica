@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { BADGE_COLORS, BadgeStatus } from '../theme/badges';
 import { useI18n } from '../contexts/I18nContext';
-import { font } from '../theme/tokens';
+import { radius, font } from '../theme/tokens';
 
 /** Maps a display status to its BADGE_COLORS key (handles spaced labels). */
 const STATUS_KEY: Record<BadgeStatus, keyof typeof BADGE_COLORS> = {
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   dot: {
     width: 6,
     height: 6,
-    borderRadius: 999,
+    borderRadius: radius.pill,
   },
   label: {
     fontFamily: font.mono,

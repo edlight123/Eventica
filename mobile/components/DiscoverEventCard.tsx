@@ -9,7 +9,7 @@ import { safeFormatForLanguage } from '../lib/dates';
 import { resolvePosterTheme } from '../lib/posterGradient';
 import { formatPrice } from '../lib/currency';
 import { resolveEventPricing } from '../lib/ticketPricing';
-import { font } from '../theme/tokens';
+import { radius, font } from '../theme/tokens';
 import WhitePillCTA from './WhitePillCTA';
 import VerifiedBadge from './VerifiedBadge';
 
@@ -147,7 +147,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       width: '100%',
       // Height comes from the image's real aspect ratio (set at runtime) so the
       // full poster always shows, uncropped.
-      borderRadius: 8,
+      borderRadius: radius.sm,
       overflow: 'hidden',
       backgroundColor: colors.surfaceMuted,
     },

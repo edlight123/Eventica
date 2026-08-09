@@ -29,7 +29,7 @@ import { format } from 'date-fns';
 import { safeFormatForLanguage } from '../lib/dates';
 import { useFocusEffect } from '@react-navigation/native';
 import { consumeTicketsRefreshHint } from '../lib/ticketsRefreshHint';
-import { font } from '../theme/tokens';
+import { font, radius } from '../theme/tokens';
 
 // Offline-first cache: the door-scan moment is exactly when signal is worst, so
 // we persist the resolved upcoming/past event lists per user and hydrate them
@@ -568,7 +568,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   ticketPoster: {
     width: POSTER_W,
     height: POSTER_H,
-    borderRadius: 8,
+    borderRadius: radius.sm,
     overflow: 'hidden',
     backgroundColor: colors.borderLight,
   },

@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-nati
 import { useI18n } from '../contexts/I18nContext';
 import { getCategoryLabel } from '../lib/categories';
 import { useTheme } from '../contexts/ThemeContext';
+import { radius } from '../theme/tokens';
 
 export const CATEGORIES = [
   'Music',
@@ -90,7 +91,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 6,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 10,
+    borderRadius: radius.chip,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,

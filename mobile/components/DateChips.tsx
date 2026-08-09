@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-nati
 
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
+import { radius } from '../theme/tokens';
 
 export type DateFilter = 'any' | 'today' | 'tomorrow' | 'this-week' | 'this-weekend';
 
@@ -68,7 +69,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   chip: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 10,
+    borderRadius: radius.chip,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,

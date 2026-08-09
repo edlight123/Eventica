@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { Search } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
+import { radius } from '../theme/tokens';
 
 interface PremiumSearchBarProps {
   onPress: () => void;
@@ -47,7 +48,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.surface,
-    borderRadius: 12,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
     paddingHorizontal: 16,

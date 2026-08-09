@@ -177,7 +177,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       alignSelf: 'center',
       width: 36,
       height: 4,
-      borderRadius: 999,
+      borderRadius: radius.pill,
       backgroundColor: colors.border,
       marginBottom: 8,
     },

@@ -27,7 +27,7 @@ import TransferTicketModal from '../components/TransferTicketModal';
 import { TicketPassSkeleton } from '../components/Skeleton';
 import { ticketQrValue } from '../lib/ticket';
 import { useMaxBrightnessWhileFocused } from '../lib/useMaxBrightness';
-import { font } from '../theme/tokens';
+import { colors as T, font } from '../theme/tokens';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -176,7 +176,7 @@ export default function EventTicketsScreen({ route, navigation }: any) {
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton} hitSlop={8}>
-            <ArrowLeft size={24} color="#FFF" />
+            <ArrowLeft size={24} color={colors.white} />
           </TouchableOpacity>
         </View>
         <View style={styles.emptyContainer}>
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
   eventTitle: {
     fontFamily: font.serif,
     fontSize: 26,
-    color: '#FFF',
+    color: T.white,
     textAlign: 'center',
     marginBottom: 6,
   },
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   },
   dotActive: {
     width: 24,
-    backgroundColor: '#FFF',
+    backgroundColor: T.white,
   },
   emptyContainer: {
     flex: 1,
@@ -405,6 +405,6 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#FFF',
+    color: T.white,
   },
 });

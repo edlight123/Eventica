@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
@@ -10,6 +10,8 @@ import { clearPendingPayment, setPendingPayment } from '../lib/pendingPayment'
 import { setTicketsRefreshHint } from '../lib/ticketsRefreshHint'
 import { useI18n } from '../contexts/I18nContext'
 import { PaymentSkeleton } from '../components/Skeleton'
+import { useAppAlert } from '../components/AppAlert';
+import { radius } from '../theme/tokens';
 
 type Params = {
   url: string
@@ -312,6 +314,7 @@ const TRUSTED_PAYMENT_HOSTS = new Set(
 
 export default function PaymentWebViewScreen() {
   const { colors } = useTheme();
+  const showAlert = useAppAlert();
   const styles = getStyles(colors);
   const insets = useSafeAreaInsets()
   const navigation = useNavigation<any>()
@@ -377,7 +380,7 @@ export default function PaymentWebViewScreen() {
     clearPendingPayment().catch(() => {})
     setTicketsRefreshHint({ reason: 'payment', createdAt: Date.now() }).catch(() => {})
 
-    Alert.alert(t('screens.payment.successTitle'), t('screens.payment.successBody'), [
+    showAlert(t('screens.payment.successTitle'), t('screens.payment.successBody'), [
       {
         text: t('common.ok'),
         onPress: () => {
@@ -419,7 +422,7 @@ export default function PaymentWebViewScreen() {
       navigation.goBack()
       return
     }
-    Alert.alert(t('screens.payment.cancelTitle'), t('screens.payment.cancelBody'), [
+    showAlert(t('screens.payment.cancelTitle'), t('screens.payment.cancelBody'), [
       { text: t('screens.payment.cancelKeep'), style: 'cancel' },
       {
         text: t('screens.payment.cancelConfirm'),
@@ -692,8 +695,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   failurePrimaryButton: {
     width: '100%',
-    height: 54,
-    borderRadius: 14,
+    height: 56,
+    borderRadius: radius.button,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.white,
@@ -706,8 +709,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   failureGhostButton: {
     width: '100%',
-    height: 50,
-    borderRadius: 14,
+    height: 44,
+    borderRadius: radius.button,
     alignItems: 'center',
     justifyContent: 'center',
   },

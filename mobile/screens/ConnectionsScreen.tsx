@@ -9,7 +9,6 @@ import {
   Image,
   ActivityIndicator,
   RefreshControl,
-  Alert,
   Platform,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,12 +16,14 @@ import { ChevronLeft, Users, Search, Phone, Inbox, Send, UserPlus } from 'lucide
 import * as Contacts from 'expo-contacts';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from '../contexts/ThemeContext';
+import { radius } from '../theme/tokens';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import ConnectButton from '../components/ConnectButton';
 import VerifiedBadge from '../components/VerifiedBadge';
 import EmptyState from '../components/EmptyState';
 import { PeopleRowsSkeleton } from '../components/Skeleton';
+import { useAppAlert } from '../components/AppAlert';
 import {
   fetchConnections,
   searchUsers,
@@ -288,6 +289,7 @@ function RequestsTab({ overview, colors, onOpen, onChange, onRequireAuth }: any)
 function FindTab({ colors, onOpen, onChange, onRequireAuth, insets, autoSync }: any) {
   const styles = getStyles(colors);
   const { t } = useI18n();
+  const showAlert = useAppAlert();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<UserSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
@@ -319,7 +321,7 @@ function FindTab({ colors, onOpen, onChange, onRequireAuth, insets, autoSync }: 
     try {
       const { status } = await Contacts.requestPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert(
+        showAlert(
           t('connections.find.permissionTitle'),
           t('connections.find.permissionBody')
         );
@@ -334,13 +336,13 @@ function FindTab({ colors, onOpen, onChange, onRequireAuth, insets, autoSync }: 
         });
       });
       if (phones.length === 0) {
-        Alert.alert(t('connections.find.noNumbersTitle'), t('connections.find.noNumbersBody'));
+        showAlert(t('connections.find.noNumbersTitle'), t('connections.find.noNumbersBody'));
         setContactMatches([]);
         return;
       }
       setContactMatches(await matchContacts(phones));
     } catch (e: any) {
-      Alert.alert(t('connections.find.errorTitle'), e?.message || t('connections.find.errorBody'));
+      showAlert(t('connections.find.errorTitle'), e?.message || t('connections.find.errorBody'));
     } finally {
       setContactLoading(false);
     }
@@ -469,7 +471,7 @@ const getStyles = (colors: any) =>
       marginHorizontal: 16,
       marginBottom: 8,
       backgroundColor: colors.borderLight,
-      borderRadius: 12,
+      borderRadius: radius.md,
       padding: 4,
     },
     tabBtn: {
@@ -504,14 +506,14 @@ const getStyles = (colors: any) =>
       justifyContent: 'center',
     },
     badgeText: {
-      color: '#FFFFFF',
+      color: colors.white,
       fontSize: 11,
       fontWeight: '700',
     },
     // Elevation, not borders (POSH §1).
     card: {
       backgroundColor: colors.surface,
-      borderRadius: 16,
+      borderRadius: radius.lg,
       paddingHorizontal: 14,
     },
     divider: {
@@ -559,7 +561,7 @@ const getStyles = (colors: any) =>
       alignItems: 'center',
       gap: 10,
       backgroundColor: colors.surfaceRaised,
-      borderRadius: 12,
+      borderRadius: radius.md,
       paddingHorizontal: 14,
       paddingVertical: Platform.OS === 'ios' ? 12 : 4,
     },
@@ -577,7 +579,7 @@ const getStyles = (colors: any) =>
     contactCard: {
       marginTop: 20,
       backgroundColor: colors.surface,
-      borderRadius: 16,
+      borderRadius: radius.lg,
       padding: 16,
     },
     contactHeader: {
@@ -588,7 +590,7 @@ const getStyles = (colors: any) =>
     contactIcon: {
       width: 40,
       height: 40,
-      borderRadius: 10,
+      borderRadius: radius.chip,
       backgroundColor: colors.surfaceRaised,
       alignItems: 'center',
       justifyContent: 'center',
@@ -611,7 +613,7 @@ const getStyles = (colors: any) =>
       justifyContent: 'center',
       gap: 8,
       backgroundColor: colors.white,
-      borderRadius: 12,
+      borderRadius: radius.md,
       paddingVertical: 12,
       marginTop: 14,
     },

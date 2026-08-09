@@ -10,6 +10,7 @@ import StatusChip from './StatusChip';
 import AddToWalletButton from './AddToWalletButton';
 import { ticketOrderRef, ticketTierLabel, ticketQrValue, ticketStatusKey } from '../lib/ticket';
 import { addToCalendar, openDirections } from '../lib/postPurchaseActions';
+import { radius } from '../theme/tokens';
 
 interface TicketPassCardProps {
   ticket: any;
@@ -171,7 +172,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       backgroundColor: colors.successLight,
       paddingVertical: 10,
       paddingHorizontal: 14,
-      borderRadius: 12,
+      borderRadius: radius.md,
       marginTop: 12,
     },
     usedBannerText: {
@@ -196,7 +197,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       justifyContent: 'center',
       gap: 8,
       paddingVertical: 14,
-      borderRadius: 14,
+      borderRadius: radius.button,
       backgroundColor: colors.surfaceRaised,
     },
     secondaryButtonText: {

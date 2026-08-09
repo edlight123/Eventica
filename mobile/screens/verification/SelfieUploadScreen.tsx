@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  Alert,
   ActivityIndicator,
   Dimensions,
   ScrollView,
@@ -26,6 +25,8 @@ import {
   getDocumentDownloadURL,
   getVerificationRequest,
 } from '../../lib/verification';
+import { useAppAlert } from '../../components/AppAlert';
+import { radius } from '../../theme/tokens';
 
 type RouteParams = {
   SelfieUpload: {
@@ -35,6 +36,7 @@ type RouteParams = {
 
 export default function SelfieUploadScreen() {
   const { colors, isDark } = useTheme();
+  const showAlert = useAppAlert();
   const styles = getStyles(colors);
   const navigation = useNavigation();
   const route = useRoute<RouteProp<RouteParams, 'SelfieUpload'>>();
@@ -113,14 +115,14 @@ export default function SelfieUploadScreen() {
         },
       });
 
-      Alert.alert(t('common.success'), t('verification.selfie.alerts.uploaded'));
+      showAlert(t('common.success'), t('verification.selfie.alerts.uploaded'));
     } catch (error: any) {
       console.error('[Selfie Upload] Error details:', {
         message: error.message,
         code: error.code,
         name: error.name,
       });
-      Alert.alert(
+      showAlert(
         t('verification.common.uploadErrorTitle'),
         error.message || t('verification.common.failedToUploadImage')
       );
@@ -138,7 +140,7 @@ export default function SelfieUploadScreen() {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert(
+        showAlert(
           t('verification.common.permissionRequiredTitle'),
           t('verification.common.photoLibraryPermissionBody')
         );
@@ -157,12 +159,12 @@ export default function SelfieUploadScreen() {
       }
     } catch (error: any) {
       console.error('[Library Pick] Error:', error);
-      Alert.alert(t('common.error'), t('verification.common.failedToPickImageFromLibrary'));
+      showAlert(t('common.error'), t('verification.common.failedToPickImageFromLibrary'));
     }
   };
 
   const showUploadOptions = () => {
-    Alert.alert(t('verification.selfie.uploadTitle'), t('verification.common.chooseOption'), [
+    showAlert(t('verification.selfie.uploadTitle'), t('verification.common.chooseOption'), [
       {
         text: t('verification.selfie.buttons.takeSelfieWithCamera'),
         onPress: () => setShowCamera(true),
@@ -177,7 +179,7 @@ export default function SelfieUploadScreen() {
 
   const handleContinue = async () => {
     if (!selfiePath) {
-      Alert.alert(t('verification.selfie.validation.missingTitle'), t('verification.selfie.validation.missingBody'));
+      showAlert(t('verification.selfie.validation.missingTitle'), t('verification.selfie.validation.missingBody'));
       return;
     }
 
@@ -192,7 +194,7 @@ export default function SelfieUploadScreen() {
         missingFields: [],
       });
 
-      Alert.alert(t('common.success'), t('verification.selfie.alerts.verificationCompleted'), [
+      showAlert(t('common.success'), t('verification.selfie.alerts.verificationCompleted'), [
         {
           text: t('common.ok'),
           onPress: () => {
@@ -205,7 +207,7 @@ export default function SelfieUploadScreen() {
       ]);
     } catch (error) {
       console.error('Error saving:', error);
-      Alert.alert(t('common.error'), t('verification.common.saveStepFailed'));
+      showAlert(t('common.error'), t('verification.common.saveStepFailed'));
     } finally {
       setSaving(false);
     }
@@ -380,7 +382,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   guideVisual: {
     backgroundColor: colors.surface,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
     padding: 20,
@@ -435,7 +437,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   instructionsCard: {
     padding: 16,
     backgroundColor: colors.surface,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
     marginBottom: 24,
@@ -471,7 +473,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderWidth: 2,
     borderColor: colors.border,
     borderStyle: 'dashed',
-    borderRadius: 16,
+    borderRadius: radius.lg,
     padding: 48,
     alignItems: 'center',
     justifyContent: 'center',
@@ -490,7 +492,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   previewContainer: {
     backgroundColor: colors.surface,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: colors.border,
@@ -518,7 +520,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     padding: 16,
     backgroundColor: colors.success + '10',
-    borderRadius: 16,
+    borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.success + '30',
   },
@@ -545,10 +547,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   continueButton: {
     backgroundColor: colors.primary,
-    minHeight: 48,
+    minHeight: 56,
     paddingVertical: 14,
     paddingHorizontal: 16,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },

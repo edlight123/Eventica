@@ -6,7 +6,7 @@ import { Users, Lock } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { fetchEventSocial } from '../lib/api/social';
-import { font } from '../theme/tokens';
+import { radius, font } from '../theme/tokens';
 import type { EventSocialAttendance, PublicUserSummary } from '../types/social';
 
 interface WhosGoingProps {
@@ -169,7 +169,7 @@ const getStyles = (colors: any) =>
       marginHorizontal: 16,
       marginTop: 12,
       padding: 16,
-      borderRadius: 16,
+      borderRadius: radius.lg,
       borderWidth: 1,
       borderColor: colors.border,
     },
@@ -216,7 +216,7 @@ const getStyles = (colors: any) =>
       alignItems: 'center',
       gap: 6,
       backgroundColor: colors.primary + '14',
-      borderRadius: 10,
+      borderRadius: radius.chip,
       paddingLeft: 4,
       paddingRight: 12,
       paddingVertical: 4,
@@ -240,7 +240,7 @@ const getStyles = (colors: any) =>
     youBubble: {
       width: 40,
       height: 40,
-      borderRadius: 20,
+      borderRadius: radius.xl,
       backgroundColor: colors.primary,
       alignItems: 'center',
       justifyContent: 'center',
@@ -255,7 +255,7 @@ const getStyles = (colors: any) =>
     moreBubble: {
       width: 40,
       height: 40,
-      borderRadius: 20,
+      borderRadius: radius.xl,
       backgroundColor: colors.surfaceRaised,
       alignItems: 'center',
       justifyContent: 'center',

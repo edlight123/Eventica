@@ -8,12 +8,13 @@ import {
   TextInput,
   ActivityIndicator,
   ScrollView,
-  Alert,
   Share,
 } from 'react-native';
 import { X, Send, Copy, AlertCircle } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { backendJson } from '../lib/api/backend';
+import { useAppAlert } from './AppAlert';
+import { radius } from '../theme/tokens';
 
 interface TransferTicketModalProps {
   visible: boolean;
@@ -33,6 +34,7 @@ export default function TransferTicketModal({
   onTransferSuccess,
 }: TransferTicketModalProps) {
   const { colors } = useTheme();
+  const showAlert = useAppAlert();
   const styles = getStyles(colors);
   const [toEmail, setToEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -93,7 +95,7 @@ export default function TransferTicketModal({
           onTransferSuccess();
         }
       } else {
-        Alert.alert(
+        showAlert(
           'Transfer Sent!',
           `Transfer request sent to ${toEmail}. They have 24 hours to accept.`,
           [
@@ -121,7 +123,7 @@ export default function TransferTicketModal({
   };
 
   const handleCopyLink = () => {
-    Alert.alert('Link Copied', 'Transfer link copied to clipboard');
+    showAlert('Link Copied', 'Transfer link copied to clipboard');
   };
 
   const handleShare = async () => {
@@ -379,7 +381,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: 'rgba(20,184,166,0.14)',
     borderWidth: 1,
     borderColor: 'rgba(20,184,166,0.35)',
-    borderRadius: 12,
+    borderRadius: radius.md,
     padding: 12,
     marginBottom: 16,
   },
@@ -395,7 +397,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: 'rgba(252, 211, 77, 0.12)',
     borderWidth: 1,
     borderColor: 'rgba(252, 211, 77, 0.4)',
-    borderRadius: 12,
+    borderRadius: radius.md,
     padding: 12,
     marginBottom: 16,
   },
@@ -418,7 +420,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.surfaceRaised,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 12,
+    borderRadius: radius.md,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 15,
@@ -440,7 +442,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: 'rgba(248, 113, 113, 0.12)',
     borderWidth: 1,
     borderColor: 'rgba(248, 113, 113, 0.4)',
-    borderRadius: 12,
+    borderRadius: radius.md,
     padding: 12,
     marginBottom: 16,
   },
@@ -460,7 +462,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'center',
     gap: 8,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: radius.md,
   },
   cancelButton: {
     backgroundColor: 'transparent',
@@ -509,7 +511,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.surfaceRaised,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 12,
+    borderRadius: radius.md,
     padding: 12,
     marginBottom: 16,
     gap: 12,
@@ -525,7 +527,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   shareButton: {
     backgroundColor: '#10B981',
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: radius.md,
     alignItems: 'center',
     marginBottom: 12,
   },

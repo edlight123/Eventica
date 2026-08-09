@@ -18,6 +18,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { formatCurrency } from '../lib/currency';
 import { computeSelectionTotal, isFreeTier } from '../lib/ticketPricing';
 import WhitePillCTA from './WhitePillCTA';
+import { radius } from '../theme/tokens';
 
 interface TicketTier {
   id: string;
@@ -741,7 +742,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   stepperButton: {
     width: 28,
     height: 28,
-    borderRadius: 999,
+    borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: colors.border,
     alignItems: 'center',
@@ -796,7 +797,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 10,
+    borderRadius: radius.chip,
     paddingHorizontal: 12,
   },
   promoApplyButton: {

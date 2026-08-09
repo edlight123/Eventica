@@ -8,7 +8,6 @@ import {
   Platform,
   Pressable,
   TextInput,
-  Alert,
   Animated,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -24,6 +23,7 @@ import { SecondaryPill } from '../../components/auth/SecondaryPill';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import WhitePillCTA from '../../components/WhitePillCTA';
 import { colors, spacing, type } from '../../theme/tokens';
+import { useAppAlert } from '../../components/AppAlert';
 
 // Map a Firebase auth error code to a localized message key. We never surface
 // error.message (raw English) — unknown codes fall back to a generic string.
@@ -52,6 +52,7 @@ function firebaseErrorKey(code?: string): string {
 
 export default function LoginScreen({ navigation }: any) {
   const { t } = useI18n();
+  const showAlert = useAppAlert();
   const insets = useSafeAreaInsets();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -76,14 +77,14 @@ export default function LoginScreen({ navigation }: any) {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert(t('common.error'), t('auth.login.errors.fillAllFields'));
+      showAlert(t('common.error'), t('auth.login.errors.fillAllFields'));
       return;
     }
     setLoading(true);
     try {
       await signIn(email.trim().toLowerCase(), password);
     } catch (error: any) {
-      Alert.alert(t('auth.login.errors.loginFailedTitle'), t(firebaseErrorKey(error?.code)));
+      showAlert(t('auth.login.errors.loginFailedTitle'), t(firebaseErrorKey(error?.code)));
     } finally {
       setLoading(false);
     }
@@ -92,15 +93,15 @@ export default function LoginScreen({ navigation }: any) {
   const handleForgotPassword = async () => {
     const trimmed = email.trim();
     if (!trimmed) {
-      Alert.alert(t('common.error'), t('auth.login.enterEmailFirst'));
+      showAlert(t('common.error'), t('auth.login.enterEmailFirst'));
       return;
     }
     setLoading(true);
     try {
       await sendPasswordResetEmail(auth, trimmed.toLowerCase());
-      Alert.alert(t('auth.login.resetSentTitle'), t('auth.login.resetSentBody'));
+      showAlert(t('auth.login.resetSentTitle'), t('auth.login.resetSentBody'));
     } catch (error: any) {
-      Alert.alert(t('common.error'), t(firebaseErrorKey(error?.code)));
+      showAlert(t('common.error'), t(firebaseErrorKey(error?.code)));
     } finally {
       setLoading(false);
     }
@@ -114,7 +115,7 @@ export default function LoginScreen({ navigation }: any) {
       // Firebase codes map to localized messages; the unconfigured-build case
       // (a plain Error, no code) falls back to the config-required copy.
       const msg = error?.code ? t(firebaseErrorKey(error.code)) : t('auth.login.google.configRequired');
-      Alert.alert(t('auth.login.google.title'), msg);
+      showAlert(t('auth.login.google.title'), msg);
     } finally {
       setLoading(false);
     }
@@ -127,7 +128,7 @@ export default function LoginScreen({ navigation }: any) {
     } catch (error: any) {
       // User-cancelled (ERR_REQUEST_CANCELED) is not an error worth alerting.
       if (error?.code !== 'ERR_REQUEST_CANCELED') {
-        Alert.alert(t('auth.apple.title'), t('auth.apple.genericError'));
+        showAlert(t('auth.apple.title'), t('auth.apple.genericError'));
       }
     } finally {
       setLoading(false);

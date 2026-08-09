@@ -5,11 +5,11 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
   RefreshControl,
   StatusBar,
   Share,
 } from 'react-native';
+import { useAppAlert } from '../../components/AppAlert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute, RouteProp, useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -65,6 +65,7 @@ export default function OrganizerEventManagementScreen() {
   }, [navigation]);
 
   const { t } = useI18n();
+  const showAlert = useAppAlert();
   const { formatDate, formatTime } = useLocaleFormat();
 
   // Seed from the nav param (the list already holds the event) or the in-memory
@@ -158,13 +159,13 @@ export default function OrganizerEventManagementScreen() {
     try {
       navigation.navigate('OrganizerEventStaff', { eventId });
     } catch {
-      Alert.alert(t('common.error'), t('organizerEventManagement.errors.openStaffFailed'));
+      showAlert(t('common.error'), t('organizerEventManagement.errors.openStaffFailed'));
     }
   };
 
   const handleToggleSales = async () => {
     const action = isPaused ? 'resume' : 'pause';
-    Alert.alert(
+    showAlert(
       action === 'pause'
         ? t('organizerEventManagement.toggleSales.pauseTitle')
         : t('organizerEventManagement.toggleSales.resumeTitle'),
@@ -185,14 +186,14 @@ export default function OrganizerEventManagementScreen() {
               await toggleEventPublication(eventId, newPublishedState);
               // Reload event data to get the updated status from database
               await loadEventData();
-              Alert.alert(
+              showAlert(
                 t('common.success'),
                 action === 'pause'
                   ? t('organizerEventManagement.toggleSales.pausedSuccess')
                   : t('organizerEventManagement.toggleSales.resumedSuccess')
               );
             } catch (error: any) {
-              Alert.alert(
+              showAlert(
                 t('common.error'),
                 error.message || (action === 'pause'
                   ? t('organizerEventManagement.toggleSales.pauseFailed')
@@ -210,7 +211,7 @@ export default function OrganizerEventManagementScreen() {
   };
 
   const handleCancelEvent = async () => {
-    Alert.alert(
+    showAlert(
       t('organizerEventManagement.cancelEvent.title'),
       t('organizerEventManagement.cancelEvent.body'),
       [
@@ -221,13 +222,13 @@ export default function OrganizerEventManagementScreen() {
           onPress: async () => {
             try {
               await cancelEvent(eventId);
-              Alert.alert(
+              showAlert(
                 t('organizerEventManagement.cancelEvent.successTitle'),
                 t('organizerEventManagement.cancelEvent.successBody'),
                 [{ text: t('common.ok'), onPress: () => navigation.goBack() }]
               );
             } catch (error: any) {
-              Alert.alert(t('common.error'), error.message || t('organizerEventManagement.cancelEvent.failed'));
+              showAlert(t('common.error'), error.message || t('organizerEventManagement.cancelEvent.failed'));
             }
           },
         },

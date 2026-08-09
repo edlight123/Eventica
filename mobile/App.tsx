@@ -9,6 +9,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { AppModeProvider } from './contexts/AppModeContext';
 import { FiltersProvider } from './contexts/FiltersContext';
 import { I18nProvider } from './contexts/I18nContext';
+import { AppAlertProvider } from './components/AppAlert';
 import AppNavigator from './navigation/AppNavigator';
 import BootScreen from './components/BootScreen';
 
@@ -30,7 +31,12 @@ export default function App() {
         <I18nProvider>
           <AppModeProvider>
             <FiltersProvider>
-              <AppNavigator />
+              {/* Wraps the navigator so any screen can call useAppAlert(). Sits
+                  above ThemeProvider, which is fine: ThemeContext defaults to
+                  DARK_COLORS and the app ships a single dark theme. */}
+              <AppAlertProvider>
+                <AppNavigator />
+              </AppAlertProvider>
               <StatusBar style="light" />
             </FiltersProvider>
           </AppModeProvider>

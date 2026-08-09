@@ -7,8 +7,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
-  Alert,
 } from 'react-native';
+import { radius } from '../../theme/tokens';
+import { useAppAlert } from '../../components/AppAlert';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { collection, query, where, getDocs } from 'firebase/firestore';
@@ -46,6 +47,7 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
   const styles = getStyles(colors);
   const { userProfile } = useAuth();
   const { t, language } = useI18n();
+  const showAlert = useAppAlert();
   const { formatMoney } = useLocaleFormat();
   const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
@@ -144,7 +146,7 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
   };
 
   const handleProcessRefund = async (ticketId: string, action: 'approve' | 'deny') => {
-    Alert.alert(
+    showAlert(
       action === 'approve' 
         ? (t('refunds.approveTitle') || 'Approve Refund')
         : (t('refunds.denyTitle') || 'Deny Refund'),
@@ -173,7 +175,7 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
                 throw new Error(data.error || 'Failed to process refund');
               }
 
-              Alert.alert(
+              showAlert(
                 t('common.success'),
                 action === 'approve'
                   ? (t('refunds.approvedSuccess') || 'Refund approved and processed')
@@ -184,7 +186,7 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
               loadData();
             } catch (error: any) {
               console.error('Error processing refund:', error);
-              Alert.alert(t('common.error'), error.message || 'Failed to process refund');
+              showAlert(t('common.error'), error.message || 'Failed to process refund');
             } finally {
               setProcessing(null);
             }
@@ -362,7 +364,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   badge: {
     backgroundColor: colors.error,
-    borderRadius: 10,
+    borderRadius: radius.chip,
     paddingHorizontal: 8,
     paddingVertical: 2,
   },
@@ -424,7 +426,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 12,
     padding: 12,
     backgroundColor: colors.background,
-    borderRadius: 8,
+    borderRadius: radius.sm,
   },
   reasonLabel: {
     fontSize: 12,
@@ -448,7 +450,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: radius.sm,
     gap: 6,
   },
   denyButton: {

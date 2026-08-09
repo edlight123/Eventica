@@ -6,7 +6,6 @@ import {
   StyleSheet, 
   TouchableOpacity,
   RefreshControl,
-  Alert,
   StatusBar,
   Dimensions
 } from 'react-native';
@@ -17,9 +16,11 @@ import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { radius } from '../theme/tokens';
 import EmptyState from '../components/EmptyState';
 import PosterEventCard from '../components/PosterEventCard';
 import { GridSkeleton } from '../components/Skeleton';
+import { useAppAlert } from '../components/AppAlert';
 import { shareEvent } from '../lib/share';
 
 const { width } = Dimensions.get('window');
@@ -31,6 +32,7 @@ export default function FavoritesScreen({ navigation }: any) {
   const { user } = useAuth();
   const { t, language } = useI18n();
   const insets = useSafeAreaInsets();
+  const showAlert = useAppAlert();
   const [favoriteEvents, setFavoriteEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -95,7 +97,7 @@ export default function FavoritesScreen({ navigation }: any) {
   };
 
   const removeFavorite = async (eventId: string) => {
-    Alert.alert(
+    showAlert(
       t('favorites.removeTitle'),
       t('favorites.removeBody'),
       [
@@ -120,10 +122,10 @@ export default function FavoritesScreen({ navigation }: any) {
               // Update local state
               setFavoriteEvents(prev => prev.filter(event => event.id !== eventId));
               
-              Alert.alert(t('common.success'), t('favorites.removeSuccess'));
+              showAlert(t('common.success'), t('favorites.removeSuccess'));
             } catch (error) {
               console.error('Error removing favorite:', error);
-              Alert.alert(t('common.error'), t('favorites.removeError'));
+              showAlert(t('common.error'), t('favorites.removeError'));
             }
           }
         }
@@ -312,7 +314,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.primary,
     paddingHorizontal: 32,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: radius.md,
     shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,

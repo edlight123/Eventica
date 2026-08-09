@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
-  Alert,
   ActivityIndicator,
   ScrollView,
   KeyboardAvoidingView,
@@ -22,6 +21,8 @@ import {
   updateVerificationStep,
   getVerificationRequest,
 } from '../../lib/verification';
+import { useAppAlert } from '../../components/AppAlert';
+import { radius } from '../../theme/tokens';
 
 type RouteParams = {
   OrganizerInfoForm: {
@@ -31,6 +32,7 @@ type RouteParams = {
 
 export default function OrganizerInfoFormScreen() {
   const { colors, isDark } = useTheme();
+  const showAlert = useAppAlert();
   const styles = getStyles(colors);
   const navigation = useNavigation();
   const route = useRoute<RouteProp<RouteParams, 'OrganizerInfoForm'>>();
@@ -76,15 +78,15 @@ export default function OrganizerInfoFormScreen() {
 
   const validate = () => {
     if (!fullName.trim()) {
-      Alert.alert(t('verification.organizerInfo.validation.missingTitle'), t('verification.organizerInfo.validation.fullName'));
+      showAlert(t('verification.organizerInfo.validation.missingTitle'), t('verification.organizerInfo.validation.fullName'));
       return false;
     }
     if (!phone.trim()) {
-      Alert.alert(t('verification.organizerInfo.validation.missingTitle'), t('verification.organizerInfo.validation.phone'));
+      showAlert(t('verification.organizerInfo.validation.missingTitle'), t('verification.organizerInfo.validation.phone'));
       return false;
     }
     if (!organizationName.trim()) {
-      Alert.alert(t('verification.organizerInfo.validation.missingTitle'), t('verification.organizerInfo.validation.organizationName'));
+      showAlert(t('verification.organizerInfo.validation.missingTitle'), t('verification.organizerInfo.validation.organizationName'));
       return false;
     }
     return true;
@@ -109,7 +111,7 @@ export default function OrganizerInfoFormScreen() {
         missingFields: [],
       });
 
-      Alert.alert(t('common.success'), t('verification.organizerInfo.savedSuccessfully'), [
+      showAlert(t('common.success'), t('verification.organizerInfo.savedSuccessfully'), [
         {
           text: t('common.ok'),
           onPress: () => {
@@ -122,7 +124,7 @@ export default function OrganizerInfoFormScreen() {
       ]);
     } catch (error) {
       console.error('Error saving:', error);
-      Alert.alert(t('common.error'), t('verification.organizerInfo.errors.saveFailed'));
+      showAlert(t('common.error'), t('verification.organizerInfo.errors.saveFailed'));
     } finally {
       setSaving(false);
     }
@@ -333,7 +335,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 8,
+    borderRadius: radius.sm,
     padding: 12,
     fontSize: 16,
     color: colors.text,
@@ -353,7 +355,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 8,
+    borderRadius: radius.sm,
     padding: 12,
   },
   radioButtonSelected: {
@@ -363,7 +365,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   radio: {
     width: 20,
     height: 20,
-    borderRadius: 10,
+    borderRadius: radius.chip,
     borderWidth: 2,
     borderColor: colors.primary,
     marginRight: 8,
@@ -388,10 +390,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   saveButton: {
     backgroundColor: colors.primary,
-    minHeight: 48,
+    minHeight: 56,
     paddingVertical: 14,
     paddingHorizontal: 16,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },

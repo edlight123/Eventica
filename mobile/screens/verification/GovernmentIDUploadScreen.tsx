@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  Alert,
   ActivityIndicator,
   StatusBar,
 } from 'react-native';
@@ -23,6 +22,8 @@ import {
   getDocumentDownloadURL,
   getVerificationRequest,
 } from '../../lib/verification';
+import { useAppAlert } from '../../components/AppAlert';
+import { radius } from '../../theme/tokens';
 
 type RouteParams = {
   GovernmentIDUpload: {
@@ -32,6 +33,7 @@ type RouteParams = {
 
 export default function GovernmentIDUploadScreen() {
   const { colors, isDark } = useTheme();
+  const showAlert = useAppAlert();
   const styles = getStyles(colors);
   const navigation = useNavigation();
   const route = useRoute<RouteProp<RouteParams, 'GovernmentIDUpload'>>();
@@ -97,7 +99,7 @@ export default function GovernmentIDUploadScreen() {
         },
       });
 
-      Alert.alert(t('common.success'), t('verification.governmentId.alerts.frontUploaded'));
+      showAlert(t('common.success'), t('verification.governmentId.alerts.frontUploaded'));
     } catch (error: any) {
       console.error('[ID Front Upload] Error details:', {
         message: error.message,
@@ -106,7 +108,7 @@ export default function GovernmentIDUploadScreen() {
       });
       if (error.message !== 'Image selection cancelled') {
         const errorMsg = error.message || 'Failed to upload image';
-        Alert.alert(t('verification.common.uploadErrorTitle'), errorMsg);
+        showAlert(t('verification.common.uploadErrorTitle'), errorMsg);
       }
     } finally {
       setUploading(false);
@@ -134,7 +136,7 @@ export default function GovernmentIDUploadScreen() {
         },
       });
 
-      Alert.alert(t('common.success'), t('verification.governmentId.alerts.backUploaded'));
+      showAlert(t('common.success'), t('verification.governmentId.alerts.backUploaded'));
     } catch (error: any) {
       console.error('[ID Back Upload] Error details:', {
         message: error.message,
@@ -143,7 +145,7 @@ export default function GovernmentIDUploadScreen() {
       });
       if (error.message !== 'Image selection cancelled') {
         const errorMsg = error.message || 'Failed to upload image';
-        Alert.alert(t('verification.common.uploadErrorTitle'), errorMsg);
+        showAlert(t('verification.common.uploadErrorTitle'), errorMsg);
       }
     } finally {
       setUploading(false);
@@ -152,7 +154,7 @@ export default function GovernmentIDUploadScreen() {
 
   const showUploadOptions = (side: 'front' | 'back') => {
     const sideLabel = side === 'front' ? t('verification.governmentId.sides.front') : t('verification.governmentId.sides.back');
-    Alert.alert(
+    showAlert(
       `${t('verification.governmentId.uploadTitlePrefix')} ${sideLabel}`,
       t('verification.common.chooseOption'),
       [
@@ -183,7 +185,7 @@ export default function GovernmentIDUploadScreen() {
 
   const handleContinue = async () => {
     if (!frontPath || !backPath) {
-      Alert.alert(t('verification.governmentId.validation.missingTitle'), t('verification.governmentId.validation.missingBody'));
+      showAlert(t('verification.governmentId.validation.missingTitle'), t('verification.governmentId.validation.missingBody'));
       return;
     }
 
@@ -198,7 +200,7 @@ export default function GovernmentIDUploadScreen() {
         missingFields: [],
       });
 
-      Alert.alert(t('common.success'), t('verification.governmentId.alerts.uploadedSuccessfully'), [
+      showAlert(t('common.success'), t('verification.governmentId.alerts.uploadedSuccessfully'), [
         {
           text: t('common.ok'),
           onPress: () => {
@@ -211,7 +213,7 @@ export default function GovernmentIDUploadScreen() {
       ]);
     } catch (error) {
       console.error('Error saving:', error);
-      Alert.alert(t('common.error'), t('verification.common.saveStepFailed'));
+      showAlert(t('common.error'), t('verification.common.saveStepFailed'));
     } finally {
       setSaving(false);
     }
@@ -379,7 +381,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   instructionsCard: {
     padding: 16,
     backgroundColor: colors.surface,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
     marginBottom: 24,
@@ -415,7 +417,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderWidth: 2,
     borderColor: colors.border,
     borderStyle: 'dashed',
-    borderRadius: 16,
+    borderRadius: radius.lg,
     padding: 32,
     alignItems: 'center',
     justifyContent: 'center',
@@ -433,7 +435,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   previewContainer: {
     backgroundColor: colors.surface,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: colors.border,
@@ -465,10 +467,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   continueButton: {
     backgroundColor: colors.primary,
-    minHeight: 48,
+    minHeight: 56,
     paddingVertical: 14,
     paddingHorizontal: 16,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },

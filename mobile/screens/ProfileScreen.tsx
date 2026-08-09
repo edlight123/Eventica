@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Alert,
   Dimensions,
   Image,
   RefreshControl,
@@ -26,6 +25,7 @@ import { useFilters } from '../contexts/FiltersContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { db, isDemoMode, storage } from '../config/firebase';
 import { SHADOWS, RADIUS } from '../config/brand';
+import { radius } from '../theme/tokens';
 import { getStaffEventIds } from '../lib/staffAssignments';
 import { getVerificationRequest, type VerificationRequest } from '../lib/verification';
 import { useNavigation } from '@react-navigation/native';
@@ -43,6 +43,7 @@ import StatusChip from '../components/StatusChip';
 import PosterEventCard from '../components/PosterEventCard';
 import EmptyState from '../components/EmptyState';
 import { Skeleton, PosterCardSkeleton } from '../components/Skeleton';
+import { useAppAlert } from '../components/AppAlert';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 // Two-column poster wall inside the 16px-padded scroll content (12px gutter).
@@ -56,6 +57,7 @@ export default function ProfileScreen() {
   const { mode, setMode } = useAppMode();
   const { language, setLanguage, t } = useI18n();
   const { setUserCountry, applyFiltersDirectly, appliedFilters } = useFilters();
+  const showAlert = useAppAlert();
   const insets = useSafeAreaInsets();
   // The tab bar is a translucent overlay, so reserve its height here or the
   // last row ends up sitting behind it.
@@ -279,7 +281,7 @@ export default function ProfileScreen() {
     if (!user?.uid) return;
 
     if (isDemoMode) {
-      Alert.alert(t('common.error'), t('profile.uploads.avatarDemoDisabled'));
+      showAlert(t('common.error'), t('profile.uploads.avatarDemoDisabled'));
       return;
     }
 
@@ -288,7 +290,7 @@ export default function ProfileScreen() {
 
       const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!perm.granted) {
-        Alert.alert(t('common.error'), t('profile.uploads.photoPermissionRequired'));
+        showAlert(t('common.error'), t('profile.uploads.photoPermissionRequired'));
         return;
       }
 
@@ -314,7 +316,7 @@ export default function ProfileScreen() {
 
       await loadAccountStats();
     } catch (e: any) {
-      Alert.alert(t('common.error'), e?.message || t('profile.uploads.photoUploadFailed'));
+      showAlert(t('common.error'), e?.message || t('profile.uploads.photoUploadFailed'));
     } finally {
       setUploadingPhoto(false);
     }
@@ -324,7 +326,7 @@ export default function ProfileScreen() {
     if (!user?.uid) return;
 
     if (isDemoMode) {
-      Alert.alert(t('common.error'), t('profile.uploads.logoDemoDisabled'));
+      showAlert(t('common.error'), t('profile.uploads.logoDemoDisabled'));
       return;
     }
 
@@ -333,7 +335,7 @@ export default function ProfileScreen() {
 
       const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!perm.granted) {
-        Alert.alert(t('common.error'), t('profile.uploads.photoPermissionRequired'));
+        showAlert(t('common.error'), t('profile.uploads.photoPermissionRequired'));
         return;
       }
 
@@ -358,7 +360,7 @@ export default function ProfileScreen() {
       // Held in local state; persisted (with the name) when the form is saved.
       setOrgLogoUrl(url);
     } catch (e: any) {
-      Alert.alert(t('common.error'), e?.message || t('profile.uploads.logoUploadFailed'));
+      showAlert(t('common.error'), e?.message || t('profile.uploads.logoUploadFailed'));
     } finally {
       setUploadingLogo(false);
     }
@@ -369,7 +371,7 @@ export default function ProfileScreen() {
 
     const name = editedName.trim();
     if (!name) {
-      Alert.alert(t('profile.missingNameTitle'), t('profile.missingNameBody'));
+      showAlert(t('profile.missingNameTitle'), t('profile.missingNameBody'));
       return;
     }
 
@@ -417,16 +419,16 @@ export default function ProfileScreen() {
       });
       
       setIsEditing(false);
-      Alert.alert(t('profile.saveSuccessTitle'), t('profile.saveSuccessBody'));
+      showAlert(t('profile.saveSuccessTitle'), t('profile.saveSuccessBody'));
     } catch {
-      Alert.alert(t('profile.saveErrorTitle'), t('profile.saveErrorBody'));
+      showAlert(t('profile.saveErrorTitle'), t('profile.saveErrorBody'));
     } finally {
       setSaving(false);
     }
   }, [appliedFilters, applyFiltersDirectly, canUseOrganizerMode, editedBio, editedCity, editedCountry, editedFacebook, editedInstagram, editedName, editedOrgName, editedTiktok, editedTwitter, orgLogoUrl, attendanceVisibility, discoverableByPhone, profileVisibility, phoneDigits, phonePrefix, refreshUserProfile, setUserCountry, t, updateUserProfile, user?.uid]);
 
   const confirmSignOut = useCallback(() => {
-    Alert.alert(t('profile.signOutTitle'), t('profile.signOutBody'), [
+    showAlert(t('profile.signOutTitle'), t('profile.signOutBody'), [
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('profile.signOut'), style: 'destructive', onPress: () => signOut() },
     ]);
@@ -1050,7 +1052,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   headerIconButton: {
     padding: 8,
-    borderRadius: 20,
+    borderRadius: radius.xl,
     backgroundColor: 'transparent',
   },
   headerActions: {
@@ -1083,7 +1085,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   prefixPill: {
     paddingHorizontal: 10,
     paddingVertical: 10,
-    borderRadius: 14,
+    borderRadius: radius.button,
     borderWidth: 1,
     borderColor: colors.borderLight,
     backgroundColor: colors.surface,
@@ -1212,7 +1214,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   // Grouped-disclosure field: a raised surface row, no 1px box (POSH §1 / item 7).
   input: {
-    borderRadius: 12,
+    borderRadius: radius.md,
     paddingHorizontal: 14,
     paddingVertical: 12,
     color: colors.text,
@@ -1237,7 +1239,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   orgLogoPreview: {
     width: 56,
     height: 56,
-    borderRadius: 12,
+    borderRadius: radius.md,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
@@ -1279,7 +1281,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 10,
+    borderRadius: radius.chip,
     paddingVertical: 9,
     alignItems: 'center',
     backgroundColor: colors.surface,
@@ -1347,7 +1349,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
   },
   primaryButton: {
-    borderRadius: 12,
+    borderRadius: radius.md,
     paddingVertical: 12,
     alignItems: 'center',
     backgroundColor: colors.white,
@@ -1357,7 +1359,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '700',
   },
   secondaryButton: {
-    borderRadius: 12,
+    borderRadius: radius.md,
     paddingVertical: 12,
     alignItems: 'center',
     backgroundColor: colors.borderLight,
@@ -1416,7 +1418,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   pill: {
     paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: 14,
+    borderRadius: radius.button,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,

@@ -2,6 +2,7 @@ import React from 'react';
 import { Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { ChevronDown, X } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
+import { radius } from '../theme/tokens';
 
 interface FilterPillProps {
   /** Default label shown when no value is selected (e.g. "Where"). */
@@ -54,7 +55,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       gap: 5,
       paddingHorizontal: 14,
       paddingVertical: 8,
-      borderRadius: 10,
+      borderRadius: radius.chip,
       backgroundColor: colors.surface,
       borderWidth: 1,
       borderColor: colors.border,

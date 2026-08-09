@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
-  Alert,
   Modal,
   RefreshControl,
   ScrollView,
@@ -23,8 +22,9 @@ import { backendFetch, backendJson } from '../../lib/api/backend'
 import { getVerificationRequest } from '../../lib/verification'
 import { useLocaleFormat } from '../../lib/format'
 import { RADIUS } from '../../config/brand'
-import { font } from '../../theme/tokens'
+import { font, radius } from '../../theme/tokens'
 import { Skeleton } from '../../components/Skeleton'
+import { useAppAlert } from '../../components/AppAlert'
 import StatusChip from '../../components/StatusChip'
 import EmptyState from '../../components/EmptyState'
 import WhitePillCTA from '../../components/WhitePillCTA'
@@ -95,6 +95,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
   const { t } = useI18n()
   const { formatDate } = useLocaleFormat()
   const { user } = useAuth()
+  const showAlert = useAppAlert()
 
   // FIRST-PAINT gate only. `loading` starts true and flips false exactly once —
   // when the cache seed or the first network load paints. Background refreshes
@@ -381,7 +382,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
 
   const handleAddMethodSelect = useCallback((type: 'bank' | 'moncash') => {
     if (!identityVerified) {
-      Alert.alert(
+      showAlert(
         t('organizerPayoutSettings.identityRequired.title'),
         t('organizerPayoutSettings.identityRequired.body'),
         [
@@ -418,10 +419,10 @@ export default function OrganizerPayoutSettingsScreenV2() {
         if (res?.url) {
           navigation.navigate('StripeConnectWebView', { url: res.url })
         } else {
-          Alert.alert(t('common.error'), t('organizerPayoutSettings.stripeSetup.error'))
+          showAlert(t('common.error'), t('organizerPayoutSettings.stripeSetup.error'))
         }
       } catch (e: any) {
-        Alert.alert(t('common.error'), e?.message || t('organizerPayoutSettings.stripeSetup.error'))
+        showAlert(t('common.error'), e?.message || t('organizerPayoutSettings.stripeSetup.error'))
       }
     },
     [navigation, t]
@@ -429,7 +430,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
 
   const handleAddStripe = useCallback(() => {
     if (!identityVerified) {
-      Alert.alert(
+      showAlert(
         t('organizerPayoutSettings.identityRequired.title'),
         t('organizerPayoutSettings.identityRequired.body'),
         [
@@ -440,7 +441,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
       return
     }
     setShowAddModal(false)
-    Alert.alert(t('organizerPayoutSettings.stripeSetup.title'), t('organizerPayoutSettings.stripeSetup.question'), [
+    showAlert(t('organizerPayoutSettings.stripeSetup.title'), t('organizerPayoutSettings.stripeSetup.question'), [
       { text: t('organizerPayoutSettings.countries.united_states'), onPress: () => startStripeConnect('united_states') },
       { text: t('organizerPayoutSettings.countries.canada'), onPress: () => startStripeConnect('canada') },
       { text: t('organizerPayoutSettings.countries.france'), onPress: () => startStripeConnect('france') },
@@ -450,7 +451,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
 
   const handleSaveBank = useCallback(async () => {
     if (!bankForm.accountName || !bankForm.bankName || !bankForm.accountNumber) {
-      Alert.alert(t('organizerPayoutSettings.alerts.missingInfoTitle'), t('organizerPayoutSettings.alerts.missingBankBody'))
+      showAlert(t('organizerPayoutSettings.alerts.missingInfoTitle'), t('organizerPayoutSettings.alerts.missingBankBody'))
       return
     }
 
@@ -474,7 +475,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
       if (!res.ok) {
         // Handle verification requirement
         if (data?.code === 'PAYOUT_CHANGE_VERIFICATION_REQUIRED') {
-          Alert.alert(
+          showAlert(
             t('organizerPayoutSettings.alerts.securityTitle'),
             data.message || t('organizerPayoutSettings.alerts.securityBody'),
             [{ text: t('common.ok') }]
@@ -515,7 +516,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
             profileData?.code === 'PAYOUT_CHANGE_VERIFICATION_REQUIRED' ||
             msg.includes('PAYOUT_CHANGE_VERIFICATION_REQUIRED')
           ) {
-            Alert.alert(
+            showAlert(
               t('organizerPayoutSettings.alerts.securityTitle'),
               t('organizerPayoutSettings.alerts.securityBody'),
               [{ text: t('common.ok') }]
@@ -531,7 +532,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
         console.warn('Failed to set Haiti profile method to bank_transfer:', e)
       }
 
-      Alert.alert(
+      showAlert(
         t('organizerPayoutSettings.alerts.bankAddedTitle'),
         t('organizerPayoutSettings.alerts.bankAddedBody'),
         [
@@ -556,7 +557,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
       setBankForm({ accountName: '', bankName: '', accountNumber: '', routingNumber: '', swift: '' })
       await loadDestinations()
     } catch (e: any) {
-      Alert.alert(t('common.error'), e?.message || t('organizerPayoutSettings.alerts.failedSaveBank'))
+      showAlert(t('common.error'), e?.message || t('organizerPayoutSettings.alerts.failedSaveBank'))
     } finally {
       setSavingBank(false)
     }
@@ -564,7 +565,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
 
   const handleSaveMoncash = useCallback(async () => {
     if (!moncashForm.accountName.trim() || !moncashForm.phoneNumber.trim()) {
-      Alert.alert(t('organizerPayoutSettings.alerts.missingInfoTitle'), t('organizerPayoutSettings.alerts.missingMoncashBody'))
+      showAlert(t('organizerPayoutSettings.alerts.missingInfoTitle'), t('organizerPayoutSettings.alerts.missingMoncashBody'))
       return
     }
 
@@ -589,12 +590,12 @@ export default function OrganizerPayoutSettingsScreenV2() {
         throw new Error(data?.error || data?.message || t('organizerPayoutSettings.alerts.failedSaveMoncash'))
       }
 
-      Alert.alert(t('organizerPayoutSettings.alerts.moncashSavedTitle'), t('organizerPayoutSettings.alerts.moncashSavedBody'))
+      showAlert(t('organizerPayoutSettings.alerts.moncashSavedTitle'), t('organizerPayoutSettings.alerts.moncashSavedBody'))
       setMoncashForm({ provider: 'moncash', accountName: '', phoneNumber: '+509 ' })
       setShowMoncashForm(false)
       await loadDestinations()
     } catch (e: any) {
-      Alert.alert(t('common.error'), e?.message || t('organizerPayoutSettings.alerts.failedSaveMoncash'))
+      showAlert(t('common.error'), e?.message || t('organizerPayoutSettings.alerts.failedSaveMoncash'))
     } finally {
       setSavingMoncash(false)
     }
@@ -603,7 +604,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
   const pickVerificationDocument = useCallback(async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync()
     if (perm.status !== 'granted') {
-      Alert.alert(t('organizerPayoutSettings.alerts.permissionTitle'), t('organizerPayoutSettings.alerts.permissionBody'))
+      showAlert(t('organizerPayoutSettings.alerts.permissionTitle'), t('organizerPayoutSettings.alerts.permissionBody'))
       return
     }
 
@@ -619,7 +620,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
 
   const handleSubmitVerification = useCallback(async () => {
     if (!verificationAsset || !selectedDestination) {
-      Alert.alert(t('organizerPayoutSettings.alerts.missingDocTitle'), t('organizerPayoutSettings.alerts.missingDocBody'))
+      showAlert(t('organizerPayoutSettings.alerts.missingDocTitle'), t('organizerPayoutSettings.alerts.missingDocBody'))
       return
     }
 
@@ -646,7 +647,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
         throw new Error(data?.error || data?.message || t('organizerPayoutSettings.alerts.failedSubmit'))
       }
 
-      Alert.alert(
+      showAlert(
         t('organizerPayoutSettings.alerts.submittedTitle'),
         t('organizerPayoutSettings.alerts.submittedBody')
       )
@@ -656,7 +657,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
       setSelectedDestination(null)
       await loadDestinations()
     } catch (e: any) {
-      Alert.alert(t('common.error'), e?.message || t('organizerPayoutSettings.alerts.failedSubmit'))
+      showAlert(t('common.error'), e?.message || t('organizerPayoutSettings.alerts.failedSubmit'))
     } finally {
       setSubmittingVerification(false)
     }
@@ -832,14 +833,14 @@ export default function OrganizerPayoutSettingsScreenV2() {
                         } else if (identityVerified) {
                           // MonCash activates on identity verification alone; payouts
                           // are then reviewed and released manually by our team.
-                          Alert.alert(
+                          showAlert(
                             t('organizerPayoutSettings.moncashVerify.readyTitle'),
                             t('organizerPayoutSettings.moncashVerify.readyBody')
                           )
                         } else {
                           // Route to the identity verification flow — that is now the
                           // only gate for MonCash payouts.
-                          Alert.alert(
+                          showAlert(
                             t('organizerPayoutSettings.moncashVerify.title'),
                             t('organizerPayoutSettings.moncashVerify.body'),
                             [
@@ -1320,7 +1321,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 4,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 14,
+    borderRadius: radius.button,
     backgroundColor: colors.surfaceRaised,
   },
   addButtonText: {
@@ -1330,7 +1331,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   destinationCard: {
     backgroundColor: colors.surface,
-    borderRadius: 14,
+    borderRadius: radius.button,
     padding: 13,
     marginBottom: 10,
   },
@@ -1343,7 +1344,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   methodIconTile: {
     width: 32,
     height: 32,
-    borderRadius: 10,
+    borderRadius: radius.chip,
     backgroundColor: colors.surfaceRaised,
     alignItems: 'center',
     justifyContent: 'center',
@@ -1389,7 +1390,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 10,
     paddingHorizontal: 12,
     paddingVertical: 7,
-    borderRadius: 10,
+    borderRadius: radius.chip,
     backgroundColor: colors.surfaceRaised,
   },
   inlineActionText: {
@@ -1399,7 +1400,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   secondaryButton: {
     backgroundColor: colors.surfaceRaised,
-    minHeight: 48,
+    // 56 = the system's full-width control height (WhitePillCTA / SecondaryPill).
+    // These sit in the same stacks, so 48 was the odd one out.
+    minHeight: 56,
     paddingVertical: 14,
     borderRadius: RADIUS.md,
     alignItems: 'center',
@@ -1457,7 +1460,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   methodIcon: {
     width: 44,
     height: 44,
-    borderRadius: 12,
+    borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.surface,
@@ -1499,7 +1502,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   chip: {
     paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: 10,
+    borderRadius: radius.chip,
     backgroundColor: colors.surfaceRaised,
     borderWidth: 1,
     borderColor: colors.border,

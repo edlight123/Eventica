@@ -4,13 +4,14 @@ import {
   Text,
   StyleSheet,
   ActivityIndicator,
-  Alert,
   Share,
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
+import { useAppAlert } from './AppAlert';
+import { radius } from '../theme/tokens';
 
 interface Attendee {
   id: string;
@@ -32,6 +33,7 @@ interface ExportAttendeesButtonProps {
 
 export default function ExportAttendeesButton({ eventId, attendees, style }: ExportAttendeesButtonProps) {
   const { colors } = useTheme();
+  const showAlert = useAppAlert();
   const styles = getStyles(colors);
   const { t } = useI18n();
   const [exporting, setExporting] = useState(false);
@@ -69,7 +71,7 @@ export default function ExportAttendeesButton({ eventId, attendees, style }: Exp
 
   const handleExport = async () => {
     if (attendees.length === 0) {
-      Alert.alert(
+      showAlert(
         t('common.info') || 'Info',
         t('export.noAttendees') || 'No attendees to export'
       );
@@ -93,7 +95,7 @@ export default function ExportAttendeesButton({ eventId, attendees, style }: Exp
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        Alert.alert(t('common.success'), t('export.downloadStarted') || 'Download started');
+        showAlert(t('common.success'), t('export.downloadStarted') || 'Download started');
       } else {
         // Mobile: Share the CSV content via Share API
         await Share.share({
@@ -103,7 +105,7 @@ export default function ExportAttendeesButton({ eventId, attendees, style }: Exp
       }
     } catch (error: any) {
       console.error('Error exporting attendees:', error);
-      Alert.alert(
+      showAlert(
         t('common.error'),
         error.message || t('export.error') || 'Failed to export attendees'
       );
@@ -137,7 +139,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'center',
     paddingVertical: 10,
     paddingHorizontal: 16,
-    borderRadius: 12,
+    borderRadius: radius.md,
     backgroundColor: colors.primary + '10',
     borderWidth: 1,
     borderColor: colors.primary + '30',

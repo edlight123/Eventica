@@ -7,7 +7,6 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,6 +18,56 @@ import { useI18n } from '../contexts/I18nContext';
 import { SHADOWS, RADIUS } from '../config/brand';
 import { backendFetch } from '../lib/api/backend';
 import { formatCurrency } from '../lib/currency';
+import { radius } from '../theme/tokens';
+import { Skeleton } from '../components/Skeleton';
+import { useAppAlert } from '../components/AppAlert';
+
+/**
+ * First-load placeholder that mirrors the refund form: header, ticket summary
+ * card, the reason picker rows, the policy note and the submit pill — so the
+ * page does not jump when the ticket resolves.
+ */
+function RefundRequestSkeleton({ styles }: { styles: ReturnType<typeof getStyles> }) {
+  return (
+    <View>
+      <View style={styles.header}>
+        <Skeleton width={24} height={24} radius={radius.sm} />
+        <Skeleton width={140} height={20} radius={7} />
+        <View style={{ width: 40 }} />
+      </View>
+
+      <View style={styles.ticketCard}>
+        <Skeleton width={'78%'} height={18} radius={6} />
+        <Skeleton width={'62%'} height={14} radius={5} style={{ marginTop: 14 }} />
+        <Skeleton width={'44%'} height={14} radius={5} style={{ marginTop: 10 }} />
+        <View style={styles.priceRow}>
+          <Skeleton width={92} height={14} radius={5} />
+          <Skeleton width={72} height={20} radius={7} />
+        </View>
+      </View>
+
+      <View style={styles.section}>
+        <Skeleton width={'60%'} height={16} radius={6} style={{ marginBottom: 12 }} />
+        {Array.from({ length: 4 }).map((_, i) => (
+          <View key={i} style={styles.reasonOption}>
+            <Skeleton width={22} height={22} radius={11} />
+            <Skeleton width={'55%'} height={15} radius={6} style={{ marginLeft: 12 }} />
+          </View>
+        ))}
+      </View>
+
+      <View style={styles.policyCard}>
+        <Skeleton width={20} height={20} radius={10} />
+        <View style={{ flex: 1, marginLeft: 12 }}>
+          <Skeleton width={'100%'} height={13} radius={5} />
+          <Skeleton width={'82%'} height={13} radius={5} style={{ marginTop: 6 }} />
+        </View>
+      </View>
+
+      <Skeleton height={56} radius={radius.md} style={{ marginHorizontal: 16, marginTop: 8 }} />
+    </View>
+  );
+}
 
 export default function RefundRequestScreen({ route, navigation }: any) {
   const { colors } = useTheme();
@@ -26,6 +75,7 @@ export default function RefundRequestScreen({ route, navigation }: any) {
   const { ticketId } = route.params;
   const { t, language } = useI18n();
   const insets = useSafeAreaInsets();
+  const showAlert = useAppAlert();
   const [ticket, setTicket] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -57,7 +107,7 @@ export default function RefundRequestScreen({ route, navigation }: any) {
       }
     } catch (error) {
       console.error('Error fetching ticket:', error);
-      Alert.alert(t('common.error'), t('refund.loadError') || 'Failed to load ticket details');
+      showAlert(t('common.error'), t('refund.loadError') || 'Failed to load ticket details');
     } finally {
       setLoading(false);
     }
@@ -65,13 +115,13 @@ export default function RefundRequestScreen({ route, navigation }: any) {
 
   const handleSubmitRefund = async () => {
     if (!selectedReason) {
-      Alert.alert(t('common.error'), t('refund.selectReason') || 'Please select a reason');
+      showAlert(t('common.error'), t('refund.selectReason') || 'Please select a reason');
       return;
     }
 
     const finalReason = selectedReason === 'other' ? reason : selectedReason;
     if (!finalReason.trim()) {
-      Alert.alert(t('common.error'), t('refund.enterReason') || 'Please provide a reason');
+      showAlert(t('common.error'), t('refund.enterReason') || 'Please provide a reason');
       return;
     }
 
@@ -91,14 +141,14 @@ export default function RefundRequestScreen({ route, navigation }: any) {
         throw new Error(data.error || 'Failed to submit refund request');
       }
 
-      Alert.alert(
+      showAlert(
         t('common.success'),
         t('refund.submitted') || 'Refund request submitted. The organizer will review your request.',
         [{ text: t('common.ok'), onPress: () => navigation.goBack() }]
       );
     } catch (error: any) {
       console.error('Error submitting refund:', error);
-      Alert.alert(t('common.error'), error.message || t('refund.submitError') || 'Failed to submit refund request');
+      showAlert(t('common.error'), error.message || t('refund.submitError') || 'Failed to submit refund request');
     } finally {
       setSubmitting(false);
     }
@@ -106,10 +156,8 @@ export default function RefundRequestScreen({ route, navigation }: any) {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
+      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+        <RefundRequestSkeleton styles={styles} />
       </SafeAreaView>
     );
   }
@@ -240,10 +288,10 @@ export default function RefundRequestScreen({ route, navigation }: any) {
               disabled={submitting}
             >
               {submitting ? (
-                <ActivityIndicator color="#FFF" />
+                <ActivityIndicator color={colors.white} />
               ) : (
                 <>
-                  <Ionicons name="send" size={20} color="#FFF" />
+                  <Ionicons name="send" size={20} color={colors.white} />
                   <Text style={styles.submitButtonText}>{t('refund.submit') || 'Submit Request'}</Text>
                 </>
               )}
@@ -339,7 +387,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     margin: 16,
     padding: 16,
     backgroundColor: colors.error + '10',
-    borderRadius: 12,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.error + '30',
   },
@@ -365,7 +413,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     padding: 16,
     backgroundColor: colors.surface,
-    borderRadius: 12,
+    borderRadius: radius.md,
     marginBottom: 8,
     borderWidth: 2,
     borderColor: 'transparent',
@@ -403,7 +451,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   textInput: {
     backgroundColor: colors.surface,
-    borderRadius: 12,
+    borderRadius: radius.md,
     padding: 16,
     fontSize: 15,
     color: colors.text,
@@ -417,7 +465,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     margin: 16,
     padding: 16,
     backgroundColor: colors.primary + '10',
-    borderRadius: 12,
+    borderRadius: radius.md,
   },
   policyText: {
     flex: 1,
@@ -434,7 +482,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 8,
     padding: 16,
     backgroundColor: colors.primary,
-    borderRadius: 12,
+    borderRadius: radius.md,
   },
   submitButtonDisabled: {
     opacity: 0.6,
@@ -442,7 +490,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   submitButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFF',
+    color: colors.white,
     marginLeft: 8,
   },
 });

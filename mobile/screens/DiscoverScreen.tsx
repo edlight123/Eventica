@@ -9,7 +9,6 @@ import {
   Image,
   Dimensions,
   RefreshControl,
-  Alert,
   Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -22,7 +21,7 @@ import { db } from '../config/firebase';
 import { filterExploreEvents } from '../lib/api/events';
 import { useTheme } from '../contexts/ThemeContext';
 import { format } from 'date-fns';
-import { font } from '../theme/tokens';
+import { font, radius } from '../theme/tokens';
 import FeaturedCarousel from '../components/FeaturedCarousel';
 import EventFiltersSheet from '../components/EventFiltersSheet';
 import EventStatusBadge from '../components/EventStatusBadge';
@@ -37,6 +36,7 @@ import { useFilters } from '../contexts/FiltersContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import DiscoverEventCard from '../components/DiscoverEventCard';
+import { useAppAlert } from '../components/AppAlert';
 import { getCategoryLabel } from '../lib/categories';
 import { isBudgetFriendlyTicketPrice } from '../lib/pricing';
 import { applyFilters } from '../utils/filterUtils';
@@ -83,6 +83,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
   const { appliedFilters, openFiltersModal, hasActiveFilters, countActiveFilters, applyFiltersDirectly, resetFilters, userCountry } = useFilters();
   const { user } = useAuth();
   const { t, language } = useI18n();
+  const showAlert = useAppAlert();
   
   const [allEvents, setAllEvents] = useState<any[]>([]);
   const [featuredEvents, setFeaturedEvents] = useState<any[]>([]);
@@ -323,7 +324,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
   // Toggle bookmark: optimistic UI + event_favorites write (add/remove).
   const toggleSaveEvent = useCallback(async (event: any) => {
     if (!user) {
-      Alert.alert(t('auth.loginRequiredTitle'), t('eventDetail.favorites.loginBody'));
+      showAlert(t('auth.loginRequiredTitle'), t('eventDetail.favorites.loginBody'));
       return;
     }
     const id = event.id;
@@ -882,7 +883,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.surfaceMuted,
-    borderRadius: 14,
+    borderRadius: radius.button,
     borderWidth: 1,
     borderColor: colors.border,
     paddingHorizontal: 12,
@@ -896,7 +897,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   filterButton: {
     backgroundColor: colors.surfaceMuted,
-    borderRadius: 14,
+    borderRadius: radius.button,
     borderWidth: 1,
     borderColor: colors.border,
     padding: 12,
@@ -941,7 +942,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.primaryLight + '20',
-    borderRadius: 8,
+    borderRadius: radius.sm,
     paddingHorizontal: 12,
     paddingVertical: 6,
     marginRight: 8,
@@ -1010,7 +1011,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     gap: 10,
     backgroundColor: colors.surface,
-    borderRadius: 14,
+    borderRadius: radius.button,
     borderWidth: 1,
     borderColor: colors.border,
     paddingHorizontal: 16,
@@ -1056,7 +1057,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderColor: colors.background,
   },
   filterCountText: {
-    color: '#FFF',
+    color: colors.white,
     fontSize: 10,
     fontWeight: '800',
   },
@@ -1130,7 +1131,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     width: 180,
     marginRight: 12,
     backgroundColor: colors.surface,
-    borderRadius: 12,
+    borderRadius: radius.md,
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -1155,7 +1156,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   categoryBadgeText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: colors.white,
   },
   carouselCardContent: {
     padding: 12,

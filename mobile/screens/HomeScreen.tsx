@@ -40,7 +40,7 @@ import { HomeFeedSkeleton } from '../components/Skeleton';
 import { isBudgetFriendlyTicketPrice } from '../lib/pricing';
 import { getCategoryLabel } from '../lib/categories';
 import { shareEvent } from '../lib/share';
-import { font } from '../theme/tokens';
+import { font, radius } from '../theme/tokens';
 
 // Tolerant city matching (accents/case/"City, ST") so the Near You rail lines up
 // with whatever string is stored on each event's `city`.
@@ -599,7 +599,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   iconButton: {
     width: 42,
     height: 42,
-    borderRadius: 12,
+    borderRadius: radius.md,
     backgroundColor: colors.surfaceMuted,
     borderWidth: 1,
     borderColor: colors.borderLight,
@@ -610,7 +610,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     height: 38,
     aspectRatio: 2.298,
     alignSelf: 'flex-start',
-    tintColor: '#FFFFFF',
+    tintColor: colors.white,
   },
   greeting: {
     fontSize: 13,

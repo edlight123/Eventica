@@ -13,7 +13,7 @@ import { useLocaleFormat } from '../../lib/format';
 import { getOrganizerEvents, OrganizerEvent } from '../../lib/api/organizer';
 import { backendJson } from '../../lib/api/backend';
 import { RADIUS, SPACING } from '../../config/brand';
-import { font } from '../../theme/tokens';
+import { font, radius } from '../../theme/tokens';
 import { Skeleton } from '../../components/Skeleton';
 import EmptyState from '../../components/EmptyState';
 import StatusChip from '../../components/StatusChip';
@@ -271,7 +271,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       backgroundColor: colors.surfaceRaised,
       paddingHorizontal: 12,
       paddingVertical: 7,
-      borderRadius: 14,
+      borderRadius: radius.button,
     },
     manageButtonText: {
       color: colors.text,

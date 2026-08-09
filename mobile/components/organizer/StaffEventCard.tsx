@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
+import { radius } from '../../theme/tokens';
 
 interface StaffEventCardProps {
   title: string;
@@ -91,7 +92,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     poster: {
       width: 56,
       height: 74,
-      borderRadius: 10,
+      borderRadius: radius.chip,
       backgroundColor: colors.surfaceRaised,
     },
     posterFallback: {

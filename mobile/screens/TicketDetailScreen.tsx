@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Alert, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
 import { Calendar, MapPin, User as UserIcon, Ticket as TicketIcon, Send, Star, RotateCcw, CalendarPlus, Navigation } from 'lucide-react-native';
 import { doc, getDoc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,11 +12,12 @@ import TicketQRCard from '../components/TicketQRCard';
 import StatusChip from '../components/StatusChip';
 import { useI18n } from '../contexts/I18nContext';
 import { useNavigation } from '@react-navigation/native';
-import { font } from '../theme/tokens';
+import { font, radius } from '../theme/tokens';
 import { formatCurrency } from '../lib/currency';
 import { ticketOrderRef, ticketTierLabel, ticketQrValue, ticketStatusKey } from '../lib/ticket';
 import { addToCalendar, openDirections } from '../lib/postPurchaseActions';
 import { TicketDetailSkeleton } from '../components/Skeleton';
+import { useAppAlert } from '../components/AppAlert';
 import { useMaxBrightnessWhileFocused } from '../lib/useMaxBrightness';
 
 export default function TicketDetailScreen({ route }: any) {
@@ -25,6 +26,7 @@ export default function TicketDetailScreen({ route }: any) {
   const { ticketId } = route.params;
   const { t, language } = useI18n();
   const navigation = useNavigation<any>();
+  const showAlert = useAppAlert();
   // Max out brightness so the QR scans at a dim venue door; restore on leave.
   useMaxBrightnessWhileFocused();
   const [ticket, setTicket] = useState<any>(null);
@@ -79,10 +81,10 @@ export default function TicketDetailScreen({ route }: any) {
             purchase_date: c.purchase_date ? new Date(c.purchase_date) : null,
           });
         } else {
-          Alert.alert(t('common.error'), t('ticketDetail.loadError'));
+          showAlert(t('common.error'), t('ticketDetail.loadError'));
         }
       } catch {
-        Alert.alert(t('common.error'), t('ticketDetail.loadError'));
+        showAlert(t('common.error'), t('ticketDetail.loadError'));
       }
     } finally {
       setLoading(false);
@@ -152,7 +154,7 @@ export default function TicketDetailScreen({ route }: any) {
   const handleCancelTransfer = async () => {
     if (!pendingTransfer) return;
 
-    Alert.alert(
+    showAlert(
       t('ticketDetail.transfer.cancelTitle'),
       t('ticketDetail.transfer.cancelBody'),
       [
@@ -168,10 +170,10 @@ export default function TicketDetailScreen({ route }: any) {
                 updated_at: new Date().toISOString()
               });
               setPendingTransfer(null);
-              Alert.alert(t('common.success'), t('ticketDetail.transfer.cancelSuccess'));
+              showAlert(t('common.success'), t('ticketDetail.transfer.cancelSuccess'));
             } catch (error) {
               console.error('Error cancelling transfer:', error);
-              Alert.alert(t('common.error'), t('ticketDetail.transfer.cancelError'));
+              showAlert(t('common.error'), t('ticketDetail.transfer.cancelError'));
             }
           }
         }
@@ -281,7 +283,7 @@ export default function TicketDetailScreen({ route }: any) {
                 >
                   <View style={styles.transferButtonContent}>
                     <View style={styles.transferButtonIcon}>
-                      <Send size={22} color="#FFF" />
+                      <Send size={22} color={colors.white} />
                     </View>
                     <View style={styles.transferButtonTextContainer}>
                       <Text style={styles.transferButtonTitle}>{t('ticketDetail.transfer.buttonTitle')}</Text>
@@ -549,7 +551,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   statusBadge: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: radius.xl,
     alignSelf: 'center',
     marginBottom: 24,
     backgroundColor: colors.border,
@@ -565,7 +567,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   statusText: {
     fontFamily: font.mono,
-    color: '#FFFFFF',
+    color: colors.white,
     fontSize: 11,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
@@ -590,7 +592,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'center',
     gap: 8,
     paddingVertical: 14,
-    borderRadius: 14,
+    borderRadius: radius.button,
     backgroundColor: colors.surfaceRaised,
   },
   postPurchaseText: {
@@ -601,7 +603,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   qrContainer: {
     backgroundColor: colors.surface,
     padding: 24,
-    borderRadius: 20,
+    borderRadius: radius.xl,
     marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -625,7 +627,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     backgroundColor: colors.surface,
     padding: 16,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -665,7 +667,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   detailsCard: {
     backgroundColor: colors.surface,
     padding: 20,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
     marginBottom: 24,
@@ -714,7 +716,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   footer: {
     backgroundColor: colors.primary + '10',
     padding: 20,
-    borderRadius: 12,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.primary + '30',
     marginBottom: 40,
@@ -738,7 +740,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   pendingTransferCard: {
     backgroundColor: colors.surface,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: radius.md,
     marginBottom: 24,
     borderWidth: 1,
     borderColor: '#F59E0B',
@@ -753,11 +755,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: '#F59E0B',
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 16,
+    borderRadius: radius.lg,
   },
   pendingTransferBadgeText: {
     fontFamily: font.mono,
-    color: '#FFF',
+    color: colors.white,
     fontSize: 11,
     letterSpacing: 0.6,
     textTransform: 'uppercase',
@@ -780,7 +782,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   cancelTransferButton: {
     backgroundColor: colors.surfaceRaised,
     padding: 12,
-    borderRadius: 8,
+    borderRadius: radius.sm,
     borderWidth: 1,
     borderColor: '#F59E0B',
     alignItems: 'center',
@@ -793,7 +795,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   transferButton: {
     backgroundColor: colors.primary,
     padding: 18,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     marginBottom: 32,
     shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 6 },
@@ -809,7 +811,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   transferButtonIcon: {
     width: 48,
     height: 48,
-    borderRadius: 12,
+    borderRadius: radius.md,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -821,7 +823,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   transferButtonTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#FFF',
+    color: colors.white,
     marginBottom: 3,
   },
   transferButtonSubtitle: {
@@ -842,14 +844,14 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     backgroundColor: colors.surface,
     padding: 16,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
   },
   actionButtonIcon: {
     width: 44,
     height: 44,
-    borderRadius: 12,
+    borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 14,
@@ -872,7 +874,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     justifyContent: 'center',
     padding: 14,
-    borderRadius: 12,
+    borderRadius: radius.md,
     gap: 8,
   },
   refundStatusPending: {

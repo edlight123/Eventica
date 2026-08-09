@@ -7,7 +7,6 @@ import {
   Image, 
   TouchableOpacity, 
   ActivityIndicator,
-  Alert,
   Share,
   Dimensions,
   Linking,
@@ -57,6 +56,7 @@ import VenueStaticMap from '../components/VenueStaticMap';
 import WhosGoing from '../components/WhosGoing';
 import ContactOrganizerModal from '../components/ContactOrganizerModal';
 import PurchaseSuccessSheet from '../components/PurchaseSuccessSheet';
+import { useAppAlert } from '../components/AppAlert';
 import { EventDetailSkeleton } from '../components/Skeleton';
 const { width } = Dimensions.get('window');
 const POSTER_W = width * 0.86;
@@ -70,6 +70,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
   const { t, language } = useI18n();
   const { colors } = useTheme();
   const styles = getStyles(colors);
+  const showAlert = useAppAlert();
   const [event, setEvent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(false);
@@ -225,7 +226,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
       }
     } catch (error) {
       console.error('Error fetching event:', error);
-      Alert.alert(t('common.error'), t('eventDetail.loadError'));
+      showAlert(t('common.error'), t('eventDetail.loadError'));
     } finally {
       setLoading(false);
     }
@@ -249,7 +250,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
 
   const toggleFavorite = async () => {
     if (!user) {
-      Alert.alert(t('auth.loginRequiredTitle'), t('eventDetail.favorites.loginBody'));
+      showAlert(t('auth.loginRequiredTitle'), t('eventDetail.favorites.loginBody'));
       return;
     }
 
@@ -267,7 +268,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
           await deleteDoc(doc(db, 'event_favorites', docSnapshot.id));
         });
         setIsFavorite(false);
-        Alert.alert(t('common.success'), t('eventDetail.favorites.removed'));
+        showAlert(t('common.success'), t('eventDetail.favorites.removed'));
       } else {
         // Add to favorites
         await addDoc(collection(db, 'event_favorites'), {
@@ -276,11 +277,11 @@ export default function EventDetailScreen({ route, navigation }: any) {
           created_at: Timestamp.now()
         });
         setIsFavorite(true);
-        Alert.alert(t('common.success'), t('eventDetail.favorites.saved'));
+        showAlert(t('common.success'), t('eventDetail.favorites.saved'));
       }
     } catch (error) {
       console.error('Error toggling favorite:', error);
-      Alert.alert(t('common.error'), t('eventDetail.favorites.updateError'));
+      showAlert(t('common.error'), t('eventDetail.favorites.updateError'));
     } finally {
       setFavoriteLoading(false);
     }
@@ -301,7 +302,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
     const address = event.address || `${event.venue_name}, ${event.city}`;
     const encodedAddress = encodeURIComponent(address);
     
-    Alert.alert(
+    showAlert(
       t('eventDetail.maps.title'),
       t('eventDetail.maps.body'),
       [
@@ -346,13 +347,13 @@ export default function EventDetailScreen({ route, navigation }: any) {
 
   const handlePurchaseTicket = async () => {
     if (!user) {
-      Alert.alert(t('auth.loginRequiredTitle'), t('eventDetail.purchase.loginBody'));
+      showAlert(t('auth.loginRequiredTitle'), t('eventDetail.purchase.loginBody'));
       return;
     }
 
     // Prevent purchase for past events
     if (isPastEvent) {
-      Alert.alert(t('eventDetail.purchase.pastTitle'), t('eventDetail.purchase.pastBody'));
+      showAlert(t('eventDetail.purchase.pastTitle'), t('eventDetail.purchase.pastBody'));
       return;
     }
 

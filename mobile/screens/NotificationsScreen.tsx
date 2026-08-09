@@ -6,13 +6,13 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Bell, Check, CheckCheck, Trash2, ExternalLink } from 'lucide-react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../contexts/ThemeContext';
+import { radius } from '../theme/tokens';
 import { useAuth } from '../contexts/AuthContext';
 import { useAppMode } from '../contexts/AppModeContext';
 import { useI18n } from '../contexts/I18nContext';
@@ -28,6 +28,7 @@ import { addStaffEventId } from '../lib/staffAssignments';
 import { backendJson } from '../lib/api/backend';
 import EmptyState from '../components/EmptyState';
 import { NotificationsSkeleton } from '../components/Skeleton';
+import { useAppAlert } from '../components/AppAlert';
 import type { Notification } from '../types/notifications';
 
 export default function NotificationsScreen() {
@@ -38,6 +39,7 @@ export default function NotificationsScreen() {
   const { setMode } = useAppMode();
   const { t, language } = useI18n();
   const locale = language === 'fr' ? 'fr-FR' : language === 'ht' ? 'fr-HT' : 'en-US';
+  const showAlert = useAppAlert();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -108,7 +110,7 @@ export default function NotificationsScreen() {
   const acceptStaffInvite = async (notification: Notification) => {
     const details = getInviteDetails(notification);
     if (!details) {
-      Alert.alert(t('notifications.missingInviteTitle'), t('notifications.missingInviteBody'));
+      showAlert(t('notifications.missingInviteTitle'), t('notifications.missingInviteBody'));
       return;
     }
 
@@ -145,14 +147,14 @@ export default function NotificationsScreen() {
       navigation.navigate('TicketScanner', { eventId: details.eventId });
     } catch (error: any) {
       const msg = error?.message ? String(error.message) : t('notifications.acceptInviteFailedBody');
-      Alert.alert(t('notifications.acceptInviteFailedTitle'), msg);
+      showAlert(t('notifications.acceptInviteFailedTitle'), msg);
     }
   };
 
   const declineStaffInvite = async (notification: Notification) => {
     const details = getInviteDetails(notification);
     if (!details) {
-      Alert.alert(t('notifications.missingInviteTitle'), t('notifications.missingInviteBody'));
+      showAlert(t('notifications.missingInviteTitle'), t('notifications.missingInviteBody'));
       return;
     }
 
@@ -169,14 +171,14 @@ export default function NotificationsScreen() {
       setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
     } catch (error: any) {
       const msg = error?.message ? String(error.message) : t('notifications.declineInviteFailedBody');
-      Alert.alert(t('notifications.declineInviteFailedTitle'), msg);
+      showAlert(t('notifications.declineInviteFailedTitle'), msg);
     }
   };
 
   const acceptTicketTransfer = async (notification: Notification) => {
     const transferToken = getTransferToken(notification);
     if (!transferToken) {
-      Alert.alert(t('notifications.missingTransferTitle'), t('notifications.missingTransferBody'));
+      showAlert(t('notifications.missingTransferTitle'), t('notifications.missingTransferBody'));
       return;
     }
 
@@ -199,14 +201,14 @@ export default function NotificationsScreen() {
       }
     } catch (error: any) {
       const msg = error?.message ? String(error.message) : t('notifications.acceptTransferFailedBody');
-      Alert.alert(t('notifications.acceptTransferFailedTitle'), msg);
+      showAlert(t('notifications.acceptTransferFailedTitle'), msg);
     }
   };
 
   const declineTicketTransfer = async (notification: Notification) => {
     const transferToken = getTransferToken(notification);
     if (!transferToken) {
-      Alert.alert(t('notifications.missingTransferTitle'), t('notifications.missingTransferBody'));
+      showAlert(t('notifications.missingTransferTitle'), t('notifications.missingTransferBody'));
       return;
     }
 
@@ -223,7 +225,7 @@ export default function NotificationsScreen() {
       setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
     } catch (error: any) {
       const msg = error?.message ? String(error.message) : t('notifications.declineTransferFailedBody');
-      Alert.alert(t('notifications.declineTransferFailedTitle'), msg);
+      showAlert(t('notifications.declineTransferFailedTitle'), msg);
     }
   };
 
@@ -295,7 +297,7 @@ export default function NotificationsScreen() {
     const uid = user?.uid;
     if (!uid) return;
 
-    Alert.alert(
+    showAlert(
       t('notifications.clearAllTitle'),
       t('notifications.clearAllBody'),
       [
@@ -312,7 +314,7 @@ export default function NotificationsScreen() {
               setUnreadCount(0);
             } catch (error) {
               console.error('Error clearing notifications:', error);
-              Alert.alert(t('common.error'), t('notifications.clearAllErrorBody'));
+              showAlert(t('common.error'), t('notifications.clearAllErrorBody'));
             } finally {
               setIsClearing(false);
             }
@@ -614,7 +616,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 8,
+    borderRadius: radius.sm,
     backgroundColor: colors.background,
   },
   loadingContainer: {
@@ -659,7 +661,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   notificationCard: {
     flexDirection: 'row',
     backgroundColor: colors.surfaceRaised,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     padding: 16,
     gap: 12,
     shadowColor: '#000',
@@ -719,18 +721,18 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   staffInviteAcceptButton: {
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 10,
+    borderRadius: radius.chip,
     backgroundColor: colors.primary,
   },
   staffInviteAcceptText: {
-    color: '#fff',
+    color: colors.white,
     fontSize: 13,
     fontWeight: '700',
   },
   staffInviteDeclineButton: {
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 10,
+    borderRadius: radius.chip,
     backgroundColor: colors.background,
     borderWidth: 1,
     borderColor: colors.border,

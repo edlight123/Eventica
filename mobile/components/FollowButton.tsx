@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
@@ -13,6 +12,8 @@ import { useI18n } from '../contexts/I18nContext';
 import { backendFetch } from '../lib/api/backend';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { useAppAlert } from './AppAlert';
+import { radius } from '../theme/tokens';
 
 interface FollowButtonProps {
   organizerId: string;
@@ -23,6 +24,7 @@ interface FollowButtonProps {
 
 export default function FollowButton({ organizerId, style, compact = false, onFollowChange }: FollowButtonProps) {
   const { colors } = useTheme();
+  const showAlert = useAppAlert();
   const styles = getStyles(colors);
   const { user, userProfile } = useAuth();
   const { t } = useI18n();
@@ -63,7 +65,7 @@ export default function FollowButton({ organizerId, style, compact = false, onFo
 
   const handleToggleFollow = async () => {
     if (!user) {
-      Alert.alert(
+      showAlert(
         t('auth.loginRequiredTitle') || 'Login Required',
         t('follow.loginBody') || 'Please log in to follow organizers'
       );
@@ -92,7 +94,7 @@ export default function FollowButton({ organizerId, style, compact = false, onFo
       onFollowChange?.(newFollowingState);
 
       // Show feedback
-      Alert.alert(
+      showAlert(
         t('common.success'),
         newFollowingState
           ? (t('follow.followed') || 'You are now following this organizer')
@@ -100,7 +102,7 @@ export default function FollowButton({ organizerId, style, compact = false, onFo
       );
     } catch (error: any) {
       console.error('Error toggling follow:', error);
-      Alert.alert(t('common.error'), error.message || 'Failed to update follow status');
+      showAlert(t('common.error'), error.message || 'Failed to update follow status');
     } finally {
       setToggling(false);
     }
@@ -179,7 +181,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'center',
     paddingVertical: 10,
     paddingHorizontal: 16,
-    borderRadius: 12,
+    borderRadius: radius.md,
     gap: 6,
   },
   loadingButton: {

@@ -19,7 +19,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Alert,
   Platform,
   Keyboard,
   SafeAreaView,
@@ -28,6 +27,7 @@ import {
   Switch,
   KeyboardTypeOptions,
 } from 'react-native';
+import { useAppAlert } from '../../components/AppAlert';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -51,7 +51,7 @@ import {
   departmentForCity,
 } from '../../data/haitiGeo';
 import WhitePillCTA from '../../components/WhitePillCTA';
-import { font } from '../../theme/tokens';
+import { font, radius } from '../../theme/tokens';
 import { POSTER_THEME_KEYS, resolvePosterTheme } from '../../lib/posterGradient';
 import {
   isComingSoon,
@@ -330,6 +330,7 @@ export default function CreateEventFlowRefactored() {
   const insets = useSafeAreaInsets();
   const { user, userProfile } = useAuth();
   const { t } = useI18n();
+  const showAlert = useAppAlert();
   const [saving, setSaving] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   // Measured height of the pinned footer, so the canvas's bottom padding clears it
@@ -531,7 +532,7 @@ export default function CreateEventFlowRefactored() {
       }
     } catch (error) {
       console.error('Error loading event:', error);
-      Alert.alert(t('common.error'), t('organizerCreateEventFlow.loadError'));
+      showAlert(t('common.error'), t('organizerCreateEventFlow.loadError'));
       navigation.goBack();
     } finally {
       setLoadingEvent(false);
@@ -1069,7 +1070,7 @@ export default function CreateEventFlowRefactored() {
 
   const handleSubmit = async (options: SaveEventOptions) => {
     if (!userProfile?.id) {
-      Alert.alert(t('common.error'), t('organizerCreateEventFlow.authRequired'));
+      showAlert(t('common.error'), t('organizerCreateEventFlow.authRequired'));
       return;
     }
 
@@ -1103,7 +1104,7 @@ export default function CreateEventFlowRefactored() {
 
         if (!ok) {
           setConfirmVisible(false);
-          Alert.alert(
+          showAlert(
             t('organizerEarnings.stripeConnectRequired.title'),
             t('organizerEarnings.stripeConnectRequired.body'),
             [
@@ -1118,7 +1119,7 @@ export default function CreateEventFlowRefactored() {
         }
       } catch {
         setConfirmVisible(false);
-        Alert.alert(
+        showAlert(
           t('organizerEarnings.stripeConnectRequired.title'),
           t('organizerEarnings.stripeConnectRequired.body'),
           [
@@ -1141,7 +1142,7 @@ export default function CreateEventFlowRefactored() {
         console.log('Event updated with ID:', eventId);
 
         setConfirmVisible(false);
-        Alert.alert(
+        showAlert(
           t('common.success'),
           t('organizerCreateEventFlow.updateSuccessBody'),
           [{ text: t('common.ok'), onPress: () => navigation.goBack() }]
@@ -1152,7 +1153,7 @@ export default function CreateEventFlowRefactored() {
         console.log('Event created with ID:', newEventId);
 
         setConfirmVisible(false);
-        Alert.alert(
+        showAlert(
           t('common.success'),
           options.publish === false
             ? t('organizerCreateEventFlow.draftSuccessBody')
@@ -1163,7 +1164,7 @@ export default function CreateEventFlowRefactored() {
     } catch (error: any) {
       console.error('Event save error:', error);
       setConfirmVisible(false);
-      Alert.alert(
+      showAlert(
         t('common.error'),
         error.message || (isEditMode ? t('organizerCreateEventFlow.saveFailedUpdate') : t('organizerCreateEventFlow.saveFailedCreate'))
       );
@@ -1182,7 +1183,7 @@ export default function CreateEventFlowRefactored() {
   }
 
   const confirmExit = () => {
-    Alert.alert(t('organizerCreateEventFlow.discardTitle'), t('organizerCreateEventFlow.discardBody'), [
+    showAlert(t('organizerCreateEventFlow.discardTitle'), t('organizerCreateEventFlow.discardBody'), [
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('organizerCreateEventFlow.leave'), style: 'destructive', onPress: () => navigation.goBack() },
     ]);
@@ -2448,7 +2449,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 8,
     paddingHorizontal: 22,
     paddingVertical: 12,
-    borderRadius: 14,
+    borderRadius: radius.button,
     backgroundColor: colors.white,
     marginTop: 4,
   },
@@ -2473,7 +2474,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 6,
     paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: 14,
+    borderRadius: radius.button,
     backgroundColor: 'rgba(0,0,0,0.55)',
   },
   changeFlyerText: {
@@ -2516,7 +2517,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   chip: {
     paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: 10,
+    borderRadius: radius.chip,
     backgroundColor: colors.surfaceRaised,
   },
   chipActive: {

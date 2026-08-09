@@ -6,12 +6,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { Ticket, X, Plus, Minus } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { backendJson } from '../lib/api/backend';
+import { useAppAlert } from './AppAlert';
+import { radius } from '../theme/tokens';
 
 /**
  * Refusals caused by the promo code rather than by the tickets themselves. For
@@ -82,6 +83,7 @@ export default function FreeTicketModal({
   onCheckoutFallback,
 }: FreeTicketModalProps) {
   const { colors } = useTheme();
+  const showAlert = useAppAlert();
   const { t } = useI18n();
   const styles = getStyles(colors);
   const [quantity, setQuantity] = useState(1);
@@ -167,12 +169,12 @@ export default function FreeTicketModal({
 
   const handleClaimTickets = async () => {
     if (remainingTickets <= 0) {
-      Alert.alert(t('freeTicket.soldOutTitle'), t('freeTicket.soldOutBody'));
+      showAlert(t('freeTicket.soldOutTitle'), t('freeTicket.soldOutBody'));
       return;
     }
 
     if (claimQuantity > remainingTickets) {
-      Alert.alert(t('freeTicket.limitedTitle'), pc('freeTicket.limitedBody', remainingTickets));
+      showAlert(t('freeTicket.limitedTitle'), pc('freeTicket.limitedBody', remainingTickets));
       return;
     }
 
@@ -215,7 +217,7 @@ export default function FreeTicketModal({
 
       // Call onSuccess after a short delay to ensure modal is closed
       setTimeout(() => {
-        Alert.alert(
+        showAlert(
           t('freeTicket.successTitle'),
           pc('freeTicket.successBody', issued),
           [
@@ -241,7 +243,7 @@ export default function FreeTicketModal({
       // A promo refusal isn't a dead end — the buyer can still pay for the ticket.
       const canFallBack = Boolean(onCheckoutFallback) && PROMO_FAILURE_CODES.has(code);
 
-      Alert.alert(
+      showAlert(
         t('common.error'),
         message,
         canFallBack
@@ -444,7 +446,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   eventInfo: {
     backgroundColor: colors.primary + '10',
     padding: 16,
-    borderRadius: 12,
+    borderRadius: radius.md,
     marginBottom: 24,
   },
   eventTitle: {
@@ -519,7 +521,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   summary: {
     backgroundColor: colors.surfaceRaised,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: radius.md,
     marginBottom: 24,
   },
   summaryRow: {
@@ -544,7 +546,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   cancelButton: {
     flex: 1,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: radius.md,
     backgroundColor: 'transparent',
     borderWidth: 1,
     borderColor: colors.border,
@@ -558,7 +560,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   claimButton: {
     flex: 2,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: radius.md,
     backgroundColor: colors.primary,
     alignItems: 'center',
     shadowColor: colors.primary,

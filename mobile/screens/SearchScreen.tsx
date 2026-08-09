@@ -19,11 +19,12 @@ import { searchUsers, type UserSearchResult } from '../lib/api/social';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { getCategoryLabel } from '../lib/categories';
-import { font } from '../theme/tokens';
+import { font, radius } from '../theme/tokens';
 import EventListCard from '../components/EventListCard';
 import EmptyState from '../components/EmptyState';
 import SectionHeader from '../components/SectionHeader';
 import VerifiedBadge from '../components/VerifiedBadge';
+import { Skeleton, ListSkeleton } from '../components/Skeleton';
 
 interface OrganizerResult {
   id: string;
@@ -40,6 +41,22 @@ const normalize = (s: any): string =>
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '');
+
+/**
+ * First-load placeholder: the idle screen opens on a "featured events" section
+ * header over EventListCard rows, so mirror that shape rather than a bare
+ * centred spinner.
+ */
+function SearchResultsSkeleton() {
+  return (
+    <View style={{ paddingTop: 16 }}>
+      <View style={{ paddingHorizontal: 16 }}>
+        <Skeleton width={150} height={22} radius={7} />
+      </View>
+      <ListSkeleton count={6} />
+    </View>
+  );
+}
 
 export default function SearchScreen({ navigation }: any) {
   const { colors } = useTheme();
@@ -283,9 +300,7 @@ export default function SearchScreen({ navigation }: any) {
       </View>
 
       {loading ? (
-        <View style={styles.loading}>
-          <ActivityIndicator color={colors.primary} />
-        </View>
+        <SearchResultsSkeleton />
       ) : error ? (
         <View style={styles.loading}>
           <EmptyState
@@ -398,7 +413,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       alignItems: 'center',
       gap: 8,
       backgroundColor: colors.surface,
-      borderRadius: 14,
+      borderRadius: radius.button,
       borderWidth: 1,
       borderColor: colors.border,
       paddingHorizontal: 14,

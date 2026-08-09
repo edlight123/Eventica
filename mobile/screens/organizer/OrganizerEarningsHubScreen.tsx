@@ -9,7 +9,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { getOrganizerEvents, OrganizerEvent } from '../../lib/api/organizer';
 import { safeFormatForLanguage } from '../../lib/dates';
-import { font } from '../../theme/tokens';
+import { font, radius } from '../../theme/tokens';
 import { Skeleton } from '../../components/Skeleton';
 import EmptyState from '../../components/EmptyState';
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
@@ -143,7 +143,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     poster: {
       width: 64,
       height: 85,
-      borderRadius: 10,
+      borderRadius: radius.chip,
       backgroundColor: colors.surfaceRaised,
     },
     posterFallback: {

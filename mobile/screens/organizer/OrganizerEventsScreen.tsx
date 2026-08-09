@@ -23,7 +23,7 @@ import { useI18n } from '../../contexts/I18nContext';
 import { getOrganizerEvents, OrganizerEvent } from '../../lib/api/organizer';
 import { resolvePosterTheme } from '../../lib/posterGradient';
 import { RADIUS } from '../../config/brand';
-import { font } from '../../theme/tokens';
+import { font, radius } from '../../theme/tokens';
 import { Skeleton } from '../../components/Skeleton';
 import EmptyState from '../../components/EmptyState';
 import StatusChip from '../../components/StatusChip';
@@ -325,7 +325,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.surfaceRaised,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 14,
+    borderRadius: radius.button,
   },
   createButtonText: {
     color: colors.text,
@@ -353,7 +353,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     width: 104,
     aspectRatio: 4 / 5,
     // ~10% max roundness per beta feedback (104px * 0.10 ≈ 10).
-    borderRadius: 10,
+    borderRadius: radius.chip,
     backgroundColor: colors.surfaceMuted,
     overflow: 'hidden',
   },

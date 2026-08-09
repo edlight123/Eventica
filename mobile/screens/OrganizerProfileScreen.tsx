@@ -30,7 +30,7 @@ import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { font } from '../theme/tokens';
+import { font, radius } from '../theme/tokens';
 import ConnectButton from '../components/ConnectButton';
 import PosterEventCard from '../components/PosterEventCard';
 import VerifiedBadge from '../components/VerifiedBadge';
@@ -457,7 +457,7 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
             accessibilityRole="button"
             accessibilityLabel={t('common.back')}
           >
-            <Ionicons name="chevron-back" size={26} color="#FFF" />
+            <Ionicons name="chevron-back" size={26} color={colors.white} />
           </TouchableOpacity>
 
           {/* Small Follow Button - Top Right */}
@@ -529,7 +529,7 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
                 style={styles.contactButtonHero}
                 onPress={scrollToBottom}
               >
-                <MessageCircle size={14} color="#FFF" />
+                <MessageCircle size={14} color={colors.white} />
                 <Text style={styles.contactButtonHeroText}>{t('organizerProfile.contactSocial')}</Text>
               </TouchableOpacity>
             )}
@@ -732,7 +732,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.surfaceRaised,
     paddingHorizontal: 24,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: radius.sm,
   },
   retryButtonText: {
     color: colors.text,
@@ -772,14 +772,14 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     height: 40,
     paddingHorizontal: 16,
     justifyContent: 'center',
-    backgroundColor: '#FFF',
-    borderRadius: 14,
+    backgroundColor: colors.white,
+    borderRadius: radius.button,
     zIndex: 10,
   },
   followingButtonSmall: {
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     borderWidth: 1.5,
-    borderColor: '#FFF',
+    borderColor: colors.white,
   },
   // White pill = the follow CTA (POSH §2.2): black label on white, never teal.
   followButtonSmallText: {
@@ -788,7 +788,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: '#000000',
   },
   followingButtonSmallText: {
-    color: '#FFF',
+    color: colors.white,
   },
   // paddingTop is applied inline (insets.top + HERO_IDENTITY_OFFSET) — it is
   // what holds the block clear of the controls at any safe-area inset.
@@ -810,11 +810,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: '#FFF',
+    backgroundColor: colors.white,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#FFF',
+    borderColor: colors.white,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
@@ -837,7 +837,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     lineHeight: 36,
     fontWeight: '700',
     letterSpacing: -0.5,
-    color: '#FFF',
+    color: colors.white,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 4,
@@ -870,13 +870,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: 'rgba(255, 255, 255, 0.16)',
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 10,
+    borderRadius: radius.chip,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.28)',
     marginTop: 10,
   },
   contactButtonHeroText: {
-    color: '#FFF',
+    color: colors.white,
     fontSize: 13,
     fontWeight: '600',
   },
@@ -920,7 +920,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   // Friend connection + personal social. Elevation, not a 1px box (POSH §1).
   socialCard: {
     backgroundColor: colors.surfaceRaised,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     padding: 16,
     marginBottom: 24,
     gap: 12,
@@ -943,7 +943,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: radius.chip,
     paddingHorizontal: 12,
     paddingVertical: 7,
     maxWidth: '100%',

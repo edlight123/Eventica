@@ -8,6 +8,7 @@ import {
   Modal,
   ActivityIndicator,
 } from 'react-native';
+import { radius } from '../../theme/tokens';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
@@ -733,7 +734,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     paddingVertical: 12,
     paddingHorizontal: 24,
-    borderRadius: 8,
+    borderRadius: radius.sm,
   },
   // Modal styles
   modalOverlay: {

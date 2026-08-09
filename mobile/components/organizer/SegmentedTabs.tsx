@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { font } from '../../theme/tokens';
+import { radius, font } from '../../theme/tokens';
 import { useTheme } from '../../contexts/ThemeContext';
 
 export interface SegmentedTab {
@@ -78,7 +78,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       gap: 6,
       paddingHorizontal: 14,
       paddingVertical: 9,
-      borderRadius: 14,
+      borderRadius: radius.button,
       backgroundColor: 'transparent',
     },
     tabActive: {
@@ -100,7 +100,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       minWidth: 20,
       paddingHorizontal: 6,
       paddingVertical: 1,
-      borderRadius: 10,
+      borderRadius: radius.chip,
       backgroundColor: colors.border,
       alignItems: 'center',
       justifyContent: 'center',

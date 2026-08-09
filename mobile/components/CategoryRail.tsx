@@ -4,6 +4,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { getCategoryLabel } from '../lib/categories';
 import { SPACING, RADIUS } from '../config/brand';
+import { radius } from '../theme/tokens';
 
 interface CategoryRailProps {
   onCategoryPress: (category: string) => void;
@@ -62,7 +63,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       gap: 8,
       paddingHorizontal: 16,
       paddingVertical: 10,
-      borderRadius: 10,
+      borderRadius: radius.chip,
       backgroundColor: colors.surface,
       borderWidth: 1,
       borderColor: colors.border,

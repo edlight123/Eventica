@@ -12,7 +12,7 @@ import EmptyState from '../components/EmptyState';
 import VerifiedBadge from '../components/VerifiedBadge';
 import WhitePillCTA from '../components/WhitePillCTA';
 import { PeopleRowsSkeleton } from '../components/Skeleton';
-import { font } from '../theme/tokens';
+import { font, radius } from '../theme/tokens';
 
 type Subscription = {
   id: string;
@@ -164,7 +164,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     headerTitle: { flex: 1, textAlign: 'center', fontFamily: font.serif, fontSize: 22, color: colors.text },
     emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 },
     emptyCta: { marginTop: 24, minWidth: 200 },
-    card: { backgroundColor: colors.surface, borderRadius: 16, paddingHorizontal: 14 },
+    card: { backgroundColor: colors.surface, borderRadius: radius.lg, paddingHorizontal: 14 },
     row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
     rowDivided: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border },
     avatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.borderLight },

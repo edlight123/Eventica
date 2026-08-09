@@ -7,8 +7,8 @@ import {
   TextInput,
   TouchableOpacity,
   RefreshControl,
-  Alert,
 } from 'react-native';
+import { useAppAlert } from '../../components/AppAlert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
@@ -60,6 +60,7 @@ export default function EventAttendeesScreen() {
   const insets = useSafeAreaInsets();
 
   const { t } = useI18n();
+  const showAlert = useAppAlert();
   const { formatDate } = useLocaleFormat();
 
   const [attendees, setAttendees] = useState<Attendee[]>([]);
@@ -127,7 +128,7 @@ export default function EventAttendeesScreen() {
 
     const name = attendee.attendee_name || attendee.attendee_email || t('common.attendee');
 
-    Alert.alert(
+    showAlert(
       t('organizerAttendees.checkInConfirmTitle'),
       t('organizerAttendees.checkInConfirmBody').replace('{name}', name),
       [
@@ -168,7 +169,7 @@ export default function EventAttendeesScreen() {
                     : a
                 )
               );
-              Alert.alert(t('organizerAttendees.checkInFailed'));
+              showAlert(t('organizerAttendees.checkInFailed'));
             } finally {
               setPendingIds((prev) => {
                 const next = new Set(prev);

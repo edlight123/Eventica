@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   TextInput,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,8 +17,10 @@ import { safeFormatForLanguage } from '../lib/dates';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { SHADOWS, RADIUS } from '../config/brand';
+import { radius } from '../theme/tokens';
 import { backendFetch } from '../lib/api/backend';
 import { ReviewSkeleton } from '../components/Skeleton';
+import { useAppAlert } from '../components/AppAlert';
 
 export default function ReviewScreen({ route, navigation }: any) {
   const { colors } = useTheme();
@@ -28,6 +29,7 @@ export default function ReviewScreen({ route, navigation }: any) {
   const { user } = useAuth();
   const { t, language } = useI18n();
   const insets = useSafeAreaInsets();
+  const showAlert = useAppAlert();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [ticket, setTicket] = useState<any>(null);
@@ -74,7 +76,7 @@ export default function ReviewScreen({ route, navigation }: any) {
 
   const handleSubmitReview = async () => {
     if (rating === 0) {
-      Alert.alert(t('common.error'), t('review.selectRating') || 'Please select a rating');
+      showAlert(t('common.error'), t('review.selectRating') || 'Please select a rating');
       return;
     }
 
@@ -98,7 +100,7 @@ export default function ReviewScreen({ route, navigation }: any) {
         throw new Error(data.error || 'Failed to submit review');
       }
 
-      Alert.alert(
+      showAlert(
         t('common.success'),
         existingReview 
           ? (t('review.updated') || 'Review updated successfully!')
@@ -107,7 +109,7 @@ export default function ReviewScreen({ route, navigation }: any) {
       );
     } catch (error: any) {
       console.error('Error submitting review:', error);
-      Alert.alert(t('common.error'), error.message || t('review.submitError') || 'Failed to submit review');
+      showAlert(t('common.error'), error.message || t('review.submitError') || 'Failed to submit review');
     } finally {
       setSubmitting(false);
     }
@@ -196,7 +198,7 @@ export default function ReviewScreen({ route, navigation }: any) {
               <Ionicons
                 name="thumbs-up"
                 size={24}
-                color={wouldRecommend === true ? '#FFF' : colors.success}
+                color={wouldRecommend === true ? colors.white : colors.success}
               />
               <Text style={[
                 styles.recommendButtonText,
@@ -215,7 +217,7 @@ export default function ReviewScreen({ route, navigation }: any) {
               <Ionicons
                 name="thumbs-down"
                 size={24}
-                color={wouldRecommend === false ? '#FFF' : colors.error}
+                color={wouldRecommend === false ? colors.white : colors.error}
               />
               <Text style={[
                 styles.recommendButtonText,
@@ -252,10 +254,10 @@ export default function ReviewScreen({ route, navigation }: any) {
           disabled={submitting}
         >
           {submitting ? (
-            <ActivityIndicator color="#FFF" />
+            <ActivityIndicator color={colors.white} />
           ) : (
             <>
-              <Ionicons name="send" size={20} color="#FFF" />
+              <Ionicons name="send" size={20} color={colors.white} />
               <Text style={styles.submitButtonText}>
                 {existingReview ? (t('review.update') || 'Update Review') : (t('review.submit') || 'Submit Review')}
               </Text>
@@ -366,7 +368,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     paddingVertical: 12,
     paddingHorizontal: 24,
-    borderRadius: 12,
+    borderRadius: radius.md,
     borderWidth: 2,
     borderColor: colors.border,
     gap: 8,
@@ -385,7 +387,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
   },
   recommendButtonTextSelected: {
-    color: '#FFF',
+    color: colors.white,
   },
   commentSection: {
     margin: 16,
@@ -393,7 +395,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   commentInput: {
     backgroundColor: colors.surface,
-    borderRadius: 12,
+    borderRadius: radius.md,
     padding: 16,
     fontSize: 15,
     color: colors.text,
@@ -415,7 +417,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 8,
     padding: 16,
     backgroundColor: colors.primary,
-    borderRadius: 12,
+    borderRadius: radius.md,
   },
   submitButtonDisabled: {
     opacity: 0.6,
@@ -423,7 +425,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   submitButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFF',
+    color: colors.white,
     marginLeft: 8,
   },
 });

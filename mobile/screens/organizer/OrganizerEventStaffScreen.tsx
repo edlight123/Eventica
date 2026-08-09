@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  Alert,
   Modal,
   ScrollView,
   StyleSheet,
@@ -10,6 +9,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import { radius } from '../../theme/tokens'
+import { useAppAlert } from '../../components/AppAlert'
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
@@ -66,6 +67,7 @@ export default function OrganizerEventStaffScreen() {
   const { eventId } = route.params
 
   const { t } = useI18n()
+  const showAlert = useAppAlert();
   const { loading: authLoading, user } = useAuth()
 
   const [loading, setLoading] = useState(true)
@@ -100,7 +102,7 @@ export default function OrganizerEventStaffScreen() {
       setInvites(Array.isArray(data?.invites) ? data.invites : [])
       setMembers(Array.isArray(data?.members) ? data.members : [])
     } catch (e: any) {
-      Alert.alert(t('common.error'), e?.message || t('organizerStaff.errors.loadFailed'))
+      showAlert(t('common.error'), e?.message || t('organizerStaff.errors.loadFailed'))
     } finally {
       setLoading(false)
     }
@@ -154,14 +156,14 @@ export default function OrganizerEventStaffScreen() {
       setMethod('link')
 
       if (res?.inviteUrl) {
-        Alert.alert(t('organizerStaff.inviteCreatedTitle'), res.inviteUrl)
+        showAlert(t('organizerStaff.inviteCreatedTitle'), res.inviteUrl)
       } else {
-        Alert.alert(t('organizerStaff.inviteCreatedTitle'), t('organizerStaff.inviteCreatedBody'))
+        showAlert(t('organizerStaff.inviteCreatedTitle'), t('organizerStaff.inviteCreatedBody'))
       }
 
       refresh()
     } catch (e: any) {
-      Alert.alert(t('common.error'), e?.message || t('organizerStaff.errors.inviteFailed'))
+      showAlert(t('common.error'), e?.message || t('organizerStaff.errors.inviteFailed'))
     } finally {
       setSubmitting(false)
     }
@@ -169,7 +171,7 @@ export default function OrganizerEventStaffScreen() {
 
   const revokeInvite = async (inviteId: string) => {
     if (authLoading || !user) return
-    Alert.alert(t('organizerStaff.revoke.title'), t('organizerStaff.revoke.body'), [
+    showAlert(t('organizerStaff.revoke.title'), t('organizerStaff.revoke.body'), [
       { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('organizerStaff.revoke.confirm'),
@@ -182,7 +184,7 @@ export default function OrganizerEventStaffScreen() {
             })
             refresh()
           } catch (e: any) {
-            Alert.alert(t('common.error'), e?.message || t('organizerStaff.errors.revokeFailed'))
+            showAlert(t('common.error'), e?.message || t('organizerStaff.errors.revokeFailed'))
           }
         },
       },
@@ -191,7 +193,7 @@ export default function OrganizerEventStaffScreen() {
 
   const removeMember = async (memberId: string) => {
     if (authLoading || !user) return
-    Alert.alert(t('organizerStaff.removeMember.title'), t('organizerStaff.removeMember.body'), [
+    showAlert(t('organizerStaff.removeMember.title'), t('organizerStaff.removeMember.body'), [
       { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('organizerStaff.removeMember.confirm'),
@@ -204,7 +206,7 @@ export default function OrganizerEventStaffScreen() {
             })
             refresh()
           } catch (e: any) {
-            Alert.alert(t('common.error'), e?.message || t('organizerStaff.errors.removeFailed'))
+            showAlert(t('common.error'), e?.message || t('organizerStaff.errors.removeFailed'))
           }
         },
       },
@@ -237,7 +239,7 @@ export default function OrganizerEventStaffScreen() {
             : m
         )
       )
-      Alert.alert(t('common.error'), e?.message || t('organizerStaff.errors.permissionUpdateFailed'))
+      showAlert(t('common.error'), e?.message || t('organizerStaff.errors.permissionUpdateFailed'))
     } finally {
       setPermBusy((prev) => prev.filter((id) => id !== memberId))
     }
@@ -550,7 +552,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     textAlign: 'center',
     paddingHorizontal: 7,
     paddingVertical: 2,
-    borderRadius: 10,
+    borderRadius: radius.chip,
     overflow: 'hidden',
   },
 

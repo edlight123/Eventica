@@ -4,9 +4,9 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   StatusBar,
 } from 'react-native';
+import { useAppAlert } from '../../components/AppAlert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTabBarSpace } from '../../hooks/useTabBarSpace';
 import { Ionicons } from '@expo/vector-icons';
@@ -30,6 +30,7 @@ export default function OrganizerScanScreen() {
   const navigation = useNavigation<any>();
   const { userProfile } = useAuth();
   const { t, language } = useI18n();
+  const showAlert = useAppAlert();
   const locale = language === 'fr' ? 'fr-FR' : language === 'ht' ? 'fr-HT' : 'en-US';
   const insets = useSafeAreaInsets();
   // The tab bar is a translucent overlay, so reserve its height here or the
@@ -64,7 +65,7 @@ export default function OrganizerScanScreen() {
 
   const handleStartScanning = () => {
     if (!selectedEvent) {
-      Alert.alert(
+      showAlert(
         t('organizerScan.noEventTitle'),
         t('organizerScan.noEventBody'),
         [{ text: t('common.ok') }]

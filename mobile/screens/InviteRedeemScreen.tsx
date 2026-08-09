@@ -13,6 +13,7 @@ import { backendJson } from '../lib/api/backend'
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { SHADOWS } from '../config/brand';
+import { radius } from '../theme/tokens';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'InviteRedeem'>
 
@@ -115,7 +116,7 @@ export default function InviteRedeemScreen({ route, navigation }: Props) {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background || '#fff' }}>
       <View style={{ flex: 1, padding: 20, justifyContent: 'center' }}>
-        <View style={{ backgroundColor: colors.surface, borderRadius: 16, padding: 20, borderWidth: 1, borderColor: colors.border }}>
+        <View style={{ backgroundColor: colors.surface, borderRadius: radius.lg, padding: 20, borderWidth: 1, borderColor: colors.border }}>
           <Text style={{ fontSize: 22, fontWeight: '700', color: colors.text, marginBottom: 8 }}>
             {t('inviteRedeem.title')}
           </Text>
@@ -135,9 +136,9 @@ export default function InviteRedeemScreen({ route, navigation }: Props) {
           {!user && (
             <TouchableOpacity
               onPress={goToLogin}
-              style={{ backgroundColor: colors.primary, paddingVertical: 12, borderRadius: 12, alignItems: 'center' }}
+              style={{ backgroundColor: colors.primary, paddingVertical: 12, borderRadius: radius.md, alignItems: 'center' }}
             >
-              <Text style={{ color: '#fff', fontWeight: '700' }}>{t('inviteRedeem.login')}</Text>
+              <Text style={{ color: colors.white, fontWeight: '700' }}>{t('inviteRedeem.login')}</Text>
             </TouchableOpacity>
           )}
 
@@ -149,7 +150,7 @@ export default function InviteRedeemScreen({ route, navigation }: Props) {
                 // always a forward path home.
                 navigation.reset({ index: 0, routes: [{ name: 'Main' as any }] })
               }}
-              style={{ marginTop: 10, paddingVertical: 10, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: colors.border }}
+              style={{ marginTop: 10, paddingVertical: 10, borderRadius: radius.md, alignItems: 'center', borderWidth: 1, borderColor: colors.border }}
             >
               <Text style={{ color: colors.text, fontWeight: '600' }}>{t('inviteRedeem.goHome')}</Text>
             </TouchableOpacity>

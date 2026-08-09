@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   ScrollView,
   RefreshControl,
 } from 'react-native';
@@ -23,9 +22,12 @@ import EventSelectorSheet from '../../components/organizer/EventSelectorSheet';
 import EmptyState from '../../components/EmptyState';
 import WhitePillCTA from '../../components/WhitePillCTA';
 import { Skeleton } from '../../components/Skeleton';
+import { useAppAlert } from '../../components/AppAlert';
+import { radius } from '../../theme/tokens';
 
 export default function StaffScanScreen() {
   const { colors } = useTheme();
+  const showAlert = useAppAlert();
   const styles = getStyles(colors);
   const navigation = useNavigation();
   const uid = auth.currentUser?.uid || null;
@@ -57,7 +59,7 @@ export default function StaffScanScreen() {
 
   const handleStartScanning = () => {
     if (!selectedEvent) {
-      Alert.alert(t('staffScan.noEventTitle'), t('staffScan.noEventBody'), [{ text: t('common.ok') }]);
+      showAlert(t('staffScan.noEventTitle'), t('staffScan.noEventBody'), [{ text: t('common.ok') }]);
       return;
     }
 
@@ -161,7 +163,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   selectorButton: {
     backgroundColor: colors.surface,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
     paddingVertical: 14,

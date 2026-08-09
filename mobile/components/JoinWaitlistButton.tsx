@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,6 +14,8 @@ import { useI18n } from '../contexts/I18nContext';
 import { backendFetch } from '../lib/api/backend';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { useAppAlert } from './AppAlert';
+import { radius } from '../theme/tokens';
 
 interface JoinWaitlistButtonProps {
   eventId: string;
@@ -32,6 +33,7 @@ export default function JoinWaitlistButton({
   onJoined 
 }: JoinWaitlistButtonProps) {
   const { colors } = useTheme();
+  const showAlert = useAppAlert();
   const styles = getStyles(colors);
   const { user } = useAuth();
   const { t } = useI18n();
@@ -73,7 +75,7 @@ export default function JoinWaitlistButton({
 
   const handleJoinWaitlist = async () => {
     if (!user) {
-      Alert.alert(
+      showAlert(
         t('auth.loginRequiredTitle') || 'Login Required',
         t('waitlist.loginBody') || 'Please log in to join the waitlist'
       );
@@ -97,13 +99,13 @@ export default function JoinWaitlistButton({
       setPosition(data.position);
       onJoined?.(data.position);
 
-      Alert.alert(
+      showAlert(
         t('common.success'),
         `${t('waitlist.joined') || "You've been added to the waitlist!"}\n${t('waitlist.position') || 'Your position'}: #${data.position}`,
       );
     } catch (error: any) {
       console.error('Error joining waitlist:', error);
-      Alert.alert(t('common.error'), error.message || 'Failed to join waitlist');
+      showAlert(t('common.error'), error.message || 'Failed to join waitlist');
     } finally {
       setJoining(false);
     }
@@ -201,7 +203,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'center',
     paddingVertical: 14,
     paddingHorizontal: 20,
-    borderRadius: 12,
+    borderRadius: radius.md,
     gap: 8,
   },
   loadingButton: {
@@ -238,7 +240,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   modalContent: {
     backgroundColor: colors.surface,
-    borderRadius: 20,
+    borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: colors.border,
     padding: 24,
@@ -260,7 +262,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.primary,
     paddingVertical: 16,
     paddingHorizontal: 32,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     marginBottom: 20,
   },
   positionNumber: {
@@ -279,7 +281,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.primary,
     paddingVertical: 12,
     paddingHorizontal: 32,
-    borderRadius: 12,
+    borderRadius: radius.md,
   },
   closeButtonText: {
     fontSize: 16,

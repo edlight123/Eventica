@@ -6,13 +6,14 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Platform,
-  Alert,
   Linking,
 } from 'react-native';
 import { Wallet, Download } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { backendFetch } from '../lib/api/backend';
+import { useAppAlert } from './AppAlert';
+import { radius } from '../theme/tokens';
 
 interface AddToWalletButtonProps {
   ticketId: string;
@@ -50,6 +51,7 @@ export default function AddToWalletButton({
   totalTickets,
 }: AddToWalletButtonProps) {
   const { colors } = useTheme();
+  const showAlert = useAppAlert();
   const { t } = useI18n();
   const styles = getStyles(colors);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -100,7 +102,7 @@ export default function AddToWalletButton({
 
   const showUnavailable = useCallback(() => {
     setWalletAvailable(false);
-    Alert.alert(
+    showAlert(
       label(UNAVAILABLE_TITLE_KEY, 'Wallet passes aren’t available yet'),
       label(
         UNAVAILABLE_BODY_KEY,
@@ -157,17 +159,17 @@ export default function AddToWalletButton({
       await Linking.openURL(url);
 
       // The OS takes over from here; the pass is added in Wallet, not in-app.
-      Alert.alert(t('common.success'), t('addToWallet.successBody'), [{ text: t('common.ok') }]);
+      showAlert(t('common.success'), t('addToWallet.successBody'), [{ text: t('common.ok') }]);
     } catch (error) {
       console.error('Error adding to wallet:', error);
-      Alert.alert(t('common.error'), t('addToWallet.errorBody'), [{ text: t('common.ok') }]);
+      showAlert(t('common.error'), t('addToWallet.errorBody'), [{ text: t('common.ok') }]);
     } finally {
       if (mounted.current) setIsGenerating(false);
     }
   };
 
   const handleDownloadQR = () => {
-    Alert.alert(
+    showAlert(
       t('addToWallet.downloadTitle'),
       t('addToWallet.downloadBody'),
       [{ text: t('common.ok') }]
@@ -222,12 +224,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   walletButton: {
     backgroundColor: colors.text,
-    borderRadius: 12,
+    borderRadius: radius.md,
     padding: 16,
   },
   downloadButton: {
     backgroundColor: 'transparent',
-    borderRadius: 12,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
     padding: 16,

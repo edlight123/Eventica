@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ActivityIndicator,
-  Alert,
   Linking,
   Modal,
   ScrollView,
@@ -26,7 +25,7 @@ import { getEventById } from '../../lib/api/organizer'
 import { getVerificationRequest } from '../../lib/verification'
 import { getRequiredPayoutProfileIdForEventCountry, normalizeCountryCode } from '../../lib/payment-provider'
 import { RADIUS } from '../../config/brand'
-import { colors as tokenColors, font } from '../../theme/tokens'
+import { colors as tokenColors, font, radius } from '../../theme/tokens'
 import { formatCurrency as fmtCurrency } from '../../lib/currency'
 import StatTriplet from '../../components/StatTriplet'
 import WhitePillCTA from '../../components/WhitePillCTA'
@@ -34,6 +33,7 @@ import SecondaryPill from '../../components/auth/SecondaryPill'
 import InfoNotice from '../../components/organizer/InfoNotice'
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader'
 import { EarningsSkeleton } from '../../components/Skeleton'
+import { useAppAlert } from '../../components/AppAlert'
 
 type RouteParams = {
   OrganizerEventEarnings: {
@@ -73,6 +73,7 @@ export default function OrganizerEventEarningsScreen() {
   const { user } = useAuth()
   const { t, language } = useI18n()
   const insets = useSafeAreaInsets()
+  const showAlert = useAppAlert()
   const dateLocale = language === 'fr' ? 'fr-FR' : language === 'ht' ? 'fr-HT' : 'en-US'
 
   // Server rejects withdrawals below 5000 cents (50 units). Mirror it client-side
@@ -320,7 +321,7 @@ export default function OrganizerEventEarningsScreen() {
       }
     } catch (e: any) {
       console.error('Error loading earnings:', e)
-      Alert.alert(t('common.error'), e?.message || t('organizerEarnings.errors.loadFailed'))
+      showAlert(t('common.error'), e?.message || t('organizerEarnings.errors.loadFailed'))
     } finally {
       setLoading(false)
     }
@@ -344,7 +345,7 @@ export default function OrganizerEventEarningsScreen() {
 
   const openWithdraw = async (nextMethod: 'moncash' | 'bank') => {
     if (!identityVerified) {
-      Alert.alert(
+      showAlert(
         t('organizerEarnings.identity.title'),
         t('organizerEarnings.identity.alertBody'),
         [
@@ -356,22 +357,22 @@ export default function OrganizerEventEarningsScreen() {
     }
 
     if (!earnings) {
-      Alert.alert(t('organizerEarnings.validation.unavailableTitle'), t('organizerEarnings.validation.unavailableBody'))
+      showAlert(t('organizerEarnings.validation.unavailableTitle'), t('organizerEarnings.validation.unavailableBody'))
       return
     }
 
     if (earnings?.settlementStatus !== 'ready') {
-      Alert.alert(t('organizerEarnings.validation.notReadyTitle'), t('organizerEarnings.validation.notReadyBody'))
+      showAlert(t('organizerEarnings.validation.notReadyTitle'), t('organizerEarnings.validation.notReadyBody'))
       return
     }
 
     if (availableToWithdraw <= 0) {
-      Alert.alert(t('organizerEarnings.validation.nothingToWithdrawTitle'), t('organizerEarnings.validation.nothingToWithdrawBody'))
+      showAlert(t('organizerEarnings.validation.nothingToWithdrawTitle'), t('organizerEarnings.validation.nothingToWithdrawBody'))
       return
     }
 
     if (availableToWithdraw < MIN_WITHDRAWAL_CENTS) {
-      Alert.alert(
+      showAlert(
         t('organizerEarnings.validation.belowMinimumTitle'),
         t('organizerEarnings.validation.belowMinimumBody').replace('{min}', formatCurrency(MIN_WITHDRAWAL_CENTS, currency))
       )
@@ -379,7 +380,7 @@ export default function OrganizerEventEarningsScreen() {
     }
 
     if (requiresStripeConnect) {
-      Alert.alert(
+      showAlert(
         t('organizerEarnings.stripeConnectRequired.title'),
         t('organizerEarnings.stripeConnectRequired.body'),
         [
@@ -394,10 +395,10 @@ export default function OrganizerEventEarningsScreen() {
                 if (res?.url) {
                   navigation.navigate('StripeConnectWebView', { url: res.url })
                 } else {
-                  Alert.alert(t('common.error'), t('organizerEarnings.errors.loadFailed'))
+                  showAlert(t('common.error'), t('organizerEarnings.errors.loadFailed'))
                 }
               } catch (e: any) {
-                Alert.alert(t('common.error'), e?.message || t('organizerEarnings.errors.loadFailed'))
+                showAlert(t('common.error'), e?.message || t('organizerEarnings.errors.loadFailed'))
               }
             },
           },
@@ -466,7 +467,7 @@ export default function OrganizerEventEarningsScreen() {
       } catch (e: any) {
         const msg = String(e?.message || '')
         if (/payout profile required/i.test(msg) || /payout profile not active/i.test(msg) || /not configured/i.test(msg)) {
-          Alert.alert(
+          showAlert(
             t('common.error'),
             msg || 'Payout setup is required before using bank withdrawals.',
             [
@@ -492,9 +493,9 @@ export default function OrganizerEventEarningsScreen() {
         method: 'POST',
         body: JSON.stringify({}),
       })
-      Alert.alert(t('organizerEarnings.otp.codeSentTitle'), t('organizerEarnings.otp.codeSentBody'))
+      showAlert(t('organizerEarnings.otp.codeSentTitle'), t('organizerEarnings.otp.codeSentBody'))
     } catch (e: any) {
-      Alert.alert(t('common.error'), e?.message || t('organizerEarnings.errors.sendCodeFailed'))
+      showAlert(t('common.error'), e?.message || t('organizerEarnings.errors.sendCodeFailed'))
     } finally {
       setIsSendingCode(false)
     }
@@ -502,7 +503,7 @@ export default function OrganizerEventEarningsScreen() {
 
   const verifyOtpThenRetry = async () => {
     if (!verificationCode.trim()) {
-      Alert.alert(t('organizerEarnings.otp.enterCodeTitle'), t('organizerEarnings.otp.enterCodeBody'))
+      showAlert(t('organizerEarnings.otp.enterCodeTitle'), t('organizerEarnings.otp.enterCodeBody'))
       return
     }
 
@@ -519,7 +520,7 @@ export default function OrganizerEventEarningsScreen() {
         await attemptWithdrawal(pendingEndpoint, pendingPayload)
       }
     } catch (e: any) {
-      Alert.alert(t('common.error'), e?.message || t('organizerEarnings.errors.verificationFailed'))
+      showAlert(t('common.error'), e?.message || t('organizerEarnings.errors.verificationFailed'))
     } finally {
       setIsVerifyingCode(false)
     }
@@ -535,7 +536,7 @@ export default function OrganizerEventEarningsScreen() {
 
       // Success
       if (method === 'moncash' && res?.instant) {
-        Alert.alert(
+        showAlert(
           t('organizerEarnings.success.instantTitle'),
           `${t('organizerEarnings.success.feeLabel')}${formatCurrency(res?.feeCents || 0, currency)}\n${t('organizerEarnings.success.youReceivedLabel')}${formatCurrency(
             res?.payoutAmountCents || 0,
@@ -543,7 +544,7 @@ export default function OrganizerEventEarningsScreen() {
           )}`
         )
       } else {
-        Alert.alert(t('organizerEarnings.success.requestSubmittedTitle'), t('organizerEarnings.success.requestSubmittedBody'))
+        showAlert(t('organizerEarnings.success.requestSubmittedTitle'), t('organizerEarnings.success.requestSubmittedBody'))
       }
 
       setShowWithdraw(false)
@@ -554,7 +555,7 @@ export default function OrganizerEventEarningsScreen() {
       const requires = /verify|verification/i.test(message)
 
       if (/payout profile required/i.test(message) || /payout profile not active/i.test(message) || /not configured/i.test(message)) {
-        Alert.alert(
+        showAlert(
           t('common.error'),
           message,
           [
@@ -572,11 +573,11 @@ export default function OrganizerEventEarningsScreen() {
         setVerificationRequired(true)
         setPendingEndpoint(endpoint)
         setPendingPayload(payload)
-        Alert.alert(t('organizerEarnings.otp.verificationRequiredTitle'), t('organizerEarnings.otp.verificationRequiredBody'))
+        showAlert(t('organizerEarnings.otp.verificationRequiredTitle'), t('organizerEarnings.otp.verificationRequiredBody'))
         return
       }
 
-      Alert.alert(t('common.error'), message)
+      showAlert(t('common.error'), message)
     } finally {
       setSubmitting(false)
     }
@@ -586,22 +587,22 @@ export default function OrganizerEventEarningsScreen() {
     if (!method) return
 
     if (!earnings) {
-      Alert.alert(t('organizerEarnings.validation.unavailableTitle'), t('organizerEarnings.validation.unavailableBody'))
+      showAlert(t('organizerEarnings.validation.unavailableTitle'), t('organizerEarnings.validation.unavailableBody'))
       return
     }
 
     if (earnings?.settlementStatus !== 'ready') {
-      Alert.alert(t('organizerEarnings.validation.notReadyTitle'), t('organizerEarnings.validation.notReadyBody'))
+      showAlert(t('organizerEarnings.validation.notReadyTitle'), t('organizerEarnings.validation.notReadyBody'))
       return
     }
 
     if (availableToWithdraw <= 0) {
-      Alert.alert(t('organizerEarnings.validation.nothingToWithdrawTitle'), t('organizerEarnings.validation.nothingToWithdrawBody'))
+      showAlert(t('organizerEarnings.validation.nothingToWithdrawTitle'), t('organizerEarnings.validation.nothingToWithdrawBody'))
       return
     }
 
     if (availableToWithdraw < MIN_WITHDRAWAL_CENTS) {
-      Alert.alert(
+      showAlert(
         t('organizerEarnings.validation.belowMinimumTitle'),
         t('organizerEarnings.validation.belowMinimumBody').replace('{min}', formatCurrency(MIN_WITHDRAWAL_CENTS, currency))
       )
@@ -610,7 +611,7 @@ export default function OrganizerEventEarningsScreen() {
 
     if (method === 'moncash') {
       if (!moncashNumber.trim()) {
-        Alert.alert(t('organizerEarnings.validation.missingPhoneTitle'), t('organizerEarnings.validation.missingPhoneBody'))
+        showAlert(t('organizerEarnings.validation.missingPhoneTitle'), t('organizerEarnings.validation.missingPhoneBody'))
         return
       }
       await attemptWithdrawal('/api/organizer/withdraw-moncash', {
@@ -624,7 +625,7 @@ export default function OrganizerEventEarningsScreen() {
     // bank
     if (bankMode === 'new') {
       if (!bankDetails.accountHolder.trim() || !bankDetails.bankName.trim() || !bankDetails.accountNumber.trim()) {
-        Alert.alert(t('organizerEarnings.validation.missingBankDetailsTitle'), t('organizerEarnings.validation.missingBankDetailsBody'))
+        showAlert(t('organizerEarnings.validation.missingBankDetailsTitle'), t('organizerEarnings.validation.missingBankDetailsBody'))
         return
       }
 
@@ -644,7 +645,7 @@ export default function OrganizerEventEarningsScreen() {
     }
 
     if (!selectedBankDestinationId) {
-      Alert.alert(t('organizerEarnings.validation.selectAccountTitle'), t('organizerEarnings.validation.selectAccountBody'))
+      showAlert(t('organizerEarnings.validation.selectAccountTitle'), t('organizerEarnings.validation.selectAccountBody'))
       return
     }
 
@@ -1126,7 +1127,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     backgroundColor: colors.surfaceMuted,
     borderRadius: RADIUS.md,
-    minHeight: 48,
+    // 56 = the system's primary-row height. This button shares the modal footer
+    // row with a 56pt WhitePillCTA, so an off-scale 48 left the pair misaligned.
+    minHeight: 56,
     paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
@@ -1142,7 +1145,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   radioChip: {
     paddingVertical: 8,
     paddingHorizontal: 10,
-    borderRadius: 10,
+    borderRadius: radius.chip,
     backgroundColor: colors.surfaceMuted,
   },
   radioChipActive: {

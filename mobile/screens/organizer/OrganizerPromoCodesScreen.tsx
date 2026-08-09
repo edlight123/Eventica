@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -11,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useAppAlert } from '../../components/AppAlert';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
@@ -30,7 +30,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { RADIUS } from '../../config/brand';
-import { font } from '../../theme/tokens';
+import { font, radius } from '../../theme/tokens';
 import { formatCurrency } from '../../lib/currency';
 import { safeFormatForLanguage } from '../../lib/dates';
 import { Skeleton } from '../../components/Skeleton';
@@ -97,6 +97,7 @@ export default function OrganizerPromoCodesScreen() {
   }, [navigation]);
 
   const { t, language } = useI18n();
+  const showAlert = useAppAlert();
   const { userProfile } = useAuth();
 
   const locale = language === 'fr' ? 'fr-FR' : language === 'ht' ? 'fr-HT' : 'en-US';
@@ -147,7 +148,7 @@ export default function OrganizerPromoCodesScreen() {
       setPromoCodes(promos);
     } catch (e) {
       console.error('Failed to load promo codes', e);
-      Alert.alert(t('common.error'), t('organizerPromoCodes.errors.loadFailed'));
+      showAlert(t('common.error'), t('organizerPromoCodes.errors.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -191,19 +192,19 @@ export default function OrganizerPromoCodesScreen() {
     const maxUsesNum = normalizeNumber(maxUses);
 
     if (!trimmedCode || discount === null) {
-      Alert.alert(t('common.error'), t('organizerPromoCodes.errors.missingFields'));
+      showAlert(t('common.error'), t('organizerPromoCodes.errors.missingFields'));
       return;
     }
 
     if (discount <= 0) {
-      Alert.alert(t('common.error'), t('organizerPromoCodes.errors.invalidDiscount'));
+      showAlert(t('common.error'), t('organizerPromoCodes.errors.invalidDiscount'));
       return;
     }
 
     // "Limited quantity" means the code is capped at the first N buyers; an
     // unlimited code never carries a cap (max_uses stays null).
     if (limitType === 'limited' && (maxUsesNum === null || maxUsesNum < 1)) {
-      Alert.alert(t('common.error'), t('organizerPromoCodes.errors.invalidMaxUses'));
+      showAlert(t('common.error'), t('organizerPromoCodes.errors.invalidMaxUses'));
       return;
     }
     const finalMaxUses = limitType === 'limited' ? maxUsesNum : null;
@@ -213,7 +214,7 @@ export default function OrganizerPromoCodesScreen() {
 
     const exists = promoCodes.some((p) => String(p.code || '').toUpperCase() === trimmedCode);
     if (exists) {
-      Alert.alert(t('common.error'), t('organizerPromoCodes.errors.duplicateCode'));
+      showAlert(t('common.error'), t('organizerPromoCodes.errors.duplicateCode'));
       return;
     }
 
@@ -237,7 +238,7 @@ export default function OrganizerPromoCodesScreen() {
       await load();
     } catch (e) {
       console.error('Failed to create promo code', e);
-      Alert.alert(t('common.error'), t('organizerPromoCodes.errors.createFailed'));
+      showAlert(t('common.error'), t('organizerPromoCodes.errors.createFailed'));
     } finally {
       setSaving(false);
     }
@@ -249,12 +250,12 @@ export default function OrganizerPromoCodesScreen() {
       setPromoCodes((prev) => prev.map((p) => (p.id === promo.id ? { ...p, is_active: !promo.is_active } : p)));
     } catch (e) {
       console.error('Failed to toggle promo code', e);
-      Alert.alert(t('common.error'), t('organizerPromoCodes.errors.updateFailed'));
+      showAlert(t('common.error'), t('organizerPromoCodes.errors.updateFailed'));
     }
   };
 
   const handleDelete = async (promo: PromoCodeItem) => {
-    Alert.alert(t('organizerPromoCodes.delete.title'), t('organizerPromoCodes.delete.body'), [
+    showAlert(t('organizerPromoCodes.delete.title'), t('organizerPromoCodes.delete.body'), [
       { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('organizerPromoCodes.delete.confirm'),
@@ -265,7 +266,7 @@ export default function OrganizerPromoCodesScreen() {
             setPromoCodes((prev) => prev.filter((p) => p.id !== promo.id));
           } catch (e) {
             console.error('Failed to delete promo code', e);
-            Alert.alert(t('common.error'), t('organizerPromoCodes.errors.deleteFailed'));
+            showAlert(t('common.error'), t('organizerPromoCodes.errors.deleteFailed'));
           }
         },
       },
@@ -704,7 +705,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.surfaceRaised,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 14,
+    borderRadius: radius.button,
   },
   newCodeButtonText: {
     color: colors.text,
@@ -767,7 +768,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   toggleButton: {
     flex: 1,
-    borderRadius: 14,
+    borderRadius: radius.button,
     paddingVertical: 10,
     alignItems: 'center',
     backgroundColor: colors.background,
@@ -802,7 +803,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   dateClearButton: {
     width: 40,
     height: 40,
-    borderRadius: 14,
+    borderRadius: radius.button,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.background,
@@ -831,7 +832,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   promoCard: {
     backgroundColor: colors.surfaceRaised,
-    borderRadius: 14,
+    borderRadius: radius.button,
     paddingHorizontal: 14,
     paddingVertical: 11,
     marginBottom: 8,

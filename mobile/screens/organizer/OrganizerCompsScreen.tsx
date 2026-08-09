@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -10,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useAppAlert } from '../../components/AppAlert';
 import { Ionicons } from '@expo/vector-icons';
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { collection, getDocs, query, where } from 'firebase/firestore';
@@ -70,6 +70,7 @@ export default function OrganizerCompsScreen() {
   const { eventId } = route.params;
 
   const { t } = useI18n();
+  const showAlert = useAppAlert();
 
   const [eventTitle, setEventTitle] = useState('');
   const [tiers, setTiers] = useState<TicketTier[]>([]);
@@ -136,7 +137,7 @@ export default function OrganizerCompsScreen() {
       });
     } catch (e) {
       console.error('Failed to load comps', e);
-      Alert.alert(t('common.error'), t('organizerComps.errors.loadFailed'));
+      showAlert(t('common.error'), t('organizerComps.errors.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -197,7 +198,7 @@ export default function OrganizerCompsScreen() {
       const count = res?.count ?? quantity;
       resetForm();
       await load();
-      Alert.alert(
+      showAlert(
         t('common.success'),
         t('organizerComps.issuedToast').replace('{count}', String(count))
       );
@@ -205,7 +206,7 @@ export default function OrganizerCompsScreen() {
       console.error('Failed to issue comps', e);
       const message = e?.message || t('organizerComps.errors.issueFailed');
       setError(message);
-      Alert.alert(t('common.error'), message);
+      showAlert(t('common.error'), message);
     } finally {
       setSubmitting(false);
     }

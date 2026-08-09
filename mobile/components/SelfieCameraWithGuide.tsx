@@ -5,11 +5,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
-  Alert,
 } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAppAlert } from './AppAlert';
+import { radius } from '../theme/tokens';
 
 const { width, height } = Dimensions.get('window');
 
@@ -23,6 +24,7 @@ export default function SelfieCameraWithGuide({
   onCancel,
 }: SelfieCameraWithGuideProps) {
   const { colors } = useTheme();
+  const showAlert = useAppAlert();
   const styles = getStyles(colors);
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState<CameraType>('front');
@@ -60,7 +62,7 @@ export default function SelfieCameraWithGuide({
         onCapture(photo.uri);
       } catch (error) {
         console.error('Error taking picture:', error);
-        Alert.alert('Error', 'Failed to take picture');
+        showAlert('Error', 'Failed to take picture');
       }
     }
   };
@@ -199,7 +201,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: radius.xl,
   },
   instructionText: {
     color: colors.white,
@@ -264,7 +266,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.primary,
     paddingHorizontal: 32,
     paddingVertical: 16,
-    borderRadius: 8,
+    borderRadius: radius.sm,
     marginBottom: 12,
   },
   permissionButtonText: {

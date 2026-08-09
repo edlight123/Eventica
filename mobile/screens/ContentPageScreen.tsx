@@ -18,7 +18,7 @@ import { db } from '../config/firebase';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { Skeleton } from '../components/Skeleton';
-import { font } from '../theme/tokens';
+import { font, radius } from '../theme/tokens';
 import { resolveLocalizedContent } from '../types/contentPage';
 import type { ContentBlock, LocalizedContent } from '../types/contentPage';
 
@@ -479,7 +479,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     draftNote: {
       marginTop: 16,
       backgroundColor: colors.warningLight,
-      borderRadius: 10,
+      borderRadius: radius.chip,
       paddingVertical: 10,
       paddingHorizontal: 12,
     },
@@ -498,7 +498,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     rolePill: {
       flex: 1,
       paddingVertical: 10,
-      borderRadius: 14,
+      borderRadius: radius.button,
       alignItems: 'center',
       backgroundColor: colors.surface,
       borderWidth: 1,
@@ -526,7 +526,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     // brightness, not a 1px outline).
     sectionCard: {
       backgroundColor: colors.surface,
-      borderRadius: 14,
+      borderRadius: radius.button,
       overflow: 'hidden',
     },
     sectionHeader: {
@@ -619,7 +619,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       backgroundColor: colors.primarySoft,
       borderLeftWidth: 3,
       borderLeftColor: colors.primary,
-      borderRadius: 12,
+      borderRadius: radius.md,
       paddingVertical: 16,
       paddingHorizontal: 16,
     },
@@ -672,7 +672,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       gap: 8,
       paddingHorizontal: 20,
       paddingVertical: 12,
-      borderRadius: 14,
+      borderRadius: radius.button,
       backgroundColor: colors.surfaceRaised,
     },
     retryText: {

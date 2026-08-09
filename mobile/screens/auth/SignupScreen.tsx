@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  Alert,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
@@ -22,6 +21,7 @@ import { SecondaryPill } from '../../components/auth/SecondaryPill';
 import WhitePillCTA from '../../components/WhitePillCTA';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { colors, spacing, type } from '../../theme/tokens';
+import { useAppAlert } from '../../components/AppAlert';
 
 // Map a Firebase auth error code to a localized message key. We never surface
 // error.message (raw English) — unknown codes fall back to a generic string.
@@ -50,6 +50,7 @@ function firebaseErrorKey(code?: string): string {
 
 export default function SignupScreen({ navigation }: any) {
   const { t } = useI18n();
+  const showAlert = useAppAlert();
   const insets = useSafeAreaInsets();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -67,7 +68,7 @@ export default function SignupScreen({ navigation }: any) {
       await signInWithApple();
     } catch (error: any) {
       if (error?.code !== 'ERR_REQUEST_CANCELED') {
-        Alert.alert(t('auth.apple.title'), t('auth.apple.genericError'));
+        showAlert(t('auth.apple.title'), t('auth.apple.genericError'));
       }
     } finally {
       setLoading(false);
@@ -80,7 +81,7 @@ export default function SignupScreen({ navigation }: any) {
       await signInWithGoogle();
     } catch (error: any) {
       const msg = error?.code ? t(firebaseErrorKey(error.code)) : t('auth.login.google.configRequired');
-      Alert.alert(t('auth.login.google.title'), msg);
+      showAlert(t('auth.login.google.title'), msg);
     } finally {
       setLoading(false);
     }
@@ -103,22 +104,22 @@ export default function SignupScreen({ navigation }: any) {
 
   const handleSignup = async () => {
     if (!fullName || !email || !password || !confirmPassword) {
-      Alert.alert(t('common.error'), t('auth.signup.errors.fillAllFields'));
+      showAlert(t('common.error'), t('auth.signup.errors.fillAllFields'));
       return;
     }
     if (password !== confirmPassword) {
-      Alert.alert(t('common.error'), t('auth.signup.errors.passwordsDoNotMatch'));
+      showAlert(t('common.error'), t('auth.signup.errors.passwordsDoNotMatch'));
       return;
     }
     if (password.length < 6) {
-      Alert.alert(t('common.error'), t('auth.signup.errors.passwordTooShort'));
+      showAlert(t('common.error'), t('auth.signup.errors.passwordTooShort'));
       return;
     }
     setLoading(true);
     try {
       await signUp(email.trim().toLowerCase(), password, fullName.trim());
     } catch (error: any) {
-      Alert.alert(t('auth.signup.errors.signupFailedTitle'), t(firebaseErrorKey(error?.code)));
+      showAlert(t('auth.signup.errors.signupFailedTitle'), t(firebaseErrorKey(error?.code)));
     } finally {
       setLoading(false);
     }

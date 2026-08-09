@@ -7,7 +7,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import PaginationDots from './PaginationDots';
 import { useI18n } from '../contexts/I18nContext';
 import { resolvePosterTheme } from '../lib/posterGradient';
-import { font } from '../theme/tokens';
+import { radius, font } from '../theme/tokens';
 
 import { formatDateForLanguage } from '../lib/dates';
 
@@ -184,7 +184,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     backgroundColor: colors.primary,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: radius.md,
     alignItems: 'center',
   },
   primaryButtonText: {
@@ -196,7 +196,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     backgroundColor: 'rgba(255,255,255,0.15)',
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: radius.md,
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: 'rgba(255,255,255,0.3)',

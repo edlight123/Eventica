@@ -30,6 +30,7 @@ import {
   EventTypeFilter
 } from '../types/filters';
 import { useTheme } from '../contexts/ThemeContext';
+import { radius } from '../theme/tokens';
 
 type RangeSliderProps = {
   min: number;
@@ -135,6 +136,7 @@ const rangeStyles = StyleSheet.create({
   wrap: { height: 20, justifyContent: 'center' },
   track: { height: 3, borderRadius: 1.5 },
   fill: { position: 'absolute', top: 8.5, height: 3, borderRadius: 1.5 },
+  // 8 here is half of the 16px box — a circle, not the `sm` geometry token.
   thumb: { position: 'absolute', top: 2, width: 16, height: 16, borderRadius: 8, borderWidth: 2 },
 });
 
@@ -599,7 +601,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 6,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 10,
+    borderRadius: radius.chip,
   },
   activeBadgeText: {
     color: '#FFF',
@@ -608,7 +610,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   closeButton: {
     padding: 8,
-    borderRadius: 20,
+    borderRadius: radius.xl,
     backgroundColor: colors.surfaceMuted,
   },
   content: {
@@ -643,7 +645,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexGrow: 1,
     paddingHorizontal: 11,
     paddingVertical: 7,
-    borderRadius: 8,
+    borderRadius: radius.sm,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.surfaceRaised,
@@ -721,7 +723,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   resetButton: {
     flex: 1,
     paddingVertical: 16,
-    borderRadius: 14,
+    borderRadius: radius.button,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -735,7 +737,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   applyButton: {
     flex: 2,
     paddingVertical: 16,
-    borderRadius: 14,
+    borderRadius: radius.button,
     backgroundColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
@@ -749,7 +751,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 12,
     padding: 16,
     backgroundColor: colors.surfaceMuted,
-    borderRadius: 12,
+    borderRadius: radius.md,
     alignItems: 'center',
   },
   selectedDateText: {

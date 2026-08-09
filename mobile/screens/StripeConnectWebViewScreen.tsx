@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react'
-import { Alert, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
@@ -8,6 +8,8 @@ import { WebView } from 'react-native-webview'
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext'
 import { Skeleton } from '../components/Skeleton'
+import { useAppAlert } from '../components/AppAlert';
+import { radius } from '../theme/tokens';
 
 type Params = {
   url: string
@@ -15,6 +17,7 @@ type Params = {
 
 export default function StripeConnectWebViewScreen() {
   const { colors } = useTheme();
+  const showAlert = useAppAlert();
   const styles = getStyles(colors);
   const { t } = useI18n()
   const navigation = useNavigation<any>()
@@ -73,7 +76,7 @@ export default function StripeConnectWebViewScreen() {
       navigation.goBack()
       return
     }
-    Alert.alert(
+    showAlert(
       t('screens.stripeConnect.leaveTitle'),
       t('screens.stripeConnect.leaveBody'),
       [
@@ -316,8 +319,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   failurePrimaryButton: {
     width: '100%',
-    height: 54,
-    borderRadius: 14,
+    height: 56,
+    borderRadius: radius.button,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.white,
@@ -330,7 +333,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   failureGhostButton: {
     width: '100%',
-    height: 50,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },

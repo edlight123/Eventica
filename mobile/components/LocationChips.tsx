@@ -4,6 +4,7 @@ import { MapPin } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { SPACING, RADIUS } from '../config/brand';
+import { radius } from '../theme/tokens';
 
 interface LocationChipsProps {
   /** Featured cities to surface (already ordered for the user's country). */
@@ -63,7 +64,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       gap: 6,
       paddingHorizontal: 14,
       paddingVertical: 9,
-      borderRadius: 10,
+      borderRadius: radius.chip,
       backgroundColor: colors.surface,
       borderWidth: 1,
       borderColor: colors.border,
