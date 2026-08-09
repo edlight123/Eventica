@@ -589,6 +589,75 @@ export default function EventDetailScreen({ route, navigation }: any) {
         </View>
 
         <View style={styles.content}>
+          {/* Host byline — ABOVE the title, the way posh orders an event
+              page: who is throwing this, then what it is, then the details.
+              It carries Follow and Contact organizer with it, so the host is
+              one block rather than a name up top and its actions far below. */}
+          <View style={styles.hostByline}>
+            <View style={styles.hostedByCard}>
+              <TouchableOpacity 
+                style={styles.hostedByMain}
+                onPress={navigateToOrganizerProfile}
+                activeOpacity={0.7}
+              >
+                <View style={styles.hostedByAvatar}>
+                  {event.users?.organization_logo ? (
+                    <ExpoImage
+                      source={{ uri: event.users.organization_logo }}
+                      style={styles.hostedByAvatarImage}
+                      contentFit="cover"
+                      cachePolicy="memory-disk"
+                    />
+                  ) : (
+                    <Text style={styles.hostedByAvatarText}>
+                      {(event.users?.organization_name || event.users?.full_name || event.organizer_name || 'E')[0].toUpperCase()}
+                    </Text>
+                  )}
+                </View>
+                <View style={styles.hostedByInfo}>
+                  <Text style={styles.hostedByName}>
+                    {event.users?.organization_name || event.users?.full_name || event.organizer_name || t('eventDetail.organizerFallback')}
+                  </Text>
+                  {/* House rule: no filled status pills. Bare shield glyph + quiet
+                      teal label — no background, no border. VerifiedBadge without
+                      `showLabel` renders just the icon, so the shared badge stays
+                      untouched for the screens that still use its pill form. */}
+                  {(event.users?.is_verified || event.is_verified) && (
+                    <View
+                      style={styles.verifiedBadgeInline}
+                      accessible
+                      accessibilityRole="text"
+                      accessibilityLabel={t('eventDetail.verified')}
+                    >
+                      <VerifiedBadge size="small" label={t('eventDetail.verified')} />
+                      <Text style={styles.verifiedTextInline}>{t('eventDetail.verified')}</Text>
+                    </View>
+                  )}
+                </View>
+                <ChevronRight size={16} color={colors.textSecondary} />
+              </TouchableOpacity>
+              {event.organizer_id && (
+                <FollowButton
+                  organizerId={event.organizer_id}
+                  style={styles.followButtonInCard}
+                />
+              )}
+            </View>
+            {/* Hidden from the organizer's own event — messaging yourself just
+                fills your own inbox, and the server rejects it anyway. */}
+            {!!user && !!event.organizer_id && event.organizer_id !== user.uid && (
+              <TouchableOpacity
+                style={styles.contactOrganizerRow}
+                onPress={() => setShowContactOrganizer(true)}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+              >
+                <Text style={styles.contactOrganizerText}>{t('contactOrganizer.open')}</Text>
+                <ChevronRight size={16} color={colors.textSecondary} />
+              </TouchableOpacity>
+            )}
+          </View>
+
           {/* Title block — text-first, under the poster */}
           <Text style={styles.title}>{event.title}</Text>
 
@@ -683,73 +752,6 @@ export default function EventDetailScreen({ route, navigation }: any) {
               <ExternalLink size={15} color={colors.textSecondary} />
             </TouchableOpacity>
           )}
-
-          {/* Hosted By Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t('eventDetail.sections.hostedBy')}</Text>
-            <View style={styles.hostedByCard}>
-              <TouchableOpacity 
-                style={styles.hostedByMain}
-                onPress={navigateToOrganizerProfile}
-                activeOpacity={0.7}
-              >
-                <View style={styles.hostedByAvatar}>
-                  {event.users?.organization_logo ? (
-                    <ExpoImage
-                      source={{ uri: event.users.organization_logo }}
-                      style={styles.hostedByAvatarImage}
-                      contentFit="cover"
-                      cachePolicy="memory-disk"
-                    />
-                  ) : (
-                    <Text style={styles.hostedByAvatarText}>
-                      {(event.users?.organization_name || event.users?.full_name || event.organizer_name || 'E')[0].toUpperCase()}
-                    </Text>
-                  )}
-                </View>
-                <View style={styles.hostedByInfo}>
-                  <Text style={styles.hostedByName}>
-                    {event.users?.organization_name || event.users?.full_name || event.organizer_name || t('eventDetail.organizerFallback')}
-                  </Text>
-                  {/* House rule: no filled status pills. Bare shield glyph + quiet
-                      teal label — no background, no border. VerifiedBadge without
-                      `showLabel` renders just the icon, so the shared badge stays
-                      untouched for the screens that still use its pill form. */}
-                  {(event.users?.is_verified || event.is_verified) && (
-                    <View
-                      style={styles.verifiedBadgeInline}
-                      accessible
-                      accessibilityRole="text"
-                      accessibilityLabel={t('eventDetail.verified')}
-                    >
-                      <VerifiedBadge size="small" label={t('eventDetail.verified')} />
-                      <Text style={styles.verifiedTextInline}>{t('eventDetail.verified')}</Text>
-                    </View>
-                  )}
-                </View>
-                <ChevronRight size={16} color={colors.textSecondary} />
-              </TouchableOpacity>
-              {event.organizer_id && (
-                <FollowButton
-                  organizerId={event.organizer_id}
-                  style={styles.followButtonInCard}
-                />
-              )}
-            </View>
-            {/* Hidden from the organizer's own event — messaging yourself just
-                fills your own inbox, and the server rejects it anyway. */}
-            {!!user && !!event.organizer_id && event.organizer_id !== user.uid && (
-              <TouchableOpacity
-                style={styles.contactOrganizerRow}
-                onPress={() => setShowContactOrganizer(true)}
-                activeOpacity={0.7}
-                accessibilityRole="button"
-              >
-                <Text style={styles.contactOrganizerText}>{t('contactOrganizer.open')}</Text>
-                <ChevronRight size={16} color={colors.textSecondary} />
-              </TouchableOpacity>
-            )}
-          </View>
 
           {/* Who's Going - social attendance (hidden when organizer disables the guest list) */}
           {(event as any).show_guestlist !== false && (
@@ -1085,15 +1087,22 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 8,
     marginTop: 12,
   },
+  hostByline: {
+    marginTop: 2,
+    marginBottom: 14,
+  },
   factList: {
-    marginTop: 18,
+    marginTop: 14,
     marginBottom: 4,
   },
+  // 10, not 14: two rows of 14 plus a divider spent ~64pt stating a date and a
+  // venue, which is the "all this space wasted" a tester marked up twice. Posh
+  // gives the same two facts roughly half that.
   factRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 14,
-    paddingVertical: 14,
+    paddingVertical: 10,
   },
   factText: {
     flex: 1,
