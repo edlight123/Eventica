@@ -39,6 +39,7 @@ import EmptyState from '../components/EmptyState';
 import { HomeFeedSkeleton } from '../components/Skeleton';
 import ChromeBlur from '../components/ChromeBlur';
 import { isBudgetFriendlyTicketPrice } from '../lib/pricing';
+import type { HomeFeed } from '../lib/homeFeeds';
 import { getCategoryLabel } from '../lib/categories';
 import { shareEvent } from '../lib/share';
 import { font, radius } from '../theme/tokens';
@@ -329,29 +330,46 @@ export default function HomeScreen({ navigation }: any) {
   };
 
   const handleCategoryPress = (category: string) => {
-    console.log('[HomeScreen] Category pressed:', category);
-    navigation.navigate('Discover', { category, timestamp: Date.now() });
+    // A category chip is a subsection too: it gets the same dedicated listing
+    // the category rails already used, not a pre-filtered Discover.
+    navigation.navigate('CategoryEvents', {
+      category,
+      title: getCategoryLabel(t, category),
+    });
   };
 
-  const handleViewAllTrending = () => {
-    navigation.navigate('Discover', { trending: true, timestamp: Date.now() });
-  };
+  /**
+   * Every rail opens its OWN page now, not Discover. Tapping "view all" on
+   * Trending used to drop you into a differently-filtered Discover feed that
+   * did not contain the events you had just been scrolling — the tester's
+   * complaint. CategoryEvents re-applies the same rule via applyHomeFeed, so
+   * the page is exactly the rail without its slice.
+   */
+  const openFeed = (feed: HomeFeed, title: string, subtitle?: string) =>
+    navigation.navigate('CategoryEvents', {
+      feed,
+      title,
+      subtitle,
+      city: feed === 'nearYou' ? selectedLocation || userProfile?.default_city || '' : undefined,
+    });
 
-  const handleViewAllThisWeek = () => {
-    navigation.navigate('Discover', { thisWeek: true, timestamp: Date.now() });
-  };
+  const handleViewAllTrending = () =>
+    openFeed('trending', t('home.trendingTitle'), t('home.trendingSubtitle'));
 
-  const handleViewAllEvents = () => {
-    navigation.navigate('Discover', { allEvents: true, timestamp: Date.now() });
-  };
+  const handleViewAllThisWeek = () =>
+    openFeed('thisWeek', t('home.thisWeekTitle'), t('home.thisWeekSubtitle'));
 
-  const handleViewAllNearYou = () => {
-    const nearCity = selectedLocation || userProfile?.default_city || '';
-    if (nearCity) {
-      applyFiltersDirectly({ ...DEFAULT_FILTERS, country: userCountry, city: nearCity });
-    }
-    navigation.navigate('Discover', { timestamp: Date.now() });
-  };
+  const handleViewAllEvents = () => openFeed('all', t('home.allEventsTitle'));
+
+  const handleViewAllForYou = () =>
+    openFeed('forYou', t('home.forYouTitle'), t('home.forYouSubtitle'));
+
+  const handleViewAllFree = () => openFeed('free', t('home.freeTitle'), t('home.freeSubtitle'));
+
+  const handleViewAllNew = () => openFeed('new', t('home.newTitle'), t('home.newSubtitle'));
+
+  const handleViewAllNearYou = () =>
+    openFeed('nearYou', t('home.nearYouTitle'), t('home.nearYouSubtitle'));
 
   const locationLabel =
     selectedLocation || userProfile?.default_city || COUNTRY_NAMES[userCountry] || 'Haiti';
@@ -462,7 +480,7 @@ export default function HomeScreen({ navigation }: any) {
                   subtitle={t('home.forYouSubtitle')}
                   events={forYouEvents}
                   onEventPress={(eventId) => navigation.navigate('EventDetail', { eventId })}
-                  onViewAll={handleViewAllEvents}
+                  onViewAll={handleViewAllForYou}
                 />
               </View>
             )}
@@ -510,7 +528,7 @@ export default function HomeScreen({ navigation }: any) {
                   subtitle={t('home.freeSubtitle')}
                   events={freeEvents}
                   onEventPress={(eventId) => navigation.navigate('EventDetail', { eventId })}
-                  onViewAll={handleViewAllEvents}
+                  onViewAll={handleViewAllFree}
                 />
               </View>
             )}
@@ -536,7 +554,7 @@ export default function HomeScreen({ navigation }: any) {
                   events={newEvents}
                   badge="New"
                   onEventPress={(eventId) => navigation.navigate('EventDetail', { eventId })}
-                  onViewAll={handleViewAllEvents}
+                  onViewAll={handleViewAllNew}
                 />
               </View>
             )}

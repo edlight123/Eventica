@@ -10,6 +10,7 @@ import EventListCard from '../components/EventListCard';
 import { ListSkeleton } from '../components/Skeleton';
 import EmptyState from '../components/EmptyState';
 import { getCategoryLabel } from '../lib/categories';
+import { applyHomeFeed } from '../lib/homeFeeds';
 
 export default function CategoryEventsScreen({ navigation, route }: any) {
   const { colors } = useTheme();
@@ -17,22 +18,28 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
   const insets = useSafeAreaInsets();
   const styles = getStyles(colors);
 
-  const { category, title } = route.params || {};
+  // `feed` opens one of Home's curated rails as a full page; `category` is the
+  // original per-category listing. Exactly one of them is set.
+  const { category, feed, city, title, subtitle } = route.params || {};
 
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
-      if (!category) {
+      if (!category && !feed) {
         setLoading(false);
         return;
       }
       try {
         setLoading(true);
-        // Single equality filter only — avoids a Firestore composite index.
+        // Single equality filter only — avoids a Firestore composite index. A
+        // feed page has no server-side predicate: its rule is applied client
+        // side by applyHomeFeed, the SAME function that builds the Home rail.
         const snap = await getDocs(
-          query(collection(db, 'events'), where('category', '==', category))
+          category
+            ? query(collection(db, 'events'), where('category', '==', category))
+            : query(collection(db, 'events'))
         );
         const now = new Date();
         const rows = snap.docs
@@ -56,7 +63,9 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
           .sort(
             (a: any, b: any) => a.start_datetime.getTime() - b.start_datetime.getTime()
           );
-        setEvents(rows);
+        // No limit: this IS the "view all" page, so it is the rail's rule
+        // without the slice.
+        setEvents(feed ? applyHomeFeed(rows, feed, { city }) : rows);
       } catch (err) {
         console.error('Failed to load category events', err);
       } finally {
@@ -65,7 +74,7 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
     };
 
     load();
-  }, [category]);
+  }, [category, feed, city]);
 
   return (
     <View style={styles.container}>
@@ -73,9 +82,18 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
         <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={12}>
           <ChevronLeft size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>
-          {(title || getCategoryLabel(t, category) || category || '').toString().toLowerCase()}
-        </Text>
+        <View style={styles.headerText}>
+          <Text style={styles.headerTitle} numberOfLines={1}>
+            {(title || getCategoryLabel(t, category) || category || '').toString().toLowerCase()}
+          </Text>
+          {/* Carries the rail's own subtitle through, so the page reads as the
+              same section you tapped rather than an unlabelled list. */}
+          {!!subtitle && (
+            <Text style={styles.headerSubtitle} numberOfLines={1}>
+              {subtitle}
+            </Text>
+          )}
+        </View>
       </View>
 
       {loading ? (
@@ -118,7 +136,15 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       paddingHorizontal: 16,
       paddingBottom: 12,
     },
-    headerTitle: {
+    headerText: {
+    flex: 1,
+  },
+  headerSubtitle: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginTop: 2,
+  },
+  headerTitle: {
       flex: 1,
       fontFamily: 'InstrumentSerif_400Regular',
       fontSize: 26,

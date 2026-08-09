@@ -98,7 +98,15 @@ export type RootStackParamList = {
   StripeConnectWebView: { url: string };
   InAppWebView: { url: string; title?: string };
   EventDetail: { eventId: string };
-  CategoryEvents: { category: string; title?: string };
+  // Either `category` (per-category listing) or `feed` (one of Home's curated
+  // rails opened as its own page) — never both.
+  CategoryEvents: {
+    category?: string;
+    feed?: import('../lib/homeFeeds').HomeFeed;
+    city?: string;
+    title?: string;
+    subtitle?: string;
+  };
   EventTickets: { eventId: string };
   TicketDetail: { ticketId: string };
   OrganizerProfile: { organizerId: string };
