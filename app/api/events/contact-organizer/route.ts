@@ -64,6 +64,14 @@ export async function POST(request: Request) {
     if (!eventSnap.exists) return fail('Event not found.', 'event_not_found', 404)
 
     const event = eventSnap.data() || {}
+
+    // Drafts and rejected events are not public, so a message about one can only
+    // have arrived by guessing the document id. Treat them as not found rather
+    // than confirming the id exists.
+    if (event.is_published === false || event.rejected === true) {
+      return fail('Event not found.', 'event_not_found', 404)
+    }
+
     const organizerId = String(event.organizer_id || '')
     if (!organizerId) {
       return fail('This event has no organizer to contact.', 'no_organizer', 409)
@@ -100,7 +108,11 @@ export async function POST(request: Request) {
       sender_id: user.id,
       // Snapshotted so the organizer still sees who wrote if the profile changes.
       sender_name: String((user as any).full_name || '').trim() || 'An attendee',
-      sender_email: String(user.email || ''),
+      // The sender's EMAIL is deliberately absent. The organizer can read this
+      // document (see firestore.rules), so storing the address here would hand
+      // it over — exactly what routing this through the app instead of a
+      // mailto: link is meant to avoid. A future reply flow can resolve the
+      // address server-side from sender_id without ever exposing it.
       topic,
       message,
       status: 'open',

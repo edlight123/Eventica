@@ -16,11 +16,17 @@ import type { PKPass as PKPassType } from 'passkit-generator'
 import type { AppleWalletConfig } from './config'
 import type { WalletTicket } from './ticket-access'
 
-/** The ISO instant, or null when the event has no usable date. */
+/**
+ * The ISO instant Wallet should format, or null when the event has no usable
+ * date. Milliseconds are stripped: PassKit wants a W3C ISO-8601 timestamp, and
+ * the fractional-second form is the kind of detail its parser is fussy about —
+ * a date it rejects renders as an empty field on the pass face.
+ */
 function passDateValue(iso: string | null): string | null {
   if (!iso) return null
   const date = new Date(iso)
-  return Number.isNaN(date.getTime()) ? null : date.toISOString()
+  if (Number.isNaN(date.getTime())) return null
+  return date.toISOString().replace(/\.\d{3}Z$/, 'Z')
 }
 
 /**
@@ -77,16 +83,28 @@ export async function buildApplePkpass(
   )
 
   // Surfaces the pass on the lock screen around door time instead of making the
-  // attendee dig through Wallet at the entrance. This goes through the setter,
-  // not the props object — the top-level `relevantDate` key is stripped by the
-  // schema, and it is deprecated as of iOS 18 anyway. An interval (rather than
-  // a single instant) is what triggers the Live Activity countdown on modern
-  // iOS for event tickets, so pass start+end whenever the event has both.
+  // attendee dig through Wallet at the entrance. Set through the setters, not
+  // the props object, which strips these keys.
+  //
+  // Apple renamed this twice: `relevantDate` (pre-18), `relevantDates[]` with
+  // `relevantDate` (18), then `relevantDates[].date` (26). Both are written so
+  // the pass behaves on every iOS version the testers might carry. A start+end
+  // INTERVAL is also what drives the Live Activity countdown on event tickets,
+  // so it is preferred whenever the event has an end time.
+  //
+  // Note the single-instant entry must carry `relevantDate` — the library's Joi
+  // schema marks it required and merely `console.warn`s on a `{ date }`-only
+  // entry, silently dropping it, which is how the start-only case ended up with
+  // no relevancy at all.
   const endValue = passDateValue(ticket.endDatetime)
-  if (startValue && endValue) {
-    pass.setRelevantDates([{ startDate: startValue, endDate: endValue }])
-  } else if (startValue) {
-    pass.setRelevantDates([{ date: startValue }])
+  if (startValue) {
+    if (endValue) {
+      pass.setRelevantDates([{ startDate: startValue, endDate: endValue }])
+    } else {
+      pass.setRelevantDates([{ relevantDate: startValue, date: startValue }])
+    }
+    // Legacy key for iOS 17 and earlier, which ignores `relevantDates`.
+    pass.setRelevantDate(new Date(startValue))
   }
 
   pass.type = 'eventTicket'

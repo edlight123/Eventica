@@ -1400,9 +1400,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textSecondary,
   },
 
-  // Floating Bottom CTA — transparent bar centering a narrower pill (Posh-style).
-  // Centered + content-hugging so it no longer spans edge-to-edge over the
-  // date/venue content beneath it.
+  // Quiet outlined row under the host card — an outline, not a filled pill, so
+  // it never competes with the white Get Tickets CTA for primary-action weight.
   contactOrganizerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1419,6 +1418,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '600',
     color: colors.text,
   },
+
+  // Floating Bottom CTA — a transparent bar carrying the full-width primary
+  // pill. It stretches edge-to-edge (inside a 20pt gutter) rather than hugging
+  // its label; page content clears it via the 160pt spacer at the list foot.
   floatingBottomCard: {
     position: 'absolute',
     left: 0,

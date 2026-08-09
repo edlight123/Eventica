@@ -76,6 +76,21 @@ function toIso(value: any): string | null {
 }
 
 /**
+ * First candidate that converts to a real ISO instant.
+ *
+ * Not `a ?? b ?? c` — that only skips null/undefined, so an event carrying an
+ * empty string or an unparseable date would win the precedence and blank the
+ * pass date instead of falling back to the ticket's usable copy.
+ */
+function firstIso(...values: any[]): string | null {
+  for (const value of values) {
+    const iso = toIso(value)
+    if (iso) return iso
+  }
+  return null
+}
+
+/**
  * Load a ticket the given user is allowed to build a pass for.
  *
  * Called BOTH when the link is minted and again when the `.pkpass` is actually
@@ -148,8 +163,12 @@ export async function loadWalletTicket(
       // hydrates start_datetime from the event), so preferring the ticket here
       // made the pass and the app disagree. Snapshot stays as the fallback for
       // tickets whose event doc is gone.
-      startDatetime: toIso(event?.start_datetime ?? ticket?.start_datetime ?? ticket?.event_date),
-      endDatetime: toIso(event?.end_datetime ?? ticket?.end_datetime),
+      startDatetime: firstIso(
+        event?.start_datetime,
+        ticket?.start_datetime,
+        ticket?.event_date
+      ),
+      endDatetime: firstIso(event?.end_datetime, ticket?.end_datetime),
       orderRef: orderRef(ticket?.order_number || ticket?.order_id || snapshot.id),
     },
   }
