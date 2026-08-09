@@ -39,7 +39,7 @@ import { backendJson } from '../lib/api/backend';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { colors as T, font, radius } from '../theme/tokens';
+import { colors as T, font, radius, withAlpha } from '../theme/tokens';
 import { safeFormatForLanguage } from '../lib/dates';
 import { isValidDate } from '../lib/dates';
 import WhitePillCTA from '../components/WhitePillCTA';
@@ -777,6 +777,16 @@ export default function EventDetailScreen({ route, navigation }: any) {
           }
         ]}
       >
+        {/* Fades the page out beneath the CTA. Without it the About copy ran
+            right up to the pill's edges and reappeared underneath it, so the
+            button read as pasted on top of the text rather than sitting on a
+            footer. Same scrim language as the tab bar. */}
+        <LinearGradient
+          colors={[withAlpha(colors.background, 0), withAlpha(colors.background, 0.85), colors.background]}
+          locations={[0, 0.55, 1]}
+          style={styles.floatingCtaScrim}
+          pointerEvents="none"
+        />
         {isPastEvent ? (
           <View style={[styles.ctaDisabled, styles.floatingCtaPill]}>
             <Text style={styles.ctaDisabledText}>{t('eventDetail.floating.eventEnded')}</Text>
@@ -1113,7 +1123,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   // Static venue map, tucked under the location row. Indented to the row's text
   // column so it reads as part of that row, not as a new section.
   venueMap: {
-    marginLeft: 32, // 18px icon + 14px factRow gap
+    // Full content width, NOT indented to clear the pin icon. Hanging the map
+    // off the text column made it read as a thumbnail attached to the address
+    // line; posh gives the location its own full-width block, which is the
+    // comparison a tester drew. The address above stays indented — only the
+    // map breaks out.
+    marginLeft: 0,
+    marginTop: 4,
     marginBottom: 14,
   },
   sectionTitleMain: {
@@ -1435,7 +1451,19 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   floatingCtaPill: {
     width: '100%',
-    height: 60,
+    // 56 is WhitePillCTA's own height and the height every other primary
+    // action in the app uses. The 60 here was a one-off that made this button
+    // taller than the same button everywhere else — a tester picked it out.
+    height: 56,
+  },
+  // Extends well above the pill so the fade starts before the text reaches it,
+  // and past the bar's own bottom so nothing peeks out under the home indicator.
+  floatingCtaScrim: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: -56,
+    bottom: -40,
   },
   ctaButton: {
     backgroundColor: colors.primary,

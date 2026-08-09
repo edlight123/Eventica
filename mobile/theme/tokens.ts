@@ -84,5 +84,20 @@ export const type = {
   sectionEyebrow: { fontSize: 13, fontWeight: '600' as const, letterSpacing: 0.3 },
 } as const;
 
+/**
+ * `#RRGGBB` → `rgba(...)` so gradient stops can be DERIVED from a theme token
+ * (e.g. `colors.background`) instead of hardcoding a literal. Non-hex input
+ * (an already-rgba token) is passed through untouched.
+ *
+ * Lives here rather than beside one scrim because the tab bar and the event
+ * page's CTA footer both build fades from the canvas colour and must agree.
+ */
+export function withAlpha(hex: string, alpha: number): string {
+  const match = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!match) return hex;
+  const value = parseInt(match[1], 16);
+  return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, ${alpha})`;
+}
+
 export const tokens = { colors, radius, spacing, type, font };
 export default tokens;

@@ -6,8 +6,13 @@ import { radius } from '../theme/tokens';
 import { Skeleton } from './Skeleton';
 import { buildStaticMapUrl, resolveVenueTarget } from '../lib/staticMap';
 
-/** Wide-but-short: enough map to orient, not enough to push the CTA off-screen. */
-const ASPECT = 16 / 9;
+/**
+ * 3:2 — enough map to actually read the surrounding streets, which 16:9 was too
+ * letterboxed to give. Posh devotes roughly this much height to its location
+ * block and it was the specific comparison a tester drew. Still short enough
+ * that the page's primary CTA is not pushed out of reach.
+ */
+const ASPECT = 3 / 2;
 
 interface VenueStaticMapProps {
   /** The raw event doc — coordinates are dug out of it, see `resolveVenueLatLng`. */

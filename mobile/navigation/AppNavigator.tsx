@@ -13,6 +13,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useAppMode } from '../contexts/AppModeContext';
 import { ThemeProvider, useTheme } from '../contexts/ThemeContext';
 import { COLORS } from '../config/brand';
+import { withAlpha } from '../theme/tokens';
 import { getVerificationRequest } from '../lib/verification';
 import BootScreen from '../components/BootScreen';
 import { hideSplash } from '../lib/splash';
@@ -396,13 +397,23 @@ function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
 // case while still letting bright content glow through. Active teal (5.8:1+)
 // and the white Create FAB are never the limiting factor.
 //
-// The backdrop scrim below now pre-darkens that near-white poster before the
-// tint sees it, so the same 0.90 buys more: the worst case improves from
-// 3.02:1 to 3.57:1 at the bar's top edge and 3.65:1 at the label row (vs
-// 3.72:1 over the plain black canvas). Legibility therefore no longer depends
-// on raising this value — leave it at 0.90.
-const TAB_BAR_TINT_OPACITY = 0.9;
-const TAB_BAR_BLUR_INTENSITY = 40;
+// The backdrop scrim below pre-darkens that near-white poster before the tint
+// sees it, which bought headroom the old 0.90 spent on EXTRA contrast rather
+// than on translucency. Measured on a build-17 screenshot, the bar came out at
+// luminance 10/255 — indistinguishable from the black canvas, i.e. a solid
+// band. A tester reported exactly that: "the bottom bar bg is no longer
+// blurry". The bar was never meant to be opaque; the blur has nothing to show
+// if the tint hides everything.
+//
+// Re-derived against the same binding constraint (dim inactive label #6B6B6B
+// under a near-white #F0F0F0 poster, scrim seam 0.72 → backdrop 74.4):
+//     0.90 → 3.56:1 (10% through)   0.75 → 3.26:1 (25%)
+//     0.65 → 3.04:1 (35%)           0.60 → 2.92:1 FAILS 3:1
+// 0.65 is the lightest value still clearing 3:1, and passes 3.5× more content
+// than 0.90 did. Blur is raised alongside so the extra content that now shows
+// reads as frost rather than as a sharp poster edge sliding under the labels.
+const TAB_BAR_TINT_OPACITY = 0.65;
+const TAB_BAR_BLUR_INTENSITY = 55;
 
 // How far the backdrop scrim reaches ABOVE the bar. Ending the ramp at the
 // bar's own top edge would just relocate the seam, so the fade needs room to
@@ -417,18 +428,6 @@ const TAB_BAR_SCRIM_EXTRA = 64;
 // downward). That makes it the legibility worst case: see the contrast note on
 // TAB_BAR_TINT_OPACITY, which this does not change.
 const TAB_BAR_SCRIM_SEAM_ALPHA = 0.72;
-
-/**
- * `#RRGGBB` → `rgba(...)` so gradient stops can be DERIVED from a theme token
- * (`colors.background`) instead of hardcoding a literal. Non-hex input (e.g. an
- * already-rgba token) is passed through untouched.
- */
-function withAlpha(hex: string, alpha: number): string {
-  const match = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
-  if (!match) return hex;
-  const value = parseInt(match[1], 16);
-  return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, ${alpha})`;
-}
 
 const tabBarStyles = StyleSheet.create({
   container: {
