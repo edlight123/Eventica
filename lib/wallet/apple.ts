@@ -16,20 +16,11 @@ import type { PKPass as PKPassType } from 'passkit-generator'
 import type { AppleWalletConfig } from './config'
 import type { WalletTicket } from './ticket-access'
 
-/** Human date for the pass face. Locale-neutral so it reads the same everywhere. */
-function formatPassDate(iso: string | null): string {
-  if (!iso) return 'TBA'
+/** The ISO instant, or null when the event has no usable date. */
+function passDateValue(iso: string | null): string | null {
+  if (!iso) return null
   const date = new Date(iso)
-  if (Number.isNaN(date.getTime())) return 'TBA'
-  return new Intl.DateTimeFormat('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    timeZone: 'UTC',
-  }).format(date)
+  return Number.isNaN(date.getTime()) ? null : date.toISOString()
 }
 
 /**
@@ -49,6 +40,8 @@ export async function buildApplePkpass(
   const { PKPass } = (await import('passkit-generator')) as {
     PKPass: typeof PKPassType
   }
+
+  const startValue = passDateValue(ticket.startDatetime)
 
   const pass = new PKPass(
     {
@@ -74,13 +67,27 @@ export async function buildApplePkpass(
       serialNumber: ticket.id,
       organizationName: config.organizationName,
       description: `${ticket.eventTitle} — ${ticket.tierName}`,
-      logoText: config.organizationName,
+      // NO logoText: `logo.png` is the Tikèm wordmark, so setting logoText too
+      // printed "tikèm" as art and "Tikèm" as text side by side in the header.
       backgroundColor: 'rgb(10, 10, 10)',
       foregroundColor: 'rgb(255, 255, 255)',
       labelColor: 'rgb(13, 148, 136)',
       sharingProhibited: true,
     }
   )
+
+  // Surfaces the pass on the lock screen around door time instead of making the
+  // attendee dig through Wallet at the entrance. This goes through the setter,
+  // not the props object — the top-level `relevantDate` key is stripped by the
+  // schema, and it is deprecated as of iOS 18 anyway. An interval (rather than
+  // a single instant) is what triggers the Live Activity countdown on modern
+  // iOS for event tickets, so pass start+end whenever the event has both.
+  const endValue = passDateValue(ticket.endDatetime)
+  if (startValue && endValue) {
+    pass.setRelevantDates([{ startDate: startValue, endDate: endValue }])
+  } else if (startValue) {
+    pass.setRelevantDates([{ date: startValue }])
+  }
 
   pass.type = 'eventTicket'
 
@@ -96,11 +103,22 @@ export async function buildApplePkpass(
     value: ticket.eventTitle,
   })
 
-  pass.secondaryFields.push({
-    key: 'date',
-    label: 'DATE',
-    value: formatPassDate(ticket.startDatetime),
-  })
+  // Hand Wallet the raw instant and let IT format, rather than pre-rendering a
+  // string. The old code formatted in UTC, so a 9:30 PM Haiti event printed as
+  // "2:30 AM" the next day on the pass while the app showed 9:30 PM. With
+  // dateStyle/timeStyle, Wallet renders in the device's own timezone and
+  // locale — the same thing the app's date-fns formatting does.
+  pass.secondaryFields.push(
+    startValue
+      ? {
+          key: 'date',
+          label: 'DATE',
+          value: startValue,
+          dateStyle: 'PKDateStyleMedium',
+          timeStyle: 'PKDateStyleShort',
+        }
+      : { key: 'date', label: 'DATE', value: 'TBA' }
+  )
 
   if (ticket.venueName) {
     pass.secondaryFields.push({

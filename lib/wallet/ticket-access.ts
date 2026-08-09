@@ -141,8 +141,15 @@ export async function loadWalletTicket(
       holderName: firstString(ticket?.attendee_name),
       venueName: firstString(ticket?.venue_name, event?.venue_name),
       city: firstString(ticket?.city, event?.city),
-      startDatetime: toIso(ticket?.start_datetime ?? ticket?.event_date ?? event?.start_datetime),
-      endDatetime: toIso(ticket?.end_datetime ?? event?.end_datetime),
+      // The LIVE event date wins over the copy frozen onto the ticket at
+      // purchase. Organizers reschedule, and the ticket snapshot is never
+      // rewritten when they do — a pass built from it sends the attendee on
+      // the wrong day. The app already reads the event doc (TicketsScreen
+      // hydrates start_datetime from the event), so preferring the ticket here
+      // made the pass and the app disagree. Snapshot stays as the fallback for
+      // tickets whose event doc is gone.
+      startDatetime: toIso(event?.start_datetime ?? ticket?.start_datetime ?? ticket?.event_date),
+      endDatetime: toIso(event?.end_datetime ?? ticket?.end_datetime),
       orderRef: orderRef(ticket?.order_number || ticket?.order_id || snapshot.id),
     },
   }
