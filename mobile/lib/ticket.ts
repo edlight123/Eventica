@@ -36,7 +36,7 @@ export function ticketQrValue(ticket: any, fallbackId?: string): string {
 /**
  * Lifecycle status key for `StatusChip` — driven by ticket STATE first, then
  * event date. Maps into the locked semantic color set:
- *   used / checked-in → grey   ·   expired → red   ·   active/upcoming → teal
+ *   used / checked-in / expired → grey   ·   active/upcoming → teal
  * (Amber is reserved for action-needed and is deliberately NOT used here.)
  */
 export function ticketStatusKey(ticket: any, isExpired: boolean): string {

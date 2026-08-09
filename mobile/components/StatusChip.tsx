@@ -17,11 +17,12 @@ export interface StatusTone {
  *
  *   live / upcoming              → teal
  *   action-needed / pending      → amber
- *   error / expired / void /
- *     declined / sold-out        → red
+ *   error / void / declined /
+ *     sold-out                   → red
  *   verified                     → teal (gold available via `colors.gold`)
  *   success / paid               → emerald
- *   used / neutral / default     → grey
+ *   used / expired /
+ *     neutral / default          → grey
  */
 export function statusTone(status: string): StatusTone {
   const key = String(status).toLowerCase().replace(/[\s_-]+/g, '');
@@ -43,8 +44,6 @@ export function statusTone(status: string): StatusTone {
 
     case 'error':
       return { color: colors.red, fill: colors.redMuted, defaultLabel: 'Error' };
-    case 'expired':
-      return { color: colors.red, fill: colors.redMuted, defaultLabel: 'Expired' };
     case 'void':
       return { color: colors.red, fill: colors.redMuted, defaultLabel: 'Void' };
     case 'declined':
@@ -59,6 +58,12 @@ export function statusTone(status: string): StatusTone {
 
     case 'used':
       return { color: colors.textSecondary, fill: colors.neutralMuted, defaultLabel: 'Used' };
+    // Grey, not red: a ticket for an event that already happened is history,
+    // not a fault the attendee can act on. Red is reserved for states that
+    // demand a response (void, declined, error). The LABEL still says Expired
+    // — "Used" would claim a scan that never happened.
+    case 'expired':
+      return { color: colors.textSecondary, fill: colors.neutralMuted, defaultLabel: 'Expired' };
     case 'neutral':
     default:
       return { color: colors.textSecondary, fill: colors.neutralMuted, defaultLabel: status };
