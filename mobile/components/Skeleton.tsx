@@ -18,11 +18,19 @@ interface SkeletonProps {
   width?: DimensionValue;
   height?: DimensionValue;
   radius?: number;
+  /**
+   * Size by ratio instead of a fixed height. Callers used to express this as
+   * `height={undefined as any}` plus `style={{ aspectRatio }}`, which silently
+   * did NOT work: a JS default parameter fires on `undefined`, so `height` fell
+   * back to 16 and every poster placeholder rendered as a thin bar rather than
+   * a poster. Pass this instead — it suppresses the height entirely.
+   */
+  aspectRatio?: number;
   style?: ViewStyle | ViewStyle[];
 }
 
 /** A single shimmering placeholder block. */
-export function Skeleton({ width = '100%', height = 16, radius = 8, style }: SkeletonProps) {
+export function Skeleton({ width = '100%', height, radius = 8, aspectRatio, style }: SkeletonProps) {
   const { colors, isDark } = useTheme();
   const shimmer = useRef(new Animated.Value(0)).current;
 
@@ -42,7 +50,15 @@ export function Skeleton({ width = '100%', height = 16, radius = 8, style }: Ske
   return (
     <Animated.View
       style={[
-        { width, height, borderRadius: radius, backgroundColor: isDark ? colors.borderLight : colors.border, opacity },
+        {
+          width,
+          // Height and aspectRatio are mutually exclusive: setting both leaves
+          // the fixed height winning and the ratio inert.
+          ...(aspectRatio != null ? { aspectRatio } : { height: height ?? 16 }),
+          borderRadius: radius,
+          backgroundColor: isDark ? colors.borderLight : colors.border,
+          opacity,
+        },
         style as ViewStyle,
       ]}
     />
@@ -56,7 +72,7 @@ export function Skeleton({ width = '100%', height = 16, radius = 8, style }: Ske
 export function PosterCardSkeleton({ width, ratio = 1.25 }: { width?: number; ratio?: number }) {
   return (
     <View style={width ? { width } : { flex: 1 }}>
-      <Skeleton height={undefined as any} radius={16} style={{ width: '100%', aspectRatio: 1 / ratio } as ViewStyle} />
+      <Skeleton radius={16} aspectRatio={1 / ratio} style={{ width: '100%' } as ViewStyle} />
       <View style={styles.posterMeta}>
         <Skeleton width={'78%'} height={13} radius={6} />
         <View style={styles.posterMetaRow}>
@@ -143,7 +159,7 @@ export function DiscoverFeedSkeleton({ count = 3 }: { count?: number }) {
 export function ListCardSkeleton() {
   return (
     <View style={styles.listCard}>
-      <Skeleton width={92} height={undefined as any} radius={16} style={{ aspectRatio: 4 / 5 } as ViewStyle} />
+      <Skeleton width={92} radius={16} aspectRatio={4 / 5} />
       <View style={styles.listBody}>
         <Skeleton width={'82%'} height={15} radius={6} />
         <Skeleton width={'55%'} height={12} radius={5} />
@@ -201,7 +217,7 @@ export function EventDetailSkeleton() {
   return (
     <View style={{ flex: 1 }}>
       <View style={[styles.eventHero, { backgroundColor: colors.surfaceMuted }]}>
-        <Skeleton height={undefined as any} radius={0} style={{ width: EVENT_POSTER_W, aspectRatio: 4 / 5 } as ViewStyle} />
+        <Skeleton radius={0} aspectRatio={4 / 5} style={{ width: EVENT_POSTER_W } as ViewStyle} />
       </View>
       <View style={styles.eventContent}>
         <Skeleton width={'82%'} height={30} radius={8} />
