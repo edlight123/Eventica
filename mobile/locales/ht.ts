@@ -1905,6 +1905,14 @@ export default {
     errorGeneric: 'Nou pa t ka voye mesaj ou a. Eseye ankò.',
     open: 'Kontakte òganizatè a',
   },
+  purchaseSuccess: {
+    title: 'Ou ladan l.',
+    ticketOne: '1 tikè',
+    ticketMany: '{count} tikè',
+    viewTicket: 'Gade tikè a',
+    share: 'Pataje',
+    goToTickets: 'Ale nan tikè m yo',
+  },
   eventDetail: {
     // Prefiks sèlman — konpoze kòm `${startsIn} 2d 11h` nan CountdownTimer.
     startsIn: 'Kòmanse nan',

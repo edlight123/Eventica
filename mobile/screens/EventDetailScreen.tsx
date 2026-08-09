@@ -56,6 +56,7 @@ import CountdownTimer from '../components/CountdownTimer';
 import VenueStaticMap from '../components/VenueStaticMap';
 import WhosGoing from '../components/WhosGoing';
 import ContactOrganizerModal from '../components/ContactOrganizerModal';
+import PurchaseSuccessSheet from '../components/PurchaseSuccessSheet';
 import { EventDetailSkeleton } from '../components/Skeleton';
 const { width } = Dimensions.get('window');
 const POSTER_W = width * 0.86;
@@ -78,6 +79,9 @@ export default function EventDetailScreen({ route, navigation }: any) {
   const [showTierSelector, setShowTierSelector] = useState(false);
   const [showFreeTicketModal, setShowFreeTicketModal] = useState(false);
   const [showContactOrganizer, setShowContactOrganizer] = useState(false);
+  // Set the moment a purchase or free claim lands; carries the count so the
+  // confirmation can say "2 tickets" rather than a generic success message.
+  const [successQuantity, setSuccessQuantity] = useState<number | null>(null);
   const [selectedTierId, setSelectedTierId] = useState<string | null>(null);
   const [selectedTierName, setSelectedTierName] = useState<string>('');
   const [selectedTierPrice, setSelectedTierPrice] = useState<number>(0);
@@ -381,8 +385,13 @@ export default function EventDetailScreen({ route, navigation }: any) {
   const handleFreeTicketSuccess = () => {
     // Refresh event data to show updated ticket count
     fetchEventDetails();
-    // Navigate to Main tab navigator, then to Tickets tab
-    navigation.navigate('Main', { screen: 'Tickets' });
+    // Close the claim modal FIRST. Two RN modals visible at once do not stack
+    // reliably on iOS — the success sheet would simply never appear.
+    setShowFreeTicketModal(false);
+    // Confirm before moving them: jumping straight to the Tickets tab told the
+    // attendee nothing about what they just got and skipped the follow /
+    // calendar / share actions they most often want next.
+    setSuccessQuantity(ticketQuantity || 1);
   };
 
   const handleTierSelection = (
@@ -429,11 +438,12 @@ export default function EventDetailScreen({ route, navigation }: any) {
   };
 
   const handlePaymentSuccess = async (_paymentMethod: string, _transactionId: string) => {
-    Alert.alert(
-      t('screens.payment.successTitle'),
-      t('screens.payment.successBody'),
-      [{ text: t('common.ok'), onPress: () => navigation.navigate('Main', { screen: 'Tickets' }) }]
-    );
+    // Was a bare OS alert, which is the least celebratory way to confirm a
+    // purchase and offered nothing but "OK". Same sheet as the free path.
+    fetchEventDetails();
+    // Same reason as the free path: dismiss the payment modal before the sheet.
+    setShowPaymentModal(false);
+    setSuccessQuantity(ticketQuantity || 1);
   };
 
   if (loading) {
@@ -818,6 +828,17 @@ export default function EventDetailScreen({ route, navigation }: any) {
         eventId={eventId}
         onPurchase={handleTierSelection}
         currency={event?.currency || 'HTG'}
+      />
+
+      <PurchaseSuccessSheet
+        visible={successQuantity !== null}
+        onClose={() => setSuccessQuantity(null)}
+        onViewTickets={() => {
+          setSuccessQuantity(null);
+          navigation.navigate('Main', { screen: 'Tickets' });
+        }}
+        event={event}
+        quantity={successQuantity ?? 1}
       />
 
       <ContactOrganizerModal

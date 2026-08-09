@@ -1907,6 +1907,14 @@ export default {
     errorGeneric: "Impossible d'envoyer votre message. Réessayez.",
     open: "Contacter l'organisateur",
   },
+  purchaseSuccess: {
+    title: "C'est confirmé.",
+    ticketOne: '1 billet',
+    ticketMany: '{count} billets',
+    viewTicket: 'Voir le billet',
+    share: 'Partager',
+    goToTickets: 'Voir mes billets',
+  },
   eventDetail: {
     // Préfixe uniquement — composé en `${startsIn} 2d 11h` par CountdownTimer.
     startsIn: 'Commence dans',

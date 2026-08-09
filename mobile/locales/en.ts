@@ -1953,6 +1953,14 @@ export default {
     errorGeneric: "Couldn't send your message. Try again.",
     open: 'Contact organizer',
   },
+  purchaseSuccess: {
+    title: "You're in.",
+    ticketOne: '1 ticket',
+    ticketMany: '{count} tickets',
+    viewTicket: 'View ticket',
+    share: 'Share',
+    goToTickets: 'Go to my tickets',
+  },
   eventDetail: {
     // Prefix only — composed as `${startsIn} 2d 11h` by CountdownTimer.
     startsIn: 'Starts in',
