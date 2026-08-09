@@ -15,11 +15,18 @@ export function TikemWordmark({
   fontSize = 40,
   color = '#FFFFFF',
   accent = TIKEM_ACCENT,
+  markOnly = false,
   style,
 }: {
   fontSize?: number;
   color?: string;
   accent?: string;
+  /**
+   * Render just the "t" — the collapsed form for a scrolled header, where the
+   * full wordmark costs more width than the row can spare. Same face and size,
+   * so it cross-fades with the full mark without any visible reflow.
+   */
+  markOnly?: boolean;
   style?: StyleProp<TextStyle>;
 }) {
   return (
@@ -36,7 +43,7 @@ export function TikemWordmark({
         style,
       ]}
     >
-      tik<Text style={{ color: accent }}>è</Text>m
+      {markOnly ? 't' : <>tik<Text style={{ color: accent }}>è</Text>m</>}
     </Text>
   );
 }

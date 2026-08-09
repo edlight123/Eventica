@@ -409,10 +409,14 @@ function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
 // under a near-white #F0F0F0 poster, scrim seam 0.72 → backdrop 74.4):
 //     0.90 → 3.56:1 (10% through)   0.75 → 3.26:1 (25%)
 //     0.65 → 3.04:1 (35%)           0.60 → 2.92:1 FAILS 3:1
-// 0.65 is the lightest value still clearing 3:1, and passes 3.5× more content
-// than 0.90 did. Blur is raised alongside so the extra content that now shows
-// reads as frost rather than as a sharp poster edge sliding under the labels.
-const TAB_BAR_TINT_OPACITY = 0.65;
+// Asked to go more transparent still, the way out is NOT to keep lowering this
+// — 0.62 already drops under 3:1 at the old scrim. Strengthening the BACKDROP
+// scrim instead buys the headroom, because the tint then sits over a darker
+// starting value:
+//     scrim 0.72 / tint 0.65 -> 3.04:1, bar passes 35% of the backdrop
+//     scrim 0.80 / tint 0.55 -> 3.10:1, bar passes 45%
+// So the bar reads as MORE see-through while contrast slightly improves.
+const TAB_BAR_TINT_OPACITY = 0.55;
 const TAB_BAR_BLUR_INTENSITY = 55;
 
 // How far the backdrop scrim reaches ABOVE the bar. Ending the ramp at the
@@ -427,7 +431,7 @@ const TAB_BAR_SCRIM_EXTRA = 64;
 // weakest point of the scrim anywhere behind the bar (it only strengthens
 // downward). That makes it the legibility worst case: see the contrast note on
 // TAB_BAR_TINT_OPACITY, which this does not change.
-const TAB_BAR_SCRIM_SEAM_ALPHA = 0.72;
+const TAB_BAR_SCRIM_SEAM_ALPHA = 0.8;
 
 const tabBarStyles = StyleSheet.create({
   container: {

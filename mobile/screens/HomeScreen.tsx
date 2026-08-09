@@ -37,6 +37,7 @@ import EventRail from '../components/EventRail';
 import SectionHeader from '../components/SectionHeader';
 import EmptyState from '../components/EmptyState';
 import { HomeFeedSkeleton } from '../components/Skeleton';
+import ChromeBlur from '../components/ChromeBlur';
 import { isBudgetFriendlyTicketPrice } from '../lib/pricing';
 import { getCategoryLabel } from '../lib/categories';
 import { shareEvent } from '../lib/share';
@@ -94,7 +95,7 @@ export default function HomeScreen({ navigation }: any) {
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const scrollViewRef = React.useRef<ScrollView>(null);
 
-  const headerTranslateY = useRef(new Animated.Value(0)).current;
+  const headerCollapse = useRef(new Animated.Value(0)).current;
   const headerSpacerHeight = useRef(new Animated.Value(0)).current;
   const lastScrollY = useRef(0);
   const headerHidden = useRef(false);
@@ -293,14 +294,17 @@ export default function HomeScreen({ navigation }: any) {
     headerHidden.current = shouldHide;
 
     Animated.parallel([
-      Animated.spring(headerTranslateY, {
-        toValue: shouldHide ? -headerHeight : 0,
+      // 0 = full header, 1 = collapsed. The header used to translate to
+      // -headerHeight, i.e. straight off the screen; a tester asked for it to
+      // shrink to the mark and a location pin instead of disappearing.
+      Animated.spring(headerCollapse, {
+        toValue: shouldHide ? 1 : 0,
         useNativeDriver: true,
         tension: 140,
         friction: 22,
       }),
       Animated.timing(headerSpacerHeight, {
-        toValue: shouldHide ? 0 : headerHeight,
+        toValue: headerHeight,
         duration: 260,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: false,
@@ -366,10 +370,7 @@ export default function HomeScreen({ navigation }: any) {
       <Animated.View
         style={[
           styles.header,
-          {
-            transform: [{ translateY: headerTranslateY }],
-            paddingTop: insets.top + 10,
-          },
+          { paddingTop: insets.top + 10 },
         ]}
         onLayout={(e) => {
           const h = e?.nativeEvent?.layout?.height ?? 0;
@@ -379,20 +380,51 @@ export default function HomeScreen({ navigation }: any) {
           headerSpacerHeight.setValue(h);
         }}
       >
+        {/* Blurred chrome, matching the tab bar. Replaces an opaque slab with
+            a hairline border. */}
+        <ChromeBlur edge="top" />
+
         <View style={styles.headerLeft}>
-          <TikemWordmark fontSize={32} />
+          {/* Full wordmark and compact mark are stacked and cross-faded rather
+              than resized: animating fontSize cannot run on the native driver,
+              and a resizing serif glyph reflows the row on every scroll frame. */}
+          <Animated.View style={{ opacity: headerCollapse.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }}>
+            <TikemWordmark fontSize={32} />
+          </Animated.View>
+          <Animated.View
+            style={[
+              styles.headerMark,
+              { opacity: headerCollapse },
+            ]}
+            pointerEvents="none"
+          >
+            <TikemWordmark fontSize={32} markOnly />
+          </Animated.View>
         </View>
         <View style={styles.headerRight}>
           <TouchableOpacity
             style={styles.locationRow}
             onPress={() => setLocationSheetOpen(true)}
             activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={locationLabel}
           >
             <MapPin size={13} color={colors.primary} />
-            <Text style={styles.locationText} numberOfLines={1}>
-              {locationLabel}
-            </Text>
-            <ChevronDown size={14} color={colors.textSecondary} />
+            {/* Collapsed, the pin alone stands for the location — the label and
+                chevron fade out and stop taking width. */}
+            <Animated.View
+              style={{
+                opacity: headerCollapse.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 4,
+              }}
+            >
+              <Text style={styles.locationText} numberOfLines={1}>
+                {locationLabel}
+              </Text>
+              <ChevronDown size={14} color={colors.textSecondary} />
+            </Animated.View>
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -557,7 +589,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.background,
   },
   header: {
-    backgroundColor: colors.background,
+    // No backgroundColor and no bottom hairline: ChromeBlur supplies the
+    // backdrop, and a border on top of a blur reads as a seam.
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -568,8 +601,15 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     left: 0,
     right: 0,
     zIndex: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
+    overflow: 'hidden',
+  },
+  // Overlaid on the full wordmark so the two can cross-fade in place.
+  headerMark: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
   },
   headerLeft: {
     flex: 1,
