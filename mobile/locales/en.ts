@@ -1938,6 +1938,21 @@ export default {
     noEventBody: 'Please select an event to check in attendees.',
   },
 
+  contactOrganizer: {
+    title: 'Contact the organizer about',
+    topics: {
+      event: 'the event',
+      ticket: 'my ticket',
+      other: 'something else',
+    },
+    messagePlaceholder: 'Message',
+    send: 'Send message',
+    sentTitle: 'Message sent',
+    sentBody: 'The organizer has been notified and can reply to you in the app.',
+    sentBodyNamed: 'The organizer of {event} has been notified and can reply to you in the app.',
+    errorGeneric: "Couldn't send your message. Try again.",
+    open: 'Contact organizer',
+  },
   eventDetail: {
     // Prefix only — composed as `${startsIn} 2d 11h` by CountdownTimer.
     startsIn: 'Starts in',

@@ -20,6 +20,7 @@ export type NotificationType =
   | 'verification_info_needed'
   | 'connection_request'
   | 'connection_accepted'
+  | 'organizer_message'
 
 export interface Database {
   public: {

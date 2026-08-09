@@ -1892,6 +1892,21 @@ export default {
     },
   },
 
+  contactOrganizer: {
+    title: "Contacter l'organisateur au sujet de",
+    topics: {
+      event: "l'événement",
+      ticket: 'mon billet',
+      other: 'autre chose',
+    },
+    messagePlaceholder: 'Message',
+    send: 'Envoyer le message',
+    sentTitle: 'Message envoyé',
+    sentBody: "L'organisateur a été prévenu et peut vous répondre dans l'application.",
+    sentBodyNamed: "L'organisateur de {event} a été prévenu et peut vous répondre dans l'application.",
+    errorGeneric: "Impossible d'envoyer votre message. Réessayez.",
+    open: "Contacter l'organisateur",
+  },
   eventDetail: {
     // Préfixe uniquement — composé en `${startsIn} 2d 11h` par CountdownTimer.
     startsIn: 'Commence dans',

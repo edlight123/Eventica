@@ -441,6 +441,18 @@ service cloud.firestore {
       );
     }
     
+    // Attendee -> organizer messages. Created ONLY by the server route, which
+    // authenticates the sender, checks they are not the organizer and applies
+    // the per-event throttle — none of which a client rule can enforce. The
+    // organizer reads their own; the sender reads what they sent.
+    match /organizer_messages/{messageId} {
+      allow read: if isSignedIn() && (
+        resource.data.organizer_id == request.auth.uid ||
+        resource.data.sender_id == request.auth.uid
+      );
+      allow create, update, delete: if false;
+    }
+
     // Default deny for everything else
     match /{document=**} {
       allow read, write: if false;

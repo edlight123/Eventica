@@ -621,6 +621,38 @@
           "order": "ASCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "organizer_messages",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "sender_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "event_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "created_at",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "organizer_messages",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "organizer_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "created_at",
+          "order": "DESCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": []

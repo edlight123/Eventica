@@ -39,7 +39,7 @@ import { backendJson } from '../lib/api/backend';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { colors as T, font } from '../theme/tokens';
+import { colors as T, font, radius } from '../theme/tokens';
 import { safeFormatForLanguage } from '../lib/dates';
 import { isValidDate } from '../lib/dates';
 import WhitePillCTA from '../components/WhitePillCTA';
@@ -55,6 +55,7 @@ import FollowButton from '../components/FollowButton';
 import CountdownTimer from '../components/CountdownTimer';
 import VenueStaticMap from '../components/VenueStaticMap';
 import WhosGoing from '../components/WhosGoing';
+import ContactOrganizerModal from '../components/ContactOrganizerModal';
 import { EventDetailSkeleton } from '../components/Skeleton';
 const { width } = Dimensions.get('window');
 const POSTER_W = width * 0.86;
@@ -76,6 +77,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showTierSelector, setShowTierSelector] = useState(false);
   const [showFreeTicketModal, setShowFreeTicketModal] = useState(false);
+  const [showContactOrganizer, setShowContactOrganizer] = useState(false);
   const [selectedTierId, setSelectedTierId] = useState<string | null>(null);
   const [selectedTierName, setSelectedTierName] = useState<string>('');
   const [selectedTierPrice, setSelectedTierPrice] = useState<number>(0);
@@ -728,12 +730,25 @@ export default function EventDetailScreen({ route, navigation }: any) {
                 <ChevronRight size={16} color={colors.textSecondary} />
               </TouchableOpacity>
               {event.organizer_id && (
-                <FollowButton 
-                  organizerId={event.organizer_id} 
+                <FollowButton
+                  organizerId={event.organizer_id}
                   style={styles.followButtonInCard}
                 />
               )}
             </View>
+            {/* Hidden from the organizer's own event — messaging yourself just
+                fills your own inbox, and the server rejects it anyway. */}
+            {!!user && !!event.organizer_id && event.organizer_id !== user.uid && (
+              <TouchableOpacity
+                style={styles.contactOrganizerRow}
+                onPress={() => setShowContactOrganizer(true)}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+              >
+                <Text style={styles.contactOrganizerText}>{t('contactOrganizer.open')}</Text>
+                <ChevronRight size={16} color={colors.textSecondary} />
+              </TouchableOpacity>
+            )}
           </View>
 
           {/* Who's Going - social attendance (hidden when organizer disables the guest list) */}
@@ -791,6 +806,13 @@ export default function EventDetailScreen({ route, navigation }: any) {
         eventId={eventId}
         onPurchase={handleTierSelection}
         currency={event?.currency || 'HTG'}
+      />
+
+      <ContactOrganizerModal
+        visible={showContactOrganizer}
+        onClose={() => setShowContactOrganizer(false)}
+        eventId={eventId}
+        eventTitle={event?.title}
       />
 
       {/* Free Ticket Modal */}
@@ -1381,16 +1403,36 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   // Floating Bottom CTA — transparent bar centering a narrower pill (Posh-style).
   // Centered + content-hugging so it no longer spans edge-to-edge over the
   // date/venue content beneath it.
+  contactOrganizerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  contactOrganizerText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: colors.text,
+  },
   floatingBottomCard: {
     position: 'absolute',
     left: 0,
     right: 0,
-    paddingHorizontal: 24,
-    alignItems: 'center',
+    paddingHorizontal: 20,
+    // `stretch`, not `center`: centering makes the pill shrink-wrap its label,
+    // so "Get Tickets" rendered as a narrow island floating over the page. The
+    // primary action should span the bar the way it does on posh.
+    alignItems: 'stretch',
     backgroundColor: 'transparent',
   },
   floatingCtaPill: {
-    maxWidth: '100%',
+    width: '100%',
+    height: 60,
   },
   ctaButton: {
     backgroundColor: colors.primary,
@@ -1413,9 +1455,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   ctaDisabled: {
     backgroundColor: colors.surfaceRaised,
-    borderRadius: 14,
-    paddingVertical: 16,
+    // Matches the live CTA's pill geometry so "Sold out" / "Event ended" sit
+    // in exactly the same footprint the button occupied.
+    borderRadius: radius.button,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   ctaDisabledText: {
     color: colors.textSecondary,

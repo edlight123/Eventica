@@ -1890,6 +1890,21 @@ export default {
     },
   },
 
+  contactOrganizer: {
+    title: 'Kontakte òganizatè a sou',
+    topics: {
+      event: 'evènman an',
+      ticket: 'tikè mwen an',
+      other: 'yon lòt bagay',
+    },
+    messagePlaceholder: 'Mesaj',
+    send: 'Voye mesaj la',
+    sentTitle: 'Mesaj voye',
+    sentBody: 'Òganizatè a resevwa avi a epi li ka reponn ou nan aplikasyon an.',
+    sentBodyNamed: 'Òganizatè {event} resevwa avi a epi li ka reponn ou nan aplikasyon an.',
+    errorGeneric: 'Nou pa t ka voye mesaj ou a. Eseye ankò.',
+    open: 'Kontakte òganizatè a',
+  },
   eventDetail: {
     // Prefiks sèlman — konpoze kòm `${startsIn} 2d 11h` nan CountdownTimer.
     startsIn: 'Kòmanse nan',
