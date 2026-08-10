@@ -596,11 +596,96 @@ export default function EventDetailScreen({ route, navigation }: any) {
         </View>
 
         <View style={styles.content}>
-          {/* Host byline — ABOVE the title, the way posh orders an event
-              page: who is throwing this, then what it is, then the details.
-              It carries Follow and Contact organizer with it, so the host is
-              one block rather than a name up top and its actions far below. */}
+          {/* Title block — text-first, under the poster */}
+          <Text style={styles.title}>{event.title}</Text>
+
+          {/* Venue and date as two plain lines, the way posh states them:
+              "Professor Miller's house near Target" / "Sat, Aug 22 at 4:00 PM
+              - 9:00 PM". The old version spent two icon rows, a divider and
+              four stacked lines on the same two facts — the wasted space a
+              tester marked up twice. Tapping the venue still opens Maps, which
+              is what the ⧉ affordance did. */}
+          <View style={styles.factList}>
+            <TouchableOpacity onPress={openInMaps} activeOpacity={0.6} style={styles.venueLine}>
+              <Text style={styles.venueText} numberOfLines={2}>
+                {event.venue_name || event.address || event.city}
+              </Text>
+              <ExternalLink size={14} color={colors.textSecondary} />
+            </TouchableOpacity>
+
+            <Text style={styles.whenText}>
+              {startValid && safeFormatForLanguage(startValid, 'EEE, MMM d', language)}
+              {startValid && ` ${t('common.at')} ${safeFormatForLanguage(startValid, 'h:mm a', language)}`}
+              {endValid && ` – ${safeFormatForLanguage(endValid, 'h:mm a', language)}`}
+            </Text>
+
+            {/* Kept — posh has no countdown, but urgency is genuinely useful on
+                a ticketing app. Demoted to one quiet line rather than its own row. */}
+            {startValid && startValid > new Date() && (
+              <CountdownTimer targetDate={startValid} label={startsInLabel} style={styles.factCountdown} />
+            )}
+
+          </View>
+
+          {/* Quick Actions - Calendar & Waitlist */}
+          <View style={styles.quickActionsRow}>
+            <AddToCalendarButton 
+              event={{
+                id: eventId,
+                title: event.title,
+                description: event.description,
+                start_datetime: event.start_datetime,
+                end_datetime: event.end_datetime,
+                venue_name: event.venue_name,
+                address: event.address,
+                city: event.city,
+              }}
+              style={styles.quickActionButton}
+            />
+            {isSoldOut && (
+              <JoinWaitlistButton
+                eventId={eventId}
+                eventTitle={event.title}
+                isSoldOut={isSoldOut}
+                style={styles.quickActionButton}
+              />
+            )}
+          </View>
+
+          {/* About Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>{t('eventDetail.sections.about')}</Text>
+            <Text style={styles.description}>{event.description}</Text>
+          </View>
+
+          {/* Promo Video — only when a valid URL is provided */}
+          {typeof (event as any).video_url === 'string' && (event as any).video_url.trim() !== '' && (
+            <TouchableOpacity
+              style={styles.promoVideoRow}
+              onPress={openPromoVideo}
+              activeOpacity={0.7}
+            >
+              <PlayCircle size={20} color={colors.primary} />
+              <Text style={styles.promoVideoText}>{t('organizerCreateEventFlow.canvas.trailer')}</Text>
+              <ExternalLink size={15} color={colors.textSecondary} />
+            </TouchableOpacity>
+          )}
+
+          {/* Venue map — foot of the page, directly above the organizer
+              (tester ask): by the time you want the map you have decided to go;
+              up top it pushed the description below the fold. */}
+          <VenueStaticMap
+            event={event}
+            onPress={openInMaps}
+            accessibilityLabel={t('eventDetail.maps.title')}
+            style={styles.venueMap}
+          />
+
+          {/* Organizer — back at the FOOT of the page, reversing the
+              byline-above-title experiment (tester ask): read the event first,
+              then who is throwing it, with Follow and Contact right here. */}
           <View style={styles.hostByline}>
+            <Text style={styles.sectionTitle}>{t('eventDetail.sections.hostedBy')}</Text>
             <View style={styles.hostedByCard}>
               <TouchableOpacity 
                 style={styles.hostedByMain}
@@ -664,87 +749,6 @@ export default function EventDetailScreen({ route, navigation }: any) {
               </TouchableOpacity>
             )}
           </View>
-
-          {/* Title block — text-first, under the poster */}
-          <Text style={styles.title}>{event.title}</Text>
-
-          {/* Venue and date as two plain lines, the way posh states them:
-              "Professor Miller's house near Target" / "Sat, Aug 22 at 4:00 PM
-              - 9:00 PM". The old version spent two icon rows, a divider and
-              four stacked lines on the same two facts — the wasted space a
-              tester marked up twice. Tapping the venue still opens Maps, which
-              is what the ⧉ affordance did. */}
-          <View style={styles.factList}>
-            <TouchableOpacity onPress={openInMaps} activeOpacity={0.6} style={styles.venueLine}>
-              <Text style={styles.venueText} numberOfLines={2}>
-                {event.venue_name || event.address || event.city}
-              </Text>
-              <ExternalLink size={14} color={colors.textSecondary} />
-            </TouchableOpacity>
-
-            <Text style={styles.whenText}>
-              {startValid && safeFormatForLanguage(startValid, 'EEE, MMM d', language)}
-              {startValid && ` ${t('common.at')} ${safeFormatForLanguage(startValid, 'h:mm a', language)}`}
-              {endValid && ` – ${safeFormatForLanguage(endValid, 'h:mm a', language)}`}
-            </Text>
-
-            {/* Kept — posh has no countdown, but urgency is genuinely useful on
-                a ticketing app. Demoted to one quiet line rather than its own row. */}
-            {startValid && startValid > new Date() && (
-              <CountdownTimer targetDate={startValid} label={startsInLabel} style={styles.factCountdown} />
-            )}
-
-            <VenueStaticMap
-              event={event}
-              onPress={openInMaps}
-              accessibilityLabel={t('eventDetail.maps.title')}
-              style={styles.venueMap}
-            />
-          </View>
-
-          {/* Quick Actions - Calendar & Waitlist */}
-          <View style={styles.quickActionsRow}>
-            <AddToCalendarButton 
-              event={{
-                id: eventId,
-                title: event.title,
-                description: event.description,
-                start_datetime: event.start_datetime,
-                end_datetime: event.end_datetime,
-                venue_name: event.venue_name,
-                address: event.address,
-                city: event.city,
-              }}
-              style={styles.quickActionButton}
-            />
-            {isSoldOut && (
-              <JoinWaitlistButton
-                eventId={eventId}
-                eventTitle={event.title}
-                isSoldOut={isSoldOut}
-                style={styles.quickActionButton}
-              />
-            )}
-          </View>
-
-          {/* About Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t('eventDetail.sections.about')}</Text>
-            <Text style={styles.description}>{event.description}</Text>
-          </View>
-
-          {/* Promo Video — only when a valid URL is provided */}
-          {typeof (event as any).video_url === 'string' && (event as any).video_url.trim() !== '' && (
-            <TouchableOpacity
-              style={styles.promoVideoRow}
-              onPress={openPromoVideo}
-              activeOpacity={0.7}
-            >
-              <PlayCircle size={20} color={colors.primary} />
-              <Text style={styles.promoVideoText}>{t('organizerCreateEventFlow.canvas.trailer')}</Text>
-              <ExternalLink size={15} color={colors.textSecondary} />
-            </TouchableOpacity>
-          )}
 
           {/* Who's Going - social attendance (hidden when organizer disables the guest list) */}
           {(event as any).show_guestlist !== false && (
@@ -1028,9 +1032,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     lineHeight: 38,
     letterSpacing: 0,
   },
+  // Section spacing now that the organizer lives at the foot of the page,
+  // not tucked under the poster as a byline.
   hostByline: {
-    marginTop: 2,
-    marginBottom: 14,
+    marginTop: 24,
+    marginBottom: 8,
   },
   factList: {
     marginTop: 12,
@@ -1074,8 +1080,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     // comparison a tester drew. The address above stays indented — only the
     // map breaks out.
     marginLeft: 0,
-    marginTop: 4,
-    marginBottom: 14,
+    // Breathing room from the About text above, now that the map closes the
+    // page instead of sitting inside the fact list.
+    marginTop: 20,
+    marginBottom: 4,
   },
 
   
