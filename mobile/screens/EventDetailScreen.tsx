@@ -58,6 +58,12 @@ import { useAppAlert } from '../components/AppAlert';
 import { EventDetailSkeleton } from '../components/Skeleton';
 const { width } = Dimensions.get('window');
 const POSTER_W = width * 0.86;
+// The poster is 4:5, so its height follows from its width. The hero adds a
+// fixed bleed band above and below rather than a magic total height: at a flat
+// 600pt the hero ate 71% of an 844pt screen, so the host, title and date all
+// began below the fold — where posh shows them immediately.
+const POSTER_H = POSTER_W * 1.25;
+const HERO_BLEED = 52;
 
 // Dictionary key for the compact countdown prefix ("Starts in").
 const STARTS_IN_KEY = 'eventDetail.startsIn';
@@ -964,7 +970,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   heroContainer: {
     position: 'relative',
     width: width,
-    height: 600,
+    height: POSTER_H + HERO_BLEED * 2,
     backgroundColor: colors.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
@@ -978,9 +984,14 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     top: 0,
     left: 0,
   },
+  // 0.35, not 0.55. The backdrop is the SAME poster blurred, and the point of
+  // it is the artwork's colour bleeding into the page — posh's defining hero
+  // quality. At 0.55 the bleed was crushed to near-grey, so the poster sat on
+  // flat black instead of melting into it. The sharp poster on top carries its
+  // own shadow, so legibility does not depend on this layer.
   heroBackdropScrim: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(10,10,10,0.55)',
+    backgroundColor: 'rgba(10,10,10,0.35)',
   },
   heroPoster: {
     width: POSTER_W,
