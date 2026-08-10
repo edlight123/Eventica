@@ -39,7 +39,7 @@ import EmptyState from '../components/EmptyState';
 import { HomeFeedSkeleton } from '../components/Skeleton';
 import ChromeBlur from '../components/ChromeBlur';
 import { isBudgetFriendlyTicketPrice } from '../lib/pricing';
-import type { HomeFeed } from '../lib/homeFeeds';
+import { isEventOver, type HomeFeed } from '../lib/homeFeeds';
 import { getCategoryLabel } from '../lib/categories';
 import { shareEvent } from '../lib/share';
 import { radius } from '../theme/tokens';
@@ -166,20 +166,17 @@ export default function HomeScreen({ navigation }: any) {
 
       // Filter out past events (be lenient - show events from past week that could be ongoing)
       const now = new Date();
-      const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      const futureEvents: any[] = exploreEvents.filter((e) => {
-        const start = e.start_datetime ? new Date(e.start_datetime) : null;
-        const end = e.end_datetime ? new Date(e.end_datetime) : null;
-        
-        // If has end date, check if it's in the future
-        if (end) return end >= now;
-        // If only start date, show if started within past week
-        if (start) return start >= oneWeekAgo;
-        // No dates - show anyway
-        return true;
-      });
+      // One shared rule (lib/homeFeeds) so Home and the section pages agree on
+      // what "over" means. The previous logic kept an event with no end time
+      // visible for a WEEK after it started — a tester rightly asked why a
+      // finished event was still on the home feed.
+      const futureEvents: any[] = exploreEvents.filter((e) => !isEventOver(e, now));
 
-      const effectiveEvents = futureEvents.length > 0 ? futureEvents : exploreEvents;
+      // NO fallback to the unfiltered list. It used to show every event —
+      // including finished ones — whenever nothing upcoming remained, which
+      // turned an empty feed into a feed of stale events. An honest empty
+      // state is better than a wrong one.
+      const effectiveEvents = futureEvents;
       
       // Apply country filter - only show events from user's country
       const countryFiltered = effectiveEvents.filter((e) => 

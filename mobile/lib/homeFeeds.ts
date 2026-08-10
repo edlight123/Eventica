@@ -30,6 +30,32 @@ function normalizeCity(s: any): string {
     .replace(/[\u0300-\u036f]/g, '');
 }
 
+/**
+ * How long an event is assumed to run when it carries no end time. Matches the
+ * fallback AddToCalendarButton already uses, so a pass, a calendar entry and
+ * the feeds all agree on when something is over.
+ */
+export const ASSUMED_EVENT_DURATION_MS = 2 * 60 * 60 * 1000;
+
+/**
+ * Has this event finished?
+ *
+ * Deliberately NOT `start < now`: an event in progress is still worth showing —
+ * you can still walk in. It ends at `end_datetime`, or at start + the assumed
+ * duration when the organizer left the end time blank.
+ *
+ * The old Home rule kept an end-less event visible for a WEEK after it started,
+ * which is why a konpa night that began at 10pm was still sitting in the feed
+ * as "upcoming" the same evening.
+ */
+export function isEventOver(event: any, now: Date = new Date()): boolean {
+  const endMs = toMillis(event?.end_datetime);
+  if (endMs) return endMs < now.getTime();
+  const startMs = toMillis(event?.start_datetime);
+  if (!startMs) return false; // undated events are never "over"
+  return startMs + ASSUMED_EVENT_DURATION_MS < now.getTime();
+}
+
 /** Firestore Timestamp | ISO string | Date → epoch ms, 0 when unusable. */
 export function toMillis(v: any): number {
   if (!v) return 0;

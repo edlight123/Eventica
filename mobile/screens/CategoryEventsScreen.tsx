@@ -11,7 +11,7 @@ import ChromeBlur from '../components/ChromeBlur';
 import { GridSkeleton } from '../components/Skeleton';
 import EmptyState from '../components/EmptyState';
 import { getCategoryLabel } from '../lib/categories';
-import { applyHomeFeed } from '../lib/homeFeeds';
+import { applyHomeFeed, isEventOver } from '../lib/homeFeeds';
 
 // Fixed column width rather than flex: with an ODD number of events the last
 // card in a flex grid stretches to the full row. Matches FavoritesScreen's
@@ -62,11 +62,11 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
                 : null,
             };
           })
-          // Client-side filter: published + upcoming only.
-          .filter(
-            (e: any) =>
-              e.is_published !== false && e.start_datetime && e.start_datetime >= now
-          )
+          // Published + not-yet-over. Uses the same isEventOver rule as Home so
+          // a rail and its "view all" page cannot disagree about what has
+          // finished; `start >= now` here would have hidden an event that is
+          // currently running while Home still showed it.
+          .filter((e: any) => e.is_published !== false && !isEventOver(e, now))
           .sort(
             (a: any, b: any) => a.start_datetime.getTime() - b.start_datetime.getTime()
           );
