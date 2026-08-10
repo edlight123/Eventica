@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import { X, Ticket, Share2, CalendarPlus } from 'lucide-react-native';
+import { X, Ticket, Share2 } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { radius, spacing } from '../theme/tokens';

@@ -4,21 +4,18 @@ import {
   Text,
   ScrollView,
   StyleSheet,
-  ActivityIndicator,
-  TouchableOpacity,
+    TouchableOpacity,
   Image,
   Dimensions,
   RefreshControl,
   Linking,
-  Platform,
-  ImageBackground,
+    ImageBackground,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import {
   Calendar,
-  Users,
-  Star,
+    Star,
   MapPin,
   Globe,
   MessageCircle,
@@ -538,7 +535,7 @@ export default function OrganizerProfileScreen({ route, navigation }: any) {
 
         <View style={styles.content}>
 
-          {/* Stats — one quiet mono line rather than a full-width row of three
+          {/* Stats — one quiet tabular-numeral line rather than a full-width row of three
               27px numerals. All three figures are kept, just at reading size:
               "4 EVENTS · 4 FOLLOWERS · 0 SOLD". */}
           <View style={styles.statLine}>
@@ -717,11 +714,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: colors.textSecondary,
   },
   errorText: {
     fontSize: 16,
@@ -915,55 +907,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginHorizontal: 3,
   },
 
-  // Friend connection + personal social. Elevation, not a 1px box (POSH §1).
-  socialCard: {
-    backgroundColor: colors.surfaceRaised,
-    borderRadius: radius.lg,
-    padding: 16,
-    marginBottom: 24,
-    gap: 12,
-  },
   connectRow: {
     alignItems: 'flex-start',
     marginBottom: 24,
   },
-  socialBio: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: colors.text,
-  },
-  socialChipsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  socialChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderRadius: radius.chip,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    maxWidth: '100%',
-  },
-  socialChipText: {
-    fontSize: 13,
-    fontWeight: '600',
-  },
 
-  // Follow Prompt
-  followPrompt: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    lineHeight: 20,
-  },
-  followLink: {
-    color: colors.primary,
-    fontWeight: '600',
-  },
 
   // Sections
   section: {

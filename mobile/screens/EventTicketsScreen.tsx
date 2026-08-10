@@ -5,8 +5,7 @@ import {
   FlatList,
   ScrollView,
   StyleSheet,
-  ActivityIndicator,
-  TouchableOpacity,
+    TouchableOpacity,
   Animated,
   StatusBar,
   Dimensions,
@@ -331,11 +330,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.12)',
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   safeArea: {
     flex: 1,
   },
@@ -350,12 +344,6 @@ const styles = StyleSheet.create({
     color: T.white,
     textAlign: 'center',
     marginBottom: 6,
-  },
-  ticketCount: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.9)',
-    marginBottom: 4,
   },
   currentTicketIndicator: {
     fontSize: 12,

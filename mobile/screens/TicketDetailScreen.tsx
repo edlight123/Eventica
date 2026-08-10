@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { Calendar, MapPin, User as UserIcon, Ticket as TicketIcon, Send, Star, RotateCcw, CalendarPlus, Navigation } from 'lucide-react-native';
 import { doc, getDoc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -548,29 +548,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
     lineHeight: 30,
   },
-  statusBadge: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: radius.xl,
-    alignSelf: 'center',
-    marginBottom: 24,
-    backgroundColor: colors.border,
-  },
-  statusConfirmed: {
-    backgroundColor: '#10B981',
-  },
-  statusUsed: {
-    backgroundColor: colors.textSecondary,
-  },
-  statusExpired: {
-    backgroundColor: '#FF8C00', // Orange color for expired
-  },
-  statusText: {
-    color: colors.white,
-    fontSize: 11,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-  },
   statusChipRow: {
     alignItems: 'center',
     marginBottom: 20,
@@ -598,19 +575,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 14,
     fontWeight: '600',
     color: colors.text,
-  },
-  qrContainer: {
-    backgroundColor: colors.surface,
-    padding: 24,
-    borderRadius: radius.xl,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
-    elevation: 6,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   qrInstruction: {
     fontSize: 15,

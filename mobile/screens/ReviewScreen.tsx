@@ -16,7 +16,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { safeFormatForLanguage } from '../lib/dates';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
-import { SHADOWS, RADIUS } from '../config/brand';
+import { RADIUS } from '../config/brand';
 import { radius } from '../theme/tokens';
 import { backendFetch } from '../lib/api/backend';
 import OverlayHeader, { useOverlayHeaderInset } from '../components/OverlayHeader';
@@ -284,16 +284,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   scrollView: {
     flex: 1,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  // Overlay chrome (OverlayHeader owns the row layout, the blur backdrop and
-  // the absolute placement). No fill and no hairline: they would paint over the
-  // blur. paddingTop deliberately OVERRIDES OverlayHeader's safe-area inset:
-  // this bar lives inside a SafeAreaView edges={['top', ...]} that has already
-  // paid the notch, so paying it twice would double the gap.
+  // Overlay chrome (OverlayHeader owns the row layout, the safe-area top
+  // padding, the blur backdrop and the absolute placement) — only the row's own
+  // geometry is ours. No paddingTop here: the SafeAreaView above runs
+  // edges={['bottom']} precisely so OverlayHeader can pay the notch itself. No
+  // fill and no hairline either: they would paint over the blur.
   header: {
     justifyContent: 'space-between',
     paddingBottom: 12,

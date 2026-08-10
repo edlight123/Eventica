@@ -3,7 +3,7 @@ import { Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { MapPin } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
-import { SPACING, RADIUS } from '../config/brand';
+import { SPACING } from '../config/brand';
 import { radius } from '../theme/tokens';
 
 interface LocationChipsProps {

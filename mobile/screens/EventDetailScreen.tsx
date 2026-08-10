@@ -2,16 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   View, 
   Text, 
-  ScrollView, 
-  StyleSheet, 
-  Image, 
-  TouchableOpacity, 
+    StyleSheet, 
+    TouchableOpacity, 
   ActivityIndicator,
   Share,
   Dimensions,
   Linking,
-  Platform,
-  Animated,
+    Animated,
   Modal,
   TextInput,
 } from 'react-native';
@@ -19,14 +16,9 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Image as ExpoImage } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { 
-  User as UserIcon, 
-  Tag, 
-  Share2, 
+      Share2, 
   Heart, 
-  Ticket,
-  TrendingUp,
-  Star,
-  ExternalLink,
+        ExternalLink,
   ChevronRight,
   PlayCircle
 } from 'lucide-react-native';
@@ -943,11 +935,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     padding: 20,
   },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: colors.textSecondary,
-  },
   errorText: {
     fontSize: 16,
     color: colors.textSecondary,
@@ -974,15 +961,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: colors.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  heroImage: {
-    width: '100%',
-    height: '100%',
-  },
-  heroImageAbsolute: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
   },
   // 0.35, not 0.55. The backdrop is the SAME poster blurred, and the point of
   // it is the artwork's colour bleeding into the page — posh's defining hero
@@ -1012,13 +990,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     bottom: 0,
     height: 140,
   },
-  heroPlaceholder: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: colors.primary + '15',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   heroTopScrim: {
     position: 'absolute',
     top: 0,
@@ -1044,52 +1015,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
   },
   
-  // Bottom Left Overlay (Badges + Title)
-  heroOverlay: {
-    position: 'absolute',
-    bottom: 20,
-    left: 16,
-    right: 16,
-  },
-  heroBadges: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 12,
-  },
-  categoryBadgeHero: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 10,
-  },
-  categoryTextHero: {
-    color: colors.text,
-    fontWeight: '600',
-    fontSize: 12,
-  },
-  heroTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#FFF',
-    lineHeight: 34,
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 8,
-  },
 
   // Content Area — text-first
   content: {
     paddingHorizontal: 18,
     paddingTop: 9,
-  },
-  eyebrow: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.primary,
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
-    marginBottom: 8,
   },
   title: {
     fontFamily: 'InstrumentSerif_400Regular',
@@ -1097,12 +1027,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
     lineHeight: 38,
     letterSpacing: 0,
-  },
-  badgeRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 12,
   },
   hostByline: {
     marginTop: 2,
@@ -1153,89 +1077,14 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 4,
     marginBottom: 14,
   },
-  sectionTitleMain: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: 16,
-    marginTop: 4,
-  },
 
-  // Info Cards - More Compact
-  infoCards: {
-    gap: 10,
-    marginBottom: 24,
-  },
-  infoCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    padding: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  infoCardIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  infoCardContent: {
-    flex: 1,
-  },
-  infoCardLabel: {
-    fontSize: 10,
-    color: colors.textSecondary,
-    fontWeight: '600',
-    marginBottom: 4,
-    letterSpacing: 0.5,
-  },
-  infoCardValue: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 2,
-  },
-  infoCardSubvalue: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
   
-  // Ticket Availability Enhancements
-  ticketsAvailable: {
-    fontSize: 14,
-    color: colors.text,
-    marginTop: 4,
-  },
-  ticketsAvailableBold: {
-    fontWeight: '700',
-    color: colors.text,
-  },
-  ticketsSold: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
 
   // Sections
   section: {
     paddingVertical: 22,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.borderLight,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
   },
   sectionTitle: {
     fontSize: 18,
@@ -1264,38 +1113,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
   },
 
-  // Tags
-  tagsContainer: {
-    marginTop: 16,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  tagsTitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.textSecondary,
-    marginBottom: 8,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  tagsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  tag: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  tagText: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: colors.primary,
-  },
 
   // Hosted By Section
   hostedByCard: {
@@ -1342,23 +1159,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignSelf: 'flex-start',
     gap: 4,
   },
-  // Quiet mono label, teal because teal here CARRIES MEANING (verified).
+  // Quiet uppercase label, teal because teal here CARRIES MEANING (verified).
   // No backgroundColor / borderWidth — deliberately not a pill.
   verifiedTextInline: {
     fontSize: 10,
     letterSpacing: 0.4,
     textTransform: 'uppercase',
     color: colors.primary,
-  },
-  viewProfileButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  viewProfileText: {
-    fontSize: 14,
-    color: colors.primary,
-    fontWeight: '600',
   },
   hostedByMain: {
     flexDirection: 'row',
@@ -1377,69 +1184,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
   },
 
-  // Venue Details
-  venueDetails: {
-    gap: 16,
-  },
-  venueRow: {
-    gap: 4,
-  },
-  venueLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  venueValue: {
-    fontSize: 15,
-    color: colors.text,
-    lineHeight: 22,
-  },
-  mapLinksRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingTop: 8,
-  },
-  mapLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  mapLinkText: {
-    fontSize: 14,
-    color: colors.primary,
-    fontWeight: '600',
-  },
-  mapSeparator: {
-    color: colors.border,
-    fontSize: 14,
-  },
 
-  // Date Details
-  dateDetails: {
-    gap: 16,
-  },
-  dateRow: {
-    gap: 4,
-  },
-  dateLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  dateValue: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  dateTime: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
 
   // Quiet outlined row under the host card — an outline, not a filled pill, so
   // it never competes with the white Get Tickets CTA for primary-action weight.
@@ -1490,24 +1235,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     top: -56,
     bottom: -40,
   },
-  ctaButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 14,
-    paddingVertical: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  ctaButtonText: {
-    color: T.onTeal,
-    fontSize: 16,
-    fontWeight: '800',
-  },
-  ctaButtonPrice: {
-    color: T.onTeal,
-    opacity: 0.7,
-    fontSize: 13,
-    letterSpacing: 0.3,
-  },
   ctaDisabled: {
     backgroundColor: colors.surfaceRaised,
     // Matches the live CTA's pill geometry so "Sold out" / "Event ended" sit
@@ -1521,72 +1248,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 15,
     fontWeight: '700',
   },
-  floatingContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  floatingPriceSection: {
-    flex: 1,
-    marginRight: 12,
-  },
-  floatingPriceMain: {
-    fontSize: 26,
-    fontWeight: '700',
-    color: colors.primary,
-    marginBottom: 2,
-  },
-  floatingSecondaryText: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  soldOutMainText: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: colors.textSecondary,
-    marginBottom: 2,
-  },
   
-  // Floating Button (Pill-shaped CTA)
-  floatingButton: {
-    flexDirection: 'row',
-    backgroundColor: colors.primary,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    minWidth: 140,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  floatingButtonProcessing: {
-    opacity: 0.7,
-  },
-  floatingButtonText: {
-    color: T.onTeal,
-    fontSize: 15,
-    fontWeight: '800',
-  },
-  floatingButtonDisabled: {
-    backgroundColor: colors.textSecondary + '25',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: 140,
-  },
-  floatingButtonDisabledText: {
-    color: colors.textSecondary,
-    fontSize: 15,
-    fontWeight: '600',
-  },
 
   // ── Password gate modal ──
   accessBackdrop: {

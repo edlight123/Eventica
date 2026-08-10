@@ -472,7 +472,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 20,
     paddingTop: 24,
   },
-  // Mono, uppercase eyebrow — the app's `sectionHeader` treatment (POSH §2.7).
+  // Uppercase, letter-spaced eyebrow — the app's `sectionHeader` treatment
+  // (POSH §2.7). Sans, not mono: monospace is reserved for true identifiers.
   sectionLabel: {
     fontSize: 12,
     letterSpacing: 0.8,

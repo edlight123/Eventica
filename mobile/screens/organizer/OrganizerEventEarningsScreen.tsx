@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  ActivityIndicator,
-  Linking,
-  Modal,
+      Modal,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -25,7 +23,7 @@ import { getEventById } from '../../lib/api/organizer'
 import { getVerificationRequest } from '../../lib/verification'
 import { getRequiredPayoutProfileIdForEventCountry, normalizeCountryCode } from '../../lib/payment-provider'
 import { RADIUS } from '../../config/brand'
-import { colors as tokenColors, font, radius } from '../../theme/tokens'
+import { colors as tokenColors, radius } from '../../theme/tokens'
 import { formatCurrency as fmtCurrency } from '../../lib/currency'
 import StatTriplet from '../../components/StatTriplet'
 import WhitePillCTA from '../../components/WhitePillCTA'
@@ -1019,16 +1017,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   scroll: {
     flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.background,
-  },
-  loadingText: {
-    marginTop: 10,
-    color: colors.textSecondary,
   },
   // De-boxed hero (beta feedback: no grayed box backgrounds) — the balance sits
   // directly on the canvas, closed by a hairline before the stats triplet.

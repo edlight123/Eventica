@@ -15,7 +15,7 @@ import { db } from '../config/firebase';
 import { useTheme } from '../contexts/ThemeContext';
 import { safeFormatForLanguage } from '../lib/dates';
 import { useI18n } from '../contexts/I18nContext';
-import { SHADOWS, RADIUS } from '../config/brand';
+import { RADIUS } from '../config/brand';
 import { backendFetch } from '../lib/api/backend';
 import { formatCurrency } from '../lib/currency';
 import { radius } from '../theme/tokens';
@@ -337,10 +337,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  // Overlay chrome (OverlayHeader owns the row layout, the blur backdrop and
-  // the absolute placement). paddingTop deliberately OVERRIDES OverlayHeader's
-  // safe-area inset: this bar lives inside a SafeAreaView edges={['top',...]}
-  // that has already paid the notch, so paying it twice would double the gap.
+  // Overlay chrome (OverlayHeader owns the row layout, the safe-area top
+  // padding, the blur backdrop and the absolute placement) — only the row's own
+  // geometry is ours. No paddingTop here: the SafeAreaView above runs
+  // edges={['bottom']} precisely so OverlayHeader can pay the notch itself. No
+  // fill and no hairline either: they would paint over the blur.
   headerBar: {
     justifyContent: 'space-between',
     paddingBottom: 12,

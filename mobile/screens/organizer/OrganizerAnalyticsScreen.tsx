@@ -5,8 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator,
-  RefreshControl,
+    RefreshControl,
   Dimensions,
 } from 'react-native';
 import { radius } from '../../theme/tokens';

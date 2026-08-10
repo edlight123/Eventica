@@ -1,5 +1,5 @@
 import React, { useContext, useRef, useState, useEffect } from 'react';
-import { AppState, Alert, View, TouchableOpacity, Text, StyleSheet, Platform, Animated, LayoutChangeEvent } from 'react-native';
+import { AppState, View, TouchableOpacity, Text, StyleSheet, Platform, Animated, LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ExpoLinking from 'expo-linking';
 import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
@@ -16,6 +16,7 @@ import { COLORS } from '../config/brand';
 import { withAlpha } from '../theme/tokens';
 import { getVerificationRequest } from '../lib/verification';
 import BootScreen from '../components/BootScreen';
+import { useAppAlert } from '../components/AppAlert';
 import { hideSplash } from '../lib/splash';
 import { getPendingInvite } from '../lib/pendingInvite';
 import { clearPendingPayment, getPendingPayment } from '../lib/pendingPayment';
@@ -579,6 +580,10 @@ export default function AppNavigator() {
   const { user, loading, userProfile } = useAuth();
   const { mode, isLoading: modeLoading } = useAppMode();
   const { t } = useI18n();
+  // In-app sheet for the pending-payment resume prompt — the last surviving
+  // native Alert after the app-wide migration. Referentially stable, so the
+  // effect below does not need it in its dependency array.
+  const showAlert = useAppAlert();
   const [isVerified, setIsVerified] = useState(false);
   const navigationRef = useNavigationContainerRef<RootStackParamList>();
   const didApplyModeResetRef = useRef(false);
@@ -659,7 +664,7 @@ export default function AppNavigator() {
       const pending = await getPendingPayment().catch(() => null);
       if (!pending?.url) return;
 
-      Alert.alert(t('screens.payment.pendingTitle'), t('screens.payment.pendingBody'), [
+      showAlert(t('screens.payment.pendingTitle'), t('screens.payment.pendingBody'), [
         {
           text: t('screens.payment.continue'),
           onPress: () => {

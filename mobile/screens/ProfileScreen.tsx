@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Dimensions,
   Image,
@@ -24,7 +24,7 @@ import { useI18n } from '../contexts/I18nContext';
 import { useFilters } from '../contexts/FiltersContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { db, isDemoMode, storage } from '../config/firebase';
-import { SHADOWS, RADIUS } from '../config/brand';
+import { RADIUS } from '../config/brand';
 import { radius } from '../theme/tokens';
 import { getStaffEventIds } from '../lib/staffAssignments';
 import { getVerificationRequest, type VerificationRequest } from '../lib/verification';

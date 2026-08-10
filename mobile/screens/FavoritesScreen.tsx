@@ -10,13 +10,12 @@ import {
   Dimensions
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Heart, Share2, Ticket, Compass, ArrowLeft } from 'lucide-react-native';
-import { collection, query, where, getDocs, addDoc, deleteDoc, doc, getDocs as getDocsFirestore } from 'firebase/firestore';
+import { Heart, Share2, ArrowLeft } from 'lucide-react-native';
+import { collection, query, where, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { radius } from '../theme/tokens';
 import EmptyState from '../components/EmptyState';
 import OverlayHeader, { useOverlayHeaderInset } from '../components/OverlayHeader';
 import PosterEventCard from '../components/PosterEventCard';
@@ -232,12 +231,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     backgroundColor: colors.background,
   },
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: colors.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   // Only what OverlayHeader does NOT already provide. It owns the safe-area
   // paddingTop, the horizontal padding and the ChromeBlur backdrop; the old
   // `padding: 20` / `paddingTop: 16` here would have overridden the safe-area
@@ -261,11 +254,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '700',
     letterSpacing: -0.5,
     color: colors.text,
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginTop: 4,
   },
   content: {
     flex: 1,
@@ -295,42 +283,5 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 40,
-    marginTop: 60,
-  },
-  emptyTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: colors.text,
-    marginTop: 24,
-    marginBottom: 8,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: 32,
-    lineHeight: 24,
-  },
-  exploreButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: 32,
-    paddingVertical: 14,
-    borderRadius: radius.md,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  exploreButtonText: {
-    color: colors.surface,
-    fontSize: 16,
-    fontWeight: '700',
   },
 });

@@ -5,31 +5,25 @@ import {
   ScrollView, 
   StyleSheet, 
   TouchableOpacity,
-  ActivityIndicator,
-  Image,
+    Image,
   Dimensions,
   RefreshControl,
   Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTabBarSpace } from '../hooks/useTabBarSpace';
-import { Calendar, MapPin, Search, SlidersHorizontal, Users, CloudOff } from 'lucide-react-native';
+import { Search, SlidersHorizontal, Users, CloudOff } from 'lucide-react-native';
 import { collection, query, where, getDocs, limit, addDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { filterExploreEvents } from '../lib/api/events';
 import { useTheme } from '../contexts/ThemeContext';
-import { format } from 'date-fns';
-import { font, radius } from '../theme/tokens';
-import FeaturedCarousel from '../components/FeaturedCarousel';
+import { radius } from '../theme/tokens';
 import EventFiltersSheet from '../components/EventFiltersSheet';
-import EventStatusBadge from '../components/EventStatusBadge';
 import PosterEventCard from '../components/PosterEventCard';
 import EmptyState from '../components/EmptyState';
 import { Skeleton, DiscoverFeedSkeleton } from '../components/Skeleton';
 import { DateFilter } from '../components/DateChips';
-import FilterPill from '../components/FilterPill';
 import WhenPickerSheet from '../components/WhenPickerSheet';
 import LocationPickerSheet from '../components/LocationPickerSheet';
 import { useFilters } from '../contexts/FiltersContext';
@@ -37,7 +31,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import DiscoverEventCard from '../components/DiscoverEventCard';
 import { useAppAlert } from '../components/AppAlert';
-import { getCategoryLabel } from '../lib/categories';
 import { isBudgetFriendlyTicketPrice } from '../lib/pricing';
 import { applyFilters } from '../utils/filterUtils';
 import { DEFAULT_FILTERS, getFeaturedCities } from '../types/filters';
@@ -841,121 +834,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     backgroundColor: colors.background,
   },
-  resultsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: GRID_GAP,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.background,
-  },
-  animatedHeader: {
-    backgroundColor: colors.background,
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    zIndex: 10,
-  },
-  headerTextContainer: {
-    marginBottom: 12,
-  },
-  headerTitle: {
-    fontFamily: 'InstrumentSerif_400Regular',
-    fontSize: 32,
-    fontWeight: 'bold',
-    letterSpacing: 0,
-    color: colors.text,
-    marginBottom: 4,
-  },
-  headerSubtitle: {
-    fontSize: 15,
-    color: colors.textSecondary,
-  },
-  searchSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  searchInputContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: radius.button,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    gap: 8,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 15,
-    color: colors.text,
-  },
-  filterButton: {
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: radius.button,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: 12,
-    position: 'relative',
-  },
-  filterBadge: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-    backgroundColor: colors.primary,
-    borderRadius: 10,
-    minWidth: 18,
-    height: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 4,
-  },
-  filterBadgeText: {
-    color: colors.surface,
-    fontSize: 10,
-    fontWeight: 'bold',
-  },
-  filterPillsBar: {
-    backgroundColor: colors.background,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
-    zIndex: 9,
-  },
-  filterPillsContent: {
-    paddingHorizontal: 16,
-    gap: 8,
-  },
-  activeFiltersContainer: {
-    backgroundColor: colors.surface,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  activeFilterChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.primaryLight + '20',
-    borderRadius: radius.sm,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    marginRight: 8,
-    gap: 6,
-  },
-  activeFilterText: {
-    fontSize: 13,
-    color: colors.text,
-    fontWeight: '500',
-  },
-  content: {
-    flex: 1,
-  },
   // The feed fills the whole screen (behind the absolute header) so posters
   // scroll up under the translucent header.
   contentUnderHeader: {
@@ -1032,15 +910,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderWidth: 1,
     borderColor: colors.border,
   },
-  filterDot: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.primary,
-  },
   // Active-filter COUNT badge on the round filter button (replaces the bare dot).
   filterCountBadge: {
     position: 'absolute',
@@ -1083,14 +952,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingTop: 12,
     paddingBottom: 32,
   },
-  featuredSection: {
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  featuredHeader: {
-    paddingHorizontal: 16,
-    marginBottom: 16,
-  },
   section: {
     marginBottom: 24,
     paddingHorizontal: 16,
@@ -1116,123 +977,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
     marginBottom: 4,
   },
-  sectionSubtitle: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
   horizontalScrollView: {
     marginHorizontal: -16,
   },
   carouselContent: {
     paddingHorizontal: 16,
     gap: 16,
-  },
-  carouselCard: {
-    width: 180,
-    marginRight: 12,
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  carouselImage: {
-    width: '100%',
-    height: 120,
-    backgroundColor: colors.border,
-  },
-  carouselCategoryBadge: {
-    position: 'absolute',
-    top: 8,
-    left: 8,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  categoryBadgeText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: colors.white,
-  },
-  carouselCardContent: {
-    padding: 12,
-  },
-  carouselTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 8,
-  },
-  carouselDetails: {
-    gap: 4,
-    marginBottom: 8,
-  },
-  carouselDetailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  carouselDetailText: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    flex: 1,
-  },
-  carouselFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  carouselPrice: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: colors.primary,
-  },
-  carouselFreeBadge: {
-    backgroundColor: colors.success + '20',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  carouselFreeBadgeText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: colors.success,
-  },
-  chipsSection: {
-    marginTop: 1,
-    marginBottom: 12,
-  },
-  chipsSectionTitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.textSecondary,
-    letterSpacing: 0.5,
-    marginLeft: 16,
-    marginBottom: 4,
-  },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 48,
-  },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 8,
-  },
-  emptyText: {
-    fontSize: 15,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    maxWidth: 280,
   },
 });

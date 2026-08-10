@@ -11,7 +11,6 @@ import {
 import { X } from 'lucide-react-native';
 import QRCode from 'react-native-qrcode-svg';
 import * as Brightness from 'expo-brightness';
-import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 
 const { width } = Dimensions.get('window');

@@ -9,7 +9,7 @@ import {
   TextInput,
   ActivityIndicator,
 } from 'react-native';
-import { X, Check, Minus, Plus, Tag, ChevronDown, ChevronUp } from 'lucide-react-native';
+import { X, Minus, Plus, Tag, ChevronDown, ChevronUp } from 'lucide-react-native';
 import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useI18n } from '../contexts/I18nContext';
@@ -758,13 +758,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginHorizontal: 8,
     minWidth: 20,
     textAlign: 'center',
-  },
-  discountNote: {
-    marginTop: 12,
-    textAlign: 'center',
-    fontSize: 14,
-    color: colors.success,
-    fontWeight: '600',
   },
   promoBlock: {
     marginTop: 4,

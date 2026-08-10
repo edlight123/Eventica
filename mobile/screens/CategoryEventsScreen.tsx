@@ -7,7 +7,7 @@ import { db } from '../config/firebase';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import PosterEventCard from '../components/PosterEventCard';
-import ChromeBlur from '../components/ChromeBlur';
+import OverlayHeader, { useOverlayHeaderInset } from '../components/OverlayHeader';
 import { GridSkeleton } from '../components/Skeleton';
 import EmptyState from '../components/EmptyState';
 import { getCategoryLabel } from '../lib/categories';
@@ -29,6 +29,8 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
   // original per-category listing. Exactly one of them is set.
   const { category, feed, city, title, subtitle } = route.params || {};
 
+  // The header floats (OverlayHeader), so the grid reserves its measured height.
+  const { height: headerH, onHeight } = useOverlayHeaderInset();
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -85,8 +87,11 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <ChromeBlur edge="top" />
+      {/* A real overlay, not an in-flow bar that merely contained a ChromeBlur —
+          that half-conversion blurred nothing but canvas, since no content ever
+          passed beneath it. OverlayHeader supplies the float, the inset and the
+          blur; the grid below reserves headerH. */}
+      <OverlayHeader onHeight={onHeight}>
         <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={12}>
           <ChevronLeft size={24} color={colors.text} />
         </TouchableOpacity>
@@ -102,10 +107,12 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
             </Text>
           )}
         </View>
-      </View>
+      </OverlayHeader>
 
       {loading ? (
-        <GridSkeleton />
+        <View style={{ paddingTop: headerH }}>
+          <GridSkeleton />
+        </View>
       ) : (
         <FlatList
           data={events}
@@ -123,7 +130,7 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
             />
           )}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={[styles.listContent, { paddingBottom: 32 + insets.bottom }]}
+          contentContainerStyle={[styles.listContent, { paddingTop: headerH, paddingBottom: 32 + insets.bottom }]}
           ListEmptyComponent={
             <EmptyState
               icon={Inbox}
@@ -142,13 +149,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     container: {
       flex: 1,
       backgroundColor: colors.background,
-    },
-    header: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 12,
-      paddingHorizontal: 16,
-      paddingBottom: 12,
     },
     headerText: {
       flex: 1,

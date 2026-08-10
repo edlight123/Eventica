@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ViewStyle } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { colors, radius, spacing } from '../theme/tokens';
 
 export type StatTone = 'default' | 'brand' | 'amber' | 'emerald';

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -451,15 +451,11 @@ const getStyles = (colors: any) =>
       flex: 1,
       backgroundColor: colors.background,
     },
-    center: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    // Overlay chrome (OverlayHeader owns the row layout, the blur backdrop and
-    // the absolute placement). paddingTop deliberately OVERRIDES OverlayHeader's
-    // safe-area inset: this bar lives inside a SafeAreaView edges={['top']} that
-    // has already paid the notch, so paying it twice would double the gap.
+    // Overlay chrome (OverlayHeader owns the row layout, the safe-area top
+    // padding, the blur backdrop and the absolute placement) — only the row's
+    // own geometry is ours. No paddingTop here: the screen root is a plain View
+    // (not a SafeAreaView) precisely so OverlayHeader can pay the notch itself.
+    // No fill and no hairline either: they would paint over the blur.
     topBar: {
       justifyContent: 'space-between',
       paddingHorizontal: 12,

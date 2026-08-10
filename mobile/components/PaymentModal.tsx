@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Modal,
   TouchableOpacity,
-  ActivityIndicator,
-  ScrollView,
+    ScrollView,
 } from 'react-native';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { useNavigation } from '@react-navigation/native';
@@ -678,17 +677,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderWidth: 1,
     borderRadius: radius.sm,
   },
-  phoneInput: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: colors.text,
-    backgroundColor: colors.surface,
-    marginBottom: 12,
-  },
   testCardHint: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -780,9 +768,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   payButtonPill: {
     flex: 2,
-  },
-  payButtonDisabled: {
-    opacity: 0.5,
   },
   payButtonText: {
     fontSize: 16,

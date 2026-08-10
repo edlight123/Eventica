@@ -12,7 +12,7 @@ import { Image } from 'expo-image';
 import { useTabBarSpace } from '../hooks/useTabBarSpace';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Calendar, MapPin, Ticket, ChevronRight } from 'lucide-react-native';
-import { collection, query, where, getDocs, orderBy, documentId } from 'firebase/firestore';
+import { collection, query, where, getDocs, documentId } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db } from '../config/firebase';
 import { Skeleton } from '../components/Skeleton';
@@ -507,12 +507,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     backgroundColor: colors.background,
   },
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: colors.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   // Overlay chrome (OverlayHeader owns the safe-area padding, the blur backdrop
   // and the absolute placement) — only the horizontal inset is ours.
   header: {
@@ -524,11 +518,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '700',
     letterSpacing: 0,
     color: colors.text,
-  },
-  headerSubtitle: {
-    fontSize: 15,
-    color: colors.textSecondary,
-    fontWeight: '500',
   },
   tabs: {
     paddingVertical: 6,

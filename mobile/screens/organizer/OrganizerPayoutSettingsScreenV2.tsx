@@ -22,7 +22,7 @@ import { backendFetch, backendJson } from '../../lib/api/backend'
 import { getVerificationRequest } from '../../lib/verification'
 import { useLocaleFormat } from '../../lib/format'
 import { RADIUS } from '../../config/brand'
-import { font, radius } from '../../theme/tokens'
+import { radius } from '../../theme/tokens'
 import { Skeleton } from '../../components/Skeleton'
 import { useAppAlert } from '../../components/AppAlert'
 import StatusChip from '../../components/StatusChip'
@@ -1244,30 +1244,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textSecondary,
     fontSize: 13,
   },
-  header: {
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 20,
-    fontFamily: 'InstrumentSerif_400Regular',
-    letterSpacing: 0,
-    fontWeight: '700',
-    color: colors.text,
-  },
   card: {
     backgroundColor: colors.surface,
     borderRadius: RADIUS.lg,
@@ -1373,12 +1349,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     lineHeight: 17,
     color: colors.textSecondary,
     marginTop: 8,
-  },
-  destinationMeta: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginTop: 4,
-    fontFamily: 'monospace',
   },
   // Compact inline card action (Manage on Stripe / Verify Now) — replaces the
   // old full-width 48px secondary bar inside method cards.

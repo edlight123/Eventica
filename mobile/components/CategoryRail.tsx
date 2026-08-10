@@ -3,7 +3,7 @@ import { Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { getCategoryLabel } from '../lib/categories';
-import { SPACING, RADIUS } from '../config/brand';
+import { SPACING } from '../config/brand';
 import { radius } from '../theme/tokens';
 
 interface CategoryRailProps {

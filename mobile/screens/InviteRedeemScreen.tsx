@@ -12,7 +12,6 @@ import { addStaffEventId } from '../lib/staffAssignments'
 import { backendJson } from '../lib/api/backend'
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
-import { SHADOWS } from '../config/brand';
 import { radius } from '../theme/tokens';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'InviteRedeem'>

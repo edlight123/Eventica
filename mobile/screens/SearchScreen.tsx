@@ -410,10 +410,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       flex: 1,
       backgroundColor: colors.background,
     },
-    // Overlay chrome (OverlayHeader owns the row layout, the blur backdrop and
-    // the absolute placement). paddingTop deliberately OVERRIDES OverlayHeader's
-    // safe-area inset: `container` already pays insets.top, and an absolute
-    // child starts below its parent's padding, so paying it again would double.
+    // Overlay chrome (OverlayHeader owns the row layout, the safe-area top
+    // padding, the blur backdrop and the absolute placement) — only the row's
+    // own geometry is ours. No paddingTop here: `container` carries none, so
+    // OverlayHeader's inset is the only one and adding a second would double
+    // the gap. No fill and no hairline either: they would paint over the blur.
     header: {
       gap: 10,
       paddingHorizontal: 12,

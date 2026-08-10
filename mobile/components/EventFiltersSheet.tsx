@@ -7,8 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Platform,
-  TextInput,
-  PanResponder,
+    PanResponder,
   LayoutChangeEvent
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

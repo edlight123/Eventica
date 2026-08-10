@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { db } from '../../config/firebase';
-import { doc, updateDoc, getDoc, Timestamp, serverTimestamp, getDocs, query, collection, where } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, serverTimestamp, getDocs, query, collection, where } from 'firebase/firestore';
 import { auth } from '../../config/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useI18n } from '../../contexts/I18nContext';
@@ -598,18 +598,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginVertical: 20,
     paddingHorizontal: 40,
   },
-  button: {
-    backgroundColor: colors.primary,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: RADIUS.sm,
-    marginTop: 16,
-  },
-  buttonText: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: '600',
-  },
   cameraSection: {
     flex: 1,
     width: '100%',
@@ -665,25 +653,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  topBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: 16,
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-  },
-  topButton: {
-    width: 44,
-    height: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  topBarTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.white,
   },
   scanFrame: {
     flex: 1,
@@ -814,12 +783,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: RADIUS.md,
     alignItems: 'center',
   },
-  primaryButton: {
-    backgroundColor: colors.primary,
-  },
-  disabledButton: {
-    opacity: 0.4,
-  },
   overrideButton: {
     backgroundColor: 'transparent',
     borderWidth: 1,
@@ -828,21 +791,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   overrideButtonText: {
     color: colors.error,
     fontSize: 15,
-    fontWeight: '600',
-  },
-  primaryButtonText: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  secondaryButton: {
-    backgroundColor: colors.surfaceMuted,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  secondaryButtonText: {
-    color: colors.text,
-    fontSize: 16,
     fontWeight: '600',
   },
 });

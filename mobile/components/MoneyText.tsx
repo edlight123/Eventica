@@ -16,8 +16,10 @@ interface MoneyTextProps {
 }
 
 /**
- * Renders a formatted currency amount as "prices-as-data" — mono, tabular,
- * white by default. Placement is HTG/USD aware via the shared formatter, so a
+ * Renders a formatted currency amount as "prices-as-data" — tabular figures,
+ * white by default. The sans face is deliberate: monospace is reserved for true
+ * identifiers now, so only the digit alignment is kept, not the mono voice.
+ * Placement is HTG/USD aware via the shared formatter, so a
  * `$` is never hardcoded: HTG → `1,234.56 HTG`, USD → `$1,234.56`.
  */
 export default function MoneyText({

@@ -7,7 +7,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import PaginationDots from './PaginationDots';
 import { useI18n } from '../contexts/I18nContext';
 import { resolvePosterTheme } from '../lib/posterGradient';
-import { radius, font } from '../theme/tokens';
+import { font } from '../theme/tokens';
 
 import { formatDateForLanguage } from '../lib/dates';
 
@@ -174,52 +174,5 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   separator: {
     color: colors.textTertiary,
     marginHorizontal: 3,
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  primaryButton: {
-    flex: 1,
-    backgroundColor: colors.primary,
-    paddingVertical: 14,
-    borderRadius: radius.md,
-    alignItems: 'center',
-  },
-  primaryButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  secondaryButton: {
-    flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    paddingVertical: 14,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.3)',
-  },
-  secondaryButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  pagination: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 16,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.border,
-  },
-  activeDot: {
-    width: 24,
-    backgroundColor: colors.primary,
   },
 });

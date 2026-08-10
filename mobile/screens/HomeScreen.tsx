@@ -7,20 +7,16 @@ import {
   StyleSheet,
   RefreshControl,
   TouchableOpacity,
-  Platform,
   StatusBar,
-  Image,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTabBarSpace } from '../hooks/useTabBarSpace';
-import { Easing } from 'react-native';
-import { collection, query, where, getDocs, limit, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { filterExploreEvents } from '../lib/api/events';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useFilters } from '../contexts/FiltersContext';
-import { BRAND } from '../config/brand';
 import { useTheme } from '../contexts/ThemeContext';
 import { COUNTRY_NAMES } from '../utils/deviceLocation';
 import { MapPin, ChevronDown, Inbox, CloudOff } from 'lucide-react-native';
@@ -28,13 +24,11 @@ import LocationDetectionBanner from '../components/LocationDetectionBanner';
 import LocationPickerSheet from '../components/LocationPickerSheet';
 import { DEFAULT_FILTERS } from '../types/filters';
 
-import CategoryRail from '../components/CategoryRail';
 import { TikemWordmark } from '../components/TikemWordmark';
 import TrendingSection from '../components/TrendingSection';
 import ThisWeekSection from '../components/ThisWeekSection';
 import AllEventsPreview from '../components/AllEventsPreview';
 import EventRail from '../components/EventRail';
-import SectionHeader from '../components/SectionHeader';
 import EmptyState from '../components/EmptyState';
 import { HomeFeedSkeleton } from '../components/Skeleton';
 import ChromeBlur from '../components/ChromeBlur';
@@ -42,7 +36,6 @@ import { isBudgetFriendlyTicketPrice } from '../lib/pricing';
 import { isEventOver, type HomeFeed } from '../lib/homeFeeds';
 import { getCategoryLabel } from '../lib/categories';
 import { shareEvent } from '../lib/share';
-import { radius } from '../theme/tokens';
 
 // Tolerant city matching (accents/case/"City, ST") so the Near You rail lines up
 // with whatever string is stored on each event's `city`.
@@ -548,23 +541,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     right: 0,
     zIndex: 10,
     // No overflow: 'hidden' — it would clip ChromeBlur's below-the-bar fade,
-    // which is positioned outside this box. The collapsing mark is absolutely
-    // positioned within bounds, so nothing needs clipping.
-  },
-  // Overlaid on the full wordmark so the two can cross-fade in place.
-  headerMark: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    justifyContent: 'center',
+    // which sits at top:'100%', i.e. outside this box. Nothing in the bar needs
+    // clipping anyway: the wordmark and the location chip both stay in bounds.
   },
   headerLeft: {
     flex: 1,
-  },
-  brandRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
   },
   locationRow: {
     flexDirection: 'row',
@@ -583,40 +564,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 8,
     alignItems: 'center',
   },
-  iconButton: {
-    width: 42,
-    height: 42,
-    borderRadius: radius.md,
-    backgroundColor: colors.surfaceMuted,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  wordmark: {
-    height: 38,
-    aspectRatio: 2.298,
-    alignSelf: 'flex-start',
-    tintColor: colors.white,
-  },
-  greeting: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
   content: {
     flex: 1,
     backgroundColor: colors.background,
-  },
-  headline: {
-    fontFamily: 'InstrumentSerif_400Regular',
-    fontSize: 44,
-    lineHeight: 46,
-    letterSpacing: -0.5,
-    color: colors.text,
-    paddingHorizontal: 16,
-    marginTop: 12,
-    marginBottom: 2,
   },
   section: {
     marginBottom: 24,
@@ -626,99 +576,5 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 16,
     marginBottom: 24,
     paddingHorizontal: 16,
-  },
-  sectionHeader: {
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: 4,
-    letterSpacing: 0.3,
-  },
-  sectionTitleBase: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: colors.text,
-    letterSpacing: 0.3,
-  },
-  sectionTitleGradient1: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#3a3a3a',
-    letterSpacing: 0.3,
-  },
-  sectionTitleGradient2: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#2d5f5d',
-    letterSpacing: 0.3,
-  },
-  sectionTitleGradient3: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#20847e',
-    letterSpacing: 0.3,
-  },
-  sectionTitleGradient4: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#14a89e',
-    letterSpacing: 0.3,
-  },
-  sectionTitleGradient5: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#0d9488',
-    letterSpacing: 0.3,
-  },
-  sectionTitleGradient6: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#0f766e',
-    letterSpacing: 0.3,
-  },
-  sectionSubtitle: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  categorySection: {
-    marginBottom: 24,
-  },
-  categoryHeader: {
-    paddingHorizontal: 16,
-    marginBottom: -2,
-  },
-  loadingContainer: {
-    padding: 32,
-    alignItems: 'center',
-  },
-  loadingText: {
-    textAlign: 'center',
-    color: colors.textSecondary,
-    fontSize: 16,
-  },
-  emptyContainer: {
-    padding: 32,
-    alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: 48,
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.text,
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    textAlign: 'center',
   },
 });

@@ -16,7 +16,7 @@ import { MapPin, X, Check } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../contexts/AuthContext';
 import { useFilters } from '../contexts/FiltersContext';
-import { getDeviceLocationInfo, COUNTRY_NAMES, DEFAULT_CITIES } from '../utils/deviceLocation';
+import { getDeviceLocationInfo, DEFAULT_CITIES } from '../utils/deviceLocation';
 import { useTheme } from '../contexts/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
