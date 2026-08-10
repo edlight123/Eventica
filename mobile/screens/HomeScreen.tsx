@@ -83,6 +83,11 @@ export default function HomeScreen({ navigation }: any) {
   const [newEvents, setNewEvents] = useState<any[]>([]);
   const [categoryRails, setCategoryRails] = useState<{ category: string; events: any[] }[]>([]);
   const [loading, setLoading] = useState(true);
+  // 0 -> 1 over 220ms when the first load lands. Without it the swap from
+  // skeleton to content was a single-frame hard cut (measured on a tester's
+  // screen recording), which combined with any layout delta reads as the
+  // page "sliding in" rather than the placeholders becoming the posters.
+  const contentFade = useRef(new Animated.Value(0)).current;
   const [error, setError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [locationSheetOpen, setLocationSheetOpen] = useState(false);
@@ -251,6 +256,12 @@ export default function HomeScreen({ navigation }: any) {
   const handleShare = (event: any) => shareEvent(event, language);
 
   useEffect(() => {
+    if (!loading) {
+      Animated.timing(contentFade, { toValue: 1, duration: 220, useNativeDriver: true }).start();
+    }
+  }, [loading, contentFade]);
+
+  useEffect(() => {
     fetchEvents();
   }, [userCountry]); // Refetch when country changes
 
@@ -393,7 +404,7 @@ export default function HomeScreen({ navigation }: any) {
             onAction={onRefresh}
           />
         ) : (
-          <>
+          <Animated.View style={{ opacity: contentFade }}>
             {/* (Removed the redundant "À l'affiche" masthead per beta feedback —
                 the tikèm wordmark in the top bar already brands the screen; the
                 section titles below carry the hierarchy.) */}
@@ -506,7 +517,7 @@ export default function HomeScreen({ navigation }: any) {
 
             {/* Bottom Spacing */}
             <View style={{ height: 32 + tabBarSpace }} />
-          </>
+          </Animated.View>
         )}
       </ScrollView>
 
