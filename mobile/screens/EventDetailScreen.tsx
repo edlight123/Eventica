@@ -596,6 +596,38 @@ export default function EventDetailScreen({ route, navigation }: any) {
         </View>
 
         <View style={styles.content}>
+          {/* Compact host byline — back above the title by request ("I want
+              both"): a small mark and the name, tappable to the profile. The
+              full organizer section, with Follow and Contact, lives at the
+              FOOT of the page — this line is identity, that one is actions. */}
+          <TouchableOpacity
+            style={styles.hostBylineTop}
+            onPress={navigateToOrganizerProfile}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+          >
+            <View style={styles.hostedByAvatar}>
+              {event.users?.organization_logo ? (
+                <ExpoImage
+                  source={{ uri: event.users.organization_logo }}
+                  style={styles.hostedByAvatarImage}
+                  contentFit="cover"
+                  cachePolicy="memory-disk"
+                />
+              ) : (
+                <Text style={styles.hostedByAvatarText}>
+                  {(event.users?.organization_name || event.users?.full_name || event.organizer_name || 'E')[0].toUpperCase()}
+                </Text>
+              )}
+            </View>
+            <Text style={styles.hostBylineTopName} numberOfLines={1}>
+              {event.users?.organization_name || event.users?.full_name || event.organizer_name || t('eventDetail.organizerFallback')}
+            </Text>
+            {(event.users?.is_verified || event.is_verified) && (
+              <VerifiedBadge size="small" label={t('eventDetail.verified')} />
+            )}
+          </TouchableOpacity>
+
           {/* Title block — text-first, under the poster */}
           <Text style={styles.title}>{event.title}</Text>
 
@@ -1032,6 +1064,19 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     lineHeight: 38,
     letterSpacing: 0,
   },
+  hostBylineTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 2,
+    marginBottom: 12,
+  },
+  hostBylineTopName: {
+    flexShrink: 1,
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textSecondary,
+  },
   // Section spacing now that the organizer lives at the foot of the page,
   // not tucked under the poster as a byline.
   hostByline: {
@@ -1229,10 +1274,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   floatingCtaPill: {
     width: '100%',
-    // 56 is WhitePillCTA's own height and the height every other primary
-    // action in the app uses. The 60 here was a one-off that made this button
-    // taller than the same button everywhere else — a tester picked it out.
-    height: 56,
+    // 50, not the 56 system height: a tester asked for 10% off THIS pill —
+    // floating over content it read heavier than the same button in flow.
+    height: 50,
   },
   // Extends well above the pill so the fade starts before the text reaches it,
   // and past the bar's own bottom so nothing peeks out under the home indicator.

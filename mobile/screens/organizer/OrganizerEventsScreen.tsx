@@ -248,15 +248,18 @@ export default function OrganizerEventsScreen() {
                     one; otherwise the poster gradient with a small centered
                     wordmark (branded-strip treatment adapted to a portrait thumb). */}
                 <View style={styles.eventThumb}>
-                  <LinearGradient
-                    colors={resolvePosterTheme(event, event.id || event.title, event.category).colors}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={StyleSheet.absoluteFill}
-                  />
+                  {/* Fallback art only. The old comment claimed cached posters
+                      never flash — true for cached, false on first load, where
+                      the teal gradient showed until the image arrived. */}
+                  {!posterUri && (
+                    <LinearGradient
+                      colors={resolvePosterTheme(event, event.id || event.title, event.category).colors}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={StyleSheet.absoluteFill}
+                    />
+                  )}
                   {posterUri ? (
-                    // expo-image: cached posters paint instantly (no green-gradient
-                    // flash before load), new ones fade in over the gradient.
                     <Image
                       source={{ uri: posterUri }}
                       style={StyleSheet.absoluteFill}

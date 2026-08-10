@@ -61,12 +61,16 @@ export default function DiscoverEventCard({
     <View style={styles.wrap}>
       {/* Poster */}
       <TouchableOpacity activeOpacity={0.95} onPress={onPress} style={[styles.poster, { aspectRatio }]}>
-        <LinearGradient
-          colors={theme.colors}
-          start={{ x: 0.1, y: 0 }}
-          end={{ x: 0.9, y: 1 }}
-          style={StyleSheet.absoluteFill}
-        />
+        {/* Fallback art only — behind a LOADING image this flashed the teal
+            gradient between skeleton and poster (same bug as PosterEventCard). */}
+        {!hasImage && (
+          <LinearGradient
+            colors={theme.colors}
+            start={{ x: 0.1, y: 0 }}
+            end={{ x: 0.9, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
+        )}
         {hasImage && (
           <Image
             source={{ uri: event.banner_image_url || event.cover_image_url }}

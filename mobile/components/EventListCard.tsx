@@ -43,12 +43,16 @@ export default function EventListCard({ event, onPress }: EventListCardProps) {
     <TouchableOpacity activeOpacity={0.9} onPress={onPress} style={styles.card}>
       {/* LEFT: portrait poster with deterministic gradient fallback. */}
       <View style={styles.poster}>
-        <LinearGradient
-          colors={theme.colors}
-          start={{ x: 0.1, y: 0 }}
-          end={{ x: 0.9, y: 1 }}
-          style={StyleSheet.absoluteFill}
-        />
+        {/* Fallback art only — behind a LOADING image this flashed the teal
+            gradient between skeleton and poster (same bug as PosterEventCard). */}
+        {!event.banner_image_url && (
+          <LinearGradient
+            colors={theme.colors}
+            start={{ x: 0.1, y: 0 }}
+            end={{ x: 0.9, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
+        )}
         {event.banner_image_url ? (
           <Image
             source={{ uri: event.banner_image_url }}

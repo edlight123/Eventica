@@ -440,12 +440,16 @@ export default function TicketsScreen({ navigation }: any) {
                   >
                     {/* Portrait poster (2:3) — a square thumb cropped the artwork. */}
                     <View style={styles.ticketPoster}>
-                      <LinearGradient
-                        colors={resolvePosterTheme(event, event.id || event.title, event.category).colors}
-                        start={{ x: 0.1, y: 0 }}
-                        end={{ x: 0.9, y: 1 }}
-                        style={StyleSheet.absoluteFill}
-                      />
+                      {/* Fallback art only — behind a loading image this flashed
+                          teal between skeleton and poster. */}
+                      {!(event.banner_image_url || event.cover_image_url) && (
+                        <LinearGradient
+                          colors={resolvePosterTheme(event, event.id || event.title, event.category).colors}
+                          start={{ x: 0.1, y: 0 }}
+                          end={{ x: 0.9, y: 1 }}
+                          style={StyleSheet.absoluteFill}
+                        />
+                      )}
                       {(event.banner_image_url || event.cover_image_url) && (
                         <Image
                           source={{ uri: event.banner_image_url || event.cover_image_url }}
