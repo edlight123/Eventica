@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle } from 'react-native';
-import { colors, font } from '../theme/tokens';
+import { colors } from '../theme/tokens';
 
 export interface StatusTone {
   /** Solid dot + text color. */
@@ -113,7 +113,6 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   label: {
-    fontFamily: font.mono,
     fontSize: 11,
     letterSpacing: 0.4,
     textTransform: 'uppercase',

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle } from 'react-native';
-import { colors, radius, spacing, font } from '../theme/tokens';
+import { colors, radius, spacing } from '../theme/tokens';
 
 export type StatTone = 'default' | 'brand' | 'amber' | 'emerald';
 
@@ -116,7 +116,6 @@ const styles = StyleSheet.create({
     borderLeftColor: colors.border,
   },
   label: {
-    fontFamily: font.mono,
     fontSize: 11,
     letterSpacing: 0.6,
     textTransform: 'uppercase',
@@ -124,7 +123,6 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   value: {
-    fontFamily: font.mono,
     fontSize: 27,
     fontWeight: '700',
     letterSpacing: -0.5,

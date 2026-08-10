@@ -30,7 +30,7 @@ import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { font, radius } from '../theme/tokens';
+import { radius } from '../theme/tokens';
 import ConnectButton from '../components/ConnectButton';
 import PosterEventCard from '../components/PosterEventCard';
 import VerifiedBadge from '../components/VerifiedBadge';
@@ -895,7 +895,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 20,
   },
   statValue: {
-    fontFamily: font.mono,
     fontSize: 13,
     lineHeight: 18,
     fontWeight: '700',
@@ -903,7 +902,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontVariant: ['tabular-nums'],
   },
   statLabel: {
-    fontFamily: font.mono,
     fontSize: 11,
     lineHeight: 18,
     letterSpacing: 0.6,
@@ -1009,7 +1007,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 4,
   },
   showAllText: {
-    fontFamily: font.mono,
     fontSize: 12,
     letterSpacing: 0.6,
     textTransform: 'uppercase',

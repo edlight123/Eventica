@@ -133,7 +133,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       gap: 6,
     },
     metaText: {
-      fontFamily: font.monoRegular,
       fontSize: 11.5,
       color: colors.textSecondary,
       letterSpacing: 0.3,
@@ -144,13 +143,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     // Price is grey, not teal — teal stays reserved for semantic use (POSH §1).
     priceFree: {
-      fontFamily: font.mono,
       color: colors.textSecondary,
       fontSize: 12,
       letterSpacing: 0.8,
     },
     price: {
-      fontFamily: font.mono,
       color: colors.textSecondary,
       fontSize: 14,
       letterSpacing: 0.3,

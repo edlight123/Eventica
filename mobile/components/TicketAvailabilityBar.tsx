@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
-import { font } from '../theme/tokens';
 
 export interface TicketAvailabilityBarProps {
   totalTickets: number;
@@ -102,13 +101,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
   },
   statusText: {
-    fontFamily: font.mono,
     fontSize: 12,
     letterSpacing: 0.4,
     textTransform: 'uppercase',
   },
   soldText: {
-    fontFamily: font.monoRegular,
     fontSize: 11,
     letterSpacing: 0.3,
     color: colors.textSecondary,

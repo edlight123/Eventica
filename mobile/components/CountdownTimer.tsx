@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Text, StyleSheet, StyleProp, TextStyle } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
-import { font } from '../theme/tokens';
 
 /**
  * Compact, single-line "starts in" countdown (tester feedback: the old
@@ -66,7 +65,6 @@ export default function CountdownTimer({ targetDate, label, style }: CountdownTi
 
 const styles = StyleSheet.create({
   line: {
-    fontFamily: font.mono,
     fontSize: 12,
     letterSpacing: 0.3,
     fontVariant: ['tabular-nums'],

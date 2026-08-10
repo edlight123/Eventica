@@ -38,7 +38,7 @@ import { backendJson } from '../lib/api/backend';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { colors as T, font, radius, withAlpha } from '../theme/tokens';
+import { colors as T, radius, withAlpha } from '../theme/tokens';
 import { safeFormatForLanguage } from '../lib/dates';
 import { isValidDate } from '../lib/dates';
 import WhitePillCTA from '../components/WhitePillCTA';
@@ -1131,13 +1131,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 2,
   },
   factValue: {
-    fontFamily: font.mono,
     fontSize: 13.5,
     letterSpacing: 0.3,
     color: colors.text,
   },
   factSub: {
-    fontFamily: font.monoRegular,
     fontSize: 12,
     letterSpacing: 0.3,
     color: colors.textSecondary,
@@ -1350,7 +1348,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   // Quiet mono label, teal because teal here CARRIES MEANING (verified).
   // No backgroundColor / borderWidth — deliberately not a pill.
   verifiedTextInline: {
-    fontFamily: font.mono,
     fontSize: 10,
     letterSpacing: 0.4,
     textTransform: 'uppercase',
@@ -1509,7 +1506,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '800',
   },
   ctaButtonPrice: {
-    fontFamily: font.mono,
     color: T.onTeal,
     opacity: 0.7,
     fontSize: 13,

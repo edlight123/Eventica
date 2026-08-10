@@ -1,6 +1,5 @@
 import React from 'react';
 import { Text, StyleSheet, TextStyle, StyleProp } from 'react-native';
-import { font } from '../theme/tokens';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLocaleFormat, type FormatMoneyOptions } from '../lib/format';
 
@@ -51,7 +50,6 @@ export default function MoneyText({
 
 const styles = StyleSheet.create({
   text: {
-    fontFamily: font.mono,
     fontSize: 15,
     fontVariant: ['tabular-nums'],
     letterSpacing: -0.2,

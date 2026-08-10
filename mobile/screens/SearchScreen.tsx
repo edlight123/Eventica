@@ -19,7 +19,7 @@ import { searchUsers, type UserSearchResult } from '../lib/api/social';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { getCategoryLabel } from '../lib/categories';
-import { font, radius } from '../theme/tokens';
+import { radius } from '../theme/tokens';
 import EventListCard from '../components/EventListCard';
 import EmptyState from '../components/EmptyState';
 import SectionHeader from '../components/SectionHeader';
@@ -479,7 +479,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       flexShrink: 1,
     },
     rowSubtitle: {
-      fontFamily: font.monoRegular,
       fontSize: 12,
       color: colors.textSecondary,
       marginTop: 2,

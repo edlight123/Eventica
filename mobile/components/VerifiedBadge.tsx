@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle } from 'react-native';
 import { ShieldCheck } from 'lucide-react-native';
-import { colors, font } from '../theme/tokens';
+import { colors } from '../theme/tokens';
 
 export type VerifiedBadgeSize = 'small' | 'medium' | 'large';
 
@@ -71,7 +71,6 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   label: {
-    fontFamily: font.mono,
     color: colors.accent,
     letterSpacing: 0.4,
     textTransform: 'uppercase',

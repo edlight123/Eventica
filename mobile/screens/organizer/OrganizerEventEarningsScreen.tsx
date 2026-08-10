@@ -1043,7 +1043,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 11,
     letterSpacing: 0.6,
     textTransform: 'uppercase',
-    fontFamily: font.mono,
   },
   amountText: {
     marginTop: 8,

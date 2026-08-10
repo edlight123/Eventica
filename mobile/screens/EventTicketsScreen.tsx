@@ -358,7 +358,6 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   currentTicketIndicator: {
-    fontFamily: font.mono,
     fontSize: 12,
     letterSpacing: 0.6,
     textTransform: 'uppercase',

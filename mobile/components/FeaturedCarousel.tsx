@@ -166,7 +166,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexWrap: 'nowrap',
   },
   detailText: {
-    fontFamily: font.monoRegular,
     color: colors.textSecondary,
     fontSize: 11.5,
     letterSpacing: 0.3,

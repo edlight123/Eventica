@@ -10,7 +10,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { backendFetch, backendJson } from '../../lib/api/backend';
 import { getOrganizerEvents } from '../../lib/api/organizer';
-import { font } from '../../theme/tokens';
 
 const hideKey = (uid: string) => `tikem_org_checklist_hidden_${uid}`;
 const cacheKey = (uid: string) => `tikem_org_checklist_${uid}`;
@@ -222,14 +221,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     title: {
       flex: 1,
-      fontFamily: font.mono,
       fontSize: 12,
       letterSpacing: 1,
       textTransform: 'uppercase',
       color: colors.textSecondary,
     },
     progress: {
-      fontFamily: font.mono,
       fontSize: 12,
       color: colors.textSecondary,
       fontVariant: ['tabular-nums'],

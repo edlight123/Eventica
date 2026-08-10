@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { radius, font } from '../../theme/tokens';
+import { radius } from '../../theme/tokens';
 import { useTheme } from '../../contexts/ThemeContext';
 
 export interface SegmentedTab {
@@ -109,7 +109,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       backgroundColor: colors.background,
     },
     countText: {
-      fontFamily: font.mono,
       fontSize: 11,
       fontVariant: ['tabular-nums'],
     },

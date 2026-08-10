@@ -42,7 +42,7 @@ import { isBudgetFriendlyTicketPrice } from '../lib/pricing';
 import type { HomeFeed } from '../lib/homeFeeds';
 import { getCategoryLabel } from '../lib/categories';
 import { shareEvent } from '../lib/share';
-import { font, radius } from '../theme/tokens';
+import { radius } from '../theme/tokens';
 
 // Tolerant city matching (accents/case/"City, ST") so the Near You rail lines up
 // with whatever string is stored on each event's `city`.
@@ -642,7 +642,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 4,
   },
   locationText: {
-    fontFamily: font.mono,
     fontSize: 11,
     letterSpacing: 0.5,
     textTransform: 'uppercase',

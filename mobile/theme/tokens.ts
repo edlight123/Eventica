@@ -57,8 +57,16 @@ export const colors = {
 /**
  * Font families — the three voices.
  *  serif → event titles / wordmark (editorial soul)
- *  mono  → the "technical layer": dates, prices-as-data, ticket IDs, eyebrows
+ *  mono  → TRUE IDENTIFIERS ONLY: ticket IDs, order refs, codes
  *  (UI / body text uses the system default grotesk-like sans, no token needed)
+ *
+ * `mono` used to cover "dates, prices-as-data, eyebrows" as well, which put
+ * JetBrains Mono on nearly every human-readable line in the app — dates,
+ * venues, prices. Against posh, the reference for this product, that read
+ * technical rather than editorial: posh sets the same lines in a humanist
+ * sans. Narrowed deliberately (2026-08-09) to identifiers, where monospace
+ * earns its place by making characters unambiguous. Anything a person reads
+ * as language, rather than looks up as a code, takes the sans.
  */
 export const font = {
   serif: 'InstrumentSerif_400Regular_Italic',

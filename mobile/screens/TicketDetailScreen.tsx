@@ -566,7 +566,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     backgroundColor: '#FF8C00', // Orange color for expired
   },
   statusText: {
-    fontFamily: font.mono,
     color: colors.white,
     fontSize: 11,
     letterSpacing: 0.8,
@@ -644,7 +643,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
   },
   infoCardLabel: {
-    fontFamily: font.mono,
     fontSize: 11,
     color: colors.textSecondary,
     marginBottom: 4,
@@ -652,14 +650,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     letterSpacing: 0.8,
   },
   infoCardValue: {
-    fontFamily: font.mono,
     fontSize: 14,
     letterSpacing: 0.3,
     color: colors.text,
     marginBottom: 2,
   },
   infoCardSubvalue: {
-    fontFamily: font.monoRegular,
     fontSize: 12,
     letterSpacing: 0.3,
     color: colors.textSecondary,
@@ -695,14 +691,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderBottomColor: colors.borderLight,
   },
   detailLabel: {
-    fontFamily: font.mono,
     fontSize: 12,
     letterSpacing: 0.4,
     textTransform: 'uppercase',
     color: colors.textSecondary,
   },
   detailValue: {
-    fontFamily: font.mono,
     fontSize: 13,
     letterSpacing: 0.3,
     color: colors.text,
@@ -758,7 +752,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: radius.lg,
   },
   pendingTransferBadgeText: {
-    fontFamily: font.mono,
     color: colors.white,
     fontSize: 11,
     letterSpacing: 0.6,
@@ -773,7 +766,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '700',
   },
   pendingTransferExpiry: {
-    fontFamily: font.monoRegular,
     fontSize: 12,
     letterSpacing: 0.3,
     color: colors.textSecondary,

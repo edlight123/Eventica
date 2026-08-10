@@ -29,7 +29,6 @@ import {
 import { useI18n } from '../../contexts/I18nContext';
 import { useLocaleFormat } from '../../lib/format';
 import { RADIUS } from '../../config/brand';
-import { font } from '../../theme/tokens';
 import { Skeleton } from '../../components/Skeleton';
 import ActionTileGrid from '../../components/organizer/ActionTileGrid';
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
@@ -471,7 +470,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   // Mono, uppercase eyebrow — the app's `sectionHeader` treatment (POSH §2.7).
   sectionLabel: {
-    fontFamily: font.mono,
     fontSize: 12,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
@@ -497,7 +495,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.text,
   },
   performanceValue: {
-    fontFamily: font.mono,
     fontSize: 18,
     color: colors.text,
   },
@@ -514,7 +511,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: 4,
   },
   progressText: {
-    fontFamily: font.monoRegular,
     fontSize: 11.5,
     letterSpacing: 0.3,
     color: colors.textSecondary,
@@ -526,7 +522,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     padding: 16,
   },
   breakdownTitle: {
-    fontFamily: font.mono,
     fontSize: 11,
     letterSpacing: 0.8,
     color: colors.textSecondary,
@@ -548,7 +543,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginRight: 12,
   },
   ticketTypeStats: {
-    fontFamily: font.mono,
     fontSize: 13,
     color: colors.textSecondary,
   },

@@ -535,7 +535,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
   },
   sectionHeader: {
-    fontFamily: font.mono,
     fontSize: 12,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
@@ -591,7 +590,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   ticketMetaText: {
     flex: 1,
-    fontFamily: font.monoRegular,
     fontSize: 11.5,
     letterSpacing: 0.3,
     color: colors.textSecondary,
@@ -610,7 +608,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexShrink: 0,
   },
   ticketCountText: {
-    fontFamily: font.mono,
     color: colors.textSecondary,
     fontSize: 10.5,
     letterSpacing: 0.4,

@@ -470,7 +470,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       color: colors.text,
     },
     updated: {
-      fontFamily: font.monoRegular,
       fontSize: 12,
       letterSpacing: 0.3,
       color: colors.textTertiary,

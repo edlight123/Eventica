@@ -2336,7 +2336,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     gap: 12,
   },
   entryKicker: {
-    fontFamily: font.monoRegular,
     fontSize: 12,
     letterSpacing: 2,
     color: colors.textTertiary,

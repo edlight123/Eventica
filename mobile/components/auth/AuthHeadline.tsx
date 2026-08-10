@@ -43,7 +43,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   eyebrow: {
-    fontFamily: font.mono,
     fontSize: 12,
     letterSpacing: 2.4,
     color: colors.tealBright,

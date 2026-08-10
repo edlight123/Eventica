@@ -233,7 +233,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     // Tier 2 — grey price · venue.
     tier2: {
-      fontFamily: font.mono,
       color: colors.textSecondary,
       fontSize: 11.5,
       letterSpacing: 0.3,
@@ -241,7 +240,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     // Tier 3 — lighter grey date.
     tier3: {
-      fontFamily: font.monoRegular,
       color: colors.textTertiary,
       fontSize: 11,
       letterSpacing: 0.4,
@@ -253,7 +251,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       marginTop: 2,
     },
     friendsText: {
-      fontFamily: font.monoRegular,
       color: colors.textSecondary,
       fontSize: 10.5,
       letterSpacing: 0.3,

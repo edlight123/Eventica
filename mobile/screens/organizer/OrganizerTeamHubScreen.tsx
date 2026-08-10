@@ -13,7 +13,7 @@ import { useLocaleFormat } from '../../lib/format';
 import { getOrganizerEvents, OrganizerEvent } from '../../lib/api/organizer';
 import { backendJson } from '../../lib/api/backend';
 import { RADIUS, SPACING } from '../../config/brand';
-import { font, radius } from '../../theme/tokens';
+import { radius } from '../../theme/tokens';
 import { Skeleton } from '../../components/Skeleton';
 import EmptyState from '../../components/EmptyState';
 import StatusChip from '../../components/StatusChip';
@@ -252,7 +252,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     container: { flex: 1, backgroundColor: colors.background },
     content: { padding: 16 },
     sectionTitle: {
-      fontFamily: font.mono,
       fontSize: 12,
       letterSpacing: 1,
       textTransform: 'uppercase',
@@ -309,7 +308,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     memberInvited: {
       marginTop: 2,
-      fontFamily: font.monoRegular,
       fontSize: 11,
       color: colors.textTertiary,
       textTransform: 'uppercase',

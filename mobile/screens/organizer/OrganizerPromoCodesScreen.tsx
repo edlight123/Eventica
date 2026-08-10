@@ -683,7 +683,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 10,
   },
   sectionTitle: {
-    fontFamily: font.mono,
     fontSize: 12,
     letterSpacing: 1,
     textTransform: 'uppercase',
@@ -722,7 +721,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderColor: colors.border,
   },
   formEyebrow: {
-    fontFamily: font.mono,
     fontSize: 11,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
@@ -738,7 +736,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   label: {
     marginTop: 14,
     marginBottom: 6,
-    fontFamily: font.mono,
     fontSize: 11,
     letterSpacing: 0.6,
     textTransform: 'uppercase',
@@ -866,7 +863,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderRadius: 3,
   },
   statusLabel: {
-    fontFamily: font.mono,
     fontSize: 11,
     letterSpacing: 0.5,
     textTransform: 'uppercase',
@@ -900,7 +896,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   claimedText: {
     flex: 1,
-    fontFamily: font.mono,
     fontSize: 12,
     letterSpacing: 0.3,
     color: colors.textSecondary,

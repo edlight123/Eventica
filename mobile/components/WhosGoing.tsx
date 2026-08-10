@@ -6,7 +6,7 @@ import { Users, Lock } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { fetchEventSocial } from '../lib/api/social';
-import { radius, font } from '../theme/tokens';
+import { radius } from '../theme/tokens';
 import type { EventSocialAttendance, PublicUserSummary } from '../types/social';
 
 interface WhosGoingProps {
@@ -190,7 +190,6 @@ const getStyles = (colors: any) =>
       color: colors.text,
     },
     count: {
-      fontFamily: font.mono,
       fontSize: 12,
       letterSpacing: 0.4,
       color: colors.textSecondary,
@@ -199,7 +198,6 @@ const getStyles = (colors: any) =>
       marginBottom: 14,
     },
     friendsLabel: {
-      fontFamily: font.mono,
       fontSize: 11,
       color: colors.primary,
       textTransform: 'uppercase',
@@ -263,12 +261,10 @@ const getStyles = (colors: any) =>
       borderColor: '#FFFFFF',
     },
     moreText: {
-      fontFamily: font.mono,
       color: colors.textSecondary,
       fontSize: 12,
     },
     pileLabel: {
-      fontFamily: font.mono,
       fontSize: 12,
       letterSpacing: 0.4,
       color: colors.textSecondary,

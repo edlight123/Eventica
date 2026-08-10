@@ -1365,7 +1365,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginTop: 2,
   },
   destinationDigits: {
-    fontFamily: font.monoRegular,
     fontSize: 12,
     color: colors.textTertiary,
   },

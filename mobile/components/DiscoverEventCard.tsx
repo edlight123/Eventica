@@ -180,7 +180,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       flexShrink: 1,
     },
     meta: {
-      fontFamily: font.monoRegular,
       fontSize: 12,
       letterSpacing: 0.3,
       color: colors.textSecondary,
