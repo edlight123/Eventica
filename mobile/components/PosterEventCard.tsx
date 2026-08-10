@@ -117,13 +117,20 @@ export default function PosterEventCard({
       >
         <View style={{ paddingHorizontal: posterInsetX, paddingTop: posterInsetX }}>
           <View style={[styles.poster, { aspectRatio: 1 / ratio }]}>
-            {/* Poster gradient sits behind the image as the fallback art. */}
-            <LinearGradient
-              colors={theme.colors}
-              start={{ x: 0.1, y: 0 }}
-              end={{ x: 0.9, y: 1 }}
-              style={StyleSheet.absoluteFill}
-            />
+            {/* The teal theme gradient is the PERMANENT art for events with no
+                poster — not a loading state. It used to sit behind every image
+                while it fetched, so each card flashed green between skeleton
+                and poster. With an image, the backdrop is now the neutral
+                surface the skeleton just showed, so loading reads as
+                grey -> poster with no colour step. */}
+            {!hasImage && (
+              <LinearGradient
+                colors={theme.colors}
+                start={{ x: 0.1, y: 0 }}
+                end={{ x: 0.9, y: 1 }}
+                style={StyleSheet.absoluteFill}
+              />
+            )}
 
             {hasImage ? (
               // expo-image: disk+memory cached so posters don't re-download on
