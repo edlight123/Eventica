@@ -96,10 +96,7 @@ export default function HomeScreen({ navigation }: any) {
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const scrollViewRef = React.useRef<ScrollView>(null);
 
-  const headerCollapse = useRef(new Animated.Value(0)).current;
   const headerSpacerHeight = useRef(new Animated.Value(0)).current;
-  const lastScrollY = useRef(0);
-  const headerHidden = useRef(false);
   const headerHeightRef = useRef(0);
   const lastTabPressRef = useRef(0);
 
@@ -282,50 +279,6 @@ export default function HomeScreen({ navigation }: any) {
     fetchEvents();
   };
 
-  const animateHeader = (shouldHide: boolean) => {
-    const headerHeight = headerHeightRef.current;
-    if (!headerHeight) return;
-
-    if (shouldHide && headerHidden.current) return;
-    if (!shouldHide && !headerHidden.current) return;
-
-    headerHidden.current = shouldHide;
-
-    Animated.parallel([
-      // 0 = full header, 1 = collapsed. The header used to translate to
-      // -headerHeight, i.e. straight off the screen; a tester asked for it to
-      // shrink to the mark and a location pin instead of disappearing.
-      Animated.spring(headerCollapse, {
-        toValue: shouldHide ? 1 : 0,
-        useNativeDriver: true,
-        tension: 140,
-        friction: 22,
-      }),
-      Animated.timing(headerSpacerHeight, {
-        toValue: headerHeight,
-        duration: 260,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: false,
-      }),
-    ]).start();
-  };
-
-  const handleScroll = (e: any) => {
-    const rawY = e?.nativeEvent?.contentOffset?.y ?? 0;
-    const currentY = Math.max(0, rawY);
-    const delta = currentY - lastScrollY.current;
-    lastScrollY.current = currentY;
-
-    // Ignore jitter and don't hide immediately at the top.
-    if (Math.abs(delta) < 8) return;
-
-    if (delta > 0 && currentY > 16) {
-      animateHeader(true);
-    } else if (delta < 0) {
-      animateHeader(false);
-    }
-  };
-
   const handleCategoryPress = (category: string) => {
     // A category chip is a subsection too: it gets the same dedicated listing
     // the category rails already used, not a pre-filtered Discover.
@@ -399,22 +352,13 @@ export default function HomeScreen({ navigation }: any) {
             a hairline border. */}
         <ChromeBlur edge="top" />
 
+        {/* No collapse. Shrinking to a lone "t" and a bare pin left a tall bar
+            with two tiny glyphs marooned at either end — it read as broken
+            rather than minimal, which is exactly how a tester described it.
+            The bar is ~60pt; keeping it whole costs little and always says
+            where you are and lets you change it. */}
         <View style={styles.headerLeft}>
-          {/* Full wordmark and compact mark are stacked and cross-faded rather
-              than resized: animating fontSize cannot run on the native driver,
-              and a resizing serif glyph reflows the row on every scroll frame. */}
-          <Animated.View style={{ opacity: headerCollapse.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }}>
-            <TikemWordmark fontSize={32} />
-          </Animated.View>
-          <Animated.View
-            style={[
-              styles.headerMark,
-              { opacity: headerCollapse },
-            ]}
-            pointerEvents="none"
-          >
-            <TikemWordmark fontSize={32} markOnly />
-          </Animated.View>
+          <TikemWordmark fontSize={32} />
         </View>
         <View style={styles.headerRight}>
           <TouchableOpacity
@@ -425,21 +369,10 @@ export default function HomeScreen({ navigation }: any) {
             accessibilityLabel={locationLabel}
           >
             <MapPin size={13} color={colors.primary} />
-            {/* Collapsed, the pin alone stands for the location — the label and
-                chevron fade out and stop taking width. */}
-            <Animated.View
-              style={{
-                opacity: headerCollapse.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 4,
-              }}
-            >
-              <Text style={styles.locationText} numberOfLines={1}>
-                {locationLabel}
-              </Text>
-              <ChevronDown size={14} color={colors.textSecondary} />
-            </Animated.View>
+            <Text style={styles.locationText} numberOfLines={1}>
+              {locationLabel}
+            </Text>
+            <ChevronDown size={14} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -449,8 +382,6 @@ export default function HomeScreen({ navigation }: any) {
         style={styles.content}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}
-        scrollEventThrottle={16}
-        onScroll={handleScroll}
       >
         <Animated.View style={{ height: headerSpacerHeight }} />
         {loading ? (

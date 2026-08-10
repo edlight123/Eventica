@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTabBarSpace } from '../hooks/useTabBarSpace';
-import { Bell, BookOpen, Briefcase, ChevronRight, Compass, FileText, Heart, HelpCircle, LogOut, MapPin, RotateCcw, Settings, Shield, User, Users } from 'lucide-react-native';
+import { Bell, BookOpen, Briefcase, ChevronRight, Compass, FileText, Heart, HelpCircle, LogOut, MapPin, RotateCcw, Settings, Shield, Users } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { getDownloadURL, ref as storageRef, uploadBytes } from 'firebase/storage';
@@ -495,8 +495,15 @@ export default function ProfileScreen() {
               {userProfile?.photo_url ? (
                 <Image source={{ uri: userProfile.photo_url }} style={styles.avatarImage} />
               ) : (
+                /* The initial, not a generic person glyph on a teal blob.
+                   That placeholder carried no identity — the name is right
+                   beside it — and read as a stray logo. The element stays
+                   because it is the tap target for uploading a photo while
+                   editing. */
                 <View style={styles.avatarFallback}>
-                  <User size={30} color={colors.primary} />
+                  <Text style={styles.avatarInitial}>
+                    {(displayName || '?').trim().charAt(0).toUpperCase()}
+                  </Text>
                 </View>
               )}
             </TouchableOpacity>
@@ -1135,7 +1142,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.primarySoft,
+    backgroundColor: colors.surfaceRaised,
+  },
+  avatarInitial: {
+    fontSize: 26,
+    fontWeight: '700',
+    color: colors.text,
   },
   profileMeta: {
     flex: 1,
