@@ -11,7 +11,7 @@ import {
   RefreshControl,
   Platform,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, Users, Search, Phone, Inbox, Send, UserPlus } from 'lucide-react-native';
 import * as Contacts from 'expo-contacts';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -152,7 +152,10 @@ export default function ConnectionsScreen() {
   const goToLogin = () => navigation.navigate('Auth');
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    // Plain View, not a SafeAreaView: 'top' was its only edge, and
+    // OverlayHeader pays the notch inset itself so the chrome reaches
+    // behind the status bar.
+    <View style={styles.container}>
       {/* Header */}
       <OverlayHeader onHeight={onHeaderHeight} style={styles.topBar}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} hitSlop={16}>
@@ -186,7 +189,7 @@ export default function ConnectionsScreen() {
           )}
         </ScrollView>
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -460,7 +463,6 @@ const getStyles = (colors: any) =>
     topBar: {
       justifyContent: 'space-between',
       paddingHorizontal: 12,
-      paddingTop: 10,
       paddingBottom: 10,
     },
     backBtn: {

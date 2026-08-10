@@ -155,7 +155,10 @@ export default function ReviewScreen({ route, navigation }: any) {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+    // edges WITHOUT 'top': OverlayHeader pays the notch inset itself, so the
+    // chrome runs edge-to-edge behind the status bar rather than starting
+    // below a black strip.
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       {/* Header — a blurred overlay the form scrolls under. */}
       <OverlayHeader onHeight={onHeaderHeight} style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()} hitSlop={8}>
@@ -293,7 +296,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   // paid the notch, so paying it twice would double the gap.
   header: {
     justifyContent: 'space-between',
-    paddingTop: 12,
     paddingBottom: 12,
   },
   backButton: {

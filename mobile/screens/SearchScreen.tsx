@@ -275,7 +275,10 @@ export default function SearchScreen({ navigation }: any) {
   );
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    // No paddingTop here: an absolutely-positioned child starts BELOW its
+    // parent's padding, so this pushed the chrome under the status bar.
+    // OverlayHeader pays the notch inset itself now.
+    <View style={styles.container}>
       {/* Header: back + focused search field + clear. */}
       <OverlayHeader onHeight={onHeaderHeight} style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={10} style={styles.backBtn}>
@@ -414,7 +417,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     header: {
       gap: 10,
       paddingHorizontal: 12,
-      paddingTop: 10,
       paddingBottom: 10,
     },
     backBtn: {
