@@ -1,7 +1,13 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { EventFilters, DEFAULT_FILTERS } from '../types/filters';
 import { useAuth } from './AuthContext';
-import { getDeviceLocationInfo, getSupportedCountry } from '../utils/deviceLocation';
+import { getDeviceLocationInfo, getSupportedCountry, isSupportedCountry } from '../utils/deviceLocation';
+
+// Last country the app actually resolved to (profile or explicit user choice).
+// Hydrated on launch so the header/fetch never start from a locale guess the
+// user has already corrected.
+const RESOLVED_COUNTRY_KEY = 'resolved_user_country';
 
 interface FiltersContextType {
   // Current applied filters
@@ -13,9 +19,14 @@ interface FiltersContextType {
   // Modal state
   isModalOpen: boolean;
   
-  // User's default country (from profile or device)
+  // User's default country (persisted > profile > device locale > HT)
   userCountry: string;
-  
+
+  // False until the country has been hydrated (persisted value / profile /
+  // device locale). Consumers should hold their first country-filtered fetch
+  // until this is true, or they will query with a placeholder country.
+  countryResolved: boolean;
+
   // Actions
   setDraftFilters: (filters: EventFilters) => void;
   openFiltersModal: () => void;
@@ -35,31 +46,79 @@ const FiltersContext = createContext<FiltersContextType | undefined>(undefined);
 export function FiltersProvider({ children }: { children: ReactNode }) {
   const { userProfile } = useAuth();
   
-  // Get initial country from device locale
-  const deviceLocation = getDeviceLocationInfo();
-  const initialCountry = deviceLocation.country;
-  
-  const [userCountry, setUserCountry] = useState<string>(initialCountry);
+  // Start from the product's home market, NOT the device locale. A phone that
+  // is physically in Haiti but set to English (US) reports region "US", which
+  // painted "UNITED STATES" in the Home header and ran the first events fetch
+  // with the wrong country. The real value is hydrated asynchronously below
+  // (persisted > profile > device locale > HT) before consumers fetch.
+  const [userCountry, setUserCountryState] = useState<string>('HT');
+  const [countryResolved, setCountryResolved] = useState(false);
+  // Once the profile (authoritative) or an explicit user choice has set the
+  // country, a slower hydration read must not overwrite it.
+  const explicitCountryRef = useRef(false);
   const [appliedFilters, setAppliedFilters] = useState<EventFilters>({
     ...DEFAULT_FILTERS,
-    country: initialCountry,
+    country: 'HT',
   });
   const [draftFilters, setDraftFilters] = useState<EventFilters>({
     ...DEFAULT_FILTERS,
-    country: initialCountry,
+    country: 'HT',
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
+  const applyCountry = (country: string) => {
+    setUserCountryState(country);
+    setAppliedFilters(prev => ({ ...prev, country }));
+    setDraftFilters(prev => ({ ...prev, country }));
+  };
+
+  // Hydrate the last-resolved country before the first fetch. The persisted
+  // value wins for first paint; the profile effect below refines it when the
+  // profile loads (and re-persists it).
+  useEffect(() => {
+    (async () => {
+      try {
+        const persisted = await AsyncStorage.getItem(RESOLVED_COUNTRY_KEY);
+        if (!explicitCountryRef.current) {
+          if (persisted && isSupportedCountry(persisted)) {
+            applyCountry(persisted);
+          } else {
+            // First-ever launch (or post sign-out storage clear): fall back to
+            // the device locale as a guess. Deliberately NOT persisted — only a
+            // profile or an explicit user choice makes a country stick, because
+            // the locale guess is exactly what can be wrong (US-locale phones
+            // in Haiti). LocationDetectionBanner offers the correction.
+            applyCountry(getDeviceLocationInfo().country);
+          }
+        }
+      } catch (error) {
+        console.error('[FiltersContext] Country hydration failed:', error);
+      } finally {
+        setCountryResolved(true);
+      }
+    })();
+  }, []);
+
   // Update filters when user profile loads (profile country takes precedence)
   useEffect(() => {
     if (userProfile?.default_country) {
       const profileCountry = getSupportedCountry(userProfile.default_country);
       console.log('[FiltersContext] Setting country from profile:', profileCountry);
-      setUserCountry(profileCountry);
-      setAppliedFilters(prev => ({ ...prev, country: profileCountry }));
-      setDraftFilters(prev => ({ ...prev, country: profileCountry }));
+      explicitCountryRef.current = true;
+      applyCountry(profileCountry);
+      setCountryResolved(true);
+      AsyncStorage.setItem(RESOLVED_COUNTRY_KEY, profileCountry).catch(() => {});
     }
   }, [userProfile?.default_country]);
+
+  // Exposed setter (location banner, settings): an explicit choice, so it
+  // sticks across launches.
+  const setUserCountry = (country: string) => {
+    const supported = getSupportedCountry(country);
+    explicitCountryRef.current = true;
+    setUserCountryState(supported);
+    AsyncStorage.setItem(RESOLVED_COUNTRY_KEY, supported).catch(() => {});
+  };
 
   const openFiltersModal = () => {
     // Copy current applied filters to draft when opening
@@ -118,6 +177,7 @@ export function FiltersProvider({ children }: { children: ReactNode }) {
         draftFilters,
         isModalOpen,
         userCountry,
+        countryResolved,
         setDraftFilters,
         openFiltersModal,
         closeFiltersModal,

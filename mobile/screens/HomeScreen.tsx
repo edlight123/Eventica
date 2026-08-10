@@ -68,7 +68,7 @@ export default function HomeScreen({ navigation }: any) {
   const styles = getStyles(colors);
   const { user, userProfile } = useAuth();
   const { t, language } = useI18n();
-  const { userCountry, applyFiltersDirectly } = useFilters();
+  const { userCountry, countryResolved, applyFiltersDirectly } = useFilters();
   const insets = useSafeAreaInsets();
   // The tab bar is a translucent overlay, so reserve its height here or the
   // last row ends up sitting behind it.
@@ -262,8 +262,16 @@ export default function HomeScreen({ navigation }: any) {
   }, [loading, contentFade]);
 
   useEffect(() => {
+    // Hold the first fetch (skeletons stay up) until the country is hydrated
+    // (persisted / profile / device locale). Fetching immediately used to run
+    // with the locale-guessed country — "US" for phones in Haiti set to
+    // English (US) — and paint the wrong rails until the profile loaded.
+    if (!countryResolved) return;
     fetchEvents();
-  }, [userCountry]); // Refetch when country changes
+    // default_city feeds the "near you" rail inside fetchEvents; without it in
+    // the deps, a profile that loads after the first fetch with the SAME
+    // country (no userCountry change, so no refetch) left the rail empty.
+  }, [userCountry, countryResolved, userProfile?.default_city]);
 
   // Active-tab taps: once = scroll to top, twice (quick) = refresh.
   useEffect(() => {
