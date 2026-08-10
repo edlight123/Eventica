@@ -437,19 +437,18 @@ export default function EventFiltersSheet() {
                 and reads as grouped purely through spacing (18pt off the chips,
                 8pt to its own slider) — same rhythm as every other section. */}
             <View style={styles.priceRangeBlock}>
-              {/* Caption, readout and currency all carry the SAME explicit
-                  lineHeight, so their text boxes are identical in height and the
-                  glyphs land on one shared baseline despite the size difference. */}
+              {/* Caption and readout share one explicit lineHeight so both text
+                  boxes match and the glyphs sit on a common baseline. No
+                  separate currency suffix: rangeReadout's values already carry
+                  the code ("0 HTG – 8,600 HTG"), so the extra label printed
+                  HTG twice. */}
               <View style={styles.priceRangeTop}>
                 <Text style={styles.priceRangeCaption} numberOfLines={1}>
                   {t('filters.priceRange')}
                 </Text>
-                <View style={styles.priceRangeReadout}>
-                  <Text style={styles.priceRangeValue} numberOfLines={1}>
-                    {rangeReadout}
-                  </Text>
-                  <Text style={styles.priceRangeCurrency}>{priceCurrencyCode}</Text>
-                </View>
+                <Text style={styles.priceRangeValue} numberOfLines={1}>
+                  {rangeReadout}
+                </Text>
               </View>
 
               <RangeSlider
@@ -785,23 +784,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     letterSpacing: 0.8,
     color: colors.textTertiary,
   },
-  priceRangeReadout: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: 5,
-    flexShrink: 1,
-  },
   priceRangeValue: {
     fontSize: 15,
     lineHeight: 18,
     fontWeight: '700',
     color: colors.text,
-  },
-  priceRangeCurrency: {
-    fontSize: 11,
-    lineHeight: 18,
-    fontWeight: '600',
-    letterSpacing: 0.5,
-    color: colors.textTertiary,
   },
 });

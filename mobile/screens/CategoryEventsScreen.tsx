@@ -110,7 +110,7 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
       </OverlayHeader>
 
       {loading ? (
-        <View style={{ paddingTop: headerH }}>
+        <View style={{ paddingTop: headerH + 16 }}>
           <GridSkeleton />
         </View>
       ) : (
@@ -130,7 +130,7 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
             />
           )}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={[styles.listContent, { paddingTop: headerH, paddingBottom: 32 + insets.bottom }]}
+          contentContainerStyle={[styles.listContent, { paddingTop: headerH + 16, paddingBottom: 32 + insets.bottom }]}
           ListEmptyComponent={
             <EmptyState
               icon={Inbox}
@@ -159,10 +159,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       marginTop: 2,
     },
     headerTitle: {
-      fontFamily: 'InstrumentSerif_400Regular',
-      fontSize: 26,
+      // Italic, like the tikèm wordmark — the section title is editorial
+      // voice, not a system label. Slightly larger to carry the page.
+      fontFamily: 'InstrumentSerif_400Regular_Italic',
+      fontSize: 30,
+      lineHeight: 36,
       color: colors.text,
-      letterSpacing: 0,
+      letterSpacing: 0.2,
     },
     gridRow: {
       gap: 12,
