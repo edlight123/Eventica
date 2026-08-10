@@ -19,8 +19,6 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Image as ExpoImage } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { 
-  Calendar, 
-  MapPin, 
   User as UserIcon, 
   Tag, 
   Share2, 
@@ -672,46 +670,32 @@ export default function EventDetailScreen({ route, navigation }: any) {
           {/* Title block — text-first, under the poster */}
           <Text style={styles.title}>{event.title}</Text>
 
-          {/* Key facts — clean text rows. Icons are neutral grey; teal stays
-              reserved for semantic use (verified / links / live). */}
+          {/* Venue and date as two plain lines, the way posh states them:
+              "Professor Miller's house near Target" / "Sat, Aug 22 at 4:00 PM
+              - 9:00 PM". The old version spent two icon rows, a divider and
+              four stacked lines on the same two facts — the wasted space a
+              tester marked up twice. Tapping the venue still opens Maps, which
+              is what the ⧉ affordance did. */}
           <View style={styles.factList}>
-            <View style={styles.factRow}>
-              <Calendar size={18} color={colors.textSecondary} />
-              <View style={styles.factText}>
-                <Text style={styles.factValue}>
-                  {startValid && safeFormatForLanguage(startValid, 'EEEE, MMMM d, yyyy', language)}
-                </Text>
-                <Text style={styles.factSub}>
-                  {startValid && safeFormatForLanguage(startValid, 'h:mm a', language)}
-                  {endValid && ` – ${safeFormatForLanguage(endValid, 'h:mm a', language)}`}
-                </Text>
-                {/* Compact live countdown, one line, attached to the date it counts
-                    down to (replaces the old tall DAYS/HOURS/MINS block). Delete
-                    this line + the CountdownTimer import to drop the feature. */}
-                {startValid && startValid > new Date() && (
-                  <CountdownTimer targetDate={startValid} label={startsInLabel} style={styles.factCountdown} />
-                )}
-              </View>
-            </View>
-
-            <View style={styles.factDivider} />
-
-            <TouchableOpacity style={styles.factRow} onPress={openInMaps} activeOpacity={0.6}>
-              <MapPin size={18} color={colors.textSecondary} />
-              <View style={styles.factText}>
-                <Text style={styles.factValue}>{event.venue_name}</Text>
-                <Text style={styles.factSub}>
-                  {event.address || ''}{event.address && ', '}{event.city}
-                </Text>
-              </View>
-              <ExternalLink size={15} color={colors.textSecondary} />
+            <TouchableOpacity onPress={openInMaps} activeOpacity={0.6} style={styles.venueLine}>
+              <Text style={styles.venueText} numberOfLines={2}>
+                {event.venue_name || event.address || event.city}
+              </Text>
+              <ExternalLink size={14} color={colors.textSecondary} />
             </TouchableOpacity>
 
-            {/* Static map of the venue — a plain image, no native map module, so
-                it ships without a fresh EAS build. Tapping it runs the SAME
-                `openInMaps` handler as the ⧉ on the row above. Renders nothing
-                when the event has no coordinates or no tile provider key is
-                configured (see lib/staticMap.ts). */}
+            <Text style={styles.whenText}>
+              {startValid && safeFormatForLanguage(startValid, 'EEE, MMM d', language)}
+              {startValid && ` ${t('common.at')} ${safeFormatForLanguage(startValid, 'h:mm a', language)}`}
+              {endValid && ` – ${safeFormatForLanguage(endValid, 'h:mm a', language)}`}
+            </Text>
+
+            {/* Kept — posh has no countdown, but urgency is genuinely useful on
+                a ticketing app. Demoted to one quiet line rather than its own row. */}
+            {startValid && startValid > new Date() && (
+              <CountdownTimer targetDate={startValid} label={startsInLabel} style={styles.factCountdown} />
+            )}
+
             <VenueStaticMap
               event={event}
               onPress={openInMaps}
@@ -1114,37 +1098,34 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 14,
   },
   factList: {
-    marginTop: 14,
+    marginTop: 12,
     marginBottom: 4,
+  },
+  // Venue: the louder of the two lines — it is what someone scans for. Row
+  // rather than plain text so the ⧉ affordance sits with it.
+  venueLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  venueText: {
+    flex: 1,
+    fontSize: 17,
+    fontWeight: '700',
+    color: colors.text,
+    lineHeight: 23,
+  },
+  // Date + time range on ONE grey line beneath it, matching how posh states
+  // "Sat, Aug 22 at 4:00 PM - 9:00 PM".
+  whenText: {
+    marginTop: 3,
+    fontSize: 15,
+    color: colors.textSecondary,
+    lineHeight: 21,
   },
   // 10, not 14: two rows of 14 plus a divider spent ~64pt stating a date and a
   // venue, which is the "all this space wasted" a tester marked up twice. Posh
   // gives the same two facts roughly half that.
-  factRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 14,
-    paddingVertical: 10,
-  },
-  factText: {
-    flex: 1,
-    gap: 2,
-  },
-  factValue: {
-    fontSize: 13.5,
-    letterSpacing: 0.3,
-    color: colors.text,
-  },
-  factSub: {
-    fontSize: 12,
-    letterSpacing: 0.3,
-    color: colors.textSecondary,
-    lineHeight: 18,
-  },
-  factDivider: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: colors.borderLight,
-  },
   // Compact countdown line inside the date row (see CountdownTimer).
   factCountdown: {
     marginTop: 2,
@@ -1311,33 +1292,38 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     paddingVertical: 4,
   },
+  // 28, not 48. Posh states the host as a byline — a small mark and a name —
+  // rather than a profile card. At 48 with a solid teal fill it was the
+  // loudest thing on a poster-led page and competed with the title beneath it.
   hostedByAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: colors.primary,
+    width: 28,
+    height: 28,
+    borderRadius: radius.sm,
+    backgroundColor: colors.surfaceRaised,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 10,
   },
   hostedByAvatarText: {
-    color: '#FFF',
-    fontSize: 20,
+    // Scaled for the 28pt mark, and on the canvas token rather than a literal
+    // white — the fill behind it is no longer teal.
+    color: colors.text,
+    fontSize: 13,
     fontWeight: '700',
   },
   hostedByAvatarImage: {
     width: '100%',
     height: '100%',
-    borderRadius: 24,
+    // Matches the container's new squarer corner, not the old 24 circle.
+    borderRadius: radius.sm,
   },
   hostedByInfo: {
     flex: 1,
   },
   hostedByName: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 15,
+    fontWeight: '700',
     color: colors.text,
-    marginBottom: 4,
   },
   verifiedBadgeInline: {
     flexDirection: 'row',

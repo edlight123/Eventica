@@ -99,7 +99,7 @@ export default function VenueStaticMap({
 
       {!loaded && (
         <View style={StyleSheet.absoluteFill} pointerEvents="none">
-          <Skeleton width="100%" height="100%" radius={radius.lg} />
+          <Skeleton width="100%" height="100%" radius={radius.md} />
         </View>
       )}
     </TouchableOpacity>
@@ -108,14 +108,19 @@ export default function VenueStaticMap({
 
 const getStyles = (colors: any) =>
   StyleSheet.create({
-    // Deliberately no card: no fill, no border, no shadow. Just the rounded
-    // image sitting on the black canvas at the app's standard large radius.
-    // No explicit width: as a block child of a column container it stretches to
-    // the available width, so a caller-supplied horizontal margin still fits.
+    // Deliberately no card: no fill, no border, no shadow — just the rounded
+    // image sitting on the black canvas.
     wrap: {
-      alignSelf: 'stretch',
+      // width: '100%', NOT alignSelf: 'stretch'. Combined with aspectRatio,
+      // stretch lets Yoga resolve the cross axis from the ratio instead of the
+      // parent, which left the tile short of the content's right edge — the
+      // "why this much space on the right?" a tester marked up. An explicit
+      // width makes the box deterministic and the ratio only sets the height.
+      width: '100%',
       aspectRatio: ASPECT,
-      borderRadius: radius.lg,
+      // Squarer corners (12, not 16): the map is a block of content, not a
+      // pill, and the softer radius read as bubbly against the poster above.
+      borderRadius: radius.md,
       overflow: 'hidden',
       backgroundColor: colors.surface,
     },
