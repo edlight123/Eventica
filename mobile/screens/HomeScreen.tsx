@@ -88,6 +88,11 @@ export default function HomeScreen({ navigation }: any) {
   // screen recording), which combined with any layout delta reads as the
   // page "sliding in" rather than the placeholders becoming the posters.
   const contentFade = useRef(new Animated.Value(0)).current;
+  const skeletonFade = useRef(new Animated.Value(1)).current;
+  // Keeps the skeleton MOUNTED (fading out, on top) while the content fades
+  // in beneath it. Unmounting it the instant loading ended left a black gap
+  // for the fade's duration — visible in the tester's second recording.
+  const [skeletonVisible, setSkeletonVisible] = useState(true);
   const [error, setError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [locationSheetOpen, setLocationSheetOpen] = useState(false);
@@ -257,9 +262,14 @@ export default function HomeScreen({ navigation }: any) {
 
   useEffect(() => {
     if (!loading) {
-      Animated.timing(contentFade, { toValue: 1, duration: 220, useNativeDriver: true }).start();
+      Animated.parallel([
+        Animated.timing(contentFade, { toValue: 1, duration: 220, useNativeDriver: true }),
+        Animated.timing(skeletonFade, { toValue: 0, duration: 220, useNativeDriver: true }),
+      ]).start(({ finished }) => {
+        if (finished) setSkeletonVisible(false);
+      });
     }
-  }, [loading, contentFade]);
+  }, [loading, contentFade, skeletonFade]);
 
   useEffect(() => {
     // Hold the first fetch (skeletons stay up) until the country is hydrated
@@ -412,7 +422,10 @@ export default function HomeScreen({ navigation }: any) {
             onAction={onRefresh}
           />
         ) : (
-          <Animated.View style={{ opacity: contentFade }}>
+          <View>
+            {/* Content fades in while the skeleton (absolute, on top,
+                non-interactive) fades out — a real crossfade, no black gap. */}
+            <Animated.View style={{ opacity: contentFade }}>
             {/* (Removed the redundant "À l'affiche" masthead per beta feedback —
                 the tikèm wordmark in the top bar already brands the screen; the
                 section titles below carry the hierarchy.) */}
@@ -525,7 +538,16 @@ export default function HomeScreen({ navigation }: any) {
 
             {/* Bottom Spacing */}
             <View style={{ height: 32 + tabBarSpace }} />
-          </Animated.View>
+            </Animated.View>
+            {skeletonVisible && (
+              <Animated.View
+                pointerEvents="none"
+                style={{ position: 'absolute', top: 0, left: 0, right: 0, opacity: skeletonFade }}
+              >
+                <HomeFeedSkeleton />
+              </Animated.View>
+            )}
+          </View>
         )}
       </ScrollView>
 
