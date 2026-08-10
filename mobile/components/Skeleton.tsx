@@ -74,11 +74,14 @@ export function PosterCardSkeleton({ width, ratio = 1.25 }: { width?: number; ra
     <View style={width ? { width } : { flex: 1 }}>
       <Skeleton radius={16} aspectRatio={1 / ratio} style={{ width: '100%' } as ViewStyle} />
       <View style={styles.posterMeta}>
-        <Skeleton width={'78%'} height={13} radius={6} />
+        {/* Three lines, like the real card: serif title (16), price · venue
+            (11.5), date (11). Two lines left each card ~15pt short. */}
+        <Skeleton width={'74%'} height={16} radius={6} />
         <View style={styles.posterMetaRow}>
-          <Skeleton width={'60%'} height={11} radius={5} />
-          <Skeleton width={34} height={11} radius={5} />
+          <Skeleton width={'60%'} height={12} radius={5} />
+          <Skeleton width={34} height={12} radius={5} />
         </View>
+        <Skeleton width={'38%'} height={11} radius={5} style={{ marginTop: 6 }} />
       </View>
     </View>
   );
@@ -95,11 +98,20 @@ export function PosterRailSkeleton({ cardWidth = HOME_CARD_WIDTH, count = 3 }: {
   );
 }
 
-/** Matches SectionHeader: a serif-sized title bar with a "see all" link. */
+/**
+ * Matches SectionHeader: serif title (22) PLUS its subtitle line (11 + 3 gap).
+ * The subtitle bar is not decoration — without it every skeleton section was
+ * ~25pt shorter than the real one, so when data arrived the whole feed
+ * reflowed downward and the swap read as the page sliding in instead of the
+ * placeholders becoming the posters.
+ */
 export function SectionHeaderSkeleton() {
   return (
     <View style={styles.sectionHeader}>
-      <Skeleton width={138} height={20} radius={7} />
+      <View style={{ gap: 4 }}>
+        <Skeleton width={138} height={22} radius={7} />
+        <Skeleton width={96} height={11} radius={5} />
+      </View>
       <Skeleton width={46} height={13} radius={6} />
     </View>
   );

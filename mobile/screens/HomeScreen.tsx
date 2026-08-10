@@ -89,7 +89,12 @@ export default function HomeScreen({ navigation }: any) {
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const scrollViewRef = React.useRef<ScrollView>(null);
 
-  const headerSpacerHeight = useRef(new Animated.Value(0)).current;
+  // Seeded with a close estimate of the header's height (safe-area + 10pt
+  // padding + 33pt wordmark line + 12pt bottom padding) instead of 0: starting
+  // at 0 painted the skeleton UNDER the floating header for the first frames,
+  // then jumped it down when onLayout reported the real height — the visible
+  // "page slides in" a tester reported. onLayout still corrects the estimate.
+  const headerSpacerHeight = useRef(new Animated.Value(insets.top + 55)).current;
   const headerHeightRef = useRef(0);
   const lastTabPressRef = useRef(0);
 
