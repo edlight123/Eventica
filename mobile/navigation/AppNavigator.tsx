@@ -586,7 +586,7 @@ export default function AppNavigator() {
   const showAlert = useAppAlert();
   const [isVerified, setIsVerified] = useState(false);
   const navigationRef = useNavigationContainerRef<RootStackParamList>();
-  const didApplyModeResetRef = useRef(false);
+  const prevModeRef = useRef<string | null>(null);
 
   // Handle notification taps (deep links / URLs).
   useEffect(() => {
@@ -737,11 +737,15 @@ export default function AppNavigator() {
     if (loading || modeLoading) return;
     if (!user) return;
 
-    // Skip the first run to avoid resetting on initial app load.
-    if (!didApplyModeResetRef.current) {
-      didApplyModeResetRef.current = true;
-      return;
-    }
+    // Reset ONLY when the mode itself changed. The old guard skipped just the
+    // first run — but this effect also depends on canUseOrganizerMode, which is
+    // derived from the PROFILE. On a cold start the profile loads ~1-2s after
+    // the navigator mounts, the dep flipped, and reset() replaced Main with
+    // Main — the whole Home screen (skeletons and all) visibly slid off to the
+    // left mid-load, which a tester caught on a screen recording.
+    const prevMode = prevModeRef.current;
+    prevModeRef.current = mode;
+    if (prevMode === null || prevMode === mode) return;
 
     const initialTab =
       mode === 'staff'
