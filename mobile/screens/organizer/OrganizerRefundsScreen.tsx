@@ -24,6 +24,7 @@ import EmptyState from '../../components/EmptyState';
 import StatusChip from '../../components/StatusChip';
 import { Skeleton } from '../../components/Skeleton';
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
+import { useOverlayHeaderInset } from '../../components/OverlayHeader';
 import SegmentedTabs from '../../components/organizer/SegmentedTabs';
 import { Receipt } from 'lucide-react-native';
 import { safeFormatForLanguage } from '../../lib/dates';
@@ -50,6 +51,7 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
   const showAlert = useAppAlert();
   const { formatMoney } = useLocaleFormat();
   const insets = useSafeAreaInsets();
+  const { height: headerH, onHeight } = useOverlayHeaderInset();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [processing, setProcessing] = useState<string | null>(null);
@@ -240,10 +242,14 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
             </View>
           ) : undefined
         }
+        overlay
+        onHeight={onHeight}
       />
 
-      {/* Filter Tabs — neutral segmented emphasis, no teal fill */}
-      <View style={styles.tabsWrap}>
+      {/* Filter Tabs — neutral segmented emphasis, no teal fill.
+          The tabs are static, so THEY carry the floating header's reserved
+          height; the list below is untouched. */}
+      <View style={[styles.tabsWrap, { marginTop: headerH }]}>
         <SegmentedTabs
           tabs={[
             { key: 'pending', label: t('refunds.pending') || 'Pending', count: pendingCount > 0 ? pendingCount : undefined },

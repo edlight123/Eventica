@@ -19,6 +19,7 @@ import { SHADOWS, RADIUS } from '../config/brand';
 import { backendFetch } from '../lib/api/backend';
 import { formatCurrency } from '../lib/currency';
 import { radius } from '../theme/tokens';
+import OverlayHeader, { useOverlayHeaderInset } from '../components/OverlayHeader';
 import { Skeleton } from '../components/Skeleton';
 import { useAppAlert } from '../components/AppAlert';
 
@@ -75,6 +76,9 @@ export default function RefundRequestScreen({ route, navigation }: any) {
   const { ticketId } = route.params;
   const { t, language } = useI18n();
   const insets = useSafeAreaInsets();
+  // The title bar is a blurred overlay now, so the form beneath reserves its
+  // measured height (see OverlayHeader).
+  const { height: headerH, onHeight: onHeaderHeight } = useOverlayHeaderInset();
   const showAlert = useAppAlert();
   const [ticket, setTicket] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -181,20 +185,20 @@ export default function RefundRequestScreen({ route, navigation }: any) {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      {/* Header — a blurred overlay the form scrolls under. */}
+      <OverlayHeader onHeight={onHeaderHeight} style={styles.headerBar}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()} hitSlop={8}>
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{t('refund.title') || 'Request Refund'}</Text>
+        <View style={{ width: 40 }} />
+      </OverlayHeader>
+
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+        contentContainerStyle={{ paddingTop: headerH, paddingBottom: insets.bottom + 24 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()} hitSlop={8}>
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>{t('refund.title') || 'Request Refund'}</Text>
-          <View style={{ width: 40 }} />
-        </View>
-
         {/* Ticket Info Card */}
         <View style={styles.ticketCard}>
           <Text style={styles.eventTitle}>{ticket.event_title}</Text>
@@ -320,6 +324,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 16,
     color: colors.textSecondary,
   },
+  // In-flow header row — only the loading skeleton still uses this shape.
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -328,6 +333,15 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+  },
+  // Overlay chrome (OverlayHeader owns the row layout, the blur backdrop and
+  // the absolute placement). paddingTop deliberately OVERRIDES OverlayHeader's
+  // safe-area inset: this bar lives inside a SafeAreaView edges={['top',...]}
+  // that has already paid the notch, so paying it twice would double the gap.
+  headerBar: {
+    justifyContent: 'space-between',
+    paddingTop: 12,
+    paddingBottom: 12,
   },
   backButton: {
     padding: 8,

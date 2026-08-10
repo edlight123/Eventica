@@ -23,6 +23,7 @@ import { SPACING, RADIUS } from '../../config/brand'
 import { Skeleton } from '../../components/Skeleton'
 import EmptyState from '../../components/EmptyState'
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader'
+import { useOverlayHeaderInset } from '../../components/OverlayHeader'
 import StaffEventCard from '../../components/organizer/StaffEventCard'
 import StatusChip from '../../components/StatusChip'
 import InfoNotice from '../../components/organizer/InfoNotice'
@@ -74,6 +75,7 @@ export default function OrganizerOrgTeamScreen() {
   const styles = getStyles(colors)
   const navigation = useNavigation<any>()
   const insets = useSafeAreaInsets()
+  const { height: headerH, onHeight } = useOverlayHeaderInset()
   const { t } = useI18n()
   const showAlert = useAppAlert();
   const { user, userProfile } = useAuth()
@@ -359,9 +361,13 @@ export default function OrganizerOrgTeamScreen() {
         title={t('organizerOrgTeam.title')}
         onBack={() => navigation.goBack()}
         right={addButton}
+        overlay
+        onHeight={onHeight}
       />
 
-      <View style={styles.tabsWrap}>
+      {/* The tabs sit statically between the floating header and the list, so
+          they reserve the header's height instead of the scroll view. */}
+      <View style={[styles.tabsWrap, { marginTop: headerH }]}>
         <SegmentedTabs tabs={tabs} value={tab} onChange={(k) => setTab(k as 'team' | 'tasks')} />
       </View>
 

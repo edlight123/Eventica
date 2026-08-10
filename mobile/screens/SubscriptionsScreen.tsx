@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
 import EmptyState from '../components/EmptyState';
+import OverlayHeader, { useOverlayHeaderInset } from '../components/OverlayHeader';
 import VerifiedBadge from '../components/VerifiedBadge';
 import WhitePillCTA from '../components/WhitePillCTA';
 import { PeopleRowsSkeleton } from '../components/Skeleton';
@@ -33,6 +34,9 @@ export default function SubscriptionsScreen({ navigation }: any) {
   const { user } = useAuth();
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
+  // The title bar is a blurred overlay now, so the list beneath reserves its
+  // measured height (see OverlayHeader).
+  const { height: headerH, onHeight: onHeaderHeight } = useOverlayHeaderInset();
   const [items, setItems] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -80,7 +84,7 @@ export default function SubscriptionsScreen({ navigation }: any) {
   }, [load]);
 
   const header = (
-    <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
+    <OverlayHeader onHeight={onHeaderHeight} style={styles.header}>
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.goBack()}
@@ -90,7 +94,7 @@ export default function SubscriptionsScreen({ navigation }: any) {
       </TouchableOpacity>
       <Text style={styles.headerTitle}>{t('subscriptions.title')}</Text>
       <View style={styles.backButton} />
-    </View>
+    </OverlayHeader>
   );
 
   return (
@@ -98,7 +102,10 @@ export default function SubscriptionsScreen({ navigation }: any) {
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
       {header}
       {loading ? (
-        <PeopleRowsSkeleton count={6} />
+        // No scroll container here — pad the placeholder rows by hand.
+        <View style={{ paddingTop: headerH }}>
+          <PeopleRowsSkeleton count={6} />
+        </View>
       ) : items.length === 0 ? (
         <View style={styles.emptyWrap}>
           <EmptyState
@@ -114,7 +121,11 @@ export default function SubscriptionsScreen({ navigation }: any) {
         </View>
       ) : (
         <ScrollView
-          contentContainerStyle={{ padding: 16, paddingBottom: 24 + insets.bottom }}
+          contentContainerStyle={{
+            padding: 16,
+            paddingTop: headerH + 16,
+            paddingBottom: 24 + insets.bottom,
+          }}
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.card}>
@@ -151,14 +162,11 @@ export default function SubscriptionsScreen({ navigation }: any) {
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
+    // Overlay chrome (OverlayHeader owns the safe-area padding, the row layout,
+    // the blur backdrop and the absolute placement) — only the horizontal inset
+    // is ours. No fill and no hairline: they would paint over the blur.
     header: {
-      flexDirection: 'row',
-      alignItems: 'center',
       paddingHorizontal: 8,
-      paddingBottom: 10,
-      backgroundColor: colors.background,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: colors.border,
     },
     backButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
     headerTitle: { flex: 1, textAlign: 'center', fontFamily: font.serif, fontSize: 22, color: colors.text },

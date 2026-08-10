@@ -22,6 +22,7 @@ import { getCategoryLabel } from '../lib/categories';
 import { radius } from '../theme/tokens';
 import EventListCard from '../components/EventListCard';
 import EmptyState from '../components/EmptyState';
+import OverlayHeader, { useOverlayHeaderInset } from '../components/OverlayHeader';
 import SectionHeader from '../components/SectionHeader';
 import VerifiedBadge from '../components/VerifiedBadge';
 import { Skeleton, ListSkeleton } from '../components/Skeleton';
@@ -63,6 +64,9 @@ export default function SearchScreen({ navigation }: any) {
   const { t } = useI18n();
   const styles = getStyles(colors);
   const insets = useSafeAreaInsets();
+  // The search bar is a blurred overlay now, so the results beneath reserve its
+  // measured height (see OverlayHeader).
+  const { height: headerH, onHeight: onHeaderHeight } = useOverlayHeaderInset();
   const inputRef = useRef<TextInput>(null);
 
   const [allEvents, setAllEvents] = useState<any[]>([]);
@@ -273,7 +277,7 @@ export default function SearchScreen({ navigation }: any) {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Header: back + focused search field + clear. */}
-      <View style={styles.header}>
+      <OverlayHeader onHeight={onHeaderHeight} style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={10} style={styles.backBtn}>
           <ArrowLeft size={24} color={colors.text} />
         </TouchableOpacity>
@@ -297,10 +301,13 @@ export default function SearchScreen({ navigation }: any) {
             </TouchableOpacity>
           )}
         </View>
-      </View>
+      </OverlayHeader>
 
       {loading ? (
-        <SearchResultsSkeleton />
+        // No scroll container here — pad the placeholder by hand.
+        <View style={{ paddingTop: headerH }}>
+          <SearchResultsSkeleton />
+        </View>
       ) : error ? (
         <View style={styles.loading}>
           <EmptyState
@@ -314,7 +321,10 @@ export default function SearchScreen({ navigation }: any) {
       ) : (
         <ScrollView
           style={styles.scroll}
-          contentContainerStyle={[styles.scrollContent, { paddingBottom: 32 + insets.bottom }]}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingTop: headerH, paddingBottom: 32 + insets.bottom },
+          ]}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
           showsVerticalScrollIndicator={false}
@@ -397,12 +407,15 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       flex: 1,
       backgroundColor: colors.background,
     },
+    // Overlay chrome (OverlayHeader owns the row layout, the blur backdrop and
+    // the absolute placement). paddingTop deliberately OVERRIDES OverlayHeader's
+    // safe-area inset: `container` already pays insets.top, and an absolute
+    // child starts below its parent's padding, so paying it again would double.
     header: {
-      flexDirection: 'row',
-      alignItems: 'center',
       gap: 10,
       paddingHorizontal: 12,
-      paddingVertical: 10,
+      paddingTop: 10,
+      paddingBottom: 10,
     },
     backBtn: {
       padding: 4,

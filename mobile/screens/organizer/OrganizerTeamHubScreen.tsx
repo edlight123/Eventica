@@ -18,6 +18,7 @@ import { Skeleton } from '../../components/Skeleton';
 import EmptyState from '../../components/EmptyState';
 import StatusChip from '../../components/StatusChip';
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
+import { useOverlayHeaderInset } from '../../components/OverlayHeader';
 import StaffEventCard from '../../components/organizer/StaffEventCard';
 import InfoNotice from '../../components/organizer/InfoNotice';
 import type { RootStackParamList } from '../../navigation/AppNavigator';
@@ -54,6 +55,7 @@ export default function OrganizerTeamHubScreen() {
   const { t } = useI18n();
   const { formatDate } = useLocaleFormat();
   const insets = useSafeAreaInsets();
+  const { height: headerH, onHeight } = useOverlayHeaderInset();
 
   const [events, setEvents] = useState<OrganizerEvent[]>([]);
   const [members, setMembers] = useState<TeamMember[]>([]);
@@ -130,10 +132,18 @@ export default function OrganizerTeamHubScreen() {
     <View style={styles.container}>
       {/* Pushed from the dashboard — without onBack this screen was a dead end
           (no chevron, and the tab bar is covered by the push). */}
-      <OrganizerScreenHeader title={t('organizerTeamHub.title')} onBack={() => navigation.goBack()} />
+      <OrganizerScreenHeader
+        title={t('organizerTeamHub.title')}
+        onBack={() => navigation.goBack()}
+        overlay
+        onHeight={onHeight}
+      />
 
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: 32 + insets.bottom }]}
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop: headerH, paddingBottom: 32 + insets.bottom },
+        ]}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
         }

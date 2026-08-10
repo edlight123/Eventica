@@ -17,6 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db } from '../config/firebase';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
+import OverlayHeader, { useOverlayHeaderInset } from '../components/OverlayHeader';
 import { Skeleton } from '../components/Skeleton';
 import { font, radius } from '../theme/tokens';
 import { resolveLocalizedContent } from '../types/contentPage';
@@ -104,6 +105,9 @@ export default function ContentPageScreen({ route, navigation }: any) {
   const styles = getStyles(colors);
   const { t, language } = useI18n();
   const insets = useSafeAreaInsets();
+  // The title bar is a blurred overlay now, so the content beneath reserves its
+  // measured height (see OverlayHeader).
+  const { height: headerH, onHeight: onHeaderHeight } = useOverlayHeaderInset();
   const slug: string = route?.params?.slug;
   const routeTitle: string | undefined = route?.params?.title;
 
@@ -197,7 +201,7 @@ export default function ContentPageScreen({ route, navigation }: any) {
   const headerTitle = content?.title || routeTitle || '';
 
   const header = (
-    <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
+    <OverlayHeader onHeight={onHeaderHeight} style={styles.header}>
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.goBack()}
@@ -211,7 +215,7 @@ export default function ContentPageScreen({ route, navigation }: any) {
         {headerTitle}
       </Text>
       <View style={styles.backButton} />
-    </View>
+    </OverlayHeader>
   );
 
   return (
@@ -220,7 +224,10 @@ export default function ContentPageScreen({ route, navigation }: any) {
       {header}
 
       {loading ? (
-        <ContentSkeleton colors={colors} />
+        // No scroll container here — pad the placeholder by hand.
+        <View style={{ paddingTop: headerH }}>
+          <ContentSkeleton colors={colors} />
+        </View>
       ) : failed || !content ? (
         <View style={styles.centerState}>
           <Text style={styles.emptyTitle}>{t('contentPage.unavailableTitle')}</Text>
@@ -233,7 +240,11 @@ export default function ContentPageScreen({ route, navigation }: any) {
       ) : (
         <ScrollView
           style={styles.scroll}
-          contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 40 }}
+          contentContainerStyle={{
+            padding: 20,
+            paddingTop: headerH + 20,
+            paddingBottom: insets.bottom + 40,
+          }}
           showsVerticalScrollIndicator={false}
         >
           <Text style={styles.pageTitle}>{content.title}</Text>
@@ -450,14 +461,11 @@ function ContentSkeleton({ colors }: { colors: ReturnType<typeof useTheme>['colo
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
+    // Overlay chrome (OverlayHeader owns the safe-area padding, the row layout,
+    // the blur backdrop and the absolute placement) — only the horizontal inset
+    // is ours. No fill and no hairline: they would paint over the blur.
     header: {
-      flexDirection: 'row',
-      alignItems: 'center',
       paddingHorizontal: 8,
-      paddingBottom: 10,
-      backgroundColor: colors.background,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: colors.border,
     },
     backButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
     headerTitle: { flex: 1, textAlign: 'center', fontFamily: font.serif, fontSize: 22, color: colors.text },

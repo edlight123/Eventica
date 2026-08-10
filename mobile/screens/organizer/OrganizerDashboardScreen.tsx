@@ -25,6 +25,7 @@ import { Skeleton } from '../../components/Skeleton';
 import EmptyState from '../../components/EmptyState';
 import StatTriplet from '../../components/StatTriplet';
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
+import { useOverlayHeaderInset } from '../../components/OverlayHeader';
 import GettingStartedCard from '../../components/organizer/GettingStartedCard';
 import { Calendar } from 'lucide-react-native';
 
@@ -38,6 +39,7 @@ export default function OrganizerDashboardScreen() {
   // The tab bar is a translucent overlay, so reserve its height here or the
   // last row ends up sitting behind it.
   const tabBarSpace = useTabBarSpace();
+  const { height: headerH, onHeight } = useOverlayHeaderInset();
   const [todayEvents, setTodayEvents] = useState<TodayEvent[]>([]);
   const [stats, setStats] = useState<OrganizerStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -103,11 +105,16 @@ export default function OrganizerDashboardScreen() {
   return (
     <View style={styles.container}>
       {/* Fixed Header */}
-      <OrganizerScreenHeader title={t('organizerDashboard.title')} subtitle={headerSubtitle} />
+      <OrganizerScreenHeader
+        title={t('organizerDashboard.title')}
+        subtitle={headerSubtitle}
+        overlay
+        onHeight={onHeight}
+      />
 
       <ScrollView
         style={styles.scrollContent}
-        contentContainerStyle={{ paddingBottom: tabBarSpace + 24 }}
+        contentContainerStyle={{ paddingTop: headerH, paddingBottom: tabBarSpace + 24 }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}

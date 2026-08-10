@@ -32,6 +32,7 @@ import { RADIUS } from '../../config/brand';
 import { Skeleton } from '../../components/Skeleton';
 import ActionTileGrid from '../../components/organizer/ActionTileGrid';
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
+import { useOverlayHeaderInset } from '../../components/OverlayHeader';
 
 type RouteParams = {
   OrganizerEventManagement: {
@@ -56,6 +57,7 @@ export default function OrganizerEventManagementScreen() {
   const navigation = useNavigation<any>();
   const { eventId } = route.params;
   const insets = useSafeAreaInsets();
+  const { height: headerH, onHeight } = useOverlayHeaderInset();
 
   // The stack registers this route with a generic "Manage Event" nav bar. Hide it
   // so the in-screen POSH header (serif event title + back arrow) is the only one.
@@ -298,11 +300,13 @@ export default function OrganizerEventManagementScreen() {
             <Ionicons name="share-outline" size={22} color={colors.text} />
           </TouchableOpacity>
         }
+        overlay
+        onHeight={onHeight}
       />
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+        contentContainerStyle={{ paddingTop: headerH, paddingBottom: insets.bottom + 24 }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl

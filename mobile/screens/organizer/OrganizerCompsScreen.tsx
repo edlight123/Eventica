@@ -23,6 +23,7 @@ import EmptyState from '../../components/EmptyState';
 import StatusChip from '../../components/StatusChip';
 import WhitePillCTA from '../../components/WhitePillCTA';
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
+import { useOverlayHeaderInset } from '../../components/OverlayHeader';
 import InfoNotice from '../../components/organizer/InfoNotice';
 import SelectField from '../../components/organizer/SelectField';
 import { getEventById } from '../../lib/api/organizer';
@@ -68,6 +69,7 @@ export default function OrganizerCompsScreen() {
   const route = useRoute<RouteProp<RouteParams, 'OrganizerComps'>>();
   const navigation = useNavigation<any>();
   const { eventId } = route.params;
+  const { height: headerH, onHeight } = useOverlayHeaderInset();
 
   const { t } = useI18n();
   const showAlert = useAppAlert();
@@ -238,8 +240,13 @@ export default function OrganizerCompsScreen() {
         title={t('organizerComps.title')}
         subtitle={eventTitle || undefined}
         onBack={() => navigation.goBack()}
+        overlay
+        onHeight={onHeight}
       />
-      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={[styles.scrollContent, { paddingTop: headerH }]}
+        keyboardShouldPersistTaps="handled"
+      >
         <InfoNotice text={t('organizerComps.infoNotice')} />
 
         <View style={styles.formCard}>

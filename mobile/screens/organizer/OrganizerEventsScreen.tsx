@@ -28,6 +28,7 @@ import { Skeleton } from '../../components/Skeleton';
 import EmptyState from '../../components/EmptyState';
 import StatusChip from '../../components/StatusChip';
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
+import { useOverlayHeaderInset } from '../../components/OverlayHeader';
 import SegmentedTabs from '../../components/organizer/SegmentedTabs';
 import { TikemWordmark } from '../../components/TikemWordmark';
 
@@ -43,6 +44,7 @@ export default function OrganizerEventsScreen() {
   // The tab bar is a translucent overlay, so reserve its height here or the
   // last row ends up sitting behind it.
   const tabBarSpace = useTabBarSpace();
+  const { height: headerH, onHeight } = useOverlayHeaderInset();
   const [eventTab, setEventTab] = useState<'upcoming' | 'past'>('upcoming');
   const [allEvents, setAllEvents] = useState<OrganizerEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -158,10 +160,16 @@ export default function OrganizerEventsScreen() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <OrganizerScreenHeader title={t('organizerEvents.title')} right={createButton} />
+      <OrganizerScreenHeader
+        title={t('organizerEvents.title')}
+        right={createButton}
+        overlay
+        onHeight={onHeight}
+      />
 
-      {/* Segmented Control */}
-      <View style={styles.segmentedWrap}>
+      {/* Segmented Control — static, so it reserves the floating header's
+          measured height on behalf of the list below. */}
+      <View style={[styles.segmentedWrap, { marginTop: headerH }]}>
         <SegmentedTabs
           value={eventTab}
           onChange={(key) => setEventTab(key as 'upcoming' | 'past')}

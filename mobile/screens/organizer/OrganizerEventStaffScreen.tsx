@@ -23,6 +23,7 @@ import EmptyState from '../../components/EmptyState'
 import { Users, Mail } from 'lucide-react-native'
 import { useAuth } from '../../contexts/AuthContext'
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader'
+import { useOverlayHeaderInset } from '../../components/OverlayHeader'
 import StaffEventCard from '../../components/organizer/StaffEventCard'
 import StatusChip from '../../components/StatusChip'
 import InfoNotice from '../../components/organizer/InfoNotice'
@@ -64,6 +65,7 @@ export default function OrganizerEventStaffScreen() {
   const route = useRoute<RouteProp<RouteParams, 'OrganizerEventStaff'>>()
   const navigation = useNavigation<any>()
   const insets = useSafeAreaInsets()
+  const { height: headerH, onHeight } = useOverlayHeaderInset()
   const { eventId } = route.params
 
   const { t } = useI18n()
@@ -296,9 +298,19 @@ export default function OrganizerEventStaffScreen() {
 
   return (
     <View style={styles.container}>
-      <OrganizerScreenHeader title={t('organizerStaff.headerTitle')} right={inviteButton} />
+      <OrganizerScreenHeader
+        title={t('organizerStaff.headerTitle')}
+        right={inviteButton}
+        overlay
+        onHeight={onHeight}
+      />
 
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: 32 + insets.bottom }]}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop: headerH, paddingBottom: 32 + insets.bottom },
+        ]}
+      >
         <View style={styles.notice}>
           <InfoNotice icon="people-outline" text={t('organizerStaff.staffInfo')} />
         </View>

@@ -23,6 +23,7 @@ import { RADIUS } from '../../config/brand';
 import { Skeleton } from '../../components/Skeleton';
 import StatTriplet from '../../components/StatTriplet';
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
+import { useOverlayHeaderInset } from '../../components/OverlayHeader';
 import SegmentedTabs from '../../components/organizer/SegmentedTabs';
 import { format, subDays, startOfDay } from 'date-fns';
 import { safeFormatForLanguage } from '../../lib/dates';
@@ -54,6 +55,7 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
   const { userProfile } = useAuth();
   const { t, language } = useI18n();
   const { formatMoney: fmtMoney } = useLocaleFormat();
+  const { height: headerH, onHeight } = useOverlayHeaderInset();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [stats, setStats] = useState({
@@ -297,10 +299,18 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       {/* Header */}
-      <OrganizerScreenHeader title={t('analytics.title') || 'Analytics'} onBack={() => navigation.goBack()} />
+      <OrganizerScreenHeader
+        title={t('analytics.title') || 'Analytics'}
+        onBack={() => navigation.goBack()}
+        overlay
+        onHeight={onHeight}
+      />
 
       <ScrollView
         style={styles.scrollView}
+        // Reserve the floating header's measured height so the range picker
+        // isn't born underneath it.
+        contentContainerStyle={{ paddingTop: headerH }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />

@@ -13,6 +13,7 @@ import { radius } from '../../theme/tokens';
 import { Skeleton } from '../../components/Skeleton';
 import EmptyState from '../../components/EmptyState';
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
+import { useOverlayHeaderInset } from '../../components/OverlayHeader';
 import { Wallet } from 'lucide-react-native';
 
 /**
@@ -27,6 +28,7 @@ export default function OrganizerEarningsHubScreen() {
   const navigation = useNavigation<any>();
   const { userProfile } = useAuth();
   const { t, language } = useI18n();
+  const { height: headerH, onHeight } = useOverlayHeaderInset();
 
   const [events, setEvents] = useState<OrganizerEvent[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -63,8 +65,10 @@ export default function OrganizerEarningsHubScreen() {
         title={t('organizerEarningsHub.title')}
         subtitle={t('organizerEarningsHub.subtitle')}
         onBack={() => navigation.goBack()}
+        overlay
+        onHeight={onHeight}
       />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: headerH }]}>
         {!loaded ? (
           [0, 1, 2].map((i) => (
             <Skeleton key={i} width="100%" height={85} radius={10} style={{ marginBottom: 18 }} />

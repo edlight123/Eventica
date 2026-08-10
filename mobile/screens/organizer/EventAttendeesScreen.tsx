@@ -24,6 +24,7 @@ import EmptyState from '../../components/EmptyState';
 import StatusChip from '../../components/StatusChip';
 import MoneyText from '../../components/MoneyText';
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
+import { useOverlayHeaderInset } from '../../components/OverlayHeader';
 import SegmentedTabs from '../../components/organizer/SegmentedTabs';
 import { Users } from 'lucide-react-native';
 
@@ -58,6 +59,7 @@ export default function EventAttendeesScreen() {
   const { eventId } = route.params;
 
   const insets = useSafeAreaInsets();
+  const { height: headerH, onHeight } = useOverlayHeaderInset();
 
   const { t } = useI18n();
   const showAlert = useAppAlert();
@@ -264,10 +266,13 @@ export default function EventAttendeesScreen() {
         title={t('organizerAttendees.headerTitle')}
         onBack={() => navigation.goBack()}
         right={<ExportAttendeesButton eventId={eventId} attendees={attendees} />}
+        overlay
+        onHeight={onHeight}
       />
 
-      {/* Stats Bar */}
-      <View style={styles.statsBar}>
+      {/* Stats Bar — the first static block under the floating header, so it
+          carries the reserved height for the search + tabs + list beneath it. */}
+      <View style={[styles.statsBar, { marginTop: headerH }]}>
         <Text style={styles.statsBarText}>
           {checkedInCount}/{attendees.length} {t('organizerAttendees.headerCheckedInSuffix')}
         </Text>

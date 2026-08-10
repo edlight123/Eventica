@@ -22,6 +22,7 @@ import { useI18n } from '../contexts/I18nContext';
 import ConnectButton from '../components/ConnectButton';
 import VerifiedBadge from '../components/VerifiedBadge';
 import EmptyState from '../components/EmptyState';
+import OverlayHeader, { useOverlayHeaderInset } from '../components/OverlayHeader';
 import { PeopleRowsSkeleton } from '../components/Skeleton';
 import { useAppAlert } from '../components/AppAlert';
 import {
@@ -102,6 +103,9 @@ export default function ConnectionsScreen() {
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const { t } = useI18n();
+  // The title bar is a blurred overlay now, so the tabs beneath it carry its
+  // measured height (see OverlayHeader).
+  const { height: headerH, onHeight: onHeaderHeight } = useOverlayHeaderInset();
 
   // Arriving from Discover's "Sync contacts" CTA jumps straight to the Find tab
   // and auto-starts the contact sync (feedback: don't make me tap twice).
@@ -150,16 +154,16 @@ export default function ConnectionsScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
-      <View style={styles.topBar}>
+      <OverlayHeader onHeight={onHeaderHeight} style={styles.topBar}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} hitSlop={16}>
           <ChevronLeft size={26} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.topTitle}>{t('connections.title')}</Text>
         <View style={{ width: 26 }} />
-      </View>
+      </OverlayHeader>
 
-      {/* Tabs */}
-      <View style={styles.tabs}>
+      {/* Tabs — the header floats above them, so they reserve its height. */}
+      <View style={[styles.tabs, { marginTop: headerH }]}>
         <TabBtn label={t('connections.tabs.friends')} count={overview.friends.length} active={tab === 'friends'} onPress={() => setTab('friends')} colors={colors} />
         <TabBtn label={t('connections.tabs.requests')} count={overview.incoming.length} highlight active={tab === 'requests'} onPress={() => setTab('requests')} colors={colors} />
         <TabBtn label={t('connections.tabs.find')} active={tab === 'find'} onPress={() => setTab('find')} colors={colors} />
@@ -449,12 +453,15 @@ const getStyles = (colors: any) =>
       alignItems: 'center',
       justifyContent: 'center',
     },
+    // Overlay chrome (OverlayHeader owns the row layout, the blur backdrop and
+    // the absolute placement). paddingTop deliberately OVERRIDES OverlayHeader's
+    // safe-area inset: this bar lives inside a SafeAreaView edges={['top']} that
+    // has already paid the notch, so paying it twice would double the gap.
     topBar: {
-      flexDirection: 'row',
-      alignItems: 'center',
       justifyContent: 'space-between',
       paddingHorizontal: 12,
-      paddingVertical: 10,
+      paddingTop: 10,
+      paddingBottom: 10,
     },
     backBtn: {
       padding: 2,

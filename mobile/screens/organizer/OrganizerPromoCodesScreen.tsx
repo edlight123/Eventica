@@ -38,6 +38,7 @@ import EmptyState from '../../components/EmptyState';
 import WhitePillCTA from '../../components/WhitePillCTA';
 import SecondaryPill from '../../components/auth/SecondaryPill';
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader';
+import { useOverlayHeaderInset } from '../../components/OverlayHeader';
 import SegmentedTabs from '../../components/organizer/SegmentedTabs';
 import { Tag } from 'lucide-react-native';
 import { getEventById } from '../../lib/api/organizer';
@@ -88,6 +89,7 @@ export default function OrganizerPromoCodesScreen() {
   const route = useRoute<RouteProp<RouteParams, 'OrganizerPromoCodes'>>();
   const navigation = useNavigation<any>();
   const { eventId } = route.params;
+  const { height: headerH, onHeight } = useOverlayHeaderInset();
 
   // Hide the default native nav bar — this screen renders its own serif
   // OrganizerScreenHeader, so the native "‹ Manage Event / Promo Codes" bar
@@ -378,8 +380,13 @@ export default function OrganizerPromoCodesScreen() {
         title={t('organizerPromoCodes.title')}
         subtitle={eventTitle || undefined}
         onBack={() => navigation.goBack()}
+        overlay
+        onHeight={onHeight}
       />
-      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={[styles.scrollContent, { paddingTop: headerH }]}
+        keyboardShouldPersistTaps="handled"
+      >
         {showForm && (
             <View style={styles.formCard}>
               <Text style={styles.formEyebrow}>{t('organizerPromoCodes.create.eyebrow')}</Text>
