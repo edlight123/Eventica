@@ -23,6 +23,7 @@ import {
   getVerificationRequest,
 } from '../../lib/verification';
 import { useAppAlert } from '../../components/AppAlert';
+import OverlayHeader, { useOverlayHeaderInset } from '../../components/OverlayHeader';
 import { radius } from '../../theme/tokens';
 
 type RouteParams = {
@@ -40,6 +41,9 @@ export default function GovernmentIDUploadScreen() {
   const { userProfile } = useAuth();
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
+  // The header floats over the scroll view, so the content has to reserve its
+  // measured height or the photo tips start life hidden behind it.
+  const { height: headerH, onHeight } = useOverlayHeaderInset();
   const [frontPath, setFrontPath] = useState<string | null>(null);
   const [backPath, setBackPath] = useState<string | null>(null);
   const [frontPreview, setFrontPreview] = useState<string | null>(null);
@@ -224,7 +228,7 @@ export default function GovernmentIDUploadScreen() {
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? colors.surface : colors.white} />
 
       {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+      <OverlayHeader onHeight={onHeight} style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
@@ -234,11 +238,14 @@ export default function GovernmentIDUploadScreen() {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('verification.governmentId.title')}</Text>
         <View style={{ width: 40 }} />
-      </View>
+      </OverlayHeader>
 
       {/* Scrollable — with both previews loaded the content is taller than the
           viewport, and testers couldn't reach the ID Back section at all. */}
-      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={[styles.contentContainer, { paddingTop: headerH }]}
+      >
         {/* Instructions */}
         <View style={styles.instructionsCard}>
           <Ionicons name="information-circle" size={32} color={colors.primary} />
@@ -350,15 +357,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     backgroundColor: colors.background,
   },
+  // OverlayHeader owns the layout, the safe-area padding and the blurred
+  // backdrop; only the title-centering rule is ours.
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
-    paddingTop: 16,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
   },
   backButton: {
     width: 40,

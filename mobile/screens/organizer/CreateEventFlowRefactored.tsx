@@ -51,6 +51,7 @@ import {
   departmentForCity,
 } from '../../data/haitiGeo';
 import WhitePillCTA from '../../components/WhitePillCTA';
+import OverlayHeader, { useOverlayHeaderInset } from '../../components/OverlayHeader';
 import { font, radius } from '../../theme/tokens';
 import { POSTER_THEME_KEYS, resolvePosterTheme } from '../../lib/posterGradient';
 import {
@@ -328,6 +329,9 @@ export default function CreateEventFlowRefactored() {
   const navigation = useNavigation();
   const route = useRoute<RouteProp<RouteParams, 'EditEvent'>>();
   const insets = useSafeAreaInsets();
+  // 48 = the header's own paddingTop 12 + 24pt glyph + paddingBottom 12; it
+  // carries no safe-area inset (the SafeAreaView above already does).
+  const { height: headerH, onHeight } = useOverlayHeaderInset(48);
   const { user, userProfile } = useAuth();
   const { t } = useI18n();
   const showAlert = useAppAlert();
@@ -1266,8 +1270,11 @@ export default function CreateEventFlowRefactored() {
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.wrapper}>
-          {/* Header */}
-          <View style={styles.header}>
+          {/* Header — floats over the canvas so the form scrolls under the
+              app's blurred chrome. It sits INSIDE the SafeAreaView, which has
+              already paid the notch inset, so `styles.header` keeps its own
+              paddingTop and deliberately overrides OverlayHeader's. */}
+          <OverlayHeader style={styles.header} onHeight={onHeight}>
             <TouchableOpacity
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               onPress={confirmExit}
@@ -1278,7 +1285,7 @@ export default function CreateEventFlowRefactored() {
               {isEditMode ? t('organizerCreateEventFlow.headerEdit') : t('organizerCreateEventFlow.headerCreate')}
             </Text>
             <View style={{ width: 24 }} />
-          </View>
+          </OverlayHeader>
 
           {/* Single scrolling canvas */}
           <ScrollView
@@ -1292,6 +1299,9 @@ export default function CreateEventFlowRefactored() {
             // it insets the bottom by the real keyboard overlap and undoes it on
             // dismiss, which keeps the scrollable area bounded by the form itself.
             contentContainerStyle={{
+              // Reserve the overlay header's measured height so the first row
+              // (the validation banner / flyer hero) doesn't start life hidden.
+              paddingTop: headerH,
               paddingBottom: isKeyboardVisible ? 24 : footerHeight + 24,
             }}
             keyboardShouldPersistTaps="handled"

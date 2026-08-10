@@ -18,6 +18,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import SelfieCameraWithGuide from '../../components/SelfieCameraWithGuide';
+import OverlayHeader, { useOverlayHeaderInset } from '../../components/OverlayHeader';
 import * as ImagePicker from 'expo-image-picker';
 import {
   updateVerificationFiles,
@@ -43,6 +44,9 @@ export default function SelfieUploadScreen() {
   const { userProfile } = useAuth();
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
+  // The header floats over the scroll view, so the content has to reserve its
+  // measured height or the facial guide starts life hidden behind it.
+  const { height: headerH, onHeight } = useOverlayHeaderInset();
   const [selfiePath, setSelfiePath] = useState<string | null>(null);
   const [selfiePreview, setSelfiePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -218,7 +222,7 @@ export default function SelfieUploadScreen() {
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? colors.surface : colors.white} />
 
       {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+      <OverlayHeader onHeight={onHeight} style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
@@ -228,11 +232,11 @@ export default function SelfieUploadScreen() {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('verification.selfie.title')}</Text>
         <View style={{ width: 40 }} />
-      </View>
+      </OverlayHeader>
 
       <ScrollView
         style={styles.content}
-        contentContainerStyle={styles.contentContainer}
+        contentContainerStyle={[styles.contentContainer, { paddingTop: headerH }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Facial Guide Visual */}
@@ -353,15 +357,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     backgroundColor: colors.background,
   },
+  // OverlayHeader owns the layout, the safe-area padding and the blurred
+  // backdrop; only the title-centering rule is ours.
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
-    paddingTop: 16,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
   },
   backButton: {
     width: 40,

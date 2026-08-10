@@ -619,7 +619,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     left: 0,
     right: 0,
     zIndex: 10,
-    overflow: 'hidden',
+    // No overflow: 'hidden' — it would clip ChromeBlur's below-the-bar fade,
+    // which is positioned outside this box. The collapsing mark is absolutely
+    // positioned within bounds, so nothing needs clipping.
   },
   // Overlaid on the full wordmark so the two can cross-fade in place.
   headerMark: {

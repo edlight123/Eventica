@@ -21,6 +21,7 @@ import {
   type VerificationRequest,
 } from '../../lib/verification';
 import { useAppAlert } from '../../components/AppAlert';
+import OverlayHeader, { useOverlayHeaderInset } from '../../components/OverlayHeader';
 import StatusChip from '../../components/StatusChip';
 import { radius } from '../../theme/tokens';
 
@@ -35,6 +36,9 @@ export default function OrganizerVerificationScreen() {
   const { userProfile } = useAuth();
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
+  // The header floats over the scroll view, so the content has to reserve its
+  // measured height or the progress card starts life hidden behind it.
+  const { height: headerH, onHeight } = useOverlayHeaderInset();
   const [loading, setLoading] = useState(true);
   const [request, setRequest] = useState<VerificationRequest | null>(null);
 
@@ -130,22 +134,26 @@ export default function OrganizerVerificationScreen() {
   }
 
   return (
-      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 24 + insets.bottom }}>
-        <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? colors.surface : colors.white} />
+    <View style={styles.container}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? colors.surface : colors.white} />
 
-        {/* Header */}
-        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>{t('verification.organizerVerification.title')}</Text>
-          <View style={{ width: 40 }} />
-        </View>
+      {/* Header */}
+      <OverlayHeader onHeight={onHeight} style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{t('verification.organizerVerification.title')}</Text>
+        <View style={{ width: 40 }} />
+      </OverlayHeader>
 
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={{ paddingTop: headerH, paddingBottom: 24 + insets.bottom }}
+      >
         {/* Status Card */}
         <View style={styles.statusCard}>
           <View style={styles.statusHeader}>
@@ -311,6 +319,7 @@ export default function OrganizerVerificationScreen() {
           </View>
         )}
       </ScrollView>
+    </View>
   );
 }
 
@@ -318,6 +327,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  scroll: {
+    flex: 1,
   },
   loadingContainer: {
     flex: 1,
@@ -357,15 +369,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 16,
     fontWeight: '600',
   },
+  // OverlayHeader owns the layout, the safe-area padding and the blurred
+  // backdrop; only the title-centering rule is ours.
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
-    paddingTop: 16,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
   },
   backButton: {
     width: 40,

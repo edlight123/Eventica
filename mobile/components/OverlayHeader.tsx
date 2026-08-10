@@ -66,6 +66,9 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     // No fill and no bottom border: ChromeBlur is the backdrop, and a hairline
     // drawn on top of a blur reads as a seam.
-    overflow: 'hidden',
+    //
+    // Deliberately NO overflow: 'hidden'. ChromeBlur's fade sits at top:'100%',
+    // i.e. just OUTSIDE this box, so clipping to bounds silently deletes the
+    // very gradient that stops the bar reading as a hard edge.
   },
 });

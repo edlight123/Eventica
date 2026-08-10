@@ -20,6 +20,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { backendJson } from '../../lib/api/backend';
 import { useI18n } from '../../contexts/I18nContext';
 import InfoNotice from '../../components/organizer/InfoNotice';
+import OverlayHeader, { useOverlayHeaderInset } from '../../components/OverlayHeader';
 
 type RouteParams = {
   SendEventUpdate: {
@@ -38,6 +39,7 @@ export default function SendEventUpdateScreen() {
   const { t } = useI18n();
   const showAlert = useAppAlert();
   const insets = useSafeAreaInsets();
+  const { height: headerH, onHeight } = useOverlayHeaderInset();
 
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
@@ -110,7 +112,7 @@ export default function SendEventUpdateScreen() {
     >
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? colors.surface : colors.white} />
 
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+      <OverlayHeader style={styles.header} onHeight={onHeight}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backButton}
@@ -133,11 +135,11 @@ export default function SendEventUpdateScreen() {
             <Text style={styles.sendButtonText}>{t('common.send')}</Text>
           )}
         </TouchableOpacity>
-      </View>
+      </OverlayHeader>
 
       <ScrollView
         style={styles.content}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}
+        contentContainerStyle={{ paddingTop: headerH, paddingBottom: insets.bottom + 16 }}
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.eventInfoWrap}>
@@ -232,16 +234,15 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     backgroundColor: colors.background,
   },
+  // Overlay chrome: OverlayHeader supplies the absolute positioning, the
+  // safe-area top padding and the ChromeBlur backdrop, so this style carries
+  // only the row's own geometry — no fill and no hairline.
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 16,
     paddingBottom: 16,
     paddingHorizontal: 16,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
   },
   backButton: {
     padding: 4,
@@ -253,7 +254,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     letterSpacing: 0,
     fontWeight: 'bold',
     color: colors.text,
-    marginLeft: 12,
+    // No marginLeft: OverlayHeader's row already puts a 12pt gap between the
+    // close button and the title.
   },
   sendButton: {
     backgroundColor: colors.surfaceRaised,

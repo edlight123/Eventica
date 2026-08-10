@@ -9,7 +9,6 @@ import {
   StatusBar
 } from 'react-native';
 import { Image } from 'expo-image';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTabBarSpace } from '../hooks/useTabBarSpace';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Calendar, MapPin, Ticket, ChevronRight } from 'lucide-react-native';
@@ -22,6 +21,7 @@ import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { resolvePosterTheme } from '../lib/posterGradient';
 import EmptyState from '../components/EmptyState';
+import OverlayHeader, { useOverlayHeaderInset } from '../components/OverlayHeader';
 import StatusChip from '../components/StatusChip';
 import WhitePillCTA from '../components/WhitePillCTA';
 import SegmentedTabs from '../components/organizer/SegmentedTabs';
@@ -142,7 +142,9 @@ export default function TicketsScreen({ navigation }: any) {
   const styles = getStyles(colors);
   const { user } = useAuth();
   const { t, language } = useI18n();
-  const insets = useSafeAreaInsets();
+  // The title bar is a blurred overlay now, so the tabs beneath it have to
+  // reserve its measured height (see OverlayHeader).
+  const { height: headerH, onHeight: onHeaderHeight } = useOverlayHeaderInset();
   // The tab bar is a translucent overlay, so reserve its height here or the
   // last row ends up sitting behind it.
   const tabBarSpace = useTabBarSpace();
@@ -326,10 +328,11 @@ export default function TicketsScreen({ navigation }: any) {
     return (
       <View style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor={colors.background} />
-        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+        <OverlayHeader onHeight={onHeaderHeight} style={styles.header}>
           <Text style={styles.headerTitle}>{t('tickets.title')}</Text>
-        </View>
-        <View style={styles.tabs}>
+        </OverlayHeader>
+        {/* The header floats, so the tabs — the first in-flow row — carry its height. */}
+        <View style={[styles.tabs, { marginTop: headerH }]}>
           <SegmentedTabs
             tabs={[
               { key: 'upcoming', label: t('tickets.upcoming') },
@@ -367,13 +370,14 @@ export default function TicketsScreen({ navigation }: any) {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+      <OverlayHeader onHeight={onHeaderHeight} style={styles.header}>
         <Text style={styles.headerTitle}>{t('tickets.title')}</Text>
-      </View>
+      </OverlayHeader>
 
       {/* Tabs — quiet token tabs (beta feedback: the old full-width teal-
-          underline band pulled focus from the tickets themselves). */}
-      <View style={styles.tabs}>
+          underline band pulled focus from the tickets themselves). The header
+          floats above them, so they reserve its measured height. */}
+      <View style={[styles.tabs, { marginTop: headerH }]}>
         <SegmentedTabs
           tabs={[
             { key: 'upcoming', label: t('tickets.upcoming'), count: upcomingTickets.length },
@@ -509,12 +513,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'center',
     alignItems: 'center',
   },
+  // Overlay chrome (OverlayHeader owns the safe-area padding, the blur backdrop
+  // and the absolute placement) — only the horizontal inset is ours.
   header: {
-    padding: 20,
-    paddingTop: 16,
-    backgroundColor: colors.background,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
+    paddingHorizontal: 20,
   },
   headerTitle: {
     fontFamily: 'InstrumentSerif_400Regular',

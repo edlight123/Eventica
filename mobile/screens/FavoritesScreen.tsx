@@ -18,6 +18,7 @@ import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { radius } from '../theme/tokens';
 import EmptyState from '../components/EmptyState';
+import OverlayHeader, { useOverlayHeaderInset } from '../components/OverlayHeader';
 import PosterEventCard from '../components/PosterEventCard';
 import { GridSkeleton } from '../components/Skeleton';
 import { useAppAlert } from '../components/AppAlert';
@@ -32,6 +33,8 @@ export default function FavoritesScreen({ navigation }: any) {
   const { user } = useAuth();
   const { t, language } = useI18n();
   const insets = useSafeAreaInsets();
+  // Blurred overlay title bar — the grid scrolls under it, so reserve its height.
+  const { height: headerH, onHeight: onHeaderHeight } = useOverlayHeaderInset();
   const showAlert = useAppAlert();
   const [favoriteEvents, setFavoriteEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -151,10 +154,13 @@ export default function FavoritesScreen({ navigation }: any) {
     return (
       <View style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor={colors.background} />
-        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+        <OverlayHeader onHeight={onHeaderHeight} style={styles.header}>
           <Text style={styles.headerTitle}>{t('favorites.title')}</Text>
+        </OverlayHeader>
+        {/* No scroll container here — pad the placeholder grid by hand. */}
+        <View style={{ paddingTop: headerH }}>
+          <GridSkeleton />
         </View>
-        <GridSkeleton />
       </View>
     );
   }
@@ -162,18 +168,18 @@ export default function FavoritesScreen({ navigation }: any) {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+      <OverlayHeader onHeight={onHeaderHeight} style={styles.header}>
         {navigation.canGoBack() && (
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton} hitSlop={8}>
             <ArrowLeft size={24} color={colors.text} />
           </TouchableOpacity>
         )}
         <Text style={styles.headerTitle}>{t('favorites.title')}</Text>
-      </View>
+      </OverlayHeader>
 
       <ScrollView
         style={styles.content}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+        contentContainerStyle={{ paddingTop: headerH, paddingBottom: insets.bottom + 24 }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
         }
@@ -232,12 +238,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'center',
     alignItems: 'center',
   },
+  // Only what OverlayHeader does NOT already provide. It owns the safe-area
+  // paddingTop, the horizontal padding and the ChromeBlur backdrop; the old
+  // `padding: 20` / `paddingTop: 16` here would have overridden the safe-area
+  // inset and pushed the title under the status bar, and the backgroundColor
+  // would have painted an opaque slab straight over the blur.
   header: {
-    padding: 20,
-    paddingTop: 16,
-    backgroundColor: colors.background,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
+    paddingBottom: 16,
   },
   backButton: {
     width: 40,
