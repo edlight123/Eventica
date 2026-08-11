@@ -151,7 +151,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       width: '100%',
       // Height comes from the image's real aspect ratio (set at runtime) so the
       // full poster always shows, uncropped.
-      borderRadius: 0, // square poster edge, like posh — the flyer is the art
+      borderRadius: radius.poster, // near-sharp poster edge (see tokens.ts)
       overflow: 'hidden',
       backgroundColor: colors.surfaceMuted,
     },

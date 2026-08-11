@@ -78,7 +78,9 @@ export const font = {
 // dots, spinners). Under the platform-wide de-pill, WIDE stadium shapes use a
 // rounded rectangle instead: `button` for buttons/toggles/tabs/CTAs, `chip` for
 // small chips / badges / counts.
-export const radius = { none: 0, sm: 8, chip: 10, md: 12, button: 14, lg: 16, xl: 20, pill: 999 } as const;
+// `poster`: a whisper of rounding on artwork (owner: "not fully sharp —
+// 2–5% is okay"). Everything chrome-like uses the larger steps.
+export const radius = { none: 0, poster: 4, sm: 8, chip: 10, md: 12, button: 14, lg: 16, xl: 20, pill: 999 } as const;
 
 export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 } as const;
 

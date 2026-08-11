@@ -202,10 +202,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       width: '100%',
       alignItems: 'center',
       justifyContent: 'center',
-      // SQUARE, like posh: the flyer is the artwork and cuts a sharp edge.
-      // The earlier rounding read as chrome imposed on the art ("obsessed
-      // with round corners" — the owner). Zero everywhere a poster shows.
-      borderRadius: 0,
+      // A whisper of rounding on artwork — near-posh-sharp, but not a razor
+      // edge (owner iterated: fully square felt too hard on device).
+      borderRadius: radius.poster,
       overflow: 'hidden',
       backgroundColor: colors.surfaceMuted,
     },
