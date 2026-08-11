@@ -14,6 +14,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
+  Animated,
   Text,
   TextInput,
   StyleSheet,
@@ -53,7 +54,7 @@ import {
 } from '../../data/haitiGeo';
 import WhitePillCTA from '../../components/WhitePillCTA';
 import OverlayHeader, { useOverlayHeaderInset } from '../../components/OverlayHeader';
-import { font, radius } from '../../theme/tokens';
+import { font, radius, withAlpha } from '../../theme/tokens';
 import { POSTER_THEME_KEYS, resolvePosterTheme } from '../../lib/posterGradient';
 import {
   isComingSoon,
@@ -342,6 +343,20 @@ export default function CreateEventFlowRefactored() {
   // by a real amount rather than a guessed constant. Seeded with the static height
   // (16 top pad + 56 button + 32 iOS bottom pad) for the first frame.
   const [footerHeight, setFooterHeight] = useState(104);
+  // Slow Ken Burns drift on the entry background: ~14s per direction, gentle
+  // scale+pan. Premium motion without a native video module (expo-video needs
+  // a real build; this ships OTA). Native driver, transform-only.
+  const entryDrift = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(entryDrift, { toValue: 1, duration: 14000, useNativeDriver: true }),
+        Animated.timing(entryDrift, { toValue: 0, duration: 14000, useNativeDriver: true }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [entryDrift]);
   const [loadingEvent, setLoadingEvent] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   // How many fields failed validation on the last Save attempt. Drives the
@@ -1208,6 +1223,32 @@ export default function CreateEventFlowRefactored() {
   if (!entryChosen) {
     return (
       <SafeAreaView style={styles.safeArea}>
+        {/* Premium backdrop: a dark concert photo (bundled, 130KB) drifting
+            slowly under a heavy canvas scrim, so the serif title stays crisp
+            and the motion reads as atmosphere rather than content. */}
+        <View style={StyleSheet.absoluteFill} pointerEvents="none">
+          <Animated.Image
+            source={require('../../assets/create-entry-bg.jpg')}
+            style={[
+              StyleSheet.absoluteFill,
+              {
+                width: undefined,
+                height: undefined,
+                transform: [
+                  { scale: entryDrift.interpolate({ inputRange: [0, 1], outputRange: [1.08, 1.16] }) },
+                  { translateY: entryDrift.interpolate({ inputRange: [0, 1], outputRange: [0, -14] }) },
+                ],
+              },
+            ]}
+            resizeMode="cover"
+          />
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.background, opacity: 0.78 }]} />
+          <LinearGradient
+            colors={[withAlpha(colors.background, 0.2), withAlpha(colors.background, 0.9), colors.background]}
+            locations={[0, 0.62, 1]}
+            style={StyleSheet.absoluteFill}
+          />
+        </View>
         <View style={styles.wrapper}>
           <View style={styles.entryHeader}>
             <TouchableOpacity
