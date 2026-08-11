@@ -339,6 +339,7 @@ export default function CreateEventFlowRefactored() {
   const showAlert = useAppAlert();
   const [saving, setSaving] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   // Measured height of the pinned footer, so the canvas's bottom padding clears it
   // by a real amount rather than a guessed constant. Seeded with the static height
   // (16 top pad + 56 button + 32 iOS bottom pad) for the first frame.
@@ -450,15 +451,28 @@ export default function CreateEventFlowRefactored() {
     access_code: '',
   });
 
-  // Track keyboard visibility
+  // Track keyboard visibility AND height. The height drives the canvas's
+  // bottom padding directly — we deliberately do NOT use RN's
+  // automaticallyAdjustKeyboardInsets: it applies a native contentInset that
+  // iOS sometimes fails to remove after interactive drag-dismiss, leaving the
+  // canvas scrollable a full keyboard-height past its end. Toggling the prop
+  // off does not clear an inset already applied, which is why the first fix
+  // ("gate it on visibility") did not hold. JS-owned padding cannot get stuck:
+  // it is recomputed from state on every render.
   useEffect(() => {
     const keyboardWillShow = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      () => setIsKeyboardVisible(true)
+      (e) => {
+        setIsKeyboardVisible(true);
+        setKeyboardHeight(e?.endCoordinates?.height ?? 300);
+      }
     );
     const keyboardWillHide = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-      () => setIsKeyboardVisible(false)
+      () => {
+        setIsKeyboardVisible(false);
+        setKeyboardHeight(0);
+      }
     );
 
     return () => {
@@ -1354,15 +1368,11 @@ export default function CreateEventFlowRefactored() {
               // Reserve the overlay header's measured height so the first row
               // (the validation banner / flyer hero) doesn't start life hidden.
               paddingTop: headerH,
-              paddingBottom: isKeyboardVisible ? 24 : footerHeight + 24,
+              paddingBottom: isKeyboardVisible ? keyboardHeight + 24 : footerHeight + 24,
             }}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
-            // Gated on the keyboard actually being up: left always-on, iOS keeps
-            // the keyboard-sized content inset after some dismissals (notably
-            // interactive drag-dismiss), letting the canvas scroll ~a keyboard
-            // height past its end into a void — "why can I scroll this far up?".
-            automaticallyAdjustKeyboardInsets={Platform.OS === 'ios' && isKeyboardVisible}
+            automaticallyAdjustKeyboardInsets={false}
           >
             {/* Validation banner — surfaces the count of failed fields when Save
                 is blocked, so errors below the fold don't read as a dead button. */}
