@@ -469,6 +469,8 @@ export default {
     },
   },
   home: {
+    discoverMoreTitle: 'dekouvri plis',
+    discoverMoreSubtitle: 'EKSPLORE KATEGORI YO POU JWENN ANBYANS OU',
     headline: 'Kisa k ap fèt',
     loading: 'Nap chaje evènman yo…',
     browseTitle: 'Chèche pa Kategori',

@@ -32,6 +32,7 @@ import EventRail from '../components/EventRail';
 import EmptyState from '../components/EmptyState';
 import { HomeFeedSkeleton } from '../components/Skeleton';
 import ChromeBlur from '../components/ChromeBlur';
+import CategoryBannerRail from '../components/CategoryBannerRail';
 import { isBudgetFriendlyTicketPrice } from '../lib/pricing';
 import { isEventOver, type HomeFeed } from '../lib/homeFeeds';
 import { getCategoryLabel } from '../lib/categories';
@@ -540,6 +541,13 @@ export default function HomeScreen({ navigation }: any) {
                 />
               </View>
             )}
+
+            {/* discover more — posh-style category banners. Unlike the
+                carousels above, every category always appears, so browsing by
+                vibe never depends on which categories happen to have events. */}
+            <View style={styles.section}>
+              <CategoryBannerRail onCategoryPress={handleCategoryPress} />
+            </View>
 
             {/* All Events Preview */}
             {events.length > 0 && (

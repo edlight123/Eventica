@@ -12,6 +12,10 @@ import { GridSkeleton } from '../components/Skeleton';
 import EmptyState from '../components/EmptyState';
 import { getCategoryLabel } from '../lib/categories';
 import { applyHomeFeed, isEventOver } from '../lib/homeFeeds';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
+import { categoryArt } from '../lib/categoryArt';
+import { withAlpha } from '../theme/tokens';
 
 // Fixed column width rather than flex: with an ODD number of events the last
 // card in a flex grid stretches to the full row. Matches FavoritesScreen's
@@ -88,12 +92,48 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
     load();
   }, [category, feed, city]);
 
+  // Category pages get posh's treatment: a full-bleed art hero — the category
+  // photo under a scrim with "( label )" centered — that scrolls away with the
+  // grid. Curated-feed pages ("for you", "this week"…) have no category art
+  // and keep the blurred overlay header.
+  const isCategoryPage = !!category;
+  const label = (title || getCategoryLabel(t, category) || category || '').toString().toLowerCase();
+
+  const Hero = isCategoryPage ? (
+    <View style={styles.hero}>
+      <Image
+        source={categoryArt(category)}
+        style={StyleSheet.absoluteFill}
+        contentFit="cover"
+        cachePolicy="memory-disk"
+      />
+      <LinearGradient
+        colors={[withAlpha('#000000', 0.25), withAlpha('#000000', 0.35), colors.background]}
+        locations={[0, 0.7, 1]}
+        style={StyleSheet.absoluteFill}
+      />
+      <View style={styles.heroTitleRow}>
+        <Text style={styles.heroParen}>(</Text>
+        <Text style={styles.heroTitle} numberOfLines={1}>
+          {label}
+        </Text>
+        <Text style={styles.heroParen}>)</Text>
+      </View>
+      <TouchableOpacity
+        style={[styles.heroBack, { top: insets.top + 6 }]}
+        onPress={() => navigation.goBack()}
+        hitSlop={12}
+        accessibilityRole="button"
+        accessibilityLabel={t('common.back')}
+      >
+        <ChevronLeft size={26} color="#FFF" />
+      </TouchableOpacity>
+    </View>
+  ) : null;
+
   return (
     <View style={styles.container}>
-      {/* A real overlay, not an in-flow bar that merely contained a ChromeBlur —
-          that half-conversion blurred nothing but canvas, since no content ever
-          passed beneath it. OverlayHeader supplies the float, the inset and the
-          blur; the grid below reserves headerH. */}
+      {!isCategoryPage && (
       <OverlayHeader onHeight={onHeight} scrollY={scrollY}>
         <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={12}>
           <ChevronLeft size={24} color={colors.text} />
@@ -111,10 +151,14 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
           )}
         </View>
       </OverlayHeader>
+      )}
 
       {loading ? (
-        <View style={{ paddingTop: headerH + 16 }}>
-          <GridSkeleton />
+        <View style={{ paddingTop: isCategoryPage ? 0 : headerH + 16 }}>
+          {Hero}
+          <View style={isCategoryPage ? styles.heroGridPad : null}>
+            <GridSkeleton />
+          </View>
         </View>
       ) : (
         <Animated.FlatList
@@ -137,7 +181,15 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
             />
           )}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={[styles.listContent, { paddingTop: headerH + 16, paddingBottom: 32 + insets.bottom }]}
+          ListHeaderComponent={Hero}
+          ListHeaderComponentStyle={isCategoryPage ? styles.heroListHeader : null}
+          contentContainerStyle={[
+            styles.listContent,
+            isCategoryPage
+              // The hero pays the top of the page; the grid needs only its gap.
+              ? { paddingTop: 0, paddingBottom: 32 + insets.bottom }
+              : { paddingTop: headerH + 16, paddingBottom: 32 + insets.bottom },
+          ]}
           ListEmptyComponent={
             <EmptyState
               icon={Inbox}
@@ -173,6 +225,42 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       lineHeight: 36,
       color: colors.text,
       letterSpacing: 0.2,
+    },
+    hero: {
+      height: 200,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+    },
+    heroTitleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      paddingHorizontal: 24,
+    },
+    heroTitle: {
+      fontFamily: 'InstrumentSerif_400Regular_Italic',
+      fontSize: 34,
+      color: '#FFFFFF',
+      maxWidth: '80%',
+    },
+    // posh sets the name inside soft parentheses — quieter than the name.
+    heroParen: {
+      fontFamily: 'InstrumentSerif_400Regular',
+      fontSize: 32,
+      color: 'rgba(255,255,255,0.65)',
+    },
+    heroBack: {
+      position: 'absolute',
+      left: 14,
+    },
+    // Full-bleed: cancel the list's horizontal padding for the header row.
+    heroListHeader: {
+      marginHorizontal: -16,
+      marginBottom: 16,
+    },
+    heroGridPad: {
+      paddingTop: 16,
     },
     gridRow: {
       gap: 12,

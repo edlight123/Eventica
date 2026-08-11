@@ -742,6 +742,8 @@ export default {
     },
   },
   home: {
+    discoverMoreTitle: 'discover more',
+    discoverMoreSubtitle: 'EXPLORE CATEGORIES TO FIND YOUR VIBE',
     headline: "What's on",
     loading: 'Loading amazing events...',
     browseTitle: 'Browse by Category',

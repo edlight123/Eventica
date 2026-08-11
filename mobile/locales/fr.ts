@@ -471,6 +471,8 @@ export default {
     },
   },
   home: {
+    discoverMoreTitle: 'découvrir plus',
+    discoverMoreSubtitle: 'EXPLOREZ LES CATÉGORIES SELON VOTRE AMBIANCE',
     headline: "À l'affiche",
     loading: 'Chargement des événements…',
     browseTitle: 'Parcourir par catégorie',
