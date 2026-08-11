@@ -32,6 +32,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
+import FlyerLibrarySheet, { SelectedFlyer } from '../../components/FlyerLibrarySheet';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -582,6 +583,10 @@ export default function CreateEventFlowRefactored() {
   };
 
   // Flyer pick (ported from Step1Basics — aspect [2,3]).
+  // Tapping the flyer area opens the posh-style library sheet (stock photos +
+  // upload); the sheet's Upload pill falls through to the OS picker below.
+  const [showFlyerLibrary, setShowFlyerLibrary] = useState(false);
+
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -1336,7 +1341,7 @@ export default function CreateEventFlowRefactored() {
                   : null,
               ]}
               activeOpacity={0.9}
-              onPress={pickImage}
+              onPress={() => setShowFlyerLibrary(true)}
             >
               {eventDraft.banner_image_url ? (
                 <>
@@ -2309,6 +2314,15 @@ export default function CreateEventFlowRefactored() {
           </View>
         </View>
       </Modal>
+      <FlyerLibrarySheet
+        visible={showFlyerLibrary}
+        onClose={() => setShowFlyerLibrary(false)}
+        onSelect={(f: SelectedFlyer) => updateDraft({ banner_image_url: f.url })}
+        onUpload={() => {
+          setShowFlyerLibrary(false);
+          pickImage();
+        }}
+      />
     </View>
   );
 }
