@@ -90,6 +90,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState<DateFilter>('any');
+  const [pickedDate, setPickedDate] = useState<string | undefined>();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedCity, setSelectedCity] = useState('');
   const [cityRails, setCityRails] = useState<{ city: string; events: any[] }[]>([]);
@@ -198,7 +199,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
     if (allEvents.length > 0) {
       organizeEvents();
     }
-  }, [allEvents, appliedFilters, searchQuery, selectedDate, selectedCategories, selectedCity, route?.params]);
+  }, [allEvents, appliedFilters, searchQuery, selectedDate, pickedDate, selectedCategories, selectedCity, route?.params]);
 
   const fetchEvents = async () => {
     setError(false);
@@ -405,7 +406,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
   };
 
   const filterByDate = (events: any[]) => {
-    const { start, end } = getDateRange(selectedDate);
+    const { start, end } = getDateRange(selectedDate, pickedDate);
     
     // If no date range (filter is 'any'), return all events
     if (!start && !end) return events;
@@ -834,7 +835,10 @@ export default function DiscoverScreen({ navigation, route }: any) {
         visible={whenSheetOpen}
         onClose={() => setWhenSheetOpen(false)}
         value={selectedDate}
-        onSelect={setSelectedDate}
+        onSelect={(v, picked) => {
+          setSelectedDate(v);
+          setPickedDate(picked);
+        }}
       />
     </View>
   );

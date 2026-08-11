@@ -1,5 +1,6 @@
-import React from 'react';
-import { View, Text, Modal, Pressable, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Modal, Platform, Pressable, TouchableOpacity, StyleSheet } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Check, X } from 'lucide-react-native';
 import { useTheme } from '../contexts/ThemeContext';
@@ -11,7 +12,8 @@ interface WhenPickerSheetProps {
   visible: boolean;
   onClose: () => void;
   value: DateFilter;
-  onSelect: (value: DateFilter) => void;
+  /** `pickedDate` (YYYY-MM-DD) accompanies value === 'pick-date'. */
+  onSelect: (value: DateFilter, pickedDate?: string) => void;
 }
 
 const DATE_OPTIONS: { value: DateFilter; labelKey: string }[] = [
@@ -28,6 +30,9 @@ export default function WhenPickerSheet({ visible, onClose, value, onSelect }: W
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
   const styles = getStyles(colors);
+  // Expands the row into an inline calendar rather than opening a second
+  // modal — posh's "Choose Date" is a month view inside the same sheet.
+  const [showCalendar, setShowCalendar] = useState(false);
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -60,6 +65,40 @@ export default function WhenPickerSheet({ visible, onClose, value, onSelect }: W
             </TouchableOpacity>
           );
         })}
+
+        <TouchableOpacity
+          style={[styles.row, value === 'pick-date' && styles.rowActive]}
+          onPress={() => setShowCalendar((v) => !v)}
+          activeOpacity={0.8}
+        >
+          <Text style={[styles.rowText, value === 'pick-date' && styles.rowTextActive]}>
+            {t('filters.dateOptions.pickDate')}
+          </Text>
+          {value === 'pick-date' && <Check size={18} color={colors.primary} />}
+        </TouchableOpacity>
+
+        {showCalendar && (
+          <DateTimePicker
+            value={new Date()}
+            mode="date"
+            display={Platform.OS === 'ios' ? 'inline' : 'calendar'}
+            minimumDate={new Date()}
+            themeVariant="dark"
+            accentColor={colors.primary}
+            onChange={(event, date) => {
+              if (event.type === 'dismissed' || !date) {
+                setShowCalendar(false);
+                return;
+              }
+              const y = date.getFullYear();
+              const m = String(date.getMonth() + 1).padStart(2, '0');
+              const d = String(date.getDate()).padStart(2, '0');
+              onSelect('pick-date', `${y}-${m}-${d}`);
+              setShowCalendar(false);
+              onClose();
+            }}
+          />
+        )}
       </View>
     </Modal>
   );

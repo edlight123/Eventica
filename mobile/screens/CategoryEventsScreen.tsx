@@ -18,9 +18,12 @@ import { categoryArt } from '../lib/categoryArt';
 import { withAlpha } from '../theme/tokens';
 import WhenPickerSheet from '../components/WhenPickerSheet';
 import LocationPickerSheet from '../components/LocationPickerSheet';
-import { isBudgetFriendlyTicketPrice } from '../lib/pricing';
+import PricePickerSheet, { PriceRange } from '../components/PricePickerSheet';
 import { getDateRange } from '../utils/filters';
-import type { PriceFilter } from '../types/filters';
+import { CURRENCY_BY_COUNTRY } from '../types/filters';
+import { useFilters } from '../contexts/FiltersContext';
+import { formatPrice } from '../lib/currency';
+import { safeFormatForLanguage } from '../lib/dates';
 import type { DateFilter } from '../components/DateChips';
 
 // Fixed column width rather than flex: with an ODD number of events the last
@@ -31,7 +34,7 @@ const COLUMN_WIDTH = (Dimensions.get('window').width - 32 - 12) / 2;
 
 export default function CategoryEventsScreen({ navigation, route }: any) {
   const { colors } = useTheme();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const insets = useSafeAreaInsets();
   const styles = getStyles(colors);
 
@@ -46,10 +49,15 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
   // ALREADY-LOADED list client-side — same rules Discover applies, via the
   // same getDateRange/price helpers, so the two screens can never disagree.
   const [dateFilter, setDateFilter] = useState<DateFilter>('any');
-  const [priceFilter, setPriceFilter] = useState<PriceFilter>('any');
+  const [pickedDate, setPickedDate] = useState<string | undefined>();
+  const [priceRange, setPriceRange] = useState<PriceRange | null>(null);
   const [cityFilter, setCityFilter] = useState('');
   const [showWhenPicker, setShowWhenPicker] = useState(false);
+  const [showPricePicker, setShowPricePicker] = useState(false);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
+  const { userCountry } = useFilters();
+  const currencyCode = CURRENCY_BY_COUNTRY[userCountry]?.code || 'HTG';
+  const priceCeiling = currencyCode === 'HTG' || currencyCode === 'DOP' ? 10000 : 200;
   const [loading, setLoading] = useState(true);
   // Scroll offset for the header chrome: solid canvas at rest, translucent
   // only once the grid has actually scrolled underneath (see OverlayHeader).
@@ -106,7 +114,7 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
     load();
   }, [category, feed, city]);
 
-  const { start: dStart, end: dEnd } = getDateRange(dateFilter);
+  const { start: dStart, end: dEnd } = getDateRange(dateFilter, pickedDate);
   const visibleEvents = events.filter((e) => {
     if (dStart || dEnd) {
       const d = e.start_datetime ? new Date(e.start_datetime) : null;
@@ -114,10 +122,11 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
       if (dStart && d < dStart) return false;
       if (dEnd && d > dEnd) return false;
     }
-    if (priceFilter === 'free') {
-      if (Number(e.ticket_price) > 0) return false;
-    } else if (priceFilter === '<=500') {
-      if (!isBudgetFriendlyTicketPrice(e?.ticket_price, e?.currency)) return false;
+    if (priceRange) {
+      const price = Number(e.ticket_price) || 0;
+      if (price < priceRange.min) return false;
+      // A max at the ceiling means "and up" — no upper bound.
+      if (priceRange.max < priceCeiling && price > priceRange.max) return false;
     }
     if (cityFilter) {
       const ec = String(e.city || '').toLowerCase();
@@ -125,7 +134,26 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
     }
     return true;
   });
-  const filtersActive = dateFilter !== 'any' || priceFilter !== 'any' || !!cityFilter;
+  const filtersActive = dateFilter !== 'any' || !!priceRange || !!cityFilter;
+
+  // Chip labels carry their VALUE when active.
+  const DATE_LABEL_KEYS: Record<string, string> = {
+    today: 'filters.dateOptions.today',
+    tomorrow: 'filters.dateOptions.tomorrow',
+    'this-week': 'filters.dateOptions.thisWeek',
+    'this-weekend': 'filters.dateOptions.thisWeekend',
+  };
+  const dateChipLabel =
+    dateFilter === 'pick-date' && pickedDate
+      ? safeFormatForLanguage(new Date(pickedDate + 'T12:00:00'), 'MMM d', language)
+      : dateFilter !== 'any'
+        ? t(DATE_LABEL_KEYS[dateFilter])
+        : t('filters.date');
+  const priceChipLabel = priceRange
+    ? `${formatPrice(priceRange.min, currencyCode)}–${
+        priceRange.max >= priceCeiling ? '+' : formatPrice(priceRange.max, currencyCode)
+      }`
+    : t('filters.price');
 
   // Category pages get posh's treatment: a full-bleed art hero — the category
   // photo under a scrim with "( label )" centered — that scrolls away with the
@@ -226,25 +254,17 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
                     onPress={() => setShowWhenPicker(true)}
                     accessibilityRole="button"
                   >
-                    <Text style={[styles.filterChipText, dateFilter !== 'any' && styles.filterChipTextActive]}>
-                      {t('filters.date')}
+                    <Text style={[styles.filterChipText, dateFilter !== 'any' && styles.filterChipTextActive]} numberOfLines={1}>
+                      {dateChipLabel}
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.filterChip, priceFilter !== 'any' && styles.filterChipActive]}
-                    onPress={() =>
-                      // Three-state cycle: any -> free -> budget -> any. Price
-                      // has too few options here to earn a whole sheet.
-                      setPriceFilter(priceFilter === 'any' ? 'free' : priceFilter === 'free' ? '<=500' : 'any')
-                    }
+                    style={[styles.filterChip, !!priceRange && styles.filterChipActive]}
+                    onPress={() => setShowPricePicker(true)}
                     accessibilityRole="button"
                   >
-                    <Text style={[styles.filterChipText, priceFilter !== 'any' && styles.filterChipTextActive]}>
-                      {priceFilter === 'free'
-                        ? t('filters.priceOptions.free')
-                        : priceFilter === '<=500'
-                          ? t('filters.priceOptions.budget')
-                          : t('filters.price')}
+                    <Text style={[styles.filterChipText, !!priceRange && styles.filterChipTextActive]} numberOfLines={1}>
+                      {priceChipLabel}
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -281,7 +301,17 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
         visible={showWhenPicker}
         onClose={() => setShowWhenPicker(false)}
         value={dateFilter}
-        onSelect={(v) => setDateFilter(v)}
+        onSelect={(v, picked) => {
+          setDateFilter(v);
+          setPickedDate(picked);
+        }}
+      />
+      <PricePickerSheet
+        visible={showPricePicker}
+        onClose={() => setShowPricePicker(false)}
+        currencyCode={currencyCode}
+        value={priceRange}
+        onApply={setPriceRange}
       />
       <LocationPickerSheet
         visible={showLocationPicker}

@@ -5,7 +5,9 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { radius } from '../theme/tokens';
 
-export type DateFilter = 'any' | 'today' | 'tomorrow' | 'this-week' | 'this-weekend';
+// 'pick-date' is selectable from WhenPickerSheet's calendar, not from these
+// chips — the union widens so sheet and chips share one type.
+export type DateFilter = 'any' | 'today' | 'tomorrow' | 'this-week' | 'this-weekend' | 'pick-date';
 
 interface DateChipsProps {
   currentDate: DateFilter;
