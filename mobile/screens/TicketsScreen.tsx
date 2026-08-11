@@ -1,9 +1,9 @@
-import React, { useCallback, useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  ScrollView, 
-  StyleSheet, 
+import React, { useCallback, useRef, useState, useEffect } from 'react';
+import {
+  Animated,
+  View,
+  Text,
+  StyleSheet,
   TouchableOpacity,
   RefreshControl,
   StatusBar
@@ -153,6 +153,11 @@ export default function TicketsScreen({ navigation }: any) {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  // Scroll offset for the header chrome: solid canvas at rest, translucent
+  // only once the list has actually scrolled underneath (see OverlayHeader).
+  // The loading branch has no scroll container, so this stays 0 there and the
+  // bar is simply solid — which is exactly the at-rest look.
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   const fetchTickets = async () => {
     if (!user) {
@@ -328,7 +333,7 @@ export default function TicketsScreen({ navigation }: any) {
     return (
       <View style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor={colors.background} />
-        <OverlayHeader onHeight={onHeaderHeight} style={styles.header}>
+        <OverlayHeader onHeight={onHeaderHeight} style={styles.header} scrollY={scrollY}>
           <Text style={styles.headerTitle}>{t('tickets.title')}</Text>
         </OverlayHeader>
         {/* The header floats, so the tabs — the first in-flow row — carry its height. */}
@@ -370,7 +375,7 @@ export default function TicketsScreen({ navigation }: any) {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
-      <OverlayHeader onHeight={onHeaderHeight} style={styles.header}>
+      <OverlayHeader onHeight={onHeaderHeight} style={styles.header} scrollY={scrollY}>
         <Text style={styles.headerTitle}>{t('tickets.title')}</Text>
       </OverlayHeader>
 
@@ -388,10 +393,14 @@ export default function TicketsScreen({ navigation }: any) {
         />
       </View>
 
-      <ScrollView
+      <Animated.ScrollView
         style={styles.content}
         contentContainerStyle={{ paddingBottom: 24 + tabBarSpace }}
         showsVerticalScrollIndicator={false}
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+          useNativeDriver: true,
+        })}
+        scrollEventThrottle={16}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} colors={[colors.primary]} />
         }
@@ -501,7 +510,7 @@ export default function TicketsScreen({ navigation }: any) {
             </View>
           ))
         )}
-      </ScrollView>
+      </Animated.ScrollView>
     </View>
   );
 }

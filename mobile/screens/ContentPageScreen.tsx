@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Animated,
   View,
   Text,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   StatusBar,
@@ -117,6 +117,9 @@ export default function ContentPageScreen({ route, navigation }: any) {
   const [role, setRole] = useState<'attendee' | 'organizer'>('attendee');
   const [openSections, setOpenSections] = useState<Set<number>>(new Set());
   const [openQuestions, setOpenQuestions] = useState<Set<string>>(new Set());
+  // Scroll offset for the header chrome: solid canvas at rest, translucent
+  // only once the page has actually scrolled underneath (see OverlayHeader).
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   const isFaq = slug === 'support';
   const cacheKey = `content_page_cache_${slug}`;
@@ -201,7 +204,7 @@ export default function ContentPageScreen({ route, navigation }: any) {
   const headerTitle = content?.title || routeTitle || '';
 
   const header = (
-    <OverlayHeader onHeight={onHeaderHeight} style={styles.header}>
+    <OverlayHeader onHeight={onHeaderHeight} style={styles.header} scrollY={scrollY}>
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.goBack()}
@@ -238,7 +241,7 @@ export default function ContentPageScreen({ route, navigation }: any) {
           </TouchableOpacity>
         </View>
       ) : (
-        <ScrollView
+        <Animated.ScrollView
           style={styles.scroll}
           contentContainerStyle={{
             padding: 20,
@@ -246,6 +249,10 @@ export default function ContentPageScreen({ route, navigation }: any) {
             paddingBottom: insets.bottom + 40,
           }}
           showsVerticalScrollIndicator={false}
+          onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+            useNativeDriver: true,
+          })}
+          scrollEventThrottle={16}
         >
           <Text style={styles.pageTitle}>{content.title}</Text>
           {content.updated ? (
@@ -303,7 +310,7 @@ export default function ContentPageScreen({ route, navigation }: any) {
               />
             ))}
           </View>
-        </ScrollView>
+        </Animated.ScrollView>
       )}
     </View>
   );

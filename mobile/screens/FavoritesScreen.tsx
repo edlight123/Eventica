@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  ScrollView, 
-  StyleSheet, 
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  Animated,
+  View,
+  Text,
+  StyleSheet,
   TouchableOpacity,
   RefreshControl,
   StatusBar,
@@ -38,6 +38,9 @@ export default function FavoritesScreen({ navigation }: any) {
   const [favoriteEvents, setFavoriteEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  // Scroll offset for the header chrome: solid canvas at rest, translucent
+  // only once the grid has actually scrolled underneath (see OverlayHeader).
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   const fetchFavorites = async () => {
     if (!user) {
@@ -153,7 +156,7 @@ export default function FavoritesScreen({ navigation }: any) {
     return (
       <View style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor={colors.background} />
-        <OverlayHeader onHeight={onHeaderHeight} style={styles.header}>
+        <OverlayHeader onHeight={onHeaderHeight} style={styles.header} scrollY={scrollY}>
           <Text style={styles.headerTitle}>{t('favorites.title')}</Text>
         </OverlayHeader>
         {/* No scroll container here — pad the placeholder grid by hand. */}
@@ -167,7 +170,7 @@ export default function FavoritesScreen({ navigation }: any) {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
-      <OverlayHeader onHeight={onHeaderHeight} style={styles.header}>
+      <OverlayHeader onHeight={onHeaderHeight} style={styles.header} scrollY={scrollY}>
         {navigation.canGoBack() && (
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton} hitSlop={8}>
             <ArrowLeft size={24} color={colors.text} />
@@ -176,9 +179,13 @@ export default function FavoritesScreen({ navigation }: any) {
         <Text style={styles.headerTitle}>{t('favorites.title')}</Text>
       </OverlayHeader>
 
-      <ScrollView
+      <Animated.ScrollView
         style={styles.content}
         contentContainerStyle={{ paddingTop: headerH, paddingBottom: insets.bottom + 24 }}
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+          useNativeDriver: true,
+        })}
+        scrollEventThrottle={16}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
         }
@@ -221,7 +228,7 @@ export default function FavoritesScreen({ navigation }: any) {
             ))}
           </View>
         )}
-      </ScrollView>
+      </Animated.ScrollView>
     </View>
   );
 }

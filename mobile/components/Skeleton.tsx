@@ -71,7 +71,7 @@ export function Skeleton({ width = '100%', height, radius = 8, aspectRatio, styl
 export function PosterCardSkeleton({ width, ratio = 1.25 }: { width?: number; ratio?: number }) {
   return (
     <View style={width ? { width } : { flex: 1 }}>
-      <Skeleton radius={16} aspectRatio={1 / ratio} style={{ width: '100%' } as ViewStyle} />
+      <Skeleton radius={0} aspectRatio={1 / ratio} style={{ width: '100%' } as ViewStyle} />
       <View style={styles.posterMeta}>
         {/* Three lines, like the real card: serif title (16), price · venue
             (11.5), date (11). Two lines left each card ~15pt short. */}
@@ -140,7 +140,7 @@ export function DiscoverCardSkeleton() {
       {/* 2:3 like the card's default aspect and radius 8 (radius.sm) like its
           poster — the old fixed 1.15x height was ~30% too short and the 16pt
           corners read rounder than anything on the real card. */}
-      <Skeleton aspectRatio={2 / 3} radius={8} style={{ width: '100%' } as ViewStyle} />
+      <Skeleton aspectRatio={2 / 3} radius={0} style={{ width: '100%' } as ViewStyle} />
       <View style={styles.discoverBody}>
         <View style={styles.discoverBodyText}>
           <Skeleton width={'88%'} height={20} radius={7} />

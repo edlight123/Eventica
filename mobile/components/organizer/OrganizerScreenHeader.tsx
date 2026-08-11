@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutChangeEvent, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, LayoutChangeEvent, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { font } from '../../theme/tokens';
@@ -25,6 +25,12 @@ interface OrganizerScreenHeaderProps {
   overlay?: boolean;
   /** Measured height including the safe-area inset. Pair with `overlay`. */
   onHeight?: (h: number) => void;
+  /**
+   * The owning screen's scroll offset (overlay mode only). When given, the
+   * chrome is a UNIFORM solid canvas at rest and only turns translucent once
+   * content has scrolled underneath (fades over the first 24pt).
+   */
+  scrollY?: Animated.Value;
 }
 
 /**
@@ -40,10 +46,15 @@ export default function OrganizerScreenHeader({
   right,
   overlay = false,
   onHeight,
+  scrollY,
 }: OrganizerScreenHeaderProps) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const styles = getStyles(colors);
+
+  const restOpacity = scrollY
+    ? scrollY.interpolate({ inputRange: [0, 24], outputRange: [1, 0], extrapolate: 'clamp' })
+    : undefined;
 
   return (
     <View
@@ -61,7 +72,7 @@ export default function OrganizerScreenHeader({
           : undefined
       }
     >
-      {overlay ? <ChromeBlur edge="top" /> : null}
+      {overlay ? <ChromeBlur edge="top" restOpacity={restOpacity} /> : null}
       <View style={styles.row}>
         {onBack ? (
           <TouchableOpacity

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, Inbox } from 'lucide-react-native';
 import { collection, query, where, getDocs } from 'firebase/firestore';
@@ -33,6 +33,9 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
   const { height: headerH, onHeight } = useOverlayHeaderInset();
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  // Scroll offset for the header chrome: solid canvas at rest, translucent
+  // only once the grid has actually scrolled underneath (see OverlayHeader).
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const load = async () => {
@@ -91,7 +94,7 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
           that half-conversion blurred nothing but canvas, since no content ever
           passed beneath it. OverlayHeader supplies the float, the inset and the
           blur; the grid below reserves headerH. */}
-      <OverlayHeader onHeight={onHeight}>
+      <OverlayHeader onHeight={onHeight} scrollY={scrollY}>
         <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={12}>
           <ChevronLeft size={24} color={colors.text} />
         </TouchableOpacity>
@@ -114,9 +117,13 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
           <GridSkeleton />
         </View>
       ) : (
-        <FlatList
+        <Animated.FlatList
           data={events}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item: any) => item.id}
+          onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+            useNativeDriver: true,
+          })}
+          scrollEventThrottle={16}
           // A two-column poster grid, NOT a row list. You arrive here from a
           // rail of poster art; landing on plain text rows read as a different
           // product. Same card the rail uses, so the section simply unfolds.

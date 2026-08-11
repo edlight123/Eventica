@@ -354,6 +354,12 @@ export default function CreateEventFlowRefactored() {
   const [communeListOpen, setCommuneListOpen] = useState(false);
   // Advanced-settings disclosure (POSH Show/Hide advanced settings).
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  // Natural aspect ratio of the uploaded poster (width / height), measured on
+  // load so the preview renders at the flyer's TRUE proportions (posh shows
+  // the poster as-is rather than forcing 2:3). Clamped to a sane band so a
+  // degenerate panorama can't collapse the hero. null until first load; the
+  // empty state keeps the 2:3 dropzone.
+  const [posterAspect, setPosterAspect] = useState<number | null>(null);
 
   // Date/time picker visibility (ported from Step3ScheduleRefactored).
   const [showStartDate, setShowStartDate] = useState(false);
@@ -1320,7 +1326,18 @@ export default function CreateEventFlowRefactored() {
             )}
 
             {/* Flyer hero (POSH IMG_1847) */}
-            <TouchableOpacity style={styles.flyerHero} activeOpacity={0.9} onPress={pickImage}>
+            <TouchableOpacity
+              style={[
+                styles.flyerHero,
+                // Once the poster's real dimensions are known, size the panel to
+                // its true aspect so the image fills edge-to-edge (no letterbox).
+                !!eventDraft.banner_image_url && posterAspect
+                  ? { aspectRatio: posterAspect }
+                  : null,
+              ]}
+              activeOpacity={0.9}
+              onPress={pickImage}
+            >
               {eventDraft.banner_image_url ? (
                 <>
                   {/* Contained (never cropped) on the plain canvas — the earlier
@@ -1330,6 +1347,14 @@ export default function CreateEventFlowRefactored() {
                     source={{ uri: eventDraft.banner_image_url }}
                     style={StyleSheet.absoluteFill}
                     contentFit="contain"
+                    onLoad={(e) => {
+                      const { width, height } = e.source ?? {};
+                      if (width && height) {
+                        // Clamp to [0.5, 1.6] so an extreme panorama/strip can't
+                        // flatten or blow up the hero panel.
+                        setPosterAspect(Math.min(1.6, Math.max(0.5, width / height)));
+                      }
+                    }}
                   />
                   {/* Top-only scrim keeps the Change-flyer pill readable without
                       dimming the whole poster. */}
@@ -2289,11 +2314,12 @@ export default function CreateEventFlowRefactored() {
 }
 
 /**
- * Corner radius of the flyer panel. Off the shared RADIUS scale on purpose —
- * its top step (`xl` = 20) is the app's ordinary card rounding, and this panel
- * is meant to read markedly rounder than an ordinary card.
+ * Corner radius of the flyer panel — `radius.sm`, the poster-preview rounding
+ * posh uses: the flyer reads as near-full-bleed artwork with a whisper of
+ * rounding, not a soft capsule slab (the old 40 made the poster read as a
+ * decorative blob instead of the event's actual artwork).
  */
-const FLYER_RADIUS = 40;
+const FLYER_RADIUS = radius.sm;
 
 const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.create({
   container: {
@@ -2325,8 +2351,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingBottom: 12,
   },
   headerTitle: {
-    fontSize: 17,
-    fontWeight: '600',
+    // Serif screen title — the flow's screens speak in the same editorial
+    // voice as the rest of the organizer surface (OrganizerScreenHeader).
+    fontFamily: font.serif,
+    fontSize: 20,
+    lineHeight: 24,
     color: colors.text,
   },
 
@@ -2370,9 +2399,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     gap: 16,
     borderRadius: RADIUS.xl,
+    // Elevation is the brightness step alone — no box outline (tokens §canvas).
     backgroundColor: colors.surfaceRaised,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
     paddingVertical: 18,
     paddingHorizontal: 18,
   },
@@ -2408,17 +2436,17 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
   },
   canvasPad: {
-    paddingHorizontal: 20,
+    // 16 — the same gutter the flyer hero, error banner and footer use, so
+    // every hairline row starts on one shared left edge.
+    paddingHorizontal: 16,
     paddingTop: 8,
   },
 
   // ── Flyer hero ──
   flyerHero: {
-    // True event-flyer proportions: 2:3 portrait, matching the picker crop.
+    // 2:3 portrait dropzone by default; once a poster loads, the container
+    // takes the image's TRUE aspect (see posterAspect) so nothing letterboxes.
     aspectRatio: 2 / 3,
-    // Deliberately rounder than the RADIUS scale's top step (xl = 20): at ~10%
-    // of the panel's width this reads as a soft, almost-capsule slab rather
-    // than a rounded rectangle, which is what the dropzone was asked for.
     borderRadius: FLYER_RADIUS,
     marginHorizontal: 16,
     marginBottom: 12,
@@ -2435,6 +2463,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     justifyContent: 'center',
   },
   flyerContent: {
+    // Stretch so the upload pill can run full-width like posh's
+    // "Upload an image" CTA.
+    alignSelf: 'stretch',
     alignItems: 'center',
     gap: 14,
     paddingHorizontal: 24,
@@ -2452,18 +2483,22 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     textAlign: 'center',
     marginTop: -6,
   },
+  // Full-width solid-white pill, 56pt — reads exactly like posh's
+  // "Upload an image" CTA (and matches WhitePillCTA's primary geometry).
   uploadPill: {
+    alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 8,
+    height: 56,
     paddingHorizontal: 22,
-    paddingVertical: 12,
     borderRadius: radius.button,
     backgroundColor: colors.white,
     marginTop: 4,
   },
   uploadPillText: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '700',
     color: '#000000',
   },
@@ -2622,9 +2657,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 12,
     marginTop: 10,
     borderRadius: RADIUS.md,
+    // Brightness step, no outline (tokens: borders are dividers, not boxes).
     backgroundColor: colors.surface,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
   },
   comingSoonNoticeText: {
     flex: 1,
@@ -2640,9 +2674,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 12,
     marginTop: 10,
     borderRadius: RADIUS.md,
+    // Brightness step, no outline (tokens: borders are dividers, not boxes).
     backgroundColor: colors.surface,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
   },
   stripeNoticeBody: {
     flex: 1,
@@ -2668,9 +2701,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingVertical: 12,
     paddingHorizontal: 14,
     borderRadius: RADIUS.md,
+    // Tinted fill alone carries the state — no outline around the banner.
     backgroundColor: colors.error + '15',
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.error + '40',
   },
   errorBannerText: {
     flex: 1,
@@ -2730,15 +2762,17 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   tierSplitCell: {
     flex: 1,
   },
+  // Quiet outlined secondary (44pt tertiary-action height).
   addTierRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    paddingVertical: 16,
-    marginTop: 8,
-    borderRadius: RADIUS.md,
-    backgroundColor: colors.surfaceRaised,
+    height: 44,
+    marginTop: 12,
+    borderRadius: radius.button,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   addTierText: {
     fontSize: 15,
@@ -2859,16 +2893,21 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderTopColor: colors.border,
     paddingBottom: Platform.OS === 'ios' ? 32 : 16,
   },
+  // Quiet outlined secondary — 56pt to pair with the 56pt white primary pill,
+  // outline instead of a fill so it never competes with the CTA.
   backButton: {
     alignItems: 'center',
     justifyContent: 'center',
     height: 56,
-    paddingHorizontal: 18,
+    paddingHorizontal: 22,
+    borderRadius: radius.button,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   backButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.textSecondary,
+    color: colors.text,
   },
   footerCta: {
     flex: 1,
@@ -2883,8 +2922,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   modalSafeArea: {},
   modalContent: {
     backgroundColor: colors.surface,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: RADIUS.xl,
+    borderTopRightRadius: RADIUS.xl,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -2892,7 +2931,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    borderBottomWidth: 1,
+    borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
   },
   modalTitle: {

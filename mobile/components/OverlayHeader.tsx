@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutChangeEvent, StyleSheet, View, ViewStyle } from 'react-native';
+import { Animated, LayoutChangeEvent, StyleSheet, View, ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ChromeBlur from './ChromeBlur';
 
@@ -19,13 +19,25 @@ export default function OverlayHeader({
   children,
   onHeight,
   style,
+  scrollY,
 }: {
   children: React.ReactNode;
   /** Measured total height, including the safe-area top padding. */
   onHeight?: (h: number) => void;
   style?: ViewStyle;
+  /**
+   * The owning screen's scroll offset. When given, the chrome is a UNIFORM
+   * solid canvas while the page is at rest and only turns translucent once
+   * content has actually scrolled underneath (fades over the first 24pt).
+   * Omitted = the always-translucent look, unchanged.
+   */
+  scrollY?: Animated.Value;
 }) {
   const insets = useSafeAreaInsets();
+
+  const restOpacity = scrollY
+    ? scrollY.interpolate({ inputRange: [0, 24], outputRange: [1, 0], extrapolate: 'clamp' })
+    : undefined;
 
   const handleLayout = (e: LayoutChangeEvent) => {
     const h = e?.nativeEvent?.layout?.height ?? 0;
@@ -37,7 +49,7 @@ export default function OverlayHeader({
       style={[styles.header, { paddingTop: insets.top + 8 }, style]}
       onLayout={handleLayout}
     >
-      <ChromeBlur edge="top" />
+      <ChromeBlur edge="top" restOpacity={restOpacity} />
       {children}
     </View>
   );

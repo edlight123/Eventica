@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Animated,
   View,
   Text,
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  ScrollView,
   ActivityIndicator,
   Keyboard,
 } from 'react-native';
@@ -68,6 +68,9 @@ export default function SearchScreen({ navigation }: any) {
   // measured height (see OverlayHeader).
   const { height: headerH, onHeight: onHeaderHeight } = useOverlayHeaderInset();
   const inputRef = useRef<TextInput>(null);
+  // Scroll offset for the header chrome: solid canvas at rest, translucent
+  // only once results have actually scrolled underneath (see OverlayHeader).
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   const [allEvents, setAllEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -280,7 +283,7 @@ export default function SearchScreen({ navigation }: any) {
     // OverlayHeader pays the notch inset itself now.
     <View style={styles.container}>
       {/* Header: back + focused search field + clear. */}
-      <OverlayHeader onHeight={onHeaderHeight} style={styles.header}>
+      <OverlayHeader onHeight={onHeaderHeight} style={styles.header} scrollY={scrollY}>
         <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={10} style={styles.backBtn}>
           <ArrowLeft size={24} color={colors.text} />
         </TouchableOpacity>
@@ -322,7 +325,7 @@ export default function SearchScreen({ navigation }: any) {
           />
         </View>
       ) : (
-        <ScrollView
+        <Animated.ScrollView
           style={styles.scroll}
           contentContainerStyle={[
             styles.scrollContent,
@@ -331,6 +334,10 @@ export default function SearchScreen({ navigation }: any) {
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
           showsVerticalScrollIndicator={false}
+          onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+            useNativeDriver: true,
+          })}
+          scrollEventThrottle={16}
         >
           {noResults ? (
             <EmptyState
@@ -398,7 +405,7 @@ export default function SearchScreen({ navigation }: any) {
               )}
             </>
           )}
-        </ScrollView>
+        </Animated.ScrollView>
       )}
     </View>
   );

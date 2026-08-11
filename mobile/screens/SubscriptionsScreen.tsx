@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Animated, View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeft, ChevronRight, UserPlus, Users } from 'lucide-react-native';
@@ -39,6 +39,9 @@ export default function SubscriptionsScreen({ navigation }: any) {
   const { height: headerH, onHeight: onHeaderHeight } = useOverlayHeaderInset();
   const [items, setItems] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
+  // Scroll offset for the header chrome: solid canvas at rest, translucent
+  // only once the list has actually scrolled underneath (see OverlayHeader).
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   const load = useCallback(async () => {
     if (!user) {
@@ -84,7 +87,7 @@ export default function SubscriptionsScreen({ navigation }: any) {
   }, [load]);
 
   const header = (
-    <OverlayHeader onHeight={onHeaderHeight} style={styles.header}>
+    <OverlayHeader onHeight={onHeaderHeight} style={styles.header} scrollY={scrollY}>
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.goBack()}
@@ -120,13 +123,17 @@ export default function SubscriptionsScreen({ navigation }: any) {
           />
         </View>
       ) : (
-        <ScrollView
+        <Animated.ScrollView
           contentContainerStyle={{
             padding: 16,
             paddingTop: headerH + 16,
             paddingBottom: 24 + insets.bottom,
           }}
           showsVerticalScrollIndicator={false}
+          onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+            useNativeDriver: true,
+          })}
+          scrollEventThrottle={16}
         >
           <View style={styles.card}>
             {items.map((s, i) => (
@@ -153,7 +160,7 @@ export default function SubscriptionsScreen({ navigation }: any) {
               </TouchableOpacity>
             ))}
           </View>
-        </ScrollView>
+        </Animated.ScrollView>
       )}
     </View>
   );

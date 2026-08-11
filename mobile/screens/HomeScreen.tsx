@@ -107,6 +107,16 @@ export default function HomeScreen({ navigation }: any) {
   const headerSpacerHeight = useRef(new Animated.Value(insets.top + 55)).current;
   const headerHeightRef = useRef(0);
   const lastTabPressRef = useRef(0);
+  // Scroll offset, driven natively (the content fade already runs on the
+  // native driver, so this must too). It feeds the header's solid-black
+  // underlay: fully opaque at rest, fading to the translucent chrome as
+  // content actually slides beneath the bar.
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const headerRestOpacity = scrollY.interpolate({
+    inputRange: [0, 24],
+    outputRange: [1, 0],
+    extrapolate: 'clamp',
+  });
 
   const fetchEvents = async () => {
     setError(false);
@@ -378,6 +388,16 @@ export default function HomeScreen({ navigation }: any) {
         {/* Blurred chrome, matching the tab bar. Replaces an opaque slab with
             a hairline border. */}
         <ChromeBlur edge="top" />
+        {/* Solid canvas underlay on top of the chrome: uniform solid black at
+            rest, fading out over the first 24pt of scroll so the blur only
+            shows once content is actually underneath the bar. */}
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            StyleSheet.absoluteFill,
+            { backgroundColor: colors.background, opacity: headerRestOpacity },
+          ]}
+        />
 
         {/* No collapse. Shrinking to a lone "t" and a bare pin left a tall bar
             with two tiny glyphs marooned at either end — it read as broken
@@ -404,11 +424,15 @@ export default function HomeScreen({ navigation }: any) {
         </View>
       </Animated.View>
 
-      <ScrollView
+      <Animated.ScrollView
         ref={scrollViewRef}
         style={styles.content}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+          useNativeDriver: true,
+        })}
+        scrollEventThrottle={16}
       >
         <Animated.View style={{ height: headerSpacerHeight }} />
         {loading ? (
@@ -549,7 +573,7 @@ export default function HomeScreen({ navigation }: any) {
             )}
           </View>
         )}
-      </ScrollView>
+      </Animated.ScrollView>
 
       <LocationPickerSheet
         visible={locationSheetOpen}

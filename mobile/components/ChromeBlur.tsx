@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Animated, StyleSheet, View } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../contexts/ThemeContext';
@@ -32,11 +32,21 @@ export default function ChromeBlur({
   blurIntensity = 55,
   /** How far the backdrop scrim reaches BEYOND the bar, fading out. */
   scrimExtra = 48,
+  /**
+   * Opacity of a SOLID canvas fill rendered on top of the tint. 1 = fully
+   * opaque ("at rest" — a uniform solid bar), 0 = the normal translucent
+   * chrome. Screens that know their scroll position pass an Animated value
+   * interpolated from it, so the bar is solid until content actually slides
+   * underneath. Undefined (the default) renders no extra layer at all —
+   * existing callers keep the current look untouched.
+   */
+  restOpacity,
 }: {
   edge: 'top' | 'bottom';
   tintOpacity?: number;
   blurIntensity?: number;
   scrimExtra?: number;
+  restOpacity?: number | Animated.Value | Animated.AnimatedInterpolation<number>;
 }) {
   const { colors } = useTheme();
   const bg = colors.background;
@@ -68,6 +78,12 @@ export default function ChromeBlur({
         style={[StyleSheet.absoluteFill, { backgroundColor: bg, opacity: tintOpacity }]}
         pointerEvents="none"
       />
+      {restOpacity !== undefined && (
+        <Animated.View
+          style={[StyleSheet.absoluteFill, { backgroundColor: bg, opacity: restOpacity }]}
+          pointerEvents="none"
+        />
+      )}
     </>
   );
 }

@@ -202,9 +202,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       width: '100%',
       alignItems: 'center',
       justifyContent: 'center',
-      // Rounded per POSH §2.1, softened ~50% per beta feedback. Full-bleed
-      // hero/feed posters (DiscoverEventCard, EventDetail hero) stay square.
-      borderRadius: radius.sm,
+      // SQUARE, like posh: the flyer is the artwork and cuts a sharp edge.
+      // The earlier rounding read as chrome imposed on the art ("obsessed
+      // with round corners" — the owner). Zero everywhere a poster shows.
+      borderRadius: 0,
       overflow: 'hidden',
       backgroundColor: colors.surfaceMuted,
     },
