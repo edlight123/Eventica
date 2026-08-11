@@ -1317,7 +1317,11 @@ export default function CreateEventFlowRefactored() {
             }}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
-            automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+            // Gated on the keyboard actually being up: left always-on, iOS keeps
+            // the keyboard-sized content inset after some dismissals (notably
+            // interactive drag-dismiss), letting the canvas scroll ~a keyboard
+            // height past its end into a void — "why can I scroll this far up?".
+            automaticallyAdjustKeyboardInsets={Platform.OS === 'ios' && isKeyboardVisible}
           >
             {/* Validation banner — surfaces the count of failed fields when Save
                 is blocked, so errors below the fold don't read as a dead button. */}
