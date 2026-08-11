@@ -629,6 +629,9 @@ export default {
     declineTransferFailedBody: 'Échec du refus du transfert.',
   },
   filters: {
+    location: 'Lieu',
+    noMatchTitle: 'Aucun résultat',
+    noMatchSubtitle: 'Essayez d\'élargir vos filtres.',
     title: 'Filtres',
     date: 'Date',
     selected: 'Sélectionné',
@@ -655,6 +658,7 @@ export default {
       online: 'En ligne',
     },
     priceOptions: {
+      budget: 'Moins de 500',
       any: 'N’importe quel prix',
       free: 'Gratuit',
       upto500: 'Petit budget',

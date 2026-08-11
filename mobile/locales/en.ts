@@ -900,6 +900,9 @@ export default {
     declineTransferFailedBody: 'Failed to decline transfer.',
   },
   filters: {
+    location: 'Location',
+    noMatchTitle: 'Nothing matches',
+    noMatchSubtitle: 'Try loosening your filters.',
     title: 'Filters',
     date: 'Date',
     selected: 'Selected',
@@ -926,6 +929,7 @@ export default {
       online: 'Online',
     },
     priceOptions: {
+      budget: 'Under 500',
       any: 'Any price',
       free: 'Free',
       upto500: 'Cheap',

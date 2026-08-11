@@ -16,6 +16,12 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { categoryArt } from '../lib/categoryArt';
 import { withAlpha } from '../theme/tokens';
+import WhenPickerSheet from '../components/WhenPickerSheet';
+import LocationPickerSheet from '../components/LocationPickerSheet';
+import { isBudgetFriendlyTicketPrice } from '../lib/pricing';
+import { getDateRange } from '../utils/filters';
+import type { PriceFilter } from '../types/filters';
+import type { DateFilter } from '../components/DateChips';
 
 // Fixed column width rather than flex: with an ODD number of events the last
 // card in a flex grid stretches to the full row. Matches FavoritesScreen's
@@ -36,6 +42,14 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
   // The header floats (OverlayHeader), so the grid reserves its measured height.
   const { height: headerH, onHeight } = useOverlayHeaderInset();
   const [events, setEvents] = useState<any[]>([]);
+  // posh-style filter chips (category pages only). All three filter the
+  // ALREADY-LOADED list client-side — same rules Discover applies, via the
+  // same getDateRange/price helpers, so the two screens can never disagree.
+  const [dateFilter, setDateFilter] = useState<DateFilter>('any');
+  const [priceFilter, setPriceFilter] = useState<PriceFilter>('any');
+  const [cityFilter, setCityFilter] = useState('');
+  const [showWhenPicker, setShowWhenPicker] = useState(false);
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [loading, setLoading] = useState(true);
   // Scroll offset for the header chrome: solid canvas at rest, translucent
   // only once the grid has actually scrolled underneath (see OverlayHeader).
@@ -91,6 +105,27 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
 
     load();
   }, [category, feed, city]);
+
+  const { start: dStart, end: dEnd } = getDateRange(dateFilter);
+  const visibleEvents = events.filter((e) => {
+    if (dStart || dEnd) {
+      const d = e.start_datetime ? new Date(e.start_datetime) : null;
+      if (!d) return false;
+      if (dStart && d < dStart) return false;
+      if (dEnd && d > dEnd) return false;
+    }
+    if (priceFilter === 'free') {
+      if (Number(e.ticket_price) > 0) return false;
+    } else if (priceFilter === '<=500') {
+      if (!isBudgetFriendlyTicketPrice(e?.ticket_price, e?.currency)) return false;
+    }
+    if (cityFilter) {
+      const ec = String(e.city || '').toLowerCase();
+      if (!ec.includes(cityFilter.toLowerCase().split(',')[0])) return false;
+    }
+    return true;
+  });
+  const filtersActive = dateFilter !== 'any' || priceFilter !== 'any' || !!cityFilter;
 
   // Category pages get posh's treatment: a full-bleed art hero — the category
   // photo under a scrim with "( label )" centered — that scrolls away with the
@@ -162,7 +197,7 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
         </View>
       ) : (
         <Animated.FlatList
-          data={events}
+          data={visibleEvents}
           keyExtractor={(item: any) => item.id}
           onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
             useNativeDriver: true,
@@ -181,7 +216,50 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
             />
           )}
           showsVerticalScrollIndicator={false}
-          ListHeaderComponent={Hero}
+          ListHeaderComponent={
+            <View>
+              {Hero}
+              {isCategoryPage && (
+                <View style={styles.filterRow}>
+                  <TouchableOpacity
+                    style={[styles.filterChip, dateFilter !== 'any' && styles.filterChipActive]}
+                    onPress={() => setShowWhenPicker(true)}
+                    accessibilityRole="button"
+                  >
+                    <Text style={[styles.filterChipText, dateFilter !== 'any' && styles.filterChipTextActive]}>
+                      {t('filters.date')}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.filterChip, priceFilter !== 'any' && styles.filterChipActive]}
+                    onPress={() =>
+                      // Three-state cycle: any -> free -> budget -> any. Price
+                      // has too few options here to earn a whole sheet.
+                      setPriceFilter(priceFilter === 'any' ? 'free' : priceFilter === 'free' ? '<=500' : 'any')
+                    }
+                    accessibilityRole="button"
+                  >
+                    <Text style={[styles.filterChipText, priceFilter !== 'any' && styles.filterChipTextActive]}>
+                      {priceFilter === 'free'
+                        ? t('filters.priceOptions.free')
+                        : priceFilter === '<=500'
+                          ? t('filters.priceOptions.budget')
+                          : t('filters.price')}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.filterChip, !!cityFilter && styles.filterChipActive]}
+                    onPress={() => setShowLocationPicker(true)}
+                    accessibilityRole="button"
+                  >
+                    <Text style={[styles.filterChipText, !!cityFilter && styles.filterChipTextActive]} numberOfLines={1}>
+                      {cityFilter ? cityFilter.split(',')[0] : t('filters.location')}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          }
           ListHeaderComponentStyle={isCategoryPage ? styles.heroListHeader : null}
           contentContainerStyle={[
             styles.listContent,
@@ -193,12 +271,24 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
           ListEmptyComponent={
             <EmptyState
               icon={Inbox}
-              title={t('home.emptyTitle')}
-              subtitle={t('home.emptySubtitle')}
+              title={filtersActive ? t('filters.noMatchTitle') : t('home.emptyTitle')}
+              subtitle={filtersActive ? t('filters.noMatchSubtitle') : t('home.emptySubtitle')}
             />
           }
         />
       )}
+      <WhenPickerSheet
+        visible={showWhenPicker}
+        onClose={() => setShowWhenPicker(false)}
+        value={dateFilter}
+        onSelect={(v) => setDateFilter(v)}
+      />
+      <LocationPickerSheet
+        visible={showLocationPicker}
+        onClose={() => setShowLocationPicker(false)}
+        selectedCity={cityFilter}
+        onSelect={(city) => setCityFilter(city)}
+      />
     </View>
   );
 }
@@ -261,6 +351,32 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
     },
     heroGridPad: {
       paddingTop: 16,
+    },
+    filterRow: {
+      flexDirection: 'row',
+      gap: 8,
+      marginBottom: 16,
+    },
+    filterChip: {
+      paddingHorizontal: 14,
+      height: 36,
+      borderRadius: 18,
+      borderWidth: 1,
+      borderColor: colors.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+      maxWidth: 150,
+    },
+    filterChipActive: {
+      borderColor: colors.text,
+    },
+    filterChipText: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    filterChipTextActive: {
+      color: colors.text,
     },
     gridRow: {
       gap: 12,

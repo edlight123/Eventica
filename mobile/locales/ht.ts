@@ -627,6 +627,9 @@ export default {
     declineTransferFailedBody: 'Pa t kapab refize transfè a.',
   },
   filters: {
+    location: 'Kote',
+    noMatchTitle: 'Anyen pa matche',
+    noMatchSubtitle: 'Eseye lache filtè yo.',
     title: 'Filtè',
     date: 'Dat',
     selected: 'Chwazi',
@@ -653,6 +656,7 @@ export default {
       online: 'Anliy',
     },
     priceOptions: {
+      budget: 'Mwens pase 500',
       any: 'Nenpòt pri',
       free: 'Gratis',
       upto500: 'Bon mache',
