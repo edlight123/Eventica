@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { Calendar, MapPin, User as UserIcon, Ticket as TicketIcon, Send, Star, RotateCcw, CalendarPlus, Navigation } from 'lucide-react-native';
+import { ChevronLeft, Calendar, MapPin, User as UserIcon, Ticket as TicketIcon, Send, Star, RotateCcw, CalendarPlus, Navigation } from 'lucide-react-native';
 import { doc, getDoc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db } from '../config/firebase';
@@ -219,6 +219,15 @@ export default function TicketDetailScreen({ route }: any) {
         <View style={styles.content}>
           {/* Header with Title */}
           <View style={styles.header}>
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              hitSlop={12}
+              style={styles.backBtn}
+              accessibilityRole="button"
+              accessibilityLabel={t('common.back')}
+            >
+              <ChevronLeft size={24} color={colors.text} />
+            </TouchableOpacity>
             <Text style={styles.eventTitle} numberOfLines={2}>{ticket.event_title}</Text>
           </View>
 
@@ -535,6 +544,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
   content: {
     padding: 20,
+  },
+  backBtn: {
+    marginLeft: -6,
+    marginBottom: 8,
   },
   header: {
     flexDirection: 'row',

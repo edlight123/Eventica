@@ -20,6 +20,7 @@ import {
   Heart, 
         ExternalLink,
   ChevronRight,
+  ChevronLeft,
   PlayCircle
 } from 'lucide-react-native';
 import { doc, getDoc, collection, addDoc, Timestamp, query, where, getDocs, deleteDoc } from 'firebase/firestore';
@@ -576,6 +577,18 @@ export default function EventDetailScreen({ route, navigation }: any) {
           />
 
           {/* Top Right Actions: Share & Save */}
+          {/* Back — the most-visited pushed screen shipped with no back
+              affordance at all; only the edge-swipe worked. Same scrim-circle
+              as the share/heart cluster opposite. */}
+          <TouchableOpacity
+            style={[styles.iconButton, styles.heroBack, { top: insets.top + 8 }]}
+            onPress={() => navigation.goBack()}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel={t('common.back')}
+          >
+            <ChevronLeft size={22} color="#FFF" />
+          </TouchableOpacity>
           <View style={[styles.heroActions, { top: insets.top + 8 }]}>
             <TouchableOpacity style={styles.iconButton} onPress={handleShare} hitSlop={8}>
               <Share2 size={20} color="#FFF" />
@@ -1041,6 +1054,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     right: 16,
     flexDirection: 'row',
     gap: 8,
+  },
+  heroBack: {
+    position: 'absolute',
+    left: 16,
+    zIndex: 10,
   },
   iconButton: {
     width: 40,

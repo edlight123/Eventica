@@ -276,6 +276,7 @@ export default function OrganizerEventStaffScreen() {
     return (
       <View style={styles.container}>
         <OrganizerScreenHeader
+          onBack={() => navigation.goBack()}
           title={t('organizerStaff.headerTitle')}
           right={<Skeleton width={96} height={36} radius={RADIUS.md} />}
         />
