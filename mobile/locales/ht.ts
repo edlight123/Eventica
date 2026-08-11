@@ -1913,6 +1913,14 @@ export default {
     share: 'Pataje',
     goToTickets: 'Ale nan tikè m yo',
   },
+  flyerLibrary: {
+    title: 'Chwazi yon flayè',
+    searchPlaceholder: 'Chèche yon imaj',
+    uploadImage: 'Telechaje yon imaj',
+    empty: 'Nou pa jwenn okenn imaj',
+    notConfigured: 'Bibliyotèk imaj la pa disponib — telechaje pa w la',
+    byPhotographer: 'Foto: {name}',
+  },
   eventDetail: {
     // Prefiks sèlman — konpoze kòm `${startsIn} 2d 11h` nan CountdownTimer.
     startsIn: 'Kòmanse nan',

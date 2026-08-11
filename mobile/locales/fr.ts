@@ -1915,6 +1915,14 @@ export default {
     share: 'Partager',
     goToTickets: 'Voir mes billets',
   },
+  flyerLibrary: {
+    title: 'Choisir un visuel',
+    searchPlaceholder: 'Rechercher une image',
+    uploadImage: 'Importer une image',
+    empty: 'Aucune image trouvée',
+    notConfigured: "Bibliothèque d'images indisponible — importez la vôtre",
+    byPhotographer: 'Photo : {name}',
+  },
   eventDetail: {
     // Préfixe uniquement — composé en `${startsIn} 2d 11h` par CountdownTimer.
     startsIn: 'Commence dans',

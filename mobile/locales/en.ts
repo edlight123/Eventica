@@ -1961,6 +1961,14 @@ export default {
     share: 'Share',
     goToTickets: 'Go to my tickets',
   },
+  flyerLibrary: {
+    title: 'Select a flyer',
+    searchPlaceholder: 'Find an image',
+    uploadImage: 'Upload an image',
+    empty: 'No images found',
+    notConfigured: 'Image library unavailable — upload your own',
+    byPhotographer: 'Photo: {name}',
+  },
   eventDetail: {
     // Prefix only — composed as `${startsIn} 2d 11h` by CountdownTimer.
     startsIn: 'Starts in',

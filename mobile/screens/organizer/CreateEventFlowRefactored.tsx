@@ -2528,12 +2528,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   },
 
   // ── Section headers ──
+  // Quiet sentence-case eyebrow (tokens type.sectionEyebrow / posh's muted
+  // "Additional Details" / "Tickets" labels) — not a shouting uppercase band.
   sectionHeader: {
     fontSize: 13,
-    fontWeight: '700',
-    letterSpacing: 0.4,
+    fontWeight: '600',
+    letterSpacing: 0.3,
     color: colors.textSecondary,
-    textTransform: 'uppercase',
     marginTop: 20,
     marginBottom: 4,
   },
