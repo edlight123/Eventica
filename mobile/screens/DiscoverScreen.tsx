@@ -603,7 +603,13 @@ export default function DiscoverScreen({ navigation, route }: any) {
   if (loading) {
     return (
       <View style={styles.container}>
-        <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <View
+          style={[styles.header, { paddingTop: insets.top + 8 }]}
+          onLayout={(e) => {
+            const h = e?.nativeEvent?.layout?.height ?? 0;
+            if (h) setHeaderH(h);
+          }}
+        >
           <Skeleton height={44} radius={22} style={{ width: '100%' }} />
           <View style={styles.tabsRow}>
             <Skeleton width={64} height={16} radius={6} />
@@ -611,7 +617,12 @@ export default function DiscoverScreen({ navigation, route }: any) {
             <Skeleton width={52} height={16} radius={6} />
           </View>
         </View>
-        <DiscoverFeedSkeleton />
+        {/* The header above is position: absolute — without this inset the
+            skeleton cards rendered UNDERNEATH the search bar. Same reservation
+            the loaded feed uses. */}
+        <View style={{ paddingTop: headerH + 8 }}>
+          <DiscoverFeedSkeleton />
+        </View>
       </View>
     );
   }

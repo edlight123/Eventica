@@ -8,7 +8,6 @@ const { width: SCREEN_W } = Dimensions.get('window');
 // Geometry copied from the real components so placeholders line up exactly.
 const HOME_CARD_WIDTH = Math.min(248, SCREEN_W * 0.62); // EventRail CARD_WIDTH
 const FAV_COLUMN_WIDTH = (SCREEN_W - 32 - 12) / 2; // FavoritesScreen grid column
-const DISCOVER_POSTER_H = Math.round((SCREEN_W - 32) * 1.15); // DiscoverEventCard poster
 // OrganizerProfileScreen HERO_IDENTITY_OFFSET (control top 8 + control 40 + gap 10):
 // the identity block is top-anchored under the back/Follow controls, so the
 // placeholder has to start at the same insets.top + 58 or the header jumps.
@@ -138,7 +137,10 @@ export function HomeFeedSkeleton({ sections = 3 }: { sections?: number }) {
 export function DiscoverCardSkeleton() {
   return (
     <View style={styles.discoverCard}>
-      <Skeleton height={DISCOVER_POSTER_H} radius={16} style={{ width: '100%' } as ViewStyle} />
+      {/* 2:3 like the card's default aspect and radius 8 (radius.sm) like its
+          poster — the old fixed 1.15x height was ~30% too short and the 16pt
+          corners read rounder than anything on the real card. */}
+      <Skeleton aspectRatio={2 / 3} radius={8} style={{ width: '100%' } as ViewStyle} />
       <View style={styles.discoverBody}>
         <View style={styles.discoverBodyText}>
           <Skeleton width={'88%'} height={20} radius={7} />
@@ -151,7 +153,8 @@ export function DiscoverCardSkeleton() {
           <Skeleton width={20} height={20} radius={10} />
         </View>
       </View>
-      <Skeleton height={52} radius={16} style={{ width: '100%', marginTop: 14 } as ViewStyle} />
+      {/* Compact WhitePillCTA: 46 tall, radius.button 14. */}
+      <Skeleton height={46} radius={14} style={{ width: '100%', marginTop: 14 } as ViewStyle} />
     </View>
   );
 }
