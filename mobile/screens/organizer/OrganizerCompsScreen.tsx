@@ -217,18 +217,45 @@ export default function OrganizerCompsScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
+        {/* Same overlay header as the loaded branch so the chrome doesn't jump
+            from an in-flow bar to a floating blur when data lands. */}
         <OrganizerScreenHeader
           title={t('organizerComps.title')}
           subtitle={eventTitle || undefined}
           onBack={() => navigation.goBack()}
+          overlay
+          onHeight={onHeight}
         />
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Skeleton width="100%" height={64} radius={RADIUS.md} style={{ marginBottom: 16 }} />
-          <Skeleton width="100%" height={240} radius={RADIUS.xl} style={{ marginBottom: 16 }} />
-          <Skeleton width={140} height={18} radius={6} style={{ marginBottom: 12 }} />
-          {[0, 1, 2].map((i) => (
-            <Skeleton key={i} width="100%" height={80} radius={RADIUS.xl} style={{ marginBottom: 10 }} />
-          ))}
+        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: headerH }]}>
+          {/* InfoNotice banner. */}
+          <Skeleton width="100%" height={64} radius={RADIUS.md} />
+          {/* Issue form: title, then label + input pairs (inputs ≈45 tall:
+              paddingVertical 12×2 + text), a stepper row, and the submit pill. */}
+          <View style={styles.formCard}>
+            <Skeleton width={150} height={16} radius={6} />
+            {[0, 1, 2].map((i) => (
+              <View key={i}>
+                <Skeleton width={110} height={12} radius={5} style={{ marginTop: 14, marginBottom: 6 }} />
+                <Skeleton width="100%" height={45} radius={RADIUS.md} />
+              </View>
+            ))}
+            <Skeleton width={90} height={12} radius={5} style={{ marginTop: 14, marginBottom: 6 }} />
+            <Skeleton width={140} height={44} radius={RADIUS.md} />
+            <Skeleton width="100%" height={48} radius={999} style={{ marginTop: 20 }} />
+          </View>
+          {/* Issued list: section title + recipient cards (name/chip + meta). */}
+          <View style={styles.section}>
+            <Skeleton width={140} height={18} radius={6} style={{ marginBottom: 12 }} />
+            {[0, 1, 2].map((i) => (
+              <View key={i} style={styles.compCard}>
+                <View style={styles.compHeader}>
+                  <Skeleton width="55%" height={15} radius={6} />
+                  <Skeleton width={60} height={22} radius={11} />
+                </View>
+                <Skeleton width="40%" height={13} radius={5} style={{ marginTop: 10 }} />
+              </View>
+            ))}
+          </View>
         </ScrollView>
       </View>
     );

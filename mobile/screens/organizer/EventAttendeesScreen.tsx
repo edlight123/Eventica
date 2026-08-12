@@ -247,10 +247,16 @@ export default function EventAttendeesScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <OrganizerScreenHeader title={t('organizerAttendees.headerTitle')} onBack={() => navigation.goBack()} />
-        <View style={{ padding: SPACING.lg }}>
-          {[0, 1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} width="100%" height={132} radius={RADIUS.lg} style={{ marginBottom: SPACING.md }} />
+        {/* Identical header to the loaded branch — no in-flow -> overlay flash. */}
+        <OrganizerScreenHeader title={t('organizerAttendees.headerTitle')} onBack={() => navigation.goBack()} overlay onHeight={onHeight} />
+        <View style={{ padding: SPACING.lg, marginTop: headerH }}>
+          {/* Mirrors the loaded order: stats bar, search field, filter tabs,
+              then attendee cards — five identical 132pt slabs matched nothing. */}
+          <Skeleton width="100%" height={64} radius={RADIUS.md} style={{ marginBottom: SPACING.md }} />
+          <Skeleton width="100%" height={44} radius={RADIUS.md} style={{ marginBottom: SPACING.md }} />
+          <Skeleton width="70%" height={32} radius={RADIUS.md} style={{ marginBottom: SPACING.md }} />
+          {[0, 1, 2, 3].map((i) => (
+            <Skeleton key={i} width="100%" height={96} radius={RADIUS.lg} style={{ marginBottom: SPACING.md }} />
           ))}
         </View>
       </View>

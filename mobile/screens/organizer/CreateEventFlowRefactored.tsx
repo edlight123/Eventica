@@ -1434,10 +1434,15 @@ export default function CreateEventFlowRefactored() {
                       so the empty poster reads as a workspace to fill. It used
                       to run down to the canvas colour itself, which made the
                       dropzone near-black and indistinguishable from the page. */}
+                  {/* VERTICAL fade only. The old diagonal ran darker toward the
+                      bottom-right, so the panel's right edge dissolved into the
+                      canvas and the whole dropzone read as off-centre with a
+                      slanted top ("this poster is not centered"). Keeping the
+                      light even left-to-right keeps the edges honest. */}
                   <LinearGradient
-                    colors={[colors.border, colors.surfaceRaised, colors.surface]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 0.6, y: 1 }}
+                    colors={[colors.surfaceRaised, colors.surface]}
+                    start={{ x: 0.5, y: 0 }}
+                    end={{ x: 0.5, y: 1 }}
                     style={StyleSheet.absoluteFill}
                   />
                   <GridCanvas lineColor="rgba(255,255,255,0.05)" />

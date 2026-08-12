@@ -147,10 +147,37 @@ export default function OrganizerEventsScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <OrganizerScreenHeader title={t('organizerEvents.title')} right={createButton} />
+        {/* Same overlay header as the loaded branch so the chrome doesn't jump
+            from an in-flow bar to a floating blur when data lands. */}
+        <OrganizerScreenHeader
+          title={t('organizerEvents.title')}
+          right={createButton}
+          overlay
+          onHeight={onHeight}
+        />
+        {/* Mirrors the segmented control row (pill ≈ 35 tall: paddingVertical
+            9×2 + 17 text) that reserves the header height when loaded. */}
+        <View style={[styles.segmentedWrap, { marginTop: headerH }]}>
+          <View style={styles.segmentedSkeletonRow}>
+            <Skeleton width={110} height={35} radius={999} />
+            <Skeleton width={90} height={35} radius={999} />
+          </View>
+        </View>
+        {/* Event cards: 104-wide 4:5 poster thumb + title/meta/footer column. */}
         <View style={styles.skeletonList}>
           {[0, 1, 2].map((i) => (
-            <Skeleton key={i} width="100%" height={140} radius={RADIUS.lg} style={{ marginBottom: 16 }} />
+            <View key={i} style={styles.eventCard}>
+              <Skeleton width={104} aspectRatio={4 / 5} radius={radius.chip} />
+              <View style={styles.skeletonCardBody}>
+                <Skeleton width="72%" height={20} radius={7} />
+                <Skeleton width="85%" height={14} radius={5} style={{ marginTop: 10 }} />
+                <Skeleton width="60%" height={14} radius={5} style={{ marginTop: 6 }} />
+                <View style={styles.skeletonCardFooter}>
+                  <Skeleton width={90} height={14} radius={5} />
+                  <Skeleton width={70} height={14} radius={5} />
+                </View>
+              </View>
+            </View>
           ))}
         </View>
       </View>
@@ -326,9 +353,29 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     backgroundColor: colors.background,
   },
+  // Matches the loaded list: gutter 16, first card flush under the tabs row.
   skeletonList: {
     paddingHorizontal: 16,
-    paddingTop: 16,
+  },
+  // SegmentedTabs container row (gap 8, gutter 16, paddingVertical 4).
+  segmentedSkeletonRow: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+  },
+  skeletonCardBody: {
+    flex: 1,
+    paddingVertical: 2,
+  },
+  // eventFooter: paddingTop 12 over a hairline, pinned toward the card bottom.
+  skeletonCardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 18,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
   createButton: {
     flexDirection: 'row',

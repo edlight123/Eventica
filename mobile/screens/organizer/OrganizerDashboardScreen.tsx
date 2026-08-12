@@ -85,18 +85,41 @@ export default function OrganizerDashboardScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <OrganizerScreenHeader title={t('organizerDashboard.title')} subtitle={headerSubtitle} />
-        <View style={styles.section}>
-          <Skeleton width={150} height={22} radius={7} style={{ marginBottom: 16 }} />
-          <Skeleton width="100%" height={148} radius={RADIUS.lg} style={{ marginBottom: 24 }} />
-          <Skeleton width={120} height={22} radius={7} style={{ marginBottom: 16 }} />
-          <StatTriplet
-            items={[
-              { label: t('organizerDashboard.revenue'), value: null },
-              { label: t('organizerDashboard.ticketsSold'), value: null },
-              { label: t('organizerDashboard.upcomingEvents'), value: null },
-            ]}
-          />
+        {/* Same overlay header as the loaded branch so the chrome doesn't jump
+            from an in-flow bar to a floating blur when data lands. */}
+        <OrganizerScreenHeader
+          title={t('organizerDashboard.title')}
+          subtitle={headerSubtitle}
+          overlay
+          onHeight={onHeight}
+        />
+        <View style={{ paddingTop: headerH }}>
+          {/* Today's Events: section title + one event card (padded surface). */}
+          <View style={styles.section}>
+            <Skeleton width={150} height={19} radius={7} style={{ marginBottom: 12 }} />
+            <Skeleton width="100%" height={148} radius={RADIUS.lg} />
+          </View>
+          {/* This Week: section title + the metric triplet (••• while loading). */}
+          <View style={styles.section}>
+            <Skeleton width={120} height={19} radius={7} style={{ marginBottom: 12 }} />
+            <StatTriplet
+              items={[
+                { label: t('organizerDashboard.revenue'), value: null },
+                { label: t('organizerDashboard.ticketsSold'), value: null },
+                { label: t('organizerDashboard.upcomingEvents'), value: null },
+              ]}
+            />
+          </View>
+          {/* Quick Actions: section title + the 2-col grid of 6 action tiles
+              (46 tall = paddingVertical 13×2 + 20 icon). */}
+          <View style={styles.section}>
+            <Skeleton width={140} height={19} radius={7} style={{ marginBottom: 12 }} />
+            <View style={styles.quickActionsGrid}>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} width="48%" height={46} radius={RADIUS.lg} />
+              ))}
+            </View>
+          </View>
         </View>
       </View>
     );

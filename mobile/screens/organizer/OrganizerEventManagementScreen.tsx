@@ -241,11 +241,14 @@ export default function OrganizerEventManagementScreen() {
     return (
       <View style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+        {/* Identical header to the loaded branch — no in-flow -> overlay flash. */}
         <OrganizerScreenHeader
           title={t('organizerEventManagement.headerTitle')}
           onBack={() => navigation.goBack()}
+          overlay
+          onHeight={onHeight}
         />
-        <View style={styles.skeletonBody}>
+        <View style={[styles.skeletonBody, { paddingTop: headerH }]}>
           <Skeleton width={120} height={12} radius={6} style={{ marginBottom: 16 }} />
           <View style={styles.skeletonGrid}>
             {[0, 1, 2, 3].map((i) => (
@@ -268,8 +271,10 @@ export default function OrganizerEventManagementScreen() {
         <OrganizerScreenHeader
           title={t('organizerEventManagement.headerTitle')}
           onBack={() => navigation.goBack()}
+          overlay
+          onHeight={onHeight}
         />
-        <View style={styles.errorWrap}>
+        <View style={[styles.errorWrap, { paddingTop: headerH }]}>
           <Ionicons name="alert-circle-outline" size={56} color={colors.error} />
           <Text style={styles.errorText}>{t('organizerEventManagement.notFound')}</Text>
         </View>

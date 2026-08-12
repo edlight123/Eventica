@@ -198,7 +198,10 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
     <View style={styles.container}>
       {!isCategoryPage && (
       <OverlayHeader onHeight={onHeight} scrollY={scrollY}>
-        <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={12}>
+        {/* Fixed 32pt box + extra gap: the 30pt italic serif's 'g' swash leans
+            left past its text box and was colliding with the chevron's tap
+            square ("blocking part of the g in gratuit"). */}
+        <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={12} style={styles.backBox}>
           <ChevronLeft size={24} color={colors.text} />
         </TouchableOpacity>
         <View style={styles.headerText}>
@@ -329,8 +332,16 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       flex: 1,
       backgroundColor: colors.background,
     },
+    backBox: {
+      width: 32,
+      height: 36,
+      alignItems: 'flex-start',
+      justifyContent: 'center',
+      marginRight: 4,
+    },
     headerText: {
       flex: 1,
+      paddingLeft: 4,
     },
     headerSubtitle: {
       fontSize: 13,

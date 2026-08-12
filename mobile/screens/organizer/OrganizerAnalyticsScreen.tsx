@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
     RefreshControl,
-  Dimensions,
 } from 'react-native';
 import { radius } from '../../theme/tokens';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -26,8 +25,6 @@ import { useOverlayHeaderInset } from '../../components/OverlayHeader';
 import SegmentedTabs from '../../components/organizer/SegmentedTabs';
 import { format, subDays, startOfDay } from 'date-fns';
 import { safeFormatForLanguage } from '../../lib/dates';
-
-const { width } = Dimensions.get('window');
 
 interface ChartData {
   date: string;
@@ -281,15 +278,58 @@ export default function OrganizerAnalyticsScreen({ navigation }: any) {
   if (loading) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
-        <OrganizerScreenHeader title={t('analytics.title') || 'Analytics'} onBack={() => navigation.goBack()} />
-        <View style={{ padding: 16, gap: 16 }}>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            {[0, 1, 2, 3].map((i) => (
-              <Skeleton key={i} width={(width - 40) / 2} height={104} radius={RADIUS.lg} />
+        {/* Same overlay header as the loaded branch so the chrome doesn't jump
+            from an in-flow bar to a floating blur when data lands. */}
+        <OrganizerScreenHeader
+          title={t('analytics.title') || 'Analytics'}
+          onBack={() => navigation.goBack()}
+          overlay
+          onHeight={onHeight}
+        />
+        <View style={{ paddingTop: headerH }}>
+          {/* Range picker: three SegmentedTabs pills (≈35 tall). */}
+          <View style={styles.timeRangeContainer}>
+            <View style={styles.timeRangeSkeletonRow}>
+              {[0, 1, 2].map((i) => (
+                <Skeleton key={i} width={82} height={35} radius={999} />
+              ))}
+            </View>
+          </View>
+          {/* Metric grid: the real 2-col StatTriplet with ••• placeholders. */}
+          <View style={styles.statsWrap}>
+            <StatTriplet
+              columns={2}
+              items={[
+                { label: t('analytics.totalRevenue') || 'Total Revenue', value: null },
+                { label: t('analytics.ticketsSold') || 'Tickets Sold', value: null },
+                { label: t('analytics.totalEvents') || 'Total Events', value: null },
+                { label: t('analytics.published') || 'Published', value: null },
+              ]}
+            />
+          </View>
+          {/* Sales chart card: title, 120-tall bar area, hairline baseline. */}
+          <View style={styles.chartCard}>
+            <Skeleton width={130} height={16} radius={6} style={{ marginBottom: 20 }} />
+            <View style={styles.chartSkeletonRow}>
+              {[46, 78, 60, 100, 34, 88, 52].map((h, i) => (
+                <Skeleton key={i} width={24} height={h} radius={6} />
+              ))}
+            </View>
+            <View style={styles.chartBaseline} />
+          </View>
+          {/* Top events card: title + rank-circle rows. */}
+          <View style={styles.sectionCard}>
+            <Skeleton width={170} height={16} radius={6} style={{ marginBottom: 16 }} />
+            {[0, 1, 2].map((i) => (
+              <View key={i} style={styles.eventRow}>
+                <Skeleton width={32} height={32} radius={radius.lg} style={{ marginRight: 12 }} />
+                <View style={styles.eventInfo}>
+                  <Skeleton width="65%" height={15} radius={6} />
+                  <Skeleton width="45%" height={13} radius={5} style={{ marginTop: 4 }} />
+                </View>
+              </View>
             ))}
           </View>
-          <Skeleton width="100%" height={200} radius={RADIUS.xl} />
-          <Skeleton width="100%" height={160} radius={RADIUS.xl} />
         </View>
       </SafeAreaView>
     );
@@ -452,6 +492,21 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   // read as "spacing issues" to testers.
   timeRangeContainer: {
     paddingVertical: 10,
+  },
+  // SegmentedTabs container row (gap 8, gutter 16, paddingVertical 4).
+  timeRangeSkeletonRow: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+  },
+  // chartContainer footprint: bars bottom-aligned in the 120-tall band.
+  chartSkeletonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    height: 120,
+    paddingBottom: 18, // where the real chart's x-axis labels sit
   },
   statsWrap: {
     paddingHorizontal: 16,

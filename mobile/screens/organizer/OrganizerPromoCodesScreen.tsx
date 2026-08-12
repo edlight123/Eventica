@@ -356,17 +356,39 @@ export default function OrganizerPromoCodesScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
+        {/* Same overlay header as the loaded branch so the chrome doesn't jump
+            from an in-flow bar to a floating blur when data lands. */}
         <OrganizerScreenHeader
           title={t('organizerPromoCodes.title')}
           subtitle={eventTitle || undefined}
           onBack={() => navigation.goBack()}
+          overlay
+          onHeight={onHeight}
         />
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: headerH }]}>
           <View style={styles.section}>
-            <Skeleton width="100%" height={52} radius={RADIUS.lg} style={{ marginBottom: 16 }} />
-            <Skeleton width={140} height={18} radius={6} style={{ marginBottom: 12 }} />
+            {/* Section label + "New code" pill on one row, like the loaded list. */}
+            <View style={styles.sectionTitleRow}>
+              <Skeleton width={110} height={12} radius={5} />
+              <Skeleton width={104} height={32} radius={radius.button} />
+            </View>
+            {/* Active / Expired segmented pills. */}
+            <View style={[styles.tabsWrap, styles.tabsSkeletonRow]}>
+              <Skeleton width={96} height={35} radius={999} />
+              <Skeleton width={96} height={35} radius={999} />
+            </View>
+            {/* Compact promo cards: code+discount header row, claimed/expiry meta. */}
             {[0, 1, 2].map((i) => (
-              <Skeleton key={i} width="100%" height={84} radius={14} style={{ marginBottom: 8 }} />
+              <View key={i} style={styles.promoCard}>
+                <View style={styles.promoHeader}>
+                  <Skeleton width={130} height={17} radius={6} />
+                  <Skeleton width={44} height={15} radius={5} />
+                </View>
+                <View style={styles.promoSkeletonMetaRow}>
+                  <Skeleton width={96} height={12} radius={5} />
+                  <Skeleton width={72} height={12} radius={5} />
+                </View>
+              </View>
             ))}
           </View>
         </ScrollView>
@@ -688,6 +710,19 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   tabsWrap: {
     marginHorizontal: -16,
     marginBottom: 10,
+  },
+  // Skeleton stand-in for SegmentedTabs (gap 8, own 16px gutter, padV 4).
+  tabsSkeletonRow: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+  },
+  // claimedRow footprint (marginTop 7, space-between).
+  promoSkeletonMetaRow: {
+    marginTop: 7,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   sectionTitle: {
     fontSize: 12,

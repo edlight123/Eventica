@@ -209,22 +209,42 @@ export default function OrganizerRefundsScreen({ navigation }: any) {
   if (loading) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
+        {/* Same overlay header as the loaded branch so the chrome doesn't jump
+            from an in-flow bar to a floating blur when data lands. */}
         <OrganizerScreenHeader
           title={t('refunds.title') || 'Refund Requests'}
           onBack={() => navigation.goBack()}
+          overlay
+          onHeight={onHeight}
         />
-        <View style={styles.tabsWrap}>
+        {/* The tabs row reserves the floating header's height, like when loaded. */}
+        <View style={[styles.tabsWrap, { marginTop: headerH }]}>
           <View style={styles.tabsSkeletonRow}>
             {[0, 1, 2].map((i) => (
               <Skeleton key={i} width={92} height={36} radius={999} />
             ))}
           </View>
         </View>
-        <View style={{ padding: 16 }}>
-          {[0, 1, 2, 3].map((i) => (
-            <Skeleton key={i} width="100%" height={180} radius={RADIUS.xl} style={{ marginBottom: 16 }} />
-          ))}
-        </View>
+        {/* Request cards: title+chip header, three detail rows, reason box,
+            and the approve/deny action row. */}
+        {[0, 1].map((i) => (
+          <View key={i} style={styles.requestCard}>
+            <View style={styles.requestHeader}>
+              <Skeleton width="55%" height={16} radius={6} />
+              <Skeleton width={70} height={22} radius={11} />
+            </View>
+            <View style={styles.requestDetails}>
+              {['62%', '38%', '52%'].map((w, j) => (
+                <Skeleton key={j} width={w as `${number}%`} height={16} radius={6} />
+              ))}
+            </View>
+            <Skeleton width="100%" height={58} radius={radius.sm} style={{ marginTop: 12 }} />
+            <View style={styles.actionButtons}>
+              <Skeleton height={44} radius={radius.sm} style={{ flex: 1 }} />
+              <Skeleton height={44} radius={radius.sm} style={{ flex: 1 }} />
+            </View>
+          </View>
+        ))}
       </SafeAreaView>
     );
   }

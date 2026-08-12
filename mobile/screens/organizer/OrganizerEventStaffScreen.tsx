@@ -275,12 +275,15 @@ export default function OrganizerEventStaffScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
+        {/* Identical header to the loaded branch — no in-flow -> overlay flash. */}
         <OrganizerScreenHeader
           onBack={() => navigation.goBack()}
           title={t('organizerStaff.headerTitle')}
           right={<Skeleton width={96} height={36} radius={RADIUS.md} />}
+          overlay
+          onHeight={onHeight}
         />
-        <View style={styles.content}>
+        <View style={[styles.content, { paddingTop: headerH }]}>
           <Skeleton width="100%" height={56} radius={RADIUS.md} style={{ marginBottom: 20 }} />
           {[0, 1].map((section) => (
             <View key={section} style={{ marginBottom: 12 }}>

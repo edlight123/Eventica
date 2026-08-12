@@ -335,11 +335,14 @@ export default function OrganizerOrgTeamScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
+        {/* Identical header to the loaded branch — no in-flow -> overlay flash. */}
         <OrganizerScreenHeader
           title={t('organizerOrgTeam.title')}
           onBack={() => navigation.goBack()}
+          overlay
+          onHeight={onHeight}
         />
-        <View style={styles.content}>
+        <View style={[styles.content, { marginTop: headerH }]}>
           <Skeleton width="100%" height={56} radius={RADIUS.md} style={{ marginBottom: 20 }} />
           {[0, 1, 2].map((i) => (
             <Skeleton

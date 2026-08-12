@@ -107,8 +107,9 @@ export default function OrganizerTeamHubScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <OrganizerScreenHeader title={t('organizerTeamHub.title')} onBack={() => navigation.goBack()} />
-        <View style={styles.content}>
+        {/* Identical header to the loaded branch — no in-flow -> overlay flash. */}
+        <OrganizerScreenHeader title={t('organizerTeamHub.title')} onBack={() => navigation.goBack()} overlay onHeight={onHeight} />
+        <View style={[styles.content, { paddingTop: headerH }]}>
           <Skeleton width={120} height={12} radius={5} style={{ marginBottom: 14 }} />
           {[0, 1].map((i) => (
             <Skeleton key={i} width="100%" height={52} radius={RADIUS.md} style={{ marginBottom: 10 }} />
