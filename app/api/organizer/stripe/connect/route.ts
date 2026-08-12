@@ -123,8 +123,23 @@ export async function POST(request: NextRequest) {
     // both load this URL; completion redirects to the same returnUrl the
     // hosted flow used, so existing completion detection works unchanged.
     if (body?.embedded === true) {
+      // The page URL must be built on the host that served THIS request — not
+      // NEXT_PUBLIC_APP_URL. The env var holds the apex (tikem.co), which
+      // 308-redirects to www, and the mobile WebView attaches its Bearer token
+      // only to the INITIAL document request: WKWebView drops custom headers on
+      // the redirect, so the page saw no auth and bounced organizers to the
+      // login screen. The host that just authenticated this API call is proven
+      // redirect-free for this client.
+      const first = (value: string | null) => String(value || '').split(',')[0].trim()
+      const requestHost =
+        first(request.headers.get('x-forwarded-host')) || first(request.headers.get('host'))
+      const requestProto =
+        first(request.headers.get('x-forwarded-proto')) ||
+        (request.nextUrl.protocol ? request.nextUrl.protocol.replace(':', '') : 'https')
+      const embeddedBase = requestHost ? `${requestProto}://${requestHost}` : appUrl
+
       return NextResponse.json({
-        url: `${appUrl}/organizer/onboarding`,
+        url: `${embeddedBase}/organizer/onboarding`,
         stripeAccountId,
         embedded: true,
       })

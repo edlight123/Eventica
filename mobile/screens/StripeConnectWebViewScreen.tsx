@@ -32,19 +32,26 @@ export default function StripeConnectWebViewScreen() {
   // Header injection is restricted to our own site: the embedded onboarding
   // page authenticates its account-session calls with this token. Stripe-hosted
   // account links must never receive our Firebase token.
-  const isOwnHost = useMemo(() => {
+  const isOwnHostUrl = useCallback((value: string) => {
     try {
-      const h = new URL(url).host.replace(/^www\./, '')
+      const h = new URL(value).host.replace(/^www\./, '')
       return h === 'tikem.co' || h.endsWith('.tikem.co')
     } catch {
       return false
     }
-  }, [url])
+  }, [])
   const [loading, setLoading] = useState(true)
   const [failed, setFailed] = useState(false)
   // Bumping this remounts the WebView, which re-requests the ORIGINAL account
   // link rather than whatever half-loaded deep URL failed.
   const [reloadKey, setReloadKey] = useState(0)
+  // The URL the WebView is currently loading WITH the Authorization header.
+  // Custom headers apply to the initial document request only — both WKWebView
+  // and Android's WebView drop them when following a redirect (e.g. the apex
+  // tikem.co 308s to www), which used to land organizers on the login page.
+  // Any own-host main-frame navigation to a different URL is intercepted and
+  // re-issued through this state so the header rides along.
+  const [authedUrl, setAuthedUrl] = useState(url)
   // Set once Stripe redirects to a return/refresh URL: from that point the
   // screen is finishing normally, so no error state and no cancel-confirm.
   const handledTerminal = useRef(false)
@@ -80,8 +87,35 @@ export default function StripeConnectWebViewScreen() {
     setFailed(false)
     setLoading(true)
     mainFrameUrl.current = url
+    setAuthedUrl(url)
     setReloadKey((k) => k + 1)
   }, [url])
+
+  // Keeps the Bearer header attached across redirects: cancel any own-host
+  // main-frame navigation that isn't the URL we're already loading with
+  // headers, and re-issue it through `authedUrl`. Stripe-hosted frames and
+  // third-party URLs pass through untouched (and never see our token).
+  const handleShouldStartLoad = useCallback(
+    (request: { url: string; isTopFrame?: boolean }) => {
+      const nextUrl = request?.url || ''
+      // Terminal redirect: close here as well as in onNavigationStateChange —
+      // intercepting it for a header reload would just delay the dismissal.
+      if (shouldCloseForUrl(nextUrl)) {
+        if (!handledTerminal.current) {
+          handledTerminal.current = true
+          navigation.goBack()
+        }
+        return false
+      }
+      if (!authToken || !isOwnHostUrl(nextUrl)) return true
+      // iOS reports sub-frame loads (Stripe's embedded iframes); leave them be.
+      if (request.isTopFrame === false) return true
+      if (nextUrl === authedUrl) return true
+      setAuthedUrl(nextUrl)
+      return false
+    },
+    [authToken, authedUrl, isOwnHostUrl, navigation, shouldCloseForUrl]
+  )
 
   // Abandoning halfway leaves a half-onboarded Connect account, so confirm before
   // a genuine mid-flow dismissal. The terminal return/refresh redirect closes the
@@ -197,9 +231,13 @@ export default function StripeConnectWebViewScreen() {
       <WebView
         key={reloadKey}
         source={{
-          uri: url,
-          headers: authToken && isOwnHost ? { Authorization: `Bearer ${authToken}` } : undefined,
+          uri: authedUrl,
+          headers:
+            authToken && isOwnHostUrl(authedUrl)
+              ? { Authorization: `Bearer ${authToken}` }
+              : undefined,
         }}
+        onShouldStartLoadWithRequest={handleShouldStartLoad}
         onLoadStart={(event) => {
           const next = event?.nativeEvent?.url
           if (next) mainFrameUrl.current = next

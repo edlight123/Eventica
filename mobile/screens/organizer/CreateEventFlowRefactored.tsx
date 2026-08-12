@@ -309,16 +309,35 @@ const inline = StyleSheet.create({
  * a "design canvas" texture (à la Posh) instead of a floating glow blob.
  */
 function GridCanvas({ lineColor, columns = 5, rows = 8 }: { lineColor: string; columns?: number; rows?: number }) {
+  // INTERIOR lines only: the last column/row draws no border. Painting every
+  // cell's trailing edge left a hairline hugging the panel's right and bottom
+  // edges with no twin on the left/top, which skewed the texture and made the
+  // whole dropzone read as pushed toward the right ("this poster is not
+  // centered"). Interior-only lines are symmetric by construction.
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
       <View style={[StyleSheet.absoluteFill, { flexDirection: 'row' }]}>
         {Array.from({ length: columns }).map((_, i) => (
-          <View key={`c${i}`} style={{ flex: 1, borderRightWidth: StyleSheet.hairlineWidth, borderRightColor: lineColor }} />
+          <View
+            key={`c${i}`}
+            style={{
+              flex: 1,
+              borderRightWidth: i < columns - 1 ? StyleSheet.hairlineWidth : 0,
+              borderRightColor: lineColor,
+            }}
+          />
         ))}
       </View>
       <View style={StyleSheet.absoluteFill}>
         {Array.from({ length: rows }).map((_, i) => (
-          <View key={`r${i}`} style={{ flex: 1, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: lineColor }} />
+          <View
+            key={`r${i}`}
+            style={{
+              flex: 1,
+              borderBottomWidth: i < rows - 1 ? StyleSheet.hairlineWidth : 0,
+              borderBottomColor: lineColor,
+            }}
+          />
         ))}
       </View>
     </View>
