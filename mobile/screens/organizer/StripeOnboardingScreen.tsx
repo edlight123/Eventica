@@ -16,6 +16,8 @@ import { backendJson } from '../../lib/api/backend'
 type Params = {
   /** Forwarded to /connect for first-time account creation. */
   accountLocation?: 'united_states' | 'canada' | 'france'
+  /** Debug switch: attempt the RN SDK's native embedded component first. */
+  tryNative?: boolean
 }
 
 /**
@@ -41,7 +43,7 @@ export default function StripeOnboardingScreen() {
   const route = useRoute<any>()
   const insets = useSafeAreaInsets()
 
-  const { accountLocation } = (route.params || {}) as Params
+  const { accountLocation, tryNative } = (route.params || {}) as Params
 
   const [connectInstance, setConnectInstance] = useState<ReturnType<
     typeof loadConnectAndInitialize
@@ -95,6 +97,16 @@ export default function StripeOnboardingScreen() {
   useEffect(() => {
     let cancelled = false
     ;(async () => {
+      // Hosted-first: on the tester's device the native component's content
+      // never became visible ("no spins but still nada" — black screen even
+      // after its loader claimed to start), while the hosted account link
+      // completed onboarding end to end. Until the native rendering issue is
+      // isolated, organizers go straight to the flow that works; pass
+      // tryNative to exercise the embedded path when debugging.
+      if (!tryNative) {
+        void fallbackToHosted()
+        return
+      }
       try {
         // Account bootstrap lives in /connect; embedded:true skips the hosted
         // account link. The page URL it returns is for the web flow — unused here.
@@ -150,7 +162,7 @@ export default function StripeOnboardingScreen() {
       cancelled = true
       clearWatchdog()
     }
-  }, [accountLocation, clearWatchdog, fallbackToHosted])
+  }, [accountLocation, clearWatchdog, fallbackToHosted, tryNative])
 
   const styles = getStyles(colors)
 
