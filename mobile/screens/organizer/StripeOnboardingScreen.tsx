@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
 import {
+  ConnectAccountOnboarding,
   ConnectComponentsProvider,
   loadConnectAndInitialize,
 } from '@stripe/stripe-react-native'
@@ -11,19 +12,6 @@ import {
 import { useTheme } from '../../contexts/ThemeContext'
 import { useI18n } from '../../contexts/I18nContext'
 import { backendJson } from '../../lib/api/backend'
-
-// DEEP import of the SDK's embedded-webview building block. On iOS the public
-// ConnectAccountOnboarding wraps this in NativeConnectAccountOnboardingView, a
-// native container inside which the content never painted on device (loader
-// cleared, screen stayed black; the same webview contract works in a browser).
-// Composing the block directly — the way the SDK itself renders it on Android,
-// inside a plain RN view — bypasses that container while keeping the SDK's
-// popup handling (openAuthenticatedWebView) intact. Pinned to the SDK version
-// in package.json; revisit on any @stripe/stripe-react-native upgrade.
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { EmbeddedComponent } = require('@stripe/stripe-react-native/lib/module/connect/EmbeddedComponent') as {
-  EmbeddedComponent: React.ComponentType<any>
-}
 
 type Params = {
   /** Forwarded to /connect for first-time account creation. */
@@ -197,13 +185,14 @@ export default function StripeOnboardingScreen() {
         {connectInstance ? (
           <NativeOnboardingBoundary onError={fallbackToHosted}>
             <ConnectComponentsProvider connectInstance={connectInstance}>
-              <EmbeddedComponent
-                component="account-onboarding"
-                componentProps={{}}
-                callbacks={{ onExit: closeOnce, onCloseWebView: closeOnce }}
+              {/* SDK 0.74: full-screen self-presenting modal (native UIKit nav
+                  bar on iOS). The 0.57 version of this component never painted
+                  on device — the SDK upgrade is the fix this build carries. */}
+              <ConnectAccountOnboarding
+                title={t('screens.stripeConnect.title')}
+                onExit={closeOnce}
                 onLoaderStart={handleLoaderStart}
                 onLoadError={() => void fallbackToHosted()}
-                style={styles.embedded}
               />
             </ConnectComponentsProvider>
           </NativeOnboardingBoundary>
@@ -271,9 +260,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       color: colors.text,
     },
     body: {
-      flex: 1,
-    },
-    embedded: {
       flex: 1,
     },
     loadingOverlay: {

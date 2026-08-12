@@ -20,7 +20,7 @@
     "@react-navigation/bottom-tabs": "^7.8.11",
     "@react-navigation/native": "^7.1.24",
     "@react-navigation/native-stack": "^7.8.5",
-    "@stripe/stripe-react-native": "^0.57.3",
+    "@stripe/stripe-react-native": "^0.74.0",
     "axios": "^1.13.2",
     "date-fns": "^4.1.0",
     "expo": "~54.0.27",
