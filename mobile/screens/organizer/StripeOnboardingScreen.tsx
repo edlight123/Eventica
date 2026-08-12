@@ -50,17 +50,32 @@ export default function StripeOnboardingScreen() {
   // over — the native component can fire onExit after we've already left.
   const closedRef = useRef(false)
   const fallbackRef = useRef(false)
+  // Watchdog: Stripe's embedded page fires onLoaderStart when content is
+  // actually visible. A tester sat on an infinite spinner when the component
+  // initialized but its inner page never came up (browser repro of the same
+  // init contract works, so the stall is device-side) — never leave the
+  // organizer stuck; fail over to the hosted flow instead.
+  const watchdogRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const clearWatchdog = useCallback(() => {
+    if (watchdogRef.current) {
+      clearTimeout(watchdogRef.current)
+      watchdogRef.current = null
+    }
+  }, [])
 
   const closeOnce = useCallback(() => {
     if (closedRef.current) return
     closedRef.current = true
+    clearWatchdog()
     navigation.goBack()
-  }, [navigation])
+  }, [clearWatchdog, navigation])
 
   // Hosted account link in the existing WebView — the pre-embedded flow.
   const fallbackToHosted = useCallback(async () => {
     if (fallbackRef.current || closedRef.current) return
     fallbackRef.current = true
+    clearWatchdog()
     try {
       const res = await backendJson<{ url?: string }>('/api/organizer/stripe/connect', {
         method: 'POST',
@@ -75,7 +90,7 @@ export default function StripeOnboardingScreen() {
       // fall through to plain close
     }
     closeOnce()
-  }, [accountLocation, closeOnce, navigation])
+  }, [accountLocation, clearWatchdog, closeOnce, navigation])
 
   useEffect(() => {
     let cancelled = false
@@ -124,14 +139,18 @@ export default function StripeOnboardingScreen() {
           } as any,
         })
         setConnectInstance(instance)
+        // Content must announce itself (onLoaderStart) within this window or
+        // we hand the organizer to the hosted flow instead of a dead spinner.
+        watchdogRef.current = setTimeout(() => void fallbackToHosted(), 15000)
       } catch {
         if (!cancelled) void fallbackToHosted()
       }
     })()
     return () => {
       cancelled = true
+      clearWatchdog()
     }
-  }, [accountLocation, fallbackToHosted])
+  }, [accountLocation, clearWatchdog, fallbackToHosted])
 
   const styles = getStyles(colors)
 
@@ -169,6 +188,7 @@ export default function StripeOnboardingScreen() {
           <ConnectAccountOnboarding
             title={t('screens.stripeConnect.title')}
             onExit={closeOnce}
+            onLoaderStart={clearWatchdog}
             onLoadError={() => void fallbackToHosted()}
           />
         </ConnectComponentsProvider>
