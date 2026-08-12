@@ -71,6 +71,7 @@ import NotificationsScreen from '../screens/NotificationsScreen';
 import ConnectionsScreen from '../screens/ConnectionsScreen';
 import PaymentWebViewScreen from '../screens/PaymentWebViewScreen';
 import StripeConnectWebViewScreen from '../screens/StripeConnectWebViewScreen';
+import StripeOnboardingScreen from '../screens/organizer/StripeOnboardingScreen';
 import InAppWebViewScreen from '../screens/InAppWebViewScreen';
 import FirstRunWelcome from '../components/FirstRunWelcome';
 import { useI18n } from '../contexts/I18nContext';
@@ -97,6 +98,7 @@ export type RootStackParamList = {
   ContentPage: { slug: string; title?: string };
   PaymentWebView: { url: string; title?: string; authToken?: string | null; eventId?: string };
   StripeConnectWebView: { url: string; authToken?: string | null };
+  StripeOnboarding: { accountLocation?: 'united_states' | 'canada' | 'france' } | undefined;
   InAppWebView: { url: string; title?: string };
   EventDetail: { eventId: string };
   // Either `category` (per-category listing) or `feed` (one of Home's curated
@@ -826,6 +828,7 @@ export default function AppNavigator() {
               options={{ headerShown: false }}
             />
             <Stack.Screen name="StripeConnectWebView" component={StripeConnectWebViewScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="StripeOnboarding" component={StripeOnboardingScreen} options={{ headerShown: false }} />
             <Stack.Screen
               name="InAppWebView"
               component={InAppWebViewScreen}

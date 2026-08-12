@@ -18,7 +18,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext'
 import { useI18n } from '../../contexts/I18nContext'
-import { auth } from '../../config/firebase';
 import { backendFetch, backendJson } from '../../lib/api/backend'
 import { getVerificationRequest } from '../../lib/verification'
 import { useLocaleFormat } from '../../lib/format'
@@ -411,24 +410,14 @@ export default function OrganizerPayoutSettingsScreenV2() {
   // diaspora organizer declare their country and start Stripe onboarding, which
   // creates the connected account the checkout destination-charge path pays into.
   const startStripeConnect = useCallback(
-    async (accountLocation: 'united_states' | 'canada' | 'france') => {
-      try {
-        const res = await backendJson<{ url?: string; embedded?: boolean }>('/api/organizer/stripe/connect', {
-          method: 'POST',
-          // embedded: onboarding renders in OUR page (Connect embedded
-          // components) inside the WebView, instead of connect.stripe.com.
-          body: JSON.stringify({ accountLocation, embedded: true }),
-        })
-        if (res?.url) {
-          navigation.navigate('StripeConnectWebView', { url: res.url, authToken: res.embedded ? await auth.currentUser?.getIdToken() : null })
-        } else {
-          showAlert(t('common.error'), t('organizerPayoutSettings.stripeSetup.error'))
-        }
-      } catch (e: any) {
-        showAlert(t('common.error'), e?.message || t('organizerPayoutSettings.stripeSetup.error'))
-      }
+    (accountLocation: 'united_states' | 'canada' | 'france') => {
+      // Native Stripe onboarding (RN SDK embedded component). The screen owns
+      // account creation, session minting, and the hosted-flow fallback. The
+      // plain-WebView approach hung: Express onboarding needs Stripe user
+      // authentication popups that react-native-webview can't open.
+      navigation.navigate('StripeOnboarding', { accountLocation })
     },
-    [navigation, t]
+    [navigation]
   )
 
   const handleAddStripe = useCallback(() => {

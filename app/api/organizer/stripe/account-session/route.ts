@@ -56,7 +56,12 @@ export async function POST() {
       },
     })
 
-    return NextResponse.json({ clientSecret: session.client_secret })
+    return NextResponse.json({
+      clientSecret: session.client_secret,
+      // The mobile RN SDK initializes its Connect instance client-side and has
+      // no env plumbing for this; it's a publishable (public) key by design.
+      publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || null,
+    })
   } catch (error: any) {
     console.error('account-session failed', error)
     return NextResponse.json(
