@@ -117,6 +117,19 @@ export async function POST(request: NextRequest) {
     const refreshUrl = `${appUrl}/organizer/settings/payouts?stripe=refresh`
     const returnUrl = `${appUrl}/organizer/settings/payouts?stripe=return`
 
+    // Embedded mode: the account bootstrap above is identical, but onboarding
+    // renders in OUR page (Connect embedded components) instead of a
+    // stripe.com-hosted account link. The mobile WebView and the web dashboard
+    // both load this URL; completion redirects to the same returnUrl the
+    // hosted flow used, so existing completion detection works unchanged.
+    if (body?.embedded === true) {
+      return NextResponse.json({
+        url: `${appUrl}/organizer/onboarding`,
+        stripeAccountId,
+        embedded: true,
+      })
+    }
+
     const link = await stripe.accountLinks.create({
       account: stripeAccountId,
       refresh_url: refreshUrl,

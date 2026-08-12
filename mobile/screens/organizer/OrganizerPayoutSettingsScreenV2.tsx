@@ -18,6 +18,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext'
 import { useI18n } from '../../contexts/I18nContext'
+import { auth } from '../../config/firebase';
 import { backendFetch, backendJson } from '../../lib/api/backend'
 import { getVerificationRequest } from '../../lib/verification'
 import { useLocaleFormat } from '../../lib/format'
@@ -412,12 +413,14 @@ export default function OrganizerPayoutSettingsScreenV2() {
   const startStripeConnect = useCallback(
     async (accountLocation: 'united_states' | 'canada' | 'france') => {
       try {
-        const res = await backendJson<{ url?: string }>('/api/organizer/stripe/connect', {
+        const res = await backendJson<{ url?: string; embedded?: boolean }>('/api/organizer/stripe/connect', {
           method: 'POST',
-          body: JSON.stringify({ accountLocation }),
+          // embedded: onboarding renders in OUR page (Connect embedded
+          // components) inside the WebView, instead of connect.stripe.com.
+          body: JSON.stringify({ accountLocation, embedded: true }),
         })
         if (res?.url) {
-          navigation.navigate('StripeConnectWebView', { url: res.url })
+          navigation.navigate('StripeConnectWebView', { url: res.url, authToken: res.embedded ? await auth.currentUser?.getIdToken() : null })
         } else {
           showAlert(t('common.error'), t('organizerPayoutSettings.stripeSetup.error'))
         }

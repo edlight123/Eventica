@@ -15,7 +15,7 @@ import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navig
 import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore'
 
 import { useTheme } from '../../contexts/ThemeContext';
-import { db } from '../../config/firebase'
+import { auth, db } from '../../config/firebase'
 import { useAuth } from '../../contexts/AuthContext'
 import { useI18n } from '../../contexts/I18nContext'
 import { backendFetch, backendJson } from '../../lib/api/backend'
@@ -387,11 +387,13 @@ export default function OrganizerEventEarningsScreen() {
             text: t('organizerEarnings.stripeConnectRequired.cta'),
             onPress: async () => {
               try {
-                const res = await backendJson<{ url?: string }>('/api/organizer/stripe/connect', {
+                const res = await backendJson<{ url?: string; embedded?: boolean }>('/api/organizer/stripe/connect', {
                   method: 'POST',
+                  // embedded: our own onboarding page inside the WebView.
+                  body: JSON.stringify({ embedded: true }),
                 })
                 if (res?.url) {
-                  navigation.navigate('StripeConnectWebView', { url: res.url })
+                  navigation.navigate('StripeConnectWebView', { url: res.url, authToken: res.embedded ? await auth.currentUser?.getIdToken() : null })
                 } else {
                   showAlert(t('common.error'), t('organizerEarnings.errors.loadFailed'))
                 }

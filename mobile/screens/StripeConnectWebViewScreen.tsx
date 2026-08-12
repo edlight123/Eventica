@@ -13,6 +13,9 @@ import { radius } from '../theme/tokens';
 
 type Params = {
   url: string
+  /** Bearer for the EMBEDDED onboarding page on our own domain. Never sent to
+      stripe.com hosts — the hosted flow's account-link URL is its own auth. */
+  authToken?: string | null
 }
 
 export default function StripeConnectWebViewScreen() {
@@ -24,7 +27,19 @@ export default function StripeConnectWebViewScreen() {
   const route = useRoute<any>()
   const insets = useSafeAreaInsets()
 
-  const { url } = (route.params || {}) as Params
+  const { url, authToken } = (route.params || {}) as Params
+
+  // Header injection is restricted to our own site: the embedded onboarding
+  // page authenticates its account-session calls with this token. Stripe-hosted
+  // account links must never receive our Firebase token.
+  const isOwnHost = useMemo(() => {
+    try {
+      const h = new URL(url).host.replace(/^www\./, '')
+      return h === 'tikem.co' || h.endsWith('.tikem.co')
+    } catch {
+      return false
+    }
+  }, [url])
   const [loading, setLoading] = useState(true)
   const [failed, setFailed] = useState(false)
   // Bumping this remounts the WebView, which re-requests the ORIGINAL account
@@ -181,7 +196,10 @@ export default function StripeConnectWebViewScreen() {
 
       <WebView
         key={reloadKey}
-        source={{ uri: url }}
+        source={{
+          uri: url,
+          headers: authToken && isOwnHost ? { Authorization: `Bearer ${authToken}` } : undefined,
+        }}
         onLoadStart={(event) => {
           const next = event?.nativeEvent?.url
           if (next) mainFrameUrl.current = next

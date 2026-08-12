@@ -96,7 +96,7 @@ export type RootStackParamList = {
   Subscriptions: undefined;
   ContentPage: { slug: string; title?: string };
   PaymentWebView: { url: string; title?: string; authToken?: string | null; eventId?: string };
-  StripeConnectWebView: { url: string };
+  StripeConnectWebView: { url: string; authToken?: string | null };
   InAppWebView: { url: string; title?: string };
   EventDetail: { eventId: string };
   // Either `category` (per-category listing) or `feed` (one of Home's curated
