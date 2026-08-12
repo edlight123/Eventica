@@ -98,7 +98,7 @@ export type RootStackParamList = {
   ContentPage: { slug: string; title?: string };
   PaymentWebView: { url: string; title?: string; authToken?: string | null; eventId?: string };
   StripeConnectWebView: { url: string; authToken?: string | null };
-  StripeOnboarding: { accountLocation?: 'united_states' | 'canada' | 'france'; tryNative?: boolean } | undefined;
+  StripeOnboarding: { accountLocation?: 'united_states' | 'canada' | 'france'; hostedOnly?: boolean } | undefined;
   InAppWebView: { url: string; title?: string };
   EventDetail: { eventId: string };
   // Either `category` (per-category listing) or `feed` (one of Home's curated

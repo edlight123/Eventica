@@ -4,7 +4,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
 import {
-  ConnectAccountOnboarding,
   ConnectComponentsProvider,
   loadConnectAndInitialize,
 } from '@stripe/stripe-react-native'
@@ -13,28 +12,36 @@ import { useTheme } from '../../contexts/ThemeContext'
 import { useI18n } from '../../contexts/I18nContext'
 import { backendJson } from '../../lib/api/backend'
 
+// DEEP import of the SDK's embedded-webview building block. On iOS the public
+// ConnectAccountOnboarding wraps this in NativeConnectAccountOnboardingView, a
+// native container inside which the content never painted on device (loader
+// cleared, screen stayed black; the same webview contract works in a browser).
+// Composing the block directly — the way the SDK itself renders it on Android,
+// inside a plain RN view — bypasses that container while keeping the SDK's
+// popup handling (openAuthenticatedWebView) intact. Pinned to the SDK version
+// in package.json; revisit on any @stripe/stripe-react-native upgrade.
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { EmbeddedComponent } = require('@stripe/stripe-react-native/lib/module/connect/EmbeddedComponent') as {
+  EmbeddedComponent: React.ComponentType<any>
+}
+
 type Params = {
   /** Forwarded to /connect for first-time account creation. */
   accountLocation?: 'united_states' | 'canada' | 'france'
-  /** Debug switch: attempt the RN SDK's native embedded component first. */
-  tryNative?: boolean
+  /** Debug escape hatch: skip the embedded attempt, go straight to hosted. */
+  hostedOnly?: boolean
 }
 
 /**
- * Stripe Connect onboarding via the RN SDK's NATIVE embedded component.
- *
- * The previous approach — our /organizer/onboarding web page inside a plain
- * WebView — hung on an infinite spinner: Express accounts require Stripe user
- * authentication, which the web embedded component presents in a POPUP, and
- * react-native-webview silently drops window.open. Stripe's own
- * ConnectAccountOnboarding manages those "necessary popups" itself, so the
- * flow completes while the organizer stays inside Tikèm.
+ * Stripe Connect onboarding, embedded — Stripe's account-onboarding webview
+ * on our own dark canvas, with the SDK handling the "necessary popups"
+ * (Stripe user authentication) that a plain WebView drops.
  *
  * Flow: POST /connect {embedded:true} (creates the Express account if needed,
  * we ignore the returned page URL) → POST /account-session for the client
- * secret + publishable key → render the native component. Any failure falls
- * back to the Stripe-HOSTED account link in the existing WebView screen,
- * which predates the embedded experiment and is known to work.
+ * secret + publishable key → render the embedded component. Any failure — or
+ * content that never announces itself — falls back to the Stripe-HOSTED
+ * account link in the existing WebView screen, which is known to work.
  */
 export default function StripeOnboardingScreen() {
   const { colors } = useTheme()
@@ -43,7 +50,7 @@ export default function StripeOnboardingScreen() {
   const route = useRoute<any>()
   const insets = useSafeAreaInsets()
 
-  const { accountLocation, tryNative } = (route.params || {}) as Params
+  const { accountLocation, hostedOnly } = (route.params || {}) as Params
 
   const [connectInstance, setConnectInstance] = useState<ReturnType<
     typeof loadConnectAndInitialize
@@ -97,13 +104,7 @@ export default function StripeOnboardingScreen() {
   useEffect(() => {
     let cancelled = false
     ;(async () => {
-      // Hosted-first: on the tester's device the native component's content
-      // never became visible ("no spins but still nada" — black screen even
-      // after its loader claimed to start), while the hosted account link
-      // completed onboarding end to end. Until the native rendering issue is
-      // isolated, organizers go straight to the flow that works; pass
-      // tryNative to exercise the embedded path when debugging.
-      if (!tryNative) {
+      if (hostedOnly) {
         void fallbackToHosted()
         return
       }
@@ -162,49 +163,58 @@ export default function StripeOnboardingScreen() {
       cancelled = true
       clearWatchdog()
     }
-  }, [accountLocation, clearWatchdog, fallbackToHosted, tryNative])
+  }, [accountLocation, clearWatchdog, fallbackToHosted, hostedOnly])
 
   const styles = getStyles(colors)
+  // The SDK's inner spinner hid while content stayed invisible before, so we
+  // keep our own overlay up until the page truly announces content.
+  const [contentVisible, setContentVisible] = useState(false)
 
-  if (!connectInstance) {
-    // Bootstrap state: account + session mint in flight. Keep a close
-    // affordance so a slow network never traps the organizer here.
-    return (
-      <View style={[styles.container, { paddingTop: insets.top + 6 }]}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={closeOnce}
-            style={styles.headerButton}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            accessibilityRole="button"
-            accessibilityLabel="Close"
-          >
-            <Ionicons name="close" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle} numberOfLines={1}>
-            {t('screens.stripeConnect.title')}
-          </Text>
-          <View style={styles.headerButton} />
-        </View>
-        <View style={styles.loadingBody}>
-          <ActivityIndicator size="large" color={colors.textSecondary} />
-        </View>
-      </View>
-    )
-  }
+  const handleLoaderStart = useCallback(() => {
+    clearWatchdog()
+    setContentVisible(true)
+  }, [clearWatchdog])
 
   return (
-    <View style={styles.container}>
-      <NativeOnboardingBoundary onError={fallbackToHosted}>
-        <ConnectComponentsProvider connectInstance={connectInstance}>
-          <ConnectAccountOnboarding
-            title={t('screens.stripeConnect.title')}
-            onExit={closeOnce}
-            onLoaderStart={clearWatchdog}
-            onLoadError={() => void fallbackToHosted()}
-          />
-        </ConnectComponentsProvider>
-      </NativeOnboardingBoundary>
+    <View style={[styles.container, { paddingTop: insets.top + 6 }]}>
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={closeOnce}
+          style={styles.headerButton}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          accessibilityRole="button"
+          accessibilityLabel="Close"
+        >
+          <Ionicons name="close" size={24} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle} numberOfLines={1}>
+          {t('screens.stripeConnect.title')}
+        </Text>
+        <View style={styles.headerButton} />
+      </View>
+
+      <View style={styles.body}>
+        {connectInstance ? (
+          <NativeOnboardingBoundary onError={fallbackToHosted}>
+            <ConnectComponentsProvider connectInstance={connectInstance}>
+              <EmbeddedComponent
+                component="account-onboarding"
+                componentProps={{}}
+                callbacks={{ onExit: closeOnce, onCloseWebView: closeOnce }}
+                onLoaderStart={handleLoaderStart}
+                onLoadError={() => void fallbackToHosted()}
+                style={styles.embedded}
+              />
+            </ConnectComponentsProvider>
+          </NativeOnboardingBoundary>
+        ) : null}
+
+        {!contentVisible ? (
+          <View style={styles.loadingOverlay} pointerEvents="none">
+            <ActivityIndicator size="large" color={colors.textSecondary} />
+          </View>
+        ) : null}
+      </View>
     </View>
   )
 }
@@ -260,9 +270,16 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       fontWeight: '700',
       color: colors.text,
     },
-    loadingBody: {
+    body: {
       flex: 1,
+    },
+    embedded: {
+      flex: 1,
+    },
+    loadingOverlay: {
+      ...StyleSheet.absoluteFillObject,
       alignItems: 'center',
       justifyContent: 'center',
+      backgroundColor: colors.background,
     },
   })
