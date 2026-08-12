@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Navbar from '@/components/Navbar'
 import MobileNavWrapper from '@/components/MobileNavWrapper'
 import { OrganizerTopNav } from '@/components/organizer/OrganizerTopNav'
+import OrganizerChrome from '@/components/organizer/OrganizerChrome'
 import { isAdmin } from '@/lib/admin'
 import { adminDb } from '@/lib/firebase/admin'
 
@@ -52,11 +53,12 @@ export default async function OrganizerLayout({
   // If not an organizer, show upgrade prompt (handled by each page)
   if (user.role !== 'organizer') {
     return (
-      <div className="surface-dark min-h-screen pb-mobile-nav">
-        <Navbar user={user} isAdmin={isAdmin(user?.email)} />
+      <OrganizerChrome
+        chromeTop={<Navbar user={user} isAdmin={isAdmin(user?.email)} />}
+        chromeBottom={<MobileNavWrapper user={user} isAdmin={isAdmin(user?.email)} />}
+      >
         {children}
-        <MobileNavWrapper user={user} isAdmin={isAdmin(user?.email)} />
-      </div>
+      </OrganizerChrome>
     )
   }
 
@@ -66,19 +68,18 @@ export default async function OrganizerLayout({
   const accountInitial = (user.full_name || user.email || 'U').trim().charAt(0).toUpperCase()
 
   return (
-    <div className="surface-dark min-h-screen">
-      {/* Single Posh-style top bar (replaces the global site navbar in /organizer) */}
-      <OrganizerTopNav
-        draftEvents={draftEvents}
-        pendingPayouts={pendingPayouts}
-        accountInitial={accountInitial}
-      />
-
-      {/* Main Content */}
-      <main className="pb-mobile-nav">{children}</main>
-
-      {/* Mobile Bottom Navigation */}
-      <MobileNavWrapper user={user} isAdmin={isAdmin(user?.email)} />
-    </div>
+    <OrganizerChrome
+      chromeTop={
+        // Single Posh-style top bar (replaces the global site navbar in /organizer)
+        <OrganizerTopNav
+          draftEvents={draftEvents}
+          pendingPayouts={pendingPayouts}
+          accountInitial={accountInitial}
+        />
+      }
+      chromeBottom={<MobileNavWrapper user={user} isAdmin={isAdmin(user?.email)} />}
+    >
+      {children}
+    </OrganizerChrome>
   )
 }
