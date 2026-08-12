@@ -35,7 +35,14 @@ export default function StripeConnectWebViewScreen() {
   const isOwnHostUrl = useCallback((value: string) => {
     try {
       const h = new URL(value).host.replace(/^www\./, '')
-      return h === 'tikem.co' || h.endsWith('.tikem.co')
+      return (
+        h === 'tikem.co' ||
+        h.endsWith('.tikem.co') ||
+        // Our own Vercel aliases of the same deployment — the EAS env has
+        // pointed the app at these before, and the token is safe with them.
+        h === 'jointikem.vercel.app' ||
+        h === 'eventhaiti.vercel.app'
+      )
     } catch {
       return false
     }

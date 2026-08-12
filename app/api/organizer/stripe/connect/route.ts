@@ -131,8 +131,20 @@ export async function POST(request: NextRequest) {
       // login screen. The host that just authenticated this API call is proven
       // redirect-free for this client.
       const first = (value: string | null) => String(value || '').split(',')[0].trim()
-      const requestHost =
+      let requestHost =
         first(request.headers.get('x-forwarded-host')) || first(request.headers.get('host'))
+      // In production, canonicalize alias hosts to www: the mobile WebView only
+      // injects its Bearer token for tikem.co hosts, so a *.vercel.app alias or
+      // the apex here means an unauthenticated page (the EAS env once pointed
+      // the app at eventhaiti.vercel.app, whose 307 landed everything on
+      // jointikem.vercel.app). Preview deployments keep their own host — those
+      // flows run in a browser on the session cookie.
+      if (
+        process.env.VERCEL_ENV === 'production' &&
+        (requestHost === 'tikem.co' || requestHost.endsWith('.vercel.app'))
+      ) {
+        requestHost = 'www.tikem.co'
+      }
       const requestProto =
         first(request.headers.get('x-forwarded-proto')) ||
         (request.nextUrl.protocol ? request.nextUrl.protocol.replace(':', '') : 'https')
