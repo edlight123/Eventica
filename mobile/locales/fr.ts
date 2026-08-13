@@ -1214,6 +1214,18 @@ export default {
       france: 'France',
     },
     methodsSectionTitle: 'Moyens de paiement',
+    regions: {
+      haitiTitle: 'Haïti',
+      haitiBlurb: 'Tikèm vérifie votre identité. Versé sur Sogebank, Unibank ou MonCash en HTG.',
+      internationalTitle: 'États-Unis, Canada et France',
+      internationalBlurb: 'Stripe vérifie votre identité. Versé sur votre banque en USD, CAD ou EUR.',
+      statusReady: 'Prêt',
+      statusPending: 'Action requise',
+      statusNone: 'Non configuré',
+      emptyHaiti: 'Aucun moyen de paiement en Haïti.',
+      emptyInternational: 'Non configuré pour les événements hors d’Haïti.',
+      setUp: 'Configurer',
+    },
     add: 'Ajouter',
     emptyMethods: {
       title: 'Aucun moyen de paiement',
@@ -1685,6 +1697,10 @@ export default {
       capacity: 'Saisissez une limite',
       fixErrors: 'Veuillez corriger {n} champ(s) pour continuer.',
     },
+      payoutRegime: {
+        haiti: 'Versé en HTG sur Sogebank, Unibank ou MonCash. Tikèm vérifie votre identité — à configurer dans Moyens de paiement.',
+        international: 'Versé via Stripe sur votre banque. Cela demande un profil de paiement distinct de celui d’Haïti — à configurer dans Moyens de paiement.',
+      },
     canvas: {
       flyerTitle: 'Concevez votre page d’événement',
       uploadFlyer: 'Ajouter une affiche',

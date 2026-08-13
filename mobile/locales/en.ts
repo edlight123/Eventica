@@ -527,6 +527,10 @@ export default {
       capacity: 'Enter a guest cap',
       fixErrors: 'Please fix {n} field(s) to continue.',
     },
+      payoutRegime: {
+        haiti: 'Paid out in HTG to Sogebank, Unibank or MonCash. Tikèm verifies you — set it up under Payout Settings.',
+        international: 'Paid out through Stripe to your bank. This needs a separate payout profile from Haiti — set it up under Payout Settings.',
+      },
     canvas: {
       flyerTitle: 'Design your event page',
       uploadFlyer: 'Upload Flyer',
@@ -1530,6 +1534,18 @@ export default {
       france: 'France',
     },
     methodsSectionTitle: 'Payout Methods',
+    regions: {
+      haitiTitle: 'Haiti',
+      haitiBlurb: 'Tikèm verifies you. Paid to Sogebank, Unibank or MonCash in HTG.',
+      internationalTitle: 'United States, Canada & France',
+      internationalBlurb: 'Stripe verifies you. Paid to your bank in USD, CAD or EUR.',
+      statusReady: 'Ready',
+      statusPending: 'Action needed',
+      statusNone: 'Not set up',
+      emptyHaiti: 'No Haiti payout method yet.',
+      emptyInternational: 'Not set up for events outside Haiti.',
+      setUp: 'Set up',
+    },
     add: 'Add',
     emptyMethods: {
       title: 'No Payout Methods',

@@ -1212,6 +1212,18 @@ export default {
       france: 'Frans',
     },
     methodsSectionTitle: 'Metòd peman',
+    regions: {
+      haitiTitle: 'Ayiti',
+      haitiBlurb: 'Tikèm verifye ou. Yo peye w sou Sogebank, Unibank oswa MonCash an HTG.',
+      internationalTitle: 'Etazini, Kanada ak Frans',
+      internationalBlurb: 'Stripe verifye ou. Yo peye w nan bank ou an USD, CAD oswa EUR.',
+      statusReady: 'Pare',
+      statusPending: 'Ou gen bagay pou fè',
+      statusNone: 'Poko konfigire',
+      emptyHaiti: 'Poko gen metòd peman pou Ayiti.',
+      emptyInternational: 'Poko konfigire pou evènman deyò Ayiti.',
+      setUp: 'Konfigire',
+    },
     add: 'Ajoute',
     emptyMethods: {
       title: 'Pa gen metòd peman',
@@ -1683,6 +1695,10 @@ export default {
       capacity: 'Antre yon limit envite',
       fixErrors: 'Tanpri korije {n} chan pou w kontinye.',
     },
+      payoutRegime: {
+        haiti: 'Yo peye w an HTG sou Sogebank, Unibank oswa MonCash. Tikèm verifye ou — konfigire l nan Metòd peman.',
+        international: 'Yo peye w atravè Stripe nan bank ou. Sa mande yon pwofil peman apa de sa Ayiti a — konfigire l nan Metòd peman.',
+      },
     canvas: {
       flyerTitle: 'Konsevwa paj evènman ou',
       uploadFlyer: 'Mete afich',

@@ -87,6 +87,50 @@ const payoutCacheKey = (uid: string) => `payout_settings_cache_${uid}`
 // true to bring it back. Mirrors NATCASH_ENABLED in components/PaymentModal.tsx.
 const NATCASH_ENABLED = false
 
+/**
+ * Header for one payout REGION. Names the region, says in one line who does the
+ * verifying and in what currency, and carries a dot+label status — the two
+ * regimes (Tikèm-run KYC for Haiti, Stripe for US/CA/FR) were previously
+ * invisible in a flat list of methods.
+ */
+function RegionSection({
+  colors,
+  title,
+  blurb,
+  status,
+  t,
+}: {
+  colors: ReturnType<typeof useTheme>['colors']
+  title: string
+  blurb: string
+  status: 'ready' | 'pending' | 'none'
+  t: (key: string) => string
+}) {
+  const dotColor =
+    status === 'ready' ? colors.success ?? '#14B8A6' : status === 'pending' ? colors.warning ?? '#F5A524' : colors.textSecondary
+  const label =
+    status === 'ready'
+      ? t('organizerPayoutSettings.regions.statusReady')
+      : status === 'pending'
+        ? t('organizerPayoutSettings.regions.statusPending')
+        : t('organizerPayoutSettings.regions.statusNone')
+
+  return (
+    <View style={{ marginTop: 22, marginBottom: 10 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <Text style={{ fontSize: 15, fontWeight: '700', color: colors.text, flex: 1 }} numberOfLines={1}>
+          {title}
+        </Text>
+        <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: dotColor }} />
+        <Text style={{ fontSize: 12, color: colors.textSecondary }}>{label}</Text>
+      </View>
+      <Text style={{ fontSize: 12.5, lineHeight: 18, color: colors.textSecondary, marginTop: 4 }}>
+        {blurb}
+      </Text>
+    </View>
+  )
+}
+
 export default function OrganizerPayoutSettingsScreenV2() {
   const { colors } = useTheme();
   const styles = useMemo(() => getStyles(colors), [colors]);
@@ -736,6 +780,22 @@ export default function OrganizerPayoutSettingsScreenV2() {
               </TouchableOpacity>
             </View>
 
+            {/* Two payout REGIONS, not one flat list. Which one an event pays
+                through is decided by the event's country
+                (getRequiredPayoutProfileIdForEventCountry, enforced server-side
+                at publish and withdrawal), so the organizer needs to see that
+                split — and who verifies them on each side — before they build
+                an event they can't get paid for. */}
+            <RegionSection
+              colors={colors}
+              title={t('organizerPayoutSettings.regions.internationalTitle')}
+              blurb={t('organizerPayoutSettings.regions.internationalBlurb')}
+              status={
+                stripeProfile?.connected ? (stripeProfile.verified ? 'ready' : 'pending') : 'none'
+              }
+              t={t}
+            />
+
             {stripeProfile?.connected ? (
               <View style={styles.destinationCard}>
                 <View style={styles.destinationHeader}>
@@ -781,6 +841,28 @@ export default function OrganizerPayoutSettingsScreenV2() {
                   </Text>
                 </TouchableOpacity>
               </View>
+            ) : (
+              <Text style={styles.regionEmpty}>
+                {t('organizerPayoutSettings.regions.emptyInternational')}
+              </Text>
+            )}
+
+            <RegionSection
+              colors={colors}
+              title={t('organizerPayoutSettings.regions.haitiTitle')}
+              blurb={t('organizerPayoutSettings.regions.haitiBlurb')}
+              status={
+                destinations.length === 0
+                  ? 'none'
+                  : destinations.some((d) => d.verificationStatus === 'verified')
+                    ? 'ready'
+                    : 'pending'
+              }
+              t={t}
+            />
+
+            {destinations.length === 0 ? (
+              <Text style={styles.regionEmpty}>{t('organizerPayoutSettings.regions.emptyHaiti')}</Text>
             ) : null}
 
             {destinations.map((dest) => {
@@ -1282,6 +1364,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 18,
     fontWeight: '700',
     color: colors.text,
+  },
+  regionEmpty: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    paddingVertical: 10,
   },
   addButton: {
     flexDirection: 'row',

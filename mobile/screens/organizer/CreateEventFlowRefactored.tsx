@@ -1547,6 +1547,16 @@ export default function CreateEventFlowRefactored() {
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
+                {/* Which payout regime this country implies, said at the moment
+                    of choice. The rule is enforced server-side at publish
+                    (getRequiredPayoutProfileIdForEventCountry), so an organizer
+                    who only holds the other region's profile would otherwise
+                    build a whole event before discovering it can't be paid. */}
+                <Text style={styles.payoutRegimeNote}>
+                  {isHaiti
+                    ? t('organizerCreateEventFlow.payoutRegime.haiti')
+                    : t('organizerCreateEventFlow.payoutRegime.international')}
+                </Text>
               </View>
 
               {isHaiti ? (
@@ -2651,6 +2661,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
   chipScroll: {
     gap: 8,
     paddingVertical: 2,
+  },
+  payoutRegimeNote: {
+    fontSize: 12,
+    lineHeight: 17,
+    color: colors.textSecondary,
+    marginTop: 8,
   },
   chip: {
     paddingHorizontal: 14,
