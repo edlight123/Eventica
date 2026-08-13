@@ -61,7 +61,7 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
   const [showWhenPicker, setShowWhenPicker] = useState(false);
   const [showPricePicker, setShowPricePicker] = useState(false);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
-  const { userCountry, activeCity, activeMetro, setActiveCity } = useFilters();
+  const { userCountry, countryResolved, activeCity, activeMetro, setActiveCity } = useFilters();
   const locationCopy = useActiveLocationCopy();
   const currencyCode = CURRENCY_BY_COUNTRY[userCountry]?.code || 'HTG';
   const priceCeiling = currencyCode === 'HTG' || currencyCode === 'DOP' ? 10000 : 200;
@@ -76,15 +76,25 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
         setLoading(false);
         return;
       }
+      // The country is now part of the query, so wait for the stored/IP-resolved
+      // value instead of fetching the default market and correcting after.
+      if (!countryResolved) return;
       try {
         setLoading(true);
-        // Single equality filter only — avoids a Firestore composite index. A
-        // feed page has no server-side predicate: its rule is applied client
-        // side by applyHomeFeed, the SAME function that builds the Home rail.
+        // Country is filtered SERVER side: this page has no limit, so without it
+        // every "view all" tap downloaded the whole catalogue to throw away the
+        // other markets. A feed page still has no feed predicate — its rule is
+        // applied client side by applyHomeFeed, the SAME function that builds the
+        // Home rail.
+        const country = (userCountry || 'HT').toUpperCase();
         const snap = await getDocs(
           category
-            ? query(collection(db, 'events'), where('category', '==', category))
-            : query(collection(db, 'events'))
+            ? query(
+                collection(db, 'events'),
+                where('country', '==', country),
+                where('category', '==', category)
+              )
+            : query(collection(db, 'events'), where('country', '==', country))
         );
         const now = new Date();
         const rows = snap.docs
@@ -133,7 +143,7 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
     };
 
     load();
-  }, [category, feed, city, userCountry, activeMetro?.id]);
+  }, [category, feed, city, userCountry, countryResolved, activeMetro?.id]);
 
   const { start: dStart, end: dEnd } = getDateRange(dateFilter, pickedDate);
   const visibleEvents = events.filter((e) => {

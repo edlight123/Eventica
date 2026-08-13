@@ -12,9 +12,8 @@ import {
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeft, Search as SearchIcon, X, Building2, User, CloudOff } from 'lucide-react-native';
-import { collection, query, where, getDocs, limit } from 'firebase/firestore';
-import { db } from '../config/firebase';
 import { filterExploreEvents } from '../lib/api/events';
+import { fetchPublishedEventsForCountry } from '../lib/api/eventFeed';
 import { searchUsers, type UserSearchResult } from '../lib/api/social';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
@@ -65,7 +64,7 @@ function SearchResultsSkeleton() {
 export default function SearchScreen({ navigation }: any) {
   const { colors } = useTheme();
   const { t } = useI18n();
-  const { userCountry, activeMetro } = useFilters();
+  const { userCountry, countryResolved, activeMetro } = useFilters();
   const locationCopy = useActiveLocationCopy();
   const styles = getStyles(colors);
   const insets = useSafeAreaInsets();
@@ -87,33 +86,20 @@ export default function SearchScreen({ navigation }: any) {
   // "search all of Haiti" on an empty result — never automatically.
   const [searchWholeCountry, setSearchWholeCountry] = useState(false);
 
-  // Reuse the exact same published-events fetch the Discover feed relies on.
+  // The exact same published-events fetch Home and Discover use — one helper, so
+  // search can never be looking at a different catalogue than the feed.
   const loadEvents = useCallback(async () => {
+    // The country is a QUERY predicate now, so searching before it resolves
+    // would search the wrong market. Hold the skeleton until it is hydrated.
+    if (!countryResolved) return;
     setLoading(true);
     setError(false);
     try {
-      const q = query(
-        collection(db, 'events'),
-        where('is_published', '==', true),
-        limit(50)
-      );
-      const snapshot = await getDocs(q);
-      const eventsData = snapshot.docs.map((docSnap) => {
-        const data = docSnap.data();
-        let startDate = null;
-        if (data.start_datetime) {
-          if (typeof data.start_datetime.toDate === 'function') startDate = data.start_datetime.toDate();
-          else if (data.start_datetime.seconds) startDate = new Date(data.start_datetime.seconds * 1000);
-          else startDate = new Date(data.start_datetime);
-        }
-        let endDate = null;
-        if (data.end_datetime) {
-          if (typeof data.end_datetime.toDate === 'function') endDate = data.end_datetime.toDate();
-          else if (data.end_datetime.seconds) endDate = new Date(data.end_datetime.seconds * 1000);
-          else endDate = new Date(data.end_datetime);
-        }
-        return { id: docSnap.id, ...data, start_datetime: startDate, end_datetime: endDate };
-      });
+      // Country-scoped server-side. The old `limit(50)` with no location
+      // predicate made these 50 rows a location-blind sample: past ~50 published
+      // events a Miami search could be run against 50 Haitian events and come
+      // back empty while Miami events sat unfetched. See lib/api/eventFeed.ts.
+      const eventsData = await fetchPublishedEventsForCountry(userCountry);
 
       // Hide rejected + unlisted events, then future-only (same rules as Discover).
       const notRejected = (eventsData as any[]).filter((e) => e.rejected !== true);
@@ -133,7 +119,7 @@ export default function SearchScreen({ navigation }: any) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [userCountry, countryResolved]);
 
   useEffect(() => {
     loadEvents();

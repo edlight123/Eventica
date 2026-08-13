@@ -13,9 +13,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTabBarSpace } from '../hooks/useTabBarSpace';
 import { Search, SlidersHorizontal, Users, CloudOff, MapPin, ChevronDown } from 'lucide-react-native';
-import { collection, query, where, getDocs, limit, addDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { filterExploreEvents } from '../lib/api/events';
+import { fetchPublishedEventsForCountry } from '../lib/api/eventFeed';
 import { useTheme } from '../contexts/ThemeContext';
 import { radius } from '../theme/tokens';
 import EventFiltersSheet from '../components/EventFiltersSheet';
@@ -53,6 +54,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
     applyFiltersDirectly,
     resetFilters,
     userCountry,
+    countryResolved,
     activeCity,
     activeMetro,
     activeLocationLabel,
@@ -123,9 +125,14 @@ export default function DiscoverScreen({ navigation, route }: any) {
     extrapolate: 'clamp',
   });
 
+  // Hold the first fetch (the skeleton stays up) until the country is hydrated,
+  // and re-fetch when it changes: the country is a QUERY predicate now, so
+  // fetching with the locale-guessed placeholder would pull another market's
+  // catalogue entirely. Same rule as Home.
   useEffect(() => {
+    if (!countryResolved) return;
     fetchEvents();
-  }, []);
+  }, [userCountry, countryResolved]);
 
   // Listen for tab press to scroll to top and reset filters
   useEffect(() => {
@@ -188,51 +195,30 @@ export default function DiscoverScreen({ navigation, route }: any) {
   }, [allEvents, appliedFilters, searchQuery, selectedDate, pickedDate, selectedCategories, route?.params]);
 
   const fetchEvents = async () => {
+    // The country is a query predicate now — never fetch before it resolves.
+    // Pull to refresh can fire before hydration, so guard here as well as in
+    // the mount effect.
+    if (!countryResolved) {
+      setRefreshing(false);
+      return;
+    }
     setError(false);
     try {
-      const q = query(
-        collection(db, 'events'),
-        where('is_published', '==', true),
-        limit(50)
+      // Published events IN THE ACTIVE COUNTRY, server-side. `limit(50)` with no
+      // location predicate made these 50 rows a location-blind sample of the
+      // whole catalogue: past ~50 published events a Miami user could receive 50
+      // Haitian events, filter to Miami on the device, match none, and be told
+      // Miami is empty while Miami events sat unfetched. See lib/api/eventFeed.ts.
+      const eventsData = await fetchPublishedEventsForCountry(userCountry);
+      console.log(
+        '[DiscoverScreen] Fetched',
+        eventsData.length,
+        'published events in',
+        userCountry
       );
 
-      const snapshot = await getDocs(q);
-      console.log('[DiscoverScreen] Fetched', snapshot.docs.length, 'published events');
-      
-      const eventsData = snapshot.docs.map(doc => {
-        const data = doc.data();
-        
-        let startDate = null;
-        if (data.start_datetime) {
-          if (typeof data.start_datetime.toDate === 'function') {
-            startDate = data.start_datetime.toDate();
-          } else if (data.start_datetime.seconds) {
-            startDate = new Date(data.start_datetime.seconds * 1000);
-          } else {
-            startDate = new Date(data.start_datetime);
-          }
-        }
-        
-        let endDate = null;
-        if (data.end_datetime) {
-          if (typeof data.end_datetime.toDate === 'function') {
-            endDate = data.end_datetime.toDate();
-          } else if (data.end_datetime.seconds) {
-            endDate = new Date(data.end_datetime.seconds * 1000);
-          } else {
-            endDate = new Date(data.end_datetime);
-          }
-        }
-        
-        return {
-          id: doc.id,
-          ...data,
-          start_datetime: startDate,
-          end_datetime: endDate
-        };
-      });
-
-      // Sort client-side to avoid requiring a composite Firestore index.
+      // Sort client-side so the query needs no ORDERED composite index (the
+      // equality-only is_published + country index is enough).
       eventsData.sort((a, b) => {
         const aTime = a?.start_datetime ? new Date(a.start_datetime).getTime() : Number.POSITIVE_INFINITY
         const bTime = b?.start_datetime ? new Date(b.start_datetime).getTime() : Number.POSITIVE_INFINITY

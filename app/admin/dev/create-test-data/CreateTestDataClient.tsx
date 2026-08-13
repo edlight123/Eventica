@@ -279,6 +279,12 @@ export default function CreateTestDataClient() {
             id: eventId,
             organizer_id: userId,
             tickets_sold: 0,
+            // Every event doc must carry country, rejected and reports_count:
+            // the feed and the moderation tabs filter on them server-side, and
+            // Firestore drops documents missing a filtered field.
+            country: 'HT',
+            rejected: false,
+            reports_count: 0,
             created_at: serverTimestamp(),
             updated_at: serverTimestamp()
           }

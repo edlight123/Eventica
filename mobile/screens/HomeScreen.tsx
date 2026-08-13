@@ -11,9 +11,8 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTabBarSpace } from '../hooks/useTabBarSpace';
-import { collection, query, where, getDocs, limit } from 'firebase/firestore';
-import { db } from '../config/firebase';
 import { filterExploreEvents } from '../lib/api/events';
+import { fetchPublishedEventsForCountry } from '../lib/api/eventFeed';
 import { useI18n } from '../contexts/I18nContext';
 import { useFilters } from '../contexts/FiltersContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -122,52 +121,27 @@ export default function HomeScreen({ navigation }: any) {
   });
 
   const fetchEvents = async () => {
+    // The country is a query predicate now, so a fetch before it hydrates would
+    // pull the WRONG market (a Haiti phone in English (US) reports "US"). Pull
+    // to refresh / double tab press can fire early, so guard here too, not only
+    // in the mount effect.
+    if (!countryResolved) {
+      setRefreshing(false);
+      return;
+    }
     setError(false);
     try {
-      // Get all published events
-      const q = query(
-        collection(db, 'events'),
-        where('is_published', '==', true),
-        limit(50)
-      );
+      // Published events IN THE ACTIVE COUNTRY. The country is part of the
+      // QUERY, not a device-side filter: with `limit(50)` and no location
+      // predicate the 50 rows were a location-blind sample of the whole
+      // catalogue, so a Miami user could download 50 Haitian events, filter to
+      // Miami, match none, and be told Miami is empty while Miami events sat
+      // unfetched. Metro narrowing below stays client-side — inside one country
+      // the sample is a real sample. See lib/api/eventFeed.ts.
+      const eventsData: any[] = await fetchPublishedEventsForCountry(userCountry);
 
-      const snapshot = await getDocs(q);
-
-      const eventsData: any[] = snapshot.docs.map((doc) => {
-        const data = doc.data();
-
-        // Convert Firestore Timestamp to Date
-        let startDate = null;
-        if (data.start_datetime) {
-          if (typeof data.start_datetime.toDate === 'function') {
-            startDate = data.start_datetime.toDate();
-          } else if (data.start_datetime.seconds) {
-            startDate = new Date(data.start_datetime.seconds * 1000);
-          } else {
-            startDate = new Date(data.start_datetime);
-          }
-        }
-
-        let endDate = null;
-        if (data.end_datetime) {
-          if (typeof data.end_datetime.toDate === 'function') {
-            endDate = data.end_datetime.toDate();
-          } else if (data.end_datetime.seconds) {
-            endDate = new Date(data.end_datetime.seconds * 1000);
-          } else {
-            endDate = new Date(data.end_datetime);
-          }
-        }
-
-        return {
-          id: doc.id,
-          ...data,
-          start_datetime: startDate,
-          end_datetime: endDate,
-        };
-      });
-
-      // Sort client-side to avoid requiring a composite Firestore index.
+      // Sort client-side so the query needs no ORDERED composite index (the
+      // equality-only is_published + country index is enough).
       eventsData.sort((a: any, b: any) => {
         const aTime = a?.start_datetime ? new Date(a.start_datetime).getTime() : Number.POSITIVE_INFINITY;
         const bTime = b?.start_datetime ? new Date(b.start_datetime).getTime() : Number.POSITIVE_INFINITY;
@@ -204,6 +178,8 @@ export default function HomeScreen({ navigation }: any) {
       // used to hand a Miami user the whole world the moment Miami was quiet.
       // The empty state below names the location instead, and the one labelled
       // "elsewhere in …" rail is the only cross-metro content on the page.
+      // The query already scoped to `userCountry`; this re-check is a cheap
+      // guard against a fetch that resolves after the user switched country.
       const countryFiltered = effectiveEvents.filter((e) => (e.country || 'HT') === userCountry);
       const finalEvents = activeMetro
         ? countryFiltered.filter((e) => isEventInMetro(e, activeMetro))
