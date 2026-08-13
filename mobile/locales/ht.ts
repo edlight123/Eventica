@@ -747,6 +747,27 @@ export default {
     event: 'evènman',
   },
 
+  liveness: {
+    sectionLabel: 'Verifikasyon prezans',
+    sectionHint: 'Yon ti videyo kout ki pwouve se yon moun reyèl ki la. Sa pran anviwon 10 segonn.',
+    start: 'Kòmanse verifikasyon an',
+    redo: 'Anrejistre ankò',
+    saved: 'Verifikasyon prezans lan anrejistre.',
+    recording: 'K ap anrejistre',
+    stepOf: 'Etap {current} sou {total}',
+    introTitle: 'Ou pare?',
+    introBody: 'Kenbe telefòn ou nan wotè je ou epi swiv enstriksyon yo sou ekran an.',
+    permissionTitle: 'Nou bezwen aksè kamera',
+    permissionBody: 'Nou anrejistre kèk segonn videyo pou konfime se yon moun reyèl k ap fè sa. Nou pa pibliye anyen.',
+    grantPermission: 'Otorize kamera a',
+    prompts: {
+      turn_left: 'Vire tèt ou agoch',
+      turn_right: 'Vire tèt ou adwat',
+      blink: 'Bat je ou de fwa',
+      smile: 'Souri',
+      look_up: 'Gade anlè',
+    },
+  },
   paymentModal: {
     subtotal: 'Sou-total',
     serviceFee: 'Frè sèvis',

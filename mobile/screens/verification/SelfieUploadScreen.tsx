@@ -18,9 +18,11 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import SelfieCameraWithGuide from '../../components/SelfieCameraWithGuide';
+import LivenessChallenge, { type LivenessResult } from '../../components/LivenessChallenge';
 import OverlayHeader, { useOverlayHeaderInset } from '../../components/OverlayHeader';
 import * as ImagePicker from 'expo-image-picker';
 import {
+  uploadLivenessVideo,
   updateVerificationFiles,
   updateVerificationStep,
   getDocumentDownloadURL,
@@ -52,6 +54,39 @@ export default function SelfieUploadScreen() {
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
+  // Liveness is a separate artefact from the selfie: the selfie is what gets
+  // matched against the ID, the clip is what proves a live person produced it.
+  const [showLiveness, setShowLiveness] = useState(false);
+  const [livenessDone, setLivenessDone] = useState(false);
+  const [savingLiveness, setSavingLiveness] = useState(false);
+
+  const handleLivenessComplete = async (result: LivenessResult) => {
+    if (!userProfile?.id) return;
+    setShowLiveness(false);
+    setSavingLiveness(true);
+    try {
+      const storagePath = await uploadLivenessVideo(userProfile.id, result.videoUri);
+      await updateVerificationFiles(userProfile.id, {
+        liveness: {
+          path: storagePath,
+          uploadedAt: new Date(),
+          // Stored WITH the clip: the challenge is what makes the video evidence.
+          sequence: result.sequence.map((p) => ({ id: p.id, signal: p.signal })),
+          secondsPerPrompt: result.secondsPerPrompt,
+          startedAt: result.startedAt,
+        },
+      });
+      setLivenessDone(true);
+      showAlert(t('common.success'), t('liveness.saved'));
+    } catch (error: any) {
+      showAlert(
+        t('verification.common.uploadErrorTitle'),
+        error?.message || t('verification.common.failedToUploadImage')
+      );
+    } finally {
+      setSavingLiveness(false);
+    }
+  };
 
   useEffect(() => {
     loadExistingSelfie();
@@ -307,6 +342,32 @@ export default function SelfieUploadScreen() {
           )}
         </View>
 
+        {/* Liveness — the step that makes the selfie mean something. */}
+        <View style={styles.uploadSection}>
+          <Text style={styles.uploadLabel}>{t('liveness.sectionLabel')}</Text>
+          <TouchableOpacity
+            style={styles.uploadButton}
+            onPress={() => setShowLiveness(true)}
+            disabled={savingLiveness}
+          >
+            {savingLiveness ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : (
+              <>
+                <Ionicons
+                  name={livenessDone ? 'checkmark-circle' : 'videocam-outline'}
+                  size={64}
+                  color={livenessDone ? '#22c55e' : colors.primary}
+                />
+                <Text style={styles.uploadButtonText}>
+                  {livenessDone ? t('liveness.redo') : t('liveness.start')}
+                </Text>
+                <Text style={styles.uploadButtonSubtext}>{t('liveness.sectionHint')}</Text>
+              </>
+            )}
+          </TouchableOpacity>
+        </View>
+
         {/* Example */}
         <View style={styles.exampleCard}>
           <Ionicons name="checkmark-circle" size={24} color={colors.success} />
@@ -346,6 +407,14 @@ export default function SelfieUploadScreen() {
         <SelfieCameraWithGuide
           onCapture={handleCameraCapture}
           onCancel={() => setShowCamera(false)}
+        />
+      </Modal>
+
+      {/* Liveness: a still selfie proves nothing on its own. */}
+      <Modal visible={showLiveness} animationType="slide" presentationStyle="fullScreen">
+        <LivenessChallenge
+          onComplete={handleLivenessComplete}
+          onCancel={() => setShowLiveness(false)}
         />
       </Modal>
     </View>

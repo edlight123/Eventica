@@ -1071,6 +1071,27 @@ export default {
     },
   },
 
+  liveness: {
+    sectionLabel: 'Liveness check',
+    sectionHint: 'A short recording that proves a real person is here. Takes about 10 seconds.',
+    start: 'Start liveness check',
+    redo: 'Record again',
+    saved: 'Liveness check recorded.',
+    recording: 'Recording',
+    stepOf: 'Step {current} of {total}',
+    introTitle: 'Ready?',
+    introBody: 'Hold your phone at eye level and follow the instructions on screen.',
+    permissionTitle: 'Camera access needed',
+    permissionBody: 'We record a few seconds of video to confirm a real person is completing this. Nothing is shared publicly.',
+    grantPermission: 'Allow camera',
+    prompts: {
+      turn_left: 'Turn your head left',
+      turn_right: 'Turn your head right',
+      blink: 'Blink twice',
+      smile: 'Smile',
+      look_up: 'Look up',
+    },
+  },
   paymentModal: {
     selectMethod: 'Choose a payment method',
     subtotal: 'Subtotal',

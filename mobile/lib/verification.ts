@@ -53,6 +53,21 @@ export interface VerificationFiles {
     path?: string;
     uploadedAt?: Date;
   };
+  /**
+   * The liveness clip and the challenge it was recorded against.
+   *
+   * `sequence` is what makes the video evidence rather than decoration: it is
+   * generated fresh per attempt, so a reviewer (or the analysis service) can
+   * check the person performed THESE actions in THIS order. A clip that does not
+   * match its own challenge is a replay, however convincing the face looks.
+   */
+  liveness?: {
+    path?: string;
+    uploadedAt?: Date;
+    sequence?: { id: string; signal: string }[];
+    secondsPerPrompt?: number;
+    startedAt?: string;
+  };
 }
 
 export interface VerificationRequest {
@@ -318,6 +333,34 @@ async function uploadImageToStorage(
     console.error('Error uploading image:', error);
     throw new Error(error?.message || 'Failed to upload image to storage');
   }
+}
+
+/**
+ * Upload a liveness clip.
+ *
+ * Kept separate from the image path because the content type, size and
+ * sensitivity differ: this is biometric video, so it carries its own retention
+ * expectations. Storage rules and any deletion policy should key on the
+ * `liveness_` prefix.
+ */
+export async function uploadLivenessVideo(userId: string, uri: string): Promise<string> {
+  const currentUser = auth.currentUser;
+  if (!currentUser) throw new Error('You must be logged in to upload documents');
+  if (currentUser.uid !== userId) throw new Error('User ID mismatch');
+
+  const response = await fetch(uri);
+  if (!response.ok) throw new Error(`Failed to read recording: ${response.statusText}`);
+  const blob = await response.blob();
+  if (!blob || blob.size === 0) throw new Error('The recording was empty — please try again');
+
+  const extension = uri.split('.').pop()?.toLowerCase() || 'mp4';
+  const storagePath = `verification/${userId}/liveness_${Date.now()}.${extension}`;
+  await uploadBytes(ref(storage, storagePath), blob, {
+    contentType: extension === 'mov' ? 'video/quicktime' : 'video/mp4',
+    customMetadata: { uploadedAt: new Date().toISOString(), documentType: 'liveness' },
+  });
+
+  return storagePath;
 }
 
 /**

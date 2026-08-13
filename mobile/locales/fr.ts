@@ -777,6 +777,27 @@ export default {
     event: 'événement',
   },
 
+  liveness: {
+    sectionLabel: 'Vérification de présence',
+    sectionHint: 'Un court enregistrement qui prouve qu’une vraie personne est là. Environ 10 secondes.',
+    start: 'Démarrer la vérification',
+    redo: 'Recommencer l’enregistrement',
+    saved: 'Vérification de présence enregistrée.',
+    recording: 'Enregistrement',
+    stepOf: 'Étape {current} sur {total}',
+    introTitle: 'Prêt ?',
+    introBody: 'Tenez votre téléphone à hauteur des yeux et suivez les instructions à l’écran.',
+    permissionTitle: 'Accès à la caméra requis',
+    permissionBody: 'Nous enregistrons quelques secondes de vidéo pour confirmer qu’une vraie personne effectue cette étape. Rien n’est publié.',
+    grantPermission: 'Autoriser la caméra',
+    prompts: {
+      turn_left: 'Tournez la tête à gauche',
+      turn_right: 'Tournez la tête à droite',
+      blink: 'Clignez des yeux deux fois',
+      smile: 'Souriez',
+      look_up: 'Regardez vers le haut',
+    },
+  },
   paymentModal: {
     subtotal: 'Sous-total',
     serviceFee: 'Frais de service',
