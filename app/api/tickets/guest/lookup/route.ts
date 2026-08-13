@@ -15,7 +15,7 @@ import {
   normalizeEmail,
   normalizePhone,
 } from '@/lib/guest/identity'
-import { sendEmail } from '@/lib/email'
+import { sendEmail, escapeHtml } from '@/lib/email'
 import { sendSms } from '@/lib/sms'
 import { adminDb } from '@/lib/firebase/admin'
 
@@ -64,12 +64,12 @@ export async function POST(request: Request) {
           subject: `Your Tikèm ticket link for ${title}`,
           html: `
             <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;padding:24px;color:#0f172a">
-              <p style="font-size:16px">Hi ${order.name || 'there'},</p>
+              <p style="font-size:16px">Hi ${escapeHtml(order.name || 'there')},</p>
               <p style="font-size:15px;line-height:1.7">
-                Here is your ticket link for <strong>${title}</strong>. Open it to show your QR code at the door.
+                Here is your ticket link for <strong>${escapeHtml(title)}</strong>. Open it to show your QR code at the door.
               </p>
               <p style="margin:24px 0">
-                <a href="${url}" style="background:#0f172a;color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600">View my ticket</a>
+                <a href="${encodeURI(url)}" style="background:#0f172a;color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:600">View my ticket</a>
               </p>
               <p style="font-size:12px;color:#64748b">Keep this link private — anyone with it can view your ticket.</p>
             </div>

@@ -248,3 +248,86 @@ export function estimateNetPerTicket(ticketPrice: number): {
     netPercentage: fees.netAmount / ticketPrice,
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WHO PAYS THE FEE
+//
+// Two models, chosen per country by `feeIncidence` in lib/country-support.ts:
+//
+//   organizer (Haiti) — the buyer is charged exactly the face value and the fee
+//     comes out of the organizer's proceeds. This is what every market did
+//     before this existed.
+//   buyer (US/CA/FR) — the fee is added on top, so the organizer keeps the full
+//     face value and the buyer sees a total above the ticket price.
+//
+// The buyer model needs a GROSS-UP, not an addition. Stripe's percentage is
+// charged on whatever we actually capture, so simply adding today's fee would
+// leave the platform short by the percentage applied to the fee itself. Solving
+// charge = face + platformFee + (charge * stripePct + stripeFixed) for `charge`
+// keeps the organizer whole at exactly face value.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type FeeIncidence = 'organizer' | 'buyer'
+
+export type BuyerPricing = {
+  /** What the buyer is actually charged, in cents. */
+  chargeAmount: number
+  /** Ticket face value, in cents — what the organizer advertised. */
+  faceValue: number
+  /** Fee visible to the buyer as a line item. Zero in organizer-pays markets. */
+  buyerFee: number
+  platformFee: number
+  processingFee: number
+  /** What the organizer receives. Equals faceValue in buyer-pays markets. */
+  organizerNet: number
+  incidence: FeeIncidence
+}
+
+export function calculateBuyerPricing(
+  faceValue: number,
+  incidence: FeeIncidence,
+  feePercentage: number = FEE_CONFIG.PLATFORM_FEE_PERCENTAGE
+): BuyerPricing {
+  if (faceValue <= 0) {
+    return {
+      chargeAmount: 0,
+      faceValue: 0,
+      buyerFee: 0,
+      platformFee: 0,
+      processingFee: 0,
+      organizerNet: 0,
+      incidence,
+    }
+  }
+
+  if (incidence === 'organizer') {
+    const platformFee = calculatePlatformFeeWithPercentage(faceValue, feePercentage)
+    const processingFee = calculateStripeFee(faceValue)
+    return {
+      chargeAmount: faceValue,
+      faceValue,
+      buyerFee: 0,
+      platformFee,
+      processingFee,
+      organizerNet: Math.max(0, faceValue - platformFee - processingFee),
+      incidence,
+    }
+  }
+
+  // Gross-up so the organizer nets exactly the face value.
+  const platformFee = calculatePlatformFeeWithPercentage(faceValue, feePercentage)
+  const target = faceValue + platformFee + FEE_CONFIG.STRIPE_FEE_FIXED
+  const chargeAmount = Math.ceil(target / (1 - FEE_CONFIG.STRIPE_FEE_PERCENTAGE))
+  const processingFee = calculateStripeFee(chargeAmount)
+
+  return {
+    chargeAmount,
+    faceValue,
+    buyerFee: chargeAmount - faceValue,
+    platformFee,
+    processingFee,
+    // Rounding can leave a cent either way; never report more than was captured.
+    organizerNet: Math.min(faceValue, chargeAmount - platformFee - processingFee),
+    incidence,
+  }
+}

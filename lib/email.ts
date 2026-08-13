@@ -107,7 +107,7 @@ function adjustColor(hex: string, percent: number): string {
  * `<style>` in the message body would render as live markup in the recipient's
  * mail client.
  */
-function escapeHtml(value: string): string {
+export function escapeHtml(value: string): string {
   return String(value ?? '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -224,7 +224,7 @@ export function getTicketConfirmationEmail(params: {
               
               <!-- Preheader text (hidden) -->
               <div style="display: none; max-height: 0; overflow: hidden; mso-hide: all;">
-                Your ticket for ${params.eventTitle} is confirmed! Show this QR code at entry.
+                Your ticket for ${escapeHtml(String(params.eventTitle ?? ""))} is confirmed! Show this QR code at entry.
               </div>
               
               <table role="presentation" style="width: 600px; max-width: 100%; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
@@ -257,7 +257,7 @@ export function getTicketConfirmationEmail(params: {
                       <!-- Event Info Section -->
                       <div style="padding: 28px 28px 20px;">
                         <div style="font-size: 11px; font-weight: 700; color: #f97316; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 8px;">YOUR EVENT</div>
-                        <div style="font-size: 22px; font-weight: 800; color: #0f172a; line-height: 1.3; margin-bottom: 16px;">${params.eventTitle}</div>
+                        <div style="font-size: 22px; font-weight: 800; color: #0f172a; line-height: 1.3; margin-bottom: 16px;">${escapeHtml(String(params.eventTitle ?? ""))}</div>
                         
                         <table role="presentation" style="width: 100%; border-collapse: collapse;">
                           <tr>
@@ -266,7 +266,7 @@ export function getTicketConfirmationEmail(params: {
                                 <span style="font-size: 18px; margin-right: 10px;">📅</span>
                                 <div>
                                   <div style="font-size: 11px; color: #64748b; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">Date & Time</div>
-                                  <div style="font-size: 15px; color: #0f172a; font-weight: 600; margin-top: 2px;">${params.eventDate}</div>
+                                  <div style="font-size: 15px; color: #0f172a; font-weight: 600; margin-top: 2px;">${escapeHtml(String(params.eventDate ?? ""))}</div>
                                 </div>
                               </div>
                             </td>
@@ -277,7 +277,7 @@ export function getTicketConfirmationEmail(params: {
                                 <span style="font-size: 18px; margin-right: 10px;">📍</span>
                                 <div>
                                   <div style="font-size: 11px; color: #64748b; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">Location</div>
-                                  <div style="font-size: 15px; color: #0f172a; font-weight: 600; margin-top: 2px;">${params.eventVenue}</div>
+                                  <div style="font-size: 15px; color: #0f172a; font-weight: 600; margin-top: 2px;">${escapeHtml(String(params.eventVenue ?? ""))}</div>
                                 </div>
                               </div>
                             </td>
@@ -324,9 +324,9 @@ export function getTicketConfirmationEmail(params: {
                 <!-- Greeting & Tips -->
                 <tr>
                   <td style="padding: 32px 40px;">
-                    <div style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Hi ${params.attendeeName}! 👋</div>
+                    <div style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">Hi ${escapeHtml(String(params.attendeeName ?? ""))}! 👋</div>
                     <div style="font-size: 15px; color: #64748b; line-height: 1.7; margin-bottom: 24px;">
-                      You're all set for <strong style="color: #0f172a;">${params.eventTitle}</strong>. We can't wait to see you there!
+                      You're all set for <strong style="color: #0f172a;">${escapeHtml(String(params.eventTitle ?? ""))}</strong>. We can't wait to see you there!
                     </div>
                     
                     <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 14px; padding: 20px; border-left: 4px solid #f59e0b;">

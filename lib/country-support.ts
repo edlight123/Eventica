@@ -45,6 +45,23 @@ export interface CountrySupport {
   currencies: string[]
   /** Default/display currency for this market. */
   defaultCurrency: string
+  /**
+   * WHO PAYS the platform + processing fee.
+   *
+   * 'organizer' — the fee is deducted from the ticket price, so the buyer pays
+   *   exactly the advertised amount. Right for Haiti: price sensitivity is high
+   *   and the advertised price carries trust in a cash-oriented market — "1,000
+   *   HTG" should mean 1,000 HTG.
+   * 'buyer' — the fee is added on top at checkout and the organizer keeps the
+   *   full face value. Standard in US/Canada ticketing, and what organizers
+   *   there expect.
+   *
+   * NOTE for 'buyer' markets: US rules on live-event ticket pricing require the
+   * ALL-IN total to be shown up front, not revealed at the last step. Any
+   * checkout surface pricing a buyer-pays market must display the total, not
+   * just the face value.
+   */
+  feeIncidence: 'organizer' | 'buyer'
 }
 
 export const COUNTRY_SUPPORT: Record<string, CountrySupport> = {
@@ -58,6 +75,7 @@ export const COUNTRY_SUPPORT: Record<string, CountrySupport> = {
     requiredProfile: 'haiti',
     currencies: ['HTG', 'USD'],
     defaultCurrency: 'HTG',
+    feeIncidence: 'organizer',
   },
   US: {
     code: 'US',
@@ -69,6 +87,7 @@ export const COUNTRY_SUPPORT: Record<string, CountrySupport> = {
     requiredProfile: 'stripe_connect',
     currencies: ['USD'],
     defaultCurrency: 'USD',
+    feeIncidence: 'buyer',
   },
   CA: {
     code: 'CA',
@@ -80,6 +99,7 @@ export const COUNTRY_SUPPORT: Record<string, CountrySupport> = {
     requiredProfile: 'stripe_connect',
     currencies: ['CAD'],
     defaultCurrency: 'CAD',
+    feeIncidence: 'buyer',
   },
   FR: {
     code: 'FR',
@@ -91,6 +111,7 @@ export const COUNTRY_SUPPORT: Record<string, CountrySupport> = {
     requiredProfile: 'stripe_connect',
     currencies: ['EUR'],
     defaultCurrency: 'EUR',
+    feeIncidence: 'buyer',
   },
   DO: {
     code: 'DO',
@@ -102,6 +123,7 @@ export const COUNTRY_SUPPORT: Record<string, CountrySupport> = {
     requiredProfile: null,
     currencies: [],
     defaultCurrency: 'USD',
+    feeIncidence: 'organizer',
   },
 }
 
@@ -166,4 +188,14 @@ export function defaultCurrencyForCountry(country: unknown): string {
 export function isCurrencyAllowed(country: unknown, currency: unknown): boolean {
   const cur = String(currency ?? '').toUpperCase()
   return currenciesForCountry(country).includes(cur)
+}
+
+/**
+ * Who pays the fee for events in this country. Unknown/unsupported markets fall
+ * back to 'organizer' — the behaviour every market had before fee incidence
+ * existed, so an unrecognised country can never silently start charging buyers
+ * more than the advertised price.
+ */
+export function feeIncidenceForCountry(country: unknown): 'organizer' | 'buyer' {
+  return countrySupport(country)?.feeIncidence || 'organizer'
 }
