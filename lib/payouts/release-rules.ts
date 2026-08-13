@@ -17,7 +17,33 @@
  * Firestore.
  */
 
+import {
+  DEFAULT_PAYOUT_RELEASE_CONFIG,
+  type PayoutReleaseConfig,
+  type PayoutReleaseOverride,
+} from '@/types/platform-settings'
+
 export type PayoutRail = 'card' | 'moncash'
+
+/**
+ * Platform defaults, then this organizer's admin overrides on top. Every rule
+ * below reads the RESOLVED config, so an admin can retune thresholds — globally
+ * or for one promoter — without a deploy.
+ */
+export function resolveConfig(
+  platform?: Partial<PayoutReleaseConfig> | null,
+  override?: PayoutReleaseOverride | null
+): PayoutReleaseConfig {
+  const base = { ...DEFAULT_PAYOUT_RELEASE_CONFIG, ...(platform || {}) }
+  if (!override) return base
+  const picked: Partial<PayoutReleaseConfig> = {}
+  if (typeof override.newHoldHours === 'number') picked.newHoldHours = override.newHoldHours
+  if (typeof override.establishedHoldHours === 'number') picked.establishedHoldHours = override.establishedHoldHours
+  if (typeof override.reserveBps === 'number') picked.reserveBps = override.reserveBps
+  if (typeof override.reserveDays === 'number') picked.reserveDays = override.reserveDays
+  if (typeof override.reviewAboveGrossMinor === 'number') picked.reviewAboveGrossMinor = override.reviewAboveGrossMinor
+  return { ...base, ...picked }
+}
 
 export type OrganizerHistory = {
   /** Events completed without a dispute or a refund storm. */
@@ -32,6 +58,8 @@ export type OrganizerHistory = {
   preEventReleaseApproved?: boolean
   /** Admin-flagged risk: force every payout through review, ignore tiers. */
   highRisk?: boolean
+  /** Admin says treat as established regardless of history (known promoter). */
+  forceEstablished?: boolean
 }
 
 export type EventForRelease = {
@@ -90,36 +118,42 @@ export const RESERVE_RELEASE_DAYS = 30
 export const MANUAL_CHECKIN_REVIEW_RATIO = 0.8
 export const LOW_ATTENDANCE_REVIEW_RATIO = 0.2
 
-export function isEstablished(history: OrganizerHistory): boolean {
+export function isEstablished(history: OrganizerHistory, cfg: PayoutReleaseConfig): boolean {
+  if (history.forceEstablished) return true
   return (
-    history.completedEvents >= ESTABLISHED_AFTER_EVENTS ||
-    history.lifetimeGrossMinor >= ESTABLISHED_AFTER_GROSS_MINOR
+    history.completedEvents >= cfg.establishedAfterEvents ||
+    history.lifetimeGrossMinor >= cfg.establishedAfterGrossMinor
   )
 }
 
-export function isPreEventEligible(history: OrganizerHistory): boolean {
+export function isPreEventEligible(history: OrganizerHistory, cfg: PayoutReleaseConfig): boolean {
   return (
-    history.lifetimeGrossMinor >= PRE_EVENT_ELIGIBLE_GROSS_MINOR &&
+    history.lifetimeGrossMinor >= cfg.preEventEligibleGrossMinor &&
     history.preEventReleaseApproved === true
   )
 }
 
-export function tierFor(history: OrganizerHistory): ReleaseTier {
-  if (isPreEventEligible(history)) return 'pre_event'
-  return isEstablished(history) ? 'established' : 'new'
+export function tierFor(history: OrganizerHistory, cfg: PayoutReleaseConfig): ReleaseTier {
+  if (isPreEventEligible(history, cfg)) return 'pre_event'
+  return isEstablished(history, cfg) ? 'established' : 'new'
 }
 
-export function holdHoursFor(history: OrganizerHistory): number {
-  const tier = tierFor(history)
+export function holdHoursFor(history: OrganizerHistory, cfg: PayoutReleaseConfig): number {
+  const tier = tierFor(history, cfg)
   if (tier === 'pre_event') return 0
-  return tier === 'established' ? ESTABLISHED_HOLD_HOURS : NEW_ORGANIZER_HOLD_HOURS
+  return tier === 'established' ? cfg.establishedHoldHours : cfg.newHoldHours
 }
 
-/** Reserve applies to card sales from organizers who are still new. */
-export function reserveMinor(grossMinor: number, rail: PayoutRail, history: OrganizerHistory): number {
+/** Reserve applies to card sales; by default only while an organizer is new. */
+export function reserveMinor(
+  grossMinor: number,
+  rail: PayoutRail,
+  history: OrganizerHistory,
+  cfg: PayoutReleaseConfig
+): number {
   if (rail !== 'card') return 0
-  if (isEstablished(history)) return 0
-  return Math.floor((Math.max(0, grossMinor) * RESERVE_BPS) / 10_000)
+  if (cfg.reserveNewOrganizersOnly && isEstablished(history, cfg)) return 0
+  return Math.floor((Math.max(0, grossMinor) * Math.max(0, cfg.reserveBps)) / 10_000)
 }
 
 /**
@@ -131,14 +165,17 @@ export function decideRelease({
   event,
   history,
   availableMinor,
+  config,
   now = new Date(),
 }: {
   event: EventForRelease
   history: OrganizerHistory
   availableMinor: number
+  config?: PayoutReleaseConfig
   now?: Date
 }): ReleaseDecision {
-  const tier = tierFor(history)
+  const cfg = config || DEFAULT_PAYOUT_RELEASE_CONFIG
+  const tier = tierFor(history, cfg)
   const nothing = (reason: string): ReleaseDecision => ({
     release: 'hold',
     reason,
@@ -160,12 +197,12 @@ export function decideRelease({
     if (now < (endsAt as Date)) return nothing('event_not_over')
 
     const hoursSinceEnd = (now.getTime() - (endsAt as Date).getTime()) / 3_600_000
-    const requiredHold = holdHoursFor(history)
+    const requiredHold = holdHoursFor(history, cfg)
     if (hoursSinceEnd < requiredHold) return nothing(`hold_${requiredHold}h`)
   }
 
   const net = Math.max(0, event.grossMinor - event.refundedMinor)
-  const reserveHeldMinor = reserveMinor(net, event.rail, history)
+  const reserveHeldMinor = reserveMinor(net, event.rail, history, cfg)
   const target = Math.max(0, net - reserveHeldMinor)
   const releasableMinor = Math.max(0, Math.min(target, availableMinor))
 
@@ -183,18 +220,18 @@ export function decideRelease({
 
   // Signals that want human eyes rather than an automatic transfer. None of
   // these block the organizer — they route to the admin queue.
-  if (event.grossMinor >= REVIEW_ABOVE_GROSS_MINOR && !isEstablished(history)) {
+  if (event.grossMinor >= cfg.reviewAboveGrossMinor && !isEstablished(history, cfg)) {
     return decision('review', 'large_event_from_new_organizer')
   }
   if (
     event.manualCheckInRatio !== null &&
-    event.manualCheckInRatio >= MANUAL_CHECKIN_REVIEW_RATIO &&
+    event.manualCheckInRatio >= cfg.manualCheckInReviewRatio &&
     event.checkedInRatio !== null &&
     event.checkedInRatio > 0
   ) {
     return decision('review', 'mostly_manual_checkins')
   }
-  if (event.checkedInRatio !== null && event.checkedInRatio < LOW_ATTENDANCE_REVIEW_RATIO) {
+  if (event.checkedInRatio !== null && event.checkedInRatio < cfg.lowAttendanceReviewRatio) {
     return decision('review', 'very_low_attendance')
   }
 

@@ -19,6 +19,72 @@ export interface LocationFeeConfig {
   settlementHoldDays: number
 }
 
+
+/**
+ * Payout release configuration — the knobs behind lib/payouts/release-rules.ts.
+ * Admin-editable so thresholds can be tuned from the dashboard rather than a
+ * deploy, and per-organizer overrides can sit on top (see PayoutReleaseOverride).
+ */
+export interface PayoutReleaseConfig {
+  /** Hold after event end for organizers who are still new, in hours. */
+  newHoldHours: number
+  /** Hold after event end once established, in hours. */
+  establishedHoldHours: number
+  /** Clean events needed to become established. */
+  establishedAfterEvents: number
+  /** …or lifetime gross (minor units) needed, whichever comes first. */
+  establishedAfterGrossMinor: number
+  /** Lifetime gross (minor units) that makes pre-event release admin-grantable. */
+  preEventEligibleGrossMinor: number
+  /** Per-event gross (minor units) above which a new organizer goes to review. */
+  reviewAboveGrossMinor: number
+  /** Chargeback reserve on CARD sales, in basis points (1000 = 10%). */
+  reserveBps: number
+  /** How long the reserve is held, in days. */
+  reserveDays: number
+  /** Reserve applies only while an organizer is new. Set false to always hold it. */
+  reserveNewOrganizersOnly: boolean
+  /** Check-in ratios that route a payout to review. */
+  manualCheckInReviewRatio: number
+  lowAttendanceReviewRatio: number
+}
+
+/**
+ * Per-organizer overrides. Any field left undefined falls through to the
+ * platform PayoutReleaseConfig. Stored on the organizer document so an admin can
+ * hand-tune one promoter without touching everyone.
+ */
+export interface PayoutReleaseOverride {
+  newHoldHours?: number
+  establishedHoldHours?: number
+  reserveBps?: number
+  reserveDays?: number
+  reviewAboveGrossMinor?: number
+  /** Explicit admin grant allowing payout BEFORE the event ends. */
+  preEventReleaseApproved?: boolean
+  /** Force every payout through review regardless of tier. */
+  highRisk?: boolean
+  /** Treat as established regardless of history (known promoter). */
+  forceEstablished?: boolean
+  updatedAt?: string
+  updatedBy?: string
+  note?: string
+}
+
+export const DEFAULT_PAYOUT_RELEASE_CONFIG: PayoutReleaseConfig = {
+  newHoldHours: 72,
+  establishedHoldHours: 24,
+  establishedAfterEvents: 3,
+  establishedAfterGrossMinor: 100_000,
+  preEventEligibleGrossMinor: 200_000,
+  reviewAboveGrossMinor: 100_000,
+  reserveBps: 1000,
+  reserveDays: 30,
+  reserveNewOrganizersOnly: true,
+  manualCheckInReviewRatio: 0.8,
+  lowAttendanceReviewRatio: 0.2,
+}
+
 /**
  * Platform settings stored in Firestore
  */
@@ -39,6 +105,12 @@ export interface PlatformSettings {
    * Minimum payout amount in cents
    */
   minimumPayoutAmount: number
+
+  /**
+   * Payout release thresholds. Optional so existing settings docs keep working;
+   * readers fall back to DEFAULT_PAYOUT_RELEASE_CONFIG.
+   */
+  payoutRelease?: PayoutReleaseConfig
   
   /**
    * Last updated timestamp
@@ -64,6 +136,7 @@ export const DEFAULT_PLATFORM_SETTINGS: Omit<PlatformSettings, 'id' | 'updatedAt
     settlementHoldDays: 7,         // 7 days hold for US/Canada events
   },
   minimumPayoutAmount: 5000,      // $50.00 in cents
+  payoutRelease: DEFAULT_PAYOUT_RELEASE_CONFIG,
 }
 
 /**

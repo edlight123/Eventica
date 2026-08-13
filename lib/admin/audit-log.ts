@@ -24,6 +24,8 @@ export type AuditAction =
   | 'bank_verification.approve'
   | 'bank_verification.reject'
   | 'bank_verification.needs_info'
+  | 'payout.release_config.update'
+  | 'payout.release_override.update'
   | 'payout.approve'
   | 'payout.decline'
   | 'payout.mark_paid'
@@ -241,6 +243,8 @@ function getActionDescription(action: string, details: any = {}): string {
     'bank_verification.approve': `Approved bank verification${forOrgPhrase}`.trim(),
     'bank_verification.reject': `Rejected bank verification${forOrgPhrase}`.trim(),
     'bank_verification.needs_info': orgTarget ? `Requested more info for ${orgTarget}` : 'Requested bank info',
+    'payout.release_config.update': `Updated payout release thresholds (${(details.changed || []).join(', ') || 'no change'})`,
+    'payout.release_override.update': 'Updated payout release overrides for an organizer',
     'payout.approve': `Approved payout ${details.payoutId || ''}`.trim(),
     'payout.decline': `Declined payout ${details.payoutId || ''}`.trim(),
     'payout.mark_paid': `Marked payout paid ${details.payoutId || ''}`.trim(),
