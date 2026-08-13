@@ -26,6 +26,7 @@ import { radius } from '../../theme/tokens'
 import { Skeleton } from '../../components/Skeleton'
 import { useAppAlert } from '../../components/AppAlert'
 import StatusChip from '../../components/StatusChip'
+import SectionHeader from '../../components/SectionHeader'
 import EmptyState from '../../components/EmptyState'
 import WhitePillCTA from '../../components/WhitePillCTA'
 import MoneyText from '../../components/MoneyText'
@@ -89,10 +90,12 @@ const payoutCacheKey = (uid: string) => `payout_settings_cache_${uid}`
 const NATCASH_ENABLED = false
 
 /**
- * Header for one payout REGION. Names the region, says in one line who does the
- * verifying and in what currency, and carries a dot+label status — the two
- * regimes (Tikèm-run KYC for Haiti, Stripe for US/CA/FR) were previously
- * invisible in a flat list of methods.
+ * One payout REGION rail. Uses the app's editorial section rail (Instrument
+ * Serif, lowercased, with a tight grey subtitle) rather than a bold sans
+ * heading, so this screen reads like the rest of Tikèm instead of a settings
+ * pane. Status appears ONLY when the region needs attention — every method
+ * below already carries its own VERIFIED / CONNECTED chip, so a second "Ready"
+ * was noise saying what the rows already said.
  */
 function RegionSection({
   colors,
@@ -107,27 +110,24 @@ function RegionSection({
   status: 'ready' | 'pending' | 'none'
   t: (key: string) => string
 }) {
-  const dotColor =
-    status === 'ready' ? colors.success ?? '#14B8A6' : status === 'pending' ? colors.warning ?? '#F5A524' : colors.textSecondary
-  const label =
-    status === 'ready'
-      ? t('organizerPayoutSettings.regions.statusReady')
-      : status === 'pending'
-        ? t('organizerPayoutSettings.regions.statusPending')
-        : t('organizerPayoutSettings.regions.statusNone')
+  const trailing =
+    status === 'ready' ? null : (
+      <Text
+        style={{
+          fontSize: 11,
+          letterSpacing: 0.4,
+          color: status === 'pending' ? colors.warning ?? '#F5A524' : colors.textSecondary,
+        }}
+      >
+        {status === 'pending'
+          ? t('organizerPayoutSettings.regions.statusPending')
+          : t('organizerPayoutSettings.regions.statusNone')}
+      </Text>
+    )
 
   return (
-    <View style={{ marginTop: 22, marginBottom: 10 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-        <Text style={{ fontSize: 15, fontWeight: '700', color: colors.text, flex: 1 }} numberOfLines={1}>
-          {title}
-        </Text>
-        <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: dotColor }} />
-        <Text style={{ fontSize: 12, color: colors.textSecondary }}>{label}</Text>
-      </View>
-      <Text style={{ fontSize: 12.5, lineHeight: 18, color: colors.textSecondary, marginTop: 4 }}>
-        {blurb}
-      </Text>
+    <View style={{ marginTop: 18 }}>
+      <SectionHeader title={title} subtitle={blurb} trailing={trailing} />
     </View>
   )
 }
@@ -835,7 +835,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
         ) : (
           <>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>{t('organizerPayoutSettings.methodsSectionTitle')}</Text>
+              <Text style={styles.methodsEyebrow}>{t('organizerPayoutSettings.methodsSectionTitle').toUpperCase()}</Text>
               <TouchableOpacity style={styles.addButton} onPress={() => setShowAddModal(true)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
                 <Ionicons name="add" size={18} color={colors.text} />
                 <Text style={styles.addButtonText}>{t('organizerPayoutSettings.add')}</Text>
@@ -1411,6 +1411,12 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 18,
     fontWeight: '700',
     color: colors.text,
+  },
+  methodsEyebrow: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.8,
+    color: colors.textSecondary,
   },
   methodGroupHeading: {
     fontSize: 12,

@@ -1536,9 +1536,9 @@ export default {
     methodsSectionTitle: 'Payout Methods',
     regions: {
       haitiTitle: 'Haiti',
-      haitiBlurb: 'Tikèm verifies you. Paid to Sogebank, Unibank or MonCash in HTG.',
-      internationalTitle: 'United States, Canada & France',
-      internationalBlurb: 'Stripe verifies you. Paid to your bank in USD, CAD or EUR.',
+      haitiBlurb: 'Sogebank, Unibank, MonCash · Tikèm verifies you',
+      internationalTitle: 'Outside Haiti',
+      internationalBlurb: 'US, Canada, France · Stripe verifies you',
       statusReady: 'Ready',
       statusPending: 'Action needed',
       statusNone: 'Not set up',

@@ -1214,9 +1214,9 @@ export default {
     methodsSectionTitle: 'Metòd peman',
     regions: {
       haitiTitle: 'Ayiti',
-      haitiBlurb: 'Tikèm verifye ou. Yo peye w sou Sogebank, Unibank oswa MonCash an HTG.',
-      internationalTitle: 'Etazini, Kanada ak Frans',
-      internationalBlurb: 'Stripe verifye ou. Yo peye w nan bank ou an USD, CAD oswa EUR.',
+      haitiBlurb: 'Sogebank, Unibank, MonCash · Tikèm verifye ou',
+      internationalTitle: 'Deyò Ayiti',
+      internationalBlurb: 'Etazini, Kanada, Frans · Stripe verifye ou',
       statusReady: 'Pare',
       statusPending: 'Ou gen bagay pou fè',
       statusNone: 'Poko konfigire',

@@ -9,6 +9,9 @@ interface SectionHeaderProps {
   title: string;
   subtitle?: string;
   onViewAll?: () => void;
+  /** Right-aligned slot for callers that need something other than "see all"
+      (e.g. a payout region's "action needed"). Ignored when onViewAll is set. */
+  trailing?: React.ReactNode;
 }
 
 /**
@@ -16,7 +19,7 @@ interface SectionHeaderProps {
  * events") with a teal "see all →" link aligned right. Subtitles are optional
  * and kept tight.
  */
-export default function SectionHeader({ title, subtitle, onViewAll }: SectionHeaderProps) {
+export default function SectionHeader({ title, subtitle, onViewAll, trailing }: SectionHeaderProps) {
   const { colors } = useTheme();
   const { t } = useI18n();
   const styles = getStyles(colors);
@@ -33,11 +36,13 @@ export default function SectionHeader({ title, subtitle, onViewAll }: SectionHea
           </Text>
         )}
       </View>
-      {onViewAll && (
+      {onViewAll ? (
         <TouchableOpacity style={styles.viewAll} onPress={onViewAll} hitSlop={8}>
           <Text style={styles.viewAllText}>{t('common.viewAll').toLowerCase()}</Text>
           <ArrowRight size={15} color={T.teal} />
         </TouchableOpacity>
+      ) : (
+        trailing ?? null
       )}
     </View>
   );

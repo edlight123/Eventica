@@ -1216,9 +1216,9 @@ export default {
     methodsSectionTitle: 'Moyens de paiement',
     regions: {
       haitiTitle: 'Haïti',
-      haitiBlurb: 'Tikèm vérifie votre identité. Versé sur Sogebank, Unibank ou MonCash en HTG.',
-      internationalTitle: 'États-Unis, Canada et France',
-      internationalBlurb: 'Stripe vérifie votre identité. Versé sur votre banque en USD, CAD ou EUR.',
+      haitiBlurb: 'Sogebank, Unibank, MonCash · Tikèm vous vérifie',
+      internationalTitle: 'Hors d’Haïti',
+      internationalBlurb: 'États-Unis, Canada, France · Stripe vous vérifie',
       statusReady: 'Prêt',
       statusPending: 'Action requise',
       statusNone: 'Non configuré',
