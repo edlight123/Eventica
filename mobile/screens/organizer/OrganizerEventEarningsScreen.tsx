@@ -396,7 +396,17 @@ export default function OrganizerEventEarningsScreen() {
   )
 
   const openWithdraw = async (nextMethod: 'moncash' | 'bank') => {
-    if (!identityVerified) {
+    /**
+     * Tikèm's own identity check gates the HAITI rail only, and only here — at
+     * disbursement. Organizers create events and sell tickets without it; the
+     * check is about who we are about to send money to, not who may use the app.
+     *
+     * On the Stripe rail it is Stripe that verifies identity during Connect
+     * onboarding, and only Stripe's verdict can enable payouts. Asking for ID
+     * here would add friction that unlocks nothing and make us hold PII we have
+     * no reason to hold.
+     */
+    if (!requiresStripeConnect && !identityVerified) {
       showAlert(
         t('organizerEarnings.identity.title'),
         t('organizerEarnings.identity.alertBody'),
@@ -768,7 +778,26 @@ export default function OrganizerEventEarningsScreen() {
 
         <View style={{ height: 12 }} />
 
-        {identityVerified === false ? (
+        {/*
+          STRIPE FIRST. Identity on the US/Canada/France rail is Stripe's job —
+          Stripe Connect collects and verifies it during onboarding, and only
+          Stripe's verdict can turn payouts on. Asking those organizers for ID
+          here would be friction that unlocks nothing, on top of PII we have no
+          reason to hold. Tikèm's own KYC exists for HAITI, where we operate the
+          payout rail ourselves and are the party that must know who we are
+          paying. Testing identity first sent US organizers into the Haitian flow.
+        */}
+        {requiresStripeConnect ? (
+          <View style={styles.noticeStack}>
+            <InfoNotice icon="card-outline" text={t('organizerEarnings.stripeNotice')} />
+            <SecondaryPill
+              style={styles.noticeCta}
+              label={t('organizerEarnings.openPayoutSettings')}
+              icon={<Ionicons name="settings-outline" size={20} color={colors.text} />}
+              onPress={() => navigation.navigate('OrganizerPayoutSettings')}
+            />
+          </View>
+        ) : identityVerified === false ? (
           <View style={styles.noticeStack}>
             <InfoNotice
               icon="shield-checkmark-outline"
@@ -779,16 +808,6 @@ export default function OrganizerEventEarningsScreen() {
               label={t('organizerEarnings.identity.cta')}
               icon={<Ionicons name="shield-checkmark-outline" size={20} color={colors.text} />}
               onPress={() => navigation.navigate('OrganizerVerification')}
-            />
-          </View>
-        ) : requiresStripeConnect ? (
-          <View style={styles.noticeStack}>
-            <InfoNotice icon="card-outline" text={t('organizerEarnings.stripeNotice')} />
-            <SecondaryPill
-              style={styles.noticeCta}
-              label={t('organizerEarnings.openPayoutSettings')}
-              icon={<Ionicons name="settings-outline" size={20} color={colors.text} />}
-              onPress={() => navigation.navigate('OrganizerPayoutSettings')}
             />
           </View>
         ) : identityVerified === true && hasPayoutMethod === false ? (
