@@ -10,6 +10,9 @@ export interface CheckInParams {
   ticketId: string
   eventId: string
   entryPoint: string
+  /** How the attendee was admitted. Defaults to 'scan' so existing callers keep
+      their meaning; the manual-lookup path must pass 'manual' explicitly. */
+  checkInMethod?: 'scan' | 'manual'
   scannedBy: string
 }
 
@@ -18,7 +21,7 @@ export interface CheckInParams {
  * Prevents duplicate check-ins through Firestore transaction
  */
 export async function checkInTicket(params: CheckInParams): Promise<CheckInResult> {
-  const { ticketId, eventId, entryPoint, scannedBy } = params
+  const { ticketId, eventId, entryPoint, scannedBy, checkInMethod = 'scan' } = params
 
   try {
     const ticketRef = adminDb.collection('tickets').doc(ticketId)
@@ -113,6 +116,10 @@ export async function checkInTicket(params: CheckInParams): Promise<CheckInResul
         checked_in_at: FieldValue.serverTimestamp(),
         checked_in_by: scannedBy,
         entry_point: entryPoint,
+        // 'scan' vs 'manual' must be recorded AT WRITE TIME. Every path used to
+        // write identical fields, so a hand-picked attendee was indistinguishable
+        // from a scanned QR and the payout review trigger had nothing to read.
+        check_in_method: checkInMethod,
         updated_at: FieldValue.serverTimestamp(),
       })
 

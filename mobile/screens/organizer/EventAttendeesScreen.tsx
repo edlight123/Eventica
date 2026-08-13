@@ -154,6 +154,10 @@ export default function EventAttendeesScreen() {
                 checked_in: true,
                 checked_in_at: serverTimestamp(),
                 checked_in_by: auth.currentUser?.uid || null,
+                // Picked off the attendee list by hand — NOT a scan. This used to
+                // write fields identical to the scanner, which is why a
+                // hand-checked door was invisible to payout review.
+                check_in_method: 'manual',
                 updated_at: serverTimestamp(),
               });
             } catch (error) {

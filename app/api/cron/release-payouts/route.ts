@@ -301,6 +301,10 @@ async function loadAccountState(stripe: any, stripeAccountId: string): Promise<A
 type TicketFacts = {
   liveTickets: number
   checkedInTickets: number
+  /** Check-ins whose stored record says a human picked them off a list. */
+  manualCheckIns: number
+  /** Check-ins that recorded a method at all — pre-fix rows recorded none. */
+  methodKnownCheckIns: number
   refundedMinor: number
   matchesOpenDispute: boolean
 }
@@ -308,7 +312,10 @@ type TicketFacts = {
 /**
  * One pass over the event's tickets for the three things the rules need.
  *
- * manualCheckInRatio is NOT derivable here — see the comment at its call site.
+ * manualCheckInRatio comes from check_in_method, recorded at write time by every
+ * check-in path. Rows written before that field existed carry no method, so they
+ * are excluded from the denominator rather than counted as scans — inferring
+ * "scan" from silence would clear exactly the doors this signal exists to catch.
  */
 async function loadTicketFacts(eventId: string, openDisputePaymentRefs: Set<string>): Promise<TicketFacts> {
   const snapshot = await adminDb
@@ -317,6 +324,7 @@ async function loadTicketFacts(eventId: string, openDisputePaymentRefs: Set<stri
     .select(
       'status',
       'checked_in',
+      'check_in_method',
       'price_paid',
       'pricePaid',
       'refund_status',
@@ -329,6 +337,8 @@ async function loadTicketFacts(eventId: string, openDisputePaymentRefs: Set<stri
   const facts: TicketFacts = {
     liveTickets: 0,
     checkedInTickets: 0,
+    manualCheckIns: 0,
+    methodKnownCheckIns: 0,
     refundedMinor: 0,
     matchesOpenDispute: false,
   }
@@ -357,7 +367,14 @@ async function loadTicketFacts(eventId: string, openDisputePaymentRefs: Set<stri
     if (status && status !== 'valid' && status !== 'confirmed') continue
 
     facts.liveTickets += 1
-    if (data.checked_in === true) facts.checkedInTickets += 1
+    if (data.checked_in === true) {
+      facts.checkedInTickets += 1
+      const method = String(data.check_in_method || '').toLowerCase()
+      if (method === 'manual' || method === 'scan') {
+        facts.methodKnownCheckIns += 1
+        if (method === 'manual') facts.manualCheckIns += 1
+      }
+    }
   }
 
   return facts
@@ -546,25 +563,13 @@ export async function GET(request: Request) {
           rail: 'card',
           currency: earningsCurrency || null, // Stripe rail. MonCash releases are a separate pipeline.
           checkedInRatio: facts.liveTickets > 0 ? facts.checkedInTickets / facts.liveTickets : null,
-          /**
-           * NOT COMPUTABLE with today's data, so it stays null — the rules treat
-           * null as "unknown" and skip the manual-check-in review trigger rather
-           * than guessing.
-           *
-           * Nothing on a ticket distinguishes a scan from a hand-toggle:
-           *   - the web scanner (lib/scan/checkInTicket.ts) writes entry_point +
-           *     checked_in_by,
-           *   - the mobile SCANNER (TicketScannerScreen) writes checked_in_by and
-           *     no entry_point,
-           *   - the mobile MANUAL toggle (EventAttendeesScreen) writes exactly the
-           *     same fields as the mobile scanner,
-           *   - the web manual/QR-paste check-in (organizer check-in actions)
-           *     writes entry_point and no checked_in_by.
-           * So both fields appear on both kinds of check-in and are absent from
-           * both kinds too. Recording the source at write time is the fix; until
-           * then any ratio here would be invented.
-           */
-          manualCheckInRatio: null,
+          // Null when no check-in recorded a method (an older event, or a door
+          // that never checked anyone in) — the rules treat null as "unknown"
+          // and skip the trigger rather than guessing.
+          manualCheckInRatio:
+            facts.methodKnownCheckIns > 0
+              ? facts.manualCheckIns / facts.methodKnownCheckIns
+              : null,
           refundedMinor,
           hasOpenDispute: facts.matchesOpenDispute,
         }

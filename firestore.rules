@@ -276,6 +276,11 @@ service cloud.firestore {
             'checked_in_at',
             'checked_in_by',
             'entry_point',
+            // Whether the door SCANNED a QR or a human picked the attendee off a
+            // list. Payout review reads this: a mostly-hand-checked door is a
+            // signal, and without the field the signal cannot exist. Staff must be
+            // able to write it or every staff check-in would be rejected here.
+            'check_in_method',
             'updated_at',
             'reentry_override'
           ])

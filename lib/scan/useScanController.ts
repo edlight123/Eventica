@@ -7,7 +7,7 @@ import type { CheckInResult } from './checkInTicket'
 type ScanState = 'SCANNING' | 'PROCESSING' | 'RESULT'
 
 interface UseScanControllerOptions {
-  onScan: (ticketId: string) => Promise<CheckInResult>
+  onScan: (ticketId: string, method: 'scan' | 'manual') => Promise<CheckInResult>
   cooldownMs?: number
   duplicateWindowMs?: number
 }
@@ -38,7 +38,7 @@ export function useScanController(options: UseScanControllerOptions) {
     }
   }, [])
 
-  const handleScan = useCallback(async (scanResult: string) => {
+  const handleScan = useCallback(async (scanResult: string, method: 'scan' | 'manual' = 'scan') => {
     // Ignore if currently processing
     if (processingRef.current || state !== 'SCANNING') {
       console.log('Scan ignored: already processing or not in SCANNING state')
@@ -75,7 +75,7 @@ export function useScanController(options: UseScanControllerOptions) {
 
     try {
       // Perform check-in
-      const checkInResult = await onScan(ticketId)
+      const checkInResult = await onScan(ticketId, method)
       
       // Show result
       if (mountedRef.current) {
@@ -104,8 +104,9 @@ export function useScanController(options: UseScanControllerOptions) {
   }, [state, onScan, cooldownMs, duplicateWindowMs])
 
   const manualCheckIn = useCallback(async (ticketId: string) => {
-    // Use same logic as handleScan
-    await handleScan(ticketId)
+    // Same validation and locking as a scan, but the stored record must say a
+    // human picked this attendee off a list — payout review reads that.
+    await handleScan(ticketId, 'manual')
   }, [handleScan])
 
   const reset = useCallback(() => {

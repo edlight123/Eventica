@@ -51,13 +51,14 @@ export function DoorModeInterface({
 
   // Scan controller
   const { state, result, handleScan, manualCheckIn, reset } = useScanController({
-    onScan: async (ticketId) => {
+    onScan: async (ticketId, method) => {
       setCurrentTicketId(ticketId)
       const params: CheckInParams = {
         ticketId,
         eventId,
         entryPoint,
         scannedBy,
+        checkInMethod: method,
       }
       return await performCheckIn(params)
     },

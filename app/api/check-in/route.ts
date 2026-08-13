@@ -105,7 +105,8 @@ export async function POST(request: NextRequest) {
       .update({ 
         checked_in_at: checkedInAt,
         checked_in: true,
-        checked_in_by: user.id
+        checked_in_by: user.id,
+        check_in_method: 'scan'
       })
       .eq('id', foundTicket.id)
 

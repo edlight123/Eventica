@@ -57,7 +57,11 @@ export async function checkInTicket(
     await adminDb.collection('tickets').doc(ticketDoc.id).update({
       checked_in: true,
       checked_in_at: new Date(),
+      checked_in_by: user.id,
       entry_point: entryPoint,
+      // This page admits by name/ticket-id lookup, not by reading a QR at the
+      // door, so it is a manual admission and payout review must see it as one.
+      check_in_method: 'manual',
       updated_at: new Date(),
     })
 

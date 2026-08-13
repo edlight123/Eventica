@@ -362,6 +362,8 @@ export default function TicketScannerScreen() {
       checked_in: true,
       checked_in_at: serverTimestamp(),
       checked_in_by: auth.currentUser?.uid || null,
+      // A real QR was read by the camera.
+      check_in_method: 'scan',
       updated_at: serverTimestamp(),
     });
     writePromise.catch((e) => console.warn('Deferred check-in write failed:', e));
