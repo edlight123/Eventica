@@ -94,6 +94,18 @@ export async function POST(request: NextRequest) {
           card_payments: { requested: true },
           transfers: { requested: true },
         },
+        settings: {
+          payouts: {
+            // MANUAL payout schedule. Ticket sales are destination charges, so the
+            // money is the organizer's from the moment of sale — this does not put
+            // it in Tikèm's custody. What it stops is the automatic hop from their
+            // Stripe balance to their bank, which is the only thing that made an
+            // attendance/hold policy unenforceable: previously Stripe paid out on
+            // its own schedule, before the event had even happened.
+            // Release is triggered by /api/cron/release-payouts.
+            schedule: { interval: 'manual' },
+          },
+        },
         metadata: {
           organizerId,
         },
