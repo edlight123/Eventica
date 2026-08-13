@@ -46,6 +46,11 @@ export function EventTabs({ eventId, ticketCount }: EventTabsProps) {
       count: ticketCount,
     },
     {
+      id: 'messages',
+      label: 'Messages',
+      href: `/organizer/events/${eventId}/messages`,
+    },
+    {
       id: 'marketing',
       label: 'Marketing',
       href: `/organizer/events/${eventId}/marketing`,

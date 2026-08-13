@@ -85,6 +85,24 @@ function adjustColor(hex: string, percent: number): string {
   return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 + (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 + (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1)
 }
 
+/**
+ * Escape text that a USER typed before it lands in an email's HTML.
+ *
+ * Most templates below interpolate values we generated ourselves. Free-text
+ * written by one person and delivered to another (an organizer's reply, the
+ * attendee's original question) is different: unescaped, a `<a href>` or a
+ * `<style>` in the message body would render as live markup in the recipient's
+ * mail client.
+ */
+function escapeHtml(value: string): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 export async function sendEmail({ to, subject, html }: EmailParams) {
   // Check API key configuration
   const apiKey = process.env.RESEND_API_KEY
@@ -923,6 +941,93 @@ export function getEventUpdateEmail(params: {
                   </td>
                 </tr>
                 
+                ${getEmailFooter()}
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `
+}
+
+/**
+ * The organizer answered an attendee's question about an event.
+ *
+ * The reply text is the point of this email — someone asked "is this real?" and
+ * this is the answer, so it is quoted in full rather than teased with a "you
+ * have a new message" stub that forces a round trip.
+ *
+ * `to` is resolved server-side from the thread's sender_id. It is never taken
+ * from a request body: the organizer types the words, never the address.
+ */
+export function getOrganizerReplyEmail(params: {
+  attendeeName: string
+  organizerName: string
+  eventTitle: string
+  eventId: string
+  question: string
+  reply: string
+}) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tikem.co'
+  const eventUrl = `${appUrl}/events/${params.eventId}`
+
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${escapeHtml(params.organizerName)} replied - ${escapeHtml(params.eventTitle)}</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: ${emailStyles.fontFamily}; background-color: #0f172a; -webkit-font-smoothing: antialiased;">
+        <table role="presentation" style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td align="center" style="padding: 48px 16px;">
+              <table role="presentation" style="width: 600px; max-width: 100%; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+
+                <!-- Header -->
+                <tr>
+                  <td style="padding: 0;">
+                    <div style="background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%); padding: 40px; text-align: center;">
+                      <div style="display: inline-block; padding: 10px 18px; background: rgba(0, 0, 0, 0.15); border-radius: 30px; margin-bottom: 16px;">
+                        <span style="font-size: 13px; font-weight: 600; color: #ffffff; letter-spacing: 0.5px;">💬 THE ORGANIZER REPLIED</span>
+                      </div>
+                      <div style="font-size: 20px; font-weight: 800; color: #ffffff;">${escapeHtml(params.eventTitle)}</div>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Content -->
+                <tr>
+                  <td style="padding: 40px;">
+                    <div style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 6px;">Hi ${escapeHtml(params.attendeeName)} 👋</div>
+                    <div style="font-size: 15px; color: #64748b; line-height: 1.7; margin-bottom: 24px;">
+                      ${escapeHtml(params.organizerName)} answered the question you sent about this event.
+                    </div>
+
+                    <!-- Your question -->
+                    <div style="border-left: 3px solid #e2e8f0; padding: 4px 0 4px 16px; margin-bottom: 24px;">
+                      <div style="font-size: 12px; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px; margin-bottom: 6px;">YOU ASKED</div>
+                      <div style="font-size: 14px; color: #64748b; line-height: 1.7; white-space: pre-line;">${escapeHtml(params.question)}</div>
+                    </div>
+
+                    <!-- The reply -->
+                    <div style="background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%); border-radius: 16px; padding: 24px; border-left: 4px solid #14b8a6;">
+                      <div style="font-size: 12px; font-weight: 700; color: #0f766e; letter-spacing: 0.5px; margin-bottom: 10px;">${escapeHtml(params.organizerName).toUpperCase()} REPLIED</div>
+                      <div style="font-size: 15px; color: #134e4a; line-height: 1.8; white-space: pre-line;">${escapeHtml(params.reply)}</div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 32px;">
+                      ${getButton('View the event', eventUrl, '#0f172a')}
+                    </div>
+
+                    <div style="font-size: 12px; color: #94a3b8; text-align: center; margin-top: 24px;">
+                      Reply to this organizer from the event page — your email address stays private.
+                    </div>
+                  </td>
+                </tr>
+
                 ${getEmailFooter()}
               </table>
             </td>

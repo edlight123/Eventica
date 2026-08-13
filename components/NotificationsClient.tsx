@@ -178,6 +178,9 @@ export function NotificationsClient({
         return '❌'
       case 'staff_invite':
         return '👥'
+      case 'organizer_message':
+      case 'organizer_reply':
+        return '💬'
       default:
         return '🔔'
     }
@@ -276,8 +279,13 @@ export function NotificationsClient({
                       )}
                     </div>
                     
-                    <p className="text-sm text-white/65 mb-2">
-                      {notification.message}
+                    {/* An organizer's reply is the answer to a question the
+                        attendee asked, so show it in full rather than the
+                        list-friendly excerpt stored in `message`. */}
+                    <p className="text-sm text-white/65 mb-2 whitespace-pre-line">
+                      {notification.type === 'organizer_reply'
+                        ? (notification.metadata as any)?.replyBody || notification.message
+                        : notification.message}
                     </p>
 
                     {notification.type === 'staff_invite' && (

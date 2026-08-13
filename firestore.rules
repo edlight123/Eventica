@@ -445,6 +445,13 @@ service cloud.firestore {
     // authenticates the sender, checks they are not the organizer and applies
     // the per-event throttle — none of which a client rule can enforce. The
     // organizer reads their own; the sender reads what they sent.
+    //
+    // Organizer replies live in a `replies` SUBCOLLECTION of each message. This
+    // match does NOT cover subcollections, so replies fall through to the
+    // default-deny at the bottom of this file: they are written and read only by
+    // the server (/api/organizer/messages/*), which is why the inbox pages fetch
+    // over HTTP instead of listening to Firestore. Do not add a client rule for
+    // them without also moving the authorization checks out of those routes.
     match /organizer_messages/{messageId} {
       allow read: if isSignedIn() && (
         resource.data.organizer_id == request.auth.uid ||

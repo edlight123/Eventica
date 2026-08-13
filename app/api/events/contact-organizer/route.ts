@@ -117,6 +117,11 @@ export async function POST(request: Request) {
       message,
       status: 'open',
       created_at: FieldValue.serverTimestamp(),
+      // Thread bookkeeping, seeded so every document carries the same shape and
+      // the organizer's inbox never has to guess. Replies live in the `replies`
+      // subcollection of this document — see lib/organizer-messages.ts.
+      reply_count: 0,
+      last_activity_at: FieldValue.serverTimestamp(),
     })
 
     // A failed notification must not lose the message — it is already stored,

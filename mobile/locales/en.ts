@@ -1246,6 +1246,7 @@ export default {
       scanTickets: 'Scan Tickets',
       staff: 'Team',
       viewAttendees: 'View Attendees',
+      messages: 'Messages',
       earnings: 'Earnings',
       comps: 'Free Tickets',
       promoCodes: 'Promo Codes',
@@ -1974,6 +1975,37 @@ export default {
     sentBodyNamed: 'The organizer of {event} has been notified and can reply to you in the app.',
     errorGeneric: "Couldn't send your message. Try again.",
     open: 'Contact organizer',
+  },
+
+  // The other half of contactOrganizer: the organizer reading those questions
+  // and answering them.
+  organizerMessages: {
+    title: 'Messages',
+    waitingCount: '{count} waiting on you',
+    loadFailed: "Couldn't load your messages. Pull down to try again.",
+    empty: 'No questions yet',
+    emptySubtitle:
+      'When someone asks about your event before buying, it lands here. A quick answer is often what turns a browser into a buyer.',
+    sectionWaiting: 'Waiting on you',
+    sectionAnswered: 'Answered',
+    answered: 'answered',
+    aboutEvent: 'About the event',
+    aboutTicket: 'About their ticket',
+    aboutOther: 'About something else',
+    questionHeading: 'The question',
+    replyHeading: 'Your reply',
+    you: 'You',
+    replyPlaceholder: 'Answer their question',
+    send: 'Send reply',
+    sending: 'Sending…',
+    sentTitle: 'Reply sent',
+    sentBody: '{name} gets your answer in the app and by email.',
+    privacyNote:
+      'They see your reply in the app and by email. Your email address stays private.',
+    errorEmpty: 'Write a reply before sending.',
+    errorTooLong: 'That reply is too long. Trim it a little.',
+    errorReplyLimit: 'This conversation has reached its reply limit.',
+    errorGeneric: "Couldn't send your reply. Try again.",
   },
   purchaseSuccess: {
     title: "You're in.",

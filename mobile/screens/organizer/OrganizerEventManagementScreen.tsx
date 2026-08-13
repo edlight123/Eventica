@@ -133,6 +133,10 @@ export default function OrganizerEventManagementScreen() {
     navigation.navigate('OrganizerComps', { eventId });
   };
 
+  const handleViewMessages = () => {
+    navigation.navigate('OrganizerMessages', { eventId, eventTitle: event?.title });
+  };
+
   const handlePromoCodes = () => {
     navigation.navigate('OrganizerPromoCodes', { eventId });
   };
@@ -331,6 +335,7 @@ export default function OrganizerEventManagementScreen() {
             { key: 'scan', icon: 'qr-code-outline', label: t('organizerEventManagement.actions.scanTickets'), onPress: handleScanTickets },
             { key: 'staff', icon: 'people-outline', label: t('organizerEventManagement.actions.staff'), onPress: handleManageStaff },
             { key: 'attendees', icon: 'people-circle-outline', label: t('organizerEventManagement.actions.viewAttendees'), onPress: handleViewAttendees },
+            { key: 'messages', icon: 'chatbubble-ellipses-outline', label: t('organizerEventManagement.actions.messages'), onPress: handleViewMessages },
             { key: 'earnings', icon: 'cash-outline', label: t('organizerEventManagement.actions.earnings'), onPress: handleViewEarnings },
             { key: 'comps', icon: 'gift-outline', label: t('organizerEventManagement.actions.comps'), onPress: handleViewComps },
             { key: 'promo', icon: 'pricetag-outline', label: t('organizerEventManagement.actions.promoCodes'), onPress: handlePromoCodes },

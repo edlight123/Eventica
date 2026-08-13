@@ -21,6 +21,7 @@ export type NotificationType =
   | 'connection_request'
   | 'connection_accepted'
   | 'organizer_message'
+  | 'organizer_reply'
 
 export interface Database {
   public: {

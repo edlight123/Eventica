@@ -338,6 +338,9 @@ export default function NotificationsScreen() {
         return '❌';
       case 'staff_invite':
         return '👥';
+      case 'organizer_message':
+      case 'organizer_reply':
+        return '💬';
       default:
         return '🔔';
     }
@@ -349,6 +352,12 @@ export default function NotificationsScreen() {
       if (details) {
         return { screen: 'InviteRedeem', params: details };
       }
+    }
+    // A new attendee question belongs in the organizer's inbox, not on the
+    // public event page — the answer is what the notification is asking for.
+    if (notification.type === 'organizer_message') {
+      const eventId = notification.eventId || (notification.metadata as any)?.eventId;
+      return { screen: 'OrganizerMessages', params: eventId ? { eventId } : undefined };
     }
     if (notification.ticketId) {
       return { screen: 'TicketDetail', params: { ticketId: notification.ticketId } };
@@ -465,9 +474,19 @@ export default function NotificationsScreen() {
                     {!notification.isRead && <View style={styles.unreadDot} />}
                   </View>
 
-                  <Text style={styles.notificationMessage} numberOfLines={3}>
-                    {notification.message}
-                  </Text>
+                  {/* An organizer's reply is the whole point of its
+                      notification — the attendee asked a question and this is
+                      the answer, so it is shown in full instead of clipped to
+                      three lines with nowhere to go and read the rest. */}
+                  {notification.type === 'organizer_reply' ? (
+                    <Text style={styles.notificationMessage}>
+                      {(notification.metadata as any)?.replyBody || notification.message}
+                    </Text>
+                  ) : (
+                    <Text style={styles.notificationMessage} numberOfLines={3}>
+                      {notification.message}
+                    </Text>
+                  )}
 
                   {notification.type === 'staff_invite' && (
                     <View style={styles.staffInviteActions}>

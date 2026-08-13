@@ -926,6 +926,7 @@ export default {
       scanTickets: 'Scanner des billets',
       staff: 'Équipe',
       viewAttendees: 'Voir les participants',
+      messages: 'Messages',
       earnings: 'Revenus',
       comps: 'Billets gratuits',
       promoCodes: 'Codes promo',
@@ -1928,6 +1929,37 @@ export default {
     sentBodyNamed: "L'organisateur de {event} a été prévenu et peut vous répondre dans l'application.",
     errorGeneric: "Impossible d'envoyer votre message. Réessayez.",
     open: "Contacter l'organisateur",
+  },
+
+  // L'autre moitié de contactOrganizer : l'organisateur lit ces questions et y
+  // répond.
+  organizerMessages: {
+    title: 'Messages',
+    waitingCount: '{count} en attente de vous',
+    loadFailed: 'Impossible de charger vos messages. Tirez pour réessayer.',
+    empty: 'Aucune question pour le moment',
+    emptySubtitle:
+      "Quand quelqu'un pose une question sur votre événement avant d'acheter, elle arrive ici. Une réponse rapide transforme souvent un curieux en acheteur.",
+    sectionWaiting: 'En attente de vous',
+    sectionAnswered: 'Répondu',
+    answered: 'répondu',
+    aboutEvent: "À propos de l'événement",
+    aboutTicket: 'À propos de son billet',
+    aboutOther: "À propos d'autre chose",
+    questionHeading: 'La question',
+    replyHeading: 'Votre réponse',
+    you: 'Vous',
+    replyPlaceholder: 'Répondez à sa question',
+    send: 'Envoyer la réponse',
+    sending: 'Envoi…',
+    sentTitle: 'Réponse envoyée',
+    sentBody: "{name} reçoit votre réponse dans l'application et par e-mail.",
+    privacyNote:
+      "Votre réponse lui arrive dans l'application et par e-mail. Votre adresse e-mail reste privée.",
+    errorEmpty: "Écrivez une réponse avant d'envoyer.",
+    errorTooLong: 'Cette réponse est trop longue. Raccourcissez-la un peu.',
+    errorReplyLimit: 'Cette conversation a atteint sa limite de réponses.',
+    errorGeneric: "Impossible d'envoyer votre réponse. Réessayez.",
   },
   purchaseSuccess: {
     title: "C'est confirmé.",
