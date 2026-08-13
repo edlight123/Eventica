@@ -46,6 +46,7 @@ import { RADIUS } from '../../config/brand';
 import { db } from '../../config/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { COUNTRIES, CITIES_BY_COUNTRY } from '../../types/filters';
+import { getDeviceLocationInfo } from '../../utils/deviceLocation';
 import {
   HAITI_DEPARTMENTS,
   citiesForDepartment,
@@ -654,7 +655,21 @@ export default function CreateEventFlowRefactored() {
   // The organizer's own country leads the chip row, and seeds a new draft:
   // a Miami organizer shouldn't have to scroll past Haiti and re-pick a city
   // every time ("list them by order of where the organizer is located").
-  const organizerCountry = (userProfile as any)?.default_country || null;
+  const organizerCountry = useMemo(() => {
+    const stated = (userProfile as any)?.default_country;
+    if (stated) return stated;
+    // Profile silent — the location banner was never answered, or the account
+    // predates it. Fall back to the DEVICE REGION (expo-localization, no IP,
+    // no permission prompt). This only ever reorders the chips and seeds a
+    // blank draft; an explicit pick and edit mode both win over it, which is
+    // the line 1cab4462 drew — a guess may suggest, never decide.
+    try {
+      const device = getDeviceLocationInfo();
+      return device.isSupported ? device.country : null;
+    } catch {
+      return null;
+    }
+  }, [userProfile]);
   const orderedCountries = useMemo(() => {
     if (!organizerCountry) return COUNTRIES;
     const own = COUNTRIES.filter((c) => c.code === organizerCountry);
