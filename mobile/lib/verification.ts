@@ -67,6 +67,19 @@ export interface VerificationFiles {
     sequence?: { id: string; signal: string }[];
     secondsPerPrompt?: number;
     startedAt?: string;
+    /**
+     * Consent to biometric capture, recorded BEFORE the camera ran.
+     *
+     * Illinois' BIPA and Texas' CUBI attach to where the PERSON is, not to which
+     * currency they are paid in — and much of this audience is diaspora holding a
+     * Haitian payout profile while living in the US. Both require informed,
+     * explicit consent before capture; an unrecorded consent is indistinguishable
+     * from none. `version` pins which wording they actually saw.
+     */
+    consent?: {
+      version: string;
+      grantedAt: string;
+    };
   };
 }
 

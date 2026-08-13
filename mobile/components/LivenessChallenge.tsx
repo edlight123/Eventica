@@ -74,12 +74,22 @@ function buildSequence(): LivenessPrompt[] {
   return out;
 }
 
+/**
+ * Version of the consent wording shown before capture. Stored with the consent
+ * record: if the wording changes, an old consent can still be traced to exactly
+ * what the organizer was told, which is the whole point of keeping it.
+ */
+export const LIVENESS_CONSENT_VERSION = '2026-08-13';
+
 export default function LivenessChallenge({
   onComplete,
   onCancel,
+  onConsent,
 }: {
   onComplete: (result: LivenessResult) => void;
   onCancel: () => void;
+  /** Called once, when consent is given, so it can be recorded server-side. */
+  onConsent?: (version: string) => void;
 }) {
   const { colors } = useTheme();
   const { t } = useI18n();
@@ -93,6 +103,7 @@ export default function LivenessChallenge({
   const cameraRef = useRef<any>(null);
   const [sequence] = useState<LivenessPrompt[]>(() => buildSequence());
   const [promptIndex, setPromptIndex] = useState(-1); // -1 = not started
+  const [consented, setConsented] = useState(false);
   const [recording, setRecording] = useState(false);
   const [finishing, setFinishing] = useState(false);
   const startedAtRef = useRef<string>('');
@@ -183,6 +194,44 @@ export default function LivenessChallenge({
           }}
         >
           <Text style={styles.primaryButtonText}>{t('liveness.grantPermission')}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
+          <Text style={styles.cancelText}>{t('common.cancel')}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  /**
+   * CONSENT BEFORE CAPTURE, and not as a formality.
+   *
+   * A Haiti payout profile says how someone is paid, not where they are. Much of
+   * this audience is diaspora — an organizer in Miami or Brooklyn running an
+   * event in Port-au-Prince needs a Haitian profile, and records their face while
+   * physically in the United States. Illinois' BIPA and Texas' CUBI attach to the
+   * PERSON's location, not the payout currency, and both require notice of what
+   * is collected, why, and for how long, plus explicit consent BEFORE capture.
+   * GDPR asks the same of an organizer in France.
+   *
+   * So the screen states it plainly and the answer is recorded. This is also
+   * simply the honest thing to show someone before recording their face.
+   */
+  if (!consented) {
+    return (
+      <View style={styles.center}>
+        <Ionicons name="shield-checkmark-outline" size={56} color={colors.primary} />
+        <Text style={styles.permissionTitle}>{t('liveness.consent.title')}</Text>
+        <Text style={styles.consentBody}>{t('liveness.consent.what')}</Text>
+        <Text style={styles.consentBody}>{t('liveness.consent.why')}</Text>
+        <Text style={styles.consentBody}>{t('liveness.consent.retention')}</Text>
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={() => {
+            setConsented(true);
+            onConsent?.(LIVENESS_CONSENT_VERSION);
+          }}
+        >
+          <Text style={styles.primaryButtonText}>{t('liveness.consent.agree')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
           <Text style={styles.cancelText}>{t('common.cancel')}</Text>
@@ -296,6 +345,13 @@ const getStyles = (colors: any) =>
     recordDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#ef4444' },
     recordingText: { color: '#fff', fontSize: 15, fontWeight: '600' },
     permissionTitle: { color: colors.text, fontSize: 20, fontWeight: '700', marginTop: 20 },
+    consentBody: {
+      color: colors.textSecondary,
+      fontSize: 14,
+      lineHeight: 21,
+      textAlign: 'center',
+      marginTop: 12,
+    },
     permissionBody: {
       color: colors.textSecondary,
       fontSize: 15,

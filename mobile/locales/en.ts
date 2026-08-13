@@ -1072,6 +1072,13 @@ export default {
   },
 
   liveness: {
+    consent: {
+      title: 'Before we record',
+      what: 'We record a few seconds of video of your face, and take measurements from it, to confirm a real person is completing this verification.',
+      why: 'It is used only to verify your identity before we send you money. It is never shown publicly, never used for advertising, and never sold or shared with anyone outside Tikèm and the reviewer who checks it.',
+      retention: 'We delete the recording 90 days after your verification is decided. We keep the decision itself, not your face.',
+      agree: 'I agree — start recording',
+    },
     sectionLabel: 'Liveness check',
     sectionHint: 'A short recording that proves a real person is here. Takes about 10 seconds.',
     start: 'Start liveness check',

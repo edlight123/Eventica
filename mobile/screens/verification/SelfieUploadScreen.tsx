@@ -60,6 +60,22 @@ export default function SelfieUploadScreen() {
   const [livenessDone, setLivenessDone] = useState(false);
   const [savingLiveness, setSavingLiveness] = useState(false);
 
+  /**
+   * Recorded the moment consent is given, not after the upload succeeds — a
+   * recording that fails to upload was still captured, and the consent that
+   * authorised capturing it has to exist independently of the file.
+   */
+  const handleLivenessConsent = async (version: string) => {
+    if (!userProfile?.id) return;
+    try {
+      await updateVerificationFiles(userProfile.id, {
+        liveness: { consent: { version, grantedAt: new Date().toISOString() } },
+      });
+    } catch (error) {
+      console.error('[Liveness] failed to record consent', error);
+    }
+  };
+
   const handleLivenessComplete = async (result: LivenessResult) => {
     if (!userProfile?.id) return;
     setShowLiveness(false);
@@ -415,6 +431,7 @@ export default function SelfieUploadScreen() {
         <LivenessChallenge
           onComplete={handleLivenessComplete}
           onCancel={() => setShowLiveness(false)}
+          onConsent={handleLivenessConsent}
         />
       </Modal>
     </View>

@@ -748,6 +748,13 @@ export default {
   },
 
   liveness: {
+    consent: {
+      title: 'Anvan nou anrejistre',
+      what: 'Nou anrejistre kèk segonn videyo figi ou, epi nou pran mezi ladan l, pou konfime se yon moun reyèl k ap fè verifikasyon sa a.',
+      why: 'Nou sèvi avè l sèlman pou verifye idantite ou anvan nou voye lajan ba ou. Nou pa janm montre l an piblik, nou pa janm sèvi avè l pou piblisite, e nou pa janm vann ni pataje l deyò Tikèm ak moun k ap tcheke l la.',
+      retention: 'Nou efase anrejistreman an 90 jou apre desizyon an fèt. Nou kenbe desizyon an, se pa figi ou.',
+      agree: 'Mwen dakò — kòmanse anrejistreman an',
+    },
     sectionLabel: 'Verifikasyon prezans',
     sectionHint: 'Yon ti videyo kout ki pwouve se yon moun reyèl ki la. Sa pran anviwon 10 segonn.',
     start: 'Kòmanse verifikasyon an',

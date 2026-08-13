@@ -778,6 +778,13 @@ export default {
   },
 
   liveness: {
+    consent: {
+      title: 'Avant l’enregistrement',
+      what: 'Nous enregistrons quelques secondes de vidéo de votre visage et en tirons des mesures, afin de confirmer qu’une vraie personne effectue cette vérification.',
+      why: 'Cela sert uniquement à vérifier votre identité avant de vous envoyer de l’argent. Ce n’est jamais rendu public, jamais utilisé à des fins publicitaires, jamais vendu ni communiqué en dehors de Tikèm et de la personne qui l’examine.',
+      retention: 'Nous supprimons l’enregistrement 90 jours après la décision. Nous conservons la décision, pas votre visage.',
+      agree: 'J’accepte — démarrer l’enregistrement',
+    },
     sectionLabel: 'Vérification de présence',
     sectionHint: 'Un court enregistrement qui prouve qu’une vraie personne est là. Environ 10 secondes.',
     start: 'Démarrer la vérification',
