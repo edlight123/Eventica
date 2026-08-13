@@ -43,7 +43,14 @@ export function AdminTopNav({ userEmail, accountInitial = 'A' }: AdminTopNavProp
     { label: 'Analytics', href: '/admin/analytics' },
   ]
 
-  const isActive = (href: string) => (href === '/admin' ? pathname === '/admin' : pathname?.startsWith(href))
+  const isActive = (href: string) => {
+    if (href === '/admin') return pathname === '/admin'
+    // Payout release settings live under /admin/payouts, so keep the Payouts tab lit there too.
+    if (href === '/admin/disbursements') {
+      return pathname?.startsWith('/admin/disbursements') || pathname?.startsWith('/admin/payouts')
+    }
+    return pathname?.startsWith(href)
+  }
   const securityActive = pathname?.startsWith('/admin/security')
   const settingsActive = pathname?.startsWith('/admin/settings')
   const devActive = pathname?.startsWith('/admin/dev')

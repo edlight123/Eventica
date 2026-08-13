@@ -93,15 +93,45 @@ export async function PUT(request: NextRequest) {
     next.reserveNewOrganizersOnly = (body as any).reserveNewOrganizersOnly
   }
 
+  if (typeof (body as any)?.thresholdCurrency === 'string' && (body as any).thresholdCurrency.trim()) {
+    next.thresholdCurrency = (body as any).thresholdCurrency.trim().toUpperCase().slice(0, 3)
+  }
+
+  // Rates normalise the money thresholds across account currencies. A bad rate
+  // silently moves the bar for who gets paid early, so each one is validated and
+  // the threshold currency itself is pinned to 1.
+  if ((body as any)?.referenceRates && typeof (body as any).referenceRates === 'object') {
+    const rates: Record<string, number> = {}
+    for (const [code, raw] of Object.entries((body as any).referenceRates as Record<string, unknown>)) {
+      const key = String(code).trim().toUpperCase().slice(0, 3)
+      if (!/^[A-Z]{3}$/.test(key)) {
+        rejected.push(`referenceRates.${code}: not a 3-letter currency code`)
+        continue
+      }
+      const value = Number(raw)
+      if (!Number.isFinite(value) || value <= 0 || value > 10_000) {
+        rejected.push(`referenceRates.${key}: must be greater than 0 and at most 10000`)
+        continue
+      }
+      rates[key] = value
+    }
+    rates[(next.thresholdCurrency || 'USD').toUpperCase()] = 1
+    next.referenceRates = rates
+  }
+
   if (rejected.length) {
     return NextResponse.json({ error: 'Invalid values', details: rejected }, { status: 400 })
   }
 
-  const changed = NUMERIC_FIELDS.filter((f) => before[f] !== next[f]).concat(
-    before.reserveNewOrganizersOnly !== next.reserveNewOrganizersOnly
-      ? (['reserveNewOrganizersOnly'] as any)
-      : []
-  )
+  const changed = (NUMERIC_FIELDS as string[])
+    .filter((f) => (before as any)[f] !== (next as any)[f])
+    .concat(before.reserveNewOrganizersOnly !== next.reserveNewOrganizersOnly ? ['reserveNewOrganizersOnly'] : [])
+    .concat(before.thresholdCurrency !== next.thresholdCurrency ? ['thresholdCurrency'] : [])
+    .concat(
+      JSON.stringify(before.referenceRates || {}) !== JSON.stringify(next.referenceRates || {})
+        ? ['referenceRates']
+        : []
+    ) as any
 
   if (!changed.length) {
     return NextResponse.json({ success: true, config: next, changed: [] })
@@ -119,8 +149,8 @@ export async function PUT(request: NextRequest) {
     resourceType: 'platform_settings',
     details: {
       changed,
-      before: Object.fromEntries(changed.map((f) => [f, (before as any)[f]])),
-      after: Object.fromEntries(changed.map((f) => [f, (next as any)[f]])),
+      before: Object.fromEntries(changed.map((f: string) => [f, (before as any)[f]])),
+      after: Object.fromEntries(changed.map((f: string) => [f, (next as any)[f]])),
     },
   })
 

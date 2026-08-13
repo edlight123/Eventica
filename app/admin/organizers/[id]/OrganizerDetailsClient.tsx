@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useConfirm } from '@/components/ui/ConfirmProvider'
+import OrganizerPayoutReleaseCard from './OrganizerPayoutReleaseCard'
 
 // Helper to safely render any value - prevents React error #31 for objects
 function safeString(value: any, fallback: string = ''): string {
@@ -526,6 +527,9 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
             </div>
           )}
         </div>
+
+        {/* Payout Release — per-organizer overrides on the platform thresholds */}
+        <OrganizerPayoutReleaseCard organizerId={id} />
 
         {/* Verification Request */}
         {verificationRequest && (

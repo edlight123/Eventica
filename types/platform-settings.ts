@@ -47,6 +47,24 @@ export interface PayoutReleaseConfig {
   /** Check-in ratios that route a payout to review. */
   manualCheckInReviewRatio: number
   lowAttendanceReviewRatio: number
+  /**
+   * Currency the MONEY thresholds above are expressed in. They are compared
+   * against amounts converted into this currency, so one threshold means one
+   * economic amount for every organizer — a US account and a Haitian one are
+   * judged by the same bar rather than by the same raw number.
+   */
+  thresholdCurrency: string
+  /**
+   * Units of `thresholdCurrency` per 1 unit of each account currency, used ONLY
+   * to compare against thresholds. Payout amounts and the reserve are never
+   * converted — the reserve is a percentage, and money is always paid out in the
+   * account's own currency.
+   *
+   * Deliberately a stored table rather than a live FX call: a rate lookup that
+   * fails mid-run would change who gets paid. An admin maintains these, and the
+   * value used is auditable after the fact.
+   */
+  referenceRates: Record<string, number>
 }
 
 /**
@@ -83,6 +101,14 @@ export const DEFAULT_PAYOUT_RELEASE_CONFIG: PayoutReleaseConfig = {
   reserveNewOrganizersOnly: true,
   manualCheckInReviewRatio: 0.8,
   lowAttendanceReviewRatio: 0.2,
+  thresholdCurrency: 'USD',
+  referenceRates: {
+    USD: 1,
+    CAD: 0.73,
+    EUR: 1.08,
+    GBP: 1.27,
+    HTG: 0.0076,
+  },
 }
 
 /**

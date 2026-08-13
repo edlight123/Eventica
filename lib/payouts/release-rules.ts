@@ -45,11 +45,32 @@ export function resolveConfig(
   return { ...base, ...picked }
 }
 
+/**
+ * Convert an amount in `currency`'s minor units into the threshold currency's
+ * minor units, for THRESHOLD COMPARISONS ONLY. Unknown currency → returned
+ * unchanged, which is the conservative choice: it compares raw numbers rather
+ * than silently scaling money by a rate nobody configured.
+ */
+export function toThresholdMinor(
+  amountMinor: number,
+  currency: string | null | undefined,
+  cfg: PayoutReleaseConfig
+): number {
+  if (!currency) return amountMinor
+  const code = currency.toUpperCase()
+  if (code === (cfg.thresholdCurrency || 'USD').toUpperCase()) return amountMinor
+  const rate = cfg.referenceRates?.[code]
+  if (!rate || !Number.isFinite(rate) || rate <= 0) return amountMinor
+  return Math.round(amountMinor * rate)
+}
+
 export type OrganizerHistory = {
   /** Events completed without a dispute or a refund storm. */
   completedEvents: number
   /** Lifetime gross ticket volume, minor units of the account currency. */
   lifetimeGrossMinor: number
+  /** Currency those minor units are in. Used only to normalise thresholds. */
+  currency?: string | null
   /**
    * Admin-granted: this organizer may be paid BEFORE their event ends. Never
    * automatic — it advances money against undelivered service, so it takes a
@@ -70,6 +91,8 @@ export type EventForRelease = {
   status: string | null
   /** Gross for THIS event, minor units. */
   grossMinor: number
+  /** Currency of grossMinor/refundedMinor. Used only to normalise thresholds. */
+  currency?: string | null
   /** Which rail the money came in on — card disputes exist, MonCash's don't. */
   rail: PayoutRail
   /** Share of tickets checked in, 0..1, or null when unknown. */
@@ -122,13 +145,15 @@ export function isEstablished(history: OrganizerHistory, cfg: PayoutReleaseConfi
   if (history.forceEstablished) return true
   return (
     history.completedEvents >= cfg.establishedAfterEvents ||
-    history.lifetimeGrossMinor >= cfg.establishedAfterGrossMinor
+    toThresholdMinor(history.lifetimeGrossMinor, history.currency, cfg) >=
+      cfg.establishedAfterGrossMinor
   )
 }
 
 export function isPreEventEligible(history: OrganizerHistory, cfg: PayoutReleaseConfig): boolean {
   return (
-    history.lifetimeGrossMinor >= cfg.preEventEligibleGrossMinor &&
+    toThresholdMinor(history.lifetimeGrossMinor, history.currency, cfg) >=
+      cfg.preEventEligibleGrossMinor &&
     history.preEventReleaseApproved === true
   )
 }
@@ -220,7 +245,10 @@ export function decideRelease({
 
   // Signals that want human eyes rather than an automatic transfer. None of
   // these block the organizer — they route to the admin queue.
-  if (event.grossMinor >= cfg.reviewAboveGrossMinor && !isEstablished(history, cfg)) {
+  if (
+    toThresholdMinor(event.grossMinor, event.currency, cfg) >= cfg.reviewAboveGrossMinor &&
+    !isEstablished(history, cfg)
+  ) {
     return decision('review', 'large_event_from_new_organizer')
   }
   if (

@@ -26,6 +26,9 @@ export type AuditAction =
   | 'bank_verification.needs_info'
   | 'payout.release_config.update'
   | 'payout.release_override.update'
+  | 'payout.manual_schedule.backfill'
+  | 'payout.release.manual'
+  | 'payout.release.hold'
   | 'payout.approve'
   | 'payout.decline'
   | 'payout.mark_paid'
@@ -245,6 +248,9 @@ function getActionDescription(action: string, details: any = {}): string {
     'bank_verification.needs_info': orgTarget ? `Requested more info for ${orgTarget}` : 'Requested bank info',
     'payout.release_config.update': `Updated payout release thresholds (${(details.changed || []).join(', ') || 'no change'})`,
     'payout.release_override.update': 'Updated payout release overrides for an organizer',
+    'payout.manual_schedule.backfill': `Set ${details.updated ?? 0} connected account(s) to manual payouts`,
+    'payout.release.manual': 'Released a held payout early',
+    'payout.release.hold': 'Held a payout for review',
     'payout.approve': `Approved payout ${details.payoutId || ''}`.trim(),
     'payout.decline': `Declined payout ${details.payoutId || ''}`.trim(),
     'payout.mark_paid': `Marked payout paid ${details.payoutId || ''}`.trim(),

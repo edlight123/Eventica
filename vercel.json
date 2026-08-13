@@ -28,6 +28,10 @@
     {
       "path": "/api/cron/update-settlement-status",
       "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/release-payouts",
+      "schedule": "0 * * * *"
     }
   ]
 }
