@@ -34,6 +34,7 @@ import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHea
 import SegmentedTabs from '../../components/organizer/SegmentedTabs'
 import SelectField from '../../components/organizer/SelectField'
 import { HAITI_BANKS, OTHER_BANK } from '../../data/haitiBanks'
+import { getDeviceLocationInfo } from '../../utils/deviceLocation'
 import { Receipt, Wallet } from 'lucide-react-native'
 
 type VerificationStatus = 'not_started' | 'pending' | 'verified' | 'failed'
@@ -138,7 +139,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
   const insets = useSafeAreaInsets()
   const { t } = useI18n()
   const { formatDate } = useLocaleFormat()
-  const { user } = useAuth()
+  const { user, userProfile } = useAuth()
   const showAlert = useAppAlert()
 
   // FIRST-PAINT gate only. `loading` starts true and flips false exactly once —
@@ -464,6 +465,49 @@ export default function OrganizerPayoutSettingsScreenV2() {
     [navigation]
   )
 
+  // The two payout REGIONS as pickable options. Which region an organizer
+  // belongs to decides which rails can ever pay them, so the picker leads with
+  // their own region and names the actual institutions — "Bank Account" alone
+  // reads as universal, and a US organizer would reasonably fill in a form
+  // wired to Sogebank/Unibank.
+  const ownRegion = useMemo(() => {
+    const stated = (userProfile as any)?.default_country
+    const code = stated || (() => {
+      try {
+        const d = getDeviceLocationInfo()
+        return d.isSupported ? d.country : null
+      } catch {
+        return null
+      }
+    })()
+    return code && code !== 'HT' ? 'international' : 'haiti'
+  }, [userProfile])
+
+  const haitiGroup = useMemo(
+    () => ({
+      key: 'haiti',
+      isOwn: ownRegion === 'haiti',
+      heading: t('organizerPayoutSettings.regions.haitiTitle'),
+      options: [
+        {
+          key: 'bank',
+          icon: 'card-outline',
+          title: t('organizerPayoutSettings.methodOptions.bankTitle'),
+          description: t('organizerPayoutSettings.methodOptions.bankDescription'),
+          onPress: () => handleAddMethodSelect('bank'),
+        },
+        {
+          key: 'moncash',
+          icon: 'phone-portrait-outline',
+          title: t('organizerPayoutSettings.methodOptions.moncashTitle'),
+          description: t('organizerPayoutSettings.methodOptions.moncashDescription'),
+          onPress: () => handleAddMethodSelect('moncash'),
+        },
+      ],
+    }),
+    [ownRegion, t, handleAddMethodSelect]
+  )
+
   const handleAddStripe = useCallback(() => {
     if (!identityVerified) {
       showAlert(
@@ -484,6 +528,24 @@ export default function OrganizerPayoutSettingsScreenV2() {
       { text: t('common.cancel'), style: 'cancel' },
     ])
   }, [identityVerified, navigation, startStripeConnect, t])
+
+  const internationalGroup = useMemo(
+    () => ({
+      key: 'international',
+      isOwn: ownRegion === 'international',
+      heading: t('organizerPayoutSettings.regions.internationalTitle'),
+      options: [
+        {
+          key: 'stripe',
+          icon: 'globe-outline',
+          title: t('organizerPayoutSettings.methodOptions.stripeTitle'),
+          description: t('organizerPayoutSettings.methodOptions.stripeDescription'),
+          onPress: handleAddStripe,
+        },
+      ],
+    }),
+    [ownRegion, t, handleAddStripe]
+  )
 
   const handleSaveBank = useCallback(async () => {
     if (!bankForm.accountName || !bankForm.bankName || !bankForm.accountNumber) {
@@ -997,50 +1059,35 @@ export default function OrganizerPayoutSettingsScreenV2() {
             <Text style={styles.modalTitle}>{t('organizerPayoutSettings.addModal.title')}</Text>
             <Text style={styles.modalSubtitle}>{t('organizerPayoutSettings.addModal.subtitle')}</Text>
 
-            <TouchableOpacity
-              style={styles.methodOption}
-              onPress={() => handleAddMethodSelect('bank')}
-              activeOpacity={0.75}
-            >
-              <View style={styles.methodIcon}>
-                <Ionicons name="card-outline" size={22} color={colors.text} />
-              </View>
-              <View style={styles.methodText}>
-                <Text style={styles.methodTitle}>{t('organizerPayoutSettings.methodOptions.bankTitle')}</Text>
-                <Text style={styles.methodDescription} numberOfLines={2}>{t('organizerPayoutSettings.methodOptions.bankDescription')}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.methodOption}
-              onPress={() => handleAddMethodSelect('moncash')}
-              activeOpacity={0.75}
-            >
-              <View style={styles.methodIcon}>
-                <Ionicons name="phone-portrait-outline" size={22} color={colors.text} />
-              </View>
-              <View style={styles.methodText}>
-                <Text style={styles.methodTitle}>{t('organizerPayoutSettings.methodOptions.moncashTitle')}</Text>
-                <Text style={styles.methodDescription} numberOfLines={2}>{t('organizerPayoutSettings.methodOptions.moncashDescription')}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.methodOption}
-              onPress={handleAddStripe}
-              activeOpacity={0.75}
-            >
-              <View style={styles.methodIcon}>
-                <Ionicons name="globe-outline" size={22} color={colors.text} />
-              </View>
-              <View style={styles.methodText}>
-                <Text style={styles.methodTitle}>{t('organizerPayoutSettings.methodOptions.stripeTitle')}</Text>
-                <Text style={styles.methodDescription} numberOfLines={2}>{t('organizerPayoutSettings.methodOptions.stripeDescription')}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
-            </TouchableOpacity>
+            {/* Grouped by REGION, and the organizer's own region leads. A flat
+                list made "Bank Account" a trap: every US organizer has a bank
+                account, but that rail is Sogebank/Unibank — Haiti only. The
+                region heading plus the named institutions in each row is what
+                stops someone filling in the wrong section entirely. */}
+            {[haitiGroup, internationalGroup]
+              .sort((a, b) => Number(b.isOwn) - Number(a.isOwn))
+              .map((group) => (
+                <View key={group.key}>
+                  <Text style={styles.methodGroupHeading}>{group.heading}</Text>
+                  {group.options.map((opt) => (
+                    <TouchableOpacity
+                      key={opt.key}
+                      style={styles.methodOption}
+                      onPress={opt.onPress}
+                      activeOpacity={0.75}
+                    >
+                      <View style={styles.methodIcon}>
+                        <Ionicons name={opt.icon as any} size={22} color={colors.text} />
+                      </View>
+                      <View style={styles.methodText}>
+                        <Text style={styles.methodTitle}>{opt.title}</Text>
+                        <Text style={styles.methodDescription} numberOfLines={2}>{opt.description}</Text>
+                      </View>
+                      <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ))}
 
             <TouchableOpacity style={[styles.secondaryButton, { marginTop: 8 }]} onPress={() => setShowAddModal(false)}>
               <Text style={styles.secondaryButtonText}>{t('common.cancel')}</Text>
@@ -1364,6 +1411,15 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 18,
     fontWeight: '700',
     color: colors.text,
+  },
+  methodGroupHeading: {
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    color: colors.textSecondary,
+    marginTop: 14,
+    marginBottom: 8,
   },
   regionEmpty: {
     fontSize: 13,

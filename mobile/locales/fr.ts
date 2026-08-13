@@ -1248,12 +1248,12 @@ export default {
       subtitle: 'Choisissez comment vous souhaitez recevoir les paiements',
     },
     methodOptions: {
-      bankTitle: 'Compte bancaire',
-      bankDescription: 'Recevez les paiements directement sur votre compte bancaire',
-      moncashTitle: 'MonCash / NatCash',
-      moncashDescription: 'Recevez les paiements sur votre compte mobile money',
-      stripeTitle: 'Stripe (US · Canada · France)',
-      stripeDescription: 'Paiements par carte via Stripe Connect pour les événements hors d’Haïti',
+      bankTitle: 'Compte bancaire haïtien',
+      bankDescription: 'Sogebank, Unibank et autres banques en Haïti. Versé en HTG.',
+      moncashTitle: 'MonCash mobile money',
+      moncashDescription: 'Votre numéro MonCash en Haïti. Versé en HTG.',
+      stripeTitle: 'Votre banque à l’étranger, via Stripe',
+      stripeDescription: 'Une banque aux États-Unis, au Canada ou en France. Versé en USD, CAD ou EUR.',
     },
     bankForm: {
       headerTitle: 'Ajouter un compte bancaire',

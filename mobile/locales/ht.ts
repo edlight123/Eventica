@@ -1246,12 +1246,12 @@ export default {
       subtitle: 'Chwazi kijan w vle resevwa peman',
     },
     methodOptions: {
-      bankTitle: 'Kont labank',
-      bankDescription: 'Resevwa peman dirèkteman nan kont labank ou',
-      moncashTitle: 'MonCash / NatCash',
-      moncashDescription: 'Resevwa peman nan kont mobile money ou',
-      stripeTitle: 'Stripe (US · Canada · France)',
-      stripeDescription: 'Peman pa kat atravè Stripe Connect pou evènman deyò Ayiti',
+      bankTitle: 'Kont labank an Ayiti',
+      bankDescription: 'Sogebank, Unibank ak lòt bank an Ayiti. Yo peye an HTG.',
+      moncashTitle: 'MonCash mobile money',
+      moncashDescription: 'Nimewo MonCash ou an Ayiti. Yo peye an HTG.',
+      stripeTitle: 'Bank ou aletranje, atravè Stripe',
+      stripeDescription: 'Yon bank Ozetazini, Kanada oswa Frans. Yo peye an USD, CAD oswa EUR.',
     },
     bankForm: {
       headerTitle: 'Ajoute kont labank',
