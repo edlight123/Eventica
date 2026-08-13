@@ -1,4 +1,58 @@
 export default {
+  // Noms de pays et de régions, utilisés par le rail « ailleurs … » et par les
+  // écrans vides qui nomment le lieu actif. Les variantes « …In » portent la
+  // préposition (« en Haïti », « au Québec ») pour que le titre du rail reste
+  // naturel dans toutes les langues.
+  countries: {
+    HT: 'Haïti',
+    US: 'États-Unis',
+    CA: 'Canada',
+    FR: 'France',
+    DO: 'République dominicaine',
+  },
+  countriesIn: {
+    HT: 'en Haïti',
+    US: 'aux États-Unis',
+    CA: 'au Canada',
+    FR: 'en France',
+    DO: 'en République dominicaine',
+  },
+  regions: {
+    FL: 'Floride',
+    'NY-metro': 'région de New York',
+    MA: 'Massachusetts',
+    GA: 'Géorgie',
+    IL: 'Illinois',
+    TX: 'Texas',
+    CA: 'Californie',
+    QC: 'Québec',
+    ON: 'Ontario',
+    BC: 'Colombie-Britannique',
+    AB: 'Alberta',
+    IDF: 'Île-de-France',
+    ARA: 'Auvergne-Rhône-Alpes',
+    PACA: 'Provence-Alpes-Côte d’Azur',
+    OCC: 'Occitanie',
+    NAQ: 'Nouvelle-Aquitaine',
+  },
+  regionsIn: {
+    FL: 'en Floride',
+    'NY-metro': 'dans la région de New York',
+    MA: 'au Massachusetts',
+    GA: 'en Géorgie',
+    IL: 'en Illinois',
+    TX: 'au Texas',
+    CA: 'en Californie',
+    QC: 'au Québec',
+    ON: 'en Ontario',
+    BC: 'en Colombie-Britannique',
+    AB: 'en Alberta',
+    IDF: 'en Île-de-France',
+    ARA: 'en Auvergne-Rhône-Alpes',
+    PACA: 'en Provence-Alpes-Côte d’Azur',
+    OCC: 'en Occitanie',
+    NAQ: 'en Nouvelle-Aquitaine',
+  },
   location: {
     title: 'Choisissez votre zone',
     subtitle: 'Parcourez les événements près de vous',
@@ -551,6 +605,23 @@ export default {
     noEventsFound: 'Aucun événement trouvé',
     tryAdjusting: 'Essayez d’ajuster vos filtres pour voir plus d’événements',
     clearFilters: 'Effacer les filtres',
+    // Le lieu actif, nommé. La navigation ne s’élargit jamais toute seule : un
+    // fil vide dit OÙ il est vide et propose le seul geste qui change ça.
+    emptyLocation: {
+      title: 'Aucun événement à {location} pour l’instant',
+      subtitle: 'Rien n’est prévu à {location} en ce moment. Changez de lieu pour explorer une autre zone.',
+    },
+    changeLocation: 'Changer de lieu',
+    // Même règle, à l’échelle du pays : aucune ville choisie.
+    emptyCountry: {
+      title: 'Aucun événement {country} pour l’instant',
+      subtitle: 'Rien n’est prévu {country} en ce moment. Choisissez une zone à explorer.',
+    },
+    // L’unique rail inter-villes, clairement séparé du contenu local.
+    elsewhere: {
+      title: 'ailleurs {place}',
+      subtitle: 'AUTRES ZONES — PAS À {location}',
+    },
     noEventsAvailable: 'Aucun événement disponible',
     checkBackSoon: 'Revenez bientôt pour de nouveaux événements !',
     sections: {
@@ -569,6 +640,12 @@ export default {
     people: 'Personnes',
     noResults: 'Aucun résultat',
     noResultsSubtitle: 'Essayez un autre nom ou mot-clé.',
+    // La recherche reste dans le lieu actif. L’élargir est un geste, jamais une
+    // supposition.
+    noResultsInLocation: 'Rien à {location} ne correspond à votre recherche.',
+    searchAllCountry: 'Chercher {country}',
+    scopeLocation: 'À {location}',
+    scopeCountry: 'PARTOUT {country}',
     eventCount: 'événement',
     eventsCount: 'événements',
   },
@@ -1142,6 +1219,19 @@ export default {
 
   organizerPayoutSettings: {
     headerTitle: 'Paramètres de paiement',
+    markets: {
+      title: 'Où vous organisez vos événements',
+      subtitle: 'Choisissez tous les pays où vous comptez organiser — modifiable à tout moment',
+      noneHint:
+        'Aucun pays choisi : tous les moyens de paiement sont affichés. Choisissez vos pays et nous ne demanderons que ceux dont vous avez besoin.',
+      oneSetupHint: 'Vos marchés nécessitent une seule configuration de paiement.',
+      twoSetupsHint:
+        'Vos marchés nécessitent deux configurations de paiement distinctes — une pour Haïti, une pour le reste. Terminer l’une ne couvre pas l’autre.',
+      countryMismatch:
+        'Votre compte de paiement connecté est enregistré en {account}. Les événements que vous organisez en {markets} vous paieront quand même — sur ce même compte, dans sa devise, après conversion. Être payé localement là-bas exigerait un compte connecté distinct, que Tikèm ne prend pas encore en charge.',
+      showAllRails: 'Afficher quand même tous les moyens de paiement',
+      saveFailed: 'Impossible d’enregistrer vos pays. Veuillez réessayer.',
+    },
     profileTitle: 'Profil de paiement',
     profiles: {
       haiti: 'Haïti',
@@ -1701,6 +1791,8 @@ export default {
       payoutRegime: {
         haiti: 'Versé en HTG sur Sogebank, Unibank ou MonCash. Tikèm vérifie votre identité — à configurer dans Moyens de paiement.',
         international: 'Versé via Stripe sur votre banque. Cela demande un profil de paiement distinct de celui d’Haïti — à configurer dans Moyens de paiement.',
+        countryMismatch:
+          'Attention : cet événement se tient en {event}, mais votre compte de paiement connecté est enregistré en {account}. Vous serez quand même payé — sur ce compte, dans sa devise, après conversion. Un versement local en {event} exigerait un compte connecté distinct, que Tikèm ne prend pas encore en charge.',
       },
     canvas: {
       flyerTitle: 'Concevez votre page d’événement',

@@ -18,11 +18,11 @@ import {
   releaseInventoryReservation,
 } from '@/lib/tickets/inventory'
 import { addTicketToEarnings } from '@/lib/earnings'
-import { generateTicketQRCode } from '@/lib/qrcode'
-import { sendEmail, getTicketConfirmationEmail } from '@/lib/email'
-import { sendWhatsAppMessage, getTicketConfirmationWhatsApp } from '@/lib/whatsapp'
+import { sendTicketConfirmation } from '@/lib/tickets/confirmation'
 import { notifyTicketPurchase as notifyTicketPurchaseNotification } from '@/lib/notifications/helpers'
 import { redeemPromoInTransaction } from '@/lib/promo-codes'
+import { guestRecipientFromOrder } from '@/lib/guest/checkout'
+import { attachTicketsToGuestOrder, isGuestId } from '@/lib/guest/identity'
 
 // Window after which a stuck "processing" claim is considered stale and may be re-claimed
 // (e.g. if a previous fulfillment attempt crashed mid-way).
@@ -170,11 +170,28 @@ export async function fulfillPaidOrder(params: {
     .eq('id', pendingTx.event_id)
     .single()
 
-  const { data: attendee } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', pendingTx.user_id)
-    .single()
+  // WHO gets this ticket.
+  //
+  // For an account purchase this is `users/{uid}`, unchanged. For a GUEST there is no
+  // user document at all — the buyer's name/email/phone were captured at checkout and
+  // stored on this very order, so they are read from here. Reading them from the order
+  // (not from whatever the confirming request carries) is what keeps a forged callback
+  // from redirecting a stranger's ticket.
+  const guestRecipient = guestRecipientFromOrder(pendingTx)
+  const isGuestOrder = Boolean(guestRecipient)
+
+  const { data: accountAttendee } = isGuestOrder
+    ? { data: null }
+    : await supabase.from('users').select('*').eq('id', pendingTx.user_id).single()
+
+  const attendee = guestRecipient
+    ? {
+        email: guestRecipient.email,
+        full_name: guestRecipient.name,
+        phone: guestRecipient.phone,
+        is_guest: true,
+      }
+    : accountAttendee
 
   const tierSelections: TierSelection[] =
     Array.isArray(pendingTx.tier_selections) && pendingTx.tier_selections.length > 0
@@ -263,6 +280,15 @@ export async function fulfillPaidOrder(params: {
         event_date: eventDetails?.start_datetime || null,
         venue_name: eventDetails?.venue_name || null,
         city: eventDetails?.city || null,
+        // Guest tickets carry the buyer's own contact details so support and refunds
+        // can find the order by email or phone without a uid to join on.
+        ...(guestRecipient
+          ? {
+              is_guest: true,
+              guest_email: guestRecipient.email,
+              guest_phone: guestRecipient.phone || null,
+            }
+          : {}),
       }
 
       const insertResult = await supabase.from('tickets').insert([ticketData]).select()
@@ -299,6 +325,14 @@ export async function fulfillPaidOrder(params: {
               tier_id: selection.tierId || '',
               price_paid: organizerUnitPrice,
               currency: eventCurrency,
+              ...(guestRecipient
+                ? {
+                    is_guest: true,
+                    guest_email: guestRecipient.email,
+                    guest_phone: guestRecipient.phone || null,
+                    attendee_name: guestRecipient.name,
+                  }
+                : {}),
               exchange_rate_used: fxRate,
               exchange_rate_base: fxBaseRate,
               exchange_rate_spread_percent: fxSpreadPercent,
@@ -386,9 +420,22 @@ export async function fulfillPaidOrder(params: {
   // QR + buyer notifications (best-effort; never fail an already-paid order on notify errors).
   if (ticket?.id) {
     try {
-      const qrCodeDataURL = await generateTicketQRCode(ticket.id)
+      // Record the issued tickets against the guest order so the buyer's retrieval
+      // link renders them.
+      if (guestRecipient && pendingTx.guest_order_key) {
+        await attachTicketsToGuestOrder(
+          String(pendingTx.guest_order_key),
+          createdTickets.map((t) => String(t.id))
+        )
+      }
 
-      if (pendingTx.user_id && pendingTx.event_id && eventDetails?.title) {
+      // In-app notifications need an account to land in; a guest has none.
+      if (
+        pendingTx.user_id &&
+        !isGuestId(pendingTx.user_id) &&
+        pendingTx.event_id &&
+        eventDetails?.title
+      ) {
         try {
           await notifyTicketPurchaseNotification(
             String(pendingTx.user_id),
@@ -402,55 +449,20 @@ export async function fulfillPaidOrder(params: {
       }
 
       if (ticket.attendee && ticket.event) {
-        const quantity = pendingTx.quantity || 1
-        const ticketWord = quantity > 1 ? `${quantity} tickets` : 'ticket'
-
-        try {
-          await sendEmail({
-            to: ticket.attendee.email,
-            subject: `Your ${ticketWord} for ${ticket.event.title}`,
-            html: getTicketConfirmationEmail({
-              attendeeName: ticket.attendee.full_name || 'Guest',
-              eventTitle: ticket.event.title,
-              eventDate: new Date(ticket.event.start_datetime).toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit',
-              }),
-              eventVenue: `${ticket.event.venue_name}, ${ticket.event.city}`,
-              ticketId: ticket.id,
-              qrCodeDataURL,
-            }),
-          })
-        } catch (error) {
-          console.error(`${logPrefix} failed to send confirmation email`, error)
-        }
-
-        if (ticket.attendee.phone) {
-          try {
-            await sendWhatsAppMessage({
-              to: ticket.attendee.phone,
-              message: getTicketConfirmationWhatsApp(
-                ticket.attendee.full_name || 'Guest',
-                ticket.event.title,
-                new Date(ticket.event.start_datetime).toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: 'numeric',
-                  minute: '2-digit',
-                }),
-                `${ticket.event.venue_name}, ${ticket.event.city}`,
-                ticket.id
-              ),
-            })
-          } catch (error) {
-            console.error(`${logPrefix} failed to send WhatsApp confirmation`, error)
-          }
-        }
+        await sendTicketConfirmation({
+          ticketId: String(ticket.id),
+          qrPayload: ticket.qr_code_data || ticket.id,
+          event: ticket.event,
+          recipient: {
+            email: ticket.attendee.email,
+            name: ticket.attendee.full_name,
+            phone: ticket.attendee.phone,
+            isGuest: isGuestOrder,
+          },
+          quantity: pendingTx.quantity || 1,
+          guestToken: guestRecipient?.guestToken || null,
+          logPrefix,
+        })
       }
     } catch (error) {
       console.error(`${logPrefix} post-fulfillment notification error`, error)

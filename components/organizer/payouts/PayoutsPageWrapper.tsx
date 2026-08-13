@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import PayoutsSetupWizard from '@/components/organizer/payouts/PayoutsSetupWizard'
 import PayoutsSummaryDashboard from '@/components/organizer/payouts/PayoutsSummaryDashboard'
+import DeclaredMarketsCard from '@/components/organizer/payouts/DeclaredMarketsCard'
 import { ArrowRight } from 'lucide-react'
 
 // Types matching the existing PayoutsPageNew
@@ -43,6 +44,8 @@ interface PayoutsPageWrapperProps {
   stripeConfig?: PayoutConfig
   organizerId: string
   organizerDefaultCountry?: string
+  /** Countries the organizer says they run events in — UI hint only. */
+  declaredMarkets?: string[]
   initialActiveProfile?: 'haiti' | 'stripe_connect'
   showEarningsAndPayouts?: boolean
 }
@@ -52,6 +55,7 @@ export default function PayoutsPageWrapper({
   stripeConfig,
   organizerId,
   organizerDefaultCountry,
+  declaredMarkets,
   initialActiveProfile,
   showEarningsAndPayouts,
 }: PayoutsPageWrapperProps) {
@@ -149,6 +153,7 @@ export default function PayoutsPageWrapper({
       <PayoutsSetupWizard
         organizerId={organizerId}
         organizerDefaultCountry={organizerDefaultCountry}
+        declaredMarkets={declaredMarkets}
         onComplete={handleSetupComplete}
         onExit={() => {
           if (hasAnySetup) {
@@ -179,6 +184,16 @@ export default function PayoutsPageWrapper({
             Manage how you receive earnings from your events.
           </p>
         </div>
+
+        {/* Where you run events. Kept on the DEFAULT payouts view, not buried
+            in advanced settings: it decides which rails the organizer is asked
+            to set up, and it has to stay easy to revisit as they expand. */}
+        <DeclaredMarketsCard
+          className="mb-6"
+          initialMarkets={declaredMarkets}
+          haitiConfigured={hasHaitiSetup}
+          stripeConfigured={hasStripeSetup}
+        />
 
         {/* Dashboard */}
         <PayoutsSummaryDashboard

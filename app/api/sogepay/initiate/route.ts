@@ -6,6 +6,12 @@ import { checkEventCapacity } from '@/lib/capacity'
 import { calculateDiscount, resolvePromoCode, promoHasCapacity, type PromoDoc } from '@/lib/promo-codes'
 import { resolveEventCountry } from '@/lib/event-country'
 import { hasEventAccess } from '@/lib/events/access-guard'
+import {
+  beginGuestCheckout,
+  guestOrderFields,
+  identityFromUser,
+  type CheckoutIdentity,
+} from '@/lib/guest/checkout'
 
 export const runtime = 'nodejs'
 
@@ -16,11 +22,12 @@ function isSogepayConfigured(): boolean {
 
 export async function POST(request: Request) {
   try {
+    // A missing session is not fatal: a guest may pay by supplying
+    // `guest: { name, email, phone }`, resolved below once the event is known.
     const user = await getCurrentUser()
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await request.json().catch(() => ({}))
-    const { eventId, quantity = 1, tierId, promoCode, tiers } = body || {}
+    const { eventId, quantity = 1, tierId, promoCode, tiers, guest } = body || {}
 
     if (!eventId) return NextResponse.json({ error: 'Event ID is required' }, { status: 400 })
 
@@ -35,8 +42,26 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Event not found' }, { status: 404 })
     }
 
+    // Resolve the buyer: the signed-in user, or a validated guest contact record.
+    // Fulfillment for this rail runs through the shared pipeline
+    // (lib/tickets/fulfillment.ts), which already knows how to deliver a guest order.
+    let identity: CheckoutIdentity
+    if (user) {
+      identity = identityFromUser(user)
+    } else {
+      const guestOutcome = await beginGuestCheckout({
+        guestInput: guest,
+        event,
+        eventId: String(eventId),
+        ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
+      })
+      if (!guestOutcome.ok) return guestOutcome.response
+      identity = guestOutcome.identity
+    }
+
     // Password-protected events: require a valid access grant before payment.
-    if (!(await hasEventAccess(event, eventId, user.id))) {
+    // (Guests are refused those events outright, so this is as strict as before.)
+    if (!(await hasEventAccess(event, eventId, identity.id))) {
       return NextResponse.json({ error: 'access_code_required' }, { status: 403 })
     }
 
@@ -214,7 +239,7 @@ export async function POST(request: Request) {
     // Store pending transaction so we can reconcile a future Sogepay callback/webhook.
     // Note: we intentionally do NOT invent a Sogepay signature/redirect format here.
     const orderId = `${Date.now() % 1_000_000_000}${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`
-    const internalOrderId = `sogepay_${eventId}_${user.id}_${Date.now()}`
+    const internalOrderId = `sogepay_${eventId}_${identity.id}_${Date.now()}`
 
     const { data: pending, error: pendingError } = await supabase
       .from('pending_transactions')
@@ -222,7 +247,7 @@ export async function POST(request: Request) {
         transaction_id: null,
         order_id: orderId,
         internal_order_id: internalOrderId,
-        user_id: user.id,
+        user_id: identity.id,
         event_id: eventId,
         quantity: totalQuantity,
         amount: originalAmount,
@@ -235,6 +260,9 @@ export async function POST(request: Request) {
         tier_selections: discountedSelections,
         promo_code_id: promoCodeId,
         promo_discount_total: promoDiscountTotal || null,
+        // Guest contact + order key; empty for account purchases. Fulfillment reads the
+        // confirmation recipient from here, never from the callback.
+        ...guestOrderFields(identity),
       })
       .select('*')
       .single()

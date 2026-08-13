@@ -1,4 +1,31 @@
 export default {
+  // Non peyi ak rejyon, pou ray « lòt kote nan … » ak tout ekran vid ki di ki
+  // kote ou ye.
+  countries: {
+    HT: 'Ayiti',
+    US: 'Etazini',
+    CA: 'Kanada',
+    FR: 'Frans',
+    DO: 'Repiblik Dominikèn',
+  },
+  regions: {
+    FL: 'Florid',
+    'NY-metro': 'zòn New York',
+    MA: 'Massachusetts',
+    GA: 'Jòji',
+    IL: 'Illinois',
+    TX: 'Texas',
+    CA: 'Kalifòni',
+    QC: 'Kebèk',
+    ON: 'Ontario',
+    BC: 'Kolonbi Britanik',
+    AB: 'Alberta',
+    IDF: 'Il-de-Frans',
+    ARA: 'Auvergne-Rhône-Alpes',
+    PACA: 'Provence-Alpes-Côte d’Azur',
+    OCC: 'Occitanie',
+    NAQ: 'Nouvelle-Aquitaine',
+  },
   location: {
     title: 'Chwazi zòn ou',
     subtitle: 'Gade evènman toupre w',
@@ -549,6 +576,23 @@ export default {
     noEventsFound: 'Pa gen evènman jwenn',
     tryAdjusting: 'Eseye chanje filtè yo pou wè plis evènman',
     clearFilters: 'Efase filtè yo',
+    // Kote ki aktif la, ak non l. Aplikasyon an pa janm elaji pou kont li : lè
+    // pa gen anyen, li di ki kote a vid epi li ba w yon sèl bouton pou chanje l.
+    emptyLocation: {
+      title: 'Poko gen evènman nan {location}',
+      subtitle: 'Pa gen anyen k ap fèt nan {location} kounye a. Chanje kote w ye a pou w gade yon lòt zòn.',
+    },
+    changeLocation: 'Chanje kote',
+    // Menm règ la, men pou tout peyi a : poko gen vil ki chwazi.
+    emptyCountry: {
+      title: 'Poko gen evènman nan {country}',
+      subtitle: 'Pa gen anyen k ap fèt nan {country} kounye a. Chwazi yon zòn pou gade.',
+    },
+    // Sèl ray ki soti nan lòt zòn, byen separe anba sa ki lokal yo.
+    elsewhere: {
+      title: 'lòt kote nan {place}',
+      subtitle: 'LÒT ZÒN — SE PA NAN {location}',
+    },
     noEventsAvailable: 'Pa gen evènman disponib',
     checkBackSoon: 'Tounen byento pou nouvo evènman!',
     sections: {
@@ -567,6 +611,11 @@ export default {
     people: 'Moun',
     noResults: 'Pa gen rezilta',
     noResultsSubtitle: 'Eseye yon lòt non oswa mo kle.',
+    // Rechèch la rete nan kote ki aktif la. Se ou menm ki chwazi elaji l.
+    noResultsInLocation: 'Nou pa jwenn anyen nan {location} ki matche ak rechèch ou a.',
+    searchAllCountry: 'Chèche nan tout {country}',
+    scopeLocation: 'NAN {location}',
+    scopeCountry: 'NAN TOUT {country}',
     eventCount: 'evènman',
     eventsCount: 'evènman',
   },
@@ -1140,6 +1189,19 @@ export default {
 
   organizerPayoutSettings: {
     headerTitle: 'Paramèt Peman',
+    markets: {
+      title: 'Kote w ap fè evènman',
+      subtitle: 'Chwazi tout peyi kote w konte fè evènman — ou ka chanje l nenpòt lè',
+      noneHint:
+        'Ou poko chwazi anyen, kidonk tout metòd peman parèt. Chwazi peyi w yo epi n ap mande w sèlman sa w bezwen yo.',
+      oneSetupHint: 'Mache w yo bezwen yon sèl konfigirasyon peman.',
+      twoSetupsHint:
+        'Mache w yo bezwen de konfigirasyon peman separe — youn pou Ayiti, youn pou lòt kote yo. Fini youn pa kouvri lòt la.',
+      countryMismatch:
+        'Kont peman ou konekte a anrejistre nan {account}. Evènman w ap fè nan {markets} ap toujou peye w — nan menm kont sa a, nan lajan pa l, apre yon konvèsyon. Pou w ta peye lokalman la, ou ta bezwen yon lòt kont konekte, e Tikèm poko sipòte sa.',
+      showAllRails: 'Montre tout metòd peman kanmenm',
+      saveFailed: 'Nou pa t ka anrejistre peyi w yo. Tanpri eseye ankò.',
+    },
     profileTitle: 'Pwofil peman',
     profiles: {
       haiti: 'Ayiti',
@@ -1699,6 +1761,8 @@ export default {
       payoutRegime: {
         haiti: 'Yo peye w an HTG sou Sogebank, Unibank oswa MonCash. Tikèm verifye ou — konfigire l nan Metòd peman.',
         international: 'Yo peye w atravè Stripe nan bank ou. Sa mande yon pwofil peman apa de sa Ayiti a — konfigire l nan Metòd peman.',
+        countryMismatch:
+          'Atansyon: evènman sa a nan {event}, men kont peman ou konekte a anrejistre nan {account}. Y ap toujou peye w — nan kont sa a, nan lajan pa l, apre yon konvèsyon. Pou yon peman lokal nan {event}, ou ta bezwen yon lòt kont konekte, e Tikèm poko sipòte sa.',
       },
     canvas: {
       flyerTitle: 'Konsevwa paj evènman ou',

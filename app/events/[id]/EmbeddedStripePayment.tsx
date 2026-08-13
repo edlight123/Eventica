@@ -17,10 +17,15 @@ interface CheckoutFormProps {
   currency: string
   onClose: () => void
   clientSecret: string
+  /**
+   * Where a GUEST goes once the card clears — their own signed ticket page. Account
+   * holders have /tickets and this stays null for them.
+   */
+  guestTicketUrl: string | null
   t: any
 }
 
-function CheckoutForm({ eventId, eventTitle, quantity, totalAmount, currency, onClose, clientSecret, t }: CheckoutFormProps) {
+function CheckoutForm({ eventId, eventTitle, quantity, totalAmount, currency, onClose, clientSecret, guestTicketUrl, t }: CheckoutFormProps) {
   const stripe = useStripe()
   const elements = useElements()
   const router = useRouter()
@@ -81,7 +86,13 @@ function CheckoutForm({ eventId, eventTitle, quantity, totalAmount, currency, on
           duration: 5000
         })
 
-        // Redirect to tickets page
+        // Where to land. A guest has no /tickets page — send them to their signed
+        // ticket link, which is also where the account is offered.
+        if (guestTicketUrl) {
+          window.location.href = `${guestTicketUrl}?purchased=1`
+          return
+        }
+
         router.push(`/tickets?payment_success=true`)
         router.refresh()
       }
@@ -156,12 +167,18 @@ function CheckoutForm({ eventId, eventTitle, quantity, totalAmount, currency, on
 interface EmbeddedStripePaymentProps {
   eventId: string
   eventTitle: string
-  userId: string
+  userId: string | null
   quantity: number
   totalAmount: number
   currency: string
   tierId?: string
   promoCodeId?: string
+  /**
+   * Present when the buyer has no account: the contact details they gave at checkout.
+   * Forwarded to create-payment-intent, which validates them and mints the guest order
+   * BEFORE the card is charged, so the confirmation recipient is fixed by then.
+   */
+  guest?: { name: string; email: string; phone: string } | null
   onClose: () => void
 }
 
@@ -174,10 +191,12 @@ export default function EmbeddedStripePayment({
   currency,
   tierId,
   promoCodeId,
+  guest,
   onClose
 }: EmbeddedStripePaymentProps) {
   const { t, i18n } = useTranslation('common')
   const [clientSecret, setClientSecret] = useState<string | null>(null)
+  const [guestTicketUrl, setGuestTicketUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
@@ -212,6 +231,7 @@ export default function EmbeddedStripePayment({
             quantity,
             tierId,
             promoCodeId,
+            ...(guest ? { guest } : {}),
           }),
         })
 
@@ -222,6 +242,7 @@ export default function EmbeddedStripePayment({
         }
 
         setClientSecret(data.clientSecret)
+        setGuestTicketUrl(data.guestTicketUrl || null)
       } catch (err: any) {
         setError(err.message || 'Failed to initialize payment')
       } finally {
@@ -230,7 +251,11 @@ export default function EmbeddedStripePayment({
     }
 
     createPaymentIntent()
-  }, [eventId, quantity, tierId, promoCodeId])
+    // `guest` is a fresh object each render; key the effect on its VALUES so a guest
+    // checkout doesn't re-mint a PaymentIntent (and a second guest order) on every
+    // parent re-render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventId, quantity, tierId, promoCodeId, guest?.name, guest?.email, guest?.phone])
 
   const appearance = {
     theme: 'night' as const,
@@ -292,6 +317,7 @@ export default function EmbeddedStripePayment({
                 currency={currency}
                 onClose={onClose}
                 clientSecret={clientSecret}
+                guestTicketUrl={guestTicketUrl}
                 t={t}
               />
             </Elements>

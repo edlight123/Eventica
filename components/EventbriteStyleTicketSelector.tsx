@@ -37,6 +37,15 @@ interface EventbriteStyleTicketSelectorProps {
   userId: string | null
   currency?: string
   /**
+   * Let a logged-OUT visitor select and check out as a guest. The contact details
+   * (name / email / phone) are collected by the parent right after this, so the
+   * selector only needs to stop treating "no session" as "no sale".
+   *
+   * Promo codes stay account-only: /api/promo-codes/validate requires a session, so
+   * the code box below is still gated on `userId`.
+   */
+  allowGuest?: boolean
+  /**
    * `discountedTotal` is what THIS component computed after applying the promo —
    * a routing hint only (it decides whether to try the free-claim endpoint). The
    * server re-prices the order from Firestore and has the final say.
@@ -52,8 +61,11 @@ export default function EventbriteStyleTicketSelector({
   eventId, 
   userId, 
   currency = 'HTG',
+  allowGuest = false,
   onPurchase 
 }: EventbriteStyleTicketSelectorProps) {
+  /** Who may press "checkout": a signed-in user, or a guest when guests are allowed. */
+  const canPurchase = Boolean(userId) || allowGuest
   const { t } = useTranslation('common')
   const [tiers, setTiers] = useState<TicketTier[]>([])
   const [quantities, setQuantities] = useState<TierQuantity>({})
@@ -183,7 +195,7 @@ export default function EventbriteStyleTicketSelector({
   }
 
   const handlePurchase = () => {
-    if (!userId) return
+    if (!canPurchase) return
 
     const selections = getSelections()
 
@@ -363,10 +375,10 @@ export default function EventbriteStyleTicketSelector({
       {/* Purchase Button */}
       <button
         onClick={handlePurchase}
-        disabled={!userId || totalTickets === 0}
+        disabled={!canPurchase || totalTickets === 0}
         className="w-full bg-brand-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-brand-700 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed"
       >
-        {!userId
+        {!canPurchase
           ? t('events.sign_in_to_purchase')
           : totalTickets === 0
           ? t('events.select_tickets')

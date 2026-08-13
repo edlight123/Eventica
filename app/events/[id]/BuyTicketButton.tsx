@@ -12,6 +12,8 @@ import EventbriteStyleTicketSelector from '@/components/EventbriteStyleTicketSel
 import { allSelectionsFree, computeSelectionTotal } from '@/lib/ticketPricing'
 import BottomSheet from '@/components/ui/BottomSheet'
 import { useToast } from '@/components/ui/Toast'
+import GuestCheckoutForm, { type GuestContactInput } from './GuestCheckoutForm'
+import { paymentNavigationMode } from '@/lib/utils/in-app-browser'
 import dynamic from 'next/dynamic'
 
 const EmbeddedStripePayment = dynamic(() => import('./EmbeddedStripePayment'), { ssr: false })
@@ -40,7 +42,12 @@ const PROMO_FAILURE_CODES = new Set([
 
 interface BuyTicketButtonProps {
   eventId: string
-  userId: string
+  /**
+   * null for a logged-OUT visitor. That is no longer a dead end: they are asked for a
+   * name, an email and (in Haiti) a phone number, and check out as a guest. The
+   * signed-in path below is untouched.
+   */
+  userId: string | null
   isFree: boolean
   ticketPrice: number
   eventTitle?: string
@@ -73,6 +80,17 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
   const countryCode = normalizeCountryCode(country)
   const isHaitiEvent = countryCode === 'HT'
 
+  // ── Guest checkout ──────────────────────────────────────────────────────────
+  // Collected once per visit, then attached to whichever endpoint the buyer reaches
+  // (free claim, MonCash initiate, Stripe PaymentIntent). Held in memory only; the
+  // server is what actually validates it and creates the guest order.
+  const isGuestCheckout = !userId
+  const [guestContact, setGuestContact] = useState<GuestContactInput | null>(null)
+  const [showGuestForm, setShowGuestForm] = useState(false)
+  /** The action to resume once the guest has given their details. */
+  const pendingGuestActionRef = useRef<'free' | 'paid' | null>(null)
+  const guestBody = guestContact ? { guest: guestContact } : {}
+
   // Password-protected access gate state.
   // hasAccess: null = unknown (still checking), true/false once resolved.
   const [hasAccess, setHasAccess] = useState<boolean | null>(isPasswordProtected ? null : true)
@@ -92,6 +110,13 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
     }
     if (isDemoMode()) {
       setHasAccess(true)
+      return
+    }
+    // A guest has no uid and therefore no access grant to read. Password-protected
+    // events are not offered to guests at all (EventDetailsClient keeps the sign-in
+    // link there, and the server refuses guest checkout for them regardless).
+    if (!userId) {
+      setHasAccess(false)
       return
     }
     let cancelled = false
@@ -189,9 +214,30 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
       setShowCodePrompt(true)
       return
     }
+    // A logged-out buyer gives their name / email / phone once, here, and then the
+    // normal flow continues. No password, no account, no redirect to a sign-in page
+    // that cannot complete inside an Instagram WebView.
+    if (isGuestCheckout && !guestContact) {
+      pendingGuestActionRef.current = action
+      setShowGuestForm(true)
+      return
+    }
     if (action === 'free') {
       handleClaimFreeTicket()
     } else {
+      handleOpenPurchaseFlow()
+    }
+  }
+
+  /** Stash the guest's details and resume whatever they were trying to do. */
+  function handleGuestSubmit(contact: GuestContactInput) {
+    setGuestContact(contact)
+    setShowGuestForm(false)
+    const action = pendingGuestActionRef.current
+    pendingGuestActionRef.current = null
+    if (action === 'free') {
+      handleClaimFreeTicket(undefined, undefined, contact)
+    } else if (action === 'paid') {
       handleOpenPurchaseFlow()
     }
   }
@@ -387,10 +433,17 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
    */
   async function handleClaimFreeTicket(
     selections?: { tierId: string; quantity: number; tierName?: string }[],
-    promoCodeId?: string
+    promoCodeId?: string,
+    /**
+     * The guest's details, passed explicitly when this is called straight out of the
+     * guest form — `setGuestContact` has not committed yet at that point, so reading
+     * state here would send an RSVP with no contact and no way to deliver the ticket.
+     */
+    contactOverride?: GuestContactInput
   ) {
     setLoading(true)
     setError(null)
+    const contact = contactOverride || guestContact
 
     const claimedQuantity = selections?.length
       ? selections.reduce((sum, s) => sum + s.quantity, 0)
@@ -420,8 +473,9 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
                 eventId,
                 selections: selections.map(s => ({ tierId: s.tierId, quantity: s.quantity })),
                 ...(promoCodeId ? { promoCode: promoCodeId } : {}),
+                ...(contact ? { guest: contact } : {}),
               }
-            : { eventId, quantity }
+            : { eventId, quantity, ...(contact ? { guest: contact } : {}) }
         ),
       })
 
@@ -459,10 +513,18 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
       showToast({
         type: 'success',
         title: 'Tickets claimed successfully!',
-        message: `${data.count} free ticket${data.count !== 1 ? 's' : ''} added to your collection`,
+        message: data.guestTicketUrl
+          ? `${data.count} free ticket${data.count !== 1 ? 's' : ''} — check your email`
+          : `${data.count} free ticket${data.count !== 1 ? 's' : ''} added to your collection`,
         duration: 4000
       })
-      
+
+      // A guest has no /tickets page; the server hands back their own signed link.
+      if (data.guestTicketUrl) {
+        window.location.href = data.guestTicketUrl
+        return
+      }
+
       router.push('/tickets')
       router.refresh()
     } catch (err: any) {
@@ -537,6 +599,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
             tierId: selectedTierId,
             promoCode,
             tiers,
+            ...guestBody,
           }),
         })
 
@@ -547,6 +610,19 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
 
         if (!data.redirectUrl) {
           throw new Error('Missing Sogepay redirect URL')
+        }
+
+        // IN-APP BROWSER: navigate in THIS tab, never a popup.
+        //
+        // Inside Instagram's or Facebook's WebView a popup does not "fail" in a way we
+        // can detect — it opens a chromeless view with no address bar and often no way
+        // back, stranding a buyer whose order has already been created. A full-page
+        // navigation keeps the gateway in the view they are already in, and its return
+        // URL brings them back to us. Popups stay the default in a real browser, where
+        // keeping the event page alive behind the payment is genuinely nicer.
+        if (paymentNavigationMode() === 'same-tab') {
+          window.location.href = data.redirectUrl
+          return
         }
 
         const popupWidth = 480
@@ -604,6 +680,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
             promoCode,
             tiers,
             mobileMoneyProvider: method,
+            ...guestBody,
           }),
         })
 
@@ -614,6 +691,19 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
 
         if (!data.redirectUrl) {
           throw new Error('Missing MonCash redirect URL')
+        }
+
+        // IN-APP BROWSER: navigate in THIS tab, never a popup.
+        //
+        // Inside Instagram's or Facebook's WebView a popup does not "fail" in a way we
+        // can detect — it opens a chromeless view with no address bar and often no way
+        // back, stranding a buyer whose order has already been created. A full-page
+        // navigation keeps the gateway in the view they are already in, and its return
+        // URL brings them back to us. Popups stay the default in a real browser, where
+        // keeping the event page alive behind the payment is genuinely nicer.
+        if (paymentNavigationMode() === 'same-tab') {
+          window.location.href = data.redirectUrl
+          return
         }
 
         const popupWidth = 480
@@ -730,6 +820,35 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
           className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
           aria-hidden="true"
         />
+      )}
+
+      {showGuestForm && (
+        <BottomSheet
+          isOpen={showGuestForm}
+          onClose={() => {
+            if (loading) return
+            setShowGuestForm(false)
+            pendingGuestActionRef.current = null
+          }}
+          title={t('checkout.guest_title', { defaultValue: 'Where should we send your ticket?' })}
+        >
+          <GuestCheckoutForm
+            requirePhone={isHaitiEvent}
+            busy={loading}
+            initial={guestContact || undefined}
+            submitLabel={
+              pendingGuestActionRef.current === 'free'
+                ? t('events.claim', { defaultValue: 'Get my ticket' })
+                : t('events.continue_to_payment', { defaultValue: 'Continue to payment' })
+            }
+            onSubmit={handleGuestSubmit}
+            onCancel={() => {
+              if (loading) return
+              setShowGuestForm(false)
+              pendingGuestActionRef.current = null
+            }}
+          />
+        </BottomSheet>
       )}
 
       {showCodePrompt && (
@@ -866,6 +985,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
                 eventId={eventId}
                 userId={userId}
                 currency={currency}
+                allowGuest={isGuestCheckout}
                 onPurchase={handleTieredPurchase}
               />
             </BottomSheet>
@@ -1099,6 +1219,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
           eventId={eventId}
           eventTitle={eventTitle}
           userId={userId}
+          guest={guestContact}
           quantity={quantity}
           totalAmount={
             selectedTiers.length > 0

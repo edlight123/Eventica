@@ -13,9 +13,9 @@ import type { PayoutReleaseConfig, PayoutReleaseOverride } from '@/types/platfor
  * note, so the note field is treated as required here too.
  */
 
-type NumericKey = 'newHoldHours' | 'establishedHoldHours' | 'reserveBps' | 'reserveDays' | 'reviewAboveGrossMinor'
+type NumericKey = 'newHoldHours' | 'establishedHoldHours' | 'reviewAboveGrossMinor'
 
-type FieldKind = 'hours' | 'days' | 'money' | 'percentBps'
+type FieldKind = 'hours' | 'money'
 
 interface FieldDef {
   key: NumericKey
@@ -28,8 +28,6 @@ interface FieldDef {
 const LIMITS: Record<NumericKey, { min: number; max: number }> = {
   newHoldHours: { min: 0, max: 720 },
   establishedHoldHours: { min: 0, max: 720 },
-  reserveBps: { min: 0, max: 5000 },
-  reserveDays: { min: 0, max: 365 },
   reviewAboveGrossMinor: { min: 0, max: 100_000_000 },
 }
 
@@ -47,18 +45,6 @@ const FIELDS: FieldDef[] = [
     help: 'The same wait once this organizer counts as established.',
   },
   {
-    key: 'reserveBps',
-    label: 'Reserve rate',
-    kind: 'percentBps',
-    help: 'Share of each card sale withheld against chargebacks — setting it to 0% removes their reserve entirely.',
-  },
-  {
-    key: 'reserveDays',
-    label: 'Reserve held for',
-    kind: 'days',
-    help: 'How long this organizer’s reserve is kept before it is released to them.',
-  },
-  {
     key: 'reviewAboveGrossMinor',
     label: 'Review events above',
     kind: 'money',
@@ -68,14 +54,9 @@ const FIELDS: FieldDef[] = [
 
 const majorFormatter = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
-function round2(value: number) {
-  return Math.round(value * 100) / 100
-}
-
 function toDisplay(kind: FieldKind, value: number): string {
   if (!Number.isFinite(value)) return ''
   if (kind === 'money') return (value / 100).toFixed(2)
-  if (kind === 'percentBps') return String(round2(value / 100))
   return String(value)
 }
 
@@ -83,21 +64,16 @@ function toApi(kind: FieldKind, display: string): number {
   const n = Number(display)
   if (display.trim() === '' || !Number.isFinite(n)) return NaN
   if (kind === 'money') return Math.round(n * 100)
-  if (kind === 'percentBps') return Math.round(n * 100)
   return n
 }
 
 function unitSuffix(kind: FieldKind): string {
-  if (kind === 'hours') return 'hours'
-  if (kind === 'days') return 'days'
-  if (kind === 'percentBps') return '%'
-  return ''
+  return kind === 'hours' ? 'hours' : ''
 }
 
 function pretty(kind: FieldKind, apiValue: number): string {
   if (!Number.isFinite(apiValue)) return '—'
   if (kind === 'money') return majorFormatter.format(apiValue / 100)
-  if (kind === 'percentBps') return `${round2(apiValue / 100)}%`
   return `${apiValue} ${unitSuffix(kind)}`
 }
 
@@ -113,8 +89,6 @@ type Values = Record<NumericKey, string>
 const EMPTY_VALUES: Values = {
   newHoldHours: '',
   establishedHoldHours: '',
-  reserveBps: '',
-  reserveDays: '',
   reviewAboveGrossMinor: '',
 }
 
@@ -203,8 +177,7 @@ export default function OrganizerPayoutReleaseCard({ organizerId }: { organizerI
   const hasErrors = Object.keys(errors).length > 0
 
   // Same test the API applies before it demands a note.
-  const zeroReserve = values.reserveBps.trim() !== '' && toApi('percentBps', values.reserveBps) === 0
-  const isRelaxing = preEventApproved || forceEstablished || zeroReserve
+  const isRelaxing = preEventApproved || forceEstablished
   const noteRequired = isRelaxing && !note.trim() && !override?.note
 
   const handleSave = async () => {
@@ -277,7 +250,7 @@ export default function OrganizerPayoutReleaseCard({ organizerId }: { organizerI
     },
     {
       label: 'Treat as established',
-      help: 'Skip the history requirements and give this organizer the established hold and no new-organizer reserve right away.',
+      help: 'Skip the history requirements and give this organizer the shorter established hold right away.',
       value: forceEstablished,
       set: setForceEstablished,
       relaxes: true,
@@ -393,7 +366,7 @@ export default function OrganizerPayoutReleaseCard({ organizerId }: { organizerI
                       id={`override-${field.key}`}
                       value={values[field.key]}
                       onChange={(e) => setValues((prev) => ({ ...prev, [field.key]: e.target.value }))}
-                      step={field.kind === 'money' || field.kind === 'percentBps' ? '0.01' : '1'}
+                      step={field.kind === 'money' ? '0.01' : '1'}
                       min={toDisplay(field.kind, limit.min)}
                       max={toDisplay(field.kind, limit.max)}
                       placeholder={inherited ? `Platform default — ${inherited}` : 'Platform default'}
@@ -485,9 +458,8 @@ export default function OrganizerPayoutReleaseCard({ organizerId }: { organizerI
               }`}
             />
             <p className="mt-1.5 text-xs text-white/50">
-              Relaxing the rules — approving pre-event payouts, forcing established, or setting the reserve to 0% —
-              cannot be saved without a note. It is the record of why this organizer was trusted, read back later if
-              something goes wrong.
+              Relaxing the rules — approving pre-event payouts or forcing established — cannot be saved without a note.
+              It is the record of why this organizer was trusted, read back later if something goes wrong.
             </p>
             {override?.note && (
               <div className="mt-2 rounded-lg border border-white/10 p-3">

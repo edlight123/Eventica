@@ -16,6 +16,12 @@ import { calculateFees } from '@/lib/fees'
 import { getPayoutProfile } from '@/lib/firestore/payout-profiles'
 import { hasEventAccess } from '@/lib/events/access-guard'
 import { isPaidAllowed, countrySupport, defaultCurrencyForCountry } from '@/lib/country-support'
+import {
+  beginGuestCheckout,
+  identityFromUser,
+  type CheckoutIdentity,
+} from '@/lib/guest/checkout'
+import { guestTicketUrl, validateGuestContact } from '@/lib/guest/identity'
 
 // Lazy load Stripe
 function getStripe() {
@@ -29,28 +35,43 @@ export async function POST(request: Request) {
   try {
     const stripe = getStripe()
     const user = await getCurrentUser()
-    
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
-    const { eventId, quantity = 1, tierId, promoCodeId, fingerprint } = await request.json()
+    const { eventId, quantity = 1, tierId, promoCodeId, fingerprint, guest } = await request.json()
+
+    // A missing session is not fatal: a guest may buy by supplying
+    // `guest: { name, email, phone }`. The contact is shape-checked HERE so the
+    // security screens below have a real email to test, and the full validation +
+    // guest-order creation happens after the event is loaded (the phone requirement
+    // depends on the event's country).
+    const guestPreflight = user ? null : validateGuestContact(guest, { requirePhone: false })
+    if (!user && (!guestPreflight || !guestPreflight.ok)) {
+      return guestPreflight && !guestPreflight.ok
+        ? NextResponse.json({ error: guestPreflight.error, code: guestPreflight.code }, { status: 400 })
+        : NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    const buyerEmail = user ? String(user.email || '') : guestPreflight!.ok ? guestPreflight!.contact.email : ''
+    // What the abuse screens key on. A guest has no stable account to rate-limit, so
+    // `null` scopes the limit to their IP — the control that actually applies to them.
+    const rateLimitKey = user ? user.id : null
+    const attemptUserId = user ? user.id : `guest:${buyerEmail}`
 
     // Get IP address
     const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
 
     // Security checks (same as checkout session)
-    const userBlacklist = await isBlacklisted(user.id, 'user')
-    if (userBlacklist.blacklisted) {
-      await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
-      return NextResponse.json({ 
-        error: `Account suspended: ${userBlacklist.reason}` 
-      }, { status: 403 })
+    if (user) {
+      const userBlacklist = await isBlacklisted(user.id, 'user')
+      if (userBlacklist.blacklisted) {
+        await logPurchaseAttempt({ userId: attemptUserId, eventId, ipAddress, quantity, fingerprint }, false)
+        return NextResponse.json({
+          error: `Account suspended: ${userBlacklist.reason}`
+        }, { status: 403 })
+      }
     }
 
-    const emailBlacklist = await isBlacklisted(user.email, 'email')
+    const emailBlacklist = await isBlacklisted(buyerEmail, 'email')
     if (emailBlacklist.blacklisted) {
-      await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
+      await logPurchaseAttempt({ userId: attemptUserId, eventId, ipAddress, quantity, fingerprint }, false)
       return NextResponse.json({ 
         error: 'Unable to process purchase. Please contact support.' 
       }, { status: 403 })
@@ -58,23 +79,23 @@ export async function POST(request: Request) {
 
     const ipBlacklist = await isBlacklisted(ipAddress, 'ip')
     if (ipBlacklist.blacklisted) {
-      await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
+      await logPurchaseAttempt({ userId: attemptUserId, eventId, ipAddress, quantity, fingerprint }, false)
       return NextResponse.json({ 
         error: 'Unable to process purchase from this network.' 
       }, { status: 403 })
     }
 
-    const rateLimit = await shouldRateLimit(user.id, ipAddress, eventId)
+    const rateLimit = await shouldRateLimit(rateLimitKey, ipAddress, eventId)
     if (rateLimit.limited) {
-      await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
+      await logPurchaseAttempt({ userId: attemptUserId, eventId, ipAddress, quantity, fingerprint }, false)
       return NextResponse.json({ 
         error: rateLimit.reason 
       }, { status: 429 })
     }
 
-    const isBot = await detectBotBehavior(user.id, ipAddress, fingerprint)
+    const isBot = await detectBotBehavior(rateLimitKey, ipAddress, fingerprint)
     if (isBot) {
-      await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
+      await logPurchaseAttempt({ userId: attemptUserId, eventId, ipAddress, quantity, fingerprint }, false)
       return NextResponse.json({ 
         error: 'Automated purchase attempts are not allowed.' 
       }, { status: 403 })
@@ -94,13 +115,33 @@ export async function POST(request: Request) {
       .single()
 
     if (eventError || !event) {
-      await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
+      await logPurchaseAttempt({ userId: attemptUserId, eventId, ipAddress, quantity, fingerprint }, false)
       return NextResponse.json({ error: 'Event not found' }, { status: 404 })
     }
 
+    // Resolve the buyer now that the event (and therefore the country's phone rule and
+    // the password gate) is known. For a signed-in user this is their own identity,
+    // unchanged; for a guest it mints the `guest_…` id and the signed retrieval token.
+    let identity: CheckoutIdentity
+    if (user) {
+      identity = identityFromUser(user)
+    } else {
+      const guestOutcome = await beginGuestCheckout({
+        guestInput: guest,
+        event,
+        eventId: String(eventId),
+        ipAddress,
+      })
+      if (!guestOutcome.ok) {
+        await logPurchaseAttempt({ userId: attemptUserId, eventId, ipAddress, quantity, fingerprint }, false)
+        return guestOutcome.response
+      }
+      identity = guestOutcome.identity
+    }
+
     // Password-protected events: require a valid access grant before payment.
-    if (!(await hasEventAccess(event, eventId, user.id))) {
-      await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
+    if (!(await hasEventAccess(event, eventId, identity.id))) {
+      await logPurchaseAttempt({ userId: attemptUserId, eventId, ipAddress, quantity, fingerprint }, false)
       return NextResponse.json({ error: 'access_code_required' }, { status: 403 })
     }
 
@@ -109,7 +150,7 @@ export async function POST(request: Request) {
     // gated, but block at the payment entry too in case a paid event slipped through.
     if (!isPaidAllowed(event.country)) {
       const name = countrySupport(event.country)?.name || 'this country'
-      await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
+      await logPurchaseAttempt({ userId: attemptUserId, eventId, ipAddress, quantity, fingerprint }, false)
       return NextResponse.json(
         { error: `Payouts are not yet available in ${name}.` },
         { status: 400 }
@@ -118,28 +159,36 @@ export async function POST(request: Request) {
 
     const provider = getPaymentProviderForEventCountry(event.country)
     if (provider === 'sogepay') {
-      await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
+      await logPurchaseAttempt({ userId: attemptUserId, eventId, ipAddress, quantity, fingerprint }, false)
       return NextResponse.json(
         { error: 'Card payments for Haiti events use Sogepay. Please use the Sogepay checkout flow.' },
         { status: 400 }
       )
     }
 
-    // Check ticket limit
-    const ticketLimit = await checkTicketLimit(user.id, eventId)
-    if (ticketLimit.exceeded) {
-      await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
-      return NextResponse.json({ 
-        error: `You already have ${ticketLimit.currentCount} ticket(s) for this event. Maximum allowed: ${ticketLimit.maxAllowed}` 
-      }, { status: 400 })
-    }
+    // Check ticket limit.
+    //
+    // Only meaningful for an account: the limit counts tickets already held under an
+    // attendee id, and a guest's id is minted fresh for this order, so the answer would
+    // always be zero. Guests are instead held back by the IP rate limit and the event's
+    // own inventory. (Per-buyer caps for guests would need an email-keyed counter —
+    // deliberately not invented here.)
+    if (!identity.isGuest) {
+      const ticketLimit = await checkTicketLimit(identity.id, eventId)
+      if (ticketLimit.exceeded) {
+        await logPurchaseAttempt({ userId: attemptUserId, eventId, ipAddress, quantity, fingerprint }, false)
+        return NextResponse.json({
+          error: `You already have ${ticketLimit.currentCount} ticket(s) for this event. Maximum allowed: ${ticketLimit.maxAllowed}`
+        }, { status: 400 })
+      }
 
-    if (ticketLimit.currentCount! + quantity > ticketLimit.maxAllowed!) {
-      await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
-      const remaining = ticketLimit.maxAllowed! - ticketLimit.currentCount!
-      return NextResponse.json({ 
-        error: `You can only purchase ${remaining} more ticket(s) for this event (limit: ${ticketLimit.maxAllowed})` 
-      }, { status: 400 })
+      if (ticketLimit.currentCount! + quantity > ticketLimit.maxAllowed!) {
+        await logPurchaseAttempt({ userId: attemptUserId, eventId, ipAddress, quantity, fingerprint }, false)
+        const remaining = ticketLimit.maxAllowed! - ticketLimit.currentCount!
+        return NextResponse.json({
+          error: `You can only purchase ${remaining} more ticket(s) for this event (limit: ${ticketLimit.maxAllowed})`
+        }, { status: 400 })
+      }
     }
 
     // Get tier price if specified
@@ -161,15 +210,15 @@ export async function POST(request: Request) {
         const salesEnd = tier.sales_end ? new Date(tier.sales_end) : null
 
         if (tier.is_active === false) {
-          await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
+          await logPurchaseAttempt({ userId: attemptUserId, eventId, ipAddress, quantity, fingerprint }, false)
           return NextResponse.json({ error: 'This ticket tier is not available.' }, { status: 400 })
         }
         if (salesStart && !Number.isNaN(salesStart.getTime()) && salesStart > now) {
-          await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
+          await logPurchaseAttempt({ userId: attemptUserId, eventId, ipAddress, quantity, fingerprint }, false)
           return NextResponse.json({ error: 'Ticket sales for this tier have not started yet.' }, { status: 400 })
         }
         if (salesEnd && !Number.isNaN(salesEnd.getTime()) && salesEnd < now) {
-          await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
+          await logPurchaseAttempt({ userId: attemptUserId, eventId, ipAddress, quantity, fingerprint }, false)
           return NextResponse.json({ error: 'Ticket sales for this tier have ended.' }, { status: 400 })
         }
 
@@ -177,11 +226,11 @@ export async function POST(request: Request) {
         const total = Number(tier.total_quantity || 0)
         const remaining = Math.max(0, total - sold)
         if (remaining <= 0) {
-          await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
+          await logPurchaseAttempt({ userId: attemptUserId, eventId, ipAddress, quantity, fingerprint }, false)
           return NextResponse.json({ error: 'This ticket tier is sold out.' }, { status: 400 })
         }
         if (quantity > remaining) {
-          await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
+          await logPurchaseAttempt({ userId: attemptUserId, eventId, ipAddress, quantity, fingerprint }, false)
           return NextResponse.json({ error: `Only ${remaining} ticket(s) remaining for this tier.` }, { status: 400 })
         }
 
@@ -236,14 +285,14 @@ export async function POST(request: Request) {
     if (provider === 'stripe_connect') {
       const organizerId = String(event.organizer_id || '')
       if (!organizerId) {
-        await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
+        await logPurchaseAttempt({ userId: attemptUserId, eventId, ipAddress, quantity, fingerprint }, false)
         return NextResponse.json({ error: 'Event organizer is missing.' }, { status: 400 })
       }
 
       const stripeProfile = await getPayoutProfile(organizerId, 'stripe_connect')
       const stripeAccountId = stripeProfile?.stripeAccountId
       if (!stripeAccountId) {
-        await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, false)
+        await logPurchaseAttempt({ userId: attemptUserId, eventId, ipAddress, quantity, fingerprint }, false)
         return NextResponse.json(
           { error: 'Organizer has not connected Stripe Connect yet.' },
           { status: 400 }
@@ -271,7 +320,20 @@ export async function POST(request: Request) {
         : {}),
       metadata: {
         eventId,
-        userId: user.id,
+        // A `guest_…` id for guest checkout. The webhook writes it to the ticket's
+        // attendee_id exactly as it does a uid — scanning reads the ticket, not a session.
+        userId: identity.id,
+        // Guest contact, captured BEFORE payment and carried on the order. The webhook
+        // resolves the confirmation recipient from these, never from a request body.
+        ...(identity.isGuest
+          ? {
+              isGuest: 'true',
+              guestName: identity.name,
+              guestEmail: identity.email,
+              guestPhone: identity.phone || '',
+              guestOrderKey: identity.guestOrderKey || '',
+            }
+          : {}),
         eventTitle: event.title,
         quantity: quantity.toString(),
         tierId: tierId || '',
@@ -287,18 +349,23 @@ export async function POST(request: Request) {
         stripeConnectAccountId: stripeConnectAccountId || '',
       },
       description: `${quantity}x ${event.title} - ${tierName}`,
-      receipt_email: user.email,
+      receipt_email: identity.email || undefined,
       automatic_payment_methods: {
         enabled: true,
       },
     })
 
     // Log successful attempt
-    await logPurchaseAttempt({ userId: user.id, eventId, ipAddress, quantity, fingerprint }, true)
+    await logPurchaseAttempt({ userId: attemptUserId, eventId, ipAddress, quantity, fingerprint }, true)
 
     return NextResponse.json({ 
       clientSecret: paymentIntent.client_secret,
-      paymentIntentId: paymentIntent.id
+      paymentIntentId: paymentIntent.id,
+      // Where a guest goes once the card succeeds — they have no /tickets page to
+      // land on. Returned only to the browser that just minted this order.
+      ...(identity.isGuest && identity.guestToken
+        ? { guestTicketUrl: guestTicketUrl(identity.guestToken) }
+        : {}),
     })
   } catch (error: any) {
     console.error('Payment Intent creation error:', error)

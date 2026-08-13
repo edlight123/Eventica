@@ -1,0 +1,200 @@
+'use client'
+
+import { useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Check, Loader2 } from 'lucide-react'
+import { updateDeclaredMarkets } from '@/app/organizer/settings/payouts/actions'
+import { COUNTRY_SUPPORT } from '@/lib/country-support'
+import {
+  DECLARABLE_MARKETS,
+  marketsForRail,
+  normalizeDeclaredMarkets,
+  railsForMarkets,
+  type PayoutRailId,
+} from '@/lib/organizer-markets'
+
+/**
+ * "Where do you run events?" — the question nothing used to ask.
+ *
+ * The answer only shapes what the organizer SEES: declare Haiti alone and the
+ * Stripe Connect setup stops being offered; declare Haiti + the US and both
+ * appear, named as two separate setups rather than a choice between rails.
+ * It is re-editable at any moment, on purpose: a diaspora organizer adds
+ * markets over time and must never be walled off by a month-one answer.
+ *
+ * It is NOT a gate. Publishing and withdrawal still resolve the required payout
+ * profile from the EVENT's country, server-side.
+ */
+
+const RAIL_COPY: Record<PayoutRailId, { title: string; blurb: string }> = {
+  haiti: {
+    title: 'Haiti payouts',
+    blurb: 'Bank transfer (Sogebank, Unibank…) or MonCash. Tikèm verifies you.',
+  },
+  stripe_connect: {
+    title: 'Stripe Connect',
+    blurb: 'Card payouts to a bank account outside Haiti. Stripe verifies you.',
+  },
+}
+
+export default function DeclaredMarketsCard({
+  initialMarkets,
+  haitiConfigured,
+  stripeConfigured,
+  className,
+}: {
+  initialMarkets?: string[]
+  haitiConfigured?: boolean
+  stripeConfigured?: boolean
+  className?: string
+}) {
+  const router = useRouter()
+  const [saved, setSaved] = useState<string[]>(() => normalizeDeclaredMarkets(initialMarkets))
+  const [selected, setSelected] = useState<string[]>(() => normalizeDeclaredMarkets(initialMarkets))
+  const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [justSaved, setJustSaved] = useState(false)
+
+  const isDirty = useMemo(() => {
+    if (selected.length !== saved.length) return true
+    return selected.some((code, i) => code !== saved[i])
+  }, [selected, saved])
+
+  const rails = useMemo(() => railsForMarkets(saved), [saved])
+  const configured: Record<PayoutRailId, boolean> = {
+    haiti: Boolean(haitiConfigured),
+    stripe_connect: Boolean(stripeConfigured),
+  }
+
+  const toggle = (code: string) => {
+    setJustSaved(false)
+    setSelected((current) =>
+      current.includes(code) ? current.filter((c) => c !== code) : [...current, code]
+    )
+  }
+
+  const handleSave = async () => {
+    setIsSaving(true)
+    setError(null)
+    try {
+      const result = await updateDeclaredMarkets(selected)
+      if (!result.success) {
+        setError(result.error || 'Could not save your markets')
+        return
+      }
+      const next = normalizeDeclaredMarkets(result.markets ?? selected)
+      setSaved(next)
+      setSelected(next)
+      setJustSaved(true)
+      router.refresh()
+    } catch (e: any) {
+      setError(e?.message || 'Could not save your markets')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  return (
+    <div className={`bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden ${className || ''}`}>
+      <div className="p-6">
+        <h2 className="text-lg font-semibold text-white">Where you run events</h2>
+        <p className="mt-1 text-sm text-white/60">
+          Pick every country you plan to hold events in. We&apos;ll only ask you to set up the
+          payout methods those countries actually use — and you can change this whenever you
+          expand.
+        </p>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          {DECLARABLE_MARKETS.map((code) => {
+            const isOn = selected.includes(code)
+            return (
+              <button
+                key={code}
+                type="button"
+                aria-pressed={isOn}
+                onClick={() => toggle(code)}
+                className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+                  isOn
+                    ? 'border-brand-700 bg-brand-700 text-white'
+                    : 'border-white/15 bg-[#0a0a0a] text-white/80 hover:bg-white/[0.04]'
+                }`}
+              >
+                {isOn ? <Check className="h-3.5 w-3.5" /> : null}
+                {COUNTRY_SUPPORT[code]?.name || code}
+              </button>
+            )
+          })}
+        </div>
+
+        {error ? <p className="mt-3 text-sm text-red-300">{error}</p> : null}
+
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={!isDirty || isSaving}
+            className="inline-flex items-center gap-2 rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            {isSaving ? 'Saving…' : 'Save markets'}
+          </button>
+          {justSaved && !isDirty ? (
+            <span className="text-sm text-white/50">Saved — you can update this any time.</span>
+          ) : null}
+        </div>
+
+        {/* What the declaration implies, stated plainly. Two markets on two
+            different rails are TWO setups, not two options. */}
+        <div className="mt-6 border-t border-white/10 pt-5">
+          {saved.length === 0 ? (
+            <p className="text-sm text-white/50">
+              Nothing declared yet, so every payout method is shown below.
+            </p>
+          ) : rails.length === 0 ? (
+            <p className="text-sm text-white/50">
+              Paid tickets aren&apos;t available in the markets you picked yet, so there&apos;s
+              no payout method to set up. Free and RSVP events work today.
+            </p>
+          ) : (
+            <>
+              <p className="text-sm text-white/60">
+                {rails.length > 1
+                  ? `Your markets need ${rails.length} separate payout setups. Completing one does not cover the other.`
+                  : 'Your markets need one payout setup.'}
+              </p>
+              <ul className="mt-3 space-y-3">
+                {rails.map((rail) => {
+                  const served = marketsForRail(rail, saved)
+                    .map((code) => COUNTRY_SUPPORT[code]?.name || code)
+                    .join(', ')
+                  const isConfigured = configured[rail]
+                  return (
+                    <li key={rail} className="flex items-start gap-3">
+                      <span
+                        aria-hidden
+                        className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${
+                          isConfigured ? 'bg-emerald-400' : 'bg-white/30'
+                        }`}
+                      />
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium text-white">
+                          {RAIL_COPY[rail].title}
+                          <span className="ml-2 text-xs font-normal text-white/50">
+                            {isConfigured ? 'Set up' : 'Not set up'}
+                          </span>
+                        </div>
+                        <div className="text-xs text-white/50">
+                          {served} · {RAIL_COPY[rail].blurb}
+                        </div>
+                      </div>
+                    </li>
+                  )
+                })}
+              </ul>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}

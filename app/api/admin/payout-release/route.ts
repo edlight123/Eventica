@@ -27,8 +27,6 @@ const NUMERIC_FIELDS: (keyof PayoutReleaseConfig)[] = [
   'establishedAfterGrossMinor',
   'preEventEligibleGrossMinor',
   'reviewAboveGrossMinor',
-  'reserveBps',
-  'reserveDays',
   'manualCheckInReviewRatio',
   'lowAttendanceReviewRatio',
 ]
@@ -41,8 +39,6 @@ const LIMITS: Partial<Record<keyof PayoutReleaseConfig, { min: number; max: numb
   establishedAfterGrossMinor: { min: 0, max: 100_000_000 },
   preEventEligibleGrossMinor: { min: 0, max: 100_000_000 },
   reviewAboveGrossMinor: { min: 0, max: 100_000_000 },
-  reserveBps: { min: 0, max: 5000 }, // never withhold more than half
-  reserveDays: { min: 0, max: 365 },
   manualCheckInReviewRatio: { min: 0, max: 1 },
   lowAttendanceReviewRatio: { min: 0, max: 1 },
 }
@@ -89,10 +85,6 @@ export async function PUT(request: NextRequest) {
     ;(next as any)[field] = value
   }
 
-  if (typeof (body as any)?.reserveNewOrganizersOnly === 'boolean') {
-    next.reserveNewOrganizersOnly = (body as any).reserveNewOrganizersOnly
-  }
-
   if (typeof (body as any)?.thresholdCurrency === 'string' && (body as any).thresholdCurrency.trim()) {
     next.thresholdCurrency = (body as any).thresholdCurrency.trim().toUpperCase().slice(0, 3)
   }
@@ -125,7 +117,6 @@ export async function PUT(request: NextRequest) {
 
   const changed = (NUMERIC_FIELDS as string[])
     .filter((f) => (before as any)[f] !== (next as any)[f])
-    .concat(before.reserveNewOrganizersOnly !== next.reserveNewOrganizersOnly ? ['reserveNewOrganizersOnly'] : [])
     .concat(before.thresholdCurrency !== next.thresholdCurrency ? ['thresholdCurrency'] : [])
     .concat(
       JSON.stringify(before.referenceRates || {}) !== JSON.stringify(next.referenceRates || {})

@@ -18,6 +18,9 @@ import { filterExploreEvents } from '../lib/api/events';
 import { searchUsers, type UserSearchResult } from '../lib/api/social';
 import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
+import { useFilters } from '../contexts/FiltersContext';
+import { eventCountry, isEventInMetro } from '../data/metros';
+import { useActiveLocationCopy } from '../lib/locationCopy';
 import { getCategoryLabel } from '../lib/categories';
 import { radius } from '../theme/tokens';
 import EventListCard from '../components/EventListCard';
@@ -62,6 +65,8 @@ function SearchResultsSkeleton() {
 export default function SearchScreen({ navigation }: any) {
   const { colors } = useTheme();
   const { t } = useI18n();
+  const { userCountry, activeMetro } = useFilters();
+  const locationCopy = useActiveLocationCopy();
   const styles = getStyles(colors);
   const insets = useSafeAreaInsets();
   // The search bar is a blurred overlay now, so the results beneath reserve its
@@ -78,6 +83,9 @@ export default function SearchScreen({ navigation }: any) {
   const [queryText, setQueryText] = useState('');
   const [people, setPeople] = useState<UserSearchResult[]>([]);
   const [peopleLoading, setPeopleLoading] = useState(false);
+  // Search is scoped to the active metro. This flips ONLY when the user taps
+  // "search all of Haiti" on an empty result — never automatically.
+  const [searchWholeCountry, setSearchWholeCountry] = useState(false);
 
   // Reuse the exact same published-events fetch the Discover feed relies on.
   const loadEvents = useCallback(async () => {
@@ -140,19 +148,35 @@ export default function SearchScreen({ navigation }: any) {
   const trimmed = queryText.trim();
   const q = normalize(trimmed);
 
+  // Clearing the field ends the widened search too — the next query starts
+  // scoped again, so "all of Haiti" never becomes a sticky default.
+  useEffect(() => {
+    if (!trimmed) setSearchWholeCountry(false);
+  }, [trimmed]);
+
+
+
+  // The ONE active location scopes search exactly like it scopes browsing:
+  // same country, same metro. The only escape is the explicit action below.
+  const scopedEvents = useMemo(() => {
+    const inCountry = allEvents.filter((e) => eventCountry(e) === userCountry);
+    if (searchWholeCountry || !activeMetro) return inCountry;
+    return inCountry.filter((e) => isEventInMetro(e, activeMetro));
+  }, [allEvents, userCountry, activeMetro, searchWholeCountry]);
+
   // Featured events: the most-booked upcoming events, shown when idle.
   const featuredEvents = useMemo(
     () =>
-      [...allEvents]
+      [...scopedEvents]
         .sort((a, b) => (b.tickets_sold || 0) - (a.tickets_sold || 0))
         .slice(0, 8),
-    [allEvents]
+    [scopedEvents]
   );
 
   // Organizers/organizations derived from the loaded events (no new data layer).
   const allOrganizers = useMemo(() => {
     const map = new Map<string, OrganizerResult>();
-    for (const e of allEvents) {
+    for (const e of scopedEvents) {
       const id = e.organizer_id;
       if (!id) continue;
       const name = e.users?.organization_name || e.users?.full_name || e.organizer_name || '';
@@ -171,7 +195,7 @@ export default function SearchScreen({ navigation }: any) {
       }
     }
     return Array.from(map.values());
-  }, [allEvents]);
+  }, [scopedEvents]);
 
   // Match across every field the old Discover feed searched — title, venue,
   // city, category label and description — so venue/neighborhood/category
@@ -179,7 +203,7 @@ export default function SearchScreen({ navigation }: any) {
   const matchedEvents = useMemo(
     () =>
       q
-        ? allEvents.filter((e) => {
+        ? scopedEvents.filter((e) => {
             const haystack = normalize(
               [
                 e.title,
@@ -194,7 +218,7 @@ export default function SearchScreen({ navigation }: any) {
             return haystack.includes(q);
           })
         : [],
-    [allEvents, q, t]
+    [scopedEvents, q, t]
   );
 
   const matchedOrganizers = useMemo(
@@ -237,6 +261,15 @@ export default function SearchScreen({ navigation }: any) {
   };
 
   const hasQuery = trimmed.length > 0;
+  // Offered only when there IS somewhere wider to go: a metro scope in place
+  // and the country holding events this search never looked at.
+  const canWidenSearch =
+    !searchWholeCountry &&
+    !!activeMetro &&
+    allEvents.some((e) => eventCountry(e) === userCountry && !isEventInMetro(e, activeMetro));
+  const scopeLabel = searchWholeCountry
+    ? t('search.scopeCountry', { country: locationCopy.countryPhrase })
+    : t('search.scopeLocation', { location: locationCopy.locationName });
   const noResults =
     hasQuery &&
     !peopleLoading &&
@@ -340,16 +373,28 @@ export default function SearchScreen({ navigation }: any) {
           scrollEventThrottle={16}
         >
           {noResults ? (
+            // Nothing HERE. Say so, and offer the wider search as a deliberate
+            // tap — never widen the results on our own.
             <EmptyState
               icon={SearchIcon}
               title={t('search.noResults')}
-              subtitle={t('search.noResultsSubtitle')}
+              subtitle={
+                canWidenSearch
+                  ? t('search.noResultsInLocation', { location: locationCopy.locationName })
+                  : t('search.noResultsSubtitle')
+              }
+              actionLabel={
+                canWidenSearch
+                  ? t('search.searchAllCountry', { country: locationCopy.countryPhrase })
+                  : undefined
+              }
+              onAction={canWidenSearch ? () => setSearchWholeCountry(true) : undefined}
             />
           ) : !hasQuery ? (
-            // Idle: sensible default — featured upcoming events.
+            // Idle: sensible default — featured upcoming events, in this metro.
             featuredEvents.length > 0 && (
               <View style={styles.section}>
-                <SectionHeader title={t('search.featuredEvents')} />
+                <SectionHeader title={t('search.featuredEvents')} subtitle={scopeLabel} />
                 {featuredEvents.map((event) => (
                   <EventListCard key={event.id} event={event} onPress={() => goEvent(event.id)} />
                 ))}
@@ -359,7 +404,9 @@ export default function SearchScreen({ navigation }: any) {
             <>
               {matchedEvents.length > 0 && (
                 <View style={styles.section}>
-                  <SectionHeader title={t('search.events')} />
+                  {/* The subtitle states the scope, so a result list is never
+                      ambiguous about which market it is from. */}
+                  <SectionHeader title={t('search.events')} subtitle={scopeLabel} />
                   {matchedEvents.map((event) => (
                     <EventListCard key={event.id} event={event} onPress={() => goEvent(event.id)} />
                   ))}

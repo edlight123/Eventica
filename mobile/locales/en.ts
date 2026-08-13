@@ -1,4 +1,31 @@
 export default {
+  // Country and region names, used by the "elsewhere in …" rail and by every
+  // empty state that names the active location.
+  countries: {
+    HT: 'Haiti',
+    US: 'United States',
+    CA: 'Canada',
+    FR: 'France',
+    DO: 'Dominican Republic',
+  },
+  regions: {
+    FL: 'Florida',
+    'NY-metro': 'the New York area',
+    MA: 'Massachusetts',
+    GA: 'Georgia',
+    IL: 'Illinois',
+    TX: 'Texas',
+    CA: 'California',
+    QC: 'Quebec',
+    ON: 'Ontario',
+    BC: 'British Columbia',
+    AB: 'Alberta',
+    IDF: 'Île-de-France',
+    ARA: 'Auvergne-Rhône-Alpes',
+    PACA: 'Provence-Alpes-Côte d’Azur',
+    OCC: 'Occitanie',
+    NAQ: 'Nouvelle-Aquitaine',
+  },
   location: {
     title: 'Choose your area',
     subtitle: 'Browse events near you',
@@ -530,6 +557,8 @@ export default {
       payoutRegime: {
         haiti: 'Paid out in HTG to Sogebank, Unibank or MonCash. Tikèm verifies you — set it up under Payout Settings.',
         international: 'Paid out through Stripe to your bank. This needs a separate payout profile from Haiti — set it up under Payout Settings.',
+        countryMismatch:
+          'Heads up: this event is in {event}, but your connected payout account is registered in {account}. You’ll still be paid — into that account, in its currency, after a conversion. A local {event} payout would need a separate connected account, which Tikèm doesn’t support yet.',
       },
     canvas: {
       flyerTitle: 'Design your event page',
@@ -826,6 +855,23 @@ export default {
     noEventsFound: 'No events found',
     tryAdjusting: 'Try adjusting your filters to see more events',
     clearFilters: 'Clear filters',
+    // The active location, named. Browsing never widens on its own, so an empty
+    // feed says WHERE it is empty and offers the one move that changes it.
+    emptyLocation: {
+      title: 'No events in {location} yet',
+      subtitle: 'Nothing is on in {location} right now. Change your location to browse another area.',
+    },
+    changeLocation: 'Change location',
+    // Same rule, whole-country scope: no town chosen yet.
+    emptyCountry: {
+      title: 'No events in {country} yet',
+      subtitle: 'Nothing is on in {country} right now. Pick an area to browse.',
+    },
+    // The one labelled cross-metro rail, below the local content.
+    elsewhere: {
+      title: 'elsewhere in {place}',
+      subtitle: 'OTHER AREAS — NOT IN {location}',
+    },
     noEventsAvailable: 'No events available',
     checkBackSoon: 'Check back soon for new events!',
     sections: {
@@ -844,6 +890,11 @@ export default {
     people: 'People',
     noResults: 'No results',
     noResultsSubtitle: 'Try a different name or keyword.',
+    // Search stays inside the active location. Widening is a tap, never a guess.
+    noResultsInLocation: 'Nothing in {location} matches your search.',
+    searchAllCountry: 'Search all of {country}',
+    scopeLocation: 'IN {location}',
+    scopeCountry: 'ACROSS {country}',
     eventCount: 'event',
     eventsCount: 'events',
   },
@@ -1462,6 +1513,21 @@ export default {
 
   organizerPayoutSettings: {
     headerTitle: 'Payout Settings',
+    // Declared markets — where the organizer says they'll run events. Shapes
+    // which payout rails are offered; never what is allowed.
+    markets: {
+      title: 'Where you run events',
+      subtitle: 'Pick every country you plan to hold events in — change it any time',
+      noneHint:
+        'Nothing picked yet, so every payout method is shown. Pick your countries and we’ll only ask for the ones you need.',
+      oneSetupHint: 'Your markets need one payout setup.',
+      twoSetupsHint:
+        'Your markets need two separate payout setups — one for Haiti, one for everywhere else. Finishing one does not cover the other.',
+      countryMismatch:
+        'Your connected payout account is registered in {account}. Events you run in {markets} will still pay you — into that same account, in its currency, after a conversion. Getting paid locally there would need a separate connected account, which Tikèm doesn’t support yet.',
+      showAllRails: 'Show every payout method anyway',
+      saveFailed: 'Could not save your countries. Please try again.',
+    },
     profileTitle: 'Payout profile',
     profiles: {
       haiti: 'Haiti',

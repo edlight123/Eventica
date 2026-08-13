@@ -2,9 +2,22 @@
 // Using Resend API (direct fetch, no SDK) for production-ready email delivery
 
 type EmailParams = {
-  to: string
+  to: string | null | undefined
   subject: string
   html: string
+}
+
+/**
+ * What every caller gets back. `success: false` is ALWAYS a returned value, never a
+ * throw: the Stripe webhook calls this inline, and a throw there surfaces to Stripe as
+ * a failed delivery — retried forever for a problem no retry can fix.
+ */
+export type SendEmailResult = {
+  success: boolean
+  error?: string
+  messageId?: string
+  /** Machine-readable reason, so callers can distinguish "no address" from "Resend is down". */
+  code?: 'missing_recipient' | 'no_api_key' | 'dummy_api_key' | 'provider_error'
 }
 
 // Premium brand colors
@@ -103,29 +116,42 @@ function escapeHtml(value: string): string {
     .replace(/'/g, '&#39;')
 }
 
-export async function sendEmail({ to, subject, html }: EmailParams) {
+export async function sendEmail({ to, subject, html }: EmailParams): Promise<SendEmailResult> {
+  // NULL-GUARD THE RECIPIENT FIRST.
+  //
+  // A user document without an `email` (and a guest order whose contact resolution
+  // failed) used to reach Resend as `to: undefined`. Resend answers 4xx, we threw,
+  // and in the Stripe webhook that throw became a webhook FAILURE — Stripe then
+  // retries an event whose tickets were already issued. There is nothing to retry:
+  // the address doesn't exist. Report it and move on.
+  const recipient = typeof to === 'string' ? to.trim() : ''
+  if (!recipient) {
+    console.warn('⚠️  sendEmail called with no recipient address — nothing sent', { subject })
+    return { success: false, error: 'No recipient email address', code: 'missing_recipient' }
+  }
+
   // Check API key configuration
   const apiKey = process.env.RESEND_API_KEY
-  
+
   if (!apiKey) {
     console.warn('❌ RESEND_API_KEY not configured - email will not be sent')
     console.warn('   Add RESEND_API_KEY to your environment variables')
-    console.warn(`   Would send to: ${to}`)
+    console.warn(`   Would send to: ${recipient}`)
     console.warn(`   Subject: ${subject}`)
-    return { success: false, error: 'No API key configured', messageId: undefined }
+    return { success: false, error: 'No API key configured', messageId: undefined, code: 'no_api_key' }
   }
 
   if (apiKey === 're_dummy_key_for_build') {
     console.warn('❌ RESEND_API_KEY is set to dummy value - email will not be sent')
     console.warn('   Replace with a real API key from https://resend.com')
-    console.warn(`   Would send to: ${to}`)
+    console.warn(`   Would send to: ${recipient}`)
     console.warn(`   Subject: ${subject}`)
-    return { success: false, error: 'Dummy API key - replace with real key from Resend', messageId: undefined }
+    return { success: false, error: 'Dummy API key - replace with real key from Resend', messageId: undefined, code: 'dummy_api_key' }
   }
 
   try {
-    console.log(`📧 Sending email to ${to}: ${subject}`)
-    
+    console.log(`📧 Sending email to ${recipient}: ${subject}`)
+
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -134,7 +160,7 @@ export async function sendEmail({ to, subject, html }: EmailParams) {
       },
       body: JSON.stringify({
         from: process.env.EMAIL_FROM || 'Tikem <noreply@tikem.co>',
-        to,
+        to: recipient,
         subject,
         html,
       }),
@@ -151,7 +177,7 @@ export async function sendEmail({ to, subject, html }: EmailParams) {
     return { success: true, messageId: data.id }
   } catch (error: any) {
     console.error('❌ Failed to send email:', error)
-    return { success: false, error: error.message }
+    return { success: false, error: error.message, code: 'provider_error' }
   }
 }
 
@@ -166,10 +192,18 @@ export function getTicketConfirmationEmail(params: {
   ticketTier?: string
   ticketPrice?: number
   currency?: string
+  /**
+   * Where "View My Tickets" points. A GUEST has no /tickets page to log into, so
+   * the caller passes their signed retrieval link instead. Omitted ⇒ the normal
+   * account page, exactly as before.
+   */
+  ticketsUrl?: string
+  /** Buyer-facing note under the button (e.g. "this link is yours — keep it"). */
+  ticketsUrlNote?: string
 }) {
   const ticketCode = String(params.ticketId || '').slice(0, 12).toUpperCase()
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tikem.co'
-  const ticketsUrl = `${appUrl}/tickets`
+  const ticketsUrl = params.ticketsUrl || `${appUrl}/tickets`
   const tier = params.ticketTier || 'General Admission'
   const price = params.ticketPrice ? `${params.currency || 'HTG'} ${params.ticketPrice.toLocaleString()}` : 'Free'
 
@@ -306,10 +340,15 @@ export function getTicketConfirmationEmail(params: {
                     
                     <div style="text-align: center; margin-top: 28px;">
                       ${getButton('View My Tickets', ticketsUrl, '#0f172a')}
+                      ${params.ticketsUrlNote ? `
+                        <div style="margin-top: 12px; font-size: 12px; color: #94a3b8; line-height: 1.6;">
+                          ${escapeHtml(params.ticketsUrlNote)}
+                        </div>
+                      ` : ''}
                     </div>
                   </td>
                 </tr>
-                
+
                 <!-- Footer -->
                 ${getEmailFooter()}
               </table>

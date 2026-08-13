@@ -123,6 +123,31 @@ Your ticket: ${params.ticketId.slice(0, 8)}
 Bring your QR code for check-in!`
 }
 
+/**
+ * The ticket itself, by SMS.
+ *
+ * A QR code can't travel over SMS, so the message carries the LINK that renders it.
+ * For a guest that link is their signed retrieval URL — in Haiti the phone number is
+ * often the only channel the buyer reliably reads, so this is the ticket's primary
+ * delivery, not a nicety.
+ */
+export function getTicketConfirmationSms(params: {
+  eventTitle: string
+  eventDate: string
+  ticketUrl: string
+  quantity?: number
+}) {
+  const qty = Math.max(1, Number(params.quantity || 1))
+  const plural = qty > 1 ? `${qty} tickets` : 'Your ticket'
+  return `🎟️ Tikem — ${plural} for ${params.eventTitle}
+
+📅 ${params.eventDate}
+
+Open your QR code: ${params.ticketUrl}
+
+Show it at the entrance.`
+}
+
 export function getRefundApprovedSms(params: {
   eventTitle: string
   amount: number

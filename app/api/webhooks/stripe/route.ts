@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/firebase-db/server'
-import { sendEmail, getTicketConfirmationEmail } from '@/lib/email'
-import { generateTicketQRCode } from '@/lib/qrcode'
-import { sendWhatsAppMessage, getTicketConfirmationWhatsApp } from '@/lib/whatsapp'
+import { sendTicketConfirmation } from '@/lib/tickets/confirmation'
+import { guestRecipientFromOrder } from '@/lib/guest/checkout'
+import { attachTicketsToGuestOrder, isGuestId } from '@/lib/guest/identity'
 import { redeemPromoInTransaction } from '@/lib/promo-codes'
 import { notifyTicketPurchase, notifyOrganizerTicketSale } from '@/lib/notifications/helpers'
 import { addTicketToEarnings } from '@/lib/earnings'
@@ -268,51 +268,26 @@ export async function POST(request: Request) {
         // Don't fail the webhook - log for manual reconciliation
       }
 
-      // Generate QR code
-      const qrCodeDataURL = await generateTicketQRCode(ticket.id)
-
-      // Send confirmation email
-      if (ticket.attendee && ticket.event) {
-        const ticketWord = quantity > 1 ? `${quantity} tickets` : 'ticket'
-        await sendEmail({
-          to: ticket.attendee.email,
-          subject: `Your ${ticketWord} for ${ticket.event.title}`,
-          html: getTicketConfirmationEmail({
-            attendeeName: ticket.attendee.full_name || 'Guest',
-            eventTitle: ticket.event.title,
-            eventDate: new Date(ticket.event.start_datetime).toLocaleDateString('en-US', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: '2-digit',
-            }),
-            eventVenue: `${ticket.event.venue_name}, ${ticket.event.city}`,
-            ticketId: ticket.id,
-            qrCodeDataURL,
-          }),
+      // Deliver the ticket.
+      //
+      // `ticket` is null when every insert above failed — reading `ticket.id` here used
+      // to throw, and a throw in this handler is reported to Stripe as a FAILED webhook,
+      // which it then retries against an order it can no longer fix. Delivery is
+      // best-effort by design: the tickets (if any) already exist and are already paid for.
+      if (ticket?.id && ticket.attendee && ticket.event) {
+        await sendTicketConfirmation({
+          ticketId: String(ticket.id),
+          qrPayload: ticket.qr_code_data || ticket.id,
+          event: ticket.event,
+          recipient: {
+            email: ticket.attendee.email,
+            name: ticket.attendee.full_name,
+            phone: ticket.attendee.phone,
+            isGuest: false,
+          },
+          quantity,
+          logPrefix: '[stripe]',
         })
-
-        // Send WhatsApp notification if phone number available
-        if (ticket.attendee.phone) {
-          await sendWhatsAppMessage({
-            to: ticket.attendee.phone,
-            message: getTicketConfirmationWhatsApp(
-              ticket.attendee.full_name || 'Guest',
-              ticket.event.title,
-              new Date(ticket.event.start_datetime).toLocaleDateString('en-US', {
-                weekday: 'long',
-                month: 'long',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit',
-              }),
-              `${ticket.event.venue_name}, ${ticket.event.city}`,
-              ticket.id
-            ),
-          })
-        }
 
         // Send in-app notification for ticket purchase
         try {
@@ -438,6 +413,19 @@ export async function POST(request: Request) {
         return NextResponse.json({ received: true, refunded: 'capacity_exceeded' })
       }
 
+      // WHO this order belongs to. `metadata.userId` is a uid for an account purchase
+      // and a `guest_…` id for a guest one; the guest's contact details were stamped
+      // into metadata at create-payment-intent time, BEFORE payment, so the recipient is
+      // read from the order rather than from anything this request could carry.
+      const piGuestRecipient = guestRecipientFromOrder({
+        is_guest: paymentIntent.metadata.isGuest === 'true',
+        user_id: paymentIntent.metadata.userId,
+        guest_name: paymentIntent.metadata.guestName,
+        guest_email: paymentIntent.metadata.guestEmail,
+        guest_phone: paymentIntent.metadata.guestPhone,
+        guest_order_key: paymentIntent.metadata.guestOrderKey,
+      })
+
       // Create tickets
       const createdTickets = []
       for (let i = 0; i < quantity; i++) {
@@ -445,6 +433,14 @@ export async function POST(request: Request) {
         const ticketData = {
           event_id: paymentIntent.metadata.eventId,
           attendee_id: paymentIntent.metadata.userId,
+          ...(piGuestRecipient
+            ? {
+                attendee_name: piGuestRecipient.name,
+                is_guest: true,
+                guest_email: piGuestRecipient.email,
+                guest_phone: piGuestRecipient.phone || null,
+              }
+            : {}),
           price_paid: Number.isFinite(priceInOriginalCurrency) && priceInOriginalCurrency > 0 ? priceInOriginalCurrency : pricePerTicket,
           currency: normalizedOriginalCurrency,
           original_currency: normalizedOriginalCurrency,
@@ -487,6 +483,14 @@ export async function POST(request: Request) {
                 status: 'confirmed',
                 ticket_type: paymentIntent.metadata.tierName || 'General Admission',
                 tier_id: paymentIntent.metadata.tierId || '',
+                ...(piGuestRecipient
+                  ? {
+                      is_guest: true,
+                      attendee_name: piGuestRecipient.name,
+                      guest_email: piGuestRecipient.email,
+                      guest_phone: piGuestRecipient.phone || null,
+                    }
+                  : {}),
                 price_paid: ticketData.price_paid,
                 currency: ticketData.currency,
                 exchange_rate_used: ticketData.exchange_rate_used ?? null,
@@ -572,20 +576,63 @@ export async function POST(request: Request) {
         const eventDoc = await adminDb.collection('events').doc(String(paymentIntent.metadata.eventId)).get()
         const eventDetails = eventDoc.exists ? { id: eventDoc.id, ...(eventDoc.data() as any) } : null
 
-        const attendeeDoc = await adminDb.collection('users').doc(String(paymentIntent.metadata.userId)).get()
-        const attendee = attendeeDoc.exists ? { id: attendeeDoc.id, ...(attendeeDoc.data() as any) } : null
-        
+        // A guest has no user document — their details come off the order instead.
+        const attendee = piGuestRecipient
+          ? {
+              email: piGuestRecipient.email,
+              full_name: piGuestRecipient.name,
+              phone: piGuestRecipient.phone,
+            }
+          : await (async () => {
+              const attendeeDoc = await adminDb
+                .collection('users')
+                .doc(String(paymentIntent.metadata.userId))
+                .get()
+              return attendeeDoc.exists ? { id: attendeeDoc.id, ...(attendeeDoc.data() as any) } : null
+            })()
+
         console.log('👤 Attendee found:', attendee?.email || 'No attendee')
         console.log('🎫 Event found:', eventDetails?.title || 'No event')
-        
+
+        // Deliver the ticket + QR. Embedded card purchases previously fell through
+        // here with no confirmation at all.
         try {
-          await notifyTicketPurchase(
-            paymentIntent.metadata.userId,
-            paymentIntent.metadata.eventId,
-            eventDetails?.title || 'Event',
-            quantity
-          )
-          
+          if (piGuestRecipient && paymentIntent.metadata.guestOrderKey) {
+            await attachTicketsToGuestOrder(
+              String(paymentIntent.metadata.guestOrderKey),
+              createdTickets.map((t: any) => String(t.id))
+            )
+          }
+
+          await sendTicketConfirmation({
+            ticketId: String(createdTickets[0].id),
+            qrPayload: createdTickets[0].qr_code_data || createdTickets[0].id,
+            event: eventDetails,
+            recipient: {
+              email: attendee?.email,
+              name: attendee?.full_name,
+              phone: attendee?.phone,
+              isGuest: Boolean(piGuestRecipient),
+            },
+            quantity,
+            guestToken: piGuestRecipient?.guestToken || null,
+            logPrefix: '[stripe]',
+          })
+        } catch (error) {
+          console.error('[stripe] failed to deliver ticket confirmation', error)
+        }
+
+        try {
+          // In-app notifications need an account to land in; a guest has none.
+          if (!isGuestId(paymentIntent.metadata.userId)) {
+            await notifyTicketPurchase(
+              paymentIntent.metadata.userId,
+              paymentIntent.metadata.eventId,
+              eventDetails?.title || 'Event',
+              quantity
+            )
+          }
+
           // Notify organizer
           if (eventDetails) {
             await notifyOrganizerTicketSale(

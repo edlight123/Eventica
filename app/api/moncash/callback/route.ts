@@ -3,9 +3,9 @@ import { cookies } from 'next/headers'
 import { createClient } from '@/lib/firebase-db/server'
 import { checkPaymentStatus } from '@/lib/moncash'
 import { notifyTicketPurchase as notifyTicketPurchaseNotification } from '@/lib/notifications/helpers'
-import { sendEmail, getTicketConfirmationEmail } from '@/lib/email'
-import { sendWhatsAppMessage, getTicketConfirmationWhatsApp } from '@/lib/whatsapp'
-import { generateTicketQRCode } from '@/lib/qrcode'
+import { sendTicketConfirmation } from '@/lib/tickets/confirmation'
+import { guestRecipientFromOrder } from '@/lib/guest/checkout'
+import { attachTicketsToGuestOrder, guestTicketUrl, isGuestId } from '@/lib/guest/identity'
 import { adminDb } from '@/lib/firebase/admin'
 import { addTicketToEarnings } from '@/lib/earnings'
 
@@ -66,8 +66,16 @@ export async function GET(request: Request) {
     const eventDoc = await adminDb.collection('events').doc(String(pendingTx.event_id)).get()
     const eventDetails = eventDoc.exists ? { id: eventDoc.id, ...(eventDoc.data() as any) } : null
 
-    const attendeeDoc = await adminDb.collection('users').doc(String(pendingTx.user_id)).get()
-    const attendee = attendeeDoc.exists ? { id: attendeeDoc.id, ...(attendeeDoc.data() as any) } : null
+    // Guest orders carry their buyer on the order itself (no users/{uid} to read).
+    const guestRecipient = guestRecipientFromOrder(pendingTx)
+    const attendeeDoc = guestRecipient
+      ? null
+      : await adminDb.collection('users').doc(String(pendingTx.user_id)).get()
+    const attendee: any = guestRecipient
+      ? { email: guestRecipient.email, full_name: guestRecipient.name, phone: guestRecipient.phone }
+      : attendeeDoc?.exists
+      ? { id: attendeeDoc.id, ...(attendeeDoc.data() as any) }
+      : null
 
     // Create tickets one at a time to ensure each gets unique ID
     const quantity = pendingTx.quantity || 1
@@ -90,6 +98,13 @@ export async function GET(request: Request) {
         event_id: pendingTx.event_id,
         attendee_id: pendingTx.user_id,
         attendee_name: attendee?.full_name || attendee?.email || 'Guest',
+        ...(guestRecipient
+          ? {
+              is_guest: true,
+              guest_email: guestRecipient.email,
+              guest_phone: guestRecipient.phone || null,
+            }
+          : {}),
         // Organizer-facing/event currency
         price_paid: organizerUnitPrice,
         currency: eventCurrency,
@@ -209,11 +224,17 @@ export async function GET(request: Request) {
       console.warn('[moncash] failed to update earnings', { message: (e as any)?.message })
     }
 
-    // Generate QR code
-    const qrCodeDataURL = await generateTicketQRCode(ticket.id)
+    // Record the issued tickets against a guest order so the retrieval link works.
+    if (guestRecipient && pendingTx.guest_order_key) {
+      await attachTicketsToGuestOrder(
+        String(pendingTx.guest_order_key),
+        createdTickets.map((t: any) => String(t.id))
+      )
+    }
 
-    // In-app + push notification (same pipeline as Stripe purchases)
-    if (pendingTx.user_id && pendingTx.event_id) {
+    // In-app + push notification (same pipeline as Stripe purchases). A guest has no
+    // account for it to land in.
+    if (pendingTx.user_id && !isGuestId(pendingTx.user_id) && pendingTx.event_id) {
       try {
         await notifyTicketPurchaseNotification(
           String(pendingTx.user_id),
@@ -226,48 +247,30 @@ export async function GET(request: Request) {
       }
     }
 
-    // Send confirmation email
+    // Deliver the ticket: email with the QR always, plus SMS for a guest / WhatsApp
+    // for an account holder.
     if (ticket.attendee && ticket.event) {
-      const ticketWord = quantity > 1 ? `${quantity} tickets` : 'ticket'
-      await sendEmail({
-        to: ticket.attendee.email,
-        subject: `Your ${ticketWord} for ${ticket.event.title}`,
-        html: getTicketConfirmationEmail({
-          attendeeName: ticket.attendee.full_name || 'Guest',
-          eventTitle: ticket.event.title,
-          eventDate: new Date(ticket.event.start_datetime).toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: '2-digit',
-          }),
-          eventVenue: `${ticket.event.venue_name}, ${ticket.event.city}`,
-          ticketId: ticket.id,
-          qrCodeDataURL,
-        }),
+      await sendTicketConfirmation({
+        ticketId: String(ticket.id),
+        qrPayload: ticket.qr_code_data || ticket.id,
+        event: ticket.event,
+        recipient: {
+          email: ticket.attendee.email,
+          name: ticket.attendee.full_name,
+          phone: ticket.attendee.phone,
+          isGuest: Boolean(guestRecipient),
+        },
+        quantity,
+        guestToken: guestRecipient?.guestToken || null,
+        logPrefix: '[moncash]',
       })
+    }
 
-      // Send WhatsApp notification if phone number available
-      if (ticket.attendee.phone) {
-        await sendWhatsAppMessage({
-          to: ticket.attendee.phone,
-          message: getTicketConfirmationWhatsApp(
-            ticket.attendee.full_name || 'Guest',
-            ticket.event.title,
-            new Date(ticket.event.start_datetime).toLocaleDateString('en-US', {
-              weekday: 'long',
-              month: 'long',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: '2-digit',
-            }),
-            `${ticket.event.venue_name}, ${ticket.event.city}`,
-            ticket.id
-          ),
-        })
-      }
+    // A guest has no /tickets page — send them to their own signed ticket link.
+    if (guestRecipient?.guestToken) {
+      return NextResponse.redirect(
+        new URL(`${guestTicketUrl(guestRecipient.guestToken)}?purchased=1`, request.url)
+      )
     }
 
     // Redirect to success page

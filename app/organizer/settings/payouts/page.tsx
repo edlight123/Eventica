@@ -2,6 +2,7 @@ import { adminAuth, adminDb } from '@/lib/firebase/admin'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { getPayoutProfile } from '@/lib/firestore/payout-profiles'
+import { getDeclaredMarkets } from '@/lib/firestore/organizer-markets'
 import { serializeData } from '@/lib/utils/serialize'
 import { normalizeCountryCode } from '@/lib/payment-provider'
 import PayoutsPageNew from './PayoutsPageNew'
@@ -54,10 +55,13 @@ export default async function PayoutsSettingsPage({
     redirect(`/organizer?redirect=${encodeURIComponent(payoutPath)}`)
   }
 
-  // Fetch payout data
-  const [haitiConfig, stripeConfig] = await Promise.all([
+  // Fetch payout data + the organizer's declared markets. The markets are a UI
+  // hint only: they decide which rails we lead with, never which rail an event
+  // requires (that stays keyed off the EVENT's country, server-side).
+  const [haitiConfig, stripeConfig, declaredMarkets] = await Promise.all([
     getPayoutProfile(authUser.uid, 'haiti'),
     getPayoutProfile(authUser.uid, 'stripe_connect'),
+    getDeclaredMarkets(authUser.uid),
   ])
 
   // Serialize data
@@ -74,6 +78,7 @@ export default async function PayoutsSettingsPage({
           showEarningsAndPayouts={false}
           organizerId={authUser.uid}
           organizerDefaultCountry={organizerDefaultCountry}
+          declaredMarkets={declaredMarkets}
           initialActiveProfile={
             stripeParam
               ? 'stripe_connect'
@@ -95,6 +100,7 @@ export default async function PayoutsSettingsPage({
       stripeConfig={serializedStripeConfig}
       organizerId={authUser.uid}
       organizerDefaultCountry={organizerDefaultCountry}
+      declaredMarkets={declaredMarkets}
       initialActiveProfile={stripeParam ? 'stripe_connect' : undefined}
       showEarningsAndPayouts={false}
     />

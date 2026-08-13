@@ -28,6 +28,8 @@ const state: any = {
   promos: {} as Record<string, any>,
   /** Every doc written to `promo_code_usage`. */
   usageWrites: [] as any[],
+  /** Fake `guest_orders` collection, keyed by order key. */
+  guestOrders: {} as Record<string, any>,
   event: {
     id: 'evt1',
     title: 'Test Event',
@@ -41,6 +43,14 @@ const state: any = {
 jest.mock('@/lib/firebase-db/server', () => ({ createClient: jest.fn() }))
 jest.mock('@/lib/auth', () => ({ getCurrentUser: jest.fn(async () => ({ id: 'u1', email: 'u@x.com', full_name: 'U' })) }))
 jest.mock('@/lib/events/access-guard', () => ({ hasEventAccess: jest.fn(async () => true) }))
+/**
+ * Ticket DELIVERY is stubbed, not disabled: these tests assert that it is called and
+ * with what. (Left real, it would hit Resend with the key in .env.local and actually
+ * mail somebody every time the suite runs.)
+ */
+jest.mock('@/lib/tickets/confirmation', () => ({
+  sendTicketConfirmation: jest.fn(async () => ({ emailSent: true, smsSent: false, whatsappSent: false })),
+}))
 jest.mock('@/lib/notifications/helpers', () => ({
   notifyTicketPurchase: jest.fn(async () => {}),
   notifyOrganizerTicketSale: jest.fn(async () => {}),
@@ -122,6 +132,21 @@ jest.mock('@/lib/firebase/admin', () => {
         if (name === 'promo_code_usage') {
           return { doc: () => ({ id: `usage${state.usageWrites.length + 1}` }) }
         }
+        if (name === 'guest_orders') {
+          return {
+            doc: (id: string) => ({
+              id,
+              set: async (data: any) => {
+                state.guestOrders[id] = { ...(state.guestOrders[id] || {}), ...data }
+              },
+              get: async () => ({
+                exists: Boolean(state.guestOrders[id]),
+                id,
+                data: () => state.guestOrders[id],
+              }),
+            }),
+          }
+        }
         if (name === 'tickets') {
           return {
             where: () => ({
@@ -150,8 +175,13 @@ jest.mock('@/lib/firebase/admin', () => {
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { POST } = require('@/app/api/tickets/claim-free/route')
 
-function req(body: any) {
-  return { json: async () => body } as any
+function req(body: any, headers: Record<string, string> = {}) {
+  // Headers are part of the shape now: guest checkout reads the client IP off the
+  // request to stamp on the guest order.
+  return {
+    json: async () => body,
+    headers: { get: (name: string) => headers[name.toLowerCase()] ?? null },
+  } as any
 }
 
 function reset() {
@@ -246,6 +276,7 @@ function reset() {
     },
   }
   state.usageWrites = []
+  state.guestOrders = {}
   jest.clearAllMocks()
 }
 
@@ -602,5 +633,169 @@ describe('PROMO-ZEROED claims {…, promoCode}', () => {
     }))
     expect(res.status).toBe(400)
     expect((await res.json()).code).toBe('too_many_tickets')
+  })
+})
+
+/**
+ * Ticket DELIVERY.
+ *
+ * This route imported no email module at all: an attendee of a free/RSVP event got an
+ * in-app notification and nothing in their inbox — no confirmation, no QR code,
+ * nothing to show at the door. A free ticket is still a ticket.
+ */
+describe('delivery — a free ticket is emailed like a paid one', () => {
+  beforeEach(reset)
+
+  const { sendTicketConfirmation } = require('@/lib/tickets/confirmation')
+
+  it('sends the confirmation (with the QR payload) to the account holder', async () => {
+    await POST(req({ eventId: 'evt1', tierId: 'freeA', quantity: 2 }))
+
+    expect(sendTicketConfirmation).toHaveBeenCalledTimes(1)
+    const arg = sendTicketConfirmation.mock.calls[0][0]
+    expect(arg.recipient).toMatchObject({ email: 'u@x.com', isGuest: false })
+    expect(arg.ticketId).toBe('tkt1')
+    // The QR must encode the ticket, which is what the scanner reads.
+    expect(arg.qrPayload).toBe('tkt1')
+    expect(arg.quantity).toBe(2)
+  })
+
+  it('never fails an issued claim because delivery failed', async () => {
+    sendTicketConfirmation.mockRejectedValueOnce(new Error('resend down'))
+    const res = await POST(req({ eventId: 'evt1', tierId: 'freeA', quantity: 1 }))
+    expect(res.status).toBe(200)
+    expect((await res.json()).count).toBe(1)
+    expect(state.added).toHaveLength(1)
+  })
+})
+
+/**
+ * GUEST claims: an RSVP without an account.
+ *
+ * The identity is minted server-side; the ticket carries the guest's contact details
+ * so support and refunds can still find it; and the response hands back a SIGNED
+ * retrieval link rather than any guessable id.
+ */
+describe('guest claim — no account required', () => {
+  // `reset()` deliberately does not rebuild `state.event` (it is shared), so the
+  // event-shape flags these tests flip are cleared here rather than leaking forward.
+  beforeEach(() => {
+    reset()
+    delete state.event.country
+    delete state.event.is_password_protected
+  })
+
+  const { getCurrentUser } = require('@/lib/auth')
+  const { sendTicketConfirmation } = require('@/lib/tickets/confirmation')
+
+  const asGuest = () => getCurrentUser.mockResolvedValueOnce(null)
+
+  it('issues a ticket to a guest and returns a signed retrieval link', async () => {
+    asGuest()
+    const res = await POST(
+      req({
+        eventId: 'evt1',
+        tierId: 'freeA',
+        quantity: 1,
+        guest: { name: 'Marie Joseph', email: 'Marie@Example.com ', phone: '' },
+      })
+    )
+    const body = await res.json()
+
+    expect(res.status).toBe(200)
+    expect(body.count).toBe(1)
+
+    // The ticket belongs to a `guest_…` id, not a uid, and carries the contact
+    // details that refunds/support search on.
+    const ticket = state.added[0]
+    expect(ticket.attendee_id).toMatch(/^guest_[0-9a-f]{24}$/)
+    expect(ticket.is_guest).toBe(true)
+    expect(ticket.guest_email).toBe('marie@example.com') // normalized
+    expect(ticket.attendee_name).toBe('Marie Joseph')
+
+    // The retrieval link is `{orderKey}.{signature}` — the order key alone is not it.
+    const url = String(body.guestTicketUrl || '')
+    expect(url).toContain('/tickets/guest/')
+    const token = decodeURIComponent(url.split('/tickets/guest/')[1])
+    expect(token).toMatch(/^[a-f0-9]{48}\.[A-Za-z0-9_-]{22}$/)
+
+    // …and it verifies against the record that was written.
+    const { verifyGuestToken } = require('@/lib/guest/identity')
+    const orderKey = verifyGuestToken(token)
+    expect(orderKey).toBeTruthy()
+    expect(state.guestOrders[orderKey!]).toMatchObject({
+      email: 'marie@example.com',
+      status: 'issued',
+      ticket_ids: ['tkt1'],
+    })
+
+    // Delivery goes to the guest, over guest channels, with their own link.
+    const arg = sendTicketConfirmation.mock.calls[0][0]
+    expect(arg.recipient).toMatchObject({ email: 'marie@example.com', isGuest: true })
+    expect(arg.guestToken).toBe(token)
+  })
+
+  it('refuses a guest with no contact details at all (401, as before)', async () => {
+    asGuest()
+    const res = await POST(req({ eventId: 'evt1', tierId: 'freeA', quantity: 1 }))
+    expect(res.status).toBe(401)
+    expect(state.added).toHaveLength(0)
+  })
+
+  it('refuses a malformed email rather than issuing an undeliverable ticket', async () => {
+    asGuest()
+    const res = await POST(
+      req({ eventId: 'evt1', tierId: 'freeA', guest: { name: 'X', email: 'not-an-email' } })
+    )
+    expect(res.status).toBe(400)
+    expect((await res.json()).code).toBe('guest_email_invalid')
+    expect(state.added).toHaveLength(0)
+  })
+
+  it('requires a phone number for a Haiti event — it is the identifier that reaches people', async () => {
+    state.event.country = 'HT'
+    asGuest()
+    const res = await POST(
+      req({ eventId: 'evt1', tierId: 'freeA', guest: { name: 'X', email: 'x@y.com' } })
+    )
+    expect(res.status).toBe(400)
+    expect((await res.json()).code).toBe('guest_phone_required')
+
+    // With one, the local 8-digit form is normalized to E.164.
+    asGuest()
+    const ok = await POST(
+      req({
+        eventId: 'evt1',
+        tierId: 'freeA',
+        guest: { name: 'X', email: 'x@y.com', phone: '3412 3456' },
+      })
+    )
+    expect(ok.status).toBe(200)
+    expect(state.added[0].guest_phone).toBe('+50934123456')
+  })
+
+  it('never lets a guest into a password-protected event', async () => {
+    state.event.is_password_protected = true
+    asGuest()
+    const res = await POST(
+      req({ eventId: 'evt1', tierId: 'freeA', guest: { name: 'X', email: 'x@y.com' } })
+    )
+    expect(res.status).toBe(401)
+    expect((await res.json()).code).toBe('guest_not_allowed_private')
+    expect(state.added).toHaveLength(0)
+  })
+
+  it('dedupes a repeat guest claim on the EMAIL, since there is no uid to key on', async () => {
+    state.existingTickets = [
+      { id: 'old1', event_id: 'evt1', price_paid: 0, guest_email: 'marie@example.com' },
+    ]
+    asGuest()
+    const body = await (
+      await POST(
+        req({ eventId: 'evt1', tierId: 'freeA', guest: { name: 'Marie', email: 'marie@example.com' } })
+      )
+    ).json()
+    expect(body.message).toBe('You already claimed a ticket for this event.')
+    expect(state.added).toHaveLength(0)
   })
 })

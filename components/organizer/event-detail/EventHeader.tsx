@@ -4,7 +4,9 @@ import { useState } from 'react'
 import { Calendar, MapPin, Globe, Edit, Share2, Eye, MoreVertical, Copy, XCircle, Trash2 } from 'lucide-react'
 import { format, formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
+import { useToast } from '@/components/ui/Toast'
 
 interface EventHeaderProps {
   event: {
@@ -22,6 +24,8 @@ interface EventHeaderProps {
 
 export function EventHeader({ event }: EventHeaderProps) {
   const { t } = useTranslation('common')
+  const router = useRouter()
+  const { showToast } = useToast()
   const [showMenu, setShowMenu] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
 
@@ -33,7 +37,30 @@ export function EventHeader({ event }: EventHeaderProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ is_published: !event.is_published }),
       })
-      if (response.ok) window.location.reload()
+      if (!response.ok) return
+
+      // Non-blocking advisories from the publish route (today: the event's
+      // country differs from the connected Stripe account's country, so the
+      // payout converts into that account's currency). A full page reload would
+      // wipe the toast before it could be read, so refresh in place instead.
+      const data = await response.json().catch(() => ({}))
+      const warnings: Array<{ message?: string }> = Array.isArray(data?.warnings) ? data.warnings : []
+
+      if (warnings.length > 0) {
+        for (const warning of warnings) {
+          if (!warning?.message) continue
+          showToast({
+            type: 'warning',
+            title: 'Heads up about your payout',
+            message: warning.message,
+            duration: 12000,
+          })
+        }
+        router.refresh()
+        return
+      }
+
+      window.location.reload()
     } catch {
       // publish toggle failed silently; user can retry
     } finally {

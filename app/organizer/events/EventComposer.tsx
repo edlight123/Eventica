@@ -781,6 +781,21 @@ export default function EventComposer({
         }
         setIsPublished(next)
         router.refresh()
+
+        // The publish route returns non-blocking advisories — today, an event
+        // whose country differs from the connected Stripe account's country
+        // (payout lands in the account's currency, after a conversion). Show it
+        // long and loud enough to be read; it never stops the publish.
+        const publishWarnings: Array<{ message?: string }> = Array.isArray(data?.warnings) ? data.warnings : []
+        for (const warning of publishWarnings) {
+          if (!warning?.message) continue
+          showToast({
+            type: 'warning',
+            title: 'Heads up about your payout',
+            message: warning.message,
+            duration: 12000,
+          })
+        }
       }
       showToast({
         type: 'success',

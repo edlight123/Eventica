@@ -6,6 +6,7 @@ import FavoriteButton from '@/components/FavoriteButton'
 import FollowButton from '@/components/FollowButton'
 import EventCard from '@/components/EventCard'
 import ShareIconButton from './ShareIconButton'
+import OpenInBrowserNotice from '@/components/OpenInBrowserNotice'
 import ShareButtonInline from './ShareButtonInline'
 import MobileHero from './MobileHero'
 import MobileKeyFacts from './MobileKeyFacts'
@@ -50,6 +51,19 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
   // shown (falls back to full_name, then a generic label).
   const organizerLabel = event.users?.organization_name || event.users?.full_name || 'Event Organizer'
   const organizerInitial = (event.users?.organization_name || event.users?.full_name || 'E')[0].toUpperCase()
+
+  // Buying no longer requires an account.
+  //
+  // Most visitors arrive from an Instagram link, inside a WebView where Google's
+  // popup sign-in is refused outright — so a "Sign in to get tickets" button was the
+  // end of the funnel for them. A logged-out visitor now gets the real buy button and
+  // checks out as a guest (name, email, and a phone number for Haiti).
+  //
+  // The ONE exception is a password-protected event: its access grant is keyed by uid,
+  // so there is nothing a guest could present. Those keep the sign-in link — plus an
+  // "open in Safari/Chrome" hint, because that is exactly where sign-in cannot work.
+  const guestCheckoutAllowed = !event.is_password_protected
+  const showBuyButton = Boolean(user) || guestCheckoutAllowed
 
   return (
     <div className="min-h-screen pb-mobile-nav md:pb-8">
@@ -241,10 +255,10 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
               <div className="block w-full text-center font-semibold py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white/70">
                 {t('ticket.sold_out_caps')}
               </div>
-            ) : user ? (
+            ) : showBuyButton ? (
               <BuyTicketButton
                 eventId={event.id}
-                userId={user.id}
+                userId={user?.id ?? null}
                 isFree={isFree}
                 ticketPrice={headlinePrice}
                 eventTitle={event.title}
@@ -253,12 +267,15 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                 isPasswordProtected={!!event.is_password_protected}
               />
             ) : (
-              <a
-                href={`/auth/login?redirect=${encodeURIComponent(`/events/${event.id}`)}`}
-                className="block w-full bg-brand-600 text-white text-center font-semibold py-3 rounded-xl"
-              >
-                {t('common.sign_in_to_get_tickets')}
-              </a>
+              <div className="space-y-2">
+                <a
+                  href={`/auth/login?redirect=${encodeURIComponent(`/events/${event.id}`)}`}
+                  className="block w-full bg-brand-600 text-white text-center font-semibold py-3 rounded-xl"
+                >
+                  {t('common.sign_in_to_get_tickets')}
+                </a>
+                <OpenInBrowserNotice />
+              </div>
             )}
           </div>
           <div className="flex-shrink-0">
@@ -485,11 +502,11 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                 </div>
               ) : (
                 <>
-                  {user ? (
+                  {showBuyButton ? (
                     <>
                       <BuyTicketButton
                         eventId={event.id}
-                        userId={user.id}
+                        userId={user?.id ?? null}
                         isFree={isFree}
                         ticketPrice={headlinePrice}
                         eventTitle={event.title}
@@ -497,9 +514,17 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                         country={event.country}
                         isPasswordProtected={!!event.is_password_protected}
                       />
-                      <div className="mt-4">
-                        <FavoriteButton eventId={event.id} userId={user.id} initialIsFavorite={isFavorite} />
-                      </div>
+                      {user ? (
+                        <div className="mt-4">
+                          <FavoriteButton eventId={event.id} userId={user.id} initialIsFavorite={isFavorite} />
+                        </div>
+                      ) : (
+                        <p className="text-xs text-white/50 text-center mt-3">
+                          {t('events.no_account_needed', {
+                            defaultValue: 'No account needed — your ticket is emailed to you.',
+                          })}
+                        </p>
+                      )}
                     </>
                   ) : (
                     <>
@@ -510,6 +535,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                         {t('events.sign_in_to_get_tickets')}
                       </a>
                       <p className="text-xs text-white/70 text-center mt-3">{t('events.create_account_to_purchase')}</p>
+                      <OpenInBrowserNotice className="mt-3" />
                     </>
                   )}
                 </>

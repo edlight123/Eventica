@@ -36,6 +36,14 @@ import SegmentedTabs from '../../components/organizer/SegmentedTabs'
 import SelectField from '../../components/organizer/SelectField'
 import { HAITI_BANKS, OTHER_BANK } from '../../data/haitiBanks'
 import { getDeviceLocationInfo } from '../../utils/deviceLocation'
+import { countryName, normalizeSupportedCountry } from '../../lib/countrySupport'
+import {
+  DECLARABLE_MARKETS,
+  marketsForRail,
+  railsForMarkets,
+  shouldShowRail,
+  useDeclaredMarkets,
+} from '../../lib/organizerMarkets'
 import { Receipt, Wallet } from 'lucide-react-native'
 
 type VerificationStatus = 'not_started' | 'pending' | 'verified' | 'failed'
@@ -220,6 +228,65 @@ export default function OrganizerPayoutSettingsScreenV2() {
     if (status === 'failed') return { status: 'error', label: t('organizerPayoutSettings.status.needsAttention') }
     return { status: 'neutral', label: t('organizerPayoutSettings.status.notVerified') }
   }, [t])
+
+  // ── Declared markets ──────────────────────────────────────────────────────
+  // Where the organizer says they'll run events. This narrows WHAT THEY SEE:
+  // Haiti only and the Stripe rail never appears; Haiti + US and both appear as
+  // two separate setups. It is not a permission — publish and withdrawal still
+  // derive the required profile from the EVENT's country, server-side — and it
+  // stays editable so a diaspora organizer can add a market at any time.
+  const {
+    markets: declaredMarkets,
+    loaded: marketsLoaded,
+    saving: savingMarkets,
+    save: saveMarkets,
+  } = useDeclaredMarkets(user?.uid)
+
+  // Manual override: a declaration narrows the UI, it must never be able to
+  // lock anyone out of a rail they turn out to need.
+  const [showAllRails, setShowAllRails] = useState(false)
+
+  // Until markets have loaded we show everything — narrowing off a not-yet-known
+  // answer would flash the wrong rails. A rail that is already SET UP always
+  // stays visible: hiding a live payout method would misdescribe the account.
+  const showHaitiRail =
+    !marketsLoaded ||
+    showAllRails ||
+    shouldShowRail('haiti', declaredMarkets) ||
+    destinations.length > 0
+  const showStripeRail =
+    !marketsLoaded ||
+    showAllRails ||
+    shouldShowRail('stripe_connect', declaredMarkets) ||
+    Boolean(stripeProfile?.connected)
+  const someRailHidden = !showHaitiRail || !showStripeRail
+
+  const toggleMarket = useCallback(
+    async (code: string) => {
+      const next = declaredMarkets.includes(code)
+        ? declaredMarkets.filter((c) => c !== code)
+        : [...declaredMarkets, code]
+      try {
+        await saveMarkets(next)
+      } catch {
+        showAlert(t('common.error'), t('organizerPayoutSettings.markets.saveFailed'))
+      }
+    },
+    [declaredMarkets, saveMarkets, showAlert, t]
+  )
+
+  // Cross-border payout advisory. A Stripe Express account's country is fixed
+  // at creation and an organizer holds exactly ONE connected account, so a
+  // US-registered organizer running a Canadian event is still paid — into the
+  // US account, in USD, after a conversion. Surfaced here against their DECLARED
+  // markets, and again at publish against the actual event country.
+  const connectedAccountCountry = normalizeSupportedCountry(stripeProfile?.country)
+  const mismatchedStripeMarkets = useMemo(() => {
+    if (!connectedAccountCountry) return []
+    return marketsForRail('stripe_connect', declaredMarkets).filter(
+      (code) => code !== connectedAccountCountry
+    )
+  }, [connectedAccountCountry, declaredMarkets])
 
   const loadDestinations = useCallback(async () => {
     if (!user?.uid) return
@@ -471,6 +538,11 @@ export default function OrganizerPayoutSettingsScreenV2() {
   // reads as universal, and a US organizer would reasonably fill in a form
   // wired to Sogebank/Unibank.
   const ownRegion = useMemo(() => {
+    // A DECLARATION outranks any inference — the organizer said outright where
+    // they run events, and the first market they named leads.
+    const rails = railsForMarkets(declaredMarkets)
+    if (rails.length > 0) return rails[0] === 'stripe_connect' ? 'international' : 'haiti'
+
     const stated = (userProfile as any)?.default_country
     const code = stated || (() => {
       try {
@@ -481,7 +553,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
       }
     })()
     return code && code !== 'HT' ? 'international' : 'haiti'
-  }, [userProfile])
+  }, [declaredMarkets, userProfile])
 
   const haitiGroup = useMemo(
     () => ({
@@ -823,6 +895,72 @@ export default function OrganizerPayoutSettingsScreenV2() {
           </View>
         )}
 
+        {/* Where you run events. Nothing used to ask, so every organizer was
+            shown every rail — a Port-au-Prince organizer was offered Stripe
+            Connect they will never use, and a diaspora organizer got no signal
+            that Haiti and the US are TWO setups. Answering is optional and
+            re-editable; it changes what is OFFERED, never what is allowed. */}
+        <View style={styles.marketsBlock}>
+          <SectionHeader
+            title={t('organizerPayoutSettings.markets.title')}
+            subtitle={t('organizerPayoutSettings.markets.subtitle')}
+          />
+          <View style={styles.marketChipRow}>
+            {DECLARABLE_MARKETS.map((code) => {
+              const isOn = declaredMarkets.includes(code)
+              return (
+                <TouchableOpacity
+                  key={code}
+                  style={[styles.chip, isOn && styles.chipActive, savingMarkets && { opacity: 0.6 }]}
+                  disabled={savingMarkets}
+                  onPress={() => toggleMarket(code)}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: isOn }}
+                >
+                  <View style={styles.marketChipInner}>
+                    {isOn ? <Ionicons name="checkmark" size={14} color={colors.text} /> : null}
+                    <Text style={[styles.chipText, isOn && styles.chipTextActive]}>
+                      {countryName(code)}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              )
+            })}
+          </View>
+          <Text style={styles.marketsHint}>
+            {declaredMarkets.length === 0
+              ? t('organizerPayoutSettings.markets.noneHint')
+              : showHaitiRail && showStripeRail && !someRailHidden
+                ? t('organizerPayoutSettings.markets.twoSetupsHint')
+                : t('organizerPayoutSettings.markets.oneSetupHint')}
+          </Text>
+
+          {/* Cross-border advisory: one connected account, fixed country. */}
+          {mismatchedStripeMarkets.length > 0 ? (
+            <View style={styles.marketsWarning}>
+              <Text style={styles.marketsWarningText}>
+                {t('organizerPayoutSettings.markets.countryMismatch')
+                  .replace('{account}', countryName(connectedAccountCountry))
+                  .replace(
+                    '{markets}',
+                    mismatchedStripeMarkets.map((code) => countryName(code)).join(', ')
+                  )}
+              </Text>
+            </View>
+          ) : null}
+
+          {someRailHidden ? (
+            <TouchableOpacity
+              onPress={() => setShowAllRails(true)}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Text style={styles.marketsShowAll}>
+                {t('organizerPayoutSettings.markets.showAllRails')}
+              </Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
+
         {/* Destinations List */}
         {destinations.length === 0 && !stripeProfile?.connected ? (
           <EmptyState
@@ -848,6 +986,8 @@ export default function OrganizerPayoutSettingsScreenV2() {
                 at publish and withdrawal), so the organizer needs to see that
                 split — and who verifies them on each side — before they build
                 an event they can't get paid for. */}
+            {showStripeRail ? (
+            <>
             <RegionSection
               colors={colors}
               title={t('organizerPayoutSettings.regions.internationalTitle')}
@@ -908,7 +1048,11 @@ export default function OrganizerPayoutSettingsScreenV2() {
                 {t('organizerPayoutSettings.regions.emptyInternational')}
               </Text>
             )}
+            </>
+            ) : null}
 
+            {showHaitiRail ? (
+            <>
             <RegionSection
               colors={colors}
               title={t('organizerPayoutSettings.regions.haitiTitle')}
@@ -998,6 +1142,8 @@ export default function OrganizerPayoutSettingsScreenV2() {
                 </View>
               )
             })}
+            </>
+            ) : null}
           </>
         )}
           </>
@@ -1065,6 +1211,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
                 region heading plus the named institutions in each row is what
                 stops someone filling in the wrong section entirely. */}
             {[haitiGroup, internationalGroup]
+              .filter((group) => (group.key === 'haiti' ? showHaitiRail : showStripeRail))
               .sort((a, b) => Number(b.isOwn) - Number(a.isOwn))
               .map((group) => (
                 <View key={group.key}>
@@ -1431,6 +1578,44 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 13,
     color: colors.textSecondary,
     paddingVertical: 10,
+  },
+  marketsBlock: {
+    marginBottom: 22,
+  },
+  marketChipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 4,
+  },
+  marketChipInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  marketsHint: {
+    fontSize: 12,
+    lineHeight: 17,
+    color: colors.textSecondary,
+    marginTop: 10,
+  },
+  marketsWarning: {
+    marginTop: 12,
+    padding: 12,
+    borderRadius: radius.button,
+    backgroundColor: colors.surface,
+  },
+  marketsWarningText: {
+    fontSize: 12,
+    lineHeight: 18,
+    color: colors.textSecondary,
+  },
+  marketsShowAll: {
+    marginTop: 12,
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.textSecondary,
+    textDecorationLine: 'underline',
   },
   addButton: {
     flexDirection: 'row',

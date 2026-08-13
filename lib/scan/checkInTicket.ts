@@ -1,6 +1,33 @@
 import { adminDb } from '@/lib/firebase/admin'
 import { FieldValue } from 'firebase-admin/firestore'
 
+/**
+ * The name the door sees.
+ *
+ * The ticket document is the authority — it already carries `attendee_name`, stamped
+ * at issuance. That matters for GUEST tickets, whose `attendee_id` is a `guest_…` id
+ * with no `users/{id}` document behind it: without this, every guest would scan in as
+ * a nameless "Guest". The user lookup remains as the fallback for older account
+ * tickets that were written before the name was denormalized onto them.
+ *
+ * Check-in itself has never needed a session — it reads the ticket, and that is
+ * exactly why a guest ticket scans like any other.
+ */
+async function resolveAttendeeName(ticketData: any): Promise<string> {
+  const onTicket = String(ticketData?.attendee_name || '').trim()
+  if (onTicket) return onTicket
+
+  const attendeeId = ticketData?.attendee_id
+  if (attendeeId && !String(attendeeId).startsWith('guest_')) {
+    const userDoc = await adminDb.collection('users').doc(String(attendeeId)).get()
+    if (userDoc.exists) {
+      return userDoc.data()?.full_name || userDoc.data()?.email || 'Guest'
+    }
+  }
+
+  return String(ticketData?.guest_email || '').trim() || 'Guest'
+}
+
 export type CheckInResult = 
   | { success: true; type: 'VALID'; attendeeName: string; ticketType: string; quantity: number; entryPoint: string }
   | { success: false; type: 'ALREADY_CHECKED_IN'; attendeeName: string; checkedInAt: string; entryPoint: string; allowReentry: boolean }
@@ -82,14 +109,8 @@ export async function checkInTicket(params: CheckInParams): Promise<CheckInResul
 
       // Check if already checked in
       if (ticketData.checked_in === true || ticketData.checked_in_at) {
-        // Fetch attendee name for display
-        let attendeeName = 'Guest'
-        if (ticketData.attendee_id) {
-          const userDoc = await adminDb.collection('users').doc(ticketData.attendee_id).get()
-          if (userDoc.exists) {
-            attendeeName = userDoc.data()?.full_name || userDoc.data()?.email || 'Guest'
-          }
-        }
+        // Name for display — off the ticket, so guest tickets are not anonymous.
+        const attendeeName = await resolveAttendeeName(ticketData)
 
         return {
           success: false,
@@ -102,13 +123,7 @@ export async function checkInTicket(params: CheckInParams): Promise<CheckInResul
       }
 
       // Fetch attendee info
-      let attendeeName = 'Guest'
-      if (ticketData.attendee_id) {
-        const userDoc = await adminDb.collection('users').doc(ticketData.attendee_id).get()
-        if (userDoc.exists) {
-          attendeeName = userDoc.data()?.full_name || userDoc.data()?.email || 'Guest'
-        }
-      }
+      const attendeeName = await resolveAttendeeName(ticketData)
 
       // Perform check-in - update ticket
       transaction.update(ticketRef, {
@@ -173,13 +188,7 @@ export async function overrideCheckIn(params: CheckInParams): Promise<CheckInRes
     }
 
     // Fetch attendee info
-    let attendeeName = 'Guest'
-    if (ticketData.attendee_id) {
-      const userDoc = await adminDb.collection('users').doc(ticketData.attendee_id).get()
-      if (userDoc.exists) {
-        attendeeName = userDoc.data()?.full_name || userDoc.data()?.email || 'Guest'
-      }
-    }
+    const attendeeName = await resolveAttendeeName(ticketData)
 
     // Update with override flag
     await ticketRef.update({

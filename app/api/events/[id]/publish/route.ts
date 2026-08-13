@@ -5,7 +5,7 @@ import { createNotification } from '@/lib/notifications/helpers'
 import { sendPushNotification } from '@/lib/notification-triggers'
 import { resolveEventCountry } from '@/lib/event-country'
 import { normalizeCountryCode } from '@/lib/payment-provider'
-import { isComingSoon, countrySupport } from '@/lib/country-support'
+import { isComingSoon, countrySupport, normalizeSupportedCountry } from '@/lib/country-support'
 import { getPayoutProfile, getRequiredPayoutProfileIdForEventCountry } from '@/lib/firestore/payout-profiles'
 
 function getStripe() {
@@ -53,6 +53,10 @@ export async function POST(
     const { id } = await params
     const body = await request.json()
     const { is_published } = body
+
+    // Non-blocking advisories returned alongside a SUCCESSFUL publish. Nothing
+    // here may ever stop a publish — the hard gates are the 403s below.
+    const warnings: Array<Record<string, any>> = []
 
     // Verify event ownership
     const eventDoc = await adminDb.collection('events').doc(id).get()
@@ -124,6 +128,32 @@ export async function POST(
               { error: 'Stripe Connect onboarding required before publishing paid events in this country.' },
               { status: 403 }
             )
+          }
+
+          // ── Cross-border advisory (WARN, never block) ──
+          // A Stripe Express account's country is fixed when it is created, and
+          // an organizer holds exactly ONE stripe_connect profile. So a
+          // US-registered organizer running a Canadian event still gets paid —
+          // but into their USD account, with an FX conversion nobody warned them
+          // about. Getting a genuinely local Canadian payout would mean a second
+          // connected account, which this model does not support. Say so at
+          // publish rather than letting them discover it on the payout.
+          const accountCountry = String(account?.country || '').toUpperCase()
+          const eventCountryCode = normalizeSupportedCountry(countryForSupport)
+          if (accountCountry && eventCountryCode && accountCountry !== eventCountryCode) {
+            warnings.push({
+              code: 'payout_country_mismatch',
+              eventCountry: eventCountryCode,
+              eventCountryName: countrySupport(eventCountryCode)?.name || eventCountryCode,
+              accountCountry,
+              accountCountryName: countrySupport(accountCountry)?.name || accountCountry,
+              payoutCurrency: String(account?.default_currency || '').toUpperCase() || null,
+              message:
+                `This event is in ${countrySupport(eventCountryCode)?.name || eventCountryCode}, but your connected payout account is registered in ` +
+                `${countrySupport(accountCountry)?.name || accountCountry}. You'll still be paid — into that account, in ` +
+                `${String(account?.default_currency || '').toUpperCase() || 'its own currency'}, with a currency conversion applied. ` +
+                `Being paid locally would require a separate connected account for ${countrySupport(eventCountryCode)?.name || eventCountryCode}, which Tikèm doesn't support yet.`,
+            })
           }
         }
       }
@@ -206,7 +236,7 @@ export async function POST(
       }
     }
 
-    return NextResponse.json({ success: true, is_published })
+    return NextResponse.json({ success: true, is_published, warnings })
   } catch (error) {
     console.error('Error toggling publish status:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

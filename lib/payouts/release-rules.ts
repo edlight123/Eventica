@@ -39,8 +39,6 @@ export function resolveConfig(
   const picked: Partial<PayoutReleaseConfig> = {}
   if (typeof override.newHoldHours === 'number') picked.newHoldHours = override.newHoldHours
   if (typeof override.establishedHoldHours === 'number') picked.establishedHoldHours = override.establishedHoldHours
-  if (typeof override.reserveBps === 'number') picked.reserveBps = override.reserveBps
-  if (typeof override.reserveDays === 'number') picked.reserveDays = override.reserveDays
   if (typeof override.reviewAboveGrossMinor === 'number') picked.reviewAboveGrossMinor = override.reviewAboveGrossMinor
   return { ...base, ...picked }
 }
@@ -111,7 +109,6 @@ export type ReleaseDecision = {
   reason: string
   tier: ReleaseTier
   releasableMinor: number
-  reserveHeldMinor: number
 }
 
 /** Hold after the event ends, by tier. */
@@ -127,16 +124,6 @@ export const PRE_EVENT_ELIGIBLE_GROSS_MINOR = 200_000 // $2,000 / 200k HTG
 
 /** Above this per-event gross, a still-new organizer goes to review. */
 export const REVIEW_ABOVE_GROSS_MINOR = 100_000
-
-/**
- * Chargeback reserve. Scoped deliberately narrowly: CARD sales only (MonCash has
- * no chargeback mechanism, so a reserve there withholds an organizer's money
- * against a risk that cannot occur), and only while an organizer is still new.
- * A permanent reserve on everyone is a working-capital tax on your best
- * organizers for a risk they've already disproved.
- */
-export const RESERVE_BPS = 1000 // 10.00%
-export const RESERVE_RELEASE_DAYS = 30
 
 export const MANUAL_CHECKIN_REVIEW_RATIO = 0.8
 export const LOW_ATTENDANCE_REVIEW_RATIO = 0.2
@@ -169,18 +156,6 @@ export function holdHoursFor(history: OrganizerHistory, cfg: PayoutReleaseConfig
   return tier === 'established' ? cfg.establishedHoldHours : cfg.newHoldHours
 }
 
-/** Reserve applies to card sales; by default only while an organizer is new. */
-export function reserveMinor(
-  grossMinor: number,
-  rail: PayoutRail,
-  history: OrganizerHistory,
-  cfg: PayoutReleaseConfig
-): number {
-  if (rail !== 'card') return 0
-  if (cfg.reserveNewOrganizersOnly && isEstablished(history, cfg)) return 0
-  return Math.floor((Math.max(0, grossMinor) * Math.max(0, cfg.reserveBps)) / 10_000)
-}
-
 /**
  * Decide what (if anything) may be paid out for one event right now.
  * `availableMinor` is the connected account's genuinely available Stripe balance
@@ -206,7 +181,6 @@ export function decideRelease({
     reason,
     tier,
     releasableMinor: 0,
-    reserveHeldMinor: 0,
   })
 
   if (event.status === 'cancelled') return nothing('event_cancelled')
@@ -226,10 +200,13 @@ export function decideRelease({
     if (hoursSinceEnd < requiredHold) return nothing(`hold_${requiredHold}h`)
   }
 
+  // No reserve is withheld. Holding back a slice of every organizer's takings
+  // taxes the working capital of people who did nothing wrong, and a promoter who
+  // paid the venue out of pocket feels it immediately. Chargeback exposure is
+  // handled by holding until AFTER the event, by reverse_transfer clawback while
+  // the organizer still has a Stripe balance, and by review on the risky signals.
   const net = Math.max(0, event.grossMinor - event.refundedMinor)
-  const reserveHeldMinor = reserveMinor(net, event.rail, history, cfg)
-  const target = Math.max(0, net - reserveHeldMinor)
-  const releasableMinor = Math.max(0, Math.min(target, availableMinor))
+  const releasableMinor = Math.max(0, Math.min(net, availableMinor))
 
   if (releasableMinor <= 0) return nothing('nothing_available_yet')
 
@@ -238,7 +215,6 @@ export function decideRelease({
     reason,
     tier,
     releasableMinor,
-    reserveHeldMinor,
   })
 
   if (history.highRisk) return decision('review', 'organizer_flagged_high_risk')

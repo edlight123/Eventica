@@ -62,7 +62,11 @@ import {
   countryName,
   currenciesForCountry,
   defaultCurrencyForCountry,
+  normalizeSupportedCountry,
+  providerForCountry,
 } from '../../lib/countrySupport';
+import { orderCountriesByMarkets, useDeclaredMarkets } from '../../lib/organizerMarkets';
+import { backendFetch } from '../../lib/api/backend';
 
 type RouteParams = {
   CreateEvent: undefined;
@@ -670,12 +674,16 @@ export default function CreateEventFlowRefactored() {
       return null;
     }
   }, [userProfile]);
-  const orderedCountries = useMemo(() => {
-    if (!organizerCountry) return COUNTRIES;
-    const own = COUNTRIES.filter((c) => c.code === organizerCountry);
-    if (own.length === 0) return COUNTRIES;
-    return [...own, ...COUNTRIES.filter((c) => c.code !== organizerCountry)];
-  }, [organizerCountry]);
+  // DECLARED markets lead the chip row when the organizer has stated them —
+  // that's an explicit answer to "where do you run events", which beats the
+  // stated default country and the device-region guess behind it. With nothing
+  // declared, `orderCountriesByMarkets` falls straight through to the old
+  // organizerCountry-first ordering.
+  const { markets: declaredMarkets } = useDeclaredMarkets(user?.uid);
+  const orderedCountries = useMemo(
+    () => orderCountriesByMarkets(COUNTRIES, declaredMarkets, organizerCountry),
+    [declaredMarkets, organizerCountry]
+  );
 
   // Seed once, for a NEW draft only — never fight an edit or a manual pick.
   // Routed through handleCountryChange so the department/city/currency cascade
@@ -683,12 +691,15 @@ export default function CreateEventFlowRefactored() {
   const seededCountryRef = useRef(false);
   useEffect(() => {
     if (isEditMode || seededCountryRef.current) return;
-    if (!organizerCountry || organizerCountry === 'HT') return;
-    if (!COUNTRIES.some((c) => c.code === organizerCountry)) return;
+    // A declared market is the strongest signal there is; fall back to the
+    // stated country / device region exactly as before when there is none.
+    const seed = declaredMarkets[0] || organizerCountry;
+    if (!seed || seed === 'HT') return;
+    if (!COUNTRIES.some((c) => c.code === seed)) return;
     seededCountryRef.current = true;
-    handleCountryChange(organizerCountry);
+    handleCountryChange(seed);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [organizerCountry, isEditMode]);
+  }, [declaredMarkets, organizerCountry, isEditMode]);
 
   const selectedCountry = (eventDraft as any).country || 'HT';
   const isHaiti = selectedCountry === 'HT';
@@ -706,6 +717,40 @@ export default function CreateEventFlowRefactored() {
       return Number.isFinite(price) && price > 0;
     });
   const showStripePayoutNotice = isStripeCountry && hasPaidTier;
+
+  // ── Cross-border payout advisory (WARN, never block) ──
+  // A Stripe Express account's country is fixed at creation and an organizer
+  // holds exactly ONE connected account. So a US-registered organizer running a
+  // Canadian event still gets paid — into the USD account, after an FX
+  // conversion nobody warned them about. Say it here, at the moment the country
+  // is chosen, as well as at publish.
+  const usesStripeRail = providerForCountry(selectedCountry) === 'stripe_connect';
+  const [connectedStripeCountry, setConnectedStripeCountry] = useState<string | null>(null);
+  useEffect(() => {
+    if (!usesStripeRail) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await backendFetch('/api/organizer/stripe/status');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (cancelled) return;
+        setConnectedStripeCountry(
+          data?.connected ? normalizeSupportedCountry(data?.account?.country) || null : null
+        );
+      } catch {
+        // Advisory only — a failed lookup simply means no warning is shown.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [usesStripeRail]);
+
+  const payoutCountryMismatch =
+    usesStripeRail && connectedStripeCountry && connectedStripeCountry !== selectedCountry
+      ? connectedStripeCountry
+      : null;
   // Non-Haiti countries keep the flat city list.
   const cities = CITIES_BY_COUNTRY[selectedCountry] || [];
   // Haiti gets a Département → City (arrondissement) → Commune cascade.
@@ -1597,6 +1642,15 @@ export default function CreateEventFlowRefactored() {
                     ? t('organizerCreateEventFlow.payoutRegime.haiti')
                     : t('organizerCreateEventFlow.payoutRegime.international')}
                 </Text>
+                {/* One connected account, one fixed country: an event abroad
+                    still pays, but converts into that account's currency. */}
+                {payoutCountryMismatch ? (
+                  <Text style={styles.payoutMismatchNote}>
+                    {t('organizerCreateEventFlow.payoutRegime.countryMismatch')
+                      .replace('{event}', countryName(selectedCountry))
+                      .replace('{account}', countryName(payoutCountryMismatch))}
+                  </Text>
+                ) : null}
               </View>
 
               {isHaiti ? (
@@ -2706,6 +2760,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 12,
     lineHeight: 17,
     color: colors.textSecondary,
+    marginTop: 8,
+  },
+  // Advisory, not an error: it warns about an FX conversion, it never blocks.
+  payoutMismatchNote: {
+    fontSize: 12,
+    lineHeight: 17,
+    color: colors.warning ?? '#F5A524',
     marginTop: 8,
   },
   chip: {

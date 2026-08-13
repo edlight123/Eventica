@@ -18,6 +18,13 @@ import {
   type PromoDoc,
 } from '@/lib/promo-codes'
 import { computeSelectionTotal, toCents } from '@/lib/ticketPricing'
+import { sendTicketConfirmation } from '@/lib/tickets/confirmation'
+import {
+  beginGuestCheckout,
+  identityFromUser,
+  type CheckoutIdentity,
+} from '@/lib/guest/checkout'
+import { attachTicketsToGuestOrder, guestTicketUrl } from '@/lib/guest/identity'
 
 /** Hard cap on how many free tickets one claim may issue, across all tiers. */
 const MAX_FREE_TICKETS_PER_CLAIM = 10
@@ -107,14 +114,13 @@ function storedPrice(value: unknown): number {
 
 export async function POST(request: Request) {
   try {
+    // A missing session is no longer fatal: an RSVP may be claimed by a GUEST who
+    // supplies `guest: { name, email, phone }`. The identity is resolved after the
+    // event is loaded (the phone rule and the password gate both depend on it).
     const user = await getCurrentUser()
 
     console.log('=== CLAIM FREE TICKET ===')
     console.log('User:', user?.id, user?.email)
-
-    if (!user) {
-      return fail('Unauthorized', 'unauthorized', 401)
-    }
 
     // TWO accepted payload shapes:
     //
@@ -135,7 +141,7 @@ export async function POST(request: Request) {
     // the tier price comes from Firestore, the promo comes from `promo_codes`, and
     // the discount is recomputed here. When `promoCode` is absent every code path
     // below behaves exactly as it did before.
-    const { eventId, quantity = 1, tierId, selections, promoCode } = await request.json()
+    const { eventId, quantity = 1, tierId, selections, promoCode, guest } = await request.json()
     const requestedSelections = normalizeSelections(selections)
     const useSelections = requestedSelections.length > 0
     const requestedPromo = String(promoCode ?? '').trim()
@@ -183,8 +189,27 @@ export async function POST(request: Request) {
 
     const event = { id: eventDoc.id, ...eventDoc.data() } as any
 
+    // Resolve the claimant: the signed-in user, or a validated guest contact record.
+    // A guest gets a `guest_…` id and a signed retrieval token; everything below treats
+    // that id exactly as it treats a uid.
+    let identity: CheckoutIdentity
+    if (user) {
+      identity = identityFromUser(user)
+    } else {
+      const guestOutcome = await beginGuestCheckout({
+        guestInput: guest,
+        event,
+        eventId: String(eventId),
+        ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
+        errorBody: (error, code) => ({ error, code }),
+      })
+      if (!guestOutcome.ok) return guestOutcome.response
+      identity = guestOutcome.identity
+    }
+
     // Password-protected events: require a valid access grant before issuing tickets.
-    if (!(await hasEventAccess(event, eventId, user.id))) {
+    // (Guests are refused outright by beginGuestCheckout, so this is as strict as before.)
+    if (!(await hasEventAccess(event, eventId, identity.id))) {
       return fail('access_code_required', 'access_code_required', 403)
     }
 
@@ -377,10 +402,14 @@ export async function POST(request: Request) {
     // Scoped to free tickets: on an event with free AND paid tiers, a buyer who
     // already PAID must not be told they "already claimed" the free tier, and their
     // paid ticket must not be returned as if it were the claim.
-    const userTicketsSnap = await adminDb
-      .collection('tickets')
-      .where('attendee_id', '==', user.id)
-      .get()
+    //
+    // A GUEST has a freshly-minted id, so `attendee_id` would never match anything.
+    // Their dedup key is the EMAIL they just gave — the one identifier that survives
+    // across their (session-less) visits. Both are single-field equality queries, so
+    // neither needs a composite index.
+    const userTicketsSnap = identity.isGuest
+      ? await adminDb.collection('tickets').where('guest_email', '==', identity.email).get()
+      : await adminDb.collection('tickets').where('attendee_id', '==', identity.id).get()
     const existing = userTicketsSnap.docs
       .map((d: any) => ({ id: d.id, ...d.data() }))
       .filter((t: any) => t.event_id === eventId && Number(t.price_paid ?? 0) === 0)
@@ -441,7 +470,7 @@ export async function POST(request: Request) {
       const redeem = await redeemPromoInTransaction({
         promoId: promo.id,
         qty: ticketQuantity,
-        userId: user.id,
+        userId: identity.id,
         eventId,
         discountApplied: promoDiscountCents / 100,
       })
@@ -470,8 +499,13 @@ export async function POST(request: Request) {
       for (let i = 0; i < claim.quantity; i++) {
         const ticketData = {
           event_id: eventId,
-          attendee_id: user.id,
-          attendee_name: user.full_name || user.email || 'Guest',
+          attendee_id: identity.id,
+          attendee_name: identity.name || identity.email || 'Guest',
+          // A guest ticket carries its buyer's contact details so support and refunds
+          // can find it by email or phone without a uid to join on.
+          ...(identity.isGuest
+            ? { is_guest: true, guest_email: identity.email, guest_phone: identity.phone || null }
+            : {}),
           status: 'valid',
           price_paid: 0,
           currency: event.currency || 'HTG',
@@ -509,15 +543,59 @@ export async function POST(request: Request) {
     // NOTE: inventory was already reserved/incremented atomically by reserveInventoryAtomic above,
     // so we intentionally do NOT increment tickets_sold again here.
 
+    // Record the tickets against the guest order so the retrieval link renders them.
+    if (identity.isGuest && identity.guestOrderKey) {
+      await attachTicketsToGuestOrder(
+        identity.guestOrderKey,
+        createdTickets.map((t: any) => String(t.id))
+      )
+    }
+
+    // ── DELIVER THE TICKET ──────────────────────────────────────────────────────
+    // This route used to import no email module at all: an attendee of a free/RSVP
+    // event got an in-app notification and nothing else — no confirmation, no QR code,
+    // nothing to show at the door unless they happened to open the app again. A free
+    // ticket is still a ticket, so it goes out over the same pipeline the paid paths
+    // use (email with the QR; SMS for a guest, WhatsApp for an account holder).
+    //
+    // Best-effort: the tickets are already issued and are the buyer's regardless of
+    // whether the mail provider is reachable.
+    try {
+      await sendTicketConfirmation({
+        ticketId: String(createdTickets[0].id),
+        qrPayload: (createdTickets[0] as any).qr_code_data || createdTickets[0].id,
+        event,
+        recipient: {
+          // Resolved from the session or from the guest record created above — never
+          // from an address the request body could name for someone else's order.
+          email: identity.email,
+          name: identity.name,
+          phone: identity.phone,
+          isGuest: identity.isGuest,
+        },
+        quantity: ticketQuantity,
+        tierName: claims[0]?.tierName,
+        ticketPrice: 0,
+        currency: event.currency || 'HTG',
+        guestToken: identity.guestToken || null,
+        logPrefix: '[claim-free]',
+      })
+    } catch (error) {
+      console.error('[claim-free] failed to deliver ticket confirmation', error)
+    }
+
     // Send in-app notification for free ticket claim
     try {
-      await notifyTicketPurchase(
-        user.id,
-        eventId,
-        event.title,
-        ticketQuantity
-      )
-      
+      // A guest has no account for an in-app notification to land in.
+      if (!identity.isGuest) {
+        await notifyTicketPurchase(
+          identity.id,
+          eventId,
+          event.title,
+          ticketQuantity
+        )
+      }
+
       // Notify organizer
       await notifyOrganizerTicketSale(
         event.organizer_id,
@@ -525,7 +603,7 @@ export async function POST(request: Request) {
         event.title,
         ticketQuantity,
         0, // free event
-        user.full_name
+        identity.name
       )
     } catch (error) {
       console.error('Failed to send notification:', error)
@@ -548,6 +626,8 @@ export async function POST(request: Request) {
       })),
       // Additive: tells the caller a promo (not a 0-price tier) paid for this claim.
       promoApplied: Boolean(promo && promoDiscountCents > 0),
+      // A guest has no /tickets page to be sent to — hand back their own signed link.
+      ...(identity.guestToken ? { guestTicketUrl: guestTicketUrl(identity.guestToken) } : {}),
       message: `${ticketQuantity} free ticket${ticketQuantity !== 1 ? 's' : ''} claimed successfully!`
     })
   } catch (error: any) {

@@ -17,6 +17,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useFilters } from '../contexts/FiltersContext';
 import { COUNTRIES, getFeaturedCities } from '../types/filters';
+import { METROS } from '../data/metros';
 import { RADIUS, SPACING } from '../config/brand';
 
 // Accent/case-insensitive match so "petion" finds "Pétion-Ville" and "cote"
@@ -60,14 +61,36 @@ export default function LocationPickerSheet({
 
   const [areaQuery, setAreaQuery] = useState('');
 
-  const cities = getFeaturedCities(userCountry);
+  // You pick a METRO, not a street address: choosing Port-au-Prince has to
+  // include Pétion-Ville and Delmas, and choosing Miami has to include Fort
+  // Lauderdale. Listing the raw featured cities offered "Pétion-Ville" and
+  // "Port-au-Prince" as if they were different places to browse. The satellite
+  // towns are shown as a hint so the scope is never a surprise.
+  const areas = useMemo(() => {
+    const metros = METROS.filter((m) => m.country === userCountry);
+    if (metros.length > 0) {
+      return metros.map((m) => ({
+        value: m.label,
+        label: m.label,
+        hint: m.cities.filter((c) => c !== m.label).slice(0, 3).join(' · '),
+      }));
+    }
+    // A country we have no metro map for yet — fall back to its towns.
+    return getFeaturedCities(userCountry).map((c) => ({ value: c, label: c, hint: '' }));
+  }, [userCountry]);
   const trimmedQuery = areaQuery.trim();
 
   // "All areas" is the clear-selection affordance, not a searchable row, so it
-  // is rendered outside this list and always stays on top.
+  // is rendered outside this list and always stays on top. Searching also looks
+  // inside the hint, so typing "delmas" finds Port-au-Prince.
   const visibleCities = useMemo(
-    () => (trimmedQuery ? cities.filter((city) => matchesQuery(city, trimmedQuery)) : cities),
-    [cities, trimmedQuery]
+    () =>
+      trimmedQuery
+        ? areas.filter(
+            (a) => matchesQuery(a.label, trimmedQuery) || matchesQuery(a.hint, trimmedQuery)
+          )
+        : areas,
+    [areas, trimmedQuery]
   );
 
   // A filter left over from a previous visit would make the list look empty.
@@ -75,7 +98,7 @@ export default function LocationPickerSheet({
     if (!visible) setAreaQuery('');
   }, [visible]);
 
-  const renderCityRow = (label: string, value: string) => {
+  const renderCityRow = (label: string, value: string, hint?: string) => {
     const active = selectedCity === value;
     return (
       <TouchableOpacity
@@ -85,7 +108,14 @@ export default function LocationPickerSheet({
         activeOpacity={0.8}
       >
         <MapPin size={18} color={active ? colors.primary : colors.textSecondary} />
-        <Text style={[styles.cityText, active && styles.cityTextActive]}>{label}</Text>
+        <View style={styles.cityTextWrap}>
+          <Text style={[styles.cityText, active && styles.cityTextActive]}>{label}</Text>
+          {!!hint && (
+            <Text style={styles.cityHint} numberOfLines={1}>
+              {hint}
+            </Text>
+          )}
+        </View>
         {active && <Check size={18} color={colors.primary} />}
       </TouchableOpacity>
     );
@@ -177,7 +207,7 @@ export default function LocationPickerSheet({
             keyboardDismissMode="on-drag"
           >
             {renderCityRow(t('location.allAreas'), '')}
-            {visibleCities.map((city) => renderCityRow(city, city))}
+            {visibleCities.map((area) => renderCityRow(area.label, area.value, area.hint))}
             {trimmedQuery.length > 0 && visibleCities.length === 0 && (
               <View style={styles.emptyState}>
                 <Text style={styles.emptyTitle}>{t('location.noAreasMatch')}</Text>
@@ -335,11 +365,19 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       borderColor: colors.primary,
       backgroundColor: colors.primarySoft,
     },
-    cityText: {
+    cityTextWrap: {
       flex: 1,
+    },
+    cityText: {
       fontSize: 15,
       fontWeight: '600',
       color: colors.text,
+    },
+    // The towns this area covers — the metro rule, stated plainly.
+    cityHint: {
+      fontSize: 12,
+      color: colors.textSecondary,
+      marginTop: 2,
     },
     cityTextActive: {
       color: colors.primarySoftText,

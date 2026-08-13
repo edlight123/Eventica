@@ -24,16 +24,12 @@ export const runtime = 'nodejs'
 const NUMERIC_FIELDS: (keyof PayoutReleaseOverride)[] = [
   'newHoldHours',
   'establishedHoldHours',
-  'reserveBps',
-  'reserveDays',
   'reviewAboveGrossMinor',
 ]
 
 const LIMITS: Partial<Record<keyof PayoutReleaseOverride, { min: number; max: number }>> = {
   newHoldHours: { min: 0, max: 720 },
   establishedHoldHours: { min: 0, max: 720 },
-  reserveBps: { min: 0, max: 5000 },
-  reserveDays: { min: 0, max: 365 },
   reviewAboveGrossMinor: { min: 0, max: 100_000_000 },
 }
 
@@ -98,9 +94,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   // An override that loosens the rules has to be explained — it is the record of
   // WHY this promoter is trusted, read later when something goes wrong.
   const loosening =
-    next.preEventReleaseApproved === true ||
-    next.forceEstablished === true ||
-    (typeof next.reserveBps === 'number' && next.reserveBps === 0)
+    next.preEventReleaseApproved === true || next.forceEstablished === true
   const note = typeof (body as any)?.note === 'string' ? (body as any).note.slice(0, 500).trim() : ''
   if (loosening && !note && !before?.note) {
     return NextResponse.json(

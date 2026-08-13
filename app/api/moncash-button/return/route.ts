@@ -13,9 +13,9 @@ import {
   retrieveMonCashTransactionPayment,
 } from '@/lib/moncash'
 import { notifyTicketPurchase as notifyTicketPurchaseNotification } from '@/lib/notifications/helpers'
-import { sendEmail, getTicketConfirmationEmail } from '@/lib/email'
-import { sendWhatsAppMessage, getTicketConfirmationWhatsApp } from '@/lib/whatsapp'
-import { generateTicketQRCode } from '@/lib/qrcode'
+import { sendTicketConfirmation } from '@/lib/tickets/confirmation'
+import { guestRecipientFromOrder } from '@/lib/guest/checkout'
+import { attachTicketsToGuestOrder, guestTicketUrl, isGuestId } from '@/lib/guest/identity'
 import { adminDb } from '@/lib/firebase/admin'
 import {
   buildTierSoldIncrements,
@@ -448,11 +448,25 @@ async function handleMonCashButtonReturn(request: Request): Promise<NextResponse
       .eq('id', pendingTx.event_id)
       .single()
 
-    const { data: attendee } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', pendingTx.user_id)
-      .single()
+    // WHO gets this ticket. An account purchase resolves `users/{uid}` exactly as
+    // before; a GUEST has no user document, so the name/email/phone captured when the
+    // checkout was created — and stored on this order — are the authority. Nothing is
+    // read from the gateway's redirect except the fact of payment.
+    const guestRecipient = guestRecipientFromOrder(pendingTx)
+    const isGuestOrder = Boolean(guestRecipient)
+
+    const { data: accountAttendee } = isGuestOrder
+      ? { data: null }
+      : await supabase.from('users').select('*').eq('id', pendingTx.user_id).single()
+
+    const attendee: any = guestRecipient
+      ? {
+          email: guestRecipient.email,
+          full_name: guestRecipient.name,
+          phone: guestRecipient.phone,
+          is_guest: true,
+        }
+      : accountAttendee
 
     const tierSelections: Array<{ tierId?: string | null; tierName?: string; quantity: number; unitPrice: number; originalUnitPrice?: number }> =
       Array.isArray(pendingTx.tier_selections) && pendingTx.tier_selections.length > 0
@@ -544,6 +558,15 @@ async function handleMonCashButtonReturn(request: Request): Promise<NextResponse
           event_date: eventDetails?.start_datetime || null,
           venue_name: eventDetails?.venue_name || null,
           city: eventDetails?.city || null,
+          // Guest tickets carry the buyer's own contact details so refunds and support
+          // can find the order by email or phone without a uid to join on.
+          ...(guestRecipient
+            ? {
+                is_guest: true,
+                guest_email: guestRecipient.email,
+                guest_phone: guestRecipient.phone || null,
+              }
+            : {}),
         }
 
         const insertResult = await supabase.from('tickets').insert([ticketData]).select()
@@ -579,6 +602,14 @@ async function handleMonCashButtonReturn(request: Request): Promise<NextResponse
                 ticket_type: selection.tierName || 'General Admission',
                 price_paid: organizerUnitPrice,
                 currency: eventCurrency,
+                ...(guestRecipient
+                  ? {
+                      is_guest: true,
+                      guest_email: guestRecipient.email,
+                      guest_phone: guestRecipient.phone || null,
+                      attendee_name: guestRecipient.name,
+                    }
+                  : {}),
                 exchange_rate_used: fxRate,
                 exchange_rate_base: fxBaseRate,
                 exchange_rate_spread_percent: fxSpreadPercent,
@@ -668,67 +699,64 @@ async function handleMonCashButtonReturn(request: Request): Promise<NextResponse
     // NOTE: inventory was already incremented up front by reserveInventoryAtomic (the oversell
     // gate), so we intentionally do NOT increment again here.
 
-    // Generate QR code + notify
+    // Deliver the ticket + notify (best-effort — the payment is done and the tickets
+    // exist; a mail/SMS failure must never turn this into a failed purchase).
     if (ticket?.id) {
-      const qrCodeDataURL = await generateTicketQRCode(ticket.id)
-
-      // In-app + push notification (same pipeline as Stripe purchases)
-      if (pendingTx.user_id && pendingTx.event_id && eventDetails?.title) {
-        try {
-          await notifyTicketPurchaseNotification(
-            String(pendingTx.user_id),
-            String(pendingTx.event_id),
-            String(eventDetails.title),
-            createdTickets.length || (pendingTx.quantity || 1)
+      try {
+        if (guestRecipient && pendingTx.guest_order_key) {
+          await attachTicketsToGuestOrder(
+            String(pendingTx.guest_order_key),
+            createdTickets.map((t: any) => String(t.id))
           )
-        } catch (error) {
-          console.error('MonCash Button: failed to send purchase notification', error)
         }
-      }
 
-      if (ticket.attendee && ticket.event) {
-        const quantity = pendingTx.quantity || 1
-        const ticketWord = quantity > 1 ? `${quantity} tickets` : 'ticket'
+        // In-app + push notification (same pipeline as Stripe purchases). A guest has
+        // no account for it to land in, so it is skipped for them.
+        if (
+          pendingTx.user_id &&
+          !isGuestId(pendingTx.user_id) &&
+          pendingTx.event_id &&
+          eventDetails?.title
+        ) {
+          try {
+            await notifyTicketPurchaseNotification(
+              String(pendingTx.user_id),
+              String(pendingTx.event_id),
+              String(eventDetails.title),
+              createdTickets.length || (pendingTx.quantity || 1)
+            )
+          } catch (error) {
+            console.error('MonCash Button: failed to send purchase notification', error)
+          }
+        }
 
-        await sendEmail({
-          to: ticket.attendee.email,
-          subject: `Your ${ticketWord} for ${ticket.event.title}`,
-          html: getTicketConfirmationEmail({
-            attendeeName: ticket.attendee.full_name || 'Guest',
-            eventTitle: ticket.event.title,
-            eventDate: new Date(ticket.event.start_datetime).toLocaleDateString('en-US', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: '2-digit',
-            }),
-            eventVenue: `${ticket.event.venue_name}, ${ticket.event.city}`,
-            ticketId: ticket.id,
-            qrCodeDataURL,
-          }),
-        })
-
-        if (ticket.attendee.phone) {
-          await sendWhatsAppMessage({
-            to: ticket.attendee.phone,
-            message: getTicketConfirmationWhatsApp(
-              ticket.attendee.full_name || 'Guest',
-              ticket.event.title,
-              new Date(ticket.event.start_datetime).toLocaleDateString('en-US', {
-                weekday: 'long',
-                month: 'long',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit',
-              }),
-              `${ticket.event.venue_name}, ${ticket.event.city}`,
-              ticket.id
-            ),
+        if (ticket.attendee && ticket.event) {
+          await sendTicketConfirmation({
+            ticketId: String(ticket.id),
+            qrPayload: ticket.qr_code_data || ticket.id,
+            event: ticket.event,
+            recipient: {
+              email: ticket.attendee.email,
+              name: ticket.attendee.full_name,
+              phone: ticket.attendee.phone,
+              isGuest: isGuestOrder,
+            },
+            quantity: pendingTx.quantity || 1,
+            guestToken: guestRecipient?.guestToken || null,
+            logPrefix: '[moncash_button]',
           })
         }
+      } catch (error) {
+        console.error('[moncash_button] post-fulfillment delivery error', error)
       }
+    }
+
+    // A guest has no /tickets page to land on — send them straight to their own
+    // signed ticket page, which is also where they are offered an account.
+    if (guestRecipient?.guestToken) {
+      return NextResponse.redirect(
+        new URL(`${guestTicketUrl(guestRecipient.guestToken)}?purchased=1`, request.url)
+      )
     }
 
     return NextResponse.redirect(new URL(`/purchase/success?ticketId=${ticket?.id || ''}`, request.url))

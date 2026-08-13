@@ -23,10 +23,18 @@ function getByPath(obj: any, path: string): string | null {
   return typeof cur === 'string' ? cur : null
 }
 
+/** Replace {placeholders} — used by copy that names the active location. */
+function interpolate(template: string, params?: Record<string, string | number>): string {
+  if (!params) return template
+  return template.replace(/\{(\w+)\}/g, (match, name) =>
+    params[name] != null ? String(params[name]) : match
+  )
+}
+
 type I18nContextValue = {
   language: Language
   setLanguage: (lang: Language) => Promise<void>
-  t: (key: string) => string
+  t: (key: string, params?: Record<string, string | number>) => string
 }
 
 const I18nContext = createContext<I18nContextValue>({} as any)
@@ -60,11 +68,11 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     return {
       language,
       setLanguage,
-      t: (key: string) => {
+      t: (key: string, params?: Record<string, string | number>) => {
         const localized = getByPath(dict, key)
-        if (localized) return localized
+        if (localized) return interpolate(localized, params)
         const fallback = getByPath(en, key)
-        return fallback || key
+        return fallback ? interpolate(fallback, params) : key
       },
     }
   }, [language])

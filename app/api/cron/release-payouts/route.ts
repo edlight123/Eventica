@@ -627,8 +627,16 @@ export async function GET(request: Request) {
 
         const reviewRef = adminDb.collection('payout_review_queue').doc(eventId)
         const reviewSnap = await reviewRef.get()
-        const reviewPending =
-          reviewSnap.exists && String((reviewSnap.data() as any)?.status || '') === 'pending'
+        const reviewStatus = reviewSnap.exists
+          ? String((reviewSnap.data() as any)?.status || '')
+          : ''
+        const reviewPending = reviewStatus === 'pending'
+        // An admin who approved a flagged payout has to be able to unblock it.
+        // The signals that route here (mostly-manual check-ins, low attendance)
+        // never stop being true, so without this the event would be re-flagged
+        // forever and an approval would mean nothing. Deleting the row instead
+        // would just make the next run write a fresh 'pending' one and loop.
+        const reviewReleased = reviewStatus === 'released'
 
         // Three independent ceilings. releasableMinor is the rules' answer and is
         // never exceeded; the entitlement cap stops one event draining another
@@ -657,7 +665,7 @@ export async function GET(request: Request) {
           continue
         }
 
-        if (decision.release === 'review' || reviewPending) {
+        if ((decision.release === 'review' && !reviewReleased) || reviewPending) {
           const reason =
             decision.release === 'auto' ? `${decision.reason}+awaiting_admin_review` : decision.reason
 
@@ -719,7 +727,6 @@ export async function GET(request: Request) {
           stripeAccountId,
           amountMinor,
           currency: account.currency,
-          reserveHeldMinor: Math.max(0, toMinor(decision.reserveHeldMinor)),
           tier: decision.tier,
           reason: decision.reason,
           payoutId: null as string | null,

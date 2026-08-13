@@ -6,21 +6,19 @@ import {
   StyleSheet, 
   TouchableOpacity,
     Image,
-  Dimensions,
   RefreshControl,
   Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTabBarSpace } from '../hooks/useTabBarSpace';
-import { Search, SlidersHorizontal, Users, CloudOff } from 'lucide-react-native';
+import { Search, SlidersHorizontal, Users, CloudOff, MapPin, ChevronDown } from 'lucide-react-native';
 import { collection, query, where, getDocs, limit, addDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { filterExploreEvents } from '../lib/api/events';
 import { useTheme } from '../contexts/ThemeContext';
 import { radius } from '../theme/tokens';
 import EventFiltersSheet from '../components/EventFiltersSheet';
-import PosterEventCard from '../components/PosterEventCard';
 import EmptyState from '../components/EmptyState';
 import { Skeleton, DiscoverFeedSkeleton } from '../components/Skeleton';
 import { DateFilter } from '../components/DateChips';
@@ -30,41 +28,15 @@ import { useFilters } from '../contexts/FiltersContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import DiscoverEventCard from '../components/DiscoverEventCard';
+import ElsewhereRail from '../components/ElsewhereRail';
 import { useAppAlert } from '../components/AppAlert';
-import { isBudgetFriendlyTicketPrice } from '../lib/pricing';
 import { applyFilters } from '../utils/filterUtils';
-import { DEFAULT_FILTERS, getFeaturedCities } from '../types/filters';
+import { DEFAULT_FILTERS } from '../types/filters';
 import { getDateRange } from '../utils/filters';
 import { fetchFriendsGoingCounts } from '../lib/api/social';
 import { shareEvent } from '../lib/share';
-
-const { width } = Dimensions.get('window');
-const GRID_GAP = 16;
-const COLUMN_WIDTH = (width - 32 - GRID_GAP) / 2;
-// Match the Home rail poster exactly (Home uses CARD_WIDTH = min(248, width*0.62), no inset).
-// Keep a side inset on Discover by widening the card by 2x the inset so the poster
-// itself ends up the same width AND height as Home, with gutters on the sides.
-const HOME_CARD_WIDTH = Math.min(248, width * 0.62);
-const RAIL_INSET = 12;
-const RAIL_WIDTH = HOME_CARD_WIDTH + RAIL_INSET * 2;
-
-// Location matching tolerant to accents, case and "City, ST" suffixes so the
-// town rails line up with whatever string is stored on each event's `city`.
-const normalizeCity = (s: any): string =>
-  (s ?? '')
-    .toString()
-    .trim()
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
-
-const cityMatches = (eventCity: any, target: string): boolean => {
-  const e = normalizeCity(eventCity);
-  if (!e) return false;
-  const full = normalizeCity(target);
-  const short = normalizeCity(target.split(',')[0]);
-  return e === full || e === short || e.includes(short) || short.includes(e);
-};
+import { elsewhereEvents } from '../data/metros';
+import { useActiveLocationCopy } from '../lib/locationCopy';
 
 export default function DiscoverScreen({ navigation, route }: any) {
   const { colors } = useTheme();
@@ -73,17 +45,26 @@ export default function DiscoverScreen({ navigation, route }: any) {
   // The tab bar is a translucent overlay, so reserve its height here or the
   // last row ends up sitting behind it.
   const tabBarSpace = useTabBarSpace();
-  const { appliedFilters, openFiltersModal, hasActiveFilters, countActiveFilters, applyFiltersDirectly, resetFilters, userCountry } = useFilters();
+  const {
+    appliedFilters,
+    openFiltersModal,
+    hasActiveFilters,
+    countActiveFilters,
+    applyFiltersDirectly,
+    resetFilters,
+    userCountry,
+    activeCity,
+    activeMetro,
+    activeLocationLabel,
+    setActiveCity,
+  } = useFilters();
   const { user } = useAuth();
   const { t, language } = useI18n();
+  // The active location, in words — every empty state and the header chip.
+  const locationCopy = useActiveLocationCopy();
   const showAlert = useAppAlert();
   
   const [allEvents, setAllEvents] = useState<any[]>([]);
-  const [featuredEvents, setFeaturedEvents] = useState<any[]>([]);
-  const [happeningSoonEvents, setHappeningSoonEvents] = useState<any[]>([]);
-  const [budgetEvents, setBudgetEvents] = useState<any[]>([]);
-  const [onlineEvents, setOnlineEvents] = useState<any[]>([]);
-  const [filteredEvents, setFilteredEvents] = useState<any[]>([]);
   const [friendsGoingCounts, setFriendsGoingCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -92,12 +73,13 @@ export default function DiscoverScreen({ navigation, route }: any) {
   const [selectedDate, setSelectedDate] = useState<DateFilter>('any');
   const [pickedDate, setPickedDate] = useState<string | undefined>();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedCity, setSelectedCity] = useState('');
-  const [cityRails, setCityRails] = useState<{ city: string; events: any[] }[]>([]);
   const [whereSheetOpen, setWhereSheetOpen] = useState(false);
   const [whenSheetOpen, setWhenSheetOpen] = useState(false);
   // Posh-style Discover: a focused feed with For You / Following / Saved tabs.
   const [feedEvents, setFeedEvents] = useState<any[]>([]);
+  // Top events from OTHER metros in the same country/region. Kept in its own
+  // state, rendered under its own header — never merged into the feed.
+  const [elsewhere, setElsewhere] = useState<any[]>([]);
   const [discoverTab, setDiscoverTab] = useState<'forYou' | 'following' | 'saved'>('forYou');
   const [savedEvents, setSavedEvents] = useState<any[]>([]);
   // Which events the user has bookmarked — drives the card's save icon state
@@ -154,12 +136,13 @@ export default function DiscoverScreen({ navigation, route }: any) {
       if (currentRoute.name === 'Discover') {
         // Scroll to top
         scrollViewRef.current?.scrollTo({ y: 0, animated: true });
-        // Reset filters and search
+        // Reset filters and search. The LOCATION survives on purpose —
+        // resetFilters keeps it — so a tab press never moves you to another
+        // market without you asking.
         resetFilters();
         setSearchQuery('');
         setSelectedDate('any');
         setSelectedCategories([]);
-        setSelectedCity('');
         // Reset route params
         navigation.setParams({ category: undefined, trending: undefined, thisWeek: undefined });
       }
@@ -174,11 +157,14 @@ export default function DiscoverScreen({ navigation, route }: any) {
     
     if (category) {
       console.log('[DiscoverScreen] Applying category filter:', category);
-      const categoryFilter = {
+      // Keep the LOCATION. Spreading DEFAULT_FILTERS alone reset country and
+      // city, so arriving from a category chip silently un-scoped the feed.
+      applyFiltersDirectly({
         ...DEFAULT_FILTERS,
-        categories: [category]
-      };
-      applyFiltersDirectly(categoryFilter);
+        country: userCountry,
+        city: activeCity,
+        categories: [category],
+      });
     } else if (trending) {
       console.log('[DiscoverScreen] Filtering for trending events');
       // Filter trending events in organizeEvents
@@ -199,7 +185,7 @@ export default function DiscoverScreen({ navigation, route }: any) {
     if (allEvents.length > 0) {
       organizeEvents();
     }
-  }, [allEvents, appliedFilters, searchQuery, selectedDate, pickedDate, selectedCategories, selectedCity, route?.params]);
+  }, [allEvents, appliedFilters, searchQuery, selectedDate, pickedDate, selectedCategories, route?.params]);
 
   const fetchEvents = async () => {
     setError(false);
@@ -312,7 +298,6 @@ export default function DiscoverScreen({ navigation, route }: any) {
     setSearchQuery('');
     setSelectedDate('any');
     setSelectedCategories([]);
-    setSelectedCity('');
   }, [resetFilters]);
 
   // Toggle bookmark: optimistic UI + event_favorites write (add/remove).
@@ -429,11 +414,6 @@ export default function DiscoverScreen({ navigation, route }: any) {
     );
   };
 
-  const filterByCity = (events: any[]) => {
-    if (!selectedCity) return events;
-    return events.filter(event => cityMatches(event.city, selectedCity));
-  };
-
   const filterByTrending = (events: any[]) => {
     return events.filter(e => (e.tickets_sold || 0) > 10);
   };
@@ -448,38 +428,25 @@ export default function DiscoverScreen({ navigation, route }: any) {
   const organizeEvents = () => {
     let events = [...allEvents];
     const { trending, thisWeek } = route?.params || {};
-    
-    console.log('[DiscoverScreen] Organizing', events.length, 'events');
-    console.log('[DiscoverScreen] Route params:', { trending, thisWeek });
 
     // Apply special filters from navigation
     if (trending) {
       events = filterByTrending(events);
-      console.log('[DiscoverScreen] Trending filtered:', events.length, 'events');
     } else if (thisWeek) {
       events = filterByThisWeek(events);
-      console.log('[DiscoverScreen] This week filtered:', events.length, 'events');
     }
 
-    // Apply main filters from context
+    // Location + filters, in one pass. `appliedFilters` carries the ONE active
+    // location (country + town → metro).
+    //
+    // There is NO fallback here any more. This used to drop the country AND the
+    // city whenever filtering came back empty, which is why browsing from Miami
+    // showed Haiti and New York events. An empty feed that names where you are
+    // is honest; a full feed from somewhere else is not. See the empty state
+    // below and the clearly-labelled "elsewhere in …" rail.
     events = applyFilters(events, appliedFilters);
-    console.log('[DiscoverScreen] After context filtering:', events.length, 'events');
-
-    // Graceful fallback: the auto-detected device country (e.g. "US") must never
-    // hide every event. If context filtering empties the list and the user hasn't
-    // explicitly chosen any filters, drop the silent country default and show all.
-    if (events.length === 0 && !hasActiveFilters()) {
-      events = applyFilters([...allEvents], { ...appliedFilters, country: '', city: '' });
-      console.log('[DiscoverScreen] Country fallback applied:', events.length, 'events');
-    }
-    
-    // Apply date and category filters
     events = filterByDate(events);
     events = filterByCategory(events);
-    events = filterByCity(events);
-    console.log('[DiscoverScreen] After date/category filtering:', events.length, 'events');
-    
-    // Apply search filter
     events = filterBySearch(events);
 
     // The single, filtered + chronologically sorted feed used by the "For You" tab.
@@ -488,117 +455,22 @@ export default function DiscoverScreen({ navigation, route }: any) {
     );
     setFeedEvents(feed);
 
-    const hasAnyFilters = hasActiveFilters() || searchQuery.trim() !== '' || trending || thisWeek || route?.params?.allEvents || selectedDate !== 'any' || selectedCategories.length > 0 || selectedCity !== '';
-
-    if (hasAnyFilters) {
-      console.log('[DiscoverScreen] Showing filtered results:', events.length);
-      setFilteredEvents(events);
-      setFeaturedEvents([]);
-      setHappeningSoonEvents([]);
-      setBudgetEvents([]);
-      setOnlineEvents([]);
-      setCityRails([]);
-    } else {
-      setFilteredEvents([]);
-      
-      const featured = [...events]
-        .sort((a, b) => (b.tickets_sold || 0) - (a.tickets_sold || 0))
-        .slice(0, 6);
-      setFeaturedEvents(featured);
-
-      const happeningSoon = events
-        .sort((a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime())
-        .slice(0, 8);
-      setHappeningSoonEvents(happeningSoon);
-
-      const budget = events
-        .filter((e) => isBudgetFriendlyTicketPrice(e?.ticket_price, e?.currency))
-        .slice(0, 8);
-      setBudgetEvents(budget);
-
-      const online = events.filter(e => e.event_type === 'online' || e.venue_name?.toLowerCase().includes('online')).slice(0, 6);
-      setOnlineEvents(online);
-
-      // Location-first browsing: one horizontal rail per featured town that
-      // actually has events, ordered by the user's country (Haiti-first).
-      const featuredCities = getFeaturedCities(userCountry);
-      const rails = featuredCities
-        .map((city) => ({
-          city,
-          events: events.filter((e) => cityMatches(e.city, city)).slice(0, 8),
-        }))
-        .filter((rail) => rail.events.length > 0);
-      setCityRails(rails);
+    // The one labelled rail: same country (or same region in a big country),
+    // OTHER metros. Same date/category rules as the feed, only the location
+    // differs — and it is rendered separately, under its own header.
+    const searching = searchQuery.trim() !== '';
+    if (searching || !activeMetro) {
+      setElsewhere([]);
+      return;
     }
-  };
-
-  const renderEventCard = (event: any, index: number) => (
-    <PosterEventCard
-      key={`${event.id}-${index}`}
-      event={event}
-      width={COLUMN_WIDTH}
-      posterInsetX={0}
-      friendsGoing={friendsGoingCounts[event.id]}
-      onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
-    />
-  );
-
-  const renderSection = (title: string, subtitle: string, _emoji: string, events: any[], onSeeAll?: () => void) => {
-    if (events.length === 0) return null;
-
-    return (
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <View style={styles.sectionHeaderText}>
-            <Text style={styles.sectionTitle}>{title.toLowerCase()}</Text>
-          </View>
-          {onSeeAll && (
-            <TouchableOpacity
-              onPress={onSeeAll}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            >
-              <Text style={styles.seeAllText}>{t('discover.seeAll').toLowerCase()}</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.horizontalScrollView}
-          contentContainerStyle={styles.carouselContent}
-          snapToInterval={RAIL_WIDTH + 16}
-          decelerationRate="fast"
-        >
-          {events.slice(0, 8).map((event, index) => (
-            <PosterEventCard
-              key={`${event.id}-${index}`}
-              event={event}
-              width={RAIL_WIDTH}
-              posterInsetX={RAIL_INSET}
-              friendsGoing={friendsGoingCounts[event.id]}
-              onPress={() => navigation.navigate('EventDetail', { eventId: event.id })}
-            />
-          ))}
-        </ScrollView>
-      </View>
+    const countryWide = filterByCategory(
+      filterByDate(applyFilters([...allEvents], { ...appliedFilters, city: '' }))
     );
-  };
-
-  const getFilterTitle = () => {
-    const { trending, thisWeek } = route?.params || {};
-    if (trending) return t('discover.filterTitles.trending');
-    if (thisWeek) return t('discover.filterTitles.thisWeek');
-    if (selectedCity) return `${t('discover.inArea')} ${selectedCity}`;
-    if (searchQuery.trim()) return t('discover.filterTitles.search');
-    if (hasActiveFilters()) return t('discover.filterTitles.filtered');
-    return null;
-  };
-
-  const getFilterSubtitle = () => {
-    const { trending, thisWeek } = route?.params || {};
-    if (trending) return t('discover.filterSubtitles.trending');
-    if (thisWeek) return t('discover.filterSubtitles.thisWeek');
-    return `${filteredEvents.length} ${filteredEvents.length === 1 ? t('discover.eventFound') : t('discover.eventsFound')}`;
+    setElsewhere(
+      elsewhereEvents(countryWide, activeMetro).sort(
+        (a, b) => (b.tickets_sold || 0) - (a.tickets_sold || 0)
+      )
+    );
   };
 
   if (loading) {
@@ -628,17 +500,16 @@ export default function DiscoverScreen({ navigation, route }: any) {
     );
   }
 
-  const hasAnyFilters = hasActiveFilters() || searchQuery.trim() !== '' || route?.params?.trending || route?.params?.thisWeek || route?.params?.allEvents || selectedDate !== 'any' || selectedCategories.length > 0 || selectedCity !== '';
-
   const renderFeed = (
     list: any[],
     emptyTitle: string,
     emptySubtitle: string,
     emptyAction?: { label: string; onAction: () => void },
+    emptyIcon: typeof Search = Search,
   ) =>
     list.length === 0 ? (
       <EmptyState
-        icon={Search}
+        icon={emptyIcon}
         title={emptyTitle}
         subtitle={emptySubtitle}
         actionLabel={emptyAction?.label}
@@ -703,6 +574,23 @@ export default function DiscoverScreen({ navigation, route }: any) {
           style={{ opacity: expandedOpacity }}
           pointerEvents={isCollapsed ? 'none' : 'box-none'}
         >
+          {/* The active location, always visible: browsing is scoped to it, so
+              the screen has to say which market you are in — and let you leave
+              it in one tap. */}
+          <TouchableOpacity
+            style={styles.locationRow}
+            onPress={() => setWhereSheetOpen(true)}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={locationCopy.locationName}
+          >
+            <MapPin size={13} color={colors.primary} />
+            <Text style={styles.locationText} numberOfLines={1}>
+              {locationCopy.locationName}
+            </Text>
+            <ChevronDown size={14} color={colors.textSecondary} />
+          </TouchableOpacity>
+
           <View style={styles.searchRow}>
             {/* Tapping the search pill opens the dedicated full-screen Search. */}
             <TouchableOpacity
@@ -793,15 +681,32 @@ export default function DiscoverScreen({ navigation, route }: any) {
           />
         ) : (
           <>
-            {discoverTab === 'forYou' &&
-              renderFeed(
-                feedEvents,
-                t('discover.noEventsFound'),
-                t('discover.tryAdjusting'),
-                hasActiveFilters()
-                  ? { label: t('discover.clearFilters'), onAction: handleClearFilters }
-                  : undefined,
-              )}
+            {discoverTab === 'forYou' && (
+              <>
+                {/* Nothing here? Say WHERE there is nothing, and offer the one
+                    move that can change it. Never quietly show another market. */}
+                {hasActiveFilters()
+                  ? renderFeed(
+                      feedEvents,
+                      t('discover.noEventsFound'),
+                      t('discover.tryAdjusting'),
+                      { label: t('discover.clearFilters'), onAction: handleClearFilters },
+                    )
+                  : renderFeed(
+                      feedEvents,
+                      locationCopy.emptyTitle,
+                      locationCopy.emptySubtitle,
+                      { label: t('discover.changeLocation'), onAction: () => setWhereSheetOpen(true) },
+                      MapPin,
+                    )}
+
+                <ElsewhereRail
+                  events={elsewhere}
+                  metro={activeMetro}
+                  onEventPress={(eventId) => navigation.navigate('EventDetail', { eventId })}
+                />
+              </>
+            )}
 
             {discoverTab === 'following' && (
               <EmptyState
@@ -821,12 +726,13 @@ export default function DiscoverScreen({ navigation, route }: any) {
 
       <EventFiltersSheet />
 
+      {/* The one way another market appears: the user changes location. */}
       <LocationPickerSheet
         visible={whereSheetOpen}
         onClose={() => setWhereSheetOpen(false)}
-        selectedCity={selectedCity}
+        selectedCity={activeCity}
         onSelect={(city) => {
-          setSelectedCity(city);
+          setActiveCity(city);
           setWhereSheetOpen(false);
         }}
       />
@@ -898,6 +804,21 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     alignItems: 'center',
     gap: 10,
   },
+  // Active-location chip above the search pill (matches Home's header chip).
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 4,
+    paddingBottom: 8,
+  },
+  locationText: {
+    fontSize: 11,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+    color: colors.textSecondary,
+    maxWidth: 200,
+  },
   searchPill: {
     flex: 1,
     flexDirection: 'row',
@@ -966,37 +887,5 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 32,
-  },
-  section: {
-    marginBottom: 24,
-    paddingHorizontal: 16,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  sectionHeaderText: {
-    flex: 1,
-  },
-  seeAllText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: colors.primary,
-    marginLeft: 12,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 4,
-  },
-  horizontalScrollView: {
-    marginHorizontal: -16,
-  },
-  carouselContent: {
-    paddingHorizontal: 16,
-    gap: 16,
   },
 });

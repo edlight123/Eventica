@@ -44,6 +44,7 @@ import PosterEventCard from '../components/PosterEventCard';
 import EmptyState from '../components/EmptyState';
 import { Skeleton, PosterCardSkeleton } from '../components/Skeleton';
 import { useAppAlert } from '../components/AppAlert';
+import { findMetro } from '../data/metros';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 // Two-column poster wall inside the 16px-padded scroll content (12px gutter).
@@ -56,7 +57,7 @@ export default function ProfileScreen() {
   const { user, userProfile, signOut, updateUserProfile, refreshUserProfile } = useAuth();
   const { mode, setMode } = useAppMode();
   const { language, setLanguage, t } = useI18n();
-  const { setUserCountry, applyFiltersDirectly, appliedFilters } = useFilters();
+  const { setUserCountry, setActiveCity } = useFilters();
   const showAlert = useAppAlert();
   const insets = useSafeAreaInsets();
   // The tab bar is a translucent overlay, so reserve its height here or the
@@ -410,13 +411,13 @@ export default function ProfileScreen() {
       });
       await refreshUserProfile();
 
-      // Update filters to use new country
+      // Move the ONE active browse location with the profile. The typed city is
+      // adopted only when it maps to a metro we know; a free-text typo would
+      // otherwise scope browsing to a place that can never have events. The
+      // country-wide scope is the honest fallback, and the location picker is
+      // one tap away.
       setUserCountry(editedCountry);
-      applyFiltersDirectly({
-        ...appliedFilters,
-        country: editedCountry,
-        city: '', // Reset city filter when country changes
-      });
+      setActiveCity(findMetro(editedCity, editedCountry) ? editedCity : '');
       
       setIsEditing(false);
       showAlert(t('profile.saveSuccessTitle'), t('profile.saveSuccessBody'));
@@ -425,7 +426,7 @@ export default function ProfileScreen() {
     } finally {
       setSaving(false);
     }
-  }, [appliedFilters, applyFiltersDirectly, canUseOrganizerMode, editedBio, editedCity, editedCountry, editedFacebook, editedInstagram, editedName, editedOrgName, editedTiktok, editedTwitter, orgLogoUrl, attendanceVisibility, discoverableByPhone, profileVisibility, phoneDigits, phonePrefix, refreshUserProfile, setUserCountry, t, updateUserProfile, user?.uid]);
+  }, [setActiveCity, canUseOrganizerMode, editedBio, editedCity, editedCountry, editedFacebook, editedInstagram, editedName, editedOrgName, editedTiktok, editedTwitter, orgLogoUrl, attendanceVisibility, discoverableByPhone, profileVisibility, phoneDigits, phonePrefix, refreshUserProfile, setUserCountry, t, updateUserProfile, user?.uid]);
 
   const confirmSignOut = useCallback(() => {
     showAlert(t('profile.signOutTitle'), t('profile.signOutBody'), [

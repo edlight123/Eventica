@@ -3,6 +3,7 @@ import { createClient } from '@/lib/firebase-db/server'
 import { getCurrentUser } from '@/lib/auth'
 import { createMonCashButtonCheckoutFormPost, isMonCashButtonConfigured } from '@/lib/moncash-button'
 import { createMonCashGatewayPayment, isMonCashConfigured } from '@/lib/moncash'
+import { verifyGuestToken } from '@/lib/guest/identity'
 import crypto from 'crypto'
 
 export const runtime = 'nodejs'
@@ -21,14 +22,20 @@ export const dynamic = 'force-dynamic'
 export async function GET(request: Request) {
   try {
     const user = await getCurrentUser()
-    if (!user) {
-      return new NextResponse('Unauthorized', { status: 401 })
-    }
 
     const url = new URL(request.url)
     const orderId = url.searchParams.get('orderId') || ''
     if (!orderId) {
       return new NextResponse('Missing orderId', { status: 400 })
+    }
+
+    // A GUEST has no session to prove this order is theirs, so the initiate route
+    // appended their signed retrieval token to this URL. Verifying it here (and
+    // matching it against the order's own key below) is the same capability check a
+    // session performs — an order id alone is never enough to start someone's payment.
+    const guestOrderKeyFromLink = verifyGuestToken(url.searchParams.get('g'))
+    if (!user && !guestOrderKeyFromLink) {
+      return new NextResponse('Unauthorized', { status: 401 })
     }
 
     const orderHash = crypto.createHash('sha256').update(orderId).digest('hex').slice(0, 10)
@@ -44,7 +51,14 @@ export async function GET(request: Request) {
       return new NextResponse('Pending transaction not found', { status: 404 })
     }
 
-    if (pending.user_id !== user.id) {
+    const ownsOrder = user
+      ? pending.user_id === user.id
+      : Boolean(
+          guestOrderKeyFromLink &&
+            pending.guest_order_key &&
+            String(pending.guest_order_key) === guestOrderKeyFromLink
+        )
+    if (!ownsOrder) {
       return new NextResponse('Forbidden', { status: 403 })
     }
 

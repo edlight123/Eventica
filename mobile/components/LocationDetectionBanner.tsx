@@ -28,7 +28,7 @@ export default function LocationDetectionBanner() {
   const styles = getStyles(colors);
   const insets = useSafeAreaInsets();
   const { user, userProfile, updateUserProfile } = useAuth();
-  const { userCountry, setUserCountry, applyFiltersDirectly, appliedFilters } = useFilters();
+  const { userCountry, setUserCountry, setActiveCity } = useFilters();
   
   const [visible, setVisible] = useState(false);
   const [detectedCountry, setDetectedCountry] = useState<string | null>(null);
@@ -99,13 +99,12 @@ export default function LocationDetectionBanner() {
         });
       }
       
-      // Update filters
+      // Move the ONE active location to the detected country. setUserCountry
+      // owns this now: it drops the old town (its metro does not exist here)
+      // and forgets the persisted one, so the next launch cannot restore a
+      // Port-au-Prince scope under a US country.
       setUserCountry(detectedCountry);
-      applyFiltersDirectly({
-        ...appliedFilters,
-        country: detectedCountry,
-        city: '', // Reset city when changing country
-      });
+      setActiveCity(defaultCity);
       
       // Dismiss banner
       hideBanner();

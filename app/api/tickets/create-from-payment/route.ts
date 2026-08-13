@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/firebase-db/server'
 import { adminDb } from '@/lib/firebase/admin'
 import { getCurrentUser } from '@/lib/auth'
-import { sendEmail, getTicketConfirmationEmail } from '@/lib/email'
-import { generateTicketQRCode } from '@/lib/qrcode'
+import { sendTicketConfirmation } from '@/lib/tickets/confirmation'
+import { guestRecipientFromOrder } from '@/lib/guest/checkout'
+import { attachTicketsToGuestOrder, guestTicketUrl, isGuestId } from '@/lib/guest/identity'
 import { notifyTicketPurchase, notifyOrganizerTicketSale } from '@/lib/notifications/helpers'
 import { FieldValue } from 'firebase-admin/firestore'
 import {
@@ -31,10 +32,6 @@ export async function POST(request: Request) {
   let fulfillId: string | null = null
   try {
     const user = await getCurrentUser()
-    
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     const { paymentIntentId } = await request.json()
 
@@ -49,6 +46,25 @@ export async function POST(request: Request) {
 
     if (paymentIntent.status !== 'succeeded') {
       return NextResponse.json({ error: 'Payment not completed' }, { status: 400 })
+    }
+
+    // WHO this order belongs to — read off the PaymentIntent, which was stamped before
+    // payment by create-payment-intent. Nothing in the request body is trusted for it.
+    const piGuestRecipient = guestRecipientFromOrder({
+      is_guest: paymentIntent.metadata.isGuest === 'true',
+      user_id: paymentIntent.metadata.userId,
+      guest_name: paymentIntent.metadata.guestName,
+      guest_email: paymentIntent.metadata.guestEmail,
+      guest_phone: paymentIntent.metadata.guestPhone,
+      guest_order_key: paymentIntent.metadata.guestOrderKey,
+    })
+
+    // A session is still required for an ACCOUNT order. A guest order has no session by
+    // definition; what stands in for one is the succeeded PaymentIntent itself, whose id
+    // only the browser that just paid holds. (The Stripe webhook fulfills the same order
+    // through the same shared claim, so this call is a fast path, not the only path.)
+    if (!user && !piGuestRecipient) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Check if tickets already exist for this payment in Firestore
@@ -131,9 +147,18 @@ export async function POST(request: Request) {
     const eventDoc = await adminDb.collection('events').doc(paymentIntent.metadata.eventId).get()
     const eventDetails = eventDoc.exists ? eventDoc.data() : null
     
-    // Fetch attendee details for attendee_name
-    const attendeeDoc = await adminDb.collection('users').doc(paymentIntent.metadata.userId).get()
-    const attendee = attendeeDoc.exists ? attendeeDoc.data() : null
+    // Fetch attendee details for attendee_name. A guest has no user document — their
+    // name/email/phone were captured at checkout and live on the order.
+    const attendee: any = piGuestRecipient
+      ? {
+          email: piGuestRecipient.email,
+          full_name: piGuestRecipient.name,
+          phone: piGuestRecipient.phone,
+        }
+      : await (async () => {
+          const attendeeDoc = await adminDb.collection('users').doc(paymentIntent.metadata.userId).get()
+          return attendeeDoc.exists ? attendeeDoc.data() : null
+        })()
 
     const createdTickets = []
     for (let i = 0; i < quantity; i++) {
@@ -152,6 +177,15 @@ export async function POST(request: Request) {
         attendee_id: paymentIntent.metadata.userId,
         user_id: paymentIntent.metadata.userId,
         attendee_name: attendee?.full_name || attendee?.email || 'Guest',
+        // Guest tickets carry the buyer's contact details so refunds and support can
+        // find the order by email or phone without a uid to join on.
+        ...(piGuestRecipient
+          ? {
+              is_guest: true,
+              guest_email: piGuestRecipient.email,
+              guest_phone: piGuestRecipient.phone || null,
+            }
+          : {}),
         // Organizer-facing/event-currency amount.
         price_paid: Number.isFinite(priceInOriginalCurrency) && priceInOriginalCurrency > 0 ? priceInOriginalCurrency : pricePerTicket,
         currency: normalizedEventCurrency,
@@ -247,16 +281,27 @@ export async function POST(request: Request) {
       }
     }
 
+    // Attach the issued tickets to the guest order so the buyer's retrieval link works.
+    if (piGuestRecipient && paymentIntent.metadata.guestOrderKey) {
+      await attachTicketsToGuestOrder(
+        String(paymentIntent.metadata.guestOrderKey),
+        createdTickets.map((t: any) => String(t.id))
+      )
+    }
+
     // Send notification
     if (eventDetails) {
       try {
-        await notifyTicketPurchase(
-          paymentIntent.metadata.userId,
-          paymentIntent.metadata.eventId,
-          eventDetails.title,
-          quantity
-        )
-        
+        // In-app notifications need an account to land in; a guest has none.
+        if (!isGuestId(paymentIntent.metadata.userId)) {
+          await notifyTicketPurchase(
+            paymentIntent.metadata.userId,
+            paymentIntent.metadata.eventId,
+            eventDetails.title,
+            quantity
+          )
+        }
+
         // Notify organizer about the sale
         await notifyOrganizerTicketSale(
           eventDetails.organizer_id,
@@ -270,41 +315,34 @@ export async function POST(request: Request) {
         console.error('Failed to send notification:', error)
       }
 
-      // Send email confirmation
+      // Send the ticket (email always; SMS for a guest, WhatsApp for an account).
       if (attendee) {
         const firstTicket = createdTickets[0]
-        console.log('=== QR CODE GENERATION DEBUG ===')
-        console.log('Generating QR for Ticket ID:', firstTicket.id)
-        const qrCodeDataURL = await generateTicketQRCode(firstTicket.id)
-        console.log('QR Code Generated - Length:', qrCodeDataURL.length)
-        console.log('=== END DEBUG ===')
-
-        await sendEmail({
-          to: attendee.email,
-          subject: `Your ${quantity > 1 ? `${quantity} tickets` : 'ticket'} for ${eventDetails.title}`,
-          html: getTicketConfirmationEmail({
-            attendeeName: attendee.full_name || 'Guest',
-            eventTitle: eventDetails.title,
-            eventDate: new Date(eventDetails.start_datetime).toLocaleDateString('en-US', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: '2-digit',
-            }),
-            eventVenue: `${eventDetails.venue_name}, ${eventDetails.city}`,
-            ticketId: firstTicket.id,
-            qrCodeDataURL,
-          }),
+        await sendTicketConfirmation({
+          ticketId: String(firstTicket.id),
+          qrPayload: (firstTicket as any).qr_code_data || firstTicket.id,
+          event: eventDetails as any,
+          recipient: {
+            email: attendee.email,
+            name: attendee.full_name,
+            phone: attendee.phone,
+            isGuest: Boolean(piGuestRecipient),
+          },
+          quantity,
+          guestToken: piGuestRecipient?.guestToken || null,
+          logPrefix: '[create-from-payment]',
         })
       }
     }
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       ticketIds: createdTickets.map((t: any) => t.id),
-      message: `${createdTickets.length} ticket(s) created successfully` 
+      // A guest has no /tickets page — hand back their own signed link.
+      ...(piGuestRecipient?.guestToken
+        ? { guestTicketUrl: guestTicketUrl(piGuestRecipient.guestToken) }
+        : {}),
+      message: `${createdTickets.length} ticket(s) created successfully`
     })
   } catch (error: any) {
     console.error('Ticket creation error:', error)

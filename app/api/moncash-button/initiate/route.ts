@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/firebase-db/server'
 import { getCurrentUser } from '@/lib/auth'
+import {
+  beginGuestCheckout,
+  guestOrderFields,
+  identityFromUser,
+  type CheckoutIdentity,
+} from '@/lib/guest/checkout'
 import { calculateDiscount, resolvePromoCode, promoHasCapacity, type PromoDoc } from '@/lib/promo-codes'
 import { convertUsdToHtgAmount, getUsdToHtgRateWithSpread } from '@/lib/fx/usd-htg'
 import { inferCountryFromEventText } from '@/lib/event-country'
@@ -76,11 +82,11 @@ function tierIsOnSale(tier: any, now: Date): { ok: true } | { ok: false; reason:
 
 export async function POST(request: Request) {
   try {
+    // NOTE: a missing session is no longer fatal here. A guest may check out by
+    // supplying `guest: { name, email, phone }` — resolved below, once the event is
+    // loaded, because the rules depend on the event (phone is required for Haiti, and
+    // password-protected events still demand a real account).
     const user = await getCurrentUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     if (!isMonCashButtonConfigured()) {
       return NextResponse.json({ error: 'MonCash Button is not configured' }, { status: 500 })
@@ -94,6 +100,7 @@ export async function POST(request: Request) {
       tiers,
       mobileMoneyProvider,
       forceFormPost,
+      guest,
     }: {
       eventId: string
       quantity?: number
@@ -102,6 +109,7 @@ export async function POST(request: Request) {
       tiers?: TierSelection[]
       mobileMoneyProvider?: string | null
       forceFormPost?: boolean
+      guest?: { name?: string; email?: string; phone?: string }
     } = await request.json()
 
     const provider = String(mobileMoneyProvider || 'moncash').toLowerCase()
@@ -123,8 +131,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Event not found' }, { status: 404 })
     }
 
+    // Resolve the buyer: the signed-in user, or a validated guest contact record.
+    // Guest checkout mints a `guest_…` id plus a signed retrieval token; everything
+    // downstream (pending transaction, tickets, fulfillment) treats that id exactly
+    // like a uid.
+    let identity: CheckoutIdentity
+    if (user) {
+      identity = identityFromUser(user)
+    } else {
+      const guestOutcome = await beginGuestCheckout({
+        guestInput: guest,
+        event,
+        eventId: String(eventId),
+        ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
+      })
+      if (!guestOutcome.ok) return guestOutcome.response
+      identity = guestOutcome.identity
+    }
+
     // Password-protected events: require a valid access grant before payment.
-    if (!(await hasEventAccess(event, eventId, user.id))) {
+    // (A guest can never satisfy this — beginGuestCheckout refuses those events
+    // outright — so this stays exactly as strict as it was.)
+    if (!(await hasEventAccess(event, eventId, identity.id))) {
       return NextResponse.json({ error: 'access_code_required' }, { status: 403 })
     }
 
@@ -316,14 +344,14 @@ export async function POST(request: Request) {
     // Keep it short to fit sandbox RSA encryption limits (Digicel sandbox keys can be tiny).
     // IMPORTANT: Digicel appears to expect a numeric orderId (parsing errors can happen otherwise).
     const orderId = `${Date.now() % 1_000_000_000}${String(crypto.randomInt(0, 1000)).padStart(3, '0')}`
-    const internalOrderId = `mcbtn_${eventId}_${user.id}_${Date.now()}`
+    const internalOrderId = `mcbtn_${eventId}_${identity.id}_${Date.now()}`
 
     // Store pending transaction first so we can fall back to an HTML form POST flow.
     const { error: pendingInsertError } = await supabase.from('pending_transactions').insert({
       transaction_id: null,
       order_id: orderId,
       internal_order_id: internalOrderId,
-      user_id: user.id,
+      user_id: identity.id,
       event_id: eventId,
       quantity: totalQuantity,
       amount: chargeAmount,
@@ -344,6 +372,10 @@ export async function POST(request: Request) {
       promo_discount_total: promoDiscountTotal || null,
       moncash_button_token: null,
       mobile_money_provider: normalizedProvider,
+      // For a guest order: name/email/phone + the order key. Fulfillment reads the
+      // recipient from HERE, never from the gateway's return, and refunds/support can
+      // find the order by either contact detail. Empty object for account purchases.
+      ...guestOrderFields(identity),
     })
 
     if (pendingInsertError) {
@@ -352,6 +384,15 @@ export async function POST(request: Request) {
     }
 
     const orderHash = crypto.createHash('sha256').update(orderId).digest('hex').slice(0, 10)
+
+    /**
+     * The form-POST checkout starter (/api/moncash-button/checkout) authorizes by
+     * session. A guest has none, so their signed order token rides along in the link
+     * and stands in for it — that route matches it against the order's own key.
+     */
+    const guestLinkParam = identity.guestToken
+      ? `&g=${encodeURIComponent(identity.guestToken)}`
+      : ''
     const restTokenEnabled =
       !forceFormPost && String(process.env.MONCASH_BUTTON_REST_TOKEN_ENABLED || '').toLowerCase() === 'true'
 
@@ -359,7 +400,7 @@ export async function POST(request: Request) {
     if (!restTokenEnabled) {
       console.info('[moncash_button] initiate: using FORM POST (forced or REST token disabled)', { orderHash })
       const origin = new URL(request.url).origin
-      redirectUrl = `${origin}/api/moncash-button/checkout?orderId=${encodeURIComponent(orderId)}`
+      redirectUrl = `${origin}/api/moncash-button/checkout?orderId=${encodeURIComponent(orderId)}${guestLinkParam}`
     } else {
       try {
         const { token } = await createMonCashButtonCheckoutToken({
@@ -392,7 +433,7 @@ export async function POST(request: Request) {
         })
         console.info('[moncash_button] initiate: using FORM POST fallback', { orderHash })
         const origin = new URL(request.url).origin
-        redirectUrl = `${origin}/api/moncash-button/checkout?orderId=${encodeURIComponent(orderId)}`
+        redirectUrl = `${origin}/api/moncash-button/checkout?orderId=${encodeURIComponent(orderId)}${guestLinkParam}`
       }
     }
     const response = NextResponse.json({ redirectUrl })

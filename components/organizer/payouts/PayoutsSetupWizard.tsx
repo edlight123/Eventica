@@ -16,10 +16,19 @@ import {
   AlertCircle,
   Sparkles
 } from 'lucide-react'
+import { updateDeclaredMarkets } from '@/app/organizer/settings/payouts/actions'
+import { COUNTRY_SUPPORT } from '@/lib/country-support'
+import {
+  DECLARABLE_MARKETS,
+  normalizeDeclaredMarkets,
+  railsForMarkets,
+} from '@/lib/organizer-markets'
 
 interface PayoutsSetupWizardProps {
   organizerId: string
   organizerDefaultCountry?: string
+  /** Countries already declared, if any. UI hint only — see lib/organizer-markets.ts. */
+  declaredMarkets?: string[]
   onComplete: () => void
   onExit: () => void
 }
@@ -45,17 +54,30 @@ const MOBILE_PROVIDERS = [
   { value: 'natcash', label: 'NatCash', icon: '💳' },
 ]
 
-type Step = 'welcome' | 'location' | 'method' | 'details' | 'review'
+type Step = 'welcome' | 'markets' | 'location' | 'method' | 'details' | 'review'
 
 export default function PayoutsSetupWizard({
   organizerId,
   organizerDefaultCountry,
+  declaredMarkets,
   onComplete,
   onExit,
 }: PayoutsSetupWizardProps) {
   const [currentStep, setCurrentStep] = useState<Step>('welcome')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+
+  // Where the organizer says they'll run events. Asked FIRST, because it is what
+  // decides whether Stripe is ever mentioned to them at all. Saving it is
+  // best-effort: a failed write must not block them from setting up a payout.
+  const [markets, setMarkets] = useState<string[]>(() => normalizeDeclaredMarkets(declaredMarkets))
+  const [savingMarkets, setSavingMarkets] = useState(false)
+  const declaredRails = railsForMarkets(markets)
+  const showStripeLocations = declaredRails.length === 0 || declaredRails.includes('stripe_connect')
+  const showHaitiLocation = declaredRails.length === 0 || declaredRails.includes('haiti')
+  const availableLocations = SUPPORTED_LOCATIONS.filter((location) =>
+    location.id === 'haiti' ? showHaitiLocation : showStripeLocations
+  )
 
   // Form state
   const [selectedLocation, setSelectedLocation] = useState(() => {
@@ -96,6 +118,7 @@ export default function PayoutsSetupWizard({
 
   const steps: { id: Step; title: string }[] = [
     { id: 'welcome', title: 'Welcome' },
+    { id: 'markets', title: 'Markets' },
     { id: 'location', title: 'Location' },
     { id: 'method', title: 'Method' },
     { id: 'details', title: 'Details' },
@@ -124,6 +147,30 @@ export default function PayoutsSetupWizard({
     if (prevIndex >= 0) {
       setCurrentStep(steps[prevIndex].id)
     }
+  }
+
+  const handleMarketsContinue = async () => {
+    setSavingMarkets(true)
+    try {
+      await updateDeclaredMarkets(markets)
+    } catch {
+      // Best effort. The declaration shapes the UI; it is never a prerequisite
+      // for setting up a payout method, so a failed write must not stop them.
+    } finally {
+      setSavingMarkets(false)
+    }
+
+    // Never leave them parked on a location the declaration just stopped showing.
+    const stillAvailable = SUPPORTED_LOCATIONS.filter((location) => {
+      const rails = railsForMarkets(markets)
+      if (rails.length === 0) return true
+      return location.id === 'haiti' ? rails.includes('haiti') : rails.includes('stripe_connect')
+    })
+    if (!stillAvailable.some((l) => l.id === selectedLocation)) {
+      setSelectedLocation(stillAvailable[0]?.id || 'haiti')
+    }
+
+    handleNext()
   }
 
   const normalizeHaitiPhone = (raw: string) => {
@@ -353,6 +400,86 @@ export default function PayoutsSetupWizard({
           </div>
         )}
 
+        {/* Markets Step — asked BEFORE anything about banks, because the answer
+            decides whether Stripe is ever mentioned to this organizer at all.
+            Skippable, and re-editable later from payout settings. */}
+        {currentStep === 'markets' && (
+          <div>
+            <div className="text-center mb-8">
+              <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-brand-700 flex items-center justify-center">
+                <Globe className="w-7 h-7 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-2">Where will you run events?</h2>
+              <p className="text-white/60">
+                Pick every country you plan to hold events in. We&apos;ll only set up the payout
+                methods those countries use — and you can change this any time.
+              </p>
+            </div>
+
+            <div className="space-y-3 mb-6">
+              {DECLARABLE_MARKETS.map((code) => {
+                const isOn = markets.includes(code)
+                return (
+                  <button
+                    key={code}
+                    type="button"
+                    aria-pressed={isOn}
+                    onClick={() =>
+                      setMarkets((current) =>
+                        current.includes(code)
+                          ? current.filter((c) => c !== code)
+                          : [...current, code]
+                      )
+                    }
+                    className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-4 ${
+                      isOn ? 'border-brand-500' : 'border-white/10 hover:border-white/15 bg-[#0a0a0a]'
+                    }`}
+                  >
+                    <div className="flex-1 text-left">
+                      <div className="font-semibold text-white">
+                        {COUNTRY_SUPPORT[code]?.name || code}
+                      </div>
+                      <div className="text-sm text-white/50">
+                        {COUNTRY_SUPPORT[code]?.requiredProfile === 'stripe_connect'
+                          ? 'Paid out through Stripe Connect'
+                          : COUNTRY_SUPPORT[code]?.requiredProfile === 'haiti'
+                            ? 'Paid out by bank transfer or MonCash'
+                            : 'Free and RSVP events for now — paid tickets coming soon'}
+                      </div>
+                    </div>
+                    {isOn && <Check className="w-5 h-5 text-brand-300" />}
+                  </button>
+                )
+              })}
+            </div>
+
+            {declaredRails.length > 1 ? (
+              <div className="mb-6 rounded-xl border border-white/10 px-4 py-3 text-sm text-white/60">
+                Those markets use two different payout systems, so you&apos;ll set up two separate
+                methods. We&apos;ll do one now — you can add the other straight after.
+              </div>
+            ) : null}
+
+            <div className="flex items-center justify-between">
+              <button
+                onClick={handleBack}
+                className="px-4 py-2.5 text-white/70 hover:text-white hover:bg-white/[0.04] rounded-lg transition-colors"
+              >
+                Back
+              </button>
+              <button
+                onClick={handleMarketsContinue}
+                disabled={savingMarkets}
+                className="flex items-center gap-2 px-6 py-2.5 bg-brand-700 text-white rounded-lg font-semibold hover:bg-brand-800 transition-all disabled:opacity-60"
+              >
+                {savingMarkets ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                {markets.length === 0 ? 'Skip for now' : 'Continue'}
+                {savingMarkets ? null : <ArrowRight className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Location Step */}
         {currentStep === 'location' && (
           <div>
@@ -365,7 +492,7 @@ export default function PayoutsSetupWizard({
             </div>
 
             <div className="space-y-3 mb-8">
-              {SUPPORTED_LOCATIONS.map((location) => (
+              {availableLocations.map((location) => (
                 <button
                   key={location.id}
                   onClick={() => setSelectedLocation(location.id)}

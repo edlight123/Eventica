@@ -1,0 +1,177 @@
+'use client'
+
+// The whole of "buying without an account": three fields, no password.
+//
+// Phone is a first-class identifier here, not an afterthought. For a Haiti event it is
+// REQUIRED and the ticket is texted as well as emailed — in Haiti a phone number
+// reaches people far more reliably than an inbox does. Everywhere else it is offered
+// as an optional second channel.
+
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+export interface GuestContactInput {
+  name: string
+  email: string
+  phone: string
+}
+
+export default function GuestCheckoutForm({
+  requirePhone,
+  submitLabel,
+  busy = false,
+  initial,
+  onSubmit,
+  onCancel,
+}: {
+  /** True for Haiti events. */
+  requirePhone: boolean
+  submitLabel: string
+  busy?: boolean
+  initial?: Partial<GuestContactInput>
+  onSubmit: (contact: GuestContactInput) => void
+  onCancel?: () => void
+}) {
+  const { t } = useTranslation('common')
+  const [name, setName] = useState(initial?.name || '')
+  const [email, setEmail] = useState(initial?.email || '')
+  const [phone, setPhone] = useState(initial?.phone || '')
+  const [error, setError] = useState<string | null>(null)
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    const trimmedName = name.trim()
+    const trimmedEmail = email.trim()
+    const trimmedPhone = phone.trim()
+
+    // Client-side checks are a courtesy only — the server validates and normalizes
+    // all three fields again before anything is created.
+    if (!trimmedName) {
+      setError(t('checkout.guest_name_required', { defaultValue: 'Please enter your name.' }))
+      return
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail)) {
+      setError(
+        t('checkout.guest_email_required', { defaultValue: 'Please enter a valid email address.' })
+      )
+      return
+    }
+    if (requirePhone && !trimmedPhone) {
+      setError(
+        t('checkout.guest_phone_required', { defaultValue: 'Please enter your phone number.' })
+      )
+      return
+    }
+
+    setError(null)
+    onSubmit({ name: trimmedName, email: trimmedEmail, phone: trimmedPhone })
+  }
+
+  const inputClass =
+    'w-full rounded-lg bg-white/[0.03] border border-white/10 px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-brand-500 disabled:opacity-50'
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <p className="text-sm text-white/60 leading-relaxed">
+        {t('checkout.guest_intro', {
+          defaultValue:
+            'No account needed. We send your ticket and QR code straight to you — you can create an account afterwards if you want.',
+        })}
+      </p>
+
+      <div>
+        <label htmlFor="guest-name" className="block text-xs uppercase tracking-wider text-white/50 mb-1.5">
+          {t('checkout.guest_name', { defaultValue: 'Full name' })}
+        </label>
+        <input
+          id="guest-name"
+          type="text"
+          autoComplete="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          disabled={busy}
+          className={inputClass}
+          placeholder={t('checkout.guest_name_placeholder', { defaultValue: 'Your name' })}
+        />
+      </div>
+
+      <div>
+        <label htmlFor="guest-email" className="block text-xs uppercase tracking-wider text-white/50 mb-1.5">
+          {t('checkout.guest_email', { defaultValue: 'Email' })}
+        </label>
+        <input
+          id="guest-email"
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          disabled={busy}
+          className={inputClass}
+          placeholder="you@example.com"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="guest-phone" className="block text-xs uppercase tracking-wider text-white/50 mb-1.5">
+          {t('checkout.guest_phone', { defaultValue: 'Phone' })}
+          {!requirePhone && (
+            <span className="ml-1 normal-case tracking-normal text-white/35">
+              {t('common.optional', { defaultValue: 'optional' })}
+            </span>
+          )}
+        </label>
+        <input
+          id="guest-phone"
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          disabled={busy}
+          className={inputClass}
+          placeholder={requirePhone ? '3412 3456' : '+1 555 000 0000'}
+        />
+        <p className="mt-1.5 text-xs text-white/40">
+          {requirePhone
+            ? t('checkout.guest_phone_hint_ht', {
+                defaultValue: 'We text your ticket here too, so you always have it.',
+              })
+            : t('checkout.guest_phone_hint', {
+                defaultValue: 'Add it and we can text you your ticket as well.',
+              })}
+        </p>
+      </div>
+
+      {error && (
+        <div className="border border-red-200/40 text-red-300 px-4 py-3 rounded-lg text-sm">{error}</div>
+      )}
+
+      <button
+        type="submit"
+        disabled={busy}
+        className="block w-full bg-brand-600 hover:bg-brand-700 text-white text-center font-semibold py-3 px-5 rounded-lg transition-colors disabled:opacity-50 min-h-[44px]"
+      >
+        {busy ? t('events.processing') : submitLabel}
+      </button>
+
+      {onCancel && (
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={busy}
+          className="w-full px-4 py-3 border border-white/10 rounded-lg font-medium text-white/70 hover:bg-white/10 disabled:opacity-50"
+        >
+          {t('common.cancel')}
+        </button>
+      )}
+
+      <p className="text-center text-xs text-white/40">
+        {t('checkout.guest_signin_hint', { defaultValue: 'Already have an account?' })}{' '}
+        <a href="/auth/login" className="text-brand-400 underline underline-offset-2">
+          {t('common.sign_in', { defaultValue: 'Sign in' })}
+        </a>
+      </p>
+    </form>
+  )
+}

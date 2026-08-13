@@ -4,6 +4,7 @@
 
 import { EventFilters, PriceFilter } from '../types/filters';
 import { isBudgetFriendlyTicketPrice, isOverBudgetTicketPrice } from '../lib/pricing';
+import { findMetro, isEventInMetro, normalizePlace } from '../data/metros';
 import { 
   isToday, 
   isTomorrow, 
@@ -112,11 +113,15 @@ export function applyFilters(events: any[], filters: EventFilters): any[] {
     }
   }
 
-  // City filter
+  // Location: the chosen town scopes browsing to its METRO, not to an exact
+  // string. Someone in Port-au-Prince sees Pétion-Ville; someone in Miami sees
+  // Fort Lauderdale — and neither sees the other. A town we have no metro for
+  // falls back to matching the town itself (never wider).
   if (filters.city) {
-    filtered = filtered.filter(event => 
-      event.city === filters.city
-    );
+    const metro = findMetro(filters.city, filters.country);
+    filtered = metro
+      ? filtered.filter(event => isEventInMetro(event, metro))
+      : filtered.filter(event => normalizePlace(event.city) === normalizePlace(filters.city));
   }
 
   // Commune filter
@@ -193,7 +198,7 @@ export function countActiveFilters(filters: EventFilters): number {
   let count = 0;
   
   if (filters.date !== 'any') count++;
-  if (filters.city) count++;
+  // City is the browse location, not a filter — see FiltersContext.
   if (filters.categories.length > 0) count++;
   if (filters.price !== 'any') count++;
   if (filters.eventType !== 'all') count++;

@@ -38,12 +38,6 @@ export interface PayoutReleaseConfig {
   preEventEligibleGrossMinor: number
   /** Per-event gross (minor units) above which a new organizer goes to review. */
   reviewAboveGrossMinor: number
-  /** Chargeback reserve on CARD sales, in basis points (1000 = 10%). */
-  reserveBps: number
-  /** How long the reserve is held, in days. */
-  reserveDays: number
-  /** Reserve applies only while an organizer is new. Set false to always hold it. */
-  reserveNewOrganizersOnly: boolean
   /** Check-in ratios that route a payout to review. */
   manualCheckInReviewRatio: number
   lowAttendanceReviewRatio: number
@@ -75,8 +69,6 @@ export interface PayoutReleaseConfig {
 export interface PayoutReleaseOverride {
   newHoldHours?: number
   establishedHoldHours?: number
-  reserveBps?: number
-  reserveDays?: number
   reviewAboveGrossMinor?: number
   /** Explicit admin grant allowing payout BEFORE the event ends. */
   preEventReleaseApproved?: boolean
@@ -96,9 +88,6 @@ export const DEFAULT_PAYOUT_RELEASE_CONFIG: PayoutReleaseConfig = {
   establishedAfterGrossMinor: 100_000,
   preEventEligibleGrossMinor: 200_000,
   reviewAboveGrossMinor: 100_000,
-  reserveBps: 1000,
-  reserveDays: 30,
-  reserveNewOrganizersOnly: true,
   manualCheckInReviewRatio: 0.8,
   lowAttendanceReviewRatio: 0.2,
   thresholdCurrency: 'USD',

@@ -14,15 +14,15 @@ import { useTabBarSpace } from '../hooks/useTabBarSpace';
 import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { filterExploreEvents } from '../lib/api/events';
-import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useFilters } from '../contexts/FiltersContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { COUNTRY_NAMES } from '../utils/deviceLocation';
-import { MapPin, ChevronDown, Inbox, CloudOff } from 'lucide-react-native';
+import { useActiveLocationCopy } from '../lib/locationCopy';
+import { MapPin, ChevronDown, CloudOff } from 'lucide-react-native';
 import LocationDetectionBanner from '../components/LocationDetectionBanner';
 import LocationPickerSheet from '../components/LocationPickerSheet';
-import { DEFAULT_FILTERS } from '../types/filters';
+import ElsewhereRail from '../components/ElsewhereRail';
+import { elsewhereEvents, isEventInMetro } from '../data/metros';
 
 import { TikemWordmark } from '../components/TikemWordmark';
 import TrendingSection from '../components/TrendingSection';
@@ -67,9 +67,9 @@ const toMillis = (v: any): number => {
 export default function HomeScreen({ navigation }: any) {
   const { colors, isDark } = useTheme();
   const styles = getStyles(colors);
-  const { user, userProfile } = useAuth();
   const { t, language } = useI18n();
-  const { userCountry, countryResolved, applyFiltersDirectly } = useFilters();
+  const { userCountry, countryResolved, activeCity, activeMetro, setActiveCity } = useFilters();
+  const locationCopy = useActiveLocationCopy();
   const insets = useSafeAreaInsets();
   // The tab bar is a translucent overlay, so reserve its height here or the
   // last row ends up sitting behind it.
@@ -83,6 +83,9 @@ export default function HomeScreen({ navigation }: any) {
   const [freeEvents, setFreeEvents] = useState<any[]>([]);
   const [newEvents, setNewEvents] = useState<any[]>([]);
   const [categoryRails, setCategoryRails] = useState<{ category: string; events: any[] }[]>([]);
+  // Top events from OTHER metros in the same country/region — its own rail,
+  // below everything local, never mixed into the feed above.
+  const [elsewhere, setElsewhere] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   // 0 -> 1 over 220ms when the first load lands. Without it the swap from
   // skeleton to content was a single-frame hard cut (measured on a tester's
@@ -97,7 +100,6 @@ export default function HomeScreen({ navigation }: any) {
   const [error, setError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [locationSheetOpen, setLocationSheetOpen] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const scrollViewRef = React.useRef<ScrollView>(null);
 
   // Seeded with a close estimate of the header's height (safe-area + 10pt
@@ -194,15 +196,36 @@ export default function HomeScreen({ navigation }: any) {
       // state is better than a wrong one.
       const effectiveEvents = futureEvents;
       
-      // Apply country filter - only show events from user's country
-      const countryFiltered = effectiveEvents.filter((e) => 
-        (e.country || 'HT') === userCountry
+      // ONE active location scopes the whole feed: the user's country, then —
+      // when they have chosen a town — that town's METRO (Pétion-Ville counts as
+      // Port-au-Prince; Fort Lauderdale counts as Miami; Cap-Haïtien does not).
+      //
+      // NO fallback to the unscoped list. `countryFiltered.length > 0 ? … : all`
+      // used to hand a Miami user the whole world the moment Miami was quiet.
+      // The empty state below names the location instead, and the one labelled
+      // "elsewhere in …" rail is the only cross-metro content on the page.
+      const countryFiltered = effectiveEvents.filter((e) => (e.country || 'HT') === userCountry);
+      const finalEvents = activeMetro
+        ? countryFiltered.filter((e) => isEventInMetro(e, activeMetro))
+        : countryFiltered;
+
+      console.log(
+        '[HomeScreen] Scoped to',
+        activeMetro?.label || userCountry,
+        '→',
+        finalEvents.length,
+        'of',
+        effectiveEvents.length
       );
-      
-      console.log('[HomeScreen] Events filtered by country:', userCountry, '→', countryFiltered.length, 'of', effectiveEvents.length);
-      
-      const finalEvents = countryFiltered.length > 0 ? countryFiltered : effectiveEvents;
       setEvents(finalEvents);
+
+      // Same country (or region), other metros. Built from the country list, so
+      // it can never leak another country in.
+      setElsewhere(
+        elsewhereEvents(countryFiltered, activeMetro).sort(
+          (a: any, b: any) => (b.tickets_sold || 0) - (a.tickets_sold || 0)
+        )
+      );
 
       // Featured events (top 5 by tickets sold)
       const featured = [...finalEvents]
@@ -230,8 +253,8 @@ export default function HomeScreen({ navigation }: any) {
         .slice(0, 8);
       setForYouEvents(forYou);
 
-      // Near You — events in the user's chosen / default city.
-      const nearCity = selectedLocation || userProfile?.default_city || '';
+      // Near You — events in the exact town, inside the already-scoped metro.
+      const nearCity = activeCity;
       const nearYou = nearCity
         ? finalEvents.filter((e) => cityMatches(e.city, nearCity)).slice(0, 8)
         : [];
@@ -289,10 +312,9 @@ export default function HomeScreen({ navigation }: any) {
     // English (US) — and paint the wrong rails until the profile loaded.
     if (!countryResolved) return;
     fetchEvents();
-    // default_city feeds the "near you" rail inside fetchEvents; without it in
-    // the deps, a profile that loads after the first fetch with the SAME
-    // country (no userCountry change, so no refetch) left the rail empty.
-  }, [userCountry, countryResolved, userProfile?.default_city]);
+    // activeCity is the browse location: changing it must re-scope the feed,
+    // and it also feeds the "near you" rail inside fetchEvents.
+  }, [userCountry, countryResolved, activeCity]);
 
   // Active-tab taps: once = scroll to top, twice (quick) = refresh.
   useEffect(() => {
@@ -338,7 +360,7 @@ export default function HomeScreen({ navigation }: any) {
       feed,
       title,
       subtitle,
-      city: feed === 'nearYou' ? selectedLocation || userProfile?.default_city || '' : undefined,
+      city: feed === 'nearYou' ? activeCity : undefined,
     });
 
   const handleViewAllTrending = () =>
@@ -359,8 +381,9 @@ export default function HomeScreen({ navigation }: any) {
   const handleViewAllNearYou = () =>
     openFeed('nearYou', t('home.nearYouTitle'), t('home.nearYouSubtitle'));
 
-  const locationLabel =
-    selectedLocation || userProfile?.default_city || COUNTRY_NAMES[userCountry] || 'Haiti';
+  // Where you are browsing, in words: the metro when we know it, otherwise the
+  // chosen town, otherwise the whole country.
+  const locationLabel = locationCopy.locationName;
 
   return (
     <View style={styles.container}>
@@ -561,11 +584,27 @@ export default function HomeScreen({ navigation }: any) {
             )}
 
             {events.length === 0 && (
+              // Name the place, and offer the one move that changes it. No
+              // silent widening — see fetchEvents.
               <EmptyState
-                icon={Inbox}
-                title={t('home.emptyTitle')}
-                subtitle={t('home.emptySubtitle')}
+                icon={MapPin}
+                title={locationCopy.emptyTitle}
+                subtitle={locationCopy.emptySubtitle}
+                actionLabel={t('discover.changeLocation')}
+                onAction={() => setLocationSheetOpen(true)}
               />
+            )}
+
+            {/* The ONE labelled cross-metro rail, below every local section.
+                Guarded so an absent rail leaves no empty gap. */}
+            {elsewhere.length > 0 && (
+              <View style={styles.section}>
+                <ElsewhereRail
+                  events={elsewhere}
+                  metro={activeMetro}
+                  onEventPress={(eventId) => navigation.navigate('EventDetail', { eventId })}
+                />
+              </View>
             )}
 
             {/* Bottom Spacing */}
@@ -583,17 +622,15 @@ export default function HomeScreen({ navigation }: any) {
         )}
       </Animated.ScrollView>
 
+      {/* Changing location here changes it everywhere — home, discover,
+          categories and search all read the same active location. */}
       <LocationPickerSheet
         visible={locationSheetOpen}
         onClose={() => setLocationSheetOpen(false)}
-        selectedCity={selectedLocation || ''}
+        selectedCity={activeCity}
         onSelect={(city) => {
-          setSelectedLocation(city || null);
+          setActiveCity(city);
           setLocationSheetOpen(false);
-          if (city) {
-            applyFiltersDirectly({ ...DEFAULT_FILTERS, country: userCountry, city });
-            navigation.navigate('Discover', { timestamp: Date.now() });
-          }
         }}
       />
     </View>

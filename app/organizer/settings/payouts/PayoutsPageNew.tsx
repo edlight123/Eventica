@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { StatusChip, type ChipTone } from '@/components/ui/kit'
 import { updatePayoutProfileConfig } from './actions'
 import { useRouter } from 'next/navigation'
+import DeclaredMarketsCard from '@/components/organizer/payouts/DeclaredMarketsCard'
+import { normalizeDeclaredMarkets, shouldShowRail } from '@/lib/organizer-markets'
 
 // Feature flag: launching MonCash-only — NatCash hidden as a provider choice
 // for new payout methods (saved NatCash configs still display). Mirrors the
@@ -78,6 +80,9 @@ interface PayoutsPageProps {
   organizerId: string
   showEarningsAndPayouts?: boolean
   organizerDefaultCountry?: string
+  /** Countries the organizer says they run events in. UI hint only — see
+   *  lib/organizer-markets.ts. Empty/undeclared shows every rail. */
+  declaredMarkets?: string[]
   initialActiveProfile?: 'haiti' | 'stripe_connect'
 }
 
@@ -89,6 +94,7 @@ export default function PayoutsPageNew({
   organizerId,
   showEarningsAndPayouts,
   organizerDefaultCountry,
+  declaredMarkets,
   initialActiveProfile,
 }: PayoutsPageProps) {
   const router = useRouter()
@@ -98,12 +104,33 @@ export default function PayoutsPageNew({
 
   const normalizedOrganizerCountry = String(organizerDefaultCountry || '').toUpperCase()
 
+  // Declared markets — what the organizer told us about where they run events.
+  // A HINT for what to show, never an authorisation: `shouldShowRail` returns
+  // true for everything when nothing has been declared, and the "show every
+  // payout method" escape hatch below can always reveal a hidden rail.
+  const normalizedMarkets = normalizeDeclaredMarkets(declaredMarkets)
+  const needsHaitiRail = shouldShowRail('haiti', normalizedMarkets)
+  const needsStripeRail = shouldShowRail('stripe_connect', normalizedMarkets)
+  // Arriving to edit ONE profile (?edit=… or the Stripe return) is an explicit
+  // request for that rail — it outranks any declaration.
+  const [showAllRails, setShowAllRails] = useState(Boolean(initialActiveProfile))
+  // A rail the organizer didn't declare but HAS already configured stays
+  // visible — hiding a live payout method would be a lie about their account.
+  const showHaitiRail = needsHaitiRail || showAllRails || Boolean(haitiConfig)
+  const showStripeRail = needsStripeRail || showAllRails || Boolean(stripeConfig)
+  const railIsHidden = !showHaitiRail || !showStripeRail
+
   const primaryProfile: 'haiti' | 'stripe_connect' = (() => {
     // If only one profile exists, it should be the default.
     if (haitiConfig && !stripeConfig) return 'haiti'
     if (stripeConfig && !haitiConfig) return 'stripe_connect'
 
-    // Otherwise, prefer organizer's default country.
+    // Otherwise lead with a DECLARED market's rail — the organizer has said
+    // outright where they run events, which beats any inference.
+    if (needsStripeRail && !needsHaitiRail) return 'stripe_connect'
+    if (needsHaitiRail && !needsStripeRail) return 'haiti'
+
+    // Nothing declared (or both declared): fall back to the stated country.
     if (normalizedOrganizerCountry === 'US' || normalizedOrganizerCountry === 'CA') return 'stripe_connect'
     return 'haiti'
   })()
@@ -114,9 +141,18 @@ export default function PayoutsPageNew({
   })
 
   const [showAdditionalProfiles, setShowAdditionalProfiles] = useState(() => {
-    // Show both profiles by default if both are configured
+    // Show both profiles by default if both are configured, or if the organizer
+    // declared markets on both rails — "Haiti + US" means two setups, and the
+    // switcher is how they get to the second one.
+    if (needsHaitiRail && needsStripeRail && normalizedMarkets.length > 0) return true
     return Boolean(haitiConfig && stripeConfig)
   })
+
+  // Never strand the organizer on a rail the page has stopped showing.
+  useEffect(() => {
+    if (activeProfile === 'haiti' && !showHaitiRail) setActiveProfile('stripe_connect')
+    else if (activeProfile === 'stripe_connect' && !showStripeRail) setActiveProfile('haiti')
+  }, [activeProfile, showHaitiRail, showStripeRail])
 
   const config = activeProfile === 'haiti' ? haitiConfig : stripeConfig
 
@@ -1423,15 +1459,27 @@ export default function PayoutsPageNew({
             /* ── NON-FOCUSED: existing multi-card layout ── */
             <>
             <div className="contents">
+            {/* Where you run events — declared markets. Answering this is what
+                stops a Haiti-only organizer being shown Stripe Connect at all,
+                and what tells a Haiti + US organizer they need BOTH setups. */}
+            <DeclaredMarketsCard
+              className="order-none"
+              initialMarkets={normalizedMarkets}
+              haitiConfigured={Boolean(haitiConfig)}
+              stripeConfigured={Boolean(stripeConfig)}
+            />
+
             {/* Payout Profile Selector */}
             <div className="order-1 bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden">
               <div className="p-6">
                 <h2 className="text-lg font-semibold text-white mb-2">Payout profile</h2>
                 <p className="text-sm text-white/60 mb-4">
-                  Set up where your payouts go. You can add an additional payout profile if you host events in another country.
+                  {showHaitiRail && showStripeRail
+                    ? 'These are two separate setups — one for your Haiti events, one for everywhere else. Completing one does not cover the other.'
+                    : 'Set up where your payouts go. Add a market above if you start running events in another country.'}
                 </p>
 
-                {showAdditionalProfiles ? (
+                {showAdditionalProfiles && showHaitiRail && showStripeRail ? (
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       type="button"
@@ -1461,29 +1509,46 @@ export default function PayoutsPageNew({
                   <div className="space-y-2">
                     <div className="flex items-center justify-between gap-3">
                       <div className="text-sm font-medium text-white">
-                        {primaryProfile === 'stripe_connect' ? 'US/Canada' : 'Haiti'}
+                        {activeProfile === 'stripe_connect' ? 'US/Canada' : 'Haiti'}
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => setShowAdditionalProfiles(true)}
-                        className="text-sm font-medium text-brand-300 hover:text-brand-300"
-                      >
-                        Add additional profile
-                      </button>
+                      {showHaitiRail && showStripeRail ? (
+                        <button
+                          type="button"
+                          onClick={() => setShowAdditionalProfiles(true)}
+                          className="text-sm font-medium text-brand-300 hover:text-brand-300"
+                        >
+                          Add additional profile
+                        </button>
+                      ) : null}
                     </div>
 
                     <div className="text-xs text-white/60">
-                      {primaryProfile === 'haiti'
+                      {activeProfile === 'haiti'
                         ? `Status: ${haitiConfig ? 'Configured' : 'Not set up'}`
                         : `Status: ${stripeConfig ? 'Configured' : 'Not set up'}`}
                     </div>
                   </div>
                 )}
 
-                {showAdditionalProfiles ? (
+                {showAdditionalProfiles && showHaitiRail && showStripeRail ? (
                   <div className="mt-3 text-xs text-white/60">
                     Haiti profile: {haitiConfig ? 'Configured' : 'Not set up'} · US/Canada profile: {stripeConfig ? 'Configured' : 'Not set up'}
                   </div>
+                ) : null}
+
+                {/* Escape hatch. A declaration narrows the UI; it must never be
+                    able to lock someone out of a rail they turn out to need. */}
+                {railIsHidden ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAllRails(true)
+                      setShowAdditionalProfiles(true)
+                    }}
+                    className="mt-3 text-xs font-medium text-white/50 underline underline-offset-2 hover:text-white/80"
+                  >
+                    Show every payout method anyway
+                  </button>
                 ) : null}
               </div>
             </div>

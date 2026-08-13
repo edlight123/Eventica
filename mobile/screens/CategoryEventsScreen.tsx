@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChevronLeft, Inbox } from 'lucide-react-native';
+import { ChevronLeft, MapPin } from 'lucide-react-native';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useTheme } from '../contexts/ThemeContext';
@@ -12,6 +12,9 @@ import { GridSkeleton } from '../components/Skeleton';
 import EmptyState from '../components/EmptyState';
 import { getCategoryLabel } from '../lib/categories';
 import { applyHomeFeed, isEventOver } from '../lib/homeFeeds';
+import ElsewhereRail from '../components/ElsewhereRail';
+import { elsewhereEvents, eventCountry, isEventInMetro } from '../data/metros';
+import { useActiveLocationCopy } from '../lib/locationCopy';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { categoryArt } from '../lib/categoryArt';
@@ -45,17 +48,21 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
   // The header floats (OverlayHeader), so the grid reserves its measured height.
   const { height: headerH, onHeight } = useOverlayHeaderInset();
   const [events, setEvents] = useState<any[]>([]);
-  // posh-style filter chips (category pages only). All three filter the
+  // Top events from OTHER metros in the same country/region — its own labelled
+  // rail under the grid, never merged into it.
+  const [elsewhere, setElsewhere] = useState<any[]>([]);
+  // posh-style filter chips (category pages only). Date and price filter the
   // ALREADY-LOADED list client-side — same rules Discover applies, via the
   // same getDateRange/price helpers, so the two screens can never disagree.
+  // The third chip is NOT a filter: it is the app-wide browse location.
   const [dateFilter, setDateFilter] = useState<DateFilter>('any');
   const [pickedDate, setPickedDate] = useState<string | undefined>();
   const [priceRange, setPriceRange] = useState<PriceRange | null>(null);
-  const [cityFilter, setCityFilter] = useState('');
   const [showWhenPicker, setShowWhenPicker] = useState(false);
   const [showPricePicker, setShowPricePicker] = useState(false);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
-  const { userCountry } = useFilters();
+  const { userCountry, activeCity, activeMetro, setActiveCity } = useFilters();
+  const locationCopy = useActiveLocationCopy();
   const currencyCode = CURRENCY_BY_COUNTRY[userCountry]?.code || 'HTG';
   const priceCeiling = currencyCode === 'HTG' || currencyCode === 'DOP' ? 10000 : 200;
   const [loading, setLoading] = useState(true);
@@ -101,9 +108,23 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
           .sort(
             (a: any, b: any) => a.start_datetime.getTime() - b.start_datetime.getTime()
           );
+
+        // Same ONE active location as everywhere else: the country, then the
+        // metro when a town is chosen. A category page is browsing too, so it
+        // cannot be the screen that quietly shows another market.
+        const inCountry = rows.filter((e: any) => eventCountry(e) === userCountry);
+        const local = activeMetro
+          ? inCountry.filter((e: any) => isEventInMetro(e, activeMetro))
+          : inCountry;
+
         // No limit: this IS the "view all" page, so it is the rail's rule
         // without the slice.
-        setEvents(feed ? applyHomeFeed(rows, feed, { city }) : rows);
+        setEvents(feed ? applyHomeFeed(local, feed, { city }) : local);
+        setElsewhere(
+          elsewhereEvents(inCountry, activeMetro).sort(
+            (a: any, b: any) => (b.tickets_sold || 0) - (a.tickets_sold || 0)
+          )
+        );
       } catch (err) {
         console.error('Failed to load category events', err);
       } finally {
@@ -112,7 +133,7 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
     };
 
     load();
-  }, [category, feed, city]);
+  }, [category, feed, city, userCountry, activeMetro?.id]);
 
   const { start: dStart, end: dEnd } = getDateRange(dateFilter, pickedDate);
   const visibleEvents = events.filter((e) => {
@@ -128,13 +149,13 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
       // A max at the ceiling means "and up" — no upper bound.
       if (priceRange.max < priceCeiling && price > priceRange.max) return false;
     }
-    if (cityFilter) {
-      const ec = String(e.city || '').toLowerCase();
-      if (!ec.includes(cityFilter.toLowerCase().split(',')[0])) return false;
-    }
     return true;
   });
-  const filtersActive = dateFilter !== 'any' || !!priceRange || !!cityFilter;
+  // The location is NOT counted here: an empty page because of where you are
+  // needs the "change location" empty state, not "clear your filters".
+  const filtersActive = dateFilter !== 'any' || !!priceRange;
+
+
 
   // Chip labels carry their VALUE when active.
   const DATE_LABEL_KEYS: Record<string, string> = {
@@ -270,13 +291,16 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
                       {priceChipLabel}
                     </Text>
                   </TouchableOpacity>
+                  {/* Not a filter — the app-wide browse location. Tapping it
+                      moves every screen, which is the only way another market
+                      ever appears. */}
                   <TouchableOpacity
-                    style={[styles.filterChip, !!cityFilter && styles.filterChipActive]}
+                    style={[styles.filterChip, !!activeCity && styles.filterChipActive]}
                     onPress={() => setShowLocationPicker(true)}
                     accessibilityRole="button"
                   >
-                    <Text style={[styles.filterChipText, !!cityFilter && styles.filterChipTextActive]} numberOfLines={1}>
-                      {cityFilter ? cityFilter.split(',')[0] : t('filters.location')}
+                    <Text style={[styles.filterChipText, !!activeCity && styles.filterChipTextActive]} numberOfLines={1}>
+                      {activeCity ? locationCopy.locationName : t('filters.location')}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -293,9 +317,26 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
           ]}
           ListEmptyComponent={
             <EmptyState
-              icon={Inbox}
-              title={filtersActive ? t('filters.noMatchTitle') : t('home.emptyTitle')}
-              subtitle={filtersActive ? t('filters.noMatchSubtitle') : t('home.emptySubtitle')}
+              icon={MapPin}
+              title={
+                filtersActive
+                  ? t('filters.noMatchTitle')
+                  : locationCopy.emptyTitle
+              }
+              subtitle={
+                filtersActive
+                  ? t('filters.noMatchSubtitle')
+                  : locationCopy.emptySubtitle
+              }
+              actionLabel={filtersActive ? undefined : t('discover.changeLocation')}
+              onAction={filtersActive ? undefined : () => setShowLocationPicker(true)}
+            />
+          }
+          ListFooterComponent={
+            <ElsewhereRail
+              events={elsewhere}
+              metro={activeMetro}
+              onEventPress={(eventId) => navigation.navigate('EventDetail', { eventId })}
             />
           }
         />
@@ -319,8 +360,11 @@ export default function CategoryEventsScreen({ navigation, route }: any) {
       <LocationPickerSheet
         visible={showLocationPicker}
         onClose={() => setShowLocationPicker(false)}
-        selectedCity={cityFilter}
-        onSelect={(city) => setCityFilter(city)}
+        selectedCity={activeCity}
+        onSelect={(nextCity) => {
+          setActiveCity(nextCity);
+          setShowLocationPicker(false);
+        }}
       />
     </View>
   );

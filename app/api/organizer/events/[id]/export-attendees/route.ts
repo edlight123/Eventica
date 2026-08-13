@@ -35,6 +35,8 @@ export async function GET(
         quantity,
         created_at,
         checked_in_at,
+        attendee_name,
+        guest_email,
         users:attendee_id (
           email,
           full_name
@@ -54,10 +56,13 @@ export async function GET(
 
     tickets.forEach((ticket: any) => {
       const user = ticket.users as any
+      // A GUEST ticket has no `users/{uid}` behind `attendee_id` — its buyer lives on
+      // the ticket itself. Without this fallback every guest attendee would export as
+      // "N/A", i.e. invisible to the organizer at the door and in follow-up.
       csvRows.push([
         ticket.id,
-        user?.full_name || 'N/A',
-        user?.email || 'N/A',
+        user?.full_name || ticket.attendee_name || 'N/A',
+        user?.email || ticket.guest_email || 'N/A',
         ticket.status,
         `$${ticket.price.toFixed(2)}`,
         ticket.quantity.toString(),
