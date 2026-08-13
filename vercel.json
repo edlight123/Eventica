@@ -36,6 +36,10 @@
     {
       "path": "/api/cron/fx-snapshot",
       "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/cron/purge-liveness",
+      "schedule": "30 3 * * *"
     }
   ]
 }

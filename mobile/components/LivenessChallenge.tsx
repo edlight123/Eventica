@@ -109,9 +109,16 @@ export default function LivenessChallenge({
 
     try {
       // Resolves when stopRecording() is called below.
+      //
+      // 480p, deliberately. This clip is watched by a reviewer and measured for
+      // head pose — neither needs detail, and 1080p would be ~15MB per organizer
+      // for no gain. It is also biometric data on a Haitian mobile connection:
+      // the smaller upload is the difference between finishing the check and
+      // abandoning it.
       const video = await cameraRef.current.recordAsync({
         maxDuration: PROMPT_COUNT * SECONDS_PER_PROMPT + 2,
         mute: true,
+        videoQuality: '480p',
       });
       if (video?.uri) {
         onComplete({

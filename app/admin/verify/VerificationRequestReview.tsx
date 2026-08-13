@@ -104,7 +104,15 @@ export default function VerificationRequestReview({ request, user }: Props) {
     facePhotoUrl: string | null
     businessRegistrationUrl?: string | null
     taxIdUrl?: string | null
-  }>({ idFrontUrl: null, idBackUrl: null, facePhotoUrl: null, businessRegistrationUrl: null, taxIdUrl: null })
+    livenessUrl?: string | null
+  }>({
+    idFrontUrl: null,
+    idBackUrl: null,
+    facePhotoUrl: null,
+    businessRegistrationUrl: null,
+    taxIdUrl: null,
+    livenessUrl: null,
+  })
   const [loadingImages, setLoadingImages] = useState(true)
 
   // Load image URLs using client-side Firebase SDK
@@ -146,15 +154,21 @@ export default function VerificationRequestReview({ request, user }: Props) {
           request.tax_id_url ||
           null
 
-        const [idFrontUrl, idBackUrl, facePhotoUrl, businessRegistrationUrl, taxIdUrl] = await Promise.all([
-          resolveProofUrl(idFrontRef).catch(() => null),
-          resolveProofUrl(idBackRef).catch(() => null),
-          resolveProofUrl(selfieRef).catch(() => null),
-          resolveProofUrl(businessRegistrationRef).catch(() => null),
-          resolveProofUrl(taxIdRef).catch(() => null),
-        ])
+        // The liveness clip. Without it a selfie is just a picture, and a
+        // picture of a picture looks identical.
+        const livenessRef = request.files?.liveness?.path || null
 
-        setImageUrls({ idFrontUrl, idBackUrl, facePhotoUrl, businessRegistrationUrl, taxIdUrl })
+        const [idFrontUrl, idBackUrl, facePhotoUrl, businessRegistrationUrl, taxIdUrl, livenessUrl] =
+          await Promise.all([
+            resolveProofUrl(idFrontRef).catch(() => null),
+            resolveProofUrl(idBackRef).catch(() => null),
+            resolveProofUrl(selfieRef).catch(() => null),
+            resolveProofUrl(businessRegistrationRef).catch(() => null),
+            resolveProofUrl(taxIdRef).catch(() => null),
+            resolveProofUrl(livenessRef).catch(() => null),
+          ])
+
+        setImageUrls({ idFrontUrl, idBackUrl, facePhotoUrl, businessRegistrationUrl, taxIdUrl, livenessUrl })
       } catch (error) {
         console.error('Error loading images:', error)
       } finally {
@@ -181,6 +195,64 @@ export default function VerificationRequestReview({ request, user }: Props) {
     request?.organizer_country ||
     null
   const isHaitiOrganizer = String(organizerCountry || '').toLowerCase() === 'haiti'
+
+  /**
+   * The liveness clip, shown WITH the challenge it was recorded against.
+   *
+   * The sequence is the point. It is generated fresh for every attempt, so the
+   * reviewer's job is not "does this look like a real person" — a good screen
+   * replay passes that — but "did they do THESE things in THIS order". A clip
+   * that does not match its own challenge is a replay no matter how convincing
+   * the face is.
+   */
+  const renderLiveness = () => {
+    const liveness = (request as any)?.files?.liveness
+    const sequence: { id: string; signal: string }[] = liveness?.sequence || []
+
+    if (!imageUrls.livenessUrl) {
+      return (
+        <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
+          <p className="text-sm font-medium text-amber-300">No liveness recording</p>
+          <p className="mt-1 text-xs text-white/60">
+            This organizer submitted before the liveness step existed, or skipped it. A still
+            selfie alone does not show a live person was present — ask them to record one before
+            approving.
+          </p>
+        </div>
+      )
+    }
+
+    return (
+      <div className="rounded-lg border border-white/10 bg-white/[0.02] p-3">
+        <p className="mb-2 text-[11px] sm:text-sm font-medium text-white/70">Liveness recording</p>
+        <video
+          src={imageUrls.livenessUrl}
+          controls
+          playsInline
+          className="w-full max-w-sm rounded-lg border border-white/10"
+        />
+        {sequence.length > 0 ? (
+          <div className="mt-3">
+            <p className="text-xs text-white/50">
+              They were asked to do this, in this order — check the recording matches:
+            </p>
+            <ol className="mt-1.5 space-y-1">
+              {sequence.map((step, i) => (
+                <li key={`${step.id}-${i}`} className="text-sm text-white/80">
+                  <span className="text-white/40">{i + 1}.</span>{' '}
+                  {String(step.id).replace(/_/g, ' ')}
+                </li>
+              ))}
+            </ol>
+          </div>
+        ) : (
+          <p className="mt-2 text-xs text-amber-300/80">
+            No challenge sequence was recorded with this clip, so it cannot be checked against one.
+          </p>
+        )}
+      </div>
+    )
+  }
 
   const renderImageThumb = (label: string, url: string | null, alt: string) => {
     return (
@@ -282,8 +354,11 @@ export default function VerificationRequestReview({ request, user }: Props) {
               <p className="text-sm text-white/60 mt-2">Loading selfie...</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
-              {renderImageThumb('Selfie Photo', imageUrls.facePhotoUrl, 'Selfie')}
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
+                {renderImageThumb('Selfie Photo', imageUrls.facePhotoUrl, 'Selfie')}
+              </div>
+              {renderLiveness()}
             </div>
           )}
         </div>
