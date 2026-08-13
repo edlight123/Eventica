@@ -1,21 +1,43 @@
 import { NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
-import { findPromoDoc } from '@/lib/promo-codes'
+import { findPromoDoc, recordPromoValidationAttempt } from '@/lib/promo-codes'
 import { getPromoExpiresAt, getPromoStartAt, getPromoUsesCount, isPromoActive } from '@/lib/promo-code-shared'
 
 // Validate a promo code against Firestore `promo_codes`. Accepts either the raw
 // code or the Firestore doc id (findPromoDoc handles both).
+//
+// A SESSION IS NO LONGER REQUIRED. Guest checkout exists precisely because most
+// buyers arrive inside an Instagram WebView where sign-in cannot complete, and a
+// promo code the organizer printed on the flyer was unusable for exactly those
+// buyers. Nothing about what makes a code valid changed: this endpoint is
+// read-only, it grants nothing, and every cap it reports (active, start, expiry,
+// global max_uses) is re-checked — and the usage cap re-enforced ATOMICALLY — when
+// the order is actually redeemed.
+//
+// What the session was silently providing was enumeration resistance: you needed
+// an account to guess at codes. That control is now explicit and IP-based for
+// unauthenticated callers, so opening the endpoint doesn't open a codespace sweep.
 export async function POST(request: Request) {
   try {
     const user = await getCurrentUser()
 
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      const ipAddress =
+        request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+      const throttle = await recordPromoValidationAttempt(`promo-validate:${ipAddress}`)
+      if (throttle.limited) {
+        return NextResponse.json(
+          { error: 'Too many promo code attempts. Please try again in a few minutes.' },
+          { status: 429 }
+        )
+      }
     }
 
     const { code, eventId } = await request.json()
 
-    console.log('Validating promo code:', { code, eventId })
+    // Never log the code itself: an organizer's unpublished discount shouldn't end
+    // up in a log line. The event is enough to trace a problem.
+    console.log('Validating promo code:', { eventId, guest: !user })
 
     if (!code) {
       return NextResponse.json({ error: 'Promo code is required' }, { status: 400 })
@@ -30,7 +52,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid promo code' }, { status: 404 })
     }
 
-    console.log('Found promo code:', { id: promoCode.id, code: promoCode.code, event_id: promoCode.event_id })
+    console.log('Found promo code:', { id: promoCode.id, event_id: promoCode.event_id })
 
     const now = new Date()
 
@@ -48,9 +70,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'This promo code has expired' }, { status: 400 })
     }
 
-    // Global usage cap. NOTE: the Firestore promo shape has no per-user cap field
-    // (max_uses_per_user), so the previous per-user check is intentionally dropped;
-    // the authoritative global cap is enforced atomically at redemption time.
+    // Global usage cap. Soft check only — the authoritative one runs atomically at
+    // redemption. A PER-BUYER cap (`max_uses_per_user`) is deliberately not
+    // pre-checked here: this request carries no buyer identity for a guest, and it is
+    // enforced at redemption against their email rather than their per-order id
+    // (redeemPromoInTransaction), which is the only place it can be enforced honestly.
     const usesCount = getPromoUsesCount(promoCode)
     if (promoCode.max_uses && usesCount >= promoCode.max_uses) {
       return NextResponse.json({ error: 'This promo code has reached its usage limit' }, { status: 400 })

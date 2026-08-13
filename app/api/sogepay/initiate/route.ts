@@ -27,7 +27,10 @@ export async function POST(request: Request) {
     const user = await getCurrentUser()
 
     const body = await request.json().catch(() => ({}))
-    const { eventId, quantity = 1, tierId, promoCode, tiers, guest } = body || {}
+    // `accessCode` is how a GUEST clears a password-protected event: no uid means no
+    // grant to hold, so the code rides along and is verified server-side before the
+    // order exists.
+    const { eventId, quantity = 1, tierId, promoCode, tiers, guest, accessCode } = body || {}
 
     if (!eventId) return NextResponse.json({ error: 'Event ID is required' }, { status: 400 })
 
@@ -54,13 +57,15 @@ export async function POST(request: Request) {
         event,
         eventId: String(eventId),
         ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
+        accessCode,
       })
       if (!guestOutcome.ok) return guestOutcome.response
       identity = guestOutcome.identity
     }
 
-    // Password-protected events: require a valid access grant before payment.
-    // (Guests are refused those events outright, so this is as strict as before.)
+    // Password-protected events: require a valid access grant before payment. A guest
+    // arrives here only after their code was verified and granted against their
+    // `guest_…` id, so this is as strict as before.
     if (!(await hasEventAccess(event, eventId, identity.id))) {
       return NextResponse.json({ error: 'access_code_required' }, { status: 403 })
     }

@@ -12,11 +12,26 @@ export interface LocationFeeConfig {
    * Platform fee percentage (e.g., 0.10 for 10%)
    */
   platformFeePercentage: number
-  
+
   /**
    * Settlement hold days after event before funds are available
    */
   settlementHoldDays: number
+
+  /**
+   * Ceiling on the platform fee PER TICKET, in the EVENT CURRENCY's minor units,
+   * keyed by currency code. A currency with no entry is uncapped.
+   *
+   * A flat percentage is competitive on a cheap ticket and punitive on an
+   * expensive one — the platform does the same work for a $150 table as for a
+   * $20 entry. The cap is what stops the top of the range looking predatory
+   * next to Posh (10% + $0.99 per ticket, processing absorbed).
+   *
+   * Denominated in the event's own currency rather than converted through the FX
+   * table: a cap the buyer reads has to be a round local number, and a rate
+   * moving must never move a displayed price.
+   */
+  platformFeeCapMinorByCurrency?: Record<string, number>
 }
 
 
@@ -49,10 +64,14 @@ export interface PayoutReleaseConfig {
    */
   thresholdCurrency: string
   /**
-   * Units of `thresholdCurrency` per 1 unit of each account currency, used ONLY
-   * to compare against thresholds. Payout amounts and the reserve are never
-   * converted — the reserve is a percentage, and money is always paid out in the
-   * account's own currency.
+   * Minor units of `thresholdCurrency` per 1 minor unit of each account currency
+   * (HTG centimes → US cents), used ONLY to compare against thresholds. Payout
+   * amounts are never converted: money is always paid out in the account's own
+   * currency.
+   *
+   * The daily snapshot stores USD-per-unit, which is the same number only because
+   * every supported currency has two decimal places. A zero-decimal currency
+   * (JPY) would need the exponent applied before it could be added here.
    *
    * Deliberately a stored table rather than a live FX call: a rate lookup that
    * fails mid-run would change who gets paid. An admin maintains these, and the
@@ -143,12 +162,25 @@ export interface PlatformSettings {
  */
 export const DEFAULT_PLATFORM_SETTINGS: Omit<PlatformSettings, 'id' | 'updatedAt' | 'updatedBy'> = {
   haiti: {
-    platformFeePercentage: 0.05,  // 5% for Haiti events
+    platformFeePercentage: 0.10,  // 10% for Haiti events
     settlementHoldDays: 0,         // No hold for Haiti events
+    // At 10% this binds above 7,500 HTG (~$57) — galas, VIP tables and bottle
+    // service, not ordinary entry.
+    platformFeeCapMinorByCurrency: {
+      HTG: 75_000,  // 750 HTG per ticket
+      USD: 500,     // $5.00 — Haitian events priced in USD
+    },
   },
   usCanada: {
     platformFeePercentage: 0.10,  // 10% for US/Canada events
     settlementHoldDays: 7,         // 7 days hold for US/Canada events
+    // $5/ticket keeps the $10–30 range untouched (10% of $30 is $3) and takes a
+    // $100 ticket's buyer-visible fee from $13.60 to $8.44 — under Posh's $10.99.
+    platformFeeCapMinorByCurrency: {
+      USD: 500,     // $5.00 per ticket
+      CAD: 700,     // C$7.00
+      EUR: 450,     // €4.50
+    },
   },
   minimumPayoutAmount: 5000,      // $50.00 in cents
   payoutRelease: DEFAULT_PAYOUT_RELEASE_CONFIG,

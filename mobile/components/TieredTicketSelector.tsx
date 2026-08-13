@@ -17,6 +17,7 @@ import { normalizePromoValidationResponse } from '../lib/promoCodes';
 import { useTheme } from '../contexts/ThemeContext';
 import { formatCurrency } from '../lib/currency';
 import { computeSelectionTotal, isFreeTier } from '../lib/ticketPricing';
+import { priceOrder } from '../lib/buyerPricing';
 import WhitePillCTA from './WhitePillCTA';
 import { radius } from '../theme/tokens';
 
@@ -80,6 +81,10 @@ interface TieredTicketSelectorProps {
     meta?: PurchaseSelectionMeta
   ) => void;
   currency?: string;
+  /** Event country — decides whether the service fee is added to the total. */
+  country?: string | null;
+  /** The organizer's own absorb/pass-on choice, when they made one. */
+  feeIncidence?: string | null;
 }
 
 interface TierQuantity {
@@ -104,6 +109,8 @@ export default function TieredTicketSelector({
   onClose,
   onPurchase,
   currency,
+  country,
+  feeIncidence,
 }: TieredTicketSelectorProps) {
   const { colors } = useTheme();
   const styles = getStyles(colors);
@@ -568,6 +575,16 @@ export default function TieredTicketSelector({
           // A zero total must never promise a payment step: no gateway can take
           // 0, and the caller routes this order down the free-claim path instead.
           const isFreeOrder = totalPrice <= 0;
+          // What the card is actually charged. In a buyer-pays market the service
+          // fee is added on top, so showing the face total here and a bigger number
+          // on the payment sheet would be the drip pricing the all-in rule forbids.
+          // The server recomputes this; the cap is per ticket, hence the quantity.
+          const orderPricing = priceOrder(
+            totalPrice,
+            { country, currency: displayCurrency, fee_incidence: feeIncidence },
+            { quantity: totalQuantity }
+          );
+          const showFeeLine = orderPricing.feeOnTop && orderPricing.buyerFee > 0;
           return (
           <View style={styles.footer}>
             <View style={styles.totalContainer}>
@@ -583,8 +600,17 @@ export default function TieredTicketSelector({
               </View>
               <View style={styles.priceContainer}>
                 <Text style={styles.totalPrice}>
-                  {isFreeOrder ? t('common.free') : formatCurrency(totalPrice, displayCurrency)}
+                  {isFreeOrder
+                    ? t('common.free')
+                    : formatCurrency(orderPricing.total, displayCurrency)}
                 </Text>
+                {showFeeLine && (
+                  <Text style={styles.feeLine}>
+                    {t('ticketSelector.includesFee', {
+                      defaultValue: 'Includes {amount} service fee',
+                    }).replace('{amount}', formatCurrency(orderPricing.buyerFee, displayCurrency))}
+                  </Text>
+                )}
               </View>
             </View>
             {/* No subLabel: the amount lives once, in the total above. */}
@@ -841,5 +867,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 24,
     fontWeight: 'bold',
     color: colors.text,
+  },
+  // The fee that makes up the difference between the tier prices above and the
+  // total — quiet, but present before the buyer commits.
+  feeLine: {
+    marginTop: 2,
+    fontSize: 11,
+    color: colors.textSecondary,
+    textAlign: 'right',
   },
 });

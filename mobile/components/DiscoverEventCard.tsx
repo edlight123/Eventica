@@ -8,6 +8,7 @@ import { useI18n } from '../contexts/I18nContext';
 import { safeFormatForLanguage } from '../lib/dates';
 import { resolvePosterTheme } from '../lib/posterGradient';
 import { formatPrice } from '../lib/currency';
+import { advertisedPrice } from '../lib/buyerPricing';
 import { resolveEventPricing } from '../lib/ticketPricing';
 import { radius, font } from '../theme/tokens';
 import WhitePillCTA from './WhitePillCTA';
@@ -48,7 +49,12 @@ export default function DiscoverEventCard({
   // gets the paid CTA — the buyer picks the free tier on the detail screen.
   const pricing = resolveEventPricing(event);
   const isFree = pricing.isFreeOnly;
-  const price = pricing.lowestPaidPrice ?? Number(event.ticket_price || 0);
+  // ALL-IN: a buyer-pays market adds the fee at checkout, so the bare face
+  // value would advertise a price nobody is charged. Haiti is unchanged.
+  const price = advertisedPrice(
+    pricing.lowestPaidPrice ?? Number(event.ticket_price || 0),
+    event as any
+  );
   // Prefer the organization brand name; the denormalized `organizer_name` on
   // the event doc is stamped with org-name-or-full-name at create/publish.
   const organizer = event.users?.organization_name || event.users?.full_name || event.organizer_name || '';

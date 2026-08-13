@@ -12,6 +12,9 @@ import { getPlatformSettings } from '@/lib/admin/platform-settings'
 
 type PaymentMethod = 'stripe' | 'stripe_connect' | 'moncash' | 'moncash_button' | 'natcash' | 'sogepay' | 'unknown'
 
+/** Who paid the platform+processing fee on an order. Stamped per ticket at purchase. */
+type FeeIncidence = 'organizer' | 'buyer'
+
 function toDateOrNull(value: any): Date | null {
   if (!value) return null
   const raw = value?.toDate ? value.toDate() : value
@@ -44,10 +47,26 @@ function calculateEventCurrencyFees(options: {
   chargedAmountCents?: number | null
   fxRate?: number | null
   platformFeePercentage?: number
+  feeIncidence?: FeeIncidence
 }): { grossAmount: number; platformFee: number; processingFee: number; netAmount: number } {
   const grossEventCents = Math.max(0, Math.round(options.grossEventCents || 0))
   if (grossEventCents <= 0) {
     return { grossAmount: 0, platformFee: 0, processingFee: 0, netAmount: 0 }
+  }
+
+  // Buyer incidence (US / Canada / France): the buyer was charged the fee ON TOP
+  // of the face value and the organizer's Stripe transfer is the face value
+  // exactly, so there is nothing left to deduct here. Deducting anyway is what
+  // made a US organizer's net read ~13% below what they actually receive.
+  // The flag is stamped per ticket at purchase, so tickets sold under the old
+  // model keep their old arithmetic.
+  if (options.feeIncidence === 'buyer') {
+    return {
+      grossAmount: grossEventCents,
+      platformFee: 0,
+      processingFee: 0,
+      netAmount: grossEventCents,
+    }
   }
 
   // Platform fee is always calculated on organizer-facing gross (event currency).
@@ -145,6 +164,7 @@ async function deriveEventEarningsFromTickets(eventId: string): Promise<EventEar
       paymentMethod: PaymentMethod
       fxRate: number | null
       chargedAmountCents: number
+      feeIncidence: FeeIncidence
     }
   >()
   let ticketsSold = 0
@@ -180,6 +200,11 @@ async function deriveEventEarningsFromTickets(eventId: string): Promise<EventEar
       return grossEventCents
     })()
 
+    // Absent on every ticket sold before the buyer-pays rollout, and on every
+    // Haiti sale — both are organizer-paid, which is exactly the default.
+    const feeIncidence: FeeIncidence =
+      String(ticket.fee_incidence ?? ticket.feeIncidence ?? '') === 'buyer' ? 'buyer' : 'organizer'
+
     const paymentId = String(ticket.payment_id ?? ticket.paymentId ?? 'unknown')
     const current =
       paymentGroups.get(paymentId) ||
@@ -189,6 +214,7 @@ async function deriveEventEarningsFromTickets(eventId: string): Promise<EventEar
         paymentMethod,
         fxRate: fxRate && Number.isFinite(fxRate) ? fxRate : null,
         chargedAmountCents: 0,
+        feeIncidence,
       } as const)
 
     // Preserve first non-unknown payment method/fx.
@@ -201,6 +227,11 @@ async function deriveEventEarningsFromTickets(eventId: string): Promise<EventEar
       paymentMethod: methodToUse,
       fxRate: fxToUse,
       chargedAmountCents: current.chargedAmountCents + chargedAmountCents,
+      // One payment is one charge, so its tickets share an incidence. Should a
+      // group ever disagree, take the fee-bearing reading: under-reporting an
+      // organizer's net is recoverable, over-reporting it is not.
+      feeIncidence:
+        current.feeIncidence === 'buyer' && feeIncidence === 'buyer' ? 'buyer' : 'organizer',
     })
 
     ticketsSold += 1
@@ -220,6 +251,7 @@ async function deriveEventEarningsFromTickets(eventId: string): Promise<EventEar
       chargedAmountCents: group.chargedAmountCents,
       fxRate: group.fxRate,
       platformFeePercentage, // Pass dynamic platform fee
+      feeIncidence: group.feeIncidence,
     })
     grossSales += fees.grossAmount
     platformFee += fees.platformFee

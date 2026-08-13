@@ -3,8 +3,12 @@ import { adminAuth, adminDb } from '@/lib/firebase/admin'
 import { cookies } from 'next/headers'
 import { getOrganizerBalance, getAvailableTicketsForPayout } from '@/lib/firestore/payout'
 import { getPayoutProfile } from '@/lib/firestore/payout-profiles'
+import { gateHaitiWithdrawal, loadOrganizerReleaseContext } from '@/lib/payouts/withdrawal-gate'
 
 const MINIMUM_PAYOUT = 5000 // $50.00 in cents
+
+/** Platform cut applied by getAvailableTicketsForPayout when it totals a batch. */
+const BATCH_PLATFORM_FEE_PERCENT = 10
 
 export async function POST(request: NextRequest) {
   try {
@@ -80,6 +84,65 @@ export async function POST(request: NextRequest) {
         },
         { status: 400 }
       )
+    }
+
+    /**
+     * The payout release ladder, applied to this legacy BATCH path too.
+     *
+     * This route pays one lump sum assembled from many events' tickets, so the
+     * ladder is evaluated per contributing event and the whole batch is refused if
+     * any one of them is not releasable. It deliberately does NOT quietly drop the
+     * offending event and pay a smaller amount: the recorded `ticketIds` are what
+     * stops a ticket being paid twice, so the set that is judged has to be exactly
+     * the set that is paid.
+     *
+     * In practice this adds three things the ticket filter in
+     * getAvailableTicketsForPayout never checked: a cancelled or payout-frozen
+     * event, the review signals (large first event, mostly-manual door, near-empty
+     * room, admin high-risk flag), and the tier ladder. Its own event-ended + 7 day
+     * filter is already stricter than any tier hold, so a plain hold is unlikely
+     * here — but it is enforced rather than assumed.
+     */
+    const releaseContext = await loadOrganizerReleaseContext(organizerId)
+
+    const byEvent = new Map<string, { event: any; grossMinor: number }>()
+    for (const ticket of tickets) {
+      const eventIdForTicket = String(ticket?.event_id || ticket?.event?.id || '')
+      if (!eventIdForTicket) continue
+      const grossMinor = Math.max(0, Math.round(Number(ticket?.price_paid || 0) * 100))
+      const bucket = byEvent.get(eventIdForTicket) || { event: ticket?.event || {}, grossMinor: 0 }
+      bucket.grossMinor += grossMinor
+      byEvent.set(eventIdForTicket, bucket)
+    }
+
+    for (const [gatedEventId, bucket] of Array.from(byEvent.entries())) {
+      // What this event contributes to the batch total, using the same net maths
+      // getAvailableTicketsForPayout used to build `totalAmount`.
+      const netMinor = Math.floor(bucket.grossMinor * (1 - BATCH_PLATFORM_FEE_PERCENT / 100))
+
+      // An event that contributes no money to this batch (a free/RSVP show whose
+      // tickets are in the set at zero) has nothing to release, so it must not be
+      // able to block the paid events it is batched with.
+      if (netMinor <= 0) continue
+
+      const gate = await gateHaitiWithdrawal({
+        eventId: gatedEventId,
+        organizerId,
+        eventData: bucket.event,
+        grossMinor: bucket.grossMinor,
+        // The batch only ever includes `valid` tickets, so refunded tickets are
+        // already out of the gross above — subtracting them again would under-pay.
+        refundedMinor: 0,
+        currency: bucket.event?.currency || balance.currency || null,
+        availableMinor: netMinor,
+        requestedAmountMinor: netMinor,
+        method: 'batch',
+        context: releaseContext,
+      })
+
+      if (!gate.allowed) {
+        return NextResponse.json({ ...gate.body, eventId: gatedEventId }, { status: gate.status })
+      }
     }
 
     // Calculate next Friday at 5:00 PM (batched payout schedule)

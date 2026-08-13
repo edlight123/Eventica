@@ -1,6 +1,7 @@
 // Side-effect import: arms the native splash hold. Must come before anything
 // that can render, so keep it first.
 import './lib/splash';
+import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts, InstrumentSerif_400Regular, InstrumentSerif_400Regular_Italic } from '@expo-google-fonts/instrument-serif';
@@ -12,6 +13,7 @@ import { I18nProvider } from './contexts/I18nContext';
 import { AppAlertProvider } from './components/AppAlert';
 import AppNavigator from './navigation/AppNavigator';
 import BootScreen from './components/BootScreen';
+import { refreshFeeConfig } from './lib/feeConfigSync';
 
 export default function App() {
   const [fontsLoaded, fontError] = useFonts({
@@ -20,6 +22,14 @@ export default function App() {
     JetBrainsMono_400Regular,
     JetBrainsMono_500Medium,
   });
+
+  // Adopt the fee rates and caps the server is actually charging, so an advertised
+  // total never quotes terms an admin has since changed. Deliberately not awaited:
+  // prices fall back to the cached (then build-time) terms until it lands, and
+  // nothing here is worth delaying the first screen for.
+  useEffect(() => {
+    refreshFeeConfig();
+  }, []);
 
   if (!fontsLoaded && !fontError) {
     return <BootScreen />;

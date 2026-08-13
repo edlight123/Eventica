@@ -261,6 +261,20 @@ export default function EarningsView({ summary, organizerId }: EarningsViewProps
             <span>Total fees paid</span>
             <span className="font-mono tabular-nums font-semibold text-white">{totalFeesLabel}</span>
           </div>
+          {/* WHO PAYS decides whether these rates come out of the organizer's money at
+              all. Stating the rates without this reads as "deducted from you" in every
+              market, which is only true where the organizer bears the fee. */}
+          <p className="border-t border-white/10 pt-2 text-xs text-white/45">
+            In the United States, Canada and France these are added to what the buyer
+            pays, so you receive your full ticket price. In Haiti the buyer pays exactly
+            the price you advertised and the fees are deducted from your proceeds.{' '}
+            <a
+              href="/organizer/settings/payouts/fees"
+              className="text-brand-300 underline underline-offset-2"
+            >
+              Fees &amp; rules
+            </a>
+          </p>
         </div>
       </details>
 

@@ -3,7 +3,7 @@ import { createClient } from '@/lib/firebase-db/server'
 import { sendTicketConfirmation } from '@/lib/tickets/confirmation'
 import { guestRecipientFromOrder } from '@/lib/guest/checkout'
 import { attachTicketsToGuestOrder, isGuestId } from '@/lib/guest/identity'
-import { redeemPromoInTransaction } from '@/lib/promo-codes'
+import { promoBuyerKey, redeemPromoInTransaction } from '@/lib/promo-codes'
 import { notifyTicketPurchase, notifyOrganizerTicketSale } from '@/lib/notifications/helpers'
 import { addTicketToEarnings } from '@/lib/earnings'
 import { adminDb } from '@/lib/firebase/admin'
@@ -17,9 +17,37 @@ import {
   markWebhookEventCompleted,
   releaseWebhookEvent,
 } from '@/lib/webhooks/idempotency'
+import { handleStripeDisputeEvent } from '@/lib/disputes'
+
+/**
+ * Chargeback events.
+ *
+ * Tikèm is MERCHANT OF RECORD on the Stripe rail (destination charges,
+ * `on_behalf_of` never set), so a cardholder's dispute lands on the PLATFORM
+ * account and arrives on THIS endpoint — not on a Connect endpoint.
+ *
+ *  - created / updated / closed  → the lifecycle: opened, evidence state changed,
+ *    resolved. `created` is what starts the organizer's evidence clock.
+ *  - funds_withdrawn / funds_reinstated → included deliberately. Status alone never
+ *    says whether the money has actually left our balance; these two do, and as
+ *    merchant of record that debit is ours. They are recorded as timestamps on the
+ *    dispute so a later reconciliation can tell "disputed" from "already debited"
+ *    without asking Stripe again. Neither notifies anyone — no human action follows.
+ */
+const DISPUTE_EVENT_TYPES = new Set([
+  'charge.dispute.created',
+  'charge.dispute.updated',
+  'charge.dispute.closed',
+  'charge.dispute.funds_withdrawn',
+  'charge.dispute.funds_reinstated',
+])
 
 // Event types this webhook actually fulfills. Only these are deduped/claimed.
-const HANDLED_EVENT_TYPES = new Set(['checkout.session.completed', 'payment_intent.succeeded'])
+const HANDLED_EVENT_TYPES = new Set([
+  'checkout.session.completed',
+  'payment_intent.succeeded',
+  ...DISPUTE_EVENT_TYPES,
+])
 
 // Lazy load Stripe to avoid build-time initialization
 function getStripe() {
@@ -181,6 +209,10 @@ export async function POST(request: Request) {
                 charged_currency: String(session.currency || 'usd').toUpperCase(),
                 payment_method: paymentMethod,
                 payment_id: session.payment_intent,
+                // Who paid the fee, from the session that took the money. The
+                // earnings ledger reads it; a ticket without it predates the
+                // buyer-pays rollout and was organizer-paid.
+                fee_incidence: session.metadata.feeIncidence === 'buyer' ? 'buyer' : 'organizer',
                 purchased_at: new Date().toISOString(),
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
@@ -231,6 +263,14 @@ export async function POST(request: Request) {
             promoId: session.metadata.promoCodeId,
             qty: quantity,
             userId: session.client_reference_id,
+            // Hosted checkout requires a session, so this is an account uid. Keyed
+            // the same way as every other redemption point, so a per-buyer cap
+            // counts this order too rather than silently exempting it.
+            buyerKey: promoBuyerKey({
+              isGuest: isGuestId(String(session.client_reference_id || '')),
+              id: session.client_reference_id,
+              email: session.customer_details?.email,
+            }),
             eventId: session.metadata.eventId,
             discountApplied: perTicketDiscount * quantity,
           })
@@ -655,6 +695,66 @@ export async function POST(request: Request) {
         eventId: piFulfillId,
         metadata: { type: event.type, tickets: createdTickets.length },
       })
+    }
+
+    // Handle chargebacks. See DISPUTE_EVENT_TYPES above for why each type is here.
+    //
+    // Signature verification and the event-id idempotency claim above apply
+    // unchanged: a dispute event is claimed on event.id like any other handled
+    // type, marked completed here so a redelivery no-ops, and released for retry
+    // by the outer catch if anything throws.
+    if (DISPUTE_EVENT_TYPES.has(event.type)) {
+      const dispute = event.data.object
+
+      /**
+       * The dispute object carries `payment_intent` on current API versions, but
+       * not on older ones — and the PaymentIntent id is the ONLY reference our
+       * tickets store, so without it nothing can be attributed. Fall back to
+       * reading it off the charge.
+       */
+      let paymentIntentId: string | null =
+        typeof dispute?.payment_intent === 'string'
+          ? dispute.payment_intent
+          : dispute?.payment_intent?.id || null
+      const chargeId = typeof dispute?.charge === 'string' ? dispute.charge : dispute?.charge?.id || null
+
+      if (!paymentIntentId && chargeId) {
+        try {
+          const charge = await stripe.charges.retrieve(chargeId)
+          paymentIntentId =
+            typeof charge?.payment_intent === 'string'
+              ? charge.payment_intent
+              : charge?.payment_intent?.id || null
+        } catch (chargeErr: any) {
+          // Not fatal: the dispute is still recorded, just harder to attribute.
+          console.warn('[stripe] could not resolve payment_intent from disputed charge', {
+            chargeId,
+            message: chargeErr?.message,
+          })
+        }
+      }
+
+      // Never throws — a chargeback must not enter a webhook retry loop.
+      const disputeResult = await handleStripeDisputeEvent({
+        dispute,
+        eventType: event.type,
+        stripeEventId: event.id,
+        stripeEventCreated: Number(event.created) || Math.floor(Date.now() / 1000),
+        paymentIntentId,
+      })
+
+      await markWebhookEventCompleted({
+        provider: 'stripe',
+        eventId: event.id,
+        metadata: {
+          type: event.type,
+          disputeId: disputeResult.disputeId,
+          status: disputeResult.status,
+          attributed: disputeResult.attributed,
+        },
+      })
+
+      return NextResponse.json({ received: true, dispute: disputeResult })
     }
 
     // Mark the event fully processed so any future redelivery is a no-op.

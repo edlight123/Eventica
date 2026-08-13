@@ -5,11 +5,12 @@
  */
 
 import { adminDb } from '@/lib/firebase/admin'
-import { 
-  PlatformSettings, 
+import {
+  PlatformSettings,
   DEFAULT_PLATFORM_SETTINGS,
-  type EventLocation 
+  type EventLocation
 } from '@/types/platform-settings'
+import { invalidatePlatformFeeSettings } from '@/lib/checkout/fee-config-server'
 
 const SETTINGS_COLLECTION = 'platform_settings'
 const SETTINGS_DOC_ID = 'global'
@@ -65,6 +66,11 @@ export async function updatePlatformSettings(
       .collection(SETTINGS_COLLECTION)
       .doc(SETTINGS_DOC_ID)
       .set(updateData, { merge: true })
+
+    // Display pricing reads a cached copy of the fee config. Drop it here so THIS
+    // process serves the new rate immediately; other instances pick it up when
+    // their own TTL lapses.
+    invalidatePlatformFeeSettings()
 
     return { success: true }
   } catch (error) {

@@ -45,9 +45,14 @@ export function AdminTopNav({ userEmail, accountInitial = 'A' }: AdminTopNavProp
 
   const isActive = (href: string) => {
     if (href === '/admin') return pathname === '/admin'
-    // Payout release settings live under /admin/payouts, so keep the Payouts tab lit there too.
+    // Release settings and the dispute log are reached from Payout Operations,
+    // so keep the Payouts tab lit on those pages too.
     if (href === '/admin/disbursements') {
-      return pathname?.startsWith('/admin/disbursements') || pathname?.startsWith('/admin/payouts')
+      return (
+        pathname?.startsWith('/admin/disbursements') ||
+        pathname?.startsWith('/admin/payouts') ||
+        pathname?.startsWith('/admin/disputes')
+      )
     }
     return pathname?.startsWith(href)
   }

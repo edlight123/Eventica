@@ -7,14 +7,35 @@ import { useRouter } from 'next/navigation'
 import { X, CreditCard, Lock } from 'lucide-react'
 import { useToast } from '@/components/ui/Toast'
 import { useTranslation } from 'react-i18next'
+import { priceOrder } from '@/lib/checkout/buyer-pricing'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+
+/**
+ * The breakdown the SERVER computed for this PaymentIntent.
+ *
+ * Preferred over anything this component could work out: it is the same object the
+ * charge amount was built from, so the "Pay X" button cannot drift from what the
+ * card is actually charged — including the gross-up in buyer-pays markets, where
+ * the fee is added on top of the face value.
+ */
+interface ServerPricing {
+  currency: string
+  incidence: 'organizer' | 'buyer'
+  faceValue: number
+  buyerFee: number
+  total: number
+}
+
 interface CheckoutFormProps {
   eventId: string
   eventTitle: string
   quantity: number
+  /** Face-value total, used only until the server's breakdown arrives. */
   totalAmount: number
   currency: string
+  country?: string
+  pricing: ServerPricing | null
   onClose: () => void
   clientSecret: string
   /**
@@ -25,7 +46,17 @@ interface CheckoutFormProps {
   t: any
 }
 
-function CheckoutForm({ eventId, eventTitle, quantity, totalAmount, currency, onClose, clientSecret, guestTicketUrl, t }: CheckoutFormProps) {
+function CheckoutForm({ eventId, eventTitle, quantity, totalAmount, currency, country, pricing, onClose, clientSecret, guestTicketUrl, t }: CheckoutFormProps) {
+  // Server breakdown when we have it; the same shared calculation as a fallback so a
+  // buyer-pays market never renders a bare face value as the total.
+  const local = priceOrder(totalAmount, country, { quantity, currency })
+  const faceValue = pricing ? pricing.faceValue : local.faceValue
+  const buyerFee = pricing ? pricing.buyerFee : local.buyerFee
+  const chargeTotal = pricing ? pricing.total : local.total
+  const chargeCurrency = pricing?.currency || currency
+  const showFeeLine = buyerFee > 0
+  const formatAmount = (amount: number) => `${amount.toLocaleString()} ${chargeCurrency}`
+
   const stripe = useStripe()
   const elements = useElements()
   const router = useRouter()
@@ -112,11 +143,23 @@ function CheckoutForm({ eventId, eventTitle, quantity, totalAmount, currency, on
             <span className="text-white/65">{eventTitle}</span>
             <span className="font-medium text-white">x{quantity}</span>
           </div>
+          {showFeeLine && (
+            <>
+              <div className="flex justify-between">
+                <span className="text-white/65">{t('events.subtotal', { defaultValue: 'Subtotal' })}</span>
+                <span className="font-medium text-white">{formatAmount(faceValue)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/65">
+                  {t('checkout.service_fee', { defaultValue: 'Service fee' })}
+                </span>
+                <span className="font-medium text-white">{formatAmount(buyerFee)}</span>
+              </div>
+            </>
+          )}
           <div className="flex justify-between items-center pt-2 border-t border-white/10">
             <span className="font-semibold text-white">{t('events.total')}</span>
-            <span className="text-lg font-bold text-brand-300">
-              {totalAmount.toLocaleString()} {currency}
-            </span>
+            <span className="text-lg font-bold text-brand-300">{formatAmount(chargeTotal)}</span>
           </div>
         </div>
       </div>
@@ -157,7 +200,7 @@ function CheckoutForm({ eventId, eventTitle, quantity, totalAmount, currency, on
           disabled={!stripe || processing}
           className="flex-1 px-4 py-3 bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 text-white font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
         >
-          {processing ? t('events.processing') : `${t('events.pay')} ${totalAmount.toLocaleString()} ${currency}`}
+          {processing ? t('events.processing') : `${t('events.pay')} ${formatAmount(chargeTotal)}`}
         </button>
       </div>
     </form>
@@ -169,10 +212,20 @@ interface EmbeddedStripePaymentProps {
   eventTitle: string
   userId: string | null
   quantity: number
+  /** FACE total. The fee (buyer-pays markets) is added on top by the server. */
   totalAmount: number
   currency: string
+  /** Event country — decides whether the fee is added on top or absorbed. */
+  country?: string
   tierId?: string
   promoCodeId?: string
+  /**
+   * A GUEST's access code for a password-protected event. There is no uid to hold a
+   * grant before the order exists, so the code is presented with the PaymentIntent
+   * request and re-verified server-side. Null for account holders, who are admitted
+   * by their stored grant.
+   */
+  accessCode?: string | null
   /**
    * Present when the buyer has no account: the contact details they gave at checkout.
    * Forwarded to create-payment-intent, which validates them and mints the guest order
@@ -189,13 +242,16 @@ export default function EmbeddedStripePayment({
   quantity,
   totalAmount,
   currency,
+  country,
   tierId,
   promoCodeId,
+  accessCode,
   guest,
   onClose
 }: EmbeddedStripePaymentProps) {
   const { t, i18n } = useTranslation('common')
   const [clientSecret, setClientSecret] = useState<string | null>(null)
+  const [pricing, setPricing] = useState<ServerPricing | null>(null)
   const [guestTicketUrl, setGuestTicketUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -232,6 +288,7 @@ export default function EmbeddedStripePayment({
             tierId,
             promoCodeId,
             ...(guest ? { guest } : {}),
+            ...(accessCode ? { accessCode } : {}),
           }),
         })
 
@@ -242,6 +299,7 @@ export default function EmbeddedStripePayment({
         }
 
         setClientSecret(data.clientSecret)
+        setPricing(data.pricing || null)
         setGuestTicketUrl(data.guestTicketUrl || null)
       } catch (err: any) {
         setError(err.message || 'Failed to initialize payment')
@@ -255,7 +313,7 @@ export default function EmbeddedStripePayment({
     // checkout doesn't re-mint a PaymentIntent (and a second guest order) on every
     // parent re-render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eventId, quantity, tierId, promoCodeId, guest?.name, guest?.email, guest?.phone])
+  }, [eventId, quantity, tierId, promoCodeId, accessCode, guest?.name, guest?.email, guest?.phone])
 
   const appearance = {
     theme: 'night' as const,
@@ -315,6 +373,8 @@ export default function EmbeddedStripePayment({
                 quantity={quantity}
                 totalAmount={totalAmount}
                 currency={currency}
+                country={country}
+                pricing={pricing}
                 onClose={onClose}
                 clientSecret={clientSecret}
                 guestTicketUrl={guestTicketUrl}

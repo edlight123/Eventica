@@ -6,6 +6,8 @@ import { ToastProvider } from '@/components/ui/Toast'
 import PWAInstallPrompt from '@/components/pwa/PWAInstallPrompt'
 import { I18nProvider } from '@/components/I18nProvider'
 import Footer from '@/components/Footer'
+import { FeeConfigProvider } from '@/components/FeeConfigProvider'
+import { getPlatformFeeSettings } from '@/lib/checkout/fee-config-server'
 
 // Body / UI typeface
 const inter = Inter({
@@ -93,11 +95,19 @@ export const viewport: Viewport = {
   userScalable: true,
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  // The fee rates and per-ticket caps in force, read once per render and seeded
+  // into the pricing layer below. This is what keeps an advertised price honest
+  // after an admin edits the rate: without it, every displayed total would be
+  // computed from the compiled-in defaults while checkout charged the new figure.
+  // A settings read must never take the whole site down, so a failure falls back
+  // to the defaults — the same values the code shipped with.
+  const feeConfig = await getPlatformFeeSettings()
+
   return (
     <html lang="en" className={`${inter.variable} ${instrumentSerif.variable} ${spaceGrotesk.variable} ${jetBrainsMono.variable}`}>
       <head>
@@ -110,13 +120,15 @@ export default function RootLayout({
         <link rel="preconnect" href="https://api.stripe.com" crossOrigin="anonymous" />
       </head>
       <body className={inter.className + ' mobile-typography'}>
-        <I18nProvider>
-          <ToastProvider>
-            {children}
-            <Footer />
-          </ToastProvider>
-          <PWAInstallPrompt />
-        </I18nProvider>
+        <FeeConfigProvider config={feeConfig}>
+          <I18nProvider>
+            <ToastProvider>
+              {children}
+              <Footer />
+            </ToastProvider>
+            <PWAInstallPrompt />
+          </I18nProvider>
+        </FeeConfigProvider>
       </body>
     </html>
   )

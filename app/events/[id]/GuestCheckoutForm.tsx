@@ -16,11 +16,27 @@ export interface GuestContactInput {
   phone: string
 }
 
+/**
+ * The all-in total for the order this form is collecting details for.
+ *
+ * A guest is asked for their details BEFORE payment, so this is one of the surfaces
+ * that must not quote a face value the buyer won't actually be charged: in a
+ * buyer-pays market the fee is itemized here and the total is the charge.
+ */
+export interface GuestOrderSummary {
+  subtotal: number
+  fee: number
+  total: number
+  currency: string
+}
+
 export default function GuestCheckoutForm({
   requirePhone,
   submitLabel,
   busy = false,
   initial,
+  orderSummary,
+  feesAddedOnTop = false,
   onSubmit,
   onCancel,
 }: {
@@ -29,6 +45,14 @@ export default function GuestCheckoutForm({
   submitLabel: string
   busy?: boolean
   initial?: Partial<GuestContactInput>
+  /** Present once a concrete order exists; omitted before tickets are chosen. */
+  orderSummary?: GuestOrderSummary | null
+  /**
+   * True in a buyer-pays market. When there is no `orderSummary` yet (the buyer
+   * hasn't picked tickets), this at least tells them a fee is coming rather than
+   * letting the ticket price they saw stand as the total.
+   */
+  feesAddedOnTop?: boolean
   onSubmit: (contact: GuestContactInput) => void
   onCancel?: () => void
 }) {
@@ -78,6 +102,48 @@ export default function GuestCheckoutForm({
             'No account needed. We send your ticket and QR code straight to you — you can create an account afterwards if you want.',
         })}
       </p>
+
+      {orderSummary ? (
+        <div className="rounded-lg bg-white/[0.03] border border-white/10 p-4 space-y-2 text-sm">
+          {orderSummary.fee > 0 && (
+            <>
+              <div className="flex justify-between">
+                <span className="text-white/60">
+                  {t('events.subtotal', { defaultValue: 'Subtotal' })}
+                </span>
+                <span className="text-white">
+                  {orderSummary.subtotal.toLocaleString()} {orderSummary.currency}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/60">
+                  {t('checkout.service_fee', { defaultValue: 'Service fee' })}
+                </span>
+                <span className="text-white">
+                  {orderSummary.fee.toLocaleString()} {orderSummary.currency}
+                </span>
+              </div>
+            </>
+          )}
+          <div className="flex justify-between border-t border-white/10 pt-2 font-semibold">
+            <span className="text-white/80">
+              {t('checkout.you_pay', { defaultValue: "You'll pay" })}
+            </span>
+            <span className="text-brand-300">
+              {orderSummary.total.toLocaleString()} {orderSummary.currency}
+            </span>
+          </div>
+        </div>
+      ) : (
+        feesAddedOnTop && (
+          <p className="text-xs text-white/45">
+            {t('checkout.fee_added_notice', {
+              defaultValue:
+                'A service fee is added to the ticket price. You will see the full total before you pay.',
+            })}
+          </p>
+        )
+      )}
 
       <div>
         <label htmlFor="guest-name" className="block text-xs uppercase tracking-wider text-white/50 mb-1.5">

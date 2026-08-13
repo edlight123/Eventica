@@ -23,7 +23,7 @@ import {
   releaseInventoryReservation,
 } from '@/lib/tickets/inventory'
 import { addTicketToEarnings } from '@/lib/earnings'
-import { redeemPromoInTransaction } from '@/lib/promo-codes'
+import { promoBuyerKey, redeemPromoInTransaction } from '@/lib/promo-codes'
 
 export const runtime = 'nodejs'
 
@@ -647,6 +647,14 @@ async function handleMonCashButtonReturn(request: Request): Promise<NextResponse
           promoId: String(pendingTx.promo_code_id),
           qty: Number(pendingTx.quantity || createdTickets.length || 1),
           userId: pendingTx.user_id ? String(pendingTx.user_id) : null,
+          // For a guest the pending transaction's user_id is a per-order `guest_…` id;
+          // the email captured on that order is what a per-buyer cap can count.
+          buyerKey: promoBuyerKey({
+            isGuest: Boolean(pendingTx.is_guest),
+            id: pendingTx.user_id ? String(pendingTx.user_id) : null,
+            email: pendingTx.guest_email,
+            phone: pendingTx.guest_phone,
+          }),
           eventId: pendingTx.event_id ? String(pendingTx.event_id) : null,
           discountApplied:
             pendingTx.promo_discount_total != null ? Number(pendingTx.promo_discount_total) : null,

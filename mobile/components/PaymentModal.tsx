@@ -16,6 +16,7 @@ import { backendJson } from '../lib/api/backend';
 import { useI18n } from '../contexts/I18nContext';
 import WhitePillCTA from './WhitePillCTA';
 import { formatCurrency } from '../lib/currency';
+import { priceOrder } from '../lib/buyerPricing';
 import { radius } from '../theme/tokens';
 
 // Expo Go can't load native modules like Stripe. Detect it reliably via
@@ -61,6 +62,8 @@ interface PaymentModalProps {
   totalAmount: number;
   currency: string;
   country?: string;
+  /** The organizer's own absorb/pass-on choice, when they made one. */
+  feeIncidence?: string | null;
   tierId?: string;
   promoCodeId?: string;
   onSuccess: (paymentMethod: string, transactionId: string) => void;
@@ -74,6 +77,7 @@ function PaymentForm({
   totalAmount,
   currency,
   country,
+  feeIncidence,
   tierId,
   promoCodeId,
   onSuccess,
@@ -92,6 +96,16 @@ function PaymentForm({
 
   const countryCode = String(country || '').toUpperCase();
   const isHaitiEvent = countryCode === 'HT' || countryCode === 'HAITI';
+  // `totalAmount` is the FACE total. In a buyer-pays market the card is charged
+  // that plus the service fee, so the Total row has to show the charged figure —
+  // this is the last screen before payment, and it must not be the first place a
+  // bigger number appears. The server recomputes the real charge; this is display.
+  const orderPricing = priceOrder(
+    totalAmount,
+    { country, currency, fee_incidence: feeIncidence },
+    { quantity }
+  );
+  const showFeeLine = orderPricing.feeOnTop && orderPricing.buyerFee > 0;
   // Default to MonCash if Stripe not available (Expo Go)
   const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'moncash' | 'natcash' | 'sogepay'>(
     isHaitiEvent ? 'moncash' : 'stripe'
@@ -480,11 +494,30 @@ function PaymentForm({
           </View>
         )}
 
-        {/* Total Amount */}
-        <View style={styles.totalContainer}>
+        {/* Total Amount — itemized when the buyer is carrying the service fee, so
+            the number is explained rather than merely larger. */}
+        {showFeeLine && (
+          <View style={styles.feeBreakdown}>
+            <View style={styles.feeRow}>
+              <Text style={styles.feeRowLabel}>{t('paymentModal.subtotal', { defaultValue: 'Subtotal' })}</Text>
+              <Text style={styles.feeRowValue}>
+                {formatCurrency(orderPricing.faceValue, currency)}
+              </Text>
+            </View>
+            <View style={styles.feeRow}>
+              <Text style={styles.feeRowLabel}>
+                {t('paymentModal.serviceFee', { defaultValue: 'Service fee' })}
+              </Text>
+              <Text style={styles.feeRowValue}>
+                {formatCurrency(orderPricing.buyerFee, currency)}
+              </Text>
+            </View>
+          </View>
+        )}
+        <View style={[styles.totalContainer, showFeeLine && styles.totalContainerAttached]}>
           <Text style={styles.totalLabel}>{t('paymentModal.totalAmount')}</Text>
           <Text style={styles.totalAmount}>
-            {formatCurrency(totalAmount, currency)}
+            {formatCurrency(orderPricing.total, currency)}
           </Text>
         </View>
 
@@ -706,6 +739,28 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.error,
     textAlign: 'center',
   },
+  // Subtotal + fee rows, shown only when the buyer carries the fee. They sit
+  // above the total and own the top rule, so the total row drops its own.
+  feeBreakdown: {
+    marginTop: 24,
+    paddingTop: 24,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    gap: 6,
+  },
+  feeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  feeRowLabel: {
+    fontSize: 13,
+    color: colors.textSecondary,
+  },
+  feeRowValue: {
+    fontSize: 13,
+    color: colors.textSecondary,
+  },
   totalContainer: {
     marginTop: 24,
     paddingTop: 24,
@@ -714,6 +769,13 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  // When the breakdown is above, it already drew the rule — the total belongs to
+  // the same block rather than starting a second one.
+  totalContainerAttached: {
+    marginTop: 10,
+    paddingTop: 0,
+    borderTopWidth: 0,
   },
   totalLabel: {
     fontSize: 16,

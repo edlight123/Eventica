@@ -32,6 +32,40 @@ export function calculatePlatformFeeWithPercentage(
   return Math.max(feeAmount, FEE_CONFIG.PLATFORM_FEE_MIN)
 }
 
+/** How the platform fee is capped for one order. */
+export interface PlatformFeeCap {
+  /**
+   * Ceiling on the platform fee PER TICKET, in the event currency's minor units.
+   * null/undefined means uncapped. The cap is per ticket, not per order, so a
+   * four-ticket order caps at four times this — otherwise group buyers would pay
+   * a fraction of what four single buyers pay for the same seats.
+   */
+  capMinorPerTicket?: number | null
+  /** Tickets in this order. Defaults to 1, which is the right unit for a headline price. */
+  quantity?: number
+}
+
+/**
+ * Platform fee with a per-ticket ceiling.
+ *
+ * A flat percentage is competitive on a $20 ticket and punitive on a $150 table,
+ * where the work the platform does is identical. The cap is what keeps a
+ * percentage honest at the top of the price range; the existing PLATFORM_FEE_MIN
+ * floor does the same job at the bottom. When the two collide the cap wins — it
+ * is a ceiling, and a ceiling below a floor still bounds the fee.
+ */
+export function calculateCappedPlatformFee(
+  grossAmount: number,
+  feePercentage: number,
+  cap?: PlatformFeeCap | null
+): number {
+  const fee = calculatePlatformFeeWithPercentage(grossAmount, feePercentage)
+  const capMinor = cap?.capMinorPerTicket
+  if (capMinor == null || !Number.isFinite(capMinor) || capMinor < 0) return fee
+  const quantity = Math.max(1, Math.floor(Number(cap?.quantity) || 1))
+  return Math.min(fee, Math.round(capMinor) * quantity)
+}
+
 /**
  * Calculate Stripe processing fee
  * Formula: 2.9% + $0.30 per transaction
@@ -286,7 +320,8 @@ export type BuyerPricing = {
 export function calculateBuyerPricing(
   faceValue: number,
   incidence: FeeIncidence,
-  feePercentage: number = FEE_CONFIG.PLATFORM_FEE_PERCENTAGE
+  feePercentage: number = FEE_CONFIG.PLATFORM_FEE_PERCENTAGE,
+  cap?: PlatformFeeCap | null
 ): BuyerPricing {
   if (faceValue <= 0) {
     return {
@@ -301,7 +336,7 @@ export function calculateBuyerPricing(
   }
 
   if (incidence === 'organizer') {
-    const platformFee = calculatePlatformFeeWithPercentage(faceValue, feePercentage)
+    const platformFee = calculateCappedPlatformFee(faceValue, feePercentage, cap)
     const processingFee = calculateStripeFee(faceValue)
     return {
       chargeAmount: faceValue,
@@ -315,7 +350,7 @@ export function calculateBuyerPricing(
   }
 
   // Gross-up so the organizer nets exactly the face value.
-  const platformFee = calculatePlatformFeeWithPercentage(faceValue, feePercentage)
+  const platformFee = calculateCappedPlatformFee(faceValue, feePercentage, cap)
   const target = faceValue + platformFee + FEE_CONFIG.STRIPE_FEE_FIXED
   const chargeAmount = Math.ceil(target / (1 - FEE_CONFIG.STRIPE_FEE_PERCENTAGE))
   const processingFee = calculateStripeFee(chargeAmount)

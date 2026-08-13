@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { FileText, SlidersHorizontal, TrendingUp, Wallet } from 'lucide-react'
+import { FileText, ShieldAlert, SlidersHorizontal, TrendingUp, Wallet } from 'lucide-react'
 import { AdminBreadcrumbs } from './AdminBreadcrumbs'
 import { EditorialHeader } from '@/components/ui/EditorialHeader'
 
@@ -75,13 +75,22 @@ export function PayoutOperationsClient({
           subtitle="Manage event disbursements, pending requests, and withdrawal history"
           tone="dark"
           actions={
-            <Link
-              href="/admin/payouts/release-settings"
-              className="inline-flex items-center gap-2 rounded-lg border border-white/15 px-3 py-2 text-sm font-semibold text-white/70 hover:bg-white/[0.04] hover:text-white"
-            >
-              <SlidersHorizontal className="h-4 w-4" />
-              Release settings
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/admin/disputes"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/15 px-3 py-2 text-sm font-semibold text-white/70 hover:bg-white/[0.04] hover:text-white"
+              >
+                <ShieldAlert className="h-4 w-4" />
+                Disputes
+              </Link>
+              <Link
+                href="/admin/payouts/release-settings"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/15 px-3 py-2 text-sm font-semibold text-white/70 hover:bg-white/[0.04] hover:text-white"
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                Release settings
+              </Link>
+            </div>
           }
         />
       </div>

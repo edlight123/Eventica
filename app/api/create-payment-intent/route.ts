@@ -12,7 +12,10 @@ import {
 } from '@/lib/security'
 import { adminDb } from '@/lib/firebase/admin'
 import { getPaymentProviderForEventCountry } from '@/lib/payment-provider'
-import { calculateFees } from '@/lib/fees'
+import { applicationFeeFor, priceOrderCents } from '@/lib/checkout/buyer-pricing'
+import { getPlatformSettings } from '@/lib/admin/platform-settings'
+import { getEventLocation } from '@/types/platform-settings'
+import { fromCents } from '@/lib/ticketPricing'
 import { getPayoutProfile } from '@/lib/firestore/payout-profiles'
 import { hasEventAccess } from '@/lib/events/access-guard'
 import { isPaidAllowed, countrySupport, defaultCurrencyForCountry } from '@/lib/country-support'
@@ -36,7 +39,18 @@ export async function POST(request: Request) {
     const stripe = getStripe()
     const user = await getCurrentUser()
 
-    const { eventId, quantity = 1, tierId, promoCodeId, fingerprint, guest } = await request.json()
+    const {
+      eventId,
+      quantity = 1,
+      tierId,
+      promoCodeId,
+      fingerprint,
+      guest,
+      // Password-protected events: the code a GUEST is presenting with this order.
+      // A signed-in buyer still unlocks through /api/events/verify-access and is
+      // admitted by their stored grant, exactly as before.
+      accessCode,
+    } = await request.json()
 
     // A missing session is not fatal: a guest may buy by supplying
     // `guest: { name, email, phone }`. The contact is shape-checked HERE so the
@@ -131,6 +145,7 @@ export async function POST(request: Request) {
         event,
         eventId: String(eventId),
         ipAddress,
+        accessCode,
       })
       if (!guestOutcome.ok) {
         await logPurchaseAttempt({ userId: attemptUserId, eventId, ipAddress, quantity, fingerprint }, false)
@@ -277,8 +292,37 @@ export async function POST(request: Request) {
       console.log(`💱 Converting ${finalPrice} HTG to ${stripeAmount.toFixed(2)} USD (Stripe rate: ${exchangeRateUsed})`)
     }
 
-    // Create PaymentIntent
-    const amountCents = Math.round(stripeAmount * quantity * 100)
+    // ── WHO PAYS THE FEE ────────────────────────────────────────────────────────
+    // The face value is what the organizer advertised. Whether the buyer is charged
+    // that exact amount or that amount PLUS the fee is a property of the event's
+    // country (lib/country-support.ts), and the arithmetic — including the gross-up
+    // that keeps the organizer whole once Stripe takes its percentage of the fee
+    // itself — belongs to lib/fees.ts. Both are called, never reimplemented.
+    //
+    // Recomputed here from the event's / tier's own stored price every time: the
+    // client sends a quantity and a tier, never a total.
+    //
+    // Haiti keeps its exact previous behaviour: 'organizer' incidence returns
+    // chargeAmount === faceValue and buyerFee === 0, so `amountCents` below is the
+    // same number this route has always charged.
+    //
+    // The rate and the per-ticket fee cap come from the STORED platform settings,
+    // so an admin can retune either without a deploy; the cap scales with quantity
+    // because it is per ticket. `stripeCurrency` is what the card is actually
+    // charged in — an HTG event converted to USD is capped in USD, matching the
+    // money that moves.
+    const faceValueCents = Math.round(stripeAmount * quantity * 100)
+    const platformSettings = await getPlatformSettings()
+    const locationFees =
+      getEventLocation(String(event.country || '')) === 'haiti'
+        ? platformSettings.haiti
+        : platformSettings.usCanada
+    const buyerPricing = priceOrderCents(faceValueCents, event, {
+      quantity,
+      currency: stripeCurrency.toUpperCase(),
+      config: locationFees,
+    })
+    const amountCents = buyerPricing.chargeAmount
     let stripeConnectAccountId: string | null = null
     let applicationFeeAmount: number | null = null
 
@@ -301,10 +345,12 @@ export async function POST(request: Request) {
 
       stripeConnectAccountId = stripeAccountId
 
-      // Keep the organizer net consistent with our fee model by collecting
-      // platform fee + processing fee as the Connect application fee.
-      const feeBreakdown = calculateFees(amountCents)
-      applicationFeeAmount = Math.max(0, Math.min(amountCents, feeBreakdown.platformFee + feeBreakdown.processingFee))
+      // Collect exactly the difference between what the buyer paid and what the
+      // organizer is owed as the Connect application fee. Under organizer incidence
+      // that is platform fee + processing fee (unchanged); under buyer incidence it
+      // is the fee the buyer paid on top, so the organizer nets the face value to
+      // the cent and the gross-up's rounding stays with the platform.
+      applicationFeeAmount = applicationFeeFor(buyerPricing)
     }
 
     const paymentIntent = await stripe.paymentIntents.create({
@@ -341,6 +387,16 @@ export async function POST(request: Request) {
         promoCodeId: resolvedPromoId,
         originalPrice: basePriceBeforePromo.toString(),
         finalPrice: finalPrice.toString(),
+        // Additive audit trail for fee incidence. `finalPrice` / `originalPrice` /
+        // `priceInOriginalCurrency` keep their existing meaning (the FACE value per
+        // ticket, in the event's currency), so fulfillment still records
+        // `price_paid` as what the organizer sold the ticket for — which under buyer
+        // incidence is also exactly what they receive.
+        feeIncidence: buyerPricing.incidence,
+        faceValueCents: String(faceValueCents),
+        buyerFeeCents: String(buyerPricing.buyerFee),
+        chargeAmountCents: String(amountCents),
+        organizerNetCents: String(buyerPricing.organizerNet),
         currency: stripeCurrency,
         originalCurrency: originalCurrency,
         exchangeRate: exchangeRateUsed?.toString() || '',
@@ -358,9 +414,20 @@ export async function POST(request: Request) {
     // Log successful attempt
     await logPurchaseAttempt({ userId: attemptUserId, eventId, ipAddress, quantity, fingerprint }, true)
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
       paymentIntentId: paymentIntent.id,
+      // The authoritative breakdown, so the payment sheet shows the number the card
+      // is about to be charged rather than the client's own arithmetic. Major units,
+      // in the currency actually being charged.
+      pricing: {
+        currency: stripeCurrency.toUpperCase(),
+        incidence: buyerPricing.incidence,
+        faceValue: fromCents(buyerPricing.faceValue),
+        buyerFee: fromCents(buyerPricing.buyerFee),
+        total: fromCents(amountCents),
+        quantity,
+      },
       // Where a guest goes once the card succeeds — they have no /tickets page to
       // land on. Returned only to the browser that just minted this order.
       ...(identity.isGuest && identity.guestToken

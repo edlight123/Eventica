@@ -20,7 +20,7 @@ import {
 import { addTicketToEarnings } from '@/lib/earnings'
 import { sendTicketConfirmation } from '@/lib/tickets/confirmation'
 import { notifyTicketPurchase as notifyTicketPurchaseNotification } from '@/lib/notifications/helpers'
-import { redeemPromoInTransaction } from '@/lib/promo-codes'
+import { promoBuyerKey, redeemPromoInTransaction } from '@/lib/promo-codes'
 import { guestRecipientFromOrder } from '@/lib/guest/checkout'
 import { attachTicketsToGuestOrder, isGuestId } from '@/lib/guest/identity'
 
@@ -370,6 +370,14 @@ export async function fulfillPaidOrder(params: {
         promoId: String(pendingTx.promo_code_id),
         qty: Number(pendingTx.quantity || createdTickets.length || 1),
         userId: pendingTx.user_id ? String(pendingTx.user_id) : null,
+        // A guest's user_id on the order is minted per order, so it can't carry a
+        // per-buyer cap; the email captured on the order can.
+        buyerKey: promoBuyerKey({
+          isGuest: Boolean(pendingTx.is_guest),
+          id: pendingTx.user_id ? String(pendingTx.user_id) : null,
+          email: pendingTx.guest_email,
+          phone: pendingTx.guest_phone,
+        }),
         eventId: pendingTx.event_id ? String(pendingTx.event_id) : null,
         discountApplied:
           pendingTx.promo_discount_total != null ? Number(pendingTx.promo_discount_total) : null,

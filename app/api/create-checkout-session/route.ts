@@ -14,7 +14,9 @@ import {
 } from '@/lib/security'
 import { adminDb } from '@/lib/firebase/admin'
 import { getPaymentProviderForEventCountry } from '@/lib/payment-provider'
-import { calculateFees } from '@/lib/fees'
+import { applicationFeeFor, priceOrderCents } from '@/lib/checkout/buyer-pricing'
+import { getPlatformSettings } from '@/lib/admin/platform-settings'
+import { getEventLocation } from '@/types/platform-settings'
 import { getPayoutProfile } from '@/lib/firestore/payout-profiles'
 import { hasEventAccess } from '@/lib/events/access-guard'
 import { isPaidAllowed, countrySupport, defaultCurrencyForCountry } from '@/lib/country-support'
@@ -197,6 +199,19 @@ export async function POST(request: Request) {
 
     const unitAmountCents = Math.round(finalPrice * 100)
     const totalAmountCents = unitAmountCents * quantity
+    // WHO PAYS THE FEE. Recomputed server-side from the stored price, for the ORDER
+    // as a whole (the fixed component of the processing fee is per transaction).
+    // Haiti is organizer-pays: `buyerFee` is 0 and the session below is unchanged.
+    // Rate and per-ticket cap come from the stored platform settings.
+    const platformSettings = await getPlatformSettings()
+    const buyerPricing = priceOrderCents(totalAmountCents, event, {
+      quantity,
+      currency: (event.currency || defaultCurrencyForCountry(event.country) || '').toUpperCase(),
+      config:
+        getEventLocation(String(event.country || '')) === 'haiti'
+          ? platformSettings.haiti
+          : platformSettings.usCanada,
+    })
     let stripeConnectAccountId: string | null = null
     let applicationFeeAmount: number | null = null
 
@@ -219,11 +234,11 @@ export async function POST(request: Request) {
 
       stripeConnectAccountId = stripeAccountId
 
-      const feeBreakdown = calculateFees(totalAmountCents)
-      applicationFeeAmount = Math.max(
-        0,
-        Math.min(totalAmountCents, feeBreakdown.platformFee + feeBreakdown.processingFee)
-      )
+      // Collect exactly what the buyer paid above the organizer's take. Under
+      // organizer incidence (Haiti) that is platform fee + processing fee — the same
+      // number this route always collected; under buyer incidence it is the fee added
+      // on top, so the organizer nets the face value.
+      applicationFeeAmount = applicationFeeFor(buyerPricing)
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -244,6 +259,21 @@ export async function POST(request: Request) {
           },
           quantity,
         },
+        // The fee as its OWN line item, so Stripe's hosted page shows the buyer both
+        // the ticket price and the fee, and totals them itself. Present only in
+        // buyer-pays markets; Haiti's session keeps exactly one line.
+        ...(buyerPricing.buyerFee > 0
+          ? [
+              {
+                price_data: {
+                  currency: (event.currency || defaultCurrencyForCountry(event.country)).toLowerCase(),
+                  product_data: { name: 'Service fee' },
+                  unit_amount: buyerPricing.buyerFee,
+                },
+                quantity: 1,
+              },
+            ]
+          : []),
       ],
       mode: 'payment',
       success_url: `${origin}/purchase/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -271,6 +301,10 @@ export async function POST(request: Request) {
         finalPrice: finalPrice.toString(),
         payoutProvider: provider,
         stripeConnectAccountId: stripeConnectAccountId || '',
+        // Who bore the fee on this order. The webhook stamps it onto each ticket so
+        // the organizer earnings ledger knows whether a fee was already collected
+        // from the buyer or still has to come out of the organizer's gross.
+        feeIncidence: buyerPricing.incidence,
       },
     })
 

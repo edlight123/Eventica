@@ -17,7 +17,13 @@ interface MobileKeyFactsProps {
    * never advertise "0" for an event that actually charges.
    */
   hasFreeOption?: boolean
+  /**
+   * The ALL-IN per-ticket price. In a buyer-pays market (US/CA/FR) the caller has
+   * already added the fee, so this is what the buyer is charged rather than the face
+   * value — `feesIncluded` says so on the card.
+   */
   ticketPrice: number
+  feesIncluded?: boolean
   currency: string
   remainingTickets: number
   isSoldOut: boolean
@@ -32,6 +38,7 @@ export default function MobileKeyFacts({
   isFree,
   hasFreeOption = false,
   ticketPrice,
+  feesIncluded = false,
   currency,
   remainingTickets,
   isSoldOut
@@ -105,7 +112,11 @@ export default function MobileKeyFacts({
                 )}
                 {ticketPrice.toLocaleString()} <span className="text-[11px] text-white/45">{currency}</span>
               </p>
-              <p className="label-mono text-[11px] uppercase text-white/55">{t('per_ticket')}</p>
+              <p className="label-mono text-[11px] uppercase text-white/55">
+                {feesIncluded
+                  ? t('events.fees_included', { defaultValue: 'Fees included' })
+                  : t('per_ticket')}
+              </p>
             </>
           )}
         </div>

@@ -10,6 +10,7 @@ import { isDemoMode } from '@/lib/demo'
 import { normalizeCountryCode } from '@/lib/payment-provider'
 import EventbriteStyleTicketSelector from '@/components/EventbriteStyleTicketSelector'
 import { allSelectionsFree, computeSelectionTotal } from '@/lib/ticketPricing'
+import { priceOrder } from '@/lib/checkout/buyer-pricing'
 import BottomSheet from '@/components/ui/BottomSheet'
 import { useToast } from '@/components/ui/Toast'
 import GuestCheckoutForm, { type GuestContactInput } from './GuestCheckoutForm'
@@ -36,6 +37,8 @@ const PROMO_FAILURE_CODES = new Set([
   'promo_not_free',
   'promo_requires_tier',
   'promo_redeem_failed',
+  // The buyer has already used this code as many times as it allows.
+  'promo_already_used',
   // A paid tier reaching the free endpoint at all means the discount didn't hold.
   'tier_not_free',
 ])
@@ -89,7 +92,23 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
   const [showGuestForm, setShowGuestForm] = useState(false)
   /** The action to resume once the guest has given their details. */
   const pendingGuestActionRef = useRef<'free' | 'paid' | null>(null)
+
+  /**
+   * A GUEST's access code for a password-protected event.
+   *
+   * An account holder proves the code once and the server stores a grant against
+   * their uid; a guest has no uid until their order is created, so there is nothing
+   * to grant against up front. Their proof therefore travels WITH the checkout
+   * request and is re-verified server-side before the order exists. Held in a ref,
+   * in memory only, for the length of this visit — never persisted, never logged.
+   */
+  const accessCodeRef = useRef<string | null>(null)
   const guestBody = guestContact ? { guest: guestContact } : {}
+  /** The access-code field a guest's checkout request must carry, if any. */
+  const accessBody =
+    isGuestCheckout && isPasswordProtected && accessCodeRef.current
+      ? { accessCode: accessCodeRef.current }
+      : {}
 
   // Password-protected access gate state.
   // hasAccess: null = unknown (still checking), true/false once resolved.
@@ -112,9 +131,9 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
       setHasAccess(true)
       return
     }
-    // A guest has no uid and therefore no access grant to read. Password-protected
-    // events are not offered to guests at all (EventDetailsClient keeps the sign-in
-    // link there, and the server refuses guest checkout for them regardless).
+    // A guest has no uid and therefore no grant to read, so they always start locked
+    // and are asked for the code. Unlocking is per visit for them: the code they type
+    // is held in memory and re-verified by the server with their order.
     if (!userId) {
       setHasAccess(false)
       return
@@ -194,20 +213,27 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
     }
   }
 
+  /**
+   * Resume what the buyer was doing once the event is unlocked.
+   *
+   * Re-enters `gateOrRun` rather than calling the handlers directly, so a GUEST who
+   * has just unlocked still passes through the contact-details gate — without this
+   * they would hit the claim/purchase endpoint with no name, email or phone, and
+   * there would be nowhere to send the ticket.
+   */
   function runPendingAction() {
     const action = pendingActionRef.current
     pendingActionRef.current = null
-    if (action === 'free') {
-      handleClaimFreeTicket()
-    } else if (action === 'paid') {
-      handleOpenPurchaseFlow()
-    }
+    // `accessJustProven` matters: this runs in the same tick as setHasAccess(true),
+    // so `hasAccess` still reads false in this closure and the gate below would
+    // re-prompt for a code the buyer has just entered correctly.
+    if (action) gateOrRun(action, { accessJustProven: true })
   }
 
   // Entry-point gate: for password-protected events without a grant, prompt for
   // the code before running the real purchase/claim flow.
-  function gateOrRun(action: 'free' | 'paid') {
-    if (isPasswordProtected && hasAccess !== true) {
+  function gateOrRun(action: 'free' | 'paid', opts?: { accessJustProven?: boolean }) {
+    if (!opts?.accessJustProven && isPasswordProtected && hasAccess !== true) {
       pendingActionRef.current = action
       setCodeInput('')
       setCodeError(null)
@@ -259,6 +285,10 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
       })
       const data = await res.json().catch(() => ({}))
       if (res.ok && data?.ok) {
+        // A signed-in buyer now holds a server-side grant (`data.granted`). A guest
+        // got only the answer, so keep their code for the checkout request that
+        // re-proves it.
+        if (!data?.granted) accessCodeRef.current = code
         setHasAccess(true)
         setShowCodePrompt(false)
         setCodeInput('')
@@ -315,11 +345,44 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
   const [usdHtgQuoteError, setUsdHtgQuoteError] = useState<string | null>(null)
   const [usdHtgQuoteLoading, setUsdHtgQuoteLoading] = useState(false)
 
+  /** Face total for the current selection — what the organizer priced. */
   const totalAmountDisplay = useMemo(() => {
     return selectedTiers.length > 0
       ? selectedTiers.reduce((sum, t) => sum + t.price * t.quantity, 0)
       : (selectedTierPrice || ticketPrice) * quantity
   }, [quantity, selectedTierPrice, selectedTiers, ticketPrice])
+
+  /**
+   * The ALL-IN total for the current selection.
+   *
+   * In a buyer-pays market (US/CA/FR) the fee is added on top, so this is above the
+   * face total and is the only number allowed to be presented as "total" — US rules
+   * on live-event ticket pricing require it up front rather than at the last step.
+   * In Haiti the fee comes out of the organizer's proceeds, so `buyerFee` is 0 and
+   * this equals the face total exactly as before.
+   *
+   * A pre-payment estimate: the server recomputes it from the tier's stored price
+   * and the PaymentIntent's own breakdown is what the payment sheet finally shows.
+   */
+  const orderPricing = useMemo(
+    () =>
+      priceOrder(totalAmountDisplay, country, {
+        // The fee cap is per ticket, so it has to know how many are in the cart.
+        quantity: selectedTiers.length
+          ? selectedTiers.reduce((sum, t) => sum + t.quantity, 0)
+          : quantity,
+        currency,
+      }),
+    [totalAmountDisplay, country, currency, quantity, selectedTiers]
+  )
+  const showFeeLine = orderPricing.feeOnTop && orderPricing.buyerFee > 0
+  const formatAmount = (amount: number) => `${amount.toLocaleString()} ${currency}`
+  /**
+   * True once the buyer has actually chosen what they are buying. Before that
+   * `ticketPrice` is only the event's "from" headline, so no total may be quoted
+   * from it — a guest is asked for their details before tiers are shown.
+   */
+  const hasConcreteSelection = selectedTiers.length > 0 || selectedTierPrice > 0
 
   useEffect(() => {
     if (!showModal) return
@@ -474,8 +537,9 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
                 selections: selections.map(s => ({ tierId: s.tierId, quantity: s.quantity })),
                 ...(promoCodeId ? { promoCode: promoCodeId } : {}),
                 ...(contact ? { guest: contact } : {}),
+                ...accessBody,
               }
-            : { eventId, quantity, ...(contact ? { guest: contact } : {}) }
+            : { eventId, quantity, ...(contact ? { guest: contact } : {}), ...accessBody }
         ),
       })
 
@@ -600,6 +664,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
             promoCode,
             tiers,
             ...guestBody,
+            ...accessBody,
           }),
         })
 
@@ -681,6 +746,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
             tiers,
             mobileMoneyProvider: method,
             ...guestBody,
+            ...accessBody,
           }),
         })
 
@@ -836,6 +902,20 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
             requirePhone={isHaitiEvent}
             busy={loading}
             initial={guestContact || undefined}
+            // Only quote a total once the buyer has actually chosen tickets. Before
+            // that the headline price is a "from" figure, and inventing a total from
+            // it would be the very thing this must not do; the fee notice covers it.
+            orderSummary={
+              !isFree && hasConcreteSelection && totalAmountDisplay > 0
+                ? {
+                    subtotal: orderPricing.faceValue,
+                    fee: orderPricing.buyerFee,
+                    total: orderPricing.total,
+                    currency,
+                  }
+                : null
+            }
+            feesAddedOnTop={!isFree && orderPricing.feeOnTop}
             submitLabel={
               pendingGuestActionRef.current === 'free'
                 ? t('events.claim', { defaultValue: 'Get my ticket' })
@@ -985,6 +1065,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
                 eventId={eventId}
                 userId={userId}
                 currency={currency}
+                country={country}
                 allowGuest={isGuestCheckout}
                 onPurchase={handleTieredPurchase}
               />
@@ -1054,23 +1135,57 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
                       </span>
                     </div>
                   ))}
+                  {showFeeLine && (
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-white/65">
+                        {t('checkout.service_fee', { defaultValue: 'Service fee' })}
+                      </span>
+                      <span className="font-medium text-white">{formatAmount(orderPricing.buyerFee)}</span>
+                    </div>
+                  )}
                   <div className="border-t border-white/10 pt-2 mt-2">
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium text-white/65">{t('events.total_amount')}:</span>
                       <span className="text-xl font-bold text-brand-300">
-                        {selectedTiers.reduce((sum, t) => sum + (t.price * t.quantity), 0).toLocaleString()} {currency}
+                        {formatAmount(orderPricing.total)}
                       </span>
                     </div>
                   </div>
                 </div>
               ) : (
                 // Single tier or legacy display
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-white/65">{t('events.total_amount')}:</span>
-                  <span className="text-xl font-bold text-brand-300">
-                    {((selectedTierPrice || ticketPrice) * quantity).toLocaleString()} {currency}
-                  </span>
+                <div className="space-y-2">
+                  {showFeeLine && (
+                    <>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-white/65">
+                          {t('events.subtotal', { defaultValue: 'Subtotal' })}
+                        </span>
+                        <span className="font-medium text-white">{formatAmount(orderPricing.faceValue)}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-white/65">
+                          {t('checkout.service_fee', { defaultValue: 'Service fee' })}
+                        </span>
+                        <span className="font-medium text-white">{formatAmount(orderPricing.buyerFee)}</span>
+                      </div>
+                    </>
+                  )}
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-white/65">{t('events.total_amount')}:</span>
+                    <span className="text-xl font-bold text-brand-300">
+                      {formatAmount(orderPricing.total)}
+                    </span>
+                  </div>
                 </div>
+              )}
+
+              {showFeeLine && (
+                <p className="mt-2 text-xs text-white/45">
+                  {t('checkout.total_includes_fees', {
+                    defaultValue: 'Total includes all fees. This is what you pay.',
+                  })}
+                </p>
               )}
 
               {isHaitiEvent && String(currency || 'HTG').toUpperCase() === 'USD' && (
@@ -1221,14 +1336,14 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
           userId={userId}
           guest={guestContact}
           quantity={quantity}
-          totalAmount={
-            selectedTiers.length > 0
-              ? selectedTiers.reduce((sum, t) => sum + (t.price * t.quantity), 0)
-              : (selectedTierPrice || ticketPrice) * quantity
-          }
+          // The FACE total. The payment sheet adds the fee for a buyer-pays market and
+          // then replaces both with the PaymentIntent's own server-computed breakdown.
+          totalAmount={totalAmountDisplay}
           currency={currency}
+          country={country}
           tierId={selectedTierId || undefined}
           promoCodeId={promoCode}
+          accessCode={accessCodeRef.current}
           onClose={() => {
             setShowEmbeddedPayment(false)
             // Reset state

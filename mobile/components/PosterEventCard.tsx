@@ -14,6 +14,7 @@ import { useI18n } from '../contexts/I18nContext';
 import { safeFormatForLanguage } from '../lib/dates';
 import { resolvePosterTheme } from '../lib/posterGradient';
 import { formatPrice } from '../lib/currency';
+import { advertisedPrice } from '../lib/buyerPricing';
 import { resolveEventPricing } from '../lib/ticketPricing';
 import { font, radius } from '../theme/tokens';
 import type { BadgeStatus } from '../theme/badges';
@@ -74,7 +75,12 @@ export default function PosterEventCard({
   // decide freeness once free and paid tiers coexist on one event.
   const pricing = resolveEventPricing(event);
   const isFree = pricing.isFreeOnly;
-  const price = pricing.lowestPaidPrice ?? Number(event.ticket_price || 0);
+  // ALL-IN: a buyer-pays market adds the fee at checkout, so the bare face
+  // value would advertise a price nobody is charged. Haiti is unchanged.
+  const price = advertisedPrice(
+    pricing.lowestPaidPrice ?? Number(event.ticket_price || 0),
+    event as any
+  );
 
   // Date is guarded — an invalid/missing start_datetime yields '' rather than
   // crashing date-fns (POSH constraint: never crash on a bad date).

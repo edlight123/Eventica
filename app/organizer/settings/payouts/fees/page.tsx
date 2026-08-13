@@ -3,9 +3,49 @@ import Link from 'next/link'
 import { adminAuth, adminDb } from '@/lib/firebase/admin'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
+import {
+  calculateBuyerPricing,
+  calculateCappedPlatformFee,
+  formatCurrency,
+  formatFeePercentage,
+} from '@/lib/fees'
+import { DEFAULT_PLATFORM_SETTINGS } from '@/types/platform-settings'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
+
+/**
+ * Worked examples come from the SAME functions that price a real checkout
+ * (lib/fees.ts), so this page cannot drift from what the platform actually
+ * charges — the previous hand-written figures quoted a 2.5% platform fee that had
+ * not been true for some time.
+ *
+ * Two examples, because there are two fee models (lib/country-support.ts):
+ * US/CA/FR add the fee on top and the organizer keeps the face value; Haiti
+ * deducts it, and the buyer pays exactly the advertised price.
+ */
+const US_FEES = DEFAULT_PLATFORM_SETTINGS.usCanada
+const HT_FEES = DEFAULT_PLATFORM_SETTINGS.haiti
+
+/** The rate differs by market: 10% in the US/Canada, 5% in Haiti. */
+const usPlatformFeePercent = formatFeePercentage(US_FEES.platformFeePercentage)
+const htPlatformFeePercent = formatFeePercentage(HT_FEES.platformFeePercentage)
+
+/** The per-ticket ceiling, which is what keeps an expensive ticket from carrying an expensive fee. */
+const usFeeCapMinor = US_FEES.platformFeeCapMinorByCurrency?.USD ?? null
+const htFeeCapMinor = HT_FEES.platformFeeCapMinorByCurrency?.HTG ?? null
+
+/** A $20 ticket in a buyer-pays market. */
+const usExample = calculateBuyerPricing(20_00, 'buyer', US_FEES.platformFeePercentage, {
+  capMinorPerTicket: usFeeCapMinor,
+  quantity: 1,
+})
+/** The platform's cut of a 1,000 HTG ticket in Haiti, where the organizer bears it. */
+const htExamplePlatformFee = calculateCappedPlatformFee(
+  1000_00,
+  HT_FEES.platformFeePercentage,
+  { capMinorPerTicket: htFeeCapMinor, quantity: 1 }
+)
 
 export default async function PayoutFeesPage() {
   const payoutPath = '/organizer/settings/payouts/fees'
@@ -78,6 +118,37 @@ export default async function PayoutFeesPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
           
+          {/* Who pays the fee — the thing that decides every number below */}
+          <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-6">
+            <h2 className="text-lg font-semibold text-white mb-3">
+              Who pays the fee
+            </h2>
+            <div className="space-y-3 text-white/70">
+              <p>
+                It depends on where your event is, and it is not a setting you choose —
+                each market follows what buyers there expect.
+              </p>
+              <ul className="list-disc list-inside space-y-2 ml-2">
+                <li>
+                  <strong>United States, Canada, France:</strong> the fee is added on top
+                  at checkout, so you receive the <strong>full ticket price</strong>. Price
+                  a ticket at $20 and you receive $20; your buyer sees the total, with the
+                  fee shown as a separate line, before they pay.
+                </li>
+                <li>
+                  <strong>Haiti:</strong> the buyer pays exactly the price you advertised
+                  and the fee comes out of your proceeds — price a ticket at 1,000 HTG and
+                  the buyer pays 1,000 HTG, of which you receive{' '}
+                  <strong>1,000 HTG minus fees</strong>. An advertised price carries trust
+                  in a cash-oriented market, so it means what it says.
+                </li>
+              </ul>
+              <p className="text-sm text-white/60">
+                Free events are never charged a fee under either model.
+              </p>
+            </div>
+          </div>
+
           {/* Platform Fee Card */}
           <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-6">
             <h2 className="text-lg font-semibold text-white mb-3">
@@ -85,13 +156,26 @@ export default async function PayoutFeesPage() {
             </h2>
             <div className="space-y-3 text-white/70">
               <p>
-                Tikèm charges a <strong>2.5% platform fee</strong> on all ticket sales.
-                This helps us maintain and improve the platform, provide customer support,
-                and continue developing new features.
+                Tikèm charges a{' '}
+                <strong>{usPlatformFeePercent} platform fee</strong> on paid ticket sales in
+                the United States, Canada and France, and{' '}
+                <strong>{htPlatformFeePercent}</strong> in Haiti. This helps us maintain and
+                improve the platform, provide customer support, and continue developing new
+                features.
               </p>
               <p>
-                You can choose to absorb this fee yourself or pass it on to your attendees
-                during ticket creation.
+                The fee is <strong>capped per ticket</strong> — never more than{' '}
+                {usFeeCapMinor !== null ? formatCurrency(usFeeCapMinor, 'USD') : '—'} on a
+                US ticket or {htFeeCapMinor !== null ? formatCurrency(htFeeCapMinor, 'HTG') : '—'}{' '}
+                in Haiti. An expensive ticket costs us no more to sell than a cheap one, so
+                the percentage stops climbing.
+              </p>
+              <p>
+                You choose who pays it. By default, buyers in the United States, Canada and
+                France pay it on top of your price, and in Haiti it comes out of your
+                payout — but every event has a{' '}
+                <strong>&ldquo;Pass the service fee to buyers&rdquo;</strong> switch, so the
+                choice is yours per event.
               </p>
             </div>
           </div>
@@ -114,8 +198,10 @@ export default async function PayoutFeesPage() {
                 </li>
               </ul>
               <p className="text-sm text-white/60">
-                These fees are collected by our payment partners (Stripe, MonCash) and are
-                deducted from your payout automatically.
+                These fees are collected by our payment partners (Stripe, MonCash). Where
+                the buyer pays the fee (United States, Canada, France) they are included in
+                the total shown at checkout; in Haiti they are deducted from your payout
+                automatically.
               </p>
             </div>
           </div>
@@ -148,45 +234,96 @@ export default async function PayoutFeesPage() {
             </div>
           </div>
 
-          {/* Example Calculation Card */}
+          {/* Example Calculation Card — one per fee model, so neither reads as the rule */}
           <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-6">
             <h2 className="text-lg font-semibold text-white mb-3">
-              Example calculation
+              Example calculations
             </h2>
-            <div className="space-y-3">
-              <div className="bg-[#0a0a0a] rounded-lg border border-white/10 p-4 font-mono text-sm">
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-white/60">Ticket price:</span>
-                    <span className="text-white font-semibold">HTG 500</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-white/60">Tickets sold:</span>
-                    <span className="text-white font-semibold">× 100</span>
-                  </div>
-                  <div className="border-t border-white/10 my-2"></div>
-                  <div className="flex justify-between">
-                    <span className="text-white/60">Gross sales:</span>
-                    <span className="text-white font-semibold">HTG 50,000</span>
-                  </div>
-                  <div className="flex justify-between text-red-300">
-                    <span>Platform fee (2.5%):</span>
-                    <span>- HTG 1,250</span>
-                  </div>
-                  <div className="flex justify-between text-red-300">
-                    <span>Processing fees (2.9% + HTG 15/tx):</span>
-                    <span>- HTG 2,950</span>
-                  </div>
-                  <div className="border-t border-white/10 my-2"></div>
-                  <div className="flex justify-between text-lg">
-                    <span className="text-white font-semibold">Net payout:</span>
-                    <span className="text-emerald-300 font-bold">HTG 45,800</span>
+
+            <div className="space-y-5">
+              {/* Buyer pays — US / Canada / France */}
+              <div>
+                <h3 className="text-sm font-semibold text-white mb-2">
+                  United States, Canada, France — the buyer pays the fee
+                </h3>
+                <div className="bg-[#0a0a0a] rounded-lg border border-white/10 p-4 font-mono text-sm">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-white/60">Your ticket price:</span>
+                      <span className="text-white font-semibold">
+                        {formatCurrency(usExample.faceValue, 'USD')}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-white/60">Fee added at checkout:</span>
+                      <span className="text-white font-semibold">
+                        + {formatCurrency(usExample.buyerFee, 'USD')}
+                      </span>
+                    </div>
+                    <div className="border-t border-white/10 my-2"></div>
+                    <div className="flex justify-between">
+                      <span className="text-white/60">Your buyer pays:</span>
+                      <span className="text-white font-semibold">
+                        {formatCurrency(usExample.chargeAmount, 'USD')}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-lg">
+                      <span className="text-white font-semibold">You receive:</span>
+                      <span className="text-emerald-300 font-bold">
+                        {formatCurrency(usExample.organizerNet, 'USD')}
+                      </span>
+                    </div>
                   </div>
                 </div>
+                <p className="mt-2 text-sm text-white/60">
+                  You receive the full {formatCurrency(usExample.faceValue, 'USD')}. Your
+                  buyer sees the total, with the fee itemized, before they pay — never at
+                  the last step.
+                </p>
               </div>
+
+              {/* Organizer pays — Haiti */}
+              <div>
+                <h3 className="text-sm font-semibold text-white mb-2">
+                  Haiti — the fee comes out of your proceeds
+                </h3>
+                <div className="bg-[#0a0a0a] rounded-lg border border-white/10 p-4 font-mono text-sm">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-white/60">Your ticket price:</span>
+                      <span className="text-white font-semibold">HTG 1,000</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-white/60">Your buyer pays:</span>
+                      <span className="text-white font-semibold">HTG 1,000</span>
+                    </div>
+                    <div className="border-t border-white/10 my-2"></div>
+                    <div className="flex justify-between text-red-300">
+                      <span>Platform fee ({htPlatformFeePercent}):</span>
+                      <span>- {formatCurrency(htExamplePlatformFee, 'HTG')}</span>
+                    </div>
+                    <div className="flex justify-between text-red-300">
+                      <span>MonCash processing (2.5%):</span>
+                      <span>- HTG 25.00</span>
+                    </div>
+                    <div className="border-t border-white/10 my-2"></div>
+                    <div className="flex justify-between text-lg">
+                      <span className="text-white font-semibold">You receive:</span>
+                      <span className="text-emerald-300 font-bold">
+                        {formatCurrency(1000_00 - htExamplePlatformFee - 25_00, 'HTG')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <p className="mt-2 text-sm text-white/60">
+                  You receive 1,000 HTG minus fees. The advertised price is what your buyer
+                  is charged, to the gourde.
+                </p>
+              </div>
+
               <p className="text-sm text-white/60">
-                This is a simplified example. Actual fees may vary slightly depending on
-                the payment methods used by your attendees.
+                Simplified examples. Actual processing fees vary with the payment method
+                your attendees use.
               </p>
             </div>
           </div>

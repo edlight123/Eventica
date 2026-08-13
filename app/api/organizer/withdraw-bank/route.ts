@@ -14,6 +14,7 @@ import {
 import type { WithdrawalRequest } from '@/types/earnings'
 import { getPayoutProfile } from '@/lib/firestore/payout-profiles'
 import { getRequiredPayoutProfileIdForEventCountry } from '@/lib/firestore/payout-profiles'
+import { gateHaitiWithdrawal } from '@/lib/payouts/withdrawal-gate'
 
 export async function POST(req: NextRequest) {
   try {
@@ -62,63 +63,6 @@ export async function POST(req: NextRequest) {
         { error: 'Missing required fields: eventId, amount, bankDetails or bankDestinationId' },
         { status: 400 }
       )
-    }
-
-    let resolvedBankDetails: BankDestinationDetails | null = null
-    let resolvedDestinationId: string | null = null
-
-    if (bankDestinationId) {
-      resolvedDestinationId = String(bankDestinationId)
-
-      // Identity-only + manual review: filing a withdrawal REQUEST no longer
-      // requires the specific bank destination to be pre-"verified". No money
-      // moves here — this only creates a `pending` withdrawal_request. An admin
-      // verifies the destination and releases funds by hand, which is the actual
-      // gate. (The profile still had to reach `active` via identity verification
-      // upstream, and the destination must still exist — enforced by the 404
-      // below.)
-      resolvedBankDetails = await getDecryptedBankDestination({
-        organizerId: user.id,
-        destinationId: resolvedDestinationId,
-      })
-
-      if (!resolvedBankDetails) {
-        return NextResponse.json({ error: 'Bank destination not found' }, { status: 404 })
-      }
-    } else {
-      resolvedBankDetails = bankDetails as BankDestinationDetails
-
-      if (!resolvedBankDetails?.accountNumber || !resolvedBankDetails?.bankName || !resolvedBankDetails?.accountHolder) {
-        return NextResponse.json({ error: 'Incomplete bank details' }, { status: 400 })
-      }
-
-      // Using a new bank account requires OTP step-up.
-      try {
-        await requireRecentPayoutDetailsChangeVerification(user.id)
-      } catch (e: any) {
-        const message = String(e?.message || '')
-        if (message.includes('PAYOUT_CHANGE_VERIFICATION_REQUIRED')) {
-          return NextResponse.json(
-            {
-              error: 'Verification required',
-              code: 'PAYOUT_CHANGE_VERIFICATION_REQUIRED',
-              requiresVerification: true,
-              message:
-                'For your security, confirm this new bank account with the code we email you before using it for withdrawals.',
-            },
-            { status: 403 }
-          )
-        }
-        throw e
-      }
-
-      // Optionally save as a second account.
-      if (saveDestination) {
-        const created = await addSecondaryBankDestination({ organizerId: user.id, bankDetails: resolvedBankDetails })
-        resolvedDestinationId = created.id
-      }
-
-      await consumePayoutDetailsChangeVerification(user.id)
     }
 
     // Minimum withdrawal amount (in cents)
@@ -182,6 +126,101 @@ export async function POST(req: NextRequest) {
         { error: `Insufficient balance. Available: ${(availableBalance / 100).toFixed(2)} ${earnings.currency || 'HTG'}` },
         { status: 400 }
       )
+    }
+
+    /**
+     * The payout release ladder — the same lib/payouts/release-rules.ts decision
+     * the Stripe cron makes, applied here because this rail has no cron to gate.
+     *
+     * `settlementStatus === 'ready'` above is NOT a hold: the Haiti settlement
+     * hold is 0 days and an undated event settles off created_at, so it used to
+     * clear the moment a draft existed. This is where "not before the event ends,
+     * then N hours by tier" is actually enforced, and where a 'review' verdict is
+     * routed into the shared admin queue.
+     *
+     * It deliberately runs BEFORE the bank-destination block below, which both
+     * writes (a saved destination) and consumes a one-time email code. Refusing
+     * after that would burn the organizer's OTP on a withdrawal that was never
+     * going to be filed.
+     */
+    const gate = await gateHaitiWithdrawal({
+      eventId: String(eventId),
+      organizerId: user.id,
+      eventData,
+      grossMinor: Number(earnings.grossSales || 0),
+      // A stored event_earnings row is never decremented on refund, so its gross
+      // is refund-inclusive and refunds must be subtracted; the tickets-derived
+      // view already drops refunded tickets, so subtracting again would under-pay.
+      refundedMinor: String((earnings as any).dataSource || 'event_earnings') === 'tickets_derived' ? 0 : null,
+      currency: earnings.currency || null,
+      availableMinor: availableBalance,
+      requestedAmountMinor: Number(amount),
+      method: 'bank',
+    })
+
+    if (!gate.allowed) {
+      return NextResponse.json(gate.body, { status: gate.status })
+    }
+
+    // Bank destination resolution. Deliberately AFTER every read-only guard above
+    // (ownership, cancellation, routing, settlement, balance, release ladder),
+    // because this block writes a saved destination and consumes the one-time
+    // email code for a new account.
+    let resolvedBankDetails: BankDestinationDetails | null = null
+    let resolvedDestinationId: string | null = null
+
+    if (bankDestinationId) {
+      resolvedDestinationId = String(bankDestinationId)
+
+      // Identity-only + manual review: filing a withdrawal REQUEST no longer
+      // requires the specific bank destination to be pre-"verified". No money
+      // moves here — this only creates a `pending` withdrawal_request. An admin
+      // verifies the destination and releases funds by hand, which is the actual
+      // gate. (The profile still had to reach `active` via identity verification
+      // upstream, and the destination must still exist — enforced by the 404
+      // below.)
+      resolvedBankDetails = await getDecryptedBankDestination({
+        organizerId: user.id,
+        destinationId: resolvedDestinationId,
+      })
+
+      if (!resolvedBankDetails) {
+        return NextResponse.json({ error: 'Bank destination not found' }, { status: 404 })
+      }
+    } else {
+      resolvedBankDetails = bankDetails as BankDestinationDetails
+
+      if (!resolvedBankDetails?.accountNumber || !resolvedBankDetails?.bankName || !resolvedBankDetails?.accountHolder) {
+        return NextResponse.json({ error: 'Incomplete bank details' }, { status: 400 })
+      }
+
+      // Using a new bank account requires OTP step-up.
+      try {
+        await requireRecentPayoutDetailsChangeVerification(user.id)
+      } catch (e: any) {
+        const message = String(e?.message || '')
+        if (message.includes('PAYOUT_CHANGE_VERIFICATION_REQUIRED')) {
+          return NextResponse.json(
+            {
+              error: 'Verification required',
+              code: 'PAYOUT_CHANGE_VERIFICATION_REQUIRED',
+              requiresVerification: true,
+              message:
+                'For your security, confirm this new bank account with the code we email you before using it for withdrawals.',
+            },
+            { status: 403 }
+          )
+        }
+        throw e
+      }
+
+      // Optionally save as a second account.
+      if (saveDestination) {
+        const created = await addSecondaryBankDestination({ organizerId: user.id, bankDetails: resolvedBankDetails })
+        resolvedDestinationId = created.id
+      }
+
+      await consumePayoutDetailsChangeVerification(user.id)
     }
 
     // Create withdrawal request. Preserve the event's real currency in the record;

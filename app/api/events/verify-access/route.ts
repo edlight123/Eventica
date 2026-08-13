@@ -1,25 +1,34 @@
 import { NextResponse } from 'next/server'
-import { createHash } from 'node:crypto'
 import { getCurrentUser } from '@/lib/auth'
 import { adminDb } from '@/lib/firebase/admin'
-import { FieldValue } from 'firebase-admin/firestore'
+import {
+  accessAttemptKey,
+  accessCodeMatches,
+  clearAccessAttempts,
+  grantEventAccess,
+  isAccessThrottled,
+  recordFailedAccessAttempt,
+} from '@/lib/events/access-guard'
 
 export const runtime = 'nodejs'
 
-// Brute-force throttle: block after this many failed attempts within the window.
-const MAX_FAILED_ATTEMPTS = 10
-const ATTEMPT_WINDOW_MS = 60 * 60 * 1000 // 1 hour
-
-function hashCode(code: string): string {
-  return createHash('sha256').update(code.trim()).digest('hex')
-}
-
+/**
+ * Check an event's access code.
+ *
+ * SIGNED IN — unchanged: a correct code writes `access_grants/{uid}` and every
+ * later purchase/claim passes on the strength of that grant alone.
+ *
+ * GUEST (no session) — the code is verified and the answer returned, but NO grant
+ * is minted, because there is no id yet to mint it against: a guest's `guest_…`
+ * id is created when their order is. The client keeps the code and presents it
+ * with the checkout request, where it is verified again server-side before the
+ * order exists (see lib/guest/checkout.ts). So this endpoint never becomes a way
+ * to obtain access — it only tells the buyer whether the code they typed is right,
+ * under the same throttle, so they find out before filling in a checkout form.
+ */
 export async function POST(request: Request) {
   try {
     const user = await getCurrentUser()
-    if (!user) {
-      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-    }
 
     const body = await request.json().catch(() => ({}))
     const eventId = typeof body?.eventId === 'string' ? body.eventId : ''
@@ -45,56 +54,35 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    // Throttle check (per-user, per-event).
-    const attemptsRef = eventRef.collection('access_attempts').doc(user.id)
-    const now = Date.now()
-    const attemptsSnap = await attemptsRef.get()
-    if (attemptsSnap.exists) {
-      const data = attemptsSnap.data() || {}
-      const windowStart = Number(data.window_start || 0)
-      const count = Number(data.count || 0)
-      if (windowStart && now - windowStart < ATTEMPT_WINDOW_MS && count >= MAX_FAILED_ATTEMPTS) {
-        return NextResponse.json(
-          { ok: false, error: 'Too many attempts. Please try again later.' },
-          { status: 429 }
-        )
-      }
+    // Throttle: per-account for a signed-in buyer (unchanged), per-IP for a guest,
+    // who has no account to count against.
+    const ipAddress =
+      request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || ''
+    const attemptKey = accessAttemptKey({
+      subjectId: user ? user.id : null,
+      ipAddress,
+    })
+
+    if (await isAccessThrottled(eventId, attemptKey)) {
+      return NextResponse.json(
+        { ok: false, error: 'Too many attempts. Please try again later.' },
+        { status: 429 }
+      )
     }
 
-    // Read the hashed code from the private subcollection (Admin only).
-    const accessSnap = await eventRef.collection('private').doc('access').get()
-    const storedHash = accessSnap.exists ? String(accessSnap.data()?.code_hash || '') : ''
-
-    const providedHash = hashCode(code)
-    const isMatch = Boolean(storedHash) && storedHash === providedHash
-
-    if (!isMatch) {
-      // Record the failed attempt, resetting the window if it has expired.
-      const prev = attemptsSnap.exists ? attemptsSnap.data() || {} : {}
-      const prevWindowStart = Number(prev.window_start || 0)
-      const withinWindow = prevWindowStart && now - prevWindowStart < ATTEMPT_WINDOW_MS
-      await attemptsRef.set(
-        {
-          count: withinWindow ? Number(prev.count || 0) + 1 : 1,
-          window_start: withinWindow ? prevWindowStart : now,
-          updated_at: FieldValue.serverTimestamp(),
-        },
-        { merge: true }
-      )
+    if (!(await accessCodeMatches(eventId, code))) {
+      await recordFailedAccessAttempt(eventId, attemptKey)
       return NextResponse.json({ ok: false, error: 'Incorrect access code' }, { status: 403 })
     }
 
-    // Correct code: grant access and clear the attempt counter.
-    await eventRef
-      .collection('access_grants')
-      .doc(user.id)
-      .set({ granted_at: FieldValue.serverTimestamp() }, { merge: true })
-
-    if (attemptsSnap.exists) {
-      await attemptsRef.delete().catch(() => {})
+    // Correct code. A session gets a durable grant; a guest gets only the answer,
+    // and re-proves the code at checkout.
+    if (user) {
+      await grantEventAccess(eventId, user.id)
     }
+    await clearAccessAttempts(eventId, attemptKey)
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true, granted: Boolean(user) })
   } catch (error: any) {
     console.error('verify-access error:', error?.message)
     return NextResponse.json(

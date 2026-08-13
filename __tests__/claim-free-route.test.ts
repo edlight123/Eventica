@@ -30,6 +30,12 @@ const state: any = {
   usageWrites: [] as any[],
   /** Fake `guest_orders` collection, keyed by order key. */
   guestOrders: {} as Record<string, any>,
+  /** Access grants, keyed by uid or `guest_…` id — the whole point of the gate. */
+  grants: {} as Record<string, boolean>,
+  /** The event's real access code, for the password-protected cases. */
+  accessCode: 'LETMEIN',
+  accessThrottled: false,
+  failedAccessAttempts: 0,
   event: {
     id: 'evt1',
     title: 'Test Event',
@@ -42,7 +48,31 @@ const state: any = {
 
 jest.mock('@/lib/firebase-db/server', () => ({ createClient: jest.fn() }))
 jest.mock('@/lib/auth', () => ({ getCurrentUser: jest.fn(async () => ({ id: 'u1', email: 'u@x.com', full_name: 'U' })) }))
-jest.mock('@/lib/events/access-guard', () => ({ hasEventAccess: jest.fn(async () => true) }))
+/**
+ * Password gate, faked at the module boundary so the route's real branching runs.
+ *
+ * A grant is keyed by whoever is buying — a uid, or the `guest_…` id minted for a
+ * guest order — which is what lets a guest through at all. The code comparison and
+ * the throttle are modelled here so "wrong code still fails" is an assertion about
+ * the route, not about Firestore.
+ */
+jest.mock('@/lib/events/access-guard', () => ({
+  hasEventAccess: jest.fn(async (event: any, _eventId: string, subjectId: string) =>
+    !event?.is_password_protected || Boolean(state.grants[subjectId])
+  ),
+  accessCodeMatches: jest.fn(async (_eventId: string, code: unknown) =>
+    Boolean(state.accessCode) && String(code ?? '').trim() === state.accessCode
+  ),
+  accessAttemptKey: jest.fn(() => 'ip_test'),
+  isAccessThrottled: jest.fn(async () => state.accessThrottled === true),
+  recordFailedAccessAttempt: jest.fn(async () => {
+    state.failedAccessAttempts += 1
+  }),
+  clearAccessAttempts: jest.fn(async () => {}),
+  grantEventAccess: jest.fn(async (_eventId: string, subjectId: string) => {
+    state.grants[subjectId] = true
+  }),
+}))
 /**
  * Ticket DELIVERY is stubbed, not disabled: these tests assert that it is called and
  * with what. (Left real, it would hit Resend with the key in .env.local and actually
@@ -277,6 +307,11 @@ function reset() {
   }
   state.usageWrites = []
   state.guestOrders = {}
+  state.grants = {}
+  state.accessCode = 'LETMEIN'
+  state.accessThrottled = false
+  state.failedAccessAttempts = 0
+  state.event.is_password_protected = false
   jest.clearAllMocks()
 }
 
@@ -774,14 +809,83 @@ describe('guest claim — no account required', () => {
     expect(state.added[0].guest_phone).toBe('+50934123456')
   })
 
-  it('never lets a guest into a password-protected event', async () => {
+  it('refuses a guest who brings NO code to a password-protected event', async () => {
     state.event.is_password_protected = true
     asGuest()
     const res = await POST(
       req({ eventId: 'evt1', tierId: 'freeA', guest: { name: 'X', email: 'x@y.com' } })
     )
-    expect(res.status).toBe(401)
-    expect((await res.json()).code).toBe('guest_not_allowed_private')
+    expect(res.status).toBe(403)
+    expect((await res.json()).code).toBe('access_code_required')
+    expect(state.added).toHaveLength(0)
+    // Nothing is created for a buyer who can't get in — no order, no grant.
+    expect(Object.keys(state.guestOrders)).toHaveLength(0)
+    expect(Object.keys(state.grants)).toHaveLength(0)
+  })
+
+  it('refuses a guest with the WRONG code, and counts the attempt', async () => {
+    state.event.is_password_protected = true
+    asGuest()
+    const res = await POST(
+      req({
+        eventId: 'evt1',
+        tierId: 'freeA',
+        guest: { name: 'X', email: 'x@y.com' },
+        accessCode: 'NOPE',
+      })
+    )
+    expect(res.status).toBe(403)
+    expect((await res.json()).code).toBe('access_code_incorrect')
+    expect(state.added).toHaveLength(0)
+    expect(Object.keys(state.guestOrders)).toHaveLength(0)
+    expect(Object.keys(state.grants)).toHaveLength(0)
+    expect(state.failedAccessAttempts).toBe(1)
+  })
+
+  it('refuses a throttled guest before the code is even compared', async () => {
+    state.event.is_password_protected = true
+    state.accessThrottled = true
+    asGuest()
+    const res = await POST(
+      req({
+        eventId: 'evt1',
+        tierId: 'freeA',
+        guest: { name: 'X', email: 'x@y.com' },
+        accessCode: 'LETMEIN',
+      })
+    )
+    expect(res.status).toBe(429)
+    expect((await res.json()).code).toBe('access_throttled')
+    expect(state.added).toHaveLength(0)
+  })
+
+  it('lets a guest with the CORRECT code in, granting against their guest id', async () => {
+    state.event.is_password_protected = true
+    asGuest()
+    const res = await POST(
+      req({
+        eventId: 'evt1',
+        tierId: 'freeA',
+        guest: { name: 'X', email: 'x@y.com' },
+        accessCode: ' LETMEIN ',
+      })
+    )
+    expect(res.status).toBe(200)
+    expect(state.added).toHaveLength(1)
+    // The grant is keyed by the id the ticket is issued to, exactly as a uid would be.
+    const guestId = state.added[0].attendee_id
+    expect(guestId).toMatch(/^guest_/)
+    expect(state.grants[guestId]).toBe(true)
+    expect(state.failedAccessAttempts).toBe(0)
+  })
+
+  it('still refuses a signed-in user with no grant, code or not', async () => {
+    state.event.is_password_protected = true
+    const res = await POST(
+      req({ eventId: 'evt1', tierId: 'freeA', accessCode: 'LETMEIN' })
+    )
+    expect(res.status).toBe(403)
+    expect((await res.json()).code).toBe('access_code_required')
     expect(state.added).toHaveLength(0)
   })
 

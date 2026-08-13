@@ -22,6 +22,7 @@ export type NotificationType =
   | 'connection_accepted'
   | 'organizer_message'
   | 'organizer_reply'
+  | 'payment_dispute'
 
 export interface Database {
   public: {

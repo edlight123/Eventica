@@ -101,6 +101,7 @@ export async function POST(request: Request) {
       mobileMoneyProvider,
       forceFormPost,
       guest,
+      accessCode,
     }: {
       eventId: string
       quantity?: number
@@ -110,6 +111,8 @@ export async function POST(request: Request) {
       mobileMoneyProvider?: string | null
       forceFormPost?: boolean
       guest?: { name?: string; email?: string; phone?: string }
+      /** A GUEST's access code for a password-protected event. */
+      accessCode?: string | null
     } = await request.json()
 
     const provider = String(mobileMoneyProvider || 'moncash').toLowerCase()
@@ -144,14 +147,16 @@ export async function POST(request: Request) {
         event,
         eventId: String(eventId),
         ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
+        accessCode,
       })
       if (!guestOutcome.ok) return guestOutcome.response
       identity = guestOutcome.identity
     }
 
     // Password-protected events: require a valid access grant before payment.
-    // (A guest can never satisfy this — beginGuestCheckout refuses those events
-    // outright — so this stays exactly as strict as it was.)
+    // A guest reaches this line only after beginGuestCheckout verified the code they
+    // presented and wrote a grant against their `guest_…` id, so this stays exactly
+    // as strict as it was.
     if (!(await hasEventAccess(event, eventId, identity.id))) {
       return NextResponse.json({ error: 'access_code_required' }, { status: 403 })
     }

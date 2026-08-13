@@ -7,6 +7,7 @@ import type { WithdrawalRequest } from '@/types/earnings'
 import { getPayoutProfile } from '@/lib/firestore/payout-profiles'
 import { getRequiredPayoutProfileIdForEventCountry } from '@/lib/firestore/payout-profiles'
 import { fetchUsdToHtgRate } from '@/lib/currency'
+import { gateHaitiWithdrawal } from '@/lib/payouts/withdrawal-gate'
 
 const PREFUNDING_FEE_PERCENT = 0.03
 
@@ -120,6 +121,36 @@ export async function POST(req: NextRequest) {
         { error: `Insufficient balance. Available: ${(availableBalance / 100).toFixed(2)} ${earnings.currency || 'HTG'}` },
         { status: 400 }
       )
+    }
+
+    /**
+     * The payout release ladder — the same lib/payouts/release-rules.ts decision
+     * the Stripe cron makes, applied here because this rail has no cron to gate.
+     *
+     * `settlementStatus === 'ready'` above is NOT a hold: the Haiti settlement
+     * hold is 0 days and an undated event settles off created_at, so it used to
+     * clear the moment a draft existed. This is where "not before the event ends,
+     * then N hours by tier" is actually enforced, and where a 'review' verdict is
+     * routed into the shared admin queue. It runs BEFORE any reservation, debit or
+     * MonCash call, so a refusal moves no money and writes no request.
+     */
+    const gate = await gateHaitiWithdrawal({
+      eventId: String(eventId),
+      organizerId: user.id,
+      eventData,
+      grossMinor: Number(earnings.grossSales || 0),
+      // A stored event_earnings row is never decremented on refund, so its gross
+      // is refund-inclusive and refunds must be subtracted; the tickets-derived
+      // view already drops refunded tickets, so subtracting again would under-pay.
+      refundedMinor: String((earnings as any).dataSource || 'event_earnings') === 'tickets_derived' ? 0 : null,
+      currency: earnings.currency || null,
+      availableMinor: availableBalance,
+      requestedAmountMinor: Number(amount),
+      method: 'moncash',
+    })
+
+    if (!gate.allowed) {
+      return NextResponse.json(gate.body, { status: gate.status })
     }
 
     // Preserve the event's real currency in the record. This is the Haiti rail

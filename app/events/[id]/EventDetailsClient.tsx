@@ -6,7 +6,6 @@ import FavoriteButton from '@/components/FavoriteButton'
 import FollowButton from '@/components/FollowButton'
 import EventCard from '@/components/EventCard'
 import ShareIconButton from './ShareIconButton'
-import OpenInBrowserNotice from '@/components/OpenInBrowserNotice'
 import ShareButtonInline from './ShareButtonInline'
 import MobileHero from './MobileHero'
 import MobileKeyFacts from './MobileKeyFacts'
@@ -18,6 +17,7 @@ import Image from 'next/image'
 import Badge from '@/components/ui/Badge'
 import { getPosterTheme } from '@/lib/posterGradient'
 import { resolveEventPricing } from '@/lib/ticketPricing'
+import { priceOrder } from '@/lib/checkout/buyer-pricing'
 
 interface EventDetailsClientProps {
   event: any
@@ -40,6 +40,16 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
   // What to show as the headline price. For a 'mixed' event we advertise the
   // cheapest PAID tier (rendered as a "Free – X" range), never "from 0".
   const headlinePrice = pricing.lowestPaidPrice ?? (Number(event.ticket_price) || 0)
+  // WHAT THE BUYER ACTUALLY PAYS for one of those tickets. In a buyer-pays market
+  // (US/CA/FR) the fee is added on top, so advertising the bare face value here would
+  // be quoting a price nobody is charged — and US rules on live-event pricing require
+  // the all-in figure up front, not at the last step. Haiti absorbs the fee into the
+  // organizer's proceeds, so `buyerFee` is 0 and this is the face value unchanged.
+  // The whole event, not just its country: the organizer may have chosen to absorb
+  // the fee (or to pass it on) for this event, and that choice outranks the default.
+  const headlineAllIn = priceOrder(headlinePrice, event as any)
+  const headlineDisplayPrice = headlineAllIn.total
+  const showHeadlineFee = headlineAllIn.feeOnTop && headlineAllIn.buyerFee > 0
   const isPastEvent = event.end_datetime ? new Date(event.end_datetime) < new Date() : new Date(event.start_datetime) < new Date()
   
   // Premium badge logic
@@ -56,14 +66,14 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
   //
   // Most visitors arrive from an Instagram link, inside a WebView where Google's
   // popup sign-in is refused outright — so a "Sign in to get tickets" button was the
-  // end of the funnel for them. A logged-out visitor now gets the real buy button and
+  // end of the funnel for them. A logged-out visitor gets the real buy button and
   // checks out as a guest (name, email, and a phone number for Haiti).
   //
-  // The ONE exception is a password-protected event: its access grant is keyed by uid,
-  // so there is nothing a guest could present. Those keep the sign-in link — plus an
-  // "open in Safari/Chrome" hint, because that is exactly where sign-in cannot work.
-  const guestCheckoutAllowed = !event.is_password_protected
-  const showBuyButton = Boolean(user) || guestCheckoutAllowed
+  // Password-protected events used to be the exception, because the access grant was
+  // keyed by uid and a guest has none. A guest now presents the code with their
+  // checkout request and the server verifies it before creating anything, granting
+  // against the `guest_…` id it mints — so the gate is unchanged in strength and the
+  // sign-in dead end is gone here too. Every visitor therefore gets the buy button.
 
   return (
     <div className="min-h-screen pb-mobile-nav md:pb-8">
@@ -255,7 +265,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
               <div className="block w-full text-center font-semibold py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white/70">
                 {t('ticket.sold_out_caps')}
               </div>
-            ) : showBuyButton ? (
+            ) : (
               <BuyTicketButton
                 eventId={event.id}
                 userId={user?.id ?? null}
@@ -266,16 +276,6 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                 country={event.country}
                 isPasswordProtected={!!event.is_password_protected}
               />
-            ) : (
-              <div className="space-y-2">
-                <a
-                  href={`/auth/login?redirect=${encodeURIComponent(`/events/${event.id}`)}`}
-                  className="block w-full bg-brand-600 text-white text-center font-semibold py-3 rounded-xl"
-                >
-                  {t('common.sign_in_to_get_tickets')}
-                </a>
-                <OpenInBrowserNotice />
-              </div>
             )}
           </div>
           <div className="flex-shrink-0">
@@ -297,7 +297,9 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
         commune={event.commune || ''}
         isFree={isFree}
         hasFreeOption={pricing.kind === 'mixed'}
-        ticketPrice={headlinePrice}
+        // The all-in per-ticket price, for the same reason the sidebar shows it.
+        ticketPrice={headlineDisplayPrice}
+        feesIncluded={showHeadlineFee}
         currency={event.currency || 'HTG'}
         remainingTickets={ticketsRemaining || 0}
         isSoldOut={isSoldOut}
@@ -476,16 +478,30 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                     <p className="label-mono text-3xl font-semibold text-brand-400">
                       <span className="uppercase">{t('common.free')}</span>
                       <span className="text-white/70"> – </span>
-                      <span className="text-base text-white/70">{event.currency || 'HTG'}</span> {headlinePrice.toLocaleString()}
+                      <span className="text-base text-white/70">{event.currency || 'HTG'}</span> {headlineDisplayPrice.toLocaleString()}
                     </p>
                     <p className="label-mono text-[11px] uppercase text-white/70 mt-1.5">{t('events.per_ticket')}</p>
+                    {showHeadlineFee && (
+                      <p className="label-mono text-[11px] uppercase text-white/50 mt-1">
+                        {t('events.fees_included', { defaultValue: 'Fees included' })}
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <div>
                     <p className="label-mono text-3xl font-semibold text-brand-400">
-                      <span className="text-base text-white/70">{event.currency || 'HTG'}</span> {headlinePrice.toLocaleString()}
+                      <span className="text-base text-white/70">{event.currency || 'HTG'}</span> {headlineDisplayPrice.toLocaleString()}
                     </p>
                     <p className="label-mono text-[11px] uppercase text-white/70 mt-1.5">{t('events.per_ticket')}</p>
+                    {showHeadlineFee && (
+                      <p className="label-mono text-[11px] uppercase text-white/50 mt-1">
+                        {t('events.fees_included_detail', {
+                          defaultValue: `Includes ${headlineAllIn.buyerFee.toLocaleString()} ${event.currency || 'HTG'} fee`,
+                          fee: headlineAllIn.buyerFee.toLocaleString(),
+                          currency: event.currency || 'HTG',
+                        })}
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
@@ -502,41 +518,26 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                 </div>
               ) : (
                 <>
-                  {showBuyButton ? (
-                    <>
-                      <BuyTicketButton
-                        eventId={event.id}
-                        userId={user?.id ?? null}
-                        isFree={isFree}
-                        ticketPrice={headlinePrice}
-                        eventTitle={event.title}
-                        currency={event.currency || 'HTG'}
-                        country={event.country}
-                        isPasswordProtected={!!event.is_password_protected}
-                      />
-                      {user ? (
-                        <div className="mt-4">
-                          <FavoriteButton eventId={event.id} userId={user.id} initialIsFavorite={isFavorite} />
-                        </div>
-                      ) : (
-                        <p className="text-xs text-white/50 text-center mt-3">
-                          {t('events.no_account_needed', {
-                            defaultValue: 'No account needed — your ticket is emailed to you.',
-                          })}
-                        </p>
-                      )}
-                    </>
+                  <BuyTicketButton
+                    eventId={event.id}
+                    userId={user?.id ?? null}
+                    isFree={isFree}
+                    ticketPrice={headlinePrice}
+                    eventTitle={event.title}
+                    currency={event.currency || 'HTG'}
+                    country={event.country}
+                    isPasswordProtected={!!event.is_password_protected}
+                  />
+                  {user ? (
+                    <div className="mt-4">
+                      <FavoriteButton eventId={event.id} userId={user.id} initialIsFavorite={isFavorite} />
+                    </div>
                   ) : (
-                    <>
-                      <a
-                        href={`/auth/login?redirect=${encodeURIComponent(`/events/${event.id}`)}`}
-                        className="block w-full bg-brand-600 text-white text-center font-semibold py-4 rounded-xl hover:bg-brand-700 transition-colors"
-                      >
-                        {t('events.sign_in_to_get_tickets')}
-                      </a>
-                      <p className="text-xs text-white/70 text-center mt-3">{t('events.create_account_to_purchase')}</p>
-                      <OpenInBrowserNotice className="mt-3" />
-                    </>
+                    <p className="text-xs text-white/50 text-center mt-3">
+                      {t('events.no_account_needed', {
+                        defaultValue: 'No account needed — your ticket is emailed to you.',
+                      })}
+                    </p>
                   )}
                 </>
               )}

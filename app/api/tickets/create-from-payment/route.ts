@@ -17,7 +17,7 @@ import {
   markWebhookEventCompleted,
   releaseWebhookEvent,
 } from '@/lib/webhooks/idempotency'
-import { redeemPromoInTransaction } from '@/lib/promo-codes'
+import { promoBuyerKey, redeemPromoInTransaction } from '@/lib/promo-codes'
 
 // Lazy load Stripe
 function getStripe() {
@@ -192,6 +192,14 @@ export async function POST(request: Request) {
         original_currency: normalizedEventCurrency,
         // When conversion occurs, this is the settlement-per-event rate (e.g., USD per HTG for Stripe).
         exchange_rate_used: paymentIntent.metadata.exchangeRate ? parseFloat(paymentIntent.metadata.exchangeRate) : null,
+        // WHO paid the fee on this order, stamped from the PaymentIntent that
+        // actually charged the card. The organizer earnings ledger reads it: under
+        // buyer incidence the organizer nets the face value, so deducting a fee
+        // from their gross would under-report what they are owed. Recorded per
+        // ticket rather than derived from the event's country at read time, so
+        // changing a country's fee model never rewrites past sales — a ticket with
+        // no value predates the buyer-pays rollout and was organizer-paid.
+        fee_incidence: paymentIntent.metadata.feeIncidence === 'buyer' ? 'buyer' : 'organizer',
         // Admin/auditing fields (charged/settlement amounts)
         charged_amount: pricePerTicket,
         charged_currency: String(paymentIntent.currency || 'usd').toUpperCase(),
@@ -267,6 +275,16 @@ export async function POST(request: Request) {
           promoId: paymentIntent.metadata.promoCodeId,
           qty: quantity,
           userId: paymentIntent.metadata.userId,
+          // A guest's `metadata.userId` is a per-order `guest_…` id, useless for a
+          // per-buyer cap. The email they gave before paying is the identity that
+          // persists, and it was fixed on the order at that moment — so it cannot be
+          // swapped after the fact.
+          buyerKey: promoBuyerKey({
+            isGuest: paymentIntent.metadata.isGuest === 'true',
+            id: paymentIntent.metadata.userId,
+            email: paymentIntent.metadata.guestEmail,
+            phone: paymentIntent.metadata.guestPhone,
+          }),
           eventId: paymentIntent.metadata.eventId,
           discountApplied: perTicketDiscount * quantity,
         })

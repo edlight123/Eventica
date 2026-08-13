@@ -8,6 +8,7 @@ import { useI18n } from '../contexts/I18nContext';
 import { resolvePosterTheme } from '../lib/posterGradient';
 import { safeFormatForLanguage } from '../lib/dates';
 import { formatPrice } from '../lib/currency';
+import { advertisedPrice } from '../lib/buyerPricing';
 import { resolveEventPricing } from '../lib/ticketPricing';
 import { font, radius } from '../theme/tokens';
 
@@ -33,7 +34,13 @@ export default function EventListCard({ event, onPress }: EventListCardProps) {
   // be labelled "FREE"; show its cheapest PAID price instead.
   const pricing = resolveEventPricing(event);
   const isFree = pricing.isFreeOnly;
-  const price = pricing.lowestPaidPrice ?? Number(event.ticket_price || 0);
+  // ALL-IN: in a buyer-pays market the fee is added at checkout, so advertising
+  // the bare face value here would quote a price nobody is charged. Haiti absorbs
+  // the fee, so this is the face value unchanged.
+  const price = advertisedPrice(
+    pricing.lowestPaidPrice ?? Number(event.ticket_price || 0),
+    event as any
+  );
 
   // Guarded — an invalid/missing date yields '' instead of crashing date-fns.
   const dateLabel = safeFormatForLanguage(event.start_datetime, 'EEE, MMM d · h:mm a', language);

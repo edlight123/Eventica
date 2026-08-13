@@ -817,9 +817,15 @@ export async function getOrganizerBalance(organizerId: string): Promise<{
     // Step 4: Filter out tickets already paid out (idempotency safeguard)
     const unpaidTickets = allTickets.filter(t => !paidTicketIds.has(t.id))
 
-    // Step 5: Calculate platform fee (10% default, configurable)
+    // Step 5: Calculate platform fee (10% default, configurable).
+    // Under BUYER incidence (US / Canada / France) the fee was already collected
+    // from the buyer on top of the face value and the organizer's transfer is the
+    // face value exactly — deducting again would under-report their balance. The
+    // flag is stamped per ticket at purchase, so tickets sold before the
+    // buyer-pays rollout, and every Haiti sale, keep the deduction.
     const PLATFORM_FEE_PERCENT = 10
-    const calculateNet = (gross: number) => {
+    const calculateNet = (gross: number, ticket?: any) => {
+      if (String(ticket?.fee_incidence ?? '') === 'buyer') return gross
       return Math.floor(gross * (1 - PLATFORM_FEE_PERCENT / 100))
     }
 
@@ -837,7 +843,7 @@ export async function getOrganizerBalance(organizerId: string): Promise<{
       if (!event) return
 
       const grossAmount = Math.round((ticket.price_paid || 0) * 100) // Convert to cents
-      const netAmount = calculateNet(grossAmount)
+      const netAmount = calculateNet(grossAmount, ticket)
       totalEarnings += netAmount
 
       const eventEndDate = new Date(event.end_datetime || event.start_datetime)
@@ -955,11 +961,15 @@ export async function getAvailableTicketsForPayout(organizerId: string): Promise
       return { tickets: [], totalAmount: 0, periodStart: null, periodEnd: null }
     }
 
-    // Calculate total with platform fee
+    // Calculate total with platform fee. A buyer-incidence ticket already paid its
+    // fee at checkout, so the organizer's share is the whole face value.
     const PLATFORM_FEE_PERCENT = 10
     const totalAmount = allTickets.reduce((sum, t) => {
       const gross = Math.round((t.price_paid || 0) * 100)
-      const net = Math.floor(gross * (1 - PLATFORM_FEE_PERCENT / 100))
+      const net =
+        String((t as any).fee_incidence ?? '') === 'buyer'
+          ? gross
+          : Math.floor(gross * (1 - PLATFORM_FEE_PERCENT / 100))
       return sum + net
     }, 0)
 

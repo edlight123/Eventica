@@ -9,8 +9,117 @@
  * purchase is CONFIRMED (Stripe webhook, MonCash return, Sogepay callback).
  */
 
+import { createHash } from 'node:crypto'
 import { adminDb } from '@/lib/firebase/admin'
 import { getPromoExpiresAt, getPromoUsesCount, isPromoActive } from '@/lib/promo-code-shared'
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WHO REDEEMED IT
+//
+// A promo's caps have to survive guest checkout. An account is a stable identity
+// across visits; a guest's `guest_…` id is minted per order, so counting
+// redemptions against it would count every guest as a brand-new buyer and a
+// single-use-per-buyer code would be unlimited for anyone who simply doesn't sign
+// in. The buyer KEY below is therefore the identity that actually persists:
+//
+//   account → `uid:<firebase uid>`
+//   guest   → `email:<normalized email>` (their phone as a fallback)
+//
+// It is recorded on every redemption so caps and audits work the same either way.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** The stable per-buyer identity a promo redemption is counted against. */
+export function promoBuyerKey(buyer: {
+  isGuest?: boolean
+  id?: string | null
+  email?: string | null
+  phone?: string | null
+}): string | null {
+  if (!buyer) return null
+  if (!buyer.isGuest) {
+    const uid = String(buyer.id || '').trim()
+    return uid ? `uid:${uid}` : null
+  }
+  const email = String(buyer.email || '').trim().toLowerCase()
+  if (email) return `email:${email}`
+  const phone = String(buyer.phone || '').trim()
+  return phone ? `phone:${phone}` : null
+}
+
+/**
+ * A per-buyer cap declared on the promo doc, or null when it declares none.
+ *
+ * No promo currently carries this field, so every existing code behaves exactly as
+ * before (and costs no extra reads). It is read here so that the moment an
+ * organizer can set one, guests are held to it by email rather than escaping it
+ * with a fresh id per order.
+ */
+export function promoMaxUsesPerBuyer(promo: Record<string, any> | null | undefined): number | null {
+  const raw = promo?.max_uses_per_user ?? promo?.max_uses_per_buyer
+  if (raw === null || raw === undefined) return null
+  const n = Number(raw)
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : null
+}
+
+// ── Validation throttle ──────────────────────────────────────────────────────
+
+/** Guest promo validation is IP-throttled: this many tries per window. */
+const VALIDATION_ATTEMPT_LIMIT = 25
+const VALIDATION_WINDOW_MS = 10 * 60 * 1000 // 10 minutes
+
+function throttleDocId(key: string): string {
+  return createHash('sha256').update(key).digest('hex').slice(0, 40)
+}
+
+/**
+ * Count one promo-code validation attempt and say whether the caller has had
+ * enough.
+ *
+ * `/api/promo-codes/validate` used to require a session, which by itself made
+ * code guessing an account-only activity. Guests can validate now, so the
+ * enumeration control an account got for free has to be made explicit: without
+ * it, an unauthenticated caller could sweep an event's codespace. Signed-in
+ * callers are not throttled here — nothing about their path changed.
+ *
+ * Fails OPEN: a bookkeeping error must not stop a real buyer entering a real code.
+ */
+export async function recordPromoValidationAttempt(
+  key: string | null | undefined
+): Promise<{ limited: boolean }> {
+  const raw = String(key || '').trim()
+  if (!raw || raw === 'unknown') return { limited: false }
+
+  const ref = adminDb.collection('promo_validation_attempts').doc(throttleDocId(raw))
+  const now = Date.now()
+
+  try {
+    return await adminDb.runTransaction(async (tx: any) => {
+      const snap = await tx.get(ref)
+      const data = snap.exists ? snap.data() || {} : {}
+      const windowStart = Number(data.window_start || 0)
+      const withinWindow = Boolean(windowStart && now - windowStart < VALIDATION_WINDOW_MS)
+      const count = withinWindow ? Number(data.count || 0) : 0
+
+      if (count >= VALIDATION_ATTEMPT_LIMIT) {
+        return { limited: true }
+      }
+
+      tx.set(
+        ref,
+        {
+          count: count + 1,
+          window_start: withinWindow ? windowStart : now,
+          updated_at: new Date(now).toISOString(),
+        },
+        { merge: true }
+      )
+      return { limited: false }
+    })
+  } catch (e) {
+    console.error('[promo] validation throttle failed', (e as any)?.message)
+    return { limited: false }
+  }
+}
 
 export interface PromoDoc {
   id: string
@@ -166,6 +275,8 @@ export interface RedeemResult {
   redeemed: boolean
   /** True when the increment was refused because the cap would be exceeded. */
   capReached: boolean
+  /** True when it was the PER-BUYER cap (not the global one) that refused it. */
+  buyerCapReached?: boolean
   usesCountAfter?: number
 }
 
@@ -187,6 +298,14 @@ export async function redeemPromoInTransaction(params: {
   userId?: string | null
   eventId?: string | null
   discountApplied?: number | null
+  /**
+   * The stable per-buyer identity (see `promoBuyerKey`). Recorded on the
+   * redemption, and — when the promo declares a per-buyer cap — counted against it
+   * inside the same transaction. For a guest this is their email, NOT the
+   * per-order `guest_…` id, so a single-use-per-buyer code cannot be farmed by
+   * checking out repeatedly without an account.
+   */
+  buyerKey?: string | null
 }): Promise<RedeemResult> {
   const { promoId } = params
   const qty = Math.max(0, Math.floor(Number(params.qty) || 0))
@@ -195,6 +314,7 @@ export async function redeemPromoInTransaction(params: {
   const promoRef = adminDb.collection('promo_codes').doc(promoId)
   // Pre-generate the redemption ref so it can be written inside the transaction.
   const usageRef = adminDb.collection('promo_code_usage').doc()
+  const buyerKey = String(params.buyerKey || '').trim() || null
 
   try {
     return await adminDb.runTransaction(async (tx: any) => {
@@ -212,11 +332,51 @@ export async function redeemPromoInTransaction(params: {
         return { redeemed: false, capReached: true } as RedeemResult
       }
 
+      // Per-buyer cap, when the promo declares one. The running count lives in a
+      // single doc whose id is derived from (promo, buyer), so it is a plain get by
+      // id inside the transaction — no query, and therefore no composite index to
+      // keep in step. Two concurrent orders from the same buyer contend on that one
+      // doc, so neither can slip past. No cap declared ⇒ no extra read at all, and
+      // the behaviour is exactly what it was.
+      const perBuyerCap = promoMaxUsesPerBuyer(data)
+      let buyerCounterRef: any = null
+      let buyerQtyAfter = 0
+      if (perBuyerCap !== null) {
+        if (!buyerKey) {
+          // A capped code with no identifiable buyer cannot be enforced, so it is
+          // refused rather than handed out uncounted.
+          return { redeemed: false, capReached: true, buyerCapReached: true } as RedeemResult
+        }
+        buyerCounterRef = adminDb
+          .collection('promo_buyer_usage')
+          .doc(`${promoId}__${createHash('sha256').update(buyerKey).digest('hex').slice(0, 32)}`)
+        const priorSnap = await tx.get(buyerCounterRef)
+        const priorQty = priorSnap.exists ? Math.max(0, Number(priorSnap.data()?.qty || 0)) : 0
+        if (priorQty + qty > perBuyerCap) {
+          return { redeemed: false, capReached: true, buyerCapReached: true } as RedeemResult
+        }
+        buyerQtyAfter = priorQty + qty
+      }
+
       const now = new Date().toISOString()
       tx.update(promoRef, { uses_count: used + qty, updated_at: now })
+      if (buyerCounterRef) {
+        tx.set(
+          buyerCounterRef,
+          {
+            promo_code_id: promoId,
+            buyer_key: buyerKey,
+            qty: buyerQtyAfter,
+            updated_at: now,
+          },
+          { merge: true }
+        )
+      }
       tx.set(usageRef, {
         promo_code_id: promoId,
         user_id: params.userId ?? null,
+        // Additive: the identity that survives across a guest's session-less visits.
+        buyer_key: buyerKey,
         event_id: params.eventId ?? null,
         discount_applied:
           typeof params.discountApplied === 'number' && Number.isFinite(params.discountApplied)

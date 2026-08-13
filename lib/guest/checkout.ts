@@ -10,6 +10,14 @@
 import { NextResponse } from 'next/server'
 import { normalizeCountryCode } from '@/lib/payment-provider'
 import {
+  accessAttemptKey,
+  accessCodeMatches,
+  clearAccessAttempts,
+  grantEventAccess,
+  isAccessThrottled,
+  recordFailedAccessAttempt,
+} from '@/lib/events/access-guard'
+import {
   createGuestOrder,
   guestTokenFor,
   isGuestId,
@@ -122,28 +130,66 @@ export type GuestCheckoutOutcome =
  * Turn the `guest: { name, email, phone }` block of a checkout request into a
  * usable identity, or explain precisely why it can't be used.
  *
- * Refuses guest checkout for password-protected events: the access grant is keyed
- * by uid (`events/{id}/access_grants/{uid}`), so there is nothing to prove a guest
- * knows the code. Those buyers are told to sign in rather than being silently let
- * through — the gate stays exactly as strong as it was.
+ * PASSWORD-PROTECTED EVENTS. A guest used to be refused outright here, because
+ * the access grant was keyed by uid and a guest has none — so "sign in instead"
+ * was the only safe answer, and inside an Instagram WebView that is a dead end.
+ * A guest may now buy by presenting the code with their checkout request:
+ *
+ *   • the code is checked BEFORE the guest order is created, so a wrong code
+ *     leaves nothing behind;
+ *   • the check is the same SHA-256 comparison against `events/{id}/private/access`
+ *     that the signed-in path uses — a wrong code still fails, and the plaintext
+ *     is never stored or logged;
+ *   • failures are throttled per IP (a guest has no account to throttle);
+ *   • on success the grant is written against the freshly minted `guest_…` id, so
+ *     the route's own `hasEventAccess(event, eventId, identity.id)` check passes
+ *     for exactly the same reason it passes for a uid.
  */
 export async function beginGuestCheckout(params: {
   guestInput: unknown
   event: { country?: string | null; is_password_protected?: boolean } | null
   eventId: string
   ipAddress?: string | null
+  /** The access code a guest typed, for a password-protected event. */
+  accessCode?: unknown
   /** Shape the error body to the route's own convention. */
   errorBody?: (error: string, code: string) => any
 }): Promise<GuestCheckoutOutcome> {
   const body = params.errorBody || ((error: string, code: string) => ({ error, code }))
 
+  // Prove knowledge of the code first: nothing is created for a guest who cannot.
   if (params.event?.is_password_protected) {
-    return {
-      ok: false,
-      response: NextResponse.json(
-        body('Please sign in to get tickets for this private event.', 'guest_not_allowed_private'),
-        { status: 401 }
-      ),
+    const supplied = String(params.accessCode ?? '').trim()
+    if (!supplied) {
+      return {
+        ok: false,
+        response: NextResponse.json(
+          body('This event needs an access code.', 'access_code_required'),
+          { status: 403 }
+        ),
+      }
+    }
+
+    const attemptKey = accessAttemptKey({ ipAddress: params.ipAddress })
+    if (await isAccessThrottled(params.eventId, attemptKey)) {
+      return {
+        ok: false,
+        response: NextResponse.json(
+          body('Too many attempts. Please try again later.', 'access_throttled'),
+          { status: 429 }
+        ),
+      }
+    }
+
+    if (!(await accessCodeMatches(params.eventId, supplied))) {
+      await recordFailedAccessAttempt(params.eventId, attemptKey)
+      return {
+        ok: false,
+        response: NextResponse.json(
+          body('Incorrect access code', 'access_code_incorrect'),
+          { status: 403 }
+        ),
+      }
     }
   }
 
@@ -174,6 +220,14 @@ export async function beginGuestCheckout(params: {
     eventId: params.eventId,
     ipAddress: params.ipAddress,
   })
+
+  // The code was verified above; bind that proof to the id this order will buy
+  // under, so the caller's own access check sees a grant like any other.
+  if (params.event?.is_password_protected) {
+    const attemptKey = accessAttemptKey({ ipAddress: params.ipAddress })
+    await grantEventAccess(params.eventId, record.guestId, { isGuest: true })
+    await clearAccessAttempts(params.eventId, attemptKey)
+  }
 
   return {
     ok: true,

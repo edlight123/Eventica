@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Minus, Plus } from 'lucide-react'
 import { allSelectionsFree, computeSelectionTotal, isFreeTier } from '@/lib/ticketPricing'
+import { priceOrder } from '@/lib/checkout/buyer-pricing'
 
 interface TicketTier {
   id: string
@@ -37,12 +38,21 @@ interface EventbriteStyleTicketSelectorProps {
   userId: string | null
   currency?: string
   /**
+   * The event's country. Decides WHO PAYS THE FEE: in a buyer-pays market
+   * (US/CA/FR) the fee is added on top, so the total shown here — and on the
+   * checkout button — is the face value plus that fee, with the fee itemized.
+   * Haiti is organizer-pays, where the fee is 0 and every number below is the
+   * face value, exactly as before.
+   */
+  country?: string
+  /**
    * Let a logged-OUT visitor select and check out as a guest. The contact details
    * (name / email / phone) are collected by the parent right after this, so the
    * selector only needs to stop treating "no session" as "no sale".
    *
-   * Promo codes stay account-only: /api/promo-codes/validate requires a session, so
-   * the code box below is still gated on `userId`.
+   * Promo codes work for guests too: /api/promo-codes/validate no longer requires a
+   * session (the code an organizer printed on a flyer was unusable for exactly the
+   * buyers who can't sign in), so the box below follows `canPurchase`.
    */
   allowGuest?: boolean
   /**
@@ -57,12 +67,13 @@ interface EventbriteStyleTicketSelectorProps {
   ) => void
 }
 
-export default function EventbriteStyleTicketSelector({ 
-  eventId, 
-  userId, 
+export default function EventbriteStyleTicketSelector({
+  eventId,
+  userId,
   currency = 'HTG',
+  country,
   allowGuest = false,
-  onPurchase 
+  onPurchase
 }: EventbriteStyleTicketSelectorProps) {
   /** Who may press "checkout": a signed-in user, or a guest when guests are allowed. */
   const canPurchase = Boolean(userId) || allowGuest
@@ -166,7 +177,7 @@ export default function EventbriteStyleTicketSelector({
     amount === 0 ? t('common.free') : `${amount.toFixed(2)} ${currency}`
 
   const validatePromoCode = async () => {
-    if (!promoCode.trim() || !userId) return
+    if (!promoCode.trim() || !canPurchase) return
 
     setValidatingPromo(true)
     setPromoError(null)
@@ -218,7 +229,21 @@ export default function EventbriteStyleTicketSelector({
   }
 
   const totalTickets = getTotalTickets()
+  /** Face total: what the organizer priced, after any promo. */
   const totalPrice = getTotalPrice()
+  // ALL-IN TOTAL, computed once for the whole order (the fee's fixed component is
+  // per transaction, so it must not be grossed up per ticket). In Haiti this is the
+  // face total and `buyerFee` is 0, so the rows below collapse to what they always
+  // showed. In a buyer-pays market the buyer sees the number their card will be
+  // charged here, before they reach any payment screen.
+  // Quantity matters: the fee cap is per ticket, so a four-ticket order is capped
+  // at four times the single-ticket ceiling.
+  const orderQuantity = getSelections().reduce((sum, s) => sum + s.quantity, 0)
+  const orderPricing = priceOrder(totalPrice, country, {
+    quantity: orderQuantity,
+    currency,
+  })
+  const showFeeLine = orderPricing.feeOnTop && orderPricing.buyerFee > 0
   // Free ISSUANCE is decided by each selected tier's OWN price, not by the total.
   // A cart zeroed by a 100%-off promo still has to go through checkout — the
   // free-claim endpoint requires the tier itself to cost 0 and would refuse it.
@@ -256,6 +281,14 @@ export default function EventbriteStyleTicketSelector({
                   <div className="flex items-center gap-3 mt-2 text-sm">
                     <span className="font-medium text-brand-400">
                       {isFreeTier(tier) ? t('common.free') : `${tier.price.toFixed(2)} ${currency}`}
+                      {/* Never let a bare face value read as the total. The all-in
+                          number is itemized in the summary below, where the fee can be
+                          stated for the order as a whole. */}
+                      {!isFreeTier(tier) && orderPricing.feeOnTop && (
+                        <span className="ml-1 font-normal text-white/50">
+                          {t('checkout.plus_fees', { defaultValue: '+ fees' })}
+                        </span>
+                      )}
                     </span>
                     <span className={available > 0 ? 'text-white/65' : 'text-red-400'}>
                       {available > 0 ? `${available} ${t('ticket.available')}` : t('ticket.sold_out')}
@@ -310,12 +343,12 @@ export default function EventbriteStyleTicketSelector({
             value={promoCode}
             onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoError(null) }}
             placeholder={t('events.enter_code')}
-            disabled={!userId || validatingPromo}
+            disabled={!canPurchase || validatingPromo}
             className="flex-1 px-3 py-2 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:bg-white/[0.04]"
           />
           <button
             onClick={validatePromoCode}
-            disabled={!userId || !promoCode.trim() || validatingPromo}
+            disabled={!canPurchase || !promoCode.trim() || validatingPromo}
             className="px-4 py-2 bg-brand-600 text-white rounded-lg font-medium hover:bg-brand-700 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed min-w-[80px]"
           >
             {validatingPromo ? '...' : t('events.apply')}
@@ -364,10 +397,23 @@ export default function EventbriteStyleTicketSelector({
                 </span>
               </div>
             )}
+            {showFeeLine && (
+              <div className="flex justify-between text-sm text-white/65">
+                <span>{t('checkout.service_fee', { defaultValue: 'Service fee' })}</span>
+                <span className="text-white">{formatMoney(orderPricing.buyerFee)}</span>
+              </div>
+            )}
             <div className="border-t border-white/10 pt-2 flex justify-between font-semibold text-lg">
               <span>{t('events.total')} ({totalTickets} {t('ticket.ticket')}{totalTickets !== 1 ? 's' : ''})</span>
-              <span className="text-brand-400">{formatMoney(totalPrice)}</span>
+              <span className="text-brand-400">{formatMoney(orderPricing.total)}</span>
             </div>
+            {showFeeLine && (
+              <p className="text-xs text-white/45">
+                {t('checkout.total_includes_fees', {
+                  defaultValue: 'Total includes all fees. This is what you pay.',
+                })}
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -386,7 +432,7 @@ export default function EventbriteStyleTicketSelector({
           ? totalTickets === 1
             ? t('events.get_free_ticket', { defaultValue: 'Get free ticket' })
             : t('events.get_free_tickets', { defaultValue: 'Get free tickets' })
-          : `${t('events.checkout')} - ${formatMoney(totalPrice)}`
+          : `${t('events.checkout')} - ${formatMoney(orderPricing.total)}`
         }
       </button>
     </div>

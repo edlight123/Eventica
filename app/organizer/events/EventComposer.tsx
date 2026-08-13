@@ -13,6 +13,8 @@ import { useToast } from '@/components/ui/Toast'
 import ImageUpload from '@/components/ImageUpload'
 import { DatePicker, TimePicker } from '@/components/ui/DateTimePickers'
 import { normalizeEventCurrencyForCountry, getAllowedEventCurrencies, type EventCurrency } from '@/lib/currency-policy'
+import { incidenceForEvent, priceOrder } from '@/lib/checkout/buyer-pricing'
+import { fromCents } from '@/lib/ticketPricing'
 import { THEMES, type PosterThemeKey } from '@/lib/posterGradient'
 import {
   CalendarDays,
@@ -334,6 +336,15 @@ export default function EventComposer({
   const [passwordProtected, setPasswordProtected] = useState(!!event?.is_password_protected)
   const [accessCode, setAccessCode] = useState('')
 
+  // WHO PAYS THE SERVICE FEE for this event. The default follows the country
+  // (Haiti absorbs it into the organizer's proceeds, US/CA/FR adds it on top),
+  // and this toggle overrides that default for this event alone — so a Haitian
+  // organizer selling to the diaspora can pass it on, and a US organizer running
+  // a community night can absorb it.
+  const [passFeesToBuyer, setPassFeesToBuyer] = useState(
+    incidenceForEvent({ country: 'HT', fee_incidence: event?.fee_incidence }) === 'buyer'
+  )
+
   // Style
   const [spotifyUrl, setSpotifyUrl] = useState(event?.spotify_url || '')
   // Optional promo video link (default '').
@@ -418,6 +429,26 @@ export default function EventComposer({
   })()
 
   const isPaid = sellMode === 'tickets' && tiers.some((t) => Number(t.price) > 0)
+
+  // A worked example on the organizer's own cheapest paid ticket, so the toggle
+  // is a number rather than a policy statement. Uses the same pricing function
+  // the buyer's checkout does, capped fee included.
+  const feeExample = (() => {
+    const paidPrices = tiers.map((t) => Number(t.price) || 0).filter((p) => p > 0)
+    if (!paidPrices.length) return ''
+    const price = Math.min(...paidPrices)
+    const pricing = priceOrder(
+      price,
+      { country: 'HT', currency, fee_incidence: passFeesToBuyer ? 'buyer' : 'organizer' },
+      { quantity: 1, currency }
+    )
+    const money = (amount: number) => `${amount.toLocaleString()} ${currency}`
+    return passFeesToBuyer
+      ? `A ${money(price)} ticket: the buyer pays ${money(pricing.total)} and you receive ${money(price)}.`
+      : `A ${money(price)} ticket: the buyer pays ${money(price)} and you receive ${money(
+          fromCents(pricing.cents.organizerNet)
+        )}.`
+  })()
   const paidPublishingBlocked = isPaid && !isVerified
 
   // Build the shared event payload from the current form state.
@@ -471,6 +502,9 @@ export default function EventComposer({
       show_guestlist: showGuestlist,
       show_on_explore: showOnExplore,
       is_password_protected: passwordProtected,
+      // Stamped on the event so checkout, the ticket record and the earnings
+      // ledger all read the same answer. Free events carry it harmlessly.
+      fee_incidence: passFeesToBuyer ? 'buyer' : 'organizer',
       video_url: videoUrl.trim(),
       theme_key: themeKey || '',
       spotify_url: spotifyUrl.trim() || null,
@@ -1198,6 +1232,30 @@ export default function EventComposer({
                   <Plus className="h-4 w-4" /> Add ticket type
                 </button>
               </div>
+
+              {/* WHO PAYS THE SERVICE FEE — only meaningful once something costs money. */}
+              {isPaid && (
+                <div className="mt-3 rounded-xl border border-white/10 p-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-[15px] text-white/80">Pass the service fee to buyers</p>
+                      <p className="mt-1 text-xs text-white/50">
+                        {passFeesToBuyer
+                          ? 'Buyers pay the fee on top of your ticket price. You receive the full price you set.'
+                          : 'The fee comes out of your ticket price. Buyers pay exactly what you set, and you receive less.'}
+                      </p>
+                    </div>
+                    <Toggle
+                      on={passFeesToBuyer}
+                      onChange={setPassFeesToBuyer}
+                      label="Pass the service fee to buyers"
+                    />
+                  </div>
+                  <p className="mt-3 border-t border-white/10 pt-3 text-xs text-white/50">
+                    {feeExample}
+                  </p>
+                </div>
+              )}
             </div>
           )}
 

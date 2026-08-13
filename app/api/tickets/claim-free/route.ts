@@ -12,6 +12,7 @@ import {
 } from '@/lib/tickets/inventory'
 import {
   calculateDiscount,
+  promoBuyerKey,
   promoHasCapacity,
   redeemPromoInTransaction,
   resolvePromoCode,
@@ -141,7 +142,13 @@ export async function POST(request: Request) {
     // the tier price comes from Firestore, the promo comes from `promo_codes`, and
     // the discount is recomputed here. When `promoCode` is absent every code path
     // below behaves exactly as it did before.
-    const { eventId, quantity = 1, tierId, selections, promoCode, guest } = await request.json()
+    //
+    // OPTIONAL `accessCode` is how a GUEST claims on a password-protected event:
+    // they have no uid to hold a grant, so they present the code with the claim and
+    // it is verified server-side before anything is created. A signed-in claimant
+    // still unlocks through /api/events/verify-access and is admitted by their grant.
+    const { eventId, quantity = 1, tierId, selections, promoCode, guest, accessCode } =
+      await request.json()
     const requestedSelections = normalizeSelections(selections)
     const useSelections = requestedSelections.length > 0
     const requestedPromo = String(promoCode ?? '').trim()
@@ -201,6 +208,7 @@ export async function POST(request: Request) {
         event,
         eventId: String(eventId),
         ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
+        accessCode,
         errorBody: (error, code) => ({ error, code }),
       })
       if (!guestOutcome.ok) return guestOutcome.response
@@ -208,7 +216,8 @@ export async function POST(request: Request) {
     }
 
     // Password-protected events: require a valid access grant before issuing tickets.
-    // (Guests are refused outright by beginGuestCheckout, so this is as strict as before.)
+    // A guest reaches this line only after beginGuestCheckout verified their code and
+    // wrote a grant against their `guest_…` id, so the gate is as strict as it was.
     if (!(await hasEventAccess(event, eventId, identity.id))) {
       return fail('access_code_required', 'access_code_required', 403)
     }
@@ -471,6 +480,10 @@ export async function POST(request: Request) {
         promoId: promo.id,
         qty: ticketQuantity,
         userId: identity.id,
+        // A guest's `guest_…` id is minted per claim, so it cannot carry a per-buyer
+        // cap. Their EMAIL can — the same identifier the free-ticket dedup above
+        // keys on.
+        buyerKey: promoBuyerKey(identity),
         eventId,
         discountApplied: promoDiscountCents / 100,
       })
@@ -486,6 +499,9 @@ export async function POST(request: Request) {
           promoId: promo.id,
           capReached: redeem.capReached,
         })
+        if (redeem.buyerCapReached) {
+          return fail('You have already used this promo code.', 'promo_already_used', 400)
+        }
         return redeem.capReached
           ? fail('This promo code has reached its usage limit.', 'promo_exhausted', 400)
           : fail('Could not apply this promo code. Please try again.', 'promo_redeem_failed', 400)

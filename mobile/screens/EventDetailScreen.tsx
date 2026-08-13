@@ -37,6 +37,7 @@ import VerifiedBadge from '../components/VerifiedBadge';
 import PaymentModal from '../components/PaymentModal';
 import TieredTicketSelector, { PurchaseSelectionMeta } from '../components/TieredTicketSelector';
 import { resolveEventPricing } from '../lib/ticketPricing';
+import { advertisedPrice } from '../lib/buyerPricing';
 import { resolvePosterTheme } from '../lib/posterGradient';
 import FreeTicketModal from '../components/FreeTicketModal';
 import AddToCalendarButton from '../components/AddToCalendarButton';
@@ -495,16 +496,22 @@ export default function EventDetailScreen({ route, navigation }: any) {
   // rather than "from 0 HTG", which would imply everything is free. When the tier
   // set isn't visible on the doc (legacy events) `lowestPaidPrice` is null and we
   // show no amount at all instead of guessing one.
+  // Every figure here is ALL-IN: in a buyer-pays market the service fee is added
+  // at checkout, so quoting the face value on the CTA would advertise a price the
+  // buyer is never charged. Haiti absorbs the fee, so the numbers are unchanged.
   const priceSubLabel = (() => {
     const currency = event.currency || 'HTG';
     if (pricing.kind === 'mixed') {
       return pricing.lowestPaidPrice != null
-        ? `${t('common.free')} – ${pricing.lowestPaidPrice.toLocaleString()} ${currency}`
+        ? `${t('common.free')} – ${advertisedPrice(
+            pricing.lowestPaidPrice,
+            event as any
+          ).toLocaleString()} ${currency}`
         : undefined;
     }
     const from = pricing.lowestPaidPrice ?? Number(event.ticket_price || 0);
     if (!(from > 0)) return undefined;
-    return `${t('common.from')} ${from.toLocaleString()} ${currency}`;
+    return `${t('common.from')} ${advertisedPrice(from, event as any).toLocaleString()} ${currency}`;
   })();
 
   // Compact countdown prefix. `t()` echoes the key back when it is missing from
@@ -860,6 +867,9 @@ export default function EventDetailScreen({ route, navigation }: any) {
         eventId={eventId}
         onPurchase={handleTierSelection}
         currency={event?.currency || 'HTG'}
+        // Decides whether the service fee is added to the total the buyer reads.
+        country={event?.country}
+        feeIncidence={(event as any)?.fee_incidence}
       />
 
       <PurchaseSuccessSheet

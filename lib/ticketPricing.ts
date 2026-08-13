@@ -43,6 +43,24 @@ export interface EventPricingLike {
   ticket_price?: number | null
   /** Embedded copy of the tier set (mobile-written events carry this). */
   ticket_tiers?: TierPriceLike[] | null
+  /**
+   * ISO country of the event, which decides whether the platform fee is added on
+   * top of the ticket price (US/CA/FR) or comes out of the organizer's share
+   * (Haiti). An advertised price has to include the fee in the markets that add
+   * it, so any projection feeding a price label should carry this.
+   */
+  country?: string | null
+  /**
+   * Event currency. Selects the per-ticket fee cap, which is denominated in the
+   * event's own currency — a projection missing it would advertise an UNCAPPED
+   * total while checkout charges the capped one.
+   */
+  currency?: string | null
+  /**
+   * The organizer's own absorb/pass-on choice for this event, when they made one.
+   * Overrides the country default.
+   */
+  fee_incidence?: string | null
 }
 
 export type EventPricingKind =

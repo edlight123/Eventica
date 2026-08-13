@@ -6,6 +6,7 @@ import { format, isToday, isTomorrow, isThisWeek, parseISO } from 'date-fns'
 import type { Database } from '@/types/database'
 import { isBudgetFriendlyTicketPrice } from '@/lib/pricing'
 import { resolveEventPricing, type EventPricingLike } from '@/lib/ticketPricing'
+import { priceOrder } from '@/lib/checkout/buyer-pricing'
 
 type Event = Database['public']['Tables']['events']['Row']
 
@@ -75,7 +76,18 @@ export function getCardPriceDisplay(event: EventPricingLike | null | undefined):
   const legacyPrice = Number(event?.ticket_price ?? 0)
   const price = pricing.lowestPaidPrice ?? (legacyPrice > 0 ? legacyPrice : null)
   if (price == null) return { kind: 'unknown' }
-  return pricing.hasFreeTier ? { kind: 'range', price } : { kind: 'from', price }
+
+  // A card ADVERTISES a price, so in fee-on-top markets (US/CA/FR) it must show
+  // what the buyer will actually pay — quoting the face value here and revealing
+  // the fee at checkout is precisely the drip-pricing the US total-price rule for
+  // live-event tickets forbids. In Haiti the fee comes out of the organizer's
+  // share, so `total` equals the face value and this is a no-op.
+  // The fee is priced per order, and the smallest order is one ticket.
+  const advertised = priceOrder(price, event).total
+
+  return pricing.hasFreeTier
+    ? { kind: 'range', price: advertised }
+    : { kind: 'from', price: advertised }
 }
 
 /** English price label for an event, honest about mixed free/paid tier sets. */
