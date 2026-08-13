@@ -32,6 +32,10 @@
     {
       "path": "/api/cron/release-payouts",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/fx-snapshot",
+      "schedule": "0 5 * * *"
     }
   ]
 }

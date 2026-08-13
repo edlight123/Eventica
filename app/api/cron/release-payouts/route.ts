@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server'
 import { adminDb } from '@/lib/firebase/admin'
 import { getPlatformSettings } from '@/lib/admin/platform-settings'
+import { DEFAULT_PAYOUT_RELEASE_CONFIG } from '@/types/platform-settings'
+import {
+  FX_SNAPSHOT_DOC,
+  resolveReferenceRates,
+  type FxSnapshot,
+} from '@/lib/payouts/fx-rates'
 import { getEventEarnings } from '@/lib/earnings'
 import {
   getPayoutProfile,
@@ -411,7 +417,31 @@ export async function GET(request: Request) {
     const attemptDay = nowIso.slice(0, 10).replace(/-/g, '')
 
     const platformSettings = await getPlatformSettings()
-    const platformConfig = platformSettings.payoutRelease || null
+    const rawPlatformConfig = platformSettings.payoutRelease || null
+
+    // Threshold FX comes from the DAILY SNAPSHOT written by /api/cron/fx-snapshot,
+    // merged over the admin-maintained table (which stays the fallback for
+    // currencies the provider misses, and takes over entirely if the snapshot goes
+    // stale). Read, never fetched: a rate lookup failing here would change who
+    // gets paid.
+    const fxSnapshot = ((await adminDb
+      .collection('platform_settings')
+      .doc(FX_SNAPSHOT_DOC)
+      .get()).data() || null) as FxSnapshot | null
+
+    const resolvedRates = resolveReferenceRates(
+      { ...DEFAULT_PAYOUT_RELEASE_CONFIG, ...(rawPlatformConfig || {}) },
+      fxSnapshot,
+      now
+    )
+    if (resolvedRates.warnings.length) {
+      console.warn('[cron/release-payouts] FX:', resolvedRates.warnings.join(' | '))
+    }
+
+    const platformConfig = {
+      ...(rawPlatformConfig || {}),
+      referenceRates: resolvedRates.rates,
+    }
 
     const { scanned, candidates } = await findCandidateEvents(now)
 
