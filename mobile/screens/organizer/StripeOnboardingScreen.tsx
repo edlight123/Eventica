@@ -4,7 +4,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
 import {
-  ConnectAccountOnboarding,
   ConnectComponentsProvider,
   loadConnectAndInitialize,
 } from '@stripe/stripe-react-native'
@@ -13,11 +12,24 @@ import { useTheme } from '../../contexts/ThemeContext'
 import { useI18n } from '../../contexts/I18nContext'
 import { backendJson } from '../../lib/api/backend'
 
+// DEEP import of the SDK's embedded-webview building block. On iOS the public
+// ConnectAccountOnboarding wraps this in NativeConnectAccountOnboardingView, a
+// native container inside which the content never painted on device (loader
+// cleared, screen stayed black; the same webview contract works in a browser).
+// Composing the block directly — the way the SDK itself renders it on Android,
+// inside a plain RN view — bypasses that container while keeping the SDK's
+// popup handling (openAuthenticatedWebView) intact. Pinned to the SDK version
+// in package.json; revisit on any @stripe/stripe-react-native upgrade.
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { EmbeddedComponent } = require('@stripe/stripe-react-native/lib/module/connect/EmbeddedComponent') as {
+  EmbeddedComponent: React.ComponentType<any>
+}
+
 type Params = {
   /** Forwarded to /connect for first-time account creation. */
   accountLocation?: 'united_states' | 'canada' | 'france'
-  /** Debug escape hatch: skip the embedded attempt, go straight to hosted. */
-  hostedOnly?: boolean
+  /** Debug switch: attempt the embedded component instead of the hosted flow. */
+  tryEmbedded?: boolean
 }
 
 /**
@@ -38,7 +50,7 @@ export default function StripeOnboardingScreen() {
   const route = useRoute<any>()
   const insets = useSafeAreaInsets()
 
-  const { accountLocation, hostedOnly } = (route.params || {}) as Params
+  const { accountLocation, tryEmbedded } = (route.params || {}) as Params
 
   const [connectInstance, setConnectInstance] = useState<ReturnType<
     typeof loadConnectAndInitialize
@@ -92,7 +104,18 @@ export default function StripeOnboardingScreen() {
   useEffect(() => {
     let cancelled = false
     ;(async () => {
-      if (hostedOnly) {
+      // Hosted by default. Stripe's own docs settle it: for accounts where
+      // STRIPE owns requirement collection — which is every Express account,
+      // and Tikèm creates Express — embedded account onboarding REQUIRES the
+      // connected account to authenticate in a Stripe-hosted WebView, and
+      // disable_stripe_user_authentication is offered only to platform-liable
+      // (Custom-style) accounts. That mandatory hosted step is exactly what
+      // never paints in-app (black screen, reproduced locally on SDK 0.57 AND
+      // 0.74, native container and plain-view composition alike). So there is
+      // no fully-native onboarding to reach from here today; going straight to
+      // the hosted flow spares organizers a 15s wait for a fallback that was
+      // always coming. Pass tryEmbedded to exercise the embedded path.
+      if (!tryEmbedded) {
         void fallbackToHosted()
         return
       }
@@ -151,7 +174,7 @@ export default function StripeOnboardingScreen() {
       cancelled = true
       clearWatchdog()
     }
-  }, [accountLocation, clearWatchdog, fallbackToHosted, hostedOnly])
+  }, [accountLocation, clearWatchdog, fallbackToHosted, tryEmbedded])
 
   const styles = getStyles(colors)
   // The SDK's inner spinner hid while content stayed invisible before, so we
@@ -185,14 +208,13 @@ export default function StripeOnboardingScreen() {
         {connectInstance ? (
           <NativeOnboardingBoundary onError={fallbackToHosted}>
             <ConnectComponentsProvider connectInstance={connectInstance}>
-              {/* SDK 0.74: full-screen self-presenting modal (native UIKit nav
-                  bar on iOS). The 0.57 version of this component never painted
-                  on device — the SDK upgrade is the fix this build carries. */}
-              <ConnectAccountOnboarding
-                title={t('screens.stripeConnect.title')}
-                onExit={closeOnce}
+              <EmbeddedComponent
+                component="account-onboarding"
+                componentProps={{}}
+                callbacks={{ onExit: closeOnce, onCloseWebView: closeOnce }}
                 onLoaderStart={handleLoaderStart}
                 onLoadError={() => void fallbackToHosted()}
+                style={styles.embedded}
               />
             </ConnectComponentsProvider>
           </NativeOnboardingBoundary>
@@ -260,6 +282,9 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       color: colors.text,
     },
     body: {
+      flex: 1,
+    },
+    embedded: {
       flex: 1,
     },
     loadingOverlay: {

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Tik\u00e8m",
     "slug": "tikem",
-    "version": "1.0.1",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
