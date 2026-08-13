@@ -16,6 +16,7 @@ import {
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import * as Crypto from 'expo-crypto';
 import { hasPaidTier } from '../ticketPricing';
+import { backendJson } from './backend';
 
 /**
  * SHA-256 hex of the trimmed raw access code (trim only; case-sensitive).
@@ -691,19 +692,28 @@ export async function toggleEventPublication(
 /**
  * Cancel an event
  */
-export async function cancelEvent(eventId: string): Promise<void> {
-  try {
-    const eventRef = doc(db, 'events', eventId);
-    await updateDoc(eventRef, {
-      status: 'cancelled',
-      is_published: false,
-      updated_at: serverTimestamp(),
-    });
-    console.log('Event cancelled successfully');
-  } catch (error) {
-    console.error('Error cancelling event:', error);
-    throw new Error('Failed to cancel event');
-  }
+export type CancelEventOutcome = {
+  ticketsAffected: number
+  refundsSucceeded: number
+  refundsQueuedManual: number
+  refundsFailed: number
+  freeTicketsVoided: number
+}
+
+/**
+ * Cancelling goes through the SERVER, not a client Firestore write.
+ *
+ * The old client write flipped a status and left everything else standing:
+ * tickets stayed valid, buyers were never told, and the takings stayed
+ * withdrawable. Refunds, the payout freeze and buyer notifications can only be
+ * done with admin credentials, so the API owns the whole operation and reports
+ * back what it did.
+ */
+export async function cancelEvent(eventId: string, reason?: string): Promise<CancelEventOutcome> {
+  return await backendJson<CancelEventOutcome>(`/api/events/${eventId}/cancel`, {
+    method: 'POST',
+    body: JSON.stringify({ reason: reason || null }),
+  });
 }
 
 /**

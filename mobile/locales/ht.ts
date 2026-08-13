@@ -961,7 +961,7 @@ export default {
       body: 'Ou sèten ou vle anile evènman sa a? Sa pa ka retounen. Tout moun ki gen biyè ap resevwa notifikasyon.',
       confirmCta: 'Wi, anile evènman an',
       successTitle: 'Evènman anile',
-      successBody: 'Evènman an anile avèk siksè.',
+      successBody: 'Evènman an anile. {n} tikè ranbouse, {m} ap tann ranbousman MonCash alamen.',
       failed: 'Pa t kapab anile evènman an',
     },
   },

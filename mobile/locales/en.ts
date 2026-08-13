@@ -1280,10 +1280,10 @@ export default {
     },
     cancelEvent: {
       title: 'Cancel Event',
-      body: 'Are you sure you want to cancel this event? This action cannot be undone. All ticket holders will be notified.',
+      body: 'Cancel this event? Every ticket holder is notified and refunded, and the event’s earnings are reserved for those refunds. This cannot be undone.',
       confirmCta: 'Yes, Cancel Event',
       successTitle: 'Event Cancelled',
-      successBody: 'The event has been cancelled successfully.',
+      successBody: 'The event is cancelled. {n} ticket(s) refunded, {m} awaiting manual MonCash refund.',
       failed: 'Failed to cancel event',
     },
   },

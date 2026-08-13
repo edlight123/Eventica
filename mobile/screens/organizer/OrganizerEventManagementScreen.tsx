@@ -222,10 +222,12 @@ export default function OrganizerEventManagementScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await cancelEvent(eventId);
+              const outcome = await cancelEvent(eventId);
               showAlert(
                 t('organizerEventManagement.cancelEvent.successTitle'),
-                t('organizerEventManagement.cancelEvent.successBody'),
+                t('organizerEventManagement.cancelEvent.successBody')
+                  .replace('{n}', String(outcome?.refundsSucceeded ?? 0))
+                  .replace('{m}', String(outcome?.refundsQueuedManual ?? 0)),
                 [{ text: t('common.ok'), onPress: () => navigation.goBack() }]
               );
             } catch (error: any) {

@@ -14,11 +14,12 @@ function getStripe() {
 
 export async function processStripeRefund(
   paymentIntentId: string,
-  amount?: number
+  amount?: number,
+  options?: { reverseTransfer?: boolean; refundApplicationFee?: boolean }
 ): Promise<RefundResult> {
   try {
     const stripe = getStripe()
-    
+
     if (!stripe) {
       return { success: false, error: 'Stripe not configured' }
     }
@@ -30,6 +31,19 @@ export async function processStripeRefund(
     // If amount is specified, do partial refund
     if (amount) {
       refundParams.amount = Math.round(amount * 100) // Convert to cents
+    }
+
+    // Ticket sales in US/CA/FR are DESTINATION CHARGES: the money already sat in
+    // the organizer's connected account. Without these two flags a refund is paid
+    // out of the PLATFORM balance while the organizer keeps the sale — Tikèm
+    // absorbing a refund it never received. reverse_transfer pulls the funds back
+    // from the connected account; refund_application_fee returns our cut too, so
+    // we don't profit from a cancelled event.
+    if (options?.reverseTransfer) {
+      refundParams.reverse_transfer = true
+    }
+    if (options?.refundApplicationFee) {
+      refundParams.refund_application_fee = true
     }
 
     const refund = await stripe.refunds.create(refundParams)

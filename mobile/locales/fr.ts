@@ -963,7 +963,7 @@ export default {
       body: 'Voulez-vous vraiment annuler cet événement ? Cette action est irréversible. Tous les détenteurs de billets seront notifiés.',
       confirmCta: 'Oui, annuler l’événement',
       successTitle: 'Événement annulé',
-      successBody: 'L’événement a été annulé avec succès.',
+      successBody: 'L’événement est annulé. {n} billet(s) remboursé(s), {m} en attente de remboursement MonCash manuel.',
       failed: 'Impossible d’annuler l’événement',
     },
   },

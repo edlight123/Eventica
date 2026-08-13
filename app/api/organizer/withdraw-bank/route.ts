@@ -140,6 +140,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Not authorized for this event' }, { status: 403 })
     }
 
+    // A cancelled event's takings are not the organizer's to withdraw: buyers are
+    // being refunded from that same money. lib/events/cancel.ts sets this first,
+    // precisely so this check can hold the line even if refunds are still running.
+    if (eventData?.status === 'cancelled' || eventData?.payouts_frozen === true) {
+      return NextResponse.json(
+        { error: 'This event was cancelled — its earnings are reserved for refunds.', code: 'cancelled_event' },
+        { status: 400 }
+      )
+    }
+
     // Event-based routing: US/CA events must use Stripe Connect.
     const requiredProfile = getRequiredPayoutProfileIdForEventCountry(eventData?.country)
     if (requiredProfile === 'stripe_connect') {

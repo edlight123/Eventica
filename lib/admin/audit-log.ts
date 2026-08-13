@@ -3,6 +3,7 @@ import { adminDb } from '@/lib/firebase/admin'
 export type AuditAction = 
   | 'event.publish'
   | 'event.unpublish'
+  | 'event.cancel'
   | 'event.delete'
   | 'event.restore'
   | 'event.feature'
@@ -221,6 +222,7 @@ function getActionDescription(action: string, details: any = {}): string {
 
   const descriptions: Record<string, string> = {
     'event.publish': `Published event "${details.eventTitle || 'Untitled'}"`,
+    'event.cancel': `Cancelled event "${details.eventTitle || 'Untitled'}" and refunded ${details.ticketsAffected ?? 0} ticket(s)`,
     'event.unpublish': `Unpublished event "${details.eventTitle || 'Untitled'}"`,
     'event.delete': `Deleted event "${details.eventTitle || 'Untitled'}"`,
     'event.restore': `Restored event "${details.eventTitle || 'Untitled'}"`,
