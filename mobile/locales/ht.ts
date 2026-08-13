@@ -748,6 +748,8 @@ export default {
   },
 
   paymentModal: {
+    subtotal: 'Sou-total',
+    serviceFee: 'Frè sèvis',
     selectMethod: 'Chwazi yon metòd peman',
     methods: {
       card: 'Kat kredi/debi',
@@ -1420,6 +1422,8 @@ export default {
       noEarnings: 'Pa gen dosye revni pou evènman sa a ankò.',
       notReady: 'Revni yo poko pare pou w retire.',
       notReadyWithDate: 'Revni yo ap disponib pou retrè {date}.',
+      underReview: 'Peman ou pou evènman sa a nan men ekip Tikèm nan. N ap voye yon imèl ba ou lè li apwouve.',
+      missingEndDate: 'Evènman sa a pa gen dat fen, donk nou pa ka di kilè lajan an ap disponib. Ajoute yon dat fen.',
     },
     modal: {
       titleMoncash: 'Mande retrè MonCash',
@@ -2114,6 +2118,7 @@ export default {
   },
 
   ticketSelector: {
+    includesFee: 'Gen ladan l {amount} frè sèvis',
     title: 'Chwazi biyè',
     chooseTickets: 'Chwazi biyè',
     oneTypePerOrder: 'Yon sèl kalite biyè pou chak kòmand',

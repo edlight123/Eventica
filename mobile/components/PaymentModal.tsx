@@ -499,14 +499,14 @@ function PaymentForm({
         {showFeeLine && (
           <View style={styles.feeBreakdown}>
             <View style={styles.feeRow}>
-              <Text style={styles.feeRowLabel}>{t('paymentModal.subtotal', { defaultValue: 'Subtotal' })}</Text>
+              <Text style={styles.feeRowLabel}>{t('paymentModal.subtotal')}</Text>
               <Text style={styles.feeRowValue}>
                 {formatCurrency(orderPricing.faceValue, currency)}
               </Text>
             </View>
             <View style={styles.feeRow}>
               <Text style={styles.feeRowLabel}>
-                {t('paymentModal.serviceFee', { defaultValue: 'Service fee' })}
+                {t('paymentModal.serviceFee')}
               </Text>
               <Text style={styles.feeRowValue}>
                 {formatCurrency(orderPricing.buyerFee, currency)}

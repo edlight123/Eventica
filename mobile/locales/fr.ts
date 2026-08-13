@@ -778,6 +778,8 @@ export default {
   },
 
   paymentModal: {
+    subtotal: 'Sous-total',
+    serviceFee: 'Frais de service',
     selectMethod: 'Choisissez un moyen de paiement',
     methods: {
       card: 'Carte bancaire',
@@ -1450,6 +1452,8 @@ export default {
       noEarnings: 'Aucun revenu enregistré pour cet événement pour le moment.',
       notReady: 'Les revenus ne sont pas encore disponibles pour retrait.',
       notReadyWithDate: 'Les revenus seront disponibles pour retrait le {date}.',
+      underReview: 'Votre versement pour cet évènement est en cours d’examen par l’équipe Tikèm. Nous vous écrirons dès son approbation.',
+      missingEndDate: 'Cet évènement n’a pas de date de fin, nous ne pouvons donc pas dire quand les fonds seront disponibles. Ajoutez une date de fin.',
     },
     modal: {
       titleMoncash: 'Demander un retrait MonCash',
@@ -2145,6 +2149,7 @@ export default {
   },
 
   ticketSelector: {
+    includesFee: 'Inclut {amount} de frais de service',
     title: 'Choisir des billets',
     chooseTickets: 'Sélection des billets',
     oneTypePerOrder: 'Un seul type de billet par commande',

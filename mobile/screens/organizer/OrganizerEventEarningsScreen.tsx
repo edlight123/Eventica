@@ -47,11 +47,28 @@ type BankDestination = {
   isPrimary: boolean
 }
 
+/**
+ * The release ladder's verdict for this event, from the server. Settlement
+ * status answers "has the hold period elapsed"; this answers "would a withdrawal
+ * actually be accepted right now", which is the stricter and more useful
+ * question. Absent when the server could not compute it — treat as unknown.
+ */
+type ReleasePreview = {
+  releasedNow: boolean
+  releasableMinor: number
+  availableAt: string | null
+  holdHours: number
+  reason: string
+  tier: 'new' | 'established' | 'pre_event' | string
+  reviewStatus: string | null
+}
+
 type EventEarnings = {
   availableToWithdraw: number
   currency?: 'HTG' | 'USD' | 'CAD' | 'EUR'
   settlementStatus?: 'pending' | 'ready' | 'locked' | string
   settlementReadyDate?: string | null
+  release?: ReleasePreview | null
   lastCalculatedAt?: string | null
   dataSource?: string
   grossSales?: number
@@ -138,6 +155,20 @@ export default function OrganizerEventEarningsScreen() {
   const availableToWithdraw = useMemo(() => {
     if (!earnings) return 0
     if (earnings?.settlementStatus !== 'ready') return 0
+    /**
+     * The release ladder has the final say, and it is stricter than settlement:
+     * an event still inside its post-event hold, one with no end date, or one the
+     * payouts team is reviewing has nothing withdrawable no matter what
+     * settlement says. Showing a figure here that the withdraw button then
+     * refuses is the surprise this guards against.
+     *
+     * `release` absent means the server could not compute it — treat that as
+     * unknown and fall back to the old behaviour rather than blocking a payout.
+     */
+    if (earnings.release && earnings.release.releasedNow === false) return 0
+    if (earnings.release && typeof earnings.release.releasableMinor === 'number') {
+      return Math.max(0, earnings.release.releasableMinor)
+    }
 
     const net = typeof earnings.netAmount === 'number' && Number.isFinite(earnings.netAmount) ? earnings.netAmount : null
     const withdrawn = typeof earnings.withdrawnAmount === 'number' && Number.isFinite(earnings.withdrawnAmount) ? earnings.withdrawnAmount : 0
@@ -181,12 +212,35 @@ export default function OrganizerEventEarningsScreen() {
     return d.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric' })
   }, [earnings?.settlementReadyDate, dateLocale])
 
+  /**
+   * When the release ladder says the money is due — the date the withdraw button
+   * will actually start working. Preferred over the settlement date, which is a
+   * weaker promise: settlement can read "ready" while the post-event hold still
+   * has hours to run.
+   */
+  const releaseDateLabel = useMemo(() => {
+    const raw = earnings?.release?.availableAt
+    if (!raw) return ''
+    const d = new Date(raw)
+    if (isNaN(d.getTime())) return ''
+    return d.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric' })
+  }, [earnings?.release?.availableAt, dateLocale])
+
   const notReadyReason = useMemo(() => {
-    if (settlementReadyDateLabel) {
-      return t('organizerEarnings.notices.notReadyWithDate').replace('{date}', settlementReadyDateLabel)
+    // The payouts team holding an event is a different situation from waiting out
+    // a hold, and saying "available Aug 20" would be a promise nobody can keep.
+    if (earnings?.release?.reason === 'payout_under_review') {
+      return t('organizerEarnings.notices.underReview')
+    }
+    if (earnings?.release?.reason === 'no_end_date') {
+      return t('organizerEarnings.notices.missingEndDate')
+    }
+    const label = releaseDateLabel || settlementReadyDateLabel
+    if (label) {
+      return t('organizerEarnings.notices.notReadyWithDate').replace('{date}', label)
     }
     return t('organizerEarnings.notices.notReady')
-  }, [settlementReadyDateLabel, t])
+  }, [earnings?.release?.reason, releaseDateLabel, settlementReadyDateLabel, t])
 
   const webBaseUrl = process.env.EXPO_PUBLIC_WEB_URL || 'https://tikem.co'
 

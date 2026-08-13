@@ -269,6 +269,201 @@ async function loadTicketFacts(eventId: string): Promise<TicketFacts> {
   return facts
 }
 
+// ── Shared, side-effect-free decision assembly ──────────────────────────────
+
+/**
+ * Everything the ladder needs to judge ONE event, gathered without writing
+ * anything.
+ *
+ * Both the gate (which refuses a withdrawal) and `previewRelease` (which tells
+ * the organizer when their money is due) go through here, so the date shown on
+ * the earnings screen and the date enforced at submit are computed once. When
+ * they were computed separately, the screen could promise money the gate would
+ * then refuse — which is the exact surprise this exists to prevent.
+ */
+async function buildReleaseInputs(args: {
+  eventId: string
+  organizerId: string
+  eventData: any
+  currency: string | null
+  availableMinor: number
+  grossMinor: number
+  refundedMinor?: number | null
+  context?: OrganizerReleaseContext
+  now: Date
+}): Promise<{
+  decision: ReleaseDecision
+  endsAt: Date | null
+  refundedMinor: number
+  history: OrganizerHistory
+  config: PayoutReleaseConfig
+  context: OrganizerReleaseContext
+}> {
+  const { eventId, organizerId, eventData, currency, availableMinor, now } = args
+  const context = args.context || (await loadOrganizerReleaseContext(organizerId, now))
+  const config = resolveConfig(context.platformConfig, context.override)
+
+  /**
+   * The end of the event, and nothing else.
+   *
+   * lib/earnings.ts settles off `start_datetime` and then `created_at` when
+   * `end_datetime` is missing, which is why an undated event was withdrawable the
+   * moment it was created. The ladder is a promise about time AFTER the event, so
+   * an event with no parseable end date has no ladder to climb: decideRelease()
+   * holds it as `no_end_date`. A start time is not an end time and is not
+   * substituted here.
+   */
+  const endsAt = toDateOrNull(eventData?.end_datetime ?? eventData?.endDateTime)
+
+  const facts = await loadTicketFacts(eventId)
+  const refundedMinor =
+    args.refundedMinor === null || args.refundedMinor === undefined
+      ? Math.max(0, facts.refundedMinor)
+      : Math.max(0, toMinor(args.refundedMinor))
+
+  /**
+   * A stored event_earnings row that records no gross (legacy or hand-repaired
+   * data) must not silently become permanently unwithdrawable, so fall back to
+   * what the ledger says is owed.
+   */
+  const grossMinorRaw = Math.max(0, toMinor(args.grossMinor))
+  const grossMinor = grossMinorRaw > 0 ? grossMinorRaw : availableMinor + refundedMinor
+
+  const eventForRelease: EventForRelease = {
+    eventId,
+    organizerId,
+    endsAt: endsAt ? endsAt.toISOString() : null,
+    status: eventData?.status ? String(eventData.status) : null,
+    grossMinor,
+    currency,
+    // MonCash/Haitian bank transfers have no chargeback mechanism, so there is no
+    // dispute to look up. This is NOT "we didn't check" — there is nothing to
+    // check. The protection on this rail is the post-event hold itself.
+    rail: 'moncash',
+    checkedInRatio: facts.liveTickets > 0 ? facts.checkedInTickets / facts.liveTickets : null,
+    // Null when no check-in recorded a method — the rules treat null as unknown
+    // and skip the trigger rather than guessing.
+    manualCheckInRatio:
+      facts.methodKnownCheckIns > 0 ? facts.manualCheckIns / facts.methodKnownCheckIns : null,
+    refundedMinor,
+    hasOpenDispute: false,
+  }
+
+  const completedEvents = Math.max(
+    0,
+    context.endedEventIds.size - (context.endedEventIds.has(eventId) ? 1 : 0)
+  )
+
+  const history: OrganizerHistory = {
+    completedEvents,
+    lifetimeGrossMinor: Math.max(
+      0,
+      context.lifetimeGrossMinorByCurrency[(currency || 'HTG').toUpperCase()] || 0
+    ),
+    // Lets the rules normalise the money thresholds, so one threshold means one
+    // economic amount whether the organizer settles in HTG or USD.
+    currency,
+    preEventReleaseApproved: context.override?.preEventReleaseApproved === true,
+    highRisk: context.override?.highRisk === true,
+    forceEstablished: context.override?.forceEstablished === true,
+  }
+
+  const decision = decideRelease({
+    event: eventForRelease,
+    history,
+    availableMinor,
+    config,
+    now,
+  })
+
+  return { decision, endsAt, refundedMinor, history, config, context }
+}
+
+/** What the organizer can be TOLD about this event's money, right now. */
+export type ReleasePreview = {
+  /** True when a withdrawal request for `releasableMinor` would be accepted. */
+  releasedNow: boolean
+  /** How much the ladder would allow today, minor units. */
+  releasableMinor: number
+  /** When the hold expires, ISO. Null when there is no date to promise. */
+  availableAt: string | null
+  /** The hold that applies to this organizer's tier, in hours. */
+  holdHours: number
+  /** decideRelease()'s machine reason, for a translated string. */
+  reason: string
+  tier: ReleaseDecision['tier']
+  /** Set when the payouts team is holding this event. */
+  reviewStatus: string | null
+}
+
+/**
+ * READ-ONLY twin of the gate, for screens.
+ *
+ * The earnings screen used to show "available to withdraw" from settlement
+ * status alone, so an organizer could read a figure the ladder would refuse the
+ * moment they tapped withdraw. This answers the question the screen should be
+ * asking — "is it released, and if not, when?" — and writes NOTHING. The gate
+ * files review-queue rows; a screen must never do that just by being opened.
+ */
+export async function previewRelease(args: {
+  eventId: string
+  organizerId: string
+  eventData: any
+  grossMinor: number
+  refundedMinor?: number | null
+  currency: string | null
+  availableMinor: number
+  context?: OrganizerReleaseContext
+  now?: Date
+}): Promise<ReleasePreview> {
+  const now = args.now || new Date()
+  const currency = args.currency ? String(args.currency).toUpperCase() : null
+  const availableMinor = Math.max(0, toMinor(args.availableMinor))
+
+  const frozen =
+    args.eventData?.payouts_frozen === true ||
+    String(args.eventData?.status || '') === 'cancelled'
+
+  const { decision, endsAt, history, config } = await buildReleaseInputs({
+    eventId: String(args.eventId),
+    organizerId: String(args.organizerId),
+    eventData: args.eventData || {},
+    currency,
+    availableMinor,
+    grossMinor: args.grossMinor,
+    refundedMinor: args.refundedMinor,
+    context: args.context,
+    now,
+  })
+
+  const holdHours = holdHoursFor(history, config)
+  const availableAt =
+    endsAt && holdHours >= 0 ? new Date(endsAt.getTime() + holdHours * 3_600_000) : null
+
+  // Read, never write: an opened screen must not queue anything for an admin.
+  const reviewSnap = await adminDb
+    .collection('payout_review_queue')
+    .doc(String(args.eventId))
+    .get()
+    .catch(() => null)
+  const reviewStatus = reviewSnap?.exists
+    ? String((reviewSnap.data() as any)?.status || '') || null
+    : null
+
+  const heldByReview =
+    (decision.release === 'review' && reviewStatus !== 'released') || reviewStatus === 'pending'
+
+  return {
+    releasedNow: !frozen && decision.release !== 'hold' && !heldByReview,
+    releasableMinor: frozen ? 0 : decision.releasableMinor,
+    availableAt: availableAt ? availableAt.toISOString() : null,
+    holdHours,
+    reason: frozen ? 'payouts_frozen' : heldByReview ? 'payout_under_review' : decision.reason,
+    tier: decision.tier,
+    reviewStatus,
+  }
+}
+
 // ── The gate ────────────────────────────────────────────────────────────────
 
 export type ReleaseGateInput = {
@@ -358,82 +553,18 @@ export async function gateHaitiWithdrawal(input: ReleaseGateInput): Promise<Rele
     )
   }
 
-  const context = input.context || (await loadOrganizerReleaseContext(organizerId, now))
-  const config = resolveConfig(context.platformConfig, context.override)
-
-  /**
-   * The end of the event, and nothing else.
-   *
-   * lib/earnings.ts settles off `start_datetime` and then `created_at` when
-   * `end_datetime` is missing, which is why an undated event was withdrawable the
-   * moment it was created. The ladder is a promise about time AFTER the event, so
-   * an event with no parseable end date has no ladder to climb: decideRelease()
-   * holds it as `no_end_date`. A start time is not an end time and is not
-   * substituted here.
-   */
-  const endsAt = toDateOrNull(eventData?.end_datetime ?? eventData?.endDateTime)
-
-  const facts = await loadTicketFacts(eventId)
-  const refundedMinor =
-    input.refundedMinor === null || input.refundedMinor === undefined
-      ? Math.max(0, facts.refundedMinor)
-      : Math.max(0, toMinor(input.refundedMinor))
-
-  /**
-   * A stored event_earnings row that records no gross (legacy or hand-repaired
-   * data) must not silently become permanently unwithdrawable, so fall back to
-   * what the ledger says is owed. This only ever affects the new cap below —
-   * every pre-existing guard, including the balance check, still applies.
-   */
-  const grossMinorRaw = Math.max(0, toMinor(input.grossMinor))
-  const grossMinor = grossMinorRaw > 0 ? grossMinorRaw : availableMinor + refundedMinor
-
-  const eventForRelease: EventForRelease = {
+  const built = await buildReleaseInputs({
     eventId,
     organizerId,
-    endsAt: endsAt ? endsAt.toISOString() : null,
-    status: eventData?.status ? String(eventData.status) : null,
-    grossMinor,
+    eventData,
     currency,
-    // MonCash/Haitian bank transfers have no chargeback mechanism, so there is no
-    // dispute to look up. This is NOT "we didn't check" — there is nothing to
-    // check. The protection on this rail is the post-event hold itself.
-    rail: 'moncash',
-    checkedInRatio: facts.liveTickets > 0 ? facts.checkedInTickets / facts.liveTickets : null,
-    // Null when no check-in recorded a method — the rules treat null as unknown
-    // and skip the trigger rather than guessing.
-    manualCheckInRatio:
-      facts.methodKnownCheckIns > 0 ? facts.manualCheckIns / facts.methodKnownCheckIns : null,
-    refundedMinor,
-    hasOpenDispute: false,
-  }
-
-  const completedEvents = Math.max(
-    0,
-    context.endedEventIds.size - (context.endedEventIds.has(eventId) ? 1 : 0)
-  )
-
-  const history: OrganizerHistory = {
-    completedEvents,
-    lifetimeGrossMinor: Math.max(
-      0,
-      context.lifetimeGrossMinorByCurrency[(currency || 'HTG').toUpperCase()] || 0
-    ),
-    // Lets the rules normalise the money thresholds, so one threshold means one
-    // economic amount whether the organizer settles in HTG or USD.
-    currency,
-    preEventReleaseApproved: context.override?.preEventReleaseApproved === true,
-    highRisk: context.override?.highRisk === true,
-    forceEstablished: context.override?.forceEstablished === true,
-  }
-
-  const decision = decideRelease({
-    event: eventForRelease,
-    history,
     availableMinor,
-    config,
+    grossMinor: input.grossMinor,
+    refundedMinor: input.refundedMinor,
+    context: input.context,
     now,
   })
+  const { decision, endsAt, refundedMinor, history, config } = built
 
   // ── hold: refuse with something the organizer can act on ──────────────────
   if (decision.release === 'hold') {

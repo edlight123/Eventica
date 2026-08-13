@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth'
 import { adminDb } from '@/lib/firebase/admin'
 import { getEventEarnings } from '@/lib/earnings'
+import { previewRelease } from '@/lib/payouts/withdrawal-gate'
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -33,6 +34,37 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       return NextResponse.json({ earnings: null }, { status: 200 })
     }
 
+    /**
+     * WHEN the money is actually due, not just whether settlement has elapsed.
+     *
+     * "Available to withdraw" used to be derived from settlementStatus alone, so
+     * an organizer could read a figure that the release ladder then refused the
+     * instant they tapped withdraw. This asks the ladder the same question the
+     * withdrawal routes ask, and hands the answer to the screen.
+     *
+     * previewRelease writes nothing — the gate files review-queue rows, and
+     * opening an earnings screen must never queue work for an admin. A failure
+     * here degrades to the old behaviour rather than breaking the page: money
+     * figures still render, they just carry no release date.
+     */
+    let release = null
+    try {
+      const availableMinor = Math.max(
+        0,
+        Number((earnings as any)?.netAmount || 0) - Number((earnings as any)?.withdrawnAmount || 0)
+      )
+      release = await previewRelease({
+        eventId: id,
+        organizerId: user.id,
+        eventData,
+        grossMinor: Number((earnings as any)?.grossSales || 0),
+        currency: String((earnings as any)?.currency || 'HTG'),
+        availableMinor,
+      })
+    } catch (e) {
+      console.error('earnings release preview failed', (e as any)?.message)
+    }
+
     return NextResponse.json(
       {
         earnings: {
@@ -51,6 +83,10 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
           settlementReadyDate: (earnings as any)?.settlementReadyDate || null,
           lastCalculatedAt: (earnings as any)?.lastCalculatedAt || null,
           dataSource: (earnings as any)?.dataSource || 'unknown',
+
+          // The release ladder's verdict. Null when it could not be computed —
+          // clients must treat that as "unknown", never as "released".
+          release,
         },
       },
       { status: 200 }

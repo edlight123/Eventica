@@ -1073,6 +1073,8 @@ export default {
 
   paymentModal: {
     selectMethod: 'Choose a payment method',
+    subtotal: 'Subtotal',
+    serviceFee: 'Service fee',
     methods: {
       card: 'Credit/Debit Card',
       cardBrands: 'Visa, Mastercard, AmEx',
@@ -1746,6 +1748,8 @@ export default {
       noEarnings: 'No earnings record found for this event yet.',
       notReady: 'Earnings are not ready for withdrawal.',
       notReadyWithDate: 'Earnings will be available for withdrawal on {date}.',
+      underReview: 'Your payout for this event is with the Tikèm payouts team. We will email you as soon as it is approved.',
+      missingEndDate: 'This event has no end date, so we cannot tell when its funds are due. Add an end date to the event.',
     },
     modal: {
       titleMoncash: 'Request MonCash Withdrawal',
@@ -2166,6 +2170,7 @@ export default {
 
   ticketSelector: {
     title: 'Select Tickets',
+    includesFee: 'Includes {amount} service fee',
     chooseTickets: 'Choose Tickets',
     oneTypePerOrder: 'One ticket type per order',
     ticketsAvailable: 'tickets available',

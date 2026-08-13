@@ -607,8 +607,8 @@ export default function TieredTicketSelector({
                 {showFeeLine && (
                   <Text style={styles.feeLine}>
                     {t('ticketSelector.includesFee', {
-                      defaultValue: 'Includes {amount} service fee',
-                    }).replace('{amount}', formatCurrency(orderPricing.buyerFee, displayCurrency))}
+                      amount: formatCurrency(orderPricing.buyerFee, displayCurrency),
+                    })}
                   </Text>
                 )}
               </View>
