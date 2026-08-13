@@ -11,7 +11,7 @@
  *   sheet gates publishing in create mode, with a save-as-draft escape hatch.
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   View,
   Animated,
@@ -651,6 +651,30 @@ export default function CreateEventFlowRefactored() {
   };
 
   // ── Location (ported from Step2Location) ──
+  // The organizer's own country leads the chip row, and seeds a new draft:
+  // a Miami organizer shouldn't have to scroll past Haiti and re-pick a city
+  // every time ("list them by order of where the organizer is located").
+  const organizerCountry = (userProfile as any)?.default_country || null;
+  const orderedCountries = useMemo(() => {
+    if (!organizerCountry) return COUNTRIES;
+    const own = COUNTRIES.filter((c) => c.code === organizerCountry);
+    if (own.length === 0) return COUNTRIES;
+    return [...own, ...COUNTRIES.filter((c) => c.code !== organizerCountry)];
+  }, [organizerCountry]);
+
+  // Seed once, for a NEW draft only — never fight an edit or a manual pick.
+  // Routed through handleCountryChange so the department/city/currency cascade
+  // (and the coming-soon RSVP-only rule) stays in one place.
+  const seededCountryRef = useRef(false);
+  useEffect(() => {
+    if (isEditMode || seededCountryRef.current) return;
+    if (!organizerCountry || organizerCountry === 'HT') return;
+    if (!COUNTRIES.some((c) => c.code === organizerCountry)) return;
+    seededCountryRef.current = true;
+    handleCountryChange(organizerCountry);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [organizerCountry, isEditMode]);
+
   const selectedCountry = (eventDraft as any).country || 'HT';
   const isHaiti = selectedCountry === 'HT';
   // Coming-soon markets (e.g. Dominican Republic): browsable + selectable, but no
@@ -1014,6 +1038,7 @@ export default function CreateEventFlowRefactored() {
                   onChange={onChange}
                   textColor={colors.text}
                   minimumDate={minimumDate}
+                  style={styles.pickerSpinner}
                 />
               </View>
             </View>
@@ -1535,7 +1560,7 @@ export default function CreateEventFlowRefactored() {
               <View style={styles.chipBlock}>
                 <Text style={styles.chipLabel}>{t('organizerCreateEvent.location.country')}</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScroll}>
-                  {COUNTRIES.map((country) => (
+                  {orderedCountries.map((country: { code: string; name: string }) => (
                     <TouchableOpacity
                       key={country.code}
                       style={[styles.chip, selectedCountry === country.code && styles.chipActive]}
@@ -3062,6 +3087,15 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     height: 240,
     backgroundColor: colors.surface,
     paddingBottom: Platform.OS === 'ios' ? 20 : 0,
+    // Centre the wheel. The iOS spinner lays out at its intrinsic width, so
+    // without these it sits hard against the left edge of the sheet with dead
+    // space to its right ("can it be centered").
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pickerSpinner: {
+    width: '100%',
+    alignSelf: 'center',
   },
 
   // ── Confirm sheet ──
