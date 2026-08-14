@@ -1231,6 +1231,8 @@ export default {
   },
 
   organizerPayoutSettings: {
+      identityRowLabel: 'Verifye idantite ou',
+      addMethodRow: 'Ajoute yon mwayen peman',
     headerTitle: 'Paramèt Peman',
     markets: {
       noneSet: 'Poko chwazi — tape pou chwazi',

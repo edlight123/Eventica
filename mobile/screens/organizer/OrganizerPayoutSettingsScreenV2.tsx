@@ -30,7 +30,6 @@ import SectionHeader from '../../components/SectionHeader'
 import EmptyState from '../../components/EmptyState'
 import WhitePillCTA from '../../components/WhitePillCTA'
 import MoneyText from '../../components/MoneyText'
-import InfoNotice from '../../components/organizer/InfoNotice'
 import OrganizerScreenHeader from '../../components/organizer/OrganizerScreenHeader'
 import SegmentedTabs from '../../components/organizer/SegmentedTabs'
 import SelectField from '../../components/organizer/SelectField'
@@ -895,19 +894,30 @@ export default function OrganizerPayoutSettingsScreenV2() {
           <>
         {activeTab === 'methods' && (
           <>
-        {/* Identity Verification Status */}
+        {/*
+          SETUP ROWS, not blocks. Identity used to be an info card stacked on a
+          full-width white button, and markets an open form — together they
+          pushed the actual payout methods off the first screen. Both are
+          one-time decisions, so they read as two rows you tap, and the page
+          becomes what its title says: your payout methods.
+        */}
         {!identityVerified && (
-          <View style={styles.identityBlock}>
-            <InfoNotice
-              icon="shield-checkmark-outline"
-              text={t('organizerPayoutSettings.identityNotice')}
-            />
-            <WhitePillCTA
-              style={styles.identityCta}
-              label={t('organizerPayoutSettings.verifyIdentity')}
-              onPress={() => navigation.navigate('OrganizerVerification')}
-            />
-          </View>
+          <TouchableOpacity
+            style={styles.setupRow}
+            onPress={() => navigation.navigate('OrganizerVerification')}
+            accessibilityRole="button"
+          >
+            <Ionicons name="shield-checkmark-outline" size={20} color={colors.primary} />
+            <View style={styles.setupRowText}>
+              <Text style={styles.setupRowLabel}>
+                {t('organizerPayoutSettings.identityRowLabel')}
+              </Text>
+              <Text style={styles.setupRowHint} numberOfLines={2}>
+                {t('organizerPayoutSettings.identityNotice')}
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
+          </TouchableOpacity>
         )}
 
         {/* Where you run events. Nothing used to ask, so every organizer was
@@ -1017,13 +1027,10 @@ export default function OrganizerPayoutSettingsScreenV2() {
           />
         ) : (
           <>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.methodsEyebrow}>{t('organizerPayoutSettings.methodsSectionTitle').toUpperCase()}</Text>
-              <TouchableOpacity style={styles.addButton} onPress={() => setShowAddModal(true)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                <Ionicons name="add" size={18} color={colors.text} />
-                <Text style={styles.addButtonText}>{t('organizerPayoutSettings.add')}</Text>
-              </TouchableOpacity>
-            </View>
+            {/* The region headings below already say what this list is; a
+                third "PAYOUT METHODS" label above them was chrome. Adding a
+                method now sits at the END of the list, where you look once you
+                have read what you already have. */}
 
             {/* Two payout REGIONS, not one flat list. Which one an event pays
                 through is decided by the event's country
@@ -1189,6 +1196,20 @@ export default function OrganizerPayoutSettingsScreenV2() {
             })}
             </>
             ) : null}
+
+            {/* Add sits at the END: you look for it after reading what you
+                already have, and it no longer competes with the section
+                headings for the top of the screen. */}
+            <TouchableOpacity
+              style={styles.addMethodRow}
+              onPress={() => setShowAddModal(true)}
+              accessibilityRole="button"
+            >
+              <Ionicons name="add" size={18} color={colors.text} />
+              <Text style={styles.addMethodRowText}>
+                {t('organizerPayoutSettings.addMethodRow')}
+              </Text>
+            </TouchableOpacity>
           </>
         )}
           </>
@@ -1526,12 +1547,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flex: 1,
     backgroundColor: colors.background,
   },
-  identityBlock: {
-    marginBottom: 12,
-  },
-  identityCta: {
-    marginTop: 12,
-  },
   tabsWrap: {
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
@@ -1592,23 +1607,10 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     flexWrap: 'wrap',
     marginTop: 10,
   },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-    marginTop: 8,
-  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: colors.text,
-  },
-  methodsEyebrow: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.8,
-    color: colors.textSecondary,
   },
   methodGroupHeading: {
     fontSize: 12,
@@ -1624,6 +1626,39 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textSecondary,
     paddingVertical: 10,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  setupRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginBottom: 12,
+  },
+  setupRowText: { flex: 1, gap: 2 },
+  setupRowLabel: { fontSize: 15, fontWeight: '600', color: colors.text },
+  setupRowHint: { fontSize: 12, lineHeight: 17, color: colors.textSecondary },
+  addMethodRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 16,
+    paddingVertical: 14,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: colors.border,
+  },
+  addMethodRowText: { fontSize: 15, fontWeight: '600', color: colors.text },
   marketsBlock: {
     marginBottom: 22,
   },
@@ -1666,20 +1701,6 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontWeight: '600',
     color: colors.textSecondary,
     textDecorationLine: 'underline',
-  },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: radius.button,
-    backgroundColor: colors.surfaceRaised,
-  },
-  addButtonText: {
-    color: colors.text,
-    fontWeight: '600',
-    fontSize: 14,
   },
   destinationCard: {
     backgroundColor: colors.surface,

@@ -1261,6 +1261,8 @@ export default {
   },
 
   organizerPayoutSettings: {
+      identityRowLabel: 'Vérifiez votre identité',
+      addMethodRow: 'Ajouter un moyen de paiement',
     headerTitle: 'Paramètres de paiement',
     markets: {
       noneSet: 'Non défini — touchez pour choisir',

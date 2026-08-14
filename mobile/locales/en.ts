@@ -1555,6 +1555,8 @@ export default {
   },
 
   organizerPayoutSettings: {
+      identityRowLabel: 'Verify your identity',
+      addMethodRow: 'Add a payout method',
     headerTitle: 'Payout Settings',
     // Declared markets — where the organizer says they'll run events. Shapes
     // which payout rails are offered; never what is allowed.
