@@ -12,6 +12,13 @@ interface SectionHeaderProps {
   /** Right-aligned slot for callers that need something other than "see all"
       (e.g. a payout region's "action needed"). Ignored when onViewAll is set. */
   trailing?: React.ReactNode;
+  /**
+   * How many lines the subtitle may use. One is right for a home rail, where the
+   * subtitle is a flourish and the row must stay a fixed height. A settings
+   * screen explaining a decision needs the whole sentence — clipping it at
+   * "change it any ti…" makes the instruction useless.
+   */
+  subtitleLines?: number;
 }
 
 /**
@@ -19,7 +26,13 @@ interface SectionHeaderProps {
  * events") with a teal "see all →" link aligned right. Subtitles are optional
  * and kept tight.
  */
-export default function SectionHeader({ title, subtitle, onViewAll, trailing }: SectionHeaderProps) {
+export default function SectionHeader({
+  title,
+  subtitle,
+  onViewAll,
+  trailing,
+  subtitleLines = 1,
+}: SectionHeaderProps) {
   const { colors } = useTheme();
   const { t } = useI18n();
   const styles = getStyles(colors);
@@ -31,7 +44,7 @@ export default function SectionHeader({ title, subtitle, onViewAll, trailing }: 
           {title.toLowerCase()}
         </Text>
         {!!subtitle && (
-          <Text style={styles.subtitle} numberOfLines={1}>
+          <Text style={styles.subtitle} numberOfLines={subtitleLines}>
             {subtitle}
           </Text>
         )}

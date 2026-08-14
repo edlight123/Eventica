@@ -3,11 +3,14 @@
  * Pull the latest TestFlight tester feedback (screenshots + comments) from the
  * App Store Connect API and download the images locally so they can be reviewed.
  *
- * Usage:
- *   ASC_ISSUER_ID=<uuid> \
- *   ASC_KEY_ID=XA7DX3A8Z8 \
- *   ASC_KEY_PATH=~/Downloads/AuthKey_XA7DX3A8Z8.p8 \
+ * Usage — put these three in .env.local once, then just run the script:
+ *   ASC_ISSUER_ID=<uuid from App Store Connect -> Users and Access -> Integrations>
+ *   ASC_KEY_ID=XA7DX3A8Z8
+ *   ASC_KEY_PATH=~/Downloads/AuthKey_XA7DX3A8Z8.p8
+ *
  *   node scripts/fetch-testflight-feedback.mjs [outDir]
+ *
+ * Any of them can still be overridden inline for a one-off run.
  *
  * The key must be an App Store Connect API key (Users and Access ->
  * Integrations), NOT an APNs key. Issuer ID is on that same page.
@@ -16,6 +19,12 @@ import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
+import dotenv from 'dotenv'
+
+// Read .env.local first, like the other scripts, so the issuer id and key id can
+// live there once instead of being retyped (or pasted into a chat) every run.
+// Anything already in the environment wins, so an inline override still works.
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') })
 
 const APP_ID = process.env.ASC_APP_ID || '6794334427' // Tikèm, from mobile/eas.json
 const ISSUER_ID = process.env.ASC_ISSUER_ID

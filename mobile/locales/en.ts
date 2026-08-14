@@ -88,6 +88,7 @@ export default {
     friendsGoingSuffix: 'friends going',
   },
   common: {
+    edit: 'Edit',
     free: 'Free',
     from: 'from',
     at: 'at',

@@ -88,6 +88,7 @@ export default {
     friendsGoingSuffix: 'zanmi ap ale',
   },
   common: {
+    edit: 'Chanje',
     free: 'Gratis',
     from: 'apati',
     at: 'nan',

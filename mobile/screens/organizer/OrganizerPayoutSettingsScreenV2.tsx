@@ -245,6 +245,15 @@ export default function OrganizerPayoutSettingsScreenV2() {
   // Manual override: a declaration narrows the UI, it must never be able to
   // lock anyone out of a rail they turn out to need.
   const [showAllRails, setShowAllRails] = useState(false)
+  /**
+   * Open until the organizer has actually declared where they run events, then
+   * collapsed. `marketsLoaded` gates it so the section does not flash open on
+   * every launch before the saved answer arrives.
+   */
+  const [marketsExpandedOverride, setMarketsExpandedOverride] = useState(false)
+  const marketsExpanded =
+    marketsExpandedOverride || !marketsLoaded || declaredMarkets.length === 0
+  const setMarketsExpanded = setMarketsExpandedOverride
 
   // Until markets have loaded we show everything — narrowing off a not-yet-known
   // answer would flash the wrong rails. A rail that is already SET UP always
@@ -900,11 +909,37 @@ export default function OrganizerPayoutSettingsScreenV2() {
             Connect they will never use, and a diaspora organizer got no signal
             that Haiti and the US are TWO setups. Answering is optional and
             re-editable; it changes what is OFFERED, never what is allowed. */}
+        {/*
+          COLLAPSED ONCE ANSWERED. This is a setup decision, not something an
+          organizer needs in front of them every time they check a payout method
+          — and leaving it expanded is what made this page read as a form rather
+          than a list. Unanswered, it stays open, because that is the moment it
+          matters. Answered, it becomes one line they can tap to change.
+        */}
         <View style={styles.marketsBlock}>
-          <SectionHeader
-            title={t('organizerPayoutSettings.markets.title')}
-            subtitle={t('organizerPayoutSettings.markets.subtitle')}
-          />
+          <TouchableOpacity
+            activeOpacity={marketsExpanded ? 1 : 0.7}
+            disabled={marketsExpanded}
+            onPress={() => setMarketsExpanded(true)}
+            accessibilityRole={marketsExpanded ? undefined : 'button'}
+          >
+            <SectionHeader
+              title={t('organizerPayoutSettings.markets.title')}
+              subtitle={
+                marketsExpanded
+                  ? t('organizerPayoutSettings.markets.subtitle')
+                  : declaredMarkets.map((code) => countryName(code)).join(' · ')
+              }
+              subtitleLines={2}
+              trailing={
+                marketsExpanded ? null : (
+                  <Text style={styles.marketsEdit}>{t('common.edit')}</Text>
+                )
+              }
+            />
+          </TouchableOpacity>
+          {marketsExpanded ? (
+          <>
           <View style={styles.marketChipRow}>
             {DECLARABLE_MARKETS.map((code) => {
               const isOn = declaredMarkets.includes(code)
@@ -958,6 +993,8 @@ export default function OrganizerPayoutSettingsScreenV2() {
                 {t('organizerPayoutSettings.markets.showAllRails')}
               </Text>
             </TouchableOpacity>
+          ) : null}
+          </>
           ) : null}
         </View>
 
@@ -1609,6 +1646,11 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 12,
     lineHeight: 18,
     color: colors.textSecondary,
+  },
+  marketsEdit: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.primary,
   },
   marketsShowAll: {
     marginTop: 12,

@@ -1,0 +1,353 @@
+{
+  "fetchedAt": "2026-08-14T00:44:22.783Z",
+  "appId": "6794334427",
+  "screenshotFeedbackCount": 20,
+  "crashFeedbackCount": 0,
+  "screenshotFeedback": [
+    {
+      "id": "AGIOkZHNEIUx-pWSBDmbFsM",
+      "createdDate": "2026-08-14T00:19:57.504Z",
+      "comment": "this looks weird ",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/Cqo/AbE/Hkk/CT4/C-8/OSszdJxFJQA/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=VnIsMpvdGF4CNtIZiaMsYU1JCGI%3D&p_sig=5PKDIs3uthX43GIdgyQ6N3iZQGo",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-14T00-19-57-504Z_AGIOkZHN_1.png"
+        }
+      ]
+    },
+    {
+      "id": "APCrlLsXEgyHNj2wLENUaKY",
+      "createdDate": "2026-08-14T00:16:20.44Z",
+      "comment": "for the government id it should ask for type. like passport, id card \n\ncan u pls update. this way if passport, it doesn’t need to ask for front and back. but could you also implement auto capture. see what open sources you can use ",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/Fl0/A-k/Gx4/GYw/HLI/QX8YVoNd11w/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=kq%2BUYRq7pwF8akiqFirfjTmUS64%3D&p_sig=z7Sf-zhqOT-vcrtoNF_SvwL9vRg",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-14T00-16-20-44Z_APCrlLsX_1.png"
+        }
+      ]
+    },
+    {
+      "id": "AGvO66H_TzM1rZ7I6Lhmvjw",
+      "createdDate": "2026-08-13T23:53:47.435Z",
+      "comment": "i sent a comment about this page being too crowded. you never addressed if ",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/Bi4/IoM/I1s/D18/Jes/25ImKCqRnwY/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=xaBRuam577n%2FenAYjfSf53s%2BbtY%3D&p_sig=YnYWdX0iPqAU9AUGERv9zdBuNWM",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-13T23-53-47-435Z_AGvO66H__1.png"
+        }
+      ]
+    },
+    {
+      "id": "ALLHS4d-nCOolWesOoVHdQc",
+      "createdDate": "2026-08-13T18:41:16.503Z",
+      "comment": "the UX here is weird and crowded. why can’t it be multi step. use claude design to think of a nicer style for it. ",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/E-c/FmQ/B1g/FDA/Hjk/vIFHCw18O2E/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=IWBBye9qvsjcnT8lQyafaF97siw%3D&p_sig=CQWsLhWNd82dAIcc6fdu3GKcdtM",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-13T18-41-16-503Z_ALLHS4d-_1.png"
+        }
+      ]
+    },
+    {
+      "id": "AEAUX1nl0ifuDuzU0NwmtC4",
+      "createdDate": "2026-08-13T13:02:30.476Z",
+      "comment": "see how you can polish ",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/Fnw/BGA/IY8/B9I/CDA/p0MhqdaPSHg/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=SXwa0NnZgOA0V%2BY18WhKvnrbbrc%3D&p_sig=FKXToUzOwWfY4lC4VNuwJWJ-Njk",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-13T13-02-30-476Z_AEAUX1nl_1.png"
+        }
+      ]
+    },
+    {
+      "id": "AM19E8kkGqiMIk2xUYoubqo",
+      "createdDate": "2026-08-13T03:58:59.25Z",
+      "comment": "this part is confusing. a person in the U.S. may end up filling the bank account section and the moncash section thinking it is the right section. can you pls fix? \n\nhow should we make better?",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/HiI/E9s/E1I/IWk/Ekg/T9myG9JUPoE/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=%2F1zxU916Ota4FauA0pQEtPG1I1U%3D&p_sig=s8tApQyeUi5ezVYMBJHs648y50c",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-13T03-58-59-25Z_AM19E8kk_1.png"
+        }
+      ]
+    },
+    {
+      "id": "AEihW_xe_j3JDZjbnoEURh8",
+      "createdDate": "2026-08-13T00:47:49.791Z",
+      "comment": "",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/Ht8/B00/D0I/Fz4/AXo/upGLYxeDhRk/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=r0AjEfmH%2BqCH42eY5QL8KKCe%2FW4%3D&p_sig=Rer0XIh6klXDaAoASPmkzlSiOKg",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-13T00-47-49-791Z_AEihW_xe_1.png"
+        },
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/DKc/F_U/IYc/IwQ/DVY/N-_WdmplzkQ/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=wfgWmqI66XgZ9gRQLhXslbOabQ8%3D&p_sig=x9UnZJFyfnFJkO-andU-kSISL34",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-13T00-47-49-791Z_AEihW_xe_2.png"
+        },
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/Fd4/B4M/FY8/EVs/Az8/EZt2P3yapCs/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=HVoMvobhR2xgwwCnKoWq0m6KWqA%3D&p_sig=F_jduxKN7OqsOgII4s787c-WNHM",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-13T00-47-49-791Z_AEihW_xe_3.png"
+        },
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/A7k/Gtw/GQ4/FNQ/G3o/CBpmj2juTlI/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=RW9WYCKqEFgc3Qu%2BRo4dmAEkYyA%3D&p_sig=YGhWoS3zAN5-pHTyRgyNt1Y4Lto",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-13T00-47-49-791Z_AEihW_xe_4.png"
+        },
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/EqU/B8Y/Ffk/IfY/DIo/_awNa1vummE/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=CDDS7C5f7OPfLc%2FQu0wkUATE6OQ%3D&p_sig=glIRyGIEFKk4zIcv5Bl43skD3cs",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-13T00-47-49-791Z_AEihW_xe_5.png"
+        },
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/Eas/Fr8/C8U/CW0/EtE/BYmCLaGKvwM/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=rj3PdKDODe6cwobqz0U16uLNc1k%3D&p_sig=LHeRUEybYMUmwrGdYUdEtCqmhlc",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-13T00-47-49-791Z_AEihW_xe_6.png"
+        },
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/IS4/JGY/B60/APA/Jag/ZRbeE6L1P6c/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=%2F4W%2Fvm%2FULcs90qcUtnPNlRNR2Z0%3D&p_sig=y_mJJng7SuWEMETSt9RsiAh0e-w",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-13T00-47-49-791Z_AEihW_xe_7.png"
+        }
+      ]
+    },
+    {
+      "id": "AMgd7lCqdS226JT-idqxXBw",
+      "createdDate": "2026-08-12T16:41:43.44Z",
+      "comment": "another concerns i have about the payout here is that it doesn’t differentiate where the person is doing their event. for example, if an organizer can have a two profiles. if they are doing an event in haiti, they get one. for us canada and france they get another one. for haiti we do kyc internally. for others we differ to stripe. why the system may already have all that the onboarding or distinction isn’t clear. it should tell someone if they want to do event in these country they would need a separate profile. \n\nsee how you can do that. don’t implement yet, want to hear your ideas ",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/Iuw/Ab4/Ci4/DRQ/CCQ/zSH31Vq6hrI/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=xDjGL250PLCCi5DzlAO%2B2kyJpIs%3D&p_sig=7Ve12-pprbmaUeFOTAIVg85TQ-A",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-12T16-41-43-44Z_AMgd7lCq_1.png"
+        }
+      ]
+    },
+    {
+      "id": "AANLYI-Vo7DAKyF-SK_g_po",
+      "createdDate": "2026-08-12T15:57:10.215Z",
+      "comment": "no native designs ",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/CJY/GBk/BqI/I6o/BPg/OO2rbO6BWH8/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=0In6xTirr2kGHmoV19U6GaETb0Y%3D&p_sig=2Bb75WBGZt_rEJb__7oy_4CHDJs",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-12T15-57-10-215Z_AANLYI-V_1.png"
+        }
+      ]
+    },
+    {
+      "id": "AHgLXndiswDKwn1q-_t08FQ",
+      "createdDate": "2026-08-12T15:14:31.132Z",
+      "comment": "but we asked for it to look native but this doesn’t ",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/Jsc/JqU/GiE/IAI/Fsc/Tzg4GeqxJRo/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=FmCLjMWha8wtI8Y9OaqzbKzWgrU%3D&p_sig=kEU_jNi-EPE8Q8zJi0ags9FU5o4",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-12T15-14-31-132Z_AHgLXndi_1.png"
+        }
+      ]
+    },
+    {
+      "id": "ALkwan8SiEqpvFSVRuQcRMU",
+      "createdDate": "2026-08-12T15:02:14.527Z",
+      "comment": "",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/EPI/GEg/G_s/EyU/Cc0/efmyFqzmsls/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=6Oi6i4xTl7i5vuXcdY%2BtAHBI76E%3D&p_sig=KkhEM0988r0XBAyOQmPHBVeTpPc",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-12T15-02-14-527Z_ALkwan8S_1.png"
+        }
+      ]
+    },
+    {
+      "id": "APYR4ghDPdT3SQsobjD2SX0",
+      "createdDate": "2026-08-12T15:01:41.929Z",
+      "comment": "it first gives a black screen but when i click x it renders this page ",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/DWw/G4o/HO8/I-U/Aok/p5g8_4ImE2w/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=YhpU1%2BtkXuByNLLd8OkV%2BlFtgWA%3D&p_sig=scPPf5cmk1S1yCTrKNlJpQFNufE",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-12T15-01-41-929Z_APYR4ghD_1.png"
+        }
+      ]
+    },
+    {
+      "id": "AAIdEv6NZb_OScfCuV-8AnY",
+      "createdDate": "2026-08-12T14:59:11.305Z",
+      "comment": "now no spins but still nada",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/C4I/DmE/EYQ/GLE/B8I/qcJrHfO01IA/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=iAjVAO3YLfuNDc55GGKrJnLp0mU%3D&p_sig=2TJo-h1hp73lVNdgodfvRzTTfSM",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-12T14-59-11-305Z_AAIdEv6N_1.png"
+        }
+      ]
+    },
+    {
+      "id": "AO2nh58Xn4zTXXdTOwBdRsI",
+      "createdDate": "2026-08-12T14:58:56.039Z",
+      "comment": "same thing just spinning ",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/DAM/JbQ/BJQ/AIw/Ek4/8c2QbY6LbQU/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=bbD4W%2FvVSkENuEX846l9xdyD7C8%3D&p_sig=iaISWnD5VQpGvOpEI0WyskBEgY4",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-12T14-58-56-039Z_AO2nh58X_1.png"
+        }
+      ]
+    },
+    {
+      "id": "AO4qHlhXx4Pwp1OHr79ZEuM",
+      "createdDate": "2026-08-12T14:42:25.6Z",
+      "comment": "spins forever",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/Aco/CJ4/Hn4/BRc/Ckg/CGPpR16N3cQ/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=OAqzf%2BjwN7QbkT0Pp924IAJg92M%3D&p_sig=0b0dT9l80iVuTsJU6OiJVhTdhxw",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-12T14-42-25-6Z_AO4qHlhX_1.png"
+        }
+      ]
+    },
+    {
+      "id": "ANxlSEs42nS2Xy5PxKFNIfo",
+      "createdDate": "2026-08-12T14:42:07.193Z",
+      "comment": "no skeletons",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/HVg/GJ4/HIk/Fek/G_4/SuuCVgSuIEQ/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=Wn7YCPJ%2FGoaXIJTLFtX09DPD6co%3D&p_sig=hFNEHczZNVV8owHEsF6VVnx_zZs",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-12T14-42-07-193Z_ANxlSEs4_1.png"
+        }
+      ]
+    },
+    {
+      "id": "ANB1c1_TDlxvHA_kfLrMJsA",
+      "createdDate": "2026-08-12T14:36:03.975Z",
+      "comment": "still shows this blank page ",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/EXE/JPY/ADM/HP0/AH8/8wLFWYN-BsU/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=iErnXLL1rdZl4Emv9kUCz5omMEE%3D&p_sig=1hmQ-ttCRMwaaie9eoWDINlO4Uk",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-12T14-36-03-975Z_ANB1c1_T_1.png"
+        }
+      ]
+    },
+    {
+      "id": "AMntspWjNaWXhQ3pZmMvXm4",
+      "createdDate": "2026-08-12T14:35:41.198Z",
+      "comment": "two many info on this page ",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/DEs/JQg/AM4/HaU/IuQ/bGnrtxZ8Jco/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=mSNGBaqkIoKPugr4LXBW5WrKoP8%3D&p_sig=v0Mf81kSDR6OnjOZZVsCCQBaOrc",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-12T14-35-41-198Z_AMntspWj_1.png"
+        }
+      ]
+    },
+    {
+      "id": "AEqYAAjhAhVFbVgAHuO6Q6M",
+      "createdDate": "2026-08-12T14:08:05.609Z",
+      "comment": "it keeps loading for ever ",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/EIY/HUQ/Dwc/G_Y/GRo/rooFTn_r35A/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=%2FzyQTihyPHGksbyqVm3ZYx4FhqU%3D&p_sig=KMKu_CQDVATugyyh_YHtbZCkxnE",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-12T14-08-05-609Z_AEqYAAjh_1.png"
+        }
+      ]
+    },
+    {
+      "id": "ALYatOONCF1KLFx--hkjEPY",
+      "createdDate": "2026-08-12T13:00:06.051Z",
+      "comment": "stills asks me to login, and it shows with all the notifications cards and all ",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/E9Q/FcI/Akc/Hks/G-w/Ruh1VUkNU0g/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=duJyYmHCSkffbItPY%2BCwxkwQ%2BIg%3D&p_sig=4XnQl9iRL0QcNiaKDDWmffSd0lA",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-12T13-00-06-051Z_ALYatOON_1.png"
+        }
+      ]
+    }
+  ],
+  "crashFeedback": []
+}

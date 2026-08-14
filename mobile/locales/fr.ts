@@ -115,6 +115,7 @@ export default {
     friendsGoingSuffix: 'amis y vont',
   },
   common: {
+    edit: 'Modifier',
     free: 'Gratuit',
     from: 'à partir de',
     at: 'à',
