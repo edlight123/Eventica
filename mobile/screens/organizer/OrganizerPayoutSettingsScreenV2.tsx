@@ -1051,7 +1051,23 @@ export default function OrganizerPayoutSettingsScreenV2() {
             />
 
             {stripeProfile?.connected ? (
-              <View style={styles.destinationCard}>
+              // THE CARD IS THE BUTTON. Inline per-card actions (Manage on
+              // Stripe, View Status) made cards different heights depending on
+              // which actions applied, and left the card itself dead to touch.
+              <TouchableOpacity
+                style={styles.destinationCard}
+                activeOpacity={0.75}
+                accessibilityRole="button"
+                onPress={() =>
+                  startStripeConnect(
+                    stripeProfile.country === 'CA'
+                      ? 'canada'
+                      : stripeProfile.country === 'FR'
+                        ? 'france'
+                        : 'united_states'
+                  )
+                }
+              >
                 <View style={styles.destinationHeader}>
                   <View style={styles.methodIconTile}>
                     <Ionicons name="globe-outline" size={16} color={colors.text} />
@@ -1072,29 +1088,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
                     <StatusChip status="pending" label={t('organizerPayoutSettings.stripeCard.finishSetup')} />
                   )}
                 </View>
-                {!stripeProfile.verified && (
-                  <Text style={styles.destinationHint}>{t('organizerPayoutSettings.stripeCard.incompleteHint')}</Text>
-                )}
-                <TouchableOpacity
-                  style={styles.inlineAction}
-                  hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-                  onPress={() =>
-                    startStripeConnect(
-                      stripeProfile.country === 'CA'
-                        ? 'canada'
-                        : stripeProfile.country === 'FR'
-                          ? 'france'
-                          : 'united_states'
-                    )
-                  }
-                >
-                  <Text style={styles.inlineActionText}>
-                    {stripeProfile.verified
-                      ? t('organizerPayoutSettings.stripeCard.manage')
-                      : t('organizerPayoutSettings.stripeCard.finishSetup')}
-                  </Text>
-                </TouchableOpacity>
-              </View>
+              </TouchableOpacity>
             ) : (
               <Text style={styles.regionEmpty}>
                 {t('organizerPayoutSettings.regions.emptyInternational')}
@@ -1128,7 +1122,38 @@ export default function OrganizerPayoutSettingsScreenV2() {
               const isBank = dest.type === 'bank'
 
               return (
-                <View key={dest.id} style={styles.destinationCard}>
+                <TouchableOpacity
+                  key={dest.id}
+                  style={styles.destinationCard}
+                  activeOpacity={dest.verificationStatus !== 'verified' ? 0.75 : 1}
+                  disabled={dest.verificationStatus === 'verified'}
+                  accessibilityRole="button"
+                  onPress={() => {
+                    setSelectedDestination(dest)
+                    if (isBank) {
+                      setShowVerificationModal(true)
+                    } else if (identityVerified) {
+                      // MonCash activates on identity verification alone; payouts
+                      // are then reviewed and released manually by our team.
+                      showAlert(
+                        t('organizerPayoutSettings.moncashVerify.readyTitle'),
+                        t('organizerPayoutSettings.moncashVerify.readyBody')
+                      )
+                    } else {
+                      showAlert(
+                        t('organizerPayoutSettings.moncashVerify.title'),
+                        t('organizerPayoutSettings.moncashVerify.body'),
+                        [
+                          { text: t('organizerPayoutSettings.moncashVerify.cancel'), style: 'cancel' },
+                          {
+                            text: t('organizerPayoutSettings.moncashVerify.verifyCta'),
+                            onPress: () => navigation.navigate('OrganizerVerification'),
+                          },
+                        ]
+                      )
+                    }
+                  }}
+                >
                   <View style={styles.destinationHeader}>
                     <View style={styles.methodIconTile}>
                       <Ionicons
@@ -1154,44 +1179,7 @@ export default function OrganizerPayoutSettingsScreenV2() {
                     <StatusChip status={chip.status} label={chip.label} />
                   </View>
 
-                  {dest.verificationStatus !== 'verified' && (
-                    <TouchableOpacity
-                      style={styles.inlineAction}
-                      hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-                      onPress={() => {
-                        setSelectedDestination(dest)
-                        if (isBank) {
-                          setShowVerificationModal(true)
-                        } else if (identityVerified) {
-                          // MonCash activates on identity verification alone; payouts
-                          // are then reviewed and released manually by our team.
-                          showAlert(
-                            t('organizerPayoutSettings.moncashVerify.readyTitle'),
-                            t('organizerPayoutSettings.moncashVerify.readyBody')
-                          )
-                        } else {
-                          // Route to the identity verification flow — that is now the
-                          // only gate for MonCash payouts.
-                          showAlert(
-                            t('organizerPayoutSettings.moncashVerify.title'),
-                            t('organizerPayoutSettings.moncashVerify.body'),
-                            [
-                              { text: t('organizerPayoutSettings.moncashVerify.cancel'), style: 'cancel' },
-                              {
-                                text: t('organizerPayoutSettings.moncashVerify.verifyCta'),
-                                onPress: () => navigation.navigate('OrganizerVerification'),
-                              },
-                            ]
-                          )
-                        }
-                      }}
-                    >
-                      <Text style={styles.secondaryButtonText}>
-                        {dest.verificationStatus === 'pending' ? t('organizerPayoutSettings.destinationActions.viewStatus') : t('organizerPayoutSettings.destinationActions.verifyNow')}
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
+                </TouchableOpacity>
               )
             })}
             </>
@@ -1702,11 +1690,15 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textSecondary,
     textDecorationLine: 'underline',
   },
+  // Every method is one row of the same height: same padding, same content
+  // shape, no per-card action to stretch it.
   destinationCard: {
     backgroundColor: colors.surface,
     borderRadius: radius.button,
     padding: 13,
     marginBottom: 10,
+    justifyContent: 'center',
+    minHeight: 68,
   },
   destinationHeader: {
     flexDirection: 'row',
@@ -1741,29 +1733,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     fontSize: 12,
     color: colors.textTertiary,
   },
-  destinationHint: {
-    fontSize: 12,
-    lineHeight: 17,
-    color: colors.textSecondary,
-    marginTop: 8,
-  },
   // Compact inline card action (Manage on Stripe / Verify Now) — replaces the
   // old full-width 48px secondary bar inside method cards.
-  inlineAction: {
-    // Tester feedback: the card action reads better anchored to the right edge
-    // (under the status chip) than dangling bottom-left under the icon.
-    alignSelf: 'flex-end',
-    marginTop: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: radius.chip,
-    backgroundColor: colors.surfaceRaised,
-  },
-  inlineActionText: {
-    color: colors.text,
-    fontWeight: '600',
-    fontSize: 13,
-  },
   secondaryButton: {
     backgroundColor: colors.surfaceRaised,
     // 56 = the system's full-width control height (WhitePillCTA / SecondaryPill).

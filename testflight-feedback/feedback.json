@@ -1,9 +1,57 @@
 {
-  "fetchedAt": "2026-08-14T03:51:26.422Z",
+  "fetchedAt": "2026-08-14T04:22:00.542Z",
   "appId": "6794334427",
   "screenshotFeedbackCount": 20,
   "crashFeedbackCount": 0,
   "screenshotFeedback": [
+    {
+      "id": "ADppeMGastTF6nwZilYe_94",
+      "createdDate": "2026-08-14T04:12:29.882Z",
+      "comment": "i need better pictures for the cards. i need one or two people max per picture. but aim for artistic visualization ",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/Az0/CJw/Cfo/GcE/AAY/PrpD6avb_vE/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=P283nkkLIXdOCsxZ4CRwBmuOILo%3D&p_sig=zLj4eL7qp2gjmU_WZOmEQHsGRVg",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-14T04-12-29-882Z_ADppeMGa_1.png"
+        }
+      ]
+    },
+    {
+      "id": "AC27ydDbSTWpFgjUrIIkVPM",
+      "createdDate": "2026-08-14T04:11:32.369Z",
+      "comment": "for this, i would it to show only the active country. but the person can click change country then select another one? \n\nwhat do u think?",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/EBA/C5k/Dq8/JVE/DJc/JPz78tycVsU/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=33ztSnTsvjgUW6XaYH8VKjh0Wrc%3D&p_sig=dAMCBgqZeG9VmqSz9k2eddKpZEk",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-14T04-11-32-369Z_AC27ydDb_1.png"
+        }
+      ]
+    },
+    {
+      "id": "ADOjtwiuyxbVJIb-g7c5z0k",
+      "createdDate": "2026-08-14T04:10:17.601Z",
+      "comment": "these cards should be clickable \n\nand the card sizes are uneven. pls fix ",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/B0Y/BlA/DA8/DCI/Ass/JVPr_44QhCk/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=n3JqSmzfGn6CrTU6frOD2xRLmg4%3D&p_sig=uLuALapyacdVsYleFssc9of9kbE",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-14T04-10-17-601Z_ADOjtwiu_1.png"
+        }
+      ]
+    },
     {
       "id": "AF7l4D24brcB9flDaMoX2D0",
       "createdDate": "2026-08-14T03:50:46.431Z",
@@ -297,54 +345,6 @@
         {
           "url": "https://tf-feedback.itunes.apple.com/eimg/DWw/G4o/HO8/I-U/Aok/p5g8_4ImE2w/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=YhpU1%2BtkXuByNLLd8OkV%2BlFtgWA%3D&p_sig=scPPf5cmk1S1yCTrKNlJpQFNufE",
           "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-12T15-01-41-929Z_APYR4ghD_1.png"
-        }
-      ]
-    },
-    {
-      "id": "AAIdEv6NZb_OScfCuV-8AnY",
-      "createdDate": "2026-08-12T14:59:11.305Z",
-      "comment": "now no spins but still nada",
-      "tester": "tedolivier.toj86@gmail.com",
-      "device": "iPhone18_1 / IOS / 26.5.2",
-      "locale": "en-US",
-      "screenWidth": 402,
-      "screenHeight": 874,
-      "screenshots": [
-        {
-          "url": "https://tf-feedback.itunes.apple.com/eimg/C4I/DmE/EYQ/GLE/B8I/qcJrHfO01IA/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=iAjVAO3YLfuNDc55GGKrJnLp0mU%3D&p_sig=2TJo-h1hp73lVNdgodfvRzTTfSM",
-          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-12T14-59-11-305Z_AAIdEv6N_1.png"
-        }
-      ]
-    },
-    {
-      "id": "AO2nh58Xn4zTXXdTOwBdRsI",
-      "createdDate": "2026-08-12T14:58:56.039Z",
-      "comment": "same thing just spinning ",
-      "tester": "tedolivier.toj86@gmail.com",
-      "device": "iPhone18_1 / IOS / 26.5.2",
-      "locale": "en-US",
-      "screenWidth": 402,
-      "screenHeight": 874,
-      "screenshots": [
-        {
-          "url": "https://tf-feedback.itunes.apple.com/eimg/DAM/JbQ/BJQ/AIw/Ek4/8c2QbY6LbQU/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=bbD4W%2FvVSkENuEX846l9xdyD7C8%3D&p_sig=iaISWnD5VQpGvOpEI0WyskBEgY4",
-          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-12T14-58-56-039Z_AO2nh58X_1.png"
-        }
-      ]
-    },
-    {
-      "id": "AO4qHlhXx4Pwp1OHr79ZEuM",
-      "createdDate": "2026-08-12T14:42:25.6Z",
-      "comment": "spins forever",
-      "tester": "tedolivier.toj86@gmail.com",
-      "device": "iPhone18_1 / IOS / 26.5.2",
-      "locale": "en-US",
-      "screenWidth": 402,
-      "screenHeight": 874,
-      "screenshots": [
-        {
-          "url": "https://tf-feedback.itunes.apple.com/eimg/Aco/CJ4/Hn4/BRc/Ckg/CGPpR16N3cQ/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=OAqzf%2BjwN7QbkT0Pp924IAJg92M%3D&p_sig=0b0dT9l80iVuTsJU6OiJVhTdhxw",
-          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-12T14-42-25-6Z_AO4qHlhX_1.png"
         }
       ]
     }
