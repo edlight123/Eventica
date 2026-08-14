@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useConfirm } from '@/components/ui/ConfirmProvider'
 import OrganizerPayoutReleaseCard from './OrganizerPayoutReleaseCard'
+import OrganizerEventsList, { type OrganizerEventRow } from './OrganizerEventsList'
 
 // Helper to safely render any value - prevents React error #31 for objects
 function safeString(value: any, fallback: string = ''): string {
@@ -40,6 +41,8 @@ type OrganizerDetailsProps = {
     payoutDestinations?: any[]
     verificationRequest: any
     verificationDocs: any[]
+    events?: OrganizerEventRow[]
+    eventsTruncated?: boolean
     stats: {
       totalEvents: number
       publishedEvents: number
@@ -54,7 +57,7 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
   const [isUpdating, setIsUpdating] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
-  const { id, user, organizer, payoutConfig, payoutDestinations, verificationRequest, verificationDocs, stats } = organizerDetails
+  const { id, user, organizer, payoutConfig, payoutDestinations, verificationRequest, verificationDocs, events, eventsTruncated, stats } = organizerDetails
 
   const handleToggleStatus = async (action: 'ban' | 'unban' | 'disable_posting' | 'enable_posting') => {
     const actionLabel = action.replace('_', ' ')
@@ -271,6 +274,15 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
           </div>
           <div className="mt-1 font-mono text-2xl font-bold tabular-nums text-white">{stats.ticketsSold}</div>
         </div>
+      </div>
+
+      {/* Events — full width; the stats above only count them, this shows them */}
+      <div className="mb-6">
+        <OrganizerEventsList
+          events={events ?? []}
+          totalEvents={stats.totalEvents}
+          truncated={eventsTruncated === true}
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

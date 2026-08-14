@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import { adminDb } from '@/lib/firebase/admin'
 import OrganizerDetailsClient from './OrganizerDetailsClient'
 
+/** How many of an organizer's events the detail page lists inline. */
+const EVENTS_LIST_LIMIT = 25
 
 function serializeFirestoreValue(value: any): any {
   if (value === null || value === undefined) return value
@@ -158,6 +160,40 @@ async function getOrganizerDetails(organizerId: string) {
       }
     }
 
+    // Get the organizer's most recent events for the on-page list.
+    // Ordered by created_at DESC — the (organizer_id, created_at DESC) composite
+    // index exists in firestore.indexes.json.
+    // An event written without `created_at` is dropped by the orderBy, which
+    // would show an empty list next to a non-zero Total Events count. Fall back
+    // to an unordered read in that case.
+    const organizerEvents = adminDb.collection('events').where('organizer_id', '==', organizerId)
+    let recentEventsSnapshot = await organizerEvents
+      .orderBy('created_at', 'desc')
+      .limit(EVENTS_LIST_LIMIT)
+      .get()
+    if (recentEventsSnapshot.empty && eventsCount > 0) {
+      recentEventsSnapshot = await organizerEvents.limit(EVENTS_LIST_LIMIT).get()
+    }
+
+    const events = recentEventsSnapshot.docs.map((doc: any) => {
+      const data = serializeFirestoreValue(doc.data()) || {}
+      return {
+        id: doc.id,
+        title: data.title || 'Untitled event',
+        city: data.city || '',
+        country: data.country || '',
+        category: data.category || '',
+        start_datetime: data.start_datetime || null,
+        created_at: data.created_at || null,
+        is_published: data.is_published === true || data.status === 'published',
+        rejected: data.rejected === true,
+        reports_count: typeof data.reports_count === 'number' ? data.reports_count : 0,
+        tickets_sold: typeof data.tickets_sold === 'number' ? data.tickets_sold : 0,
+        total_tickets: typeof data.total_tickets === 'number' ? data.total_tickets : 0,
+        currency: data.currency || null,
+      }
+    })
+
     return {
       id: organizerId,
       user: userData,
@@ -166,6 +202,8 @@ async function getOrganizerDetails(organizerId: string) {
       payoutDestinations,
       verificationRequest,
       verificationDocs,
+      events,
+      eventsTruncated: eventsCount > events.length,
       stats: {
         totalEvents: eventsCount,
         publishedEvents: publishedEventsCount,
