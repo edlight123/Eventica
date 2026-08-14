@@ -405,6 +405,15 @@ export default {
       },
     },
     governmentId: {
+      type: {
+        label: 'Quel document utilisez-vous ?',
+        passport: 'Passeport',
+        national_id: 'Carte d’identité nationale',
+        drivers_license: 'Permis de conduire',
+        passportHint: 'Un passeport ne nécessite que sa page photo — nous ne demanderons pas de verso.',
+        missingTitle: 'Choisissez un type de document',
+        missingBody: 'Indiquez quel document vous envoyez pour que nous demandions les bonnes photos.',
+      },
       title: 'Pièce d’identité',
       photoTipsTitle: 'Conseils photo',
       tips: {
@@ -414,6 +423,7 @@ export default {
         notBlurry: 'La photo ne doit pas être floue ni recadrée',
       },
       labels: {
+        passportPage: 'Page photo du passeport',
         front: 'Recto de la pièce *',
         back: 'Verso de la pièce *',
       },

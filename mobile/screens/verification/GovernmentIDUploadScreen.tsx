@@ -26,6 +26,8 @@ import { useAppAlert } from '../../components/AppAlert';
 import OverlayHeader, { useOverlayHeaderInset } from '../../components/OverlayHeader';
 import { radius } from '../../theme/tokens';
 
+type DocumentType = 'passport' | 'national_id' | 'drivers_license';
+
 type RouteParams = {
   GovernmentIDUpload: {
     onComplete?: () => void;
@@ -50,6 +52,14 @@ export default function GovernmentIDUploadScreen() {
   const [backPreview, setBackPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  /**
+   * Which document they are submitting. Chosen FIRST, because it decides how
+   * many photos we ask for: a passport is a single photo page, so asking for a
+   * "back" gets either a blank submission or a picture of nothing — and the
+   * reviewer cannot tell those from a missing upload.
+   */
+  const [documentType, setDocumentType] = useState<DocumentType | null>(null);
+  const needsBack = documentType !== 'passport';
 
   useEffect(() => {
     loadExistingImages();
@@ -61,7 +71,8 @@ export default function GovernmentIDUploadScreen() {
     try {
       const request = await getVerificationRequest(userProfile.id);
       if (request?.files?.governmentId) {
-        const { front, back } = request.files.governmentId;
+        const { front, back, documentType: savedType } = request.files.governmentId;
+        if (savedType) setDocumentType(savedType as DocumentType);
         
         if (front) {
           setFrontPath(front);
@@ -97,6 +108,7 @@ export default function GovernmentIDUploadScreen() {
       // field value"), which used to kill the very first upload.
       await updateVerificationFiles(userProfile.id, {
         governmentId: {
+          documentType: documentType || undefined,
           front: storagePath,
           ...(backPath ? { back: backPath } : {}),
           uploadedAt: new Date(),
@@ -188,7 +200,14 @@ export default function GovernmentIDUploadScreen() {
   };
 
   const handleContinue = async () => {
-    if (!frontPath || !backPath) {
+    if (!documentType) {
+      showAlert(
+        t('verification.governmentId.type.missingTitle'),
+        t('verification.governmentId.type.missingBody')
+      );
+      return;
+    }
+    if (!frontPath || (needsBack && !backPath)) {
       showAlert(t('verification.governmentId.validation.missingTitle'), t('verification.governmentId.validation.missingBody'));
       return;
     }
@@ -246,6 +265,32 @@ export default function GovernmentIDUploadScreen() {
         style={styles.content}
         contentContainerStyle={[styles.contentContainer, { paddingTop: headerH }]}
       >
+        {/* WHICH DOCUMENT — asked first, because it decides what we ask for next. */}
+        <View style={styles.uploadSection}>
+          <Text style={styles.uploadLabel}>{t('verification.governmentId.type.label')}</Text>
+          <View style={styles.typeRow}>
+            {(['passport', 'national_id', 'drivers_license'] as DocumentType[]).map((type) => {
+              const active = documentType === type;
+              return (
+                <TouchableOpacity
+                  key={type}
+                  style={[styles.typeChip, active && styles.typeChipActive]}
+                  onPress={() => setDocumentType(type)}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: active }}
+                >
+                  <Text style={[styles.typeChipText, active && styles.typeChipTextActive]}>
+                    {t(`verification.governmentId.type.${type}`)}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+          {documentType === 'passport' ? (
+            <Text style={styles.typeHint}>{t('verification.governmentId.type.passportHint')}</Text>
+          ) : null}
+        </View>
+
         {/* Instructions */}
         <View style={styles.instructionsCard}>
           <Ionicons name="information-circle" size={32} color={colors.primary} />
@@ -260,7 +305,11 @@ export default function GovernmentIDUploadScreen() {
 
         {/* Front Upload */}
         <View style={styles.uploadSection}>
-          <Text style={styles.uploadLabel}>{t('verification.governmentId.labels.front')}</Text>
+          <Text style={styles.uploadLabel}>
+            {documentType === 'passport'
+              ? t('verification.governmentId.labels.passportPage')
+              : t('verification.governmentId.labels.front')}
+          </Text>
           {frontPreview ? (
             <View style={styles.previewContainer}>
               <Image source={{ uri: frontPreview }} style={styles.preview} />
@@ -294,7 +343,10 @@ export default function GovernmentIDUploadScreen() {
           )}
         </View>
 
-        {/* Back Upload */}
+        {/* Back Upload — never for a passport: there is no second page to
+            photograph, and asking produced blank submissions a reviewer could
+            not distinguish from a missing upload. */}
+        {needsBack ? (
         <View style={styles.uploadSection}>
           <Text style={styles.uploadLabel}>{t('verification.governmentId.labels.back')}</Text>
           {backPreview ? (
@@ -329,6 +381,7 @@ export default function GovernmentIDUploadScreen() {
             </TouchableOpacity>
           )}
         </View>
+        ) : null}
       </ScrollView>
 
       {/* Continue Button */}
@@ -336,10 +389,11 @@ export default function GovernmentIDUploadScreen() {
         <TouchableOpacity
           style={[
             styles.continueButton,
-            (!frontPath || !backPath || uploading || saving) && styles.continueButtonDisabled,
+            (!documentType || !frontPath || (needsBack && !backPath) || uploading || saving) &&
+              styles.continueButtonDisabled,
           ]}
           onPress={handleContinue}
-          disabled={!frontPath || !backPath || uploading || saving}
+          disabled={!documentType || !frontPath || (needsBack && !backPath) || uploading || saving}
         >
           {saving ? (
             <ActivityIndicator size="small" color={colors.white} />
@@ -404,6 +458,37 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     color: colors.textSecondary,
     marginBottom: 6,
     lineHeight: 20,
+  },
+  typeRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  typeChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: radius.pill ?? 999,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  typeChipActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  typeChipText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  typeChipTextActive: {
+    color: colors.onPrimary,
+  },
+  typeHint: {
+    marginTop: 10,
+    fontSize: 13,
+    lineHeight: 19,
+    color: colors.textSecondary,
   },
   uploadSection: {
     marginBottom: 24,

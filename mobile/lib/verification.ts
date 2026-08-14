@@ -48,6 +48,14 @@ export interface VerificationFiles {
     front?: string;
     back?: string;
     uploadedAt?: Date;
+    /**
+     * WHICH document this is. A passport is a single photo page — asking for a
+     * "back" produces either a blank submission or a photo of nothing, and the
+     * reviewer cannot tell those apart from a missing upload. Knowing the type
+     * also tells the reviewer what they should be looking at: an MRZ on a
+     * passport, a CIN number on a Haitian national ID.
+     */
+    documentType?: 'passport' | 'national_id' | 'drivers_license';
   };
   selfie?: {
     path?: string;

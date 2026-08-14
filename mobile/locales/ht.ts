@@ -378,6 +378,15 @@ export default {
       },
     },
     governmentId: {
+      type: {
+        label: 'Ki dokiman w ap sèvi?',
+        passport: 'Paspò',
+        national_id: 'Kat idantite nasyonal',
+        drivers_license: 'Lisans chofè',
+        passportHint: 'Yon paspò bezwen sèlman paj foto a — nou p ap mande do a.',
+        missingTitle: 'Chwazi yon kalite dokiman',
+        missingBody: 'Di nou ki dokiman w ap voye pou nou mande bon foto yo.',
+      },
       title: 'Kat idantite',
       photoTipsTitle: 'Konsèy foto',
       tips: {
@@ -387,6 +396,7 @@ export default {
         notBlurry: 'Foto a pa dwe flou oswa koupe',
       },
       labels: {
+        passportPage: 'Paj foto paspò a',
         front: 'Devan kat la *',
         back: 'Dèyè kat la *',
       },

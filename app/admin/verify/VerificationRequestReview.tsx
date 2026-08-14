@@ -195,6 +195,8 @@ export default function VerificationRequestReview({ request, user }: Props) {
     request?.organizer_country ||
     null
   const isHaitiOrganizer = String(organizerCountry || '').toLowerCase() === 'haiti'
+  /** Which document was submitted — decides whether a "back" should even exist. */
+  const docType = String((request as any)?.files?.governmentId?.documentType || '')
 
   /**
    * The liveness clip, shown WITH the challenge it was recorded against.
@@ -337,8 +339,15 @@ export default function VerificationRequestReview({ request, user }: Props) {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
-              {renderImageThumb('ID Card - Front', imageUrls.idFrontUrl, 'ID Front')}
-              {renderImageThumb('ID Card - Back', imageUrls.idBackUrl, 'ID Back')}
+              {/* A passport has one page, so there is no back to be missing. */}
+              {renderImageThumb(
+                docType === 'passport' ? 'Passport - Photo page' : 'ID Card - Front',
+                imageUrls.idFrontUrl,
+                'ID Front'
+              )}
+              {docType === 'passport'
+                ? null
+                : renderImageThumb('ID Card - Back', imageUrls.idBackUrl, 'ID Back')}
             </div>
           )}
         </div>

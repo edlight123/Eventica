@@ -378,6 +378,15 @@ export default {
       },
     },
     governmentId: {
+      type: {
+        label: 'Which document are you using?',
+        passport: 'Passport',
+        national_id: 'National ID card',
+        drivers_license: "Driver's licence",
+        passportHint: 'A passport only needs its photo page — we will not ask for a back.',
+        missingTitle: 'Choose a document type',
+        missingBody: 'Tell us which document you are submitting so we ask for the right photos.',
+      },
       title: 'Government ID',
       photoTipsTitle: 'Photo Tips',
       tips: {
@@ -387,6 +396,7 @@ export default {
         notBlurry: 'Photo should not be blurry or cropped',
       },
       labels: {
+        passportPage: 'Passport photo page',
         front: 'ID Front *',
         back: 'ID Back *',
       },
