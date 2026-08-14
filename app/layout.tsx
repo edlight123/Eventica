@@ -119,11 +119,19 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://firebasestorage.googleapis.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://api.stripe.com" crossOrigin="anonymous" />
       </head>
-      <body className={inter.className + ' mobile-typography'}>
+      {/*
+        A COLUMN THAT FILLS THE VIEWPORT. The footer is rendered after every
+        page, so on a short page — or one that errors into near-empty content —
+        it floated wherever the content stopped, leaving a large dead band of
+        background beneath it on mobile. min-h-dvh (not vh: iOS Safari's toolbar
+        makes vh taller than the visible area) plus flex-1 on the content pushes
+        the footer to the bottom where it belongs.
+      */}
+      <body className={inter.className + ' mobile-typography min-h-dvh flex flex-col'}>
         <FeeConfigProvider config={feeConfig}>
           <I18nProvider>
             <ToastProvider>
-              {children}
+              <div className="flex-1">{children}</div>
               <Footer />
             </ToastProvider>
             <PWAInstallPrompt />
