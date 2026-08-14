@@ -231,9 +231,94 @@ export async function getEventById(eventId: string): Promise<Event | null> {
     }
 }
 
+/** How long a discover/home Firestore read is reused before going back to Firestore. */
+const DISCOVER_CACHE_SECONDS = 30
+
 /**
- * Get events for discover page with filters and pagination (server-side)
- * Cached for 30 seconds
+ * The Firestore half of getDiscoverEvents: the published-events read plus the
+ * field mapping, with NOTHING time- or user-dependent in it.
+ *
+ * Split out and cached because the home and discover pages are both
+ * `force-dynamic` (they read auth cookies to personalize), so without this every
+ * single request ran the query again. Only the three inputs that actually shape
+ * the query are cache keys — search terms and date cutoffs are applied in memory
+ * by the caller, so they don't fragment the cache.
+ */
+const readPublishedEvents = unstable_cache(
+  async (city: string, category: string, fetchLimit: number): Promise<Event[]> => {
+    const buildBaseQuery = (mode: 'is_published' | 'status') => {
+      let queryRef = adminDb.collection('events').orderBy('start_datetime', 'asc')
+
+      if (mode === 'is_published') {
+        queryRef = queryRef.where('is_published', '==', true) as any
+      } else {
+        queryRef = queryRef.where('status', '==', 'published') as any
+      }
+
+      // Apply filters — metro-inclusive city match (city + its subdivisions).
+      if (city) {
+        const cityGroup = getCityMatchGroup(city)
+        queryRef = (cityGroup.length > 1
+          ? queryRef.where('city', 'in', cityGroup)
+          : queryRef.where('city', '==', city)) as any
+      }
+
+      if (category) {
+        queryRef = queryRef.where('category', '==', category) as any
+      }
+
+      queryRef = queryRef.limit(fetchLimit) as any
+      return queryRef
+    }
+
+    // Primary: canonical Firestore field `is_published: true`
+    let snapshot = await buildBaseQuery('is_published').get()
+    // Fallback: legacy field `status: 'published'`
+    if (snapshot.empty) {
+      snapshot = await buildBaseQuery('status').get()
+    }
+
+    return snapshot.docs.map((doc: any) => {
+      const data = doc.data()
+      return {
+        id: doc.id,
+        organizer_id: data.organizer_id,
+        title: data.title,
+        description: data.description,
+        category: data.category,
+        venue_name: data.venue_name,
+        city: data.city,
+        commune: data.commune,
+        address: data.address,
+        country: data.country || 'HT', // Default to Haiti for events without country
+        status: data.status || 'draft',
+        start_datetime: data.start_datetime?.toDate?.()?.toISOString() || data.start_datetime,
+        end_datetime: data.end_datetime?.toDate?.()?.toISOString() || data.end_datetime,
+        capacity: data.capacity,
+        ticket_price: data.ticket_price,
+        // Pricing classification signals — see lib/ticketPricing.ts.
+        is_rsvp: data?.is_rsvp ?? undefined,
+        has_paid_tiers: data?.has_paid_tiers ?? undefined,
+        image_url: data.banner_image_url || data.image_url,
+        banner_image_url: data.banner_image_url || data.image_url,
+        currency: data.currency || 'HTG',
+        total_tickets: data.total_tickets || data.capacity || 0,
+        tickets_sold: data.tickets_sold || 0,
+        show_on_explore: data.show_on_explore,
+        rejected: data.rejected,
+        created_at: data.created_at?.toDate?.()?.toISOString() || data.created_at,
+        updated_at: data.updated_at?.toDate?.()?.toISOString() || data.updated_at,
+      } as Event
+    })
+  },
+  ['discover-events'],
+  { revalidate: DISCOVER_CACHE_SECONDS, tags: ['events'] }
+)
+
+/**
+ * Get events for discover page with filters and pagination (server-side).
+ * The Firestore read is cached for DISCOVER_CACHE_SECONDS; the time-sensitive
+ * and search filtering below runs fresh on every call.
  */
 export async function getDiscoverEvents(
   filters: EventFilters = {},
@@ -249,70 +334,11 @@ export async function getDiscoverEvents(
       // Reduced from 200 to 50 for better performance - homepage only needs ~20-30 events
       const fetchLimit = Math.min(Math.max(pageSize * 2, 50), 100)
 
-      const buildBaseQuery = (mode: 'is_published' | 'status') => {
-        let queryRef = adminDb.collection('events').orderBy('start_datetime', 'asc')
-
-        if (mode === 'is_published') {
-          queryRef = queryRef.where('is_published', '==', true) as any
-        } else {
-          queryRef = queryRef.where('status', '==', 'published') as any
-        }
-
-        // Apply filters — metro-inclusive city match (city + its subdivisions).
-        if (filters.city) {
-          const cityGroup = getCityMatchGroup(filters.city)
-          queryRef = (cityGroup.length > 1
-            ? queryRef.where('city', 'in', cityGroup)
-            : queryRef.where('city', '==', filters.city)) as any
-        }
-
-        if (filters.category) {
-          queryRef = queryRef.where('category', '==', filters.category) as any
-        }
-
-        queryRef = queryRef.limit(fetchLimit) as any
-        return queryRef
-      }
-
-      // Primary: canonical Firestore field `is_published: true`
-      let snapshot = await buildBaseQuery('is_published').get()
-      // Fallback: legacy field `status: 'published'`
-      if (snapshot.empty) {
-        snapshot = await buildBaseQuery('status').get()
-      }
-      
-      let events = snapshot.docs.map((doc: any) => {
-        const data = doc.data()
-        return {
-          id: doc.id,
-          organizer_id: data.organizer_id,
-          title: data.title,
-          description: data.description,
-          category: data.category,
-          venue_name: data.venue_name,
-          city: data.city,
-          commune: data.commune,
-          address: data.address,
-          country: data.country || 'HT', // Default to Haiti for events without country
-          status: data.status || 'draft',
-          start_datetime: data.start_datetime?.toDate?.()?.toISOString() || data.start_datetime,
-          end_datetime: data.end_datetime?.toDate?.()?.toISOString() || data.end_datetime,
-          capacity: data.capacity,
-          ticket_price: data.ticket_price,
-          // Pricing classification signals — see lib/ticketPricing.ts.
-          is_rsvp: data?.is_rsvp ?? undefined,
-          has_paid_tiers: data?.has_paid_tiers ?? undefined,
-          image_url: data.banner_image_url || data.image_url,
-          banner_image_url: data.banner_image_url || data.image_url,
-          currency: data.currency || 'HTG',
-          total_tickets: data.total_tickets || data.capacity || 0,
-          tickets_sold: data.tickets_sold || 0,
-          show_on_explore: data.show_on_explore,
-          rejected: data.rejected,
-          created_at: data.created_at?.toDate?.()?.toISOString() || data.created_at,
-          updated_at: data.updated_at?.toDate?.()?.toISOString() || data.updated_at,
-        }
-      })
+      let events = await readPublishedEvents(
+        filters.city || '',
+        filters.category || '',
+        fetchLimit
+      )
 
       // Exclude events the organizer opted out of Explore/discovery.
       // Only `show_on_explore === false` hides an event; missing/undefined stays visible

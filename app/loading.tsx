@@ -27,8 +27,10 @@ function RailSkeleton({ cards = 5 }: { cards?: number }) {
 export default function Loading() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] pb-mobile-nav">
-      {/* Navbar Skeleton */}
-      <div className="bg-white/80 backdrop-blur-lg shadow-sm border-b border-white/10/50 sticky top-0 z-50">
+      {/* Navbar Skeleton — matches Navbar's dark bar. This used to be bg-white/80,
+          which flashed a white band across the top of the black site on every
+          navigation. (border-white/10/50 was not a real class either.) */}
+      <div className="bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-white/10 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <div className="flex items-center space-x-8">
