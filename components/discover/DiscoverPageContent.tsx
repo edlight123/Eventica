@@ -93,15 +93,16 @@ export function DiscoverPageContent({
 
   return (
     <FriendsGoingProvider eventIds={allEventIds}>
-      {/* Tabs — left-aligned with a hairline rule and live count */}
-      <div className="mb-6 flex items-end justify-between border-b border-white/10">
+      {/* Tabs — the active underline marks the selection; no full-width rule,
+          the sticky filter header above already draws one. */}
+      <div className="mb-6 flex items-end justify-between">
         <div className="flex items-center gap-6">
           {tabs.map((t) => (
             <button
               key={t.key}
               type="button"
               onClick={() => setTab(t.key)}
-              className={`relative -mb-px pb-3 text-[15px] font-semibold transition-colors ${
+              className={`relative pb-2 text-[15px] font-semibold transition-colors ${
                 tab === t.key ? 'text-white' : 'text-white/70 hover:text-white'
               }`}
             >
@@ -111,7 +112,7 @@ export function DiscoverPageContent({
           ))}
         </div>
         {tab === 'forYou' && feed.length > 0 && (
-          <span className="hidden pb-3 text-sm text-white/70 sm:block">
+          <span className="hidden pb-2 text-sm text-white/70 sm:block">
             {feed.length} event{feed.length !== 1 ? 's' : ''}
           </span>
         )}

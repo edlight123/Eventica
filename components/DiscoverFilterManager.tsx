@@ -103,12 +103,10 @@ export function DiscoverFilterManager({ userCountry = 'HT' }: DiscoverFilterMana
           onOpenFilters={handleOpenFilters}
           userCountry={userCountry}
         />
-        <div className="border-t border-white/10">
-          <DiscoverFilterChipsStrip
-            currentDate={appliedFilters.date}
-            selectedCategories={appliedFilters.categories}
-          />
-        </div>
+        <DiscoverFilterChipsStrip
+          currentDate={appliedFilters.date}
+          selectedCategories={appliedFilters.categories}
+        />
       </div>
       
       {hasActiveFilters && (

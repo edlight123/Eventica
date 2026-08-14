@@ -78,7 +78,7 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-2">
       <div className="flex items-center gap-3">
           {/* Search Input */}
           <form onSubmit={handleSearch} className="flex-1">
