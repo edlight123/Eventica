@@ -378,12 +378,13 @@ export default {
       },
     },
     governmentId: {
+      tipsInline: 'Bon limyè, san reflè, tout tèks lizib — eskanè a jere kadraj la.',
       scanDocument: 'Eskane dokiman an (otomatik)',
       type: {
         label: 'Ki dokiman w ap sèvi?',
         passport: 'Paspò',
-        national_id: 'Kat idantite nasyonal',
-        drivers_license: 'Lisans chofè',
+        national_id: 'Kat idantite',
+        drivers_license: 'Lisans',
         passportHint: 'Yon paspò bezwen sèlman paj foto a — nou p ap mande do a.',
         missingTitle: 'Chwazi yon kalite dokiman',
         missingBody: 'Di nou ki dokiman w ap voye pou nou mande bon foto yo.',
@@ -1232,6 +1233,7 @@ export default {
   organizerPayoutSettings: {
     headerTitle: 'Paramèt Peman',
     markets: {
+      noneSet: 'Poko chwazi — tape pou chwazi',
       title: 'Kote w ap fè evènman',
       subtitle: 'Chwazi tout peyi kote w konte fè evènman — ou ka chanje l nenpòt lè',
       noneHint:

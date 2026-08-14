@@ -378,12 +378,13 @@ export default {
       },
     },
     governmentId: {
+      tipsInline: 'Good light, no glare, all text readable — the scanner handles framing.',
       scanDocument: 'Scan document (auto)',
       type: {
         label: 'Which document are you using?',
         passport: 'Passport',
-        national_id: 'National ID card',
-        drivers_license: "Driver's licence",
+        national_id: 'ID card',
+        drivers_license: 'Licence',
         passportHint: 'A passport only needs its photo page — we will not ask for a back.',
         missingTitle: 'Choose a document type',
         missingBody: 'Tell us which document you are submitting so we ask for the right photos.',
@@ -1558,6 +1559,7 @@ export default {
     // Declared markets — where the organizer says they'll run events. Shapes
     // which payout rails are offered; never what is allowed.
     markets: {
+      noneSet: 'Not set — tap to choose',
       title: 'Where you run events',
       subtitle: 'Pick every country you plan to hold events in — change it any time',
       noneHint:

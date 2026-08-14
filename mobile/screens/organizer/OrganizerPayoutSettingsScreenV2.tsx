@@ -250,10 +250,16 @@ export default function OrganizerPayoutSettingsScreenV2() {
    * collapsed. `marketsLoaded` gates it so the section does not flash open on
    * every launch before the saved answer arrives.
    */
-  const [marketsExpandedOverride, setMarketsExpandedOverride] = useState(false)
-  const marketsExpanded =
-    marketsExpandedOverride || !marketsLoaded || declaredMarkets.length === 0
-  const setMarketsExpanded = setMarketsExpandedOverride
+  /**
+   * CLOSED UNTIL ASKED FOR. Previously this opened whenever nothing was declared,
+   * which meant a new organizer met five country chips laid out in the open on a
+   * page they came to for payout methods. Feedback, more than once: it should be
+   * something you edit and save, not a form sitting in the middle of the screen.
+   *
+   * So it is a single row stating the answer — or that there is none — and the
+   * chips appear only after they tap Edit.
+   */
+  const [marketsExpanded, setMarketsExpanded] = useState(false)
 
   // Until markets have loaded we show everything — narrowing off a not-yet-known
   // answer would flash the wrong rails. A rail that is already SET UP always
@@ -928,7 +934,9 @@ export default function OrganizerPayoutSettingsScreenV2() {
               subtitle={
                 marketsExpanded
                   ? t('organizerPayoutSettings.markets.subtitle')
-                  : declaredMarkets.map((code) => countryName(code)).join(' · ')
+                  : declaredMarkets.length > 0
+                    ? declaredMarkets.map((code) => countryName(code)).join(' · ')
+                    : t('organizerPayoutSettings.markets.noneSet')
               }
               subtitleLines={2}
               trailing={

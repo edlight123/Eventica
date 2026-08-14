@@ -387,17 +387,13 @@ export default function GovernmentIDUploadScreen() {
           ) : null}
         </View>
 
-        {/* Instructions */}
-        <View style={styles.instructionsCard}>
-          <Ionicons name="information-circle" size={32} color={colors.primary} />
-          <Text style={styles.instructionsTitle}>{t('verification.governmentId.photoTipsTitle')}</Text>
-          <View style={styles.tipsList}>
-            <Text style={styles.tipItem}>✓ {t('verification.governmentId.tips.readable')}</Text>
-            <Text style={styles.tipItem}>✓ {t('verification.governmentId.tips.lighting')}</Text>
-            <Text style={styles.tipItem}>✓ {t('verification.governmentId.tips.background')}</Text>
-            <Text style={styles.tipItem}>✓ {t('verification.governmentId.tips.notBlurry')}</Text>
-          </View>
-        </View>
+        {/*
+          One line, not a card. Four tips behind a 32pt icon took a third of the
+          screen to say something the scanner now handles itself — it frames,
+          straightens and waits for focus. The advice that still depends on the
+          organizer is light, so that is what remains.
+        */}
+        <Text style={styles.tipsInline}>{t('verification.governmentId.tipsInline')}</Text>
 
         {/* Front Upload */}
         <View style={styles.uploadSection}>
@@ -555,13 +551,22 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     marginBottom: 6,
     lineHeight: 20,
   },
+  // One line, three chips. Wrapping put "Driver's licence" on a row of its own,
+  // which read as a separate choice rather than the third of three.
+  tipsInline: {
+    fontSize: 13,
+    lineHeight: 19,
+    color: colors.textSecondary,
+    marginBottom: 18,
+  },
   typeRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
+    gap: 6,
   },
   typeChip: {
-    paddingHorizontal: 14,
+    flex: 1,
+    alignItems: 'center',
+    paddingHorizontal: 8,
     paddingVertical: 10,
     borderRadius: radius.pill ?? 999,
     borderWidth: 1,
@@ -573,7 +578,7 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) => StyleSheet.
     borderColor: colors.primary,
   },
   typeChipText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     color: colors.text,
   },

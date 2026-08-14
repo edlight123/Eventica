@@ -405,12 +405,13 @@ export default {
       },
     },
     governmentId: {
+      tipsInline: 'Bonne lumière, pas de reflet, texte lisible — le scanner gère le cadrage.',
       scanDocument: 'Scanner le document (auto)',
       type: {
         label: 'Quel document utilisez-vous ?',
         passport: 'Passeport',
-        national_id: 'Carte d’identité nationale',
-        drivers_license: 'Permis de conduire',
+        national_id: 'Carte d’identité',
+        drivers_license: 'Permis',
         passportHint: 'Un passeport ne nécessite que sa page photo — nous ne demanderons pas de verso.',
         missingTitle: 'Choisissez un type de document',
         missingBody: 'Indiquez quel document vous envoyez pour que nous demandions les bonnes photos.',
@@ -1262,6 +1263,7 @@ export default {
   organizerPayoutSettings: {
     headerTitle: 'Paramètres de paiement',
     markets: {
+      noneSet: 'Non défini — touchez pour choisir',
       title: 'Où vous organisez vos événements',
       subtitle: 'Choisissez tous les pays où vous comptez organiser — modifiable à tout moment',
       noneHint:

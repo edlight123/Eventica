@@ -143,11 +143,17 @@ export default function LocationPickerSheet({
 
           {/* Country switcher */}
           <Text style={styles.sectionLabel}>{t('location.country').toUpperCase()}</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.countryRow}
-          >
+          {/*
+            A WRAPPING ROW, not a horizontal ScrollView.
+            Testers reported these chips rendering with no labels at all — the
+            widths were right for the country names, so the text was being laid
+            out and never painted. The same chips built as a wrapping View (the
+            ID document-type picker) render correctly on the same device, so the
+            horizontal ScrollView is what the labels do not survive. Five
+            countries fit on two lines, and nothing is now hidden off-screen
+            either, which the scroll view was also doing.
+          */}
+          <View style={styles.countryRow}>
             {COUNTRIES.map((c) => {
               const active = userCountry === c.code;
               return (
@@ -168,7 +174,7 @@ export default function LocationPickerSheet({
                 </TouchableOpacity>
               );
             })}
-          </ScrollView>
+          </View>
 
           {/* Area search — scopes the list below it. Never auto-focused: the
               keyboard must not cover the towns the moment the sheet opens. */}
@@ -283,6 +289,8 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       marginBottom: 10,
     },
     countryRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
       gap: SPACING.sm,
       paddingBottom: 4,
     },
