@@ -17,6 +17,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import {
   pickAndUploadImage,
+  uploadIdImageFromUri,
   updateVerificationFiles,
   updateVerificationStep,
   getDocumentDownloadURL,
@@ -25,6 +26,7 @@ import {
 import { useAppAlert } from '../../components/AppAlert';
 import OverlayHeader, { useOverlayHeaderInset } from '../../components/OverlayHeader';
 import { radius } from '../../theme/tokens';
+import DocumentScanner, { ResponseType } from 'react-native-document-scanner-plugin';
 
 type DocumentType = 'passport' | 'national_id' | 'drivers_license';
 
@@ -88,6 +90,58 @@ export default function GovernmentIDUploadScreen() {
       }
     } catch (error) {
       console.error('Error loading existing images:', error);
+    }
+  };
+
+  /**
+   * Store a captured image (from the scanner) for one side, then mirror exactly
+   * what the picker path records so a scanned ID and a photographed one are
+   * indistinguishable downstream.
+   */
+  const uploadFromUri = async (uri: string, side: 'front' | 'back') => {
+    if (!userProfile?.id) return;
+    try {
+      setUploading(true);
+      const storagePath = await uploadIdImageFromUri(
+        userProfile.id,
+        uri,
+        side === 'front' ? 'id_front' : 'id_back'
+      );
+      const url = await getDocumentDownloadURL(storagePath);
+
+      if (side === 'front') {
+        setFrontPath(storagePath);
+        setFrontPreview(url);
+      } else {
+        setBackPath(storagePath);
+        setBackPreview(url);
+      }
+
+      // Never write an undefined side: Firestore rejects undefined field values.
+      const nextFront = side === 'front' ? storagePath : frontPath;
+      const nextBack = side === 'back' ? storagePath : backPath;
+      await updateVerificationFiles(userProfile.id, {
+        governmentId: {
+          documentType: documentType || undefined,
+          ...(nextFront ? { front: nextFront } : {}),
+          ...(nextBack ? { back: nextBack } : {}),
+          uploadedAt: new Date(),
+        },
+      });
+
+      showAlert(
+        t('common.success'),
+        side === 'front'
+          ? t('verification.governmentId.alerts.frontUploaded')
+          : t('verification.governmentId.alerts.backUploaded')
+      );
+    } catch (error: any) {
+      showAlert(
+        t('verification.common.uploadErrorTitle'),
+        error?.message || t('verification.common.failedToUploadImage')
+      );
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -168,12 +222,54 @@ export default function GovernmentIDUploadScreen() {
     }
   };
 
+  /**
+   * AUTO-CAPTURE. Apple's VisionKit (and MLKit on Android) finds the document's
+   * edges in the live preview, fires the shutter itself when the frame is square
+   * and sharp, then deskews and crops. That removes the two things that actually
+   * fail a review: a photo taken at an angle, and a blurry one. It also removes
+   * a step — the organizer holds the ID up and it is captured, rather than
+   * aiming and tapping.
+   *
+   * Manual photo and library pick stay available: scanning needs decent light,
+   * and an organizer who cannot get a clean scan must still be able to submit.
+   */
+  const scanDocument = async (side: 'front' | 'back') => {
+    try {
+      const { scannedImages } = await DocumentScanner.scanDocument({
+        // One page per side, so the scanner returns and we upload immediately
+        // instead of the organizer having to end a multi-page session.
+        maxNumDocuments: 1,
+        responseType: ResponseType.ImageFilePath,
+        croppedImageQuality: 90,
+      });
+
+      const uri = scannedImages?.[0];
+      // Cancelling is not an error — the organizer simply changed their mind.
+      if (!uri) return;
+
+      if (side === 'front') {
+        await uploadFromUri(uri, 'front');
+      } else {
+        await uploadFromUri(uri, 'back');
+      }
+    } catch (error: any) {
+      showAlert(
+        t('verification.common.uploadErrorTitle'),
+        error?.message || t('verification.common.failedToUploadImage')
+      );
+    }
+  };
+
   const showUploadOptions = (side: 'front' | 'back') => {
     const sideLabel = side === 'front' ? t('verification.governmentId.sides.front') : t('verification.governmentId.sides.back');
     showAlert(
       `${t('verification.governmentId.uploadTitlePrefix')} ${sideLabel}`,
       t('verification.common.chooseOption'),
       [
+        {
+          text: t('verification.governmentId.scanDocument'),
+          onPress: () => scanDocument(side),
+        },
         {
           text: t('verification.common.takePhoto'),
           onPress: () => {

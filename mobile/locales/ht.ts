@@ -378,6 +378,7 @@ export default {
       },
     },
     governmentId: {
+      scanDocument: 'Eskane dokiman an (otomatik)',
       type: {
         label: 'Ki dokiman w ap sèvi?',
         passport: 'Paspò',

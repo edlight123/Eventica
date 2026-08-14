@@ -87,6 +87,12 @@
         {
           "contactsPermission": "Allow Tik\u00e8m to access your contacts to find friends who are already on Tik\u00e8m. Your contacts are only used to match and are never stored."
         }
+      ],
+      [
+        "react-native-document-scanner-plugin",
+        {
+          "cameraPermission": "Allow Tik\u00e8m to use the camera to scan your ID document. The scan is used only to verify your identity before we send you money."
+        }
       ]
     ],
     "extra": {

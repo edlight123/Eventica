@@ -385,6 +385,21 @@ export async function uploadLivenessVideo(userId: string, uri: string): Promise<
 }
 
 /**
+ * Upload an image we ALREADY have a URI for.
+ *
+ * `pickAndUploadImage` owns the picker as well as the upload, which is fine when
+ * the picker is how the photo arrives. The document scanner returns a captured,
+ * deskewed file instead, so it needs the upload half on its own.
+ */
+export async function uploadIdImageFromUri(
+  userId: string,
+  uri: string,
+  documentType: 'id_front' | 'id_back' | 'selfie'
+): Promise<string> {
+  return await uploadImageToStorage(userId, uri, documentType);
+}
+
+/**
  * Update verification files in Firestore
  */
 export async function updateVerificationFiles(

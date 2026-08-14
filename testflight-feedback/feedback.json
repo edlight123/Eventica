@@ -1,9 +1,25 @@
 {
-  "fetchedAt": "2026-08-14T00:44:22.783Z",
+  "fetchedAt": "2026-08-14T02:27:43.158Z",
   "appId": "6794334427",
   "screenshotFeedbackCount": 20,
   "crashFeedbackCount": 0,
   "screenshotFeedback": [
+    {
+      "id": "AGfL7Fj4cUqjNWv2rA640Qk",
+      "createdDate": "2026-08-14T02:26:19.929Z",
+      "comment": "",
+      "tester": "tedolivier.toj86@gmail.com",
+      "device": "iPhone18_1 / IOS / 26.5.2",
+      "locale": "en-US",
+      "screenWidth": 402,
+      "screenHeight": 874,
+      "screenshots": [
+        {
+          "url": "https://tf-feedback.itunes.apple.com/eimg/EWA/DBE/BXo/H2w/FBo/f4JOwcLAeAA/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=x3gqbcuGmz27S5ywOuq%2BON03CZA%3D&p_sig=4QRfkFFQRLkbDmb-A2mLf27myW4",
+          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-14T02-26-19-929Z_AGfL7Fj4_1.png"
+        }
+      ]
+    },
     {
       "id": "AGIOkZHNEIUx-pWSBDmbFsM",
       "createdDate": "2026-08-14T00:19:57.504Z",
@@ -329,22 +345,6 @@
         {
           "url": "https://tf-feedback.itunes.apple.com/eimg/EIY/HUQ/Dwc/G_Y/GRo/rooFTn_r35A/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=%2FzyQTihyPHGksbyqVm3ZYx4FhqU%3D&p_sig=KMKu_CQDVATugyyh_YHtbZCkxnE",
           "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-12T14-08-05-609Z_AEqYAAjh_1.png"
-        }
-      ]
-    },
-    {
-      "id": "ALYatOONCF1KLFx--hkjEPY",
-      "createdDate": "2026-08-12T13:00:06.051Z",
-      "comment": "stills asks me to login, and it shows with all the notifications cards and all ",
-      "tester": "tedolivier.toj86@gmail.com",
-      "device": "iPhone18_1 / IOS / 26.5.2",
-      "locale": "en-US",
-      "screenWidth": 402,
-      "screenHeight": 874,
-      "screenshots": [
-        {
-          "url": "https://tf-feedback.itunes.apple.com/eimg/E9Q/FcI/Akc/Hks/G-w/Ruh1VUkNU0g/original.jpg?i_for=6794334427&AWSAccessKeyId=MKIA9C0TVRX1ZL0VZ1YK&Expires=1787184000&Signature=duJyYmHCSkffbItPY%2BCwxkwQ%2BIg%3D&p_sig=4XnQl9iRL0QcNiaKDDWmffSd0lA",
-          "localPath": "/Users/tedjacquet/Tikem/testflight-feedback/2026-08-12T13-00-06-051Z_ALYatOON_1.png"
         }
       ]
     }

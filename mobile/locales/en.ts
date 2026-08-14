@@ -378,6 +378,7 @@ export default {
       },
     },
     governmentId: {
+      scanDocument: 'Scan document (auto)',
       type: {
         label: 'Which document are you using?',
         passport: 'Passport',
