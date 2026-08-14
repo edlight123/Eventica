@@ -27,6 +27,7 @@ export default {
     NAQ: 'Nouvelle-Aquitaine',
   },
   location: {
+    changeCountry: 'Chanje',
     title: 'Chwazi zòn ou',
     subtitle: 'Gade evènman toupre w',
     country: 'Peyi',

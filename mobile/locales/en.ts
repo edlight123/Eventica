@@ -27,6 +27,7 @@ export default {
     NAQ: 'Nouvelle-Aquitaine',
   },
   location: {
+    changeCountry: 'Change',
     title: 'Choose your area',
     subtitle: 'Browse events near you',
     country: 'Country',

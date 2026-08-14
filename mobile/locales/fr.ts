@@ -54,6 +54,7 @@ export default {
     NAQ: 'en Nouvelle-Aquitaine',
   },
   location: {
+    changeCountry: 'Changer',
     title: 'Choisissez votre zone',
     subtitle: 'Parcourez les événements près de vous',
     country: 'Pays',

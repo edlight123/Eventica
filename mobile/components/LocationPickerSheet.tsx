@@ -60,6 +60,8 @@ export default function LocationPickerSheet({
   const styles = getStyles(colors);
 
   const [areaQuery, setAreaQuery] = useState('');
+  /** Swaps the list below from areas to countries. Closed by default. */
+  const [pickingCountry, setPickingCountry] = useState(false);
 
   // You pick a METRO, not a street address: choosing Port-au-Prince has to
   // include Pétion-Ville and Delmas, and choosing Miami has to include Fort
@@ -141,40 +143,29 @@ export default function LocationPickerSheet({
             </TouchableOpacity>
           </View>
 
-          {/* Country switcher */}
-          <Text style={styles.sectionLabel}>{t('location.country').toUpperCase()}</Text>
           {/*
-            A WRAPPING ROW, not a horizontal ScrollView.
-            Testers reported these chips rendering with no labels at all — the
-            widths were right for the country names, so the text was being laid
-            out and never painted. The same chips built as a wrapping View (the
-            ID document-type picker) render correctly on the same device, so the
-            horizontal ScrollView is what the labels do not survive. Five
-            countries fit on two lines, and nothing is now hidden off-screen
-            either, which the scroll view was also doing.
+            THE ACTIVE COUNTRY, not a rack of five.
+            This sheet's job is choosing an AREA; the country is context for
+            that list, and showing every option turned the top of the sheet into
+            a second picker competing with the first. It reads as one line now,
+            and switching country swaps the list below — the same idiom as the
+            header, where you tap where you are to change it.
           */}
-          <View style={styles.countryRow}>
-            {COUNTRIES.map((c) => {
-              const active = userCountry === c.code;
-              return (
-                <TouchableOpacity
-                  key={c.code}
-                  style={[styles.countryChip, active && styles.countryChipActive]}
-                  onPress={() => {
-                    // Drop the filter: the new country's towns are different, and a
-                    // stale query would make its list look empty.
-                    setAreaQuery('');
-                    setUserCountry(c.code);
-                  }}
-                  activeOpacity={0.8}
-                >
-                  <Text style={[styles.countryChipText, active && styles.countryChipTextActive]}>
-                    {c.name}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
+          <View style={styles.countryLine}>
+            <Text style={styles.sectionLabel}>{t('location.country').toUpperCase()}</Text>
+            <TouchableOpacity
+              onPress={() => setPickingCountry((v) => !v)}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              accessibilityRole="button"
+            >
+              <Text style={styles.countryChange}>
+                {pickingCountry ? t('common.cancel') : t('location.changeCountry')}
+              </Text>
+            </TouchableOpacity>
           </View>
+          <Text style={styles.countryValue}>
+            {COUNTRIES.find((c) => c.code === userCountry)?.name || ''}
+          </Text>
 
           {/* Area search — scopes the list below it. Never auto-focused: the
               keyboard must not cover the towns the moment the sheet opens. */}
@@ -204,14 +195,43 @@ export default function LocationPickerSheet({
             )}
           </View>
 
-          {/* Cities */}
-          <Text style={styles.sectionLabel}>{t('location.area').toUpperCase()}</Text>
+          {/* The list is either countries or areas — never both at once. */}
+          <Text style={styles.sectionLabel}>
+            {(pickingCountry ? t('location.country') : t('location.area')).toUpperCase()}
+          </Text>
           <ScrollView
             style={styles.cityList}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="on-drag"
           >
+            {pickingCountry ? (
+              COUNTRIES.map((c) => (
+                <TouchableOpacity
+                  key={c.code}
+                  style={[styles.cityRow, userCountry === c.code && styles.cityRowActive]}
+                  onPress={() => {
+                    // A new country has different towns, so a stale query would
+                    // make its list look empty.
+                    setAreaQuery('');
+                    setUserCountry(c.code);
+                    setPickingCountry(false);
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <MapPin size={18} color={userCountry === c.code ? colors.primary : colors.textSecondary} />
+                  <View style={styles.cityTextWrap}>
+                    <Text
+                      style={[styles.cityText, userCountry === c.code && styles.cityTextActive]}
+                    >
+                      {c.name}
+                    </Text>
+                  </View>
+                  {userCountry === c.code ? <Check size={18} color={colors.primary} /> : null}
+                </TouchableOpacity>
+              ))
+            ) : (
+              <>
             {renderCityRow(t('location.allAreas'), '')}
             {visibleCities.map((area) => renderCityRow(area.label, area.value, area.hint))}
             {trimmedQuery.length > 0 && visibleCities.length === 0 && (
@@ -221,6 +241,8 @@ export default function LocationPickerSheet({
                   “{trimmedQuery}”
                 </Text>
               </View>
+            )}
+              </>
             )}
           </ScrollView>
         </View>
@@ -286,6 +308,23 @@ const getStyles = (colors: ReturnType<typeof useTheme>['colors']) =>
       fontWeight: '700',
       color: colors.textSecondary,
       letterSpacing: 0.6,
+      marginBottom: 10,
+    },
+    countryLine: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    countryValue: {
+      fontSize: 17,
+      fontWeight: '700',
+      color: colors.text,
+      marginBottom: 14,
+    },
+    countryChange: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: colors.primary,
       marginBottom: 10,
     },
     countryRow: {
