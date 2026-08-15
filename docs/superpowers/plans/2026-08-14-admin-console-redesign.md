@@ -1469,7 +1469,44 @@ git commit -m "Admin landing is one oldest-first list, not a board of totals"
 
 ## Tasks 10–17: Queue and register migrations
 
-Each task has the same five steps — read the route, replace its header with `AdminPage`, replace its list with `QueueTable` using the columns below, verify, commit. The columns and action differ per route and are given in full.
+> ## ⚠ BLOCKED — this group's premise is wrong. Do not execute as written.
+>
+> Discovered 2026-08-15 while starting Task 10, by reading the routes instead of
+> trusting the plan. **These pages are not lists that can be swapped for a
+> table.** They are purpose-built review interfaces, and `QueueTable` would
+> destroy working functionality:
+>
+> - **`/admin/verify`** (`AdminVerifyClient.tsx`, 397 lines — note the plan named
+>   `VerificationsHub.tsx`, which is only a tab container) carries a 5-card KPI
+>   strip, status filter pills, search, a sort field + direction control, CSV
+>   export, bulk select with bulk approve, and inline `VerificationRequestReview`
+>   cards that render the actual identity documents. **You cannot approve an ID
+>   from a 44px table row** — inline document review is the page's whole job.
+> - **`/admin/payouts/review`** has a summary strip carrying multi-currency
+>   held-funds totals, then per-payout review cards.
+> - **`/admin/disputes`** is card-based; no table markup at all.
+> - **`/admin/withdrawals`** genuinely IS a table (plus a modal) — the one case
+>   where the original plan fits.
+>
+> Forcing all seven through `QueueTable` would lose bulk approve, CSV export,
+> search, sort, and inline document review. That is a regression sold as a
+> redesign.
+>
+> **Revised approach — lighter touch, same thesis:**
+>
+> 1. Route every admin page's header through `AdminPage` (consistent title, one
+>    serif moment per page). Safe, and it is most of the visual consistency win.
+> 2. Add the **age signal** — `formatAge` + `ageClass` — to each page's existing
+>    row or card. This is the spec's actual thesis and it does not require the
+>    table.
+> 3. Use `QueueTable` only where the page is genuinely tabular: `/admin/withdrawals`
+>    and the registers in Task 17.
+> 4. Leave the rich review affordances alone.
+>
+> The columns listed per-task below remain useful as a description of *which
+> fields matter* on each route, even where the table itself is not adopted.
+
+Each task originally had the same five steps — read the route, replace its header with `AdminPage`, replace its list with `QueueTable` using the columns below, verify, commit. The columns and action differ per route and are given in full.
 
 Every migration keeps its existing API route and action semantics. **No task in this group changes queue behaviour.**
 
