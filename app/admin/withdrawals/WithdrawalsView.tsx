@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { formatCurrency } from '@/lib/fees'
+import { StatusChip } from '@/components/ui/kit'
 import { EditorialHeader } from '@/components/ui/EditorialHeader'
 import { formatAge, ageClass } from '@/lib/admin/age'
 import { useConfirm } from '@/components/ui/ConfirmProvider'
@@ -38,13 +39,6 @@ interface Withdrawal {
     name: string
     email: string
   } | null
-}
-
-const STATUS_STATE: Record<string, { label: string; dot: string; text: string }> = {
-  pending: { label: 'Pending', dot: 'bg-amber-400', text: 'text-amber-300' },
-  processing: { label: 'Processing', dot: 'bg-amber-400', text: 'text-amber-300' },
-  completed: { label: 'Completed', dot: 'bg-emerald-400', text: 'text-emerald-300' },
-  failed: { label: 'Failed', dot: 'bg-red-400', text: 'text-red-300' },
 }
 
 const TIMESTAMP_FIELDS = ['createdAt', 'requestedAt', 'created_at', 'updatedAt'] as const
@@ -151,16 +145,9 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
     }
   }
 
-  /** Dot + label, not a filled pill — the console's house style for status. */
   const getStatusBadge = (status: string) => {
-    const state = STATUS_STATE[status]
-    if (!state) return null
-    return (
-      <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${state.text}`}>
-        <span className={`h-1.5 w-1.5 rounded-full ${state.dot}`} aria-hidden="true" />
-        {state.label}
-      </span>
-    )
+    if (!['completed', 'processing', 'pending', 'failed'].includes(status)) return null
+    return <StatusChip status={status} />
   }
 
   const getMethodIcon = (method: string) => {
