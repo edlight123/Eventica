@@ -20,7 +20,7 @@ export default function Footer() {
   const pathname = usePathname()
   const { t } = useTranslation('common')
 
-  // Admin has its own shell (AdminTopNav) — keep the public footer out of it.
+  // Admin has its own shell (AdminSidebar) — keep the public footer out of it.
   if (pathname?.startsWith('/admin')) {
     return null
   }

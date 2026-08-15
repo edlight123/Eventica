@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { useConfirm } from '@/components/ui/ConfirmProvider'
 import OrganizerPayoutReleaseCard from './OrganizerPayoutReleaseCard'
 import OrganizerEventsList, { type OrganizerEventRow } from './OrganizerEventsList'
+import { EditorialHeader } from '@/components/ui/EditorialHeader'
 
 // Helper to safely render any value - prevents React error #31 for objects
 function safeString(value: any, fallback: string = ''): string {
@@ -164,28 +165,13 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
         </div>
       )}
 
-      {/* Header */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0 flex-1">
-          <h1 className="font-display text-[clamp(22px,3vw,30px)] leading-[1.06] text-white">
-            {user.full_name || 'No name'}
-          </h1>
-          <p className="mt-1 text-sm text-white/50">{user.email}</p>
-          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold">
-            <span className="label-mono uppercase text-brand-300">{user.role}</span>
-            {user.verification_status === 'approved' && (
-              <span className="label-mono uppercase text-emerald-300">✓ Verified</span>
-            )}
-            {isBanned && (
-              <span className="label-mono uppercase text-red-300">✕ Banned</span>
-            )}
-            {!canPost && (
-              <span className="label-mono uppercase text-amber-300">⚠ Posting Disabled</span>
-            )}
-          </div>
-        </div>
-
-        {/* Quick Actions */}
+      {/* Header — the shared serif title used across the console, with this
+          account's state badges directly beneath it. */}
+      <EditorialHeader
+        className="mb-3"
+        title={user.full_name || 'No name'}
+        subtitle={user.email}
+        actions={
         <div className="flex flex-col gap-2 sm:min-w-[200px]">
           {isVerified ? (
             <button
@@ -241,6 +227,16 @@ export default function OrganizerDetailsClient({ organizerDetails }: OrganizerDe
             </button>
           )}
         </div>
+        }
+      />
+
+      <div className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold">
+        <span className="label-mono uppercase text-brand-300">{user.role}</span>
+        {user.verification_status === 'approved' && (
+          <span className="label-mono uppercase text-emerald-300">✓ Verified</span>
+        )}
+        {isBanned && <span className="label-mono uppercase text-red-300">✕ Banned</span>}
+        {!canPost && <span className="label-mono uppercase text-amber-300">⚠ Posting Disabled</span>}
       </div>
 
       {/* Stats Strip */}

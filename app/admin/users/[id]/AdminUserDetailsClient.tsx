@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { useConfirm } from '@/components/ui/ConfirmProvider'
+import { EditorialHeader } from '@/components/ui/EditorialHeader'
 
 type AdminUserDetailsClientProps = {
   details: {
@@ -98,14 +99,17 @@ export default function AdminUserDetailsClient({
         </div>
       )}
 
-      {/* Header */}
+      {/* Header — the shared serif title used across the console, with this
+          account's state badges and id directly beneath it. */}
+      <EditorialHeader
+        className="mb-3"
+        title={user.full_name || user.name || 'No name'}
+        subtitle={user.email || undefined}
+      />
+
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h1 className="font-display text-[clamp(22px,3vw,30px)] leading-[1.06] text-white truncate">
-            {user.full_name || user.name || 'No name'}
-          </h1>
-          <div className="mt-1 text-sm text-white/50 truncate">{user.email || ''}</div>
-          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold">
             <span className="label-mono uppercase text-brand-300">{user.role || 'attendee'}</span>
             {user.is_verified && (
               <span className="label-mono uppercase text-emerald-300">{t('users.verified')}</span>
