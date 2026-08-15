@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import MobileNavWrapper from '@/components/MobileNavWrapper'
 import { AdminCommandBar } from '@/components/admin/AdminCommandBar'
 import { AdminAccessDenied } from '@/components/admin/AdminAccessDenied'
-import { AdminTopNav } from '@/components/admin/AdminTopNav'
+import { AdminSidebar } from '@/components/admin/AdminSidebar'
 import { AdminRealtimeProvider } from '@/lib/realtime/AdminRealtimeProvider'
 import { ConfirmProvider } from '@/components/ui/ConfirmProvider'
 
@@ -26,20 +26,29 @@ export default async function AdminLayout({
     return <AdminAccessDenied userEmail={user.email} />
   }
 
-  const accountInitial = (user.full_name || user.email || 'A').trim().charAt(0).toUpperCase()
-
   return (
     <AdminRealtimeProvider>
       <ConfirmProvider>
-      <div className="surface-dark min-h-screen">
-        {/* Single admin top bar (replaces the global navbar + left sidebar) */}
-        <AdminTopNav userEmail={user.email} accountInitial={accountInitial} />
+      <div className="surface-dark flex min-h-screen">
+        {/*
+          The rail is sticky and full-height. Below md it is hidden and
+          MobileNavWrapper carries navigation, so no admin route becomes
+          unreachable on a phone. There is deliberately no icon-only tier: an
+          icon rail cannot carry `count · oldest`, which is the whole point of
+          the rail — losing it at one breakpoint would drop the console's
+          organizing signal exactly where scanning is hardest.
+        */}
+        <div className="sticky top-0 hidden h-screen md:block">
+          <AdminSidebar userEmail={user.email} />
+        </div>
 
-        {/* Global search & quick actions */}
-        <AdminCommandBar />
+        <div className="flex min-w-0 flex-1 flex-col">
+          {/* Global search & quick actions */}
+          <AdminCommandBar />
 
-        {/* Main Content */}
-        <main className="pb-mobile-nav">{children}</main>
+          {/* Main Content */}
+          <main className="min-w-0 flex-1 pb-mobile-nav">{children}</main>
+        </div>
 
         {/* Mobile Bottom Navigation */}
         <MobileNavWrapper user={user} isAdmin={true} />
