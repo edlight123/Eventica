@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useRef, useState, useCallback } from 'react'
+import type { QueueSummary } from '@/lib/admin/queue-keys'
 
 export interface AdminMetricsUpdate {
   usersCount: number
@@ -51,6 +52,8 @@ export interface AdminRealtimeContextValue {
   metrics: AdminMetricsUpdate | null
   activities: AdminActivity[]
   systemStatus: SystemStatus | null
+  /** Null until the first poll lands; a null VALUE within it means that queue's read failed. */
+  queues: QueueSummary | null
   lastUpdate: Date | null
   refresh: () => Promise<void>
   addActivity: (activity: Omit<AdminActivity, 'id' | 'timestamp'>) => Promise<void>
@@ -72,6 +75,7 @@ export function AdminRealtimeProvider({
   const [isConnected, setIsConnected] = useState(false)
   const [connectionStatus, setConnectionStatus] = useState<AdminRealtimeContextValue['connectionStatus']>('disconnected')
   const [data, setData] = useState<RealtimeData | null>(null)
+  const [queues, setQueues] = useState<QueueSummary | null>(null)
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
   
   const pollingIntervalRef = useRef<NodeJS.Timeout>()
@@ -85,20 +89,35 @@ export function AdminRealtimeProvider({
     isFetchingRef.current = true
     
     try {
-      const response = await fetch('/api/admin/realtime', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        cache: 'no-store'
-      })
+      // Both endpoints ride the same poll. The queue summary is fetched with its
+      // own catch because it must never mark the connection down — the metrics
+      // endpoint is the connection's health signal, not this one.
+      const [response, queuesResponse] = await Promise.all([
+        fetch('/api/admin/realtime', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          cache: 'no-store'
+        }),
+        fetch('/api/admin/queues/summary', { cache: 'no-store' }).catch(() => null),
+      ])
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
+      if (queuesResponse && queuesResponse.ok) {
+        try {
+          const payload = await queuesResponse.json()
+          setQueues(payload?.queues ?? null)
+        } catch {
+          // Malformed body: keep the last good summary rather than blanking the rail.
+        }
+      }
+
       const realtimeData: RealtimeData = await response.json()
-      
+
       setData(realtimeData)
       setLastUpdate(new Date())
       setIsConnected(true)
@@ -195,6 +214,7 @@ export function AdminRealtimeProvider({
     metrics: data?.metrics || null,
     activities: data?.activities || [],
     systemStatus: data?.systemStatus || null,
+    queues,
     lastUpdate,
     refresh,
     addActivity
@@ -244,4 +264,18 @@ export function useAdminPendingCount() {
   const pendingCount = metrics?.pendingCount ?? 0
   const pendingBankCount = metrics?.pendingBankCount ?? 0
   return { pendingCount, pendingBankCount, total: pendingCount + pendingBankCount, isConnected }
+}
+
+/**
+ * Per-queue counts and oldest-waiting ages for the sidebar and the Needs You
+ * landing. Rides the same 10s poll — no extra fetch loop.
+ *
+ * Three states, all distinct and all meaningful to render differently:
+ *   queues === null            → the first poll has not landed yet
+ *   queues[key] === null       → that queue's read FAILED; show it as unknown
+ *   queues[key].count === 0    → that queue is genuinely CLEAR
+ */
+export function useAdminQueues() {
+  const { queues, isConnected } = useAdminRealtime()
+  return { queues, isConnected }
 }
