@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { formatCurrency } from '@/lib/fees'
-import { StatusChip } from '@/components/ui/kit'
+import { EditorialHeader } from '@/components/ui/EditorialHeader'
+import { formatAge, ageClass } from '@/lib/admin/age'
 import { useConfirm } from '@/components/ui/ConfirmProvider'
 import { useToast } from '@/components/ui/Toast'
 
@@ -37,6 +38,29 @@ interface Withdrawal {
     name: string
     email: string
   } | null
+}
+
+const STATUS_STATE: Record<string, { label: string; dot: string; text: string }> = {
+  pending: { label: 'Pending', dot: 'bg-amber-400', text: 'text-amber-300' },
+  processing: { label: 'Processing', dot: 'bg-amber-400', text: 'text-amber-300' },
+  completed: { label: 'Completed', dot: 'bg-emerald-400', text: 'text-emerald-300' },
+  failed: { label: 'Failed', dot: 'bg-red-400', text: 'text-red-300' },
+}
+
+const TIMESTAMP_FIELDS = ['createdAt', 'requestedAt', 'created_at', 'updatedAt'] as const
+
+/**
+ * Withdrawal rows reach this page from a few different writers, so the request
+ * timestamp is not reliably under one key. Try each known spelling and take the
+ * first that actually parses; formatAge renders '—' when none do.
+ */
+function requestedTimestamp(withdrawal: Withdrawal): string | null {
+  const record = withdrawal as unknown as Record<string, unknown>
+  for (const field of TIMESTAMP_FIELDS) {
+    const value = record[field]
+    if (typeof value === 'string' && !Number.isNaN(new Date(value).getTime())) return value
+  }
+  return null
 }
 
 interface WithdrawalsViewProps {
@@ -127,9 +151,16 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
     }
   }
 
+  /** Dot + label, not a filled pill — the console's house style for status. */
   const getStatusBadge = (status: string) => {
-    if (!['completed', 'processing', 'pending', 'failed'].includes(status)) return null
-    return <StatusChip status={status} />
+    const state = STATUS_STATE[status]
+    if (!state) return null
+    return (
+      <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${state.text}`}>
+        <span className={`h-1.5 w-1.5 rounded-full ${state.dot}`} aria-hidden="true" />
+        {state.label}
+      </span>
+    )
   }
 
   const getMethodIcon = (method: string) => {
@@ -143,10 +174,11 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
   return (
     <div className={containerClassName}>
       {showHeader && (
-        <div className="mb-5">
-          <h1 className="font-display text-[clamp(22px,3vw,30px)] leading-[1.06] text-white mb-1">Withdrawal Management</h1>
-          <p className="text-sm text-white/50">Review and process organizer withdrawal requests</p>
-        </div>
+        <EditorialHeader
+          className="mb-5"
+          title="Withdrawals"
+          subtitle="Review and process organizer withdrawal requests"
+        />
       )}
 
       {/* Filter Tabs */}
@@ -203,6 +235,7 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                   <th className="px-4 py-3 text-left text-xs font-medium text-white/50 uppercase">Method</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-white/50 uppercase">Status</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-white/50 uppercase">Date</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-white/50 uppercase">Waiting</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-white/50 uppercase">Actions</th>
                 </tr>
               </thead>
@@ -240,6 +273,11 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
                       <div className="font-mono text-xs tabular-nums text-white/50">
                         {new Date(withdrawal.createdAt).toLocaleTimeString()}
                       </div>
+                    </td>
+                    <td className="px-4 py-4 text-right">
+                      <span className={`label-mono text-[13px] tabular-nums ${ageClass(requestedTimestamp(withdrawal))}`}>
+                        {formatAge(requestedTimestamp(withdrawal))}
+                      </span>
                     </td>
                     <td className="px-4 py-4">
                       <button

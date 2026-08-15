@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { AlertTriangle, HelpCircle, RefreshCw, ShieldAlert } from 'lucide-react'
 import { Card, EmptyState, StatTile, StatusChip } from '@/components/ui/kit'
+import { ageClass, formatAge } from '@/lib/admin/age'
 
 /**
  * The chargeback log.
@@ -89,6 +90,48 @@ function shortDate(iso: string | null): string {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
+/**
+ * Which field the waiting clock runs from.
+ *
+ * A dispute's age is time since it was OPENED, not since we last touched the
+ * record — `updatedAt` moves every time Stripe sends a webhook, so leaning on it
+ * would keep resetting a dispute that has actually been sitting for a week.
+ * Writers have used a few different names for the opening moment, so probe the
+ * candidates in order and take the first one that is really a parseable date.
+ */
+const AGE_FIELDS = [
+  'createdAt',
+  'stripeCreatedAt',
+  'firstSeenAt',
+  'updatedAt',
+  'created_at',
+  'updated_at',
+] as const
+
+function ageSource(item: DisputeItem): string | null {
+  const record = item as unknown as Record<string, unknown>
+  for (const field of AGE_FIELDS) {
+    const value = record[field]
+    if (typeof value !== 'string' || !value) continue
+    if (Number.isNaN(new Date(value).getTime())) continue
+    return value
+  }
+  return null
+}
+
+/** The hover title behind a compact age: the moment itself, to the minute. */
+function fullTimestamp(iso: string): string {
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return iso
+  return date.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  })
+}
+
 /** Deadlines are the whole point of this screen, so they read in hours/days. */
 function deadlineLabel(iso: string | null): { text: string; urgent: boolean } | null {
   if (!iso) return null
@@ -109,6 +152,8 @@ function outcomeTone(outcome: string): 'success' | 'danger' | 'warning' | 'neutr
 
 function DisputeRow({ item }: { item: DisputeItem }) {
   const deadline = item.isOpen ? deadlineLabel(item.evidenceDueBy) : null
+  // A closed dispute's age is history, not a queue signal, so only open ones age.
+  const waitingSince = item.isOpen ? ageSource(item) : null
 
   return (
     <div className="border-t border-white/10 px-4 py-4 first:border-t-0 sm:px-5">
@@ -167,6 +212,17 @@ function DisputeRow({ item }: { item: DisputeItem }) {
         </div>
 
         <div className="text-right text-xs text-white/40">
+          {waitingSince && (
+            <div className="flex items-baseline justify-end gap-1.5">
+              <span
+                className={`label-mono text-[13px] tabular-nums ${ageClass(waitingSince)}`}
+                title={`Open since ${fullTimestamp(waitingSince)}`}
+              >
+                {formatAge(waitingSince)}
+              </span>
+              <span className="text-[11px] text-white/35">waiting</span>
+            </div>
+          )}
           <div>Opened {shortDate(item.stripeCreatedAt || item.firstSeenAt)}</div>
           {item.lostAt && <div className="text-red-300">Lost {shortDate(item.lostAt)}</div>}
           {item.closedAt && !item.lostAt && <div>Closed {shortDate(item.closedAt)}</div>}

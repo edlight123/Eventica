@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { AlertTriangle, CheckCircle, RefreshCw, ShieldQuestion, XCircle } from 'lucide-react'
 import { useConfirm } from '@/components/ui/ConfirmProvider'
+import { ageClass, formatAge } from '@/lib/admin/age'
 
 /**
  * The payout review queue.
@@ -104,6 +105,37 @@ function timeAgo(iso: string | null): string {
   if (hours < 1) return 'less than an hour ago'
   if (hours < 48) return `${Math.round(hours)} hours ago`
   return `${Math.round(hours / 24)} days ago`
+}
+
+/**
+ * Which timestamp says how long this payout has been waiting.
+ *
+ * Rows in this collection have been written by more than one job over the life
+ * of the queue, so the field that carries the queue time is not guaranteed to be
+ * `createdAt`. Take the first candidate that actually parses instead of trusting
+ * a single name — an age that silently reads "—" would hide exactly the item an
+ * admin most needs to see. `updatedAt` is last because a re-check moves it, so
+ * it understates the wait; it is still better than showing nothing.
+ */
+const WAITING_SINCE_FIELDS = ['createdAt', 'submittedAt', 'created_at', 'updatedAt'] as const
+
+function waitingSince(item: ReviewItem): string | null {
+  const row = item as unknown as Record<string, unknown>
+  for (const field of WAITING_SINCE_FIELDS) {
+    const value = row[field]
+    if (typeof value !== 'string' || !value.trim()) continue
+    if (Number.isNaN(new Date(value).getTime())) continue
+    return value
+  }
+  return null
+}
+
+/** The exact moment, for the hover title — the badge itself is deliberately terse. */
+function waitingSinceTitle(iso: string | null): string {
+  if (!iso) return 'No queue timestamp recorded on this item'
+  const then = new Date(iso)
+  if (Number.isNaN(then.getTime())) return 'No queue timestamp recorded on this item'
+  return `Waiting since ${then.toLocaleString()}`
 }
 
 export default function PayoutReviewQueue() {
@@ -298,6 +330,7 @@ export default function PayoutReviewQueue() {
           {pending.map((item) => {
             const hint = reasonHint(item.reason)
             const busy = busyId === item.eventId
+            const since = waitingSince(item)
 
             return (
               <div key={item.eventId} className="rounded-xl border border-white/10 p-4 sm:p-5">
@@ -327,7 +360,14 @@ export default function PayoutReviewQueue() {
                   </div>
 
                   <div className="text-right">
-                    <p className="text-2xl font-bold tabular-nums text-white">
+                    {/* How long this organizer has been unpaid — the reason this queue is urgent. */}
+                    <p
+                      className={`label-mono text-[13px] tabular-nums ${ageClass(since)}`}
+                      title={waitingSinceTitle(since)}
+                    >
+                      {since ? `${formatAge(since)} waiting` : 'age unknown'}
+                    </p>
+                    <p className="mt-1 text-2xl font-bold tabular-nums text-white">
                       {formatMinor(item.amountMinor, item.currency)}
                     </p>
                     <p className="mt-0.5 text-[11px] text-white/40">held from this organizer</p>

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { EmptyState, StatusChip } from '@/components/ui/kit'
 import { DataTable, type Column } from '@/components/ui/DataTable'
 import { StatTriplet, type StatItem } from '@/components/ui/StatTriplet'
+import { EditorialHeader } from '@/components/ui/EditorialHeader'
 import { Users as UsersIcon, UserCog, ShieldCheck, Search, ArrowUpRight } from 'lucide-react'
 
 type AdminUsersClientProps = {
@@ -164,10 +165,8 @@ export default function AdminUsersClient({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-[clamp(24px,3vw,32px)] leading-[1.04] text-white">{t('users.title')}</h1>
-        <p className="mt-1 text-sm text-white/50">{t('users.subtitle')}</p>
-      </div>
+      {/* Shared serif title — same header component as the rest of the console. */}
+      <EditorialHeader title={t('users.title')} subtitle={t('users.subtitle')} />
 
       {/* Stats — divided strip */}
       <StatTriplet items={stats} columns={3} />

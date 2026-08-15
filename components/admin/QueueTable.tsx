@@ -1,19 +1,28 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
+import { DataTable, type Column } from '@/components/ui/DataTable'
 import { formatAge, ageClass } from '@/lib/admin/age'
 
 export type QueueColumn<T> = {
   key: string
   header: string
-  /** Applied to both the header cell and the body cell so they stay aligned. */
   className?: string
   render: (row: T) => ReactNode
 }
 
 /**
- * The one table every admin queue and register renders through: 44px rows, and
- * an age column when the rows have an age worth showing.
+ * An admin queue as a table: the shared DataTable plus one thing it does not
+ * have — a "Waiting" column carrying how long each item has sat there.
+ *
+ * This deliberately delegates rather than reimplementing. DataTable already
+ * provides sorting, pagination, row selection, a sticky header, loading
+ * skeletons, designed empty states and a mobile card fallback; a hand-rolled
+ * table here would have been a strictly worse version of all of it. Age is the
+ * genuinely new idea in this console, so age is the only thing this adds.
+ *
+ * Sorting on the Waiting column works on the raw timestamp, not the rendered
+ * "6d" string, so it orders correctly rather than alphabetically.
  *
  * State is never a filled pill — callers render a dot plus a label in their own
  * column (existing product rule).
@@ -27,6 +36,7 @@ export function QueueTable<T>({
   onAction,
   emptyMessage,
   loading = false,
+  toolbar,
 }: {
   rows: T[]
   columns: QueueColumn<T>[]
@@ -37,84 +47,92 @@ export function QueueTable<T>({
   onAction?: (row: T) => void
   emptyMessage: string
   loading?: boolean
+  toolbar?: ReactNode
 }) {
   const showAge = typeof getAgeAt === 'function'
   const showAction = typeof onAction === 'function' && !!actionLabel
 
-  if (loading) {
-    return (
-      <div className="overflow-hidden rounded-xl border border-white/10">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="flex h-11 items-center gap-4 border-b border-white/[0.06] px-4 last:border-0">
-            <div className="h-3 w-1/3 animate-pulse rounded bg-white/[0.06]" />
-            <div className="h-3 w-16 animate-pulse rounded bg-white/[0.06]" />
-          </div>
-        ))}
-      </div>
-    )
+  // Rows arrive from the server, so an age computed at render time would be
+  // measured against the SERVER clock in the HTML and the CLIENT clock a beat
+  // later — a guaranteed hydration mismatch for any row near a minute boundary.
+  // Stamping `now` on mount means the age is computed only on the client.
+  const [now, setNow] = useState<Date | null>(null)
+  useEffect(() => {
+    setNow(new Date())
+    // Keep the column honest while an admin sits on the page.
+    const id = setInterval(() => setNow(new Date()), 60_000)
+    return () => clearInterval(id)
+  }, [])
+
+  const tableColumns: Column<T>[] = [
+    ...columns.map((col) => ({
+      key: col.key,
+      header: col.header,
+      render: col.render,
+      cellClassName: col.className,
+      headerClassName: col.className,
+    })),
+  ]
+
+  if (showAge) {
+    tableColumns.push({
+      key: 'waiting',
+      header: 'Waiting',
+      align: 'right' as const,
+      sortable: true,
+      // Sort on the timestamp itself; the rendered string would sort as text.
+      sortAccessor: (row: T) => {
+        const at = getAgeAt!(row)
+        if (!at) return null
+        const d = new Date(at)
+        return Number.isNaN(d.getTime()) ? null : d
+      },
+      render: (row: T) => {
+        const at = getAgeAt!(row)
+        // Before mount there is no client clock yet; render the cell empty
+        // rather than a value the server and client would disagree about.
+        if (!now) return <span className="label-mono text-[13px] text-white/25">·</span>
+        return (
+          <span
+            className={`label-mono text-[13px] tabular-nums ${ageClass(at, now)}`}
+            title={at ? `Waiting since ${new Date(at).toISOString()}` : 'No timestamp recorded'}
+          >
+            {formatAge(at, now)}
+          </span>
+        )
+      },
+    })
   }
 
-  if (rows.length === 0) {
-    return (
-      <div className="rounded-xl border border-white/10 px-4 py-12 text-center text-sm text-white/50">
-        {emptyMessage}
-      </div>
-    )
+  if (showAction) {
+    tableColumns.push({
+      key: 'action',
+      header: '',
+      align: 'right' as const,
+      render: (row: T) => (
+        <button
+          type="button"
+          onClick={(e) => {
+            // The row itself may be clickable; the button owns this click.
+            e.stopPropagation()
+            onAction!(row)
+          }}
+          className="font-grotesk rounded-md border border-white/10 px-3 py-1 text-xs font-semibold text-white/80 transition-colors hover:bg-white/[0.06] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+        >
+          {actionLabel}
+        </button>
+      ),
+    })
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-white/10">
-      <table className="w-full min-w-[640px] border-collapse text-left">
-        <thead>
-          <tr className="border-b border-white/10">
-            {columns.map((col) => (
-              <th
-                key={col.key}
-                scope="col"
-                className={`font-grotesk px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-white/45 ${col.className ?? ''}`}
-              >
-                {col.header}
-              </th>
-            ))}
-            {showAge && (
-              <th scope="col" className="font-grotesk px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wide text-white/45">
-                Waiting
-              </th>
-            )}
-            {showAction && <th scope="col" className="px-4 py-2.5"><span className="sr-only">Action</span></th>}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => {
-            const ageAt = showAge ? getAgeAt!(row) : null
-            return (
-              <tr key={getKey(row)} className="h-11 border-b border-white/[0.06] last:border-0 hover:bg-white/[0.03]">
-                {columns.map((col) => (
-                  <td key={col.key} className={`px-4 text-sm text-white ${col.className ?? ''}`}>
-                    {col.render(row)}
-                  </td>
-                ))}
-                {showAge && (
-                  <td className={`label-mono px-4 text-right text-[13px] tabular-nums ${ageClass(ageAt)}`}>
-                    {formatAge(ageAt)}
-                  </td>
-                )}
-                {showAction && (
-                  <td className="px-4 text-right">
-                    <button
-                      type="button"
-                      onClick={() => onAction!(row)}
-                      className="font-grotesk rounded-md border border-white/10 px-3 py-1 text-xs font-semibold text-white/80 transition-colors hover:bg-white/[0.06] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                    >
-                      {actionLabel}
-                    </button>
-                  </td>
-                )}
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    </div>
+    <DataTable
+      columns={tableColumns}
+      rows={rows}
+      rowKey={getKey}
+      loading={loading}
+      toolbar={toolbar}
+      empty={<div className="px-4 py-12 text-center text-sm text-white/50">{emptyMessage}</div>}
+    />
   )
 }

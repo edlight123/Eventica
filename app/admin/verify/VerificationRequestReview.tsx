@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { StatusChip } from '@/components/ui/kit'
+import { ageClass, formatAge } from '@/lib/admin/age'
 import { useConfirm } from '@/components/ui/ConfirmProvider'
 import { useToast } from '@/components/ui/Toast'
 
@@ -114,6 +115,16 @@ export default function VerificationRequestReview({ request, user }: Props) {
     livenessUrl: null,
   })
   const [loadingImages, setLoadingImages] = useState(true)
+  /**
+   * "Now" is only known on the client. Rendering an age during SSR would bake a
+   * server clock into the HTML and mismatch on hydration a minute later, so the
+   * age appears once mounted — the same reason the submitted date is formatted
+   * with a fixed locale and timezone below.
+   */
+  const [now, setNow] = useState<Date | null>(null)
+  useEffect(() => {
+    setNow(new Date())
+  }, [])
 
   // Load image URLs using client-side Firebase SDK
   useEffect(() => {
@@ -186,6 +197,19 @@ export default function VerificationRequestReview({ request, user }: Props) {
     parsePossibleDate(request.createdAt) ||
     parsePossibleDate(request.created_at) ||
     null
+
+  /**
+   * How long this request has been waiting. Documents in this collection are
+   * inconsistent about which timestamp field they carry, so the age rides on the
+   * same first-one-that-parses chain as the submitted date above rather than on
+   * any single field name.
+   */
+  const submittedIso = submittedDate ? submittedDate.toISOString() : null
+  const age = now && submittedIso ? formatAge(submittedIso, now) : null
+  const ageColor = now && submittedIso ? ageClass(submittedIso, now) : ''
+  const ageTitle = submittedDate
+    ? `Waiting since ${formatSubmittedAt(submittedDate)} (UTC)`
+    : undefined
 
   const steps = request.steps || null
 
@@ -490,9 +514,16 @@ export default function VerificationRequestReview({ request, user }: Props) {
       <div className=" rounded-lg p-4 sm:p-6 bg-[#0a0a0a]">
         <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
           <div className="min-w-0 flex-1">
-            <h3 className="font-semibold text-white text-base sm:text-lg truncate">
-              {user?.full_name || 'Unknown User'}
-            </h3>
+            <div className="flex items-baseline gap-2 min-w-0">
+              <h3 className="font-semibold text-white text-base sm:text-lg truncate">
+                {user?.full_name || 'Unknown User'}
+              </h3>
+              {age ? (
+                <span className={`label-mono text-[13px] tabular-nums shrink-0 ${ageColor}`} title={ageTitle}>
+                  {age}
+                </span>
+              ) : null}
+            </div>
             <p className="text-[13px] sm:text-sm text-white/60 truncate">{user?.email}</p>
             <p className="font-mono tabular-nums text-[11px] sm:text-xs text-white/50 mt-1">
               {submittedDate ? (
