@@ -9,6 +9,21 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Control Room — the admin console's own world, deliberately unlike the
+        // public site: blue-ink ground, elevation steps instead of borders, and
+        // amber/red reserved for one meaning (how long work has waited).
+        // No teal in the console; the accent is the near-white primary action.
+        console: {
+          ground: '#12151A',
+          panel: '#1A1E25',
+          raise: '#20252E',
+          text: '#E8EAED',
+          mut: '#8B93A1',
+          faint: '#545D6B',
+          amber: '#E8A33D',
+          red: '#FF6B52',
+          green: '#4CC38A',
+        },
         brand: {
           primary: '#0F766E',    // Teal-700
           secondary: '#14B8A6',  // Teal-500 (unified single accent)

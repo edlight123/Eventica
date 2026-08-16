@@ -29,7 +29,8 @@ export default async function AdminLayout({
   return (
     <AdminRealtimeProvider>
       <ConfirmProvider>
-      <div className="surface-dark flex min-h-screen">
+      {/* Control Room ground — the console's own world, not the site's black. */}
+      <div className="flex min-h-screen bg-console-ground text-console-text">
         {/*
           The rail is sticky and full-height. Below md it is hidden and
           MobileNavWrapper carries navigation, so no admin route becomes

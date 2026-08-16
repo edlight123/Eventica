@@ -40,16 +40,16 @@ export function ClearedToday({ activities }: { activities: ClearedActivity[] }) 
   if (total === 0) return null
 
   return (
-    <p className="mt-4 text-sm text-white/45">
-      <span className="text-white/70">Cleared today — </span>
-      <span className="label-mono tabular-nums text-white/70">{total}</span>
+    <p className="label-mono mt-4 text-[11.5px] uppercase tracking-[0.08em] text-console-faint">
+      <span className="text-console-mut">Cleared today — </span>
+      <span className="tabular-nums text-console-mut">{total}</span>
       {byActor.length > 0 && (
         <>
-          <span className="text-white/25"> · </span>
+          {' · '}
           {byActor.map((actor, i) => (
             <span key={actor.name}>
-              {i > 0 && ', '}
-              by {actor.name} <span className="label-mono tabular-nums">{actor.count}</span>
+              {i > 0 && ' · '}
+              {actor.name} <span className="tabular-nums">{actor.count}</span>
             </span>
           ))}
         </>

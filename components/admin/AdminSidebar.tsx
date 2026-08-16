@@ -3,12 +3,12 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Lock, Settings, Wrench } from 'lucide-react'
-import { TikemWordmark } from '@/components/ui/TikemLogo'
 import { useAdminQueues } from '@/lib/realtime/AdminRealtimeProvider'
 // queue-keys, NOT queue-summary: the latter imports firebase-admin, which must
 // never reach the client bundle.
 import { RAIL_GROUPS, railStat } from '@/lib/admin/queue-keys'
-import { formatAge, ageClass } from '@/lib/admin/age'
+import { formatAge } from '@/lib/admin/age'
+import { consoleAgeClass, useConsoleNow } from '@/components/admin/console'
 
 const DEV_EMAILS = ['edward.laguerre+dev@gmail.com', 'edwardlaguerre7@gmail.com']
 
@@ -34,13 +34,13 @@ function RailLink({
     <Link
       href={href}
       aria-current={active ? 'page' : undefined}
-      className={`flex h-9 items-center justify-between gap-2 rounded-md px-3 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+      className={`flex h-9 items-center justify-between gap-2 border-l-2 py-1.5 pl-3 pr-3 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-console-mut ${
         active
-          ? 'bg-white/[0.06] font-semibold text-brand-300'
-          : 'text-white/70 hover:bg-white/[0.04] hover:text-white'
+          ? 'border-console-text bg-console-panel font-semibold text-console-text'
+          : 'border-transparent text-console-mut hover:bg-console-panel hover:text-console-text'
       }`}
     >
-      <span className="font-grotesk truncate">{label}</span>
+      <span className="truncate">{label}</span>
       {children}
     </Link>
   )
@@ -48,22 +48,22 @@ function RailLink({
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="label-mono px-3 pb-1.5 pt-5 text-[10px] uppercase tracking-wider text-white/40">
+    <div className="label-mono px-3 pb-1.5 pt-5 text-[9.5px] uppercase tracking-[0.18em] text-console-faint">
       {children}
     </div>
   )
 }
 
 /**
- * The admin rail. Splits QUEUES (things needing a decision) from BROWSE (things
- * you look up) — the distinction the old seven-tab bar flattened.
- *
- * Each queue shows `count · oldest`, because a count alone cannot tell twelve
- * items filed this morning from two filed last week.
+ * The Control Room rail. QUEUES (things needing a decision) apart from BROWSE
+ * (things you look up), each queue carrying `count · oldest` — a count alone
+ * cannot tell twelve items filed this morning from two filed last week.
+ * The active route gets the same left-edge device the queue rows use.
  */
 export function AdminSidebar({ userEmail }: { userEmail?: string }) {
   const pathname = usePathname()
   const { queues } = useAdminQueues()
+  const now = useConsoleNow()
 
   const isDeveloper = !!userEmail && DEV_EMAILS.includes(userEmail)
   const isActive = (href: string) =>
@@ -72,14 +72,14 @@ export function AdminSidebar({ userEmail }: { userEmail?: string }) {
   return (
     <nav
       aria-label="Admin"
-      className="flex h-full w-60 shrink-0 flex-col overflow-y-auto border-r border-white/10 bg-[#0a0a0a] px-2 py-3"
+      className="flex h-full w-60 shrink-0 flex-col overflow-y-auto bg-console-ground px-2 py-4"
     >
       <Link
         href="/admin"
-        className="mb-2 flex items-center gap-2 rounded px-3 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+        className="label-mono mb-2 px-3 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-console-mut"
       >
-        <TikemWordmark italic className="text-2xl text-white" />
-        <span className="label-mono text-[10px] font-bold uppercase tracking-wider text-brand-300">Admin</span>
+        <span className="text-[13px] font-bold tracking-[0.06em] text-console-text">TIKÈM</span>
+        <span className="mt-0.5 block text-[9px] tracking-[0.2em] text-console-faint">CONSOLE</span>
       </Link>
 
       <RailLink href="/admin" label="Needs you" active={isActive('/admin')} />
@@ -92,18 +92,18 @@ export function AdminSidebar({ userEmail }: { userEmail?: string }) {
         return (
           <RailLink key={group.key} href={group.href} label={group.label} active={isActive(group.href)}>
             {stat && stat.count > 0 ? (
-              <span className="label-mono shrink-0 text-[11px] tabular-nums">
-                <span className="text-white/70">{stat.count}</span>
-                {stat.oldestAt && (
+              <span className="label-mono shrink-0 text-[11.5px] tabular-nums">
+                <span className="text-console-mut">{stat.count}</span>
+                {stat.oldestAt && now && (
                   <>
-                    <span className="text-white/25"> · </span>
-                    <span className={ageClass(stat.oldestAt)}>{formatAge(stat.oldestAt)}</span>
+                    <span className="text-console-faint"> · </span>
+                    <span className={consoleAgeClass(stat.oldestAt, now)}>{formatAge(stat.oldestAt, now)}</span>
                   </>
                 )}
               </span>
             ) : unreadable ? (
               <span
-                className="label-mono shrink-0 text-[11px] text-white/25"
+                className="label-mono shrink-0 text-[11.5px] text-console-faint"
                 title="Count unavailable — this queue could not be read"
               >
                 —
@@ -118,16 +118,16 @@ export function AdminSidebar({ userEmail }: { userEmail?: string }) {
         <RailLink key={item.href} href={item.href} label={item.label} active={isActive(item.href)} />
       ))}
 
-      <div className="mt-auto border-t border-white/10 pt-2">
+      <div className="mt-auto pt-4">
         <RailLink href="/admin/security" label="Security" active={isActive('/admin/security')}>
-          <Lock className="h-3.5 w-3.5 shrink-0 text-white/40" />
+          <Lock className="h-3.5 w-3.5 shrink-0 text-console-faint" />
         </RailLink>
         <RailLink href="/admin/settings" label="Settings" active={isActive('/admin/settings')}>
-          <Settings className="h-3.5 w-3.5 shrink-0 text-white/40" />
+          <Settings className="h-3.5 w-3.5 shrink-0 text-console-faint" />
         </RailLink>
         {isDeveloper && (
           <RailLink href="/admin/dev" label="Dev" active={isActive('/admin/dev')}>
-            <Wrench className="h-3.5 w-3.5 shrink-0 text-white/40" />
+            <Wrench className="h-3.5 w-3.5 shrink-0 text-console-faint" />
           </RailLink>
         )}
       </div>
