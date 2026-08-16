@@ -97,7 +97,10 @@ export function DiscoverFilterManager({ userCountry = 'HT' }: DiscoverFilterMana
     <>
       {/* Sticky discover header: search + location + always-reachable quick filters.
           Pins directly below the navbar (h-14 / sm:h-16). */}
-      <div className="sticky top-14 sm:top-16 z-40 bg-[#0a0a0a]/95 backdrop-blur-sm border-b border-white/10 shadow-sm">
+      {/* Same translucency as the navbar above (which renders `flush` on this
+          page), so the two bars read as ONE header band with this single rule
+          at its bottom edge. */}
+      <div className="sticky top-14 sm:top-16 z-40 bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-white/10">
         <DiscoverTopBar
           filters={appliedFilters}
           onOpenFilters={handleOpenFilters}

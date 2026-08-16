@@ -19,9 +19,16 @@ interface NavbarProps {
     role: 'attendee' | 'organizer' | 'staff'
   } | null
   isAdmin?: boolean
+  /**
+   * Drop the navbar's own bottom rule. For pages (discover) that pin their own
+   * bar directly beneath it: with both rules drawn, the top of the page reads
+   * as a stack of hairlines rather than one header band — the page's bar then
+   * supplies the band's single bottom edge.
+   */
+  flush?: boolean
 }
 
-export default function Navbar({ user, isAdmin = false }: NavbarProps) {
+export default function Navbar({ user, isAdmin = false, flush = false }: NavbarProps) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -77,7 +84,7 @@ export default function Navbar({ user, isAdmin = false }: NavbarProps) {
     'block w-full text-left px-4 py-2 text-sm text-white/70 hover:bg-white/5 hover:text-white transition-colors duration-200'
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0a]/80 backdrop-blur-xl">
+    <nav className={`sticky top-0 z-50 bg-[#0a0a0a]/80 backdrop-blur-xl ${flush ? '' : 'border-b border-white/10'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-14 sm:h-16">
           <div className="flex items-center">
