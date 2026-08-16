@@ -5,7 +5,6 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { useConfirm } from '@/components/ui/ConfirmProvider'
-import { EditorialHeader } from '@/components/ui/EditorialHeader'
 
 type AdminUserDetailsClientProps = {
   details: {
@@ -86,7 +85,7 @@ export default function AdminUserDetailsClient({
       <div className="mb-4">
         <Link
           href="/admin/users"
-          className="text-sm font-medium text-white/50 hover:text-white"
+          className="text-sm font-medium text-console-mut hover:text-console-text"
         >
           {t('users.back_to_users')}
         </Link>
@@ -94,39 +93,39 @@ export default function AdminUserDetailsClient({
 
       {/* Message */}
       {message && (
-        <div className={`mb-5 text-sm ${message.type === 'success' ? 'text-emerald-300' : 'text-red-300'}`}>
+        <div className={`mb-5 text-sm ${message.type === 'success' ? 'text-console-green' : 'text-console-red'}`}>
           {message.text}
         </div>
       )}
 
-      {/* Header — the shared serif title used across the console, with this
-          account's state badges and id directly beneath it. */}
-      <EditorialHeader
-        className="mb-3"
-        title={user.full_name || user.name || 'No name'}
-        subtitle={user.email || undefined}
-      />
+      {/* Header — mono caps, the console's own voice; badges and id beneath. */}
+      <div className="mb-3 min-w-0">
+        <h1 className="label-mono truncate text-[15px] font-bold uppercase tracking-[0.14em] text-console-text">
+          {user.full_name || user.name || 'No name'}
+        </h1>
+        {user.email && <p className="mt-1 truncate text-sm text-console-mut">{user.email}</p>}
+      </div>
 
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold">
-            <span className="label-mono uppercase text-brand-300">{user.role || 'attendee'}</span>
+            <span className="label-mono uppercase text-console-mut">{user.role || 'attendee'}</span>
             {user.is_verified && (
-              <span className="label-mono uppercase text-emerald-300">{t('users.verified')}</span>
+              <span className="label-mono uppercase text-console-green">{t('users.verified')}</span>
             )}
             {isBanned && (
-              <span className="label-mono uppercase text-red-300">Suspended</span>
+              <span className="label-mono uppercase text-console-red">Suspended</span>
             )}
             {isOrganizer && (
               <Link
                 href={`/admin/organizers/${id}`}
-                className="text-brand-300 hover:text-white"
+                className="text-console-mut hover:text-console-text"
               >
                 {t('users.open_organizer_admin')}
               </Link>
             )}
           </div>
-          <div className="mt-3 text-xs text-white/50 font-mono break-all">
+          <div className="mt-3 text-xs text-console-mut font-mono break-all">
             {t('users.user_id')}: {id}
           </div>
         </div>
@@ -137,7 +136,7 @@ export default function AdminUserDetailsClient({
               <input type="hidden" name="userId" value={id} />
               <button
                 type="submit"
-                className="w-full rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
+                className="w-full rounded-lg bg-console-text px-4 py-2.5 text-sm font-bold text-console-ground hover:opacity-90"
               >
                 {t('users.promote_to_organizer')}
               </button>
@@ -148,7 +147,7 @@ export default function AdminUserDetailsClient({
             <button
               onClick={() => handleToggleBan('unban')}
               disabled={isUpdating}
-              className="rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
+              className="rounded-lg bg-console-panel px-4 py-2.5 text-sm font-semibold text-console-mut hover:bg-console-raise hover:text-console-text disabled:opacity-50"
             >
               Restore Access
             </button>
@@ -156,7 +155,7 @@ export default function AdminUserDetailsClient({
             <button
               onClick={() => handleToggleBan('ban')}
               disabled={isUpdating}
-              className="rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+              className="rounded-lg bg-transparent px-4 py-2.5 text-sm font-semibold text-console-red hover:bg-console-raise disabled:opacity-50"
             >
               Suspend User
             </button>
@@ -165,46 +164,46 @@ export default function AdminUserDetailsClient({
       </div>
 
       {/* Attendee stats strip */}
-      <div className="mb-6 grid grid-cols-3 divide-x divide-white/10 overflow-hidden rounded-xl border border-white/10">
+      <div className="mb-6 grid grid-cols-3 divide-x divide-console-raise overflow-hidden rounded-lg bg-console-panel">
         <div className="p-4">
-          <div className="label-mono text-[11px] uppercase tracking-wide text-white/50">{t('users.events_attended')}</div>
-          <div className="mt-1 font-mono text-2xl font-bold tabular-nums text-white">{attendeeStats.eventsAttended}</div>
+          <div className="label-mono text-[11px] uppercase tracking-wide text-console-mut">{t('users.events_attended')}</div>
+          <div className="mt-1 font-mono text-2xl font-bold tabular-nums text-console-text">{attendeeStats.eventsAttended}</div>
         </div>
         <div className="p-4">
-          <div className="label-mono text-[11px] uppercase tracking-wide text-white/50">{t('users.tickets_confirmed')}</div>
-          <div className="mt-1 font-mono text-2xl font-bold tabular-nums text-white">{attendeeStats.ticketsConfirmed}</div>
+          <div className="label-mono text-[11px] uppercase tracking-wide text-console-mut">{t('users.tickets_confirmed')}</div>
+          <div className="mt-1 font-mono text-2xl font-bold tabular-nums text-console-text">{attendeeStats.ticketsConfirmed}</div>
         </div>
         <div className="p-4">
-          <div className="label-mono text-[11px] uppercase tracking-wide text-white/50">{t('users.tickets_checked_in')}</div>
-          <div className="mt-1 font-mono text-2xl font-bold tabular-nums text-white">{attendeeStats.ticketsCheckedIn}</div>
+          <div className="label-mono text-[11px] uppercase tracking-wide text-console-mut">{t('users.tickets_checked_in')}</div>
+          <div className="mt-1 font-mono text-2xl font-bold tabular-nums text-console-text">{attendeeStats.ticketsCheckedIn}</div>
         </div>
       </div>
 
       {/* Organizer section */}
       {isOrganizer && organizerStats && (
-        <div className="rounded-lg border border-white/10 p-4 sm:p-5">
+        <div className="rounded-lg bg-console-panel p-4 sm:p-5">
           <div className="mb-4 flex items-center justify-between gap-4">
-            <h2 className="font-display text-lg text-white">{t('users.organizer_section')}</h2>
+            <h2 className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">{t('users.organizer_section')}</h2>
             <Link
               href={`/admin/organizers/${id}`}
-              className="text-sm font-medium text-brand-300 hover:text-white"
+              className="text-sm font-medium text-console-mut hover:text-console-text"
             >
               {t('users.open_organizer_admin')}
             </Link>
           </div>
 
-          <div className="grid grid-cols-3 divide-x divide-white/10 overflow-hidden rounded-xl border border-white/10">
+          <div className="grid grid-cols-3 divide-x divide-console-raise overflow-hidden rounded-lg bg-console-panel">
             <div className="p-4">
-              <div className="label-mono text-[11px] uppercase tracking-wide text-white/50">{t('users.organizer_total_events')}</div>
-              <div className="mt-1 font-mono text-2xl font-bold tabular-nums text-white">{organizerStats.totalEvents}</div>
+              <div className="label-mono text-[11px] uppercase tracking-wide text-console-mut">{t('users.organizer_total_events')}</div>
+              <div className="mt-1 font-mono text-2xl font-bold tabular-nums text-console-text">{organizerStats.totalEvents}</div>
             </div>
             <div className="p-4">
-              <div className="label-mono text-[11px] uppercase tracking-wide text-white/50">{t('users.organizer_published_events')}</div>
-              <div className="mt-1 font-mono text-2xl font-bold tabular-nums text-white">{organizerStats.publishedEvents}</div>
+              <div className="label-mono text-[11px] uppercase tracking-wide text-console-mut">{t('users.organizer_published_events')}</div>
+              <div className="mt-1 font-mono text-2xl font-bold tabular-nums text-console-text">{organizerStats.publishedEvents}</div>
             </div>
             <div className="p-4">
-              <div className="label-mono text-[11px] uppercase tracking-wide text-white/50">{t('users.organizer_tickets_sold')}</div>
-              <div className="mt-1 font-mono text-2xl font-bold tabular-nums text-white">{organizerStats.ticketsSold}</div>
+              <div className="label-mono text-[11px] uppercase tracking-wide text-console-mut">{t('users.organizer_tickets_sold')}</div>
+              <div className="mt-1 font-mono text-2xl font-bold tabular-nums text-console-text">{organizerStats.ticketsSold}</div>
             </div>
           </div>
         </div>

@@ -1,6 +1,5 @@
 import { PayoutReleaseSettingsForm, type FxStatus } from './PayoutReleaseSettingsForm'
 import { AdminBreadcrumbs } from '@/components/admin/AdminBreadcrumbs'
-import { EditorialHeader } from '@/components/ui/EditorialHeader'
 import { adminDb } from '@/lib/firebase/admin'
 import { getPlatformSettings } from '@/lib/admin/platform-settings'
 import { DEFAULT_PAYOUT_RELEASE_CONFIG } from '@/types/platform-settings'
@@ -73,13 +72,16 @@ export default async function AdminPayoutReleaseSettingsPage() {
         ]}
       />
 
-      <EditorialHeader
-        eyebrow="Payouts"
-        title="Payout Release Settings"
-        subtitle="When ticket money is allowed to reach an organizer: holds, the established tier, what gets sent to review, and the rates that make one threshold mean the same thing in every currency."
-        tone="dark"
-        className="mb-8"
-      />
+      <header className="mb-8">
+        <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Payouts</p>
+        <h1 className="label-mono mt-1 text-[15px] font-bold uppercase tracking-[0.14em] text-console-text">
+          Payout Release Settings
+        </h1>
+        <p className="mt-2 max-w-3xl text-[13px] text-console-mut">
+          When ticket money is allowed to reach an organizer: holds, the established tier, what gets sent to review,
+          and the rates that make one threshold mean the same thing in every currency.
+        </p>
+      </header>
 
       <PayoutReleaseSettingsForm fx={fx} />
     </div>

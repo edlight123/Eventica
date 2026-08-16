@@ -1,6 +1,5 @@
 import { AdminBreadcrumbs } from '@/components/admin/AdminBreadcrumbs'
 import { AdminOrdersClient } from '@/components/admin/orders/AdminOrdersClient'
-import { EditorialHeader } from '@/components/ui/EditorialHeader'
 
 export const revalidate = 0
 export const dynamic = 'force-dynamic'
@@ -14,14 +13,15 @@ export default async function AdminOrdersPage() {
         ]}
       />
 
-      {/* Shared serif title — same header component as the rest of the console.
-          "Orders", not "Orders Management": the console's own nav already says
-          this is where you manage things. */}
-      <EditorialHeader
-        title="Orders"
-        subtitle="Every ticket order across all events"
-        className="mt-4"
-      />
+      {/* Mono caps page title — the Control Room pattern. "Orders", not
+          "Orders Management": the console's own nav already says this is
+          where you manage things. */}
+      <div className="mt-4">
+        <h1 className="label-mono text-[15px] font-bold uppercase tracking-[0.14em] text-console-text">
+          Orders
+        </h1>
+        <p className="mt-1 text-[13px] text-console-mut">Every ticket order across all events</p>
+      </div>
 
       <div className="mt-6">
         <AdminOrdersClient />

@@ -47,7 +47,7 @@ export default function VerificationsHub({
     <div>
       <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 lg:px-8">
         <div
-          className="inline-flex gap-1 rounded-full border border-white/10 p-1"
+          className="inline-flex gap-6"
           role="tablist"
           aria-label="Verifications"
         >
@@ -59,8 +59,8 @@ export default function VerificationsHub({
                 role="tab"
                 aria-selected={active}
                 onClick={() => selectTab(key)}
-                className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-                  active ? 'bg-white/[0.08] text-white' : 'text-white/50 hover:text-white'
+                className={`label-mono flex items-center gap-2 border-b-2 px-1 pb-2 text-[12px] uppercase tracking-[0.14em] transition-colors ${
+                  active ? 'border-console-text text-console-text' : 'border-transparent text-console-mut hover:text-console-text'
                 }`}
               >
                 <Icon className="h-4 w-4" />

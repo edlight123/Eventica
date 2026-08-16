@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { formatCurrency, type Currency } from '@/lib/currency'
-import { StatusChip } from '@/components/ui/kit'
 import { DataTable, type Column } from '@/components/ui/DataTable'
+import { ConsoleButton, ConsoleState, consoleTone } from '@/components/admin/console'
 import {
   Search,
   Filter,
@@ -13,22 +13,13 @@ import {
   X,
   CreditCard,
   Smartphone,
-  DollarSign,
-  ShoppingCart,
-  TrendingUp,
-  Clock,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
   RefreshCw,
   Eye,
   ExternalLink,
-  Package,
   User,
   Mail,
   Ticket,
   QrCode,
-  type LucideIcon,
 } from 'lucide-react'
 
 interface Order {
@@ -109,29 +100,17 @@ const initialFilters: Filters = {
   search: '',
 }
 
-const STATUS_ICONS: Record<string, LucideIcon> = {
-  confirmed: CheckCircle,
-  valid: CheckCircle,
-  pending: Clock,
-  cancelled: XCircle,
-  refunded: RefreshCw,
-}
-
+/** Status is always a dot + label in the console — never a filled pill. */
 function StatusBadge({ status }: { status: string }) {
-  const Icon = STATUS_ICONS[(status || '').toLowerCase()] ?? AlertCircle
-
-  return (
-    <StatusChip status={status} icon={Icon}>
-      {status ? undefined : 'Unknown'}
-    </StatusChip>
-  )
+  return <ConsoleState tone={consoleTone(status)}>{status || 'Unknown'}</ConsoleState>
 }
 
+/** Payment method is a category, not a status — a mono label, no color coding. */
 function PaymentMethodBadge({ method }: { method: string }) {
   const methodLower = (method || '').toLowerCase()
   if (methodLower === 'stripe') {
     return (
-      <span className="inline-flex items-center gap-1 text-xs font-medium text-blue-300">
+      <span className="label-mono inline-flex items-center gap-1 text-[11px] uppercase tracking-wide text-console-mut">
         <CreditCard className="w-3 h-3" />
         Stripe
       </span>
@@ -139,7 +118,7 @@ function PaymentMethodBadge({ method }: { method: string }) {
   }
   if (methodLower === 'moncash') {
     return (
-      <span className="inline-flex items-center gap-1 text-xs font-medium text-red-300">
+      <span className="label-mono inline-flex items-center gap-1 text-[11px] uppercase tracking-wide text-console-mut">
         <Smartphone className="w-3 h-3" />
         MonCash
       </span>
@@ -147,14 +126,14 @@ function PaymentMethodBadge({ method }: { method: string }) {
   }
   if (methodLower === 'natcash') {
     return (
-      <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-300">
+      <span className="label-mono inline-flex items-center gap-1 text-[11px] uppercase tracking-wide text-console-mut">
         <Smartphone className="w-3 h-3" />
         NatCash
       </span>
     )
   }
   return (
-    <span className="inline-flex items-center gap-1 text-xs font-medium text-white/70">
+    <span className="label-mono inline-flex items-center gap-1 text-[11px] uppercase tracking-wide text-console-mut">
       {method || 'Unknown'}
     </span>
   )
@@ -350,8 +329,8 @@ export function AdminOrdersClient() {
         const ticketType = order.ticket_type || order.ticketType || 'General'
         return (
           <div>
-            <div className="font-mono text-sm font-medium tabular-nums text-white">{order.id.slice(0, 8)}…</div>
-            <div className="text-xs text-white/50">{ticketType}</div>
+            <div className="font-mono text-sm font-medium tabular-nums text-console-text">{order.id.slice(0, 8)}…</div>
+            <div className="text-xs text-console-mut">{ticketType}</div>
           </div>
         )
       },
@@ -363,12 +342,12 @@ export function AdminOrdersClient() {
         const eventId = order.event_id || order.eventId || ''
         return (
           <div>
-            <div className="text-sm text-white max-w-[200px] truncate">{order.event_name || 'Unknown'}</div>
+            <div className="text-sm text-console-text max-w-[200px] truncate">{order.event_name || 'Unknown'}</div>
             {eventId && (
               <Link
                 href={`/admin/events?selected=${eventId}`}
                 onClick={(e) => e.stopPropagation()}
-                className="text-xs text-brand-300 hover:text-brand-300"
+                className="text-xs text-console-mut hover:text-console-text"
               >
                 View Event
               </Link>
@@ -385,8 +364,8 @@ export function AdminOrdersClient() {
         const name = order.attendee_name || order.attendeeName || ''
         return (
           <div>
-            <div className="text-sm text-white">{name || 'N/A'}</div>
-            <div className="text-xs text-white/50 truncate max-w-[180px]">{email}</div>
+            <div className="text-sm text-console-text">{name || 'N/A'}</div>
+            <div className="text-xs text-console-mut truncate max-w-[180px]">{email}</div>
           </div>
         )
       },
@@ -398,7 +377,7 @@ export function AdminOrdersClient() {
         const price = order.price_paid || order.pricePaid || 0
         const currency = order.currency || 'USD'
         return (
-          <div className="font-mono text-sm font-medium tabular-nums text-white">
+          <div className="font-mono text-sm font-medium tabular-nums text-console-text">
             {formatCurrency(price, currency as Currency)}
           </div>
         )
@@ -421,10 +400,10 @@ export function AdminOrdersClient() {
         const purchasedAt = order.purchased_at || order.purchasedAt || ''
         return (
           <div>
-            <div className="font-mono text-sm tabular-nums text-white">
+            <div className="font-mono text-sm tabular-nums text-console-text">
               {purchasedAt ? new Date(purchasedAt).toLocaleDateString() : '-'}
             </div>
-            <div className="font-mono text-xs tabular-nums text-white/50">
+            <div className="font-mono text-xs tabular-nums text-console-mut">
               {purchasedAt ? new Date(purchasedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
             </div>
           </div>
@@ -441,7 +420,7 @@ export function AdminOrdersClient() {
             e.stopPropagation()
             setSelectedOrder(order)
           }}
-          className="p-1.5 text-white/50 hover:text-brand-300 transition-colors"
+          className="p-1.5 text-console-faint hover:text-console-text transition-colors"
           title="View Details"
         >
           <Eye className="w-4 h-4" />
@@ -462,18 +441,18 @@ export function AdminOrdersClient() {
       <div className="p-4" onClick={() => setSelectedOrder(order)}>
         <div className="flex items-start justify-between mb-2">
           <div>
-            <div className="font-mono text-sm font-medium tabular-nums text-white">Order {order.id.slice(0, 8)}…</div>
-            <div className="text-xs text-white/50 truncate max-w-[200px]">{order.event_name}</div>
+            <div className="font-mono text-sm font-medium tabular-nums text-console-text">Order {order.id.slice(0, 8)}…</div>
+            <div className="text-xs text-console-mut truncate max-w-[200px]">{order.event_name}</div>
           </div>
           <StatusBadge status={order.status || ''} />
         </div>
         <div className="flex items-center justify-between text-sm">
-          <div className="text-white/60">{name || email || 'Unknown'}</div>
-          <div className="font-mono font-medium tabular-nums text-white">{formatCurrency(price, currency as Currency)}</div>
+          <div className="text-console-mut">{name || email || 'Unknown'}</div>
+          <div className="font-mono font-medium tabular-nums text-console-text">{formatCurrency(price, currency as Currency)}</div>
         </div>
         <div className="flex items-center justify-between mt-2">
           <PaymentMethodBadge method={paymentMethod} />
-          <div className="font-mono text-xs tabular-nums text-white/50">
+          <div className="font-mono text-xs tabular-nums text-console-mut">
             {purchasedAt ? new Date(purchasedAt).toLocaleDateString() : '-'}
           </div>
         </div>
@@ -484,15 +463,15 @@ export function AdminOrdersClient() {
   const ordersToolbar = (
     <div className="flex items-center justify-between">
       <div>
-        <h2 className="font-display text-xl text-white">Orders</h2>
-        <p className="font-mono text-xs tabular-nums text-white/50">
+        <h2 className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Orders</h2>
+        <p className="font-mono text-xs tabular-nums text-console-mut">
           {pagination.totalCount.toLocaleString()} total orders
           {filters.search && ` • Filtered`}
         </p>
       </div>
       <button
         onClick={() => fetchOrders(pagination.page)}
-        className="p-2 text-white/50 hover:text-white/70 transition-colors"
+        className="p-2 text-console-mut hover:text-console-text transition-colors"
         title="Refresh"
       >
         <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -502,53 +481,45 @@ export function AdminOrdersClient() {
 
   return (
     <div className="space-y-6">
-      {/* Summary Strip */}
+      {/* Summary — plain figures, not boxed */}
       {summary && (
-        <div className="grid grid-cols-2 divide-x divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10 sm:grid-cols-4 sm:divide-y-0">
-          <div className="p-4">
-            <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
-              <ShoppingCart className="h-3.5 w-3.5 text-white/30" /> Total Orders
-            </div>
-            <div className="font-mono text-2xl font-bold tabular-nums text-white">{summary.totalOrders.toLocaleString()}</div>
-            <div className="mt-1 font-mono text-xs tabular-nums text-white/50">Today: {summary.todayOrders}</div>
+        <div className="flex flex-wrap gap-x-8 gap-y-4">
+          <div>
+            <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Total Orders</div>
+            <div className="mt-0.5 font-mono text-xl tabular-nums text-console-text">{summary.totalOrders.toLocaleString()}</div>
+            <div className="mt-1 font-mono text-xs tabular-nums text-console-mut">Today: {summary.todayOrders}</div>
           </div>
-          <div className="p-4">
-            <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
-              <DollarSign className="h-3.5 w-3.5 text-white/30" /> Revenue (30d)
-            </div>
-            <div className="font-mono text-2xl font-bold tabular-nums text-white">{formatCurrency(summary.last30Days.revenueUSD, 'USD')}</div>
-            <div className="mt-1 font-mono text-xs tabular-nums text-white/50">{formatCurrency(summary.last30Days.revenueHTG, 'HTG')}</div>
+          <div>
+            <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Revenue (30d)</div>
+            <div className="mt-0.5 font-mono text-xl tabular-nums text-console-text">{formatCurrency(summary.last30Days.revenueUSD, 'USD')}</div>
+            <div className="mt-1 font-mono text-xs tabular-nums text-console-mut">{formatCurrency(summary.last30Days.revenueHTG, 'HTG')}</div>
           </div>
-          <div className="p-4">
-            <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
-              <TrendingUp className="h-3.5 w-3.5 text-white/30" /> Avg Order Value
-            </div>
-            <div className="font-mono text-2xl font-bold tabular-nums text-white">{formatCurrency(summary.last30Days.avgOrderValueUSD, 'USD')}</div>
-            <div className="mt-1 font-mono text-xs tabular-nums text-white/50">{summary.last30Days.orders} orders (30d)</div>
+          <div>
+            <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Avg Order Value</div>
+            <div className="mt-0.5 font-mono text-xl tabular-nums text-console-text">{formatCurrency(summary.last30Days.avgOrderValueUSD, 'USD')}</div>
+            <div className="mt-1 font-mono text-xs tabular-nums text-console-mut">{summary.last30Days.orders} orders (30d)</div>
           </div>
-          <div className="p-4">
-            <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
-              <CheckCircle className="h-3.5 w-3.5 text-white/30" /> Confirmed
-            </div>
-            <div className="font-mono text-2xl font-bold tabular-nums text-white">{summary.byStatus.confirmed.toLocaleString()}</div>
-            <div className="mt-1 font-mono text-xs tabular-nums text-white/50">{summary.byStatus.pending} pending • {summary.byStatus.refunded} refunded</div>
+          <div>
+            <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Confirmed</div>
+            <div className="mt-0.5 font-mono text-xl tabular-nums text-console-text">{summary.byStatus.confirmed.toLocaleString()}</div>
+            <div className="mt-1 font-mono text-xs tabular-nums text-console-mut">{summary.byStatus.pending} pending • {summary.byStatus.refunded} refunded</div>
           </div>
         </div>
       )}
 
       {/* Search and Filter Bar */}
-      <div className="rounded-lg border border-white/10 p-4">
+      <div className="rounded-lg bg-console-panel p-4">
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Search Input */}
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-console-faint" />
             <input
               type="text"
               placeholder="Search by email, name, or order ID..."
               value={filters.search}
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              className="w-full pl-9 pr-4 py-2 bg-transparent border border-white/10 rounded-lg text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/25"
+              className="w-full pl-9 pr-4 py-2 rounded bg-console-ground text-sm text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 focus:ring-console-mut"
             />
           </div>
 
@@ -563,10 +534,10 @@ export function AdminOrdersClient() {
               <button
                 key={option.value}
                 onClick={() => handleDateRangeChange(option.value)}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                className={`px-3 py-2 rounded text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-console-mut ${
                   filters.dateRange === option.value
-                    ? 'border-brand-500/60 text-brand-300'
-                    : 'border-white/10 text-white/70 hover:bg-white/[0.04]'
+                    ? 'bg-console-raise text-console-text'
+                    : 'text-console-mut hover:text-console-text'
                 }`}
               >
                 {option.label}
@@ -577,16 +548,16 @@ export function AdminOrdersClient() {
           {/* Filter Button */}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-console-mut ${
               showFilters || activeFiltersCount > 0
-                ? 'border-brand-500/60 text-brand-300'
-                : 'border-white/10 text-white/70 hover:bg-white/[0.04]'
+                ? 'bg-console-raise text-console-text'
+                : 'text-console-mut hover:text-console-text'
             }`}
           >
             <Filter className="w-4 h-4" />
             Filters
             {activeFiltersCount > 0 && (
-              <span className="bg-brand-600 text-white text-xs px-1.5 py-0.5 rounded-full">{activeFiltersCount}</span>
+              <span className="font-mono text-xs tabular-nums text-console-text">{activeFiltersCount}</span>
             )}
           </button>
 
@@ -594,7 +565,7 @@ export function AdminOrdersClient() {
           <button
             onClick={handleExport}
             disabled={exporting}
-            className="inline-flex items-center gap-2 px-4 py-2 border border-white/10 text-white/70 rounded-lg text-sm font-medium hover:bg-white/[0.04] transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded bg-console-raise text-sm font-medium text-console-mut hover:text-console-text transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-console-mut disabled:opacity-50"
           >
             <Download className="w-4 h-4" />
             {exporting ? 'Exporting...' : 'Export'}
@@ -603,14 +574,14 @@ export function AdminOrdersClient() {
 
         {/* Extended Filters Panel */}
         {showFilters && (
-          <div className="mt-4 pt-4 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="mt-4 pt-4 border-t border-console-raise grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Status Filter */}
             <div>
-              <label className="block text-xs font-medium text-white/70 mb-1">Status</label>
+              <label className="label-mono block text-[10px] uppercase tracking-wide text-console-faint mb-1">Status</label>
               <select
                 value={filters.status}
                 onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
-                className="w-full px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/25"
+                className="w-full px-3 py-2 rounded bg-console-ground text-sm text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 focus:ring-console-mut"
               >
                 <option value="all">All Statuses</option>
                 <option value="confirmed">Confirmed</option>
@@ -622,11 +593,11 @@ export function AdminOrdersClient() {
 
             {/* Payment Method Filter */}
             <div>
-              <label className="block text-xs font-medium text-white/70 mb-1">Payment Method</label>
+              <label className="label-mono block text-[10px] uppercase tracking-wide text-console-faint mb-1">Payment Method</label>
               <select
                 value={filters.paymentMethod}
                 onChange={(e) => setFilters(prev => ({ ...prev, paymentMethod: e.target.value }))}
-                className="w-full px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/25"
+                className="w-full px-3 py-2 rounded bg-console-ground text-sm text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 focus:ring-console-mut"
               >
                 <option value="all">All Methods</option>
                 <option value="stripe">Stripe</option>
@@ -637,11 +608,11 @@ export function AdminOrdersClient() {
 
             {/* Currency Filter */}
             <div>
-              <label className="block text-xs font-medium text-white/70 mb-1">Currency</label>
+              <label className="label-mono block text-[10px] uppercase tracking-wide text-console-faint mb-1">Currency</label>
               <select
                 value={filters.currency}
                 onChange={(e) => setFilters(prev => ({ ...prev, currency: e.target.value }))}
-                className="w-full px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/25"
+                className="w-full px-3 py-2 rounded bg-console-ground text-sm text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 focus:ring-console-mut"
               >
                 <option value="all">All Currencies</option>
                 <option value="USD">USD</option>
@@ -651,11 +622,11 @@ export function AdminOrdersClient() {
 
             {/* Sort By */}
             <div>
-              <label className="block text-xs font-medium text-white/70 mb-1">Sort By</label>
+              <label className="label-mono block text-[10px] uppercase tracking-wide text-console-faint mb-1">Sort By</label>
               <select
                 value={filters.sortBy}
                 onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
-                className="w-full px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/25"
+                className="w-full px-3 py-2 rounded bg-console-ground text-sm text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 focus:ring-console-mut"
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
@@ -667,26 +638,26 @@ export function AdminOrdersClient() {
             {/* Custom Date Range */}
             <div className="sm:col-span-2 lg:col-span-4 flex gap-4 items-end">
               <div className="flex-1">
-                <label className="block text-xs font-medium text-white/70 mb-1">Start Date</label>
+                <label className="label-mono block text-[10px] uppercase tracking-wide text-console-faint mb-1">Start Date</label>
                 <input
                   type="date"
                   value={filters.startDate}
                   onChange={(e) => setFilters(prev => ({ ...prev, startDate: e.target.value, dateRange: 'custom' }))}
-                  className="w-full px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/25"
+                  className="w-full px-3 py-2 rounded bg-console-ground text-sm text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 focus:ring-console-mut"
                 />
               </div>
               <div className="flex-1">
-                <label className="block text-xs font-medium text-white/70 mb-1">End Date</label>
+                <label className="label-mono block text-[10px] uppercase tracking-wide text-console-faint mb-1">End Date</label>
                 <input
                   type="date"
                   value={filters.endDate}
                   onChange={(e) => setFilters(prev => ({ ...prev, endDate: e.target.value, dateRange: 'custom' }))}
-                  className="w-full px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/25"
+                  className="w-full px-3 py-2 rounded bg-console-ground text-sm text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 focus:ring-console-mut"
                 />
               </div>
               <button
                 onClick={resetFilters}
-                className="px-4 py-2 text-sm text-white/60 hover:text-white transition-colors"
+                className="px-4 py-2 text-sm text-console-mut hover:text-console-text transition-colors"
               >
                 Reset All
               </button>
@@ -697,14 +668,11 @@ export function AdminOrdersClient() {
 
       {/* Orders Table */}
       {loadError && !loading ? (
-        <div className="rounded-xl border border-white/10 bg-white/[0.02] p-12 text-center">
-          <p className="mb-4 text-sm text-red-300">{loadError}</p>
-          <button
-            onClick={() => fetchOrders(pagination.page)}
-            className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/[0.04] hover:text-white"
-          >
+        <div className="rounded-lg bg-console-panel p-12 text-center">
+          <p className="mb-4 text-sm text-console-red">{loadError}</p>
+          <ConsoleButton type="button" variant="quiet" onClick={() => fetchOrders(pagination.page)}>
             Retry
-          </button>
+          </ConsoleButton>
         </div>
       ) : (
       <DataTable<Order>
@@ -716,12 +684,12 @@ export function AdminOrdersClient() {
         page={pagination.page}
         totalPages={pagination.totalPages}
         onPageChange={(p) => fetchOrders(p)}
+        variant="console"
         renderMobileCard={renderOrderMobileCard}
         empty={
           <div className="text-center">
-            <Package className="w-12 h-12 text-white/50 mx-auto mb-3" />
-            <p className="text-white/50">No orders found</p>
-            <p className="text-sm text-white/50 mt-1">Try adjusting your filters</p>
+            <p className="label-mono text-[12px] uppercase tracking-[0.14em] text-console-mut">No orders found</p>
+            <p className="text-sm text-console-faint mt-1">Try adjusting your filters</p>
           </div>
         }
       />
@@ -730,11 +698,11 @@ export function AdminOrdersClient() {
       {/* Order Details Modal */}
       {selectedOrder && (
         <>
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setSelectedOrder(null)} />
-          <div className="fixed inset-y-0 right-0 w-full sm:w-[480px] bg-[#0a0a0a] shadow-xl z-50 flex flex-col overflow-hidden">
-            <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between bg-[#0a0a0a]">
-              <h3 className="font-semibold text-white">Order Details</h3>
-              <button onClick={() => setSelectedOrder(null)} className="p-1 text-white/50 hover:text-white/70">
+          <div className="fixed inset-0 bg-black/60 z-40" onClick={() => setSelectedOrder(null)} />
+          <div className="fixed inset-y-0 right-0 w-full sm:w-[480px] bg-console-panel shadow-xl z-50 flex flex-col overflow-hidden">
+            <div className="px-4 py-3 flex items-center justify-between">
+              <h3 className="label-mono text-[12px] font-bold uppercase tracking-[0.14em] text-console-text">Order Details</h3>
+              <button onClick={() => setSelectedOrder(null)} className="p-1 text-console-mut hover:text-console-text">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -742,33 +710,33 @@ export function AdminOrdersClient() {
             <div className="flex-1 overflow-y-auto p-4 space-y-6">
               {/* Order Info */}
               <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm text-white/60">
+                <div className="flex items-center gap-2 text-sm text-console-mut">
                   <Ticket className="w-4 h-4" />
                   <span>Order ID</span>
                 </div>
-                <div className="font-mono text-sm tabular-nums border border-white/10 text-white px-3 py-2 rounded-lg break-all">
+                <div className="font-mono text-sm tabular-nums bg-console-ground text-console-text px-3 py-2 rounded break-all">
                   {selectedOrder.id}
                 </div>
               </div>
 
               {/* Status */}
               <div className="flex items-center justify-between">
-                <span className="text-sm text-white/60">Status</span>
+                <span className="text-sm text-console-mut">Status</span>
                 <StatusBadge status={selectedOrder.status || ''} />
               </div>
 
               {/* Event */}
-              <div className="rounded-lg border border-white/10 p-4">
-                <div className="text-sm font-medium text-white/70 mb-2">Event</div>
-                <div className="text-white">{selectedOrder.event_name || 'Unknown Event'}</div>
-                <div className="text-xs text-white/50 mt-1">
+              <div className="rounded-lg bg-console-ground p-4">
+                <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint mb-2">Event</div>
+                <div className="text-console-text">{selectedOrder.event_name || 'Unknown Event'}</div>
+                <div className="text-xs text-console-faint mt-1">
                   Ticket Type: {selectedOrder.ticket_type || selectedOrder.ticketType || 'General'}
                 </div>
                 {(selectedOrder.event_id || selectedOrder.eventId) && (
                   <Link
                     href={`/events/${selectedOrder.event_id || selectedOrder.eventId}`}
                     target="_blank"
-                    className="inline-flex items-center gap-1 mt-2 text-sm text-brand-300 hover:text-brand-300"
+                    className="inline-flex items-center gap-1 mt-2 text-sm text-console-mut hover:text-console-text"
                   >
                     View Event Page <ExternalLink className="w-3 h-3" />
                   </Link>
@@ -776,16 +744,16 @@ export function AdminOrdersClient() {
               </div>
 
               {/* Attendee */}
-              <div className="rounded-lg border border-white/10 p-4">
-                <div className="text-sm font-medium text-white/70 mb-2">Attendee</div>
+              <div className="rounded-lg bg-console-ground p-4">
+                <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint mb-2">Attendee</div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-white/50" />
-                    <span className="text-white">{selectedOrder.attendee_name || selectedOrder.attendeeName || 'N/A'}</span>
+                    <User className="w-4 h-4 text-console-faint" />
+                    <span className="text-console-text">{selectedOrder.attendee_name || selectedOrder.attendeeName || 'N/A'}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-white/50" />
-                    <span className="text-sm text-white break-all">
+                    <Mail className="w-4 h-4 text-console-faint" />
+                    <span className="text-sm text-console-text break-all">
                       {selectedOrder.attendee_email || selectedOrder.attendeeEmail || selectedOrder.email || 'N/A'}
                     </span>
                   </div>
@@ -793,12 +761,12 @@ export function AdminOrdersClient() {
               </div>
 
               {/* Payment */}
-              <div className="rounded-lg border border-white/10 p-4">
-                <div className="text-sm font-medium text-white/70 mb-2">Payment</div>
+              <div className="rounded-lg bg-console-ground p-4">
+                <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint mb-2">Payment</div>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-white/60">Amount</span>
-                    <span className="font-mono text-lg font-semibold tabular-nums text-white">
+                    <span className="text-console-mut">Amount</span>
+                    <span className="font-mono text-lg font-semibold tabular-nums text-console-text">
                       {formatCurrency(
                         selectedOrder.price_paid || selectedOrder.pricePaid || 0,
                         (selectedOrder.currency || 'USD') as Currency
@@ -806,12 +774,12 @@ export function AdminOrdersClient() {
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-white/60">Method</span>
+                    <span className="text-console-mut">Method</span>
                     <PaymentMethodBadge method={selectedOrder.payment_method || selectedOrder.paymentMethod || ''} />
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-white/60">Date</span>
-                    <span className="font-mono text-sm tabular-nums text-white">
+                    <span className="text-console-mut">Date</span>
+                    <span className="font-mono text-sm tabular-nums text-console-text">
                       {(selectedOrder.purchased_at || selectedOrder.purchasedAt)
                         ? new Date(selectedOrder.purchased_at || selectedOrder.purchasedAt || '').toLocaleString()
                         : 'N/A'}
@@ -821,26 +789,23 @@ export function AdminOrdersClient() {
               </div>
 
               {/* Check-in Status */}
-              <div className="flex items-center justify-between p-4 rounded-lg border border-white/10">
+              <div className="flex items-center justify-between p-4 rounded-lg bg-console-ground">
                 <div className="flex items-center gap-2">
-                  <QrCode className="w-5 h-5 text-white/60" />
-                  <span className="text-white/70">Check-in Status</span>
+                  <QrCode className="w-5 h-5 text-console-mut" />
+                  <span className="text-console-mut">Check-in Status</span>
                 </div>
                 {(selectedOrder.checked_in || selectedOrder.checkedIn) ? (
-                  <span className="inline-flex items-center gap-1 text-emerald-300 font-medium">
-                    <CheckCircle className="w-4 h-4" />
-                    Checked In
-                  </span>
+                  <ConsoleState tone="good">Checked In</ConsoleState>
                 ) : (
-                  <span className="text-white/50">Not checked in</span>
+                  <span className="text-console-faint">Not checked in</span>
                 )}
               </div>
 
               {/* QR Code */}
               {(selectedOrder.qr_code || selectedOrder.qrCode) && (
                 <div className="text-center">
-                  <div className="text-sm font-medium text-white/70 mb-2">QR Code</div>
-                  <div className="inline-block p-4 rounded-lg border border-white/10">
+                  <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint mb-2">QR Code</div>
+                  <div className="inline-block p-4 rounded-lg bg-console-ground">
                     <Image
                       src={selectedOrder.qr_code ?? selectedOrder.qrCode ?? ''}
                       alt="Ticket QR Code"

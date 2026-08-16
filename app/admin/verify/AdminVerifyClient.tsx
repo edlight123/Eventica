@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import VerificationRequestReview from './VerificationRequestReview'
 import VerifyOrganizerForm from './VerifyOrganizerForm'
-import { EditorialHeader } from '@/components/ui/EditorialHeader'
+import { ConsoleButton } from '@/components/admin/console'
 import { useConfirm } from '@/components/ui/ConfirmProvider'
 import { useToast } from '@/components/ui/Toast'
 import { Search, Download, Check, ArrowUp, ArrowDown, ChevronDown } from 'lucide-react'
@@ -215,37 +215,38 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
     { key: 'country', label: 'Country' },
   ]
 
-  const kpis: Array<{ label: string; value: string | number; tone: string }> = [
-    { label: 'Pending', value: analytics.pending, tone: 'text-amber-300' },
-    { label: 'Changes req.', value: analytics.changesRequested, tone: 'text-amber-300' },
-    { label: 'Approved', value: analytics.approved, tone: 'text-emerald-300' },
-    { label: 'Rejected', value: analytics.rejected, tone: 'text-red-300' },
-    { label: 'Approval rate', value: `${analytics.approvalRate}%`, tone: 'text-brand-300' },
+  const kpis: Array<{ label: string; value: string | number }> = [
+    { label: 'Pending', value: analytics.pending },
+    { label: 'Changes req.', value: analytics.changesRequested },
+    { label: 'Approved', value: analytics.approved },
+    { label: 'Rejected', value: analytics.rejected },
+    { label: 'Approval rate', value: `${analytics.approvalRate}%` },
   ]
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <EditorialHeader
-        title={t('verify.title')}
-        subtitle={t('verify.subtitle')}
-        className="mb-5"
-      />
+      <div className="mb-5">
+        <h1 className="label-mono text-[15px] font-bold uppercase tracking-[0.14em] text-console-text">
+          {t('verify.title')}
+        </h1>
+        <p className="mt-1 text-[13px] text-console-mut">{t('verify.subtitle')}</p>
+      </div>
 
-      {/* KPI strip — hairline grid via 1px gap over a faint backdrop */}
-      <div className="mb-6 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-white/10 bg-white/10 sm:grid-cols-3 lg:grid-cols-5">
+      {/* KPI strip — plain figures on the ground, no boxes */}
+      <div className="mb-6 flex flex-wrap gap-x-8 gap-y-4">
         {kpis.map((k) => (
-          <div key={k.label} className="bg-[#0a0a0a] p-4">
-            <p className="label-mono text-[11px] uppercase tracking-wide text-white/50">{k.label}</p>
-            <p className={`mt-1 font-mono text-2xl font-bold tabular-nums ${k.tone}`}>{k.value}</p>
+          <div key={k.label}>
+            <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">{k.label}</p>
+            <p className="mt-1 font-mono text-xl tabular-nums text-console-text">{k.value}</p>
           </div>
         ))}
       </div>
 
       {/* Toolbar: status filter + search + sort + export */}
       <div className="mb-5 space-y-3">
-        {/* Status filter pills */}
+        {/* Status filter tabs */}
         <div
-          className="inline-flex flex-wrap gap-1 rounded-full border border-white/10 p-1"
+          className="inline-flex flex-wrap gap-6"
           role="tablist"
           aria-label="Filter by status"
         >
@@ -258,8 +259,8 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
                 role="tab"
                 aria-selected={active}
                 onClick={() => setStatus(tabItem.key)}
-                className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
-                  active ? 'bg-white/[0.08] text-white' : 'text-white/50 hover:text-white'
+                className={`label-mono border-b-2 px-1 pb-2 text-[12px] uppercase tracking-[0.14em] transition-colors ${
+                  active ? 'border-console-text text-console-text' : 'border-transparent text-console-mut hover:text-console-text'
                 }`}
               >
                 {tabItem.label}
@@ -271,13 +272,13 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
         {/* Search + sort + export */}
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-console-faint" />
             <input
               type="text"
               placeholder="Search by name, email, or country…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-lg border border-white/10 bg-transparent py-2 pl-9 pr-3 text-sm text-white placeholder:text-white/40 focus:border-white/25 focus:outline-none"
+              className="w-full rounded bg-console-panel py-2 pl-9 pr-3 text-sm text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 focus:ring-console-mut"
             />
           </div>
 
@@ -286,61 +287,62 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
               <select
                 value={sortField}
                 onChange={(e) => setSortField(e.target.value as SortField)}
-                className="appearance-none rounded-lg border border-white/10 bg-transparent py-2 pl-3 pr-8 text-sm text-white/80 focus:border-white/25 focus:outline-none"
+                className="appearance-none rounded bg-console-panel py-2 pl-3 pr-8 text-sm text-console-text focus:outline-none focus:ring-2 focus:ring-console-mut"
                 aria-label="Sort by"
               >
                 {sortFields.map((f) => (
-                  <option key={f.key} value={f.key} className="bg-[#0a0a0a] text-white">
+                  <option key={f.key} value={f.key} className="bg-console-panel text-console-text">
                     Sort: {f.label}
                   </option>
                 ))}
               </select>
-              <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+              <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-console-faint" />
             </div>
 
             <button
               type="button"
               onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
-              className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 text-white/70 hover:bg-white/[0.04]"
+              className="grid h-9 w-9 place-items-center rounded bg-console-panel text-console-mut transition-colors hover:bg-console-raise hover:text-console-text focus:outline-none focus-visible:ring-2 focus-visible:ring-console-mut"
               aria-label={sortDirection === 'asc' ? 'Ascending' : 'Descending'}
               title={sortDirection === 'asc' ? 'Ascending' : 'Descending'}
             >
               {sortDirection === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
             </button>
 
-            <button
+            <ConsoleButton
               onClick={handleExportCSV}
               disabled={filteredRequests.length === 0}
-              className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm font-medium text-white/70 hover:bg-white/[0.04] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2"
             >
               <Download className="h-4 w-4" />
               Export
-            </button>
+            </ConsoleButton>
           </div>
         </div>
 
         {/* Bulk actions */}
         {requestedStatus === 'pending' && filteredRequests.length > 0 && (
-          <div className="flex items-center gap-3 rounded-lg border border-white/10 px-3 py-2">
+          <div className="flex items-center gap-3 rounded-lg bg-console-panel px-3 py-2">
             <input
               id="select-all-verify"
               type="checkbox"
               checked={selectedIds.size === filteredRequests.length && filteredRequests.length > 0}
               onChange={toggleSelectAll}
-              className="h-4 w-4 accent-brand-500"
+              className="h-4 w-4 accent-console-text"
             />
-            <label htmlFor="select-all-verify" className="text-[13px] text-white/60 cursor-pointer">
+            <label htmlFor="select-all-verify" className="text-[13px] text-console-mut cursor-pointer">
               {selectedIds.size > 0 ? `${selectedIds.size} selected` : 'Select all'}
             </label>
             {selectedIds.size > 0 && (
-              <button
+              <ConsoleButton
+                variant="primary"
                 onClick={handleBulkApprove}
                 disabled={bulkActionLoading}
-                className="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-1.5 text-[13px] font-semibold text-white hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="ml-auto inline-flex items-center gap-1.5 py-1.5 text-[13px]"
               >
                 <Check className="h-4 w-4" />
                 {bulkActionLoading ? 'Approving…' : `Approve ${selectedIds.size}`}
-              </button>
+              </ConsoleButton>
             )}
           </div>
         )}
@@ -348,8 +350,8 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
 
       {/* Requests list */}
       {filteredRequests.length === 0 ? (
-        <div className="rounded-xl border border-white/10 py-12 text-center">
-          <p className="text-sm text-white/50">
+        <div className="rounded-lg bg-console-panel py-12 text-center">
+          <p className="text-sm text-console-mut">
             {searchQuery
               ? `No results found for "${searchQuery}"`
               : requestedStatus === 'pending'
@@ -366,7 +368,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
                   type="checkbox"
                   checked={selectedIds.has(request.id)}
                   onChange={() => toggleSelect(request.id)}
-                  className="mt-5 h-5 w-5 shrink-0 accent-brand-500 cursor-pointer"
+                  className="mt-5 h-5 w-5 shrink-0 accent-console-text cursor-pointer"
                   onClick={(e) => e.stopPropagation()}
                   aria-label="Select request"
                 />
@@ -380,15 +382,15 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
       )}
 
       {/* Manual verification (verify any organizer by search) */}
-      <details className="group mt-6 rounded-xl border border-white/10">
+      <details className="group mt-6 rounded-lg bg-console-panel">
         <summary className="flex cursor-pointer select-none items-center justify-between gap-3 p-4">
           <div>
-            <h2 className="text-base font-semibold text-white">{t('verify.quick_toggle_title')}</h2>
-            <p className="mt-0.5 text-[13px] text-white/55">{t('verify.quick_toggle_subtitle')}</p>
+            <h2 className="label-mono text-[12px] font-bold uppercase tracking-[0.14em] text-console-text">{t('verify.quick_toggle_title')}</h2>
+            <p className="mt-0.5 text-[13px] text-console-mut">{t('verify.quick_toggle_subtitle')}</p>
           </div>
-          <ChevronDown className="h-5 w-5 shrink-0 text-white/40 transition-transform group-open:rotate-180" />
+          <ChevronDown className="h-5 w-5 shrink-0 text-console-faint transition-transform group-open:rotate-180" />
         </summary>
-        <div className="border-t border-white/10 p-4 sm:p-5">
+        <div className="p-4 pt-0 sm:p-5 sm:pt-0">
           <VerifyOrganizerForm organizers={organizers} />
         </div>
       </details>

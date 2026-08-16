@@ -1,11 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Clock, Wallet, Download, CheckCircle } from 'lucide-react'
+import { Download } from 'lucide-react'
 import PayoutReceiptUpload from '@/components/admin/PayoutReceiptUpload'
 import { formatCurrency as formatMoney, type Currency } from '@/lib/currency'
-import { StatusChip } from '@/components/ui/kit'
-import { StatTriplet, type StatItem } from '@/components/ui/StatTriplet'
+import { ConsoleButton, ConsolePanel, ConsoleState, consoleTone } from '@/components/admin/console'
 
 interface Payout {
   id: string
@@ -206,89 +205,94 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
     a.click()
   }
 
-  const summaryItems: StatItem[] = [
-    { label: 'Pending Requests', value: pendingCount, tone: 'amber', icon: Clock },
-    { label: 'Awaiting Payment', value: approvedCount, tone: 'emerald', icon: CheckCircle },
-    {
-      label: 'Total in Queue',
-      value: formatCurrency(payouts.reduce((sum, p) => sum + p.amount, 0)),
-      icon: Wallet,
-    },
-  ]
-
   return (
     <div className="space-y-4">
-      {/* Summary Strip */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <StatTriplet items={summaryItems} columns={3} className="flex-1" />
-        <button
+      {/* Summary figures */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex flex-wrap gap-x-8 gap-y-4">
+          <div>
+            <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Pending Requests</p>
+            <p className="mt-1 font-mono text-xl tabular-nums text-console-text">{pendingCount}</p>
+          </div>
+          <div>
+            <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Awaiting Payment</p>
+            <p className="mt-1 font-mono text-xl tabular-nums text-console-text">{approvedCount}</p>
+          </div>
+          <div>
+            <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Total in Queue</p>
+            <p className="mt-1 font-mono text-xl tabular-nums text-console-text">
+              {formatCurrency(payouts.reduce((sum, p) => sum + p.amount, 0))}
+            </p>
+          </div>
+        </div>
+        <ConsoleButton
           onClick={exportCSV}
           disabled={payouts.length === 0}
-          className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-700 disabled:opacity-40"
+          className="inline-flex items-center justify-center gap-1.5"
         >
           <Download className="h-4 w-4" /> Export CSV
-        </button>
+        </ConsoleButton>
       </div>
 
       {/* Payouts Table */}
-      <div className="overflow-hidden rounded-lg border border-white/10">
-        <div className="border-b border-white/10 px-4 py-3">
-          <h2 className="text-base font-semibold text-white">Payout Queue</h2>
+      <ConsolePanel className="overflow-hidden">
+        <div className="px-4 py-3">
+          <h2 className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Payout Queue</h2>
         </div>
 
         {payouts.length === 0 ? (
           <div className="px-6 py-12 text-center">
-            <p className="text-white/50">No payouts in the queue</p>
+            <p className="text-console-mut">No payouts in the queue</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-white/10">
+            <table className="min-w-full divide-y divide-console-ground">
               <thead>
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase">Organizer</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase">Amount</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase">Method</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase">Tickets</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase">Requested</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase">Scheduled</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase">Actions</th>
+                  <th className="label-mono px-6 py-3 text-left text-[10px] uppercase tracking-[0.14em] text-console-faint">Organizer</th>
+                  <th className="label-mono px-6 py-3 text-left text-[10px] uppercase tracking-[0.14em] text-console-faint">Amount</th>
+                  <th className="label-mono px-6 py-3 text-left text-[10px] uppercase tracking-[0.14em] text-console-faint">Method</th>
+                  <th className="label-mono px-6 py-3 text-left text-[10px] uppercase tracking-[0.14em] text-console-faint">Tickets</th>
+                  <th className="label-mono px-6 py-3 text-left text-[10px] uppercase tracking-[0.14em] text-console-faint">Requested</th>
+                  <th className="label-mono px-6 py-3 text-left text-[10px] uppercase tracking-[0.14em] text-console-faint">Scheduled</th>
+                  <th className="label-mono px-6 py-3 text-left text-[10px] uppercase tracking-[0.14em] text-console-faint">Status</th>
+                  <th className="label-mono px-6 py-3 text-left text-[10px] uppercase tracking-[0.14em] text-console-faint">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/10">
+              <tbody className="divide-y divide-console-ground">
                 {payouts.map((payout) => (
-                  <tr key={payout.id} className="hover:bg-white/[0.04]">
+                  <tr key={payout.id} className="hover:bg-console-raise">
                     <td className="px-6 py-4">
-                      <div className="text-sm font-medium text-white">{payout.organizer.name}</div>
-                      <div className="text-sm text-white/50">{payout.organizer.email}</div>
+                      <div className="text-sm font-medium text-console-text">{payout.organizer.name}</div>
+                      <div className="text-sm text-console-mut">{payout.organizer.email}</div>
                     </td>
-                    <td className="px-6 py-4 font-mono text-sm font-medium tabular-nums text-white">
+                    <td className="px-6 py-4 font-mono text-sm font-medium tabular-nums text-console-text">
                       {formatCurrency(payout.amount, payout.currency)}
                     </td>
-                    <td className="px-6 py-4 text-sm text-white/60">
+                    <td className="px-6 py-4 text-sm text-console-mut">
                       {payout.method === 'mobile_money' ? 'MonCash/Natcash' : 'Bank Transfer'}
                     </td>
-                    <td className="px-6 py-4 font-mono text-sm tabular-nums text-white/60">
+                    <td className="px-6 py-4 font-mono text-sm tabular-nums text-console-mut">
                       {payout.ticketIds?.length || 0}
                     </td>
-                    <td className="px-6 py-4 font-mono text-sm tabular-nums text-white/60">
+                    <td className="px-6 py-4 font-mono text-sm tabular-nums text-console-mut">
                       {new Date(payout.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 font-mono text-sm tabular-nums text-white/60">
+                    <td className="px-6 py-4 font-mono text-sm tabular-nums text-console-mut">
                       {new Date(payout.scheduledDate).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4">
                       {payout.status === 'approved' ? (
-                        <StatusChip tone="success" icon={CheckCircle}>Awaiting payment</StatusChip>
+                        <ConsoleState tone={consoleTone('approved')}>Awaiting payment</ConsoleState>
                       ) : (
-                        <StatusChip tone="warning" icon={Clock}>Pending</StatusChip>
+                        <ConsoleState tone={consoleTone('pending')}>Pending</ConsoleState>
                       )}
                     </td>
                     <td className="px-6 py-4 text-sm space-x-3">
                       {payout.status === 'pending' && (
                         <button
                           onClick={() => openModal(payout, 'approve')}
-                          className="font-medium text-emerald-300 hover:text-emerald-200"
+                          className="font-medium text-console-green hover:opacity-80"
                         >
                           Approve
                         </button>
@@ -296,14 +300,14 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
                       {payout.status === 'approved' && (
                         <button
                           onClick={() => openModal(payout, 'mark-paid')}
-                          className="font-medium text-brand-300 hover:text-brand-200"
+                          className="font-medium text-console-text hover:opacity-80"
                         >
                           Mark Paid
                         </button>
                       )}
                       <button
                         onClick={() => openModal(payout, 'decline')}
-                        className="font-medium text-red-300 hover:text-red-200"
+                        className="font-medium text-console-red hover:opacity-80"
                       >
                         Decline
                       </button>
@@ -314,49 +318,49 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
             </table>
           </div>
         )}
-      </div>
+      </ConsolePanel>
 
       {/* Modal */}
       {showModal && selectedPayout && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/70 p-4">
-          <div className="my-8 w-full max-w-2xl rounded-xl border border-white/10 bg-[#0a0a0a] p-6">
-            <h3 className="mb-4 text-lg font-semibold text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 p-4">
+          <div className="my-8 w-full max-w-2xl rounded-lg bg-console-panel p-6 shadow-xl">
+            <h3 className="label-mono mb-4 text-[15px] font-bold uppercase tracking-[0.14em] text-console-text">
               {modalMode === 'approve' && 'Approve Payout'}
               {modalMode === 'decline' && 'Decline Payout'}
               {modalMode === 'mark-paid' && 'Mark Payout as Paid'}
             </h3>
 
             {error && (
-              <div className="mb-4 rounded-lg border border-red-500/40 p-3">
-                <p className="text-sm text-red-300">{error}</p>
+              <div className="mb-4 rounded-lg bg-console-ground p-3">
+                <p className="text-sm text-console-red">{error}</p>
               </div>
             )}
 
-            <div className="mb-6 space-y-3 rounded-lg border border-white/10 p-4 text-sm text-white/70">
+            <div className="mb-6 space-y-3 rounded-lg bg-console-ground p-4 text-sm text-console-mut">
               <div>
-                <span className="font-medium text-white/50">Organizer:</span>{' '}
-                <span className="text-white">{selectedPayout.organizer.name}</span>
+                <span className="font-medium text-console-faint">Organizer:</span>{' '}
+                <span className="text-console-text">{selectedPayout.organizer.name}</span>
               </div>
               <div>
-                <span className="font-medium text-white/50">Amount:</span>{' '}
-                <span className="font-mono tabular-nums text-white">{formatCurrency(selectedPayout.amount, selectedPayout.currency)}</span>
+                <span className="font-medium text-console-faint">Amount:</span>{' '}
+                <span className="font-mono tabular-nums text-console-text">{formatCurrency(selectedPayout.amount, selectedPayout.currency)}</span>
               </div>
               <div>
-                <span className="font-medium text-white/50">Method:</span>{' '}
-                <span className="text-white">{selectedPayout.method === 'mobile_money' ? 'MonCash/Natcash' : 'Bank Transfer'}</span>
+                <span className="font-medium text-console-faint">Method:</span>{' '}
+                <span className="text-console-text">{selectedPayout.method === 'mobile_money' ? 'MonCash/Natcash' : 'Bank Transfer'}</span>
               </div>
             </div>
 
             {modalMode === 'decline' && (
               <div className="mb-4">
-                <label className="block text-sm font-medium text-white/70 mb-2">
+                <label className="block text-sm font-medium text-console-mut mb-2">
                   Reason for Declining *
                 </label>
                 <textarea
                   value={declineReason}
                   onChange={(e) => setDeclineReason(e.target.value)}
                   rows={3}
-                  className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2 text-white placeholder:text-white/30 focus:border-white/20 focus:outline-none"
+                  className="w-full rounded bg-console-ground px-3 py-2 text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 focus:ring-console-mut"
                   placeholder="Explain why this payout is being declined..."
                 />
               </div>
@@ -365,30 +369,30 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
             {modalMode === 'mark-paid' && (
               <>
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-white/70 mb-2">
+                  <label className="block text-sm font-medium text-console-mut mb-2">
                     Payment Reference ID *
                   </label>
                   <input
                     type="text"
                     value={paymentRef}
                     onChange={(e) => setPaymentRef(e.target.value)}
-                    className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2 text-white placeholder:text-white/30 focus:border-white/20 focus:outline-none"
+                    className="w-full rounded bg-console-ground px-3 py-2 text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 focus:ring-console-mut"
                     placeholder="Bank transaction ID or MonCash reference"
                   />
                 </div>
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-white/70 mb-2">
+                  <label className="block text-sm font-medium text-console-mut mb-2">
                     Notes (optional)
                   </label>
                   <textarea
                     value={paymentNotes}
                     onChange={(e) => setPaymentNotes(e.target.value)}
                     rows={2}
-                    className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2 text-white placeholder:text-white/30 focus:border-white/20 focus:outline-none"
+                    className="w-full rounded bg-console-ground px-3 py-2 text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 focus:ring-console-mut"
                     placeholder="Additional notes about this payment..."
                   />
                 </div>
-                
+
                 {/* Receipt Upload */}
                 <div className="mb-4">
                   <PayoutReceiptUpload
@@ -401,28 +405,25 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
             )}
 
             <div className="flex gap-3">
-              <button
+              <ConsoleButton
                 onClick={closeModal}
                 disabled={isProcessing}
-                className="flex-1 rounded-lg border border-white/10 px-4 py-2 text-white/70 transition-colors hover:bg-white/[0.04] hover:text-white"
+                className="flex-1"
               >
                 Cancel
-              </button>
-              <button
+              </ConsoleButton>
+              <ConsoleButton
                 onClick={() => {
                   if (modalMode === 'approve') handleApprove()
                   else if (modalMode === 'decline') handleDecline()
                   else handleMarkPaid()
                 }}
                 disabled={isProcessing}
-                className={`flex-1 rounded-lg px-4 py-2 font-medium text-white transition-colors disabled:opacity-50 ${
-                  modalMode === 'decline'
-                    ? 'bg-red-600 hover:bg-red-700'
-                    : 'bg-brand-600 hover:bg-brand-700'
-                }`}
+                variant={modalMode === 'decline' ? 'danger' : 'primary'}
+                className="flex-1"
               >
                 {isProcessing ? 'Processing...' : modalMode === 'approve' ? 'Approve' : modalMode === 'decline' ? 'Decline' : 'Mark Paid'}
-              </button>
+              </ConsoleButton>
             </div>
           </div>
         </div>

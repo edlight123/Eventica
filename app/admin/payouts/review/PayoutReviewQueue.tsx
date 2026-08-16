@@ -4,7 +4,14 @@ import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { AlertTriangle, CheckCircle, RefreshCw, ShieldQuestion, XCircle } from 'lucide-react'
 import { useConfirm } from '@/components/ui/ConfirmProvider'
-import { ageClass, formatAge } from '@/lib/admin/age'
+import { ageTier, formatAge } from '@/lib/admin/age'
+import {
+  ConsoleButton,
+  ConsolePanel,
+  ConsoleState,
+  consoleAgeClass,
+  useConsoleNow,
+} from '@/components/admin/console'
 
 /**
  * The payout review queue.
@@ -138,8 +145,17 @@ function waitingSinceTitle(iso: string | null): string {
   return `Waiting since ${then.toLocaleString()}`
 }
 
+/** The ConsoleRow left-edge tier color, for these richer pending cards. */
+function edgeClass(iso: string | null, now: Date | null): string {
+  const tier = now && iso ? ageTier(iso, now) : 'none'
+  if (tier === 'overdue') return 'border-console-red'
+  if (tier === 'waiting') return 'border-console-amber'
+  return 'border-console-faint'
+}
+
 export default function PayoutReviewQueue() {
   const confirmDialog = useConfirm()
+  const now = useConsoleNow()
 
   const [pending, setPending] = useState<ReviewItem[]>([])
   const [resolved, setResolved] = useState<ReviewItem[]>([])
@@ -234,11 +250,11 @@ export default function PayoutReviewQueue() {
     return (
       <div className="space-y-4">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="rounded-xl border border-white/10 p-4 sm:p-5">
+          <div key={i} className="rounded-lg bg-console-panel p-4 sm:p-5">
             <div className="animate-pulse space-y-4">
-              <div className="h-4 w-1/3 rounded bg-white/10" />
-              <div className="h-4 w-1/2 rounded bg-white/10" />
-              <div className="h-4 w-1/4 rounded bg-white/10" />
+              <div className="h-4 w-1/3 rounded bg-console-raise" />
+              <div className="h-4 w-1/2 rounded bg-console-raise" />
+              <div className="h-4 w-1/4 rounded bg-console-raise" />
             </div>
           </div>
         ))}
@@ -250,15 +266,19 @@ export default function PayoutReviewQueue() {
 
   return (
     <div className="space-y-6">
-      {/* Summary strip */}
-      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-white/10 bg-white/10 sm:grid-cols-3">
-        <div className="bg-[#0a0a0a] p-4">
-          <p className="text-[11px] uppercase tracking-wide text-white/50">Waiting on a decision</p>
-          <p className="mt-1 text-2xl font-bold tabular-nums text-white">{pending.length}</p>
+      {/* Summary figures */}
+      <div className="flex flex-wrap gap-x-8 gap-y-4">
+        <div>
+          <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">
+            Waiting on a decision
+          </p>
+          <p className="mt-1 font-mono text-xl tabular-nums text-console-text">{pending.length}</p>
         </div>
-        <div className="bg-[#0a0a0a] p-4">
-          <p className="text-[11px] uppercase tracking-wide text-white/50">Held from organizers</p>
-          <p className="mt-1 text-2xl font-bold tabular-nums text-white">
+        <div>
+          <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">
+            Held from organizers
+          </p>
+          <p className="mt-1 font-mono text-xl tabular-nums text-console-text">
             {currencyRows.length ? (
               currencyRows.map(([code, minor]) => (
                 <span key={code} className="mr-3 whitespace-nowrap">
@@ -270,61 +290,62 @@ export default function PayoutReviewQueue() {
             )}
           </p>
         </div>
-        <div className="bg-[#0a0a0a] p-4">
-          <p className="text-[11px] uppercase tracking-wide text-white/50">Recently resolved</p>
-          <p className="mt-1 text-2xl font-bold tabular-nums text-white">{resolved.length}</p>
+        <div>
+          <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">
+            Recently resolved
+          </p>
+          <p className="mt-1 font-mono text-xl tabular-nums text-console-text">{resolved.length}</p>
         </div>
       </div>
 
       {/* What this queue is */}
-      <div className="flex gap-3 rounded-xl border border-white/10 p-4">
-        <ShieldQuestion className="mt-0.5 h-5 w-5 flex-shrink-0 text-white/40" />
-        <p className="text-sm text-white/55">
+      <ConsolePanel className="flex gap-3 p-4">
+        <ShieldQuestion className="mt-0.5 h-5 w-5 flex-shrink-0 text-console-faint" />
+        <p className="text-sm text-console-mut">
           The hourly release job sends an event here when something about it wants human eyes, and a queued event is{' '}
-          <span className="text-white/80">not paid</span> while it sits here. Approving lifts that hold so the next run
-          pays it; dismissing closes it and pays nothing. Neither button moves money by itself — the release job does,
-          on its own schedule, with the balance and idempotency checks it already has. The thresholds that decide what
-          lands here live in{' '}
-          <Link href="/admin/payouts/release-settings" className="text-brand-300 hover:underline">
+          <span className="text-console-text">not paid</span> while it sits here. Approving lifts that hold so the next
+          run pays it; dismissing closes it and pays nothing. Neither button moves money by itself — the release job
+          does, on its own schedule, with the balance and idempotency checks it already has. The thresholds that decide
+          what lands here live in{' '}
+          <Link
+            href="/admin/payouts/release-settings"
+            className="text-console-text underline decoration-console-faint hover:decoration-console-text"
+          >
             release settings
           </Link>
           .
         </p>
-      </div>
+      </ConsolePanel>
 
       {message && (
-        <div
-          className={`rounded-lg p-4 text-sm ${
-            message.type === 'success'
-              ? 'border border-emerald-500/30 text-emerald-300'
-              : 'border border-red-500/30 text-red-300'
-          }`}
+        <ConsolePanel
+          className={`p-4 text-sm ${message.type === 'success' ? 'text-console-green' : 'text-console-red'}`}
         >
           {message.text}
-        </div>
+        </ConsolePanel>
       )}
 
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-sm font-semibold text-white">Pending review</h2>
-        <button
+        <h2 className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Pending review</h2>
+        <ConsoleButton
           type="button"
           onClick={() => load(false)}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white/70 hover:bg-white/[0.04]"
+          className="inline-flex items-center gap-1.5 text-xs"
         >
           <RefreshCw className="h-3.5 w-3.5" />
           Refresh
-        </button>
+        </ConsoleButton>
       </div>
 
       {pending.length === 0 ? (
-        <div className="rounded-xl border border-white/10 p-8 text-center">
-          <CheckCircle className="mx-auto h-8 w-8 text-white/25" />
-          <p className="mt-3 text-sm font-medium text-white">Nothing is waiting on a decision</p>
-          <p className="mt-1 text-xs text-white/50">
+        <ConsolePanel className="p-8 text-center">
+          <CheckCircle className="mx-auto h-8 w-8 text-console-faint" />
+          <p className="mt-3 text-sm font-medium text-console-text">Nothing is waiting on a decision</p>
+          <p className="mt-1 text-xs text-console-mut">
             Every flagged payout has been actioned. New ones appear here within an hour of the release job flagging
             them.
           </p>
-        </div>
+        </ConsolePanel>
       ) : (
         <div className="space-y-3">
           {pending.map((item) => {
@@ -333,56 +354,64 @@ export default function PayoutReviewQueue() {
             const since = waitingSince(item)
 
             return (
-              <div key={item.eventId} className="rounded-xl border border-white/10 p-4 sm:p-5">
+              <div
+                key={item.eventId}
+                className={`rounded-r-lg border-l-2 bg-console-panel p-4 sm:p-5 ${edgeClass(since, now)}`}
+              >
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0">
                     <Link
                       href={`/events/${item.eventId}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-base font-semibold text-white hover:text-brand-300"
+                      className="text-base font-semibold text-console-text hover:underline"
                     >
                       {item.eventTitle || 'Untitled event'}
                     </Link>
-                    <p className="mt-1 text-xs text-white/50">
+                    <p className="mt-1 text-xs text-console-mut">
                       {item.organizerId ? (
-                        <Link href={`/admin/organizers/${item.organizerId}`} className="text-brand-300 hover:underline">
+                        <Link
+                          href={`/admin/organizers/${item.organizerId}`}
+                          className="text-console-text underline decoration-console-faint hover:decoration-console-text"
+                        >
                           {item.organizerName || item.organizerEmail || item.organizerId}
                         </Link>
                       ) : (
                         <span>Unknown organizer</span>
                       )}
                       {item.organizerName && item.organizerEmail ? (
-                        <span className="text-white/35"> · {item.organizerEmail}</span>
+                        <span className="text-console-faint"> · {item.organizerEmail}</span>
                       ) : null}
                     </p>
-                    <p className="mt-1 font-mono text-[11px] text-white/30">{item.eventId}</p>
+                    <p className="mt-1 font-mono text-[11px] text-console-faint">{item.eventId}</p>
                   </div>
 
                   <div className="text-right">
                     {/* How long this organizer has been unpaid — the reason this queue is urgent. */}
                     <p
-                      className={`label-mono text-[13px] tabular-nums ${ageClass(since)}`}
+                      className={`label-mono text-[13px] tabular-nums ${
+                        now ? consoleAgeClass(since, now) : 'text-console-faint'
+                      }`}
                       title={waitingSinceTitle(since)}
                     >
-                      {since ? `${formatAge(since)} waiting` : 'age unknown'}
+                      {now ? (since ? `${formatAge(since, now)} waiting` : 'age unknown') : '·'}
                     </p>
-                    <p className="mt-1 text-2xl font-bold tabular-nums text-white">
+                    <p className="mt-1 font-mono text-2xl font-bold tabular-nums text-console-text">
                       {formatMinor(item.amountMinor, item.currency)}
                     </p>
-                    <p className="mt-0.5 text-[11px] text-white/40">held from this organizer</p>
+                    <p className="mt-0.5 text-[11px] text-console-faint">held from this organizer</p>
                   </div>
                 </div>
 
-                <div className="mt-4 rounded-lg border border-amber-500/25 p-3">
-                  <p className="text-sm text-white">
-                    <span className="text-amber-300">●</span> {describeReason(item.reason)}
+                <div className="mt-4 rounded-lg bg-console-ground p-3">
+                  <p className="text-sm text-console-text">
+                    <span className="text-console-amber">●</span> {describeReason(item.reason)}
                   </p>
-                  {hint && <p className="mt-1 text-xs text-white/50">{hint}</p>}
-                  <p className="mt-2 font-mono text-[11px] text-white/30">{item.reason}</p>
+                  {hint && <p className="mt-1 text-xs text-console-mut">{hint}</p>}
+                  <p className="mt-2 font-mono text-[11px] text-console-faint">{item.reason}</p>
                 </div>
 
-                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-white/40">
+                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-console-faint">
                   <span>Queued {timeAgo(item.createdAt)}</span>
                   {item.tier && <span>{TIER_LABELS[item.tier] || item.tier}</span>}
                   {item.updatedAt && item.updatedAt !== item.createdAt && (
@@ -390,25 +419,27 @@ export default function PayoutReviewQueue() {
                   )}
                 </div>
 
-                <div className="mt-4 flex flex-wrap items-center justify-end gap-2 border-t border-white/10 pt-4">
-                  <button
+                <div className="mt-4 flex flex-wrap items-center justify-end gap-2 border-t border-console-ground pt-4">
+                  <ConsoleButton
                     type="button"
+                    variant="danger"
                     onClick={() => act(item, 'dismiss')}
                     disabled={busy}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white/70 hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-40"
+                    className="inline-flex items-center gap-1.5 text-xs"
                   >
                     <XCircle className="h-3.5 w-3.5" />
                     Dismiss — do not pay
-                  </button>
-                  <button
+                  </ConsoleButton>
+                  <ConsoleButton
                     type="button"
+                    variant="primary"
                     onClick={() => act(item, 'release')}
                     disabled={busy}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500/40 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5"
                   >
                     <CheckCircle className="h-4 w-4" />
                     {busy ? 'Working…' : 'Approve release'}
-                  </button>
+                  </ConsoleButton>
                 </div>
               </div>
             )
@@ -417,44 +448,50 @@ export default function PayoutReviewQueue() {
       )}
 
       {/* Recently resolved */}
-      <section className="rounded-xl border border-white/10 p-4 sm:p-5">
-        <div className="mb-3">
-          <h2 className="text-sm font-semibold text-white">Recently resolved</h2>
-          <p className="mt-0.5 text-xs text-white/50">
+      <section>
+        <div className="mb-2">
+          <h2 className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Recently resolved</h2>
+          <p className="mt-1 text-xs text-console-mut">
             The last decisions made here, so you can see what a colleague already actioned. Every one is also in the
             admin audit log.
           </p>
         </div>
 
         {resolved.length === 0 ? (
-          <p className="text-xs text-white/40">Nothing has been resolved yet.</p>
+          <ConsolePanel className="p-4">
+            <p className="text-xs text-console-faint">Nothing has been resolved yet.</p>
+          </ConsolePanel>
         ) : (
-          <ul className="divide-y divide-white/10">
-            {resolved.map((item) => (
-              <li key={item.eventId} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3">
-                <div className="min-w-0">
-                  <p className="truncate text-sm text-white">{item.eventTitle || item.eventId}</p>
-                  <p className="text-[11px] text-white/40">
-                    {item.organizerName || item.organizerEmail || item.organizerId} · {describeReason(item.reason)}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-semibold tabular-nums text-white">
-                    {formatMinor(item.amountMinor, item.currency)}
-                  </p>
-                  <p className="text-[11px] text-white/40">
-                    <span className={item.status === 'released' ? 'text-emerald-300' : 'text-white/50'}>●</span>{' '}
-                    {item.status === 'released' ? 'Released' : 'Dismissed'} {timeAgo(item.resolvedAt || item.updatedAt)}
-                    {item.resolvedByEmail ? ` by ${item.resolvedByEmail}` : ''}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <ConsolePanel className="px-4 sm:px-5">
+            <ul className="divide-y divide-console-ground">
+              {resolved.map((item) => (
+                <li key={item.eventId} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm text-console-text">{item.eventTitle || item.eventId}</p>
+                    <p className="text-[11px] text-console-faint">
+                      {item.organizerName || item.organizerEmail || item.organizerId} · {describeReason(item.reason)}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-mono text-sm font-semibold tabular-nums text-console-text">
+                      {formatMinor(item.amountMinor, item.currency)}
+                    </p>
+                    <p className="text-[11px] text-console-faint">
+                      <ConsoleState tone={item.status === 'released' ? 'good' : 'neutral'}>
+                        {item.status === 'released' ? 'Released' : 'Dismissed'}
+                      </ConsoleState>{' '}
+                      {timeAgo(item.resolvedAt || item.updatedAt)}
+                      {item.resolvedByEmail ? ` by ${item.resolvedByEmail}` : ''}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </ConsolePanel>
         )}
       </section>
 
-      <p className="flex items-start gap-1.5 text-xs text-white/40">
+      <p className="flex items-start gap-1.5 text-xs text-console-faint">
         <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
         Approving does not itself send money: it clears the block, and the release job pays the event on its next run
         once its own rules allow. If an event keeps re-appearing here, the condition that flagged it is still true —

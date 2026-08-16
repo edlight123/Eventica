@@ -3,11 +3,9 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
-import { EmptyState, StatusChip } from '@/components/ui/kit'
 import { DataTable, type Column } from '@/components/ui/DataTable'
-import { StatTriplet, type StatItem } from '@/components/ui/StatTriplet'
-import { EditorialHeader } from '@/components/ui/EditorialHeader'
-import { Users as UsersIcon, UserCog, ShieldCheck, Search, ArrowUpRight } from 'lucide-react'
+import { ConsoleButton } from '@/components/admin/console'
+import { Search, ArrowUpRight } from 'lucide-react'
 
 type AdminUsersClientProps = {
   counts: {
@@ -18,12 +16,6 @@ type AdminUsersClientProps = {
   initialUsers: any[]
   initialHasMore?: boolean
   initialCursor?: string | null
-}
-
-function roleTone(role: string): 'success' | 'warning' | 'neutral' {
-  if (role === 'admin') return 'warning'
-  if (role === 'organizer') return 'success'
-  return 'neutral'
 }
 
 export default function AdminUsersClient({
@@ -94,10 +86,10 @@ export default function AdminUsersClient({
     }
   }
 
-  const stats: StatItem[] = [
-    { icon: UsersIcon, label: t('users.total_users'), value: counts.total.toLocaleString() },
-    { icon: UserCog, label: t('users.organizers'), value: counts.organizers.toLocaleString() },
-    { icon: ShieldCheck, label: t('users.verified_organizers'), value: counts.verified.toLocaleString() },
+  const stats: { label: string; value: string }[] = [
+    { label: t('users.total_users'), value: counts.total.toLocaleString() },
+    { label: t('users.organizers'), value: counts.organizers.toLocaleString() },
+    { label: t('users.verified_organizers'), value: counts.verified.toLocaleString() },
   ]
 
   const columns: Column<any>[] = [
@@ -106,10 +98,10 @@ export default function AdminUsersClient({
       header: 'User',
       render: (u) => (
         <Link href={`/admin/users/${u.id}`} className="group block min-w-0">
-          <span className="block truncate text-sm font-medium text-white group-hover:text-brand-300">
+          <span className="block truncate text-sm font-medium text-console-text group-hover:underline">
             {u.full_name || 'No name'}
           </span>
-          <span className="block truncate text-[13px] text-white/50">{u.email || 'No email'}</span>
+          <span className="block truncate text-[13px] text-console-mut">{u.email || 'No email'}</span>
         </Link>
       ),
     },
@@ -117,16 +109,16 @@ export default function AdminUsersClient({
       key: 'role',
       header: 'Role',
       render: (u) => (
-        <StatusChip tone={roleTone(String(u.role || 'attendee'))}>
+        <span className="label-mono text-[11px] uppercase tracking-wide text-console-mut">
           {String(u.role || 'attendee')}
-        </StatusChip>
+        </span>
       ),
     },
     {
       key: 'joined',
       header: 'Joined',
       render: (u) => (
-        <span className="font-mono tabular-nums text-[13px] text-white/50 whitespace-nowrap">
+        <span className="font-mono tabular-nums text-[13px] text-console-mut whitespace-nowrap">
           {u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}
         </span>
       ),
@@ -138,7 +130,7 @@ export default function AdminUsersClient({
       render: (u) => (
         <Link
           href={`/admin/users/${u.id}`}
-          className="inline-flex items-center gap-1 text-[13px] font-medium text-brand-300 hover:text-brand-200"
+          className="inline-flex items-center gap-1 text-[13px] font-medium text-console-mut hover:text-console-text"
         >
           View <ArrowUpRight className="h-3.5 w-3.5" />
         </Link>
@@ -150,14 +142,14 @@ export default function AdminUsersClient({
     <Link href={`/admin/users/${u.id}`} className="block p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <span className="block truncate text-sm font-medium text-white">{u.full_name || 'No name'}</span>
-          <span className="block truncate text-[13px] text-white/50">{u.email || 'No email'}</span>
+          <span className="block truncate text-sm font-medium text-console-text">{u.full_name || 'No name'}</span>
+          <span className="block truncate text-[13px] text-console-mut">{u.email || 'No email'}</span>
         </div>
-        <StatusChip tone={roleTone(String(u.role || 'attendee'))}>
+        <span className="label-mono text-[11px] uppercase tracking-wide text-console-mut">
           {String(u.role || 'attendee')}
-        </StatusChip>
+        </span>
       </div>
-      <div className="mt-2 font-mono tabular-nums text-[13px] text-white/50">
+      <div className="mt-2 font-mono tabular-nums text-[13px] text-console-mut">
         Joined {u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}
       </div>
     </Link>
@@ -165,25 +157,39 @@ export default function AdminUsersClient({
 
   return (
     <div className="space-y-6">
-      {/* Shared serif title — same header component as the rest of the console. */}
-      <EditorialHeader title={t('users.title')} subtitle={t('users.subtitle')} />
+      {/* Mono caps page title — the Control Room pattern. */}
+      <div>
+        <h1 className="label-mono text-[15px] font-bold uppercase tracking-[0.14em] text-console-text">
+          {t('users.title')}
+        </h1>
+        <p className="mt-1 text-[13px] text-console-mut">{t('users.subtitle')}</p>
+      </div>
 
-      {/* Stats — divided strip */}
-      <StatTriplet items={stats} columns={3} />
+      {/* Stats — plain figures, not boxed */}
+      <div className="flex flex-wrap gap-8">
+        {stats.map((s) => (
+          <div key={s.label}>
+            <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">
+              {s.label}
+            </div>
+            <div className="mt-0.5 font-mono text-xl tabular-nums text-console-text">{s.value}</div>
+          </div>
+        ))}
+      </div>
 
       {/* Search — refines the loaded list */}
       <div className="relative w-full sm:max-w-xs">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-console-faint" />
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t('users.search_users')}
-          className="w-full rounded-lg border border-white/10 bg-transparent py-2.5 pl-9 pr-3 text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+          className="w-full rounded bg-console-panel py-2.5 pl-9 pr-3 text-sm text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 focus:ring-console-mut"
         />
       </div>
 
       {loadError && (
-        <div className="rounded-lg border border-red-500/30 bg-red-500/[0.06] px-4 py-3 text-sm text-red-300">
+        <div className="rounded-lg bg-console-panel px-4 py-3 text-sm text-console-red">
           {loadError}
         </div>
       )}
@@ -193,34 +199,24 @@ export default function AdminUsersClient({
         rows={filtered}
         rowKey={(u) => String(u?.id || '')}
         pageSize={25}
+        variant="console"
         renderMobileCard={renderMobileCard}
         empty={
-          <EmptyState
-            icon={UsersIcon}
-            title={normalizedQuery ? 'No users match your search' : 'No users found'}
-            className="border-0"
-          />
+          <p className="label-mono text-center text-[12px] uppercase tracking-[0.14em] text-console-mut">
+            {normalizedQuery ? 'No users match your search' : 'No users found'}
+          </p>
         }
       />
 
       {hasMore && cursor && !normalizedQuery && (
         <div className="flex justify-center">
-          <button
-            type="button"
-            onClick={loadMore}
-            disabled={isLoadingMore}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors border border-white/15 ${
-              isLoadingMore
-                ? 'bg-[#0a0a0a] text-white/50 cursor-not-allowed'
-                : 'bg-[#0a0a0a] hover:bg-white/[0.04] text-white'
-            }`}
-          >
+          <ConsoleButton type="button" variant="quiet" onClick={loadMore} disabled={isLoadingMore}>
             {isLoadingMore ? t('users.loading') : t('users.load_more')}
-          </button>
+          </ConsoleButton>
         </div>
       )}
 
-      <p className="text-xs text-white/50">{t('users.search_hint')}</p>
+      <p className="text-xs text-console-faint">{t('users.search_hint')}</p>
     </div>
   )
 }

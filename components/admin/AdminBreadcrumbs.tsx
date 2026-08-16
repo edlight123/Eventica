@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { ChevronRight, Home } from 'lucide-react'
 
 interface BreadcrumbItem {
   label: string
@@ -14,27 +13,20 @@ interface AdminBreadcrumbsProps {
 
 export function AdminBreadcrumbs({ items }: AdminBreadcrumbsProps) {
   return (
-    <nav className="flex items-center space-x-1 text-sm mb-6">
-      <Link 
-        href="/admin" 
-        className="flex items-center gap-1 text-white/50 hover:text-white/70 transition-colors"
-      >
-        <Home className="w-4 h-4" />
-        <span>Admin</span>
+    <nav className="label-mono mb-6 flex items-center gap-1.5 text-[11px] text-console-faint">
+      <Link href="/admin" className="transition-colors hover:text-console-mut">
+        Admin
       </Link>
-      
+
       {items.map((item, index) => (
-        <div key={index} className="flex items-center space-x-1">
-          <ChevronRight className="w-4 h-4 text-white/50" />
+        <div key={index} className="flex items-center gap-1.5">
+          <span aria-hidden="true">/</span>
           {item.href && index < items.length - 1 ? (
-            <Link 
-              href={item.href}
-              className="text-white/50 hover:text-white/70 transition-colors"
-            >
+            <Link href={item.href} className="transition-colors hover:text-console-mut">
               {item.label}
             </Link>
           ) : (
-            <span className="text-white font-medium">{item.label}</span>
+            <span className="text-console-mut">{item.label}</span>
           )}
         </div>
       ))}

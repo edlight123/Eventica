@@ -2,9 +2,15 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { AlertTriangle, HelpCircle, RefreshCw, ShieldAlert } from 'lucide-react'
-import { Card, EmptyState, StatTile, StatusChip } from '@/components/ui/kit'
-import { ageClass, formatAge } from '@/lib/admin/age'
+import { RefreshCw, ShieldAlert } from 'lucide-react'
+import {
+  ConsolePanel,
+  ConsoleState,
+  consoleAgeClass,
+  useConsoleNow,
+  type ConsoleTone,
+} from '@/components/admin/console'
+import { formatAge } from '@/lib/admin/age'
 
 /**
  * The chargeback log.
@@ -143,37 +149,46 @@ function deadlineLabel(iso: string | null): { text: string; urgent: boolean } | 
   return { text: `Evidence due ${shortDate(iso)} (${Math.round(hours / 24)} days)`, urgent: false }
 }
 
-function outcomeTone(outcome: string): 'success' | 'danger' | 'warning' | 'neutral' {
-  if (outcome === 'won' || outcome === 'inquiry_closed') return 'success'
-  if (outcome === 'lost') return 'danger'
-  if (outcome === 'open') return 'warning'
+function outcomeTone(outcome: string): ConsoleTone {
+  if (outcome === 'won' || outcome === 'inquiry_closed') return 'good'
+  if (outcome === 'lost') return 'bad'
+  if (outcome === 'open') return 'warn'
   return 'neutral'
 }
 
-function DisputeRow({ item }: { item: DisputeItem }) {
+/** Plain unboxed figure — the console never boxes a KPI. */
+function Figure({ label, value, sub }: { label: string; value: number | string; sub?: string }) {
+  return (
+    <div>
+      <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">{label}</div>
+      <div className="mt-0.5 font-mono text-xl tabular-nums text-console-text">{value}</div>
+      {sub && <div className="mt-0.5 text-[11.5px] text-console-mut">{sub}</div>}
+    </div>
+  )
+}
+
+function DisputeRow({ item, now }: { item: DisputeItem; now: Date | null }) {
   const deadline = item.isOpen ? deadlineLabel(item.evidenceDueBy) : null
   // A closed dispute's age is history, not a queue signal, so only open ones age.
   const waitingSince = item.isOpen ? ageSource(item) : null
 
   return (
-    <div className="border-t border-white/10 px-4 py-4 first:border-t-0 sm:px-5">
+    <div className="border-t border-console-raise px-4 py-4 first:border-t-0 sm:px-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-base font-bold text-white">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="font-mono text-base font-bold tabular-nums text-console-text">
               {formatMinor(item.amountMinor, item.currency)}
             </span>
-            <StatusChip tone={outcomeTone(item.outcome)}>
-              {item.status.replace(/_/g, ' ')}
-            </StatusChip>
-            {!item.attributed && <StatusChip tone="warning">Unattributed</StatusChip>}
+            <ConsoleState tone={outcomeTone(item.outcome)}>{item.status.replace(/_/g, ' ')}</ConsoleState>
+            {!item.attributed && <ConsoleState tone="warn">Unattributed</ConsoleState>}
             {item.fundsWithdrawnAt && !item.fundsReinstatedAt && (
-              <StatusChip tone="danger">Funds debited</StatusChip>
+              <ConsoleState tone="bad">Funds debited</ConsoleState>
             )}
-            {item.fundsReinstatedAt && <StatusChip tone="success">Funds returned</StatusChip>}
+            {item.fundsReinstatedAt && <ConsoleState tone="good">Funds returned</ConsoleState>}
           </div>
 
-          <p className="mt-1.5 text-sm text-white/70">
+          <p className="mt-1.5 text-sm text-console-mut">
             {item.attributed ? (
               <>
                 {item.eventId ? (
@@ -181,19 +196,19 @@ function DisputeRow({ item }: { item: DisputeItem }) {
                   // fastest way to see what the buyer actually bought.
                   <Link
                     href={`/events/${item.eventId}`}
-                    className="font-medium text-white underline decoration-white/30 hover:decoration-white"
+                    className="font-medium text-console-text underline decoration-console-faint hover:decoration-console-text"
                   >
                     {item.eventTitle || item.eventId}
                   </Link>
                 ) : (
-                  <span className="font-medium text-white">{item.eventTitle || 'Unknown event'}</span>
+                  <span className="font-medium text-console-text">{item.eventTitle || 'Unknown event'}</span>
                 )}
                 {item.organizerId && (
                   <>
                     {' · '}
                     <Link
                       href={`/admin/organizers/${item.organizerId}`}
-                      className="underline decoration-white/20 hover:decoration-white"
+                      className="underline decoration-console-faint hover:decoration-console-text"
                     >
                       {item.organizerName || item.organizerEmail || item.organizerId}
                     </Link>
@@ -201,40 +216,38 @@ function DisputeRow({ item }: { item: DisputeItem }) {
                 )}
               </>
             ) : (
-              <span className="text-amber-300">Not matched to any ticket</span>
+              <span className="text-console-amber">Not matched to any ticket</span>
             )}
           </p>
 
-          <p className="mt-1 text-sm text-white/50">
+          <p className="mt-1 text-sm text-console-faint">
             Buyer’s stated reason: {item.reasonLabel}
             {item.attendeeName ? ` · Buyer on file: ${item.attendeeName}` : ''}
           </p>
         </div>
 
-        <div className="text-right text-xs text-white/40">
-          {waitingSince && (
+        <div className="text-right text-xs text-console-faint">
+          {waitingSince && now && (
             <div className="flex items-baseline justify-end gap-1.5">
               <span
-                className={`label-mono text-[13px] tabular-nums ${ageClass(waitingSince)}`}
+                className={`label-mono text-[13px] tabular-nums ${consoleAgeClass(waitingSince, now)}`}
                 title={`Open since ${fullTimestamp(waitingSince)}`}
               >
-                {formatAge(waitingSince)}
+                {formatAge(waitingSince, now)}
               </span>
-              <span className="text-[11px] text-white/35">waiting</span>
+              <span className="text-[11px] text-console-faint">waiting</span>
             </div>
           )}
           <div>Opened {shortDate(item.stripeCreatedAt || item.firstSeenAt)}</div>
-          {item.lostAt && <div className="text-red-300">Lost {shortDate(item.lostAt)}</div>}
+          {item.lostAt && <div className="text-console-red">Lost {shortDate(item.lostAt)}</div>}
           {item.closedAt && !item.lostAt && <div>Closed {shortDate(item.closedAt)}</div>}
         </div>
       </div>
 
       {deadline && (
         <div
-          className={`mt-3 rounded-xl border px-3 py-2 text-sm ${
-            deadline.urgent
-              ? 'border-red-200 text-red-300'
-              : 'border-amber-200 text-amber-300'
+          className={`mt-3 rounded bg-console-ground px-3 py-2 text-sm ${
+            deadline.urgent ? 'text-console-red' : 'text-console-amber'
           }`}
         >
           ⏰ {deadline.text}
@@ -244,20 +257,20 @@ function DisputeRow({ item }: { item: DisputeItem }) {
       )}
 
       {!item.attributed && item.unattributedReason && (
-        <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white/60">
+        <div className="mt-3 rounded bg-console-ground px-3 py-2 text-sm text-console-mut">
           {UNATTRIBUTED_LABELS[item.unattributedReason] || item.unattributedReason.replace(/_/g, ' ')}
         </div>
       )}
 
       {item.isOpen && item.attributed && !item.organizerNotifiedAt && (
-        <div className="mt-3 rounded-xl border border-red-200 px-3 py-2 text-sm text-red-300">
+        <div className="mt-3 rounded bg-console-ground px-3 py-2 text-sm text-console-red">
           The organizer has NOT been reached about this dispute
           {item.notifyError ? ` (${item.notifyError})` : ''}. They hold the evidence — contact them
           directly.
         </div>
       )}
 
-      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[11px] text-white/35">
+      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[11px] text-console-faint">
         <span>dispute {item.disputeId}</span>
         {item.paymentIntentId && <span>pi {item.paymentIntentId}</span>}
         {item.ticketId && <span>ticket {item.ticketId}</span>}
@@ -274,6 +287,7 @@ export default function DisputesLog() {
   const [lostByCurrency, setLostByCurrency] = useState<Record<string, number>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const now = useConsoleNow()
 
   const load = useCallback(async (showSpinner = true) => {
     if (showSpinner) setLoading(true)
@@ -305,12 +319,12 @@ export default function DisputesLog() {
   if (loading) {
     return (
       <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="flex gap-8">
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="h-24 animate-pulse rounded-2xl border border-white/10 bg-white/[0.03]" />
+            <div key={i} className="h-14 w-24 animate-pulse rounded bg-console-panel" />
           ))}
         </div>
-        <div className="h-64 animate-pulse rounded-2xl border border-white/10 bg-white/[0.03]" />
+        <div className="h-64 animate-pulse rounded-lg bg-console-panel" />
       </div>
     )
   }
@@ -318,62 +332,72 @@ export default function DisputesLog() {
   return (
     <div className="space-y-6">
       {error && (
-        <div className="rounded-xl border border-red-200 px-4 py-3 text-sm text-red-300">{error}</div>
+        <div className="rounded bg-console-panel px-4 py-3 text-sm text-console-red">{error}</div>
       )}
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatTile icon={ShieldAlert} label="Open" value={counts.open ?? 0} sublabel={formatMoneyMap(openByCurrency)} />
-        <StatTile icon={AlertTriangle} label="Lost" value={counts.lost ?? 0} sublabel={formatMoneyMap(lostByCurrency)} />
-        <StatTile label="Won" value={counts.won ?? 0} sublabel="Money reinstated" />
-        <StatTile
-          icon={HelpCircle}
-          label="Unattributed"
-          value={counts.unattributed ?? 0}
-          sublabel="Need matching by hand"
-        />
-      </div>
-
-      <div className="flex justify-end">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-wrap gap-8">
+          <Figure label="Open" value={counts.open ?? 0} sub={formatMoneyMap(openByCurrency)} />
+          <Figure label="Lost" value={counts.lost ?? 0} sub={formatMoneyMap(lostByCurrency)} />
+          <Figure label="Won" value={counts.won ?? 0} sub="Money reinstated" />
+          <Figure label="Unattributed" value={counts.unattributed ?? 0} sub="Need matching by hand" />
+        </div>
         <button
           onClick={() => load(false)}
-          className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-xs font-semibold text-white/70 hover:text-white"
+          className="inline-flex items-center gap-2 rounded bg-console-raise px-3 py-1.5 text-xs font-semibold text-console-mut transition-colors hover:text-console-text focus:outline-none focus-visible:ring-2 focus-visible:ring-console-mut"
         >
           <RefreshCw className="h-3.5 w-3.5" /> Refresh
         </button>
       </div>
 
       <section>
-        <h2 className="mb-3 font-display text-xl text-white">Still open</h2>
+        <h2 className="label-mono mb-2 text-[10px] uppercase tracking-[0.18em] text-console-faint">
+          Still open
+        </h2>
         {open.length === 0 ? (
-          <EmptyState
-            icon={ShieldAlert}
-            title="No open chargebacks"
-            description="Nothing is currently being disputed. New disputes land here the moment Stripe tells us, and the organizer is emailed at the same time."
-          />
+          <ConsolePanel className="px-4 py-12 text-center">
+            <ShieldAlert className="mx-auto mb-2 h-6 w-6 text-console-faint" />
+            <p className="label-mono text-[12px] uppercase tracking-[0.14em] text-console-mut">
+              No open chargebacks
+            </p>
+            <p className="mx-auto mt-1 max-w-md text-[13px] text-console-faint">
+              Nothing is currently being disputed. New disputes land here the moment Stripe tells us,
+              and the organizer is emailed at the same time.
+            </p>
+          </ConsolePanel>
         ) : (
-          <Card>
+          <ConsolePanel>
             {open.map((item) => (
-              <DisputeRow key={item.disputeId} item={item} />
+              <DisputeRow key={item.disputeId} item={item} now={now} />
             ))}
-          </Card>
+          </ConsolePanel>
         )}
       </section>
 
       <section>
-        <h2 className="mb-3 font-display text-xl text-white">Resolved</h2>
+        <h2 className="label-mono mb-2 text-[10px] uppercase tracking-[0.18em] text-console-faint">
+          Resolved
+        </h2>
         {closed.length === 0 ? (
-          <EmptyState title="Nothing resolved yet" description="Closed disputes stay here as an organizer's risk history." />
+          <ConsolePanel className="px-4 py-12 text-center">
+            <p className="label-mono text-[12px] uppercase tracking-[0.14em] text-console-mut">
+              Nothing resolved yet
+            </p>
+            <p className="mt-1 text-[13px] text-console-faint">
+              Closed disputes stay here as an organizer’s risk history.
+            </p>
+          </ConsolePanel>
         ) : (
-          <Card>
+          <ConsolePanel>
             {closed.map((item) => (
-              <DisputeRow key={item.disputeId} item={item} />
+              <DisputeRow key={item.disputeId} item={item} now={now} />
             ))}
-          </Card>
+          </ConsolePanel>
         )}
       </section>
 
       {counts.truncated && (
-        <p className="text-xs text-white/40">
+        <p className="text-xs text-console-faint">
           Showing the 200 most recently updated disputes. Older ones exist in Firestore and in Stripe.
         </p>
       )}

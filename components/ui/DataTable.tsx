@@ -69,6 +69,13 @@ export interface DataTableProps<T> {
 
   stickyHeader?: boolean
   className?: string
+
+  /**
+   * Visual variant. 'default' is the shared organizer look (unchanged);
+   * 'console' renders with the admin Control Room tokens (panel surface,
+   * mono headers, raise-tone dividers, no borders). Purely additive.
+   */
+  variant?: 'default' | 'console'
 }
 
 const alignClass: Record<Align, string> = {
@@ -89,8 +96,9 @@ function compare(a: unknown, b: unknown): number {
 /**
  * Shared admin/organizer data table. Crisp corners, sticky header, clean
  * (zebra-free) rows, row hover, optional sort/pagination/selection, designed
- * empty + loading states, and a responsive mobile card fallback. One accent:
- * teal brand tokens only.
+ * empty + loading states, and a responsive mobile card fallback. The default
+ * variant keeps the organizer look (teal brand accent); variant="console"
+ * renders with the admin Control Room tokens instead.
  */
 export function DataTable<T>({
   columns,
@@ -112,7 +120,9 @@ export function DataTable<T>({
   renderMobileCard,
   stickyHeader = true,
   className = '',
+  variant = 'default',
 }: DataTableProps<T>) {
+  const isConsole = variant === 'console'
   const controlledSort = typeof onSortChange === 'function'
   const [internalSortKey, setInternalSortKey] = useState<string | undefined>(undefined)
   const [internalSortDir, setInternalSortDir] = useState<SortDir>('asc')
@@ -177,44 +187,69 @@ export function DataTable<T>({
 
   const SortIcon = ({ col }: { col: Column<T> }) => {
     if (!col.sortable) return null
-    if (activeSortKey !== col.key) return <ChevronsUpDown className="h-3.5 w-3.5 text-white/50" />
+    if (activeSortKey !== col.key)
+      return (
+        <ChevronsUpDown
+          className={isConsole ? 'h-3.5 w-3.5 text-console-faint' : 'h-3.5 w-3.5 text-white/50'}
+        />
+      )
+    const activeIconClass = isConsole ? 'h-3.5 w-3.5 text-console-text' : 'h-3.5 w-3.5 text-brand-600'
     return activeSortDir === 'asc' ? (
-      <ChevronUp className="h-3.5 w-3.5 text-brand-600" />
+      <ChevronUp className={activeIconClass} />
     ) : (
-      <ChevronDown className="h-3.5 w-3.5 text-brand-600" />
+      <ChevronDown className={activeIconClass} />
     )
   }
 
+  const dividerClass = isConsole ? 'divide-y divide-console-raise' : 'divide-y divide-white/10'
+  const checkboxClass = isConsole
+    ? 'h-4 w-4 rounded accent-console-text focus:outline-none focus:ring-2 focus:ring-console-mut'
+    : 'h-4 w-4 rounded border-white/10 text-brand-600 focus:ring-brand-500'
+
   return (
     <div
-      className={`overflow-hidden rounded-2xl border border-white/10 bg-[#0a0a0a] shadow-soft ${className}`}
+      className={
+        isConsole
+          ? `overflow-hidden rounded-lg bg-console-panel ${className}`
+          : `overflow-hidden rounded-2xl border border-white/10 bg-[#0a0a0a] shadow-soft ${className}`
+      }
     >
-      {toolbar && <div className="border-b border-white/10 p-3 sm:p-4">{toolbar}</div>}
+      {toolbar && (
+        <div className={isConsole ? 'p-3 sm:p-4' : 'border-b border-white/10 p-3 sm:p-4'}>
+          {toolbar}
+        </div>
+      )}
 
       {loading ? (
-        <div className="divide-y divide-white/10">
+        <div className={dividerClass}>
           {Array.from({ length: skeletonRows }).map((_, i) => (
             <div key={i} className="flex items-center gap-4 px-4 py-4 sm:px-6">
-              <div className="h-9 w-9 animate-pulse rounded-lg bg-white/[0.04]" />
+              <div className={`h-9 w-9 animate-pulse rounded-lg ${isConsole ? 'bg-console-raise' : 'bg-white/[0.04]'}`} />
               <div className="flex-1 space-y-2">
-                <div className="h-3.5 w-1/3 animate-pulse rounded bg-white/[0.04]" />
-                <div className="h-3 w-1/4 animate-pulse rounded bg-white/[0.04]" />
+                <div className={`h-3.5 w-1/3 animate-pulse rounded ${isConsole ? 'bg-console-raise' : 'bg-white/[0.04]'}`} />
+                <div className={`h-3 w-1/4 animate-pulse rounded ${isConsole ? 'bg-console-raise' : 'bg-white/[0.04]'}`} />
               </div>
-              <div className="h-6 w-16 animate-pulse rounded-full bg-white/[0.04]" />
+              <div className={`h-6 w-16 animate-pulse ${isConsole ? 'rounded bg-console-raise' : 'rounded-full bg-white/[0.04]'}`} />
             </div>
           ))}
         </div>
       ) : rows.length === 0 ? (
         <div className="p-8">
-          {empty ?? <p className="text-center text-sm text-white/50">No results found.</p>}
+          {empty ?? (
+            <p className={isConsole ? 'text-center text-sm text-console-mut' : 'text-center text-sm text-white/50'}>
+              No results found.
+            </p>
+          )}
         </div>
       ) : (
         <>
           {/* Desktop table */}
           <div className="hidden overflow-x-auto md:block">
             <table className="w-full">
-              <thead className={`bg-[#0a0a0a] ${stickyHeader ? 'sticky top-0 z-10' : ''}`}>
-                <tr className="border-b border-white/10">
+              <thead
+                className={`${isConsole ? 'bg-console-panel' : 'bg-[#0a0a0a]'} ${stickyHeader ? 'sticky top-0 z-10' : ''}`}
+              >
+                <tr className={isConsole ? '' : 'border-b border-white/10'}>
                   {selection && (
                     <th className="w-12 px-4 py-3 sm:px-6">
                       <input
@@ -225,7 +260,7 @@ export function DataTable<T>({
                           if (el) el.indeterminate = someSelected
                         }}
                         onChange={selection.onToggleAll}
-                        className="h-4 w-4 rounded border-white/10 text-brand-600 focus:ring-brand-500"
+                        className={checkboxClass}
                       />
                     </th>
                   )}
@@ -233,11 +268,17 @@ export function DataTable<T>({
                     <th
                       key={col.key}
                       onClick={() => handleSort(col)}
-                      className={`px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-white/50 sm:px-6 ${
-                        alignClass[col.align ?? 'left']
-                      } ${col.sortable ? 'cursor-pointer select-none hover:text-white/70' : ''} ${
-                        col.hideOnMobile ? '' : ''
-                      } ${col.headerClassName ?? ''}`}
+                      className={`${
+                        isConsole
+                          ? 'label-mono px-4 py-3 text-[10px] uppercase tracking-wide text-console-faint sm:px-6'
+                          : 'px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-white/50 sm:px-6'
+                      } ${alignClass[col.align ?? 'left']} ${
+                        col.sortable
+                          ? isConsole
+                            ? 'cursor-pointer select-none hover:text-console-mut'
+                            : 'cursor-pointer select-none hover:text-white/70'
+                          : ''
+                      } ${col.hideOnMobile ? '' : ''} ${col.headerClassName ?? ''}`}
                     >
                       <span
                         className={`inline-flex items-center gap-1.5 ${
@@ -251,14 +292,14 @@ export function DataTable<T>({
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/10">
+              <tbody className={dividerClass}>
                 {visibleRows.map((row) => {
                   const id = rowKey(row)
                   return (
                     <tr
                       key={id}
                       onClick={onRowClick ? () => onRowClick(row) : undefined}
-                      className={`transition-colors hover:bg-[#0a0a0a] ${
+                      className={`transition-colors ${isConsole ? 'hover:bg-console-raise' : 'hover:bg-[#0a0a0a]'} ${
                         onRowClick ? 'cursor-pointer' : ''
                       }`}
                     >
@@ -269,16 +310,16 @@ export function DataTable<T>({
                             aria-label="Select row"
                             checked={selection.selectedIds.has(id)}
                             onChange={() => selection.onToggle(id)}
-                            className="h-4 w-4 rounded border-white/10 text-brand-600 focus:ring-brand-500"
+                            className={checkboxClass}
                           />
                         </td>
                       )}
                       {columns.map((col) => (
                         <td
                           key={col.key}
-                          className={`px-4 py-3 align-middle text-sm text-white sm:px-6 ${
-                            alignClass[col.align ?? 'left']
-                          } ${col.cellClassName ?? ''}`}
+                          className={`px-4 py-3 align-middle text-sm ${
+                            isConsole ? 'text-console-text' : 'text-white'
+                          } sm:px-6 ${alignClass[col.align ?? 'left']} ${col.cellClassName ?? ''}`}
                         >
                           {col.render
                             ? col.render(row)
@@ -293,7 +334,7 @@ export function DataTable<T>({
           </div>
 
           {/* Mobile cards */}
-          <div className="divide-y divide-white/10 md:hidden">
+          <div className={`${dividerClass} md:hidden`}>
             {visibleRows.map((row) => {
               const id = rowKey(row)
               if (renderMobileCard) {
@@ -315,10 +356,22 @@ export function DataTable<T>({
                 >
                   {columns.map((col) => (
                     <div key={col.key} className="flex items-start justify-between gap-3">
-                      <span className="text-[11px] font-semibold uppercase tracking-wide text-white/50">
+                      <span
+                        className={
+                          isConsole
+                            ? 'label-mono text-[10px] uppercase tracking-wide text-console-faint'
+                            : 'text-[11px] font-semibold uppercase tracking-wide text-white/50'
+                        }
+                      >
                         {col.header}
                       </span>
-                      <span className="min-w-0 text-right text-sm text-white">
+                      <span
+                        className={
+                          isConsole
+                            ? 'min-w-0 text-right text-sm text-console-text'
+                            : 'min-w-0 text-right text-sm text-white'
+                        }
+                      >
                         {col.render
                           ? col.render(row)
                           : String((row as Record<string, unknown>)[col.key] ?? '')}
@@ -333,8 +386,14 @@ export function DataTable<T>({
       )}
 
       {showFooter && (
-        <div className="flex items-center justify-between border-t border-white/10 px-4 py-3 sm:px-6">
-          <p className="text-xs text-white/50">
+        <div
+          className={
+            isConsole
+              ? 'flex items-center justify-between px-4 py-3 sm:px-6'
+              : 'flex items-center justify-between border-t border-white/10 px-4 py-3 sm:px-6'
+          }
+        >
+          <p className={isConsole ? 'label-mono text-xs tabular-nums text-console-mut' : 'text-xs text-white/50'}>
             Page {footerPage} of {footerTotalPages}
           </p>
           <div className="flex items-center gap-2">
@@ -342,7 +401,11 @@ export function DataTable<T>({
               type="button"
               onClick={() => goToPage((footerPage ?? 1) - 1)}
               disabled={(footerPage ?? 1) <= 1}
-              className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-sm font-medium text-white/70 transition-colors hover:bg-[#0a0a0a] disabled:cursor-not-allowed disabled:opacity-40"
+              className={
+                isConsole
+                  ? 'inline-flex items-center gap-1 rounded bg-console-raise px-3 py-1.5 text-sm font-medium text-console-mut transition-colors hover:text-console-text disabled:cursor-not-allowed disabled:opacity-40'
+                  : 'inline-flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-sm font-medium text-white/70 transition-colors hover:bg-[#0a0a0a] disabled:cursor-not-allowed disabled:opacity-40'
+              }
             >
               <ChevronLeft className="h-4 w-4" />
               Prev
@@ -351,7 +414,11 @@ export function DataTable<T>({
               type="button"
               onClick={() => goToPage((footerPage ?? 1) + 1)}
               disabled={(footerPage ?? 1) >= (footerTotalPages ?? 1)}
-              className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-sm font-medium text-white/70 transition-colors hover:bg-[#0a0a0a] disabled:cursor-not-allowed disabled:opacity-40"
+              className={
+                isConsole
+                  ? 'inline-flex items-center gap-1 rounded bg-console-raise px-3 py-1.5 text-sm font-medium text-console-mut transition-colors hover:text-console-text disabled:cursor-not-allowed disabled:opacity-40'
+                  : 'inline-flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-sm font-medium text-white/70 transition-colors hover:bg-[#0a0a0a] disabled:cursor-not-allowed disabled:opacity-40'
+              }
             >
               Next
               <ChevronRight className="h-4 w-4" />

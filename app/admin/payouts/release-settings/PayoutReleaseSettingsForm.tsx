@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { AlertTriangle, Clock, Info, Plus, RotateCcw, Trash2 } from 'lucide-react'
 import type { PayoutReleaseConfig } from '@/types/platform-settings'
+import { ConsoleButton, ConsolePanel, ConsoleState } from '@/components/admin/console'
 
 /**
  * Platform payout release thresholds — the admin face of
@@ -470,11 +471,11 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
     return (
       <div className="space-y-4">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="rounded-xl border border-white/10 p-4 sm:p-5">
+          <div key={i} className="rounded-lg bg-console-panel p-4 sm:p-5">
             <div className="animate-pulse space-y-4">
-              <div className="h-4 w-1/4 rounded bg-white/10" />
-              <div className="h-4 w-1/2 rounded bg-white/10" />
-              <div className="h-4 w-1/3 rounded bg-white/10" />
+              <div className="h-4 w-1/4 rounded bg-console-raise" />
+              <div className="h-4 w-1/2 rounded bg-console-raise" />
+              <div className="h-4 w-1/3 rounded bg-console-raise" />
             </div>
           </div>
         ))}
@@ -484,7 +485,7 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
 
   if (!config || !values || !defaults) {
     return (
-      <div className="rounded-xl border border-red-500/30 p-4 text-sm text-red-300">
+      <div className="rounded-lg bg-console-panel p-4 text-sm text-console-red">
         {message?.text || 'Could not load payout release settings.'}
       </div>
     )
@@ -495,69 +496,67 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
 
   return (
     <div className="space-y-6">
-      {/* Live summary strip */}
-      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-white/10 bg-white/10 sm:grid-cols-3 lg:grid-cols-5">
-        <div className="bg-[#0a0a0a] p-4">
-          <p className="text-[11px] uppercase tracking-wide text-white/50">New hold</p>
-          <p className="mt-1 text-2xl font-bold tabular-nums text-white">
+      {/* Live summary figures */}
+      <div className="flex flex-wrap gap-x-8 gap-y-4">
+        <div>
+          <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">New hold</p>
+          <p className="mt-1 font-mono text-xl tabular-nums text-console-text">
             {config.newHoldHours}
-            <span className="text-base font-medium text-white/50"> h</span>
+            <span className="text-sm font-medium text-console-mut"> h</span>
           </p>
         </div>
-        <div className="bg-[#0a0a0a] p-4">
-          <p className="text-[11px] uppercase tracking-wide text-white/50">Established hold</p>
-          <p className="mt-1 text-2xl font-bold tabular-nums text-white">
+        <div>
+          <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Established hold</p>
+          <p className="mt-1 font-mono text-xl tabular-nums text-console-text">
             {config.establishedHoldHours}
-            <span className="text-base font-medium text-white/50"> h</span>
+            <span className="text-sm font-medium text-console-mut"> h</span>
           </p>
         </div>
-        <div className="bg-[#0a0a0a] p-4">
-          <p className="text-[11px] uppercase tracking-wide text-white/50">Established after</p>
-          <p className="mt-1 text-2xl font-bold tabular-nums text-white">
+        <div>
+          <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Established after</p>
+          <p className="mt-1 font-mono text-xl tabular-nums text-console-text">
             {config.establishedAfterEvents}
-            <span className="text-base font-medium text-white/50"> events</span>
+            <span className="text-sm font-medium text-console-mut"> events</span>
           </p>
         </div>
-        <div className="bg-[#0a0a0a] p-4">
-          <p className="text-[11px] uppercase tracking-wide text-white/50">Review above</p>
-          <p className="mt-1 text-2xl font-bold tabular-nums text-white">
+        <div>
+          <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Review above</p>
+          <p className="mt-1 font-mono text-xl tabular-nums text-console-text">
             {majorFormatter.format(config.reviewAboveGrossMinor / 100)}
           </p>
         </div>
-        <div className="bg-[#0a0a0a] p-4">
-          <p className="text-[11px] uppercase tracking-wide text-white/50">Thresholds in</p>
-          <p className="mt-1 text-2xl font-bold text-white">
+        <div>
+          <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Thresholds in</p>
+          <p className="mt-1 font-mono text-xl text-console-text">
             {normalizeCode(config.thresholdCurrency || 'USD')}
           </p>
         </div>
       </div>
 
       {/* Money units, stated honestly */}
-      <div className="flex gap-3 rounded-xl border border-white/10 p-4">
-        <Info className="mt-0.5 h-5 w-5 flex-shrink-0 text-white/40" />
-        <p className="text-sm text-white/55">
-          Money thresholds are stored and compared in <span className="text-white/80">minor units of the account
+      <ConsolePanel className="flex gap-3 p-4">
+        <Info className="mt-0.5 h-5 w-5 flex-shrink-0 text-console-faint" />
+        <p className="text-sm text-console-mut">
+          Money thresholds are stored and compared in <span className="text-console-text">minor units of the account
           currency</span> (cents for a USD account, centimes for HTG) — there is one number for every currency, so it is
           not dollars. Inputs below are shown in major units for readability: typing{' '}
-          <span className="font-mono text-white/80">1,000.00</span> saves{' '}
-          <span className="font-mono text-white/80">100,000</span> minor units. Changes take effect on the next release
+          <span className="font-mono text-console-text">1,000.00</span> saves{' '}
+          <span className="font-mono text-console-text">100,000</span> minor units. Changes take effect on the next release
           decision and are audit-logged.
         </p>
-      </div>
+      </ConsolePanel>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Messages */}
         {message && (
-          <div
-            className={`rounded-lg p-4 text-sm ${
-              message.type === 'success'
-                ? 'border border-emerald-500/30 text-emerald-300'
-                : 'border border-red-500/30 text-red-300'
+          <ConsolePanel
+            className={`p-4 text-sm ${
+              message.type === 'success' ? 'text-console-green' : 'text-console-red'
             }`}
           >
             <p>{message.text}</p>
             {serverDetails.length > 0 && (
-              <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-red-300/90">
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-console-red">
                 {serverDetails.map((detail, i) => (
                   <li key={i} className="font-mono">
                     {detail}
@@ -565,14 +564,14 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
                 ))}
               </ul>
             )}
-          </div>
+          </ConsolePanel>
         )}
 
         {GROUPS.map((group) => (
-          <section key={group.title} className="rounded-xl border border-white/10 p-4 sm:p-5">
+          <section key={group.title} className="rounded-lg bg-console-panel p-4 sm:p-5">
             <div className="mb-4">
-              <h2 className="text-sm font-semibold text-white">{group.title}</h2>
-              <p className="mt-0.5 text-xs text-white/50">{group.blurb}</p>
+              <h2 className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">{group.title}</h2>
+              <p className="mt-1 text-xs text-console-mut">{group.blurb}</p>
             </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -587,16 +586,16 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
                 return (
                   <div key={field.key}>
                     <div className="mb-1.5 flex items-baseline justify-between gap-3">
-                      <label htmlFor={field.key} className="block text-sm font-medium text-white/70">
+                      <label htmlFor={field.key} className="block text-sm font-medium text-console-mut">
                         {field.label}
                       </label>
                       {atDefault ? (
-                        <span className="label-mono text-[11px] uppercase tracking-wide text-white/35">Default</span>
+                        <span className="label-mono text-[11px] uppercase tracking-wide text-console-faint">Default</span>
                       ) : (
                         <button
                           type="button"
                           onClick={() => resetField(field)}
-                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-300 hover:text-white"
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-console-mut hover:text-console-text"
                         >
                           <RotateCcw className="h-3 w-3" />
                           Reset to {prettyDisplay(field.kind, defaultDisplay)}
@@ -614,22 +613,22 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
                         min={limit ? toDisplay(field.kind, limit.min) : undefined}
                         max={limit ? toDisplay(field.kind, limit.max) : undefined}
                         aria-describedby={`${field.key}-help`}
-                        className={`w-full rounded-lg border bg-transparent px-3 py-2.5 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-brand-500/25 ${
-                          error ? 'border-red-500/50' : 'border-white/10 focus:border-brand-500/60'
+                        className={`w-full rounded bg-console-ground px-3 py-2.5 text-sm text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 focus:ring-console-mut ${
+                          error ? 'ring-1 ring-console-red' : ''
                         } ${suffix ? 'pr-16' : ''}`}
                       />
                       {suffix && (
                         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                          <span className="text-sm text-white/50">{suffix}</span>
+                          <span className="text-sm text-console-mut">{suffix}</span>
                         </div>
                       )}
                     </div>
 
-                    <p id={`${field.key}-help`} className="mt-1.5 text-xs text-white/50">
+                    <p id={`${field.key}-help`} className="mt-1.5 text-xs text-console-mut">
                       {field.help}
                     </p>
 
-                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-white/40">
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-console-faint">
                       <span>
                         Default {prettyDisplay(field.kind, defaultDisplay)}
                       </span>
@@ -644,16 +643,19 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
                       )}
                     </div>
 
-                    {error && <p className="mt-1 text-xs text-red-300">{error}</p>}
+                    {error && <p className="mt-1 text-xs text-console-red">{error}</p>}
                   </div>
                 )
               })}
 
               {/* A trigger is only useful if someone answers it. */}
               {group.title === 'Review triggers' && (
-                <p className="text-xs text-white/50 md:col-span-2">
+                <p className="text-xs text-console-mut md:col-span-2">
                   Payouts these triggers have flagged are waiting in the{' '}
-                  <Link href="/admin/payouts/review" className="text-brand-300 hover:underline">
+                  <Link
+                    href="/admin/payouts/review"
+                    className="text-console-text underline decoration-console-faint hover:decoration-console-text"
+                  >
                     review queue
                   </Link>{' '}
                   — a flagged event stays unpaid until someone decides there.
@@ -664,29 +666,31 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
         ))}
 
         {/* ── Threshold currency + FX fallback table ─────────────────────── */}
-        <section className="rounded-xl border border-white/10 p-4 sm:p-5">
+        <section className="rounded-lg bg-console-panel p-4 sm:p-5">
           <div className="mb-4">
-            <h2 className="text-sm font-semibold text-white">Currency conversion for thresholds</h2>
-            <p className="mt-0.5 text-xs text-white/50">
+            <h2 className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">
+              Currency conversion for thresholds
+            </h2>
+            <p className="mt-1 text-xs text-console-mut">
               The money thresholds above are single numbers, but organizers settle in different currencies. Before a
               threshold is compared, an amount is converted into the threshold currency with these rates — so one
               threshold means one economic amount whether the account is in USD, CAD, EUR or HTG. Rates are used{' '}
-              <span className="text-white/70">only for those comparisons</span>: payouts are always made in the
+              <span className="text-console-text">only for those comparisons</span>: payouts are always made in the
               account&rsquo;s own currency and are never converted.
             </p>
           </div>
 
           {/* Where the live rates actually come from */}
           <div
-            className={`mb-4 rounded-lg border p-4 text-xs ${
-              snapshotStale ? 'border-amber-500/30' : 'border-white/10'
+            className={`mb-4 rounded-lg bg-console-ground p-4 text-xs ${
+              snapshotStale ? 'ring-1 ring-console-amber' : ''
             }`}
           >
-            <p className="text-sm font-medium text-white">
+            <p className="text-sm font-medium text-console-text">
               A daily job overwrites these — hand-edits are the fallback
             </p>
-            <p className="mt-1 text-white/55">
-              <span className="font-mono text-white/70">/api/cron/fx-snapshot</span> fetches mid-market rates once a day
+            <p className="mt-1 text-console-mut">
+              <span className="font-mono text-console-text">/api/cron/fx-snapshot</span> fetches mid-market rates once a day
               and stores them. A release run reads that snapshot and only falls back to the table below for currencies
               the provider did not return, or for every currency once the snapshot is more than{' '}
               {fx?.maxAgeDays ?? 7} days old. So typing a rate here does not pin it: it is the number used when the
@@ -694,47 +698,48 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
             </p>
 
             {fx ? (
-              <div className="mt-3 space-y-1.5 text-white/55">
+              <div className="mt-3 space-y-1.5 text-console-mut">
                 {fx.available ? (
                   <p>
-                    <span className={snapshotStale ? 'text-amber-300' : 'text-emerald-300'}>●</span> Snapshot updated{' '}
-                    <span className="text-white/80">{formatAge(fx.ageHours)}</span>
-                    {fx.fetchedAt ? <span className="font-mono text-white/40"> ({fx.fetchedAt.slice(0, 16).replace('T', ' ')} UTC)</span> : null}
-                    {fx.provider ? <span className="text-white/40"> via {fx.provider}</span> : null}
+                    <ConsoleState tone={snapshotStale ? 'warn' : 'good'}>
+                      Snapshot updated {formatAge(fx.ageHours)}
+                    </ConsoleState>
+                    {fx.fetchedAt ? <span className="font-mono text-console-faint"> ({fx.fetchedAt.slice(0, 16).replace('T', ' ')} UTC)</span> : null}
+                    {fx.provider ? <span className="text-console-faint"> via {fx.provider}</span> : null}
                     {snapshotStale ? ' — too old to trust, every currency is on the manual rate below.' : ''}
                   </p>
                 ) : (
                   <p>
-                    <span className="text-amber-300">●</span> No FX snapshot stored yet — every currency is using the
+                    <ConsoleState tone="warn">No FX snapshot stored yet</ConsoleState> — every currency is using the
                     manual rate below.
                   </p>
                 )}
                 <p>
                   From the snapshot:{' '}
-                  <span className="font-mono text-white/80">
+                  <span className="font-mono text-console-text">
                     {fx.snapshotCurrencies.length ? fx.snapshotCurrencies.join(', ') : 'none'}
                   </span>
                 </p>
                 <p>
                   From this table:{' '}
-                  <span className="font-mono text-white/80">
+                  <span className="font-mono text-console-text">
                     {fx.manualCurrencies.length ? fx.manualCurrencies.join(', ') : 'none'}
                   </span>
                 </p>
                 {fx.warnings.map((warning, i) => (
-                  <p key={i} className="text-amber-300/90">
+                  <p key={i} className="text-console-amber">
                     {warning}
                   </p>
                 ))}
               </div>
             ) : (
-              <p className="mt-3 text-white/40">Snapshot status unavailable.</p>
+              <p className="mt-3 text-console-faint">Snapshot status unavailable.</p>
             )}
           </div>
 
           {/* Threshold currency */}
           <div className="mb-4 max-w-xs">
-            <label htmlFor="thresholdCurrency" className="mb-1.5 block text-sm font-medium text-white/70">
+            <label htmlFor="thresholdCurrency" className="mb-1.5 block text-sm font-medium text-console-mut">
               Threshold currency
             </label>
             <input
@@ -746,32 +751,32 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
               autoCapitalize="characters"
               spellCheck={false}
               aria-describedby="thresholdCurrency-help"
-              className={`w-full rounded-lg border bg-transparent px-3 py-2.5 font-mono text-sm uppercase tracking-widest text-white focus:outline-none focus:ring-2 focus:ring-brand-500/25 ${
-                thresholdError ? 'border-red-500/50' : 'border-white/10 focus:border-brand-500/60'
+              className={`w-full rounded bg-console-ground px-3 py-2.5 font-mono text-sm uppercase tracking-widest text-console-text focus:outline-none focus:ring-2 focus:ring-console-mut ${
+                thresholdError ? 'ring-1 ring-console-red' : ''
               }`}
             />
-            <p id="thresholdCurrency-help" className="mt-1.5 text-xs text-white/50">
+            <p id="thresholdCurrency-help" className="mt-1.5 text-xs text-console-mut">
               The currency every money threshold above is expressed in. Its own rate is always 1.
             </p>
-            {thresholdError && <p className="mt-1 text-xs text-red-300">{thresholdError}</p>}
+            {thresholdError && <p className="mt-1 text-xs text-console-red">{thresholdError}</p>}
           </div>
 
           {/* Rate rows */}
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-medium text-white/70">
+              <p className="text-sm font-medium text-console-mut">
                 Fallback rates — {normalizedThreshold || 'USD'} per 1 unit
               </p>
-              <span className="label-mono text-[11px] uppercase tracking-wide text-white/35">
+              <span className="label-mono text-[11px] uppercase tracking-wide text-console-faint">
                 {rateRows.length} currenc{rateRows.length === 1 ? 'y' : 'ies'}
               </span>
             </div>
 
-            <div className="flex items-center gap-3 rounded-lg border border-white/10 px-3 py-2.5 text-xs text-white/40">
-              <span className="font-mono text-sm uppercase tracking-widest text-white/60">
+            <div className="flex items-center gap-3 rounded-lg bg-console-ground px-3 py-2.5 text-xs text-console-faint">
+              <span className="font-mono text-sm uppercase tracking-widest text-console-mut">
                 {normalizedThreshold || 'USD'}
               </span>
-              <span className="font-mono text-sm text-white/60">1</span>
+              <span className="font-mono text-sm text-console-mut">1</span>
               <span>Pinned — the threshold currency is always 1 against itself.</span>
             </div>
 
@@ -794,8 +799,8 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
                       placeholder="HTG"
                       spellCheck={false}
                       aria-label="Currency code"
-                      className={`w-24 flex-shrink-0 rounded-lg border bg-transparent px-3 py-2.5 font-mono text-sm uppercase tracking-widest text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-brand-500/25 ${
-                        error ? 'border-red-500/50' : 'border-white/10 focus:border-brand-500/60'
+                      className={`w-24 flex-shrink-0 rounded bg-console-ground px-3 py-2.5 font-mono text-sm uppercase tracking-widest text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 focus:ring-console-mut ${
+                        error ? 'ring-1 ring-console-red' : ''
                       }`}
                     />
                     <input
@@ -808,46 +813,46 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
                       max={MAX_REFERENCE_RATE}
                       placeholder="0.0076"
                       aria-label={`${code || 'Currency'} rate`}
-                      className={`min-w-0 flex-1 rounded-lg border bg-transparent px-3 py-2.5 font-mono text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-brand-500/25 disabled:opacity-40 ${
-                        error ? 'border-red-500/50' : 'border-white/10 focus:border-brand-500/60'
+                      className={`min-w-0 flex-1 rounded bg-console-ground px-3 py-2.5 font-mono text-sm text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 focus:ring-console-mut disabled:opacity-40 ${
+                        error ? 'ring-1 ring-console-red' : ''
                       }`}
                     />
                     <button
                       type="button"
                       onClick={() => removeRow(row.id)}
                       aria-label={`Remove ${code || 'currency'}`}
-                      className="flex-shrink-0 rounded-lg border border-white/10 p-2.5 text-white/50 hover:bg-white/[0.04] hover:text-red-300"
+                      className="flex-shrink-0 rounded bg-console-raise p-2.5 text-console-mut transition-colors hover:text-console-red"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
 
                   {pinned && (
-                    <p className="mt-1 text-[11px] text-white/40">
+                    <p className="mt-1 text-[11px] text-console-faint">
                       This is the threshold currency — saved as 1 whatever is typed.
                     </p>
                   )}
                   {showPreview && (
-                    <p className="mt-1 text-[11px] text-white/40">
+                    <p className="mt-1 text-[11px] text-console-faint">
                       1 {code} counts as {rateFormatter.format(rate)} {normalizedThreshold} · 1{' '}
                       {normalizedThreshold} counts as {rateFormatter.format(1 / rate)} {code}
                     </p>
                   )}
-                  {error && <p className="mt-1 text-xs text-red-300">{error}</p>}
+                  {error && <p className="mt-1 text-xs text-console-red">{error}</p>}
                 </div>
               )
             })}
 
-            <button
+            <ConsoleButton
               type="button"
               onClick={addRow}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white/70 hover:bg-white/[0.04]"
+              className="inline-flex items-center gap-1.5 text-xs"
             >
               <Plus className="h-3.5 w-3.5" />
               Add currency
-            </button>
+            </ConsoleButton>
 
-            <p className="text-xs text-white/40">
+            <p className="text-xs text-console-faint">
               A currency with no rate at all is compared unconverted — its raw minor-unit number is measured against the
               threshold, which is almost always wrong. Removing a row is only safe when no organizer settles in that
               currency. Rates must be above 0 and at most{' '}
@@ -858,15 +863,15 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
         </section>
 
         {/* Sticky save bar */}
-        <div className="sticky bottom-4 z-10 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#0a0a0a]/90 px-4 py-3 backdrop-blur">
+        <div className="sticky bottom-4 z-10 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-console-panel/90 px-4 py-3 shadow-xl backdrop-blur">
           <div className="flex items-center gap-4 text-sm">
             {hasChanges ? (
-              <span className="font-medium text-amber-300">● Unsaved changes</span>
+              <ConsoleState tone="warn">Unsaved changes</ConsoleState>
             ) : (
-              <span className="text-white/50">All changes saved</span>
+              <span className="text-console-mut">All changes saved</span>
             )}
             {hasErrors && (
-              <span className="inline-flex items-center gap-1.5 text-xs text-red-300">
+              <span className="inline-flex items-center gap-1.5 text-xs text-console-red">
                 <AlertTriangle className="h-3.5 w-3.5" />
                 Fix the highlighted fields
               </span>
@@ -874,32 +879,19 @@ export function PayoutReleaseSettingsForm({ fx = null }: { fx?: FxStatus | null 
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={resetAll}
-              className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white/70 hover:bg-white/[0.04]"
-            >
+            <ConsoleButton type="button" onClick={resetAll} className="text-xs">
               Load platform defaults
-            </button>
-            <button
-              type="button"
-              onClick={discardChanges}
-              disabled={!hasChanges}
-              className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white/70 hover:bg-white/[0.04] disabled:opacity-40"
-            >
+            </ConsoleButton>
+            <ConsoleButton type="button" onClick={discardChanges} disabled={!hasChanges} className="text-xs">
               Discard
-            </button>
-            <button
-              type="submit"
-              disabled={saving || !hasChanges || hasErrors}
-              className="inline-flex items-center rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500/40 disabled:cursor-not-allowed disabled:opacity-50"
-            >
+            </ConsoleButton>
+            <ConsoleButton type="submit" variant="primary" disabled={saving || !hasChanges || hasErrors}>
               {saving ? 'Saving...' : 'Save thresholds'}
-            </button>
+            </ConsoleButton>
           </div>
         </div>
 
-        <p className="flex items-center gap-1.5 text-xs text-white/40">
+        <p className="flex items-center gap-1.5 text-xs text-console-faint">
           <Clock className="h-3.5 w-3.5" /> Per-organizer exceptions (pre-event payouts, high risk, custom holds) are
           set on each organizer’s detail page, not here.
         </p>

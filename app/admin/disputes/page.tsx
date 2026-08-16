@@ -1,6 +1,5 @@
 import DisputesLog from './DisputesLog'
 import { AdminBreadcrumbs } from '@/components/admin/AdminBreadcrumbs'
-import { EditorialHeader } from '@/components/ui/EditorialHeader'
 
 export const metadata = {
   title: 'Chargebacks | Admin | Tikèm',
@@ -20,13 +19,17 @@ export default async function AdminDisputesPage() {
         ]}
       />
 
-      <EditorialHeader
-        eyebrow="Risk"
-        title="Chargebacks"
-        subtitle="Every card dispute filed against a ticket sale. Tikèm is the merchant of record on the Stripe rail, so each of these has already been debited from the platform balance — and each one has a deadline we answer, not the organizer."
-        tone="dark"
-        className="mb-8"
-      />
+      <header className="mb-8">
+        <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Risk</p>
+        <h1 className="label-mono mt-1 text-[15px] font-bold uppercase tracking-[0.14em] text-console-text">
+          Chargebacks
+        </h1>
+        <p className="mt-2 max-w-3xl text-[13px] text-console-mut">
+          Every card dispute filed against a ticket sale. Tikèm is the merchant of record on the Stripe rail, so each
+          of these has already been debited from the platform balance — and each one has a deadline we answer, not the
+          organizer.
+        </p>
+      </header>
 
       <DisputesLog />
     </div>

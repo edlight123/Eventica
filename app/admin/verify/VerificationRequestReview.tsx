@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { StatusChip } from '@/components/ui/kit'
-import { ageClass, formatAge } from '@/lib/admin/age'
+import { ConsoleButton, ConsoleState, consoleAgeClass, consoleTone, useConsoleNow } from '@/components/admin/console'
+import { formatAge } from '@/lib/admin/age'
 import { useConfirm } from '@/components/ui/ConfirmProvider'
 import { useToast } from '@/components/ui/Toast'
 
@@ -121,10 +121,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
    * age appears once mounted — the same reason the submitted date is formatted
    * with a fixed locale and timezone below.
    */
-  const [now, setNow] = useState<Date | null>(null)
-  useEffect(() => {
-    setNow(new Date())
-  }, [])
+  const now = useConsoleNow()
 
   // Load image URLs using client-side Firebase SDK
   useEffect(() => {
@@ -206,7 +203,7 @@ export default function VerificationRequestReview({ request, user }: Props) {
    */
   const submittedIso = submittedDate ? submittedDate.toISOString() : null
   const age = now && submittedIso ? formatAge(submittedIso, now) : null
-  const ageColor = now && submittedIso ? ageClass(submittedIso, now) : ''
+  const ageColor = now && submittedIso ? consoleAgeClass(submittedIso, now) : ''
   const ageTitle = submittedDate
     ? `Waiting since ${formatSubmittedAt(submittedDate)} (UTC)`
     : undefined
@@ -237,9 +234,9 @@ export default function VerificationRequestReview({ request, user }: Props) {
 
     if (!imageUrls.livenessUrl) {
       return (
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
-          <p className="text-sm font-medium text-amber-300">No liveness recording</p>
-          <p className="mt-1 text-xs text-white/60">
+        <div className="rounded-lg bg-console-panel p-3">
+          <p className="text-sm font-medium text-console-amber">No liveness recording</p>
+          <p className="mt-1 text-xs text-console-mut">
             This organizer submitted before the liveness step existed, or skipped it. A still
             selfie alone does not show a live person was present — ask them to record one before
             approving.
@@ -249,30 +246,30 @@ export default function VerificationRequestReview({ request, user }: Props) {
     }
 
     return (
-      <div className="rounded-lg border border-white/10 bg-white/[0.02] p-3">
-        <p className="mb-2 text-[11px] sm:text-sm font-medium text-white/70">Liveness recording</p>
+      <div className="rounded-lg bg-console-panel p-3">
+        <p className="label-mono mb-2 text-[10px] uppercase tracking-[0.18em] text-console-faint">Liveness recording</p>
         <video
           src={imageUrls.livenessUrl}
           controls
           playsInline
-          className="w-full max-w-sm rounded-lg border border-white/10"
+          className="w-full max-w-sm rounded-lg"
         />
         {sequence.length > 0 ? (
           <div className="mt-3">
-            <p className="text-xs text-white/50">
+            <p className="text-xs text-console-mut">
               They were asked to do this, in this order — check the recording matches:
             </p>
             <ol className="mt-1.5 space-y-1">
               {sequence.map((step, i) => (
-                <li key={`${step.id}-${i}`} className="text-sm text-white/80">
-                  <span className="text-white/40">{i + 1}.</span>{' '}
+                <li key={`${step.id}-${i}`} className="text-sm text-console-text">
+                  <span className="text-console-faint">{i + 1}.</span>{' '}
                   {String(step.id).replace(/_/g, ' ')}
                 </li>
               ))}
             </ol>
           </div>
         ) : (
-          <p className="mt-2 text-xs text-amber-300/80">
+          <p className="mt-2 text-xs text-console-amber">
             No challenge sequence was recorded with this clip, so it cannot be checked against one.
           </p>
         )}
@@ -283,11 +280,11 @@ export default function VerificationRequestReview({ request, user }: Props) {
   const renderImageThumb = (label: string, url: string | null, alt: string) => {
     return (
       <div>
-        <p className="text-[11px] sm:text-sm font-medium text-white/70 mb-1 sm:mb-2">{label}</p>
+        <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint mb-1 sm:mb-2">{label}</p>
         {url ? (
           <div
             onClick={() => setSelectedImage(url)}
-            className="relative aspect-[1.586/1] bg-[#0a0a0a] rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity border-2 border-white/10"
+            className="relative aspect-[1.586/1] bg-console-ground rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
           >
             <Image
               src={url}
@@ -298,14 +295,14 @@ export default function VerificationRequestReview({ request, user }: Props) {
               unoptimized
             />
             <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 hover:bg-opacity-10 transition-opacity">
-              <svg className="w-8 h-8 text-white opacity-0 hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-8 h-8 text-console-text opacity-0 hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
               </svg>
             </div>
           </div>
         ) : (
-          <div className="aspect-[1.586/1] bg-[#0a0a0a] rounded-lg border-2 border-dashed border-white/10 flex items-center justify-center">
-            <p className="text-[12px] sm:text-sm text-white/50">Not provided</p>
+          <div className="aspect-[1.586/1] bg-console-ground rounded-lg flex items-center justify-center">
+            <p className="text-[12px] sm:text-sm text-console-faint">Not provided</p>
           </div>
         )}
       </div>
@@ -317,13 +314,13 @@ export default function VerificationRequestReview({ request, user }: Props) {
 
     if (normalized.includes('payoutsetup') || normalized.includes('payout_setup')) {
       return (
-        <div className="mt-3  rounded-lg p-3 sm:p-4 bg-[#0a0a0a]">
-          <p className="text-sm font-semibold text-white">Payout checklist</p>
-          <p className="text-[12px] sm:text-sm text-white/60 mt-1">
+        <div className="mt-3 rounded-lg p-3 sm:p-4 bg-console-panel">
+          <p className="text-sm font-semibold text-console-text">Payout checklist</p>
+          <p className="text-[12px] sm:text-sm text-console-mut mt-1">
             Payout setup can be completed after approval, but these items are required before payouts can be issued.
           </p>
 
-          <div className="mt-3 space-y-2 text-[13px] sm:text-sm text-white/70">
+          <div className="mt-3 space-y-2 text-[13px] sm:text-sm text-console-mut">
             <div className="flex items-start gap-2">
               <span className="mt-0.5">•</span>
               <span>Identity verification (Organizer Verification) must be approved.</span>
@@ -358,8 +355,8 @@ export default function VerificationRequestReview({ request, user }: Props) {
         <div className="mt-3">
           {loadingImages ? (
             <div className="text-center py-4">
-              <div className="inline-block w-6 h-6 border-4 border-brand-600 border-t-transparent rounded-full animate-spin" />
-              <p className="text-sm text-white/60 mt-2">Loading documents...</p>
+              <div className="inline-block w-6 h-6 border-4 border-console-mut border-t-transparent rounded-full animate-spin" />
+              <p className="text-sm text-console-mut mt-2">Loading documents...</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
@@ -383,8 +380,8 @@ export default function VerificationRequestReview({ request, user }: Props) {
         <div className="mt-3">
           {loadingImages ? (
             <div className="text-center py-4">
-              <div className="inline-block w-6 h-6 border-4 border-brand-600 border-t-transparent rounded-full animate-spin" />
-              <p className="text-sm text-white/60 mt-2">Loading selfie...</p>
+              <div className="inline-block w-6 h-6 border-4 border-console-mut border-t-transparent rounded-full animate-spin" />
+              <p className="text-sm text-console-mut mt-2">Loading selfie...</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -403,8 +400,8 @@ export default function VerificationRequestReview({ request, user }: Props) {
         <div className="mt-3">
           {loadingImages ? (
             <div className="text-center py-4">
-              <div className="inline-block w-6 h-6 border-4 border-brand-600 border-t-transparent rounded-full animate-spin" />
-              <p className="text-sm text-white/60 mt-2">Loading business documents...</p>
+              <div className="inline-block w-6 h-6 border-4 border-console-mut border-t-transparent rounded-full animate-spin" />
+              <p className="text-sm text-console-mut mt-2">Loading business documents...</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -413,12 +410,12 @@ export default function VerificationRequestReview({ request, user }: Props) {
                   href={imageUrls.businessRegistrationUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-3 py-2 rounded-lg border border-white/10 text-brand-300 hover:text-brand-300 text-[13px] sm:text-sm font-medium"
+                  className="px-3 py-2 rounded bg-console-raise text-console-text hover:opacity-90 text-[13px] sm:text-sm font-medium"
                 >
                   Open business registration
                 </a>
               ) : (
-                <div className="px-3 py-2 rounded-lg border border-dashed border-white/10 bg-[#0a0a0a] text-[13px] sm:text-sm text-white/50">
+                <div className="px-3 py-2 rounded bg-console-panel text-[13px] sm:text-sm text-console-faint">
                   Business registration not provided
                 </div>
               )}
@@ -428,12 +425,12 @@ export default function VerificationRequestReview({ request, user }: Props) {
                   href={imageUrls.taxIdUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-3 py-2 rounded-lg border border-white/10 text-brand-300 hover:text-brand-300 text-[13px] sm:text-sm font-medium"
+                  className="px-3 py-2 rounded bg-console-raise text-console-text hover:opacity-90 text-[13px] sm:text-sm font-medium"
                 >
                   Open tax ID document
                 </a>
               ) : (
-                <div className="px-3 py-2 rounded-lg border border-dashed border-white/10 bg-[#0a0a0a] text-[13px] sm:text-sm text-white/50">
+                <div className="px-3 py-2 rounded bg-console-panel text-[13px] sm:text-sm text-console-faint">
                   Tax ID not provided
                 </div>
               )}
@@ -511,11 +508,11 @@ export default function VerificationRequestReview({ request, user }: Props) {
 
   return (
     <>
-      <div className=" rounded-lg p-4 sm:p-6 bg-[#0a0a0a]">
+      <div className="rounded-lg p-4 sm:p-6 bg-console-panel">
         <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
           <div className="min-w-0 flex-1">
             <div className="flex items-baseline gap-2 min-w-0">
-              <h3 className="font-semibold text-white text-base sm:text-lg truncate">
+              <h3 className="font-semibold text-console-text text-base sm:text-lg truncate">
                 {user?.full_name || 'Unknown User'}
               </h3>
               {age ? (
@@ -524,8 +521,8 @@ export default function VerificationRequestReview({ request, user }: Props) {
                 </span>
               ) : null}
             </div>
-            <p className="text-[13px] sm:text-sm text-white/60 truncate">{user?.email}</p>
-            <p className="font-mono tabular-nums text-[11px] sm:text-xs text-white/50 mt-1">
+            <p className="text-[13px] sm:text-sm text-console-mut truncate">{user?.email}</p>
+            <p className="font-mono tabular-nums text-[11px] sm:text-xs text-console-faint mt-1">
               {submittedDate ? (
                 <>
                   Submitted {formatSubmittedAt(submittedDate)} (UTC)
@@ -535,11 +532,11 @@ export default function VerificationRequestReview({ request, user }: Props) {
               )}
             </p>
           </div>
-          <StatusChip
-            status={request.status || 'pending'}
-            tone={(request.status || 'pending') === 'changes_requested' ? 'warning' : undefined}
-            className="whitespace-nowrap"
-          />
+          <ConsoleState tone={consoleTone(request.status || 'pending')}>
+            {String(request.status || 'pending')
+              .replace(/[_-]+/g, ' ')
+              .replace(/\b\w/g, (c) => c.toUpperCase())}
+          </ConsoleState>
         </div>
 
         {/* Submission Sections */}
@@ -556,40 +553,40 @@ export default function VerificationRequestReview({ request, user }: Props) {
                 const stepId: string = stepValue?.id || stepKey
 
                 return (
-                  <div key={stepKey} className=" rounded-lg p-3 sm:p-4 bg-[#0a0a0a]">
+                  <div key={stepKey} className="rounded-lg p-3 sm:p-4 bg-console-ground">
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div className="min-w-0">
-                        <p className="text-sm sm:text-base font-semibold text-white truncate">{title}</p>
+                        <p className="text-sm sm:text-base font-semibold text-console-text truncate">{title}</p>
                         {stepValue?.description ? (
-                          <p className="text-[12px] sm:text-sm text-white/60">{stepValue.description}</p>
+                          <p className="text-[12px] sm:text-sm text-console-mut">{stepValue.description}</p>
                         ) : null}
                       </div>
-                      <div className="flex items-center gap-2 whitespace-nowrap">
+                      <div className="flex items-center gap-3 whitespace-nowrap">
                         {required ? (
-                          <span className="label-mono uppercase px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded bg-[#0a0a0a] text-white/70">Required</span>
+                          <span className="label-mono uppercase text-[10px] sm:text-xs tracking-[0.14em] text-console-faint">Required</span>
                         ) : (
-                          <span className="label-mono uppercase px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded bg-[#0a0a0a] text-white/60">Optional</span>
+                          <span className="label-mono uppercase text-[10px] sm:text-xs tracking-[0.14em] text-console-faint">Optional</span>
                         )}
-                        <span className="label-mono uppercase px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded bg-[#0a0a0a] text-white/70 ">
+                        <ConsoleState tone={consoleTone(stepStatus)}>
                           {String(stepStatus).replaceAll('_', ' ')}
-                        </span>
+                        </ConsoleState>
                       </div>
                     </div>
 
                     {errorMessage ? (
-                      <div className="text-[12px] sm:text-sm text-red-300 border border-red-500/30 rounded p-2 mb-2">
+                      <div className="text-[12px] sm:text-sm text-console-red rounded bg-console-panel p-2 mb-2">
                         {errorMessage}
                       </div>
                     ) : null}
 
                     {missingFields.length > 0 ? (
-                      <div className="text-[12px] sm:text-sm text-amber-300 border border-amber-500/30 rounded p-2 mb-2">
+                      <div className="text-[12px] sm:text-sm text-console-amber rounded bg-console-panel p-2 mb-2">
                         Missing: {missingFields.join(', ')}
                       </div>
                     ) : null}
 
                     {Object.keys(fields).length === 0 ? (
-                      <p className="text-[12px] sm:text-sm text-white/50">No details provided.</p>
+                      <p className="text-[12px] sm:text-sm text-console-faint">No details provided.</p>
                     ) : (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
                         {Object.entries(fields)
@@ -597,8 +594,8 @@ export default function VerificationRequestReview({ request, user }: Props) {
                           .filter((x) => x.s)
                           .map(({ k, s }) => (
                             <div key={k} className="min-w-0">
-                              <p className="text-[11px] sm:text-xs text-white/50 truncate">{k.replaceAll('_', ' ')}</p>
-                              <p className="text-[13px] sm:text-sm text-white break-words">{s}</p>
+                              <p className="text-[11px] sm:text-xs text-console-faint truncate">{k.replaceAll('_', ' ')}</p>
+                              <p className="text-[13px] sm:text-sm text-console-text break-words">{s}</p>
                             </div>
                           ))}
                       </div>
@@ -610,9 +607,9 @@ export default function VerificationRequestReview({ request, user }: Props) {
               })}
             </div>
           ) : (
-            <div className=" rounded-lg p-3 sm:p-4 bg-[#0a0a0a]">
-              <p className="text-[13px] sm:text-sm text-white/70 font-medium">Submission details</p>
-              <p className="text-[12px] sm:text-sm text-white/50">No step-by-step submission data found on this request.</p>
+            <div className="rounded-lg p-3 sm:p-4 bg-console-ground">
+              <p className="text-[13px] sm:text-sm text-console-mut font-medium">Submission details</p>
+              <p className="text-[12px] sm:text-sm text-console-faint">No step-by-step submission data found on this request.</p>
             </div>
           )}
         </div>
@@ -620,12 +617,12 @@ export default function VerificationRequestReview({ request, user }: Props) {
         {/* Fallback proof section for legacy/unknown request shapes */}
         {!steps ? (
           <div className="mb-4 sm:mb-6">
-            <p className="text-sm sm:text-base font-semibold text-white mb-2">Proof</p>
+            <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint mb-2">Proof</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
               {loadingImages ? (
                 <div className="col-span-1 sm:col-span-3 text-center py-8">
-                  <div className="inline-block w-8 h-8 border-4 border-brand-600 border-t-transparent rounded-full animate-spin" />
-                  <p className="text-sm text-white/60 mt-2">Loading images...</p>
+                  <div className="inline-block w-8 h-8 border-4 border-console-mut border-t-transparent rounded-full animate-spin" />
+                  <p className="text-sm text-console-mut mt-2">Loading images...</p>
                 </div>
               ) : (
                 <>
@@ -637,20 +634,20 @@ export default function VerificationRequestReview({ request, user }: Props) {
             </div>
 
             {!loadingImages && (imageUrls.businessRegistrationUrl || imageUrls.taxIdUrl) ? (
-              <div className="mt-3 rounded-lg p-3 sm:p-4 bg-[#0a0a0a] border border-white/10">
-                <p className="text-sm sm:text-base font-semibold text-white mb-2">Business Documents</p>
+              <div className="mt-3 rounded-lg p-3 sm:p-4 bg-console-ground">
+                <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint mb-2">Business Documents</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {imageUrls.businessRegistrationUrl ? (
                     <a
                       href={imageUrls.businessRegistrationUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="px-3 py-2 rounded-lg border border-white/10 text-brand-300 hover:text-brand-300 text-[13px] sm:text-sm font-medium"
+                      className="px-3 py-2 rounded bg-console-raise text-console-text hover:opacity-90 text-[13px] sm:text-sm font-medium"
                     >
                       Open business registration
                     </a>
                   ) : (
-                    <div className="px-3 py-2 rounded-lg border border-dashed border-white/10 bg-[#0a0a0a] text-[13px] sm:text-sm text-white/50">
+                    <div className="px-3 py-2 rounded bg-console-panel text-[13px] sm:text-sm text-console-faint">
                       Business registration not provided
                     </div>
                   )}
@@ -660,12 +657,12 @@ export default function VerificationRequestReview({ request, user }: Props) {
                       href={imageUrls.taxIdUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="px-3 py-2 rounded-lg border border-white/10 text-brand-300 hover:text-brand-300 text-[13px] sm:text-sm font-medium"
+                      className="px-3 py-2 rounded bg-console-raise text-console-text hover:opacity-90 text-[13px] sm:text-sm font-medium"
                     >
                       Open tax ID document
                     </a>
                   ) : (
-                    <div className="px-3 py-2 rounded-lg border border-dashed border-white/10 bg-[#0a0a0a] text-[13px] sm:text-sm text-white/50">
+                    <div className="px-3 py-2 rounded bg-console-panel text-[13px] sm:text-sm text-console-faint">
                       Tax ID not provided
                     </div>
                   )}
@@ -682,20 +679,21 @@ export default function VerificationRequestReview({ request, user }: Props) {
           if (!isActionable) return null
           return (
             <div className="flex gap-2 sm:gap-3">
-              <button
+              <ConsoleButton
+                variant="primary"
                 onClick={handleApprove}
                 disabled={reviewing}
-                className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-[13px] sm:text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+                className="flex-1 min-h-[44px]"
               >
-                {reviewing ? 'Processing...' : '✅ Approve'}
-              </button>
-              <button
+                {reviewing ? 'Processing...' : 'Approve'}
+              </ConsoleButton>
+              <ConsoleButton
                 onClick={() => setShowRejectModal(true)}
                 disabled={reviewing}
-                className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[13px] sm:text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+                className="flex-1 min-h-[44px]"
               >
-                ✍️ Request changes
-              </button>
+                Request changes
+              </ConsoleButton>
             </div>
           )
         })()}
@@ -705,12 +703,12 @@ export default function VerificationRequestReview({ request, user }: Props) {
       {selectedImage && (
         <div
           onClick={() => setSelectedImage(null)}
-          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
         >
           <div className="relative max-w-4xl max-h-full">
             <button
               onClick={() => setSelectedImage(null)}
-              className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-[#0a0a0a] rounded-full p-2 hover:bg-white/[0.04]"
+              className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-console-panel text-console-text rounded-full p-2 hover:bg-console-raise"
             >
               <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -733,36 +731,37 @@ export default function VerificationRequestReview({ request, user }: Props) {
 
       {/* Rejection Modal */}
       {showRejectModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0a0a0a] rounded-xl p-4 sm:p-6 max-w-md w-full">
-            <h3 className="font-display text-lg sm:text-xl text-white mb-3 sm:mb-4">Request Changes</h3>
-            <p className="text-[13px] sm:text-sm text-white/60 mb-3 sm:mb-4">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-console-panel rounded-lg shadow-xl p-4 sm:p-6 max-w-md w-full">
+            <h3 className="label-mono text-[13px] font-bold uppercase tracking-[0.14em] text-console-text mb-3 sm:mb-4">Request Changes</h3>
+            <p className="text-[13px] sm:text-sm text-console-mut mb-3 sm:mb-4">
               Please describe what needs to be fixed. The organizer will receive this in an email and can resubmit.
             </p>
             <textarea
               value={rejectionReason}
               onChange={(e) => setRejectionReason(e.target.value)}
               placeholder="e.g., ID photo is blurry; please re-upload a clear front/back."
-              className="w-full px-3 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent mb-3 sm:mb-4 text-[15px] sm:text-base min-h-[44px]"
+              className="w-full px-3 py-2 rounded bg-console-ground text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 focus:ring-console-mut mb-3 sm:mb-4 text-[15px] sm:text-base min-h-[44px]"
               rows={4}
             />
             <div className="flex gap-2 sm:gap-3">
-              <button
+              <ConsoleButton
                 onClick={() => {
                   setShowRejectModal(false)
                   setRejectionReason('')
                 }}
-                className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 border border-white/15 rounded-lg text-[13px] sm:text-base font-medium text-white/70 hover:bg-white/[0.04] min-h-[44px]"
+                className="flex-1 min-h-[44px]"
               >
                 Cancel
-              </button>
-              <button
+              </ConsoleButton>
+              <ConsoleButton
+                variant="primary"
                 onClick={handleRequestChanges}
                 disabled={reviewing || !rejectionReason.trim()}
-                className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[13px] sm:text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+                className="flex-1 min-h-[44px]"
               >
                 {reviewing ? 'Sending...' : 'Send Request'}
-              </button>
+              </ConsoleButton>
             </div>
           </div>
         </div>

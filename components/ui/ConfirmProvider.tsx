@@ -1,7 +1,7 @@
 'use client'
 
-import React, { createContext, useCallback, useContext, useRef, useState } from 'react'
-import { ConfirmationDialog } from '@/components/organizer/ui/ConfirmationDialog'
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { ConsoleButton } from '@/components/admin/console'
 
 export interface ConfirmOptions {
   title: string
@@ -9,7 +9,7 @@ export interface ConfirmOptions {
   description?: string
   confirmLabel?: string
   cancelLabel?: string
-  /** 'danger' = red destructive confirm; 'default' = brand teal. */
+  /** 'danger' = red destructive confirm; 'default' = filled primary. */
   variant?: 'default' | 'danger'
 }
 
@@ -18,7 +18,105 @@ type ConfirmFn = (options: ConfirmOptions | string) => Promise<boolean>
 const ConfirmContext = createContext<ConfirmFn | null>(null)
 
 /**
- * Promise-based confirmation provider. Renders the shared dark ConfirmationDialog
+ * Console-styled confirmation dialog (Control Room): panel elevation on a dim
+ * backdrop, mono-caps title, and the console button set. Focus-trapped enough
+ * for a two-button dialog — Esc cancels, cancel takes initial focus.
+ */
+function ConsoleConfirmDialog({
+  open,
+  loading,
+  onClose,
+  onConfirm,
+  title,
+  description,
+  confirmLabel = 'Confirm',
+  cancelLabel = 'Cancel',
+  variant = 'default',
+}: {
+  open: boolean
+  loading?: boolean
+  onClose: () => void
+  onConfirm: () => void
+  title: string
+  description?: string
+  confirmLabel?: string
+  cancelLabel?: string
+  variant?: 'default' | 'danger'
+}) {
+  const cancelRef = useRef<HTMLButtonElement>(null)
+  const titleId = 'console-confirm-title'
+  const descId = 'console-confirm-desc'
+
+  // Esc to close
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [open, onClose])
+
+  // Focus cancel on open (safer default for destructive dialogs)
+  useEffect(() => {
+    if (open) cancelRef.current?.focus()
+  }, [open])
+
+  // Lock body scroll
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : ''
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [open])
+
+  if (!open) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/60" aria-hidden="true" onClick={onClose} />
+
+      {/* Dialog */}
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={description ? descId : undefined}
+        className="relative w-full max-w-sm rounded-lg bg-console-panel p-6 shadow-xl"
+      >
+        <h2
+          id={titleId}
+          className="label-mono text-[13px] font-bold uppercase tracking-[0.14em] text-console-text"
+        >
+          {title}
+        </h2>
+        {description && (
+          <p id={descId} className="mt-2 text-sm text-console-mut">
+            {description}
+          </p>
+        )}
+
+        <div className="mt-6 flex justify-end gap-3">
+          <ConsoleButton ref={cancelRef} type="button" variant="quiet" onClick={onClose} disabled={loading}>
+            {cancelLabel}
+          </ConsoleButton>
+          <ConsoleButton
+            type="button"
+            variant={variant === 'danger' ? 'danger' : 'primary'}
+            onClick={onConfirm}
+            disabled={loading}
+          >
+            {loading ? 'Working…' : confirmLabel}
+          </ConsoleButton>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Promise-based confirmation provider. Renders the console confirmation dialog
  * and exposes `useConfirm()` returning `confirm(options) => Promise<boolean>`, a
  * drop-in replacement for `window.confirm` for destructive admin actions.
  *
@@ -52,7 +150,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
   return (
     <ConfirmContext.Provider value={confirm}>
       {children}
-      <ConfirmationDialog
+      <ConsoleConfirmDialog
         open={open}
         loading={pending}
         onClose={() => settle(false)}

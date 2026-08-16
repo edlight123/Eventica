@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Search, Filter, ChevronDown, Check } from 'lucide-react'
 import { useConfirm } from '@/components/ui/ConfirmProvider'
+import { ConsoleButton } from '@/components/admin/console'
 
 interface AdminEventsTopBarProps {
   searchQuery: string
@@ -25,61 +26,61 @@ export function AdminEventsTopBar({
   const confirmDialog = useConfirm()
 
   return (
-    <div className="sticky top-0 z-30 bg-[#0a0a0a] border-b border-white/10 shadow-sm">
+    <div className="sticky top-0 z-30 bg-console-ground">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center gap-4">
           {/* Search */}
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-console-faint" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Search events by title, city, or organizer..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-white/10 bg-white/[0.03] text-sm text-white placeholder:text-white/45 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+              className="w-full pl-10 pr-4 py-2.5 rounded bg-console-panel text-sm text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 focus:ring-console-mut"
             />
           </div>
 
           {/* Filters Button */}
-          <button
+          <ConsoleButton
             onClick={onOpenFilters}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-white/10 text-white/80 hover:bg-white/[0.04] hover:text-white text-sm font-medium whitespace-nowrap"
+            className="flex items-center gap-2 whitespace-nowrap"
           >
             <Filter className="w-4 h-4" />
             <span>Filters</span>
             {activeFiltersCount > 0 && (
-              <span className="ml-1 px-2 py-0.5 text-brand-300 rounded-full font-mono text-xs font-bold tabular-nums">
+              <span className="label-mono ml-1 text-xs font-bold tabular-nums text-console-text">
                 {activeFiltersCount}
               </span>
             )}
-          </button>
+          </ConsoleButton>
 
           {/* Bulk Actions */}
           {selectedCount > 0 && (
             <div className="relative">
-              <button
+              <ConsoleButton
                 onClick={() => setShowBulkMenu(!showBulkMenu)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-brand-600 text-white rounded-lg hover:bg-brand-700 text-sm font-medium whitespace-nowrap"
+                className="flex items-center gap-2 whitespace-nowrap"
               >
                 <span>{selectedCount} selected</span>
                 <ChevronDown className="w-4 h-4" />
-              </button>
+              </ConsoleButton>
 
               {showBulkMenu && (
                 <>
-                  <div 
+                  <div
                     className="fixed inset-0 z-10"
                     onClick={() => setShowBulkMenu(false)}
                   />
-                  <div className="absolute right-0 mt-2 w-48 bg-[#0a0a0a] border border-white/10 rounded-lg shadow-lg py-1 z-20">
+                  <div className="absolute right-0 mt-2 w-48 bg-console-panel rounded-lg shadow-xl py-1 z-20">
                     <button
                       onClick={() => {
                         onBulkAction('publish')
                         setShowBulkMenu(false)
                       }}
-                      className="w-full px-4 py-2 text-left text-sm text-white/70 hover:bg-white/[0.04] flex items-center gap-2"
+                      className="w-full px-4 py-2 text-left text-sm text-console-mut hover:bg-console-raise hover:text-console-text flex items-center gap-2"
                     >
-                      <Check className="w-4 h-4 text-emerald-300" />
+                      <Check className="w-4 h-4 text-console-green" />
                       Publish Selected
                     </button>
                     <button
@@ -87,9 +88,9 @@ export function AdminEventsTopBar({
                         onBulkAction('unpublish')
                         setShowBulkMenu(false)
                       }}
-                      className="w-full px-4 py-2 text-left text-sm text-white/70 hover:bg-white/[0.04] flex items-center gap-2"
+                      className="w-full px-4 py-2 text-left text-sm text-console-mut hover:bg-console-raise hover:text-console-text flex items-center gap-2"
                     >
-                      <Check className="w-4 h-4 text-brand-300" />
+                      <Check className="w-4 h-4 text-console-amber" />
                       Unpublish Selected
                     </button>
                     <button
@@ -105,7 +106,7 @@ export function AdminEventsTopBar({
                         }
                         setShowBulkMenu(false)
                       }}
-                      className="w-full px-4 py-2 text-left text-sm text-red-300 hover:bg-red-500/10 flex items-center gap-2"
+                      className="w-full px-4 py-2 text-left text-sm text-console-red hover:bg-console-raise flex items-center gap-2"
                     >
                       <Check className="w-4 h-4" />
                       Delete Selected

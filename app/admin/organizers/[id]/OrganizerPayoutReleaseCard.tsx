@@ -265,25 +265,25 @@ export default function OrganizerPayoutReleaseCard({ organizerId }: { organizerI
   ]
 
   return (
-    <div className="rounded-lg border border-white/10 p-4 sm:p-5 lg:col-span-2">
+    <div className="rounded-lg bg-console-panel p-4 sm:p-5 lg:col-span-2">
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="flex items-center gap-2 text-base font-semibold text-white">
-            <svg className="h-4 w-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <h2 className="flex items-center gap-2 text-base font-semibold text-console-text">
+            <svg className="h-4 w-4 text-console-mut" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             Payout Release
           </h2>
-          <p className="mt-1 text-xs text-white/50">
+          <p className="mt-1 text-xs text-console-mut">
             Exceptions for this organizer only. Leave a field blank to follow the{' '}
-            <Link href="/admin/payouts/release-settings" className="text-brand-300 hover:underline">
+            <Link href="/admin/payouts/release-settings" className="text-console-mut hover:underline">
               platform thresholds
             </Link>
             .
           </p>
         </div>
         {override?.updatedAt && (
-          <p className="font-mono tabular-nums text-xs text-white/40">
+          <p className="font-mono tabular-nums text-xs text-console-faint">
             Updated {formatStamp(override.updatedAt)}
             {override.updatedBy ? ` by ${override.updatedBy}` : ''}
           </p>
@@ -292,35 +292,35 @@ export default function OrganizerPayoutReleaseCard({ organizerId }: { organizerI
 
       {loading ? (
         <div className="animate-pulse space-y-3">
-          <div className="h-4 w-1/3 rounded bg-white/10" />
-          <div className="h-4 w-1/2 rounded bg-white/10" />
-          <div className="h-4 w-1/4 rounded bg-white/10" />
+          <div className="h-4 w-1/3 rounded bg-console-raise" />
+          <div className="h-4 w-1/2 rounded bg-console-raise" />
+          <div className="h-4 w-1/4 rounded bg-console-raise" />
         </div>
       ) : (
         <div className="space-y-4">
           {/* Current effective state, dot + label (no filled pills) */}
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs font-semibold">
             {override?.preEventReleaseApproved && (
-              <span className="label-mono uppercase text-amber-300">● Pre-event payouts approved</span>
+              <span className="label-mono uppercase text-console-amber">● Pre-event payouts approved</span>
             )}
             {override?.forceEstablished && (
-              <span className="label-mono uppercase text-amber-300">● Forced established</span>
+              <span className="label-mono uppercase text-console-amber">● Forced established</span>
             )}
-            {override?.highRisk && <span className="label-mono uppercase text-red-300">● High risk</span>}
-            {!override && <span className="label-mono uppercase text-white/40">● No override — platform defaults</span>}
+            {override?.highRisk && <span className="label-mono uppercase text-console-red">● High risk</span>}
+            {!override && <span className="label-mono uppercase text-console-faint">● No override — platform defaults</span>}
           </div>
 
           {message && (
             <div
               className={`rounded-lg p-3 text-sm ${
                 message.type === 'success'
-                  ? 'border border-emerald-500/30 text-emerald-300'
-                  : 'border border-red-500/30 text-red-300'
+                  ? 'bg-console-ground text-console-green'
+                  : 'bg-console-ground text-console-red'
               }`}
             >
               <p>{message.text}</p>
               {serverDetails.length > 0 && (
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-red-300/90">
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-console-red/90">
                   {serverDetails.map((detail, i) => (
                     <li key={i} className="font-mono">
                       {detail}
@@ -344,19 +344,19 @@ export default function OrganizerPayoutReleaseCard({ organizerId }: { organizerI
               return (
                 <div key={field.key}>
                   <div className="mb-1.5 flex items-baseline justify-between gap-3">
-                    <label htmlFor={`override-${field.key}`} className="block text-sm font-medium text-white/70">
+                    <label htmlFor={`override-${field.key}`} className="block text-sm font-medium text-console-mut">
                       {field.label}
                     </label>
                     {isOverridden ? (
                       <button
                         type="button"
                         onClick={() => setValues((prev) => ({ ...prev, [field.key]: '' }))}
-                        className="text-[11px] font-semibold text-brand-300 hover:text-white"
+                        className="text-[11px] font-semibold text-console-mut hover:text-console-text"
                       >
                         Use platform default
                       </button>
                     ) : (
-                      <span className="label-mono text-[11px] uppercase tracking-wide text-white/35">Inherited</span>
+                      <span className="label-mono text-[11px] uppercase tracking-wide text-console-faint">Inherited</span>
                     )}
                   </div>
 
@@ -370,19 +370,19 @@ export default function OrganizerPayoutReleaseCard({ organizerId }: { organizerI
                       min={toDisplay(field.kind, limit.min)}
                       max={toDisplay(field.kind, limit.max)}
                       placeholder={inherited ? `Platform default — ${inherited}` : 'Platform default'}
-                      className={`w-full rounded-lg border bg-transparent px-3 py-2.5 text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-brand-500/25 ${
-                        error ? 'border-red-500/50' : 'border-white/10 focus:border-brand-500/60'
+                      className={`w-full rounded bg-console-ground px-3 py-2.5 text-sm text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 ${
+                        error ? 'ring-2 ring-console-red/50' : 'focus:ring-console-mut'
                       } ${suffix ? 'pr-16' : ''}`}
                     />
                     {suffix && (
                       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                        <span className="text-sm text-white/50">{suffix}</span>
+                        <span className="text-sm text-console-mut">{suffix}</span>
                       </div>
                     )}
                   </div>
 
-                  <p className="mt-1.5 text-xs text-white/50">{field.help}</p>
-                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-white/40">
+                  <p className="mt-1.5 text-xs text-console-mut">{field.help}</p>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-console-faint">
                     <span>
                       Allowed {toDisplay(field.kind, limit.min)} – {toDisplay(field.kind, limit.max)}
                       {suffix ? ` ${suffix}` : ''}
@@ -391,7 +391,7 @@ export default function OrganizerPayoutReleaseCard({ organizerId }: { organizerI
                       <span className="font-mono">= {apiValue.toLocaleString('en-US')} minor units (cents)</span>
                     )}
                   </div>
-                  {error && <p className="mt-1 text-xs text-red-300">{error}</p>}
+                  {error && <p className="mt-1 text-xs text-console-red">{error}</p>}
                 </div>
               )
             })}
@@ -402,26 +402,26 @@ export default function OrganizerPayoutReleaseCard({ organizerId }: { organizerI
             {toggles.map((toggle) => (
               <div
                 key={toggle.label}
-                className="flex items-start justify-between gap-4 rounded-lg border border-white/10 p-4"
+                className="flex items-start justify-between gap-4 rounded-lg bg-console-panel p-4"
               >
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-white">
+                  <p className="text-sm font-medium text-console-text">
                     {toggle.label}
                     {toggle.relaxes && (
-                      <span className="ml-2 label-mono text-[10px] uppercase tracking-wide text-amber-300">
+                      <span className="ml-2 label-mono text-[10px] uppercase tracking-wide text-console-amber">
                         note required
                       </span>
                     )}
                   </p>
-                  <p className="mt-1 text-xs text-white/50">{toggle.help}</p>
+                  <p className="mt-1 text-xs text-console-mut">{toggle.help}</p>
                 </div>
                 <button
                   type="button"
                   role="switch"
                   aria-checked={toggle.value}
                   onClick={() => toggle.set(!toggle.value)}
-                  className={`relative mt-0.5 h-6 w-11 flex-shrink-0 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 ${
-                    toggle.value ? (toggle.relaxes ? 'bg-amber-500' : 'bg-red-600') : 'bg-white/15'
+                  className={`relative mt-0.5 h-6 w-11 flex-shrink-0 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-console-mut ${
+                    toggle.value ? (toggle.relaxes ? 'bg-console-amber' : 'bg-console-red') : 'bg-console-raise'
                   }`}
                 >
                   <span
@@ -436,9 +436,9 @@ export default function OrganizerPayoutReleaseCard({ organizerId }: { organizerI
 
           {/* Note */}
           <div>
-            <label htmlFor="override-note" className="mb-1.5 flex flex-wrap items-baseline gap-2 text-sm font-medium text-white/70">
+            <label htmlFor="override-note" className="mb-1.5 flex flex-wrap items-baseline gap-2 text-sm font-medium text-console-mut">
               Note
-              <span className={`label-mono text-[10px] uppercase tracking-wide ${isRelaxing ? 'text-amber-300' : 'text-white/35'}`}>
+              <span className={`label-mono text-[10px] uppercase tracking-wide ${isRelaxing ? 'text-console-amber' : 'text-console-faint'}`}>
                 {isRelaxing ? 'required' : 'optional'}
               </span>
             </label>
@@ -453,24 +453,24 @@ export default function OrganizerPayoutReleaseCard({ organizerId }: { organizerI
                   ? 'Add a new note to replace the one below'
                   : 'Why is this organizer trusted? e.g. “Known promoter, 4 sold-out shows with us, verified in person.”'
               }
-              className={`w-full rounded-lg border bg-transparent px-3 py-2.5 text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-brand-500/25 ${
-                noteRequired ? 'border-amber-500/50' : 'border-white/10 focus:border-brand-500/60'
+              className={`w-full rounded bg-console-ground px-3 py-2.5 text-sm text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 ${
+                noteRequired ? 'ring-2 ring-console-amber/50' : 'focus:ring-console-mut'
               }`}
             />
-            <p className="mt-1.5 text-xs text-white/50">
+            <p className="mt-1.5 text-xs text-console-mut">
               Relaxing the rules — approving pre-event payouts or forcing established — cannot be saved without a note.
               It is the record of why this organizer was trusted, read back later if something goes wrong.
             </p>
             {override?.note && (
-              <div className="mt-2 rounded-lg border border-white/10 p-3">
-                <p className="text-xs text-white/50">Current note</p>
-                <p className="mt-1 text-sm text-white">{override.note}</p>
+              <div className="mt-2 rounded-lg bg-console-panel p-3">
+                <p className="text-xs text-console-mut">Current note</p>
+                <p className="mt-1 text-sm text-console-text">{override.note}</p>
               </div>
             )}
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
-            <p className="text-xs text-white/40">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-console-raise pt-4">
+            <p className="text-xs text-console-faint">
               {noteRequired
                 ? 'Add a note before saving — the API rejects a relaxation without one.'
                 : 'Saved changes are audit-logged with the before/after.'}
@@ -479,7 +479,7 @@ export default function OrganizerPayoutReleaseCard({ organizerId }: { organizerI
               <button
                 type="button"
                 onClick={clearAllNumeric}
-                className="rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-white/70 hover:bg-white/[0.04]"
+                className="rounded-lg bg-console-panel px-3 py-2 text-xs font-semibold text-console-mut hover:bg-console-raise"
               >
                 Clear custom numbers
               </button>
@@ -487,7 +487,7 @@ export default function OrganizerPayoutReleaseCard({ organizerId }: { organizerI
                 type="button"
                 onClick={handleSave}
                 disabled={saving || hasErrors || noteRequired}
-                className="rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-lg bg-console-text px-4 py-2.5 text-sm font-bold text-console-ground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saving ? 'Saving...' : 'Save override'}
               </button>

@@ -56,7 +56,7 @@ export default function PeopleHub({
     <div>
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
         <div
-          className="inline-flex gap-1 rounded-full border border-white/10 p-1"
+          className="inline-flex gap-1 rounded-lg bg-console-panel p-1"
           role="tablist"
           aria-label="People"
         >
@@ -68,8 +68,10 @@ export default function PeopleHub({
                 role="tab"
                 aria-selected={active}
                 onClick={() => selectTab(key)}
-                className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-                  active ? 'bg-white/[0.08] text-white' : 'text-white/50 hover:text-white'
+                className={`label-mono flex items-center gap-2 rounded px-4 py-2 text-[12px] uppercase tracking-[0.08em] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-console-mut ${
+                  active
+                    ? 'bg-console-raise font-bold text-console-text'
+                    : 'font-semibold text-console-mut hover:text-console-text'
                 }`}
               >
                 <Icon className="h-4 w-4" />

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { StatusChip } from '@/components/ui/kit'
+import { ConsoleButton, ConsoleState, consoleTone } from '@/components/admin/console'
 import { useToast } from '@/components/ui/Toast'
 
 interface Organizer {
@@ -83,64 +83,61 @@ export default function VerifyOrganizerForm({ organizers }: Props) {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-white/70">{t('verify.override_search_label')}</label>
+        <label className="label-mono block text-[10px] uppercase tracking-[0.18em] text-console-faint">{t('verify.override_search_label')}</label>
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t('verify.override_search_placeholder')}
-          className="w-full px-3 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent text-[15px] sm:text-base"
+          className="w-full px-3 py-2 rounded bg-console-ground text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 focus:ring-console-mut text-[15px] sm:text-base"
         />
-        <p className="text-[12px] sm:text-sm text-white/50">{t('verify.override_search_hint')}</p>
+        <p className="text-[12px] sm:text-sm text-console-faint">{t('verify.override_search_hint')}</p>
       </div>
 
       {!shouldShowResults ? (
-        <p className="text-white/50 text-center py-6">{t('verify.override_search_required')}</p>
+        <p className="text-console-faint text-center py-6">{t('verify.override_search_required')}</p>
       ) : filtered.length === 0 ? (
-        <p className="text-white/50 text-center py-6">{t('verify.override_no_results')}</p>
+        <p className="text-console-faint text-center py-6">{t('verify.override_no_results')}</p>
       ) : (
         filtered.map(organizer => (
           <div
             key={organizer.id}
-            className="flex items-center justify-between p-4 rounded-lg border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] transition-colors"
+            className="flex items-center justify-between p-4 rounded-lg bg-console-ground hover:bg-console-raise transition-colors"
           >
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <h3 className="font-semibold text-white">{organizer.full_name}</h3>
+                <h3 className="font-semibold text-console-text">{organizer.full_name}</h3>
                 {organizer.verification_status === 'approved' && (
-                  <svg className="w-5 h-5 text-brand-300" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5 text-console-green" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                 )}
               </div>
-              <p className="text-sm text-white/60">{organizer.email}</p>
+              <p className="text-sm text-console-mut">{organizer.email}</p>
               <div className="flex items-center gap-2 mt-1">
-                <p className="font-mono text-xs tabular-nums text-white/50">
+                <p className="font-mono text-xs tabular-nums text-console-faint">
                   Joined {new Date(organizer.created_at).toLocaleDateString()}
                 </p>
                 {organizer.verification_status && organizer.verification_status !== 'none' && (
-                  <StatusChip
-                    status={organizer.verification_status}
-                    tone={organizer.verification_status === 'changes_requested' ? 'warning' : undefined}
-                  />
+                  <ConsoleState tone={consoleTone(organizer.verification_status)}>
+                    {organizer.verification_status
+                      .replace(/[_-]+/g, ' ')
+                      .replace(/\b\w/g, (c) => c.toUpperCase())}
+                  </ConsoleState>
                 )}
               </div>
             </div>
 
-            <button
+            <ConsoleButton
+              variant={organizer.verification_status === 'approved' ? 'danger' : 'primary'}
               onClick={() => toggleVerification(organizer.id, organizer.verification_status === 'approved')}
               disabled={updating === organizer.id}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                organizer.verification_status === 'approved'
-                  ? 'text-red-300 hover:bg-red-200'
-                  : 'bg-brand-700 text-white hover:bg-brand-800'
-              }`}
             >
               {updating === organizer.id
                 ? t('verify.override_updating')
                 : organizer.verification_status === 'approved'
                 ? t('verify.override_remove')
                 : t('verify.override_verify')}
-            </button>
+            </ConsoleButton>
           </div>
         ))
       )}

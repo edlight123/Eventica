@@ -2,7 +2,32 @@
 
 import { useState, useEffect } from 'react'
 import { PlatformSettings } from '@/types/platform-settings'
-import { AlertTriangle, Info, Clock } from 'lucide-react'
+import { Clock } from 'lucide-react'
+import { ConsoleButton, ConsoleInput, ConsolePanel } from '@/components/admin/console'
+
+/** Field label: the console's mono-caps row label. */
+function FieldLabel({ htmlFor, children }: { htmlFor: string; children: React.ReactNode }) {
+  return (
+    <label
+      htmlFor={htmlFor}
+      className="label-mono mb-1.5 block text-[10px] uppercase tracking-[0.18em] text-console-faint"
+    >
+      {children}
+    </label>
+  )
+}
+
+/** Section label between form groups. */
+function SectionLabel({ children, sub }: { children: React.ReactNode; sub?: string }) {
+  return (
+    <div className="mb-3">
+      <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">
+        {children}
+      </div>
+      {sub && <p className="mt-0.5 text-xs text-console-mut">{sub}</p>}
+    </div>
+  )
+}
 
 export function PlatformSettingsForm() {
   const [settings, setSettings] = useState<PlatformSettings | null>(null)
@@ -31,7 +56,7 @@ export function PlatformSettingsForm() {
 
       if (data.success && data.settings) {
         setSettings(data.settings)
-        
+
         // Populate form fields
         setHaitiPlatformFee((data.settings.haiti.platformFeePercentage * 100).toFixed(2))
         setHaitiSettlementDays(String(data.settings.haiti.settlementHoldDays))
@@ -49,7 +74,7 @@ export function PlatformSettingsForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // Validate first
     const haitiPlatformFeeNum = parseFloat(haitiPlatformFee)
     const haitiSettlementDaysNum = parseInt(haitiSettlementDays)
@@ -137,13 +162,13 @@ export function PlatformSettingsForm() {
   const calculatePreview = (region: 'haiti' | 'usCanada') => {
     const ticketPrice = 10000 // $100 in cents
     const feePercent = region === 'haiti' ? parseFloat(haitiPlatformFee) : parseFloat(usCanadaPlatformFee)
-    
+
     if (isNaN(feePercent)) return null
-    
+
     const platformFee = Math.round(ticketPrice * (feePercent / 100))
     const processingFee = Math.round(ticketPrice * 0.029) + 30 // Stripe fees
     const netAmount = ticketPrice - platformFee - processingFee
-    
+
     return {
       gross: (ticketPrice / 100).toFixed(2),
       platformFee: (platformFee / 100).toFixed(2),
@@ -166,13 +191,13 @@ export function PlatformSettingsForm() {
 
   if (loading) {
     return (
-      <div className="rounded-lg border border-white/10 p-4 sm:p-5">
+      <ConsolePanel className="max-w-2xl p-4 sm:p-5">
         <div className="animate-pulse space-y-4">
-          <div className="h-4 bg-white/10 rounded w-1/4"></div>
-          <div className="h-4 bg-white/10 rounded w-1/2"></div>
-          <div className="h-4 bg-white/10 rounded w-1/3"></div>
+          <div className="h-4 w-1/4 rounded bg-console-raise"></div>
+          <div className="h-4 w-1/2 rounded bg-console-raise"></div>
+          <div className="h-4 w-1/3 rounded bg-console-raise"></div>
         </div>
-      </div>
+      </ConsolePanel>
     )
   }
 
@@ -180,151 +205,120 @@ export function PlatformSettingsForm() {
     <>
       {/* Confirmation Modal */}
       {showConfirmModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0a0a0a] rounded-lg border border-white/10 max-w-md w-full p-6">
-            <div className="flex items-start gap-4">
-              <AlertTriangle className="w-6 h-6 text-amber-300 flex-shrink-0" />
-              <div className="flex-1">
-                <h3 className="text-base font-semibold text-white mb-2">
-                  Confirm Settings Update
-                </h3>
-                <p className="text-sm text-white/50 mb-4">
-                  These changes will affect all future transactions. Are you sure you want to update the platform settings?
-                </p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-md rounded-lg bg-console-panel p-6 shadow-xl">
+            <h3 className="label-mono text-[13px] font-bold uppercase tracking-[0.14em] text-console-text">
+              Confirm Settings Update
+            </h3>
+            <p className="mb-4 mt-2 text-sm text-console-mut">
+              These changes will affect all future transactions. Are you sure you want to update the platform settings?
+            </p>
 
-                {/* Show changes */}
-                <div className="rounded-lg border border-white/10 p-3 mb-4 text-xs space-y-2">
-                  {settings && parseFloat(haitiPlatformFee) !== settings.haiti.platformFeePercentage * 100 && (
-                    <div className="flex justify-between">
-                      <span className="text-white/50">Haiti Fee</span>
-                      <span className="font-semibold text-white">
-                        {(settings.haiti.platformFeePercentage * 100).toFixed(2)}% → {parseFloat(haitiPlatformFee).toFixed(2)}%
-                      </span>
-                    </div>
-                  )}
-                  {settings && parseInt(haitiSettlementDays) !== settings.haiti.settlementHoldDays && (
-                    <div className="flex justify-between">
-                      <span className="text-white/50">Haiti Settlement</span>
-                      <span className="font-semibold text-white">
-                        {settings.haiti.settlementHoldDays} days → {parseInt(haitiSettlementDays)} days
-                      </span>
-                    </div>
-                  )}
-                  {settings && parseFloat(usCanadaPlatformFee) !== settings.usCanada.platformFeePercentage * 100 && (
-                    <div className="flex justify-between">
-                      <span className="text-white/50">US/Canada Fee</span>
-                      <span className="font-semibold text-white">
-                        {(settings.usCanada.platformFeePercentage * 100).toFixed(2)}% → {parseFloat(usCanadaPlatformFee).toFixed(2)}%
-                      </span>
-                    </div>
-                  )}
-                  {settings && parseInt(usCanadaSettlementDays) !== settings.usCanada.settlementHoldDays && (
-                    <div className="flex justify-between">
-                      <span className="text-white/50">US/Canada Settlement</span>
-                      <span className="font-semibold text-white">
-                        {settings.usCanada.settlementHoldDays} days → {parseInt(usCanadaSettlementDays)} days
-                      </span>
-                    </div>
-                  )}
+            {/* Show changes */}
+            <div className="mb-4 space-y-2 rounded bg-console-ground p-3 text-xs">
+              {settings && parseFloat(haitiPlatformFee) !== settings.haiti.platformFeePercentage * 100 && (
+                <div className="flex justify-between">
+                  <span className="text-console-mut">Haiti Fee</span>
+                  <span className="font-mono font-semibold tabular-nums text-console-text">
+                    {(settings.haiti.platformFeePercentage * 100).toFixed(2)}% → {parseFloat(haitiPlatformFee).toFixed(2)}%
+                  </span>
                 </div>
+              )}
+              {settings && parseInt(haitiSettlementDays) !== settings.haiti.settlementHoldDays && (
+                <div className="flex justify-between">
+                  <span className="text-console-mut">Haiti Settlement</span>
+                  <span className="font-mono font-semibold tabular-nums text-console-text">
+                    {settings.haiti.settlementHoldDays} days → {parseInt(haitiSettlementDays)} days
+                  </span>
+                </div>
+              )}
+              {settings && parseFloat(usCanadaPlatformFee) !== settings.usCanada.platformFeePercentage * 100 && (
+                <div className="flex justify-between">
+                  <span className="text-console-mut">US/Canada Fee</span>
+                  <span className="font-mono font-semibold tabular-nums text-console-text">
+                    {(settings.usCanada.platformFeePercentage * 100).toFixed(2)}% → {parseFloat(usCanadaPlatformFee).toFixed(2)}%
+                  </span>
+                </div>
+              )}
+              {settings && parseInt(usCanadaSettlementDays) !== settings.usCanada.settlementHoldDays && (
+                <div className="flex justify-between">
+                  <span className="text-console-mut">US/Canada Settlement</span>
+                  <span className="font-mono font-semibold tabular-nums text-console-text">
+                    {settings.usCanada.settlementHoldDays} days → {parseInt(usCanadaSettlementDays)} days
+                  </span>
+                </div>
+              )}
+            </div>
 
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setShowConfirmModal(false)}
-                    className="flex-1 border border-white/15 text-white/80 hover:bg-white/[0.04] rounded-lg px-4 py-2.5 text-sm font-semibold"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={confirmSave}
-                    disabled={saving}
-                    className="flex-1 bg-brand-600 hover:bg-brand-700 text-white rounded-lg px-4 py-2.5 text-sm font-semibold disabled:opacity-50"
-                  >
-                    {saving ? 'Saving...' : 'Confirm'}
-                  </button>
-                </div>
-              </div>
+            <div className="flex justify-end gap-3">
+              <ConsoleButton type="button" variant="quiet" onClick={() => setShowConfirmModal(false)}>
+                Cancel
+              </ConsoleButton>
+              <ConsoleButton type="button" variant="primary" onClick={confirmSave} disabled={saving}>
+                {saving ? 'Saving...' : 'Confirm'}
+              </ConsoleButton>
             </div>
           </div>
         </div>
       )}
 
-      <div className="space-y-6">
+      <div className="max-w-2xl space-y-8">
         {/* Current settings — live summary strip */}
         {settings && (
           <div>
-            <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-white/10 bg-white/10 sm:grid-cols-3 lg:grid-cols-5">
-              <div className="bg-[#0a0a0a] p-4">
-                <p className="text-[11px] uppercase tracking-wide text-white/50">Haiti fee</p>
-                <p className="mt-1 text-2xl font-bold tabular-nums text-white">{(settings.haiti.platformFeePercentage * 100).toFixed(2)}%</p>
+            <div className="flex flex-wrap gap-x-8 gap-y-4">
+              <div>
+                <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Haiti fee</p>
+                <p className="mt-1 font-mono text-xl tabular-nums text-console-text">{(settings.haiti.platformFeePercentage * 100).toFixed(2)}%</p>
               </div>
-              <div className="bg-[#0a0a0a] p-4">
-                <p className="text-[11px] uppercase tracking-wide text-white/50">Haiti hold</p>
-                <p className="mt-1 text-2xl font-bold tabular-nums text-white">{settings.haiti.settlementHoldDays}<span className="text-base font-medium text-white/50"> days</span></p>
+              <div>
+                <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Haiti hold</p>
+                <p className="mt-1 font-mono text-xl tabular-nums text-console-text">{settings.haiti.settlementHoldDays}<span className="text-sm text-console-mut"> days</span></p>
               </div>
-              <div className="bg-[#0a0a0a] p-4">
-                <p className="text-[11px] uppercase tracking-wide text-white/50">US/CA fee</p>
-                <p className="mt-1 text-2xl font-bold tabular-nums text-white">{(settings.usCanada.platformFeePercentage * 100).toFixed(2)}%</p>
+              <div>
+                <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">US/CA fee</p>
+                <p className="mt-1 font-mono text-xl tabular-nums text-console-text">{(settings.usCanada.platformFeePercentage * 100).toFixed(2)}%</p>
               </div>
-              <div className="bg-[#0a0a0a] p-4">
-                <p className="text-[11px] uppercase tracking-wide text-white/50">US/CA hold</p>
-                <p className="mt-1 text-2xl font-bold tabular-nums text-white">{settings.usCanada.settlementHoldDays}<span className="text-base font-medium text-white/50"> days</span></p>
+              <div>
+                <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">US/CA hold</p>
+                <p className="mt-1 font-mono text-xl tabular-nums text-console-text">{settings.usCanada.settlementHoldDays}<span className="text-sm text-console-mut"> days</span></p>
               </div>
-              <div className="bg-[#0a0a0a] p-4">
-                <p className="text-[11px] uppercase tracking-wide text-white/50">Min payout</p>
-                <p className="mt-1 text-2xl font-bold tabular-nums text-white">${(settings.minimumPayoutAmount / 100).toFixed(2)}</p>
+              <div>
+                <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Min payout</p>
+                <p className="mt-1 font-mono text-xl tabular-nums text-console-text">${(settings.minimumPayoutAmount / 100).toFixed(2)}</p>
               </div>
             </div>
             {settings.updatedBy && (
-              <p className="mt-2 flex items-center gap-1.5 text-xs text-white/40">
+              <p className="mt-3 flex items-center gap-1.5 text-xs text-console-faint">
                 <Clock className="h-3.5 w-3.5" /> Last updated by {settings.updatedBy}
               </p>
             )}
           </div>
         )}
 
-        {/* Info Banner */}
-        <div className="flex gap-3 rounded-xl border border-white/10 p-4">
-          <Info className="mt-0.5 h-5 w-5 flex-shrink-0 text-white/40" />
-          <p className="text-sm text-white/55">
-            These settings apply to all future transactions. Changes take effect immediately and are applied to new ticket sales and earnings calculations.
-          </p>
-        </div>
+        {/* Info note */}
+        <p className="text-[13px] text-console-mut">
+          These settings apply to all future transactions. Changes take effect immediately and are applied to new ticket sales and earnings calculations.
+        </p>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-8">
           {/* Message Banner */}
           {message && (
-            <div
-              className={`rounded-lg p-4 text-sm ${
-                message.type === 'success'
-                  ? 'border border-emerald-500/30 text-emerald-300'
-                  : 'border border-red-500/30 text-red-300'
-              }`}
+            <ConsolePanel
+              className={`p-4 text-sm ${message.type === 'success' ? 'text-console-green' : 'text-console-red'}`}
             >
               {message.text}
-            </div>
+            </ConsolePanel>
           )}
 
-          {/* Region editors — side by side */}
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-
           {/* Haiti Settings Section */}
-          <section className="rounded-xl border border-white/10 p-4 sm:p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-xl leading-none">🇭🇹</span>
+          <section>
+            <SectionLabel sub="Settings for events in Haiti">Haiti Events</SectionLabel>
+            <ConsolePanel className="space-y-4 p-4 sm:p-5">
               <div>
-                <h2 className="text-sm font-semibold text-white">Haiti Events</h2>
-                <p className="text-xs text-white/50">Settings for events in Haiti</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="haitiPlatformFee" className="block text-sm font-medium text-white/70 mb-1.5">
-                  Platform Fee (%)
-                </label>
+                <FieldLabel htmlFor="haitiPlatformFee">Platform Fee (%)</FieldLabel>
                 <div className="relative">
-                  <input
+                  <ConsoleInput
                     type="number"
                     id="haitiPlatformFee"
                     value={haitiPlatformFee}
@@ -332,80 +326,68 @@ export function PlatformSettingsForm() {
                     step="0.01"
                     min="0"
                     max="100"
-                    className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2.5 pr-8 text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+                    className="pr-8"
                     required
                   />
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <span className="text-white/50 text-sm">%</span>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                    <span className="text-sm text-console-faint">%</span>
                   </div>
                 </div>
-                <p className="mt-1.5 text-xs text-white/50">
+                <p className="mt-1.5 text-xs text-console-faint">
                   Commission taken from each sale
                 </p>
               </div>
 
               <div>
-                <label htmlFor="haitiSettlementDays" className="block text-sm font-medium text-white/70 mb-1.5">
-                  Settlement Hold Days
-                </label>
-                <input
+                <FieldLabel htmlFor="haitiSettlementDays">Settlement Hold Days</FieldLabel>
+                <ConsoleInput
                   type="number"
                   id="haitiSettlementDays"
                   value={haitiSettlementDays}
                   onChange={(e) => setHaitiSettlementDays(e.target.value)}
                   min="0"
-                  className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2.5 text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
                   required
                 />
-                <p className="mt-1.5 text-xs text-white/50">
+                <p className="mt-1.5 text-xs text-console-faint">
                   Days before funds can be withdrawn
                 </p>
               </div>
-            </div>
 
-            {/* Haiti Preview */}
-            {haitiPreview && (
-              <div className="mt-4 rounded-lg border border-white/10 p-3">
-                <p className="text-xs text-white/50 mb-2">Example: $100 ticket sale</p>
-                <div className="space-y-1.5 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-white/50">Ticket Price</span>
-                    <span className="font-semibold text-white">${haitiPreview.gross}</span>
-                  </div>
-                  <div className="flex justify-between text-red-300">
-                    <span>Platform Fee</span>
-                    <span>-${haitiPreview.platformFee}</span>
-                  </div>
-                  <div className="flex justify-between text-red-300">
-                    <span>Processing Fee</span>
-                    <span>-${haitiPreview.processingFee}</span>
-                  </div>
-                  <div className="border-t border-white/10 pt-1.5 flex justify-between font-semibold text-emerald-300">
-                    <span>Organizer Earns</span>
-                    <span>${haitiPreview.net} ({haitiPreview.netPercent}%)</span>
+              {/* Haiti Preview */}
+              {haitiPreview && (
+                <div className="rounded bg-console-ground p-3">
+                  <p className="label-mono mb-2 text-[10px] uppercase tracking-[0.18em] text-console-faint">Example: $100 ticket sale</p>
+                  <div className="space-y-1.5 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-console-mut">Ticket Price</span>
+                      <span className="font-mono font-semibold tabular-nums text-console-text">${haitiPreview.gross}</span>
+                    </div>
+                    <div className="flex justify-between text-console-red">
+                      <span>Platform Fee</span>
+                      <span className="font-mono tabular-nums">-${haitiPreview.platformFee}</span>
+                    </div>
+                    <div className="flex justify-between text-console-red">
+                      <span>Processing Fee</span>
+                      <span className="font-mono tabular-nums">-${haitiPreview.processingFee}</span>
+                    </div>
+                    <div className="flex justify-between font-semibold text-console-green">
+                      <span>Organizer Earns</span>
+                      <span className="font-mono tabular-nums">${haitiPreview.net} ({haitiPreview.netPercent}%)</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </ConsolePanel>
           </section>
 
           {/* US/Canada Settings Section */}
-          <section className="rounded-xl border border-white/10 p-4 sm:p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-xl leading-none">🇺🇸🇨🇦</span>
+          <section>
+            <SectionLabel sub="Settings for events in United States or Canada">US &amp; Canada Events</SectionLabel>
+            <ConsolePanel className="space-y-4 p-4 sm:p-5">
               <div>
-                <h2 className="text-sm font-semibold text-white">US &amp; Canada Events</h2>
-                <p className="text-xs text-white/50">Settings for events in United States or Canada</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="usCanadaPlatformFee" className="block text-sm font-medium text-white/70 mb-1.5">
-                  Platform Fee (%)
-                </label>
+                <FieldLabel htmlFor="usCanadaPlatformFee">Platform Fee (%)</FieldLabel>
                 <div className="relative">
-                  <input
+                  <ConsoleInput
                     type="number"
                     id="usCanadaPlatformFee"
                     value={usCanadaPlatformFee}
@@ -413,120 +395,102 @@ export function PlatformSettingsForm() {
                     step="0.01"
                     min="0"
                     max="100"
-                    className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2.5 pr-8 text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+                    className="pr-8"
                     required
                   />
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <span className="text-white/50 text-sm">%</span>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                    <span className="text-sm text-console-faint">%</span>
                   </div>
                 </div>
-                <p className="mt-1.5 text-xs text-white/50">
+                <p className="mt-1.5 text-xs text-console-faint">
                   Commission taken from each sale
                 </p>
               </div>
 
               <div>
-                <label htmlFor="usCanadaSettlementDays" className="block text-sm font-medium text-white/70 mb-1.5">
-                  Settlement Hold Days
-                </label>
-                <input
+                <FieldLabel htmlFor="usCanadaSettlementDays">Settlement Hold Days</FieldLabel>
+                <ConsoleInput
                   type="number"
                   id="usCanadaSettlementDays"
                   value={usCanadaSettlementDays}
                   onChange={(e) => setUsCanadaSettlementDays(e.target.value)}
                   min="0"
-                  className="w-full rounded-lg border border-white/10 bg-transparent px-3 py-2.5 text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
                   required
                 />
-                <p className="mt-1.5 text-xs text-white/50">
+                <p className="mt-1.5 text-xs text-console-faint">
                   Days before funds can be withdrawn
                 </p>
               </div>
-            </div>
 
-            {/* US/Canada Preview */}
-            {usCanadaPreview && (
-              <div className="mt-4 rounded-lg border border-white/10 p-3">
-                <p className="text-xs text-white/50 mb-2">Example: $100 ticket sale</p>
-                <div className="space-y-1.5 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-white/50">Ticket Price</span>
-                    <span className="font-semibold text-white">${usCanadaPreview.gross}</span>
-                  </div>
-                  <div className="flex justify-between text-red-300">
-                    <span>Platform Fee</span>
-                    <span>-${usCanadaPreview.platformFee}</span>
-                  </div>
-                  <div className="flex justify-between text-red-300">
-                    <span>Processing Fee</span>
-                    <span>-${usCanadaPreview.processingFee}</span>
-                  </div>
-                  <div className="border-t border-white/10 pt-1.5 flex justify-between font-semibold text-emerald-300">
-                    <span>Organizer Earns</span>
-                    <span>${usCanadaPreview.net} ({usCanadaPreview.netPercent}%)</span>
+              {/* US/Canada Preview */}
+              {usCanadaPreview && (
+                <div className="rounded bg-console-ground p-3">
+                  <p className="label-mono mb-2 text-[10px] uppercase tracking-[0.18em] text-console-faint">Example: $100 ticket sale</p>
+                  <div className="space-y-1.5 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-console-mut">Ticket Price</span>
+                      <span className="font-mono font-semibold tabular-nums text-console-text">${usCanadaPreview.gross}</span>
+                    </div>
+                    <div className="flex justify-between text-console-red">
+                      <span>Platform Fee</span>
+                      <span className="font-mono tabular-nums">-${usCanadaPreview.platformFee}</span>
+                    </div>
+                    <div className="flex justify-between text-console-red">
+                      <span>Processing Fee</span>
+                      <span className="font-mono tabular-nums">-${usCanadaPreview.processingFee}</span>
+                    </div>
+                    <div className="flex justify-between font-semibold text-console-green">
+                      <span>Organizer Earns</span>
+                      <span className="font-mono tabular-nums">${usCanadaPreview.net} ({usCanadaPreview.netPercent}%)</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </ConsolePanel>
           </section>
 
-          </div>
-
           {/* Global Settings Section */}
-          <section className="rounded-xl border border-white/10 p-4 sm:p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-xl leading-none">🌍</span>
+          <section>
+            <SectionLabel sub="Settings that apply to all events">Global Settings</SectionLabel>
+            <ConsolePanel className="p-4 sm:p-5">
               <div>
-                <h2 className="text-sm font-semibold text-white">Global Settings</h2>
-                <p className="text-xs text-white/50">Settings that apply to all events</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="minimumPayout" className="block text-sm font-medium text-white/70 mb-1.5">
-                  Minimum Payout Amount
-                </label>
+                <FieldLabel htmlFor="minimumPayout">Minimum Payout Amount</FieldLabel>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="text-white/50 text-sm">$</span>
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <span className="text-sm text-console-faint">$</span>
                   </div>
-                  <input
+                  <ConsoleInput
                     type="number"
                     id="minimumPayout"
                     value={minimumPayout}
                     onChange={(e) => setMinimumPayout(e.target.value)}
                     step="0.01"
                     min="0"
-                    className="w-full rounded-lg border border-white/10 bg-transparent pl-7 pr-3 py-2.5 text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+                    className="pl-7 pr-3"
                     required
                   />
                 </div>
-                <p className="mt-1.5 text-xs text-white/50">
+                <p className="mt-1.5 text-xs text-console-faint">
                   Minimum required for withdrawal (USD)
                 </p>
               </div>
-            </div>
+            </ConsolePanel>
           </section>
 
           {/* Sticky Save Bar */}
-          <div className="sticky bottom-4 z-10 flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-[#0a0a0a]/90 px-4 py-3 backdrop-blur">
+          <div className="sticky bottom-4 z-10 flex items-center justify-between gap-4 rounded-lg bg-console-raise px-4 py-3">
             <p className="text-sm">
               {hasChanges ? (
-                <span className="font-medium text-amber-300">● Unsaved changes</span>
+                <span className="font-medium text-console-amber">● Unsaved changes</span>
               ) : (
-                <span className="text-white/50">All changes saved</span>
+                <span className="text-console-mut">All changes saved</span>
               )}
             </p>
-            <button
-              type="submit"
-              disabled={saving || !hasChanges}
-              className="inline-flex items-center bg-brand-600 hover:bg-brand-700 text-white rounded-lg px-5 py-2.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <ConsoleButton type="submit" variant="primary" disabled={saving || !hasChanges} className="inline-flex items-center">
               {saving ? (
                 <>
                   <svg
-                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    className="animate-spin -ml-1 mr-2 h-4 w-4"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -550,11 +514,10 @@ export function PlatformSettingsForm() {
               ) : (
                 'Save Settings'
               )}
-            </button>
+            </ConsoleButton>
           </div>
         </form>
       </div>
     </>
   )
 }
-

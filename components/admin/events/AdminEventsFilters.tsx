@@ -2,6 +2,7 @@
 
 import { X, MapPin, Tag, ArrowUpDown } from 'lucide-react'
 import { useState } from 'react'
+import { ConsoleButton } from '@/components/admin/console'
 
 interface FilterOptions {
   city: string
@@ -39,20 +40,25 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
   }
 
   const inputClass =
-    'w-full px-3 py-2 rounded-lg border border-white/10 bg-white/[0.03] text-sm text-white placeholder:text-white/45 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25'
+    'w-full px-3 py-2 rounded bg-console-ground text-sm text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 focus:ring-console-mut'
+
+  const sectionLabelClass =
+    'label-mono flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-console-faint mb-3'
 
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/60 z-40" onClick={onClose} />
 
       {/* Sheet */}
-      <div className="fixed inset-y-0 right-0 w-full sm:w-96 bg-[#0a0a0a] shadow-xl z-50 flex flex-col">
+      <div className="fixed inset-y-0 right-0 w-full sm:w-96 bg-console-panel shadow-xl z-50 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/10">
-          <h3 className="text-lg font-bold text-white">Filters</h3>
-          <button onClick={onClose} aria-label="Close filters" className="p-2 hover:bg-white/[0.04] rounded-lg">
-            <X className="w-5 h-5 text-white/60" />
+        <div className="flex items-center justify-between p-4">
+          <h3 className="label-mono text-[13px] font-bold uppercase tracking-[0.14em] text-console-text">
+            Filters
+          </h3>
+          <button onClick={onClose} aria-label="Close filters" className="p-2 hover:bg-console-raise rounded">
+            <X className="w-5 h-5 text-console-mut" />
           </button>
         </div>
 
@@ -60,8 +66,8 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
         <div className="flex-1 overflow-y-auto p-4 space-y-6">
           {/* City */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-white/70 mb-3">
-              <MapPin className="w-4 h-4" />
+            <label className={sectionLabelClass}>
+              <MapPin className="w-3.5 h-3.5" />
               City
             </label>
             <select
@@ -80,8 +86,8 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
 
           {/* Category */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-white/70 mb-3">
-              <Tag className="w-4 h-4" />
+            <label className={sectionLabelClass}>
+              <Tag className="w-3.5 h-3.5" />
               Category
             </label>
             <select
@@ -102,8 +108,8 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
 
           {/* Sort By */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-white/70 mb-3">
-              <ArrowUpDown className="w-4 h-4" />
+            <label className={sectionLabelClass}>
+              <ArrowUpDown className="w-3.5 h-3.5" />
               Sort By
             </label>
             <div className="space-y-2">
@@ -118,9 +124,9 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
                     value={sort.value}
                     checked={localFilters.sortBy === sort.value}
                     onChange={(e) => setLocalFilters({ ...localFilters, sortBy: e.target.value as FilterOptions['sortBy'] })}
-                    className="w-4 h-4 text-brand-300 focus:ring-brand-500"
+                    className="w-4 h-4 accent-console-text focus:ring-console-mut"
                   />
-                  <span className="text-sm text-white/70">{sort.label}</span>
+                  <span className="text-sm text-console-mut">{sort.label}</span>
                 </label>
               ))}
             </div>
@@ -128,19 +134,13 @@ export function AdminEventsFilters({ isOpen, onClose, filters, onApply }: AdminE
         </div>
 
         {/* Footer */}
-        <div className="flex items-center gap-3 p-4 border-t border-white/10">
-          <button
-            onClick={handleReset}
-            className="flex-1 px-4 py-2.5 border border-white/10 text-white/70 rounded-lg hover:bg-white/[0.04] hover:text-white font-medium text-sm"
-          >
+        <div className="flex items-center gap-3 p-4">
+          <ConsoleButton onClick={handleReset} className="flex-1">
             Reset
-          </button>
-          <button
-            onClick={handleApply}
-            className="flex-1 px-4 py-2.5 bg-brand-600 text-white rounded-lg hover:bg-brand-700 font-medium text-sm"
-          >
+          </ConsoleButton>
+          <ConsoleButton variant="primary" onClick={handleApply} className="flex-1">
             Apply Filters
-          </button>
+          </ConsoleButton>
         </div>
       </div>
     </>

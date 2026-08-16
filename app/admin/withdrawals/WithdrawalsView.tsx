@@ -2,9 +2,15 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { formatCurrency } from '@/lib/fees'
-import { StatusChip } from '@/components/ui/kit'
-import { EditorialHeader } from '@/components/ui/EditorialHeader'
-import { formatAge, ageClass } from '@/lib/admin/age'
+import { formatAge } from '@/lib/admin/age'
+import {
+  ConsoleButton,
+  ConsolePanel,
+  ConsoleState,
+  consoleAgeClass,
+  consoleTone,
+  useConsoleNow,
+} from '@/components/admin/console'
 import { useConfirm } from '@/components/ui/ConfirmProvider'
 import { useToast } from '@/components/ui/Toast'
 
@@ -65,6 +71,7 @@ interface WithdrawalsViewProps {
 export default function WithdrawalsView({ embedded = false, showHeader = true }: WithdrawalsViewProps) {
   const confirmDialog = useConfirm()
   const { showToast } = useToast()
+  const now = useConsoleNow()
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -147,7 +154,11 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
 
   const getStatusBadge = (status: string) => {
     if (!['completed', 'processing', 'pending', 'failed'].includes(status)) return null
-    return <StatusChip status={status} />
+    return (
+      <ConsoleState tone={consoleTone(status)}>
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </ConsoleState>
+    )
   }
 
   const getMethodIcon = (method: string) => {
@@ -161,27 +172,28 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
   return (
     <div className={containerClassName}>
       {showHeader && (
-        <EditorialHeader
-          className="mb-5"
-          title="Withdrawals"
-          subtitle="Review and process organizer withdrawal requests"
-        />
+        <header className="mb-5">
+          <h1 className="label-mono text-[15px] font-bold uppercase tracking-[0.14em] text-console-text">
+            Withdrawals
+          </h1>
+          <p className="mt-1 text-[13px] text-console-mut">Review and process organizer withdrawal requests</p>
+        </header>
       )}
 
       {/* Filter Tabs */}
-      <div className="mb-6 flex flex-wrap gap-2">
+      <div className="mb-6 flex flex-wrap gap-x-5 gap-y-2">
         {['pending', 'processing', 'completed', 'failed', 'all'].map((tab) => (
           <button
             key={tab}
             onClick={() => setFilter(tab as any)}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            className={`label-mono border-b-2 pb-1.5 text-[11px] uppercase tracking-[0.14em] transition-colors ${
               filter === tab
-                ? 'bg-brand-600 text-white'
-                : 'border border-white/10 text-white/60 hover:bg-white/[0.04]'
+                ? 'border-console-text text-console-text'
+                : 'border-transparent text-console-mut hover:text-console-text'
             }`}
           >
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            <span className="ml-2 text-xs">
+            <span className="ml-2 tabular-nums">
               ({tab === 'all' ? withdrawals.length : withdrawals.filter(w => w.status === tab).length})
             </span>
           </button>
@@ -190,86 +202,86 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
 
       {/* Withdrawals List */}
       {loading ? (
-        <div className="rounded-xl border border-white/10 p-12 text-center">
-          <div className="text-white/50 mb-2">Loading...</div>
-        </div>
+        <ConsolePanel className="p-12 text-center">
+          <div className="text-console-mut">Loading...</div>
+        </ConsolePanel>
       ) : loadError ? (
-        <div className="rounded-xl border border-white/10 bg-white/[0.02] p-12 text-center">
-          <p className="mb-4 text-sm text-red-300">{loadError}</p>
-          <button
-            onClick={() => void fetchWithdrawals()}
-            className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/[0.04] hover:text-white"
-          >
+        <ConsolePanel className="p-12 text-center">
+          <p className="mb-4 text-sm text-console-red">{loadError}</p>
+          <ConsoleButton onClick={() => void fetchWithdrawals()}>
             Retry
-          </button>
-        </div>
+          </ConsoleButton>
+        </ConsolePanel>
       ) : visibleWithdrawals.length === 0 ? (
-        <div className="rounded-xl border border-white/10 p-12 text-center">
-          <span className="text-6xl mb-4 block">📭</span>
-          <h3 className="font-display text-xl text-white mb-2">No Withdrawals</h3>
-          <p className="text-white/60">No {filter !== 'all' ? filter : ''} withdrawal requests found</p>
-        </div>
+        <ConsolePanel className="p-12 text-center">
+          <p className="label-mono text-[12px] uppercase tracking-[0.14em] text-console-mut">No Withdrawals</p>
+          <p className="mt-1 text-[13px] text-console-faint">No {filter !== 'all' ? filter : ''} withdrawal requests found</p>
+        </ConsolePanel>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-white/10">
+        <ConsolePanel className="overflow-hidden">
           {/* Desktop Table */}
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
-              <thead className="border-b border-white/10">
+              <thead className="border-b border-console-ground">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-white/50 uppercase">Organizer</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-white/50 uppercase">Event</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-white/50 uppercase">Amount</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-white/50 uppercase">Method</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-white/50 uppercase">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-white/50 uppercase">Date</th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-white/50 uppercase">Waiting</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-white/50 uppercase">Actions</th>
+                  <th className="label-mono px-4 py-3 text-left text-[10px] uppercase tracking-[0.14em] text-console-faint">Organizer</th>
+                  <th className="label-mono px-4 py-3 text-left text-[10px] uppercase tracking-[0.14em] text-console-faint">Event</th>
+                  <th className="label-mono px-4 py-3 text-left text-[10px] uppercase tracking-[0.14em] text-console-faint">Amount</th>
+                  <th className="label-mono px-4 py-3 text-left text-[10px] uppercase tracking-[0.14em] text-console-faint">Method</th>
+                  <th className="label-mono px-4 py-3 text-left text-[10px] uppercase tracking-[0.14em] text-console-faint">Status</th>
+                  <th className="label-mono px-4 py-3 text-left text-[10px] uppercase tracking-[0.14em] text-console-faint">Date</th>
+                  <th className="label-mono px-4 py-3 text-right text-[10px] uppercase tracking-[0.14em] text-console-faint">Waiting</th>
+                  <th className="label-mono px-4 py-3 text-left text-[10px] uppercase tracking-[0.14em] text-console-faint">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/10">
+              <tbody className="divide-y divide-console-ground">
                 {visibleWithdrawals.map((withdrawal) => (
-                  <tr key={withdrawal.id} className="hover:bg-white/[0.04]">
+                  <tr key={withdrawal.id} className="hover:bg-console-raise">
                     <td className="px-4 py-4">
                       <div>
-                        <div className="font-medium text-white">{withdrawal.organizer?.name || 'Unknown'}</div>
-                        <div className="text-sm text-white/50">{withdrawal.organizer?.email}</div>
+                        <div className="font-medium text-console-text">{withdrawal.organizer?.name || 'Unknown'}</div>
+                        <div className="text-sm text-console-mut">{withdrawal.organizer?.email}</div>
                       </div>
                     </td>
                     <td className="px-4 py-4">
-                      <div className="font-medium text-white">{withdrawal.event?.title || 'Unknown Event'}</div>
-                      <div className="font-mono text-sm tabular-nums text-white/50">
+                      <div className="font-medium text-console-text">{withdrawal.event?.title || 'Unknown Event'}</div>
+                      <div className="font-mono text-sm tabular-nums text-console-mut">
                         {withdrawal.event?.date ? new Date(withdrawal.event.date).toLocaleDateString() : 'N/A'}
                       </div>
                     </td>
                     <td className="px-4 py-4">
-                      <div className="font-mono font-bold tabular-nums text-white">{formatCurrency(withdrawal.amount)}</div>
+                      <div className="font-mono font-bold tabular-nums text-console-text">{formatCurrency(withdrawal.amount)}</div>
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
                         <span>{getMethodIcon(withdrawal.method)}</span>
-                        <span className="text-sm font-medium text-white/70">
+                        <span className="text-sm font-medium text-console-mut">
                           {withdrawal.method === 'moncash' ? 'MonCash' : 'Bank'}
                         </span>
                       </div>
                     </td>
                     <td className="px-4 py-4">{getStatusBadge(withdrawal.status)}</td>
                     <td className="px-4 py-4">
-                      <div className="font-mono text-sm tabular-nums text-white/60">
+                      <div className="font-mono text-sm tabular-nums text-console-mut">
                         {new Date(withdrawal.createdAt).toLocaleDateString()}
                       </div>
-                      <div className="font-mono text-xs tabular-nums text-white/50">
+                      <div className="font-mono text-xs tabular-nums text-console-faint">
                         {new Date(withdrawal.createdAt).toLocaleTimeString()}
                       </div>
                     </td>
                     <td className="px-4 py-4 text-right">
-                      <span className={`label-mono text-[13px] tabular-nums ${ageClass(requestedTimestamp(withdrawal))}`}>
-                        {formatAge(requestedTimestamp(withdrawal))}
+                      <span
+                        className={`label-mono text-[13px] tabular-nums ${
+                          now ? consoleAgeClass(requestedTimestamp(withdrawal), now) : 'text-console-faint'
+                        }`}
+                      >
+                        {now ? formatAge(requestedTimestamp(withdrawal), now) : '·'}
                       </span>
                     </td>
                     <td className="px-4 py-4">
                       <button
                         onClick={() => setSelectedWithdrawal(withdrawal)}
-                        className="text-brand-300 hover:text-brand-200 font-medium text-sm"
+                        className="text-sm font-medium text-console-mut hover:text-console-text"
                       >
                         View Details →
                       </button>
@@ -281,47 +293,49 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
           </div>
 
           {/* Mobile Cards */}
-          <div className="md:hidden divide-y divide-white/10">
+          <div className="md:hidden divide-y divide-console-ground">
             {visibleWithdrawals.map((withdrawal) => (
               <div
                 key={withdrawal.id}
-                className="p-4 hover:bg-white/[0.04] cursor-pointer"
+                className="p-4 hover:bg-console-raise cursor-pointer"
                 onClick={() => setSelectedWithdrawal(withdrawal)}
               >
                 <div className="flex justify-between items-start mb-2">
                   <div>
-                    <div className="font-medium text-white">{withdrawal.organizer?.name || 'Unknown'}</div>
-                    <div className="text-sm text-white/50">{withdrawal.event?.title}</div>
+                    <div className="font-medium text-console-text">{withdrawal.organizer?.name || 'Unknown'}</div>
+                    <div className="text-sm text-console-mut">{withdrawal.event?.title}</div>
                   </div>
                   {getStatusBadge(withdrawal.status)}
                 </div>
                 <div className="flex justify-between items-center">
-                  <div className="font-mono font-bold tabular-nums text-white">{formatCurrency(withdrawal.amount)}</div>
-                  <div className="text-sm text-white/50">
+                  <div className="font-mono font-bold tabular-nums text-console-text">{formatCurrency(withdrawal.amount)}</div>
+                  <div className="text-sm text-console-mut">
                     {getMethodIcon(withdrawal.method)} {withdrawal.method === 'moncash' ? 'MonCash' : 'Bank'}
                   </div>
                 </div>
-                <div className="font-mono text-xs tabular-nums text-white/50 mt-2">
+                <div className="font-mono text-xs tabular-nums text-console-faint mt-2">
                   {new Date(withdrawal.createdAt).toLocaleDateString()}
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </ConsolePanel>
       )}
 
       {/* Detail Modal */}
       {selectedWithdrawal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-[#0a0a0a] border border-white/10 shadow-xl rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+          <div className="bg-console-panel shadow-xl rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
             <div className="flex justify-between items-start mb-6">
-              <h2 className="font-display text-2xl text-white">Withdrawal Details</h2>
+              <h2 className="label-mono text-[15px] font-bold uppercase tracking-[0.14em] text-console-text">
+                Withdrawal Details
+              </h2>
               <button
                 onClick={() => {
                   setSelectedWithdrawal(null)
                   setActionNote('')
                 }}
-                className="text-white/50 hover:text-white/60 text-2xl"
+                className="text-console-mut hover:text-console-text text-2xl"
               >
                 ×
               </button>
@@ -329,42 +343,42 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
 
             {/* Status & Amount */}
             <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="rounded-lg border border-white/10 p-4">
-                <div className="text-sm text-white/60 mb-1">Status</div>
+              <div className="rounded-lg bg-console-ground p-4">
+                <div className="text-sm text-console-mut mb-1">Status</div>
                 <div>{getStatusBadge(selectedWithdrawal.status)}</div>
               </div>
-              <div className="rounded-lg border border-white/10 p-4">
-                <div className="label-mono text-sm text-white/60 mb-1">Amount</div>
-                <div className="font-mono text-2xl font-bold tabular-nums text-white">{formatCurrency(selectedWithdrawal.amount)}</div>
+              <div className="rounded-lg bg-console-ground p-4">
+                <div className="label-mono text-sm text-console-mut mb-1">Amount</div>
+                <div className="font-mono text-2xl font-bold tabular-nums text-console-text">{formatCurrency(selectedWithdrawal.amount)}</div>
               </div>
             </div>
 
             {/* Organizer Info */}
             <div className="mb-6">
-              <h3 className="font-bold text-white mb-3">👤 Organizer</h3>
-              <div className="rounded-lg border border-white/10 p-4 space-y-2">
+              <h3 className="label-mono mb-3 text-[10px] uppercase tracking-[0.18em] text-console-faint">Organizer</h3>
+              <div className="rounded-lg bg-console-ground p-4 space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-white/60">Name:</span>
-                  <span className="font-medium text-white">{selectedWithdrawal.organizer?.name}</span>
+                  <span className="text-console-mut">Name:</span>
+                  <span className="font-medium text-console-text">{selectedWithdrawal.organizer?.name}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/60">Email:</span>
-                  <span className="font-medium text-white">{selectedWithdrawal.organizer?.email}</span>
+                  <span className="text-console-mut">Email:</span>
+                  <span className="font-medium text-console-text">{selectedWithdrawal.organizer?.email}</span>
                 </div>
               </div>
             </div>
 
             {/* Event Info */}
             <div className="mb-6">
-              <h3 className="font-bold text-white mb-3">📅 Event</h3>
-              <div className="rounded-lg border border-white/10 p-4 space-y-2">
+              <h3 className="label-mono mb-3 text-[10px] uppercase tracking-[0.18em] text-console-faint">Event</h3>
+              <div className="rounded-lg bg-console-ground p-4 space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-white/60">Title:</span>
-                  <span className="font-medium text-white">{selectedWithdrawal.event?.title}</span>
+                  <span className="text-console-mut">Title:</span>
+                  <span className="font-medium text-console-text">{selectedWithdrawal.event?.title}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/60">Date:</span>
-                  <span className="font-mono font-medium tabular-nums text-white">
+                  <span className="text-console-mut">Date:</span>
+                  <span className="font-mono font-medium tabular-nums text-console-text">
                     {selectedWithdrawal.event?.date ? new Date(selectedWithdrawal.event.date).toLocaleDateString() : 'N/A'}
                   </span>
                 </div>
@@ -373,46 +387,46 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
 
             {/* Payment Details */}
             <div className="mb-6">
-              <h3 className="font-bold text-white mb-3">
-                {getMethodIcon(selectedWithdrawal.method)} Payment Method
+              <h3 className="label-mono mb-3 text-[10px] uppercase tracking-[0.18em] text-console-faint">
+                Payment Method
               </h3>
-              <div className="rounded-lg border border-white/10 p-4 space-y-2">
+              <div className="rounded-lg bg-console-ground p-4 space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-white/60">Method:</span>
-                  <span className="font-medium text-white">
+                  <span className="text-console-mut">Method:</span>
+                  <span className="font-medium text-console-text">
                     {selectedWithdrawal.method === 'moncash' ? 'MonCash' : 'Bank Transfer'}
                   </span>
                 </div>
                 {selectedWithdrawal.method === 'moncash' && selectedWithdrawal.moncashNumber && (
                   <div className="flex justify-between">
-                    <span className="text-white/60">Phone:</span>
-                    <span className="font-mono font-medium tabular-nums text-white">{selectedWithdrawal.moncashNumber}</span>
+                    <span className="text-console-mut">Phone:</span>
+                    <span className="font-mono font-medium tabular-nums text-console-text">{selectedWithdrawal.moncashNumber}</span>
                   </div>
                 )}
                 {selectedWithdrawal.method === 'bank' && selectedWithdrawal.bankDetails && (
                   <>
                     <div className="flex justify-between">
-                      <span className="text-white/60">Account Holder:</span>
-                      <span className="font-medium text-white">{selectedWithdrawal.bankDetails.accountHolder}</span>
+                      <span className="text-console-mut">Account Holder:</span>
+                      <span className="font-medium text-console-text">{selectedWithdrawal.bankDetails.accountHolder}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-white/60">Bank:</span>
-                      <span className="font-medium text-white">{selectedWithdrawal.bankDetails.bankName}</span>
+                      <span className="text-console-mut">Bank:</span>
+                      <span className="font-medium text-console-text">{selectedWithdrawal.bankDetails.bankName}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-white/60">Account #:</span>
-                      <span className="font-mono font-medium tabular-nums text-white">{selectedWithdrawal.bankDetails.accountNumber}</span>
+                      <span className="text-console-mut">Account #:</span>
+                      <span className="font-mono font-medium tabular-nums text-console-text">{selectedWithdrawal.bankDetails.accountNumber}</span>
                     </div>
                     {selectedWithdrawal.bankDetails.routingNumber && (
                       <div className="flex justify-between">
-                        <span className="text-white/60">Routing:</span>
-                        <span className="font-mono font-medium tabular-nums text-white">{selectedWithdrawal.bankDetails.routingNumber}</span>
+                        <span className="text-console-mut">Routing:</span>
+                        <span className="font-mono font-medium tabular-nums text-console-text">{selectedWithdrawal.bankDetails.routingNumber}</span>
                       </div>
                     )}
                     {selectedWithdrawal.bankDetails.swiftCode && (
                       <div className="flex justify-between">
-                        <span className="text-white/60">SWIFT:</span>
-                        <span className="font-mono font-medium tabular-nums text-white">{selectedWithdrawal.bankDetails.swiftCode}</span>
+                        <span className="text-console-mut">SWIFT:</span>
+                        <span className="font-mono font-medium tabular-nums text-console-text">{selectedWithdrawal.bankDetails.swiftCode}</span>
                       </div>
                     )}
                   </>
@@ -422,26 +436,26 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
 
             {/* Timestamps */}
             <div className="mb-6">
-              <h3 className="font-bold text-white mb-3">🕐 Timeline</h3>
-              <div className="rounded-lg border border-white/10 p-4 space-y-2 text-sm">
+              <h3 className="label-mono mb-3 text-[10px] uppercase tracking-[0.18em] text-console-faint">Timeline</h3>
+              <div className="rounded-lg bg-console-ground p-4 space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-white/60">Requested:</span>
-                  <span className="font-mono font-medium tabular-nums text-white">
+                  <span className="text-console-mut">Requested:</span>
+                  <span className="font-mono font-medium tabular-nums text-console-text">
                     {new Date(selectedWithdrawal.createdAt).toLocaleString()}
                   </span>
                 </div>
                 {selectedWithdrawal.processedAt && (
                   <div className="flex justify-between">
-                    <span className="text-white/60">Processed:</span>
-                    <span className="font-mono font-medium tabular-nums text-white">
+                    <span className="text-console-mut">Processed:</span>
+                    <span className="font-mono font-medium tabular-nums text-console-text">
                       {new Date(selectedWithdrawal.processedAt).toLocaleString()}
                     </span>
                   </div>
                 )}
                 {selectedWithdrawal.completedAt && (
                   <div className="flex justify-between">
-                    <span className="text-white/60">Completed:</span>
-                    <span className="font-mono font-medium tabular-nums text-white">
+                    <span className="text-console-mut">Completed:</span>
+                    <span className="font-mono font-medium tabular-nums text-console-text">
                       {new Date(selectedWithdrawal.completedAt).toLocaleString()}
                     </span>
                   </div>
@@ -451,23 +465,23 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
 
             {/* Failure Reason */}
             {selectedWithdrawal.failureReason && (
-              <div className="mb-6 border border-red-500/30 rounded-lg p-4">
-                <div className="font-bold text-red-300 mb-1">❌ Failure Reason</div>
-                <div className="text-red-300">{selectedWithdrawal.failureReason}</div>
+              <div className="mb-6 rounded-lg bg-console-ground p-4">
+                <div className="font-bold text-console-red mb-1">Failure Reason</div>
+                <div className="text-console-red">{selectedWithdrawal.failureReason}</div>
               </div>
             )}
 
             {/* Action Note Input */}
             {selectedWithdrawal.status === 'pending' || selectedWithdrawal.status === 'processing' ? (
               <div className="mb-6">
-                <label className="block text-sm font-medium text-white/70 mb-2">
+                <label className="block text-sm font-medium text-console-mut mb-2">
                   Note (optional)
                 </label>
                 <textarea
                   value={actionNote}
                   onChange={(e) => setActionNote(e.target.value)}
                   placeholder="Add a note about this action..."
-                  className="w-full px-4 py-2 bg-transparent border border-white/10 rounded-lg text-white placeholder:text-white/50 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+                  className="w-full rounded bg-console-ground px-4 py-2 text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 focus:ring-console-mut"
                   rows={3}
                 />
               </div>
@@ -477,38 +491,42 @@ export default function WithdrawalsView({ embedded = false, showHeader = true }:
             <div className="flex gap-3">
               {selectedWithdrawal.status === 'pending' && (
                 <>
-                  <button
+                  <ConsoleButton
+                    variant="primary"
                     onClick={() => handleAction(selectedWithdrawal.id, 'approve')}
                     disabled={processing}
-                    className="flex-1 px-4 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors font-semibold disabled:opacity-50"
+                    className="flex-1"
                   >
                     ✓ Approve & Process
-                  </button>
-                  <button
+                  </ConsoleButton>
+                  <ConsoleButton
+                    variant="danger"
                     onClick={() => handleAction(selectedWithdrawal.id, 'reject')}
                     disabled={processing}
-                    className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold disabled:opacity-50"
+                    className="flex-1"
                   >
                     ✗ Reject
-                  </button>
+                  </ConsoleButton>
                 </>
               )}
               {selectedWithdrawal.status === 'processing' && (
                 <>
-                  <button
+                  <ConsoleButton
+                    variant="primary"
                     onClick={() => handleAction(selectedWithdrawal.id, 'complete')}
                     disabled={processing}
-                    className="flex-1 px-4 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors font-semibold disabled:opacity-50"
+                    className="flex-1"
                   >
                     ✓ Mark Complete
-                  </button>
-                  <button
+                  </ConsoleButton>
+                  <ConsoleButton
+                    variant="danger"
                     onClick={() => handleAction(selectedWithdrawal.id, 'fail')}
                     disabled={processing}
-                    className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold disabled:opacity-50"
+                    className="flex-1"
                   >
                     ✗ Mark Failed
-                  </button>
+                  </ConsoleButton>
                 </>
               )}
             </div>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import BankVerificationReviewCard from '@/components/admin/BankVerificationReviewCard'
-import { EditorialHeader } from '@/components/ui/EditorialHeader'
+import { ConsoleButton } from '@/components/admin/console'
 
 interface BankVerification {
   organizerId: string
@@ -82,23 +82,23 @@ export default function BankVerificationsClient() {
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
       {/* Header */}
-      <EditorialHeader
-        tone="dark"
-        title="Bank Verifications"
-        subtitle="Review and approve bank account verification documents"
-        className="mb-6"
-      />
+      <div className="mb-6">
+        <h1 className="label-mono text-[15px] font-bold uppercase tracking-[0.14em] text-console-text">
+          Bank Verifications
+        </h1>
+        <p className="mt-1 text-[13px] text-console-mut">Review and approve bank account verification documents</p>
+      </div>
 
       {/* Status Filter Tabs */}
-      <div className="mb-6 flex flex-wrap gap-2">
+      <div className="mb-6 flex flex-wrap gap-6">
         {['pending', 'approved', 'rejected'].map((status) => (
           <button
             key={status}
             onClick={() => handleStatusChange(status)}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+            className={`label-mono border-b-2 px-1 pb-2 text-[12px] uppercase tracking-[0.14em] transition-colors ${
               statusFilter === status
-                ? 'bg-brand-700 text-white'
-                : 'border border-white/10 bg-transparent text-white/70 hover:bg-white/[0.04]'
+                ? 'border-console-text text-console-text'
+                : 'border-transparent text-console-mut hover:text-console-text'
             }`}
           >
             {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -109,29 +109,26 @@ export default function BankVerificationsClient() {
       {/* Loading State */}
       {loading && verifications.length === 0 && (
         <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
-          <p className="mt-4 text-white/60">Loading verifications...</p>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-console-mut"></div>
+          <p className="mt-4 text-console-mut">Loading verifications...</p>
         </div>
       )}
 
       {/* Error State */}
       {!loading && loadError && verifications.length === 0 && (
-        <div className="rounded-lg border border-white/10 bg-white/[0.02] p-12 text-center">
-          <p className="mb-4 text-sm text-red-300">{loadError}</p>
-          <button
-            onClick={() => fetchVerifications()}
-            className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/[0.04] hover:text-white"
-          >
+        <div className="rounded-lg bg-console-panel p-12 text-center">
+          <p className="mb-4 text-sm text-console-red">{loadError}</p>
+          <ConsoleButton onClick={() => fetchVerifications()}>
             Retry
-          </button>
+          </ConsoleButton>
         </div>
       )}
 
       {/* Empty State */}
       {!loading && !loadError && verifications.length === 0 && (
-        <div className="rounded-lg border border-white/10 p-12 text-center">
+        <div className="rounded-lg bg-console-panel p-12 text-center">
           <svg
-            className="mx-auto h-12 w-12 text-white/50"
+            className="mx-auto h-12 w-12 text-console-faint"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -143,10 +140,10 @@ export default function BankVerificationsClient() {
               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
             />
           </svg>
-          <h3 className="mt-2 text-lg font-medium text-white">
+          <h3 className="label-mono mt-3 text-[12px] uppercase tracking-[0.14em] text-console-mut">
             No {statusFilter} verifications
           </h3>
-          <p className="mt-1 text-white/50">
+          <p className="mt-1 text-[13px] text-console-faint">
             There are no {statusFilter} bank verifications at this time.
           </p>
         </div>
@@ -167,13 +164,12 @@ export default function BankVerificationsClient() {
       {/* Load More */}
       {hasMore && (
         <div className="mt-6 text-center">
-          <button
+          <ConsoleButton
             onClick={() => fetchVerifications(true, cursor)}
             disabled={loading}
-            className="px-6 py-3 bg-brand-700 text-white rounded-lg hover:bg-brand-800 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
             {loading ? 'Loading...' : 'Load More'}
-          </button>
+          </ConsoleButton>
         </div>
       )}
     </div>

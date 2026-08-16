@@ -6,7 +6,7 @@ import { AdminEventsFilters } from '@/components/admin/events/AdminEventsFilters
 import { AdminEventsTabs } from '@/components/admin/events/AdminEventsTabs'
 import { AdminEventsTable } from '@/components/admin/events/AdminEventsTable'
 import { AdminEventDetailSheet } from '@/components/admin/events/AdminEventDetailSheet'
-import { EditorialHeader } from '@/components/ui/EditorialHeader'
+import { ConsoleButton } from '@/components/admin/console'
 import { useToast } from '@/components/ui/Toast'
 import type { EventModerationTab } from '@/lib/admin/event-moderation'
 
@@ -216,11 +216,11 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
     <div>
       {/* Page Header — aligned with the breadcrumb + content column (matches other admin pages) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-5">
-        <EditorialHeader
-          eyebrow="Platform"
-          title="Events Moderation"
-          subtitle="Review and manage all events on the platform"
-        />
+        <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Platform</p>
+        <h1 className="label-mono mt-1 text-[15px] font-bold uppercase tracking-[0.14em] text-console-text">
+          Events Moderation
+        </h1>
+        <p className="mt-1 text-[13px] text-console-mut">Review and manage all events on the platform</p>
       </div>
 
       {/* Top Bar */}
@@ -243,18 +243,15 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
       {/* Events Table */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {loading ? (
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-xl p-12 text-center">
-            <p className="text-white/50">Loading events...</p>
+          <div className="bg-console-panel rounded-lg p-12 text-center">
+            <p className="text-console-mut">Loading events...</p>
           </div>
         ) : loadError ? (
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-xl p-12 text-center">
-            <p className="mb-4 text-sm text-red-300">{loadError}</p>
-            <button
-              onClick={() => void loadEvents()}
-              className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/[0.04] hover:text-white"
-            >
+          <div className="bg-console-panel rounded-lg p-12 text-center">
+            <p className="mb-4 text-sm text-console-red">{loadError}</p>
+            <ConsoleButton onClick={() => void loadEvents()}>
               Retry
-            </button>
+            </ConsoleButton>
           </div>
         ) : (
           <AdminEventsTable
@@ -268,23 +265,22 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
 
         {!loading && !loadError && filteredEvents.length > 0 && (
           <div className="mt-4 flex items-center justify-between gap-3">
-            <p className="font-mono text-sm tabular-nums text-white/60">
+            <p className="label-mono text-sm tabular-nums text-console-mut">
               Showing {filteredEvents.length}
               {refined ? ' matching' : ''} event{filteredEvents.length !== 1 ? 's' : ''} of {counts[activeTab]} in this tab
             </p>
             {hasMore && (
-              <button
+              <ConsoleButton
                 onClick={() => void loadMore()}
                 disabled={loadingMore}
-                className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/[0.04] hover:text-white disabled:opacity-50"
               >
                 {loadingMore ? 'Loading…' : 'Load more'}
-              </button>
+              </ConsoleButton>
             )}
           </div>
         )}
         {!loading && !loadError && refined && hasMore && (
-          <p className="mt-2 text-xs text-white/40">
+          <p className="mt-2 text-xs text-console-faint">
             City, category, and search refine only the events loaded so far — load more to search further.
           </p>
         )}

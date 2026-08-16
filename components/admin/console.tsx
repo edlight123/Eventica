@@ -234,7 +234,9 @@ export function ConsoleState({ tone, children }: { tone: ConsoleTone; children: 
 /** Free-form status string → tone, one mapping for the whole console. */
 export function consoleTone(status: string | null | undefined): ConsoleTone {
   const s = String(status || '').toLowerCase()
-  if (['approved', 'published', 'completed', 'paid', 'verified', 'active', 'resolved', 'confirmed'].includes(s))
+  if (
+    ['approved', 'published', 'completed', 'complete', 'paid', 'verified', 'active', 'resolved', 'confirmed', 'won'].includes(s)
+  )
     return 'good'
   if (['pending', 'pending_review', 'in_review', 'processing', 'open', 'draft', 'held'].includes(s)) return 'warn'
   if (['rejected', 'failed', 'banned', 'suspended', 'cancelled', 'unpublished'].includes(s)) return 'bad'

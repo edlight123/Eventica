@@ -14,9 +14,9 @@ interface AdminEventsTabsProps {
 
 export function AdminEventsTabs({ activeTab, onTabChange, tabs }: AdminEventsTabsProps) {
   return (
-    <div className="border-b border-white/10 bg-[#0a0a0a]">
+    <div className="bg-console-ground">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <nav className="-mb-px flex gap-6 overflow-x-auto" aria-label="Tabs">
+        <nav className="flex gap-6 overflow-x-auto" aria-label="Tabs">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id
             return (
@@ -24,22 +24,16 @@ export function AdminEventsTabs({ activeTab, onTabChange, tabs }: AdminEventsTab
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
                 className={`
-                  whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2
+                  label-mono whitespace-nowrap py-4 px-1 border-b-2 text-[11px] uppercase tracking-[0.08em] flex items-center gap-2 transition-colors
                   ${isActive
-                    ? 'border-brand-500 text-brand-300'
-                    : 'border-transparent text-white/50 hover:text-white/70 hover:border-white/10'
+                    ? 'border-console-text text-console-text'
+                    : 'border-transparent text-console-mut hover:text-console-text'
                   }
                 `}
               >
                 {tab.label}
                 {tab.count > 0 && (
-                  <span className={`
-                    px-2 py-0.5 rounded-full font-mono text-xs font-bold tabular-nums
-                    ${isActive
-                      ? 'text-brand-300'
-                      : 'bg-white/10 text-white/60'
-                    }
-                  `}>
+                  <span className="label-mono text-xs tabular-nums text-console-mut">
                     {tab.count}
                   </span>
                 )}

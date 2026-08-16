@@ -3,10 +3,9 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
-import { EmptyState, StatusChip } from '@/components/ui/kit'
 import { DataTable, type Column } from '@/components/ui/DataTable'
-import { EditorialHeader } from '@/components/ui/EditorialHeader'
-import { UserCheck, BadgeCheck, Clock, Search, ArrowUpRight } from 'lucide-react'
+import { ConsoleButton, ConsoleState } from '@/components/admin/console'
+import { Search, ArrowUpRight } from 'lucide-react'
 
 type VerifyState = 'verified' | 'pending' | 'unverified'
 function verifyState(u: any): VerifyState {
@@ -97,16 +96,16 @@ export default function AdminOrganizersClient({
 
   const renderVerification = (u: any) => {
     if (u.verification_status === 'approved') {
-      return <StatusChip tone="success">{t('users.verified')}</StatusChip>
+      return <ConsoleState tone="good">{t('users.verified')}</ConsoleState>
     }
     if (
       u.verification_status === 'pending' ||
       u.verification_status === 'pending_review' ||
       u.verification_status === 'in_review'
     ) {
-      return <StatusChip tone="warning">Pending</StatusChip>
+      return <ConsoleState tone="warn">Pending</ConsoleState>
     }
-    return <StatusChip tone="neutral">Not Verified</StatusChip>
+    return <ConsoleState tone="neutral">Not Verified</ConsoleState>
   }
 
   const columns: Column<any>[] = [
@@ -115,10 +114,10 @@ export default function AdminOrganizersClient({
       header: 'Organizer',
       render: (u) => (
         <Link href={`/admin/organizers/${u.id}`} className="group block min-w-0">
-          <span className="block truncate text-sm font-medium text-white group-hover:text-brand-300">
+          <span className="block truncate text-sm font-medium text-console-text group-hover:underline">
             {u.full_name || 'No name'}
           </span>
-          <span className="block truncate text-[13px] text-white/50">{u.email}</span>
+          <span className="block truncate text-[13px] text-console-mut">{u.email}</span>
         </Link>
       ),
     },
@@ -131,7 +130,7 @@ export default function AdminOrganizersClient({
       key: 'joined',
       header: 'Joined',
       render: (u) => (
-        <span className="font-mono tabular-nums text-[13px] text-white/50 whitespace-nowrap">
+        <span className="font-mono tabular-nums text-[13px] text-console-mut whitespace-nowrap">
           {u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}
         </span>
       ),
@@ -143,7 +142,7 @@ export default function AdminOrganizersClient({
       render: (u) => (
         <Link
           href={`/admin/organizers/${u.id}`}
-          className="inline-flex items-center gap-1 text-[13px] font-medium text-brand-300 hover:text-brand-200"
+          className="inline-flex items-center gap-1 text-[13px] font-medium text-console-mut hover:text-console-text"
         >
           Manage <ArrowUpRight className="h-3.5 w-3.5" />
         </Link>
@@ -155,12 +154,12 @@ export default function AdminOrganizersClient({
     <Link href={`/admin/organizers/${u.id}`} className="block p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <span className="block truncate text-sm font-medium text-white">{u.full_name || 'No name'}</span>
-          <span className="block truncate text-[13px] text-white/50">{u.email}</span>
+          <span className="block truncate text-sm font-medium text-console-text">{u.full_name || 'No name'}</span>
+          <span className="block truncate text-[13px] text-console-mut">{u.email}</span>
         </div>
         {renderVerification(u)}
       </div>
-      <div className="mt-2 font-mono tabular-nums text-[13px] text-white/50">
+      <div className="mt-2 font-mono tabular-nums text-[13px] text-console-mut">
         Joined {u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}
       </div>
     </Link>
@@ -168,9 +167,9 @@ export default function AdminOrganizersClient({
 
   const unverified = Math.max(0, counts.organizers - counts.verified)
   const stats = [
-    { icon: UserCheck, label: 'Organizers', value: counts.organizers },
-    { icon: BadgeCheck, label: 'Verified', value: counts.verified },
-    { icon: Clock, label: 'Not verified', value: unverified },
+    { label: 'Organizers', value: counts.organizers },
+    { label: 'Verified', value: counts.verified },
+    { label: 'Not verified', value: unverified },
   ]
 
   const filters: { key: 'all' | VerifyState; label: string }[] = [
@@ -182,47 +181,49 @@ export default function AdminOrganizersClient({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <EditorialHeader
-        eyebrow="Platform"
-        title={t('organizers.title')}
-        subtitle={t('organizers.subtitle')}
-        tone="dark"
-        className="mb-5"
-      />
+      {/* Mono caps page title — the Control Room pattern. */}
+      <div className="mb-5">
+        <h1 className="label-mono text-[15px] font-bold uppercase tracking-[0.14em] text-console-text">
+          {t('organizers.title')}
+        </h1>
+        <p className="mt-1 text-[13px] text-console-mut">{t('organizers.subtitle')}</p>
+      </div>
 
-      <div className="mb-5 grid grid-cols-3 divide-x divide-white/10 overflow-hidden rounded-xl border border-white/10">
-        {stats.map((s) => {
-          const Icon = s.icon
-          return (
-            <div key={s.label} className="p-4">
-              <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
-                <Icon className="h-3.5 w-3.5 text-white/30" /> <span className="truncate">{s.label}</span>
-              </div>
-              <div className="font-mono text-2xl font-bold tabular-nums text-white">{s.value.toLocaleString()}</div>
+      {/* Stats — plain figures, not boxed */}
+      <div className="mb-5 flex flex-wrap gap-8">
+        {stats.map((s) => (
+          <div key={s.label}>
+            <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">
+              {s.label}
             </div>
-          )
-        })}
+            <div className="mt-0.5 font-mono text-xl tabular-nums text-console-text">
+              {s.value.toLocaleString()}
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Toolbar: search + verification filter */}
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full sm:max-w-xs">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-console-faint" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search name or email"
-            className="w-full rounded-lg border border-white/10 bg-transparent py-2.5 pl-9 pr-3 text-sm text-white placeholder:text-white/50 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
+            className="w-full rounded bg-console-panel py-2.5 pl-9 pr-3 text-sm text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 focus:ring-console-mut"
           />
         </div>
-        <div className="flex shrink-0 gap-1 overflow-x-auto rounded-full border border-white/10 p-1">
+        <div className="flex shrink-0 gap-1 overflow-x-auto rounded-lg bg-console-panel p-1">
           {filters.map((f) => (
             <button
               key={f.key}
               type="button"
               onClick={() => setVerifyFilter(f.key)}
-              className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
-                verifyFilter === f.key ? 'bg-white/[0.08] text-white' : 'text-white/50 hover:text-white'
+              className={`shrink-0 rounded px-3 py-1 text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-console-mut ${
+                verifyFilter === f.key
+                  ? 'bg-console-raise text-console-text'
+                  : 'text-console-mut hover:text-console-text'
               }`}
             >
               {f.label}
@@ -236,30 +237,20 @@ export default function AdminOrganizersClient({
         rows={filtered}
         rowKey={(u) => String(u?.id || '')}
         pageSize={25}
+        variant="console"
         renderMobileCard={renderOrganizerMobileCard}
         empty={
-          <EmptyState
-            icon={UserCheck}
-            title={query || verifyFilter !== 'all' ? 'No organizers match your filters' : t('organizers.no_organizers_found')}
-            className="border-0"
-          />
+          <p className="label-mono text-center text-[12px] uppercase tracking-[0.14em] text-console-mut">
+            {query || verifyFilter !== 'all' ? 'No organizers match your filters' : t('organizers.no_organizers_found')}
+          </p>
         }
       />
 
       {hasMore && cursor && (
         <div className="mt-4 sm:mt-6 flex justify-center">
-          <button
-            type="button"
-            onClick={loadMore}
-            disabled={isLoadingMore}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors border border-white/15 ${
-              isLoadingMore
-                ? 'bg-[#0a0a0a] text-white/50 cursor-not-allowed'
-                : 'bg-[#0a0a0a] hover:bg-white/[0.04] text-white'
-            }`}
-          >
+          <ConsoleButton type="button" variant="quiet" onClick={loadMore} disabled={isLoadingMore}>
             {isLoadingMore ? t('users.loading') : t('users.load_more')}
-          </button>
+          </ConsoleButton>
         </div>
       )}
     </div>

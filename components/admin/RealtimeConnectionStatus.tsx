@@ -1,6 +1,7 @@
 'use client'
 
 import { useSystemStatus } from '@/lib/realtime/AdminRealtimeProvider'
+import { ConsoleState } from '@/components/admin/console'
 import { useEffect, useState } from 'react'
 
 export function RealtimeConnectionStatus() {
@@ -28,25 +29,13 @@ export function RealtimeConnectionStatus() {
 
   return (
     <div className="flex items-center gap-2 text-sm">
-      {/* Connection Indicator */}
-      <div className="flex items-center gap-1.5">
-        <div className={`w-2 h-2 rounded-full ${
-          isConnected 
-            ? 'bg-green-500 shadow-sm shadow-green-500/50' 
-            : 'bg-white/20'
-        }`}>
-          {isConnected && (
-            <div className="w-2 h-2 rounded-full bg-green-500 animate-ping opacity-75" />
-          )}
-        </div>
-        <span className={`label-mono uppercase ${isConnected ? 'text-emerald-300' : 'text-white/50'}`}>
-          {isConnected ? 'Live' : 'Offline'}
-        </span>
-      </div>
+      <ConsoleState tone={isConnected ? 'good' : 'bad'}>
+        {isConnected ? 'Live' : 'Offline'}
+      </ConsoleState>
 
       {/* Last Update Time */}
       {lastUpdate && (
-        <span className="text-white/50">
+        <span className="text-console-faint">
           · Updated <span className="font-mono tabular-nums">{timeSinceUpdate}</span>
         </span>
       )}

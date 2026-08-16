@@ -6,6 +6,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { useTranslation } from 'react-i18next'
 import { useToast } from '@/components/ui/Toast'
+import { ConsoleButton, ConsoleState, consoleTone } from '@/components/admin/console'
 
 // Guard against missing/malformed dates: date-fns `format` throws
 // "RangeError: Invalid time value" on an Invalid Date, which would crash the
@@ -56,6 +57,8 @@ interface AdminEventDetailSheetProps {
   onClose: () => void
   onAction: (action: 'publish' | 'unpublish' | 'delete' | 'feature' | 'unfeature', reason?: string) => void
 }
+
+const SECTION_LABEL = 'label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint'
 
 export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: AdminEventDetailSheetProps) {
   const { t } = useTranslation('common')
@@ -126,21 +129,23 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
   return (
     <>
       {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black bg-opacity-50 z-40"
+      <div
+        className="fixed inset-0 bg-black/60 z-40"
         onClick={onClose}
       />
 
       {/* Side Panel */}
-      <div className="fixed inset-y-0 right-0 w-full sm:w-[600px] lg:w-[700px] bg-[#0a0a0a] shadow-xl z-50 flex flex-col">
+      <div className="fixed inset-y-0 right-0 w-full sm:w-[600px] lg:w-[700px] bg-console-panel shadow-xl z-50 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/10 bg-[#0a0a0a]">
-          <h3 className="text-lg font-bold text-white">{t('admin.event_details')}</h3>
+        <div className="flex items-center justify-between p-4">
+          <h3 className="label-mono text-[13px] font-bold uppercase tracking-[0.14em] text-console-text">
+            {t('admin.event_details')}
+          </h3>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white/[0.04] rounded-lg"
+            className="p-2 hover:bg-console-raise rounded"
           >
-            <X className="w-5 h-5 text-white/60" />
+            <X className="w-5 h-5 text-console-mut" />
           </button>
         </div>
 
@@ -148,7 +153,7 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
         <div className="flex-1 overflow-y-auto">
           {/* Banner */}
           {event.banner_image_url ? (
-            <div className="relative w-full h-48 bg-[#0a0a0a]">
+            <div className="relative w-full h-48 bg-console-ground">
               <Image
                 src={event.banner_image_url}
                 alt={event.title}
@@ -157,61 +162,59 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
               />
             </div>
           ) : (
-            <div className="w-full h-48 bg-gradient-to-br from-brand-500/15 to-brand-600/10 flex items-center justify-center">
+            <div className="w-full h-48 bg-console-raise flex items-center justify-center">
               <span className="text-6xl">🎉</span>
             </div>
           )}
 
-          <div className="p-6 space-y-6">
+          <div className="p-6 space-y-8">
             {/* Title & Status */}
             <div>
               <div className="flex items-start justify-between gap-4 mb-2">
-                <h2 className="text-2xl font-bold text-white">{event.title}</h2>
-                <span className={`flex-shrink-0 px-3 py-1 text-sm font-semibold rounded-full ${
-                  event.is_published
-                    ? 'text-emerald-300'
-                    : 'text-amber-300'
-                }`}>
-                  {event.is_published ? t('admin.published') : t('admin.draft')}
+                <h2 className="text-2xl font-bold text-console-text">{event.title}</h2>
+                <span className="flex-shrink-0 mt-1.5">
+                  <ConsoleState tone={consoleTone(event.is_published ? 'published' : 'draft')}>
+                    {event.is_published ? t('admin.published') : t('admin.draft')}
+                  </ConsoleState>
                 </span>
               </div>
 
               {event.category && (
-                <span className="inline-flex px-2 py-1 bg-[#0a0a0a] text-white/70 rounded-md text-sm">
+                <span className="label-mono text-[11px] uppercase tracking-[0.08em] text-console-mut">
                   {event.category}
                 </span>
               )}
             </div>
 
             {/* Event Info */}
-            <div className="grid grid-cols-2 gap-4 p-4 bg-[#0a0a0a] rounded-lg">
+            <div className="grid grid-cols-2 gap-6">
               <div className="flex items-start gap-3">
-                <Calendar className="w-5 h-5 text-white/50 mt-0.5" />
+                <Calendar className="w-5 h-5 text-console-faint mt-0.5" />
                 <div>
-                  <div className="text-xs text-white/50 font-medium mb-1">{t('admin.date_time')}</div>
-                  <div className="font-mono text-sm tabular-nums text-white">
+                  <div className={`${SECTION_LABEL} mb-1`}>{t('admin.date_time')}</div>
+                  <div className="label-mono text-sm tabular-nums text-console-text">
                     {safeFormat(event.start_datetime, 'MMM d, yyyy')}
                   </div>
-                  <div className="font-mono text-xs tabular-nums text-white/60">
+                  <div className="label-mono text-xs tabular-nums text-console-mut">
                     {safeFormat(event.start_datetime, 'h:mm a')} - {safeFormat(event.end_datetime, 'h:mm a')}
                   </div>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-white/50 mt-0.5" />
+                <MapPin className="w-5 h-5 text-console-faint mt-0.5" />
                 <div>
-                  <div className="text-xs text-white/50 font-medium mb-1">{t('admin.location')}</div>
-                  <div className="text-sm text-white">{event.venue_name || 'TBD'}</div>
-                  <div className="font-mono text-xs text-white/60">{event.city}</div>
+                  <div className={`${SECTION_LABEL} mb-1`}>{t('admin.location')}</div>
+                  <div className="text-sm text-console-text">{event.venue_name || 'TBD'}</div>
+                  <div className="label-mono text-xs text-console-mut">{event.city}</div>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <Ticket className="w-5 h-5 text-white/50 mt-0.5" />
+                <Ticket className="w-5 h-5 text-console-faint mt-0.5" />
                 <div>
-                  <div className="text-xs text-white/50 font-medium mb-1">{t('admin.max_capacity')}</div>
-                  <div className="font-mono text-sm tabular-nums text-white">
+                  <div className={`${SECTION_LABEL} mb-1`}>{t('admin.max_capacity')}</div>
+                  <div className="label-mono text-sm tabular-nums text-console-text">
                     {event.tickets_sold || 0} / {event.max_attendees} {t('admin.tickets_sold').toLowerCase()}
                   </div>
                 </div>
@@ -221,31 +224,31 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
             {/* Description */}
             {event.description && (
               <div>
-                <h4 className="text-sm font-medium text-white/70 mb-2">Description</h4>
-                <p className="text-sm text-white/60 whitespace-pre-wrap">
+                <h4 className={`${SECTION_LABEL} mb-2`}>Description</h4>
+                <p className="text-sm text-console-mut whitespace-pre-wrap">
                   {event.description}
                 </p>
               </div>
             )}
 
             {/* Organizer Info */}
-            <div className="p-4 rounded-lg border border-white/10 bg-white/[0.02]">
-              <div className="flex items-start gap-3 mb-3">
-                <User className="w-5 h-5 text-white/50 mt-0.5" />
+            <div>
+              <div className="flex items-start gap-3">
+                <User className="w-5 h-5 text-console-faint mt-0.5" />
                 <div className="flex-1">
-                  <h4 className="text-sm font-medium text-white/70 mb-1">Organizer</h4>
+                  <h4 className={`${SECTION_LABEL} mb-1`}>Organizer</h4>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-white">{event.organizer_name}</span>
+                    <span className="text-sm text-console-text">{event.organizer_name}</span>
                     {event.organizer_verified && (
-                      <CheckCircle className="w-4 h-4 text-emerald-300" />
+                      <CheckCircle className="w-4 h-4 text-console-green" />
                     )}
                   </div>
-                  <div className="text-xs text-white/60">{event.organizer_email}</div>
+                  <div className="text-xs text-console-mut">{event.organizer_email}</div>
                 </div>
                 {event.organizer_id ? (
                   <a
                     href={`/admin/organizers/${event.organizer_id}`}
-                    className="text-brand-300 hover:text-brand-300 text-sm font-medium flex items-center gap-1"
+                    className="text-console-mut hover:text-console-text text-sm font-medium flex items-center gap-1"
                   >
                     View
                     <ExternalLink className="w-3 h-3" />
@@ -256,18 +259,18 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
 
             {/* Reports */}
             {event.reports && event.reports.length > 0 && (
-              <div className="p-4 border border-red-500/30 rounded-lg">
+              <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <AlertTriangle className="w-5 h-5 text-red-300" />
-                  <h4 className="text-sm font-medium text-red-300">
+                  <AlertTriangle className="w-4 h-4 text-console-amber" />
+                  <h4 className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-amber">
                     Reports ({event.reports.length})
                   </h4>
                 </div>
                 <div className="space-y-2">
                   {event.reports.map((report) => (
-                    <div key={report.id} className="p-3 bg-[#0a0a0a] rounded-md">
-                      <div className="text-sm text-white mb-1">{report.reason}</div>
-                      <div className="text-xs text-white/50">
+                    <div key={report.id} className="p-3 bg-console-ground rounded-md">
+                      <div className="text-sm text-console-text mb-1">{report.reason}</div>
+                      <div className="text-xs text-console-faint">
                         By {report.reported_by} • {safeFormat(report.created_at, 'MMM d, h:mm a')}
                       </div>
                     </div>
@@ -279,16 +282,16 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
             {/* Audit Log */}
             {event.audit_logs && event.audit_logs.length > 0 && (
               <div>
-                <h4 className="text-sm font-medium text-white/70 mb-3">Activity Timeline</h4>
+                <h4 className={`${SECTION_LABEL} mb-3`}>Activity Timeline</h4>
                 <div className="space-y-3">
                   {event.audit_logs.map((log) => (
                     <div key={log.id} className="flex gap-3">
-                      <div className="flex-shrink-0 w-8 h-8 bg-[#0a0a0a] rounded-full flex items-center justify-center">
+                      <div className="flex-shrink-0 w-8 h-8 bg-console-raise rounded-full flex items-center justify-center">
                         <span className="text-xs">📝</span>
                       </div>
                       <div>
-                        <div className="text-sm text-white">{log.action}</div>
-                        <div className="text-xs text-white/50">
+                        <div className="text-sm text-console-text">{log.action}</div>
+                        <div className="text-xs text-console-faint">
                           By {log.admin_email} • {safeFormat(log.timestamp, 'MMM d, h:mm a')}
                         </div>
                       </div>
@@ -301,18 +304,18 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
         </div>
 
         {/* Actions Footer */}
-        <div className="border-t border-white/10 p-4 bg-[#0a0a0a] space-y-3">
+        <div className="p-4 space-y-3">
           {/* Reason Input (for unpublish/delete) */}
           {!event.is_published || showDeleteConfirm ? (
             <div>
-              <label className="block text-sm font-medium text-white/70 mb-2">
+              <label className={`block ${SECTION_LABEL} mb-2`}>
                 {showDeleteConfirm ? t('admin.reason_for_deletion') : t('admin.reason_for_action')}
               </label>
               <textarea
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder={t('admin.reason_placeholder')}
-                className="w-full px-3 py-2 rounded-lg border border-white/10 bg-white/[0.03] text-sm text-white placeholder:text-white/45 focus:border-brand-500/60 focus:outline-none focus:ring-2 focus:ring-brand-500/25 resize-none"
+                className="w-full px-3 py-2 rounded bg-console-ground text-sm text-console-text placeholder:text-console-faint focus:outline-none focus:ring-2 focus:ring-console-mut resize-none"
                 rows={2}
               />
             </div>
@@ -322,50 +325,40 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
           <div className="flex items-center gap-2">
             {event.is_published ? (
               <>
-                <button
+                <ConsoleButton
+                  variant="danger"
                   onClick={handleUnpublish}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 font-medium text-sm"
+                  className="flex-1 flex items-center justify-center gap-2"
                 >
                   <XCircle className="w-4 h-4" />
                   {t('admin.unpublish')}
-                </button>
-                <button
-                  onClick={() => setShowDeleteConfirm(true)}
-                  className="px-4 py-2.5 border border-red-300 text-red-300 rounded-lg hover:bg-red-500/10 font-medium text-sm"
-                >
+                </ConsoleButton>
+                <ConsoleButton variant="danger" onClick={() => setShowDeleteConfirm(true)} aria-label="Delete event">
                   <Trash2 className="w-4 h-4" />
-                </button>
+                </ConsoleButton>
               </>
             ) : showDeleteConfirm ? (
               <>
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 px-4 py-2.5 border border-white/10 text-white/70 rounded-lg hover:bg-white/[0.04] hover:text-white font-medium text-sm"
-                >
+                <ConsoleButton onClick={() => setShowDeleteConfirm(false)} className="flex-1">
                   {t('admin.cancel')}
-                </button>
-                <button
-                  onClick={handleDelete}
-                  className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium text-sm"
-                >
+                </ConsoleButton>
+                <ConsoleButton variant="danger" onClick={handleDelete} className="flex-1">
                   {t('admin.confirm_delete')}
-                </button>
+                </ConsoleButton>
               </>
             ) : (
               <>
-                <button
+                <ConsoleButton
+                  variant="primary"
                   onClick={() => onAction('publish')}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-sm"
+                  className="flex-1 flex items-center justify-center gap-2"
                 >
                   <CheckCircle className="w-4 h-4" />
                   {t('admin.approve_publish')}
-                </button>
-                <button
-                  onClick={() => setShowDeleteConfirm(true)}
-                  className="px-4 py-2.5 border border-red-300 text-red-300 rounded-lg hover:bg-red-500/10 font-medium text-sm"
-                >
+                </ConsoleButton>
+                <ConsoleButton variant="danger" onClick={() => setShowDeleteConfirm(true)} aria-label="Delete event">
                   <Trash2 className="w-4 h-4" />
-                </button>
+                </ConsoleButton>
               </>
             )}
           </div>
@@ -373,38 +366,38 @@ export function AdminEventDetailSheet({ event, isOpen, onClose, onAction }: Admi
           {/* Feature toggle */}
           <button
             onClick={() => onAction(event.featured ? 'unfeature' : 'feature')}
-            className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm ${
+            className={`w-full flex items-center justify-center gap-2 rounded bg-console-raise px-4 py-2 text-[13px] font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-console-mut ${
               event.featured
-                ? 'border border-amber-300 text-amber-300 hover:bg-amber-500/10'
-                : 'border border-white/10 text-white/70 hover:bg-white/[0.04] hover:text-white'
+                ? 'text-console-amber hover:opacity-90'
+                : 'text-console-mut hover:text-console-text'
             }`}
           >
-            <Star className={`w-4 h-4 ${event.featured ? 'fill-amber-300' : ''}`} />
+            <Star className={`w-4 h-4 ${event.featured ? 'fill-current' : ''}`} />
             {event.featured ? t('admin.unfeature') : t('admin.feature')}
           </button>
 
           <div className="flex items-center gap-2">
-            <button
+            <ConsoleButton
               onClick={() => downloadCsv('full')}
               disabled={isExporting !== null}
-              className="flex-1 px-4 py-2.5 border border-brand-300 text-brand-300 rounded-lg hover:bg-brand-500/10 font-medium text-sm disabled:opacity-60"
+              className="flex-1"
             >
               {isExporting === 'full' ? 'Downloading…' : 'Download Financials CSV'}
-            </button>
-            <button
+            </ConsoleButton>
+            <ConsoleButton
               onClick={() => downloadCsv('summary')}
               disabled={isExporting !== null}
-              className="flex-1 px-4 py-2.5 border border-white/10 text-white/70 rounded-lg hover:bg-white/[0.04] hover:text-white font-medium text-sm disabled:opacity-60"
+              className="flex-1"
             >
               {isExporting === 'summary' ? 'Downloading…' : 'Download Summary CSV'}
-            </button>
+            </ConsoleButton>
           </div>
 
           <a
             href={`/events/${event.id}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="block text-center px-4 py-2 text-brand-300 hover:text-brand-300 font-medium text-sm"
+            className="block text-center px-4 py-2 text-console-mut hover:text-console-text font-medium text-sm"
           >
             {t('admin.view_public')} →
           </a>
