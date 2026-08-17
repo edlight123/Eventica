@@ -2,11 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { formatCurrency } from '@/lib/currency'
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  DollarSign, 
-  CreditCard, 
+import {
+  CreditCard,
   Smartphone,
   ArrowUpRight,
   ArrowDownRight
@@ -119,19 +116,20 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
+      <div className="space-y-4">
+        <div className="h-16 animate-pulse rounded-lg bg-console-panel" />
+        <div className="h-40 animate-pulse rounded-lg bg-console-panel" />
       </div>
     )
   }
 
   if (loadError || !revenue) {
     return (
-      <div className="rounded-lg border border-white/10 bg-white/[0.02] p-8 text-center">
-        <p className="mb-4 text-sm text-red-300">{loadError || 'Failed to load revenue analytics'}</p>
+      <div className="rounded-lg bg-console-panel p-8 text-center">
+        <p className="mb-4 text-sm text-console-red">{loadError || 'Failed to load revenue analytics'}</p>
         <button
           onClick={() => void fetchData()}
-          className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/[0.04] hover:text-white"
+          className="rounded bg-console-raise px-3 py-1.5 text-[13px] font-semibold text-console-mut transition-colors hover:text-console-text"
         >
           Retry
         </button>
@@ -140,10 +138,10 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
   }
 
   const GrowthBadge = ({ value }: { value: number }) => {
-    if (value === 0) return <span className="text-white/50 text-sm">No change</span>
+    if (value === 0) return <span className="text-sm text-console-faint">No change</span>
     const isPositive = value > 0
     return (
-      <span className={`flex items-center font-mono text-sm font-medium tabular-nums ${isPositive ? 'text-emerald-300' : 'text-red-300'}`}>
+      <span className={`flex items-center font-mono text-sm font-medium tabular-nums ${isPositive ? 'text-console-green' : 'text-console-red'}`}>
         {isPositive ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
         {Math.abs(value).toFixed(1)}%
       </span>
@@ -164,10 +162,10 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
             <button
               key={option.value}
               onClick={() => setDateRange(option.value as any)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`rounded px-3 py-1.5 text-[13px] font-semibold transition-colors ${
                 dateRange === option.value
-                  ? 'bg-brand-600 text-white'
-                  : 'bg-[#0a0a0a] text-white/70 hover:bg-white/[0.04]'
+                  ? 'bg-console-raise text-console-text'
+                  : 'text-console-mut hover:text-console-text'
               }`}
             >
               {option.label}
@@ -176,74 +174,68 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
         </div>
       )}
 
-      {/* Total Revenue Overview — compact divided strip */}
-      <div className="grid grid-cols-1 divide-y divide-white/10 rounded-lg border border-white/10 md:grid-cols-3 md:divide-y-0 md:divide-x">
-        <div className="p-4">
-          <div className="mb-1 flex items-center justify-between">
-            <span className="label-mono flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
-              <DollarSign className="h-3.5 w-3.5 text-brand-300" /> Revenue (USD)
-            </span>
+      {/* Total Revenue Overview — unboxed KPI figures */}
+      <div className="flex flex-wrap gap-x-8 gap-y-4">
+        <div>
+          <div className="flex items-center gap-3">
+            <span className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Revenue (USD)</span>
             {growth && <GrowthBadge value={growth.revenueGrowth7d} />}
           </div>
-          <div className="font-mono text-2xl font-bold tabular-nums text-white">
+          <div className="mt-1 font-mono text-xl tabular-nums text-console-text">
             {formatCurrency(revenue.totalRevenueUSDWithFxSpread ?? revenue.totalRevenueUSD, 'USD')}
           </div>
           {revenue.fxSpread?.ticketCount > 0 && (
-            <div className="mt-1 text-xs text-white/50">
+            <div className="mt-1 text-xs text-console-mut">
               Incl. FX spread <span className="font-mono tabular-nums">{formatCurrency(revenue.fxSpread.profitUSD || 0, 'USD')}</span>
             </div>
           )}
         </div>
 
-        <div className="p-4">
-          <div className="mb-1 flex items-center justify-between">
-            <span className="label-mono flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
-              <CreditCard className="h-3.5 w-3.5 text-brand-300" /> Tickets sold
-            </span>
+        <div>
+          <div className="flex items-center gap-3">
+            <span className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Tickets sold</span>
             {growth && <GrowthBadge value={growth.ticketsGrowth7d} />}
           </div>
-          <div className="font-mono text-2xl font-bold tabular-nums text-white">{revenue.totalTickets.toLocaleString()}</div>
+          <div className="mt-1 font-mono text-xl tabular-nums text-console-text">{revenue.totalTickets.toLocaleString()}</div>
         </div>
 
-        <div className="p-4">
-          <div className="label-mono mb-1 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
-            <TrendingUp className="h-3.5 w-3.5 text-brand-300" /> Avg ticket price
-          </div>
-          <div className="font-mono text-2xl font-bold tabular-nums text-white">
+        <div>
+          <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Avg ticket price</div>
+          <div className="mt-1 font-mono text-xl tabular-nums text-console-text">
             {formatCurrency(revenue.totalRevenueUSD / revenue.totalTickets || 0, 'USD')}
           </div>
-          <div className="mt-1 text-xs text-white/50">Across all currencies</div>
+          <div className="mt-1 text-xs text-console-mut">Across all currencies</div>
         </div>
       </div>
 
       {/* Currency Breakdown */}
-      <div className="rounded-xl border border-white/10 p-4">
-        <h3 className="text-sm font-semibold text-white mb-3">Revenue by Currency</h3>
+      <div className="rounded-lg bg-console-panel p-4">
+        <h3 className="label-mono mb-3 text-[10px] uppercase tracking-[0.18em] text-console-faint">Revenue by Currency</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {/* HTG Revenue */}
-          <div className="rounded-lg border border-white/10 p-3">
+          <div className="rounded bg-console-raise p-3">
             <div className="flex items-center justify-between mb-2">
-              <h4 className="text-sm font-medium text-white/70">HTG (Haitian Gourde)</h4>
-              <span className="text-xs bg-[#0a0a0a] text-white/60 px-2 py-0.5 rounded font-mono tabular-nums">
+              <h4 className="text-sm font-medium text-console-mut">HTG (Haitian Gourde)</h4>
+              <span className="font-mono text-xs tabular-nums text-console-mut">
                 {revenue.byCurrency.HTG.tickets} tickets
               </span>
             </div>
             <div className="space-y-1.5">
               <div>
-                <div className="text-xs text-white/50">Total Revenue</div>
-                <div className="font-mono text-xl font-bold tabular-nums text-white">
+                <div className="text-xs text-console-mut">Total Revenue</div>
+                <div className="font-mono text-xl tabular-nums text-console-text">
                   {formatCurrency(revenue.byCurrency.HTG.revenue, 'HTG')}
                 </div>
               </div>
               <div>
-                <div className="text-xs text-white/50">Converted to USD</div>
-                <div className="font-mono text-base font-semibold tabular-nums text-brand-300">
+                <div className="text-xs text-console-mut">Converted to USD</div>
+                <div className="font-mono text-base tabular-nums text-console-text">
                   {formatCurrency(revenue.byCurrency.HTG.convertedToUSD, 'USD')}
                 </div>
               </div>
               <div>
-                <div className="text-xs text-white/50">Average Price</div>
-                <div className="font-mono text-sm font-medium tabular-nums text-white/70">
+                <div className="text-xs text-console-mut">Average Price</div>
+                <div className="font-mono text-sm tabular-nums text-console-mut">
                   {formatCurrency(revenue.byCurrency.HTG.averagePrice, 'HTG')}
                 </div>
               </div>
@@ -251,23 +243,23 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
           </div>
 
           {/* USD Revenue */}
-          <div className="rounded-lg border border-white/10 p-3">
+          <div className="rounded bg-console-raise p-3">
             <div className="flex items-center justify-between mb-2">
-              <h4 className="text-sm font-medium text-white/70">USD (US Dollar)</h4>
-              <span className="text-xs bg-[#0a0a0a] text-white/60 px-2 py-0.5 rounded font-mono tabular-nums">
+              <h4 className="text-sm font-medium text-console-mut">USD (US Dollar)</h4>
+              <span className="font-mono text-xs tabular-nums text-console-mut">
                 {revenue.byCurrency.USD.tickets} tickets
               </span>
             </div>
             <div className="space-y-1.5">
               <div>
-                <div className="text-xs text-white/50">Total Revenue</div>
-                <div className="font-mono text-xl font-bold tabular-nums text-white">
+                <div className="text-xs text-console-mut">Total Revenue</div>
+                <div className="font-mono text-xl tabular-nums text-console-text">
                   {formatCurrency(revenue.byCurrency.USD.revenue, 'USD')}
                 </div>
               </div>
               <div>
-                <div className="text-xs text-white/50">Average Price</div>
-                <div className="font-mono text-sm font-medium tabular-nums text-white/70">
+                <div className="text-xs text-console-mut">Average Price</div>
+                <div className="font-mono text-sm tabular-nums text-console-mut">
                   {formatCurrency(revenue.byCurrency.USD.averagePrice, 'USD')}
                 </div>
               </div>
@@ -278,30 +270,30 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
 
       {/* FX Spread Profit */}
       {revenue.fxSpread?.ticketCount > 0 && (
-        <div className="rounded-xl border border-white/10 p-4">
-          <h3 className="text-sm font-semibold text-white mb-3">FX Spread Profit (MonCash USD Events)</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="rounded-lg border border-white/10 p-3">
-              <div className="text-xs text-white/50">USD Volume</div>
-              <div className="font-mono text-lg font-semibold tabular-nums text-white">
+        <div className="rounded-lg bg-console-panel p-4">
+          <h3 className="label-mono mb-3 text-[10px] uppercase tracking-[0.18em] text-console-faint">FX Spread Profit (MonCash USD Events)</h3>
+          <div className="flex flex-wrap gap-x-8 gap-y-4">
+            <div>
+              <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">USD Volume</div>
+              <div className="mt-1 font-mono text-xl tabular-nums text-console-text">
                 {formatCurrency(revenue.fxSpread.usdVolume, 'USD')}
               </div>
-              <div className="text-xs text-white/50 mt-1"><span className="font-mono tabular-nums">{revenue.fxSpread.ticketCount}</span> tickets</div>
+              <div className="mt-1 text-xs text-console-mut"><span className="font-mono tabular-nums">{revenue.fxSpread.ticketCount}</span> tickets</div>
             </div>
-            <div className="rounded-lg border border-white/10 p-3">
-              <div className="text-xs text-white/50">Spread Profit</div>
-              <div className="font-mono text-lg font-semibold tabular-nums text-white">
+            <div>
+              <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Spread Profit</div>
+              <div className="mt-1 font-mono text-xl tabular-nums text-console-text">
                 {formatCurrency(revenue.fxSpread.profitHTG, 'HTG')}
               </div>
-              <div className="text-xs text-white/50 mt-1 font-mono tabular-nums">{formatCurrency(revenue.fxSpread.profitUSD || 0, 'USD')}</div>
-              <div className="text-xs text-white/50 mt-1">Computed from base vs effective rate</div>
+              <div className="mt-1 font-mono text-xs tabular-nums text-console-mut">{formatCurrency(revenue.fxSpread.profitUSD || 0, 'USD')}</div>
+              <div className="mt-1 text-xs text-console-faint">Computed from base vs effective rate</div>
             </div>
-            <div className="rounded-lg border border-white/10 p-3">
-              <div className="text-xs text-white/50">Avg Spread</div>
-              <div className="font-mono text-lg font-semibold tabular-nums text-white">
+            <div>
+              <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Avg Spread</div>
+              <div className="mt-1 font-mono text-xl tabular-nums text-console-text">
                 {(revenue.fxSpread.averageSpreadPercent * 100).toFixed(2)}%
               </div>
-              <div className="text-xs text-white/50 mt-1">From quote metadata</div>
+              <div className="mt-1 text-xs text-console-faint">From quote metadata</div>
             </div>
           </div>
         </div>
@@ -309,13 +301,12 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
 
       {/* Payment Method Breakdown */}
       <div>
-        <h3 className="mb-3 text-sm font-semibold text-white">Revenue by payment method</h3>
+        <h3 className="label-mono mb-3 text-[10px] uppercase tracking-[0.18em] text-console-faint">Revenue by payment method</h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {[
             {
               name: 'Stripe',
               icon: CreditCard,
-              accent: 'text-blue-300',
               code: 'USD',
               primary: formatCurrency(revenue.byPaymentMethod.stripe.revenueUSD, 'USD'),
               meta: [
@@ -326,7 +317,6 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
             {
               name: 'MonCash',
               icon: Smartphone,
-              accent: 'text-red-300',
               code: 'HTG',
               primary: formatCurrency(revenue.byPaymentMethod.moncash.revenueHTG, 'HTG'),
               meta: [
@@ -337,7 +327,6 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
             {
               name: 'NatCash',
               icon: Smartphone,
-              accent: 'text-emerald-300',
               code: 'HTG',
               primary: formatCurrency(revenue.byPaymentMethod.natcash.revenueHTG, 'HTG'),
               meta: [
@@ -348,18 +337,18 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
           ].map((m) => {
             const Icon = m.icon
             return (
-              <div key={m.name} className="rounded-xl border border-white/10 p-5">
+              <div key={m.name} className="rounded-lg bg-console-panel p-5">
                 <div className="mb-4 flex items-center gap-2">
-                  <Icon className={`h-4 w-4 ${m.accent}`} />
-                  <h4 className="text-sm font-semibold text-white">{m.name}</h4>
-                  <span className="label-mono ml-auto text-[11px] font-medium uppercase tracking-wide text-white/35">
+                  <Icon className="h-4 w-4 text-console-faint" />
+                  <h4 className="text-sm font-semibold text-console-text">{m.name}</h4>
+                  <span className="label-mono ml-auto text-[10px] uppercase tracking-[0.18em] text-console-faint">
                     {m.code}
                   </span>
                 </div>
-                <div className="font-mono text-[26px] font-bold leading-none tabular-nums text-white">
+                <div className="font-mono text-xl leading-none tabular-nums text-console-text">
                   {m.primary}
                 </div>
-                <div className="mt-4 flex items-center gap-4 border-t border-white/10 pt-3 text-xs text-white/50">
+                <div className="mt-4 flex items-center gap-4 border-t border-console-raise pt-3 text-xs text-console-mut">
                   {m.meta.map((x, i) => (
                     <span key={i} className="font-mono tabular-nums">{x}</span>
                   ))}
@@ -372,35 +361,35 @@ export function AdminRevenueAnalytics({ showFilters = false }: Props) {
 
       {/* Exchange Rate Info */}
       {revenue.exchangeRates.averageRate > 0 && (
-        <div className="rounded-xl border border-white/10 p-4">
-          <h3 className="text-sm font-semibold text-white mb-3">Exchange Rate Analytics</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="rounded-lg bg-console-panel p-4">
+          <h3 className="label-mono mb-3 text-[10px] uppercase tracking-[0.18em] text-console-faint">Exchange Rate Analytics</h3>
+          <div className="flex flex-wrap gap-x-8 gap-y-4">
             <div>
-              <div className="text-xs text-white/50">Average Rate</div>
-              <div className="font-mono text-base font-semibold tabular-nums text-white">
+              <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Average Rate</div>
+              <div className="mt-1 font-mono text-base tabular-nums text-console-text">
                 {revenue.exchangeRates.averageRate.toFixed(6)}
               </div>
             </div>
             <div>
-              <div className="text-xs text-white/50">Min Rate</div>
-              <div className="font-mono text-base font-semibold tabular-nums text-white">
+              <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Min Rate</div>
+              <div className="mt-1 font-mono text-base tabular-nums text-console-text">
                 {revenue.exchangeRates.minRate.toFixed(6)}
               </div>
             </div>
             <div>
-              <div className="text-xs text-white/50">Max Rate</div>
-              <div className="font-mono text-base font-semibold tabular-nums text-white">
+              <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Max Rate</div>
+              <div className="mt-1 font-mono text-base tabular-nums text-console-text">
                 {revenue.exchangeRates.maxRate.toFixed(6)}
               </div>
             </div>
             <div>
-              <div className="text-xs text-white/50">Rate Spread</div>
-              <div className="font-mono text-base font-semibold tabular-nums text-white">
+              <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Rate Spread</div>
+              <div className="mt-1 font-mono text-base tabular-nums text-console-text">
                 {revenue.exchangeRates.rateSpread.toFixed(6)}
               </div>
             </div>
           </div>
-          <p className="text-xs text-white/50 mt-3">
+          <p className="mt-3 text-xs text-console-mut">
             HTG to USD conversion rates across all transactions
           </p>
         </div>

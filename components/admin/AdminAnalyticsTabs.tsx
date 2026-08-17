@@ -2,17 +2,6 @@
 
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
-import {
-  DollarSign,
-  TrendingUp,
-  Calendar,
-  Users,
-  Award,
-  BarChart3,
-  Ticket,
-  RefreshCcw,
-  ShieldAlert,
-} from 'lucide-react'
 import { useAdminMetrics } from '@/lib/realtime/AdminRealtimeProvider'
 import { AdminRevenueAnalytics } from './AdminRevenueAnalytics'
 import { UserGrowthAnalytics } from './UserGrowthAnalytics'
@@ -25,16 +14,15 @@ type TabId = 'overview' | 'revenue' | 'users' | 'events' | 'conversion' | 'organ
 interface Tab {
   id: TabId
   label: string
-  icon: React.ComponentType<{ className?: string }>
 }
 
 const tabs: Tab[] = [
-  { id: 'overview', label: 'Overview', icon: BarChart3 },
-  { id: 'revenue', label: 'Revenue', icon: DollarSign },
-  { id: 'users', label: 'Users', icon: Users },
-  { id: 'events', label: 'Events', icon: Calendar },
-  { id: 'conversion', label: 'Conversion', icon: TrendingUp },
-  { id: 'organizers', label: 'Organizers', icon: Award },
+  { id: 'overview', label: 'Overview' },
+  { id: 'revenue', label: 'Revenue' },
+  { id: 'users', label: 'Users' },
+  { id: 'events', label: 'Events' },
+  { id: 'conversion', label: 'Conversion' },
+  { id: 'organizers', label: 'Organizers' },
 ]
 
 const DEFAULT_TAB: TabId = 'overview'
@@ -55,38 +43,32 @@ function HeroScorecard() {
   const m = metrics
 
   const cells = [
-    { label: 'Total users', value: m ? fmtNum(m.usersCount) : '—', icon: Users },
-    { label: 'Active events', value: m ? fmtNum(m.eventsCount) : '—', icon: Calendar },
-    { label: 'Tickets · 7d', value: m ? fmtNum(m.tickets7d) : '—', icon: Ticket },
-    { label: 'Revenue · 7d', value: m ? fmtHTG(m.gmv7d) : '—', sub: 'HTG', icon: DollarSign },
-    { label: 'Refunds · 7d', value: m ? fmtNum(m.refunds7d) : '—', icon: RefreshCcw },
-    { label: 'Pending', value: m ? fmtNum(m.pendingCount) : '—', icon: ShieldAlert },
+    { label: 'Total users', value: m ? fmtNum(m.usersCount) : '—' },
+    { label: 'Active events', value: m ? fmtNum(m.eventsCount) : '—' },
+    { label: 'Tickets · 7d', value: m ? fmtNum(m.tickets7d) : '—' },
+    { label: 'Revenue · 7d', value: m ? fmtHTG(m.gmv7d) : '—', sub: 'HTG' },
+    { label: 'Refunds · 7d', value: m ? fmtNum(m.refunds7d) : '—' },
+    { label: 'Pending', value: m ? fmtNum(m.pendingCount) : '—' },
   ]
 
   return (
     <div>
-      <div className="mb-2 flex items-center gap-2">
-        <span className={`h-1.5 w-1.5 rounded-full ${isConnected ? 'bg-emerald-400' : 'bg-white/30'}`} />
-        <span className="label-mono text-[11px] font-medium uppercase tracking-wide text-white/50">
+      <div className="mb-3 flex items-center gap-2">
+        <span className={`h-1.5 w-1.5 rounded-full ${isConnected ? 'bg-console-green' : 'bg-console-faint'}`} />
+        <span className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">
           {isConnected ? 'Live' : 'Snapshot'}
         </span>
       </div>
-      <div className="grid grid-cols-2 divide-x divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10 sm:grid-cols-3 lg:grid-cols-6 lg:divide-y-0">
-        {cells.map((c) => {
-          const Icon = c.icon
-          return (
-            <div key={c.label} className="p-4">
-              <div className="label-mono mb-1.5 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
-                <Icon className="h-3.5 w-3.5 text-white/30" />
-                <span className="truncate">{c.label}</span>
-              </div>
-              <div className="flex items-baseline gap-1">
-                <span className="font-mono text-2xl font-bold tabular-nums text-white">{c.value}</span>
-                {c.sub && <span className="font-mono text-xs text-white/50">{c.sub}</span>}
-              </div>
+      <div className="flex flex-wrap gap-x-8 gap-y-4">
+        {cells.map((c) => (
+          <div key={c.label}>
+            <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">{c.label}</div>
+            <div className="mt-1 flex items-baseline gap-1">
+              <span className="font-mono text-xl tabular-nums text-console-text">{c.value}</span>
+              {c.sub && <span className="font-mono text-xs text-console-mut">{c.sub}</span>}
             </div>
-          )
-        })}
+          </div>
+        ))}
       </div>
     </div>
   )
@@ -98,8 +80,8 @@ function Section({ title, subtitle, children }: { title: string; subtitle?: stri
   return (
     <section className="space-y-3">
       <div>
-        <h2 className="text-sm font-semibold text-white">{title}</h2>
-        {subtitle && <p className="text-xs text-white/50">{subtitle}</p>}
+        <h2 className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">{title}</h2>
+        {subtitle && <p className="mt-0.5 text-xs text-console-mut">{subtitle}</p>}
       </div>
       {children}
     </section>
@@ -144,14 +126,13 @@ function AdminAnalyticsTabsInner() {
       {/* Live hero scorecard */}
       <HeroScorecard />
 
-      {/* Segmented tab control */}
+      {/* Tab bar — mono caps text tabs */}
       <div
-        className="scrollbar-hide flex gap-1 overflow-x-auto rounded-full border border-white/10 p-1"
+        className="scrollbar-hide flex gap-6 overflow-x-auto"
         role="tablist"
         aria-label="Analytics views"
       >
         {tabs.map((tab) => {
-          const Icon = tab.icon
           const isActive = activeTab === tab.id
           return (
             <button
@@ -161,11 +142,10 @@ function AdminAnalyticsTabsInner() {
               aria-controls={`apanel-${tab.id}`}
               aria-selected={isActive}
               onClick={() => selectTab(tab.id)}
-              className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-                isActive ? 'bg-white/[0.08] text-white' : 'text-white/50 hover:text-white'
+              className={`label-mono shrink-0 whitespace-nowrap border-b-2 px-0.5 pb-2 text-[11px] font-semibold uppercase tracking-[0.14em] transition-colors ${
+                isActive ? 'border-console-text text-console-text' : 'border-transparent text-console-mut hover:text-console-text'
               }`}
             >
-              <Icon className="h-4 w-4" />
               {tab.label}
             </button>
           )

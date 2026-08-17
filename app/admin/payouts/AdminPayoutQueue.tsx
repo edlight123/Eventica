@@ -246,7 +246,7 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-console-ground">
+            <table className="min-w-full divide-y divide-console-raise">
               <thead>
                 <tr>
                   <th className="label-mono px-6 py-3 text-left text-[10px] uppercase tracking-[0.14em] text-console-faint">Organizer</th>
@@ -259,7 +259,7 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
                   <th className="label-mono px-6 py-3 text-left text-[10px] uppercase tracking-[0.14em] text-console-faint">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-console-ground">
+              <tbody className="divide-y divide-console-raise">
                 {payouts.map((payout) => (
                   <tr key={payout.id} className="hover:bg-console-raise">
                     <td className="px-6 py-4">

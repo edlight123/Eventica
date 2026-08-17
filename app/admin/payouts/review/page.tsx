@@ -1,6 +1,5 @@
 import PayoutReviewQueue from './PayoutReviewQueue'
 import { AdminBreadcrumbs } from '@/components/admin/AdminBreadcrumbs'
-import { EditorialHeader } from '@/components/ui/EditorialHeader'
 
 export const metadata = {
   title: 'Payout Review Queue | Admin | Tikèm',
@@ -20,13 +19,16 @@ export default async function AdminPayoutReviewPage() {
         ]}
       />
 
-      <EditorialHeader
-        eyebrow="Payouts"
-        title="Payout Review Queue"
-        subtitle="Events the release job would not pay on its own. Each one is an organizer waiting on money, so decide and move on — approving lets the next run pay it, dismissing closes it without paying."
-        tone="dark"
-        className="mb-8"
-      />
+      <div className="mb-8">
+        <h1 className="label-mono text-[15px] font-bold uppercase tracking-[0.14em] text-console-text">
+          Payout Review Queue
+        </h1>
+        <p className="mt-1.5 max-w-2xl text-sm text-console-mut">
+          Events the release job would not pay on its own. Each one is an organizer waiting on
+          money, so decide and move on — approving lets the next run pay it, dismissing closes it
+          without paying.
+        </p>
+      </div>
 
       <PayoutReviewQueue />
     </div>

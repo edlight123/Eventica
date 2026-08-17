@@ -43,19 +43,20 @@ export function ConversionFunnelAnalytics() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
+      <div className="space-y-4">
+        <div className="h-20 animate-pulse rounded-lg bg-console-panel" />
+        <div className="h-48 animate-pulse rounded-lg bg-console-panel" />
       </div>
     )
   }
 
   if (loadError || !data) {
     return (
-      <div className="rounded-lg border border-white/10 bg-white/[0.02] p-8 text-center">
-        <p className="mb-4 text-sm text-red-300">{loadError || 'Failed to load conversion data'}</p>
+      <div className="rounded-lg bg-console-panel p-8 text-center">
+        <p className="mb-4 text-sm text-console-red">{loadError || 'Failed to load conversion data'}</p>
         <button
           onClick={() => void loadData()}
-          className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/[0.04] hover:text-white"
+          className="rounded bg-console-raise px-3 py-1.5 text-[13px] font-semibold text-console-mut transition-colors hover:text-console-text"
         >
           Retry
         </button>
@@ -71,19 +72,16 @@ export function ConversionFunnelAnalytics() {
 
   return (
     <div className="space-y-4">
-      {/* Overall conversion — flat highlight */}
-      <div className="flex items-center justify-between rounded-lg border border-white/10 p-4">
-        <div>
-          <div className="label-mono text-[11px] font-medium uppercase tracking-wide text-white/50">Overall conversion</div>
-          <div className="mt-0.5 font-mono text-3xl font-bold tabular-nums text-white">{data.overallConversion.toFixed(2)}%</div>
-          <div className="mt-0.5 text-xs text-white/50">Views → purchases · last 30 days</div>
-        </div>
-        <TrendingUp className="h-8 w-8 text-brand-300" />
+      {/* Overall conversion — unboxed KPI figure */}
+      <div>
+        <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Overall conversion</div>
+        <div className="mt-1 font-mono text-xl tabular-nums text-console-text">{data.overallConversion.toFixed(2)}%</div>
+        <div className="mt-0.5 text-xs text-console-mut">Views → purchases · last 30 days</div>
       </div>
 
       {/* Funnel */}
-      <div className="rounded-lg border border-white/10 p-4">
-        <h3 className="mb-3 text-[13px] font-semibold text-white">Conversion funnel</h3>
+      <div className="rounded-lg bg-console-panel p-4">
+        <h3 className="label-mono mb-3 text-[10px] uppercase tracking-[0.18em] text-console-faint">Conversion funnel</h3>
         <div className="space-y-3">
           {stages.map((stage) => {
             const StageIcon = stage.icon
@@ -91,16 +89,16 @@ export function ConversionFunnelAnalytics() {
             return (
               <div key={stage.label}>
                 <div className="mb-1.5 flex items-center justify-between">
-                  <span className="flex items-center gap-2 text-sm text-white/80">
-                    <StageIcon className="h-4 w-4 text-brand-300" /> {stage.label}
+                  <span className="flex items-center gap-2 text-sm text-console-text">
+                    <StageIcon className="h-4 w-4 text-console-faint" /> {stage.label}
                     {stage.conversionRate !== undefined && (
-                      <span className="font-mono text-xs tabular-nums text-white/50">· {stage.conversionRate.toFixed(1)}%</span>
+                      <span className="font-mono text-xs tabular-nums text-console-mut">· {stage.conversionRate.toFixed(1)}%</span>
                     )}
                   </span>
-                  <span className="font-mono text-sm font-bold tabular-nums text-white">{stage.value.toLocaleString()}</span>
+                  <span className="font-mono text-sm tabular-nums text-console-text">{stage.value.toLocaleString()}</span>
                 </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
-                  <div className="h-full rounded-full bg-brand-500 transition-all duration-500" style={{ width: `${widthPercentage}%` }} />
+                <div className="h-2 w-full overflow-hidden rounded-full bg-console-raise">
+                  <div className="h-full rounded-full bg-console-mut transition-all duration-500" style={{ width: `${widthPercentage}%` }} />
                 </div>
               </div>
             )
@@ -108,11 +106,11 @@ export function ConversionFunnelAnalytics() {
         </div>
 
         {/* Insights */}
-        <div className="mt-4 rounded-lg border border-white/10 p-3">
-          <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-white/70">
-            <TrendingUp className="h-3.5 w-3.5 text-brand-300" /> Insights
+        <div className="mt-4 rounded bg-console-raise p-3">
+          <div className="label-mono mb-1 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.18em] text-console-faint">
+            <TrendingUp className="h-3.5 w-3.5 text-console-faint" /> Insights
           </div>
-          <ul className="space-y-0.5 text-xs text-white/50">
+          <ul className="space-y-0.5 text-xs text-console-mut">
             <li><span className="font-mono tabular-nums">{data.favoriteRate.toFixed(1)}%</span> of viewers favorite events</li>
             <li><span className="font-mono tabular-nums">{data.purchaseRate.toFixed(1)}%</span> of favorited events lead to purchases</li>
             <li>Overall <span className="font-mono tabular-nums">{data.overallConversion.toFixed(2)}%</span> of viewers complete a purchase</li>
@@ -120,7 +118,7 @@ export function ConversionFunnelAnalytics() {
         </div>
       </div>
 
-      <p className="text-center text-[11px] text-white/35">
+      <p className="text-center text-[11px] text-console-faint">
         Event views are estimated (10× favorites) until view tracking is implemented.
       </p>
     </div>

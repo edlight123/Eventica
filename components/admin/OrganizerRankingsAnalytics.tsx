@@ -45,20 +45,16 @@ export function OrganizerRankingsAnalytics() {
   }, [loadData])
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
-      </div>
-    )
+    return <div className="h-64 animate-pulse rounded-lg bg-console-panel" />
   }
 
   if (loadError) {
     return (
-      <div className="rounded-lg border border-white/10 bg-white/[0.02] p-8 text-center">
-        <p className="mb-4 text-sm text-red-300">{loadError}</p>
+      <div className="rounded-lg bg-console-panel p-8 text-center">
+        <p className="mb-4 text-sm text-console-red">{loadError}</p>
         <button
           onClick={() => void loadData()}
-          className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/[0.04] hover:text-white"
+          className="rounded bg-console-raise px-3 py-1.5 text-[13px] font-semibold text-console-mut transition-colors hover:text-console-text"
         >
           Retry
         </button>
@@ -68,7 +64,7 @@ export function OrganizerRankingsAnalytics() {
 
   if (organizers.length === 0) {
     return (
-      <div className="text-center py-12 text-white/50">
+      <div className="py-12 text-center text-sm text-console-mut">
         No organizer data available
       </div>
     )
@@ -78,22 +74,22 @@ export function OrganizerRankingsAnalytics() {
   const avgRating = ratedCount > 0 ? organizers.reduce((sum, o) => sum + o.avgRating, 0) / ratedCount : 0
 
   return (
-    <div className="rounded-lg border border-white/10 p-4">
+    <div className="rounded-lg bg-console-panel p-4">
       <div className="mb-3 flex items-center gap-2">
-        <Crown className="h-4 w-4 text-amber-300" />
-        <h3 className="text-[13px] font-semibold text-white">Top organizers</h3>
-        <span className="text-xs text-white/50">· by ticket sales</span>
+        <Crown className="h-4 w-4 text-console-faint" />
+        <h3 className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Top organizers</h3>
+        <span className="text-xs text-console-mut">· by ticket sales</span>
       </div>
 
-      <ul className="divide-y divide-white/5">
+      <ul className="divide-y divide-console-raise">
         {organizers.map((organizer, index) => {
           const rank = index + 1
           const isTopThree = rank <= 3
           return (
-            <li key={organizer.id} className="flex items-center gap-3 py-2.5">
+            <li key={organizer.id} className="flex items-center gap-3 py-2.5 transition-colors hover:bg-console-raise">
               <span
-                className={`w-5 shrink-0 text-center font-mono text-sm font-bold tabular-nums ${
-                  isTopThree ? 'text-amber-300' : 'text-white/50'
+                className={`w-5 shrink-0 text-center font-mono text-sm tabular-nums ${
+                  isTopThree ? 'text-console-amber' : 'text-console-mut'
                 }`}
               >
                 {rank}
@@ -101,21 +97,21 @@ export function OrganizerRankingsAnalytics() {
               <div className="min-w-0 flex-1">
                 <Link
                   href={`/organizer/profile/${organizer.id}`}
-                  className="block truncate text-sm font-semibold text-white transition-colors hover:text-brand-300"
+                  className="block truncate text-sm font-semibold text-console-text hover:underline"
                 >
                   {organizer.name}
                 </Link>
-                <div className="mt-0.5 flex items-center gap-3 text-xs text-white/50">
+                <div className="mt-0.5 flex items-center gap-3 text-xs text-console-mut">
                   <span className="inline-flex items-center gap-1 font-mono tabular-nums"><Ticket className="h-3 w-3" />{organizer.totalTickets.toLocaleString()}</span>
                   <span className="inline-flex items-center gap-1 font-mono tabular-nums"><Calendar className="h-3 w-3" />{organizer.eventsCount}</span>
                   {organizer.avgRating > 0 && (
-                    <span className="inline-flex items-center gap-1 font-mono tabular-nums"><Star className="h-3 w-3 text-amber-300" />{organizer.avgRating.toFixed(1)}</span>
+                    <span className="inline-flex items-center gap-1 font-mono tabular-nums"><Star className="h-3 w-3 text-console-amber" />{organizer.avgRating.toFixed(1)}</span>
                   )}
                 </div>
               </div>
               <div className="shrink-0 text-right">
-                <div className="font-mono text-sm font-bold tabular-nums text-white">{organizer.totalTickets.toLocaleString()}</div>
-                <div className="font-mono text-[11px] tabular-nums text-white/50">
+                <div className="font-mono text-sm tabular-nums text-console-text">{organizer.totalTickets.toLocaleString()}</div>
+                <div className="font-mono text-[11px] tabular-nums text-console-mut">
                   {organizer.eventsCount > 0 ? `${(organizer.totalTickets / organizer.eventsCount).toFixed(0)}/event` : 'sales'}
                 </div>
               </div>
@@ -125,15 +121,15 @@ export function OrganizerRankingsAnalytics() {
       </ul>
 
       {/* Summary */}
-      <div className="mt-3 grid grid-cols-3 divide-x divide-white/10 border-t border-white/10 pt-3">
+      <div className="mt-3 flex flex-wrap gap-x-8 gap-y-4 border-t border-console-raise pt-3">
         {[
           { v: organizers.reduce((s, o) => s + o.totalTickets, 0).toLocaleString(), l: 'Tickets sold' },
           { v: organizers.reduce((s, o) => s + o.eventsCount, 0).toLocaleString(), l: 'Events' },
           { v: avgRating > 0 ? avgRating.toFixed(1) : 'N/A', l: 'Avg rating' },
         ].map((s) => (
-          <div key={s.l} className="text-center">
-            <div className="font-mono text-lg font-bold tabular-nums text-white">{s.v}</div>
-            <div className="mt-0.5 text-[11px] text-white/50">{s.l}</div>
+          <div key={s.l}>
+            <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">{s.l}</div>
+            <div className="mt-1 font-mono text-xl tabular-nums text-console-text">{s.v}</div>
           </div>
         ))}
       </div>

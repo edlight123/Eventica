@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { FileText, ShieldAlert, SlidersHorizontal, TrendingUp, Wallet } from 'lucide-react'
+import { ShieldAlert, SlidersHorizontal } from 'lucide-react'
 import { AdminBreadcrumbs } from './AdminBreadcrumbs'
-import { EditorialHeader } from '@/components/ui/EditorialHeader'
 
 interface PayoutOperationsClientProps {
   pendingPayoutsContent: React.ReactNode
@@ -17,7 +16,6 @@ type TabId = 'pending' | 'settlements' | 'withdrawals'
 interface Tab {
   id: TabId
   label: string
-  icon: React.ComponentType<{ className?: string }>
   badge?: number
 }
 
@@ -49,76 +47,69 @@ export function PayoutOperationsClient({
     {
       id: 'pending',
       label: 'Pending Requests',
-      icon: FileText,
     },
     {
       id: 'settlements',
       label: 'Event Settlements',
-      icon: TrendingUp,
     },
     {
       id: 'withdrawals',
       label: 'Withdrawal History',
-      icon: Wallet,
     },
   ]
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
       {/* Breadcrumbs */}
       <AdminBreadcrumbs items={[{ label: 'Payout Operations' }]} />
 
       {/* Header */}
       <div className="mb-8">
-        <EditorialHeader
-          title="Payout Operations"
-          subtitle="Manage event disbursements, pending requests, and withdrawal history"
-          tone="dark"
-          actions={
-            <div className="flex items-center gap-2">
-              <Link
-                href="/admin/disputes"
-                className="inline-flex items-center gap-2 rounded-lg border border-white/15 px-3 py-2 text-sm font-semibold text-white/70 hover:bg-white/[0.04] hover:text-white"
-              >
-                <ShieldAlert className="h-4 w-4" />
-                Disputes
-              </Link>
-              <Link
-                href="/admin/payouts/release-settings"
-                className="inline-flex items-center gap-2 rounded-lg border border-white/15 px-3 py-2 text-sm font-semibold text-white/70 hover:bg-white/[0.04] hover:text-white"
-              >
-                <SlidersHorizontal className="h-4 w-4" />
-                Release settings
-              </Link>
-            </div>
-          }
-        />
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
+          <h1 className="label-mono text-[15px] font-bold uppercase tracking-[0.14em] text-console-text">
+            Payout Operations
+          </h1>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/admin/disputes"
+              className="inline-flex items-center gap-2 rounded bg-console-raise px-3 py-2 text-[13px] font-semibold text-console-mut transition-colors hover:text-console-text"
+            >
+              <ShieldAlert className="h-4 w-4" />
+              Disputes
+            </Link>
+            <Link
+              href="/admin/payouts/release-settings"
+              className="inline-flex items-center gap-2 rounded bg-console-raise px-3 py-2 text-[13px] font-semibold text-console-mut transition-colors hover:text-console-text"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              Release settings
+            </Link>
+          </div>
+        </div>
+        <p className="mt-2 text-[13px] text-console-mut">
+          Manage event disbursements, pending requests, and withdrawal history
+        </p>
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-white/10 mb-6">
+      <div className="mb-6 border-b border-console-raise">
         <nav className="-mb-px flex space-x-8" aria-label="Tabs">
           {tabs.map((tab) => {
-            const Icon = tab.icon
             const isActive = activeTab === tab.id
-            
+
             return (
               <button
                 key={tab.id}
                 onClick={() => selectTab(tab.id)}
-                className={`
-                  group inline-flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm
-                  transition-colors
-                  ${isActive
-                    ? 'border-brand-600 text-brand-300'
-                    : 'border-transparent text-white/50 hover:text-white/70 hover:border-white/10'
-                  }
-                `}
+                className={`label-mono inline-flex items-center gap-2 border-b-2 px-1 py-4 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors ${
+                  isActive
+                    ? 'border-console-text text-console-text'
+                    : 'border-transparent text-console-mut hover:text-console-text'
+                }`}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-brand-300' : 'text-white/50 group-hover:text-white/50'}`} />
                 <span>{tab.label}</span>
                 {tab.badge && tab.badge > 0 && (
-                  <span className="ml-2 py-0.5 px-2 rounded-full text-xs font-medium text-red-300">
+                  <span className="label-mono tabular-nums text-console-mut">
                     {tab.badge}
                   </span>
                 )}
@@ -135,13 +126,13 @@ export function PayoutOperationsClient({
             {pendingPayoutsContent}
           </div>
         )}
-        
+
         {activeTab === 'settlements' && (
           <div>
             {eventSettlementsContent}
           </div>
         )}
-        
+
         {activeTab === 'withdrawals' && (
           <div>
             {withdrawalsContent}

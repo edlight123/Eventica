@@ -8,7 +8,7 @@ export default async function AdminEventsPage() {
   const user = await getCurrentUser()
   
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-console-ground">
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
         <AdminBreadcrumbs
           items={[

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { Users, UserPlus, Briefcase } from 'lucide-react'
 
 interface UserGrowthData {
   dailySignups: Array<{
@@ -58,19 +57,20 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
+      <div className="space-y-4">
+        <div className="h-16 animate-pulse rounded-lg bg-console-panel" />
+        <div className="h-60 animate-pulse rounded-lg bg-console-panel" />
       </div>
     )
   }
 
   if (loadError || !data) {
     return (
-      <div className="rounded-lg border border-white/10 bg-white/[0.02] p-8 text-center">
-        <p className="mb-4 text-sm text-red-300">{loadError || 'Failed to load user growth data'}</p>
+      <div className="rounded-lg bg-console-panel p-8 text-center">
+        <p className="mb-4 text-sm text-console-red">{loadError || 'Failed to load user growth data'}</p>
         <button
           onClick={() => fetchData(selectedDays)}
-          className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/80 hover:bg-white/[0.04] hover:text-white"
+          className="rounded bg-console-raise px-3 py-1.5 text-[13px] font-semibold text-console-mut transition-colors hover:text-console-text"
         >
           Retry
         </button>
@@ -82,14 +82,14 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
 
   return (
     <div className="space-y-4">
-      {/* Period Selector — segmented */}
-      <div className="inline-flex gap-1 rounded-full border border-white/10 p-1">
+      {/* Period Selector */}
+      <div className="flex flex-wrap gap-1">
         {[7, 14, 30, 60, 90].map((period) => (
           <button
             key={period}
             onClick={() => setSelectedDays(period)}
-            className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
-              selectedDays === period ? 'bg-white/[0.08] text-white' : 'text-white/50 hover:text-white'
+            className={`rounded px-3 py-1.5 text-xs font-semibold transition-colors ${
+              selectedDays === period ? 'bg-console-raise text-console-text' : 'text-console-mut hover:text-console-text'
             }`}
           >
             {period}d
@@ -97,58 +97,53 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
         ))}
       </div>
 
-      {/* Summary — divided strip */}
-      <div className="grid grid-cols-3 divide-x divide-white/10 rounded-lg border border-white/10">
+      {/* Summary — unboxed KPI figures */}
+      <div className="flex flex-wrap gap-x-8 gap-y-4">
         {[
-          { label: 'Total users', value: data.totalUsers, icon: Users, sub: `last ${selectedDays}d` },
-          { label: 'Attendees', value: data.attendeeCount, icon: UserPlus, sub: `${pct(data.attendeeCount)}% of total` },
-          { label: 'Organizers', value: data.organizerCount, icon: Briefcase, sub: `${pct(data.organizerCount)}% of total` },
-        ].map((s) => {
-          const Icon = s.icon
-          return (
-            <div key={s.label} className="p-4">
-              <div className="label-mono mb-1 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/50">
-                <Icon className="h-3.5 w-3.5 text-white/30" /> <span className="truncate">{s.label}</span>
-              </div>
-              <div className="font-mono text-xl font-bold tabular-nums text-white">{s.value.toLocaleString()}</div>
-              <div className="mt-0.5 font-mono text-[11px] tabular-nums text-white/50">{s.sub}</div>
-            </div>
-          )
-        })}
+          { label: 'Total users', value: data.totalUsers, sub: `last ${selectedDays}d` },
+          { label: 'Attendees', value: data.attendeeCount, sub: `${pct(data.attendeeCount)}% of total` },
+          { label: 'Organizers', value: data.organizerCount, sub: `${pct(data.organizerCount)}% of total` },
+        ].map((s) => (
+          <div key={s.label}>
+            <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">{s.label}</div>
+            <div className="mt-1 font-mono text-xl tabular-nums text-console-text">{s.value.toLocaleString()}</div>
+            <div className="mt-0.5 font-mono text-[11px] tabular-nums text-console-mut">{s.sub}</div>
+          </div>
+        ))}
       </div>
 
       {/* Growth Chart */}
-      <div className="rounded-lg border border-white/10 p-4">
-        <h3 className="mb-3 text-[13px] font-semibold text-white">Daily signups</h3>
+      <div className="rounded-lg bg-console-panel p-4">
+        <h3 className="label-mono mb-3 text-[10px] uppercase tracking-[0.18em] text-console-faint">Daily signups</h3>
         {data.dailySignups.length > 0 ? (
           <ResponsiveContainer width="100%" height={240}>
             <LineChart data={data.dailySignups} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff14" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#20252E" vertical={false} />
               <XAxis
                 dataKey="date"
-                tick={{ fontSize: 11, fill: '#ffffff66' }}
+                tick={{ fontSize: 11, fill: '#8B93A1' }}
                 tickLine={false}
-                axisLine={{ stroke: '#ffffff1a' }}
+                axisLine={{ stroke: '#20252E' }}
                 tickFormatter={(value) => {
                   const date = new Date(value)
                   return `${date.getMonth() + 1}/${date.getDate()}`
                 }}
               />
-              <YAxis tick={{ fontSize: 11, fill: '#ffffff66' }} tickLine={false} axisLine={false} width={32} />
+              <YAxis tick={{ fontSize: 11, fill: '#8B93A1' }} tickLine={false} axisLine={false} width={32} />
               <Tooltip
                 labelFormatter={(value) => new Date(value).toLocaleDateString()}
-                contentStyle={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10, fontSize: 12 }}
-                labelStyle={{ color: '#ffffffaa' }}
-                itemStyle={{ color: '#fff' }}
+                contentStyle={{ background: '#20252E', border: 'none', borderRadius: 8, fontSize: 12 }}
+                labelStyle={{ color: '#8B93A1' }}
+                itemStyle={{ color: '#E8EAED' }}
               />
-              <Legend wrapperStyle={{ fontSize: 12, color: '#ffffff99' }} iconType="plainline" />
+              <Legend wrapperStyle={{ fontSize: 12, color: '#8B93A1' }} iconType="plainline" />
               <Line type="monotone" dataKey="total" stroke="#14B8A6" strokeWidth={2.5} dot={false} name="Total" />
               <Line type="monotone" dataKey="attendees" stroke="#5EEAD4" strokeWidth={2} dot={false} name="Attendees" />
               <Line type="monotone" dataKey="organizers" stroke="#0F766E" strokeWidth={2} dot={false} name="Organizers" />
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <div className="py-12 text-center text-sm text-white/50">No signup data for this period</div>
+          <div className="py-12 text-center text-sm text-console-mut">No signup data for this period</div>
         )}
       </div>
     </div>

@@ -91,7 +91,7 @@ export default function PayoutReceiptUpload({
       }
 
       const { receiptUrl } = await response.json()
-      
+
       setSuccess(true)
       setPreviewUrl(receiptUrl)
       onUploadComplete?.(receiptUrl)
@@ -121,9 +121,9 @@ export default function PayoutReceiptUpload({
     <div className="space-y-4">
       {/* Current Receipt Display */}
       {currentReceiptUrl && !selectedFile && (
-        <div className="border rounded-lg p-4 border-emerald-500/30">
+        <div className="rounded-lg bg-console-ground p-4">
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2 text-emerald-300">
+            <div className="flex items-center gap-2 text-console-green">
               <CheckCircle className="w-5 h-5" />
               <span className="font-medium">Receipt Uploaded</span>
             </div>
@@ -131,23 +131,23 @@ export default function PayoutReceiptUpload({
               href={currentReceiptUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-brand-300 hover:text-brand-300"
+              className="flex items-center gap-2 text-sm font-semibold text-console-mut hover:text-console-text"
             >
               <Download className="w-4 h-4" />
               View Receipt
             </a>
           </div>
-          
+
           {currentReceiptUrl.includes('.pdf') ? (
-            <div className="flex items-center gap-3 p-3 bg-[#0a0a0a] rounded border">
-              <FileText className="w-8 h-8 text-red-500" />
+            <div className="flex items-center gap-3 rounded bg-console-raise p-3">
+              <FileText className="w-8 h-8 text-console-red" />
               <div className="flex-1">
-                <p className="text-sm font-medium">Receipt Document</p>
-                <p className="text-xs text-white/50">PDF File</p>
+                <p className="text-sm font-medium text-console-text">Receipt Document</p>
+                <p className="text-xs text-console-faint">PDF File</p>
               </div>
             </div>
           ) : (
-            <div className="relative w-full h-48 bg-[#0a0a0a] rounded border">
+            <div className="relative h-48 w-full rounded bg-console-raise">
               <Image
                 src={currentReceiptUrl}
                 alt="Payment receipt"
@@ -160,13 +160,13 @@ export default function PayoutReceiptUpload({
       )}
 
       {/* Upload Form */}
-      <div className="border rounded-lg p-4">
+      <div className="rounded-lg bg-console-ground p-4">
         <label className="block mb-3">
-          <span className="text-sm font-medium text-white/70">
+          <span className="text-sm font-medium text-console-mut">
             {currentReceiptUrl ? 'Replace Receipt' : 'Upload Payment Receipt'}
-            <span className="text-red-500 ml-1">*</span>
+            <span className="ml-1 text-console-red">*</span>
           </span>
-          <span className="block text-xs text-white/50 mt-1">
+          <span className="mt-1 block text-xs text-console-faint">
             Upload proof of payment (JPG, PNG, PDF - Max 5MB)
           </span>
         </label>
@@ -183,14 +183,14 @@ export default function PayoutReceiptUpload({
           />
           <label
             htmlFor="receipt-upload"
-            className={`flex items-center justify-center gap-2 border-2 border-dashed rounded-lg p-6 cursor-pointer transition-colors ${
+            className={`flex items-center justify-center gap-2 rounded-lg border-2 border-dashed p-6 transition-colors ${
               uploading
-                ? 'bg-[#0a0a0a] border-white/10 cursor-not-allowed'
-                : 'hover:bg-white/[0.04] border-white/10 hover:border-brand-400'
+                ? 'cursor-not-allowed border-console-faint opacity-50'
+                : 'cursor-pointer border-console-faint hover:border-console-mut hover:bg-console-raise'
             }`}
           >
-            <Upload className="w-5 h-5 text-white/50" />
-            <span className="text-sm text-white/60">
+            <Upload className="w-5 h-5 text-console-faint" />
+            <span className="text-sm text-console-mut">
               {selectedFile ? 'Change file' : 'Click to browse or drag file here'}
             </span>
           </label>
@@ -199,7 +199,7 @@ export default function PayoutReceiptUpload({
         {/* Selected File Preview */}
         {selectedFile && (
           <div className="mt-4 space-y-3">
-            <div className="flex items-center justify-between p-3 border border-brand-500/30 rounded-lg">
+            <div className="flex items-center justify-between rounded-lg bg-console-raise p-3">
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 {selectedFile.type.startsWith('image/') ? (
                   previewUrl && (
@@ -213,23 +213,23 @@ export default function PayoutReceiptUpload({
                     </div>
                   )
                 ) : (
-                  <FileText className="w-12 h-12 text-red-500 flex-shrink-0" />
+                  <FileText className="w-12 h-12 flex-shrink-0 text-console-red" />
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white truncate">
+                  <p className="text-sm font-medium text-console-text truncate">
                     {selectedFile.name}
                   </p>
-                  <p className="font-mono text-xs tabular-nums text-white/50">
+                  <p className="font-mono text-xs tabular-nums text-console-mut">
                     {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                   </p>
                 </div>
               </div>
               <button
                 onClick={handleRemoveFile}
-                className="ml-2 p-1 hover:bg-brand-500/15 rounded transition-colors"
+                className="ml-2 rounded p-1 transition-colors hover:bg-console-ground"
                 disabled={uploading}
               >
-                <X className="w-4 h-4 text-white/50" />
+                <X className="w-4 h-4 text-console-mut" />
               </button>
             </div>
 
@@ -237,11 +237,11 @@ export default function PayoutReceiptUpload({
             <button
               onClick={handleUpload}
               disabled={uploading}
-              className="w-full bg-brand-700 text-white px-4 py-2 rounded-lg hover:bg-brand-800 disabled:bg-[#0a0a0a] disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              className="flex w-full items-center justify-center gap-2 rounded bg-console-text px-4 py-2 text-[13px] font-bold text-console-ground transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {uploading ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-console-ground border-t-transparent" />
                   <span>Uploading...</span>
                 </>
               ) : (
@@ -256,7 +256,7 @@ export default function PayoutReceiptUpload({
 
         {/* Success Message */}
         {success && (
-          <div className="mt-3 p-3 border border-emerald-500/30 rounded-lg flex items-center gap-2 text-emerald-300">
+          <div className="mt-3 flex items-center gap-2 rounded-lg bg-console-raise p-3 text-console-green">
             <CheckCircle className="w-5 h-5" />
             <span className="text-sm font-medium">Receipt uploaded successfully!</span>
           </div>
@@ -264,7 +264,7 @@ export default function PayoutReceiptUpload({
 
         {/* Error Message */}
         {error && (
-          <div className="mt-3 p-3 border border-red-500/30 rounded-lg flex items-center gap-2 text-red-300">
+          <div className="mt-3 flex items-center gap-2 rounded-lg bg-console-raise p-3 text-console-red">
             <AlertCircle className="w-5 h-5" />
             <span className="text-sm">{error}</span>
           </div>
