@@ -723,6 +723,76 @@
           "order": "DESCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "event_promoters",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "event_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "created_at",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "event_promoters",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "event_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "code",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "event_promoters",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "claimed_by_uid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "created_at",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "promoter_sales",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "promoter_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "created_at",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "promoter_sales",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "event_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "created_at",
+          "order": "DESCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": [

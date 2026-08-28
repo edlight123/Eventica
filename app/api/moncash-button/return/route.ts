@@ -24,6 +24,7 @@ import {
 } from '@/lib/tickets/inventory'
 import { addTicketToEarnings } from '@/lib/earnings'
 import { promoBuyerKey, redeemPromoInTransaction } from '@/lib/promo-codes'
+import { recordPromoterSale } from '@/lib/promoters'
 
 export const runtime = 'nodejs'
 
@@ -548,6 +549,10 @@ async function handleMonCashButtonReturn(request: Request): Promise<NextResponse
           charged_currency: chargedCurrency,
           payment_method: normalizedPaymentMethod,
           payment_id: transactionId || payment.transNumber || orderId,
+          // Promoter attribution: opaque ids only; the commission economics live in
+          // the server-only promoter_sales ledger.
+          promoter_id: pendingTx.promoter_id || null,
+          promoter_code: pendingTx.promoter_code || null,
           status: 'valid',
           purchased_at: new Date().toISOString(),
           tier_name: selection.tierName || 'General Admission',
@@ -619,6 +624,8 @@ async function handleMonCashButtonReturn(request: Request): Promise<NextResponse
                 charged_currency: chargedCurrency,
                 payment_method: normalizedPaymentMethod,
                 payment_id: transactionId || payment.transNumber || orderId,
+                promoter_id: pendingTx.promoter_id || null,
+                promoter_code: pendingTx.promoter_code || null,
                 purchased_at: new Date().toISOString(),
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
@@ -668,6 +675,25 @@ async function handleMonCashButtonReturn(request: Request): Promise<NextResponse
       } catch (promoErr) {
         console.error('[moncash_button] promo redemption failed', (promoErr as any)?.message)
       }
+    }
+
+    // Attribute the sale to its promoter — same exclusive fulfillment claim as the
+    // promo redemption above; a bookkeeping failure never breaks the sale.
+    if (createdTickets.length > 0 && pendingTx.promoter_id) {
+      await recordPromoterSale({
+        promoterId: String(pendingTx.promoter_id),
+        eventId: String(pendingTx.event_id),
+        ticketIds: createdTickets.map((t: any) => String(t.id)),
+        quantity: Number(pendingTx.quantity || createdTickets.length || 1),
+        // Organizer-facing gross in event currency — the same base the earnings
+        // ledger uses below.
+        orderGrossCents: Math.round(Number(pendingTx.original_amount || 0) * 100),
+        currency: eventCurrency,
+        paymentMethod: normalizedPaymentMethod,
+        paymentId: transactionId || payment.transNumber || orderId,
+        buyerUserId: pendingTx.is_guest ? null : pendingTx.user_id ? String(pendingTx.user_id) : null,
+        buyerEmail: pendingTx.guest_email || attendee?.email || null,
+      })
     }
 
     // Update Firestore earnings in event currency.

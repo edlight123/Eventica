@@ -4,6 +4,7 @@ import { sendTicketConfirmation } from '@/lib/tickets/confirmation'
 import { guestRecipientFromOrder } from '@/lib/guest/checkout'
 import { attachTicketsToGuestOrder, isGuestId } from '@/lib/guest/identity'
 import { promoBuyerKey, redeemPromoInTransaction } from '@/lib/promo-codes'
+import { recordPromoterSale } from '@/lib/promoters'
 import { notifyTicketPurchase, notifyOrganizerTicketSale } from '@/lib/notifications/helpers'
 import { addTicketToEarnings } from '@/lib/earnings'
 import { adminDb } from '@/lib/firebase/admin'
@@ -301,6 +302,7 @@ export async function POST(request: Request) {
           chargedAmountCents: session.amount_total,
           fxRate: exchangeRateUsed,
           chargedCurrency: String(session.currency || 'usd').toUpperCase(),
+          feeIncidence: session.metadata.feeIncidence,
         })
         console.log(`✅ Updated earnings for event ${session.metadata.eventId}: ${session.amount_total} cents (${quantity} tickets)`)
       } catch (earningsError) {
@@ -487,6 +489,8 @@ export async function POST(request: Request) {
           exchange_rate_used: exchangeRateUsed,
           payment_method: paymentMethod,
           payment_id: paymentIntent.id,
+          promoter_id: paymentIntent.metadata.promoterId || null,
+          promoter_code: paymentIntent.metadata.promoterCode || null,
           status: 'valid',
           qr_code_data: qrCodeData,
           purchased_at: new Date().toISOString(),
@@ -538,6 +542,8 @@ export async function POST(request: Request) {
                 charged_currency: String(paymentIntent.currency || 'usd').toUpperCase(),
                 payment_method: paymentMethod,
                 payment_id: paymentIntent.id,
+                promoter_id: paymentIntent.metadata.promoterId || null,
+                promoter_code: paymentIntent.metadata.promoterCode || null,
                 purchased_at: new Date().toISOString(),
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
@@ -588,6 +594,27 @@ export async function POST(request: Request) {
         }
       }
 
+      // Attribute the sale to its promoter — under the same exactly-once claim as
+      // the promo redemption; a bookkeeping failure never breaks the sale.
+      if (createdTickets.length > 0 && paymentIntent.metadata.promoterId) {
+        const unitFace =
+          Number.isFinite(priceInOriginalCurrency) && priceInOriginalCurrency > 0
+            ? priceInOriginalCurrency
+            : pricePerTicket
+        await recordPromoterSale({
+          promoterId: paymentIntent.metadata.promoterId,
+          eventId: paymentIntent.metadata.eventId,
+          ticketIds: createdTickets.map((t: any) => String(t.id)),
+          quantity,
+          orderGrossCents: Math.round(unitFace * quantity * 100),
+          currency: originalCurrency,
+          paymentMethod,
+          paymentId: paymentIntent.id,
+          buyerUserId: paymentIntent.metadata.isGuest === 'true' ? null : paymentIntent.metadata.userId,
+          buyerEmail: paymentIntent.metadata.guestEmail || null,
+        })
+      }
+
       // Update event earnings for embedded payments as well.
       try {
         const eventGrossCents = Math.round(
@@ -601,6 +628,7 @@ export async function POST(request: Request) {
           chargedAmountCents: paymentIntent.amount,
           fxRate: exchangeRateUsed,
           chargedCurrency: String(paymentIntent.currency || 'usd').toUpperCase(),
+          feeIncidence: paymentIntent.metadata.feeIncidence,
         })
         console.log(`✅ Updated earnings for event ${paymentIntent.metadata.eventId}: ${paymentIntent.amount} cents (${quantity} tickets)`)
       } catch (earningsError) {

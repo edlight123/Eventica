@@ -173,6 +173,25 @@ export default function EventMarketingClient({
         )}
       </div>
 
+      {/* Promoters */}
+      <div className="rounded-2xl border border-white/10 p-5">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h2 className="font-semibold text-white">Promoters</h2>
+            <p className="mt-1 text-sm text-white/50">
+              Give each street-team member their own sales link and see exactly who
+              drives which tickets — commission tallied automatically.
+            </p>
+          </div>
+          <Link
+            href={`/organizer/events/${eventId}/promoters`}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-brand-700 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          >
+            Manage promoters
+          </Link>
+        </div>
+      </div>
+
       {/* SMS campaigns — coming soon */}
       <div className="rounded-2xl border border-dashed border-white/10 bg-[#0a0a0a]/50 p-8">
         <div className="mx-auto max-w-sm text-center">

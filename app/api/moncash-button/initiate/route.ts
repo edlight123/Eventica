@@ -8,6 +8,7 @@ import {
   type CheckoutIdentity,
 } from '@/lib/guest/checkout'
 import { calculateDiscount, resolvePromoCode, promoHasCapacity, type PromoDoc } from '@/lib/promo-codes'
+import { resolvePromoterCode } from '@/lib/promoters'
 import { convertUsdToHtgAmount, getUsdToHtgRateWithSpread } from '@/lib/fx/usd-htg'
 import { inferCountryFromEventText } from '@/lib/event-country'
 import { checkEventCapacity } from '@/lib/capacity'
@@ -97,6 +98,7 @@ export async function POST(request: Request) {
       quantity = 1,
       tierId,
       promoCode,
+      refCode,
       tiers,
       mobileMoneyProvider,
       forceFormPost,
@@ -107,6 +109,8 @@ export async function POST(request: Request) {
       quantity?: number
       tierId?: string | null
       promoCode?: string | null
+      /** Promoter attribution (`?ref=`). Resolved below; junk never blocks the sale. */
+      refCode?: string | null
       tiers?: TierSelection[]
       mobileMoneyProvider?: string | null
       forceFormPost?: boolean
@@ -191,6 +195,10 @@ export async function POST(request: Request) {
       const resolved = await resolvePromoCode(String(eventId), String(promoCode))
       if (resolved && promoHasCapacity(resolved)) promo = resolved
     }
+
+    // Promoter attribution (optional). Only the RESOLVED doc id is persisted on the
+    // pending transaction; an unknown or inactive ref attributes nothing.
+    const promoter = refCode ? await resolvePromoterCode(String(eventId), String(refCode)) : null
     // Total discount applied across the order (event currency), recorded on the promo
     // redemption at confirm time. Accumulated as each selection is priced below.
     let promoDiscountTotal = 0
@@ -375,6 +383,10 @@ export async function POST(request: Request) {
       // the exact promo; null when no discount was applied (charge full price, nothing to redeem).
       promo_code_id: promo?.id || null,
       promo_discount_total: promoDiscountTotal || null,
+      // Promoter attribution: the RESOLVED promoter doc id (never the raw input).
+      // Fulfillment stamps it onto the tickets and writes the commission ledger.
+      promoter_id: promoter?.id || null,
+      promoter_code: promoter?.code || null,
       moncash_button_token: null,
       mobile_money_provider: normalizedProvider,
       // For a guest order: name/email/phone + the order key. Fulfillment reads the

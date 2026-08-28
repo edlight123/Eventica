@@ -349,6 +349,45 @@ service cloud.firestore {
       allow read: if false;
       allow write: if false;
     }
+
+    // Event promoters — same access shape as promo_codes (organizer-managed), with
+    // one addition: a promoter who has CLAIMED the record into their own account may
+    // read it (their portal reads through the server API, but direct reads are
+    // harmless — the doc holds no other buyers' data). All writes that move money
+    // facts (the counters) and the claim itself happen via the Admin SDK; from the
+    // client the counters, event_id, and claimed_by_uid are immutable.
+    match /event_promoters/{promoterId} {
+      allow read: if isSignedIn()
+        && (
+          get(/databases/$(database)/documents/events/$(resource.data.event_id)).data.organizer_id == request.auth.uid
+          || resource.data.get('claimed_by_uid', '') == request.auth.uid
+        );
+
+      allow create: if isSignedIn()
+        && get(/databases/$(database)/documents/events/$(request.resource.data.event_id)).data.organizer_id == request.auth.uid;
+
+      allow update: if isSignedIn()
+        && get(/databases/$(database)/documents/events/$(resource.data.event_id)).data.organizer_id == request.auth.uid
+        && request.resource.data.event_id == resource.data.event_id
+        && request.resource.data.get('tickets_sold', 0) == resource.data.get('tickets_sold', 0)
+        && request.resource.data.get('orders_count', 0) == resource.data.get('orders_count', 0)
+        && request.resource.data.get('gross_cents', 0) == resource.data.get('gross_cents', 0)
+        && request.resource.data.get('commission_cents', 0) == resource.data.get('commission_cents', 0)
+        && request.resource.data.get('claimed_by_uid', '') == resource.data.get('claimed_by_uid', '')
+        && request.resource.data.get('stats_key', '') == resource.data.get('stats_key', '');
+
+      allow delete: if isSignedIn()
+        && get(/databases/$(database)/documents/events/$(resource.data.event_id)).data.organizer_id == request.auth.uid;
+    }
+
+    // Promoter sales — append-only commission ledger, written EXCLUSIVELY by the
+    // Admin SDK inside the fulfillment claim (recordPromoterSale). Same posture as
+    // promo_code_usage: never client-writable, never client-readable (it carries
+    // buyer keys and money amounts). Dashboards read it via server APIs.
+    match /promoter_sales/{saleId} {
+      allow read: if false;
+      allow write: if false;
+    }
     
     // Favorites - users can only access their own favorites
     match /favorites/{favoriteId} {

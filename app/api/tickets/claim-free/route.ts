@@ -18,6 +18,7 @@ import {
   resolvePromoCode,
   type PromoDoc,
 } from '@/lib/promo-codes'
+import { recordPromoterSale, resolvePromoterCode } from '@/lib/promoters'
 import { computeSelectionTotal, toCents } from '@/lib/ticketPricing'
 import { sendTicketConfirmation } from '@/lib/tickets/confirmation'
 import {
@@ -147,7 +148,7 @@ export async function POST(request: Request) {
     // they have no uid to hold a grant, so they present the code with the claim and
     // it is verified server-side before anything is created. A signed-in claimant
     // still unlocks through /api/events/verify-access and is admitted by their grant.
-    const { eventId, quantity = 1, tierId, selections, promoCode, guest, accessCode } =
+    const { eventId, quantity = 1, tierId, selections, promoCode, refCode, guest, accessCode } =
       await request.json()
     const requestedSelections = normalizeSelections(selections)
     const useSelections = requestedSelections.length > 0
@@ -242,6 +243,10 @@ export async function POST(request: Request) {
       }
       promo = resolved
     }
+
+    // Promoter attribution (optional). Unlike a promo, an unusable ref changes
+    // NOTHING about the claim, so it is silently dropped rather than refused.
+    const promoter = refCode ? await resolvePromoterCode(String(eventId), String(refCode)) : null
 
     /**
      * What the SERVER says one ticket of this tier costs after the promo.
@@ -540,6 +545,10 @@ export async function POST(request: Request) {
           ...(promo && promoDiscountCents > 0
             ? { promo_code_id: promo.id, original_price: claim.unitPrice }
             : {}),
+          // Promoter attribution — added only when a valid ref arrived, keeping the
+          // plain claim's doc shape unchanged. Free claims earn no commission; the
+          // promoter still gets credit for driving the RSVP.
+          ...(promoter ? { promoter_id: promoter.id, promoter_code: promoter.code } : {}),
         }
 
         const ticketRef = await adminDb.collection('tickets').add(ticketData)
@@ -565,6 +574,23 @@ export async function POST(request: Request) {
         identity.guestOrderKey,
         createdTickets.map((t: any) => String(t.id))
       )
+    }
+
+    // Attribute the claim to its promoter. Zero-revenue order ⇒ zero commission
+    // (both commission types), but the tickets/orders counters still credit them.
+    if (promoter && createdTickets.length > 0) {
+      await recordPromoterSale({
+        promoterId: promoter.id,
+        eventId,
+        ticketIds: createdTickets.map((t: any) => String(t.id)),
+        quantity: ticketQuantity,
+        orderGrossCents: 0,
+        currency: event.currency || 'HTG',
+        paymentMethod: 'free',
+        paymentId: null,
+        buyerUserId: identity.isGuest ? null : identity.id,
+        buyerEmail: identity.email || null,
+      })
     }
 
     // ── DELIVER THE TICKET ──────────────────────────────────────────────────────

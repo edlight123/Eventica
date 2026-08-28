@@ -546,6 +546,14 @@ export async function addTicketToEarnings(
     chargedAmountCents?: number
     chargedCurrency?: string
     fxRate?: number | null
+    /**
+     * Who paid the fee on THIS order, from the payment's own metadata.
+     * 'buyer' means the fee was charged on top and the organizer's transfer is
+     * the face value exactly — nothing to deduct here. Absent means organizer
+     * incidence (all pre-flag sales, and the MonCash/SogePay rails, which have
+     * no buyer-pays pricing).
+     */
+    feeIncidence?: FeeIncidence | string
   }
 ): Promise<void> {
   const { ref, data } = await getOrCreateEventEarnings(eventId)
@@ -572,6 +580,7 @@ export async function addTicketToEarnings(
     chargedAmountCents,
     fxRate,
     platformFeePercentage, // Pass dynamic platform fee
+    feeIncidence: options?.feeIncidence === 'buyer' ? 'buyer' : 'organizer',
   })
 
   // Update earnings
@@ -946,38 +955,4 @@ export async function getWithdrawableEvents(organizerId: string): Promise<EventE
   }
 
   return withdrawable
-}
-
-/**
- * Calculate total available balance across all events
- * 
- * @param organizerId - Organizer user ID
- * @returns Total available to withdraw in cents
- */
-export async function getTotalAvailableBalance(organizerId: string): Promise<{
-  available: number
-  pending: number
-  currency: string
-}> {
-  const earningsSnapshot = await adminDb
-    .collection('event_earnings')
-    .where('organizerId', '==', organizerId)
-    .get()
-
-  let available = 0
-  let pending = 0
-  let currency = 'HTG'
-
-  for (const doc of earningsSnapshot.docs) {
-    const data = doc.data() as EventEarnings
-    currency = data.currency
-
-    if (data.settlementStatus === 'ready') {
-      available += data.availableToWithdraw
-    } else if (data.settlementStatus === 'pending') {
-      pending += data.availableToWithdraw
-    }
-  }
-
-  return { available, pending, currency }
 }

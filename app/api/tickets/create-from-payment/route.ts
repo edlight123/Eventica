@@ -18,6 +18,7 @@ import {
   releaseWebhookEvent,
 } from '@/lib/webhooks/idempotency'
 import { promoBuyerKey, redeemPromoInTransaction } from '@/lib/promo-codes'
+import { recordPromoterSale } from '@/lib/promoters'
 
 // Lazy load Stripe
 function getStripe() {
@@ -205,6 +206,10 @@ export async function POST(request: Request) {
         charged_currency: String(paymentIntent.currency || 'usd').toUpperCase(),
         payment_method: 'stripe',
         payment_id: paymentIntentId,
+        // Promoter attribution: opaque identifiers only — the commission economics
+        // live in the server-only promoter_sales ledger, never on the ticket.
+        promoter_id: paymentIntent.metadata.promoterId || null,
+        promoter_code: paymentIntent.metadata.promoterCode || null,
         status: 'valid',
         purchased_at: FieldValue.serverTimestamp(),
         // Stamp the exact tier id at issuance for reliable scan-time tier lookup by id.
@@ -297,6 +302,26 @@ export async function POST(request: Request) {
       } catch (promoErr) {
         console.error('[create-from-payment] promo redemption failed', (promoErr as any)?.message)
       }
+    }
+
+    // Attribute the sale to its promoter — same exactly-once claim as the promo
+    // redemption above, and like it, a bookkeeping failure never breaks the sale.
+    if (paymentIntent.metadata.promoterId) {
+      const unitFace = parseFloat(
+        paymentIntent.metadata.priceInOriginalCurrency || paymentIntent.metadata.finalPrice || '0'
+      )
+      await recordPromoterSale({
+        promoterId: paymentIntent.metadata.promoterId,
+        eventId: paymentIntent.metadata.eventId,
+        ticketIds: createdTickets.map((t: any) => String(t.id)),
+        quantity,
+        orderGrossCents: Math.round((Number.isFinite(unitFace) ? unitFace : 0) * quantity * 100),
+        currency: String(paymentIntent.metadata.originalCurrency || 'USD').toUpperCase(),
+        paymentMethod: 'stripe',
+        paymentId: paymentIntentId,
+        buyerUserId: paymentIntent.metadata.isGuest === 'true' ? null : paymentIntent.metadata.userId,
+        buyerEmail: paymentIntent.metadata.guestEmail || attendee?.email || null,
+      })
     }
 
     // Attach the issued tickets to the guest order so the buyer's retrieval link works.

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/firebase-db/server'
 import { getCurrentUser } from '@/lib/auth'
 import { calculateDiscount, resolvePromoCode, promoHasCapacity } from '@/lib/promo-codes'
+import { resolvePromoterCode } from '@/lib/promoters'
 import { 
   isBlacklisted, 
   shouldRateLimit, 
@@ -44,6 +45,9 @@ export async function POST(request: Request) {
       quantity = 1,
       tierId,
       promoCodeId,
+      // Promoter attribution: the raw `?ref=` the buyer arrived with. Resolved
+      // below; junk is silently dropped and never blocks the sale.
+      refCode,
       fingerprint,
       guest,
       // Password-protected events: the code a GUEST is presenting with this order.
@@ -272,6 +276,11 @@ export async function POST(request: Request) {
       }
     }
 
+    // Resolve the promoter ref, if any. Only the resolved doc id + code ride in
+    // metadata; fulfillment writes the attribution ledger exactly once under its
+    // claim. An unknown/inactive code attributes nothing and changes nothing.
+    const promoter = refCode ? await resolvePromoterCode(String(eventId), String(refCode)) : null
+
     // Handle currency conversion for Stripe.
     // Charge currency follows the event's stored currency; when absent, fall back
     // to the country default (USD/CAD/EUR/HTG) — never hardcode USD, so FR (EUR)
@@ -385,6 +394,8 @@ export async function POST(request: Request) {
         tierId: tierId || '',
         tierName,
         promoCodeId: resolvedPromoId,
+        promoterId: promoter?.id || '',
+        promoterCode: promoter?.code || '',
         originalPrice: basePriceBeforePromo.toString(),
         finalPrice: finalPrice.toString(),
         // Additive audit trail for fee incidence. `finalPrice` / `originalPrice` /

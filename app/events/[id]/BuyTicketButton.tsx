@@ -77,6 +77,29 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
   const [selectedTiers, setSelectedTiers] = useState<{ tierId: string; quantity: number; price: number; tierName?: string }[]>([])
   // Stores the promo code ID (promo_codes.id) once validated.
   const [promoCode, setPromoCode] = useState<string | undefined>()
+  // ── Promoter attribution ────────────────────────────────────────────────────
+  // `?ref=CODE` on the event URL names the promoter who sent this buyer. Read once
+  // on mount (window.location, not useSearchParams — the page stays statically
+  // revalidated) and mirrored to sessionStorage so it survives in-app-browser
+  // reloads and the MonCash/Sogepay round trip. Never validated client-side and
+  // never blocks a purchase: the server resolves it and silently drops junk.
+  const [refCode, setRefCode] = useState<string | undefined>()
+  useEffect(() => {
+    try {
+      const key = `tikem_ref:${eventId}`
+      const fromUrl = new URLSearchParams(window.location.search).get('ref')?.trim().toUpperCase()
+      if (fromUrl) {
+        // Last click wins: a newer promoter link overwrites a stored one.
+        sessionStorage.setItem(key, fromUrl)
+        setRefCode(fromUrl)
+        return
+      }
+      const stored = sessionStorage.getItem(key)
+      if (stored) setRefCode(stored)
+    } catch {
+      // Storage unavailable (private mode) — attribution stays best-effort.
+    }
+  }, [eventId])
   const [isMonCashPopupOpen, setIsMonCashPopupOpen] = useState(false)
   const moncashPopupRef = useRef<Window | null>(null)
 
@@ -536,10 +559,11 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
                 eventId,
                 selections: selections.map(s => ({ tierId: s.tierId, quantity: s.quantity })),
                 ...(promoCodeId ? { promoCode: promoCodeId } : {}),
+                ...(refCode ? { refCode } : {}),
                 ...(contact ? { guest: contact } : {}),
                 ...accessBody,
               }
-            : { eventId, quantity, ...(contact ? { guest: contact } : {}), ...accessBody }
+            : { eventId, quantity, ...(refCode ? { refCode } : {}), ...(contact ? { guest: contact } : {}), ...accessBody }
         ),
       })
 
@@ -662,6 +686,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
             quantity,
             tierId: selectedTierId,
             promoCode,
+            ...(refCode ? { refCode } : {}),
             tiers,
             ...guestBody,
             ...accessBody,
@@ -743,6 +768,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
             quantity,
             tierId: selectedTierId,
             promoCode,
+            ...(refCode ? { refCode } : {}),
             tiers,
             mobileMoneyProvider: method,
             ...guestBody,
@@ -1343,6 +1369,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
           country={country}
           tierId={selectedTierId || undefined}
           promoCodeId={promoCode}
+          refCode={refCode}
           accessCode={accessCodeRef.current}
           onClose={() => {
             setShowEmbeddedPayment(false)

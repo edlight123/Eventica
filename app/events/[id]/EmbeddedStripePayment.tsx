@@ -219,6 +219,8 @@ interface EmbeddedStripePaymentProps {
   country?: string
   tierId?: string
   promoCodeId?: string
+  /** Promoter ref code captured from `?ref=` — resolved and attributed server-side. */
+  refCode?: string
   /**
    * A GUEST's access code for a password-protected event. There is no uid to hold a
    * grant before the order exists, so the code is presented with the PaymentIntent
@@ -245,6 +247,7 @@ export default function EmbeddedStripePayment({
   country,
   tierId,
   promoCodeId,
+  refCode,
   accessCode,
   guest,
   onClose
@@ -287,6 +290,7 @@ export default function EmbeddedStripePayment({
             quantity,
             tierId,
             promoCodeId,
+            ...(refCode ? { refCode } : {}),
             ...(guest ? { guest } : {}),
             ...(accessCode ? { accessCode } : {}),
           }),
@@ -313,7 +317,7 @@ export default function EmbeddedStripePayment({
     // checkout doesn't re-mint a PaymentIntent (and a second guest order) on every
     // parent re-render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eventId, quantity, tierId, promoCodeId, accessCode, guest?.name, guest?.email, guest?.phone])
+  }, [eventId, quantity, tierId, promoCodeId, refCode, accessCode, guest?.name, guest?.email, guest?.phone])
 
   const appearance = {
     theme: 'night' as const,
