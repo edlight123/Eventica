@@ -401,9 +401,11 @@ export async function fulfillPaidOrder(params: {
   }
 
   // Attribute the sale to its promoter — same exclusive fulfillment claim as the
-  // promo redemption above; a bookkeeping failure never breaks the sale.
+  // promo redemption above; a bookkeeping failure never breaks the sale. The
+  // recorded commission is withheld from the organizer's earnings below.
+  let promoterCommissionCents = 0
   if (createdTickets.length > 0 && pendingTx.promoter_id) {
-    await recordPromoterSale({
+    const promoterSale = await recordPromoterSale({
       promoterId: String(pendingTx.promoter_id),
       eventId: String(pendingTx.event_id),
       ticketIds: createdTickets.map((t: any) => String(t.id)),
@@ -416,6 +418,7 @@ export async function fulfillPaidOrder(params: {
       buyerUserId: pendingTx.is_guest ? null : pendingTx.user_id ? String(pendingTx.user_id) : null,
       buyerEmail: pendingTx.guest_email || attendee?.email || null,
     })
+    if (promoterSale.recorded) promoterCommissionCents = promoterSale.commissionCents
   }
 
   // Update Firestore earnings in event currency.
@@ -427,6 +430,7 @@ export async function fulfillPaidOrder(params: {
       chargedAmountCents: Math.round(Number(pendingTx.amount || 0) * 100),
       fxRate,
       chargedCurrency,
+      promoterCommissionCents,
     })
   } catch (e) {
     console.warn(`${logPrefix} failed to update earnings`, { message: (e as any)?.message })

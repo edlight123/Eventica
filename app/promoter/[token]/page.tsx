@@ -131,8 +131,10 @@ export default async function PromoterStatsPage({
         />
 
         <p className="mt-8 text-xs text-white/40 text-center leading-relaxed">
-          Commission is paid to you directly by the organizer. Keep this link — it is
-          your personal page, and its numbers update with every sale.
+          Your commission collects in a Tikèm wallet and unlocks when the event&apos;s
+          funds release — add this page to a free account to withdraw it to MonCash.
+          Keep this link: it is your personal page, and its numbers update with every
+          sale.
         </p>
       </main>
 

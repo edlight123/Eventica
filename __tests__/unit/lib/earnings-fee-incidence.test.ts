@@ -156,6 +156,35 @@ describe('earnings ledger and fee incidence', () => {
     expect(earnings!.netAmount).toBeLessThan(4_000)
   })
 
+  it('deducts funded promoter commission in the derived view too', async () => {
+    seed('HT', [{ price_paid: 1_000, payment_method: 'moncash', fee_incidence: 'organizer' }])
+    // A funded ledger row for this event: 10% commission on the 100k gross.
+    store.set('promoter_sales/ps_1', {
+      event_id: 'evt_1',
+      funded: true,
+      status: 'accrued',
+      commission_cents: 10_000,
+    })
+    // Reversed and unfunded rows must NOT reduce the organizer's net.
+    store.set('promoter_sales/ps_2', {
+      event_id: 'evt_1',
+      funded: true,
+      status: 'reversed',
+      commission_cents: 5_000,
+    })
+    store.set('promoter_sales/ps_3', {
+      event_id: 'evt_1',
+      status: 'accrued',
+      commission_cents: 7_000,
+    })
+
+    const earnings = await getEventEarnings('evt_1')
+    expect(earnings!.grossSales).toBe(100_000)
+    expect(earnings!.platformFee).toBe(10_000)
+    expect((earnings as any)!.promoterCommission).toBe(10_000)
+    expect(earnings!.netAmount).toBe(80_000)
+  })
+
   it('takes the fee-bearing reading when one payment mixes both flags', async () => {
     // Should never happen — one charge is one incidence — but under-reporting is
     // recoverable and over-reporting is not.

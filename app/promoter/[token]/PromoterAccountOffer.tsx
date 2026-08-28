@@ -46,6 +46,11 @@ export default function PromoterAccountOffer({
 
       setStatus('done')
       setMessage('This promoter page is now in your account.')
+      try {
+        // The navbar caches "has promoter records" per session — bust it so the
+        // Promoter portal menu item appears right away.
+        sessionStorage.removeItem('tikem_is_promoter')
+      } catch {}
       router.refresh()
     } catch {
       setStatus('error')
@@ -69,10 +74,10 @@ export default function PromoterAccountOffer({
 
   return (
     <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-      <p className="text-white font-semibold">Promote more than one event?</p>
+      <p className="text-white font-semibold">Withdraw your commission</p>
       <p className="text-sm text-white/60 mt-1.5 leading-relaxed">
-        Optional. Add this to a free Tikèm account and every event you promote shows up
-        in one portal — this link keeps working either way.
+        Add this to a free Tikèm account to withdraw your earnings to MonCash and see
+        every event you promote in one portal — this link keeps working either way.
       </p>
 
       <div className="mt-4 flex flex-col sm:flex-row gap-3">

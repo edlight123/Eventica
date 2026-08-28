@@ -595,13 +595,15 @@ export async function POST(request: Request) {
       }
 
       // Attribute the sale to its promoter — under the same exactly-once claim as
-      // the promo redemption; a bookkeeping failure never breaks the sale.
+      // the promo redemption; a bookkeeping failure never breaks the sale. The
+      // recorded commission is withheld from the organizer's earnings below.
+      let promoterCommissionCents = 0
       if (createdTickets.length > 0 && paymentIntent.metadata.promoterId) {
         const unitFace =
           Number.isFinite(priceInOriginalCurrency) && priceInOriginalCurrency > 0
             ? priceInOriginalCurrency
             : pricePerTicket
-        await recordPromoterSale({
+        const promoterSale = await recordPromoterSale({
           promoterId: paymentIntent.metadata.promoterId,
           eventId: paymentIntent.metadata.eventId,
           ticketIds: createdTickets.map((t: any) => String(t.id)),
@@ -613,6 +615,9 @@ export async function POST(request: Request) {
           buyerUserId: paymentIntent.metadata.isGuest === 'true' ? null : paymentIntent.metadata.userId,
           buyerEmail: paymentIntent.metadata.guestEmail || null,
         })
+        // Withhold only what was actually ledgered: if the row failed to record,
+        // the organizer keeps the money and the ledger stays reconcilable.
+        if (promoterSale.recorded) promoterCommissionCents = promoterSale.commissionCents
       }
 
       // Update event earnings for embedded payments as well.
@@ -629,6 +634,7 @@ export async function POST(request: Request) {
           fxRate: exchangeRateUsed,
           chargedCurrency: String(paymentIntent.currency || 'usd').toUpperCase(),
           feeIncidence: paymentIntent.metadata.feeIncidence,
+          promoterCommissionCents,
         })
         console.log(`✅ Updated earnings for event ${paymentIntent.metadata.eventId}: ${paymentIntent.amount} cents (${quantity} tickets)`)
       } catch (earningsError) {

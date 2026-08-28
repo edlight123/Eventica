@@ -9,6 +9,7 @@ import { calculateFees, calculateSettlementDate, isSettlementReady, calculatePla
 import type { EventEarnings, SettlementStatus, EarningsSummary } from '@/types/earnings'
 import { getEventLocation } from '@/types/platform-settings'
 import { getPlatformSettings } from '@/lib/admin/platform-settings'
+import { getFundedCommissionForEvent } from '@/lib/promoters'
 
 type PaymentMethod = 'stripe' | 'stripe_connect' | 'moncash' | 'moncash_button' | 'natcash' | 'sogepay' | 'unknown'
 
@@ -259,6 +260,12 @@ async function deriveEventEarningsFromTickets(eventId: string): Promise<EventEar
     netAmount += fees.netAmount
   }
 
+  // Promoter commission on FUNDED sales is the promoter's money, not the
+  // organizer's — the incremental write withholds it, so the derived view must
+  // deduct the same amount or the two disagree the moment a promoter sells.
+  const promoterCommission = await getFundedCommissionForEvent(eventId)
+  netAmount = netAmount - promoterCommission
+
   const settlementReadyDate = calculateSettlementDateWithHoldDays(eventEndDate, settlementHoldDays).toISOString()
   const settlementStatus: SettlementStatus = isSettlementReady(settlementReadyDate) ? 'ready' : 'pending'
   const availableToWithdraw = settlementStatus === 'ready' ? Math.max(0, netAmount) : 0
@@ -275,6 +282,7 @@ async function deriveEventEarningsFromTickets(eventId: string): Promise<EventEar
     ticketsSold,
     platformFee,
     processingFees,
+    promoterCommission,
     netAmount,
     availableToWithdraw,
     withdrawnAmount: 0,
@@ -554,6 +562,12 @@ export async function addTicketToEarnings(
      * no buyer-pays pricing).
      */
     feeIncidence?: FeeIncidence | string
+    /**
+     * FUNDED promoter commission on this order (recordPromoterSale's result).
+     * Withheld from the organizer's net — it is the promoter's money, payable
+     * from their wallet once this event's funds release.
+     */
+    promoterCommissionCents?: number
   }
 ): Promise<void> {
   const { ref, data } = await getOrCreateEventEarnings(eventId)
@@ -583,14 +597,20 @@ export async function addTicketToEarnings(
     feeIncidence: options?.feeIncidence === 'buyer' ? 'buyer' : 'organizer',
   })
 
+  // Promoter commission comes out of the organizer's net under BOTH incidences:
+  // it is a share of the face value, which is theirs either way.
+  const promoterCommissionCents = Math.max(0, Math.round(Number(options?.promoterCommissionCents) || 0))
+  const netAfterCommission = fees.netAmount - promoterCommissionCents
+
   // Update earnings
   const updates: Partial<EventEarnings> = {
     grossSales: (data?.grossSales || 0) + fees.grossAmount,
     ticketsSold: (data?.ticketsSold || 0) + quantity,
     platformFee: (data?.platformFee || 0) + fees.platformFee,
     processingFees: (data?.processingFees || 0) + fees.processingFee,
-    netAmount: (data?.netAmount || 0) + fees.netAmount,
-    availableToWithdraw: (data?.availableToWithdraw || 0) + fees.netAmount,
+    promoterCommission: (data?.promoterCommission || 0) + promoterCommissionCents,
+    netAmount: (data?.netAmount || 0) + netAfterCommission,
+    availableToWithdraw: (data?.availableToWithdraw || 0) + netAfterCommission,
     lastCalculatedAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }

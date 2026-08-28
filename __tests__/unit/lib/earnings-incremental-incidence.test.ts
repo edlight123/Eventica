@@ -142,6 +142,33 @@ describe('addTicketToEarnings fee incidence', () => {
     expect(earnings().netAmount).toBe(90_000)
   })
 
+  it('withholds funded promoter commission from the organizer net — both incidences', async () => {
+    // Organizer-absorbs: net = gross − platform fee − commission.
+    seed('HT')
+    await addTicketToEarnings('evt_1', 100_000, 1, {
+      currency: 'HTG',
+      paymentMethod: 'moncash',
+      feeIncidence: 'organizer',
+      promoterCommissionCents: 10_000,
+    })
+    expect(earnings().netAmount).toBe(80_000) // 100k − 10k fee − 10k commission
+    expect(earnings().availableToWithdraw).toBe(80_000)
+    expect(earnings().promoterCommission).toBe(10_000)
+
+    // Buyer-pays: the fee never touched the organizer, but the commission is a
+    // share of the face value and still comes out of their net.
+    seed('US')
+    await addTicketToEarnings('evt_1', 4_000, 2, {
+      currency: 'USD',
+      paymentMethod: 'stripe',
+      chargedAmountCents: 4_520,
+      feeIncidence: 'buyer',
+      promoterCommissionCents: 400,
+    })
+    expect(earnings().netAmount).toBe(3_600)
+    expect(earnings().promoterCommission).toBe(400)
+  })
+
   it('treats an absent incidence flag as organizer-paid, unchanged', async () => {
     // Callers that predate the flag (or rails with no buyer-pays pricing at
     // all — MonCash, SogePay) must keep their old arithmetic.

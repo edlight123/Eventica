@@ -39,6 +39,37 @@ export default function Navbar({ user, isAdmin = false, flush = false }: NavbarP
 
   const isHost = user?.role === 'organizer' || user?.role === 'staff'
 
+  // "Promoter portal" appears only for accounts that have claimed at least one
+  // promoter record. Probed once per browser session (sessionStorage cache) so
+  // ordinary visitors never pay for it twice.
+  const [isPromoter, setIsPromoter] = useState(false)
+  useEffect(() => {
+    if (!user) return
+    try {
+      const cached = sessionStorage.getItem('tikem_is_promoter')
+      if (cached !== null) {
+        setIsPromoter(cached === '1')
+        return
+      }
+    } catch {
+      // Storage unavailable — fall through to the probe.
+    }
+    let cancelled = false
+    fetch('/api/promoter/portfolio?summary=1')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        const has = Boolean(d && Number(d.count) > 0)
+        if (!cancelled) setIsPromoter(has)
+        try {
+          sessionStorage.setItem('tikem_is_promoter', has ? '1' : '0')
+        } catch {}
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [user?.id])
+
   const redirectTarget = (() => {
     const query = searchParams?.toString()
     return query ? `${pathname}?${query}` : pathname
@@ -195,6 +226,16 @@ export default function Navbar({ user, isAdmin = false, flush = false }: NavbarP
                           {t('nav.becomeHost', { defaultValue: 'Become a host' })}
                         </Link>
                       )}
+                      {isPromoter && (
+                        <Link
+                          href="/promoter"
+                          role="menuitem"
+                          onClick={() => setAccountMenuOpen(false)}
+                          className={accountMenuItemClass}
+                        >
+                          {t('nav.promoterPortal', { defaultValue: 'Promoter portal' })}
+                        </Link>
+                      )}
                       {isAdmin && (
                         <Link
                           href="/admin"
@@ -334,6 +375,17 @@ export default function Navbar({ user, isAdmin = false, flush = false }: NavbarP
                       }`}
                     >
                       {t('nav.becomeHost', { defaultValue: 'Become a host' })}
+                    </Link>
+                  )}
+                  {isPromoter && (
+                    <Link
+                      href="/promoter"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+                        pathname?.startsWith('/promoter') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                      }`}
+                    >
+                      {t('nav.promoterPortal', { defaultValue: 'Promoter portal' })}
                     </Link>
                   )}
                   {isAdmin && (

@@ -13,6 +13,17 @@ export async function GET(request: Request) {
     const user = await getCurrentUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+    // ?summary=1 — the navbar's "does this account have any claimed promoter
+    // records?" probe. One-document query, no event joins.
+    if (new URL(request.url).searchParams.get('summary') === '1') {
+      const probe = await adminDb
+        .collection('event_promoters')
+        .where('claimed_by_uid', '==', user.id)
+        .limit(1)
+        .get()
+      return NextResponse.json({ count: probe.size })
+    }
+
     const snap = await adminDb
       .collection('event_promoters')
       .where('claimed_by_uid', '==', user.id)

@@ -50,6 +50,27 @@ export async function POST(req: NextRequest) {
         updates.processedBy = user.id
         updates.processedAt = now
 
+        // Promoter withdrawals debit a promoter wallet, not event_earnings —
+        // credit back exactly the per-currency debits the request recorded.
+        if (withdrawal.payee_type === 'promoter') {
+          const debits = (withdrawal.walletDebits || {}) as Record<string, number>
+          const walletRef = adminDb
+            .collection('promoter_wallets')
+            .doc(String(withdrawal.promoter_uid || withdrawal.organizerId))
+          const walletSnap = await tx.get(walletRef)
+          const stored = walletSnap.exists ? (walletSnap.data() as any)?.withdrawn_by_currency || {} : {}
+          const next: Record<string, number> = { ...stored }
+          for (const [currency, cents] of Object.entries(debits)) {
+            next[currency] = Math.max(0, (Number(stored[currency]) || 0) - Math.max(0, Number(cents) || 0))
+          }
+          tx.set(
+            walletRef,
+            { withdrawn_by_currency: next, updated_at: now.toISOString() },
+            { merge: true }
+          )
+          return
+        }
+
         const amountInCents = normalizeAmountToCents(withdrawal.amount)
         const earningsQuery = adminDb
           .collection('event_earnings')

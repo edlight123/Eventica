@@ -22,7 +22,13 @@ export interface EventEarnings {
   // Fee breakdown (all in cents)
   platformFee: number            // Tikèm's commission (typically 10%)
   processingFees: number         // Stripe/payment processor fees
-  netAmount: number              // grossSales - platformFee - processingFees
+  /**
+   * Promoter commission WITHHELD from this organizer's earnings (funded
+   * promoter_sales only — the pre-wallet informational tallies never touched
+   * the organizer's balance and are settled directly).
+   */
+  promoterCommission?: number
+  netAmount: number              // grossSales - platformFee - processingFees - promoterCommission
   
   // Withdrawal tracking (all in cents)
   availableToWithdraw: number    // Funds not yet withdrawn

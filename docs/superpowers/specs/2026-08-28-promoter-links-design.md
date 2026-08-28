@@ -26,14 +26,25 @@ exactly-once bookkeeping inside the existing fulfillment claim.
   displays what the organizer owes each promoter; the organizer settles directly
   (person-to-person MonCash is the norm in Haiti). No money moves through Tikèm on the
   promoter's behalf.
-- **Phase 2 (out of scope here, direction only):** commission becomes a real deduction —
-  withheld from the organizer's releasable balance and withdrawable by the promoter via
-  the existing `withdrawal_requests` rails. Deferred because the earnings machinery has no
-  per-sale ledger today, which must exist before automated splits are trustworthy. (The
-  two money-math quirks found during exploration — `addTicketToEarnings` dropping
-  `feeIncidence`, and the dead currency-mangling `getTotalAvailableBalance` — were fixed
-  and removed respectively on 2026-08-28.) Phase 1's `promoter_sales` ledger is designed
-  to be the input Phase 2 consumes.
+- **Phase 2a (implemented 2026-08-28): wallets + withdraw button.** Commission became
+  real money: `recordPromoterSale` rows are `funded: true` and the same amount is
+  withheld from the organizer's earnings (both the incremental `addTicketToEarnings`
+  write — new `promoterCommissionCents` option, tracked as `promoterCommission` on
+  `event_earnings` — and the authoritative derived view, via
+  `getFundedCommissionForEvent`). Pre-wallet rows stay informational and are settled
+  directly. A claimed promoter gets a wallet (`lib/promoter-wallet.ts`, view + withdraw
+  APIs under `/api/promoter/wallet`, card on the portal): **availability is linked to
+  the organizer's release state** — a commission unlocks exactly when its event passes
+  `previewRelease`, the same ladder that releases the organizer's own funds (fail-closed
+  on errors). Withdrawals pay the FULL available balance to MonCash in HTG (USD balances
+  converted with `fetchUsdToHtgRate`; other currencies fenced off), minimum 500 HTG;
+  instant over the prefunded pool with the **promoter paying the 3%**
+  (`PROMOTER_WITHDRAWAL_FEE_PERCENT`), or a fee-free pending `withdrawal_requests` row
+  (`payee_type: 'promoter'`, `walletDebits` per currency) for the admin queue, whose
+  reject/fail path credits the wallet back instead of `event_earnings`. Wallet state
+  lives in server-only `promoter_wallets/{uid}` with optimistic-concurrency reservation.
+- **Phase 2b (future):** auto-disburse — a cron paying released wallet balances above a
+  threshold through prefunding, no button needed. All plumbing above is reused.
 
 ## 2. Non-goals (v1)
 

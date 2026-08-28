@@ -367,9 +367,11 @@ export default function PromotersClient({
       </div>
 
       <p className="text-xs text-white/40 leading-relaxed">
-        Commission is what you owe each promoter, tallied from confirmed sales in the
-        event currency; free RSVPs count toward their tickets but earn no commission.
-        You settle with them directly — Tikèm keeps the score.
+        Commission on confirmed sales is withheld from your earnings automatically and
+        paid to each promoter through their Tikèm wallet once this event&apos;s funds
+        release — you never handle it. Free RSVPs count toward their tickets but earn
+        no commission. Amounts tallied before wallets launched are still settled by
+        you directly.
       </p>
     </div>
   )

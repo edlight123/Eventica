@@ -269,6 +269,12 @@ export async function recordPromoterSale(
         : null
 
       tx.set(saleRef, {
+        // Funded rows are REAL MONEY: the same amount is withheld from the
+        // organizer's earnings accrual and becomes withdrawable from the
+        // promoter's wallet once the event's funds release. Rows written before
+        // the wallet shipped lack this flag and stay informational (organizer
+        // settles those directly).
+        funded: true,
         promoter_id: promoterRef.id,
         event_id: String(params.eventId),
         organizer_id: String(promoter.organizer_id || ''),
@@ -304,6 +310,34 @@ export async function recordPromoterSale(
       message: err?.message,
     })
     return { recorded: false, commissionCents: 0 }
+  }
+}
+
+/**
+ * Total FUNDED, still-accrued promoter commission for an event, in
+ * event-currency cents. The derived earnings view deducts this so an organizer's
+ * net matches what the incremental withholding produced. Never throws — earnings
+ * derivation must not break because the ledger is briefly unreachable.
+ */
+export async function getFundedCommissionForEvent(eventId: string): Promise<number> {
+  try {
+    const snap = await adminDb
+      .collection('promoter_sales')
+      .where('event_id', '==', String(eventId))
+      .where('funded', '==', true)
+      .get()
+    let total = 0
+    snap.docs.forEach((d: any) => {
+      const s = d.data()
+      if (s.status === 'accrued') total += Math.max(0, Number(s.commission_cents) || 0)
+    })
+    return total
+  } catch (err: any) {
+    console.error('[promoters] funded-commission lookup failed; deducting 0', {
+      eventId,
+      message: err?.message,
+    })
+    return 0
   }
 }
 
