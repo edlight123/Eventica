@@ -58,6 +58,8 @@ interface FreeTicketModalProps {
    * is the bug this thread fixes.
    */
   promoCode?: string;
+  /** Promoter ref (`?ref=` on the event link) — a free RSVP still credits them. */
+  refCode?: string;
   /**
    * Escape hatch for a claim the server refuses on promo grounds (code invalid,
    * spent, or only a partial discount). Lets the buyer continue to normal
@@ -80,6 +82,7 @@ export default function FreeTicketModal({
   tierName,
   lockedQuantity,
   promoCode,
+  refCode,
   onCheckoutFallback,
 }: FreeTicketModalProps) {
   const { colors } = useTheme();
@@ -205,6 +208,7 @@ export default function FreeTicketModal({
             // event's own promo docs and recomputes the discount before it agrees
             // that anything is free.
             ...(promoCode ? { promoCode } : {}),
+            ...(refCode ? { refCode } : {}),
           }),
         }
       );

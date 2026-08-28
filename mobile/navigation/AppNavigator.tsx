@@ -49,6 +49,7 @@ import OrganizerOrgTeamScreen from '../screens/organizer/OrganizerOrgTeamScreen'
 import OrganizerPayoutSettingsScreen from '../screens/organizer/OrganizerPayoutSettingsScreenV2';
 import OrganizerPromoCodesScreen from '../screens/organizer/OrganizerPromoCodesScreen';
 import OrganizerCompsScreen from '../screens/organizer/OrganizerCompsScreen';
+import OrganizerPromotersScreen from '../screens/organizer/OrganizerPromotersScreen';
 import OrganizerMessagesScreen from '../screens/organizer/OrganizerMessagesScreen';
 import CreateEventFlowRefactored from '../screens/organizer/CreateEventFlowRefactored';
 import TicketScannerScreen from '../screens/organizer/TicketScannerScreen';
@@ -101,7 +102,10 @@ export type RootStackParamList = {
   StripeConnectWebView: { url: string; authToken?: string | null };
   StripeOnboarding: { accountLocation?: 'united_states' | 'canada' | 'france'; hostedOnly?: boolean } | undefined;
   InAppWebView: { url: string; title?: string };
-  EventDetail: { eventId: string };
+  // `ref` arrives from a promoter's universal link (tikem.co/events/{id}?ref=CODE);
+  // React Navigation merges the query string into params. EventDetailScreen
+  // captures and persists it for purchase attribution.
+  EventDetail: { eventId: string; ref?: string };
   // Either `category` (per-category listing) or `feed` (one of Home's curated
   // rails opened as its own page) — never both.
   CategoryEvents: {
@@ -126,6 +130,7 @@ export type RootStackParamList = {
   OrganizerTeamHub: undefined;
   OrganizerOrgTeam: undefined;
   OrganizerPromoCodes: { eventId: string };
+  OrganizerPromoters: { eventId: string };
   OrganizerComps: { eventId: string };
   // Attendee questions. No params = the organizer's whole inbox; an eventId
   // scopes it to one event (how the "new message" notification arrives).
@@ -891,6 +896,11 @@ export default function AppNavigator() {
             <Stack.Screen
               name="OrganizerComps"
               component={OrganizerCompsScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="OrganizerPromoters"
+              component={OrganizerPromotersScreen}
               options={{ headerShown: false }}
             />
             <Stack.Screen

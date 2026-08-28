@@ -141,6 +141,10 @@ export default function OrganizerEventManagementScreen() {
     navigation.navigate('OrganizerPromoCodes', { eventId });
   };
 
+  const handlePromoters = () => {
+    navigation.navigate('OrganizerPromoters', { eventId });
+  };
+
   const handleEditEvent = () => {
     navigation.navigate('EditEvent', { eventId });
   };
@@ -339,6 +343,7 @@ export default function OrganizerEventManagementScreen() {
             { key: 'earnings', icon: 'cash-outline', label: t('organizerEventManagement.actions.earnings'), onPress: handleViewEarnings },
             { key: 'comps', icon: 'gift-outline', label: t('organizerEventManagement.actions.comps'), onPress: handleViewComps },
             { key: 'promo', icon: 'pricetag-outline', label: t('organizerEventManagement.actions.promoCodes'), onPress: handlePromoCodes },
+            { key: 'promoters', icon: 'megaphone-outline', label: t('organizerEventManagement.actions.promoters'), onPress: handlePromoters },
             { key: 'edit', icon: 'create-outline', label: t('organizerEventManagement.actions.editEvent'), onPress: handleEditEvent },
             { key: 'public', icon: 'eye-outline', label: t('organizerEventManagement.actions.viewPublicPage'), onPress: handleViewPublicPage },
           ]}

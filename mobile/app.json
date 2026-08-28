@@ -64,6 +64,26 @@
               "scheme": "https",
               "host": "tikem.co",
               "pathPrefix": "/notifications"
+            },
+            {
+              "scheme": "https",
+              "host": "www.tikem.co",
+              "pathPrefix": "/events"
+            },
+            {
+              "scheme": "https",
+              "host": "www.tikem.co",
+              "pathPrefix": "/tickets"
+            },
+            {
+              "scheme": "https",
+              "host": "www.tikem.co",
+              "pathPrefix": "/invite"
+            },
+            {
+              "scheme": "https",
+              "host": "www.tikem.co",
+              "pathPrefix": "/notifications"
             }
           ],
           "category": [

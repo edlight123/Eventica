@@ -66,6 +66,8 @@ interface PaymentModalProps {
   feeIncidence?: string | null;
   tierId?: string;
   promoCodeId?: string;
+  /** Promoter ref (`?ref=` on the event link) — resolved and attributed server-side. */
+  refCode?: string;
   onSuccess: (paymentMethod: string, transactionId: string) => void;
 }
 
@@ -80,6 +82,7 @@ function PaymentForm({
   feeIncidence,
   tierId,
   promoCodeId,
+  refCode,
   onSuccess,
   onClose,
 }: Omit<PaymentModalProps, 'visible'>) {
@@ -135,6 +138,7 @@ function PaymentForm({
           quantity,
           tierId,
           promoCodeId,
+          ...(refCode ? { refCode } : {}),
         }),
       });
 
@@ -175,6 +179,7 @@ function PaymentForm({
           quantity,
           tierId,
           promoCode: promoCodeId,
+          ...(refCode ? { refCode } : {}),
         }),
       });
 
@@ -207,6 +212,7 @@ function PaymentForm({
           quantity,
           tierId,
           promoCode: promoCodeId,
+          ...(refCode ? { refCode } : {}),
           mobileMoneyProvider: 'moncash',
           forceFormPost: true,
         }),
@@ -243,6 +249,7 @@ function PaymentForm({
           quantity,
           tierId,
           promoCode: promoCodeId,
+          ...(refCode ? { refCode } : {}),
           mobileMoneyProvider: 'natcash',
           forceFormPost: true,
         }),

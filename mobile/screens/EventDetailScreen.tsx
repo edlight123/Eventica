@@ -26,6 +26,7 @@ import {
 import { doc, getDoc, collection, addDoc, Timestamp, query, where, getDocs, deleteDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { backendJson } from '../lib/api/backend';
+import { getPromoterRef, setPromoterRef } from '../lib/promoterRef';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -64,6 +65,24 @@ const STARTS_IN_KEY = 'eventDetail.startsIn';
 
 export default function EventDetailScreen({ route, navigation }: any) {
   const { eventId } = route.params;
+  // Promoter attribution. Universal links open promoter share links
+  // (tikem.co/events/{id}?ref=CODE) in THIS app instead of the browser, and React
+  // Navigation delivers the query string as route.params.ref. Capture it (last
+  // click wins), persist per event so it survives re-navigation and auth, and
+  // thread it into every purchase body as `refCode` — the server re-validates and
+  // silently drops junk, so this can never block a purchase.
+  const [refCode, setRefCode] = useState<string | undefined>();
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const fromLink = await setPromoterRef(eventId, (route.params as any)?.ref);
+      const code = fromLink || (await getPromoterRef(eventId));
+      if (!cancelled && code) setRefCode(code);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [eventId, (route.params as any)?.ref]);
   const { user, userProfile } = useAuth();
   const { t, language } = useI18n();
   const { colors } = useTheme();
@@ -908,6 +927,9 @@ export default function EventDetailScreen({ route, navigation }: any) {
         // Only meaningful with an explicit tier — the server refuses a promo it
         // would have to guess a tier for.
         promoCode={selectedTierId ? promoCode : undefined}
+        // Unlike promoCode this is never tier-gated: a free RSVP still credits
+        // the promoter (with zero commission).
+        refCode={refCode}
         onCheckoutFallback={selectedTierId ? handleClaimCheckoutFallback : undefined}
         onSuccess={handleFreeTicketSuccess}
       />
@@ -973,6 +995,7 @@ export default function EventDetailScreen({ route, navigation }: any) {
         country={event?.country || ''}
         tierId={selectedTierId || undefined}
         promoCodeId={promoCode}
+        refCode={refCode}
         onSuccess={handlePaymentSuccess}
       />
     </SafeAreaView>
