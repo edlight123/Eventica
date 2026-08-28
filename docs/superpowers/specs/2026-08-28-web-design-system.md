@@ -65,6 +65,12 @@ lowercase serif) IS the brand's typographic identity: street energy + editorial 
 - Spacing on an 8px grid; sections breathe: `96–128px` between homepage sections on desktop, `56` on mobile. Premium is measured in whitespace, not effects.
 - Elevation = brightness + glow, never drop-shadow-gray. Card hover: `translateY(-4px)`, image `scale(1.03)`, poster-glow intensifies. 180ms ease-out. `prefers-reduced-motion` kills all of it.
 - Primary CTA: the **white pill button** (white fill, black text) — mobile's `WhitePillCTA`, radius 14. Teal is never the buy button; white reads premium against the dark room and never fights a poster.
+- **Quiet buttons (posh calibration, 2026-08-28).** Buttons whisper: `font-medium`
+  (500) on the white pill, `font-normal` on ghosts and chips — never 600+; 13–14px
+  type; compact padding (`px-4–6 py-2–2.5`, taps keep 44px min-height); ONE white
+  pill per screen, everything else bare text or a `white/12` hairline; hover changes
+  color, not position (no translate/shadow theatrics). What makes posh's buttons
+  premium is restraint, not chrome.
 
 ## 4. The event card (the most important component)
 

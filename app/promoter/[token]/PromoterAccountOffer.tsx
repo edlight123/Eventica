@@ -83,7 +83,7 @@ export default function PromoterAccountOffer({
       <div className="mt-4 flex flex-col sm:flex-row gap-3">
         <a
           href={signupHref}
-          className="flex-1 text-center bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 px-5 rounded-xl transition-colors min-h-[44px] flex items-center justify-center"
+          className="flex-1 text-center bg-white hover:bg-white/90 text-black font-medium py-3 px-5 rounded-xl transition-colors min-h-[44px] flex items-center justify-center"
         >
           Create an account
         </a>

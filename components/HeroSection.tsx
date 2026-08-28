@@ -220,7 +220,7 @@ export default function HeroSection({ hasActiveFilters, featuredEvents, events }
         {/* The white pill is THE primary action — teal never fills a CTA. */}
         <button
           type="submit"
-          className="rounded-xl bg-white px-6 py-2.5 text-sm font-semibold text-black shadow-sm transition-all duration-200 hover:bg-white/90 active:scale-[0.98]"
+          className="rounded-xl bg-white px-6 py-2.5 text-sm font-medium text-black transition-colors duration-200 hover:bg-white/90 active:scale-[0.98]"
         >
           {t('common.search')}
         </button>
@@ -375,7 +375,7 @@ export default function HeroSection({ hasActiveFilters, featuredEvents, events }
             <Link
               key={c}
               href={`/?city=${encodeURIComponent(c)}`}
-              className="rounded-[10px] border border-white/10 bg-white/[0.03] px-3.5 py-1.5 text-[13px] font-medium text-white/70 transition-colors duration-200 hover:border-white/25 hover:text-white"
+              className="rounded-[10px] border border-white/10 bg-white/[0.03] px-3.5 py-1.5 text-[13px] font-normal text-white/70 transition-colors duration-200 hover:border-white/25 hover:text-white"
             >
               {c}
             </Link>

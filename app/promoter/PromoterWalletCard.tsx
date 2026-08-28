@@ -134,7 +134,7 @@ export default function PromoterWalletCard() {
             type="button"
             onClick={handleWithdraw}
             disabled={working || !phone.trim()}
-            className="rounded-xl bg-brand-600 hover:bg-brand-700 px-5 py-3 text-sm font-semibold text-white transition-colors disabled:opacity-50 min-h-[44px]"
+            className="rounded-xl bg-white hover:bg-white/90 px-5 py-3 text-sm font-medium text-black transition-colors disabled:opacity-50 min-h-[44px]"
           >
             {working ? 'Sending…' : 'Withdraw to MonCash'}
           </button>

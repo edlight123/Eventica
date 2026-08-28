@@ -29,7 +29,7 @@ export default function PromoterShareActions({
       <button
         type="button"
         onClick={copyLink}
-        className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 px-4 py-3 text-sm font-semibold text-white transition-colors min-h-[44px]"
+        className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-white hover:bg-white/90 px-4 py-3 text-sm font-medium text-black transition-colors min-h-[44px]"
       >
         {copied ? <><Check className="h-4 w-4" />Copied!</> : <><Copy className="h-4 w-4" />Copy my link</>}
       </button>

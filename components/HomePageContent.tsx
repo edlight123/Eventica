@@ -136,7 +136,7 @@ function NoEventsInCountry({ countryName }: { countryName: string }) {
       </p>
       <Link
         href="/profile"
-        className="mt-7 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-700"
+        className="mt-7 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-black transition-colors duration-200 hover:bg-white/90"
       >
         <MapPin className="h-4 w-4" />
         {t('common.change_location', { defaultValue: 'Change your location' })}
@@ -208,7 +208,7 @@ export default function HomePageContent({
             <p className="mt-2 text-[15px] text-white/55">{t('common.try_different_search')}</p>
             <Link
               href="/"
-              className="mt-7 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-700"
+              className="mt-7 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-black transition-colors duration-200 hover:bg-white/90"
             >
               {t('events.all_events')}
             </Link>
@@ -301,7 +301,7 @@ export default function HomePageContent({
         <div className="mt-9 flex justify-center">
           <Link
             href="/discover"
-            className="group inline-flex items-center gap-2 rounded-xl border border-white/15 px-7 py-3 text-sm font-semibold text-white shadow-poster-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-400/40 hover:text-brand-300"
+            className="group inline-flex items-center gap-2 rounded-xl border border-white/12 px-6 py-2.5 text-sm font-medium text-white/80 transition-colors duration-200 hover:border-white/25 hover:text-white"
           >
             {t('events.explore_all')}
             <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />

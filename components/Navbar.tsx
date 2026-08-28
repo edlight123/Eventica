@@ -272,15 +272,18 @@ export default function Navbar({ user, isAdmin = false, flush = false }: NavbarP
               </>
             ) : (
               <>
+                {/* Quiet buttons (posh calibration, 2026-08-28): sign-in is bare
+                    text, the ONE white pill is the only chrome in the navbar.
+                    Regular weights and small type read premium; teal never fills. */}
                 <Link
                   href={`/auth/login?redirect=${encodeURIComponent(redirectTarget)}`}
-                  className="hidden sm:inline-flex items-center rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white/80 transition-all duration-200 hover:border-white/30 hover:bg-white/5"
+                  className="hidden sm:inline-flex items-center px-3 py-2 text-[13px] font-normal text-white/70 transition-colors duration-200 hover:text-white"
                 >
                   {t('nav.signIn')}
                 </Link>
                 <Link
                   href={`/auth/signup?redirect=${encodeURIComponent(redirectTarget)}`}
-                  className="inline-flex items-center rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-700"
+                  className="inline-flex items-center rounded-xl bg-white px-4 py-2 text-[13px] font-medium text-black transition-colors duration-200 hover:bg-white/90"
                 >
                   {t('auth:signup.submit')}
                 </Link>

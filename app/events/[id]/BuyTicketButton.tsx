@@ -996,7 +996,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
             <button
               type="submit"
               disabled={verifyingCode || !codeInput.trim()}
-              className="block w-full bg-brand-600 hover:bg-brand-700 text-white text-center font-semibold py-3 px-5 rounded-lg transition-colors disabled:opacity-50 min-h-[44px]"
+              className="block w-full bg-white hover:bg-white/90 text-black text-center text-[15px] font-medium py-3 px-5 rounded-xl transition-colors disabled:opacity-50 min-h-[44px]"
             >
               {verifyingCode
                 ? t('events.processing')
@@ -1058,7 +1058,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
           <button
             onClick={() => gateOrRun('free')}
             disabled={loading}
-            className="block w-full bg-brand-600 hover:bg-brand-700 text-white text-center font-semibold py-2.5 px-5 rounded-lg transition-colors disabled:opacity-50 min-h-[44px]"
+            className="block w-full bg-white hover:bg-white/90 text-black text-center text-[15px] font-medium py-2.5 px-5 rounded-xl transition-colors disabled:opacity-50 min-h-[44px]"
           >
             {loading ? t('events.processing') : `${t('events.claim')} ${quantity} ${t('events.free_ticket')}${quantity !== 1 ? 's' : ''}`}
           </button>
@@ -1075,7 +1075,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
           <button
             onClick={() => gateOrRun('paid')}
             disabled={loading || tierProbeLoading}
-            className="block w-full bg-brand-600 hover:bg-brand-700 text-white text-center font-semibold py-2.5 px-5 rounded-lg transition-colors disabled:opacity-50 min-h-[44px]"
+            className="block w-full bg-white hover:bg-white/90 text-black text-center text-[15px] font-medium py-2.5 px-5 rounded-xl transition-colors disabled:opacity-50 min-h-[44px]"
           >
             {loading || tierProbeLoading ? t('events.processing') : t('events.buy_ticket')}
           </button>
