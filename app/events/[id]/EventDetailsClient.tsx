@@ -175,7 +175,9 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
               </div>
 
               {/* Title */}
-              <h1 className="font-display italic text-[clamp(30px,4vw,52px)] leading-[1.03] text-white mb-4">
+              {/* The poster voice: event titles are grotesk (design system 2026-08-28);
+                  serif italic is the eyebrow/wordmark voice, never a title. */}
+              <h1 className="font-grotesk font-bold !text-[clamp(30px,4vw,52px)] !leading-[1.03] tracking-[-0.01em] text-white mb-4">
                 {event.title}
               </h1>
 
@@ -480,7 +482,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                       <span className="text-white/70"> – </span>
                       <span className="text-base text-white/70">{event.currency || 'HTG'}</span> {headlineDisplayPrice.toLocaleString()}
                     </p>
-                    <p className="label-mono text-[11px] uppercase text-white/70 mt-1.5">{t('events.per_ticket')}</p>
+                    <p className="label-mono text-[11px] uppercase text-white/70 mt-1.5">{t('events.per_ticket', { defaultValue: 'per ticket' })}</p>
                     {showHeadlineFee && (
                       <p className="label-mono text-[11px] uppercase text-white/50 mt-1">
                         {t('events.fees_included', { defaultValue: 'Fees included' })}
@@ -492,7 +494,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                     <p className="label-mono text-3xl font-semibold text-brand-400">
                       <span className="text-base text-white/70">{event.currency || 'HTG'}</span> {headlineDisplayPrice.toLocaleString()}
                     </p>
-                    <p className="label-mono text-[11px] uppercase text-white/70 mt-1.5">{t('events.per_ticket')}</p>
+                    <p className="label-mono text-[11px] uppercase text-white/70 mt-1.5">{t('events.per_ticket', { defaultValue: 'per ticket' })}</p>
                     {showHeadlineFee && (
                       <p className="label-mono text-[11px] uppercase text-white/50 mt-1">
                         {t('events.fees_included_detail', {
