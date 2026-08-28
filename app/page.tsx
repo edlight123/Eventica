@@ -51,7 +51,19 @@ export default async function HomePage({
     if (value) urlParams.set(key, String(value))
   })
   const filters = parseFiltersFromURL(urlParams)
-  
+
+  // The hero's diaspora city chips switch the page's country scope: a visitor
+  // whose default scope is Haiti who taps "Miami" must actually see Miami —
+  // the strict country filter below would otherwise erase the selection.
+  const DIASPORA_CITY_COUNTRY: Record<string, string> = {
+    Miami: 'US',
+    'New York': 'US',
+    Montréal: 'CA',
+    Montreal: 'CA',
+    Paris: 'FR',
+  }
+  const effectiveCountry = DIASPORA_CITY_COUNTRY[filters.city] || userCountry
+
   let events: any[] = []
   
   if (isDemoMode()) {
@@ -92,11 +104,15 @@ export default async function HomePage({
 
   events = events.filter(notDefinitelyEnded)
 
+  // Everything still upcoming, ALL countries — the diaspora rail reads from
+  // here, since the strict scope filter below would erase it.
+  const allCountriesEvents = events
+
   // STRICT country filtering - ONLY show events from user's country
   // Events without a country field are assumed to be in Haiti (HT)
   events = events.filter(e => {
     const eventCountry = e.country || 'HT' // Default to Haiti if no country set
-    return eventCountry === userCountry
+    return eventCountry === effectiveCountry
   })
 
   // Attach organizer display names so the hero search autocomplete can match by
@@ -170,6 +186,31 @@ export default async function HomePage({
     .slice(0, 6)
   const countryEvents = prioritizedEvents.slice(0, 6)
 
+  // Tonight — starts today (through late night), the most urgent rail.
+  const endOfTonight = new Date(now)
+  endOfTonight.setHours(29, 59, 59, 999) // rolls into tomorrow 5:59 AM — night events count
+  const tonightEvents = prioritizedEvents
+    .filter(e => {
+      const start = new Date(e.start_datetime)
+      if (Number.isNaN(start.getTime())) return false
+      return (
+        start.getTime() >= now.getTime() - 6 * 3_600_000 &&
+        start.getTime() <= endOfTonight.getTime()
+      )
+    })
+    .slice(0, 12)
+
+  // In the diaspora (or, for a diaspora visitor, back home): events OUTSIDE the
+  // visitor's current scope. This is the identity rail — Tikèm is the Haitian
+  // event ecosystem, not just Haiti's ticket counter.
+  const diasporaIsHome = effectiveCountry !== 'HT'
+  const diasporaEvents = allCountriesEvents
+    .filter(e => {
+      const eventCountry = e.country || 'HT'
+      return diasporaIsHome ? eventCountry === 'HT' : eventCountry !== 'HT'
+    })
+    .slice(0, 12)
+
   // Recently added — newest events on the platform first (by created_at).
   const recentlyAddedEvents = [...prioritizedEvents]
     .filter(notDefinitelyEnded)
@@ -208,6 +249,8 @@ export default async function HomePage({
   const serializedUpcomingThisWeek = serializeData(upcomingThisWeek)
   const serializedCountryEvents = serializeData(countryEvents)
   const serializedRecentlyAdded = serializeData(recentlyAddedEvents)
+  const serializedTonight = serializeData(tonightEvents)
+  const serializedDiaspora = serializeData(diasporaEvents)
 
   return (
     <div className="surface-dark min-h-screen pb-mobile-nav">
@@ -244,13 +287,16 @@ export default async function HomePage({
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-12">
-        <HomePageContent 
+        <HomePageContent
             hasActiveFilters={hasActiveFilters}
             events={serializedEvents}
             trendingEvents={serializedTrendingEvents}
             upcomingThisWeek={serializedUpcomingThisWeek}
             countryEvents={serializedCountryEvents}
             recentlyAddedEvents={serializedRecentlyAdded}
+            tonightEvents={serializedTonight}
+            diasporaEvents={serializedDiaspora}
+            diasporaIsHome={diasporaIsHome}
             userCountry={userCountry}
             userCity={userCity}
             userSubarea={userSubarea}

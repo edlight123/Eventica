@@ -247,6 +247,31 @@ select:-webkit-autofill {
     }
   }
 
+  /* Homepage hero collage: a slow ambient drift — the room breathes, barely. */
+  .hero-collage-drift {
+    animation: hero-drift 36s ease-in-out infinite alternate;
+  }
+  @keyframes hero-drift {
+    from {
+      transform: translateY(0) scale(1.03);
+    }
+    to {
+      transform: translateY(-28px) scale(1.03);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-collage-drift {
+      animation: none;
+    }
+    .reveal,
+    .reveal-1,
+    .reveal-2,
+    .reveal-3 {
+      animation: none;
+      opacity: 1;
+    }
+  }
+
   /* Subtle film grain / vignette helpers for poster surfaces */
   .poster-vignette::after {
     content: '';

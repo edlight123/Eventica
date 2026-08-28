@@ -15,6 +15,12 @@ interface HomePageContentProps {
   upcomingThisWeek: any[]
   countryEvents?: any[]
   recentlyAddedEvents?: any[]
+  /** Starts today (through late night) — the most urgent rail, shown first. */
+  tonightEvents?: any[]
+  /** Events OUTSIDE the visitor's country scope — the identity rail. */
+  diasporaEvents?: any[]
+  /** True for a diaspora visitor: the rail shows Haiti and reads "back home". */
+  diasporaIsHome?: boolean
   userCountry?: string
   userCity?: string
   userSubarea?: string
@@ -40,8 +46,14 @@ function SectionHeader({
   return (
     <div className="mb-5 flex items-end justify-between gap-4 sm:mb-6">
       <div className="min-w-0">
-        {eyebrow && <p className="eyebrow text-brand-400">{eyebrow}</p>}
-        <h2 className="mt-1.5 font-display text-[clamp(24px,4.2vw,36px)] leading-[1.02] text-white">
+        {eyebrow && (
+          <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/40">
+            {eyebrow}
+          </p>
+        )}
+        {/* The editorial voice: lowercase italic serif — same convention as mobile.
+            `!` beats the legacy `.mobile-typography h2` descendant rule on body. */}
+        <h2 className="mt-1.5 font-display lowercase italic !text-[clamp(24px,3.8vw,34px)] !leading-[1.02] text-white/90">
           {title}
         </h2>
         {description && (
@@ -91,7 +103,7 @@ function CategoryRail({
   return (
     <div>
       <div className="mb-4 flex items-end justify-between gap-4">
-        <h3 className="font-display text-[clamp(20px,3vw,28px)] leading-tight text-white">
+        <h3 className="font-display lowercase italic text-[clamp(20px,3vw,28px)] leading-tight text-white/90">
           {label}
         </h3>
         <Link
@@ -144,6 +156,9 @@ export default function HomePageContent({
   upcomingThisWeek,
   countryEvents = [],
   recentlyAddedEvents = [],
+  tonightEvents = [],
+  diasporaEvents = [],
+  diasporaIsHome = false,
   userCountry = 'HT',
   userCity = '',
   userSubarea = '',
@@ -237,13 +252,17 @@ export default function HomePageContent({
   // it still has enough fresh events to fill a row. The final All Events grid is
   // intentionally exempt — it's the comprehensive catalog.
   const seen = new Set<string>()
-  const dedupeRail = (list: any[] = []) => {
+  const dedupeRail = (list: any[] = [], min: number = MIN_RAIL_EVENTS) => {
     const fresh = list.filter((e) => e?.id && !seen.has(e.id))
-    if (fresh.length < MIN_RAIL_EVENTS) return []
+    if (fresh.length < min) return []
     fresh.forEach((e) => seen.add(e.id))
     return fresh
   }
 
+  // Tonight is urgency — worth showing with as few as two events. The diaspora
+  // rail draws from OUTSIDE the country scope, so it never starves the others.
+  const tonightRail = isLowInventory ? [] : dedupeRail(tonightEvents, 2)
+  const diasporaRail = isLowInventory ? [] : dedupeRail(diasporaEvents, 3)
   const trendingRail = isLowInventory ? [] : dedupeRail(trendingEvents)
   const recentlyAddedRail = isLowInventory ? [] : dedupeRail(recentlyAddedEvents)
   const countryRail = isLowInventory ? [] : dedupeRail(countryEvents)
@@ -299,6 +318,39 @@ export default function HomePageContent({
 
   return (
     <div className="space-y-12 sm:space-y-16">
+      {/* Tonight — the most urgent rail, always first */}
+      {tonightRail.length > 0 && (
+        <section>
+          <SectionHeader
+            title={t('events.rail_tonight', { defaultValue: 'tonight' })}
+            href="/discover?date=today"
+            cta={t('common.viewAll')}
+          />
+          <EventRail events={tonightRail} userCity={userCity} />
+        </section>
+      )}
+
+      {/* In the diaspora / back home — the identity rail */}
+      {diasporaRail.length > 0 && (
+        <section>
+          <SectionHeader
+            title={
+              diasporaIsHome
+                ? t('events.rail_back_home', { defaultValue: 'back home in Haiti' })
+                : t('events.rail_diaspora', { defaultValue: 'in the diaspora' })
+            }
+            description={
+              diasporaIsHome
+                ? undefined
+                : t('events.rail_diaspora_desc', {
+                    defaultValue: 'Miami · New York · Montréal · Paris',
+                  })
+            }
+          />
+          <EventRail events={diasporaRail} userCity={userCity} />
+        </section>
+      )}
+
       {/* Trending — editorial rail */}
       {trendingRail.length > 0 && (
         <section>

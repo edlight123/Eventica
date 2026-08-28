@@ -82,7 +82,7 @@ export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
         venue={venue}
         dateLabel={dateLabel}
         badge={badge}
-        aspect="2/3"
+        aspect="4/5"
         href={`/events/${event.id}`}
       />
 

@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { format, isValid } from 'date-fns'
-import { Search, MapPin, ArrowUpRight, CalendarDays } from 'lucide-react'
+import { Search, MapPin, ArrowUpRight } from 'lucide-react'
 import { getPosterTheme } from '@/lib/posterGradient'
 import { getCitiesForCountry } from '@/lib/filters/config'
 
@@ -18,39 +18,12 @@ interface HeroSectionProps {
   brandTagline?: string
 }
 
-/** Full-bleed poster media for the featured hero card (image, or teal gradient fallback). */
-function PosterMedia({ ev, zoom = false }: { ev: any; zoom?: boolean }) {
-  const hasImage = ev.imageUrl && ev.imageUrl !== '/placeholder-event.jpg'
-  if (hasImage) {
-    return (
-      <Image
-        src={ev.imageUrl}
-        alt={ev.title}
-        fill
-        priority
-        quality={82}
-        sizes="(max-width: 1024px) 360px, 400px"
-        className={`object-cover ${zoom ? 'transition-transform duration-[1.2s] ease-out group-hover:scale-[1.07]' : ''}`}
-      />
-    )
-  }
-  const theme = getPosterTheme(ev.id || ev.title, ev.category)
-  return (
-    <div
-      className="absolute inset-0 flex items-center justify-center p-6 text-center [container-type:inline-size]"
-      style={{ backgroundImage: theme.bg }}
-    >
-      <span className="font-display text-[clamp(20px,7cqw,28px)] leading-[0.98] text-white/95 drop-shadow-[0_2px_18px_rgba(0,0,0,0.45)] line-clamp-5 [hyphens:auto] [overflow-wrap:anywhere]">
-        {ev.title}
-      </span>
-    </div>
-  )
-}
-
-function formatFeaturedDate(date: string) {
-  const d = new Date(date)
-  return isValid(d) ? format(d, 'EEE, MMM d · h:mm a') : ''
-}
+/**
+ * The diaspora, written into the identity: real filters, not decoration.
+ * Haiti cities filter within HT; the four diaspora cities also switch the
+ * page's country scope (see app/page.tsx DIASPORA_CITY_COUNTRY).
+ */
+const CITY_CHIPS = ['Port-au-Prince', 'Cap-Haïtien', 'Miami', 'New York', 'Montréal', 'Paris']
 
 /** Compact date used inside autocomplete rows; safe against invalid dates. */
 function formatRowDate(date: any): string {
@@ -244,9 +217,10 @@ export default function HeroSection({ hasActiveFilters, featuredEvents, events }
             autoComplete="off"
           />
         </div>
+        {/* The white pill is THE primary action — teal never fills a CTA. */}
         <button
           type="submit"
-          className="rounded-xl bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-brand-700 active:scale-[0.98]"
+          className="rounded-xl bg-white px-6 py-2.5 text-sm font-semibold text-black shadow-sm transition-all duration-200 hover:bg-white/90 active:scale-[0.98]"
         >
           {t('common.search')}
         </button>
@@ -336,96 +310,77 @@ export default function HeroSection({ hasActiveFilters, featuredEvents, events }
     )
   }
 
-  const featured = Array.isArray(featuredEvents) ? featuredEvents.filter(Boolean) : []
-  const front = featured[0]
-  const back = featured[1]
-  const priceText = (price: any, currency?: string) =>
-    Number(price) > 0 ? `${Number(price).toLocaleString()} ${currency || 'HTG'}` : t('common.free')
+  // The collage behind the headline: real posters already on the platform,
+  // heavily scrimmed so the type owns the frame — the artwork is the color.
+  // Thin inventory cycles what exists rather than leaving lopsided black.
+  const collageSource = [
+    ...source.filter((ev) => ev?.banner_image_url),
+    ...source.filter((ev) => !ev?.banner_image_url),
+  ].slice(0, 12)
+  const collagePosters =
+    collageSource.length === 0
+      ? []
+      : Array.from({ length: 12 }, (_, i) => collageSource[i % collageSource.length])
 
   return (
-    <section className="relative overflow-hidden">
-      {/* Dark canvas + soft brand glows */}
-      <div aria-hidden className="absolute inset-0 -z-10 bg-[#0a0a0a]" />
-      <div aria-hidden className="absolute right-[-12%] top-[-30%] -z-10 h-[460px] w-[460px] rounded-full blur-[130px]" />
-      <div aria-hidden className="absolute left-[-10%] top-[-8%] -z-10 h-[320px] w-[320px] rounded-full blur-[120px]" />
-
-      <div className="mx-auto grid max-w-6xl items-center gap-10 px-5 pb-12 pt-10 sm:px-6 sm:pb-16 sm:pt-16 lg:grid-cols-12 lg:gap-6 lg:px-8">
-        {/* Copy + search */}
-        <div className={front ? 'lg:col-span-7' : 'lg:col-span-12'}>
-          <p className="eyebrow reveal reveal-1 text-brand-400">{t('events.hero_eyebrow')}</p>
-
-          <h1 className="reveal reveal-2 mt-3 max-w-[15ch] text-balance font-display text-[clamp(40px,6.2vw,68px)] leading-[0.95] text-white">
-            {t('events.hero_headline')}{' '}
-            <span className="italic text-brand-400">{t('events.hero_headline_accent')}</span>.
-          </h1>
-
-          <p className="reveal reveal-3 mt-4 max-w-xl text-[15px] leading-relaxed text-white/70 sm:text-lg">
-            {t('events.hero_subtitle')}
-          </p>
-
-          {SearchForm}
-        </div>
-
-        {/* Featured poster stack */}
-        {front && (
-          <div className="reveal reveal-3 lg:col-span-5">
-            <div className="relative mx-auto w-full max-w-[330px] sm:max-w-[360px]">
-              {back && (
-                <div
-                  aria-hidden
-                  className="absolute -right-5 top-7 hidden aspect-[4/5] w-[82%] rotate-6 overflow-hidden rounded-none shadow-poster-sm ring-1 ring-white/10 sm:block"
-                >
-                  <PosterMedia ev={back} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent" />
-                </div>
-              )}
-
-              <Link
-                href={`/events/${front.id}`}
-                prefetch
-                aria-label={front.title}
-                className="group relative block"
-              >
-                <div className="poster-vignette relative aspect-[4/5] overflow-hidden rounded-none shadow-card-hover ring-1 ring-white/10 transition-transform duration-500 group-hover:-translate-y-1">
-                  <PosterMedia ev={front} zoom />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/25" />
-
-                  {/* Top row */}
-                  <div className="absolute inset-x-0 top-0 z-10 flex items-start justify-between p-4">
-                    <span className="eyebrow inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-[10px] tracking-[0.14em] text-brand-700 shadow-sm">
-                      <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
-                      {t('events.featured', { defaultValue: 'Featured' })}
-                    </span>
-                    <span className="grid h-9 w-9 place-items-center rounded-full bg-black/30 text-white backdrop-blur-md transition-transform duration-200 group-hover:rotate-45">
-                      <ArrowUpRight className="h-[18px] w-[18px]" />
-                    </span>
-                  </div>
-
-                  {/* Bottom meta */}
-                  <div className="absolute inset-x-0 bottom-0 z-10 p-4 text-white">
-                    {front.category && (
-                      <span className="eyebrow text-[10px] tracking-[0.16em] text-white/70">
-                        {front.category}
-                      </span>
-                    )}
-                    <h3 className="mt-1 font-display italic text-[26px] leading-[1.0] drop-shadow-[0_2px_16px_rgba(0,0,0,0.5)] line-clamp-2">
-                      {front.title}
-                    </h3>
-                    <div className="mt-2 flex items-center justify-between gap-2">
-                      <span className="label-mono inline-flex items-center gap-1.5 text-[11px] uppercase text-white/85">
-                        <CalendarDays className="h-3.5 w-3.5" />
-                        {formatFeaturedDate(front.date)}
-                      </span>
-                      <span className="label-mono shrink-0 rounded-lg bg-white px-2.5 py-1 text-[12px] font-semibold text-black backdrop-blur-md">
-                        {priceText(front.price, front.currency)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
+    // `isolate` scopes the collage's -z-10 to THIS section — without it the
+    // layer paints behind the page wrapper's own background and disappears.
+    <section className="relative isolate overflow-hidden border-b border-white/10">
+      <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden bg-[#0a0a0a]">
+        {collagePosters.length > 0 && (
+          <div className="hero-collage-drift grid grid-cols-3 gap-2 p-2 opacity-55 sm:grid-cols-4 lg:grid-cols-6">
+            {collagePosters.map((ev, i) => (
+              // Cycled tiles repeat events, so the key must carry the slot index.
+              <div key={`${ev.id || 'tile'}-${i}`} className="relative aspect-[3/4] overflow-hidden rounded">
+                {ev.banner_image_url ? (
+                  <Image
+                    src={ev.banner_image_url}
+                    alt=""
+                    fill
+                    sizes="(max-width: 640px) 33vw, 17vw"
+                    quality={45}
+                    className="object-cover"
+                  />
+                ) : (
+                  <div
+                    className="absolute inset-0"
+                    style={{ backgroundImage: getPosterTheme(ev.id || ev.title, ev.category).bg }}
+                  />
+                )}
+              </div>
+            ))}
           </div>
         )}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/85 via-[#0a0a0a]/62 to-[#0a0a0a]" />
+      </div>
+
+      <div className="mx-auto max-w-6xl px-5 pb-14 pt-16 sm:px-6 sm:pb-20 sm:pt-24 lg:px-8">
+        {/* The poster voice: heavy grotesk, uppercase here and nowhere else. */}
+        {/* `!` beats the legacy `.mobile-typography h1` descendant rule on body. */}
+        <h1 className="reveal reveal-1 font-grotesk !text-[clamp(44px,9vw,104px)] font-bold uppercase !leading-[0.98] tracking-[-0.02em] text-white">
+          {t('events.hero_line1', { defaultValue: 'Where Haiti' })}
+          <br />
+          {t('events.hero_line2', { defaultValue: 'goes out.' })}
+        </h1>
+
+        {/* The editorial voice answers it: lowercase serif. */}
+        <p className="reveal reveal-2 mt-5 max-w-xl font-display lowercase italic text-[clamp(17px,2.2vw,22px)] leading-snug text-white/70">
+          {t('events.hero_subtitle')}
+        </p>
+
+        {SearchForm}
+
+        <div className="reveal reveal-3 mt-6 flex flex-wrap items-center gap-2">
+          {CITY_CHIPS.map((c) => (
+            <Link
+              key={c}
+              href={`/?city=${encodeURIComponent(c)}`}
+              className="rounded-[10px] border border-white/10 bg-white/[0.03] px-3.5 py-1.5 text-[13px] font-medium text-white/70 transition-colors duration-200 hover:border-white/25 hover:text-white"
+            >
+              {c}
+            </Link>
+          ))}
+        </div>
       </div>
     </section>
   )

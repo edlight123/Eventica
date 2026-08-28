@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { usePosterAccent } from '@/components/ui/usePosterAccent'
 
 interface PosterCardProps {
   /** Portrait poster image. When absent, a teal→black gradient carries the title. */
@@ -20,6 +21,12 @@ interface PosterCardProps {
   href?: string
   onClick?: () => void
   className?: string
+  /**
+   * The poster-glow — the design system's signature. Each poster radiates its
+   * own dominant color into the black canvas (teal-neutral until extracted).
+   * On by default for public surfaces; pass false in dense admin lists.
+   */
+  glow?: boolean
 }
 
 /**
@@ -48,6 +55,7 @@ export function PosterCard({
   href,
   onClick,
   className = '',
+  glow = true,
 }: PosterCardProps) {
   // Fall back to the gradient title-card not just when the URL is absent, but
   // also when the image fails to load (broken/missing banner) — otherwise a dead
@@ -55,13 +63,22 @@ export function PosterCard({
   const [imgError, setImgError] = useState(false)
   const hasImage = Boolean(imageUrl) && !imgError
   const aspectClass = aspect === '2/3' ? 'aspect-[2/3]' : 'aspect-[4/5]'
+  // The artwork's dominant color, as an "r,g,b" triple for the glow.
+  const accent = usePosterAccent(glow && hasImage ? imageUrl : undefined)
 
   const inner = (
-    <article className="group flex h-full max-w-full flex-col">
-      {/* ---------- Poster ---------- */}
+    <article
+      className="group flex h-full max-w-full flex-col transition-transform duration-200 ease-out hover:-translate-y-1 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+      style={glow ? ({ ['--pg' as any]: accent } as React.CSSProperties) : undefined}
+    >
+      {/* ---------- Poster (4px corners: artwork, not chrome) ---------- */}
       <div
-        className={`relative ${aspectClass} w-full max-w-full overflow-hidden rounded-2xl ${
+        className={`relative ${aspectClass} w-full max-w-full overflow-hidden rounded ${
           hasImage ? 'bg-white/[0.02]' : 'bg-gradient-to-br from-brand-700 via-brand-900 to-black'
+        } ${
+          glow
+            ? '[box-shadow:0_0_30px_-2px_rgba(var(--pg),0.20)] transition-shadow duration-200 group-hover:[box-shadow:0_0_48px_2px_rgba(var(--pg),0.32)]'
+            : ''
         }`}
       >
         {hasImage ? (
@@ -69,7 +86,7 @@ export function PosterCard({
             src={imageUrl as string}
             alt={title}
             fill
-            className="object-cover transition-transform duration-[1.1s] ease-out group-hover:scale-[1.06]"
+            className="object-cover transition-transform duration-200 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             quality={78}
             onError={() => setImgError(true)}
@@ -86,19 +103,21 @@ export function PosterCard({
         {badge && <div className="absolute left-2.5 top-2.5 z-10">{badge}</div>}
       </div>
 
-      {/* ---------- Caption: title / price·venue / date ---------- */}
+      {/* ---------- Caption: title / venue·date / price (teal = semantic) ---------- */}
       <div className="px-0.5 pt-2.5">
         <h3 className="truncate font-grotesk text-[15px] font-bold leading-tight text-white">
           {title}
         </h3>
-        {(priceLabel || venue) && (
-          <p className="mt-1 truncate text-sm text-white/60">
-            {priceLabel}
-            {priceLabel && venue && <span className="text-white/30"> · </span>}
+        {(venue || dateLabel) && (
+          <p className="mt-1 truncate text-[13px] text-white/55">
             {venue}
+            {venue && dateLabel && <span className="text-white/30"> · </span>}
+            {dateLabel}
           </p>
         )}
-        {dateLabel && <p className="mt-0.5 truncate text-xs text-white/40">{dateLabel}</p>}
+        {priceLabel && (
+          <p className="mt-1 truncate text-[13px] font-semibold text-brand-400">{priceLabel}</p>
+        )}
       </div>
     </article>
   )
