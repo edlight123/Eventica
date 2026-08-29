@@ -30,6 +30,53 @@ function passDateValue(iso: string | null): string | null {
 }
 
 /**
+ * Strip transparent padding from a PNG (the wordmark asset ships with baked-in
+ * whitespace). sharp is imported lazily for the same build-OOM reason PKPass
+ * is; any failure returns the buffer untouched — artwork must never block a
+ * pass.
+ */
+async function trimTransparentPadding(png: Buffer): Promise<Buffer> {
+  try {
+    const { default: sharp } = await import('sharp')
+    return await sharp(png).trim().png().toBuffer()
+  } catch (error) {
+    console.warn('[wallet] logo trim failed; using original', {
+      message: (error as any)?.message,
+    })
+    return png
+  }
+}
+
+/**
+ * The event poster, sized for the eventTicket background slot (180×220pt,
+ * @2x 360×440) — iOS applies the blur itself. Returns {} when there is no
+ * banner or anything goes wrong, which yields the plain near-black pass.
+ */
+async function buildPassBackground(
+  bannerImageUrl: string | null
+): Promise<Record<string, Buffer>> {
+  if (!bannerImageUrl || !/^https:\/\//.test(bannerImageUrl)) return {}
+  try {
+    const response = await fetch(bannerImageUrl, { signal: AbortSignal.timeout(8000) })
+    if (!response.ok) return {}
+    const source = Buffer.from(await response.arrayBuffer())
+    // A poster over ~15MB is not artwork we should be pulling into a pass.
+    if (source.length > 15 * 1024 * 1024) return {}
+
+    const { default: sharp } = await import('sharp')
+    const resize = (w: number, h: number) =>
+      sharp(source).resize(w, h, { fit: 'cover', position: 'attention' }).png().toBuffer()
+    const [x1, x2] = await Promise.all([resize(180, 220), resize(360, 440)])
+    return { 'background.png': x1, 'background@2x.png': x2 }
+  } catch (error) {
+    console.warn('[wallet] pass background skipped', {
+      message: (error as any)?.message,
+    })
+    return {}
+  }
+}
+
+/**
  * Build a signed `.pkpass` for one ticket.
  *
  * @throws if the certificate material is rejected by the signer. Callers turn
@@ -49,14 +96,28 @@ export async function buildApplePkpass(
 
   const startValue = passDateValue(ticket.startDatetime)
 
+  // Trim the logo's transparent padding at build time. The asset arrives from
+  // env base64 with baked-in left whitespace that read as "a gap next to the
+  // logo" on the pass header (tester feedback, 2026-08-29). Trimming here
+  // fixes every past and future asset without touching the env var. Never
+  // fails the pass: any sharp hiccup falls back to the original buffer.
+  const logoPng = await trimTransparentPadding(config.logoPng)
+
+  // The event's poster as the pass background. Apple's eventTicket style blurs
+  // background.png automatically — the exact premium treatment the poster-glow
+  // design uses everywhere else. Best-effort: a missing/broken banner just
+  // yields the plain near-black pass.
+  const backgroundFiles = await buildPassBackground(ticket.bannerImageUrl)
+
   const pass = new PKPass(
     {
       // Apple will not open a pass without an icon; `logo.png` is what shows in
       // the pass header. Both come from config (env override, brand fallback).
       'icon.png': config.iconPng,
       'icon@2x.png': config.iconPng,
-      'logo.png': config.logoPng,
-      'logo@2x.png': config.logoPng,
+      'logo.png': logoPng,
+      'logo@2x.png': logoPng,
+      ...backgroundFiles,
     },
     {
       wwdr: config.wwdr,

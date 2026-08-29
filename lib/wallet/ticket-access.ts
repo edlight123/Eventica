@@ -36,6 +36,8 @@ export interface WalletTicket {
   startDatetime: string | null
   endDatetime: string | null
   orderRef: string
+  /** The event's poster, for the pass's blurred background. Null = plain pass. */
+  bannerImageUrl: string | null
 }
 
 export type TicketAccessFailure =
@@ -170,6 +172,7 @@ export async function loadWalletTicket(
       ),
       endDatetime: firstIso(event?.end_datetime, ticket?.end_datetime),
       orderRef: orderRef(ticket?.order_number || ticket?.order_id || snapshot.id),
+      bannerImageUrl: firstString(event?.banner_image_url, ticket?.banner_image_url) || null,
     },
   }
 }
