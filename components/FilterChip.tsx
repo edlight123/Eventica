@@ -10,12 +10,12 @@ interface FilterChipProps {
 
 export function FilterChip({ label, active, onClick, onRemove, className = '' }: FilterChipProps) {
   if (onRemove) {
-    // Removable chip (for applied filters)
+    // Removable chip (an APPLIED filter). Quiet-button rules: teal never fills —
+    // applied state reads as a light neutral fill, not a colored pill.
     return (
       <button
         onClick={onRemove}
-        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition-colors
-          bg-brand-600 text-white hover:bg-brand-700 ${className}`}
+        className={`inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-white/15 ${className}`}
       >
         {label}
         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -25,14 +25,14 @@ export function FilterChip({ label, active, onClick, onRemove, className = '' }:
     )
   }
 
-  // Selectable chip (for filter options)
+  // Selectable chip (a filter option). Teal marks the ACTIVE one — semantic use.
   return (
     <button
       onClick={onClick}
-      className={`rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all
+      className={`rounded-full border px-3.5 py-1.5 text-sm transition-colors
         ${active
-          ? 'border-brand-400 text-brand-300'
-          : 'border-white/15 text-white/70 hover:border-white/30 hover:text-white'
+          ? 'border-brand-400/60 font-medium text-brand-300'
+          : 'border-white/15 font-normal text-white/70 hover:border-white/30 hover:text-white'
         } ${className}`}
     >
       {label}

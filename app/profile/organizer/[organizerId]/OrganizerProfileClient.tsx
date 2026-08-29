@@ -1,8 +1,8 @@
 'use client'
 
+import { DiscoverEventCard } from '@/components/discover/DiscoverEventCard'
 import FollowButton from '@/components/FollowButton'
 import ConnectButton from '@/components/connections/ConnectButton'
-import EventCard from '@/components/EventCard'
 import { Shield, Calendar, Users, Star, Instagram, Music2, Twitter, Facebook } from 'lucide-react'
 import { socialUrlFor, type SocialLinks, type FriendshipState } from '@/types/social'
 
@@ -152,7 +152,7 @@ export default function OrganizerProfileClient({
           {upcomingEvents && upcomingEvents.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {upcomingEvents.map((event: any) => (
-                <EventCard key={event.id} event={event} />
+                <DiscoverEventCard key={event.id} event={event} />
               ))}
             </div>
           ) : (
@@ -180,7 +180,7 @@ export default function OrganizerProfileClient({
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {pastEvents.map((event: any) => (
-                <EventCard key={event.id} event={event} />
+                <DiscoverEventCard key={event.id} event={event} />
               ))}
             </div>
           </section>

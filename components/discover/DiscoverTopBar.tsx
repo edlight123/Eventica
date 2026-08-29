@@ -179,14 +179,16 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
           </div>
 
           {/* Filter Button */}
+          {/* Quiet button: a hairline ghost — the active-count badge carries
+              the signal, not a teal fill. */}
           <button
             onClick={onOpenFilters}
-            className="flex items-center gap-2 px-4 py-2.5 bg-brand-700 text-white rounded-lg hover:bg-brand-800 transition-colors text-sm font-medium whitespace-nowrap"
+            className="flex items-center gap-2 whitespace-nowrap rounded-lg border border-white/15 px-4 py-2.5 text-sm font-normal text-white/80 transition-colors hover:border-white/30 hover:text-white"
           >
             <SlidersHorizontal className="w-4 h-4" />
             <span className="hidden sm:inline">{t('filters.filters')}</span>
             {activeFiltersCount > 0 && (
-              <span className="bg-[#0a0a0a] text-brand-300 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-semibold text-black">
                 {activeFiltersCount}
               </span>
             )}

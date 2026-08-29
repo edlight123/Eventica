@@ -1,9 +1,8 @@
 'use client'
 
+import { DiscoverEventCard } from '@/components/discover/DiscoverEventCard'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import EventCard from '@/components/EventCard'
-import EventCardHorizontal from '@/components/EventCardHorizontal'
 import PullToRefresh from '@/components/PullToRefresh'
 import EmptyState from '@/components/EmptyState'
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton'
@@ -187,21 +186,12 @@ export default function FavoritesContent({ userId }: FavoritesContentProps) {
             tone="dark"
           />
         ) : (
-          <>
-            {/* Mobile: Horizontal Cards */}
-            <div className="md:hidden space-y-4">
-              {favoriteEvents.map((event) => (
-                <EventCardHorizontal key={event.id} event={event} />
-              ))}
-            </div>
-            
-            {/* Desktop: Grid Cards */}
-            <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {favoriteEvents.map((event) => (
-                <EventCard key={event.id} event={event} />
-              ))}
-            </div>
-          </>
+          // One poster grid at every width — a wall of flyers, phone included.
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:gap-6">
+            {favoriteEvents.map((event) => (
+              <DiscoverEventCard key={event.id} event={event} />
+            ))}
+          </div>
         )}
       </div>
     </PullToRefresh>

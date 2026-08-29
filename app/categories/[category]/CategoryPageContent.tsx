@@ -1,10 +1,9 @@
 'use client'
 
+import { DiscoverEventCard } from '@/components/discover/DiscoverEventCard'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Inbox } from 'lucide-react'
-import EventCard from '@/components/EventCard'
-import EventCardHorizontal from '@/components/EventCardHorizontal'
 
 interface CategoryPageContentProps {
   category: string
@@ -40,20 +39,12 @@ export default function CategoryPageContent({ category, events }: CategoryPageCo
       </header>
 
       {events.length > 0 ? (
-        <>
-          {/* Mobile: list rows */}
-          <div className="space-y-3 md:hidden">
-            {events.map((event) => (
-              <EventCardHorizontal key={event.id} event={event} />
-            ))}
-          </div>
-          {/* Desktop: poster grid */}
-          <div className="hidden gap-5 md:grid md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
-            {events.map((event, index) => (
-              <EventCard key={event.id} event={event} index={index} />
-            ))}
-          </div>
-        </>
+        // One poster grid at every width — a wall of flyers, phone included.
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
+          {events.map((event) => (
+            <DiscoverEventCard key={event.id} event={event} />
+          ))}
+        </div>
       ) : (
         <div className="flex flex-col items-center rounded-3xl  px-6 py-16 text-center shadow-poster-sm sm:py-20">
           <div className="grid h-16 w-16 place-items-center rounded-2xl text-brand-400">

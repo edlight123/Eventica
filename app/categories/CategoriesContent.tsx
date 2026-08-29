@@ -1,9 +1,9 @@
 'use client'
 
+import { DiscoverEventCard } from '@/components/discover/DiscoverEventCard'
 import { useEffect, useState } from 'react'
 import PullToRefresh from '@/components/PullToRefresh'
 import CategoryGrid from '@/components/CategoryGrid'
-import EventCard from '@/components/EventCard'
 import type { Database } from '@/types/database'
 import { isDemoMode, DEMO_EVENTS } from '@/lib/demo'
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton'
@@ -99,7 +99,7 @@ export default function CategoriesContent({ initialCategory }: CategoriesContent
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 {filteredEvents.map((event) => (
-                  <EventCard key={event.id} event={event} />
+                  <DiscoverEventCard key={event.id} event={event} />
                 ))}
               </div>
             )}

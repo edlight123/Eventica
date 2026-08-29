@@ -1,10 +1,10 @@
 'use client'
 
+import { DiscoverEventCard } from '@/components/discover/DiscoverEventCard'
 import { useTranslation } from 'react-i18next'
 import BuyTicketButton from './BuyTicketButton'
 import FavoriteButton from '@/components/FavoriteButton'
 import FollowButton from '@/components/FollowButton'
-import EventCard from '@/components/EventCard'
 import ShareIconButton from './ShareIconButton'
 import ShareButtonInline from './ShareButtonInline'
 import MobileHero from './MobileHero'
@@ -557,7 +557,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
           <div className="mt-12 px-4 md:px-0">
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">{t('events.similar_events')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {relatedEvents.map((e: any) => <EventCard key={e.id} event={e} />)}
+              {relatedEvents.map((e: any) => <DiscoverEventCard key={e.id} event={e} />)}
             </div>
           </div>
         )}

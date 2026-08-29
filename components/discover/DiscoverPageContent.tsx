@@ -84,7 +84,7 @@ export function DiscoverPageContent({
 
   const renderFeed = (list: any[]) =>
     list.length > 0 ? (
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 lg:gap-6">
         {list.map((event) => (
           <DiscoverEventCard key={event.id} event={event} />
         ))}
@@ -102,8 +102,8 @@ export function DiscoverPageContent({
               key={t.key}
               type="button"
               onClick={() => setTab(t.key)}
-              className={`relative pb-2 text-[15px] font-semibold transition-colors ${
-                tab === t.key ? 'text-white' : 'text-white/70 hover:text-white'
+              className={`relative pb-2 text-[15px] font-medium transition-colors ${
+                tab === t.key ? 'text-white' : 'text-white/60 hover:text-white'
               }`}
             >
               {t.label}
