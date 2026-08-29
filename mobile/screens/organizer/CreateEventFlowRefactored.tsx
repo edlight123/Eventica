@@ -66,7 +66,7 @@ import {
   providerForCountry,
 } from '../../lib/countrySupport';
 import { orderCountriesByMarkets, useDeclaredMarkets } from '../../lib/organizerMarkets';
-import { backendFetch } from '../../lib/api/backend';
+import { backendFetch, backendJson } from '../../lib/api/backend';
 
 type RouteParams = {
   CreateEvent: undefined;
@@ -706,17 +706,47 @@ export default function CreateEventFlowRefactored() {
   // Coming-soon markets (e.g. Dominican Republic): browsable + selectable, but no
   // payout rail yet → paid tickets are disabled, only free/RSVP is allowed.
   const countryComingSoon = isComingSoon(selectedCountry);
-  // US/Canada paid events require Stripe Connect payouts before they can publish.
-  // Surface an inline notice the moment such a combination is set, rather than
-  // only dead-ending at Save (see handleSubmit).
-  const isStripeCountry = selectedCountry === 'US' || selectedCountry === 'CA';
   const hasPaidTier =
     !eventDraft.is_rsvp &&
     eventDraft.ticket_tiers.some((tier) => {
       const price = parseFloat(tier.price);
       return Number.isFinite(price) && price > 0;
     });
-  const showStripePayoutNotice = isStripeCountry && hasPaidTier;
+
+  // ── Region payout-profile nudge (2026-08-12/29 tester feedback) ──
+  // An event's country decides WHICH payout profile pays out — Haiti profile
+  // (MonCash/bank, our KYC) vs the Stripe profile (US·CA·FR). Surface the gap
+  // the moment a paid event targets a region whose profile isn't set up,
+  // instead of dead-ending at publish. Unknown summary = stay quiet: this is a
+  // nudge, the publish gate is the enforcement.
+  const [payoutProfiles, setPayoutProfiles] = useState<{
+    haiti?: { configured?: boolean };
+    stripeConnect?: { configured?: boolean };
+  } | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await backendJson<{ profiles?: any }>('/api/organizer/payout-config-summary');
+        if (!cancelled) setPayoutProfiles(data?.profiles || null);
+      } catch {
+        // Nudge only — no summary, no notice.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  const eventUsesStripeRail = providerForCountry(selectedCountry) === 'stripe_connect';
+  const requiredProfileConfigured = payoutProfiles
+    ? Boolean(
+        eventUsesStripeRail
+          ? payoutProfiles.stripeConnect?.configured
+          : payoutProfiles.haiti?.configured
+      )
+    : true;
+  const showStripePayoutNotice =
+    hasPaidTier && !countryComingSoon && !requiredProfileConfigured;
 
   // ── Cross-border payout advisory (WARN, never block) ──
   // A Stripe Express account's country is fixed at creation and an organizer
@@ -1805,7 +1835,11 @@ export default function CreateEventFlowRefactored() {
                   <Ionicons name="card-outline" size={18} color={colors.text} />
                   <View style={styles.stripeNoticeBody}>
                     <Text style={styles.stripeNoticeText}>
-                      {t('organizerCreateEventFlow.canvas.stripePayoutNotice')}
+                      {t(
+                        eventUsesStripeRail
+                          ? 'organizerCreateEventFlow.canvas.stripePayoutNotice'
+                          : 'organizerCreateEventFlow.canvas.haitiPayoutNotice'
+                      )}
                     </Text>
                     <TouchableOpacity
                       onPress={() => (navigation as any).navigate('OrganizerPayoutSettings')}

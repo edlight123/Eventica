@@ -1472,69 +1472,63 @@ export default function PayoutsPageNew({
             {/* Payout Profile Selector */}
             <div className="order-1 bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden">
               <div className="p-6">
-                <h2 className="text-lg font-semibold text-white mb-2">Payout profile</h2>
+                <h2 className="text-lg font-semibold text-white mb-2">Payout profiles</h2>
                 <p className="text-sm text-white/60 mb-4">
-                  {showHaitiRail && showStripeRail
-                    ? 'These are two separate setups — one for your Haiti events, one for everywhere else. Completing one does not cover the other.'
-                    : 'Set up where your payouts go. Add a market above if you start running events in another country.'}
+                  Each region pays out through its own profile — an event&apos;s country
+                  decides which one gets paid. Completing one does not cover the other.
                 </p>
 
-                {showAdditionalProfiles && showHaitiRail && showStripeRail ? (
-                  <div className="grid grid-cols-2 gap-2">
+                {/* One descriptive card per region: which events, which rail, who
+                    verifies, and its own status — the dual-profile model made
+                    visible (tester feedback, 2026-08-12/29). */}
+                <div className="space-y-2">
+                  {(
+                    [
+                      showHaitiRail && {
+                        id: 'haiti' as const,
+                        title: 'Haiti events',
+                        detail: 'MonCash & bank transfer · verified by Tikèm',
+                        configured: Boolean(haitiConfig),
+                      },
+                      showStripeRail && {
+                        id: 'stripe_connect' as const,
+                        title: 'US · Canada · France events',
+                        detail: 'Card payouts via Stripe · verified by Stripe',
+                        configured: Boolean(stripeConfig),
+                      },
+                    ].filter(Boolean) as Array<{
+                      id: 'haiti' | 'stripe_connect'
+                      title: string
+                      detail: string
+                      configured: boolean
+                    }>
+                  ).map((p) => (
                     <button
+                      key={p.id}
                       type="button"
-                      onClick={() => setActiveProfile('haiti')}
-                      className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                        activeProfile === 'haiti'
-                          ? 'bg-brand-700 text-white border-brand-700'
-                          : 'bg-[#0a0a0a] text-white border-white/15 hover:bg-white/[0.04]'
+                      onClick={() => {
+                        setActiveProfile(p.id)
+                        setShowAdditionalProfiles(true)
+                      }}
+                      className={`w-full rounded-lg border px-4 py-3 text-left transition-colors ${
+                        activeProfile === p.id
+                          ? 'border-white/30 bg-white/[0.05]'
+                          : 'border-white/10 bg-[#0a0a0a] hover:bg-white/[0.03]'
                       }`}
                     >
-                      Haiti
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setActiveProfile('stripe_connect')}
-                      className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                        activeProfile === 'stripe_connect'
-                          ? 'bg-brand-700 text-white border-brand-700'
-                          : 'bg-[#0a0a0a] text-white border-white/15 hover:bg-white/[0.04]'
-                      }`}
-                    >
-                      US/Canada
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="text-sm font-medium text-white">
-                        {activeProfile === 'stripe_connect' ? 'US/Canada' : 'Haiti'}
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-sm font-medium text-white">{p.title}</span>
+                        <span className="inline-flex shrink-0 items-center gap-1.5 text-[11px] uppercase tracking-wider text-white/50">
+                          <span
+                            className={`h-1.5 w-1.5 rounded-full ${p.configured ? 'bg-emerald-400' : 'bg-amber-400'}`}
+                          />
+                          {p.configured ? 'Set up' : 'Needs setup'}
+                        </span>
                       </div>
-                      {showHaitiRail && showStripeRail ? (
-                        <button
-                          type="button"
-                          onClick={() => setShowAdditionalProfiles(true)}
-                          className="text-sm font-medium text-brand-300 hover:text-brand-300"
-                        >
-                          Add additional profile
-                        </button>
-                      ) : null}
-                    </div>
-
-                    <div className="text-xs text-white/60">
-                      {activeProfile === 'haiti'
-                        ? `Status: ${haitiConfig ? 'Configured' : 'Not set up'}`
-                        : `Status: ${stripeConfig ? 'Configured' : 'Not set up'}`}
-                    </div>
-                  </div>
-                )}
-
-                {showAdditionalProfiles && showHaitiRail && showStripeRail ? (
-                  <div className="mt-3 text-xs text-white/60">
-                    Haiti profile: {haitiConfig ? 'Configured' : 'Not set up'} · US/Canada profile: {stripeConfig ? 'Configured' : 'Not set up'}
-                  </div>
-                ) : null}
+                      <p className="mt-0.5 text-xs text-white/50">{p.detail}</p>
+                    </button>
+                  ))}
+                </div>
 
                 {/* Escape hatch. A declaration narrows the UI; it must never be
                     able to lock someone out of a rail they turn out to need. */}

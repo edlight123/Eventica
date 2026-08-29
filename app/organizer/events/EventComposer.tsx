@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { firebaseDb } from '@/lib/firebase-db/client'
 // Raw firebase SDK: the firebaseDb shim only handles top-level collections, so
@@ -357,6 +357,38 @@ export default function EventComposer({
   // Edit-only: published state (toggled via the publish control)
   const [isPublished, setIsPublished] = useState(!!event?.is_published)
   const [publishing, setPublishing] = useState(false)
+
+  // ── Region payout-profile nudge (tester feedback, 2026-08-12/29) ──
+  // An event's country decides WHICH payout profile pays out: Haiti profile
+  // (MonCash/bank, verified by Tikèm) vs the Stripe profile (US·CA·FR events).
+  // Say so here, while the organizer is still composing, instead of only
+  // erroring at publish. Advisory only — the publish route stays the gate.
+  const [payoutProfileGap, setPayoutProfileGap] = useState<null | 'haiti' | 'stripe_connect'>(null)
+  useEffect(() => {
+    if (isDemoMode()) return
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await fetch('/api/organizer/payout-config-summary')
+        if (!res.ok) return
+        const data = await res.json()
+        if (cancelled || !data?.profiles) return
+        const country = String(event?.country || 'HT').toUpperCase()
+        const needsStripe = country === 'US' || country === 'CA' || country === 'FR'
+        if (needsStripe && !data.profiles.stripeConnect?.configured) {
+          setPayoutProfileGap('stripe_connect')
+        } else if (!needsStripe && !data.profiles.haiti?.configured) {
+          setPayoutProfileGap('haiti')
+        }
+      } catch {
+        // Nudge only — no summary, no notice.
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [event?.country])
 
   // Edit-only: when this event belongs to a recurring series, the organizer can
   // opt to apply the shared field edits to every sibling (each keeps its own
@@ -854,6 +886,24 @@ export default function EventComposer({
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_minmax(0,360px)]">
         {/* ===================== LEFT — the event ===================== */}
         <div className="order-2 min-w-0 lg:order-1">
+          {/* Region payout-profile nudge — which profile this event pays through. */}
+          {payoutProfileGap && (
+            <div className="mb-6 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3">
+              <Info className="mt-0.5 h-[18px] w-[18px] shrink-0 text-amber-300" />
+              <p className="text-sm leading-relaxed text-white/80">
+                {payoutProfileGap === 'stripe_connect'
+                  ? 'Events in the US, Canada or France pay out through your Stripe profile — it isn’t set up yet, so paid tickets can’t publish. '
+                  : 'Events in Haiti pay out through your Haiti profile (MonCash or bank) — it isn’t set up yet, so paid tickets can’t publish. '}
+                <a
+                  href="/organizer/settings/payouts"
+                  className="font-medium text-amber-300 underline underline-offset-2 hover:text-amber-200"
+                >
+                  Set up payouts
+                </a>
+              </p>
+            </div>
+          )}
+
           {/* Draft signposting — makes the two-step create→edit flow explicit */}
           {isEdit && !isPublished && (
             <div className="mb-6 flex items-start gap-3 rounded-xl border border-brand-500/30 bg-brand-500/10 px-4 py-3">

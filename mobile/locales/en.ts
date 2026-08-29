@@ -636,7 +636,8 @@ export default {
       // Coming-soon markets (e.g. Dominican Republic): paid tickets disabled, free/RSVP only.
       paidComingSoon: 'Paid events are coming soon in {country}. For now you can create a free RSVP event.',
       // US/Canada paid events require Stripe Connect payouts before publishing.
-      stripePayoutNotice: 'Paid events in the US and Canada need Stripe Connect payouts set up before you can publish.',
+      stripePayoutNotice: 'Events here pay out through your US · Canada · France profile (Stripe). Set it up before you can publish paid tickets — your Haiti profile doesn’t cover it.',
+      haitiPayoutNotice: 'Events in Haiti pay out through your Haiti profile (MonCash or bank). Set it up before you can publish paid tickets — your Stripe profile doesn’t cover it.',
       stripePayoutCta: 'Set up payouts',
     },
   },
@@ -1705,10 +1706,10 @@ export default {
     },
     methodsSectionTitle: 'Payout Methods',
     regions: {
-      haitiTitle: 'Haiti',
-      haitiBlurb: 'Sogebank, Unibank, MonCash · Tikèm verifies you',
-      internationalTitle: 'Outside Haiti',
-      internationalBlurb: 'US, Canada, France · Stripe verifies you',
+      haitiTitle: 'Haiti events',
+      haitiBlurb: 'MonCash & bank transfer · Tikèm verifies you',
+      internationalTitle: 'US · Canada · France events',
+      internationalBlurb: 'Card payouts via Stripe · Stripe verifies you',
       statusReady: 'Ready',
       statusPending: 'Action needed',
       statusNone: 'Not set up',
