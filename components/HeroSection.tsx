@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { format, isValid } from 'date-fns'
-import { Search, MapPin, ArrowUpRight } from 'lucide-react'
+import { Search, ChevronDown, ArrowUpRight } from 'lucide-react'
 import { getPosterTheme } from '@/lib/posterGradient'
 import { getCitiesForCountry } from '@/lib/filters/config'
 
@@ -178,15 +178,49 @@ export default function HeroSection({ hasActiveFilters, featuredEvents, events }
       : undefined
 
   const SearchForm = (
-    <div className="reveal reveal-3 relative mt-6 w-full max-w-2xl">
+    <div className="reveal reveal-3 relative mt-6 w-full max-w-xl">
+      {/* One quiet field (posh calibration): icon, input, and the city tucked
+          inside on the right — no boxed pin button, no visible Search button.
+          Enter (or the keyboard's Go) submits; a sr-only submit keeps AT happy. */}
       <form
         onSubmit={handleSearch}
-        className="flex w-full flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-2 shadow-poster-sm backdrop-blur-md"
+        className="flex h-[52px] items-center gap-3 rounded-2xl border border-white/10 bg-[#141414]/80 px-4 backdrop-blur-md transition-colors focus-within:border-white/25"
       >
-        {/* Real city selector — default "All Haiti" (no filter) */}
-        <label className="relative flex select-none items-center gap-1.5 rounded-xl px-3 py-2.5 text-[13.5px] font-medium text-white/80 focus-within:text-white">
-          <MapPin className="h-[15px] w-[15px] text-brand-400" />
-          <span className="pointer-events-none">{city || t('common.all_locations', { defaultValue: 'All Haiti' })}</span>
+        <Search className="h-[17px] w-[17px] shrink-0 text-white/40" />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onFocus={() => {
+            if (suggestions.length > 0) setOpen(true)
+          }}
+          onBlur={() => {
+            // Delay so a row click registers before the dropdown closes.
+            blurTimer.current = setTimeout(() => setOpen(false), 150)
+          }}
+          placeholder={t('events.hero_search_placeholder', { defaultValue: 'Search events, organizers, cities…' })}
+          className="min-w-0 flex-1 bg-transparent text-[15px] text-white outline-none placeholder:text-white/45"
+          aria-label={t('common.search')}
+          role="combobox"
+          aria-expanded={open && suggestions.length > 0}
+          aria-controls={listboxId}
+          aria-autocomplete="list"
+          aria-activedescendant={activeOptionId}
+          autoComplete="off"
+          enterKeyHint="search"
+        />
+
+        <span aria-hidden className="h-6 w-px shrink-0 bg-white/10" />
+
+        {/* The city lives INSIDE the field: plain text + chevron, a real select
+            underneath. Teal only when a city is actually chosen (it means something). */}
+        <label className="relative flex max-w-[42%] shrink-0 cursor-pointer select-none items-center gap-1.5 py-2">
+          <span
+            className={`truncate text-[13px] ${city ? 'font-medium text-brand-300' : 'font-normal text-white/60'}`}
+          >
+            {city || t('common.all_locations', { defaultValue: 'All Haiti' })}
+          </span>
+          <ChevronDown className="h-3.5 w-3.5 shrink-0 text-white/40" />
           <select
             value={city}
             onChange={(e) => setCity(e.target.value)}
@@ -204,35 +238,7 @@ export default function HeroSection({ hasActiveFilters, featuredEvents, events }
           </select>
         </label>
 
-        <div className="flex min-w-[150px] flex-1 items-center gap-2 px-2">
-          <Search className="h-[18px] w-[18px] shrink-0 text-white/70" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
-            onFocus={() => {
-              if (suggestions.length > 0) setOpen(true)
-            }}
-            onBlur={() => {
-              // Delay so a row click registers before the dropdown closes.
-              blurTimer.current = setTimeout(() => setOpen(false), 150)
-            }}
-            placeholder={t('events.hero_search_placeholder', { defaultValue: 'Search events, organizers, cities…' })}
-            className="w-full bg-transparent py-1 text-[15px] text-white outline-none placeholder:text-white/70"
-            aria-label={t('common.search')}
-            role="combobox"
-            aria-expanded={open && suggestions.length > 0}
-            aria-controls={listboxId}
-            aria-autocomplete="list"
-            aria-activedescendant={activeOptionId}
-            autoComplete="off"
-          />
-        </div>
-        {/* The white pill is THE primary action — teal never fills a CTA. */}
-        <button
-          type="submit"
-          className="rounded-xl bg-white px-6 py-2.5 text-sm font-medium text-black transition-colors duration-200 hover:bg-white/90 active:scale-[0.98]"
-        >
+        <button type="submit" className="sr-only">
           {t('common.search')}
         </button>
       </form>

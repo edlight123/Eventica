@@ -1,40 +1,37 @@
 'use client'
 
+// The mobile detail sections: a hairline-divided list, no boxes, no row icons
+// (owner call, 2026-08-29). The chevron is the only chrome; content inside is
+// plain language set in the sans — mono stays reserved for identifiers.
+
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ChevronDown, Sparkles, MapPin, Clock, User, Share2 } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { format } from 'date-fns'
 import Badge from '@/components/ui/Badge'
 
 interface AccordionSectionProps {
   title: string
-  icon: React.ReactNode
   defaultOpen?: boolean
   children: React.ReactNode
 }
 
-function AccordionSection({ title, icon, defaultOpen = false, children }: AccordionSectionProps) {
+function AccordionSection({ title, defaultOpen = false, children }: AccordionSectionProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen)
 
   return (
-    <div className=" rounded-xl overflow-hidden">
+    <div>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-white/5 transition-colors"
+        className="flex w-full items-center justify-between py-4 text-left"
+        aria-expanded={isOpen}
       >
-        <div className="flex items-center gap-2.5">
-          {icon}
-          <span className="font-bold text-white text-base">{title}</span>
-        </div>
+        <span className="text-[15px] font-medium text-white">{title}</span>
         <ChevronDown
-          className={`w-5 h-5 text-white/50 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`h-4 w-4 text-white/40 transition-transform ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
-      {isOpen && (
-        <div className="px-4 pb-4 pt-1">
-          {children}
-        </div>
-      )}
+      {isOpen && <div className="pb-5">{children}</div>}
     </div>
   )
 }
@@ -69,139 +66,91 @@ export default function MobileAccordions({
   shareButton
 }: MobileAccordionsProps) {
   const { t } = useTranslation('common')
-  
+
+  const mapsQuery = encodeURIComponent(address || `${venueName}, ${commune}, ${city}`)
+
   return (
-    <div className="md:hidden space-y-3">
+    <div className="md:hidden divide-y divide-white/10 border-b border-white/10 px-4">
       {/* About */}
-      <AccordionSection
-        title={t('events.about_event')}
-        icon={<Sparkles className="w-5 h-5 text-brand-400" />}
-        defaultOpen={true}
-      >
+      <AccordionSection title={t('events.about_event')} defaultOpen>
         {description && description.trim() ? (
-          <p className="text-sm text-white/70 whitespace-pre-wrap leading-relaxed mb-3">
-            {description}
-          </p>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-white/70">{description}</p>
         ) : (
-          <p className="text-sm italic text-white/40 leading-relaxed mb-3">
+          <p className="text-sm italic leading-relaxed text-white/40">
             {t('events.no_description', { defaultValue: 'The organizer hasn’t added a description yet.' })}
           </p>
         )}
         {tags && tags.length > 0 && (
-          <div className="pt-3 border-t border-white/10">
-            <h4 className="label-mono text-[10px] uppercase text-white/50 mb-2">{t('events.tags').toUpperCase()}</h4>
-            <div className="flex flex-wrap gap-2">
-              {tags.map((tag: string) => (
-                <Badge key={tag} variant="neutral" size="sm">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {tags.map((tag: string) => (
+              <Badge key={tag} variant="neutral" size="sm">
+                {tag}
+              </Badge>
+            ))}
           </div>
         )}
       </AccordionSection>
 
       {/* Venue */}
-      <AccordionSection
-        title={t('events.venue_directions')}
-        icon={<MapPin className="w-5 h-5 text-brand-400" />}
-      >
-        <div className="space-y-3">
-          <div>
-            <p className="label-mono text-[10px] uppercase text-white/50 mb-1.5">{t('events.venue_name').toUpperCase()}</p>
-            <p className="text-sm font-semibold text-white">{venueName}</p>
-          </div>
-          <div>
-            <p className="label-mono text-[10px] uppercase text-white/50 mb-1.5">{t('events.address').toUpperCase()}</p>
-            <p className="text-sm text-white/70 break-words">{address}</p>
-            <p className="text-sm text-white/70">{commune}, {city}</p>
-          </div>
-          <div className="flex gap-3 pt-2">
-            <a
-              href={`https://maps.apple.com/?q=${encodeURIComponent(address || `${venueName}, ${commune}, ${city}`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-brand-400 hover:text-brand-300 font-medium flex items-center gap-1"
-            >
-              <MapPin className="w-4 h-4" />
-              {t('events.apple_maps')}
-            </a>
-            <span className="text-white/20">|</span>
-            <a
-              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address || `${venueName}, ${commune}, ${city}`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-brand-400 hover:text-brand-300 font-medium flex items-center gap-1"
-            >
-              <MapPin className="w-4 h-4" />
-              {t('events.google_maps')}
-            </a>
-          </div>
-        </div>
+      <AccordionSection title={t('events.venue_directions')}>
+        <p className="text-sm font-medium text-white">{venueName}</p>
+        {address && <p className="mt-1 break-words text-sm text-white/60">{address}</p>}
+        <p className="text-sm text-white/60">
+          {[commune, city].filter(Boolean).join(', ')}
+        </p>
+        <p className="mt-3 text-sm">
+          <a
+            href={`https://maps.apple.com/?q=${mapsQuery}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-brand-400 hover:text-brand-300"
+          >
+            {t('events.apple_maps')}
+          </a>
+          <span className="text-white/25"> · </span>
+          <a
+            href={`https://www.google.com/maps/search/?api=1&query=${mapsQuery}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-brand-400 hover:text-brand-300"
+          >
+            {t('events.google_maps')}
+          </a>
+        </p>
       </AccordionSection>
 
       {/* Date & Time */}
-      <AccordionSection
-        title={t('events.date_time')}
-        icon={<Clock className="w-5 h-5 text-brand-400" />}
-      >
-        <div className="space-y-3">
-          <div>
-            <p className="label-mono text-[10px] uppercase text-white/50 mb-1.5">{t('events.start').toUpperCase()}</p>
-            <p className="label-mono text-[13px] text-white">
-              {format(new Date(startDatetime), 'EEEE, MMMM d, yyyy')}
-            </p>
-            <p className="label-mono text-[13px] text-white/55">
-              {format(new Date(startDatetime), 'h:mm a')} HTT
-            </p>
-          </div>
-          <div>
-            <p className="label-mono text-[10px] uppercase text-white/50 mb-1.5">{t('events.end').toUpperCase()}</p>
-            <p className="label-mono text-[13px] text-white">
-              {format(new Date(endDatetime), 'EEEE, MMMM d, yyyy')}
-            </p>
-            <p className="label-mono text-[13px] text-white/55">
-              {format(new Date(endDatetime), 'h:mm a')} HTT
-            </p>
-          </div>
-        </div>
+      <AccordionSection title={t('events.date_time')}>
+        <p className="text-sm text-white">
+          <span className="text-white/50">{t('events.start', { defaultValue: 'Starts' })}</span>{' '}
+          {format(new Date(startDatetime), 'EEEE, MMMM d, yyyy · h:mm a')}
+        </p>
+        <p className="mt-1.5 text-sm text-white">
+          <span className="text-white/50">{t('events.end', { defaultValue: 'Ends' })}</span>{' '}
+          {format(new Date(endDatetime), 'EEEE, MMMM d, yyyy · h:mm a')}
+        </p>
       </AccordionSection>
 
       {/* Organizer */}
-      <AccordionSection
-        title={t('events.organizer')}
-        icon={<User className="w-5 h-5 text-brand-400" />}
-      >
-        <a 
+      <AccordionSection title={t('events.organizer')}>
+        <a
           href={`/profile/organizer/${organizerId}`}
-          className="flex items-start gap-3 hover:opacity-80 transition-opacity"
+          className="flex items-center gap-3 transition-opacity hover:opacity-80"
         >
-          <div className="w-12 h-12 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+          <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-white/10 text-base font-semibold text-white">
             {organizerName[0].toUpperCase()}
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-white text-base truncate">
-              {organizerName}
-            </p>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[15px] font-medium text-white">{organizerName}</p>
             {isVerified && (
-              <div className="flex items-center gap-1 text-brand-400 text-sm mt-0.5">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <span className="font-medium">{t('events.verified_organizer')}</span>
-              </div>
+              <p className="mt-0.5 text-sm text-brand-400">{t('events.verified_organizer')}</p>
             )}
           </div>
         </a>
       </AccordionSection>
 
       {/* Share */}
-      <AccordionSection
-        title={t('events.share_event')}
-        icon={<Share2 className="w-5 h-5 text-brand-400" />}
-      >
-        {shareButton}
-      </AccordionSection>
+      <AccordionSection title={t('events.share_event')}>{shareButton}</AccordionSection>
     </div>
   )
 }

@@ -177,7 +177,6 @@ export default function HomePageContent({
   const allEventsGrid = (
     <section>
       <SectionHeader
-        eyebrow={t('events.eyebrow_all')}
         title={t('events.all_events')}
         description={
           events.length === 1

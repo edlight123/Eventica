@@ -93,7 +93,7 @@ export default function MobileHero({
         </Badge>
 
         {/* Title */}
-        <h1 className="font-display italic text-[26px] text-white mb-3 leading-[1.05] break-words">
+        <h1 className="font-grotesk font-bold !text-[26px] tracking-[-0.01em] text-white mb-3 !leading-[1.05] break-words">
           {title}
         </h1>
 
