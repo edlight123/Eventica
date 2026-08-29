@@ -412,6 +412,33 @@ export async function getDiscoverEvents(
 }
 
 /**
+ * Poster artwork pool for the homepage cinema (film strip, pinned chapter,
+ * city collages). Unlike getDiscoverEvents this does NOT cut past events —
+ * posters are marketing artwork and outlive their event, and every one still
+ * links to a renderable event page. Published, moderated, explore-visible,
+ * with artwork; most recent first. Reuses the same 30s-cached Firestore read
+ * as the discover surfaces, so it costs no extra query on a warm cache.
+ */
+export async function getCinemaArtworkEvents(limit: number = 20): Promise<Event[]> {
+  try {
+    const events = await readPublishedEvents('', '', 100)
+    return events
+      .filter((e: Event) => e.show_on_explore !== false)
+      .filter((e: Event) => (e as any).rejected !== true)
+      .filter((e: Event) => e.banner_image_url)
+      .sort((a: Event, b: Event) => {
+        const ta = new Date(a.start_datetime).getTime() || 0
+        const tb = new Date(b.start_datetime).getTime() || 0
+        return tb - ta
+      })
+      .slice(0, limit)
+  } catch (error) {
+    console.error('Error fetching cinema artwork events:', error)
+    return []
+  }
+}
+
+/**
  * Get organizer's events with pagination (server-side)
  */
 export async function getOrganizerEvents(

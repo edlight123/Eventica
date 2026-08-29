@@ -13,7 +13,7 @@ import { isAdmin } from '@/lib/admin'
 import type { Database } from '@/types/database'
 import { parseFiltersFromURL } from '@/lib/filters/utils'
 import { applyFiltersAndSort } from '@/lib/filters/apply'
-import { getDiscoverEvents } from '@/lib/data/events'
+import { getDiscoverEvents, getCinemaArtworkEvents } from '@/lib/data/events'
 import { getUserProfileAdmin } from '@/lib/firestore/user-profile-admin'
 import { LocationBannerWrapper } from '@/components/LocationBannerWrapper'
 import { adminDb } from '@/lib/firebase/admin'
@@ -106,17 +106,13 @@ export default async function HomePage({
     return true
   }
 
-  // The cinema acts run on artwork, and artwork doesn't expire the night the
-  // event ends: keep the pre-cutoff list (already published/moderated) so the
-  // film strip, poster chapter and city collages can top up with recent past
-  // posters when few events are upcoming. Most recent first.
-  const artworkArchive = [...events]
-    .filter((e: any) => e.banner_image_url)
-    .sort((a: any, b: any) =>
-      String(b.start_datetime || '').localeCompare(String(a.start_datetime || ''))
-    )
-
   events = events.filter(notDefinitelyEnded)
+
+  // The cinema acts run on artwork, and artwork doesn't expire the night the
+  // event ends — getDiscoverEvents cuts past events, so the archive comes from
+  // its own (same-cache) read. Tops up the film strip, poster chapter and city
+  // collages when few events are upcoming.
+  const artworkArchive = isDemoMode() ? [] : await getCinemaArtworkEvents(20)
 
   // Everything still upcoming, ALL countries — the diaspora rail reads from
   // here, since the strict scope filter below would erase it.
