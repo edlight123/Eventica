@@ -3,6 +3,9 @@ import Navbar from '@/components/Navbar'
 import MobileNavWrapper from '@/components/MobileNavWrapper'
 import HeroSection from '@/components/HeroSection'
 import HomePageContent from '@/components/HomePageContent'
+import PosterFilmStrip from '@/components/home/PosterFilmStrip'
+import CitiesShowcase from '@/components/home/CitiesShowcase'
+import HomeOutro from '@/components/home/HomeOutro'
 import { BRAND } from '@/config/brand'
 import { isDemoMode, DEMO_EVENTS } from '@/lib/demo'
 import { isAdmin } from '@/lib/admin'
@@ -252,6 +255,22 @@ export default async function HomePage({
   const serializedTonight = serializeData(tonightEvents)
   const serializedDiaspora = serializeData(diasporaEvents)
 
+  // Homepage cinema (acts 1 & 3): the film strip draws from everything
+  // upcoming with artwork, and the cities showcase gets each city's posters —
+  // diaspora cities read from the ALL-countries list, since the scope filter
+  // above would erase them.
+  const filmStripEvents = serializeData(
+    allCountriesEvents.filter((e: any) => e.banner_image_url).slice(0, 14)
+  )
+  const SHOWCASE_CITIES = ['Port-au-Prince', 'Cap-Haïtien', 'Miami', 'New York', 'Montréal', 'Paris']
+  const showcaseCities = SHOWCASE_CITIES.map(city => ({
+    city,
+    posters: allCountriesEvents
+      .filter((e: any) => String(e.city || '').toLowerCase() === city.toLowerCase() && e.banner_image_url)
+      .slice(0, 4)
+      .map((e: any) => String(e.banner_image_url)),
+  }))
+
   return (
     <div className="surface-dark min-h-screen pb-mobile-nav">
       <Navbar user={user} isAdmin={isAdmin(user?.email)} />
@@ -285,6 +304,9 @@ export default async function HomePage({
         brandTagline={BRAND.tagline}
       />
 
+      {/* Act 1: the poster film strip — the platform, alive, in one glance. */}
+      {!hasActiveFilters && <PosterFilmStrip events={filmStripEvents} />}
+
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-12">
         <HomePageContent
@@ -302,7 +324,16 @@ export default async function HomePage({
             userSubarea={userSubarea}
           />
         </div>
-      
+
+      {/* Act 3 + sign-off: the diaspora as theatre (each city a real filter),
+          then the Kreyòl goodbye with the app and organizer doors. */}
+      {!hasActiveFilters && (
+        <>
+          <CitiesShowcase cities={showcaseCities} />
+          <HomeOutro />
+        </>
+      )}
+
       {/* Mobile Bottom Navigation */}
       <MobileNavWrapper user={user} isAdmin={isAdmin(user?.email)} />
     </div>

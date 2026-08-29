@@ -250,6 +250,28 @@ select:-webkit-autofill {
     }
   }
 
+  /* Homepage film strip: a seamless -50% loop over a duplicated track.
+     Pauses on hover; reduced motion turns it into a plain swipeable row. */
+  .film-strip-track {
+    animation: film-strip-scroll 48s linear infinite;
+  }
+  .film-strip:hover .film-strip-track {
+    animation-play-state: paused;
+  }
+  @keyframes film-strip-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .film-strip-track {
+      animation: none;
+    }
+  }
+
   /* Homepage hero collage: a slow ambient drift — the room breathes, barely. */
   .hero-collage-drift {
     animation: hero-drift 36s ease-in-out infinite alternate;
