@@ -59,12 +59,12 @@ export function PayoutOperationsClient({
   ]
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
       {/* Breadcrumbs */}
       <AdminBreadcrumbs items={[{ label: 'Payout Operations' }]} />
 
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-4 sm:mb-6">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
           <h1 className="label-mono text-[15px] font-bold uppercase tracking-[0.14em] text-console-text">
             Payout Operations
@@ -86,13 +86,13 @@ export function PayoutOperationsClient({
             </Link>
           </div>
         </div>
-        <p className="mt-2 text-[13px] text-console-mut">
+        <p className="mt-2 hidden text-[13px] text-console-mut sm:block">
           Manage event disbursements, pending requests, and withdrawal history
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="mb-6 border-b border-console-raise">
+      <div className="mb-4 border-b border-console-raise sm:mb-6">
         <nav className="-mb-px flex space-x-8" aria-label="Tabs">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id
@@ -101,7 +101,7 @@ export function PayoutOperationsClient({
               <button
                 key={tab.id}
                 onClick={() => selectTab(tab.id)}
-                className={`label-mono inline-flex items-center gap-2 border-b-2 px-1 py-4 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors ${
+                className={`label-mono inline-flex items-center gap-2 border-b-2 px-1 py-3 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors ${
                   isActive
                     ? 'border-console-text text-console-text'
                     : 'border-transparent text-console-mut hover:text-console-text'
