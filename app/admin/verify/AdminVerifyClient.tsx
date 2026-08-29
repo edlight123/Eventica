@@ -233,7 +233,7 @@ export default function AdminVerifyClient({ requestsWithUsers, organizers }: Adm
       </div>
 
       {/* KPI strip — plain figures on the ground, no boxes */}
-      <div className="mb-6 flex flex-wrap gap-x-8 gap-y-4">
+      <div className="mb-6 grid grid-cols-2 gap-x-6 gap-y-4 sm:flex sm:flex-wrap sm:gap-x-8 sm:gap-y-4">
         {kpis.map((k) => (
           <div key={k.label}>
             <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">{k.label}</p>

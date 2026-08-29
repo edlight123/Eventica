@@ -336,7 +336,7 @@ export default function DisputesLog() {
       )}
 
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="flex flex-wrap gap-8">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:flex sm:flex-wrap sm:gap-8">
           <Figure label="Open" value={counts.open ?? 0} sub={formatMoneyMap(openByCurrency)} />
           <Figure label="Lost" value={counts.lost ?? 0} sub={formatMoneyMap(lostByCurrency)} />
           <Figure label="Won" value={counts.won ?? 0} sub="Money reinstated" />

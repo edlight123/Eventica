@@ -121,7 +121,7 @@ export function OrganizerRankingsAnalytics() {
       </ul>
 
       {/* Summary */}
-      <div className="mt-3 flex flex-wrap gap-x-8 gap-y-4 border-t border-console-raise pt-3">
+      <div className="mt-3 grid grid-cols-2 gap-x-6 gap-y-4 sm:flex sm:flex-wrap sm:gap-x-8 sm:gap-y-4 border-t border-console-raise pt-3">
         {[
           { v: organizers.reduce((s, o) => s + o.totalTickets, 0).toLocaleString(), l: 'Tickets sold' },
           { v: organizers.reduce((s, o) => s + o.eventsCount, 0).toLocaleString(), l: 'Events' },

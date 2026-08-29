@@ -27,7 +27,7 @@ export function AdminEventsTopBar({
 
   return (
     <div className="sticky top-0 z-30 bg-console-ground">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5">
         <div className="flex items-center gap-4">
           {/* Search */}
           <div className="flex-1 relative">

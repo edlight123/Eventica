@@ -166,7 +166,7 @@ export default function AdminUsersClient({
       </div>
 
       {/* Stats — plain figures, not boxed */}
-      <div className="flex flex-wrap gap-8">
+      <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:flex sm:flex-wrap sm:gap-8">
         {stats.map((s) => (
           <div key={s.label}>
             <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">

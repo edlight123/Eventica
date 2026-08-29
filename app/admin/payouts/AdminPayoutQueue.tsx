@@ -209,7 +209,7 @@ export default function AdminPayoutQueue({ initialPayouts }: AdminPayoutQueuePro
     <div className="space-y-4">
       {/* Summary figures */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="flex flex-wrap gap-x-8 gap-y-4">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:flex sm:flex-wrap sm:gap-x-8 sm:gap-y-4">
           <div>
             <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Pending Requests</p>
             <p className="mt-1 font-mono text-xl tabular-nums text-console-text">{pendingCount}</p>

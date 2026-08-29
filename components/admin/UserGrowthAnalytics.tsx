@@ -98,7 +98,7 @@ export function UserGrowthAnalytics({ days = 30 }: Props) {
       </div>
 
       {/* Summary — unboxed KPI figures */}
-      <div className="flex flex-wrap gap-x-8 gap-y-4">
+      <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:flex sm:flex-wrap sm:gap-x-8 sm:gap-y-4">
         {[
           { label: 'Total users', value: data.totalUsers, sub: `last ${selectedDays}d` },
           { label: 'Attendees', value: data.attendeeCount, sub: `${pct(data.attendeeCount)}% of total` },

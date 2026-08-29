@@ -483,7 +483,7 @@ export function AdminOrdersClient() {
     <div className="space-y-6">
       {/* Summary — plain figures, not boxed */}
       {summary && (
-        <div className="flex flex-wrap gap-x-8 gap-y-4">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:flex sm:flex-wrap sm:gap-x-8 sm:gap-y-4">
           <div>
             <div className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Total Orders</div>
             <div className="mt-0.5 font-mono text-xl tabular-nums text-console-text">{summary.totalOrders.toLocaleString()}</div>

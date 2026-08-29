@@ -267,7 +267,7 @@ export default function PayoutReviewQueue() {
   return (
     <div className="space-y-6">
       {/* Summary figures */}
-      <div className="flex flex-wrap gap-x-8 gap-y-4">
+      <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:flex sm:flex-wrap sm:gap-x-8 sm:gap-y-4">
         <div>
           <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">
             Waiting on a decision

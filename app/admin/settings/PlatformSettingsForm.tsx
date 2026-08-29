@@ -266,7 +266,7 @@ export function PlatformSettingsForm() {
         {/* Current settings — live summary strip */}
         {settings && (
           <div>
-            <div className="flex flex-wrap gap-x-8 gap-y-4">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:flex sm:flex-wrap sm:gap-x-8 sm:gap-y-4">
               <div>
                 <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Haiti fee</p>
                 <p className="mt-1 font-mono text-xl tabular-nums text-console-text">{(settings.haiti.platformFeePercentage * 100).toFixed(2)}%</p>
@@ -301,6 +301,30 @@ export function PlatformSettingsForm() {
           These settings apply to all future transactions. Changes take effect immediately and are applied to new ticket sales and earnings calculations.
         </p>
 
+        {/* Section navigation — this page is long, and payout settings live on
+            their own pages; one row makes the whole settings surface legible
+            (owner call, 2026-08-29: "weird to navigate"). */}
+        <nav
+          aria-label="Settings sections"
+          className="scrollbar-hide -mx-4 mb-6 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0"
+        >
+          {[
+            { href: '#haiti', label: 'Haiti' },
+            { href: '#us-canada', label: 'US & Canada' },
+            { href: '#global', label: 'Global' },
+            { href: '/admin/payouts/release-settings', label: 'Payout release ↗' },
+            { href: '/admin/payouts', label: 'Payout queue ↗' },
+          ].map((l) => (
+            <a
+              key={l.href}
+              href={l.href}
+              className="label-mono shrink-0 whitespace-nowrap rounded bg-console-panel px-3 py-1.5 text-[10px] uppercase tracking-[0.14em] text-console-mut transition-colors hover:bg-console-raise hover:text-console-text"
+            >
+              {l.label}
+            </a>
+          ))}
+        </nav>
+
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Message Banner */}
           {message && (
@@ -312,7 +336,7 @@ export function PlatformSettingsForm() {
           )}
 
           {/* Haiti Settings Section */}
-          <section>
+          <section id="haiti" className="scroll-mt-24">
             <SectionLabel sub="Settings for events in Haiti">Haiti Events</SectionLabel>
             <ConsolePanel className="space-y-4 p-4 sm:p-5">
               <div>
@@ -381,7 +405,7 @@ export function PlatformSettingsForm() {
           </section>
 
           {/* US/Canada Settings Section */}
-          <section>
+          <section id="us-canada" className="scroll-mt-24">
             <SectionLabel sub="Settings for events in United States or Canada">US &amp; Canada Events</SectionLabel>
             <ConsolePanel className="space-y-4 p-4 sm:p-5">
               <div>
@@ -450,7 +474,7 @@ export function PlatformSettingsForm() {
           </section>
 
           {/* Global Settings Section */}
-          <section>
+          <section id="global" className="scroll-mt-24">
             <SectionLabel sub="Settings that apply to all events">Global Settings</SectionLabel>
             <ConsolePanel className="p-4 sm:p-5">
               <div>

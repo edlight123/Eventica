@@ -215,12 +215,13 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
   return (
     <div>
       {/* Page Header — aligned with the breadcrumb + content column (matches other admin pages) */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-5">
-        <p className="label-mono text-[10px] uppercase tracking-[0.18em] text-console-faint">Platform</p>
-        <h1 className="label-mono mt-1 text-[15px] font-bold uppercase tracking-[0.14em] text-console-text">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-2 sm:pt-4 sm:pb-3">
+        <h1 className="label-mono text-[15px] font-bold uppercase tracking-[0.14em] text-console-text">
           Events Moderation
         </h1>
-        <p className="mt-1 text-[13px] text-console-mut">Review and manage all events on the platform</p>
+        <p className="mt-1 hidden text-[13px] text-console-mut sm:block">
+          Review and manage all events on the platform
+        </p>
       </div>
 
       {/* Top Bar */}
@@ -241,7 +242,7 @@ export function AdminEventsModerationConsole({ userId, userEmail }: AdminEventsM
       />
 
       {/* Events Table */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-6 sm:pt-4">
         {loading ? (
           <div className="bg-console-panel rounded-lg p-12 text-center">
             <p className="text-console-mut">Loading events...</p>
