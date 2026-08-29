@@ -47,6 +47,17 @@ export default function HeroSection({ hasActiveFilters, featuredEvents, events }
   const [query, setQuery] = useState('')
   const [city, setCity] = useState('')
 
+  // Featured-event carousel. Auto-advances gently; a dot tap takes over, and
+  // reduced-motion visitors get a still hero.
+  const [slide, setSlide] = useState(0)
+  const featuredCount = Math.min(5, Array.isArray(featuredEvents) ? featuredEvents.filter(Boolean).length : 0)
+  useEffect(() => {
+    if (featuredCount < 2) return
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const id = setInterval(() => setSlide((s) => (s + 1) % featuredCount), 6500)
+    return () => clearInterval(id)
+  }, [featuredCount])
+
   // Autocomplete state
   const [debouncedQuery, setDebouncedQuery] = useState('')
   const [open, setOpen] = useState(false)
@@ -310,76 +321,162 @@ export default function HeroSection({ hasActiveFilters, featuredEvents, events }
     )
   }
 
-  // The collage behind the headline: real posters already on the platform,
-  // heavily scrimmed so the type owns the frame — the artwork is the color.
-  // Thin inventory cycles what exists rather than leaving lopsided black.
-  const collageSource = [
-    ...source.filter((ev) => ev?.banner_image_url),
-    ...source.filter((ev) => !ev?.banner_image_url),
-  ].slice(0, 12)
-  const collagePosters =
-    collageSource.length === 0
-      ? []
-      : Array.from({ length: 12 }, (_, i) => collageSource[i % collageSource.length])
+  // FEATURED-EVENT HERO (posh /explore pattern, owner-picked 2026-08-28): the
+  // top event IS the hero — its poster, its details, a white Get Tickets —
+  // bathed in the poster's own blurred ambient color. Rotates through the
+  // featured list; the tagline shrinks to the serif eyebrow above the title.
+  const featured = (Array.isArray(featuredEvents) ? featuredEvents.filter(Boolean) : []).slice(0, 5)
+  const hero = featured[slide % Math.max(1, featured.length)]
+
+  const heroDate = (() => {
+    if (!hero?.date) return ''
+    const d = new Date(hero.date)
+    return isValid(d) ? format(d, 'EEE, MMM d · h:mm a') : ''
+  })()
+
+  const chips = (
+    <div className="reveal reveal-3 mt-5 flex flex-wrap items-center gap-2">
+      {CITY_CHIPS.map((c) => (
+        <Link
+          key={c}
+          href={`/?city=${encodeURIComponent(c)}`}
+          className="rounded-[10px] border border-white/10 bg-white/[0.03] px-3.5 py-1.5 text-[13px] font-normal text-white/70 transition-colors duration-200 hover:border-white/25 hover:text-white"
+        >
+          {c}
+        </Link>
+      ))}
+    </div>
+  )
+
+  // No events yet (a brand-new market): the clean type hero carries the page.
+  if (!hero) {
+    return (
+      <section className="relative isolate overflow-hidden border-b border-white/10">
+        <div aria-hidden className="absolute inset-0 -z-10 bg-[#0a0a0a]" />
+        <div className="mx-auto max-w-6xl px-5 pb-14 pt-16 sm:px-6 sm:pb-20 sm:pt-24 lg:px-8">
+          {/* `!` beats the legacy `.mobile-typography h1` descendant rule on body. */}
+          <h1 className="reveal reveal-1 font-grotesk !text-[clamp(40px,7vw,84px)] font-bold uppercase !leading-[0.98] tracking-[-0.02em] text-white">
+            {t('events.hero_line1', { defaultValue: 'Where Haiti' })}
+            <br />
+            {t('events.hero_line2', { defaultValue: 'goes out.' })}
+          </h1>
+          <p className="reveal reveal-2 mt-5 max-w-xl font-display lowercase italic text-[clamp(17px,2.2vw,22px)] leading-snug text-white/70">
+            {t('events.hero_subtitle')}
+          </p>
+          {SearchForm}
+          {chips}
+        </div>
+      </section>
+    )
+  }
+
+  const heroHasImage = hero.imageUrl && hero.imageUrl !== '/placeholder-event.jpg'
+  const heroTheme = getPosterTheme(hero.id || hero.title, hero.category)
 
   return (
-    // `isolate` scopes the collage's -z-10 to THIS section — without it the
+    // `isolate` scopes the -z-10 backdrop to THIS section — without it the
     // layer paints behind the page wrapper's own background and disappears.
     <section className="relative isolate overflow-hidden border-b border-white/10">
+      {/* The poster's own color, blurred into the room. */}
       <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden bg-[#0a0a0a]">
-        {collagePosters.length > 0 && (
-          <div className="hero-collage-drift grid grid-cols-3 gap-2 p-2 opacity-55 sm:grid-cols-4 lg:grid-cols-6">
-            {collagePosters.map((ev, i) => (
-              // Cycled tiles repeat events, so the key must carry the slot index.
-              <div key={`${ev.id || 'tile'}-${i}`} className="relative aspect-[3/4] overflow-hidden rounded">
-                {ev.banner_image_url ? (
-                  <Image
-                    src={ev.banner_image_url}
-                    alt=""
-                    fill
-                    sizes="(max-width: 640px) 33vw, 17vw"
-                    quality={45}
-                    className="object-cover"
-                  />
-                ) : (
-                  <div
-                    className="absolute inset-0"
-                    style={{ backgroundImage: getPosterTheme(ev.id || ev.title, ev.category).bg }}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
+        {heroHasImage ? (
+          <Image
+            key={hero.id}
+            src={hero.imageUrl}
+            alt=""
+            fill
+            sizes="100vw"
+            quality={30}
+            className="scale-125 object-cover opacity-60 blur-3xl"
+          />
+        ) : (
+          <div className="absolute inset-0 opacity-70 blur-2xl" style={{ backgroundImage: heroTheme.bg }} />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/85 via-[#0a0a0a]/62 to-[#0a0a0a]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/70 via-[#0a0a0a]/55 to-[#0a0a0a]" />
       </div>
 
-      <div className="mx-auto max-w-6xl px-5 pb-14 pt-16 sm:px-6 sm:pb-20 sm:pt-24 lg:px-8">
-        {/* The poster voice: heavy grotesk, uppercase here and nowhere else. */}
-        {/* `!` beats the legacy `.mobile-typography h1` descendant rule on body. */}
-        <h1 className="reveal reveal-1 font-grotesk !text-[clamp(44px,9vw,104px)] font-bold uppercase !leading-[0.98] tracking-[-0.02em] text-white">
-          {t('events.hero_line1', { defaultValue: 'Where Haiti' })}
-          <br />
-          {t('events.hero_line2', { defaultValue: 'goes out.' })}
-        </h1>
-
-        {/* The editorial voice answers it: lowercase serif. */}
-        <p className="reveal reveal-2 mt-5 max-w-xl font-display lowercase italic text-[clamp(17px,2.2vw,22px)] leading-snug text-white/70">
-          {t('events.hero_subtitle')}
-        </p>
-
-        {SearchForm}
-
-        <div className="reveal reveal-3 mt-6 flex flex-wrap items-center gap-2">
-          {CITY_CHIPS.map((c) => (
-            <Link
-              key={c}
-              href={`/?city=${encodeURIComponent(c)}`}
-              className="rounded-[10px] border border-white/10 bg-white/[0.03] px-3.5 py-1.5 text-[13px] font-normal text-white/70 transition-colors duration-200 hover:border-white/25 hover:text-white"
+      <div className="mx-auto max-w-6xl px-5 pb-12 pt-10 sm:px-6 sm:pb-16 sm:pt-14 lg:px-8">
+        <div className="grid items-center gap-8 md:grid-cols-[280px_minmax(0,1fr)] lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-12">
+          {/* Poster */}
+          <Link
+            href={`/events/${hero.id}`}
+            prefetch
+            aria-label={hero.title}
+            className="reveal reveal-1 group mx-auto block w-full max-w-[260px] md:mx-0 md:max-w-none"
+          >
+            <div
+              className="relative aspect-[4/5] overflow-hidden rounded shadow-[0_18px_60px_-12px_rgba(0,0,0,0.7)] ring-1 ring-white/10 transition-transform duration-200 ease-out group-hover:-translate-y-1 motion-reduce:transition-none"
+              style={heroHasImage ? undefined : { backgroundImage: heroTheme.bg }}
             >
-              {c}
+              {heroHasImage ? (
+                <Image
+                  key={`poster-${hero.id}`}
+                  src={hero.imageUrl}
+                  alt={hero.title}
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 260px, 320px"
+                  quality={82}
+                  className="object-cover"
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center p-6 text-center">
+                  <span className="font-grotesk text-2xl font-bold leading-[1.05] text-white line-clamp-4">
+                    {hero.title}
+                  </span>
+                </div>
+              )}
+            </div>
+          </Link>
+
+          {/* Details */}
+          <div className="text-center md:text-left">
+            {/* The tagline lives on as the serif eyebrow — the site's h1. */}
+            <h1 className="reveal reveal-1 font-display lowercase italic !text-[17px] !leading-none text-white/60">
+              {t('events.hero_tagline', { defaultValue: 'where Haiti goes out.' })}
+            </h1>
+            <Link href={`/events/${hero.id}`} className="block">
+              <h2 className="reveal reveal-2 mt-3 font-grotesk font-bold !text-[clamp(30px,4.6vw,56px)] !leading-[1.02] tracking-[-0.02em] text-white line-clamp-2">
+                {hero.title}
+              </h2>
             </Link>
-          ))}
+            {hero.location && (
+              <p className="reveal reveal-2 mt-3 text-[15px] font-medium text-white/85">{hero.location}</p>
+            )}
+            {heroDate && <p className="reveal reveal-2 mt-1 text-[14px] text-white/60">{heroDate}</p>}
+
+            <div className="reveal reveal-3 mt-6 flex items-center justify-center gap-4 md:justify-start">
+              <Link
+                href={`/events/${hero.id}`}
+                className="inline-flex items-center rounded-xl bg-white px-6 py-3 text-sm font-medium text-black transition-colors duration-200 hover:bg-white/90"
+              >
+                {t('events.get_tickets', { defaultValue: 'Get tickets' })}
+              </Link>
+
+              {featured.length > 1 && (
+                <div className="flex items-center gap-2" role="tablist" aria-label={t('events.featured', { defaultValue: 'Featured' })}>
+                  {featured.map((ev, i) => (
+                    <button
+                      key={ev.id || i}
+                      type="button"
+                      role="tab"
+                      aria-selected={i === slide % featured.length}
+                      aria-label={`${i + 1} / ${featured.length}`}
+                      onClick={() => setSlide(i)}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        i === slide % featured.length ? 'w-6 bg-white' : 'w-1.5 bg-white/30 hover:bg-white/50'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-10 max-w-2xl">
+          {SearchForm}
+          {chips}
         </div>
       </div>
     </section>
