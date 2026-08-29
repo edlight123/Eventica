@@ -106,6 +106,16 @@ export default async function HomePage({
     return true
   }
 
+  // The cinema acts run on artwork, and artwork doesn't expire the night the
+  // event ends: keep the pre-cutoff list (already published/moderated) so the
+  // film strip, poster chapter and city collages can top up with recent past
+  // posters when few events are upcoming. Most recent first.
+  const artworkArchive = [...events]
+    .filter((e: any) => e.banner_image_url)
+    .sort((a: any, b: any) =>
+      String(b.start_datetime || '').localeCompare(String(a.start_datetime || ''))
+    )
+
   events = events.filter(notDefinitelyEnded)
 
   // Everything still upcoming, ALL countries — the diaspora rail reads from
@@ -256,27 +266,33 @@ export default async function HomePage({
   const serializedTonight = serializeData(tonightEvents)
   const serializedDiaspora = serializeData(diasporaEvents)
 
-  // Homepage cinema (acts 1 & 3): the film strip draws from everything
-  // upcoming with artwork, and the cities showcase gets each city's posters —
-  // diaspora cities read from the ALL-countries list, since the scope filter
-  // above would erase them.
-  const filmStripEvents = serializeData(
-    allCountriesEvents.filter((e: any) => e.banner_image_url).slice(0, 14)
-  )
+  // Homepage cinema pools: upcoming artwork first, then the archive of recent
+  // past posters — the theatre stays open even when tonight's inventory is
+  // thin. Every poster still links to a real (renderable) event page. Diaspora
+  // cities read from the ALL-countries lists, since the scope filter above
+  // would erase them.
+  const upcomingArt = allCountriesEvents.filter((e: any) => e.banner_image_url)
+  const upcomingArtIds = new Set(upcomingArt.map((e: any) => e.id))
+  const cinemaPool = [
+    ...upcomingArt,
+    ...artworkArchive.filter((e: any) => !upcomingArtIds.has(e.id)),
+  ]
+  const filmStripEvents = serializeData(cinemaPool.slice(0, 14))
   const SHOWCASE_CITIES = ['Port-au-Prince', 'Cap-Haïtien', 'Miami', 'New York', 'Montréal', 'Paris']
   const showcaseCities = SHOWCASE_CITIES.map(city => ({
     city,
-    posters: allCountriesEvents
-      .filter((e: any) => String(e.city || '').toLowerCase() === city.toLowerCase() && e.banner_image_url)
+    posters: cinemaPool
+      .filter((e: any) => String(e.city || '').toLowerCase() === city.toLowerCase())
       .slice(0, 4)
       .map((e: any) => String(e.banner_image_url)),
   }))
-  // Act 2 (the pinned chapter) leads with featured artwork, topped up from the
-  // film strip pool so it still runs when few events are featured.
-  const chapterPool = [...featuredEvents, ...allCountriesEvents]
-    .filter((e: any) => e.banner_image_url)
-    .filter((e: any, i: number, arr: any[]) => arr.findIndex((x: any) => x.id === e.id) === i)
-  const chapterEvents = serializeData(chapterPool.slice(0, 5))
+  // Act 2 (the pinned chapter) leads with the biggest rooms: same pool, sorted
+  // by tickets sold.
+  const chapterEvents = serializeData(
+    [...cinemaPool]
+      .sort((a: any, b: any) => (b.tickets_sold || 0) - (a.tickets_sold || 0))
+      .slice(0, 5)
+  )
 
   return (
     <div className="surface-dark min-h-screen pb-mobile-nav">
