@@ -5,6 +5,7 @@ import HeroSection from '@/components/HeroSection'
 import HomePageContent from '@/components/HomePageContent'
 import PosterFilmStrip from '@/components/home/PosterFilmStrip'
 import CitiesShowcase from '@/components/home/CitiesShowcase'
+import PosterChapter from '@/components/home/PosterChapter'
 import HomeOutro from '@/components/home/HomeOutro'
 import { BRAND } from '@/config/brand'
 import { isDemoMode, DEMO_EVENTS } from '@/lib/demo'
@@ -270,6 +271,12 @@ export default async function HomePage({
       .slice(0, 4)
       .map((e: any) => String(e.banner_image_url)),
   }))
+  // Act 2 (the pinned chapter) leads with featured artwork, topped up from the
+  // film strip pool so it still runs when few events are featured.
+  const chapterPool = [...featuredEvents, ...allCountriesEvents]
+    .filter((e: any) => e.banner_image_url)
+    .filter((e: any, i: number, arr: any[]) => arr.findIndex((x: any) => x.id === e.id) === i)
+  const chapterEvents = serializeData(chapterPool.slice(0, 5))
 
   return (
     <div className="surface-dark min-h-screen pb-mobile-nav">
@@ -325,10 +332,13 @@ export default async function HomePage({
           />
         </div>
 
-      {/* Act 3 + sign-off: the diaspora as theatre (each city a real filter),
-          then the Kreyòl goodbye with the app and organizer doors. */}
+      {/* Acts 2 & 3 + sign-off: the pinned poster chapter (scroll-scrubbed,
+          after the store so theatre never delays a ticket), the diaspora as
+          theatre (each city a real filter), then the Kreyòl goodbye with the
+          app and organizer doors. */}
       {!hasActiveFilters && (
         <>
+          <PosterChapter events={chapterEvents} />
           <CitiesShowcase cities={showcaseCities} />
           <HomeOutro />
         </>
