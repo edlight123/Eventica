@@ -52,12 +52,22 @@ async function trimTransparentPadding(png: Buffer): Promise<Buffer> {
  * @2x 360×440) — iOS applies the blur itself. Returns {} when there is no
  * banner or anything goes wrong, which yields the plain near-black pass.
  */
+// banner_image_url is ORGANIZER-writable, and this fetch runs on our server —
+// an arbitrary URL here is SSRF. Only the storage hosts posters actually live
+// on (the same set next.config.js whitelists for next/image) are fetched, and
+// redirects are refused so an allowed host can't bounce us elsewhere.
+const PASS_IMAGE_HOSTS = new Set(['firebasestorage.googleapis.com', 'storage.googleapis.com'])
+
 async function buildPassBackground(
   bannerImageUrl: string | null
 ): Promise<Record<string, Buffer>> {
-  if (!bannerImageUrl || !/^https:\/\//.test(bannerImageUrl)) return {}
+  if (!bannerImageUrl) return {}
   try {
-    const response = await fetch(bannerImageUrl, { signal: AbortSignal.timeout(8000) })
+    const url = new URL(bannerImageUrl)
+    const hostname = url.hostname.toLowerCase().replace(/\.$/, '')
+    if (url.protocol !== 'https:' || !PASS_IMAGE_HOSTS.has(hostname)) return {}
+
+    const response = await fetch(url, { signal: AbortSignal.timeout(8000), redirect: 'error' })
     if (!response.ok) return {}
     const source = Buffer.from(await response.arrayBuffer())
     // A poster over ~15MB is not artwork we should be pulling into a pass.
