@@ -322,13 +322,6 @@ function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
               <View style={[tabBarStyles.createFab, { backgroundColor: colors.white }]}>
                 <Ionicons name="add" size={30} color="#000000" />
               </View>
-              <Text
-                style={[tabBarStyles.label, { color: colors.textTertiary }]}
-                numberOfLines={1}
-                allowFontScaling={false}
-              >
-                {tab.label}
-              </Text>
             </TouchableOpacity>
           );
         }
@@ -380,22 +373,17 @@ function CustomTabBar({ state, descriptors, navigation, tabs }: TabBarProps) {
             accessibilityState={{ selected: isFocused }}
             accessibilityLabel={tab.label}
           >
+            {/* Icon-only bar (owner call, 2026-08-29, reversing the earlier
+                labels-for-first-timers decision). accessibilityLabel above
+                keeps every tab named for screen readers; teal active tint
+                stays semantic. */}
             <Animated.View style={[tabBarStyles.iconWrap, { transform: [{ scale }, { translateY: lift }] }]}>
               <Ionicons
                 name={(isFocused ? tab.activeIcon : tab.icon) as any}
-                size={24}
+                size={26}
                 color={iconColor}
               />
             </Animated.View>
-            {/* Short text label — a first-time Haitian audience needs more than
-                a cryptic icon (POSH §3). Teal active tint stays semantic. */}
-            <Text
-              style={[tabBarStyles.label, { color: iconColor }]}
-              numberOfLines={1}
-              allowFontScaling={false}
-            >
-              {tab.label}
-            </Text>
           </TouchableOpacity>
         );
       })}
