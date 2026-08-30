@@ -2,8 +2,12 @@ import { getCurrentUser } from '@/lib/auth'
 import Navbar from '@/components/Navbar'
 import MobileNavWrapper from '@/components/MobileNavWrapper'
 import HeroSection from '@/components/HeroSection'
+import HeroPase from '@/components/home/HeroPase'
+import WorldsChapters from '@/components/home/WorldsChapters'
 import HomePageContent from '@/components/HomePageContent'
 import PosterFilmStrip from '@/components/home/PosterFilmStrip'
+import { CULTURAL_CATEGORIES, culturalCategoryHref } from '@/lib/categories'
+import { normalizeEventCategory } from '@/lib/filters/config'
 import CitiesShowcase from '@/components/home/CitiesShowcase'
 import PosterChapter from '@/components/home/PosterChapter'
 import HomeOutro from '@/components/home/HomeOutro'
@@ -170,24 +174,6 @@ export default async function HomePage({
   
   // Organize events into sections
   
-  // Use top events with most tickets sold as "featured" (prioritize user's country)
-  const featuredEvents = [...prioritizedEvents]
-    .sort((a, b) => (b.tickets_sold || 0) - (a.tickets_sold || 0))
-    .slice(0, 5)
-    .map(e => ({
-      id: e.id,
-      title: e.title,
-      description: e.description,
-      date: e.start_datetime, // Keep as ISO string, don't convert to Date
-      imageUrl: e.banner_image_url || '/placeholder-event.jpg',
-      location: `${e.venue_name}, ${e.city}`,
-      category: e.category,
-      price: e.ticket_price,
-      currency: e.currency,
-      isFeatured: true,
-      isVIP: (e.ticket_price || 0) > 100,
-    }))
-  
   const trendingEvents = prioritizedEvents
     .filter(notDefinitelyEnded)
     .filter(e => (e.tickets_sold || 0) > 10)
@@ -269,7 +255,6 @@ export default async function HomePage({
   }
 
   const serializedEvents = serializeData(events)
-  const serializedFeaturedEvents = serializeData(featuredEvents)
   const serializedTrendingEvents = serializeData(trendingEvents)
   const serializedUpcomingThisWeek = serializeData(upcomingThisWeek)
   const serializedCountryEvents = serializeData(countryEvents)
@@ -306,6 +291,42 @@ export default async function HomePage({
       .slice(0, 5)
   )
 
+  // The statement hero's floating room: curated picks lead, the cinema pool
+  // fills — minimal shape only, it crosses to a client component.
+  const posterShape = (e: any) => ({
+    id: String(e.id),
+    title: String(e.title || ''),
+    banner_image_url: String(e.banner_image_url),
+  })
+  const heroPosterPool = [
+    ...cinemaPool.filter((e: any) => e.featured === true || e.is_featured === true),
+    ...cinemaPool.filter((e: any) => e.featured !== true && e.is_featured !== true),
+  ].filter((e: any) => e.banner_image_url)
+  const heroPosters = heroPosterPool.slice(0, 5).map(posterShape)
+
+  // The worlds journey: four immersive chapters, each carrying its own real
+  // posters from the pool (a chapter with none still renders — the word and
+  // the wash carry it).
+  const CHAPTER_KEYS = ['mizik', 'lavi-lannwit', 'kilti', 'espo']
+  const worldsData = CHAPTER_KEYS.flatMap((key) => {
+    const world = CULTURAL_CATEGORIES.find((c) => c.key === key)
+    if (!world) return []
+    return [
+      {
+        key: world.key,
+        label: world.label,
+        sublabel: world.sublabel,
+        from: world.from,
+        to: world.to,
+        href: culturalCategoryHref(world),
+        posters: cinemaPool
+          .filter((e: any) => world.categories.includes(normalizeEventCategory(e.category)))
+          .slice(0, 3)
+          .map(posterShape),
+      },
+    ]
+  })
+
   return (
     <div className="surface-dark min-h-screen pb-mobile-nav">
       <Navbar user={user} isAdmin={isAdmin(user?.email)} />
@@ -331,13 +352,13 @@ export default async function HomePage({
         </div>
       )}
 
-      {/* HERO: Featured Carousel OR Search Hero */}
-      <HeroSection
-        hasActiveFilters={hasActiveFilters}
-        featuredEvents={serializedFeaturedEvents}
-        events={serializedEvents}
-        brandTagline={BRAND.tagline}
-      />
+      {/* HERO: the statement (SA K AP PASE? + floating posters), or the
+          compact working band when filters are active. */}
+      {hasActiveFilters ? (
+        <HeroSection events={serializedEvents} />
+      ) : (
+        <HeroPase posters={heroPosters} events={serializedEvents} />
+      )}
 
       {/* Act 1: the poster film strip — the platform, alive, in one glance. */}
       {!hasActiveFilters && <PosterFilmStrip events={filmStripEvents} />}
@@ -367,6 +388,8 @@ export default async function HomePage({
           app and organizer doors. */}
       {!hasActiveFilters && (
         <>
+          {/* The worlds journey — scrolling through Haitian life. */}
+          <WorldsChapters worlds={worldsData} />
           <PosterChapter events={chapterEvents} />
           <CitiesShowcase cities={showcaseCities} />
           <HomeOutro />

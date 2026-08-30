@@ -37,6 +37,7 @@ export default function PosterFilmStrip({ events }: { events: StripEvent[] }) {
             // order and the accessibility tree.
             aria-hidden={i >= posters.length || undefined}
             tabIndex={i >= posters.length ? -1 : undefined}
+            data-cursor="view"
             className="relative block h-44 w-[141px] shrink-0 overflow-hidden rounded transition-opacity duration-200 hover:opacity-80 sm:h-56 sm:w-[179px]"
           >
             <Image

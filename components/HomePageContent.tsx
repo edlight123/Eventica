@@ -3,7 +3,6 @@
 import { useTranslation } from 'react-i18next'
 import { DiscoverEventCard } from '@/components/discover/DiscoverEventCard'
 import { SectionHeader, EventRail, CategoryRail } from '@/components/ui/EditorialRails'
-import CategoryGrid from '@/components/CategoryGrid'
 import { LOCATION_CONFIG, CATEGORIES } from '@/lib/filters/config'
 import Link from 'next/link'
 import { MapPin, ArrowRight, Search } from 'lucide-react'
@@ -359,18 +358,9 @@ export default function HomePageContent({
         </section>
       )}
 
-      {/* The cultural worlds — Tikèm's own taxonomy of how Haiti goes out */}
-      <section>
-        <SectionHeader
-          title={t('events.rail_worlds', { defaultValue: 'dekouvri monn ou' })}
-          description={t('events.rail_worlds_desc', {
-            defaultValue: 'discover your world — mizik, kilti, espò and more',
-          })}
-        />
-        <CategoryGrid />
-      </section>
-
-      {/* All upcoming events */}
+      {/* All upcoming events. (The cultural worlds render as full scroll
+          chapters after this store — WorldsChapters in app/page.tsx — so the
+          flat grid section retired from the home; it lives on /categories.) */}
       {allEventsGrid}
     </div>
   )
