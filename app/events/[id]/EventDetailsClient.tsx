@@ -11,10 +11,9 @@ import MobileHero from './MobileHero'
 import MobileKeyFacts from './MobileKeyFacts'
 import MobileAccordions from './MobileAccordions'
 import WhosGoing from '@/components/events/WhosGoing'
-import { Shield, Calendar, MapPin, Clock, Users, TrendingUp, Star, Info } from 'lucide-react'
+import { Shield } from 'lucide-react'
 import { format } from 'date-fns'
 import Image from 'next/image'
-import Badge from '@/components/ui/Badge'
 import { getPosterTheme } from '@/lib/posterGradient'
 import { resolveEventPricing } from '@/lib/ticketPricing'
 import { priceOrder } from '@/lib/checkout/buyer-pricing'
@@ -139,14 +138,13 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                     </span>
                   </div>
                 )}
-                {/* Status chip overlaid on poster */}
+                {/* Status overlaid on poster — dot + label, never a filled pill */}
                 {(isSoldOut || selloutSoon) && (
                   <div className="absolute left-3 top-3">
-                    {isSoldOut ? (
-                      <Badge variant="error" size="md">{t('ticket.sold_out_caps')}</Badge>
-                    ) : (
-                      <Badge variant="warning" size="md">{t('ticket.almost_sold_out')}</Badge>
-                    )}
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur">
+                      <span className={`h-1.5 w-1.5 rounded-full ${isSoldOut ? 'bg-red-400' : 'bg-amber-400'}`} />
+                      {isSoldOut ? t('ticket.sold_out') : t('ticket.almost_sold_out')}
+                    </span>
                   </div>
                 )}
               </div>
@@ -154,23 +152,15 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
 
             {/* Details column */}
             <div className="min-w-0 text-white">
-              {/* Premium Badges + subtle share */}
+              {/* Category + marketing signals as one quiet eyebrow line */}
               <div className="mb-5 flex items-start justify-between gap-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="eyebrow rounded-lg bg-white/15 px-3 py-1.5 text-[11px] text-white backdrop-blur-md">
-                    {event.category}
-                  </span>
-                  {isVIP && (
-                    <Badge variant="vip" size="md" icon={<Star className="w-4 h-4" />}>
-                      {t('events.vip_event')}
-                    </Badge>
-                  )}
-                  {isTrending && (
-                    <Badge variant="trending" size="md" icon={<TrendingUp className="w-4 h-4" />}>
-                      {t('events.trending')}
-                    </Badge>
-                  )}
-                </div>
+                <p className="eyebrow pt-2 text-white/60">
+                  {event.category}
+                  {isVIP && <span className="text-white/30"> · </span>}
+                  {isVIP && <span className="text-brand-300">{t('events.vip_event')}</span>}
+                  {isTrending && <span className="text-white/30"> · </span>}
+                  {isTrending && <span>{t('events.trending')}</span>}
+                </p>
                 <ShareIconButton eventId={event.id} eventTitle={event.title} tone="light" className="shrink-0" />
               </div>
 
@@ -204,51 +194,34 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                 </div>
               </a>
 
-              {/* Key Info Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
-                {/* Date & Time */}
-                <div className="flex items-start gap-2.5 backdrop-blur-md rounded-xl p-3 md:p-4 border border-white/20">
-                  <div className="w-8 h-8 md:w-10 md:h-10 bg-brand-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Calendar className="w-4 h-4 md:w-5 md:h-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="label-mono text-[10px] md:text-[11px] uppercase text-white/70 mb-1">{t('events.date_time')}</p>
-                    <p className="label-mono text-white text-[12px] md:text-[13px]">
-                      {format(new Date(event.start_datetime), 'MMM d, yyyy')}
-                    </p>
-                    <p className="label-mono text-white/70 text-[11px] md:text-xs">
-                      {format(new Date(event.start_datetime), 'h:mm a')}
-                    </p>
-                  </div>
+              {/* Key facts — no boxes, no icon squares: a quiet ledger row */}
+              <div className="flex flex-wrap gap-x-12 gap-y-6 border-t border-white/10 pt-6">
+                <div>
+                  <p className="eyebrow mb-1.5 text-[10px] text-white/50">{t('events.date_time')}</p>
+                  <p className="text-[15px] text-white">
+                    {format(new Date(event.start_datetime), 'EEE, MMM d, yyyy')}
+                  </p>
+                  <p className="text-[13px] text-white/60">
+                    {format(new Date(event.start_datetime), 'h:mm a')}
+                  </p>
                 </div>
-
-                {/* Location */}
-                <div className="flex items-start gap-2.5 backdrop-blur-md rounded-xl p-3 md:p-4 border border-white/20">
-                  <div className="w-8 h-8 md:w-10 md:h-10 bg-brand-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-4 h-4 md:w-5 md:h-5 text-white" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="label-mono text-[10px] md:text-[11px] uppercase text-white/70 mb-1">{t('events.venue_name')}</p>
-                    <p className="label-mono text-white text-[12px] md:text-[13px] line-clamp-1">
-                      {event.venue_name}
-                    </p>
-                    <p className="label-mono text-white/70 text-[11px] md:text-xs line-clamp-1">
-                      {event.city}
-                    </p>
-                  </div>
+                <div className="min-w-0 max-w-[260px]">
+                  <p className="eyebrow mb-1.5 text-[10px] text-white/50">{t('events.venue_name')}</p>
+                  <p className="text-[15px] text-white line-clamp-1">{event.venue_name}</p>
+                  <p className="text-[13px] text-white/60 line-clamp-1">{event.city}</p>
                 </div>
-
-                {/* Tickets */}
-                <div className="flex items-start gap-2.5 backdrop-blur-md rounded-xl p-3 md:p-4 border border-white/20">
-                  <div className="w-8 h-8 md:w-10 md:h-10 bg-brand-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Users className="w-4 h-4 md:w-5 md:h-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="label-mono text-[10px] md:text-[11px] uppercase text-white/70 mb-1">{t('events.availability')}</p>
-                    <p className="label-mono text-white text-[12px] md:text-[13px] uppercase">
-                      {isSoldOut ? t('ticket.sold_out') : isFree ? t('common.free') : t('ticket.available')}
-                    </p>
-                  </div>
+                <div>
+                  <p className="eyebrow mb-1.5 text-[10px] text-white/50">{t('events.availability')}</p>
+                  <p className="flex items-center gap-2 text-[15px] text-white">
+                    <span className={`h-1.5 w-1.5 rounded-full ${isPastEvent ? 'bg-white/40' : isSoldOut ? 'bg-red-400' : 'bg-emerald-400'}`} />
+                    {isPastEvent
+                      ? t('events.event_ended', { defaultValue: 'Event ended' })
+                      : isSoldOut
+                        ? t('ticket.sold_out')
+                        : isFree
+                          ? t('common.free')
+                          : t('ticket.available')}
+                  </p>
                 </div>
               </div>
             </div>
@@ -333,92 +306,78 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
       <div className="max-w-7xl mx-auto px-0 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 px-4 md:px-0">
           
-          {/* Left Column - Event Details */}
-          <div className="lg:col-span-2 space-y-4">
+          {/* Left Column - Event Details. No boxes: sections separated by
+              hairlines, headings in the editorial serif voice. */}
+          <div className="lg:col-span-2">
             {/* Desktop About Section */}
-            <div className="hidden md:block rounded-2xl bg-white/[0.03] border border-white/10 p-3 sm:p-4 md:p-6">
-              <h2 className="text-base sm:text-lg md:text-xl font-bold text-white mb-2 sm:mb-3 flex items-center gap-1.5 sm:gap-2">
-                <Info className="w-4 h-4 sm:w-5 sm:h-5 text-brand-400" />
+            <div className="hidden md:block border-b border-white/10 pb-8">
+              <h2 className="mb-3 font-display lowercase italic !text-[22px] !leading-snug text-white">
                 {t('events.about_event')}
               </h2>
               {event.description && event.description.trim() ? (
-                <p className="text-sm sm:text-[15px] text-white/70 whitespace-pre-wrap leading-relaxed">
+                <p className="max-w-[65ch] text-[15px] leading-relaxed text-white/70 whitespace-pre-wrap">
                   {event.description}
                 </p>
               ) : (
-                <p className="text-sm sm:text-[15px] italic text-white/70 leading-relaxed">
+                <p className="text-[15px] italic leading-relaxed text-white/70">
                   {t('events.no_description', { defaultValue: 'The organizer hasn’t added a description yet.' })}
                 </p>
               )}
             </div>
 
             {/* Venue Details - Desktop */}
-            <div className="hidden md:block rounded-2xl bg-white/[0.03] border border-white/10 p-4 md:p-6">
-              <h2 className="text-lg md:text-xl font-bold text-white mb-3 flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-brand-400" />
+            <div className="hidden md:block border-b border-white/10 py-8">
+              <h2 className="mb-3 font-display lowercase italic !text-[22px] !leading-snug text-white">
                 {t('events.venue_information')}
               </h2>
-              <div className="space-y-2.5">
-                <div>
-                  <p className="label-mono text-[11px] uppercase text-white/70 mb-1.5">{t('events.venue_name')}</p>
-                  <p className="text-base font-semibold text-white">{event.venue_name}</p>
-                </div>
-                <div>
-                  <p className="label-mono text-[11px] uppercase text-white/70 mb-1.5">{t('events.address')}</p>
-                  <div className="space-y-1.5">
-                    <div>
-                      <p className="text-[15px] text-white/70">{event.address || t('events.address_not_specified')}</p>
-                      <p className="text-[15px] text-white/70">{event.commune}, {event.city}</p>
-                    </div>
-                    <div className="flex gap-3 pt-0.5">
-                      <a
-                        href={`https://maps.apple.com/?q=${encodeURIComponent(event.address || `${event.venue_name}, ${event.commune}, ${event.city}`)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-brand-400 hover:text-brand-300 font-medium flex items-center gap-1"
-                      >
-                        <MapPin className="w-3.5 h-3.5" />
-                        {t('events.apple_maps')}
-                      </a>
-                      <span className="text-white/20">|</span>
-                      <a
-                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address || `${event.venue_name}, ${event.commune}, ${event.city}`)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-brand-400 hover:text-brand-300 font-medium flex items-center gap-1"
-                      >
-                        <MapPin className="w-4 h-4" />
-                        {t('events.google_maps')}
-                      </a>
-                    </div>
-                  </div>
-                </div>
+              <p className="text-[15px] text-white">{event.venue_name}</p>
+              <p className="mt-1 text-[15px] text-white/60">
+                {event.address || t('events.address_not_specified')}
+              </p>
+              <p className="text-[15px] text-white/60">{event.commune}, {event.city}</p>
+              <div className="mt-3 flex items-center gap-2 text-sm">
+                <a
+                  href={`https://maps.apple.com/?q=${encodeURIComponent(event.address || `${event.venue_name}, ${event.commune}, ${event.city}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/70 underline decoration-white/30 underline-offset-4 transition-colors hover:text-white"
+                >
+                  {t('events.apple_maps')}
+                </a>
+                <span className="text-white/25">·</span>
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address || `${event.venue_name}, ${event.commune}, ${event.city}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/70 underline decoration-white/30 underline-offset-4 transition-colors hover:text-white"
+                >
+                  {t('events.google_maps')}
+                </a>
               </div>
             </div>
 
             {/* Date & Time Details - Desktop */}
-            <div className="hidden md:block rounded-2xl bg-white/[0.03] border border-white/10 p-4 md:p-6">
-              <h2 className="text-lg md:text-xl font-bold text-white mb-3 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-brand-400" />
+            <div className="hidden md:block border-b border-white/10 py-8">
+              <h2 className="mb-3 font-display lowercase italic !text-[22px] !leading-snug text-white">
                 {t('events.date_and_time')}
               </h2>
-              <div className="space-y-3">
+              <div className="flex flex-wrap gap-x-12 gap-y-4">
                 <div>
-                  <p className="label-mono text-[11px] uppercase text-white/70 mb-1.5">{t('events.start')}</p>
-                  <p className="label-mono text-[15px] text-white">
+                  <p className="eyebrow mb-1.5 text-[10px] text-white/50">{t('events.start')}</p>
+                  <p className="text-[15px] text-white">
                     {format(new Date(event.start_datetime), 'EEEE, MMMM d, yyyy')}
                   </p>
-                  <p className="label-mono text-[13px] text-white/70">
+                  <p className="text-[13px] text-white/60">
                     {format(new Date(event.start_datetime), 'h:mm a')}
                   </p>
                 </div>
                 {event.end_datetime && (
                   <div>
-                    <p className="label-mono text-[11px] uppercase text-white/70 mb-1.5">{t('events.end')}</p>
-                    <p className="label-mono text-[15px] text-white">
+                    <p className="eyebrow mb-1.5 text-[10px] text-white/50">{t('events.end')}</p>
+                    <p className="text-[15px] text-white">
                       {format(new Date(event.end_datetime), 'EEEE, MMMM d, yyyy')}
                     </p>
-                    <p className="label-mono text-[13px] text-white/70">
+                    <p className="text-[13px] text-white/60">
                       {format(new Date(event.end_datetime), 'h:mm a')}
                     </p>
                   </div>
@@ -427,13 +386,12 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
             </div>
 
             {/* Organizer Info - Desktop */}
-            <div className="hidden md:block rounded-2xl bg-white/[0.03] border border-white/10 p-4 md:p-6">
-              <h2 className="text-lg md:text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <Users className="w-5 h-5 text-brand-400" />
+            <div className="hidden md:block py-8">
+              <h2 className="mb-4 font-display lowercase italic !text-[22px] !leading-snug text-white">
                 {t('events.organizer')}
               </h2>
-              <a href={`/profile/organizer/${event.organizer_id}`} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors">
-                <div className="w-14 h-14 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full flex items-center justify-center text-white font-bold text-xl overflow-hidden">
+              <a href={`/profile/organizer/${event.organizer_id}`} className="inline-flex items-center gap-4 transition-opacity hover:opacity-80">
+                <div className="w-12 h-12 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full flex items-center justify-center text-white font-bold text-lg overflow-hidden">
                   {event.users?.organization_logo ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={event.users.organization_logo} alt="" className="w-full h-full object-cover" />
@@ -442,12 +400,12 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                   )}
                 </div>
                 <div>
-                  <p className="font-semibold text-white text-base">
+                  <p className="font-medium text-white text-base">
                     {organizerLabel}
                   </p>
                   {event.users?.is_verified && (
-                    <div className="flex items-center gap-1 text-brand-400 text-sm mt-1">
-                      <Shield className="w-4 h-4" />
+                    <div className="flex items-center gap-1 text-brand-400 text-sm mt-0.5">
+                      <Shield className="w-3.5 h-3.5" />
                       <span>{t('events.verified_organizer')}</span>
                     </div>
                   )}
@@ -465,38 +423,38 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
 
           {/* Right Column - Ticket Purchase Sidebar */}
           <div className="lg:col-span-1">
-            <div className="hidden md:block sticky top-8 rounded-2xl shadow-lg bg-white/[0.03] border border-white/10 p-6">
+            <div className="hidden md:block sticky top-8 rounded-2xl border border-white/10 bg-white/[0.02] p-6">
               <div className="mb-6">
                 {isFree ? (
                   <div>
-                    <p className="label-mono text-3xl font-semibold uppercase text-brand-400">{t('common.free')}</p>
-                    <p className="label-mono text-[11px] uppercase text-white/70 mt-1.5">{t('events.no_ticket_required')}</p>
+                    <p className="font-grotesk text-3xl font-bold text-white">{t('common.free')}</p>
+                    <p className="mt-1.5 text-[13px] text-white/50">{t('events.no_ticket_required')}</p>
                   </div>
                 ) : pricing.kind === 'mixed' ? (
                   // Free AND paid tiers coexist. Showing the denormalized
                   // `ticket_price` here would read "0" (it is the lowest tier
                   // price); show the honest range instead.
                   <div>
-                    <p className="label-mono text-3xl font-semibold text-brand-400">
-                      <span className="uppercase">{t('common.free')}</span>
-                      <span className="text-white/70"> – </span>
-                      <span className="text-base text-white/70">{event.currency || 'HTG'}</span> {headlineDisplayPrice.toLocaleString()}
+                    <p className="font-grotesk text-3xl font-bold text-white">
+                      {t('common.free')}
+                      <span className="text-white/40"> – </span>
+                      <span className="text-base font-medium text-white/50">{event.currency || 'HTG'}</span> {headlineDisplayPrice.toLocaleString()}
                     </p>
-                    <p className="label-mono text-[11px] uppercase text-white/70 mt-1.5">{t('events.per_ticket', { defaultValue: 'per ticket' })}</p>
+                    <p className="mt-1.5 text-[13px] text-white/50">{t('events.per_ticket', { defaultValue: 'per ticket' })}</p>
                     {showHeadlineFee && (
-                      <p className="label-mono text-[11px] uppercase text-white/50 mt-1">
+                      <p className="mt-1 text-[12px] text-white/40">
                         {t('events.fees_included', { defaultValue: 'Fees included' })}
                       </p>
                     )}
                   </div>
                 ) : (
                   <div>
-                    <p className="label-mono text-3xl font-semibold text-brand-400">
-                      <span className="text-base text-white/70">{event.currency || 'HTG'}</span> {headlineDisplayPrice.toLocaleString()}
+                    <p className="font-grotesk text-3xl font-bold text-white">
+                      <span className="text-base font-medium text-white/50">{event.currency || 'HTG'}</span> {headlineDisplayPrice.toLocaleString()}
                     </p>
-                    <p className="label-mono text-[11px] uppercase text-white/70 mt-1.5">{t('events.per_ticket', { defaultValue: 'per ticket' })}</p>
+                    <p className="mt-1.5 text-[13px] text-white/50">{t('events.per_ticket', { defaultValue: 'per ticket' })}</p>
                     {showHeadlineFee && (
-                      <p className="label-mono text-[11px] uppercase text-white/50 mt-1">
+                      <p className="mt-1 text-[12px] text-white/40">
                         {t('events.fees_included_detail', {
                           defaultValue: `Includes ${headlineAllIn.buyerFee.toLocaleString()} ${event.currency || 'HTG'} fee`,
                           fee: headlineAllIn.buyerFee.toLocaleString(),
@@ -509,14 +467,22 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
               </div>
 
               {isPastEvent ? (
-                <div className="text-center py-4">
-                  <Badge variant="neutral" size="lg">Event Ended</Badge>
-                  <p className="text-sm text-white/70 mt-2">This event has ended. Tickets are no longer available.</p>
+                <div className="py-2">
+                  <p className="flex items-center gap-2 text-[15px] font-medium text-white">
+                    <span className="h-1.5 w-1.5 rounded-full bg-white/40" />
+                    {t('events.event_ended', { defaultValue: 'Event ended' })}
+                  </p>
+                  <p className="mt-1.5 text-sm text-white/60">
+                    {t('events.event_ended_detail', { defaultValue: 'This event has ended. Tickets are no longer available.' })}
+                  </p>
                 </div>
               ) : isSoldOut ? (
-                <div className="text-center py-4">
-                  <Badge variant="error" size="lg">{t('ticket.sold_out_caps')}</Badge>
-                  <p className="text-sm text-white/70 mt-2">{t('events.event_reached_capacity')}</p>
+                <div className="py-2">
+                  <p className="flex items-center gap-2 text-[15px] font-medium text-white">
+                    <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
+                    {t('ticket.sold_out')}
+                  </p>
+                  <p className="mt-1.5 text-sm text-white/60">{t('events.event_reached_capacity')}</p>
                 </div>
               ) : (
                 <>
@@ -555,7 +521,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
         {/* Related Events Section */}
         {relatedEvents?.length > 0 && (
           <div className="mt-12 px-4 md:px-0">
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">{t('events.similar_events')}</h2>
+            <h2 className="mb-6 font-display lowercase italic !text-[26px] !leading-snug text-white">{t('events.similar_events')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {relatedEvents.map((e: any) => <DiscoverEventCard key={e.id} event={e} />)}
             </div>
