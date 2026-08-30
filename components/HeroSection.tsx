@@ -3,7 +3,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { format, isValid } from 'date-fns'
 import { Search, ChevronDown, ArrowUpRight } from 'lucide-react'
@@ -44,6 +44,10 @@ interface Suggestion {
 export default function HeroSection({ hasActiveFilters, featuredEvents, events }: HeroSectionProps) {
   const { t } = useTranslation('common')
   const router = useRouter()
+  // The page is dynamic (it reads searchParams server-side), so this is safe
+  // without a Suspense boundary. Used to mark the active city chip.
+  const searchParams = useSearchParams()
+  const activeCity = searchParams?.get('city') || ''
   const [query, setQuery] = useState('')
   const [city, setCity] = useState('')
 
@@ -177,14 +181,24 @@ export default function HeroSection({ hasActiveFilters, featuredEvents, events }
       ? `${listboxId}-opt-${highlight}`
       : undefined
 
-  const SearchForm = (
-    <div className="reveal reveal-3 relative mt-6 w-full max-w-xl">
+  // `compact` renders the same field at working-state size (the filtered
+  // band); the default is the hero size.
+  const renderSearchForm = (compact = false) => (
+    <div
+      className={
+        compact
+          ? 'relative w-full max-w-xl'
+          : 'reveal reveal-3 relative mt-6 w-full max-w-xl'
+      }
+    >
       {/* One quiet field (posh calibration): icon, input, and the city tucked
           inside on the right — no boxed pin button, no visible Search button.
           Enter (or the keyboard's Go) submits; a sr-only submit keeps AT happy. */}
       <form
         onSubmit={handleSearch}
-        className="flex h-[52px] items-center gap-3 rounded-2xl border border-white/10 bg-[#141414]/80 px-4 backdrop-blur-md transition-colors focus-within:border-white/25"
+        className={`flex items-center gap-3 border border-white/10 bg-[#141414]/80 px-4 backdrop-blur-md transition-colors focus-within:border-white/25 ${
+          compact ? 'h-11 rounded-xl' : 'h-[52px] rounded-2xl'
+        }`}
       >
         <Search className="h-[17px] w-[17px] shrink-0 text-white/40" />
         <input
@@ -311,17 +325,43 @@ export default function HeroSection({ hasActiveFilters, featuredEvents, events }
     </div>
   )
 
-  // Compact band when the visitor is actively filtering / searching
+  // City chips: real filters. The active city reads teal (semantic: active)
+  // and clicking it clears the filter.
+  const renderChips = (className = 'reveal reveal-3 mt-5') => (
+    <div className={`flex flex-wrap items-center gap-2 ${className}`}>
+      {CITY_CHIPS.map((c) => {
+        const isActive = c === activeCity
+        return (
+          <Link
+            key={c}
+            href={isActive ? '/' : `/?city=${encodeURIComponent(c)}`}
+            aria-pressed={isActive}
+            className={`rounded-[10px] border px-3.5 py-1.5 text-[13px] font-normal transition-colors duration-200 ${
+              isActive
+                ? 'border-brand-500/40 bg-brand-500/[0.08] text-brand-300 hover:border-brand-400/60'
+                : 'border-white/10 bg-white/[0.03] text-white/70 hover:border-white/25 hover:text-white'
+            }`}
+          >
+            {c}
+          </Link>
+        )
+      })}
+    </div>
+  )
+
+  // Working state: filters active. One quiet, compact row — the same field
+  // and chips as the hero at utility size, aligned to the content container
+  // (max-w-7xl, like the results grid below). No banner, no teal eyebrow;
+  // the results header below carries the editorial voice.
   if (hasActiveFilters) {
     return (
-      <section className="relative overflow-hidden border-b border-white/10">
-        <div aria-hidden className="absolute inset-0 -z-10 bg-[#0a0a0a]" />
-        <div className="mx-auto max-w-6xl px-5 pb-7 pt-8 sm:px-6 lg:px-8">
-          <p className="eyebrow text-brand-400">{t('events.hero_eyebrow')}</p>
-          <h1 className="mt-2.5 font-display text-[clamp(30px,5vw,46px)] leading-[1.0] text-white">
-            {t('events.find_perfect_event')}
-          </h1>
-          {SearchForm}
+      <section className="border-b border-white/10">
+        <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
+          <h1 className="sr-only">{t('events.find_perfect_event')}</h1>
+          <div className="flex flex-col gap-3.5 lg:flex-row lg:items-center lg:gap-6">
+            <div className="w-full lg:max-w-md">{renderSearchForm(true)}</div>
+            {renderChips('')}
+          </div>
         </div>
       </section>
     )
@@ -340,19 +380,7 @@ export default function HeroSection({ hasActiveFilters, featuredEvents, events }
     return isValid(d) ? format(d, 'EEE, MMM d · h:mm a') : ''
   })()
 
-  const chips = (
-    <div className="reveal reveal-3 mt-5 flex flex-wrap items-center gap-2">
-      {CITY_CHIPS.map((c) => (
-        <Link
-          key={c}
-          href={`/?city=${encodeURIComponent(c)}`}
-          className="rounded-[10px] border border-white/10 bg-white/[0.03] px-3.5 py-1.5 text-[13px] font-normal text-white/70 transition-colors duration-200 hover:border-white/25 hover:text-white"
-        >
-          {c}
-        </Link>
-      ))}
-    </div>
-  )
+  const chips = renderChips()
 
   // No events yet (a brand-new market): the clean type hero carries the page.
   if (!hero) {
@@ -369,7 +397,7 @@ export default function HeroSection({ hasActiveFilters, featuredEvents, events }
           <p className="reveal reveal-2 mt-5 max-w-xl font-display lowercase italic text-[clamp(17px,2.2vw,22px)] leading-snug text-white/70">
             {t('events.hero_subtitle')}
           </p>
-          {SearchForm}
+          {renderSearchForm()}
           {chips}
         </div>
       </section>
@@ -481,7 +509,7 @@ export default function HeroSection({ hasActiveFilters, featuredEvents, events }
         </div>
 
         <div className="mt-10 max-w-2xl">
-          {SearchForm}
+          {renderSearchForm()}
           {chips}
         </div>
       </div>

@@ -80,8 +80,9 @@ export default function HomePageContent({
   if (hasActiveFilters) {
     return (
       <div className="space-y-6">
+        {/* No eyebrow — the compact filter band above already frames the
+            working state; one serif line + the count is enough. */}
         <SectionHeader
-          eyebrow={t('events.eyebrow_browse')}
           title={t('events.filtered_results')}
           description={
             events.length === 1
