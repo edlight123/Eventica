@@ -4,6 +4,10 @@ import { getCurrentUser } from '@/lib/auth'
 import { isAdmin } from '@/lib/admin'
 import Navbar from '@/components/Navbar'
 import MobileNavWrapper from '@/components/MobileNavWrapper'
+import PosterFilmStrip from '@/components/home/PosterFilmStrip'
+import HeroPosterFan from '@/components/platform/HeroPosterFan'
+import { getCinemaArtworkEvents } from '@/lib/data/events'
+import { isDemoMode, DEMO_EVENTS } from '@/lib/demo'
 
 export const metadata: Metadata = {
   title: 'Platform | Tikèm',
@@ -18,6 +22,27 @@ export const dynamic = 'force-dynamic'
 /* Device frame + product vignettes (the product shows itself — no     */
 /* feature-icon prose). Pure markup, decorative: hidden from AT.       */
 /* ------------------------------------------------------------------ */
+
+/** The posh move: the artwork's light fills the room behind each phone, so
+    the stage never reads as a small object floating in a black gap. */
+function VignetteStage({
+  glow,
+  children,
+}: {
+  glow: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="relative isolate">
+      <div
+        aria-hidden
+        className="absolute left-1/2 top-1/2 -z-10 h-[480px] w-[480px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[110px]"
+        style={{ background: glow }}
+      />
+      {children}
+    </div>
+  )
+}
 
 function PhoneFrame({ children }: { children: React.ReactNode }) {
   return (
@@ -68,10 +93,20 @@ function MockPoster({
   )
 }
 
-/** 01 — the event page an organizer publishes. */
+/** 01 — the event page an organizer publishes, in good company: two more
+    flyers peek out from behind the phone so the stage reads as a poster wall,
+    not a lone screen. */
 function EventPageVignette() {
   return (
-    <PhoneFrame>
+    <VignetteStage glow="rgba(124,58,237,0.14)">
+      <div className="relative isolate mx-auto w-fit">
+        <div className="absolute -left-16 top-14 -z-10 hidden w-[128px] -rotate-6 opacity-75 sm:block lg:-left-24">
+          <MockPoster from="#f59e0b" to="#7c2d12" glow="rgba(245,158,11,0.28)" />
+        </div>
+        <div className="absolute -right-14 bottom-16 -z-10 hidden w-[118px] rotate-6 opacity-75 sm:block lg:-right-20">
+          <MockPoster from="#e11d48" to="#4c0519" glow="rgba(225,29,72,0.28)" />
+        </div>
+        <PhoneFrame>
       <div className="flex h-full flex-col px-4 pb-4 pt-10">
         <MockPoster
           from="#7c3aed"
@@ -94,14 +129,17 @@ function EventPageVignette() {
           Get tickets
         </div>
       </div>
-    </PhoneFrame>
+        </PhoneFrame>
+      </div>
+    </VignetteStage>
   )
 }
 
 /** 02 — the discover feed the event lands in: a wall of lit posters. */
 function DiscoverVignette() {
   return (
-    <PhoneFrame>
+    <VignetteStage glow="rgba(245,158,11,0.10)">
+      <PhoneFrame>
       <div className="h-full px-4 pt-11">
         <p className="font-display lowercase italic text-[19px] leading-none text-white/90">
           tonight
@@ -137,7 +175,8 @@ function DiscoverVignette() {
           <MockPoster from="#f43f5e" to="#500724" glow="rgba(244,63,94,0.32)" />
         </div>
       </div>
-    </PhoneFrame>
+      </PhoneFrame>
+    </VignetteStage>
   )
 }
 
@@ -146,7 +185,8 @@ function DashboardVignette() {
   // A quiet hour-by-hour sales silhouette; the last bar is teal (live now).
   const bars = [22, 34, 28, 46, 60, 52, 78, 92]
   return (
-    <PhoneFrame>
+    <VignetteStage glow="rgba(124,58,237,0.12)">
+      <PhoneFrame>
       <div className="h-full px-5 pt-11">
         <p className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-white/40">
           <span className="h-1.5 w-1.5 rounded-full bg-brand-400" />
@@ -199,7 +239,8 @@ function DashboardVignette() {
           ))}
         </div>
       </div>
-    </PhoneFrame>
+      </PhoneFrame>
+    </VignetteStage>
   )
 }
 
@@ -224,8 +265,8 @@ function Section({
   flip?: boolean
 }) {
   return (
-    <section className="mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-24 lg:px-8">
-      <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20">
+    <section className="mx-auto max-w-6xl px-5 py-14 sm:px-6 sm:py-20 lg:px-8">
+      <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
         <div className={flip ? 'lg:order-2' : ''}>
           <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/40">
             {index}
@@ -252,16 +293,36 @@ function Section({
 export default async function PlatformPage() {
   const user = await getCurrentUser()
 
+  // Real artwork for the film strip: recent posters already on the platform —
+  // the strongest pitch to an organizer is other organizers' work, lit.
+  const artwork = isDemoMode() ? (DEMO_EVENTS as any[]) : await getCinemaArtworkEvents(20)
+  const posterPool = artwork
+    .filter((e: any) => e?.banner_image_url)
+    .slice(0, 17)
+    .map((e: any) => ({
+      id: String(e.id),
+      title: String(e.title || ''),
+      banner_image_url: String(e.banner_image_url),
+    }))
+  // The hero fan takes the first three posters. With a deep pool the strip
+  // runs on the rest so artwork doesn't repeat in one viewport; with thin
+  // inventory they share posters — a lit wall beats an empty one.
+  const fanEvents = posterPool.slice(0, 3)
+  const stripEvents =
+    posterPool.length >= 7 ? posterPool.slice(3, 17) : posterPool.slice(0, 14)
+
   return (
     <div className="surface-dark min-h-screen pb-mobile-nav">
       <Navbar user={user} isAdmin={isAdmin(user?.email)} />
 
-      {/* HERO — poster voice (uppercase lives here only) + one serif line */}
-      <section className="mx-auto max-w-6xl px-5 pb-16 pt-16 sm:px-6 sm:pb-24 sm:pt-24 lg:px-8">
+      {/* HERO — poster voice (uppercase lives here only) + one serif line,
+          with real artwork fanning out across the right half. */}
+      <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-5 pb-12 pt-14 sm:px-6 sm:pb-16 sm:pt-20 lg:grid-cols-[1.1fr,0.9fr] lg:gap-16 lg:px-8">
+        <div>
         <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/40">
           For organizers
         </p>
-        <h1 className="mt-4 font-grotesk font-bold uppercase !leading-[1.02] tracking-tight text-white !text-[clamp(40px,8vw,96px)]">
+        <h1 className="mt-4 font-grotesk font-bold uppercase !leading-[1.02] tracking-tight text-white !text-[clamp(40px,7vw,88px)]">
           Your event.
           <br />
           Sold out.
@@ -283,9 +344,21 @@ export default async function PlatformPage() {
             Organizer dashboard
           </Link>
         </div>
+        </div>
+        {fanEvents.length === 3 && (
+          <div className="hidden lg:block">
+            <HeroPosterFan events={fanEvents} />
+          </div>
+        )}
+      </section>
 
-        {/* Value props — a quiet hairline row, not boxes */}
-        <div className="mt-16 grid max-w-3xl grid-cols-1 gap-6 border-t border-white/10 pt-8 sm:grid-cols-3">
+      {/* The room, lit by real organizers' posters — every one links to its
+          event. This is the pitch: your artwork belongs on this wall. */}
+      <PosterFilmStrip events={stripEvents} />
+
+      {/* Value props — a quiet hairline row, not boxes */}
+      <section className="mx-auto max-w-6xl px-5 pb-6 pt-10 sm:px-6 sm:pt-12 lg:px-8">
+        <div className="grid max-w-3xl grid-cols-1 gap-6 sm:grid-cols-3">
           {[
             { label: 'No setup fees', sub: 'Publish your first event free' },
             { label: 'HTG & USD', sub: 'Sell at home and in the diaspora' },
@@ -298,10 +371,6 @@ export default async function PlatformPage() {
           ))}
         </div>
       </section>
-
-      <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
-        <div className="hairline" />
-      </div>
 
       {/* 01 — CREATE */}
       <Section
@@ -380,7 +449,7 @@ export default async function PlatformPage() {
 
       {/* SIGN-OFF — de-boxed, the editorial close */}
       <section className="border-t border-white/10">
-        <div className="mx-auto max-w-6xl px-5 py-20 sm:px-6 sm:py-28 lg:px-8">
+        <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-20 lg:px-8">
           <h2 className="font-display lowercase italic !text-[clamp(36px,6vw,72px)] !leading-[1.02] text-white">
             ready to throw your event?
           </h2>
