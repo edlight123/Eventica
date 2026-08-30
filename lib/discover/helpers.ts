@@ -243,12 +243,15 @@ export function getUpcomingEvents(events: Event[], limit: number = 8): Event[] {
  * Get featured events (most popular/highest tickets sold)
  */
 export function getFeaturedEvents(events: Event[], limit: number = 6): Event[] {
+  // Human curation leads (the admin Feature star writes `featured`; legacy
+  // test data wrote `is_featured`), ticket sales fill the rest.
+  const isPick = (e: Event) => ((e as any).featured === true || (e as any).is_featured === true ? 1 : 0)
   return events
     // Exclude events the organizer opted out of Explore/discovery.
     // Only `show_on_explore === false` hides an event; missing/undefined stays visible.
     .filter(e => (e as any).show_on_explore !== false)
-    .filter(e => (e.tickets_sold || 0) > 0)
-    .sort((a, b) => (b.tickets_sold || 0) - (a.tickets_sold || 0))
+    .filter(e => isPick(e) || (e.tickets_sold || 0) > 0)
+    .sort((a, b) => isPick(b) - isPick(a) || (b.tickets_sold || 0) - (a.tickets_sold || 0))
     .slice(0, limit)
 }
 

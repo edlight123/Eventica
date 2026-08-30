@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { CATEGORIES } from '@/lib/filters/config'
-import { Music, Trophy, Palette, Briefcase, PartyPopper, Sparkles, Ticket, Drama, ChevronDown, Check, X } from 'lucide-react'
+import { Music, Trophy, Palette, Briefcase, PartyPopper, Sparkles, Ticket, Drama, UtensilsCrossed, Users, ChevronDown, Check, X } from 'lucide-react'
 
 interface CategoryChipsProps {
   selectedCategories: string[]
@@ -22,6 +22,8 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   'Workshop': <Palette className="h-4 w-4" />,
   'Sports': <Trophy className="h-4 w-4" />,
   'Theater': <Drama className="h-4 w-4" />,
+  'Food & Drink': <UtensilsCrossed className="h-4 w-4" />,
+  'Family': <Users className="h-4 w-4" />,
   'Other': <Ticket className="h-4 w-4" />,
 }
 

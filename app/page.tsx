@@ -49,10 +49,18 @@ export default async function HomePage({
     }
   }
   
-  // Parse filters from URL
+  // Parse filters from URL. Repeated keys (?category=A&category=B — the
+  // cultural-world tiles link this way) arrive as arrays and must be appended
+  // one by one; String() would collapse them into "A,B", which normalizes to
+  // 'Other' and matches nothing.
   const urlParams = new URLSearchParams()
   Object.entries(params).forEach(([key, value]) => {
-    if (value) urlParams.set(key, String(value))
+    if (!value) return
+    if (Array.isArray(value)) {
+      value.forEach((v) => urlParams.append(key, v))
+    } else {
+      urlParams.set(key, String(value))
+    }
   })
   const filters = parseFiltersFromURL(urlParams)
 
@@ -221,6 +229,13 @@ export default async function HomePage({
     })
     .slice(0, 12)
 
+  // Tikèm Picks — the human-curated rail. Admin's Feature star writes
+  // `featured` (legacy test data wrote `is_featured`); curation is scarce, so
+  // picks draw from ALL countries rather than being country-erased.
+  const picksEvents = allCountriesEvents
+    .filter((e: any) => e.featured === true || e.is_featured === true)
+    .slice(0, 8)
+
   // Recently added — newest events on the platform first (by created_at).
   const recentlyAddedEvents = [...prioritizedEvents]
     .filter(notDefinitelyEnded)
@@ -261,6 +276,7 @@ export default async function HomePage({
   const serializedRecentlyAdded = serializeData(recentlyAddedEvents)
   const serializedTonight = serializeData(tonightEvents)
   const serializedDiaspora = serializeData(diasporaEvents)
+  const serializedPicks = serializeData(picksEvents)
 
   // Homepage cinema pools: upcoming artwork first, then the archive of recent
   // past posters — the theatre stays open even when tonight's inventory is
@@ -337,6 +353,7 @@ export default async function HomePage({
             recentlyAddedEvents={serializedRecentlyAdded}
             tonightEvents={serializedTonight}
             diasporaEvents={serializedDiaspora}
+            picksEvents={serializedPicks}
             diasporaIsHome={diasporaIsHome}
             userCountry={userCountry}
             userCity={userCity}

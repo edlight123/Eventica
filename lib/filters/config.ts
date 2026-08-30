@@ -326,6 +326,8 @@ export const CATEGORIES = [
   'Workshop',
   'Sports',
   'Theater',
+  'Food & Drink',
+  'Family',
   'Other',
 ]
 
@@ -356,6 +358,17 @@ const CATEGORY_SYNONYMS: Record<string, string> = {
   art: 'Theater',
   arts: 'Theater',
   'arts & culture': 'Theater',
+  'food & drink': 'Food & Drink',
+  food: 'Food & Drink',
+  'food & culture': 'Food & Drink',
+  gastronomy: 'Food & Drink',
+  gastronomi: 'Food & Drink',
+  dining: 'Food & Drink',
+  brunch: 'Food & Drink',
+  family: 'Family',
+  fanmi: 'Family',
+  kids: 'Family',
+  community: 'Family',
   other: 'Other',
 }
 

@@ -3,6 +3,7 @@
 import { useTranslation } from 'react-i18next'
 import { DiscoverEventCard } from '@/components/discover/DiscoverEventCard'
 import { SectionHeader, EventRail, CategoryRail } from '@/components/ui/EditorialRails'
+import CategoryGrid from '@/components/CategoryGrid'
 import { LOCATION_CONFIG, CATEGORIES } from '@/lib/filters/config'
 import Link from 'next/link'
 import { MapPin, ArrowRight, Search } from 'lucide-react'
@@ -18,6 +19,8 @@ interface HomePageContentProps {
   tonightEvents?: any[]
   /** Events OUTSIDE the visitor's country scope — the identity rail. */
   diasporaEvents?: any[]
+  /** Tikèm Picks — human-curated (admin Feature star). Curation leads the page. */
+  picksEvents?: any[]
   /** True for a diaspora visitor: the rail shows Haiti and reads "back home". */
   diasporaIsHome?: boolean
   userCountry?: string
@@ -64,6 +67,7 @@ export default function HomePageContent({
   recentlyAddedEvents = [],
   tonightEvents = [],
   diasporaEvents = [],
+  picksEvents = [],
   diasporaIsHome = false,
   userCountry = 'HT',
   userCity = '',
@@ -209,13 +213,37 @@ export default function HomePageContent({
     </section>
   )
 
-  // Low inventory: hero (rendered by the parent) + one clean grid, no rails.
+  // Tikèm Picks — human curation leads the page. Deliberately exempt from the
+  // cross-rail dedupe: a pick repeating in tonight/trending is fine, the
+  // endorsement IS the content. Needs 2+ picks to read as a rail.
+  const picksRail =
+    picksEvents.length >= 2 ? (
+      <section>
+        <SectionHeader
+          title={t('events.rail_picks', { defaultValue: 'tikèm picks' })}
+          description={t('events.rail_picks_desc', {
+            defaultValue: 'our favorite events this week',
+          })}
+        />
+        <EventRail events={picksEvents} userCity={userCity} />
+      </section>
+    ) : null
+
+  // Low inventory: hero (rendered by the parent) + picks if any + one clean grid.
   if (isLowInventory) {
-    return <div className="space-y-12 sm:space-y-16">{allEventsGrid}</div>
+    return (
+      <div className="space-y-12 sm:space-y-16">
+        {picksRail}
+        {allEventsGrid}
+      </div>
+    )
   }
 
   return (
     <div className="space-y-12 sm:space-y-16">
+      {/* Tikèm Picks — curation first */}
+      {picksRail}
+
       {/* Tonight — the most urgent rail, always first */}
       {tonightRail.length > 0 && (
         <section>
@@ -330,6 +358,17 @@ export default function HomePageContent({
           ))}
         </section>
       )}
+
+      {/* The cultural worlds — Tikèm's own taxonomy of how Haiti goes out */}
+      <section>
+        <SectionHeader
+          title={t('events.rail_worlds', { defaultValue: 'dekouvri monn ou' })}
+          description={t('events.rail_worlds_desc', {
+            defaultValue: 'discover your world — mizik, kilti, espò and more',
+          })}
+        />
+        <CategoryGrid />
+      </section>
 
       {/* All upcoming events */}
       {allEventsGrid}

@@ -65,8 +65,15 @@ export default function CategoriesContent({ initialCategory }: CategoriesContent
     <PullToRefresh onRefresh={loadEvents}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
         <div className="mb-6 md:mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-white">{t('events.browse_categories')}</h1>
-          <p className="text-[13px] md:text-base text-white/55 mt-1 md:mt-2">{t('events.browse_categories_desc')}</p>
+          {/* Editorial voice: serif lowercase, like every public section header. */}
+          <h1 className="font-display lowercase italic !text-[clamp(28px,4.5vw,40px)] !leading-[1.02] text-white/90">
+            {t('events.rail_worlds', { defaultValue: 'dekouvri monn ou' })}
+          </h1>
+          <p className="mt-2 text-[13px] text-white/55 md:text-[15px]">
+            {t('events.rail_worlds_desc', {
+              defaultValue: 'discover your world — mizik, kilti, espò and more',
+            })}
+          </p>
         </div>
 
         {/* Category Grid */}

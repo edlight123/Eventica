@@ -140,9 +140,10 @@ export function sortEvents(events: Event[], sortBy: EventFilters['sortBy']): Eve
   } else if (sortBy === 'relevance') {
     // Relevance: featured first, then soonest date, then newest created
     sorted.sort((a, b) => {
-      // Featured events first
-      const aFeatured = a.is_featured ? 1 : 0
-      const bFeatured = b.is_featured ? 1 : 0
+      // Featured events first — the admin Feature star writes `featured`;
+      // `is_featured` is the legacy test-data field.
+      const aFeatured = a.featured || a.is_featured ? 1 : 0
+      const bFeatured = b.featured || b.is_featured ? 1 : 0
       if (aFeatured !== bFeatured) return bFeatured - aFeatured
       
       // Then by soonest event date
