@@ -6,6 +6,12 @@ import Navbar from '@/components/Navbar'
 import MobileNavWrapper from '@/components/MobileNavWrapper'
 import PosterFilmStrip from '@/components/home/PosterFilmStrip'
 import HeroPosterFan from '@/components/platform/HeroPosterFan'
+import Reveal from '@/components/platform/Reveal'
+import {
+  EventPageVignette,
+  DiscoverVignette,
+  DashboardVignette,
+} from '@/components/platform/Vignettes'
 import { getCinemaArtworkEvents } from '@/lib/data/events'
 import { isDemoMode, DEMO_EVENTS } from '@/lib/demo'
 
@@ -19,234 +25,9 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 /* ------------------------------------------------------------------ */
-/* Device frame + product vignettes (the product shows itself — no     */
-/* feature-icon prose). Pure markup, decorative: hidden from AT.       */
-/* ------------------------------------------------------------------ */
-
-/** The posh move: the artwork's light fills the room behind each phone, so
-    the stage never reads as a small object floating in a black gap. */
-function VignetteStage({
-  glow,
-  children,
-}: {
-  glow: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="relative isolate">
-      <div
-        aria-hidden
-        className="absolute left-1/2 top-1/2 -z-10 h-[480px] w-[480px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[110px]"
-        style={{ background: glow }}
-      />
-      {children}
-    </div>
-  )
-}
-
-function PhoneFrame({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      aria-hidden
-      className="pointer-events-none mx-auto w-[270px] select-none rounded-[42px] border border-white/10 bg-[#161616] p-2.5 shadow-[0_24px_80px_-24px_rgba(0,0,0,0.8)] sm:w-[290px]"
-    >
-      {/* True phone proportions (9:19.5); taller content crops like a real
-          screenshot instead of stretching the frame. */}
-      <div className="relative aspect-[9/19.5] overflow-hidden rounded-[32px] bg-[#0a0a0a]">
-        {/* dynamic island */}
-        <div className="absolute left-1/2 top-2.5 z-10 h-[18px] w-[76px] -translate-x-1/2 rounded-full bg-[#161616]" />
-        {children}
-      </div>
-    </div>
-  )
-}
-
-/** Stand-in poster artwork: the color is plural because it comes from the
-    art — each fake flyer carries its own hue and radiates it (the glow). */
-function MockPoster({
-  from,
-  to,
-  glow,
-  label,
-  className = '',
-}: {
-  from: string
-  to: string
-  glow: string
-  label?: string
-  className?: string
-}) {
-  return (
-    <div
-      className={`relative flex aspect-[4/5] items-end overflow-hidden rounded p-2.5 ${className}`}
-      style={{
-        backgroundImage: `linear-gradient(150deg, ${from}, ${to} 70%, #000)`,
-        boxShadow: `0 0 28px -4px ${glow}`,
-      }}
-    >
-      {label && (
-        <span className="font-grotesk text-[11px] font-bold uppercase leading-[1.05] tracking-tight text-white/90">
-          {label}
-        </span>
-      )}
-    </div>
-  )
-}
-
-/** 01 — the event page an organizer publishes, in good company: two more
-    flyers peek out from behind the phone so the stage reads as a poster wall,
-    not a lone screen. */
-function EventPageVignette() {
-  return (
-    <VignetteStage glow="rgba(124,58,237,0.14)">
-      <div className="relative isolate mx-auto w-fit">
-        <div className="absolute -left-16 top-14 -z-10 hidden w-[128px] -rotate-6 opacity-75 sm:block lg:-left-24">
-          <MockPoster from="#f59e0b" to="#7c2d12" glow="rgba(245,158,11,0.28)" />
-        </div>
-        <div className="absolute -right-14 bottom-16 -z-10 hidden w-[118px] rotate-6 opacity-75 sm:block lg:-right-20">
-          <MockPoster from="#e11d48" to="#4c0519" glow="rgba(225,29,72,0.28)" />
-        </div>
-        <PhoneFrame>
-      <div className="flex h-full flex-col px-4 pb-4 pt-10">
-        <MockPoster
-          from="#7c3aed"
-          to="#312e81"
-          glow="rgba(124,58,237,0.35)"
-          label="Vèsen live — summer fest"
-        />
-        <p className="mt-3 truncate font-grotesk text-[15px] font-bold text-white">
-          Vèsen Live — Summer Fest
-        </p>
-        <p className="mt-1 text-[11px] text-white/55">Sat 12 Sep · Kay Atizan, Pétion-Ville</p>
-        <p className="mt-1 text-[11px] font-semibold text-brand-400">From 1,500 HTG</p>
-        {/* the rest of the page, suggested */}
-        <div className="mt-4 space-y-2">
-          <div className="h-2 w-full rounded-full bg-white/[0.07]" />
-          <div className="h-2 w-4/5 rounded-full bg-white/[0.07]" />
-          <div className="h-2 w-3/5 rounded-full bg-white/[0.07]" />
-        </div>
-        <div className="mt-auto rounded-xl bg-white py-2.5 text-center text-[12px] font-medium text-black">
-          Get tickets
-        </div>
-      </div>
-        </PhoneFrame>
-      </div>
-    </VignetteStage>
-  )
-}
-
-/** 02 — the discover feed the event lands in: a wall of lit posters. */
-function DiscoverVignette() {
-  return (
-    <VignetteStage glow="rgba(245,158,11,0.10)">
-      <PhoneFrame>
-      <div className="h-full px-4 pt-11">
-        <p className="font-display lowercase italic text-[19px] leading-none text-white/90">
-          tonight
-        </p>
-        <div className="mt-3 grid grid-cols-2 gap-2.5">
-          <div>
-            <MockPoster from="#f59e0b" to="#7c2d12" glow="rgba(245,158,11,0.32)" />
-            <p className="mt-1.5 truncate text-[10px] font-semibold text-white">Kanaval Kickoff</p>
-            <p className="text-[9px] text-white/50">● 214 going</p>
-          </div>
-          <div>
-            <MockPoster from="#e11d48" to="#4c0519" glow="rgba(225,29,72,0.32)" />
-            <p className="mt-1.5 truncate text-[10px] font-semibold text-white">Nuit Kompa</p>
-            <p className="text-[9px] text-white/50">● 96 going</p>
-          </div>
-          <div>
-            <MockPoster from="#0ea5e9" to="#1e3a8a" glow="rgba(14,165,233,0.32)" />
-            <p className="mt-1.5 truncate text-[10px] font-semibold text-white">Plaj Sunset</p>
-            <p className="text-[9px] text-white/50">● 58 going</p>
-          </div>
-          <div>
-            <MockPoster from="#10b981" to="#064e3b" glow="rgba(16,185,129,0.32)" />
-            <p className="mt-1.5 truncate text-[10px] font-semibold text-white">Fèt Champèt</p>
-            <p className="text-[9px] text-white/50">● 143 going</p>
-          </div>
-        </div>
-        {/* the feed keeps going — cropped by the frame like a real screen */}
-        <p className="mt-5 font-display lowercase italic text-[19px] leading-none text-white/90">
-          this weekend
-        </p>
-        <div className="mt-3 grid grid-cols-2 gap-2.5">
-          <MockPoster from="#a855f7" to="#3b0764" glow="rgba(168,85,247,0.32)" />
-          <MockPoster from="#f43f5e" to="#500724" glow="rgba(244,63,94,0.32)" />
-        </div>
-      </div>
-      </PhoneFrame>
-    </VignetteStage>
-  )
-}
-
-/** 03 — the live dashboard on the night. */
-function DashboardVignette() {
-  // A quiet hour-by-hour sales silhouette; the last bar is teal (live now).
-  const bars = [22, 34, 28, 46, 60, 52, 78, 92]
-  return (
-    <VignetteStage glow="rgba(124,58,237,0.12)">
-      <PhoneFrame>
-      <div className="h-full px-5 pt-11">
-        <p className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-white/40">
-          <span className="h-1.5 w-1.5 rounded-full bg-brand-400" />
-          Live · tonight
-        </p>
-        <p className="mt-2.5 font-grotesk text-[30px] font-bold leading-none tracking-tight text-white">
-          482,500 <span className="text-[15px] font-semibold text-white/55">HTG</span>
-        </p>
-        <p className="mt-1.5 text-[11px] text-white/55">1,240 tickets sold</p>
-        <div className="mt-4 flex h-[52px] items-end gap-1.5">
-          {bars.map((h, i) => (
-            <div
-              key={i}
-              className={`flex-1 rounded-sm ${i === bars.length - 1 ? 'bg-brand-400' : 'bg-white/15'}`}
-              style={{ height: `${h}%` }}
-            />
-          ))}
-        </div>
-        <div className="mt-4 space-y-2.5 border-t border-white/10 pt-3.5">
-          <p className="flex items-center justify-between text-[11px]">
-            <span className="text-white/55">Checked in</span>
-            <span className="font-semibold text-white">312 / 400</span>
-          </p>
-          <p className="flex items-center justify-between text-[11px]">
-            <span className="text-white/55">Payout</span>
-            <span className="flex items-center gap-1.5 font-medium text-white">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              Available after event
-            </span>
-          </p>
-        </div>
-        {/* recent orders, rolling in — cropped by the frame */}
-        <p className="mt-5 text-[10px] font-medium uppercase tracking-[0.14em] text-white/40">
-          Recent orders
-        </p>
-        <div className="mt-2.5 space-y-2.5">
-          {[
-            ['Nadège J.', '2 × VIP', '7,000 HTG'],
-            ['Ricardo P.', '4 × General', '6,000 HTG'],
-            ['Fabiola M.', '1 × Early bird', '1,200 HTG'],
-            ['Jean-Marc D.', '2 × General', '3,000 HTG'],
-          ].map(([name, qty, amt]) => (
-            <p key={name as string} className="flex items-center justify-between text-[11px]">
-              <span className="min-w-0">
-                <span className="block truncate font-medium text-white">{name}</span>
-                <span className="text-[10px] text-white/45">{qty}</span>
-              </span>
-              <span className="shrink-0 font-semibold text-white/80">{amt}</span>
-            </p>
-          ))}
-        </div>
-      </div>
-      </PhoneFrame>
-    </VignetteStage>
-  )
-}
-
-/* ------------------------------------------------------------------ */
 /* Editorial section: serif-lowercase heading, de-iconed bullets, the  */
-/* product vignette across from the words.                             */
+/* product vignette across from the words. Everything reveals on       */
+/* scroll — copy first, bullets staggered, the phone last.             */
 /* ------------------------------------------------------------------ */
 
 function Section({
@@ -268,23 +49,27 @@ function Section({
     <section className="mx-auto max-w-6xl px-5 py-14 sm:px-6 sm:py-20 lg:px-8">
       <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
         <div className={flip ? 'lg:order-2' : ''}>
-          <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/40">
-            {index}
-          </p>
-          <h2 className="mt-2 font-display lowercase italic !text-[clamp(28px,4.5vw,44px)] !leading-[1.02] text-white/90">
-            {title}
-          </h2>
-          <p className="mt-4 max-w-md text-[15px] leading-relaxed text-white/55">{blurb}</p>
+          <Reveal>
+            <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/40">
+              {index}
+            </p>
+            <h2 className="mt-2 font-display lowercase italic !text-[clamp(28px,4.5vw,44px)] !leading-[1.02] text-white/90">
+              {title}
+            </h2>
+            <p className="mt-4 max-w-md text-[15px] leading-relaxed text-white/55">{blurb}</p>
+          </Reveal>
           <div className="mt-9 space-y-6">
-            {points.map((p) => (
-              <div key={p.title}>
+            {points.map((p, i) => (
+              <Reveal key={p.title} delay={140 + i * 110}>
                 <h3 className="font-grotesk text-[15px] font-semibold text-white">{p.title}</h3>
                 <p className="mt-1 max-w-md text-[14px] leading-relaxed text-white/55">{p.body}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
-        <div className={flip ? 'lg:order-1' : ''}>{vignette}</div>
+        <div className={flip ? 'lg:order-1' : ''}>
+          <Reveal delay={180}>{vignette}</Reveal>
+        </div>
       </div>
     </section>
   )
@@ -316,34 +101,47 @@ export default async function PlatformPage() {
       <Navbar user={user} isAdmin={isAdmin(user?.email)} />
 
       {/* HERO — poster voice (uppercase lives here only) + one serif line,
-          with real artwork fanning out across the right half. */}
+          with real artwork fanning out across the right half. The copy
+          rises in on load, line by line; the fan follows and then floats. */}
       <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-5 pb-12 pt-14 sm:px-6 sm:pb-16 sm:pt-20 lg:grid-cols-[1.1fr,0.9fr] lg:gap-16 lg:px-8">
         <div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/40">
-          For organizers
-        </p>
-        <h1 className="mt-4 font-grotesk font-bold uppercase !leading-[1.02] tracking-tight text-white !text-[clamp(40px,7vw,88px)]">
-          Your event.
-          <br />
-          Sold out.
-        </h1>
-        <p className="mt-5 max-w-xl font-display lowercase italic !text-[clamp(19px,2.6vw,26px)] !leading-snug text-white/70">
-          create the page, reach the crowd, get paid — in Haiti and the diaspora.
-        </p>
-        <div className="mt-9 flex flex-wrap items-center gap-3">
-          <Link
-            href="/auth/signup"
-            className="inline-flex items-center rounded-xl bg-white px-6 py-3 text-sm font-medium text-black transition-colors duration-200 hover:bg-white/90"
+          <p
+            className="plt-enter text-[11px] font-medium uppercase tracking-[0.14em] text-white/40"
+            style={{ ['--d' as any]: '0s' }}
           >
-            Start organizing
-          </Link>
-          <Link
-            href="/organizer"
-            className="inline-flex items-center rounded-xl border border-white/12 px-6 py-3 text-sm font-normal text-white/80 transition-colors duration-200 hover:border-white/25 hover:text-white"
+            For organizers
+          </p>
+          <h1
+            className="plt-enter mt-4 font-grotesk font-bold uppercase !leading-[1.02] tracking-tight text-white !text-[clamp(40px,7vw,88px)]"
+            style={{ ['--d' as any]: '0.08s' }}
           >
-            Organizer dashboard
-          </Link>
-        </div>
+            Your event.
+            <br />
+            Sold out.
+          </h1>
+          <p
+            className="plt-enter mt-5 max-w-xl font-display lowercase italic !text-[clamp(19px,2.6vw,26px)] !leading-snug text-white/70"
+            style={{ ['--d' as any]: '0.18s' }}
+          >
+            create the page, reach the crowd, get paid — in Haiti and the diaspora.
+          </p>
+          <div
+            className="plt-enter mt-9 flex flex-wrap items-center gap-3"
+            style={{ ['--d' as any]: '0.28s' }}
+          >
+            <Link
+              href="/auth/signup"
+              className="inline-flex items-center rounded-xl bg-white px-6 py-3 text-sm font-medium text-black transition-colors duration-200 hover:bg-white/90"
+            >
+              Start organizing
+            </Link>
+            <Link
+              href="/organizer"
+              className="inline-flex items-center rounded-xl border border-white/12 px-6 py-3 text-sm font-normal text-white/80 transition-colors duration-200 hover:border-white/25 hover:text-white"
+            >
+              Organizer dashboard
+            </Link>
+          </div>
         </div>
         {fanEvents.length === 3 && (
           <div className="hidden lg:block">
@@ -363,11 +161,11 @@ export default async function PlatformPage() {
             { label: 'No setup fees', sub: 'Publish your first event free' },
             { label: 'HTG & USD', sub: 'Sell at home and in the diaspora' },
             { label: 'Fast payouts', sub: 'Get paid after your event' },
-          ].map((s) => (
-            <div key={s.label}>
+          ].map((s, i) => (
+            <Reveal key={s.label} delay={i * 110}>
               <p className="font-grotesk text-[17px] font-bold text-white">{s.label}</p>
               <p className="mt-1 text-[13px] text-white/55">{s.sub}</p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>
@@ -450,30 +248,36 @@ export default async function PlatformPage() {
       {/* SIGN-OFF — de-boxed, the editorial close */}
       <section className="border-t border-white/10">
         <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-20 lg:px-8">
-          <h2 className="font-display lowercase italic !text-[clamp(36px,6vw,72px)] !leading-[1.02] text-white">
-            ready to throw your event?
-          </h2>
-          <p className="mt-4 max-w-lg text-[15px] leading-relaxed text-white/55">
-            Set up your organizer profile and publish your first event today.
-          </p>
-          <p className="mt-3 flex items-center gap-2 text-[13px] text-white/50">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            Verified organizers, trusted by attendees
-          </p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link
-              href="/auth/signup"
-              className="inline-flex items-center rounded-xl bg-white px-6 py-3 text-sm font-medium text-black transition-colors duration-200 hover:bg-white/90"
-            >
-              Start organizing
-            </Link>
-            <Link
-              href="/discover"
-              className="inline-flex items-center rounded-xl border border-white/12 px-6 py-3 text-sm font-normal text-white/80 transition-colors duration-200 hover:border-white/25 hover:text-white"
-            >
-              Explore events
-            </Link>
-          </div>
+          <Reveal>
+            <h2 className="font-display lowercase italic !text-[clamp(36px,6vw,72px)] !leading-[1.02] text-white">
+              ready to throw your event?
+            </h2>
+          </Reveal>
+          <Reveal delay={120}>
+            <p className="mt-4 max-w-lg text-[15px] leading-relaxed text-white/55">
+              Set up your organizer profile and publish your first event today.
+            </p>
+            <p className="mt-3 flex items-center gap-2 text-[13px] text-white/50">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              Verified organizers, trusted by attendees
+            </p>
+          </Reveal>
+          <Reveal delay={220}>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Link
+                href="/auth/signup"
+                className="inline-flex items-center rounded-xl bg-white px-6 py-3 text-sm font-medium text-black transition-colors duration-200 hover:bg-white/90"
+              >
+                Start organizing
+              </Link>
+              <Link
+                href="/discover"
+                className="inline-flex items-center rounded-xl border border-white/12 px-6 py-3 text-sm font-normal text-white/80 transition-colors duration-200 hover:border-white/25 hover:text-white"
+              >
+                Explore events
+              </Link>
+            </div>
+          </Reveal>
         </div>
       </section>
 

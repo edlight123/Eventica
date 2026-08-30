@@ -315,3 +315,185 @@ select:-webkit-autofill {
     transition: none;
   }
 }
+
+/* ================================================================
+   Organizer landing (/platform) motion — the page is a choreography:
+   hero enters, posters float, glows breathe, and each phone plays a
+   living loop of the product. Namespaced `plt-`; reduced motion
+   flattens every one of them at the bottom of this block.
+   ================================================================ */
+
+/* Load-time entrance (hero) — editorial-rise with a per-element delay. */
+.plt-enter {
+  animation: editorial-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--d, 0s);
+}
+
+/* Scroll-time reveal — flipped to .is-seen by an IntersectionObserver. */
+.plt-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--d, 0s);
+}
+.plt-reveal.is-seen {
+  opacity: 1;
+  transform: none;
+}
+
+/* Hero fan posters drift like hung frames; ambient glows breathe. */
+.plt-float {
+  animation: plt-float var(--dur, 7s) ease-in-out var(--d, 0s) infinite;
+}
+@keyframes plt-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-9px); }
+}
+.plt-breathe {
+  animation: plt-breathe 9s ease-in-out infinite;
+}
+@keyframes plt-breathe {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+/* ---- Phone 01: the event page assembles itself, then sells a ticket.
+   One 11s clock; every element keys off the same timeline. ---- */
+.plt-ev-poster { animation: plt-ev-poster 11s cubic-bezier(0.22, 1, 0.36, 1) infinite both; }
+@keyframes plt-ev-poster {
+  0%, 3% { opacity: 0; transform: translateY(10px) scale(0.97); }
+  8% { opacity: 1; transform: none; }
+  93% { opacity: 1; }
+  98%, 100% { opacity: 0; }
+}
+.plt-ev-title { animation: plt-ev-title 11s cubic-bezier(0.22, 1, 0.36, 1) infinite both; }
+@keyframes plt-ev-title {
+  0%, 10% { opacity: 0; transform: translateY(7px); }
+  14% { opacity: 1; transform: none; }
+  93% { opacity: 1; }
+  98%, 100% { opacity: 0; }
+}
+.plt-ev-meta { animation: plt-ev-meta 11s cubic-bezier(0.22, 1, 0.36, 1) infinite both; }
+@keyframes plt-ev-meta {
+  0%, 13% { opacity: 0; transform: translateY(7px); }
+  17% { opacity: 1; transform: none; }
+  93% { opacity: 1; }
+  98%, 100% { opacity: 0; }
+}
+.plt-ev-price { animation: plt-ev-price 11s cubic-bezier(0.22, 1, 0.36, 1) infinite both; }
+@keyframes plt-ev-price {
+  0%, 16% { opacity: 0; transform: translateY(7px); }
+  20% { opacity: 1; transform: none; }
+  93% { opacity: 1; }
+  98%, 100% { opacity: 0; }
+}
+.plt-ev-lines { animation: plt-ev-lines 11s cubic-bezier(0.22, 1, 0.36, 1) infinite both; }
+@keyframes plt-ev-lines {
+  0%, 20% { opacity: 0; }
+  26% { opacity: 1; }
+  93% { opacity: 1; }
+  98%, 100% { opacity: 0; }
+}
+/* The CTA pops in, then takes a press (the sale) at the 45% mark. */
+.plt-ev-cta { animation: plt-ev-cta 11s cubic-bezier(0.22, 1, 0.36, 1) infinite both; }
+@keyframes plt-ev-cta {
+  0%, 24% { opacity: 0; transform: translateY(7px) scale(0.97); }
+  30% { opacity: 1; transform: none; }
+  45% { transform: scale(1); }
+  47% { transform: scale(0.95); }
+  50% { transform: scale(1); }
+  93% { opacity: 1; }
+  98%, 100% { opacity: 0; }
+}
+.plt-ev-toast { animation: plt-ev-toast 11s cubic-bezier(0.22, 1, 0.36, 1) infinite both; }
+@keyframes plt-ev-toast {
+  0%, 54% { opacity: 0; transform: translateY(-12px); }
+  58% { opacity: 1; transform: none; }
+  76% { opacity: 1; transform: none; }
+  81%, 100% { opacity: 0; transform: translateY(-6px); }
+}
+
+/* ---- Phone 02: the discover feed browses itself — scrolls down through
+   three rails, saves an event on the way, and drifts back up. ---- */
+.plt-feed-track { animation: plt-feed 18s cubic-bezier(0.45, 0, 0.25, 1) infinite; }
+@keyframes plt-feed {
+  0%, 10% { transform: translateY(0); }
+  42%, 56% { transform: translateY(-52%); }
+  88%, 100% { transform: translateY(0); }
+}
+.plt-feed-save { animation: plt-feed-save 18s cubic-bezier(0.22, 1, 0.36, 1) infinite both; }
+@keyframes plt-feed-save {
+  0%, 20% { opacity: 0; transform: scale(0.4); }
+  24% { opacity: 1; transform: scale(1.15); }
+  27% { transform: scale(1); }
+  60% { opacity: 1; }
+  66%, 100% { opacity: 0; }
+}
+
+/* ---- Phone 03: the dashboard is live — bars grow when the section is
+   seen, the current hour pulses, orders slide in, the number ticks. ---- */
+.plt-bar {
+  transform: scaleY(0);
+  transform-origin: bottom;
+}
+.plt-reveal.is-seen .plt-bar {
+  animation: plt-bar-grow 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) both;
+}
+.plt-reveal.is-seen .plt-bar-live {
+  animation: plt-bar-grow 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) both,
+    plt-bar-pulse 2.6s ease-in-out 1.6s infinite;
+}
+@keyframes plt-bar-grow {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+@keyframes plt-bar-pulse {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.86); }
+}
+.plt-order-in { animation: plt-order 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes plt-order {
+  0% { opacity: 0; transform: translateY(-10px); background-color: rgba(255, 255, 255, 0.07); }
+  60% { background-color: rgba(255, 255, 255, 0.05); }
+  100% { opacity: 1; transform: none; background-color: transparent; }
+}
+.plt-tick { animation: plt-tick 0.7s ease-out both; }
+@keyframes plt-tick {
+  0% { color: #2dd4bf; }
+  100% { color: #ffffff; }
+}
+.plt-live-dot { animation: plt-dot 2.4s ease-out infinite; }
+@keyframes plt-dot {
+  0% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.45); }
+  70%, 100% { box-shadow: 0 0 0 7px rgba(45, 212, 191, 0); }
+}
+
+/* Reduced motion: the whole choreography flattens to a still page. */
+@media (prefers-reduced-motion: reduce) {
+  .plt-enter,
+  .plt-float,
+  .plt-breathe,
+  .plt-feed-track,
+  .plt-feed-save,
+  .plt-order-in,
+  .plt-tick,
+  .plt-live-dot,
+  .plt-bar,
+  .plt-reveal.is-seen .plt-bar,
+  .plt-reveal.is-seen .plt-bar-live,
+  [class^='plt-ev-'],
+  [class*=' plt-ev-'] {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .plt-bar {
+    transform: none;
+  }
+  .plt-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
