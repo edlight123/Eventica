@@ -359,10 +359,21 @@ export default function HomePageContent({
         </section></Reveal>
       )}
 
-      {/* All upcoming events. (The cultural worlds render as full scroll
-          chapters after this store — WorldsChapters in app/page.tsx — so the
-          flat grid section retired from the home; it lives on /categories.) */}
-      {allEventsGrid}
+      {/* The exhaustive "all events" grid retired from the full home
+          (2026-08-31): it broke the feed's rhythm, and /discover is the real
+          catalog. It remains the low-inventory fallback above and the
+          filtered view's grid. One quiet door to the catalog closes the store. */}
+      <Reveal>
+        <div className="flex justify-center">
+          <Link
+            href="/discover"
+            className="group inline-flex items-center gap-2 rounded-xl border border-white/12 px-6 py-2.5 text-sm font-medium text-white/80 transition-colors duration-200 hover:border-white/25 hover:text-white"
+          >
+            {t('events.explore_all')}
+            <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+          </Link>
+        </div>
+      </Reveal>
     </div>
   )
 }

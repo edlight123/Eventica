@@ -46,7 +46,7 @@ export default function Footer() {
   return (
     <footer
       aria-label={t('footer.landmark', { defaultValue: 'Site footer' })}
-      className="border-t border-white/10 bg-[#0a0a0a]"
+      className="bg-[#0a0a0a]"
     >
       <div className="mx-auto max-w-7xl px-4 pb-28 pt-12 sm:px-6 md:pb-12 lg:px-8">
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-2 md:grid-cols-4">
@@ -97,7 +97,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom row */}
-        <div className="mt-12 border-t border-white/10 pt-6">
+        <div className="mt-14 pt-2">
           <p className="text-xs text-white/40">
             {t('footer.copyright', { year, defaultValue: '© {{year}} Tikèm' })}
           </p>

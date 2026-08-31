@@ -12,7 +12,7 @@ const APP_STORE_URL = 'https://apps.apple.com/app/id6794334427'
 export default function HomeOutro() {
   const { t } = useTranslation('common')
   return (
-    <section className="border-b border-white/10 bg-[#0a0a0a]">
+    <section className="bg-[#0a0a0a]">
       <div className="mx-auto max-w-6xl px-5 py-24 sm:px-6 sm:py-32 lg:px-8">
         <h2 className="font-display lowercase italic !text-[clamp(44px,8vw,104px)] !leading-[1.02] text-white">
           {t('home.outro', { defaultValue: 'nou wè aswè a.' })}

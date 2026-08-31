@@ -94,7 +94,7 @@ export default function CitiesShowcase({ cities }: { cities: CityShowcaseEntry[]
     <section
       ref={sectionRef}
       aria-label={t('home.cities_title', { defaultValue: 'Cities' })}
-      className="relative isolate overflow-hidden border-y border-white/10 bg-[#0a0a0a]"
+      className="relative isolate overflow-hidden bg-[#0a0a0a]"
       style={{ ['--p' as any]: 0.5 }}
       onMouseEnter={() => {
         hovering.current = true

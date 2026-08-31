@@ -67,7 +67,7 @@ function Chapter({ world, flip }: { world: WorldChapterData; flip: boolean }) {
   return (
     <section
       data-chapter
-      className="relative isolate overflow-hidden border-t border-white/10"
+      className="relative isolate overflow-hidden"
       style={{ ['--p' as any]: 0.5 }}
     >
       {/* the world's light */}
@@ -193,7 +193,7 @@ export default function WorldsChapters({
       ))}
 
       {/* the remaining worlds, quietly */}
-      <div className="border-t border-white/10">
+      <div>
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-2 gap-y-1 px-4 py-6 text-[14px] text-white/55 sm:px-6 lg:px-8">
           <Link href={moreHref} className="transition-colors hover:text-white">
             gastronomi

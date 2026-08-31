@@ -111,7 +111,7 @@ export default function HeroPase({
     <section
       ref={ref}
       onMouseMove={onMouseMove}
-      className="relative isolate flex min-h-[78vh] items-center overflow-hidden border-b border-white/10 sm:min-h-[84vh]"
+      className="relative isolate flex min-h-[78vh] items-center overflow-hidden sm:min-h-[84vh]"
     >
       {/* the floating room — desktop only; mobile stays type-first, the film
           strip right below carries the artwork */}

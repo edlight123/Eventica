@@ -25,7 +25,7 @@ export default function PosterFilmStrip({ events }: { events: StripEvent[] }) {
   return (
     <section
       aria-label="Event posters"
-      className="film-strip group relative isolate overflow-hidden border-b border-white/10 bg-[#0a0a0a] py-6"
+      className="film-strip group relative isolate overflow-hidden bg-[#0a0a0a] py-6"
     >
       <div className="film-strip-track flex w-max gap-3 motion-reduce:w-auto motion-reduce:overflow-x-auto">
         {track.map((ev, i) => (

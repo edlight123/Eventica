@@ -315,6 +315,11 @@ export default async function HomePage({
       ...posterShape(e),
       city: e.city ? String(e.city) : undefined,
       venue_name: e.venue_name ? String(e.venue_name) : undefined,
+      // Pricing signals so the in-phone cards show the real price label.
+      ticket_price: e.ticket_price ?? null,
+      currency: e.currency ?? null,
+      is_rsvp: e.is_rsvp ?? undefined,
+      has_paid_tiers: e.has_paid_tiers ?? undefined,
     }))
   const appScrubHero = serializeData(
     heroPosterPool.find((e: any) => e.featured === true || e.is_featured === true) ||
@@ -347,7 +352,9 @@ export default async function HomePage({
 
   return (
     <div className="surface-dark min-h-screen pb-mobile-nav">
-      <Navbar user={user} isAdmin={isAdmin(user?.email)} />
+      {/* flush: the homepage is one dark canvas — no hairline under the nav.
+          (The filtered band draws its own working-state rule.) */}
+      <Navbar user={user} isAdmin={isAdmin(user?.email)} flush />
       
       {/* Location Detection Banner */}
       <LocationBannerWrapper 
