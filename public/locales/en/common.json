@@ -271,7 +271,21 @@
     "claim_too_many": "You can claim at most 10 free tickets at a time.",
     "claim_generic_error": "Could not claim your ticket. Please try again.",
     "claim_failed_title": "Could not claim your ticket",
-    "promo_free_claim_failed_title": "This promo code needs checkout"
+    "promo_free_claim_failed_title": "This promo code needs checkout",
+    "hero_tagline": "where Haiti goes out.",
+    "hero_pase_line1": "Sa k ap",
+    "hero_pase_line2": "pase?",
+    "hero_pase_sub": "concerts, fèt, festivals — in Haiti and the diaspora.",
+    "rail_picks": "tikèm picks",
+    "rail_picks_desc": "our favorite events this week",
+    "rail_worlds": "dekouvri monn ou",
+    "rail_worlds_desc": "discover your world — mizik, kilti, espò and more",
+    "worlds_eyebrow": "Dekouvri",
+    "all_worlds": "all worlds",
+    "rail_tonight": "tonight",
+    "rail_back_home": "back home in Haiti",
+    "rail_diaspora": "in the diaspora",
+    "rail_diaspora_desc": "Miami · New York · Montréal · Paris"
   },
   "favorites": {
     "title": "My Favorites",
@@ -490,7 +504,8 @@
     "support": "Support",
     "privacy": "Privacy",
     "terms": "Terms",
-    "refunds": "Refunds"
+    "refunds": "Refunds",
+    "tagline_short": "where haiti goes out."
   },
   "admin": {
     "search_placeholder": "Search events...",

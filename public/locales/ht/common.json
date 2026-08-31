@@ -271,7 +271,21 @@
     "claim_too_many": "Ou ka pran maksimòm 10 tikè gratis alafwa.",
     "claim_generic_error": "Nou pa t ka ba ou tikè a. Tanpri eseye ankò.",
     "claim_failed_title": "Nou pa t ka ba ou tikè a",
-    "promo_free_claim_failed_title": "Kòd pwomo sa a mande pou ou pase nan kès la"
+    "promo_free_claim_failed_title": "Kòd pwomo sa a mande pou ou pase nan kès la",
+    "hero_tagline": "kote Ayiti soti.",
+    "hero_pase_line1": "Sa k ap",
+    "hero_pase_line2": "pase?",
+    "hero_pase_sub": "konsè, fèt, festival — an Ayiti ak nan dyaspora a.",
+    "rail_picks": "chwa tikèm",
+    "rail_picks_desc": "evènman nou pi renmen semèn sa a",
+    "rail_worlds": "dekouvri monn ou",
+    "rail_worlds_desc": "dekouvri monn ou — mizik, kilti, espò ak plis",
+    "worlds_eyebrow": "Dekouvri",
+    "all_worlds": "tout monn yo",
+    "rail_tonight": "aswè a",
+    "rail_back_home": "lakay an Ayiti",
+    "rail_diaspora": "nan dyaspora a",
+    "rail_diaspora_desc": "Miami · New York · Montréal · Paris"
   },
   "favorites": {
     "title": "Favori mwen",
@@ -490,7 +504,8 @@
     "support": "Sipò",
     "privacy": "Konfidansyalite",
     "terms": "Kondisyon",
-    "refunds": "Ranbousman"
+    "refunds": "Ranbousman",
+    "tagline_short": "kote ayiti soti."
   },
   "admin": {
     "search_placeholder": "Chèche evènman...",

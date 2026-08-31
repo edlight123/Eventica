@@ -271,7 +271,21 @@
     "claim_too_many": "Vous pouvez réclamer au maximum 10 billets gratuits à la fois.",
     "claim_generic_error": "Impossible de réclamer votre billet. Veuillez réessayer.",
     "claim_failed_title": "Impossible de réclamer votre billet",
-    "promo_free_claim_failed_title": "Ce code promo nécessite le paiement"
+    "promo_free_claim_failed_title": "Ce code promo nécessite le paiement",
+    "hero_tagline": "là où Haïti sort.",
+    "hero_pase_line1": "Sa k ap",
+    "hero_pase_line2": "pase?",
+    "hero_pase_sub": "concerts, fêtes, festivals — en Haïti et dans la diaspora.",
+    "rail_picks": "sélection tikèm",
+    "rail_picks_desc": "nos événements préférés cette semaine",
+    "rail_worlds": "dekouvri monn ou",
+    "rail_worlds_desc": "découvrez votre monde — mizik, kilti, espò et plus",
+    "worlds_eyebrow": "Dekouvri",
+    "all_worlds": "tous les mondes",
+    "rail_tonight": "ce soir",
+    "rail_back_home": "au pays, en Haïti",
+    "rail_diaspora": "dans la diaspora",
+    "rail_diaspora_desc": "Miami · New York · Montréal · Paris"
   },
   "favorites": {
     "title": "Mes favoris",
@@ -490,7 +504,8 @@
     "support": "Assistance",
     "privacy": "Confidentialité",
     "terms": "Conditions",
-    "refunds": "Remboursements"
+    "refunds": "Remboursements",
+    "tagline_short": "là où haïti sort."
   },
   "admin": {
     "search_placeholder": "Rechercher des événements...",
