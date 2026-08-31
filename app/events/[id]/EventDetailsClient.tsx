@@ -198,10 +198,10 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
               <div className="flex flex-wrap gap-x-12 gap-y-6 border-t border-white/10 pt-6">
                 <div>
                   <p className="eyebrow mb-1.5 text-[10px] text-white/50">{t('events.date_time')}</p>
-                  <p className="text-[15px] text-white">
+                  <p className="text-[15px] text-white" suppressHydrationWarning>
                     {format(new Date(event.start_datetime), 'EEE, MMM d, yyyy')}
                   </p>
-                  <p className="text-[13px] text-white/60">
+                  <p className="text-[13px] text-white/60" suppressHydrationWarning>
                     {format(new Date(event.start_datetime), 'h:mm a')}
                   </p>
                 </div>
@@ -364,20 +364,20 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
               <div className="flex flex-wrap gap-x-12 gap-y-4">
                 <div>
                   <p className="eyebrow mb-1.5 text-[10px] text-white/50">{t('events.start')}</p>
-                  <p className="text-[15px] text-white">
+                  <p className="text-[15px] text-white" suppressHydrationWarning>
                     {format(new Date(event.start_datetime), 'EEEE, MMMM d, yyyy')}
                   </p>
-                  <p className="text-[13px] text-white/60">
+                  <p className="text-[13px] text-white/60" suppressHydrationWarning>
                     {format(new Date(event.start_datetime), 'h:mm a')}
                   </p>
                 </div>
                 {event.end_datetime && (
                   <div>
                     <p className="eyebrow mb-1.5 text-[10px] text-white/50">{t('events.end')}</p>
-                    <p className="text-[15px] text-white">
+                    <p className="text-[15px] text-white" suppressHydrationWarning>
                       {format(new Date(event.end_datetime), 'EEEE, MMMM d, yyyy')}
                     </p>
-                    <p className="text-[13px] text-white/60">
+                    <p className="text-[13px] text-white/60" suppressHydrationWarning>
                       {format(new Date(event.end_datetime), 'h:mm a')}
                     </p>
                   </div>

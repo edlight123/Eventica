@@ -13,6 +13,23 @@ type Event = Database['public']['Tables']['events']['Row']
 /**
  * Format event date/time for display
  */
+/**
+ * Coerce any stored event date shape — ISO string, Firestore Timestamp
+ * ({toDate}), plain {seconds}, or Date — to a Date, or null when invalid.
+ * The field-type drift is documented: legacy docs carry Timestamps where
+ * newer ones carry ISO strings, and type-sensitive comparisons silently
+ * drop one shape or the other. Route every date read through this.
+ */
+export function coerceEventDate(v: any): Date | null {
+  if (!v) return null
+  let d: Date
+  if (typeof v?.toDate === 'function') d = v.toDate()
+  else if (typeof v?.seconds === 'number') d = new Date(v.seconds * 1000)
+  else if (v instanceof Date) d = v
+  else d = new Date(v)
+  return Number.isNaN(d.getTime()) ? null : d
+}
+
 export function formatEventDate(datetime: string): string {
   const date = parseISO(datetime)
   

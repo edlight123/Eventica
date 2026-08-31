@@ -109,7 +109,11 @@ export function PosterCard({
           {title}
         </h3>
         {(venue || dateLabel) && (
-          <p className="mt-1 truncate text-[13px] text-white/55">
+          // suppressHydrationWarning: the date label is formatted in the
+          // runtime's timezone, so the server (UTC) and the visitor's browser
+          // can legitimately disagree — React should adopt the client text
+          // instead of logging a recoverable hydration mismatch (#425).
+          <p className="mt-1 truncate text-[13px] text-white/55" suppressHydrationWarning>
             {venue}
             {venue && dateLabel && <span className="text-white/30"> · </span>}
             {dateLabel}

@@ -8,6 +8,7 @@ import type { Database } from '@/types/database'
 import { isDemoMode, DEMO_EVENTS } from '@/lib/demo'
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton'
 import { firebaseDb } from '@/lib/firebase-db/client'
+import { coerceEventDate } from '@/lib/discover/helpers'
 import { useTranslation } from 'react-i18next'
 
 type Event = Database['public']['Tables']['events']['Row']
@@ -27,23 +28,47 @@ export default function CategoriesContent({ initialCategory }: CategoriesContent
       if (isDemoMode()) {
         setEvents(DEMO_EVENTS as Event[])
       } else {
-        // Filter by category server-side (and cap the result) instead of fetching every
-        // published event and filtering in JS. Matches lib/data/events.ts getDiscoverEvents.
+        // Filter by category server-side, but do the DATE cut in memory: the
+        // stored start_datetime is a string on newer docs and a Firestore
+        // Timestamp on legacy ones, and a type-sensitive gte-string constraint
+        // silently drops every Timestamp doc — including future events.
         let query = firebaseDb
           .from('events')
           .select('*')
           .eq('is_published', true)
-          .gte('start_datetime', new Date().toISOString())
 
         if (initialCategory) {
           query = query.eq('category', initialCategory)
         }
 
-        const { data } = await query
-          .order('start_datetime', { ascending: true })
-          .limit(50)
+        const { data } = await query.limit(100)
 
-        setEvents(data || [])
+        const now = Date.now()
+        const upcoming = (data || [])
+          // Normalize both date shapes to ISO strings so the cards (parseISO)
+          // and the filters below see one consistent type.
+          .map((e: any) => ({
+            ...e,
+            start_datetime: coerceEventDate(e.start_datetime)?.toISOString() ?? e.start_datetime,
+            end_datetime: coerceEventDate(e.end_datetime)?.toISOString() ?? e.end_datetime,
+          }))
+          .filter((e: any) => {
+            const start = coerceEventDate(e.start_datetime)
+            const end = coerceEventDate(e.end_datetime)
+            if (end) return end.getTime() >= now
+            // No end time: keep if it hasn't started, or started < a week ago
+            // (could be ongoing) — the same leniency the homepage uses.
+            if (start) return start.getTime() >= now - 7 * 24 * 3_600_000
+            return true
+          })
+          .sort((a: any, b: any) => {
+            const ta = coerceEventDate(a.start_datetime)?.getTime() ?? Infinity
+            const tb = coerceEventDate(b.start_datetime)?.getTime() ?? Infinity
+            return ta - tb
+          })
+          .slice(0, 50)
+
+        setEvents(upcoming as Event[])
       }
     } finally {
       setLoading(false)
