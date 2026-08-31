@@ -48,8 +48,7 @@ function ChapterPoster({
         href={`/events/${poster.id}`}
         prefetch={false}
         tabIndex={-1}
-        data-cursor="view"
-        className={`block aspect-[4/5] w-full overflow-hidden rounded ${rotate}`}
+        className={`block aspect-[4/5] w-full overflow-hidden rounded transition-transform duration-300 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:scale-[1.04] ${rotate}`}
         style={{ boxShadow: `0 0 48px -6px rgba(${accent},0.32)` }}
       >
         <Image src={poster.banner_image_url} alt="" fill sizes="200px" quality={60} className="object-cover" />
@@ -80,6 +79,17 @@ function Chapter({ world, flip }: { world: WorldChapterData; flip: boolean }) {
         }}
       />
 
+      {/* the word's ghost echo — drifts the OPPOSITE way, a layer deeper */}
+      <div
+        aria-hidden
+        className={`absolute bottom-2 -z-10 whitespace-nowrap font-grotesk font-bold uppercase tracking-[-0.02em] text-white/[0.045] !leading-none text-[26vw] ${
+          flip ? 'left-[-4vw]' : 'right-[-4vw]'
+        }`}
+        style={{ transform: 'translate3d(calc((var(--p, 0.5) - 0.5) * 10vw), 0, 0)' }}
+      >
+        {world.label}
+      </div>
+
       {/* posters drift as you pass — desktop only */}
       <div className="absolute inset-0 hidden md:block">
         {world.posters.slice(0, POSTER_SLOTS.length).map((p, i) => (
@@ -95,7 +105,7 @@ function Chapter({ world, flip }: { world: WorldChapterData; flip: boolean }) {
 
       <div className="mx-auto flex min-h-[56vh] max-w-7xl flex-col justify-center px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
         {/* the word IS the artwork: giant, drifting against the scroll */}
-        <Link href={world.href} data-cursor="explore" className="group block w-fit outline-none focus-visible:ring-2 focus-visible:ring-brand-400">
+        <Link href={world.href} className="group block w-fit outline-none focus-visible:ring-2 focus-visible:ring-brand-400">
           <h2
             className="whitespace-nowrap font-grotesk font-bold uppercase tracking-[-0.02em] text-white transition-colors duration-300 group-hover:text-white/90 !leading-[0.95] !text-[clamp(52px,11vw,150px)]"
             style={{ transform: 'translate3d(calc((0.5 - var(--p, 0.5)) * 9vw), 0, 0)' }}
@@ -111,7 +121,6 @@ function Chapter({ world, flip }: { world: WorldChapterData; flip: boolean }) {
         </p>
         <Link
           href={world.href}
-          data-cursor="explore"
           className="group mt-7 inline-flex w-fit items-center gap-1.5 text-[13px] font-medium text-brand-400 transition-colors hover:text-brand-300"
         >
           explore {world.label}
@@ -186,19 +195,19 @@ export default function WorldsChapters({
       {/* the remaining worlds, quietly */}
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-2 gap-y-1 px-4 py-6 text-[14px] text-white/55 sm:px-6 lg:px-8">
-          <Link href={moreHref} data-cursor="explore" className="transition-colors hover:text-white">
+          <Link href={moreHref} className="transition-colors hover:text-white">
             gastronomi
           </Link>
           <span className="text-white/25">·</span>
-          <Link href={moreHref} data-cursor="explore" className="transition-colors hover:text-white">
+          <Link href={moreHref} className="transition-colors hover:text-white">
             biznis
           </Link>
           <span className="text-white/25">·</span>
-          <Link href={moreHref} data-cursor="explore" className="transition-colors hover:text-white">
+          <Link href={moreHref} className="transition-colors hover:text-white">
             fanmi
           </Link>
           <span className="text-white/25">·</span>
-          <Link href={moreHref} data-cursor="explore" className="transition-colors hover:text-white">
+          <Link href={moreHref} className="transition-colors hover:text-white">
             eksperyans
           </Link>
           <Link

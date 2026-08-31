@@ -537,5 +537,13 @@
     "delete_selected": "Delete Selected",
     "feature": "Feature Event",
     "unfeature": "Unfeature Event"
+  },
+  "home": {
+    "appscrub_a": "one feed. every fèt.",
+    "appscrub_b": "tap. peye. antre.",
+    "appscrub_c": "ou ladan — you’re in.",
+    "appscrub_cta": "explore events",
+    "appscrub_ticket": "Your ticket",
+    "appscrub_valid": "valid · 1 × General"
   }
 }

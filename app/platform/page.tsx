@@ -6,7 +6,7 @@ import Navbar from '@/components/Navbar'
 import MobileNavWrapper from '@/components/MobileNavWrapper'
 import PosterFilmStrip from '@/components/home/PosterFilmStrip'
 import HeroPosterFan from '@/components/platform/HeroPosterFan'
-import Reveal from '@/components/platform/Reveal'
+import Reveal from '@/components/ui/Reveal'
 import {
   EventPageVignette,
   DiscoverVignette,

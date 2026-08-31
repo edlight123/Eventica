@@ -537,5 +537,13 @@
     "delete_selected": "Efase seleksyon",
     "feature": "Mete an vedèt",
     "unfeature": "Retire nan vedèt"
+  },
+  "home": {
+    "appscrub_a": "yon sèl feed. tout fèt yo.",
+    "appscrub_b": "tap. peye. antre.",
+    "appscrub_c": "ou ladan.",
+    "appscrub_cta": "gade evènman yo",
+    "appscrub_ticket": "Tikè ou",
+    "appscrub_valid": "valid · 1 × Jeneral"
   }
 }

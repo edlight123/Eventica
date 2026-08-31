@@ -127,7 +127,6 @@ export function PosterCard({
       <Link
         href={href}
         onClick={onClick}
-        data-cursor="view"
         className={`block h-full rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black ${className}`}
       >
         {inner}

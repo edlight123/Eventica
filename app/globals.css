@@ -469,76 +469,36 @@ select:-webkit-autofill {
   70%, 100% { box-shadow: 0 0 0 7px rgba(45, 212, 191, 0); }
 }
 
-/* ---- The custom cursor (components/Cursor.tsx): a dot that IS the
-   pointer and a lagging ring. Interactive elements grow the ring;
-   data-cursor elements turn it into a labeled pill. Text fields keep the
-   native caret. Mounted on public routes, fine pointers only. ---- */
-.tk-cursor-on,
-.tk-cursor-on * {
-  cursor: none !important;
+/* ---- Cities theatre v2: the collage breathes; the active city's underline
+   sweeps in time with the 3.5s auto-advance. ---- */
+.tk-kenburns {
+  animation: tk-kenburns 9s ease-in-out infinite alternate;
 }
-.tk-cursor-on :is(input, textarea, select),
-.tk-cursor-on :is(input, textarea, select) * {
-  cursor: auto !important;
+@keyframes tk-kenburns {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.09) translate3d(1.5%, -1.5%, 0);
+  }
 }
-.tk-cursor-dot {
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 100;
-  height: 6px;
-  width: 6px;
-  border-radius: 999px;
-  background: #fff;
-  mix-blend-mode: difference;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
+.tk-city-sweep {
+  width: 0;
+  animation: tk-city-sweep 3.5s linear both;
 }
-.tk-cursor-ring {
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 99;
-  display: grid;
-  place-items: center;
-  height: 34px;
-  width: 34px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background: transparent;
-  pointer-events: none;
-  transition: height 0.25s cubic-bezier(0.22, 1, 0.36, 1),
-    width 0.25s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.25s ease,
-    border-color 0.25s ease, opacity 0.25s ease;
-}
-.tk-cursor-ring[data-kind='link'] {
-  height: 48px;
-  width: 48px;
-  border-color: rgba(255, 255, 255, 0.55);
-}
-.tk-cursor-ring[data-kind='label'] {
-  height: 56px;
-  width: 56px;
-  border-color: transparent;
-  background: #fff;
-}
-.tk-cursor-label {
-  display: none;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #000;
-}
-.tk-cursor-ring[data-kind='label'] .tk-cursor-label {
-  display: block;
-}
-.tk-cursor-ring[data-kind='label'] + .tk-cursor-dot {
-  opacity: 0;
+@keyframes tk-city-sweep {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
 }
 
 /* Reduced motion: the whole choreography flattens to a still page. */
 @media (prefers-reduced-motion: reduce) {
+  .tk-kenburns,
+  .tk-city-sweep,
   .plt-enter,
   .plt-float,
   .plt-breathe,

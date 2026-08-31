@@ -58,7 +58,6 @@ function FloatingPoster({
             href={`/events/${ev.id}`}
             prefetch={false}
             tabIndex={-1}
-            data-cursor="view"
             className={`block aspect-[4/5] w-full overflow-hidden rounded transition-opacity duration-200 hover:opacity-90 ${rotate}`}
             style={{ boxShadow: `0 0 56px -6px rgba(${accent},0.35)` }}
           >

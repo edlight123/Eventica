@@ -3,6 +3,7 @@ import Navbar from '@/components/Navbar'
 import MobileNavWrapper from '@/components/MobileNavWrapper'
 import HeroSection from '@/components/HeroSection'
 import HeroPase from '@/components/home/HeroPase'
+import AppScrub from '@/components/home/AppScrub'
 import WorldsChapters from '@/components/home/WorldsChapters'
 import HomePageContent from '@/components/HomePageContent'
 import PosterFilmStrip from '@/components/home/PosterFilmStrip'
@@ -304,6 +305,23 @@ export default async function HomePage({
   ].filter((e: any) => e.banner_image_url)
   const heroPosters = heroPosterPool.slice(0, 5).map(posterShape)
 
+  // "Inside the app" (AppScrub): the pinned phone whose screen is driven by
+  // page scroll. Feed = the artwork pool with city captions; the story opens
+  // and tickets the top pick (falls back to the pool's first poster).
+  const appScrubEvents = cinemaPool
+    .filter((e: any) => e.banner_image_url)
+    .slice(0, 10)
+    .map((e: any) => ({
+      ...posterShape(e),
+      city: e.city ? String(e.city) : undefined,
+      venue_name: e.venue_name ? String(e.venue_name) : undefined,
+    }))
+  const appScrubHero = serializeData(
+    heroPosterPool.find((e: any) => e.featured === true || e.is_featured === true) ||
+      heroPosterPool[0] ||
+      null
+  )
+
   // The worlds journey: four immersive chapters, each carrying its own real
   // posters from the pool (a chapter with none still renders — the word and
   // the wash carry it).
@@ -388,6 +406,8 @@ export default async function HomePage({
           app and organizer doors. */}
       {!hasActiveFilters && (
         <>
+          {/* Inside the app: the pinned phone scrubbed by page scroll. */}
+          <AppScrub events={appScrubEvents} hero={appScrubHero} />
           {/* The worlds journey — scrolling through Haitian life. */}
           <WorldsChapters worlds={worldsData} />
           <PosterChapter events={chapterEvents} />

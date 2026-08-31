@@ -3,6 +3,7 @@
 import { useTranslation } from 'react-i18next'
 import { DiscoverEventCard } from '@/components/discover/DiscoverEventCard'
 import { SectionHeader, EventRail, CategoryRail } from '@/components/ui/EditorialRails'
+import Reveal from '@/components/ui/Reveal'
 import { LOCATION_CONFIG, CATEGORIES } from '@/lib/filters/config'
 import Link from 'next/link'
 import { MapPin, ArrowRight, Search } from 'lucide-react'
@@ -217,7 +218,7 @@ export default function HomePageContent({
   // endorsement IS the content. Needs 2+ picks to read as a rail.
   const picksRail =
     picksEvents.length >= 2 ? (
-      <section>
+      <Reveal><section>
         <SectionHeader
           title={t('events.rail_picks', { defaultValue: 'tikèm picks' })}
           description={t('events.rail_picks_desc', {
@@ -225,7 +226,7 @@ export default function HomePageContent({
           })}
         />
         <EventRail events={picksEvents} userCity={userCity} />
-      </section>
+      </section></Reveal>
     ) : null
 
   // Low inventory: hero (rendered by the parent) + picks if any + one clean grid.
@@ -245,19 +246,19 @@ export default function HomePageContent({
 
       {/* Tonight — the most urgent rail, always first */}
       {tonightRail.length > 0 && (
-        <section>
+        <Reveal><section>
           <SectionHeader
             title={t('events.rail_tonight', { defaultValue: 'tonight' })}
             href="/discover?date=today"
             cta={t('common.viewAll')}
           />
           <EventRail events={tonightRail} userCity={userCity} />
-        </section>
+        </section></Reveal>
       )}
 
       {/* In the diaspora / back home — the identity rail */}
       {diasporaRail.length > 0 && (
-        <section>
+        <Reveal><section>
           <SectionHeader
             title={
               diasporaIsHome
@@ -273,12 +274,12 @@ export default function HomePageContent({
             }
           />
           <EventRail events={diasporaRail} userCity={userCity} />
-        </section>
+        </section></Reveal>
       )}
 
       {/* Trending — editorial rail */}
       {trendingRail.length > 0 && (
-        <section>
+        <Reveal><section>
           <SectionHeader
             eyebrow={t('events.eyebrow_trending')}
             title={t('events.trending_now')}
@@ -287,12 +288,12 @@ export default function HomePageContent({
             cta={t('common.viewAll')}
           />
           <EventRail events={trendingRail} userCity={userCity} />
-        </section>
+        </section></Reveal>
       )}
 
       {/* Recently added — newest on the platform */}
       {recentlyAddedRail.length > 0 && (
-        <section>
+        <Reveal><section>
           <SectionHeader
             eyebrow={t('events.eyebrow_new')}
             title={t('events.recently_added')}
@@ -301,12 +302,12 @@ export default function HomePageContent({
             cta={t('common.viewAll')}
           />
           <EventRail events={recentlyAddedRail} userCity={userCity} />
-        </section>
+        </section></Reveal>
       )}
 
       {/* Near you (when a location is set) / Events in country — editorial rail */}
       {countryRail.length > 0 && (
-        <section>
+        <Reveal><section>
           {nearLocation ? (
             <SectionHeader
               eyebrow={nearLocation}
@@ -325,12 +326,12 @@ export default function HomePageContent({
             />
           )}
           <EventRail events={countryRail} userCity={userCity} />
-        </section>
+        </section></Reveal>
       )}
 
       {/* This week — editorial rail */}
       {thisWeekRail.length > 0 && (
-        <section>
+        <Reveal><section>
           <SectionHeader
             eyebrow={t('events.eyebrow_week')}
             title={t('events.this_week')}
@@ -339,12 +340,12 @@ export default function HomePageContent({
             cta={t('common.viewAll')}
           />
           <EventRail events={thisWeekRail} userCity={userCity} />
-        </section>
+        </section></Reveal>
       )}
 
       {/* Per-category rails (mirrors mobile) — header + carousel, no wrapper */}
       {categoryRails.length > 0 && (
-        <section className="space-y-10 sm:space-y-12">
+        <Reveal><section className="space-y-10 sm:space-y-12">
           {categoryRails.map(({ category, events: categoryEvents }) => (
             <CategoryRail
               key={category}
@@ -355,7 +356,7 @@ export default function HomePageContent({
               userCity={userCity}
             />
           ))}
-        </section>
+        </section></Reveal>
       )}
 
       {/* All upcoming events. (The cultural worlds render as full scroll

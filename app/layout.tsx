@@ -8,7 +8,6 @@ import { I18nProvider } from '@/components/I18nProvider'
 import Footer from '@/components/Footer'
 import { FeeConfigProvider } from '@/components/FeeConfigProvider'
 import SmoothScroll from '@/components/SmoothScroll'
-import Cursor from '@/components/Cursor'
 import { getPlatformFeeSettings } from '@/lib/checkout/fee-config-server'
 
 // Body / UI typeface
@@ -131,10 +130,8 @@ export default async function RootLayout({
         the footer to the bottom where it belongs.
       */}
       <body className={inter.className + ' mobile-typography min-h-dvh flex flex-col'}>
-        {/* Lenis inertial scroll + the custom cursor on public surfaces
-            (both no-op on consoles/flows, touch, and reduced motion). */}
+        {/* Lenis inertial scroll on public surfaces (no-op on consoles/flows). */}
         <SmoothScroll />
-        <Cursor />
         <FeeConfigProvider config={feeConfig}>
           <I18nProvider>
             <ToastProvider>
