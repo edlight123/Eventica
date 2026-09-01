@@ -10,7 +10,7 @@
 // scrolling stays native everywhere (Lenis default); reduced-motion visitors
 // never get the library at all.
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 import Lenis from 'lenis'
 
@@ -29,6 +29,7 @@ const NATIVE_SCROLL_PREFIXES = [
 export default function SmoothScroll() {
   const pathname = usePathname() || '/'
   const enabled = !NATIVE_SCROLL_PREFIXES.some((p) => pathname.startsWith(p))
+  const lenisRef = useRef<Lenis | null>(null)
 
   useEffect(() => {
     if (!enabled) return
@@ -40,6 +41,7 @@ export default function SmoothScroll() {
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
     })
+    lenisRef.current = lenis
 
     let rafId = 0
     const raf = (time: number) => {
@@ -51,8 +53,18 @@ export default function SmoothScroll() {
     return () => {
       cancelAnimationFrame(rafId)
       lenis.destroy()
+      lenisRef.current = null
     }
   }, [enabled])
+
+  // New route: Next resets the window to the top, but the surviving Lenis
+  // instance still holds the OLD position and would glide right back to it —
+  // landing readers mid-page. Snap its internal state to the top as well.
+  // (Query-only changes — e.g. /?city= filters — don't change the pathname,
+  // so in-page filtering keeps its scroll position.)
+  useEffect(() => {
+    lenisRef.current?.scrollTo(0, { immediate: true, force: true })
+  }, [pathname])
 
   return null
 }
