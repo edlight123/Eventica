@@ -16,7 +16,8 @@
     "settings": "Paramètres",
     "signIn": "Se connecter",
     "signOut": "Se déconnecter",
-    "resources": "Guides"
+    "resources": "Guides",
+    "createEvent": "Créer un événement"
   },
   "common": {
     "free": "GRATUIT",
@@ -675,6 +676,7 @@
       "tab_events": "Événements",
       "tab_scan": "Scanner",
       "tab_team": "Équipe"
-    }
+    },
+    "cta_create": "Créez votre premier événement"
   }
 }

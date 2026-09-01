@@ -241,11 +241,12 @@ export default function ResourcesContent() {
             </p>
           </Reveal>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+            {/* Straight into the composer — no account needed until publish. */}
             <Link
-              href="/auth/signup"
+              href="/create"
               className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-7 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-700"
             >
-              {t('resources.cta_start')}
+              {t('resources.cta_create')}
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link

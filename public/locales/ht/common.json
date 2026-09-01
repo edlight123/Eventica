@@ -16,7 +16,8 @@
     "settings": "Paramèt",
     "signIn": "Konekte",
     "signOut": "Dekonekte",
-    "resources": "Gid"
+    "resources": "Gid",
+    "createEvent": "Kreye evènman"
   },
   "common": {
     "free": "GRATIS",
@@ -675,6 +676,7 @@
       "tab_events": "Evènman",
       "tab_scan": "Skane",
       "tab_team": "Ekip"
-    }
+    },
+    "cta_create": "Kreye premye evènman w"
   }
 }

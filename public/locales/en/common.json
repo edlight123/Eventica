@@ -16,7 +16,8 @@
     "settings": "Settings",
     "signIn": "Sign In",
     "signOut": "Sign Out",
-    "resources": "Guides"
+    "resources": "Guides",
+    "createEvent": "Create event"
   },
   "common": {
     "free": "FREE",
@@ -675,6 +676,7 @@
       "tab_events": "Events",
       "tab_scan": "Scan",
       "tab_team": "Team"
-    }
+    },
+    "cta_create": "Create your first event"
   }
 }

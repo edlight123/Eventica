@@ -225,7 +225,7 @@ export default function OrganizerScrub() {
             </div>
             <div className="mt-6" style={{ opacity: still ? 1 : Math.max(c4, 0) }}>
               <Link
-                href="/auth/signup"
+                href="/create"
                 className="group inline-flex items-center gap-1.5 text-[13px] font-medium text-brand-400 transition-colors hover:text-brand-300"
                 tabIndex={still || c4 > 0.5 ? 0 : -1}
               >

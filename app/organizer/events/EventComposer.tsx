@@ -122,7 +122,19 @@ interface EventComposerProps {
   event?: any
   /** Existing ticket tiers for the event being edited. */
   initialTiers?: TicketTier[]
+  /**
+   * GUEST mode (/create): anyone can compose the whole event signed out. The
+   * form autosaves to localStorage; the save button routes through sign-up
+   * (or the become-organizer step when `authed`), and /organizer/events/new
+   * restores the draft afterwards — nothing typed is lost to the login wall.
+   */
+  guest?: boolean
+  /** Guest mode only: the visitor IS signed in, just not an organizer yet. */
+  authed?: boolean
 }
+
+/** Where a signed-out composition survives the trip through sign-up. */
+const DRAFT_KEY = 'tikem:event-draft'
 
 interface TicketTier {
   id: string
@@ -237,6 +249,8 @@ export default function EventComposer({
   isVerified = false,
   event,
   initialTiers,
+  guest = false,
+  authed = false,
 }: EventComposerProps) {
   const router = useRouter()
   const { showToast } = useToast()
@@ -358,6 +372,85 @@ export default function EventComposer({
   const [isPublished, setIsPublished] = useState(!!event?.is_published)
   const [publishing, setPublishing] = useState(false)
 
+  // ── Guest draft: restore ──────────────────────────────────────────────
+  // Create mode only. Runs in an effect (not initializers) so SSR and the
+  // first client render agree, then the draft lands in one pass. The same
+  // restore serves both /create (guest returning) and /organizer/events/new
+  // (fresh organizer arriving from the sign-up trip).
+  useEffect(() => {
+    if (isEdit) return
+    let d: any = null
+    try {
+      d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null')
+    } catch {
+      /* unreadable draft — start clean */
+    }
+    if (!d || typeof d !== 'object' || !d.title) return
+    const s0 = splitISO(d.start_datetime)
+    const e0 = splitISO(d.end_datetime)
+    if (d.ticket_name === 'RSVP') setSellMode('rsvp')
+    setTitle(d.title || '')
+    if (d.summary) {
+      setSummary(d.summary)
+      setShowSummary(true)
+    }
+    if (d.banner_image_url) setBannerUrl(d.banner_image_url)
+    if (s0.date) setStartDate(s0.date)
+    if (s0.time) setStartTime(s0.time)
+    if (e0.date) setEndDate(e0.date)
+    if (e0.time) setEndTime(e0.time)
+    if (d.description && d.description !== d.summary) {
+      setDescription(d.description)
+      setShowDescription(true)
+    }
+    if (d.address) setAddress(d.address)
+    if (d.venue_name) setVenueName(d.venue_name)
+    if (d.category) setCategory(d.category)
+    if (d.is_online) setIsOnline(true)
+    if (d.city) setCity(d.city)
+    if (d.currency) setCurrency(normalizeEventCurrencyForCountry('HT', d.currency))
+    if (Array.isArray(d.tiers) && d.tiers.length > 0) {
+      setTiers(
+        d.tiers.map((t: any) => ({
+          id: makeId(),
+          name: t.name || '',
+          price: String(t.price ?? 0),
+          qty: String(t.quantity ?? 100),
+          salesStart: isoToLocalInput(t.sales_start),
+          salesEnd: isoToLocalInput(t.sales_end),
+          validFrom: isoToLocalInput(t.valid_from),
+          validUntil: isoToLocalInput(t.valid_until),
+        }))
+      )
+    }
+    if (Array.isArray(d.guestlist) && d.guestlist.length > 0) {
+      setGuests(
+        d.guestlist
+          .map((g: any) => ({ id: makeId(), name: g?.name || '', role: (g?.role as GuestRole) || 'Performer' }))
+          .filter((g: any) => g.name)
+      )
+    }
+    if (d.show_guestlist === false) setShowGuestlist(false)
+    if (d.show_on_explore === false) setShowOnExplore(false)
+    if (d.fee_incidence) setPassFeesToBuyer(d.fee_incidence === 'buyer')
+    if (d.enable_waitlist) setEnableWaitlist(true)
+    if (d.spotify_url) setSpotifyUrl(d.spotify_url)
+    if (d.video_url) setVideoUrl(d.video_url)
+    if (d.theme_key) setThemeKey(d.theme_key)
+    if (d.title_font) setTitleFont(d.title_font)
+    if (d.accent_color) setAccentColor(d.accent_color)
+    if (!guest) {
+      showToast({
+        type: 'success',
+        title: 'Welcome back',
+        message: 'We kept your event draft — review it and hit Create.',
+        duration: 4500,
+      })
+    }
+    // Restore is a one-time mount concern by design.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // ── Region payout-profile nudge (tester feedback, 2026-08-12/29) ──
   // An event's country decides WHICH payout profile pays out: Haiti profile
   // (MonCash/bank, verified by Tikèm) vs the Stripe profile (US·CA·FR events).
@@ -366,6 +459,7 @@ export default function EventComposer({
   const [payoutProfileGap, setPayoutProfileGap] = useState<null | 'haiti' | 'stripe_connect'>(null)
   useEffect(() => {
     if (isDemoMode()) return
+    if (guest) return // no organizer yet — nothing to nudge about
     let cancelled = false
     ;(async () => {
       try {
@@ -546,6 +640,24 @@ export default function EventComposer({
     return { data, cleanTiers, isRsvp }
   }
 
+  // ── Guest draft: autosave ─────────────────────────────────────────────
+  // Debounced snapshot on every change while composing signed-out, so even a
+  // closed tab keeps the work. (organizer_id in the snapshot is '' and is
+  // ignored on restore.)
+  useEffect(() => {
+    if (!guest) return
+    const id = setTimeout(() => {
+      try {
+        if (!title.trim()) return
+        const { data, cleanTiers } = buildEventData()
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...data, tiers: cleanTiers }))
+      } catch {
+        /* storage unavailable — the save click still carries the draft */
+      }
+    }, 600)
+    return () => clearTimeout(id)
+  })
+
   // Replace the tier set for an event (mirrors the existing editor's behaviour).
   const syncTiers = async (
     eventId: string,
@@ -647,6 +759,25 @@ export default function EventComposer({
           : 'Protected events need an access code of at least 6 characters.',
         duration: 4000,
       })
+      return
+    }
+
+    // GUEST: the whole form is valid — park it and walk them through the door.
+    // Sign-up (or the become-organizer step) redirects back to
+    // /organizer/events/new, whose restore effect picks the draft right up.
+    if (guest) {
+      try {
+        const { data, cleanTiers } = buildEventData()
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...data, tiers: cleanTiers }))
+      } catch {
+        /* storage unavailable — they'll retype after sign-in, same as today */
+      }
+      const target = '/organizer/events/new'
+      router.push(
+        authed
+          ? `/organizer?redirect=${encodeURIComponent(target)}`
+          : `/auth/signup?redirect=${encodeURIComponent(target)}`
+      )
       return
     }
 
@@ -780,6 +911,9 @@ export default function EventComposer({
           }
           if (i === 0) firstId = occ?.id || ''
         }
+        try {
+          localStorage.removeItem(DRAFT_KEY)
+        } catch {}
         showToast({
           type: 'success',
           title: 'Series created',
@@ -798,6 +932,9 @@ export default function EventComposer({
         await syncTiers(created.id, cleanTiers, isRsvp)
         await writeAccessHash(created.id)
       }
+      try {
+        localStorage.removeItem(DRAFT_KEY)
+      } catch {}
       showToast({ type: 'success', title: 'Draft created', message: 'Review the details, then Publish below.', duration: 4000 })
       router.push(`/organizer/events/${created.id}/edit`)
       router.refresh()
@@ -1466,8 +1603,19 @@ export default function EventComposer({
         {/* ===================== RIGHT — flyer + style ===================== */}
         <div className="order-1 lg:order-2">
           <div className="space-y-4 lg:sticky lg:top-24">
-            {/* Flyer */}
-            <ImageUpload variant="flyer" currentImage={bannerUrl} onImageUploaded={(url) => setBannerUrl(url)} />
+            {/* Flyer — uploads need an account (storage rules), so guests get
+                a friendly slot instead of a broken uploader. */}
+            {guest ? (
+              <div className="flex aspect-[4/5] flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-white/15 bg-white/[0.02] p-6 text-center">
+                <ImageIcon className="h-7 w-7 text-white/30" />
+                <p className="text-sm font-medium text-white/70">Your poster comes after sign-in</p>
+                <p className="text-xs leading-relaxed text-white/45">
+                  Fill in everything else — it all travels with you through sign-up.
+                </p>
+              </div>
+            ) : (
+              <ImageUpload variant="flyer" currentImage={bannerUrl} onImageUploaded={(url) => setBannerUrl(url)} />
+            )}
 
             {/* Spotify */}
             <div className="flex items-center gap-3 rounded-xl border border-white/10 px-4">
@@ -1582,7 +1730,11 @@ export default function EventComposer({
               disabled={saving}
               className="w-full rounded-xl bg-brand-600 px-7 py-3.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isEdit
+              {guest
+                ? authed
+                  ? 'Continue — set up your organizer profile'
+                  : 'Continue — sign up to publish'
+                : isEdit
                 ? saving
                   ? 'Saving…'
                   : 'Save changes'
@@ -1619,6 +1771,10 @@ export default function EventComposer({
                   </p>
                 )}
               </>
+            ) : guest ? (
+              <p className="text-center text-xs text-white/70">
+                Free to set up — your draft is saved on this device, nothing is lost at sign-in.
+              </p>
             ) : (
               <p className="text-center text-xs text-white/70">Saved as a private draft — publish when you&rsquo;re ready.</p>
             )}

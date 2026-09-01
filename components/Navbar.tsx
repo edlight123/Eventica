@@ -143,6 +143,19 @@ export default function Navbar({ user, isAdmin = false, flush = false }: NavbarP
               >
                 {t('nav.resources', { defaultValue: 'Guides' })}
               </Link>
+              {/* Churn guard: composing an event never requires an account
+                  up front — guests build the whole thing at /create and only
+                  meet sign-up at publish. Organizers go straight in. */}
+              <Link
+                href={user?.role === 'organizer' ? '/organizer/events/new' : '/create'}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  pathname?.startsWith('/create') || pathname?.startsWith('/organizer/events/new')
+                    ? 'text-white'
+                    : 'text-white/70 hover:bg-white/5 hover:text-white'
+                }`}
+              >
+                {t('nav.createEvent', { defaultValue: 'Create event' })}
+              </Link>
             </div>
           </div>
 
@@ -329,6 +342,15 @@ export default function Navbar({ user, isAdmin = false, flush = false }: NavbarP
                 }`}
               >
                 {t('nav.resources', { defaultValue: 'Guides' })}
+              </Link>
+              <Link
+                href={user?.role === 'organizer' ? '/organizer/events/new' : '/create'}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+                  pathname?.startsWith('/create') ? 'text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                }`}
+              >
+                {t('nav.createEvent', { defaultValue: 'Create event' })}
               </Link>
               {user && (
                 <>
