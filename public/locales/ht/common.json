@@ -285,7 +285,9 @@
     "rail_tonight": "aswè a",
     "rail_back_home": "lakay an Ayiti",
     "rail_diaspora": "nan dyaspora a",
-    "rail_diaspora_desc": "Miami · New York · Montréal · Paris"
+    "rail_diaspora_desc": "Miami · New York · Montréal · Paris",
+    "get_tickets": "Pran tikè",
+    "no_matches_hint": "Pa gen rezilta — peze Enter pou chèche tout"
   },
   "favorites": {
     "title": "Favori mwen",
@@ -544,6 +546,135 @@
     "appscrub_c": "ou ladan.",
     "appscrub_cta": "gade evènman yo",
     "appscrub_ticket": "Tikè ou",
-    "appscrub_valid": "valid · 1 × Jeneral"
+    "appscrub_valid": "valid · 1 × Jeneral",
+    "chapter_a": "afich la se envitasyon an.",
+    "chapter_b": "yon sèl tap, ou ladan.",
+    "cities_eyebrow": "kote Ayiti soti — toupatou",
+    "cities_title": "Vil yo",
+    "create_event": "Kreye yon evènman",
+    "get_app": "Telechaje app la",
+    "outro": "nou wè aswè a.",
+    "outro_sub": "n a wè aswè a — tikèm"
+  },
+  "resources": {
+    "hero_eyebrow": "gid & resous",
+    "hero_line1": "Vann",
+    "hero_line2": "tout.",
+    "hero_sub": "tout playbook la pou òganize evènman sou Tikèm — li l sou entènèt, kenbe pdf la. an anglè, en français, an kreyòl.",
+    "c1_kicker": "Pou òganizatè yo",
+    "c1_title": "Kontwole sal la",
+    "c1_blurb": "Depi premye evènman w jiskaske w vann tout epi w touche — sis lekti, nan lòd.",
+    "c2_kicker": "Pou piblik la",
+    "c2_title": "Antre",
+    "c2_blurb": "Jwenn fèt la, peye jan w abitye deja, antre ak telefòn ou.",
+    "c3_kicker": "Konsènan Tikèm",
+    "c3_title": "Pi gwo plan an",
+    "c3_blurb": "Sa n ap bati, ak repons pou kesyon moun poze pi souvan.",
+    "outro_sub": "Ou li playbook la. Premye evènman w ap pran anviwon senk minit.",
+    "cta_start": "Kòmanse",
+    "cta_support": "Jwenn èd",
+    "guides": {
+      "organizer_program": {
+        "title": "Pwogram òganizatè a",
+        "body": "Kòmanse la. Sa Tikèm ye, ak poukisa òganizatè yo vann tout ak li."
+      },
+      "create_event": {
+        "title": "Kreye premye evènman w",
+        "body": "Senk etap yo: enfo, kote, orè, tikè, pibliye."
+      },
+      "poster_guide": {
+        "title": "Gid afich ak mak",
+        "body": "Kijan pou fè yon afich ki kanpe scroll la — atizay, pa yon flyer."
+      },
+      "pricing_playbook": {
+        "title": "Playbook pri ak pwomo",
+        "body": "Nivo pri yo, koub early-bird la, ak kòd pwomo ki mache."
+      },
+      "getting_paid": {
+        "title": "Touche lajan w",
+        "body": "Vann anvan, verifye yon sèl fwa, retire lajan via MonCash oswa bank."
+      },
+      "team_door": {
+        "title": "Ekip ou ak pòt ou",
+        "body": "Envite staff, regle aksè, epi skane tikè nan pòt la."
+      },
+      "ticket_guide": {
+        "title": "Gid tikè w",
+        "body": "Jwenn yon evènman, peye ak MonCash, montre QR ou nan pòt la."
+      },
+      "one_pager": {
+        "title": "One-pager Tikèm nan",
+        "body": "Platfòm evènman Ayiti a — pwoblèm, pwodui, modèl."
+      },
+      "faq": {
+        "title": "Èd ak FAQ",
+        "body": "Kesyon òganizatè ak piblik la poze pi souvan, ak repons yo."
+      }
+    },
+    "covers": {
+      "create": {
+        "label": "KREYE",
+        "title": "premye evènman w"
+      },
+      "poster": {
+        "label": "AFICH",
+        "title": "atizay, pa flyer"
+      },
+      "payouts": {
+        "label": "LAJAN",
+        "title": "touche lajan w"
+      },
+      "door": {
+        "label": "PÒT LA",
+        "title": "ekip ak skan"
+      },
+      "tickets": {
+        "label": "TIKÈ",
+        "title": "antre fasil"
+      },
+      "start": {
+        "label": "KÒMANSE",
+        "title": "pwogram nan"
+      }
+    },
+    "scrub": {
+      "eyebrow": "Konsòl òganizatè a",
+      "cap1": "kreye evènman w nan kèk minit.",
+      "link1": "gid kreyasyon an",
+      "cap2": "gade l ap vann — an dirèk.",
+      "link2": "playbook pri a",
+      "cap3": "ekip ou, nan pòt la.",
+      "link3": "gid ekip ak pòt la",
+      "cap4": "skane. tcheke. antre.",
+      "link4": "gid ekip ak pòt la",
+      "cta": "vin yon òganizatè",
+      "new_event": "Nouvo evènman",
+      "title": "Tit",
+      "venue": "Kote",
+      "date": "Dat",
+      "tickets": "Tikè",
+      "publish": "Pibliye evènman an",
+      "publish_note": "Li vivan sou Tikèm depi w tape.",
+      "revenue_live": "Revni · an dirèk",
+      "sold": "vann",
+      "of": "sou",
+      "recent_orders": "Dènye kòmand yo",
+      "team": "Ekip",
+      "you": "(ou menm)",
+      "owner": "Mèt",
+      "checkin": "Staff check-in",
+      "promoter": "Pwomotè",
+      "invited_now": "fenk envite",
+      "pending": "ap tann",
+      "invite_by": "Envite pa telefòn oswa imel",
+      "staff_note": "Staff yo sèlman wè pòt la — yo pa janm wè lajan w.",
+      "door_scan": "Skan nan pòt la",
+      "valid": "Valid — kite l antre",
+      "scanned": "skane · mache san entènèt",
+      "tab_overview": "Apèsi",
+      "tab_events": "Evènman",
+      "tab_scan": "Skane",
+      "tab_team": "Ekip"
+    }
   }
 }

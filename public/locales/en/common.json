@@ -285,7 +285,9 @@
     "rail_tonight": "tonight",
     "rail_back_home": "back home in Haiti",
     "rail_diaspora": "in the diaspora",
-    "rail_diaspora_desc": "Miami · New York · Montréal · Paris"
+    "rail_diaspora_desc": "Miami · New York · Montréal · Paris",
+    "get_tickets": "Get tickets",
+    "no_matches_hint": "No matches — press Enter to search all"
   },
   "favorites": {
     "title": "My Favorites",
@@ -544,6 +546,135 @@
     "appscrub_c": "ou ladan — you’re in.",
     "appscrub_cta": "explore events",
     "appscrub_ticket": "Your ticket",
-    "appscrub_valid": "valid · 1 × General"
+    "appscrub_valid": "valid · 1 × General",
+    "chapter_a": "the poster is the invitation.",
+    "chapter_b": "one tap and you’re in.",
+    "cities_eyebrow": "where Haiti goes out — everywhere",
+    "cities_title": "Cities",
+    "create_event": "Create an event",
+    "get_app": "Get the app",
+    "outro": "nou wè aswè a.",
+    "outro_sub": "see you tonight — tikèm"
+  },
+  "resources": {
+    "hero_eyebrow": "guides & resources",
+    "hero_line1": "Sell",
+    "hero_line2": "out.",
+    "hero_sub": "the full playbook for running events on Tikèm — read it online, keep the pdf. an anglè, en français, an kreyòl.",
+    "c1_kicker": "For organizers",
+    "c1_title": "Run the room",
+    "c1_blurb": "From your first event to selling out and getting paid — six reads, in order.",
+    "c2_kicker": "For attendees",
+    "c2_title": "Get in",
+    "c2_blurb": "Find the fèt, pay the way you already do, and walk in with your phone.",
+    "c3_kicker": "About Tikèm",
+    "c3_title": "The bigger picture",
+    "c3_blurb": "What we're building, and the answers to the most common questions.",
+    "outro_sub": "You've read the playbook. Your first event takes about five minutes.",
+    "cta_start": "Get started",
+    "cta_support": "Get support",
+    "guides": {
+      "organizer_program": {
+        "title": "The Organizer Program",
+        "body": "Start here. What Tikèm is, and why organizers sell out with it."
+      },
+      "create_event": {
+        "title": "Create Your First Event",
+        "body": "The five-step flow: basics, location, schedule, tickets, publish."
+      },
+      "poster_guide": {
+        "title": "Poster & Brand Guide",
+        "body": "How to make a scroll-stopping poster — art, not a flyer."
+      },
+      "pricing_playbook": {
+        "title": "Pricing & Promo Playbook",
+        "body": "Tier ladders, the early-bird curve, and promo codes that work."
+      },
+      "getting_paid": {
+        "title": "Getting Paid & Payouts",
+        "body": "Sell first, verify once, cash out via MonCash or bank."
+      },
+      "team_door": {
+        "title": "Your Team & Your Door",
+        "body": "Invite staff, set access, and scan tickets at the door."
+      },
+      "ticket_guide": {
+        "title": "Your Ticket Guide",
+        "body": "Find an event, pay with MonCash, and show your QR at the door."
+      },
+      "one_pager": {
+        "title": "Tikèm One-Pager",
+        "body": "The events platform for Haiti — problem, product, and model."
+      },
+      "faq": {
+        "title": "Help & FAQ",
+        "body": "The questions organizers and attendees ask most, answered."
+      }
+    },
+    "covers": {
+      "create": {
+        "label": "CREATE",
+        "title": "your first event"
+      },
+      "poster": {
+        "label": "POSTER",
+        "title": "art, not a flyer"
+      },
+      "payouts": {
+        "label": "PAYOUTS",
+        "title": "getting paid"
+      },
+      "door": {
+        "label": "THE DOOR",
+        "title": "team & scanning"
+      },
+      "tickets": {
+        "label": "TICKETS",
+        "title": "get in, no hassle"
+      },
+      "start": {
+        "label": "START",
+        "title": "the program"
+      }
+    },
+    "scrub": {
+      "eyebrow": "The organizer console",
+      "cap1": "create your event in minutes.",
+      "link1": "the create guide",
+      "cap2": "watch it sell — live.",
+      "link2": "the pricing playbook",
+      "cap3": "your team, at the door.",
+      "link3": "the team & door guide",
+      "cap4": "scan. check. antre.",
+      "link4": "the team & door guide",
+      "cta": "become an organizer",
+      "new_event": "New event",
+      "title": "Title",
+      "venue": "Venue",
+      "date": "Date",
+      "tickets": "Tickets",
+      "publish": "Publish event",
+      "publish_note": "Live on Tikèm the second you tap.",
+      "revenue_live": "Revenue · live",
+      "sold": "sold",
+      "of": "of",
+      "recent_orders": "Recent orders",
+      "team": "Team",
+      "you": "(you)",
+      "owner": "Owner",
+      "checkin": "Check-in staff",
+      "promoter": "Promoter",
+      "invited_now": "invited just now",
+      "pending": "pending",
+      "invite_by": "Invite by phone or email",
+      "staff_note": "Staff only see the door — never your money.",
+      "door_scan": "Door scan",
+      "valid": "Valid — let them in",
+      "scanned": "scanned · offline-ready",
+      "tab_overview": "Overview",
+      "tab_events": "Events",
+      "tab_scan": "Scan",
+      "tab_team": "Team"
+    }
   }
 }

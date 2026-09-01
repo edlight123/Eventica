@@ -285,7 +285,9 @@
     "rail_tonight": "ce soir",
     "rail_back_home": "au pays, en Haïti",
     "rail_diaspora": "dans la diaspora",
-    "rail_diaspora_desc": "Miami · New York · Montréal · Paris"
+    "rail_diaspora_desc": "Miami · New York · Montréal · Paris",
+    "get_tickets": "Acheter des billets",
+    "no_matches_hint": "Aucun résultat — appuyez sur Entrée pour tout chercher"
   },
   "favorites": {
     "title": "Mes favoris",
@@ -544,6 +546,135 @@
     "appscrub_c": "ou ladan — vous y êtes.",
     "appscrub_cta": "explorer les événements",
     "appscrub_ticket": "Votre billet",
-    "appscrub_valid": "valide · 1 × Général"
+    "appscrub_valid": "valide · 1 × Général",
+    "chapter_a": "l’affiche, c’est l’invitation.",
+    "chapter_b": "un geste, et vous êtes dedans.",
+    "cities_eyebrow": "là où Haïti sort — partout",
+    "cities_title": "Villes",
+    "create_event": "Créer un événement",
+    "get_app": "Télécharger l’app",
+    "outro": "nou wè aswè a.",
+    "outro_sub": "à ce soir — tikèm"
+  },
+  "resources": {
+    "hero_eyebrow": "guides & ressources",
+    "hero_line1": "Vendez",
+    "hero_line2": "tout.",
+    "hero_sub": "le playbook complet pour organiser sur Tikèm — à lire en ligne, à garder en pdf. an anglè, en français, an kreyòl.",
+    "c1_kicker": "Pour les organisateurs",
+    "c1_title": "Menez la salle",
+    "c1_blurb": "De votre premier événement jusqu’au guichet fermé et au paiement — six lectures, dans l’ordre.",
+    "c2_kicker": "Pour le public",
+    "c2_title": "Entrez",
+    "c2_blurb": "Trouvez la fête, payez comme vous le faites déjà, entrez avec votre téléphone.",
+    "c3_kicker": "À propos de Tikèm",
+    "c3_title": "La vue d’ensemble",
+    "c3_blurb": "Ce que nous construisons, et les réponses aux questions les plus fréquentes.",
+    "outro_sub": "Vous avez lu le playbook. Votre premier événement prend environ cinq minutes.",
+    "cta_start": "Commencer",
+    "cta_support": "Obtenir de l’aide",
+    "guides": {
+      "organizer_program": {
+        "title": "Le programme organisateur",
+        "body": "Commencez ici. Ce qu’est Tikèm, et pourquoi les organisateurs font salle comble avec."
+      },
+      "create_event": {
+        "title": "Créez votre premier événement",
+        "body": "Le parcours en cinq étapes : infos, lieu, horaire, billets, publication."
+      },
+      "poster_guide": {
+        "title": "Guide affiche & marque",
+        "body": "Comment faire une affiche qui arrête le scroll — de l’art, pas un flyer."
+      },
+      "pricing_playbook": {
+        "title": "Playbook prix & promo",
+        "body": "Les paliers de prix, la courbe early-bird, et les codes promo qui marchent."
+      },
+      "getting_paid": {
+        "title": "Encaissements & paiements",
+        "body": "Vendez d’abord, vérifiez une fois, encaissez via MonCash ou la banque."
+      },
+      "team_door": {
+        "title": "Votre équipe & votre porte",
+        "body": "Invitez le staff, gérez les accès, scannez les billets à la porte."
+      },
+      "ticket_guide": {
+        "title": "Votre guide billet",
+        "body": "Trouvez un événement, payez avec MonCash, montrez votre QR à la porte."
+      },
+      "one_pager": {
+        "title": "Le one-pager Tikèm",
+        "body": "La plateforme événementielle d’Haïti — problème, produit, modèle."
+      },
+      "faq": {
+        "title": "Aide & FAQ",
+        "body": "Les questions les plus fréquentes des organisateurs et du public, avec réponses."
+      }
+    },
+    "covers": {
+      "create": {
+        "label": "CRÉER",
+        "title": "votre premier événement"
+      },
+      "poster": {
+        "label": "AFFICHE",
+        "title": "de l’art, pas un flyer"
+      },
+      "payouts": {
+        "label": "PAIEMENTS",
+        "title": "être payé"
+      },
+      "door": {
+        "label": "LA PORTE",
+        "title": "équipe & scan"
+      },
+      "tickets": {
+        "label": "BILLETS",
+        "title": "entrez sans tracas"
+      },
+      "start": {
+        "label": "DÉBUT",
+        "title": "le programme"
+      }
+    },
+    "scrub": {
+      "eyebrow": "La console organisateur",
+      "cap1": "créez votre événement en quelques minutes.",
+      "link1": "le guide création",
+      "cap2": "regardez-le se vendre — en direct.",
+      "link2": "le playbook des prix",
+      "cap3": "votre équipe, à la porte.",
+      "link3": "le guide équipe & porte",
+      "cap4": "scannez. validez. antre.",
+      "link4": "le guide équipe & porte",
+      "cta": "devenez organisateur",
+      "new_event": "Nouvel événement",
+      "title": "Titre",
+      "venue": "Lieu",
+      "date": "Date",
+      "tickets": "Billets",
+      "publish": "Publier l’événement",
+      "publish_note": "En ligne sur Tikèm dès que vous tapez.",
+      "revenue_live": "Revenus · en direct",
+      "sold": "vendus",
+      "of": "sur",
+      "recent_orders": "Commandes récentes",
+      "team": "Équipe",
+      "you": "(vous)",
+      "owner": "Propriétaire",
+      "checkin": "Staff d’entrée",
+      "promoter": "Promoteur",
+      "invited_now": "invité à l’instant",
+      "pending": "en attente",
+      "invite_by": "Inviter par téléphone ou email",
+      "staff_note": "Le staff ne voit que la porte — jamais votre argent.",
+      "door_scan": "Scan à la porte",
+      "valid": "Valide — laissez entrer",
+      "scanned": "scannés · fonctionne hors ligne",
+      "tab_overview": "Aperçu",
+      "tab_events": "Événements",
+      "tab_scan": "Scanner",
+      "tab_team": "Équipe"
+    }
   }
 }

@@ -23,6 +23,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useTranslation } from 'react-i18next'
 import {
   ArrowRight,
   ChevronLeft,
@@ -54,12 +55,13 @@ const land = (w: number, at: number, span = 0.18) => {
 /* ------------------------------------------------------------------ */
 
 function OrgTabBar({ active }: { active: 'home' | 'events' | 'scan' | 'team' }) {
+  const { t } = useTranslation('common')
   const items = [
-    { key: 'home', icon: Home, label: 'Overview' },
-    { key: 'events', icon: CalendarDays, label: 'Events' },
+    { key: 'home', icon: Home, label: t('resources.scrub.tab_overview') },
+    { key: 'events', icon: CalendarDays, label: t('resources.scrub.tab_events') },
     null, // the + FAB
-    { key: 'scan', icon: ScanLine, label: 'Scan' },
-    { key: 'team', icon: Users, label: 'Team' },
+    { key: 'scan', icon: ScanLine, label: t('resources.scrub.tab_scan') },
+    { key: 'team', icon: Users, label: t('resources.scrub.tab_team') },
   ] as const
   return (
     <div className="absolute inset-x-0 bottom-0 z-30 bg-[#0a0a0a]/95 pb-4 pt-2 backdrop-blur-md">
@@ -117,14 +119,20 @@ function Field({ label, value, accent = false }: { label: string; value: string;
 /* The scene                                                           */
 /* ------------------------------------------------------------------ */
 
+// Caption copy and link labels come from i18n; the guide slug picks the
+// reader's language version when it exists (EN/FR), EN otherwise.
 const CAPTIONS = [
-  { text: 'create your event in minutes.', href: '/guides/create-event-en.html', link: 'the create guide' },
-  { text: 'watch it sell — live.', href: '/guides/pricing-playbook-en.html', link: 'the pricing playbook' },
-  { text: 'your team, at the door.', href: '/guides/team-door-en.html', link: 'the team & door guide' },
-  { text: 'scan. check. antre.', href: '/guides/team-door-en.html', link: 'the team & door guide' },
-]
+  { key: 'cap1', linkKey: 'link1', slug: 'create-event' },
+  { key: 'cap2', linkKey: 'link2', slug: 'pricing-playbook' },
+  { key: 'cap3', linkKey: 'link3', slug: 'team-door' },
+  { key: 'cap4', linkKey: 'link4', slug: 'team-door' },
+] as const
 
 export default function OrganizerScrub() {
+  const { t, i18n } = useTranslation('common')
+  const guideLang = ['en', 'fr'].includes((i18n.language || 'en').slice(0, 2))
+    ? (i18n.language || 'en').slice(0, 2)
+    : 'en'
   const wrapRef = useRef<HTMLDivElement>(null)
   const [progress, setProgress] = useState(0)
   const [still, setStill] = useState(false)
@@ -196,21 +204,21 @@ export default function OrganizerScrub() {
         <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 px-4 sm:px-6 md:grid-cols-2 lg:px-8">
           {/* Captions: each line hands off to the next; links are real. */}
           <div className="relative z-10 order-2 md:order-1">
-            <p className="eyebrow text-brand-400">The organizer console</p>
+            <p className="eyebrow text-brand-400">{t('resources.scrub.eyebrow')}</p>
             <div className="relative mt-4 h-32 md:h-44">
               {CAPTIONS.map((c, i) => (
-                <div key={c.text} className="absolute inset-x-0" style={{ opacity: opacities[i] }} aria-hidden={opacities[i] < 0.5}>
+                <div key={c.key} className="absolute inset-x-0" style={{ opacity: opacities[i] }} aria-hidden={opacities[i] < 0.5}>
                   <p className="font-display lowercase italic text-[clamp(26px,4.2vw,52px)] leading-[1.08] text-white">
-                    {c.text}
+                    {t(`resources.scrub.${c.key}`)}
                   </p>
                   <a
-                    href={c.href}
+                    href={`/guides/${c.slug}-${guideLang}.html`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-4 inline-block text-[13px] font-medium text-white/50 underline decoration-white/25 underline-offset-4 transition-colors hover:text-white"
                     tabIndex={opacities[i] > 0.5 ? 0 : -1}
                   >
-                    {c.link}
+                    {t(`resources.scrub.${c.linkKey}`)}
                   </a>
                 </div>
               ))}
@@ -221,7 +229,7 @@ export default function OrganizerScrub() {
                 className="group inline-flex items-center gap-1.5 text-[13px] font-medium text-brand-400 transition-colors hover:text-brand-300"
                 tabIndex={still || c4 > 0.5 ? 0 : -1}
               >
-                become an organizer
+                {t('resources.scrub.cta')}
                 <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
               </Link>
             </div>
@@ -235,7 +243,7 @@ export default function OrganizerScrub() {
 
                 {/* ---------- phase 1: create the event ---------- */}
                 <div className="absolute inset-0">
-                  <ScreenBar title="New event" />
+                  <ScreenBar title={t('resources.scrub.new_event')} />
                   <div className="px-4 pt-3">
                     <div className="flex gap-2.5">
                       {/* the poster slot — VERTICAL (4:5), the house format */}
@@ -261,18 +269,18 @@ export default function OrganizerScrub() {
                       </div>
                       <div className="flex min-w-0 flex-1 flex-col justify-between gap-2">
                         <div style={land(w1, 0.24)}>
-                          <Field label="Title" value="Nwit Konpa — Live" />
+                          <Field label={t('resources.scrub.title')} value="Nwit Konpa — Live" />
                         </div>
                         <div style={land(w1, 0.38)}>
-                          <Field label="Venue" value="Yanvalou · Pacot" />
+                          <Field label={t('resources.scrub.venue')} value="Yanvalou · Pacot" />
                         </div>
                         <div style={land(w1, 0.52)}>
-                          <Field label="Date" value="Sat Sep 12 · 9 PM" />
+                          <Field label={t('resources.scrub.date')} value="Sat Sep 12 · 9 PM" />
                         </div>
                       </div>
                     </div>
                     <div className="mt-2" style={land(w1, 0.62)}>
-                      <Field label="Tickets" value="350 × General — 1,500 HTG" accent />
+                      <Field label={t('resources.scrub.tickets')} value="350 × General — 1,500 HTG" accent />
                     </div>
                     <div
                       className={`mt-3 rounded-xl py-2.5 text-center text-[12px] font-semibold transition-colors duration-300 ${
@@ -280,10 +288,10 @@ export default function OrganizerScrub() {
                       }`}
                       style={{ transform: `scale(${publishArmed ? 1 : 0.98})`, transition: 'transform 0.3s' }}
                     >
-                      Publish event
+                      {t('resources.scrub.publish')}
                     </div>
                     <p className="mt-2 text-center text-[9px] text-white/35" style={{ opacity: publishArmed ? 1 : 0 }}>
-                      Live on Tikèm the second you tap.
+                      {t('resources.scrub.publish_note')}
                     </p>
                   </div>
                 </div>
@@ -298,7 +306,7 @@ export default function OrganizerScrub() {
                     <div className="rounded-xl bg-white/[0.06] p-3">
                       <p className="flex items-center gap-1.5 text-[8px] font-medium uppercase tracking-[0.14em] text-white/40">
                         <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-                        Revenue · live
+                        {t('resources.scrub.revenue_live')}
                       </p>
                       <p className="mt-1 font-grotesk text-[24px] font-bold leading-none text-white tabular-nums">
                         {revenue.toLocaleString()} <span className="text-[13px] text-white/50">HTG</span>
@@ -307,7 +315,10 @@ export default function OrganizerScrub() {
                         <span className="block h-full rounded-full bg-brand-400" style={{ width: `${soldPct}%` }} />
                       </div>
                       <p className="mt-1.5 text-[9px] text-white/50 tabular-nums">
-                        <span className="font-semibold text-white">{sold} sold</span> of 350 · {soldPct}%
+                        <span className="font-semibold text-white">
+                          {sold} {t('resources.scrub.sold')}
+                        </span>{' '}
+                        {t('resources.scrub.of')} 350 · {soldPct}%
                       </p>
                     </div>
                     {/* the week, in bars — they grow with the scroll */}
@@ -320,7 +331,9 @@ export default function OrganizerScrub() {
                         />
                       ))}
                     </div>
-                    <p className="mt-3 text-[8px] font-medium uppercase tracking-[0.14em] text-white/40">Recent orders</p>
+                    <p className="mt-3 text-[8px] font-medium uppercase tracking-[0.14em] text-white/40">
+                      {t('resources.scrub.recent_orders')}
+                    </p>
                     <div className="mt-1.5 space-y-1.5">
                       {[
                         ['Nadège P.', '2 × General', '2m'],
@@ -346,13 +359,13 @@ export default function OrganizerScrub() {
                   className="absolute inset-0 z-20 bg-[#0a0a0a]"
                   style={{ transform: `translate3d(0, ${teamY}%, 0)`, willChange: still ? undefined : 'transform' }}
                 >
-                  <ScreenBar title="Team" />
+                  <ScreenBar title={t('resources.scrub.team')} />
                   <div className="px-4 pt-3">
                     <div className="space-y-1.5">
                       {[
-                        ['TJ', 'Ti Jo (you)', 'Owner'],
-                        ['NP', 'Nadège P.', 'Check-in staff'],
-                        ['FJ', 'Fabiola J.', 'Promoter'],
+                        ['TJ', `Ti Jo ${t('resources.scrub.you')}`, t('resources.scrub.owner')],
+                        ['NP', 'Nadège P.', t('resources.scrub.checkin')],
+                        ['FJ', 'Fabiola J.', t('resources.scrub.promoter')],
                       ].map(([init, name, role], i) => (
                         <div
                           key={name as string}
@@ -382,11 +395,13 @@ export default function OrganizerScrub() {
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-[11px] font-semibold text-white">Kervens B.</span>
-                          <span className="block text-[9px] text-brand-300">Check-in staff · invited just now</span>
+                          <span className="block text-[9px] text-brand-300">
+                            {t('resources.scrub.checkin')} · {t('resources.scrub.invited_now')}
+                          </span>
                         </span>
                         <span className="flex items-center gap-1 text-[8px] font-medium text-amber-300">
                           <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
-                          pending
+                          {t('resources.scrub.pending')}
                         </span>
                       </div>
                     </div>
@@ -395,10 +410,10 @@ export default function OrganizerScrub() {
                       style={land(w3, 0.78)}
                     >
                       <UserPlus className="h-3.5 w-3.5" />
-                      Invite by phone or email
+                      {t('resources.scrub.invite_by')}
                     </div>
                     <p className="mt-2 text-center text-[9px] text-white/35" style={{ opacity: smooth(w3, 0.85, 1) }}>
-                      Staff only see the door — never your money.
+                      {t('resources.scrub.staff_note')}
                     </p>
                   </div>
                 </div>
@@ -408,7 +423,7 @@ export default function OrganizerScrub() {
                   className="absolute inset-0 z-[25] flex flex-col bg-[#050505]"
                   style={{ transform: `translate3d(0, ${scanY}%, 0)`, willChange: still ? undefined : 'transform' }}
                 >
-                  <ScreenBar title="Door scan" />
+                  <ScreenBar title={t('resources.scrub.door_scan')} />
                   <div className="flex flex-1 flex-col px-4 pt-3">
                     {/* viewfinder — the brackets flash green on the hit */}
                     <div className="relative overflow-hidden rounded-2xl bg-[#101010] py-7">
@@ -450,12 +465,15 @@ export default function OrganizerScrub() {
                         <Check className="h-4 w-4 text-black" strokeWidth={3} />
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block text-[11px] font-bold text-emerald-300">Valid — let them in</span>
+                        <span className="block text-[11px] font-bold text-emerald-300">
+                          {t('resources.scrub.valid')}
+                        </span>
                         <span className="block truncate text-[9px] text-white/55">Kervens B. · 1 × General</span>
                       </span>
                     </div>
                     <p className="mt-auto pb-24 pt-3 text-center text-[10px] text-white/40 tabular-nums">
-                      <span className="font-semibold text-white/70">{scanHit ? 96 : 95}</span> scanned · offline-ready
+                      <span className="font-semibold text-white/70">{scanHit ? 96 : 95}</span>{' '}
+                      {t('resources.scrub.scanned')}
                     </p>
                   </div>
                 </div>

@@ -13,7 +13,8 @@
 // disabled globally; the IO reveals fall back to instantly visible).
 
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Rocket, Ticket, Palette, Tag, Wallet, ScanLine, QrCode } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { Rocket, Ticket, Palette, Wallet, ScanLine, QrCode } from 'lucide-react'
 
 function useSeen(threshold = 0.18) {
   const ref = useRef<HTMLDivElement>(null)
@@ -63,12 +64,12 @@ export function Reveal({ children, delay = 0 }: { children: ReactNode; delay?: n
 /* ------------------------------------------------------------------ */
 
 const COVERS = [
-  { icon: Ticket, label: 'CREATE', title: 'your first event', langs: 'EN · FR' },
-  { icon: Palette, label: 'POSTER', title: 'art, not a flyer', langs: 'EN · FR' },
-  { icon: Wallet, label: 'PAYOUTS', title: 'getting paid', langs: 'EN · FR' },
-  { icon: ScanLine, label: 'THE DOOR', title: 'team & scanning', langs: 'EN · FR' },
-  { icon: QrCode, label: 'TICKETS', title: 'get in, no hassle', langs: 'EN · FR' },
-  { icon: Rocket, label: 'START', title: 'the program', langs: 'EN · FR · HT' },
+  { icon: Ticket, key: 'create', langs: 'EN · FR' },
+  { icon: Palette, key: 'poster', langs: 'EN · FR' },
+  { icon: Wallet, key: 'payouts', langs: 'EN · FR' },
+  { icon: ScanLine, key: 'door', langs: 'EN · FR' },
+  { icon: QrCode, key: 'tickets', langs: 'EN · FR' },
+  { icon: Rocket, key: 'start', langs: 'EN · FR · HT' },
 ] as const
 
 // [top%, left%, rotation, floatDur, floatDelay]
@@ -82,13 +83,14 @@ const SLOTS: Array<[number, number, number, string, string]> = [
 ]
 
 export function FloatingGuides() {
+  const { t } = useTranslation('common')
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 hidden lg:block">
       {COVERS.map((c, i) => {
         const [top, left, rot, dur, delay] = SLOTS[i]
         return (
           <div
-            key={c.label}
+            key={c.key}
             className="plt-enter absolute"
             style={{ top: `${top}%`, left: `${left}%`, ['--d' as any]: `${0.35 + i * 0.12}s` }}
           >
@@ -103,9 +105,11 @@ export function FloatingGuides() {
                 </div>
                 <c.icon className="h-7 w-7 text-brand-400/90" strokeWidth={1.5} />
                 <div>
-                  <p className="font-mono text-[9px] tracking-[0.22em] text-white/50">{c.label}</p>
+                  <p className="font-mono text-[9px] tracking-[0.22em] text-white/50">
+                    {t(`resources.covers.${c.key}.label`)}
+                  </p>
                   <p className="mt-1 font-display lowercase italic text-[15px] leading-tight text-white/90">
-                    {c.title}
+                    {t(`resources.covers.${c.key}.title`)}
                   </p>
                   <p className="mt-2 border-t border-white/10 pt-1.5 font-mono text-[8px] tracking-[0.2em] text-white/35">
                     {c.langs}
