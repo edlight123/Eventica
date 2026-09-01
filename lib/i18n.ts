@@ -96,36 +96,43 @@ const resources = {
   },
 }
 
-i18n
-  .use(LanguageDetector)
-  .use(initReactI18next)
-  .init({
-    resources,
-    fallbackLng: 'en',
-    supportedLngs: ['en', 'fr', 'ht'],
-    defaultNS: 'common',
-    ns: ['common', 'auth', 'events', 'profile', 'admin', 'tickets', 'notifications', 'organizer', 'settings', 'dashboard', 'favorites', 'support'],
-    
-    // Enable debug mode in development
-    debug: process.env.NODE_ENV === 'development',
-    
-    // Show warnings for missing keys in development
-    saveMissing: process.env.NODE_ENV === 'development',
-    missingKeyHandler: (lng, ns, key) => {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn(`Missing translation key: [${lng}][${ns}][${key}]`)
-      }
-    },
-    
-    interpolation: {
-      escapeValue: false, // React already escapes values
-    },
-    
-    detection: {
-      order: ['localStorage', 'navigator'],
-      caches: ['localStorage'],
-      lookupLocalStorage: 'i18nextLng',
-    },
-  })
+export const SUPPORTED_LNGS = ['en', 'fr', 'ht'] as const
+
+// Shared init options. The cookie comes FIRST in detection (and is written on
+// every language change) because it is the one store the server can also
+// read — app/layout.tsx uses it to SSR the correct language, which is what
+// keeps hydration from flashing English at fr/ht readers.
+export const i18nOptions = {
+  resources,
+  fallbackLng: 'en',
+  supportedLngs: [...SUPPORTED_LNGS],
+  defaultNS: 'common',
+  ns: ['common', 'auth', 'events', 'profile', 'admin', 'tickets', 'notifications', 'organizer', 'settings', 'dashboard', 'favorites', 'support'],
+
+  // Enable debug mode in development
+  debug: process.env.NODE_ENV === 'development',
+
+  // Show warnings for missing keys in development
+  saveMissing: process.env.NODE_ENV === 'development',
+  missingKeyHandler: (lng: any, ns: any, key: any) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(`Missing translation key: [${lng}][${ns}][${key}]`)
+    }
+  },
+
+  interpolation: {
+    escapeValue: false, // React already escapes values
+  },
+
+  detection: {
+    order: ['cookie', 'localStorage', 'navigator'],
+    caches: ['cookie', 'localStorage'],
+    lookupCookie: 'i18nextLng',
+    lookupLocalStorage: 'i18nextLng',
+    cookieMinutes: 60 * 24 * 365,
+  },
+} as const
+
+i18n.use(LanguageDetector).use(initReactI18next).init(i18nOptions as any)
 
 export default i18n

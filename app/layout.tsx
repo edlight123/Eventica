@@ -9,6 +9,23 @@ import Footer from '@/components/Footer'
 import { FeeConfigProvider } from '@/components/FeeConfigProvider'
 import SmoothScroll from '@/components/SmoothScroll'
 import { getPlatformFeeSettings } from '@/lib/checkout/fee-config-server'
+import { cookies, headers } from 'next/headers'
+
+// Resolve the reader's language on the server: the i18nextLng cookie (written
+// by the client detector on every language change) wins; a first-time visitor
+// falls back to Accept-Language; anything else is English. This is what lets
+// SSR speak fr/ht from the first byte instead of flashing English.
+function resolveLanguage(): 'en' | 'fr' | 'ht' {
+  const supported = ['en', 'fr', 'ht'] as const
+  const fromCookie = cookies().get('i18nextLng')?.value?.slice(0, 2)
+  if (supported.includes(fromCookie as any)) return fromCookie as any
+  const accept = headers().get('accept-language') || ''
+  for (const part of accept.split(',')) {
+    const code = part.trim().slice(0, 2).toLowerCase()
+    if (supported.includes(code as any)) return code as any
+  }
+  return 'en'
+}
 
 // Body / UI typeface
 const inter = Inter({
@@ -109,9 +126,10 @@ export default async function RootLayout({
   // A settings read must never take the whole site down, so a failure falls back
   // to the defaults — the same values the code shipped with.
   const feeConfig = await getPlatformFeeSettings()
+  const lng = resolveLanguage()
 
   return (
-    <html lang="en" className={`${inter.variable} ${instrumentSerif.variable} ${spaceGrotesk.variable} ${jetBrainsMono.variable}`}>
+    <html lang={lng} className={`${inter.variable} ${instrumentSerif.variable} ${spaceGrotesk.variable} ${jetBrainsMono.variable}`}>
       <head>
         {/* DNS Prefetch for faster external resource loading */}
         <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com" />
@@ -133,7 +151,7 @@ export default async function RootLayout({
         {/* Lenis inertial scroll on public surfaces (no-op on consoles/flows). */}
         <SmoothScroll />
         <FeeConfigProvider config={feeConfig}>
-          <I18nProvider>
+          <I18nProvider lng={lng}>
             <ToastProvider>
               <div className="flex-1">{children}</div>
               <Footer />
