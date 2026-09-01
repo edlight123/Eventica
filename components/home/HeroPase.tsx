@@ -1,6 +1,6 @@
 'use client'
 
-// The statement hero: SA K AP PASE? — the question Haiti actually asks on a
+// The statement hero: SAK PASE? — the question Haiti actually asks on a
 // Friday. Giant poster-voice type with real event artwork floating around it;
 // the posters drift on their own clocks AND lean toward the cursor (each at
 // its own depth), so the first screen feels like a room, not a banner.
@@ -143,7 +143,7 @@ export default function HeroPase({
           className="plt-enter mt-5 font-grotesk font-bold uppercase tracking-[-0.02em] text-white !leading-[0.95] !text-[clamp(56px,12vw,164px)]"
           style={{ ['--d' as any]: '0.08s' }}
         >
-          {t('events.hero_pase_line1', { defaultValue: 'Sa k ap' })}
+          {t('events.hero_pase_line1', { defaultValue: 'Sak' })}
           <br />
           {t('events.hero_pase_line2', { defaultValue: 'pase?' })}
         </h1>

@@ -5,7 +5,7 @@ import { adminStorage } from '@/lib/firebase/admin'
 // Firebase Storage under guides/. The bucket uses uniform bucket-level access,
 // so objects are not individually public; we read them here with the Admin SDK
 // (service-account credentials) and stream them from our own domain. This keeps
-// URLs on tikem.app/guides/* and never exposes the bucket publicly.
+// URLs on tikem.co/guides/* and never exposes the bucket publicly.
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 

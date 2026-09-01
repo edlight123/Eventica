@@ -469,8 +469,8 @@ select:-webkit-autofill {
   70%, 100% { box-shadow: 0 0 0 7px rgba(45, 212, 191, 0); }
 }
 
-/* ---- Cities theatre v2: the collage breathes; the active city's underline
-   sweeps in time with the 3.5s auto-advance. ---- */
+/* ---- Cities theatre v3: the collage breathes; the underline is now
+   scroll-driven inline (no keyframe sweep). ---- */
 .tk-kenburns {
   animation: tk-kenburns 9s ease-in-out infinite alternate;
 }
@@ -482,23 +482,57 @@ select:-webkit-autofill {
     transform: scale(1.09) translate3d(1.5%, -1.5%, 0);
   }
 }
-.tk-city-sweep {
-  width: 0;
-  animation: tk-city-sweep 3.5s linear both;
+
+/* Cities theatre: the active city's letters rise in, one by one. */
+.tk-letter {
+  display: inline-block;
+  transform: translateY(115%);
+  opacity: 0;
+  animation: tk-letter-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-@keyframes tk-city-sweep {
+@keyframes tk-letter-rise {
   from {
-    width: 0;
+    transform: translateY(115%);
+    opacity: 0;
   }
   to {
-    width: 100%;
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Kinetic verb ribbon (guides page): one seamless loop, content doubled. */
+.tk-marquee {
+  animation: tk-marquee 26s linear infinite;
+}
+@keyframes tk-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* The door-scan viewfinder laser (organizer scroll film). */
+.tk-scanline {
+  animation: tk-scanline 2.2s ease-in-out infinite alternate;
+}
+@keyframes tk-scanline {
+  from {
+    transform: translateY(-46px);
+  }
+  to {
+    transform: translateY(46px);
   }
 }
 
 /* Reduced motion: the whole choreography flattens to a still page. */
 @media (prefers-reduced-motion: reduce) {
   .tk-kenburns,
-  .tk-city-sweep,
+  .tk-letter,
+  .tk-marquee,
+  .tk-scanline,
   .plt-enter,
   .plt-float,
   .plt-breathe,

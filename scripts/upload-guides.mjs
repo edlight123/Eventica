@@ -2,7 +2,7 @@
 /**
  * Uploads the Tikèm guide files (interactive HTML + PDF) to Firebase Storage
  * under `guides/`, makes them public, sets correct Content-Type, and writes a
- * manifest. The public site serves them from tikem.app/guides/* via a Next
+ * manifest. The public site serves them from tikem.co/guides/* via a Next
  * rewrite (see next.config.js) so URLs stay on-brand.
  *
  * Run:  node scripts/upload-guides.mjs /absolute/path/to/guides-staging

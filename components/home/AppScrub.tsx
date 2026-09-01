@@ -34,6 +34,7 @@ import {
   MapPin,
   ChevronDown,
 } from 'lucide-react'
+import { QRCodeSVG } from 'qrcode.react'
 import { getEventPriceLabel } from '@/lib/discover/helpers'
 
 export interface AppScrubEvent {
@@ -54,7 +55,7 @@ const smooth = (p: number, a: number, b: number) => {
 /* Pieces of the real app                                              */
 /* ------------------------------------------------------------------ */
 
-function StatusBar() {
+export function StatusBar() {
   return (
     <div className="pointer-events-none absolute inset-x-0 top-0 z-40 flex items-center justify-between bg-gradient-to-b from-[#0a0a0a] from-40% via-[#0a0a0a]/85 to-transparent px-6 pb-4 pt-3">
       <span className="w-10 text-[11px] font-semibold tracking-tight text-white">9:41</span>
@@ -135,23 +136,6 @@ function FeedCard({ ev }: { ev: AppScrubEvent }) {
   )
 }
 
-/** Deterministic fake-QR: a 9x9 dot matrix seeded by the event id. */
-function QrBlock({ seed }: { seed: string }) {
-  const cells: boolean[] = []
-  let h = 0
-  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0
-  for (let i = 0; i < 81; i++) {
-    h = (h * 1103515245 + 12345) >>> 0
-    cells.push((h >> 16) % 5 < 2)
-  }
-  return (
-    <div className="grid aspect-square w-28 grid-cols-9 gap-[2px]">
-      {cells.map((on, i) => (
-        <span key={i} className={`rounded-[1px] ${on ? 'bg-black' : 'bg-transparent'}`} />
-      ))}
-    </div>
-  )
-}
 
 /* ------------------------------------------------------------------ */
 /* The scene                                                           */
@@ -365,21 +349,53 @@ export default function AppScrub({
                     {t('home.appscrub_ticket', { defaultValue: 'Your ticket' })}
                   </p>
 
-                  {/* the white ticket card, perforation and all */}
-                  <div className="relative mt-4 w-full max-w-[210px] rounded-2xl bg-white px-5 pb-4 pt-5 text-center">
-                    <p className="line-clamp-1 font-grotesk text-[13px] font-bold text-black">{star.title}</p>
-                    {place && <p className="mt-0.5 truncate text-[9px] text-black/50">{place}</p>}
-                    <div className="mt-3 flex justify-center">
-                      <QrBlock seed={String(star.id)} />
+                  {/* the white ticket card: poster header, real QR, punched
+                      perforation — the real app's ticket, made poster-grade */}
+                  <div className="relative mt-4 w-full max-w-[216px]">
+                    {/* soft brand glow behind the card */}
+                    <span aria-hidden className="absolute -inset-5 rounded-[30px] bg-brand-400/15 blur-2xl" />
+                    <div className="relative overflow-hidden rounded-[18px] bg-white text-center shadow-[0_24px_60px_-18px_rgba(0,0,0,0.9)]">
+                      {/* event artwork band */}
+                      <div className="relative h-14 w-full">
+                        <Image
+                          src={star.banner_image_url}
+                          alt=""
+                          fill
+                          sizes="216px"
+                          quality={55}
+                          className="object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-white via-white/10 to-transparent" />
+                      </div>
+                      <div className="px-5 pb-1 pt-1.5">
+                        <p className="line-clamp-1 font-grotesk text-[13px] font-bold text-black">{star.title}</p>
+                        {place && <p className="mt-0.5 truncate text-[9px] text-black/50">{place}</p>}
+                        {/* the QR, framed like the real ticket screen */}
+                        <div className="mt-3 flex justify-center">
+                          <div className="rounded-xl border border-black/[0.08] bg-white p-2.5 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)]">
+                            <QRCodeSVG
+                              value={`tikem://ticket/${code}`}
+                              size={100}
+                              level="M"
+                              includeMargin={false}
+                              bgColor="#ffffff"
+                              fgColor="#0a0a0a"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      {/* perforation: punched notches clip into the card edges */}
+                      <div className="relative mt-3">
+                        <span className="absolute -left-2 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-[#0a0a0a]" />
+                        <span className="absolute -right-2 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-[#0a0a0a]" />
+                        <span className="mx-4 block border-t border-dashed border-black/20" />
+                      </div>
+                      {/* the stub */}
+                      <div className="flex items-center justify-between px-5 pb-3.5 pt-2.5">
+                        <span className="label-mono text-[10px] tracking-[0.08em] text-black/75">{code}</span>
+                        <span className="text-[9px] font-medium text-black/45">1 × General</span>
+                      </div>
                     </div>
-                    {/* perforation */}
-                    <div className="relative mt-4">
-                      <span className="absolute -left-[26px] top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-[#0a0a0a]" />
-                      <span className="absolute -right-[26px] top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-[#0a0a0a]" />
-                      <span className="block border-t-2 border-dashed border-black/15" />
-                    </div>
-                    <p className="label-mono mt-3 text-[11px] text-black/80">{code}</p>
-                    <p className="mt-0.5 text-[9px] text-black/45">1 × General</p>
                   </div>
 
                   <p className="mt-4 flex items-center gap-1.5 text-[11px] text-white/55">

@@ -4,8 +4,11 @@ import { getCurrentUser } from '@/lib/auth'
 import { isAdmin } from '@/lib/admin'
 import Navbar from '@/components/Navbar'
 import MobileNavWrapper from '@/components/MobileNavWrapper'
+import OrganizerScrub from '@/components/resources/OrganizerScrub'
+import { Reveal, FloatingGuides, Marquee, OuPare } from '@/components/resources/ResourcesFx'
 import {
   ArrowRight,
+  ArrowUpRight,
   Rocket,
   Ticket,
   Palette,
@@ -15,7 +18,6 @@ import {
   QrCode,
   FileText,
   HelpCircle,
-  ExternalLink,
   Download,
 } from 'lucide-react'
 
@@ -38,7 +40,7 @@ type Guide = {
 }
 
 // Files are served from Firebase Storage under /guides/* via a Next rewrite
-// (see next.config.js), so these stay on the tikem.app domain.
+// (see next.config.js), so these stay on the tikem.co domain.
 function langs(slug: string, codes: Array<'en' | 'fr' | 'ht'>, opts: { pdf?: boolean } = { pdf: true }): Lang[] {
   const label: Record<string, string> = { en: 'English', fr: 'Français', ht: 'Kreyòl' }
   return codes.map((c) => ({
@@ -121,70 +123,110 @@ const ABOUT_GUIDES: Guide[] = [
   },
 ]
 
-function GuideCard({ guide }: { guide: Guide }) {
-  const Icon = guide.icon
-  return (
-    <div className="flex flex-col rounded-2xl border border-white/10 bg-[#0a0a0a] p-6 transition-all hover:border-brand-300/60 hover:shadow-card-hover">
-      <Icon className="h-7 w-7 text-brand-300" strokeWidth={1.75} />
-      <h3 className="mt-4 font-grotesk text-lg font-semibold text-white">{guide.title}</h3>
-      <p className="mt-1.5 flex-1 text-[15px] leading-relaxed text-white/55">{guide.body}</p>
+/* ------------------------------------------------------------------ */
+/* The library: guides as an editorial reading room, not a card wall   */
+/* ------------------------------------------------------------------ */
 
-      <div className="mt-5 flex flex-col gap-2.5 border-t border-white/10 pt-4">
-        {guide.langs.map((l) => (
-          <div key={l.code} className="flex items-center justify-between gap-3">
-            <a
-              href={l.view}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group inline-flex items-center gap-2 text-sm font-medium text-white/85 transition-colors hover:text-brand-300"
-            >
-              <span className="font-mono text-[11px] tracking-wider text-brand-400">{l.code}</span>
-              <span>{l.label}</span>
-              <ExternalLink className="h-3.5 w-3.5 text-white/35 transition-colors group-hover:text-brand-300" />
-            </a>
-            {l.pdf && (
+function GuideRow({ guide, index }: { guide: Guide; index: string }) {
+  const Icon = guide.icon
+  const primary = guide.langs[0]
+  return (
+    <div className="group relative border-t border-white/10 transition-colors duration-300 hover:bg-white/[0.02]">
+      <div className="grid grid-cols-1 gap-4 py-7 sm:grid-cols-[64px_1fr_auto] sm:items-baseline sm:gap-8 sm:py-9">
+        {/* index + icon */}
+        <div className="flex items-center gap-3 sm:flex-col sm:items-start sm:gap-4">
+          <span className="label-mono text-[12px] text-white/35">{index}</span>
+          <Icon className="h-4 w-4 text-brand-400/80" strokeWidth={1.75} />
+        </div>
+
+        {/* the read — the whole title is the link */}
+        <div className="min-w-0">
+          <a
+            href={primary.view}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group/title inline-flex items-baseline gap-3"
+          >
+            <span className="font-display lowercase italic text-[clamp(26px,3.4vw,42px)] leading-[1.05] text-white/85 transition-all duration-300 group-hover:translate-x-1.5 group-hover:text-white">
+              {guide.title.toLowerCase()}
+            </span>
+            <ArrowUpRight className="h-[0.55em] w-[0.55em] shrink-0 translate-y-1 self-center text-white/0 transition-all duration-300 group-hover:text-brand-400" />
+          </a>
+          <p className="mt-2 max-w-xl text-[14px] leading-relaxed text-white/50">{guide.body}</p>
+        </div>
+
+        {/* the languages */}
+        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+          {guide.langs.map((l) => (
+            <span key={l.code} className="flex items-center overflow-hidden rounded-full border border-white/10">
               <a
-                href={l.pdf}
-                download
-                className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1.5 text-[12px] font-medium text-white/70 transition-colors hover:border-brand-300/60 hover:text-brand-300"
-                aria-label={`Download ${guide.title} (${l.label}) as PDF`}
+                href={l.view}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1.5 font-mono text-[11px] tracking-wider text-white/70 transition-colors hover:bg-white/5 hover:text-brand-300"
               >
-                <Download className="h-3.5 w-3.5" />
-                PDF
+                {l.code}
               </a>
-            )}
-          </div>
-        ))}
+              {l.pdf && (
+                <a
+                  href={l.pdf}
+                  download
+                  className="border-l border-white/10 px-2.5 py-1.5 text-white/45 transition-colors hover:bg-white/5 hover:text-brand-300"
+                  aria-label={`Download ${guide.title} (${l.label}) as PDF`}
+                >
+                  <Download className="h-3 w-3" />
+                </a>
+              )}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   )
 }
 
-function Group({
+function Chapter({
   index,
   kicker,
   title,
   blurb,
   guides,
+  startAt,
 }: {
   index: string
   kicker: string
   title: string
   blurb: string
   guides: Guide[]
+  startAt: number
 }) {
   return (
-    <section className="mx-auto max-w-6xl px-5 py-14 sm:px-6 sm:py-16 lg:px-8">
-      <div className="mb-9 max-w-2xl">
-        <p className="eyebrow text-brand-400">
-          {index} &nbsp; {kicker}
-        </p>
-        <h2 className="mt-3 font-display text-[clamp(28px,4.5vw,44px)] leading-[1.0] text-white">{title}</h2>
-        <p className="mt-4 text-[15px] leading-relaxed text-white/55 sm:text-lg">{blurb}</p>
-      </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {guides.map((g) => (
-          <GuideCard key={g.slug} guide={g} />
+    <section className="relative mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-20 lg:px-8">
+      {/* the chapter's ghost numeral */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -top-4 right-2 font-grotesk text-[clamp(120px,22vw,280px)] font-bold leading-none tracking-[-0.04em] text-white/[0.03] sm:right-6"
+      >
+        {index}
+      </span>
+      <Reveal>
+        <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
+          <div className="max-w-2xl">
+            <p className="eyebrow text-brand-400">
+              {index} &nbsp; {kicker}
+            </p>
+            <h2 className="mt-3 font-grotesk text-[clamp(30px,5vw,54px)] font-bold uppercase leading-[0.95] tracking-[-0.02em] text-white">
+              {title}
+            </h2>
+          </div>
+          <p className="max-w-sm text-[14px] leading-relaxed text-white/50">{blurb}</p>
+        </div>
+      </Reveal>
+      <div className="border-b border-white/10">
+        {guides.map((g, i) => (
+          <Reveal key={g.slug} delay={i * 70}>
+            <GuideRow guide={g} index={String(startAt + i).padStart(2, '0')} />
+          </Reveal>
         ))}
       </div>
     </section>
@@ -198,23 +240,94 @@ export default async function ResourcesPage() {
     <div className="surface-dark min-h-screen pb-mobile-nav">
       <Navbar user={user} isAdmin={isAdmin(user?.email)} />
 
-      {/* HERO */}
-      <section className="relative overflow-hidden">
-        <div aria-hidden className="absolute inset-0 -z-10 bg-[#0a0a0a]" />
+      {/* ACT 0 — the statement. This is a playbook, not a help center.
+          The guides themselves float around it, like the homepage's posters. */}
+      <section className="relative overflow-hidden bg-[#0a0a0a]">
+        <FloatingGuides />
+        <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-20 sm:px-6 sm:pb-24 sm:pt-32 lg:px-8">
+          <p
+            className="plt-enter font-display lowercase italic !text-[17px] !leading-none text-white/60"
+            style={{ ['--d' as any]: '0s' }}
+          >
+            guides &amp; resources
+          </p>
+          <h1
+            className="plt-enter mt-5 font-grotesk font-bold uppercase tracking-[-0.02em] text-white !leading-[0.95] !text-[clamp(52px,10vw,140px)]"
+            style={{ ['--d' as any]: '0.08s' }}
+          >
+            Sell<br />out.
+          </h1>
+          <p
+            className="plt-enter mt-6 max-w-xl font-display lowercase italic !text-[clamp(18px,2.4vw,24px)] !leading-snug text-white/70"
+            style={{ ['--d' as any]: '0.18s' }}
+          >
+            the full playbook for running events on Tikèm — read it online, keep the PDF. an anglè, en
+            français, an kreyòl.
+          </p>
+        </div>
+        {/* scroll cue — a breathing hairline */}
         <div
           aria-hidden
-          className="absolute left-1/2 top-[-30%] -z-10 h-[520px] w-[520px] -translate-x-1/2 rounded-full blur-[150px]"
+          className="plt-breathe absolute bottom-5 left-1/2 hidden h-12 w-px -translate-x-1/2 bg-gradient-to-b from-transparent to-white/40 lg:block"
         />
-        <div className="mx-auto max-w-4xl px-5 pb-10 pt-20 text-center sm:px-6 sm:pb-12 sm:pt-28 lg:px-8">
-          <p className="eyebrow text-brand-400">Resources</p>
-          <h1 className="mx-auto mt-4 max-w-[18ch] text-balance font-display text-[clamp(40px,7vw,72px)] leading-[0.96] text-white">
-            Guides to help you <span className="italic text-brand-400">sell out</span>.
-          </h1>
-          <p className="mx-auto mt-5 max-w-xl text-[15px] leading-relaxed text-white/60 sm:text-lg">
-            Everything you need to run great events on Tikèm — read online, or download the PDF.
-            Available in English, Français, and Kreyòl.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+      </section>
+
+      {/* ACT 1 — the console, as a scroll film. */}
+      <OrganizerScrub />
+
+      {/* the organizer's verb chain, in motion */}
+      <Marquee />
+
+      {/* ACT 2 — the library. */}
+      <Chapter
+        index="01"
+        kicker="For organizers"
+        title="Run the room"
+        blurb="From your first event to selling out and getting paid — six reads, in order."
+        guides={ORGANIZER_GUIDES}
+        startAt={1}
+      />
+
+      <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
+        <div className="hairline" />
+      </div>
+
+      <Chapter
+        index="02"
+        kicker="For attendees"
+        title="Get in"
+        blurb="Find the fèt, pay the way you already do, and walk in with your phone."
+        guides={ATTENDEE_GUIDES}
+        startAt={7}
+      />
+
+      <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
+        <div className="hairline" />
+      </div>
+
+      <Chapter
+        index="03"
+        kicker="About Tikèm"
+        title="The bigger picture"
+        blurb="What we're building, and the answers to the most common questions."
+        guides={ABOUT_GUIDES}
+        startAt={8}
+      />
+
+      {/* ACT 3 — the outro. */}
+      <section className="relative overflow-hidden">
+        <div
+          aria-hidden
+          className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-400/[0.07] blur-[120px]"
+        />
+        <div className="relative mx-auto max-w-4xl px-5 py-24 text-center sm:px-6 sm:py-32 lg:px-8">
+          <OuPare />
+          <Reveal delay={200}>
+            <p className="mx-auto mt-4 max-w-md text-[15px] leading-relaxed text-white/55">
+              You&apos;ve read the playbook. Your first event takes about five minutes.
+            </p>
+          </Reveal>
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/auth/signup"
               className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-7 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-700"
@@ -231,38 +344,6 @@ export default async function ResourcesPage() {
           </div>
         </div>
       </section>
-
-      <Group
-        index="01"
-        kicker="For organizers"
-        title="Run your events like a pro"
-        blurb="From your first event to selling out and getting paid — the full playbook."
-        guides={ORGANIZER_GUIDES}
-      />
-
-      <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
-        <div className="hairline" />
-      </div>
-
-      <Group
-        index="02"
-        kicker="For attendees"
-        title="Get in, no hassle"
-        blurb="How to find events, pay the way you already do, and walk in with your phone."
-        guides={ATTENDEE_GUIDES}
-      />
-
-      <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
-        <div className="hairline" />
-      </div>
-
-      <Group
-        index="03"
-        kicker="About Tikèm"
-        title="The bigger picture"
-        blurb="What we're building, and the answers to the most common questions."
-        guides={ABOUT_GUIDES}
-      />
 
       <MobileNavWrapper user={user} isAdmin={isAdmin(user?.email)} />
     </div>
