@@ -11,6 +11,7 @@ import MobileHero from './MobileHero'
 import MobileKeyFacts from './MobileKeyFacts'
 import MobileAccordions from './MobileAccordions'
 import WhosGoing from '@/components/events/WhosGoing'
+import SpotifyEmbed from '@/components/events/SpotifyEmbed'
 import { Shield } from 'lucide-react'
 import { format } from 'date-fns'
 import Image from 'next/image'
@@ -302,6 +303,9 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
         }
       />
 
+      {/* The event's song — mobile placement, under the accordions. */}
+      <SpotifyEmbed url={event.spotify_url} className="px-4 pt-4 md:hidden" />
+
       {/* MAIN CONTENT - Desktop */}
       <div className="max-w-7xl mx-auto px-0 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 px-4 md:px-0">
@@ -323,6 +327,8 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                   {t('events.no_description', { defaultValue: 'The organizer hasn’t added a description yet.' })}
                 </p>
               )}
+              {/* The event's song — desktop placement, under the about text. */}
+              <SpotifyEmbed url={event.spotify_url} className="mt-6 max-w-[65ch]" />
             </div>
 
             {/* Venue Details - Desktop */}

@@ -10,6 +10,12 @@ interface ImageUploadProps {
   bucket?: string
   /** 'flyer' = tall portrait poster; 'square' = square brand logo (Posh-style). */
   variant?: 'default' | 'flyer' | 'square'
+  /**
+   * Upload through an API route (multipart POST responding { url }) instead
+   * of the client Firebase SDK — how signed-out visitors upload on /create
+   * (storage rules require auth; the route uses the admin SDK).
+   */
+  endpoint?: string
 }
 
 export default function ImageUpload({
@@ -17,6 +23,7 @@ export default function ImageUpload({
   onImageUploaded,
   bucket = 'event-images',
   variant = 'default',
+  endpoint,
 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState<string | null>(currentImage || null)
@@ -49,6 +56,19 @@ export default function ImageUpload({
         setPreview(e.target?.result as string)
       }
       reader.readAsDataURL(file)
+
+      // API-route upload (guest mode): the server does the storage write.
+      if (endpoint) {
+        const form = new FormData()
+        form.append('file', file)
+        const res = await fetch(endpoint, { method: 'POST', body: form })
+        const body = await res.json().catch(() => ({}))
+        if (!res.ok || !body?.url) {
+          throw new Error(body?.error || 'Upload failed. Please try again.')
+        }
+        onImageUploaded(body.url)
+        return
+      }
 
       // Upload to Firebase Storage
       const fileExt = file.name.split('.').pop()

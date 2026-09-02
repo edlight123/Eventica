@@ -40,6 +40,10 @@
     {
       "path": "/api/cron/purge-liveness",
       "schedule": "30 3 * * *"
+    },
+    {
+      "path": "/api/cron/cleanup-guest-uploads",
+      "schedule": "30 2 * * *"
     }
   ]
 }

@@ -785,6 +785,27 @@ export default function EventComposer({
     try {
       const { data, cleanTiers, isRsvp } = buildEventData()
 
+      // A poster uploaded while signed out lives under guest-uploads/ with a
+      // 7-day expiry — move it to its permanent home before the event points
+      // at it. If the move fails we keep the guest URL: the event still
+      // renders, and the cleanup cron never deletes a referenced file.
+      if (typeof data.banner_image_url === 'string' && data.banner_image_url.includes('guest-uploads%2F')) {
+        try {
+          const res = await fetch('/api/guest-upload/promote', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: data.banner_image_url }),
+          })
+          const body = await res.json().catch(() => ({}))
+          if (res.ok && body?.url) {
+            data.banner_image_url = body.url
+            setBannerUrl(body.url)
+          }
+        } catch {
+          /* keep the guest URL — see above */
+        }
+      }
+
       // Hash + write the access code to events/{id}/private/access when the event
       // is protected AND a non-empty code was typed. A blank code (edit mode)
       // intentionally preserves any existing hash. Plaintext is never persisted.
@@ -1603,18 +1624,20 @@ export default function EventComposer({
         {/* ===================== RIGHT — flyer + style ===================== */}
         <div className="order-1 lg:order-2">
           <div className="space-y-4 lg:sticky lg:top-24">
-            {/* Flyer — uploads need an account (storage rules), so guests get
-                a friendly slot instead of a broken uploader. */}
-            {guest ? (
-              <div className="flex aspect-[4/5] flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-white/15 bg-white/[0.02] p-6 text-center">
-                <ImageIcon className="h-7 w-7 text-white/30" />
-                <p className="text-sm font-medium text-white/70">Your poster comes after sign-in</p>
-                <p className="text-xs leading-relaxed text-white/45">
-                  Fill in everything else — it all travels with you through sign-up.
-                </p>
-              </div>
-            ) : (
-              <ImageUpload variant="flyer" currentImage={bannerUrl} onImageUploaded={(url) => setBannerUrl(url)} />
+            {/* Flyer. Guests upload through the API route (storage rules
+                require auth for the client SDK); the file waits under
+                guest-uploads/ and is promoted to event-images/ at create
+                time. Abandoned ones are cleaned up after 7 days. */}
+            <ImageUpload
+              variant="flyer"
+              currentImage={bannerUrl}
+              onImageUploaded={(url) => setBannerUrl(url)}
+              endpoint={guest ? '/api/guest-upload' : undefined}
+            />
+            {guest && (
+              <p className="-mt-1 text-center text-[11px] text-white/40">
+                Your poster is kept for 7 days while you finish setting up.
+              </p>
             )}
 
             {/* Spotify */}
