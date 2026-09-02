@@ -58,6 +58,14 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
       sales_end: t.sales_end ?? null,
       valid_from: t.valid_from ?? null,
       valid_until: t.valid_until ?? null,
+      // Same rule, same reason, for every OTHER per-tier field: `syncTiers`
+      // rewrites the whole tier set on save, so anything not hydrated here is
+      // erased by an unrelated edit. The composer reads snake_case or camel,
+      // and derives `unlimited` from the sentinel quantity.
+      description: t.description ?? null,
+      is_active: t.is_active,
+      max_per_order: t.max_per_order ?? null,
+      enable_waitlist: t.enable_waitlist ?? null,
     }))
 
   const verification = await getOrganizerVerificationStatus(user.id)

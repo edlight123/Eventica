@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { firebaseDb } from '@/lib/firebase-db/client'
@@ -18,18 +18,25 @@ import { normalizeEventCurrencyForCountry, getAllowedEventCurrencies, type Event
 import { incidenceForEvent, priceOrder } from '@/lib/checkout/buyer-pricing'
 import { fromCents } from '@/lib/ticketPricing'
 import { THEMES, type PosterThemeKey } from '@/lib/posterGradient'
+// The sanctioned editorial section heading (font-display, lowercase, italic).
+// Hand-rolled bold sans headings read as off-brand — see EditorialRails.
+import { SectionHeader } from '@/components/ui/EditorialRails'
 import {
   CalendarDays,
+  ChevronDown,
+  Copy,
   Globe,
   Image as ImageIcon,
   Info,
   Lock,
   MapPin,
+  MoreVertical,
   Palette,
   Pencil,
   Plus,
   Repeat,
   Settings,
+  SlidersHorizontal,
   Star,
   Ticket,
   Trash2,
@@ -137,6 +144,18 @@ interface EventComposerProps {
 /** Where a signed-out composition survives the trip through sign-up. */
 const DRAFT_KEY = 'tikem:event-draft'
 
+/**
+ * Stored `total_quantity` for a tier the organizer declared UNLIMITED. Every
+ * reader (selector, the three payment routes) answers "is there stock left?"
+ * with `total_quantity - sold_quantity > 0`, so an unlimited tier needs a
+ * quantity large enough to never run out rather than a special case in each
+ * reader. 1,000,000 is mobile's sentinel — see
+ * mobile/screens/organizer/CreateEventFlowRefactored.tsx:UNLIMITED_SENTINEL.
+ * The explicit `unlimited: true` flag rides along so the UI can say "Unlimited"
+ * instead of "1000000".
+ */
+const UNLIMITED_QTY = 1000000
+
 interface TicketTier {
   id: string
   name: string
@@ -152,6 +171,22 @@ interface TicketTier {
    */
   validFrom?: string
   validUntil?: string
+  /** Per-tier blurb shown next to the ticket at checkout (mobile parity). */
+  description?: string
+  /**
+   * The organizer said "this one is free" OUT LOUD. Kept as its own flag rather
+   * than inferred from `price === '0'`, because a blank price must stay an
+   * error (a giveaway you never asked for) instead of quietly meaning free.
+   */
+  free?: boolean
+  /** No cap on how many of this tier exist (stored as the sentinel above). */
+  unlimited?: boolean
+  /** Max of THIS tier one order may contain ('' = no per-tier cap). */
+  maxPerOrder?: string
+  /** Hidden from the public selector — persisted as `is_active: false`. */
+  hidden?: boolean
+  /** Per-tier waitlist (VIP can sell out while GA hasn't). */
+  waitlist?: boolean
 }
 
 const pad2 = (n: number) => String(n).padStart(2, '0')
@@ -210,12 +245,93 @@ function Toggle({
       aria-checked={on}
       aria-label={label}
       onClick={() => onChange(!on)}
-      className={`relative h-6 w-11 shrink-0 rounded-full border transition-colors ${on ? 'border-brand-500 bg-brand-600' : 'border-white/20 bg-white/15'}`}
+      // House rule: teal is a sparing ACCENT, never a fill. The on-state is a
+      // white track with a dark knob (the reference composer's own treatment).
+      className={`relative h-6 w-11 shrink-0 rounded-full border transition-colors ${on ? 'border-white bg-white' : 'border-white/20 bg-white/15'}`}
     >
       <span
-        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${on ? 'left-[22px]' : 'left-0.5'}`}
+        className={`absolute top-0.5 h-5 w-5 rounded-full shadow transition-all ${on ? 'left-[22px] bg-black' : 'left-0.5 bg-white'}`}
       />
     </button>
+  )
+}
+
+/** Selected/on chip: a white fill (never teal) — see the house rule above. */
+const CHIP_ON = 'border-white bg-white text-black'
+const CHIP_OFF = 'border-white/10 bg-white/[0.03] text-white/70 hover:border-white/20 hover:text-white'
+const chipCls = (on: boolean) =>
+  `rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${on ? CHIP_ON : CHIP_OFF}`
+
+/**
+ * A state read-out that is a DOT plus a label — never a filled status pill
+ * (house rule). Used for a tier's "Free" / "Hidden" / "Unlimited" states.
+ */
+function DotLabel({ children, tone = 'muted' }: { children: React.ReactNode; tone?: 'muted' | 'warn' }) {
+  return (
+    <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-xs text-white/60">
+      <span
+        aria-hidden="true"
+        className={`h-1.5 w-1.5 rounded-full ${tone === 'warn' ? 'bg-amber-300' : 'bg-brand-400'}`}
+      />
+      {children}
+    </span>
+  )
+}
+
+/**
+ * The one accessible info popover the composer reuses everywhere a paragraph of
+ * explanation used to sit permanently on screen. No library: a button that owns
+ * `aria-expanded` + `aria-describedby`, closes on Escape (returning focus) and
+ * on a click outside.
+ */
+function InfoPopover({ label, text }: { label: string; text: string }) {
+  const [open, setOpen] = useState(false)
+  const id = useId()
+  const wrapRef = useRef<HTMLSpanElement>(null)
+  const btnRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false)
+        btnRef.current?.focus()
+      }
+    }
+    const onDown = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('keydown', onKey)
+    document.addEventListener('mousedown', onDown)
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.removeEventListener('mousedown', onDown)
+    }
+  }, [open])
+
+  return (
+    <span ref={wrapRef} className="relative inline-flex">
+      <button
+        ref={btnRef}
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-describedby={open ? id : undefined}
+        aria-label={label}
+        className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-white/20 text-white/50 transition-colors hover:border-white/40 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+      >
+        <Info className="h-3 w-3" />
+      </button>
+      {open && (
+        <span
+          id={id}
+          role="note"
+          className="absolute left-0 top-7 z-30 w-64 rounded-xl border border-white/15 bg-[#111] px-3 py-2.5 text-xs leading-relaxed text-white/75 shadow-xl"
+        >
+          {text}
+        </span>
+      )}
+    </span>
   )
 }
 
@@ -223,16 +339,23 @@ function SectionTitle({
   icon: Icon,
   children,
   right,
+  info,
 }: {
   icon: any
-  children: React.ReactNode
+  children: string
   right?: React.ReactNode
+  info?: string
 }) {
   return (
-    <div className="mb-3 flex items-center justify-between">
-      <span className="flex items-center gap-2 text-[15px] font-semibold text-white">
-        <Icon className="h-[18px] w-[18px] text-white/70" />
-        {children}
+    <div className="mb-3 flex flex-wrap items-end justify-between gap-x-3 gap-y-2">
+      <span className="flex min-w-0 items-center gap-2">
+        <Icon className="h-[18px] w-[18px] shrink-0 text-white/45" />
+        {/* The sanctioned editorial heading, scaled down for a form column and
+            with its own bottom margin neutralised (the row owns the spacing). */}
+        <span className="min-w-0 [&_h2]:!text-[clamp(20px,2.6vw,26px)] [&>div]:mb-0">
+          <SectionHeader title={children} />
+        </span>
+        {info && <InfoPopover label={`${children} — more information`} text={info} />}
       </span>
       {right}
     </div>
@@ -301,26 +424,109 @@ export default function EventComposer({
     isEdit ? normalizeEventCurrencyForCountry('HT', event?.currency || 'HTG') : 'HTG'
   )
 
-  // Tickets — multiple tiers
+  // Tickets — multiple tiers.
+  // The event-level `enable_waitlist` is the LEGACY granularity: it is the
+  // fallback each tier's own waitlist flag hydrates from, so an existing event
+  // that had the event-wide waitlist on keeps it on, per tier, and re-saving
+  // writes the event flag back (see buildEventData).
   const [tiers, setTiers] = useState<TicketTier[]>(
     initialTiers && initialTiers.length > 0
-      ? initialTiers.map((t) => ({
-          ...t,
-          salesStart: isoToLocalInput((t as any).salesStart ?? (t as any).sales_start),
-          salesEnd: isoToLocalInput((t as any).salesEnd ?? (t as any).sales_end),
-          validFrom: isoToLocalInput((t as any).validFrom ?? (t as any).valid_from),
-          validUntil: isoToLocalInput((t as any).validUntil ?? (t as any).valid_until),
-        }))
-      : [{ id: makeId(), name: 'General Admission', price: '10', qty: '100' }]
+      ? initialTiers.map((t) => {
+          const unlimited =
+            !!(t as any).unlimited || Number((t as any).qty ?? 0) >= UNLIMITED_QTY
+          return {
+            ...t,
+            salesStart: isoToLocalInput((t as any).salesStart ?? (t as any).sales_start),
+            salesEnd: isoToLocalInput((t as any).salesEnd ?? (t as any).sales_end),
+            validFrom: isoToLocalInput((t as any).validFrom ?? (t as any).valid_from),
+            validUntil: isoToLocalInput((t as any).validUntil ?? (t as any).valid_until),
+            description: String((t as any).description ?? '') || '',
+            free: Number(t.price ?? 0) === 0,
+            unlimited,
+            qty: unlimited ? '' : String(t.qty ?? ''),
+            maxPerOrder:
+              Number((t as any).maxPerOrder ?? (t as any).max_per_order ?? 0) > 0
+                ? String((t as any).maxPerOrder ?? (t as any).max_per_order)
+                : '',
+            hidden: ((t as any).hidden ?? (t as any).is_active === false) === true,
+            waitlist:
+              (t as any).waitlist ?? (t as any).enable_waitlist ?? !!event?.enable_waitlist,
+          }
+        })
+      : [{ id: makeId(), name: 'General Admission', price: '10', qty: '100', free: false }]
   )
-  const [enableWaitlist, setEnableWaitlist] = useState(!!event?.enable_waitlist)
 
-  const addTier = () =>
-    setTiers((prev) => [...prev, { id: makeId(), name: '', price: '0', qty: '100' }])
+  /** Which tier's detail panel is expanded (null = all collapsed, the default). */
+  const [openTierId, setOpenTierId] = useState<string | null>(null)
+  /** Which tier's overflow (⋮) menu is open. */
+  const [menuTierId, setMenuTierId] = useState<string | null>(null)
+
+  const addTier = () => {
+    const id = makeId()
+    setTiers((prev) => [...prev, { id, name: '', price: '', qty: '100', free: false }])
+    setOpenTierId(id)
+  }
   const updateTier = (id: string, patch: Partial<TicketTier>) =>
     setTiers((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)))
   const removeTier = (id: string) =>
     setTiers((prev) => (prev.length > 1 ? prev.filter((t) => t.id !== id) : prev))
+  /**
+   * Duplicate a tier — the most-wanted action while building GA → VIP → Table.
+   * Everything but the identity is copied; the copy lands directly after its
+   * source and opens, so the only thing left to do is rename and reprice it.
+   */
+  const duplicateTier = (id: string) => {
+    setTiers((prev) => {
+      const i = prev.findIndex((t) => t.id === id)
+      if (i < 0) return prev
+      const copyId = makeId()
+      const copy: TicketTier = {
+        ...prev[i],
+        id: copyId,
+        name: `${prev[i].name || ''}`.trim(),
+      }
+      setOpenTierId(copyId)
+      return [...prev.slice(0, i + 1), copy, ...prev.slice(i + 1)]
+    })
+    setMenuTierId(null)
+  }
+  /**
+   * Free is stated, not inferred: flipping it on sets the price to 0, flipping
+   * it off clears the field so the organizer must type a real price (a blank
+   * price stays a validation error, never a silent giveaway).
+   */
+  const toggleFreeTier = (id: string, free: boolean) =>
+    updateTier(id, { free, price: free ? '0' : '' })
+  /** Unlimited clears the quantity field; turning it off restores a real cap. */
+  const toggleUnlimitedTier = (id: string, unlimited: boolean) =>
+    updateTier(id, { unlimited, qty: unlimited ? '' : '100' })
+
+  /**
+   * ADVANCED SETTINGS — collapsed by default (mobile parity: `advancedOpen`).
+   * Title, dates, location and tickets are always open; everything else — the
+   * repeat plan, features, media, poster theme, page settings and the password
+   * gate — waits behind one control instead of shouting on first load.
+   */
+  const [advancedOpen, setAdvancedOpen] = useState(false)
+
+  // The open ⋮ tier menu dismisses on Escape and on any click outside it.
+  useEffect(() => {
+    if (!menuTierId) return
+    const onDown = (e: MouseEvent) => {
+      const el = e.target as HTMLElement | null
+      if (el && el.closest('[data-tier-menu]')) return
+      setMenuTierId(null)
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuTierId(null)
+    }
+    document.addEventListener('mousedown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [menuTierId])
 
   // Guestlist — artists / hosts / performers joining the event (the lineup)
   const [guests, setGuests] = useState<Guest[]>(
@@ -424,16 +630,28 @@ export default function EventComposer({
     if (d.currency) setCurrency(normalizeEventCurrencyForCountry('HT', d.currency))
     if (Array.isArray(d.tiers) && d.tiers.length > 0) {
       setTiers(
-        d.tiers.map((t: any) => ({
-          id: makeId(),
-          name: t.name || '',
-          price: String(t.price ?? 0),
-          qty: String(t.quantity ?? 100),
-          salesStart: isoToLocalInput(t.sales_start),
-          salesEnd: isoToLocalInput(t.sales_end),
-          validFrom: isoToLocalInput(t.valid_from),
-          validUntil: isoToLocalInput(t.valid_until),
-        }))
+        d.tiers.map((t: any) => {
+          // The draft stores the SAVE shape (see snapshotDraft), so every new
+          // per-tier field has to be read back here or it vanishes through
+          // sign-up — the single easiest thing to lose in this file.
+          const unlimited = !!t.unlimited || Number(t.quantity ?? 0) >= UNLIMITED_QTY
+          return {
+            id: makeId(),
+            name: t.name || '',
+            price: String(t.price ?? 0),
+            qty: unlimited ? '' : String(t.quantity ?? 100),
+            salesStart: isoToLocalInput(t.sales_start),
+            salesEnd: isoToLocalInput(t.sales_end),
+            validFrom: isoToLocalInput(t.valid_from),
+            validUntil: isoToLocalInput(t.valid_until),
+            description: String(t.description ?? '') || '',
+            free: Number(t.price ?? 0) === 0,
+            unlimited,
+            maxPerOrder: Number(t.max_per_order ?? 0) > 0 ? String(t.max_per_order) : '',
+            hidden: t.is_active === false,
+            waitlist: t.enable_waitlist ?? !!d.enable_waitlist,
+          }
+        })
       )
     }
     if (Array.isArray(d.guestlist) && d.guestlist.length > 0) {
@@ -450,7 +668,8 @@ export default function EventComposer({
     // creating a public event the guest believed was protected.
     if (d.is_password_protected) setPasswordProtected(true)
     if (d.fee_incidence) setPassFeesToBuyer(d.fee_incidence === 'buyer')
-    if (d.enable_waitlist) setEnableWaitlist(true)
+    // `enable_waitlist` is now per tier; the event-level value in an older
+    // draft is picked up as each tier's fallback in the tier mapping above.
     if (d.spotify_url) setSpotifyUrl(d.spotify_url)
     if (d.video_url) setVideoUrl(d.video_url)
     if (d.theme_key) setThemeKey(d.theme_key)
@@ -618,7 +837,21 @@ export default function EventComposer({
     const cleanTiers = tiers.map((t) => ({
       name: t.name.trim() || 'General Admission',
       price: Number(t.price) || 0,
-      quantity: Number(t.qty) || 0,
+      // An unlimited tier stores the sentinel quantity so every existing
+      // "stock left?" reader keeps working untouched (see UNLIMITED_QTY).
+      quantity: t.unlimited ? UNLIMITED_QTY : Number(t.qty) || 0,
+      unlimited: !!t.unlimited,
+      // Per-tier blurb (mobile collects it and the column has always existed —
+      // web used to hard-write null here and throw the text away).
+      description: t.description?.trim() || null,
+      // Hidden tiers stay sellable by link/WhatsApp but never render in the
+      // public selector: `is_active` is already honoured by the selector and by
+      // all three payment-initiation routes.
+      is_active: !t.hidden,
+      /** Max of THIS tier a single order may contain (null = no per-tier cap). */
+      max_per_order: Number(t.maxPerOrder) > 0 ? Math.floor(Number(t.maxPerOrder)) : null,
+      /** Per-tier waitlist — VIP can sell out while GA hasn't. */
+      enable_waitlist: !!t.waitlist,
       // Per-tier sale window as ISO strings (or null). Matches mobile's format so
       // the web purchase routes and selector enforce/display identical bounds.
       sales_start: localInputToISO(t.salesStart),
@@ -659,7 +892,10 @@ export default function EventComposer({
       // Recurrence is create-only: on edit preserve the stored flag; on create it
       // reflects the chosen cadence (per-occurrence metadata is stamped below).
       is_recurring: isEdit ? !!event?.is_recurring : recurrence !== 'none',
-      enable_waitlist: enableWaitlist,
+      // Waitlists are PER TIER now. The event-level flag is still written — as
+      // "any tier has one" — so nothing that already reads it (mobile, older
+      // events) is orphaned by the change in granularity.
+      enable_waitlist: cleanTiers.some((t) => t.enable_waitlist),
       show_guestlist: showGuestlist,
       show_on_explore: showOnExplore,
       is_password_protected: passwordProtected,
@@ -716,6 +952,11 @@ export default function EventComposer({
       name: string
       price: number
       quantity: number
+      unlimited: boolean
+      description: string | null
+      is_active: boolean
+      max_per_order: number | null
+      enable_waitlist: boolean
       sales_start: string | null
       sales_end: string | null
       valid_from: string | null
@@ -725,13 +966,19 @@ export default function EventComposer({
   ) => {
     await firebaseDb.from('ticket_tiers').delete().eq('event_id', eventId)
     if (!isRsvp && cleanTiers.length > 0) {
+      // This REPLACES the whole tier set on every save, so any field missing
+      // here is a field the next save silently erases.
       const tiersToInsert = cleanTiers.map((t, i) => ({
         event_id: eventId,
         name: t.name,
         price: t.price,
         total_quantity: t.quantity,
         sold_quantity: 0,
-        description: null,
+        unlimited: t.unlimited,
+        description: t.description,
+        is_active: t.is_active,
+        max_per_order: t.max_per_order,
+        enable_waitlist: t.enable_waitlist,
         // Per-tier sale window (ISO 8601 strings, or null for no bound).
         sales_start: t.sales_start,
         sales_end: t.sales_end,
@@ -782,8 +1029,9 @@ export default function EventComposer({
       showToast({
         type: 'error',
         title: t('composer.toasts.priceTitle', { defaultValue: 'Set a price for every ticket type' }),
-        message: t('composer.toasts.priceMsg', {
-          defaultValue: 'Enter 0 to make a ticket type free. A blank price is not the same as free.',
+        message: t('composer.toasts.priceMsgToggle', {
+          defaultValue:
+            'Type a price, or turn on “Make this a free ticket”. A blank price is not the same as free.',
         }),
         duration: 5000,
       })
@@ -1305,11 +1553,7 @@ export default function EventComposer({
                         type="button"
                         onClick={() => setRecurrence(opt.value)}
                         aria-pressed={recurrence === opt.value}
-                        className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${
-                          recurrence === opt.value
-                            ? 'border-brand-500 bg-brand-600 text-white'
-                            : 'border-white/10 bg-white/[0.03] text-white/70 hover:border-white/20 hover:text-white'
-                        }`}
+                        className={chipCls(recurrence === opt.value)}
                       >
                         {t(`composer.recurrence.${opt.value}`, { defaultValue: opt.label })}
                       </button>
@@ -1331,11 +1575,7 @@ export default function EventComposer({
                             type="button"
                             onClick={() => setRecurrenceMode(val)}
                             aria-pressed={recurrenceMode === val}
-                            className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${
-                              recurrenceMode === val
-                                ? 'border-brand-500 bg-brand-600 text-white'
-                                : 'border-white/10 bg-white/[0.03] text-white/70 hover:border-white/20 hover:text-white'
-                            }`}
+                            className={chipCls(recurrenceMode === val)}
                           >
                             {label}
                           </button>
@@ -1461,11 +1701,7 @@ export default function EventComposer({
                       key={cat}
                       type="button"
                       onClick={() => setCategory(cat)}
-                      className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${
-                        category === cat
-                          ? 'border-brand-500 bg-brand-600 text-white'
-                          : 'border-white/10 bg-white/[0.03] text-white/70 hover:border-white/20 hover:text-white'
-                      }`}
+                      className={chipCls(category === cat)}
                     >
                       {t(`categories.${cat}`, { defaultValue: cat })}
                     </button>
@@ -1481,10 +1717,14 @@ export default function EventComposer({
               <SectionTitle
                 icon={Ticket}
                 right={
-                  <span className="flex items-center gap-2 text-sm text-white/70">
-                    {t('composer.enableWaitlist', { defaultValue: 'Enable waitlist' })}{' '}
-                    <Toggle on={enableWaitlist} onChange={setEnableWaitlist} label="Enable waitlist" />
-                  </span>
+                  <button
+                    type="button"
+                    onClick={addTier}
+                    aria-label={t('composer.addTicketType', { defaultValue: 'Add ticket type' })}
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors hover:border-white/40 hover:text-white"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
                 }
               >
                 {t('composer.tickets', { defaultValue: 'Tickets' })}
@@ -1512,114 +1752,360 @@ export default function EventComposer({
                 </div>
               </div>
 
+              {/* Each tier is ONE SUMMARY ROW — name · price · qty — with its
+                  windows, description and options behind an expandable panel
+                  that starts collapsed. Three tiers used to mean ~27 controls
+                  on screen before anyone had typed a name. */}
               <div className="space-y-3">
-                {tiers.map((tier, i) => (
-                  <div key={tier.id} className="space-y-3 rounded-xl border border-white/10 p-4">
-                    <div className="flex items-center gap-2">
-                      <input
-                        value={tier.name}
-                        onChange={(e) => updateTier(tier.id, { name: e.target.value })}
-                        placeholder={t('composer.tierPlaceholder', {
-                          defaultValue: 'Ticket type {{n}} (e.g. General, VIP, Early Bird)',
-                          n: i + 1,
-                        })}
-                        aria-label={`Ticket type ${i + 1} name`}
-                        className={field}
-                      />
-                      {tiers.length > 1 && (
+                {tiers.map((tier, i) => {
+                  const isOpen = openTierId === tier.id
+                  const panelId = `tier-panel-${tier.id}`
+                  const menuOpen = menuTierId === tier.id
+                  const rowLabel = tier.name.trim() || `#${i + 1}`
+                  return (
+                    <div key={tier.id} className="rounded-xl border border-white/10">
+                      {/* ── SUMMARY ROW ───────────────────────────────── */}
+                      <div className="flex flex-wrap items-center gap-2 p-3">
+                        <input
+                          value={tier.name}
+                          onChange={(e) => updateTier(tier.id, { name: e.target.value })}
+                          placeholder={t('composer.tierPlaceholder', {
+                            defaultValue: 'Ticket type {{n}} (e.g. General, VIP, Early Bird)',
+                            n: i + 1,
+                          })}
+                          aria-label={t('composer.tierNameAria', {
+                            defaultValue: 'Ticket type {{n}} name',
+                            n: i + 1,
+                          })}
+                          className="min-w-[9rem] flex-1 rounded-lg border border-transparent bg-transparent px-2 py-2 text-[15px] text-white placeholder:text-white/35 hover:border-white/10 focus:border-brand-400 focus:outline-none"
+                        />
+
+                        {/* Price — a free tier reads as a dot + label, never an input of 0. */}
+                        {tier.free ? (
+                          <DotLabel>{t('composer.tier.free', { defaultValue: 'Free' })}</DotLabel>
+                        ) : (
+                          <input
+                            type="number"
+                            min="0"
+                            value={tier.price}
+                            onChange={(e) => updateTier(tier.id, { price: e.target.value })}
+                            placeholder={currency}
+                            aria-label={t('composer.tierPriceAria', {
+                              defaultValue: 'Price for {{tier}} ({{currency}})',
+                              tier: rowLabel,
+                              currency,
+                            })}
+                            className="w-[5.5rem] rounded-lg border border-white/10 bg-transparent px-2 py-2 text-right text-[15px] text-white [color-scheme:dark] placeholder:text-white/30 focus:border-brand-400 focus:outline-none"
+                          />
+                        )}
+
+                        {/* Quantity — replaced outright by "Unlimited". */}
+                        {tier.unlimited ? (
+                          <DotLabel>{t('composer.tier.unlimited', { defaultValue: 'Unlimited' })}</DotLabel>
+                        ) : (
+                          <input
+                            type="number"
+                            min="0"
+                            value={tier.qty}
+                            onChange={(e) => updateTier(tier.id, { qty: e.target.value })}
+                            placeholder={t('composer.qtyShort', { defaultValue: 'Qty' })}
+                            aria-label={t('composer.tierQtyAria', {
+                              defaultValue: 'Quantity for {{tier}}',
+                              tier: rowLabel,
+                            })}
+                            className="w-[4.5rem] rounded-lg border border-white/10 bg-transparent px-2 py-2 text-right text-[15px] text-white [color-scheme:dark] placeholder:text-white/30 focus:border-brand-400 focus:outline-none"
+                          />
+                        )}
+
+                        {tier.hidden && (
+                          <DotLabel tone="warn">
+                            {t('composer.tier.hidden', { defaultValue: 'Hidden' })}
+                          </DotLabel>
+                        )}
+
                         <button
                           type="button"
-                          onClick={() => removeTier(tier.id)}
-                          className="shrink-0 rounded-lg  p-2.5 text-white/40 transition-colors hover:bg-white/[0.04] hover:text-red-300"
-                          aria-label={t('composer.removeTier', { defaultValue: 'Remove ticket type' })}
+                          onClick={() => setOpenTierId(isOpen ? null : tier.id)}
+                          aria-expanded={isOpen}
+                          aria-controls={panelId}
+                          aria-label={t('composer.tierDetailsAria', {
+                            defaultValue: 'Ticket options for {{tier}}',
+                            tier: rowLabel,
+                          })}
+                          className="shrink-0 rounded-lg p-2 text-white/45 transition-colors hover:bg-white/[0.05] hover:text-white"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <ChevronDown
+                            className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                          />
                         </button>
+
+                        {/* Overflow ⋮ — details, duplicate, delete. */}
+                        <div className="relative shrink-0" data-tier-menu>
+                          <button
+                            type="button"
+                            onClick={() => setMenuTierId(menuOpen ? null : tier.id)}
+                            aria-haspopup="menu"
+                            aria-expanded={menuOpen}
+                            aria-label={t('composer.tierMenuAria', {
+                              defaultValue: 'More actions for {{tier}}',
+                              tier: rowLabel,
+                            })}
+                            className="rounded-lg p-2 text-white/45 transition-colors hover:bg-white/[0.05] hover:text-white"
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </button>
+                          {menuOpen && (
+                            <div
+                              role="menu"
+                              className="absolute right-0 top-10 z-30 w-56 overflow-hidden rounded-xl border border-white/15 bg-[#111] py-1 shadow-xl"
+                            >
+                              <button
+                                type="button"
+                                role="menuitem"
+                                onClick={() => {
+                                  setOpenTierId(tier.id)
+                                  setMenuTierId(null)
+                                }}
+                                className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-sm text-white/80 transition-colors hover:bg-white/[0.06] hover:text-white"
+                              >
+                                <SlidersHorizontal className="h-4 w-4 shrink-0 text-white/45" />
+                                {t('composer.tier.editDetails', { defaultValue: 'Ticket options' })}
+                              </button>
+                              <button
+                                type="button"
+                                role="menuitem"
+                                onClick={() => duplicateTier(tier.id)}
+                                className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-sm text-white/80 transition-colors hover:bg-white/[0.06] hover:text-white"
+                              >
+                                <Copy className="h-4 w-4 shrink-0 text-white/45" />
+                                {t('composer.tier.duplicate', { defaultValue: 'Duplicate tier' })}
+                              </button>
+                              {tiers.length > 1 && (
+                                <button
+                                  type="button"
+                                  role="menuitem"
+                                  onClick={() => {
+                                    removeTier(tier.id)
+                                    setMenuTierId(null)
+                                    if (openTierId === tier.id) setOpenTierId(null)
+                                  }}
+                                  className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-sm text-white/70 transition-colors hover:bg-white/[0.06] hover:text-red-300"
+                                >
+                                  <Trash2 className="h-4 w-4 shrink-0 text-white/45" />
+                                  {t('composer.removeTier', { defaultValue: 'Remove ticket type' })}
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* ── DETAIL PANEL (collapsed by default) ───────── */}
+                      {isOpen && (
+                        <div id={panelId} className="space-y-3 border-t border-white/10 p-4">
+                          {/* Free ticket — the toggle removes the "type 0" hazard at its source. */}
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <span className="flex items-center gap-2 text-[15px] text-white/80">
+                              {t('composer.tier.makeFree', { defaultValue: 'Make this a free ticket' })}
+                              <InfoPopover
+                                label={t('composer.tier.makeFree', { defaultValue: 'Make this a free ticket' })}
+                                text={t('composer.tier.makeFreeHint', {
+                                  defaultValue: 'This ticket is free — buyers are never charged for it.',
+                                })}
+                              />
+                            </span>
+                            <Toggle
+                              on={!!tier.free}
+                              onChange={(v) => toggleFreeTier(tier.id, v)}
+                              label={t('composer.tier.makeFree', { defaultValue: 'Make this a free ticket' })}
+                            />
+                          </div>
+
+                          {/* Unlimited quantity */}
+                          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-3">
+                            <span className="flex items-center gap-2 text-[15px] text-white/80">
+                              {t('composer.tier.unlimitedQty', { defaultValue: 'Unlimited quantity' })}
+                              <InfoPopover
+                                label={t('composer.tier.unlimitedQty', { defaultValue: 'Unlimited quantity' })}
+                                text={t('composer.tier.unlimitedHint', {
+                                  defaultValue: 'No cap on how many of this ticket you can sell.',
+                                })}
+                              />
+                            </span>
+                            <Toggle
+                              on={!!tier.unlimited}
+                              onChange={(v) => toggleUnlimitedTier(tier.id, v)}
+                              label={t('composer.tier.unlimitedQty', { defaultValue: 'Unlimited quantity' })}
+                            />
+                          </div>
+
+                          {/* Per-tier description (the column always existed; web used to null it) */}
+                          <div className="border-t border-white/10 pt-3">
+                            <label className="block">
+                              <span className="label-mono mb-1.5 block text-[10px] uppercase text-white/70">
+                                {t('composer.tier.description', { defaultValue: 'Ticket description' })}
+                              </span>
+                              <textarea
+                                value={tier.description || ''}
+                                onChange={(e) => updateTier(tier.id, { description: e.target.value })}
+                                rows={2}
+                                placeholder={t('composer.tier.descriptionPlaceholder', {
+                                  defaultValue: 'What does this ticket include?',
+                                })}
+                                aria-label={t('composer.tierDescAria', {
+                                  defaultValue: 'Description for {{tier}}',
+                                  tier: rowLabel,
+                                })}
+                                className={`${field} resize-none`}
+                              />
+                            </label>
+                          </div>
+
+                          {/* Limit purchase quantity — how many of THIS tier one order may hold. */}
+                          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-3">
+                            <span className="flex items-center gap-2 text-[15px] text-white/80">
+                              {t('composer.tier.limitQty', { defaultValue: 'Limit purchase quantity' })}
+                              <InfoPopover
+                                label={t('composer.tier.limitQty', { defaultValue: 'Limit purchase quantity' })}
+                                text={t('composer.tier.limitQtyHint', {
+                                  defaultValue:
+                                    'The most of this ticket one order can contain. Leave it off for no limit.',
+                                })}
+                              />
+                            </span>
+                            <span className="flex items-center gap-3">
+                              {!!tier.maxPerOrder && (
+                                <input
+                                  type="number"
+                                  min="1"
+                                  value={tier.maxPerOrder}
+                                  onChange={(e) => updateTier(tier.id, { maxPerOrder: e.target.value })}
+                                  aria-label={t('composer.tierLimitAria', {
+                                    defaultValue: 'Maximum per order for {{tier}}',
+                                    tier: rowLabel,
+                                  })}
+                                  className="w-20 rounded-lg border border-white/10 bg-transparent px-2.5 py-1.5 text-right text-sm text-white [color-scheme:dark] focus:border-brand-400 focus:outline-none"
+                                />
+                              )}
+                              <Toggle
+                                on={!!tier.maxPerOrder}
+                                onChange={(v) => updateTier(tier.id, { maxPerOrder: v ? '4' : '' })}
+                                label={t('composer.tier.limitQty', { defaultValue: 'Limit purchase quantity' })}
+                              />
+                            </span>
+                          </div>
+
+                          {/* Hide the tier — is_active:false. Already honoured by the
+                              selector and all three payment-initiation routes. */}
+                          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-3">
+                            <span className="flex items-center gap-2 text-[15px] text-white/80">
+                              {t('composer.tier.hide', { defaultValue: 'Hide this ticket' })}
+                              <InfoPopover
+                                label={t('composer.tier.hide', { defaultValue: 'Hide this ticket' })}
+                                text={t('composer.tier.hideHint', {
+                                  defaultValue:
+                                    'Hidden tickets never show on the event page and cannot be bought online — useful for a tier you sell yourself.',
+                                })}
+                              />
+                            </span>
+                            <Toggle
+                              on={!!tier.hidden}
+                              onChange={(v) => updateTier(tier.id, { hidden: v })}
+                              label={t('composer.tier.hide', { defaultValue: 'Hide this ticket' })}
+                            />
+                          </div>
+
+                          {/* Per-tier waitlist */}
+                          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-3">
+                            <span className="flex items-center gap-2 text-[15px] text-white/80">
+                              {t('composer.tier.waitlist', { defaultValue: 'Waitlist when sold out' })}
+                              <InfoPopover
+                                label={t('composer.tier.waitlist', { defaultValue: 'Waitlist when sold out' })}
+                                text={t('composer.tier.waitlistHint', {
+                                  defaultValue:
+                                    'Collect names for this ticket once it sells out. Each ticket type has its own list.',
+                                })}
+                              />
+                            </span>
+                            <Toggle
+                              on={!!tier.waitlist}
+                              onChange={(v) => updateTier(tier.id, { waitlist: v })}
+                              label={t('composer.tier.waitlist', { defaultValue: 'Waitlist when sold out' })}
+                            />
+                          </div>
+
+                          {/* Optional per-tier sale window. Leave blank for no bound. */}
+                          <div className="grid grid-cols-1 gap-3 border-t border-white/10 pt-3 sm:grid-cols-2">
+                            <label className="block">
+                              <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">
+                                {t('composer.salesStart', { defaultValue: 'Sales start' })}
+                              </span>
+                              <input
+                                type="datetime-local"
+                                value={tier.salesStart || ''}
+                                onChange={(e) => updateTier(tier.id, { salesStart: e.target.value })}
+                                aria-label={`Ticket type ${i + 1} sales start`}
+                                className={field}
+                              />
+                            </label>
+                            <label className="block">
+                              <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">
+                                {t('composer.salesEnd', { defaultValue: 'Sales end' })}
+                              </span>
+                              <input
+                                type="datetime-local"
+                                value={tier.salesEnd || ''}
+                                min={tier.salesStart || undefined}
+                                onChange={(e) => updateTier(tier.id, { salesEnd: e.target.value })}
+                                aria-label={`Ticket type ${i + 1} sales end`}
+                                className={field}
+                              />
+                            </label>
+                          </div>
+                          {saleWindowInvalid(tier) && (
+                            <p className="text-sm text-red-300">
+                              {t('composer.saleWindowError', { defaultValue: 'Sales end must be after sales start.' })}
+                            </p>
+                          )}
+                          {/* Optional per-tier entry (validity) window — when the ticket
+                              admits the holder. Leave blank to admit anytime. */}
+                          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <label className="block">
+                              <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">
+                                {t('composer.validFrom', { defaultValue: 'Valid from' })}
+                              </span>
+                              <input
+                                type="datetime-local"
+                                value={tier.validFrom || ''}
+                                onChange={(e) => updateTier(tier.id, { validFrom: e.target.value })}
+                                aria-label={`Ticket type ${i + 1} valid from`}
+                                className={field}
+                              />
+                            </label>
+                            <label className="block">
+                              <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">
+                                {t('composer.validUntil', { defaultValue: 'Valid until' })}
+                              </span>
+                              <input
+                                type="datetime-local"
+                                value={tier.validUntil || ''}
+                                min={tier.validFrom || undefined}
+                                onChange={(e) => updateTier(tier.id, { validUntil: e.target.value })}
+                                aria-label={`Ticket type ${i + 1} valid until`}
+                                className={field}
+                              />
+                            </label>
+                          </div>
+                          {validityWindowInvalid(tier) && (
+                            <p className="text-sm text-red-300">
+                              {t('composer.validityError', { defaultValue: 'Valid until must be after valid from.' })}
+                            </p>
+                          )}
+                        </div>
                       )}
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <label className="block">
-                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">
-                          {t('composer.price', { defaultValue: 'Price ({{currency}})', currency })}
-                        </span>
-                        <input type="number" min="0" value={tier.price} onChange={(e) => updateTier(tier.id, { price: e.target.value })} className={field} />
-                      </label>
-                      <label className="block">
-                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">
-                          {t('composer.quantity', { defaultValue: 'Quantity' })}
-                        </span>
-                        <input type="number" min="0" value={tier.qty} onChange={(e) => updateTier(tier.id, { qty: e.target.value })} className={field} />
-                      </label>
-                    </div>
-                    {/* Optional per-tier sale window. Leave blank for no bound. */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <label className="block">
-                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">
-                          {t('composer.salesStart', { defaultValue: 'Sales start' })}
-                        </span>
-                        <input
-                          type="datetime-local"
-                          value={tier.salesStart || ''}
-                          onChange={(e) => updateTier(tier.id, { salesStart: e.target.value })}
-                          aria-label={`Ticket type ${i + 1} sales start`}
-                          className={field}
-                        />
-                      </label>
-                      <label className="block">
-                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">
-                          {t('composer.salesEnd', { defaultValue: 'Sales end' })}
-                        </span>
-                        <input
-                          type="datetime-local"
-                          value={tier.salesEnd || ''}
-                          min={tier.salesStart || undefined}
-                          onChange={(e) => updateTier(tier.id, { salesEnd: e.target.value })}
-                          aria-label={`Ticket type ${i + 1} sales end`}
-                          className={field}
-                        />
-                      </label>
-                    </div>
-                    {saleWindowInvalid(tier) && (
-                      <p className="text-sm text-red-300">
-                        {t('composer.saleWindowError', { defaultValue: 'Sales end must be after sales start.' })}
-                      </p>
-                    )}
-                    {/* Optional per-tier entry (validity) window — when the ticket
-                        admits the holder. Leave blank to admit anytime. */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <label className="block">
-                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">
-                          {t('composer.validFrom', { defaultValue: 'Valid from' })}
-                        </span>
-                        <input
-                          type="datetime-local"
-                          value={tier.validFrom || ''}
-                          onChange={(e) => updateTier(tier.id, { validFrom: e.target.value })}
-                          aria-label={`Ticket type ${i + 1} valid from`}
-                          className={field}
-                        />
-                      </label>
-                      <label className="block">
-                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">
-                          {t('composer.validUntil', { defaultValue: 'Valid until' })}
-                        </span>
-                        <input
-                          type="datetime-local"
-                          value={tier.validUntil || ''}
-                          min={tier.validFrom || undefined}
-                          onChange={(e) => updateTier(tier.id, { validUntil: e.target.value })}
-                          aria-label={`Ticket type ${i + 1} valid until`}
-                          className={field}
-                        />
-                      </label>
-                    </div>
-                    {validityWindowInvalid(tier) && (
-                      <p className="text-sm text-red-300">
-                        {t('composer.validityError', { defaultValue: 'Valid until must be after valid from.' })}
-                      </p>
-                    )}
-                  </div>
-                ))}
+                  )
+                })}
 
                 <button
                   type="button"
@@ -1666,17 +2152,16 @@ export default function EventComposer({
 
           {/* Guestlist — the lineup: artists, hosts & special guests joining */}
           <div className="mt-8 border-t border-white/10 pt-6">
+            {/* The standing paragraph of explanation is now an (i) popover;
+                the show-on-page toggle moved into advanced Page Settings. */}
             <SectionTitle
               icon={Users}
-              right={<Toggle on={showGuestlist} onChange={setShowGuestlist} label="Show guestlist" />}
+              info={t('composer.guestlistHint', {
+                defaultValue: 'Add the artists, hosts, DJs and special guests performing or joining your event.',
+              })}
             >
               {t('composer.guestlist', { defaultValue: 'Guestlist' })}
             </SectionTitle>
-            <p className="mb-3 text-sm text-white/50">
-              {t('composer.guestlistHint', {
-                defaultValue: 'Add the artists, hosts, DJs and special guests performing or joining your event.',
-              })}
-            </p>
 
             <div className="space-y-3 rounded-xl border border-white/10 p-4">
               {/* Existing guests */}
@@ -1684,7 +2169,7 @@ export default function EventComposer({
                 <div className="space-y-2">
                   {guests.map((g) => (
                     <div key={g.id} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5">
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/[0.06] text-xs font-bold text-white">
                         {g.name.charAt(0).toUpperCase()}
                       </span>
                       <span className="min-w-0 flex-1">
@@ -1726,11 +2211,7 @@ export default function EventComposer({
                     key={role}
                     type="button"
                     onClick={() => setGuestRole(role)}
-                    className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${
-                      guestRole === role
-                        ? 'border-brand-500 bg-brand-600 text-white'
-                        : 'border-white/10 bg-white/[0.03] text-white/70 hover:border-white/20 hover:text-white'
-                    }`}
+                    className={chipCls(guestRole === role)}
                   >
                     {t(`composer.roles.${role}`, { defaultValue: role })}
                   </button>
@@ -1747,6 +2228,33 @@ export default function EventComposer({
             </div>
           </div>
 
+          {/* ADVANCED — one control instead of two more sections shouting on
+              first load. Title, dates, location and tickets stay open above;
+              everything here is a refinement, not a requirement. Conditional
+              render (not opacity) so collapsed controls are untabbable. */}
+          <div className="mt-8 border-t border-white/10 pt-6">
+            <button
+              type="button"
+              onClick={() => setAdvancedOpen((v) => !v)}
+              aria-expanded={advancedOpen}
+              className="flex w-full items-center justify-between rounded-xl px-1 py-2 text-left transition-colors hover:bg-white/[0.03]"
+            >
+              <span className="flex items-center gap-2 text-[15px] font-medium text-white/80">
+                <Settings className="h-4 w-4 text-white/50" />
+                {advancedOpen
+                  ? t('composer.hideAdvanced', { defaultValue: 'Hide advanced settings' })
+                  : t('composer.showAdvanced', { defaultValue: 'Advanced settings' })}
+              </span>
+              <ChevronDown
+                className={`h-4 w-4 shrink-0 text-white/40 transition-transform duration-200 ${
+                  advancedOpen ? 'rotate-180' : ''
+                }`}
+              />
+            </button>
+          </div>
+
+          {advancedOpen && (
+            <>
           {/* Event Features */}
           <div className="mt-8 border-t border-white/10 pt-6">
             <SectionTitle icon={Star}>{t('composer.features', { defaultValue: 'Event Features' })}</SectionTitle>
@@ -1837,6 +2345,8 @@ export default function EventComposer({
               </div>
             </div>
           </div>
+            </>
+          )}
         </div>
 
         {/* ===================== RIGHT — flyer + style ===================== */}

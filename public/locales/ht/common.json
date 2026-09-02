@@ -1215,7 +1215,8 @@
       "unpublishedTitle": "Mete an bouyon",
       "publishedMsg": "Evènman ou anliy kounye a.",
       "unpublishedMsg": "Evènman ou kache pou patisipan yo.",
-      "errUpdateTitle": "Nou pa t ka mete ajou"
+      "errUpdateTitle": "Nou pa t ka mete ajou",
+      "priceMsgToggle": "Mete yon pri, oswa limen « Fè tikè sa a gratis ». Yon pri vid pa vle di gratis."
     },
     "spotifySearchPlaceholder": "Chèche yon chante sou Spotify",
     "spotifyResultsLabel": "Rezilta chante yo",
@@ -1223,7 +1224,36 @@
     "spotifyChange": "Chanje",
     "spotifyRemove": "Retire chante a",
     "spotifyPastedLink": "Lyen Spotify",
-    "spotifySearchUnavailable": "Rechèch chante a poko konfigire — kole yon lyen Spotify pou kounye a."
+    "spotifySearchUnavailable": "Rechèch chante a poko konfigire — kole yon lyen Spotify pou kounye a.",
+    "showAdvanced": "Paramèt avanse",
+    "hideAdvanced": "Kache paramèt avanse",
+    "qtyShort": "Kantite",
+    "tierDescAria": "Deskripsyon pou {{tier}}",
+    "tierDetailsAria": "Opsyon tikè {{tier}}",
+    "tierLimitAria": "Maksimòm pa kòmand pou {{tier}}",
+    "tierMenuAria": "Plis aksyon pou {{tier}}",
+    "tierNameAria": "Non kalite tikè {{n}}",
+    "tierPriceAria": "Pri {{tier}} ({{currency}})",
+    "tierQtyAria": "Kantite {{tier}}",
+    "tier": {
+      "description": "Deskripsyon tikè a",
+      "descriptionPlaceholder": "Kisa tikè sa a genyen ladan l?",
+      "duplicate": "Kopye tikè a",
+      "editDetails": "Opsyon tikè a",
+      "free": "Gratis",
+      "hidden": "Kache",
+      "hide": "Kache tikè sa a",
+      "hideHint": "Tikè kache pa janm parèt sou paj evènman an epi moun pa ka achte l sou entènèt — bon pou yon tikè w ap vann ou menm.",
+      "limitQty": "Limite kantite pa kòmand",
+      "limitQtyHint": "Kantite maksimòm nan tikè sa a yon sèl kòmand ka genyen. Kite l fèmen si w pa vle limite.",
+      "makeFree": "Fè tikè sa a gratis",
+      "makeFreeHint": "Tikè sa a gratis — nou pa janm chaje moun ki achte l.",
+      "unlimited": "San limit",
+      "unlimitedHint": "Pa gen limit sou konbyen nan tikè sa a ou ka vann.",
+      "unlimitedQty": "Kantite san limit",
+      "waitlist": "Lis datant lè l fini vann",
+      "waitlistHint": "Pran non moun pou tikè sa a depi l fini vann. Chak kalite tikè gen lis pa l."
+    }
   },
   "promoter": {
     "portal_eyebrow": "Pòtay pwomotè",

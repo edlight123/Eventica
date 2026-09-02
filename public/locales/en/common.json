@@ -1215,7 +1215,8 @@
       "unpublishedTitle": "Moved to draft",
       "publishedMsg": "Your event is now live.",
       "unpublishedMsg": "Your event is hidden from attendees.",
-      "errUpdateTitle": "Could not update"
+      "errUpdateTitle": "Could not update",
+      "priceMsgToggle": "Type a price, or turn on “Make this a free ticket”. A blank price is not the same as free."
     },
     "spotifySearchPlaceholder": "Search a song on Spotify",
     "spotifyResultsLabel": "Song results",
@@ -1223,7 +1224,36 @@
     "spotifyChange": "Change",
     "spotifyRemove": "Remove song",
     "spotifyPastedLink": "Spotify link",
-    "spotifySearchUnavailable": "Song search needs setup — paste a Spotify link for now."
+    "spotifySearchUnavailable": "Song search needs setup — paste a Spotify link for now.",
+    "showAdvanced": "Advanced settings",
+    "hideAdvanced": "Hide advanced settings",
+    "qtyShort": "Qty",
+    "tierDescAria": "Description for {{tier}}",
+    "tierDetailsAria": "Ticket options for {{tier}}",
+    "tierLimitAria": "Maximum per order for {{tier}}",
+    "tierMenuAria": "More actions for {{tier}}",
+    "tierNameAria": "Ticket type {{n}} name",
+    "tierPriceAria": "Price for {{tier}} ({{currency}})",
+    "tierQtyAria": "Quantity for {{tier}}",
+    "tier": {
+      "description": "Ticket description",
+      "descriptionPlaceholder": "What does this ticket include?",
+      "duplicate": "Duplicate tier",
+      "editDetails": "Ticket options",
+      "free": "Free",
+      "hidden": "Hidden",
+      "hide": "Hide this ticket",
+      "hideHint": "Hidden tickets never show on the event page and cannot be bought online — useful for a tier you sell yourself.",
+      "limitQty": "Limit purchase quantity",
+      "limitQtyHint": "The most of this ticket one order can contain. Leave it off for no limit.",
+      "makeFree": "Make this a free ticket",
+      "makeFreeHint": "This ticket is free — buyers are never charged for it.",
+      "unlimited": "Unlimited",
+      "unlimitedHint": "No cap on how many of this ticket you can sell.",
+      "unlimitedQty": "Unlimited quantity",
+      "waitlist": "Waitlist when sold out",
+      "waitlistHint": "Collect names for this ticket once it sells out. Each ticket type has its own list."
+    }
   },
   "promoter": {
     "portal_eyebrow": "Promoter portal",
