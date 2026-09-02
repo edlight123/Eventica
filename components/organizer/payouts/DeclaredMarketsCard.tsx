@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Check, Loader2 } from 'lucide-react'
 import { updateDeclaredMarkets } from '@/app/organizer/settings/payouts/actions'
 import { COUNTRY_SUPPORT } from '@/lib/country-support'
+import { useTranslation } from 'react-i18next'
 import {
   DECLARABLE_MARKETS,
   marketsForRail,
@@ -26,16 +27,22 @@ import {
  * profile from the EVENT's country, server-side.
  */
 
-const RAIL_COPY: Record<PayoutRailId, { title: string; blurb: string }> = {
+type Translate = (key: string, opts?: Record<string, any>) => string
+
+const railCopy = (t: Translate): Record<PayoutRailId, { title: string; blurb: string }> => ({
   haiti: {
-    title: 'Haiti payouts',
-    blurb: 'Bank transfer (Sogebank, Unibank…) or MonCash. Tikèm verifies you.',
+    title: t('markets.rail_haiti_title', { defaultValue: 'Haiti payouts' }),
+    blurb: t('markets.rail_haiti_blurb', {
+      defaultValue: 'Bank transfer (Sogebank, Unibank…) or MonCash. Tikèm verifies you.',
+    }),
   },
   stripe_connect: {
     title: 'Stripe Connect',
-    blurb: 'Card payouts to a bank account outside Haiti. Stripe verifies you.',
+    blurb: t('markets.rail_stripe_blurb', {
+      defaultValue: 'Card payouts to a bank account outside Haiti. Stripe verifies you.',
+    }),
   },
-}
+})
 
 export default function DeclaredMarketsCard({
   initialMarkets,
@@ -48,6 +55,7 @@ export default function DeclaredMarketsCard({
   stripeConfigured?: boolean
   className?: string
 }) {
+  const { t } = useTranslation('organizer')
   const router = useRouter()
   const [saved, setSaved] = useState<string[]>(() => normalizeDeclaredMarkets(initialMarkets))
   const [selected, setSelected] = useState<string[]>(() => normalizeDeclaredMarkets(initialMarkets))
@@ -79,7 +87,7 @@ export default function DeclaredMarketsCard({
     try {
       const result = await updateDeclaredMarkets(selected)
       if (!result.success) {
-        setError(result.error || 'Could not save your markets')
+        setError(result.error || t('markets.save_error', { defaultValue: 'Could not save your markets' }))
         return
       }
       const next = normalizeDeclaredMarkets(result.markets ?? selected)
@@ -88,7 +96,7 @@ export default function DeclaredMarketsCard({
       setJustSaved(true)
       router.refresh()
     } catch (e: any) {
-      setError(e?.message || 'Could not save your markets')
+      setError(e?.message || t('markets.save_error', { defaultValue: 'Could not save your markets' }))
     } finally {
       setIsSaving(false)
     }
@@ -97,7 +105,7 @@ export default function DeclaredMarketsCard({
   return (
     <div className={`bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden ${className || ''}`}>
       <div className="p-6">
-        <h2 className="text-lg font-semibold text-white">Where you run events</h2>
+        <h2 className="text-lg font-semibold text-white">{t('markets.title', { defaultValue: 'Where you run events' })}</h2>
         <p className="mt-1 text-sm text-white/60">
           Pick every country you plan to hold events in. We&apos;ll only ask you to set up the
           payout methods those countries actually use — and you can change this whenever you
@@ -136,10 +144,10 @@ export default function DeclaredMarketsCard({
             className="inline-flex items-center gap-2 rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-            {isSaving ? 'Saving…' : 'Save markets'}
+            {isSaving ? t('markets.saving', { defaultValue: 'Saving…' }) : t('markets.save', { defaultValue: 'Save markets' })}
           </button>
           {justSaved && !isDirty ? (
-            <span className="text-sm text-white/50">Saved — you can update this any time.</span>
+            <span className="text-sm text-white/50">{t('markets.saved_note', { defaultValue: 'Saved — you can update this any time.' })}</span>
           ) : null}
         </div>
 
@@ -148,19 +156,21 @@ export default function DeclaredMarketsCard({
         <div className="mt-6 border-t border-white/10 pt-5">
           {saved.length === 0 ? (
             <p className="text-sm text-white/50">
-              Nothing declared yet, so every payout method is shown below.
+              {t('markets.none_declared', { defaultValue: 'Nothing declared yet, so every payout method is shown below.' })}
             </p>
           ) : rails.length === 0 ? (
             <p className="text-sm text-white/50">
-              Paid tickets aren&apos;t available in the markets you picked yet, so there&apos;s
-              no payout method to set up. Free and RSVP events work today.
+              {t('markets.no_paid_yet', {
+                defaultValue:
+                  "Paid tickets aren't available in the markets you picked yet, so there's no payout method to set up. Free and RSVP events work today.",
+              })}
             </p>
           ) : (
             <>
               <p className="text-sm text-white/60">
                 {rails.length > 1
-                  ? `Your markets need ${rails.length} separate payout setups. Completing one does not cover the other.`
-                  : 'Your markets need one payout setup.'}
+                  ? t('markets.needs_many', { count: rails.length, defaultValue: `Your markets need ${rails.length} separate payout setups. Completing one does not cover the other.` })
+                  : t('markets.needs_one', { defaultValue: 'Your markets need one payout setup.' })}
               </p>
               <ul className="mt-3 space-y-3">
                 {rails.map((rail) => {
@@ -178,13 +188,13 @@ export default function DeclaredMarketsCard({
                       />
                       <div className="min-w-0">
                         <div className="text-sm font-medium text-white">
-                          {RAIL_COPY[rail].title}
+                          {railCopy(t)[rail].title}
                           <span className="ml-2 text-xs font-normal text-white/50">
-                            {isConfigured ? 'Set up' : 'Not set up'}
+                            {isConfigured ? t('markets.set_up', { defaultValue: 'Set up' }) : t('markets.not_set_up', { defaultValue: 'Not set up' })}
                           </span>
                         </div>
                         <div className="text-xs text-white/50">
-                          {served} · {RAIL_COPY[rail].blurb}
+                          {served} · {railCopy(t)[rail].blurb}
                         </div>
                       </div>
                     </li>

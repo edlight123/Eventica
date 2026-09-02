@@ -6,6 +6,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   initialData: Record<string, any>
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Props) {
+  const { t } = useTranslation('organizer')
   const [formData, setFormData] = useState({
     full_name: initialData.full_name || '',
     phone: initialData.phone || '',
@@ -44,17 +46,17 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
     const normalizedPhone = String(formData.phone || '').replace(/[\s\-()]/g, '')
 
     if (!formData.full_name.trim()) {
-      newErrors.full_name = 'Full name is required'
+      newErrors.full_name = t('onboarding.verification.errors.full_name_required', { defaultValue: 'Full name is required' })
     }
 
     if (!formData.phone.trim()) {
-      newErrors.phone = 'Phone number is required'
+      newErrors.phone = t('onboarding.verification.errors.phone_required', { defaultValue: 'Phone number is required' })
     } else if (!/^\+?\d{10,}$/.test(normalizedPhone)) {
-      newErrors.phone = 'Invalid phone number format'
+      newErrors.phone = t('onboarding.verification.errors.phone_invalid', { defaultValue: 'Invalid phone number format' })
     }
 
     if (!formData.organization_name.trim()) {
-      newErrors.organization_name = 'Organization name is required'
+      newErrors.organization_name = t('onboarding.verification.errors.organization_name_required', { defaultValue: 'Organization name is required' })
     }
 
     setErrors(newErrors)
@@ -72,7 +74,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
       setIsSaving(true)
       await onSave(formData)
     } catch (error: any) {
-      setErrors({ _form: error.message || 'Failed to save' })
+      setErrors({ _form: error.message || t('onboarding.verification.errors.save_failed_short', { defaultValue: 'Failed to save' }) })
     } finally {
       setIsSaving(false)
     }
@@ -82,14 +84,14 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="bg-[#0a0a0a]  rounded-lg p-6 md:p-8">
         <h3 className="text-lg md:text-xl font-bold text-white mb-6">
-          Organizer Information
+          {t('onboarding.verification.forms.organizer_info_title', { defaultValue: 'Organizer Information' })}
         </h3>
 
         <div className="space-y-4">
           {/* Full Name */}
           <div>
             <label htmlFor="full_name" className="block text-sm font-medium text-white/70 mb-2">
-              Full Name <span className="text-red-500">*</span>
+              {t('onboarding.verification.field.full_name', { defaultValue: 'Full Name' })} <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -100,7 +102,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
               className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 ${
                 errors.full_name ? 'border-red-300' : 'border-white/15'
               }`}
-              placeholder="John Doe"
+              placeholder={t('onboarding.verification.forms.full_name_placeholder', { defaultValue: 'John Doe' })}
             />
             {errors.full_name && (
               <p className="mt-1 text-sm text-red-300">{errors.full_name}</p>
@@ -110,7 +112,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
           {/* Phone */}
           <div>
             <label htmlFor="phone" className="block text-sm font-medium text-white/70 mb-2">
-              Phone Number <span className="text-red-500">*</span>
+              {t('onboarding.verification.field.phone', { defaultValue: 'Phone Number' })} <span className="text-red-500">*</span>
             </label>
             <input
               type="tel"
@@ -121,7 +123,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
               className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 ${
                 errors.phone ? 'border-red-300' : 'border-white/15'
               }`}
-              placeholder="+509 1234 5678"
+              placeholder={t('onboarding.verification.field.phone_placeholder', { defaultValue: '+509 1234 5678' })}
             />
             {errors.phone && (
               <p className="mt-1 text-sm text-red-300">{errors.phone}</p>
@@ -131,7 +133,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
           {/* Email */}
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-white/70 mb-2">
-              Email Address
+              {t('onboarding.verification.field.email', { defaultValue: 'Email Address' })}
             </label>
             <input
               type="email"
@@ -140,14 +142,14 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
               value={formData.email}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-              placeholder="john@example.com"
+              placeholder={t('onboarding.verification.forms.email_placeholder', { defaultValue: 'john@example.com' })}
             />
           </div>
 
           {/* Organization Name */}
           <div>
             <label htmlFor="organization_name" className="block text-sm font-medium text-white/70 mb-2">
-              Organization/Business Name <span className="text-red-500">*</span>
+              {t('onboarding.verification.field.organization_business_name', { defaultValue: 'Organization/Business Name' })} <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -158,7 +160,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
               className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 ${
                 errors.organization_name ? 'border-red-300' : 'border-white/15'
               }`}
-              placeholder="Your Company Name"
+              placeholder={t('onboarding.verification.forms.organization_name_placeholder', { defaultValue: 'Your Company Name' })}
             />
             {errors.organization_name && (
               <p className="mt-1 text-sm text-red-300">{errors.organization_name}</p>
@@ -168,7 +170,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
           {/* Organization Type */}
           <div>
             <label htmlFor="organization_type" className="block text-sm font-medium text-white/70 mb-2">
-              Organization Type
+              {t('onboarding.verification.field.organization_type', { defaultValue: 'Organization Type' })}
             </label>
             <select
               id="organization_type"
@@ -177,17 +179,17 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
               onChange={handleChange}
               className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
             >
-              <option value="individual">Individual/Sole Proprietor</option>
-              <option value="company">Company/Corporation</option>
-              <option value="nonprofit">Non-Profit Organization</option>
-              <option value="other">Other</option>
+              <option value="individual">{t('onboarding.verification.org_type.individual', { defaultValue: 'Individual/Sole Proprietor' })}</option>
+              <option value="company">{t('onboarding.verification.org_type.company', { defaultValue: 'Company/Corporation' })}</option>
+              <option value="nonprofit">{t('onboarding.verification.org_type.nonprofit', { defaultValue: 'Non-Profit Organization' })}</option>
+              <option value="other">{t('onboarding.verification.org_type.other', { defaultValue: 'Other' })}</option>
             </select>
           </div>
 
           {/* Address */}
           <div>
             <label htmlFor="address" className="block text-sm font-medium text-white/70 mb-2">
-              Address
+              {t('onboarding.verification.field.address', { defaultValue: 'Address' })}
             </label>
             <textarea
               id="address"
@@ -196,7 +198,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
               onChange={handleChange}
               rows={2}
               className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-              placeholder="Street address"
+              placeholder={t('onboarding.verification.field.address_placeholder', { defaultValue: 'Street address' })}
             />
           </div>
 
@@ -204,7 +206,7 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="city" className="block text-sm font-medium text-white/70 mb-2">
-                City
+                {t('onboarding.verification.field.city', { defaultValue: 'City' })}
               </label>
               <input
                 type="text"
@@ -213,13 +215,13 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
                 value={formData.city}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                placeholder="Port-au-Prince"
+                placeholder={t('onboarding.verification.field.city_placeholder', { defaultValue: 'Port-au-Prince' })}
               />
             </div>
 
             <div>
               <label htmlFor="country" className="block text-sm font-medium text-white/70 mb-2">
-                Country
+                {t('onboarding.verification.field.country', { defaultValue: 'Country' })}
               </label>
               <select
                 id="country"
@@ -228,9 +230,9 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
               >
-                <option value="Haiti">Haiti</option>
-                <option value="Dominican Republic">Dominican Republic</option>
-                <option value="Other">Other</option>
+                <option value="Haiti">{t('onboarding.verification.country.haiti', { defaultValue: 'Haiti' })}</option>
+                <option value="Dominican Republic">{t('onboarding.verification.country.dominican_republic', { defaultValue: 'Dominican Republic' })}</option>
+                <option value="Other">{t('onboarding.verification.country.other', { defaultValue: 'Other' })}</option>
               </select>
             </div>
           </div>
@@ -252,14 +254,16 @@ export default function OrganizerInfoForm({ initialData, onSave, onCancel }: Pro
           disabled={isSaving}
           className="flex-1 px-6 py-3 text-white/70 bg-[#0a0a0a] border-2 border-white/15 rounded-lg font-semibold hover:bg-white/[0.04] transition-all disabled:opacity-50"
         >
-          Cancel
+          {t('onboarding.verification.nav.cancel', { defaultValue: 'Cancel' })}
         </button>
         <button
           type="submit"
           disabled={isSaving}
           className="flex-1 px-6 py-3 bg-brand-700 hover:bg-brand-800 text-white rounded-lg font-semibold transition-all shadow-md hover:shadow-lg disabled:opacity-50"
         >
-          {isSaving ? 'Saving...' : 'Save & Continue'}
+          {isSaving
+            ? t('onboarding.verification.nav.saving', { defaultValue: 'Saving...' })
+            : t('onboarding.verification.nav.save_continue', { defaultValue: 'Save & Continue' })}
         </button>
       </div>
     </form>

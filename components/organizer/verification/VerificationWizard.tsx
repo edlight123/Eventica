@@ -15,10 +15,11 @@ import {
   Sparkles,
   ClipboardCheck
 } from 'lucide-react'
-import { 
-  VerificationRequest, 
-  uploadVerificationDocument, 
-  updateVerificationFiles 
+import { useTranslation } from 'react-i18next'
+import {
+  VerificationRequest,
+  uploadVerificationDocument,
+  updateVerificationFiles
 } from '@/lib/verification'
 import DocumentUploadCard from './DocumentUploadCard'
 
@@ -78,13 +79,14 @@ function ReviewRow({ label, value }: { label: string; value?: string }) {
 }
 
 function ReviewDoc({ ok, label }: { ok: boolean; label: string }) {
+  const { t } = useTranslation('organizer')
   return (
     <li className="flex items-center gap-2">
       <span className={`grid h-5 w-5 place-items-center rounded-full ${ok ? 'text-emerald-300' : 'bg-[#0a0a0a] text-white/40'}`}>
         {ok ? <Check className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
       </span>
       <span className={ok ? 'text-white' : 'text-white/50'}>{label}</span>
-      {!ok && <span className="text-xs font-medium text-amber-300">Missing</span>}
+      {!ok && <span className="text-xs font-medium text-amber-300">{t('onboarding.verification.missing', { defaultValue: 'Missing' })}</span>}
     </li>
   )
 }
@@ -96,6 +98,7 @@ export default function VerificationWizard({
   onComplete,
   onExit,
 }: VerificationWizardProps) {
+  const { t } = useTranslation('organizer')
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -177,7 +180,7 @@ export default function VerificationWizard({
       await onStepComplete(currentStep.id, data)
       handleNext()
     } catch (err: any) {
-      setError(err.message || 'Failed to save. Please try again.')
+      setError(err.message || t('onboarding.verification.errors.save_failed', { defaultValue: 'Failed to save. Please try again.' }))
     } finally {
       setSaving(false)
     }
@@ -190,7 +193,7 @@ export default function VerificationWizard({
       await onStepComplete(currentStep.id, {})
       handleNext()
     } catch (err: any) {
-      setError(err.message || 'Failed to skip. Please try again.')
+      setError(err.message || t('onboarding.verification.errors.skip_failed', { defaultValue: 'Failed to skip. Please try again.' }))
     } finally {
       setSaving(false)
     }
@@ -202,15 +205,15 @@ export default function VerificationWizard({
     const normalizedPhone = String(organizerForm.phone || '').replace(/[\s\-()]/g, '')
 
     if (!organizerForm.full_name.trim()) {
-      newErrors.full_name = 'Full name is required'
+      newErrors.full_name = t('onboarding.verification.errors.full_name_required', { defaultValue: 'Full name is required' })
     }
     if (!organizerForm.phone.trim()) {
-      newErrors.phone = 'Phone number is required'
+      newErrors.phone = t('onboarding.verification.errors.phone_required', { defaultValue: 'Phone number is required' })
     } else if (!/^\+?\d{10,}$/.test(normalizedPhone)) {
-      newErrors.phone = 'Invalid phone number format'
+      newErrors.phone = t('onboarding.verification.errors.phone_invalid', { defaultValue: 'Invalid phone number format' })
     }
     if (!organizerForm.organization_name.trim()) {
-      newErrors.organization_name = 'Organization name is required'
+      newErrors.organization_name = t('onboarding.verification.errors.organization_name_required', { defaultValue: 'Organization name is required' })
     }
 
     setFormErrors(newErrors)
@@ -232,14 +235,14 @@ export default function VerificationWizard({
         await onStepComplete(currentStep.id, organizerForm)
       } else if (currentStep.id === 'governmentId') {
         if (!idFrontPath || !idBackPath) {
-          setError('Please upload both front and back of your ID')
+          setError(t('onboarding.verification.errors.upload_both_id', { defaultValue: 'Please upload both front and back of your ID' }))
           setSaving(false)
           return
         }
         await onStepComplete(currentStep.id)
       } else if (currentStep.id === 'selfie') {
         if (!selfiePath) {
-          setError('Please upload a selfie for identity verification')
+          setError(t('onboarding.verification.errors.upload_selfie', { defaultValue: 'Please upload a selfie for identity verification' }))
           setSaving(false)
           return
         }
@@ -250,7 +253,7 @@ export default function VerificationWizard({
 
       handleNext()
     } catch (err: any) {
-      setError(err.message || 'Failed to save. Please try again.')
+      setError(err.message || t('onboarding.verification.errors.save_failed', { defaultValue: 'Failed to save. Please try again.' }))
     } finally {
       setSaving(false)
     }
@@ -265,7 +268,7 @@ export default function VerificationWizard({
       if (idBackPath) updateData.governmentId.back = idBackPath
       await updateVerificationFiles(userId, updateData)
     } catch (err: any) {
-      throw new Error(err.message || 'Failed to upload ID front')
+      throw new Error(err.message || t('onboarding.verification.errors.upload_id_front_failed', { defaultValue: 'Failed to upload ID front' }))
     }
   }
 
@@ -277,7 +280,7 @@ export default function VerificationWizard({
       if (idFrontPath) updateData.governmentId.front = idFrontPath
       await updateVerificationFiles(userId, updateData)
     } catch (err: any) {
-      throw new Error(err.message || 'Failed to upload ID back')
+      throw new Error(err.message || t('onboarding.verification.errors.upload_id_back_failed', { defaultValue: 'Failed to upload ID back' }))
     }
   }
 
@@ -288,7 +291,7 @@ export default function VerificationWizard({
       setSelfiePath(path)
       await updateVerificationFiles(userId, { selfie: { path, uploadedAt: new Date() } })
     } catch (err: any) {
-      throw new Error(err.message || 'Failed to upload selfie')
+      throw new Error(err.message || t('onboarding.verification.errors.upload_selfie_failed', { defaultValue: 'Failed to upload selfie' }))
     }
   }
 
@@ -304,17 +307,25 @@ export default function VerificationWizard({
             className="flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
-            Save & Exit
+            {t('onboarding.verification.save_exit', { defaultValue: 'Save & Exit' })}
           </button>
           
           {/* Progress Bar */}
           <div className="bg-[#0a0a0a] rounded-xl  p-4 md:p-5">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-lg font-semibold text-white">
-                Step {currentStepIndex + 1} of {STEPS.length}
+                {t('onboarding.verification.step_of', {
+                  defaultValue: 'Step {{current}} of {{total}}',
+                  current: currentStepIndex + 1,
+                  total: STEPS.length,
+                })}
               </h2>
               <span className="text-sm text-white/60">
-                {completedSteps} of {requiredSteps.length} required complete
+                {t('onboarding.verification.required_complete', {
+                  defaultValue: '{{completed}} of {{total}} required complete',
+                  completed: completedSteps,
+                  total: requiredSteps.length,
+                })}
               </span>
             </div>
             
@@ -368,13 +379,13 @@ export default function VerificationWizard({
             </div>
             <div>
               <h1 className="text-xl md:text-2xl font-bold text-white">
-                {currentStep.title}
+                {t(`onboarding.verification.steps.${currentStep.id}.title`, { defaultValue: currentStep.title })}
               </h1>
               <p className="text-white/60">
-                {currentStep.description}
+                {t(`onboarding.verification.steps.${currentStep.id}.description`, { defaultValue: currentStep.description })}
                 {!currentStep.required && (
                   <span className="ml-2 text-xs font-medium text-white/50 bg-[#0a0a0a] px-2 py-0.5 rounded-full">
-                    Optional
+                    {t('onboarding.verification.optional', { defaultValue: 'Optional' })}
                   </span>
                 )}
               </p>
@@ -385,14 +396,14 @@ export default function VerificationWizard({
         {/* What you'll need — shown on the first step so organizers don't bail mid-flow */}
         {currentStepIndex === 0 && (
           <div className="mb-6 border border-brand-500/30 rounded-xl p-4">
-            <h4 className="text-sm font-semibold text-brand-300 mb-1.5">Before you start</h4>
+            <h4 className="text-sm font-semibold text-brand-300 mb-1.5">{t('onboarding.verification.before_you_start', { defaultValue: 'Before you start' })}</h4>
             <p className="text-sm text-brand-300/90 mb-2">
-              Have these ready — it takes about 5 minutes, and your progress saves as you go:
+              {t('onboarding.verification.before_you_start_intro', { defaultValue: 'Have these ready — it takes about 5 minutes, and your progress saves as you go:' })}
             </p>
             <ul className="text-sm text-brand-300/90 space-y-1 ml-5 list-disc">
-              <li>A government-issued ID (front &amp; back)</li>
-              <li>Your phone or webcam for a quick selfie holding your ID</li>
-              <li>Your organization name and contact details</li>
+              <li>{t('onboarding.verification.checklist_id', { defaultValue: 'A government-issued ID (front & back)' })}</li>
+              <li>{t('onboarding.verification.checklist_selfie', { defaultValue: 'Your phone or webcam for a quick selfie holding your ID' })}</li>
+              <li>{t('onboarding.verification.checklist_org', { defaultValue: 'Your organization name and contact details' })}</li>
             </ul>
           </div>
         )}
@@ -402,7 +413,7 @@ export default function VerificationWizard({
           <div className="mb-6 border border-red-500/30 rounded-xl p-4 flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-medium text-red-300">Error</p>
+              <p className="text-sm font-medium text-red-300">{t('onboarding.verification.error_label', { defaultValue: 'Error' })}</p>
               <p className="text-sm text-red-300">{error}</p>
             </div>
           </div>
@@ -415,7 +426,7 @@ export default function VerificationWizard({
               {/* Full Name */}
               <div>
                 <label htmlFor="full_name" className="block text-sm font-medium text-white/70 mb-2">
-                  Full Name <span className="text-red-500">*</span>
+                  {t('onboarding.verification.field.full_name', { defaultValue: 'Full Name' })} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -428,7 +439,7 @@ export default function VerificationWizard({
                   className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors ${
                     formErrors.full_name ? 'border-red-300 ' : 'border-white/15'
                   }`}
-                  placeholder="Your full name as it appears on your ID"
+                  placeholder={t('onboarding.verification.field.full_name_placeholder', { defaultValue: 'Your full name as it appears on your ID' })}
                 />
                 {formErrors.full_name && <p className="mt-1.5 text-sm text-red-300">{formErrors.full_name}</p>}
               </div>
@@ -437,7 +448,7 @@ export default function VerificationWizard({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="phone" className="block text-sm font-medium text-white/70 mb-2">
-                    Phone Number <span className="text-red-500">*</span>
+                    {t('onboarding.verification.field.phone', { defaultValue: 'Phone Number' })} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="tel"
@@ -450,13 +461,13 @@ export default function VerificationWizard({
                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors ${
                       formErrors.phone ? 'border-red-300 ' : 'border-white/15'
                     }`}
-                    placeholder="+509 1234 5678"
+                    placeholder={t('onboarding.verification.field.phone_placeholder', { defaultValue: '+509 1234 5678' })}
                   />
                   {formErrors.phone && <p className="mt-1.5 text-sm text-red-300">{formErrors.phone}</p>}
                 </div>
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-white/70 mb-2">
-                    Email Address
+                    {t('onboarding.verification.field.email', { defaultValue: 'Email Address' })}
                   </label>
                   <input
                     type="email"
@@ -464,7 +475,7 @@ export default function VerificationWizard({
                     value={organizerForm.email}
                     onChange={(e) => setOrganizerForm(prev => ({ ...prev, email: e.target.value }))}
                     className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
-                    placeholder="email@example.com"
+                    placeholder={t('onboarding.verification.field.email_placeholder', { defaultValue: 'email@example.com' })}
                   />
                 </div>
               </div>
@@ -472,7 +483,7 @@ export default function VerificationWizard({
               {/* Organization Name */}
               <div>
                 <label htmlFor="organization_name" className="block text-sm font-medium text-white/70 mb-2">
-                  Organization Name <span className="text-red-500">*</span>
+                  {t('onboarding.verification.field.organization_name', { defaultValue: 'Organization Name' })} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -485,7 +496,7 @@ export default function VerificationWizard({
                   className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors ${
                     formErrors.organization_name ? 'border-red-300 ' : 'border-white/15'
                   }`}
-                  placeholder="Your business or organization name"
+                  placeholder={t('onboarding.verification.field.organization_name_placeholder', { defaultValue: 'Your business or organization name' })}
                 />
                 {formErrors.organization_name && <p className="mt-1.5 text-sm text-red-300">{formErrors.organization_name}</p>}
               </div>
@@ -493,7 +504,7 @@ export default function VerificationWizard({
               {/* Organization Type */}
               <div>
                 <label htmlFor="organization_type" className="block text-sm font-medium text-white/70 mb-2">
-                  Organization Type
+                  {t('onboarding.verification.field.organization_type', { defaultValue: 'Organization Type' })}
                 </label>
                 <select
                   id="organization_type"
@@ -501,17 +512,17 @@ export default function VerificationWizard({
                   onChange={(e) => setOrganizerForm(prev => ({ ...prev, organization_type: e.target.value }))}
                   className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
                 >
-                  <option value="individual">Individual/Sole Proprietor</option>
-                  <option value="company">Company/Corporation</option>
-                  <option value="nonprofit">Non-Profit Organization</option>
-                  <option value="other">Other</option>
+                  <option value="individual">{t('onboarding.verification.org_type.individual', { defaultValue: 'Individual/Sole Proprietor' })}</option>
+                  <option value="company">{t('onboarding.verification.org_type.company', { defaultValue: 'Company/Corporation' })}</option>
+                  <option value="nonprofit">{t('onboarding.verification.org_type.nonprofit', { defaultValue: 'Non-Profit Organization' })}</option>
+                  <option value="other">{t('onboarding.verification.org_type.other', { defaultValue: 'Other' })}</option>
                 </select>
               </div>
 
               {/* Address */}
               <div>
                 <label htmlFor="address" className="block text-sm font-medium text-white/70 mb-2">
-                  Address
+                  {t('onboarding.verification.field.address', { defaultValue: 'Address' })}
                 </label>
                 <input
                   type="text"
@@ -519,7 +530,7 @@ export default function VerificationWizard({
                   value={organizerForm.address}
                   onChange={(e) => setOrganizerForm(prev => ({ ...prev, address: e.target.value }))}
                   className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
-                  placeholder="Street address"
+                  placeholder={t('onboarding.verification.field.address_placeholder', { defaultValue: 'Street address' })}
                 />
               </div>
 
@@ -527,7 +538,7 @@ export default function VerificationWizard({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="city" className="block text-sm font-medium text-white/70 mb-2">
-                    City
+                    {t('onboarding.verification.field.city', { defaultValue: 'City' })}
                   </label>
                   <input
                     type="text"
@@ -535,12 +546,12 @@ export default function VerificationWizard({
                     value={organizerForm.city}
                     onChange={(e) => setOrganizerForm(prev => ({ ...prev, city: e.target.value }))}
                     className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
-                    placeholder="Port-au-Prince"
+                    placeholder={t('onboarding.verification.field.city_placeholder', { defaultValue: 'Port-au-Prince' })}
                   />
                 </div>
                 <div>
                   <label htmlFor="country" className="block text-sm font-medium text-white/70 mb-2">
-                    Country
+                    {t('onboarding.verification.field.country', { defaultValue: 'Country' })}
                   </label>
                   <select
                     id="country"
@@ -548,9 +559,9 @@ export default function VerificationWizard({
                     onChange={(e) => setOrganizerForm(prev => ({ ...prev, country: e.target.value }))}
                     className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
                   >
-                    <option value="Haiti">Haiti</option>
-                    <option value="Dominican Republic">Dominican Republic</option>
-                    <option value="Other">Other</option>
+                    <option value="Haiti">{t('onboarding.verification.country.haiti', { defaultValue: 'Haiti' })}</option>
+                    <option value="Dominican Republic">{t('onboarding.verification.country.dominican_republic', { defaultValue: 'Dominican Republic' })}</option>
+                    <option value="Other">{t('onboarding.verification.country.other', { defaultValue: 'Other' })}</option>
                   </select>
                 </div>
               </div>
@@ -562,28 +573,28 @@ export default function VerificationWizard({
               {/* Tips */}
               <div className="border border-brand-500/30 rounded-xl p-4">
                 <h4 className="font-semibold text-brand-300 text-sm mb-2 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4" /> Photo Tips
+                  <Sparkles className="w-4 h-4" /> {t('onboarding.verification.photo_tips', { defaultValue: 'Photo Tips' })}
                 </h4>
                 <ul className="text-sm text-brand-300 space-y-1 ml-6 list-disc">
-                  <li>Ensure all text is clearly readable</li>
-                  <li>Use good lighting (avoid glare)</li>
-                  <li>Place ID on a contrasting background</li>
+                  <li>{t('onboarding.verification.tip_readable', { defaultValue: 'Ensure all text is clearly readable' })}</li>
+                  <li>{t('onboarding.verification.tip_lighting', { defaultValue: 'Use good lighting (avoid glare)' })}</li>
+                  <li>{t('onboarding.verification.tip_background', { defaultValue: 'Place ID on a contrasting background' })}</li>
                 </ul>
               </div>
 
               {/* Upload Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <DocumentUploadCard
-                  title="ID Front"
-                  description="Front side of your ID"
+                  title={t('onboarding.verification.doc.id_front_title', { defaultValue: 'ID Front' })}
+                  description={t('onboarding.verification.doc.id_front_desc', { defaultValue: 'Front side of your ID' })}
                   existingFileUrl={idFrontPath}
                   onUpload={handleIdFrontUpload}
                   onRemove={async () => setIdFrontPath(undefined)}
                   required
                 />
                 <DocumentUploadCard
-                  title="ID Back"
-                  description="Back side of your ID"
+                  title={t('onboarding.verification.doc.id_back_title', { defaultValue: 'ID Back' })}
+                  description={t('onboarding.verification.doc.id_back_desc', { defaultValue: 'Back side of your ID' })}
                   existingFileUrl={idBackPath}
                   onUpload={handleIdBackUpload}
                   onRemove={async () => setIdBackPath(undefined)}
@@ -597,19 +608,19 @@ export default function VerificationWizard({
             <div className="p-5 md:p-6 space-y-5">
               {/* Instructions */}
               <div className="border border-brand-500/30 rounded-xl p-4">
-                <h4 className="font-semibold text-brand-300 text-sm mb-2">How to take a good selfie:</h4>
+                <h4 className="font-semibold text-brand-300 text-sm mb-2">{t('onboarding.verification.selfie_how', { defaultValue: 'How to take a good selfie:' })}</h4>
                 <ul className="text-sm text-brand-300 space-y-1 ml-6 list-disc">
-                  <li>Hold your ID next to your face</li>
-                  <li>Make sure your face is clearly visible</li>
-                  <li>Ensure the ID text is readable in the photo</li>
-                  <li>Use good lighting and look at the camera</li>
+                  <li>{t('onboarding.verification.selfie_tip_hold', { defaultValue: 'Hold your ID next to your face' })}</li>
+                  <li>{t('onboarding.verification.selfie_tip_face', { defaultValue: 'Make sure your face is clearly visible' })}</li>
+                  <li>{t('onboarding.verification.selfie_tip_text', { defaultValue: 'Ensure the ID text is readable in the photo' })}</li>
+                  <li>{t('onboarding.verification.selfie_tip_light', { defaultValue: 'Use good lighting and look at the camera' })}</li>
                 </ul>
               </div>
 
               {/* Upload Card */}
               <DocumentUploadCard
-                title="Selfie with ID"
-                description="Take a photo of yourself holding your ID"
+                title={t('onboarding.verification.doc.selfie_title', { defaultValue: 'Selfie with ID' })}
+                description={t('onboarding.verification.doc.selfie_desc', { defaultValue: 'Take a photo of yourself holding your ID' })}
                 existingFileUrl={selfiePath}
                 onUpload={handleSelfieUpload}
                 onRemove={async () => setSelfiePath(undefined)}
@@ -622,14 +633,14 @@ export default function VerificationWizard({
             <div className="p-5 md:p-6 space-y-5">
               <div className="bg-[#0a0a0a]  rounded-xl p-4 mb-2">
                 <p className="text-sm text-white/60">
-                  This step is optional. Add business details if you have a registered business.
+                  {t('onboarding.verification.business_optional_note', { defaultValue: 'This step is optional. Add business details if you have a registered business.' })}
                 </p>
               </div>
 
               {/* Business Registration Number */}
               <div>
                 <label htmlFor="business_registration_number" className="block text-sm font-medium text-white/70 mb-2">
-                  Business Registration Number
+                  {t('onboarding.verification.field.business_registration_number', { defaultValue: 'Business Registration Number' })}
                 </label>
                 <input
                   type="text"
@@ -637,14 +648,14 @@ export default function VerificationWizard({
                   value={businessForm.business_registration_number}
                   onChange={(e) => setBusinessForm(prev => ({ ...prev, business_registration_number: e.target.value }))}
                   className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
-                  placeholder="e.g., RC-12345"
+                  placeholder={t('onboarding.verification.field.business_registration_number_placeholder', { defaultValue: 'e.g., RC-12345' })}
                 />
               </div>
 
               {/* Tax ID */}
               <div>
                 <label htmlFor="tax_id" className="block text-sm font-medium text-white/70 mb-2">
-                  Tax ID Number (NIF)
+                  {t('onboarding.verification.field.tax_id', { defaultValue: 'Tax ID Number (NIF)' })}
                 </label>
                 <input
                   type="text"
@@ -652,7 +663,7 @@ export default function VerificationWizard({
                   value={businessForm.tax_id}
                   onChange={(e) => setBusinessForm(prev => ({ ...prev, tax_id: e.target.value }))}
                   className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
-                  placeholder="e.g., NIF-123456789"
+                  placeholder={t('onboarding.verification.field.tax_id_placeholder', { defaultValue: 'e.g., NIF-123456789' })}
                 />
               </div>
 
@@ -660,7 +671,7 @@ export default function VerificationWizard({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="business_type" className="block text-sm font-medium text-white/70 mb-2">
-                    Business Type
+                    {t('onboarding.verification.field.business_type', { defaultValue: 'Business Type' })}
                   </label>
                   <select
                     id="business_type"
@@ -668,17 +679,17 @@ export default function VerificationWizard({
                     onChange={(e) => setBusinessForm(prev => ({ ...prev, business_type: e.target.value }))}
                     className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors"
                   >
-                    <option value="">Select type</option>
-                    <option value="sole_proprietorship">Sole Proprietorship</option>
-                    <option value="partnership">Partnership</option>
-                    <option value="corporation">Corporation</option>
-                    <option value="nonprofit">Non-Profit</option>
-                    <option value="cooperative">Cooperative</option>
+                    <option value="">{t('onboarding.verification.business_type.select', { defaultValue: 'Select type' })}</option>
+                    <option value="sole_proprietorship">{t('onboarding.verification.business_type.sole_proprietorship', { defaultValue: 'Sole Proprietorship' })}</option>
+                    <option value="partnership">{t('onboarding.verification.business_type.partnership', { defaultValue: 'Partnership' })}</option>
+                    <option value="corporation">{t('onboarding.verification.business_type.corporation', { defaultValue: 'Corporation' })}</option>
+                    <option value="nonprofit">{t('onboarding.verification.business_type.nonprofit', { defaultValue: 'Non-Profit' })}</option>
+                    <option value="cooperative">{t('onboarding.verification.business_type.cooperative', { defaultValue: 'Cooperative' })}</option>
                   </select>
                 </div>
                 <div>
                   <label htmlFor="registration_date" className="block text-sm font-medium text-white/70 mb-2">
-                    Registration Date
+                    {t('onboarding.verification.field.registration_date', { defaultValue: 'Registration Date' })}
                   </label>
                   <input
                     type="date"
@@ -695,35 +706,35 @@ export default function VerificationWizard({
           {currentStep.id === 'review' && (
             <div className="p-5 md:p-6 space-y-4">
               <p className="text-sm text-white/60">
-                Please confirm everything is correct before submitting. You can edit any section.
+                {t('onboarding.verification.review_intro', { defaultValue: 'Please confirm everything is correct before submitting. You can edit any section.' })}
               </p>
 
               {/* Personal information */}
               <div className="rounded-xl  p-4">
                 <div className="mb-3 flex items-center justify-between">
-                  <h3 className="font-display text-lg text-white">Personal information</h3>
-                  <button type="button" onClick={() => setCurrentStepIndex(0)} className="text-sm font-medium text-brand-300 hover:text-brand-300">Edit</button>
+                  <h3 className="font-display text-lg text-white">{t('onboarding.verification.review.personal_information', { defaultValue: 'Personal information' })}</h3>
+                  <button type="button" onClick={() => setCurrentStepIndex(0)} className="text-sm font-medium text-brand-300 hover:text-brand-300">{t('onboarding.verification.review.edit', { defaultValue: 'Edit' })}</button>
                 </div>
                 <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
-                  <ReviewRow label="Full name" value={organizerForm.full_name} />
-                  <ReviewRow label="Phone" value={organizerForm.phone} />
-                  <ReviewRow label="Email" value={organizerForm.email} />
-                  <ReviewRow label="Organization" value={organizerForm.organization_name} />
-                  <ReviewRow label="Type" value={organizerForm.organization_type} />
-                  <ReviewRow label="Location" value={[organizerForm.address, organizerForm.city, organizerForm.country].filter(Boolean).join(', ')} />
+                  <ReviewRow label={t('onboarding.verification.review.full_name', { defaultValue: 'Full name' })} value={organizerForm.full_name} />
+                  <ReviewRow label={t('onboarding.verification.review.phone', { defaultValue: 'Phone' })} value={organizerForm.phone} />
+                  <ReviewRow label={t('onboarding.verification.review.email', { defaultValue: 'Email' })} value={organizerForm.email} />
+                  <ReviewRow label={t('onboarding.verification.review.organization', { defaultValue: 'Organization' })} value={organizerForm.organization_name} />
+                  <ReviewRow label={t('onboarding.verification.review.type', { defaultValue: 'Type' })} value={organizerForm.organization_type} />
+                  <ReviewRow label={t('onboarding.verification.review.location', { defaultValue: 'Location' })} value={[organizerForm.address, organizerForm.city, organizerForm.country].filter(Boolean).join(', ')} />
                 </dl>
               </div>
 
               {/* Documents */}
               <div className="rounded-xl  p-4">
                 <div className="mb-3 flex items-center justify-between">
-                  <h3 className="font-display text-lg text-white">Identity documents</h3>
-                  <button type="button" onClick={() => setCurrentStepIndex(1)} className="text-sm font-medium text-brand-300 hover:text-brand-300">Edit</button>
+                  <h3 className="font-display text-lg text-white">{t('onboarding.verification.review.identity_documents', { defaultValue: 'Identity documents' })}</h3>
+                  <button type="button" onClick={() => setCurrentStepIndex(1)} className="text-sm font-medium text-brand-300 hover:text-brand-300">{t('onboarding.verification.review.edit', { defaultValue: 'Edit' })}</button>
                 </div>
                 <ul className="space-y-2 text-sm">
-                  <ReviewDoc ok={!!idFrontPath} label="Government ID — front" />
-                  <ReviewDoc ok={!!idBackPath} label="Government ID — back" />
-                  <ReviewDoc ok={!!selfiePath} label="Selfie with ID" />
+                  <ReviewDoc ok={!!idFrontPath} label={t('onboarding.verification.review.doc_id_front', { defaultValue: 'Government ID — front' })} />
+                  <ReviewDoc ok={!!idBackPath} label={t('onboarding.verification.review.doc_id_back', { defaultValue: 'Government ID — back' })} />
+                  <ReviewDoc ok={!!selfiePath} label={t('onboarding.verification.review.doc_selfie', { defaultValue: 'Selfie with ID' })} />
                 </ul>
               </div>
 
@@ -731,19 +742,19 @@ export default function VerificationWizard({
               {(businessForm.business_registration_number || businessForm.tax_id || businessForm.business_type) && (
                 <div className="rounded-xl  p-4">
                   <div className="mb-3 flex items-center justify-between">
-                    <h3 className="font-display text-lg text-white">Business details</h3>
-                    <button type="button" onClick={() => setCurrentStepIndex(3)} className="text-sm font-medium text-brand-300 hover:text-brand-300">Edit</button>
+                    <h3 className="font-display text-lg text-white">{t('onboarding.verification.review.business_details', { defaultValue: 'Business details' })}</h3>
+                    <button type="button" onClick={() => setCurrentStepIndex(3)} className="text-sm font-medium text-brand-300 hover:text-brand-300">{t('onboarding.verification.review.edit', { defaultValue: 'Edit' })}</button>
                   </div>
                   <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
-                    <ReviewRow label="Reg. number" value={businessForm.business_registration_number} />
-                    <ReviewRow label="Tax ID" value={businessForm.tax_id} />
-                    <ReviewRow label="Type" value={businessForm.business_type} />
+                    <ReviewRow label={t('onboarding.verification.review.reg_number', { defaultValue: 'Reg. number' })} value={businessForm.business_registration_number} />
+                    <ReviewRow label={t('onboarding.verification.review.tax_id', { defaultValue: 'Tax ID' })} value={businessForm.tax_id} />
+                    <ReviewRow label={t('onboarding.verification.review.type', { defaultValue: 'Type' })} value={businessForm.business_type} />
                   </dl>
                 </div>
               )}
 
               <div className="rounded-xl border border-brand-500/30 p-4 text-sm text-brand-300">
-                By submitting, you confirm this information is accurate. Our team typically reviews within 1–2 business days, and you&apos;ll be notified once approved — unlocking paid events.
+                {t('onboarding.verification.review.submit_disclaimer', { defaultValue: 'By submitting, you confirm this information is accurate. Our team typically reviews within 1–2 business days, and you’ll be notified once approved — unlocking paid events.' })}
               </div>
             </div>
           )}
@@ -763,7 +774,7 @@ export default function VerificationWizard({
             `}
           >
             <ArrowLeft className="w-4 h-4" />
-            Previous
+            {t('onboarding.verification.nav.previous', { defaultValue: 'Previous' })}
           </button>
 
           <div className="flex items-center gap-3">
@@ -773,7 +784,7 @@ export default function VerificationWizard({
                 disabled={saving}
                 className="px-4 py-2.5 rounded-lg text-sm font-semibold text-white/70 hover:text-white hover:bg-white/[0.04] transition-all"
               >
-                Skip for now
+                {t('onboarding.verification.nav.skip_for_now', { defaultValue: 'Skip for now' })}
               </button>
             )}
             
@@ -787,7 +798,7 @@ export default function VerificationWizard({
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <>
-                    Submit for review
+                    {t('onboarding.verification.nav.submit_for_review', { defaultValue: 'Submit for review' })}
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
@@ -802,12 +813,12 @@ export default function VerificationWizard({
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : isStepComplete(currentStep.id) ? (
                   <>
-                    Next Step
+                    {t('onboarding.verification.nav.next_step', { defaultValue: 'Next Step' })}
                     <ArrowRight className="w-4 h-4" />
                   </>
                 ) : (
                   <>
-                    Save & Continue
+                    {t('onboarding.verification.nav.save_continue', { defaultValue: 'Save & Continue' })}
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}

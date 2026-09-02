@@ -8,6 +8,7 @@
 import { useState } from 'react'
 import DocumentUploadCard from '../DocumentUploadCard'
 import { uploadVerificationDocument, updateVerificationFiles } from '@/lib/verification'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   userId: string
@@ -19,6 +20,7 @@ interface Props {
 }
 
 export default function SelfieForm({ userId, initialData, onSave, onCancel }: Props) {
+  const { t } = useTranslation('organizer')
   const [selfiePath, setSelfiePath] = useState(initialData.selfiePath)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
@@ -81,18 +83,18 @@ export default function SelfieForm({ userId, initialData, onSave, onCancel }: Pr
         <div className="border border-brand-500/30 rounded-lg p-4 mb-6">
           <h4 className="font-semibold text-brand-300 text-sm mb-2">Instructions:</h4>
           <ul className="text-sm text-brand-300 space-y-1 list-disc list-inside">
-            <li>Hold your ID next to your face</li>
-            <li>Make sure your face is clearly visible</li>
-            <li>Ensure the ID text is readable in the photo</li>
-            <li>Use good lighting and remove sunglasses/hat</li>
-            <li>Look directly at the camera</li>
+            <li>{t('onboarding.verification.selfie_tip_hold', { defaultValue: 'Hold your ID next to your face' })}</li>
+            <li>{t('onboarding.verification.selfie_tip_face', { defaultValue: 'Make sure your face is clearly visible' })}</li>
+            <li>{t('onboarding.verification.selfie_tip_readable', { defaultValue: 'Ensure the ID text is readable in the photo' })}</li>
+            <li>{t('onboarding.verification.selfie_tip_lighting', { defaultValue: 'Use good lighting and remove sunglasses/hat' })}</li>
+            <li>{t('onboarding.verification.selfie_tip_camera', { defaultValue: 'Look directly at the camera' })}</li>
           </ul>
         </div>
 
         {/* Upload Card */}
         <DocumentUploadCard
-          title="Selfie with ID"
-          description="Take or upload a photo of yourself holding your ID"
+          title={t('onboarding.verification.selfie_title', { defaultValue: 'Selfie with ID' })}
+          description={t('onboarding.verification.selfie_desc', { defaultValue: 'Take or upload a photo of yourself holding your ID' })}
           existingFileUrl={selfiePath}
           onUpload={handleUpload}
           onRemove={handleRemove}

@@ -6,6 +6,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import DocumentUploadCard from '../DocumentUploadCard'
 import { uploadVerificationDocument, updateVerificationFiles } from '@/lib/verification'
 
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export default function GovernmentIDForm({ userId, initialData, onSave, onCancel }: Props) {
+  const { t } = useTranslation('organizer')
   const [frontPath, setFrontPath] = useState(initialData.frontPath)
   const [backPath, setBackPath] = useState(initialData.backPath)
   const [isSaving, setIsSaving] = useState(false)
@@ -42,7 +44,7 @@ export default function GovernmentIDForm({ userId, initialData, onSave, onCancel
       }
       await updateVerificationFiles(userId, updateData)
     } catch (err: any) {
-      throw new Error(err.message || 'Failed to upload ID front')
+      throw new Error(err.message || t('onboarding.verification.errors.upload_id_front_failed', { defaultValue: 'Failed to upload ID front' }))
     }
   }
 
@@ -63,7 +65,7 @@ export default function GovernmentIDForm({ userId, initialData, onSave, onCancel
       }
       await updateVerificationFiles(userId, updateData)
     } catch (err: any) {
-      throw new Error(err.message || 'Failed to upload ID back')
+      throw new Error(err.message || t('onboarding.verification.errors.upload_id_back_failed', { defaultValue: 'Failed to upload ID back' }))
     }
   }
 
@@ -93,7 +95,7 @@ export default function GovernmentIDForm({ userId, initialData, onSave, onCancel
 
   const handleContinue = async () => {
     if (!frontPath || !backPath) {
-      setError('Please upload both front and back of your ID')
+      setError(t('onboarding.verification.errors.upload_both_id', { defaultValue: 'Please upload both front and back of your ID' }))
       return
     }
 
@@ -101,7 +103,7 @@ export default function GovernmentIDForm({ userId, initialData, onSave, onCancel
       setIsSaving(true)
       await onSave()
     } catch (err: any) {
-      setError(err.message || 'Failed to save')
+      setError(err.message || t('onboarding.verification.errors.save_failed_short', { defaultValue: 'Failed to save' }))
     } finally {
       setIsSaving(false)
     }
@@ -119,20 +121,20 @@ export default function GovernmentIDForm({ userId, initialData, onSave, onCancel
 
         {/* Tips */}
         <div className="border border-brand-500/30 rounded-lg p-4 mb-6">
-          <h4 className="font-semibold text-brand-300 text-sm mb-2">📸 Photo Tips:</h4>
+          <h4 className="font-semibold text-brand-300 text-sm mb-2">📸 {t('onboarding.verification.photo_tips', { defaultValue: 'Photo Tips:' })}</h4>
           <ul className="text-sm text-brand-300 space-y-1 list-disc list-inside">
-            <li>Ensure all text is clearly readable</li>
-            <li>Use good lighting (avoid glare)</li>
-            <li>Place ID on a contrasting background</li>
-            <li>Photo should not be blurry or cropped</li>
+            <li>{t('onboarding.verification.tip_readable', { defaultValue: 'Ensure all text is clearly readable' })}</li>
+            <li>{t('onboarding.verification.tip_lighting', { defaultValue: 'Use good lighting (avoid glare)' })}</li>
+            <li>{t('onboarding.verification.tip_background', { defaultValue: 'Place ID on a contrasting background' })}</li>
+            <li>{t('onboarding.verification.tip_sharp', { defaultValue: 'Photo should not be blurry or cropped' })}</li>
           </ul>
         </div>
 
         {/* Upload Cards */}
         <div className="space-y-4">
           <DocumentUploadCard
-            title="ID Front"
-            description="Upload the front side of your national ID"
+            title={t('onboarding.verification.id_front', { defaultValue: 'ID Front' })}
+            description={t('onboarding.verification.id_front_desc', { defaultValue: 'Upload the front side of your national ID' })}
             existingFileUrl={frontPath}
             onUpload={handleFrontUpload}
             onRemove={handleFrontRemove}
@@ -140,8 +142,8 @@ export default function GovernmentIDForm({ userId, initialData, onSave, onCancel
           />
 
           <DocumentUploadCard
-            title="ID Back"
-            description="Upload the back side of your national ID"
+            title={t('onboarding.verification.id_back', { defaultValue: 'ID Back' })}
+            description={t('onboarding.verification.id_back_desc', { defaultValue: 'Upload the back side of your national ID' })}
             existingFileUrl={backPath}
             onUpload={handleBackUpload}
             onRemove={handleBackRemove}

@@ -16,6 +16,7 @@ import {
   AlertCircle,
   Sparkles
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { updateDeclaredMarkets } from '@/app/organizer/settings/payouts/actions'
 import { COUNTRY_SUPPORT } from '@/lib/country-support'
 import {
@@ -63,6 +64,7 @@ export default function PayoutsSetupWizard({
   onComplete,
   onExit,
 }: PayoutsSetupWizardProps) {
+  const { t } = useTranslation('organizer')
   const [currentStep, setCurrentStep] = useState<Step>('welcome')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -184,29 +186,29 @@ export default function PayoutsSetupWizard({
   const validateMethod = (): boolean => {
     if (selectedMethod === 'bank_transfer') {
       if (!bankForm.bankName) {
-        setError('Please select a bank')
+        setError(t('onboarding.payouts.errors.select_bank', { defaultValue: 'Please select a bank' }))
         return false
       }
       if (bankForm.bankName === 'other' && !bankForm.customBankName.trim()) {
-        setError('Please enter your bank name')
+        setError(t('onboarding.payouts.errors.bank_name_required', { defaultValue: 'Please enter your bank name' }))
         return false
       }
       if (!bankForm.accountName.trim()) {
-        setError('Please enter the account holder name')
+        setError(t('onboarding.payouts.errors.account_holder_required', { defaultValue: 'Please enter the account holder name' }))
         return false
       }
       if (!bankForm.accountNumber.trim()) {
-        setError('Please enter your account number')
+        setError(t('onboarding.payouts.errors.account_number_required', { defaultValue: 'Please enter your account number' }))
         return false
       }
     } else if (selectedMethod === 'mobile_money') {
       if (!mobileForm.phoneNumber.trim()) {
-        setError('Please enter your phone number')
+        setError(t('onboarding.payouts.errors.phone_required', { defaultValue: 'Please enter your phone number' }))
         return false
       }
       const normalizedPhone = normalizeHaitiPhone(mobileForm.phoneNumber)
       if (!/^\+509\d{8}$/.test(normalizedPhone)) {
-        setError('Please enter a valid Haiti phone number (e.g., +509 1234 5678)')
+        setError(t('onboarding.payouts.errors.phone_invalid', { defaultValue: 'Please enter a valid Haiti phone number (e.g., +509 1234 5678)' }))
         return false
       }
     }
@@ -240,7 +242,7 @@ export default function PayoutsSetupWizard({
 
         if (!configRes.ok) {
           const data = await configRes.json().catch(() => ({}))
-          throw new Error(data?.error || 'Failed to save configuration')
+          throw new Error(data?.error || t('onboarding.payouts.errors.save_config_failed', { defaultValue: 'Failed to save configuration' }))
         }
 
         // Then start Stripe onboarding
@@ -252,14 +254,14 @@ export default function PayoutsSetupWizard({
         
         const stripeData = await stripeRes.json()
         if (!stripeRes.ok) {
-          throw new Error(stripeData?.error || 'Failed to start Stripe setup')
+          throw new Error(stripeData?.error || t('onboarding.payouts.errors.stripe_start_failed', { defaultValue: 'Failed to start Stripe setup' }))
         }
-        
+
         if (stripeData?.url) {
           window.location.href = stripeData.url
           return
         }
-        throw new Error('Missing Stripe onboarding URL')
+        throw new Error(t('onboarding.payouts.errors.stripe_url_missing', { defaultValue: 'Missing Stripe onboarding URL' }))
       }
 
       // For Haiti payouts
@@ -296,12 +298,12 @@ export default function PayoutsSetupWizard({
 
       const data = await res.json()
       if (!res.ok) {
-        throw new Error(data?.error || 'Failed to save payout details')
+        throw new Error(data?.error || t('onboarding.payouts.errors.save_payout_failed', { defaultValue: 'Failed to save payout details' }))
       }
 
       onComplete()
     } catch (err: any) {
-      setError(err.message || 'Something went wrong. Please try again.')
+      setError(err.message || t('onboarding.payouts.errors.generic', { defaultValue: 'Something went wrong. Please try again.' }))
     } finally {
       setSaving(false)
     }
@@ -318,17 +320,21 @@ export default function PayoutsSetupWizard({
               className="flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors mb-4"
             >
               <ArrowLeft className="w-4 h-4" />
-              Save & Exit
+              {t('onboarding.payouts.save_exit', { defaultValue: 'Save & Exit' })}
             </button>
 
             {/* Progress Bar */}
             <div className="bg-[#0a0a0a] rounded-xl border border-white/10 p-4">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-medium text-white">
-                  Setting up payouts
+                  {t('onboarding.payouts.progress_title', { defaultValue: 'Setting up payouts' })}
                 </span>
                 <span className="text-xs text-white/50">
-                  Step {currentStepIndex + 1} of {steps.length}
+                  {t('onboarding.payouts.step_of', {
+                    defaultValue: 'Step {{current}} of {{total}}',
+                    current: currentStepIndex + 1,
+                    total: steps.length,
+                  })}
                 </span>
               </div>
               <div className="flex gap-2">
@@ -360,10 +366,10 @@ export default function PayoutsSetupWizard({
               <Wallet className="w-10 h-10 text-white" />
             </div>
             <h1 className="text-3xl font-bold text-white mb-3">
-              Get paid for your events
+              {t('onboarding.payouts.welcome.title', { defaultValue: 'Get paid for your events' })}
             </h1>
             <p className="text-lg text-white/60 mb-8 max-w-md mx-auto">
-              Set up your payout method to receive earnings from ticket sales quickly and securely.
+              {t('onboarding.payouts.welcome.subtitle', { defaultValue: 'Set up your payout method to receive earnings from ticket sales quickly and securely.' })}
             </p>
 
             {/* Benefits */}
@@ -372,22 +378,22 @@ export default function PayoutsSetupWizard({
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3">
                   <Shield className="w-5 h-5 text-brand-300" />
                 </div>
-                <h3 className="font-semibold text-white mb-1">Secure</h3>
-                <p className="text-sm text-white/60">Bank-level encryption protects your data</p>
+                <h3 className="font-semibold text-white mb-1">{t('onboarding.payouts.welcome.secure_title', { defaultValue: 'Secure' })}</h3>
+                <p className="text-sm text-white/60">{t('onboarding.payouts.welcome.secure_desc', { defaultValue: 'Bank-level encryption protects your data' })}</p>
               </div>
               <div className="bg-[#0a0a0a] rounded-xl  p-4 text-left">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3">
                   <Sparkles className="w-5 h-5 text-brand-300" />
                 </div>
-                <h3 className="font-semibold text-white mb-1">Fast</h3>
-                <p className="text-sm text-white/60">Receive funds within 48 hours of events</p>
+                <h3 className="font-semibold text-white mb-1">{t('onboarding.payouts.welcome.fast_title', { defaultValue: 'Fast' })}</h3>
+                <p className="text-sm text-white/60">{t('onboarding.payouts.welcome.fast_desc', { defaultValue: 'Receive funds within 48 hours of events' })}</p>
               </div>
               <div className="bg-[#0a0a0a] rounded-xl  p-4 text-left">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3">
                   <Globe className="w-5 h-5 text-brand-300" />
                 </div>
-                <h3 className="font-semibold text-white mb-1">Flexible</h3>
-                <p className="text-sm text-white/60">Multiple payout methods available</p>
+                <h3 className="font-semibold text-white mb-1">{t('onboarding.payouts.welcome.flexible_title', { defaultValue: 'Flexible' })}</h3>
+                <p className="text-sm text-white/60">{t('onboarding.payouts.welcome.flexible_desc', { defaultValue: 'Multiple payout methods available' })}</p>
               </div>
             </div>
 
@@ -395,7 +401,7 @@ export default function PayoutsSetupWizard({
               onClick={handleNext}
               className="px-8 py-3.5 bg-brand-700 text-white rounded-xl font-semibold hover:bg-brand-800 transition-all shadow-lg shadow-brand-500/25"
             >
-              Set Up Payouts
+              {t('onboarding.payouts.welcome.cta', { defaultValue: 'Set Up Payouts' })}
             </button>
           </div>
         )}
@@ -409,10 +415,9 @@ export default function PayoutsSetupWizard({
               <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-brand-700 flex items-center justify-center">
                 <Globe className="w-7 h-7 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2">Where will you run events?</h2>
+              <h2 className="text-2xl font-bold text-white mb-2">{t('onboarding.payouts.markets.title', { defaultValue: 'Where will you run events?' })}</h2>
               <p className="text-white/60">
-                Pick every country you plan to hold events in. We&apos;ll only set up the payout
-                methods those countries use — and you can change this any time.
+                {t('onboarding.payouts.markets.subtitle', { defaultValue: 'Pick every country you plan to hold events in. We’ll only set up the payout methods those countries use — and you can change this any time.' })}
               </p>
             </div>
 
@@ -441,10 +446,10 @@ export default function PayoutsSetupWizard({
                       </div>
                       <div className="text-sm text-white/50">
                         {COUNTRY_SUPPORT[code]?.requiredProfile === 'stripe_connect'
-                          ? 'Paid out through Stripe Connect'
+                          ? t('onboarding.payouts.markets.rail_stripe', { defaultValue: 'Paid out through Stripe Connect' })
                           : COUNTRY_SUPPORT[code]?.requiredProfile === 'haiti'
-                            ? 'Paid out by bank transfer or MonCash'
-                            : 'Free and RSVP events for now — paid tickets coming soon'}
+                            ? t('onboarding.payouts.markets.rail_haiti', { defaultValue: 'Paid out by bank transfer or MonCash' })
+                            : t('onboarding.payouts.markets.rail_none', { defaultValue: 'Free and RSVP events for now — paid tickets coming soon' })}
                       </div>
                     </div>
                     {isOn && <Check className="w-5 h-5 text-brand-300" />}
@@ -455,8 +460,7 @@ export default function PayoutsSetupWizard({
 
             {declaredRails.length > 1 ? (
               <div className="mb-6 rounded-xl border border-white/10 px-4 py-3 text-sm text-white/60">
-                Those markets use two different payout systems, so you&apos;ll set up two separate
-                methods. We&apos;ll do one now — you can add the other straight after.
+                {t('onboarding.payouts.markets.two_rails_note', { defaultValue: 'Those markets use two different payout systems, so you’ll set up two separate methods. We’ll do one now — you can add the other straight after.' })}
               </div>
             ) : null}
 
@@ -465,7 +469,7 @@ export default function PayoutsSetupWizard({
                 onClick={handleBack}
                 className="px-4 py-2.5 text-white/70 hover:text-white hover:bg-white/[0.04] rounded-lg transition-colors"
               >
-                Back
+                {t('onboarding.payouts.nav.back', { defaultValue: 'Back' })}
               </button>
               <button
                 onClick={handleMarketsContinue}
@@ -473,7 +477,9 @@ export default function PayoutsSetupWizard({
                 className="flex items-center gap-2 px-6 py-2.5 bg-brand-700 text-white rounded-lg font-semibold hover:bg-brand-800 transition-all disabled:opacity-60"
               >
                 {savingMarkets ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                {markets.length === 0 ? 'Skip for now' : 'Continue'}
+                {markets.length === 0
+                  ? t('onboarding.payouts.nav.skip_for_now', { defaultValue: 'Skip for now' })
+                  : t('onboarding.payouts.nav.continue', { defaultValue: 'Continue' })}
                 {savingMarkets ? null : <ArrowRight className="w-4 h-4" />}
               </button>
             </div>
@@ -487,8 +493,8 @@ export default function PayoutsSetupWizard({
               <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-brand-700 flex items-center justify-center">
                 <MapPin className="w-7 h-7 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2">Where is your bank located?</h2>
-              <p className="text-white/60">This determines the payment methods available to you</p>
+              <h2 className="text-2xl font-bold text-white mb-2">{t('onboarding.payouts.location.title', { defaultValue: 'Where is your bank located?' })}</h2>
+              <p className="text-white/60">{t('onboarding.payouts.location.subtitle', { defaultValue: 'This determines the payment methods available to you' })}</p>
             </div>
 
             <div className="space-y-3 mb-8">
@@ -504,11 +510,11 @@ export default function PayoutsSetupWizard({
                 >
                   <span className="text-3xl">{location.flag}</span>
                   <div className="flex-1 text-left">
-                    <div className="font-semibold text-white">{location.name}</div>
+                    <div className="font-semibold text-white">{t(`onboarding.payouts.location.${location.id}`, { defaultValue: location.name })}</div>
                     <div className="text-sm text-white/50">
-                      {location.methods.includes('stripe') 
-                        ? 'Bank transfers via Stripe' 
-                        : 'Bank transfer or mobile money'}
+                      {location.methods.includes('stripe')
+                        ? t('onboarding.payouts.location.method_stripe', { defaultValue: 'Bank transfers via Stripe' })
+                        : t('onboarding.payouts.location.method_haiti', { defaultValue: 'Bank transfer or mobile money' })}
                     </div>
                   </div>
                   {selectedLocation === location.id && (
@@ -523,13 +529,13 @@ export default function PayoutsSetupWizard({
                 onClick={handleBack}
                 className="px-4 py-2.5 text-white/70 hover:text-white hover:bg-white/[0.04] rounded-lg transition-colors"
               >
-                Back
+                {t('onboarding.payouts.nav.back', { defaultValue: 'Back' })}
               </button>
               <button
                 onClick={handleNext}
                 className="flex items-center gap-2 px-6 py-2.5 bg-brand-700 text-white rounded-lg font-semibold hover:bg-brand-800 transition-all"
               >
-                Continue
+                {t('onboarding.payouts.nav.continue', { defaultValue: 'Continue' })}
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -544,12 +550,14 @@ export default function PayoutsSetupWizard({
                 <CreditCard className="w-7 h-7 text-white" />
               </div>
               <h2 className="text-2xl font-bold text-white mb-2">
-                {isStripeLocation ? 'Payment Method' : 'How would you like to receive payouts?'}
+                {isStripeLocation
+                  ? t('onboarding.payouts.method.title_stripe', { defaultValue: 'Payment Method' })
+                  : t('onboarding.payouts.method.title_haiti', { defaultValue: 'How would you like to receive payouts?' })}
               </h2>
               <p className="text-white/60">
-                {isStripeLocation 
-                  ? 'Stripe Connect handles payments for US and Canada'
-                  : 'Choose your preferred payout method'}
+                {isStripeLocation
+                  ? t('onboarding.payouts.method.subtitle_stripe', { defaultValue: 'Stripe Connect handles payments for US and Canada' })
+                  : t('onboarding.payouts.method.subtitle_haiti', { defaultValue: 'Choose your preferred payout method' })}
               </p>
             </div>
 
@@ -564,11 +572,11 @@ export default function PayoutsSetupWizard({
                   <div className="flex-1">
                     <h3 className="font-semibold text-white text-lg mb-1">Stripe Connect</h3>
                     <p className="text-white/60 text-sm mb-3">
-                      Stripe handles payment processing for US and Canada accounts. You&apos;ll be redirected to complete setup.
+                      {t('onboarding.payouts.method.stripe_connect_desc', { defaultValue: 'Stripe handles payment processing for US and Canada accounts. You’ll be redirected to complete setup.' })}
                     </p>
                     <div className="flex items-center gap-2 text-sm text-emerald-300">
                       <Check className="w-4 h-4" />
-                      <span>Direct bank deposits</span>
+                      <span>{t('onboarding.payouts.method.stripe_direct_deposits', { defaultValue: 'Direct bank deposits' })}</span>
                     </div>
                   </div>
                 </div>
@@ -587,8 +595,8 @@ export default function PayoutsSetupWizard({
                     <Building2 className="w-6 h-6 text-brand-300" />
                   </div>
                   <div className="flex-1 text-left">
-                    <div className="font-semibold text-white">Bank Transfer</div>
-                    <div className="text-sm text-white/50">Direct deposit to your bank account</div>
+                    <div className="font-semibold text-white">{t('onboarding.payouts.method.bank_transfer', { defaultValue: 'Bank Transfer' })}</div>
+                    <div className="text-sm text-white/50">{t('onboarding.payouts.method.bank_transfer_desc', { defaultValue: 'Direct deposit to your bank account' })}</div>
                   </div>
                   {selectedMethod === 'bank_transfer' && (
                     <Check className="w-5 h-5 text-brand-300" />
@@ -607,8 +615,8 @@ export default function PayoutsSetupWizard({
                     <Smartphone className="w-6 h-6 text-brand-300" />
                   </div>
                   <div className="flex-1 text-left">
-                    <div className="font-semibold text-white">Mobile Money</div>
-                    <div className="text-sm text-white/50">MonCash or NatCash</div>
+                    <div className="font-semibold text-white">{t('onboarding.payouts.method.mobile_money', { defaultValue: 'Mobile Money' })}</div>
+                    <div className="text-sm text-white/50">{t('onboarding.payouts.method.mobile_money_desc', { defaultValue: 'MonCash or NatCash' })}</div>
                   </div>
                   {selectedMethod === 'mobile_money' && (
                     <Check className="w-5 h-5 text-brand-300" />
@@ -622,13 +630,13 @@ export default function PayoutsSetupWizard({
                 onClick={handleBack}
                 className="px-4 py-2.5 text-white/70 hover:text-white hover:bg-white/[0.04] rounded-lg transition-colors"
               >
-                Back
+                {t('onboarding.payouts.nav.back', { defaultValue: 'Back' })}
               </button>
               <button
                 onClick={handleNext}
                 className="flex items-center gap-2 px-6 py-2.5 bg-brand-700 text-white rounded-lg font-semibold hover:bg-brand-800 transition-all"
               >
-                Continue
+                {t('onboarding.payouts.nav.continue', { defaultValue: 'Continue' })}
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -647,16 +655,16 @@ export default function PayoutsSetupWizard({
                 )}
               </div>
               <h2 className="text-2xl font-bold text-white mb-2">
-                {isStripeLocation 
-                  ? 'Ready for Stripe' 
-                  : selectedMethod === 'bank_transfer' 
-                    ? 'Bank Account Details' 
-                    : 'Mobile Money Details'}
+                {isStripeLocation
+                  ? t('onboarding.payouts.details.title_stripe', { defaultValue: 'Ready for Stripe' })
+                  : selectedMethod === 'bank_transfer'
+                    ? t('onboarding.payouts.details.title_bank', { defaultValue: 'Bank Account Details' })
+                    : t('onboarding.payouts.details.title_mobile', { defaultValue: 'Mobile Money Details' })}
               </h2>
               <p className="text-white/60">
-                {isStripeLocation 
-                  ? "You'll complete the setup on Stripe's secure platform"
-                  : 'Enter your account information'}
+                {isStripeLocation
+                  ? t('onboarding.payouts.details.subtitle_stripe', { defaultValue: 'You’ll complete the setup on Stripe’s secure platform' })
+                  : t('onboarding.payouts.details.subtitle_haiti', { defaultValue: 'Enter your account information' })}
               </p>
             </div>
 
@@ -668,10 +676,10 @@ export default function PayoutsSetupWizard({
                   </svg>
                 </div>
                 <p className="text-white/70 mb-2">
-                  Click continue to complete your setup on Stripe&apos;s secure platform.
+                  {t('onboarding.payouts.details.stripe_note', { defaultValue: 'Click continue to complete your setup on Stripe’s secure platform.' })}
                 </p>
                 <p className="text-sm text-white/50">
-                  You&apos;ll be able to add your bank account and verify your identity.
+                  {t('onboarding.payouts.details.stripe_note_2', { defaultValue: 'You’ll be able to add your bank account and verify your identity.' })}
                 </p>
               </div>
             ) : selectedMethod === 'bank_transfer' ? (
@@ -679,7 +687,7 @@ export default function PayoutsSetupWizard({
                 {/* Bank Selection */}
                 <div>
                   <label className="block text-sm font-medium text-white/70 mb-2">
-                    Bank <span className="text-red-500">*</span>
+                    {t('onboarding.payouts.field.bank', { defaultValue: 'Bank' })} <span className="text-red-500">*</span>
                   </label>
                   <select
                     value={bankForm.bankName}
@@ -687,7 +695,7 @@ export default function PayoutsSetupWizard({
                     className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                   >
                     {HAITI_BANKS.map((bank) => (
-                      <option key={bank.value} value={bank.value}>{bank.label}</option>
+                      <option key={bank.value} value={bank.value}>{t(`onboarding.payouts.banks.${bank.value}`, { defaultValue: bank.label })}</option>
                     ))}
                   </select>
                 </div>
@@ -695,13 +703,13 @@ export default function PayoutsSetupWizard({
                 {bankForm.bankName === 'other' && (
                   <div>
                     <label className="block text-sm font-medium text-white/70 mb-2">
-                      Bank Name <span className="text-red-500">*</span>
+                      {t('onboarding.payouts.field.bank_name', { defaultValue: 'Bank Name' })} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       value={bankForm.customBankName}
                       onChange={(e) => setBankForm(prev => ({ ...prev, customBankName: e.target.value }))}
-                      placeholder="Enter your bank name"
+                      placeholder={t('onboarding.payouts.field.bank_name_placeholder', { defaultValue: 'Enter your bank name' })}
                       className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                     />
                   </div>
@@ -710,13 +718,13 @@ export default function PayoutsSetupWizard({
                 {/* Account Holder Name */}
                 <div>
                   <label className="block text-sm font-medium text-white/70 mb-2">
-                    Account Holder Name <span className="text-red-500">*</span>
+                    {t('onboarding.payouts.field.account_holder_name', { defaultValue: 'Account Holder Name' })} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={bankForm.accountName}
                     onChange={(e) => setBankForm(prev => ({ ...prev, accountName: e.target.value }))}
-                    placeholder="Name as it appears on account"
+                    placeholder={t('onboarding.payouts.field.account_holder_name_placeholder', { defaultValue: 'Name as it appears on account' })}
                     className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                   />
                 </div>
@@ -724,13 +732,13 @@ export default function PayoutsSetupWizard({
                 {/* Account Number */}
                 <div>
                   <label className="block text-sm font-medium text-white/70 mb-2">
-                    Account Number <span className="text-red-500">*</span>
+                    {t('onboarding.payouts.field.account_number', { defaultValue: 'Account Number' })} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={bankForm.accountNumber}
                     onChange={(e) => setBankForm(prev => ({ ...prev, accountNumber: e.target.value }))}
-                    placeholder="Your bank account number"
+                    placeholder={t('onboarding.payouts.field.account_number_placeholder', { defaultValue: 'Your bank account number' })}
                     className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                   />
                 </div>
@@ -738,13 +746,13 @@ export default function PayoutsSetupWizard({
                 {/* Routing Number (Optional) */}
                 <div>
                   <label className="block text-sm font-medium text-white/70 mb-2">
-                    Routing/Transit Number <span className="text-white/40 text-xs">(Optional)</span>
+                    {t('onboarding.payouts.field.routing_number', { defaultValue: 'Routing/Transit Number' })} <span className="text-white/40 text-xs">{t('onboarding.payouts.optional', { defaultValue: '(Optional)' })}</span>
                   </label>
                   <input
                     type="text"
                     value={bankForm.routingNumber}
                     onChange={(e) => setBankForm(prev => ({ ...prev, routingNumber: e.target.value }))}
-                    placeholder="If applicable"
+                    placeholder={t('onboarding.payouts.field.routing_number_placeholder', { defaultValue: 'If applicable' })}
                     className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                   />
                 </div>
@@ -754,7 +762,7 @@ export default function PayoutsSetupWizard({
                 {/* Provider Selection */}
                 <div>
                   <label className="block text-sm font-medium text-white/70 mb-2">
-                    Provider <span className="text-red-500">*</span>
+                    {t('onboarding.payouts.field.provider', { defaultValue: 'Provider' })} <span className="text-red-500">*</span>
                   </label>
                   <div className="grid grid-cols-2 gap-3">
                     {MOBILE_PROVIDERS.map((provider) => (
@@ -778,30 +786,33 @@ export default function PayoutsSetupWizard({
                 {/* Phone Number */}
                 <div>
                   <label className="block text-sm font-medium text-white/70 mb-2">
-                    Phone Number <span className="text-red-500">*</span>
+                    {t('onboarding.payouts.field.phone_number', { defaultValue: 'Phone Number' })} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="tel"
                     value={mobileForm.phoneNumber}
                     onChange={(e) => setMobileForm(prev => ({ ...prev, phoneNumber: e.target.value }))}
-                    placeholder="+509 1234 5678"
+                    placeholder={t('onboarding.payouts.field.phone_number_placeholder', { defaultValue: '+509 1234 5678' })}
                     className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                   />
                   <p className="mt-1.5 text-xs text-white/50">
-                    Enter the phone number linked to your {mobileForm.provider === 'moncash' ? 'MonCash' : 'NatCash'} account
+                    {t('onboarding.payouts.field.phone_hint', {
+                      defaultValue: 'Enter the phone number linked to your {{provider}} account',
+                      provider: mobileForm.provider === 'moncash' ? 'MonCash' : 'NatCash',
+                    })}
                   </p>
                 </div>
 
                 {/* Account Name (Optional) */}
                 <div>
                   <label className="block text-sm font-medium text-white/70 mb-2">
-                    Account Name <span className="text-white/40 text-xs">(Optional)</span>
+                    {t('onboarding.payouts.field.account_name', { defaultValue: 'Account Name' })} <span className="text-white/40 text-xs">{t('onboarding.payouts.optional', { defaultValue: '(Optional)' })}</span>
                   </label>
                   <input
                     type="text"
                     value={mobileForm.accountName}
                     onChange={(e) => setMobileForm(prev => ({ ...prev, accountName: e.target.value }))}
-                    placeholder="Name on account"
+                    placeholder={t('onboarding.payouts.field.account_name_placeholder', { defaultValue: 'Name on account' })}
                     className="w-full px-4 py-3 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                   />
                 </div>
@@ -813,13 +824,13 @@ export default function PayoutsSetupWizard({
                 onClick={handleBack}
                 className="px-4 py-2.5 text-white/70 hover:text-white hover:bg-white/[0.04] rounded-lg transition-colors"
               >
-                Back
+                {t('onboarding.payouts.nav.back', { defaultValue: 'Back' })}
               </button>
               <button
                 onClick={handleNext}
                 className="flex items-center gap-2 px-6 py-2.5 bg-brand-700 text-white rounded-lg font-semibold hover:bg-brand-800 transition-all"
               >
-                Continue
+                {t('onboarding.payouts.nav.continue', { defaultValue: 'Continue' })}
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -833,18 +844,18 @@ export default function PayoutsSetupWizard({
               <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-green-500/10 flex items-center justify-center">
                 <Check className="w-7 h-7 text-green-400" />
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2">Review Your Setup</h2>
-              <p className="text-white/60">Confirm your payout details before finishing</p>
+              <h2 className="text-2xl font-bold text-white mb-2">{t('onboarding.payouts.review.title', { defaultValue: 'Review Your Setup' })}</h2>
+              <p className="text-white/60">{t('onboarding.payouts.review.subtitle', { defaultValue: 'Confirm your payout details before finishing' })}</p>
             </div>
 
             <div className="bg-[#0a0a0a] rounded-xl  overflow-hidden mb-8">
               {/* Location */}
               <div className="p-4 border-b border-white/10">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-white/50">Location</span>
+                  <span className="text-sm text-white/50">{t('onboarding.payouts.review.location', { defaultValue: 'Location' })}</span>
                   <span className="font-medium text-white flex items-center gap-2">
                     <span>{locationData?.flag}</span>
-                    {locationData?.name}
+                    {locationData ? t(`onboarding.payouts.location.${locationData.id}`, { defaultValue: locationData.name }) : null}
                   </span>
                 </div>
               </div>
@@ -852,13 +863,13 @@ export default function PayoutsSetupWizard({
               {/* Method */}
               <div className="p-4 border-b border-white/10">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-white/50">Payout Method</span>
+                  <span className="text-sm text-white/50">{t('onboarding.payouts.review.payout_method', { defaultValue: 'Payout Method' })}</span>
                   <span className="font-medium text-white">
-                    {isStripeLocation 
+                    {isStripeLocation
                       ? 'Stripe Connect'
-                      : selectedMethod === 'bank_transfer' 
-                        ? 'Bank Transfer' 
-                        : 'Mobile Money'}
+                      : selectedMethod === 'bank_transfer'
+                        ? t('onboarding.payouts.method.bank_transfer', { defaultValue: 'Bank Transfer' })
+                        : t('onboarding.payouts.method.mobile_money', { defaultValue: 'Mobile Money' })}
                   </span>
                 </div>
               </div>
@@ -868,23 +879,23 @@ export default function PayoutsSetupWizard({
                 <>
                   <div className="p-4 border-b border-white/10">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-white/50">Bank</span>
+                      <span className="text-sm text-white/50">{t('onboarding.payouts.review.bank', { defaultValue: 'Bank' })}</span>
                       <span className="font-medium text-white">
-                        {bankForm.bankName === 'other' 
-                          ? bankForm.customBankName 
-                          : HAITI_BANKS.find(b => b.value === bankForm.bankName)?.label}
+                        {bankForm.bankName === 'other'
+                          ? bankForm.customBankName
+                          : t(`onboarding.payouts.banks.${bankForm.bankName}`, { defaultValue: HAITI_BANKS.find(b => b.value === bankForm.bankName)?.label })}
                       </span>
                     </div>
                   </div>
                   <div className="p-4 border-b border-white/10">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-white/50">Account Holder</span>
+                      <span className="text-sm text-white/50">{t('onboarding.payouts.review.account_holder', { defaultValue: 'Account Holder' })}</span>
                       <span className="font-medium text-white">{bankForm.accountName}</span>
                     </div>
                   </div>
                   <div className="p-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-white/50">Account Number</span>
+                      <span className="text-sm text-white/50">{t('onboarding.payouts.review.account_number', { defaultValue: 'Account Number' })}</span>
                       <span className="font-medium text-white">
                         ****{bankForm.accountNumber.slice(-4)}
                       </span>
@@ -897,7 +908,7 @@ export default function PayoutsSetupWizard({
                 <>
                   <div className="p-4 border-b border-white/10">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-white/50">Provider</span>
+                      <span className="text-sm text-white/50">{t('onboarding.payouts.review.provider', { defaultValue: 'Provider' })}</span>
                       <span className="font-medium text-white">
                         {mobileForm.provider === 'moncash' ? 'MonCash' : 'NatCash'}
                       </span>
@@ -905,7 +916,7 @@ export default function PayoutsSetupWizard({
                   </div>
                   <div className="p-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-white/50">Phone Number</span>
+                      <span className="text-sm text-white/50">{t('onboarding.payouts.review.phone_number', { defaultValue: 'Phone Number' })}</span>
                       <span className="font-medium text-white">
                         {mobileForm.phoneNumber}
                       </span>
@@ -921,7 +932,7 @@ export default function PayoutsSetupWizard({
                 disabled={saving}
                 className="px-4 py-2.5 text-white/70 hover:text-white hover:bg-white/[0.04] rounded-lg transition-colors disabled:opacity-50"
               >
-                Back
+                {t('onboarding.payouts.nav.back', { defaultValue: 'Back' })}
               </button>
               <button
                 onClick={handleSubmit}
@@ -931,17 +942,17 @@ export default function PayoutsSetupWizard({
                 {saving ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Setting up...
+                    {t('onboarding.payouts.nav.setting_up', { defaultValue: 'Setting up...' })}
                   </>
                 ) : isStripeLocation ? (
                   <>
-                    Continue to Stripe
+                    {t('onboarding.payouts.nav.continue_to_stripe', { defaultValue: 'Continue to Stripe' })}
                     <ArrowRight className="w-4 h-4" />
                   </>
                 ) : (
                   <>
                     <Check className="w-4 h-4" />
-                    Complete Setup
+                    {t('onboarding.payouts.nav.complete_setup', { defaultValue: 'Complete Setup' })}
                   </>
                 )}
               </button>

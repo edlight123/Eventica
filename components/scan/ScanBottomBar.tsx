@@ -2,12 +2,14 @@
 
 import { Flashlight, SwitchCamera, Search, Volume2, VolumeX } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface ScanBottomBarProps {
   onManualLookup: () => void
 }
 
 export function ScanBottomBar({ onManualLookup }: ScanBottomBarProps) {
+  const { t } = useTranslation('organizer')
   const [flashlightOn, setFlashlightOn] = useState(false)
   const [soundOn, setSoundOn] = useState(true)
 
@@ -46,7 +48,7 @@ export function ScanBottomBar({ onManualLookup }: ScanBottomBarProps) {
             }`}
           >
             <Flashlight className="w-6 h-6" />
-            <span className="text-xs font-medium">Flash</span>
+            <span className="text-xs font-medium">{t('door.flash', { defaultValue: 'Flash' })}</span>
           </button>
 
           {/* Manual Lookup */}
@@ -55,7 +57,7 @@ export function ScanBottomBar({ onManualLookup }: ScanBottomBarProps) {
             className="flex flex-col items-center gap-1 px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl transition-colors"
           >
             <Search className="w-6 h-6" />
-            <span className="text-xs font-medium">Manual</span>
+            <span className="text-xs font-medium">{t('door.manual', { defaultValue: 'Manual' })}</span>
           </button>
 
           {/* Sound Toggle */}
@@ -68,7 +70,7 @@ export function ScanBottomBar({ onManualLookup }: ScanBottomBarProps) {
             }`}
           >
             {soundOn ? <Volume2 className="w-6 h-6" /> : <VolumeX className="w-6 h-6" />}
-            <span className="text-xs font-medium">Sound</span>
+            <span className="text-xs font-medium">{t('door.sound', { defaultValue: 'Sound' })}</span>
           </button>
         </div>
       </div>

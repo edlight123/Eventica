@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { X, Search, User, Mail, Ticket } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 interface Attendee {
   ticketId: string
@@ -19,6 +20,7 @@ interface ManualLookupSheetProps {
 }
 
 export function ManualLookupSheet({ isOpen, onClose, attendees, onSelect }: ManualLookupSheetProps) {
+  const { t } = useTranslation('organizer')
   const [searchQuery, setSearchQuery] = useState('')
 
   if (!isOpen) return null
@@ -37,7 +39,7 @@ export function ManualLookupSheet({ isOpen, onClose, attendees, onSelect }: Manu
       <div className="bg-gray-900 rounded-t-3xl w-full max-w-2xl max-h-[80vh] flex flex-col animate-in slide-in-from-bottom duration-300">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
-          <h2 className="text-xl font-bold text-white">Manual Lookup</h2>
+          <h2 className="text-xl font-bold text-white">{t('door.manual_lookup', { defaultValue: 'Manual Lookup' })}</h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
@@ -54,7 +56,7 @@ export function ManualLookupSheet({ isOpen, onClose, attendees, onSelect }: Manu
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by name, email, or ticket ID..."
+              placeholder={t('door.search_placeholder', { defaultValue: 'Search by name, email, or ticket ID...' })}
               className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-brand-500"
               autoFocus
             />

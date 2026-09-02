@@ -2,6 +2,7 @@
 
 import { X, Users, UserCheck } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 
 interface DoorModeTopBarProps {
   eventTitle: string
@@ -24,6 +25,7 @@ export function DoorModeTopBar({
   checkedInCount,
   remainingCount,
 }: DoorModeTopBarProps) {
+  const { t } = useTranslation('organizer')
   const router = useRouter()
   const totalTickets = checkedInCount + remainingCount
 
@@ -65,7 +67,7 @@ export function DoorModeTopBar({
             <div className="flex items-center gap-2 px-3 py-1.5 bg-green-900/30 border border-green-700/50 rounded-lg">
               <UserCheck className="w-4 h-4 text-green-400" />
               <div className="text-right">
-                <div className="text-xs text-green-400 font-medium">Checked In</div>
+                <div className="text-xs text-green-400 font-medium">{t('door.checked_in', { defaultValue: 'Checked In' })}</div>
                 <div className="text-lg font-bold text-green-300">{checkedInCount}/{totalTickets}</div>
               </div>
             </div>
@@ -73,7 +75,7 @@ export function DoorModeTopBar({
             <div className="flex items-center gap-2 px-3 py-1.5 bg-brand-900/30 border border-brand-700/50 rounded-lg">
               <Users className="w-4 h-4 text-brand-400" />
               <div className="text-right">
-                <div className="text-xs text-brand-400 font-medium">Remaining</div>
+                <div className="text-xs text-brand-400 font-medium">{t('door.remaining', { defaultValue: 'Remaining' })}</div>
                 <div className="text-lg font-bold text-brand-300">{remainingCount}</div>
               </div>
             </div>

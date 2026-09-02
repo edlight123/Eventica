@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Camera, Search, Users, CheckCircle, XCircle, Clock, AlertCircle, Menu } from 'lucide-react'
 import { QRScanner } from './QRScanner'
+import { useTranslation } from 'react-i18next'
 
 interface Ticket {
   id: string
@@ -38,6 +39,7 @@ type ScanResult = {
 }
 
 export function CheckInInterface({ event, tickets, onCheckIn }: CheckInInterfaceProps) {
+  const { t } = useTranslation('organizer')
   const router = useRouter()
   const [showScanner, setShowScanner] = useState(false)
   const [showManualLookup, setShowManualLookup] = useState(false)
@@ -141,14 +143,14 @@ export function CheckInInterface({ event, tickets, onCheckIn }: CheckInInterface
         <div className="px-4 py-4 flex items-center justify-between">
           <div className="flex-1 min-w-0">
             <h1 className="text-xl font-bold truncate">{event.title}</h1>
-            <p className="text-sm text-white/70 mt-0.5">Check-In Scanner</p>
+            <p className="text-sm text-white/70 mt-0.5">{t('door.checkin_scanner', { defaultValue: 'Check-In Scanner' })}</p>
           </div>
           <Link
             href={`/organizer/events/${event.id}/attendees`}
             className="ml-4 flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium transition-colors"
           >
             <Users className="w-4 h-4" />
-            <span className="hidden sm:inline">Manage</span>
+            <span className="hidden sm:inline">{t('door.manage', { defaultValue: 'Manage' })}</span>
           </Link>
         </div>
       </div>
@@ -158,15 +160,15 @@ export function CheckInInterface({ event, tickets, onCheckIn }: CheckInInterface
         <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
           <div className="text-center">
             <div className="text-3xl font-bold">{stats.checkedIn}</div>
-            <div className="text-sm text-teal-100 mt-1">Checked In</div>
+            <div className="text-sm text-teal-100 mt-1">{t('door.checked_in', { defaultValue: 'Checked In' })}</div>
           </div>
           <div className="text-center border-x border-teal-500">
             <div className="text-3xl font-bold">{stats.remaining}</div>
-            <div className="text-sm text-teal-100 mt-1">Remaining</div>
+            <div className="text-sm text-teal-100 mt-1">{t('door.remaining', { defaultValue: 'Remaining' })}</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold">{stats.total}</div>
-            <div className="text-sm text-teal-100 mt-1">Total</div>
+            <div className="text-sm text-teal-100 mt-1">{t('door.total', { defaultValue: 'Total' })}</div>
           </div>
         </div>
         
@@ -183,16 +185,16 @@ export function CheckInInterface({ event, tickets, onCheckIn }: CheckInInterface
 
       {/* Entry Point Selector */}
       <div className="bg-gray-800 px-4 py-3 border-b border-gray-700">
-        <label className="block text-sm font-medium text-white/70 mb-2">Entry Point</label>
+        <label className="block text-sm font-medium text-white/70 mb-2">{t('door.entry_point', { defaultValue: 'Entry Point' })}</label>
         <select
           value={selectedEntryPoint}
           onChange={(e) => setSelectedEntryPoint(e.target.value)}
           className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-teal-500 focus:border-transparent"
         >
-          <option value="Main Entrance">Main Entrance</option>
-          <option value="VIP Entrance">VIP Entrance</option>
-          <option value="Side Door">Side Door</option>
-          <option value="Back Entrance">Back Entrance</option>
+          <option value="Main Entrance">{t('door.entry_main_entrance', { defaultValue: 'Main Entrance' })}</option>
+          <option value="VIP Entrance">{t('door.entry_vip_entrance', { defaultValue: 'VIP Entrance' })}</option>
+          <option value="Side Door">{t('door.entry_side_door', { defaultValue: 'Side Door' })}</option>
+          <option value="Back Entrance">{t('door.entry_back_entrance', { defaultValue: 'Back Entrance' })}</option>
         </select>
       </div>
 
@@ -247,12 +249,12 @@ export function CheckInInterface({ event, tickets, onCheckIn }: CheckInInterface
 
       {/* Recent Check-Ins */}
       <div className="px-4 pb-20">
-        <h2 className="text-lg font-bold mb-3">Recent Check-Ins</h2>
+        <h2 className="text-lg font-bold mb-3">{t('door.recent_checkins', { defaultValue: 'Recent Check-Ins' })}</h2>
         
         {recentCheckIns.length === 0 ? (
           <div className="bg-gray-800 rounded-xl p-8 text-center">
             <Clock className="w-12 h-12 text-white/65 mx-auto mb-3" />
-            <p className="text-white/70">No check-ins yet</p>
+            <p className="text-white/70">{t('door.no_checkins_yet', { defaultValue: 'No check-ins yet' })}</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -289,7 +291,7 @@ export function CheckInInterface({ event, tickets, onCheckIn }: CheckInInterface
       {showManualLookup && (
         <div className="fixed inset-0 bg-black/90 z-50 flex flex-col">
           <div className="bg-gray-800 p-4 flex items-center justify-between border-b border-gray-700">
-            <h2 className="text-lg font-bold">Manual Lookup</h2>
+            <h2 className="text-lg font-bold">{t('door.manual_lookup', { defaultValue: 'Manual Lookup' })}</h2>
             <button
               onClick={() => {
                 setShowManualLookup(false)
@@ -308,7 +310,7 @@ export function CheckInInterface({ event, tickets, onCheckIn }: CheckInInterface
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by name, email, or ticket ID..."
+                placeholder={t('door.search_placeholder', { defaultValue: 'Search by name, email, or ticket ID...' })}
                 autoFocus
                 className="w-full pl-12 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-xl text-white placeholder-white/40 focus:ring-2 focus:ring-teal-500 focus:border-transparent"
               />
@@ -319,7 +321,7 @@ export function CheckInInterface({ event, tickets, onCheckIn }: CheckInInterface
             {searchQuery.trim() && filteredTickets.length === 0 && (
               <div className="text-center py-12">
                 <AlertCircle className="w-12 h-12 text-white/65 mx-auto mb-3" />
-                <p className="text-white/70">No tickets found</p>
+                <p className="text-white/70">{t('door.no_tickets_found', { defaultValue: 'No tickets found' })}</p>
               </div>
             )}
 

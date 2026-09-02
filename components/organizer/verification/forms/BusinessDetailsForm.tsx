@@ -6,6 +6,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   initialData: Record<string, any>
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export default function BusinessDetailsForm({ initialData, onSave, onCancel, onSkip }: Props) {
+  const { t } = useTranslation('organizer')
   const [formData, setFormData] = useState({
     business_registration_number: initialData.business_registration_number || '',
     tax_id: initialData.tax_id || '',
@@ -64,7 +66,7 @@ export default function BusinessDetailsForm({ initialData, onSave, onCancel, onS
           {/* Business Registration Number */}
           <div>
             <label htmlFor="business_registration_number" className="block text-sm font-medium text-white/70 mb-2">
-              Business Registration Number
+              {t('onboarding.verification.biz_reg_number', { defaultValue: 'Business Registration Number' })}
             </label>
             <input
               type="text"
@@ -80,7 +82,7 @@ export default function BusinessDetailsForm({ initialData, onSave, onCancel, onS
           {/* Tax ID */}
           <div>
             <label htmlFor="tax_id" className="block text-sm font-medium text-white/70 mb-2">
-              Tax ID Number (NIF)
+              {t('onboarding.verification.biz_tax_id', { defaultValue: 'Tax ID Number (NIF)' })}
             </label>
             <input
               type="text"
@@ -96,7 +98,7 @@ export default function BusinessDetailsForm({ initialData, onSave, onCancel, onS
           {/* Business Type */}
           <div>
             <label htmlFor="business_type" className="block text-sm font-medium text-white/70 mb-2">
-              Business Type
+              {t('onboarding.verification.biz_type', { defaultValue: 'Business Type' })}
             </label>
             <select
               id="business_type"
@@ -105,19 +107,19 @@ export default function BusinessDetailsForm({ initialData, onSave, onCancel, onS
               onChange={handleChange}
               className="w-full px-4 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
             >
-              <option value="">Select type</option>
-              <option value="sole_proprietorship">Sole Proprietorship</option>
-              <option value="partnership">Partnership</option>
-              <option value="corporation">Corporation</option>
-              <option value="nonprofit">Non-Profit</option>
-              <option value="cooperative">Cooperative</option>
+              <option value="">{t('onboarding.verification.biz_select_type', { defaultValue: 'Select type' })}</option>
+              <option value="sole_proprietorship">{t('onboarding.verification.biz_sole', { defaultValue: 'Sole Proprietorship' })}</option>
+              <option value="partnership">{t('onboarding.verification.biz_partnership', { defaultValue: 'Partnership' })}</option>
+              <option value="corporation">{t('onboarding.verification.biz_corp', { defaultValue: 'Corporation' })}</option>
+              <option value="nonprofit">{t('onboarding.verification.biz_nonprofit', { defaultValue: 'Non-Profit' })}</option>
+              <option value="cooperative">{t('onboarding.verification.biz_coop', { defaultValue: 'Cooperative' })}</option>
             </select>
           </div>
 
           {/* Registration Date */}
           <div>
             <label htmlFor="registration_date" className="block text-sm font-medium text-white/70 mb-2">
-              Registration Date
+              {t('onboarding.verification.biz_reg_date', { defaultValue: 'Registration Date' })}
             </label>
             <input
               type="date"

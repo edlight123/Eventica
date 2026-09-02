@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ChevronRight, AlertCircle, CheckCircle, Clock, Ban, ArrowLeft, Globe, Wallet } from 'lucide-react'
 import Link from 'next/link'
 import { StatusChip, type ChipTone } from '@/components/ui/kit'
@@ -98,6 +99,7 @@ export default function PayoutsPageNew({
   initialActiveProfile,
 }: PayoutsPageProps) {
   const router = useRouter()
+  const { t } = useTranslation('organizer')
 
   const shouldShowEarningsAndPayouts = showEarningsAndPayouts !== false
   const normalizedEventSummaries = Array.isArray(eventSummaries) ? eventSummaries : []
@@ -160,7 +162,7 @@ export default function PayoutsPageNew({
   // or the Stripe return flow), focus the page on that profile instead of the confusing
   // Haiti vs US/Canada switcher.
   const isFocusedEdit = Boolean(initialActiveProfile)
-  const focusedProfileLabel = activeProfile === 'stripe_connect' ? 'US & Canada' : 'Haiti'
+  const focusedProfileLabel = activeProfile === 'stripe_connect' ? t('payouts_page.profile_us_canada', { defaultValue: 'US & Canada' }) : t('payouts_page.country_haiti', { defaultValue: 'Haiti' })
 
   const [isEditing, setIsEditing] = useState(!config)
   const [isSaving, setIsSaving] = useState(false)
@@ -293,10 +295,10 @@ export default function PayoutsPageNew({
 
   const formatLocationLabel = (raw: string | null | undefined) => {
     const value = String(raw || '').trim()
-    if (!value) return 'Not set'
-    if (value.toLowerCase() === 'united_states') return 'United States'
-    if (value.toLowerCase() === 'canada') return 'Canada'
-    if (value.toLowerCase() === 'haiti') return 'Haiti'
+    if (!value) return t('payouts_page.location_not_set', { defaultValue: 'Not set' })
+    if (value.toLowerCase() === 'united_states') return t('payouts_page.country_united_states', { defaultValue: 'United States' })
+    if (value.toLowerCase() === 'canada') return t('payouts_page.country_canada', { defaultValue: 'Canada' })
+    if (value.toLowerCase() === 'haiti') return t('payouts_page.country_haiti', { defaultValue: 'Haiti' })
     return value.replace(/_/g, ' ')
   }
 
@@ -310,10 +312,10 @@ export default function PayoutsPageNew({
       try {
         const res = await fetch('/api/organizer/stripe/status', { cache: 'no-store' as any })
         const data = await res.json()
-        if (!res.ok) throw new Error(data?.error || data?.message || 'Failed to load Stripe status')
+        if (!res.ok) throw new Error(data?.error || data?.message || t('payouts_page.error_stripe_status', { defaultValue: 'Failed to load Stripe status' }))
         if (!cancelled) setStripeStatus(data)
       } catch (e: any) {
-        if (!cancelled) setStripeStatusError(e?.message || 'Failed to load Stripe status')
+        if (!cancelled) setStripeStatusError(e?.message || t('payouts_page.error_stripe_status', { defaultValue: 'Failed to load Stripe status' }))
       } finally {
         if (!cancelled) setIsLoadingStripeStatus(false)
       }
@@ -325,10 +327,10 @@ export default function PayoutsPageNew({
       try {
         const res = await fetch('/api/organizer/payout-prefunding-status', { cache: 'no-store' as any })
         const data = await res.json()
-        if (!res.ok) throw new Error(data?.error || data?.message || 'Failed to load prefunding status')
+        if (!res.ok) throw new Error(data?.error || data?.message || t('payouts_page.error_prefunding_status', { defaultValue: 'Failed to load prefunding status' }))
         if (!cancelled) setPrefunding(data?.prefunding || { enabled: false, available: false })
       } catch (e: any) {
-        if (!cancelled) setPrefundingError(e?.message || 'Failed to load prefunding status')
+        if (!cancelled) setPrefundingError(e?.message || t('payouts_page.error_prefunding_status', { defaultValue: 'Failed to load prefunding status' }))
       }
     }
 
@@ -353,7 +355,7 @@ export default function PayoutsPageNew({
       try {
         const res = await fetch('/api/organizer/payout-destinations/bank', { cache: 'no-store' as any })
         const data = await res.json().catch(() => ({}))
-        if (!res.ok) throw new Error(data?.error || data?.message || 'Failed to load bank accounts')
+        if (!res.ok) throw new Error(data?.error || data?.message || t('payouts_page.error_load_banks', { defaultValue: 'Failed to load bank accounts' }))
         const destinations = (Array.isArray(data?.destinations) ? data.destinations : []) as BankDestination[]
         if (cancelled) return
         setBankDestinations(destinations)
@@ -366,7 +368,7 @@ export default function PayoutsPageNew({
       } catch (e: any) {
         if (cancelled) return
         setBankDestinations(null)
-        setBankDestinationsError(e?.message || 'Failed to load bank accounts')
+        setBankDestinationsError(e?.message || t('payouts_page.error_load_banks', { defaultValue: 'Failed to load bank accounts' }))
         setSelectedBankDestinationId('')
       } finally {
         if (!cancelled) setIsLoadingBankDestinations(false)
@@ -396,11 +398,11 @@ export default function PayoutsPageNew({
 
   const getStripeBadge = (): { label: string; tone: ChipTone } => {
     const status = String(stripeStatus?.status || '')
-    if (status === 'verified') return { label: 'Verified', tone: 'success' }
-    if (status === 'requires_more_info') return { label: 'Needs attention', tone: 'danger' }
-    if (status === 'incomplete') return { label: 'Incomplete', tone: 'warning' }
-    if (status === 'in_review') return { label: 'In review', tone: 'warning' }
-    return { label: 'Not connected', tone: 'neutral' }
+    if (status === 'verified') return { label: t('payouts_page.status_verified', { defaultValue: 'Verified' }), tone: 'success' }
+    if (status === 'requires_more_info') return { label: t('payouts_page.status_needs_attention', { defaultValue: 'Needs attention' }), tone: 'danger' }
+    if (status === 'incomplete') return { label: t('payouts_page.status_incomplete', { defaultValue: 'Incomplete' }), tone: 'warning' }
+    if (status === 'in_review') return { label: t('payouts_page.status_in_review', { defaultValue: 'In review' }), tone: 'warning' }
+    return { label: t('payouts_page.status_not_connected', { defaultValue: 'Not connected' }), tone: 'neutral' }
   }
 
   const startStripeOnboarding = async () => {
@@ -412,14 +414,14 @@ export default function PayoutsPageNew({
         body: JSON.stringify({ accountLocation: String(effectiveAccountLocation || '').toLowerCase() }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data?.error || data?.message || 'Failed to start Stripe onboarding')
+      if (!res.ok) throw new Error(data?.error || data?.message || t('payouts_page.error_stripe_onboarding', { defaultValue: 'Failed to start Stripe onboarding' }))
       if (data?.url) {
         window.location.href = data.url
         return
       }
-      throw new Error('Stripe onboarding URL missing')
+      throw new Error(t('payouts_page.error_stripe_url_missing', { defaultValue: 'Stripe onboarding URL missing' }))
     } catch (e: any) {
-      setError(e?.message || 'Failed to start Stripe onboarding')
+      setError(e?.message || t('payouts_page.error_stripe_onboarding', { defaultValue: 'Failed to start Stripe onboarding' }))
     }
   }
 
@@ -428,14 +430,14 @@ export default function PayoutsPageNew({
     try {
       const res = await fetch('/api/organizer/stripe/login-link', { method: 'POST' })
       const data = await res.json()
-      if (!res.ok) throw new Error(data?.error || data?.message || 'Failed to open Stripe dashboard')
+      if (!res.ok) throw new Error(data?.error || data?.message || t('payouts_page.error_stripe_dashboard', { defaultValue: 'Failed to open Stripe dashboard' }))
       if (data?.url) {
         window.location.href = data.url
         return
       }
-      throw new Error('Stripe dashboard URL missing')
+      throw new Error(t('payouts_page.error_stripe_dashboard_url_missing', { defaultValue: 'Stripe dashboard URL missing' }))
     } catch (e: any) {
-      setError(e?.message || 'Failed to open Stripe dashboard')
+      setError(e?.message || t('payouts_page.error_stripe_dashboard', { defaultValue: 'Failed to open Stripe dashboard' }))
     }
   }
 
@@ -453,7 +455,7 @@ export default function PayoutsPageNew({
     { value: 'capital_bank', label: 'Capital Bank' },
     { value: 'citibank', label: 'Citibank Haiti' },
     { value: 'scotiabank', label: 'Scotiabank' },
-    { value: 'other', label: 'Other (add my bank)' }
+    { value: 'other', label: t('payouts_page.bank_other', { defaultValue: 'Other (add my bank)' }) }
   ]
 
   const handleSavePayoutDetails = async (onSuccess?: () => void) => {
@@ -468,7 +470,7 @@ export default function PayoutsPageNew({
     if (activeProfile === 'stripe_connect') {
       try {
         if (!wantsStripeConnect) {
-          setError('Stripe Connect is only available for United States or Canada accounts')
+          setError(t('payouts_page.error_stripe_country', { defaultValue: 'Stripe Connect is only available for United States or Canada accounts' }))
           setIsSaving(false)
           return
         }
@@ -483,11 +485,11 @@ export default function PayoutsPageNew({
           if (updateResult?.requiresVerification) {
             setPendingSensitiveUpdate({ kind: 'profile_update', updates: stripeSetupUpdate })
             setPayoutChangeVerificationRequired(true)
-            setPayoutChangeMessage('For your security, confirm this payout change with the code we email you.')
+            setPayoutChangeMessage(t('payouts_page.stepup_msg_profile', { defaultValue: 'For your security, confirm this payout change with the code we email you.' }))
             setIsSaving(false)
             return
           }
-          throw new Error(updateResult?.error || 'Failed to save payout details. Please try again.')
+          throw new Error(updateResult?.error || t('payouts_page.error_save_failed', { defaultValue: 'Failed to save payout details. Please try again.' }))
         }
 
         const res = await fetch('/api/organizer/stripe/connect', {
@@ -497,15 +499,15 @@ export default function PayoutsPageNew({
         })
         const data = await res.json()
         if (!res.ok) {
-          throw new Error(data?.error || data?.message || 'Failed to start Stripe onboarding')
+          throw new Error(data?.error || data?.message || t('payouts_page.error_stripe_onboarding', { defaultValue: 'Failed to start Stripe onboarding' }))
         }
         if (data?.url) {
           window.location.href = data.url
           return
         }
-        throw new Error('Stripe onboarding URL missing')
+        throw new Error(t('payouts_page.error_stripe_url_missing', { defaultValue: 'Stripe onboarding URL missing' }))
       } catch (err: any) {
-        setError(err?.message || 'Failed to start Stripe onboarding')
+        setError(err?.message || t('payouts_page.error_stripe_onboarding', { defaultValue: 'Failed to start Stripe onboarding' }))
         setIsSaving(false)
         return
       }
@@ -513,7 +515,7 @@ export default function PayoutsPageNew({
 
     if (formData.method === 'bank_transfer') {
       if (!formData.accountLocation) {
-        setError('Please select an account location')
+        setError(t('payouts_page.error_select_location', { defaultValue: 'Please select an account location' }))
         setIsSaving(false)
         return
       }
@@ -523,7 +525,7 @@ export default function PayoutsPageNew({
         const destinations = bankDestinations || []
         const selected = destinations.find((d) => d.id === selectedBankDestinationId) || null
         if (!selected) {
-          setError('Please add a bank account first, then select it.')
+          setError(t('payouts_page.error_add_bank_first', { defaultValue: 'Please add a bank account first, then select it.' }))
           setIsSaving(false)
           const verifyEl = document.getElementById('verify-payouts')
           if (verifyEl) verifyEl.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -531,27 +533,27 @@ export default function PayoutsPageNew({
         }
       } else {
         if (!formData.bankName) {
-          setError('Please select a bank')
+          setError(t('payouts_page.error_select_bank', { defaultValue: 'Please select a bank' }))
           setIsSaving(false)
           return
         }
         if (formData.bankName === 'other' && !formData.customBankName.trim()) {
-          setError('Please enter your bank name')
+          setError(t('payouts_page.error_enter_bank_name', { defaultValue: 'Please enter your bank name' }))
           setIsSaving(false)
           return
         }
         if (!formData.routingNumber.trim()) {
-          setError('Please enter a routing number')
+          setError(t('payouts_page.error_enter_routing', { defaultValue: 'Please enter a routing number' }))
           setIsSaving(false)
           return
         }
         if (!formData.accountNumber.trim()) {
-          setError('Please enter an account number')
+          setError(t('payouts_page.error_enter_account_number', { defaultValue: 'Please enter an account number' }))
           setIsSaving(false)
           return
         }
         if (!formData.accountName.trim()) {
-          setError('Please enter the account holder name')
+          setError(t('payouts_page.error_enter_account_holder', { defaultValue: 'Please enter the account holder name' }))
           setIsSaving(false)
           return
         }
@@ -561,13 +563,13 @@ export default function PayoutsPageNew({
       const hasSavedPhone = Boolean(config?.mobileMoneyDetails?.phoneNumberLast4)
       const needsNewPhone = activeProfile === 'haiti' ? (isChangingMobileNumber || !hasSavedPhone) : true
       if (needsNewPhone && !formData.phoneNumber.trim()) {
-        setError('Please enter a phone number')
+        setError(t('payouts_page.error_enter_phone', { defaultValue: 'Please enter a phone number' }))
         setIsSaving(false)
         return
       }
 
       if (needsNewPhone && isHaiti && !isValidHaitiPhone(formData.phoneNumber)) {
-        setError('Please enter a valid Haiti phone number (example: +50912345678)')
+        setError(t('payouts_page.error_invalid_haiti_phone', { defaultValue: 'Please enter a valid Haiti phone number (example: +50912345678)' }))
         setIsSaving(false)
         return
       }
@@ -614,11 +616,11 @@ export default function PayoutsPageNew({
         if (result?.requiresVerification) {
           setPendingSensitiveUpdate({ kind: 'profile_update', updates })
           setPayoutChangeVerificationRequired(true)
-          setPayoutChangeMessage('For your security, confirm this payout change with the code we email you.')
+          setPayoutChangeMessage(t('payouts_page.stepup_msg_profile', { defaultValue: 'For your security, confirm this payout change with the code we email you.' }))
           setIsSaving(false)
           return
         }
-        throw new Error(result?.error || 'Failed to save payout details. Please try again.')
+        throw new Error(result?.error || t('payouts_page.error_save_failed', { defaultValue: 'Failed to save payout details. Please try again.' }))
       }
 
       setIsEditing(false)
@@ -629,7 +631,7 @@ export default function PayoutsPageNew({
       router.refresh()
       onSuccess?.()
     } catch (err) {
-      setError('Failed to save payout details. Please try again.')
+      setError(t('payouts_page.error_save_failed', { defaultValue: 'Failed to save payout details. Please try again.' }))
       console.error('Error saving payout details:', err)
     } finally {
       setIsSaving(false)
@@ -643,16 +645,16 @@ export default function PayoutsPageNew({
     try {
       const res = await fetch('/api/organizer/payout-details-change/send-email-code', { method: 'POST' })
       const data = await res.json()
-      if (!res.ok) throw new Error(data?.error || 'Failed to send code')
+      if (!res.ok) throw new Error(data?.error || t('payouts_page.error_send_code', { defaultValue: 'Failed to send code' }))
 
       const devCode = data?.debugCode
       if (process.env.NODE_ENV === 'development' && devCode) {
-        setPayoutChangeMessage(`Code sent. Dev code: ${devCode}`)
+        setPayoutChangeMessage(t('payouts_page.code_sent_dev', { code: devCode, defaultValue: 'Code sent. Dev code: {{code}}' }))
       } else {
-        setPayoutChangeMessage('Code sent. Check your email.')
+        setPayoutChangeMessage(t('payouts_page.code_sent_email', { defaultValue: 'Code sent. Check your email.' }))
       }
     } catch (e: any) {
-      setError(e?.message || 'Failed to send code')
+      setError(e?.message || t('payouts_page.error_send_code', { defaultValue: 'Failed to send code' }))
     } finally {
       setIsSendingPayoutChangeCode(false)
     }
@@ -669,24 +671,24 @@ export default function PayoutsPageNew({
         body: JSON.stringify({ code: payoutChangeCode }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data?.error || 'Failed to verify code')
+      if (!res.ok) throw new Error(data?.error || t('payouts_page.error_verify_code', { defaultValue: 'Failed to verify code' }))
 
       if (pendingSensitiveUpdate) {
         if (pendingSensitiveUpdate.kind === 'profile_update') {
-          setPayoutChangeMessage('Verified. Saving your payout details…')
+          setPayoutChangeMessage(t('payouts_page.verified_saving', { defaultValue: 'Verified. Saving your payout details…' }))
           const result = await updatePayoutProfileConfig(activeProfile as any, pendingSensitiveUpdate.updates)
           if (!result?.success) {
             if (result?.requiresVerification) {
-              setPayoutChangeMessage('Verification expired. Please request a new code.')
+              setPayoutChangeMessage(t('payouts_page.verification_expired', { defaultValue: 'Verification expired. Please request a new code.' }))
               return
             }
-            throw new Error(result?.error || 'Failed to save payout details. Please try again.')
+            throw new Error(result?.error || t('payouts_page.error_save_failed', { defaultValue: 'Failed to save payout details. Please try again.' }))
           }
           setIsEditing(false)
         }
 
         if (pendingSensitiveUpdate.kind === 'add_bank_destination') {
-          setPayoutChangeMessage('Verified. Adding your bank account…')
+          setPayoutChangeMessage(t('payouts_page.verified_adding_bank', { defaultValue: 'Verified. Adding your bank account…' }))
           const res = await fetch('/api/organizer/payout-destinations/bank', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -695,13 +697,13 @@ export default function PayoutsPageNew({
           const data = await res.json().catch(() => ({}))
           if (!res.ok) {
             if (data?.requiresVerification || data?.code === 'PAYOUT_CHANGE_VERIFICATION_REQUIRED') {
-              setPayoutChangeMessage('Verification expired. Please request a new code.')
+              setPayoutChangeMessage(t('payouts_page.verification_expired', { defaultValue: 'Verification expired. Please request a new code.' }))
               return
             }
-            throw new Error(data?.error || data?.message || 'Failed to add bank account')
+            throw new Error(data?.error || data?.message || t('payouts_page.error_add_bank', { defaultValue: 'Failed to add bank account' }))
           }
 
-          setAddBankDestinationMessage('Bank account added. Please submit verification for this account.')
+          setAddBankDestinationMessage(t('payouts_page.bank_added', { defaultValue: 'Bank account added. Please submit verification for this account.' }))
           setNewBankDestination({ bankName: '', customBankName: '', accountNumber: '', accountHolder: '', routingNumber: '', swiftCode: '' })
           setShowAddBankDestination(false)
           try {
@@ -720,10 +722,10 @@ export default function PayoutsPageNew({
         setPayoutChangeCode('')
         router.refresh()
       } else {
-        setPayoutChangeMessage('Verified.')
+        setPayoutChangeMessage(t('payouts_page.verified_short', { defaultValue: 'Verified.' }))
       }
     } catch (e: any) {
-      setError(e?.message || 'Failed to verify code')
+      setError(e?.message || t('payouts_page.error_verify_code', { defaultValue: 'Failed to verify code' }))
     } finally {
       setIsVerifyingPayoutChangeCode(false)
     }
@@ -772,10 +774,10 @@ export default function PayoutsPageNew({
     }
 
     const labels = {
-      paid: 'Paid',
-      pending: 'Pending',
-      scheduled: 'Scheduled',
-      on_hold: 'On hold'
+      paid: t('payouts_page.payout_status_paid', { defaultValue: 'Paid' }),
+      pending: t('payouts_page.payout_status_pending', { defaultValue: 'Pending' }),
+      scheduled: t('payouts_page.payout_status_scheduled', { defaultValue: 'Scheduled' }),
+      on_hold: t('payouts_page.payout_status_on_hold', { defaultValue: 'On hold' })
     }
 
     return (
@@ -792,17 +794,17 @@ export default function PayoutsPageNew({
     try {
       const res = await fetch('/api/organizer/send-phone-verification-code', { method: 'POST' })
       const data = await res.json()
-      if (!res.ok) throw new Error(data?.error || 'Failed to send code')
+      if (!res.ok) throw new Error(data?.error || t('payouts_page.error_send_code', { defaultValue: 'Failed to send code' }))
 
       const devCode = data?.debugCode
       if (process.env.NODE_ENV === 'development' && devCode) {
-        setPhoneVerificationMessage(`Code sent. Dev code: ${devCode}`)
+        setPhoneVerificationMessage(t('payouts_page.code_sent_dev', { code: devCode, defaultValue: 'Code sent. Dev code: {{code}}' }))
       } else {
-        setPhoneVerificationMessage('Code sent. Check your phone.')
+        setPhoneVerificationMessage(t('payouts_page.code_sent_phone', { defaultValue: 'Code sent. Check your phone.' }))
       }
       router.refresh()
     } catch (err: any) {
-      setError(err.message || 'Failed to send code')
+      setError(err.message || t('payouts_page.error_send_code', { defaultValue: 'Failed to send code' }))
     } finally {
       setIsSendingPhoneCode(false)
     }
@@ -819,12 +821,12 @@ export default function PayoutsPageNew({
         body: JSON.stringify({ verificationCode: phoneVerificationCode.trim() })
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data?.error || 'Failed to verify code')
-      setPhoneVerificationMessage('Phone verified successfully.')
+      if (!res.ok) throw new Error(data?.error || t('payouts_page.error_verify_code', { defaultValue: 'Failed to verify code' }))
+      setPhoneVerificationMessage(t('payouts_page.phone_verified_success', { defaultValue: 'Phone verified successfully.' }))
       setPhoneVerificationCode('')
       router.refresh()
     } catch (err: any) {
-      setError(err.message || 'Failed to verify code')
+      setError(err.message || t('payouts_page.error_verify_code', { defaultValue: 'Failed to verify code' }))
     } finally {
       setIsSubmittingPhoneCode(false)
     }
@@ -834,12 +836,12 @@ export default function PayoutsPageNew({
     setBankVerificationMessage(null)
     setError(null)
     if (!bankVerificationFile) {
-      setError('Please attach a verification document')
+      setError(t('payouts_page.error_attach_document', { defaultValue: 'Please attach a verification document' }))
       return
     }
 
     if (activeProfile === 'haiti' && !selectedBankDestinationId) {
-      setError('Please select a bank account to verify')
+      setError(t('payouts_page.error_select_bank_to_verify', { defaultValue: 'Please select a bank account to verify' }))
       return
     }
 
@@ -857,9 +859,9 @@ export default function PayoutsPageNew({
         body: form,
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data?.error || 'Failed to submit bank verification')
+      if (!res.ok) throw new Error(data?.error || t('payouts_page.error_submit_bank_verification', { defaultValue: 'Failed to submit bank verification' }))
 
-      setBankVerificationMessage('Bank verification submitted. Awaiting review.')
+      setBankVerificationMessage(t('payouts_page.bank_verification_submitted', { defaultValue: 'Bank verification submitted. Awaiting review.' }))
       setBankVerificationFile(null)
 
       // Refresh destination list/status.
@@ -874,7 +876,7 @@ export default function PayoutsPageNew({
       }
       router.refresh()
     } catch (err: any) {
-      setError(err.message || 'Failed to submit bank verification')
+      setError(err.message || t('payouts_page.error_submit_bank_verification', { defaultValue: 'Failed to submit bank verification' }))
     } finally {
       setIsSubmittingBankVerification(false)
     }
@@ -885,20 +887,20 @@ export default function PayoutsPageNew({
     setError(null)
 
     if (!newBankDestination.bankName.trim()) {
-      setError('Please choose a bank')
+      setError(t('payouts_page.error_choose_bank', { defaultValue: 'Please choose a bank' }))
       return
     }
 
     if (newBankDestination.bankName === 'other' && !newBankDestination.customBankName.trim()) {
-      setError('Please enter your bank name')
+      setError(t('payouts_page.error_enter_bank_name', { defaultValue: 'Please enter your bank name' }))
       return
     }
     if (!newBankDestination.accountNumber.trim()) {
-      setError('Please enter an account number')
+      setError(t('payouts_page.error_enter_account_number', { defaultValue: 'Please enter an account number' }))
       return
     }
     if (!newBankDestination.accountHolder.trim()) {
-      setError('Please enter the account holder name')
+      setError(t('payouts_page.error_enter_account_holder', { defaultValue: 'Please enter the account holder name' }))
       return
     }
 
@@ -928,13 +930,13 @@ export default function PayoutsPageNew({
         if (data?.requiresVerification || data?.code === 'PAYOUT_CHANGE_VERIFICATION_REQUIRED') {
           setPendingSensitiveUpdate({ kind: 'add_bank_destination', bankDetails })
           setPayoutChangeVerificationRequired(true)
-          setPayoutChangeMessage('For your security, confirm this new bank account with the code we email you.')
+          setPayoutChangeMessage(t('payouts_page.stepup_msg_bank', { defaultValue: 'For your security, confirm this new bank account with the code we email you.' }))
           return
         }
-        throw new Error(data?.error || data?.message || 'Failed to add bank account')
+        throw new Error(data?.error || data?.message || t('payouts_page.error_add_bank', { defaultValue: 'Failed to add bank account' }))
       }
 
-      setAddBankDestinationMessage('Bank account added. Please submit verification for this account.')
+      setAddBankDestinationMessage(t('payouts_page.bank_added', { defaultValue: 'Bank account added. Please submit verification for this account.' }))
       setNewBankDestination({ bankName: '', customBankName: '', accountNumber: '', accountHolder: '', routingNumber: '', swiftCode: '' })
       setShowAddBankDestination(false)
 
@@ -953,7 +955,7 @@ export default function PayoutsPageNew({
       }
       router.refresh()
     } catch (e: any) {
-      setError(e?.message || 'Failed to add bank account')
+      setError(e?.message || t('payouts_page.error_add_bank', { defaultValue: 'Failed to add bank account' }))
     } finally {
       setIsAddingBankDestination(false)
     }
@@ -986,20 +988,20 @@ export default function PayoutsPageNew({
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-white/60 mb-3">
             <Link href="/organizer/settings" className="hover:text-white">
-              Settings
+              {t('payouts_page.breadcrumb_settings', { defaultValue: 'Settings' })}
             </Link>
             <ChevronRight className="w-4 h-4" />
-            <span className="text-white font-medium">Payouts</span>
+            <span className="text-white font-medium">{t('payouts_page.title', { defaultValue: 'Payouts' })}</span>
           </div>
 
           {/* Title */}
           <h1 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.04] text-white mb-2">
-            Payouts
+            {t('payouts_page.title', { defaultValue: 'Payouts' })}
           </h1>
           <p className="text-white/60">
             {shouldShowEarningsAndPayouts
-              ? 'Set up where your money goes and track earnings by event.'
-              : 'Set up where your payouts go.'}
+              ? t('payouts_page.subtitle_full', { defaultValue: 'Set up where your money goes and track earnings by event.' })
+              : t('payouts_page.subtitle_setup_only', { defaultValue: 'Set up where your payouts go.' })}
           </p>
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -1007,19 +1009,19 @@ export default function PayoutsPageNew({
               href="/organizer/settings/payouts"
               className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-brand-700 text-white"
             >
-              Payout profile
+              {t('payouts_page.tab_payout_profile', { defaultValue: 'Payout profile' })}
             </Link>
             <Link
               href="/organizer/earnings"
               className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-[#0a0a0a] text-white border border-white/15 hover:bg-white/[0.04]"
             >
-              Earnings
+              {t('payouts_page.tab_earnings', { defaultValue: 'Earnings' })}
             </Link>
             <Link
               href="/organizer/settings/payouts/history"
               className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-[#0a0a0a] text-white border border-white/15 hover:bg-white/[0.04]"
             >
-              Payout history
+              {t('payouts_page.payout_history', { defaultValue: 'Payout history' })}
             </Link>
           </div>
         </div>
@@ -1032,10 +1034,10 @@ export default function PayoutsPageNew({
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-amber-300 flex-shrink-0 mt-0.5" />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-amber-100">Confirm payout details change</p>
+                <p className="text-sm font-medium text-amber-100">{t('payouts_page.stepup_title', { defaultValue: 'Confirm payout details change' })}</p>
                 <p className="text-sm text-amber-300 mt-1">
                   {payoutChangeMessage ||
-                    'For your security, confirm this change with the 6-digit code sent to your email.'}
+                    t('payouts_page.stepup_desc', { defaultValue: 'For your security, confirm this change with the 6-digit code sent to your email.' })}
                 </p>
 
                 <div className="mt-3 flex flex-col sm:flex-row gap-2">
@@ -1044,8 +1046,8 @@ export default function PayoutsPageNew({
                     inputMode="numeric"
                     value={payoutChangeCode}
                     onChange={(e) => setPayoutChangeCode(e.target.value)}
-                    placeholder="6-digit code"
-                    aria-label="6-digit verification code"
+                    placeholder={t('payouts_page.code_placeholder', { defaultValue: '6-digit code' })}
+                    aria-label={t('payouts_page.code_aria', { defaultValue: '6-digit verification code' })}
                     className="w-full rounded-xl border border-amber-500/30 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 sm:w-48"
                   />
                   <button
@@ -1054,7 +1056,7 @@ export default function PayoutsPageNew({
                     disabled={isVerifyingPayoutChangeCode || !/^\d{6}$/.test(payoutChangeCode)}
                     className="px-4 py-2 bg-brand-700 text-white rounded-lg font-medium hover:bg-brand-800 transition-colors disabled:bg-white/20 disabled:cursor-not-allowed"
                   >
-                    {isVerifyingPayoutChangeCode ? 'Verifying…' : 'Verify & continue'}
+                    {isVerifyingPayoutChangeCode ? t('payouts_page.verifying', { defaultValue: 'Verifying…' }) : t('payouts_page.verify_and_continue', { defaultValue: 'Verify & continue' })}
                   </button>
                   <button
                     type="button"
@@ -1062,7 +1064,7 @@ export default function PayoutsPageNew({
                     disabled={isSendingPayoutChangeCode}
                     className="px-4 py-2 bg-[#0a0a0a] border border-amber-300 text-amber-300 rounded-lg font-medium hover:bg-amber-500/15 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isSendingPayoutChangeCode ? 'Sending…' : 'Resend code'}
+                    {isSendingPayoutChangeCode ? t('payouts_page.sending', { defaultValue: 'Sending…' }) : t('payouts_page.resend_code', { defaultValue: 'Resend code' })}
                   </button>
                 </div>
               </div>
@@ -1091,18 +1093,18 @@ export default function PayoutsPageNew({
                       {activeProfile === 'stripe_connect' ? <Globe className="h-5 w-5" /> : <Wallet className="h-5 w-5" />}
                     </div>
                     <div>
-                      <h2 className="text-lg font-semibold text-white">{focusedProfileLabel} payouts</h2>
+                      <h2 className="text-lg font-semibold text-white">{t('payouts_page.profile_payouts_title', { profile: focusedProfileLabel, defaultValue: '{{profile}} payouts' })}</h2>
                       <p className="mt-0.5 text-sm text-white/60">
-                        {activeProfile === 'stripe_connect' ? 'Bank payouts via Stripe Connect.' : 'Bank transfer or mobile money (MonCash / NatCash).'}
+                        {activeProfile === 'stripe_connect' ? t('payouts_page.profile_stripe_sub', { defaultValue: 'Bank payouts via Stripe Connect.' }) : t('payouts_page.profile_haiti_sub', { defaultValue: 'Bank transfer or mobile money (MonCash / NatCash).' })}
                       </p>
                     </div>
                   </div>
-                  <StatusChip tone={config ? 'success' : 'neutral'}>{config ? 'Configured' : 'Not set up'}</StatusChip>
+                  <StatusChip tone={config ? 'success' : 'neutral'}>{config ? t('payouts_page.chip_configured', { defaultValue: 'Configured' }) : t('payouts_page.chip_not_set_up', { defaultValue: 'Not set up' })}</StatusChip>
                 </div>
 
                 {/* Step progress bar */}
                 {(() => {
-                  const steps = [{ key: 'method', label: 'Payout method' }, { key: 'verify', label: 'Verify' }, { key: 'done', label: 'Done' }] as const
+                  const steps = [{ key: 'method', label: t('payouts_page.payout_method', { defaultValue: 'Payout method' }) }, { key: 'verify', label: t('payouts_page.step_verify', { defaultValue: 'Verify' }) }, { key: 'done', label: t('payouts_page.step_done', { defaultValue: 'Done' }) }] as const
                   const currentIdx = steps.findIndex((s) => s.key === editStep)
                   return (
                     <div className="flex items-center gap-1">
@@ -1131,23 +1133,23 @@ export default function PayoutsPageNew({
                     <div className="flex items-start gap-3">
                       <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-300" />
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-amber-100">Confirm payout details change</p>
-                        <p className="text-sm text-amber-300 mt-1">{payoutChangeMessage || 'For your security, confirm this change with the 6-digit code sent to your email.'}</p>
+                        <p className="text-sm font-medium text-amber-100">{t('payouts_page.stepup_title', { defaultValue: 'Confirm payout details change' })}</p>
+                        <p className="text-sm text-amber-300 mt-1">{payoutChangeMessage || t('payouts_page.stepup_desc', { defaultValue: 'For your security, confirm this change with the 6-digit code sent to your email.' })}</p>
                         <div className="mt-3 flex flex-col sm:flex-row gap-2">
                           <input
                             type="text"
                             inputMode="numeric"
                             value={payoutChangeCode}
                             onChange={(e) => setPayoutChangeCode(e.target.value)}
-                            placeholder="6-digit code"
-                            aria-label="6-digit verification code"
+                            placeholder={t('payouts_page.code_placeholder', { defaultValue: '6-digit code' })}
+                            aria-label={t('payouts_page.code_aria', { defaultValue: '6-digit verification code' })}
                             className="w-full rounded-xl border border-amber-500/30 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 sm:w-48"
                           />
                           <button type="button" onClick={verifyPayoutChangeEmailCode} disabled={isVerifyingPayoutChangeCode || !/^\d{6}$/.test(payoutChangeCode)} className="rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 disabled:opacity-40">
-                            {isVerifyingPayoutChangeCode ? 'Verifying…' : 'Verify & continue'}
+                            {isVerifyingPayoutChangeCode ? t('payouts_page.verifying', { defaultValue: 'Verifying…' }) : t('payouts_page.verify_and_continue', { defaultValue: 'Verify & continue' })}
                           </button>
                           <button type="button" onClick={sendPayoutChangeEmailCode} disabled={isSendingPayoutChangeCode} className="rounded-xl border border-amber-500/30 bg-[#0a0a0a] px-4 py-2.5 text-sm font-semibold text-amber-300 transition-colors hover:bg-amber-500/10 disabled:opacity-50">
-                            {isSendingPayoutChangeCode ? 'Sending…' : 'Resend code'}
+                            {isSendingPayoutChangeCode ? t('payouts_page.sending', { defaultValue: 'Sending…' }) : t('payouts_page.resend_code', { defaultValue: 'Resend code' })}
                           </button>
                         </div>
                       </div>
@@ -1159,62 +1161,62 @@ export default function PayoutsPageNew({
                 {editStep === 'method' && (
                   <div className="rounded-xl border border-white/10">
                     <div className="p-6">
-                      <h2 className="mb-4 text-lg font-semibold text-white">Payout method</h2>
+                      <h2 className="mb-4 text-lg font-semibold text-white">{t('payouts_page.payout_method', { defaultValue: 'Payout method' })}</h2>
 
                       {isStripeConnectSelection ? (
                         <div className="mb-4 rounded-xl border border-white/10 p-4">
                           <div className="flex items-start justify-between gap-3">
                             <div>
                               <p className="text-sm font-semibold text-white">Stripe Connect</p>
-                              <p className="mt-1 text-sm text-white/60">Connect your Stripe account to receive payouts to your bank.</p>
+                              <p className="mt-1 text-sm text-white/60">{t('payouts_page.stripe_connect_desc', { defaultValue: 'Connect your Stripe account to receive payouts to your bank.' })}</p>
                             </div>
                             <StatusChip tone={getStripeBadge().tone}>{getStripeBadge().label}</StatusChip>
                           </div>
                           {stripeStatusError ? <div className="mt-3 text-sm text-red-300">{stripeStatusError}</div> : null}
                           <div className="mt-3 flex gap-2">
                             {!stripeStatus?.connected ? (
-                              <button type="button" onClick={startStripeOnboarding} className="rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-800">Connect with Stripe</button>
+                              <button type="button" onClick={startStripeOnboarding} className="rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-800">{t('payouts_page.connect_with_stripe', { defaultValue: 'Connect with Stripe' })}</button>
                             ) : (
                               <>
-                                <button type="button" onClick={startStripeOnboarding} className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/[0.04]">Continue onboarding</button>
-                                <button type="button" onClick={openStripeDashboard} className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/[0.04]">Manage in Stripe</button>
+                                <button type="button" onClick={startStripeOnboarding} className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/[0.04]">{t('payouts_page.continue_onboarding', { defaultValue: 'Continue onboarding' })}</button>
+                                <button type="button" onClick={openStripeDashboard} className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/[0.04]">{t('payouts_page.manage_in_stripe', { defaultValue: 'Manage in Stripe' })}</button>
                               </>
                             )}
-                            {isLoadingStripeStatus ? <span className="self-center text-sm text-white/50">Loading…</span> : null}
+                            {isLoadingStripeStatus ? <span className="self-center text-sm text-white/50">{t('payouts_page.loading', { defaultValue: 'Loading…' })}</span> : null}
                           </div>
                         </div>
                       ) : null}
 
                       {isHaiti && String(formData.method || '').toLowerCase() === 'mobile_money' && selectedProvider === 'moncash' ? (
                         <div className="mb-4 rounded-xl border border-white/10 p-4">
-                          <p className="text-sm font-semibold text-white">Instant MonCash (prefunding)</p>
-                          <p className="mt-1 text-sm text-white/60">Instant payouts depend on platform prefunding availability.</p>
+                          <p className="text-sm font-semibold text-white">{t('payouts_page.instant_moncash_title', { defaultValue: 'Instant MonCash (prefunding)' })}</p>
+                          <p className="mt-1 text-sm text-white/60">{t('payouts_page.instant_moncash_desc', { defaultValue: 'Instant payouts depend on platform prefunding availability.' })}</p>
                           {prefundingError ? <div className="mt-2 text-sm text-red-300">{prefundingError}</div> : null}
                           {prefunding ? (
-                            <div className="mt-2 text-sm text-white/70">Status: {prefunding.enabled && prefunding.available ? 'Available' : prefunding.enabled ? 'Temporarily unavailable' : 'Disabled'}</div>
-                          ) : <div className="mt-2 text-sm text-white/50">Loading…</div>}
+                            <div className="mt-2 text-sm text-white/70">{t('payouts_page.prefunding_status', { status: prefunding.enabled && prefunding.available ? t('payouts_page.prefunding_available', { defaultValue: 'Available' }) : prefunding.enabled ? t('payouts_page.prefunding_unavailable', { defaultValue: 'Temporarily unavailable' }) : t('payouts_page.prefunding_disabled', { defaultValue: 'Disabled' }), defaultValue: 'Status: {{status}}' })}</div>
+                          ) : <div className="mt-2 text-sm text-white/50">{t('payouts_page.loading', { defaultValue: 'Loading…' })}</div>}
                           <label className="mt-3 flex items-center gap-2 text-sm text-white">
                             <input type="checkbox" checked={Boolean(config?.allowInstantMoncash)} disabled={!prefunding?.enabled || !prefunding?.available}
                               onChange={async (e) => {
                                 try {
                                   const result = await updatePayoutProfileConfig('haiti' as any, { allowInstantMoncash: e.target.checked } as any)
                                   if (!result?.success) {
-                                    if (result?.requiresVerification) { setPendingSensitiveUpdate({ kind: 'profile_update', updates: { allowInstantMoncash: e.target.checked } }); setPayoutChangeVerificationRequired(true); setPayoutChangeMessage('For your security, confirm this payout change with the code we email you.'); return }
-                                    throw new Error(result?.error || 'Failed to update setting')
+                                    if (result?.requiresVerification) { setPendingSensitiveUpdate({ kind: 'profile_update', updates: { allowInstantMoncash: e.target.checked } }); setPayoutChangeVerificationRequired(true); setPayoutChangeMessage(t('payouts_page.stepup_msg_profile', { defaultValue: 'For your security, confirm this payout change with the code we email you.' })); return }
+                                    throw new Error(result?.error || t('payouts_page.error_update_setting', { defaultValue: 'Failed to update setting' }))
                                   }
                                   router.refresh()
-                                } catch { setError('Failed to update prefunding preference') }
+                                } catch { setError(t('payouts_page.error_update_prefunding', { defaultValue: 'Failed to update prefunding preference' })) }
                               }}
                               className="h-4 w-4 accent-brand-500"
                             />
-                            Allow instant MonCash withdrawals when available
+                            {t('payouts_page.allow_instant_moncash', { defaultValue: 'Allow instant MonCash withdrawals when available' })}
                           </label>
                         </div>
                       ) : null}
 
                       <div className="space-y-4">
                         <div>
-                          <label htmlFor="step-location" className="mb-2 block text-sm font-medium text-white/70">Account location <span className="text-red-500">*</span></label>
+                          <label htmlFor="step-location" className="mb-2 block text-sm font-medium text-white/70">{t('payouts_page.account_location', { defaultValue: 'Account location' })} <span className="text-red-500">*</span></label>
                           <select id="step-location" value={formData.accountLocation}
                             onChange={(e) => {
                               const nextLocation = e.target.value
@@ -1224,38 +1226,38 @@ export default function PayoutsPageNew({
                             }}
                             className="w-full rounded-xl border border-white/10 px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                           >
-                            {activeProfile === 'haiti' ? <option value="haiti">Haiti</option> : (<><option value="united_states">United States</option><option value="canada">Canada</option></>)}
+                            {activeProfile === 'haiti' ? <option value="haiti">{t('payouts_page.country_haiti', { defaultValue: 'Haiti' })}</option> : (<><option value="united_states">{t('payouts_page.country_united_states', { defaultValue: 'United States' })}</option><option value="canada">{t('payouts_page.country_canada', { defaultValue: 'Canada' })}</option></>)}
                           </select>
-                          {activeProfile === 'stripe_connect' ? <p className="mt-1 text-xs text-white/50">US/Canada payouts are handled via Stripe Connect.</p> : null}
+                          {activeProfile === 'stripe_connect' ? <p className="mt-1 text-xs text-white/50">{t('payouts_page.stripe_handles_us_ca', { defaultValue: 'US/Canada payouts are handled via Stripe Connect.' })}</p> : null}
                         </div>
 
                         {activeProfile === 'haiti' ? (
                           <div>
-                            <label className="mb-2 block text-sm font-medium text-white/70">Payout method <span className="text-red-500">*</span></label>
+                            <label className="mb-2 block text-sm font-medium text-white/70">{t('payouts_page.payout_method', { defaultValue: 'Payout method' })} <span className="text-red-500">*</span></label>
                             <div className="space-y-2">
                               <label className="flex cursor-pointer items-center gap-3 rounded-xl  p-3 hover:bg-white/[0.04]">
                                 <input type="radio" name="step-method" value="bank_transfer" checked={formData.method === 'bank_transfer'} onChange={(e) => setFormData({ ...formData, method: e.target.value as any })} className="h-4 w-4 accent-brand-500" />
-                                <span className="text-sm font-medium text-white">Bank transfer</span>
+                                <span className="text-sm font-medium text-white">{t('payouts_page.bank_transfer', { defaultValue: 'Bank transfer' })}</span>
                               </label>
                               <label className="flex cursor-pointer items-center gap-3 rounded-xl  p-3 hover:bg-white/[0.04]">
                                 <input type="radio" name="step-method" value="mobile_money" checked={formData.method === 'mobile_money'} onChange={(e) => setFormData({ ...formData, method: e.target.value as any })} className="h-4 w-4 accent-brand-500" />
-                                <span className="text-sm font-medium text-white">Mobile money</span>
+                                <span className="text-sm font-medium text-white">{t('payouts_page.mobile_money', { defaultValue: 'Mobile money' })}</span>
                               </label>
                             </div>
                           </div>
                         ) : (
-                          <div className="rounded-xl border border-white/10 px-4 py-3 text-sm text-white/70">Stripe Connect collects your bank details securely — no bank info required here.</div>
+                          <div className="rounded-xl border border-white/10 px-4 py-3 text-sm text-white/70">{t('payouts_page.stripe_collects_bank_short', { defaultValue: 'Stripe Connect collects your bank details securely — no bank info required here.' })}</div>
                         )}
 
                         {activeProfile === 'haiti' && formData.method === 'bank_transfer' ? (
                           <div>
-                            <label className="mb-2 block text-sm font-medium text-white/70">Bank account <span className="text-red-500">*</span></label>
-                            {isLoadingBankDestinations ? <div className="text-sm text-white/50">Loading saved bank accounts…</div> : null}
+                            <label className="mb-2 block text-sm font-medium text-white/70">{t('payouts_page.bank_account', { defaultValue: 'Bank account' })} <span className="text-red-500">*</span></label>
+                            {isLoadingBankDestinations ? <div className="text-sm text-white/50">{t('payouts_page.loading_saved_banks', { defaultValue: 'Loading saved bank accounts…' })}</div> : null}
                             {bankDestinations && bankDestinations.length ? (
-                              <select aria-label="Select bank account" value={selectedBankDestinationId} onChange={(e) => setSelectedBankDestinationId(e.target.value)} className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
-                                {bankDestinations.map((d) => (<option key={d.id} value={d.id}>{d.bankName} • ****{d.accountNumberLast4}{d.isPrimary ? ' (Primary)' : ''}</option>))}
+                              <select aria-label={t('payouts_page.select_bank_account', { defaultValue: 'Select bank account' })} value={selectedBankDestinationId} onChange={(e) => setSelectedBankDestinationId(e.target.value)} className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                {bankDestinations.map((d) => (<option key={d.id} value={d.id}>{d.bankName} • ****{d.accountNumberLast4}{d.isPrimary ? t('payouts_page.primary_suffix', { defaultValue: ' (Primary)' }) : ''}</option>))}
                               </select>
-                            ) : <div className="text-sm text-white/60">No bank accounts saved yet. Add one in step 2 (Verify).</div>}
+                            ) : <div className="text-sm text-white/60">{t('payouts_page.no_banks_step2', { defaultValue: 'No bank accounts saved yet. Add one in step 2 (Verify).' })}</div>}
                             {bankDestinationsError ? <div className="text-xs text-red-300 mt-1">{bankDestinationsError}</div> : null}
                           </div>
                         ) : null}
@@ -1263,7 +1265,7 @@ export default function PayoutsPageNew({
                         {formData.method === 'mobile_money' && activeProfile === 'haiti' && (
                           <>
                             <div>
-                              <label htmlFor="step-provider" className="mb-2 block text-sm font-medium text-white/70">Provider</label>
+                              <label htmlFor="step-provider" className="mb-2 block text-sm font-medium text-white/70">{t('payouts_page.provider', { defaultValue: 'Provider' })}</label>
                               <select id="step-provider" value={formData.provider} onChange={(e) => setFormData({ ...formData, provider: e.target.value })} className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
                                 <option value="moncash">MonCash</option>
                                 {NATCASH_ENABLED && <option value="natcash">Natcash</option>}
@@ -1271,16 +1273,16 @@ export default function PayoutsPageNew({
                             </div>
                             {Boolean(config?.mobileMoneyDetails?.phoneNumberLast4) && !isChangingMobileNumber ? (
                               <div className="rounded-xl border border-white/10 p-4">
-                                <div className="text-sm font-medium text-white">Saved phone number</div>
+                                <div className="text-sm font-medium text-white">{t('payouts_page.saved_phone_number', { defaultValue: 'Saved phone number' })}</div>
                                 <div className="mt-1 text-sm text-white/70">****{config?.mobileMoneyDetails?.phoneNumberLast4}</div>
-                                <button type="button" onClick={() => setIsChangingMobileNumber(true)} className="mt-2 text-sm font-medium text-brand-300">Change number</button>
+                                <button type="button" onClick={() => setIsChangingMobileNumber(true)} className="mt-2 text-sm font-medium text-brand-300">{t('payouts_page.change_number', { defaultValue: 'Change number' })}</button>
                               </div>
                             ) : (
                               <div>
-                                <label htmlFor="step-phone" className="mb-2 block text-sm font-medium text-white/70">Phone number</label>
+                                <label htmlFor="step-phone" className="mb-2 block text-sm font-medium text-white/70">{t('payouts_page.phone_number', { defaultValue: 'Phone number' })}</label>
                                 <input id="step-phone" type="tel" value={formData.phoneNumber} onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })} placeholder="+50912345678" className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
                                 {Boolean(config?.mobileMoneyDetails?.phoneNumberLast4) ? (
-                                  <button type="button" onClick={() => { setIsChangingMobileNumber(false); setFormData((p) => ({ ...p, phoneNumber: '' })) }} className="mt-2 text-sm font-medium text-white/60 hover:text-white/70">Use saved number instead</button>
+                                  <button type="button" onClick={() => { setIsChangingMobileNumber(false); setFormData((p) => ({ ...p, phoneNumber: '' })) }} className="mt-2 text-sm font-medium text-white/60 hover:text-white/70">{t('payouts_page.use_saved_number', { defaultValue: 'Use saved number instead' })}</button>
                                 ) : null}
                               </div>
                             )}
@@ -1290,7 +1292,7 @@ export default function PayoutsPageNew({
                         {error && <div className="rounded-xl border border-red-500/30 p-4 text-sm text-red-300">{error}</div>}
 
                         <button type="button" onClick={() => handleSavePayoutDetails(() => setEditStep('verify'))} disabled={isSaving || payoutChangeVerificationRequired} className="w-full rounded-xl bg-brand-700 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-800 disabled:opacity-40">
-                          {isSaving ? (activeProfile === 'stripe_connect' ? 'Opening Stripe…' : 'Saving…') : (activeProfile === 'stripe_connect' ? 'Continue to Stripe' : 'Save & continue')}
+                          {isSaving ? (activeProfile === 'stripe_connect' ? t('payouts_page.opening_stripe', { defaultValue: 'Opening Stripe…' }) : t('payouts_page.saving', { defaultValue: 'Saving…' })) : (activeProfile === 'stripe_connect' ? t('payouts_page.continue_to_stripe', { defaultValue: 'Continue to Stripe' }) : t('payouts_page.save_and_continue', { defaultValue: 'Save & continue' }))}
                         </button>
                       </div>
                     </div>
@@ -1302,57 +1304,57 @@ export default function PayoutsPageNew({
                   <div className="rounded-xl border border-white/10">
                     <div className="p-6">
                       <div id="verify-payouts" />
-                      <h2 className="text-lg font-semibold text-white">Verify payouts</h2>
-                      <p className="mt-1 mb-4 text-sm text-white/60">Complete identity and account verification to receive payouts.</p>
+                      <h2 className="text-lg font-semibold text-white">{t('payouts_page.verify_payouts', { defaultValue: 'Verify payouts' })}</h2>
+                      <p className="mt-1 mb-4 text-sm text-white/60">{t('payouts_page.verify_payouts_desc_step', { defaultValue: 'Complete identity and account verification to receive payouts.' })}</p>
 
                       <div className="space-y-4">
                         <div className="flex items-start justify-between gap-3">
                           <div>
-                            <div className="text-sm font-medium text-white">Organizer identity</div>
-                            <div className="text-sm text-white/60">{organizerIdentityStatus === 'verified' ? 'Verified' : organizerIdentityStatus === 'failed' ? 'Needs attention' : 'Pending'}</div>
+                            <div className="text-sm font-medium text-white">{t('payouts_page.organizer_identity', { defaultValue: 'Organizer identity' })}</div>
+                            <div className="text-sm text-white/60">{organizerIdentityStatus === 'verified' ? t('payouts_page.status_verified', { defaultValue: 'Verified' }) : organizerIdentityStatus === 'failed' ? t('payouts_page.status_needs_attention', { defaultValue: 'Needs attention' }) : t('payouts_page.status_pending', { defaultValue: 'Pending' })}</div>
                           </div>
-                          <Link href="/organizer/verify" className="text-sm font-medium text-brand-300">View</Link>
+                          <Link href="/organizer/verify" className="text-sm font-medium text-brand-300">{t('payouts_page.view', { defaultValue: 'View' })}</Link>
                         </div>
 
                         {!isStripeConnectAccount && config?.method === 'bank_transfer' && hasPayoutSetup && (
                           <div className="border-t border-white/10 pt-3">
                             <div className="mb-3">
-                              <div className="text-sm font-medium text-white">Bank account</div>
-                              <div className="text-sm text-white/60">{bankStatus === 'verified' ? 'Verified' : bankStatus === 'failed' ? 'Needs attention' : 'Pending'}</div>
+                              <div className="text-sm font-medium text-white">{t('payouts_page.bank_account', { defaultValue: 'Bank account' })}</div>
+                              <div className="text-sm text-white/60">{bankStatus === 'verified' ? t('payouts_page.status_verified', { defaultValue: 'Verified' }) : bankStatus === 'failed' ? t('payouts_page.status_needs_attention', { defaultValue: 'Needs attention' }) : t('payouts_page.status_pending', { defaultValue: 'Pending' })}</div>
                             </div>
                             <div className="space-y-3">
                               {isHaiti ? (
                                 <div>
-                                  <label htmlFor="step2-bank-select" className="mb-1 block text-sm font-medium text-white/70">Select bank account</label>
+                                  <label htmlFor="step2-bank-select" className="mb-1 block text-sm font-medium text-white/70">{t('payouts_page.select_bank_account', { defaultValue: 'Select bank account' })}</label>
                                   <select id="step2-bank-select" value={selectedBankDestinationId} onChange={(e) => setSelectedBankDestinationId(e.target.value)} className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
-                                    {(bankDestinations || []).map((d) => (<option key={d.id} value={d.id}>{d.bankName} • ****{d.accountNumberLast4}{d.isPrimary ? ' (Primary)' : ''} ({d.verificationStatus || 'not submitted'})</option>))}
+                                    {(bankDestinations || []).map((d) => (<option key={d.id} value={d.id}>{d.bankName} • ****{d.accountNumberLast4}{d.isPrimary ? t('payouts_page.primary_suffix', { defaultValue: ' (Primary)' }) : ''} ({d.verificationStatus ? t(`payouts_page.dest_status_${d.verificationStatus}`, { defaultValue: d.verificationStatus }) : t('payouts_page.dest_status_not_submitted', { defaultValue: 'not submitted' })})</option>))}
                                   </select>
-                                  {isLoadingBankDestinations ? <div className="mt-1 text-xs text-white/50">Loading bank accounts…</div> : null}
+                                  {isLoadingBankDestinations ? <div className="mt-1 text-xs text-white/50">{t('payouts_page.loading_bank_accounts', { defaultValue: 'Loading bank accounts…' })}</div> : null}
                                   {bankDestinationsError ? <div className="mt-1 text-xs text-red-300">{bankDestinationsError}</div> : null}
                                 </div>
                               ) : null}
                               {(() => {
                                 const selected = (bankDestinations || []).find((d) => d.id === selectedBankDestinationId) || null
                                 const status = (selected?.verificationStatus || null) as 'pending' | 'verified' | 'failed' | null
-                                if (isHaiti && status === 'pending') return <div className="text-sm text-white/60">Verification submitted{selected?.verificationSubmittedAt ? ` on ${new Date(selected.verificationSubmittedAt).toLocaleDateString()}` : ''}. Awaiting review.</div>
+                                if (isHaiti && status === 'pending') return <div className="text-sm text-white/60">{selected?.verificationSubmittedAt ? t('payouts_page.verification_submitted_on', { date: new Date(selected.verificationSubmittedAt).toLocaleDateString(), defaultValue: 'Verification submitted on {{date}}. Awaiting review.' }) : t('payouts_page.verification_submitted', { defaultValue: 'Verification submitted. Awaiting review.' })}</div>
                                 if (!isHaiti) { if (bankStatus === 'verified') return null } else { if (!selectedBankDestinationId) return null; if (status === 'verified') return null }
                                 return (
                                   <>
-                                    {isHaiti && status === 'failed' ? <div className="text-sm text-red-300">Verification was rejected. Please upload a new document.</div> : null}
+                                    {isHaiti && status === 'failed' ? <div className="text-sm text-red-300">{t('payouts_page.verification_rejected', { defaultValue: 'Verification was rejected. Please upload a new document.' })}</div> : null}
                                     <div>
-                                      <label htmlFor="step2-doc-type" className="mb-1 block text-sm font-medium text-white/70">Document type</label>
+                                      <label htmlFor="step2-doc-type" className="mb-1 block text-sm font-medium text-white/70">{t('payouts_page.document_type', { defaultValue: 'Document type' })}</label>
                                       <select id="step2-doc-type" value={bankVerificationType} onChange={(e) => setBankVerificationType(e.target.value as any)} className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
-                                        <option value="bank_statement">Bank statement</option>
-                                        <option value="void_check">Void check</option>
-                                        <option value="utility_bill">Utility bill</option>
+                                        <option value="bank_statement">{t('payouts_page.doc_bank_statement', { defaultValue: 'Bank statement' })}</option>
+                                        <option value="void_check">{t('payouts_page.doc_void_check', { defaultValue: 'Void check' })}</option>
+                                        <option value="utility_bill">{t('payouts_page.doc_utility_bill', { defaultValue: 'Utility bill' })}</option>
                                       </select>
                                     </div>
                                     <div>
-                                      <label className="mb-1 block text-sm font-medium text-white/70">Upload document</label>
-                                      <input type="file" accept="image/*,application/pdf" aria-label="Upload document" onChange={(e) => setBankVerificationFile(e.target.files?.[0] || null)} className="w-full text-sm text-white" />
+                                      <label className="mb-1 block text-sm font-medium text-white/70">{t('payouts_page.upload_document', { defaultValue: 'Upload document' })}</label>
+                                      <input type="file" accept="image/*,application/pdf" aria-label={t('payouts_page.upload_document', { defaultValue: 'Upload document' })} onChange={(e) => setBankVerificationFile(e.target.files?.[0] || null)} className="w-full text-sm text-white" />
                                     </div>
                                     <button type="button" onClick={submitBankVerification} disabled={isSubmittingBankVerification} className="w-full rounded-xl  px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/[0.04] disabled:opacity-50">
-                                      {isSubmittingBankVerification ? 'Submitting…' : 'Submit bank verification'}
+                                      {isSubmittingBankVerification ? t('payouts_page.submitting', { defaultValue: 'Submitting…' }) : t('payouts_page.submit_bank_verification', { defaultValue: 'Submit bank verification' })}
                                     </button>
                                     {bankVerificationMessage && <div className="text-sm text-white/60">{bankVerificationMessage}</div>}
                                   </>
@@ -1361,45 +1363,45 @@ export default function PayoutsPageNew({
                               {isHaiti ? (
                                 <div className="border-t border-white/10 pt-3">
                                   <div className="flex items-center justify-between gap-3">
-                                    <div className="text-sm font-medium text-white">Additional bank accounts</div>
-                                    <button type="button" onClick={() => setShowAddBankDestination((v) => !v)} className="text-sm font-medium text-brand-300">{showAddBankDestination ? 'Cancel' : 'Add bank account'}</button>
+                                    <div className="text-sm font-medium text-white">{t('payouts_page.additional_bank_accounts', { defaultValue: 'Additional bank accounts' })}</div>
+                                    <button type="button" onClick={() => setShowAddBankDestination((v) => !v)} className="text-sm font-medium text-brand-300">{showAddBankDestination ? t('payouts_page.cancel', { defaultValue: 'Cancel' }) : t('payouts_page.add_bank_account', { defaultValue: 'Add bank account' })}</button>
                                   </div>
                                   {addBankDestinationMessage ? <div className="mt-2 text-sm text-white/60">{addBankDestinationMessage}</div> : null}
                                   {showAddBankDestination ? (
                                     <div className="mt-3 space-y-3">
                                       <div>
-                                        <label htmlFor="step2-add-bank" className="mb-1 block text-sm font-medium text-white/70">Bank</label>
+                                        <label htmlFor="step2-add-bank" className="mb-1 block text-sm font-medium text-white/70">{t('payouts_page.bank', { defaultValue: 'Bank' })}</label>
                                         <select id="step2-add-bank" value={newBankDestination.bankName} onChange={(e) => setNewBankDestination((p) => ({ ...p, bankName: e.target.value, customBankName: e.target.value === 'other' ? p.customBankName : '' }))} className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
-                                          <option value="">Select a bank</option>
+                                          <option value="">{t('payouts_page.select_a_bank', { defaultValue: 'Select a bank' })}</option>
                                           {banks.map((bank) => (<option key={bank.value} value={bank.value}>{bank.label}</option>))}
                                         </select>
                                       </div>
                                       {newBankDestination.bankName === 'other' ? (
                                         <div>
-                                          <label htmlFor="step2-custom-bank" className="mb-1 block text-sm font-medium text-white/70">Bank name</label>
-                                          <input id="step2-custom-bank" type="text" value={newBankDestination.customBankName} onChange={(e) => setNewBankDestination((p) => ({ ...p, customBankName: e.target.value }))} placeholder="Enter your bank name" className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                                          <label htmlFor="step2-custom-bank" className="mb-1 block text-sm font-medium text-white/70">{t('payouts_page.bank_name', { defaultValue: 'Bank name' })}</label>
+                                          <input id="step2-custom-bank" type="text" value={newBankDestination.customBankName} onChange={(e) => setNewBankDestination((p) => ({ ...p, customBankName: e.target.value }))} placeholder={t('payouts_page.bank_name_placeholder', { defaultValue: 'Enter your bank name' })} className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
                                         </div>
                                       ) : null}
                                       <div>
-                                        <label htmlFor="step2-acct-num" className="mb-1 block text-sm font-medium text-white/70">Account number</label>
+                                        <label htmlFor="step2-acct-num" className="mb-1 block text-sm font-medium text-white/70">{t('payouts_page.account_number', { defaultValue: 'Account number' })}</label>
                                         <input id="step2-acct-num" type="text" value={newBankDestination.accountNumber} onChange={(e) => setNewBankDestination((p) => ({ ...p, accountNumber: e.target.value }))} placeholder="1234567890" className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
                                       </div>
                                       <div>
-                                        <label htmlFor="step2-acct-holder" className="mb-1 block text-sm font-medium text-white/70">Account holder name</label>
-                                        <input id="step2-acct-holder" type="text" value={newBankDestination.accountHolder} onChange={(e) => setNewBankDestination((p) => ({ ...p, accountHolder: e.target.value }))} placeholder="Your legal name" className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                                        <label htmlFor="step2-acct-holder" className="mb-1 block text-sm font-medium text-white/70">{t('payouts_page.account_holder_name', { defaultValue: 'Account holder name' })}</label>
+                                        <input id="step2-acct-holder" type="text" value={newBankDestination.accountHolder} onChange={(e) => setNewBankDestination((p) => ({ ...p, accountHolder: e.target.value }))} placeholder={t('payouts_page.account_holder_placeholder', { defaultValue: 'Your legal name' })} className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
                                       </div>
                                       <div>
-                                        <label htmlFor="step2-routing" className="mb-1 block text-sm font-medium text-white/70">Routing number (optional)</label>
+                                        <label htmlFor="step2-routing" className="mb-1 block text-sm font-medium text-white/70">{t('payouts_page.routing_number_optional', { defaultValue: 'Routing number (optional)' })}</label>
                                         <input id="step2-routing" type="text" value={newBankDestination.routingNumber} onChange={(e) => setNewBankDestination((p) => ({ ...p, routingNumber: e.target.value }))} className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
                                       </div>
                                       <div>
-                                        <label htmlFor="step2-swift" className="mb-1 block text-sm font-medium text-white/70">SWIFT code (optional)</label>
+                                        <label htmlFor="step2-swift" className="mb-1 block text-sm font-medium text-white/70">{t('payouts_page.swift_code_optional', { defaultValue: 'SWIFT code (optional)' })}</label>
                                         <input id="step2-swift" type="text" value={newBankDestination.swiftCode} onChange={(e) => setNewBankDestination((p) => ({ ...p, swiftCode: e.target.value }))} className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
                                       </div>
                                       <button type="button" onClick={addBankDestination} disabled={isAddingBankDestination} className="w-full rounded-xl  px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/[0.04] disabled:opacity-50">
-                                        {isAddingBankDestination ? 'Adding…' : 'Add bank account'}
+                                        {isAddingBankDestination ? t('payouts_page.adding', { defaultValue: 'Adding…' }) : t('payouts_page.add_bank_account', { defaultValue: 'Add bank account' })}
                                       </button>
-                                      <p className="text-xs text-white/50">You&apos;ll need to submit a bank statement or void check for each bank account.</p>
+                                      <p className="text-xs text-white/50">{t('payouts_page.bank_doc_note', { defaultValue: "You'll need to submit a bank statement or void check for each bank account." })}</p>
                                     </div>
                                   ) : null}
                                 </div>
@@ -1411,20 +1413,20 @@ export default function PayoutsPageNew({
                         {!isStripeConnectAccount && config?.method === 'mobile_money' && hasPayoutSetup && (
                           <div className="border-t border-white/10 pt-3">
                             <div className="mb-3">
-                              <div className="text-sm font-medium text-white">Phone number</div>
-                              <div className="text-sm text-white/60">{phoneStatus === 'verified' ? 'Verified' : phoneStatus === 'failed' ? 'Needs attention' : 'Pending'}</div>
+                              <div className="text-sm font-medium text-white">{t('payouts_page.phone_number', { defaultValue: 'Phone number' })}</div>
+                              <div className="text-sm text-white/60">{phoneStatus === 'verified' ? t('payouts_page.status_verified', { defaultValue: 'Verified' }) : phoneStatus === 'failed' ? t('payouts_page.status_needs_attention', { defaultValue: 'Needs attention' }) : t('payouts_page.status_pending', { defaultValue: 'Pending' })}</div>
                             </div>
                             {phoneStatus !== 'verified' && (
                               <div className="space-y-3">
                                 <button type="button" onClick={sendPhoneVerificationCode} disabled={isSendingPhoneCode} className="w-full rounded-xl  px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/[0.04] disabled:opacity-50">
-                                  {isSendingPhoneCode ? 'Sending…' : 'Send verification code'}
+                                  {isSendingPhoneCode ? t('payouts_page.sending', { defaultValue: 'Sending…' }) : t('payouts_page.send_verification_code', { defaultValue: 'Send verification code' })}
                                 </button>
                                 <div>
-                                  <label htmlFor="step2-phone-code" className="mb-1 block text-sm font-medium text-white/70">Enter 6-digit code</label>
+                                  <label htmlFor="step2-phone-code" className="mb-1 block text-sm font-medium text-white/70">{t('payouts_page.enter_6_digit_code', { defaultValue: 'Enter 6-digit code' })}</label>
                                   <input id="step2-phone-code" type="text" inputMode="numeric" value={phoneVerificationCode} onChange={(e) => setPhoneVerificationCode(e.target.value)} placeholder="123456" className="w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-white/30 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
                                 </div>
                                 <button type="button" onClick={submitPhoneVerificationCode} disabled={isSubmittingPhoneCode} className="w-full rounded-xl  px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/[0.04] disabled:opacity-50">
-                                  {isSubmittingPhoneCode ? 'Verifying…' : 'Verify phone'}
+                                  {isSubmittingPhoneCode ? t('payouts_page.verifying', { defaultValue: 'Verifying…' }) : t('payouts_page.verify_phone', { defaultValue: 'Verify phone' })}
                                 </button>
                                 {phoneVerificationMessage && <div className="text-sm text-white/60">{phoneVerificationMessage}</div>}
                               </div>
@@ -1433,9 +1435,9 @@ export default function PayoutsPageNew({
                         )}
                       </div>
 
-                      <p className="mt-4 text-xs text-white/50">Verification is required to receive payouts and publish paid events.</p>
+                      <p className="mt-4 text-xs text-white/50">{t('payouts_page.verification_required_note', { defaultValue: 'Verification is required to receive payouts and publish paid events.' })}</p>
                       <button type="button" onClick={() => setEditStep('done')} className="mt-4 w-full rounded-xl bg-brand-700 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-800">
-                        Done — back to overview
+                        {t('payouts_page.done_back_to_overview', { defaultValue: 'Done — back to overview' })}
                       </button>
                     </div>
                   </div>
@@ -1447,10 +1449,10 @@ export default function PayoutsPageNew({
                     <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl ">
                       <CheckCircle className="h-7 w-7 text-emerald-300" />
                     </div>
-                    <h2 className="text-xl font-semibold text-white">You&apos;re all set!</h2>
-                    <p className="mt-2 text-sm text-white/60">Your payout details have been saved. Verification may take 1–2 business days.</p>
+                    <h2 className="text-xl font-semibold text-white">{t('payouts_page.all_set_title', { defaultValue: "You're all set!" })}</h2>
+                    <p className="mt-2 text-sm text-white/60">{t('payouts_page.all_set_desc', { defaultValue: 'Your payout details have been saved. Verification may take 1–2 business days.' })}</p>
                     <Link href="/organizer/settings/payouts" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-700 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
-                      Back to payouts
+                      {t('payouts_page.back_to_payouts', { defaultValue: 'Back to payouts' })}
                     </Link>
                   </div>
                 )}
@@ -1472,10 +1474,9 @@ export default function PayoutsPageNew({
             {/* Payout Profile Selector */}
             <div className="order-1 bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden">
               <div className="p-6">
-                <h2 className="text-lg font-semibold text-white mb-2">Payout profiles</h2>
+                <h2 className="text-lg font-semibold text-white mb-2">{t('payouts_page.payout_profiles', { defaultValue: 'Payout profiles' })}</h2>
                 <p className="text-sm text-white/60 mb-4">
-                  Each region pays out through its own profile — an event&apos;s country
-                  decides which one gets paid. Completing one does not cover the other.
+                  {t('payouts_page.payout_profiles_desc', { defaultValue: "Each region pays out through its own profile — an event's country decides which one gets paid. Completing one does not cover the other." })}
                 </p>
 
                 {/* One descriptive card per region: which events, which rail, who
@@ -1486,14 +1487,14 @@ export default function PayoutsPageNew({
                     [
                       showHaitiRail && {
                         id: 'haiti' as const,
-                        title: 'Haiti events',
-                        detail: 'MonCash & bank transfer · verified by Tikèm',
+                        title: t('payouts_page.profile_haiti_title', { defaultValue: 'Haiti events' }),
+                        detail: t('payouts_page.profile_haiti_detail', { defaultValue: 'MonCash & bank transfer · verified by Tikèm' }),
                         configured: Boolean(haitiConfig),
                       },
                       showStripeRail && {
                         id: 'stripe_connect' as const,
-                        title: 'US · Canada · France events',
-                        detail: 'Card payouts via Stripe · verified by Stripe',
+                        title: t('payouts_page.profile_stripe_title', { defaultValue: 'US · Canada · France events' }),
+                        detail: t('payouts_page.profile_stripe_detail', { defaultValue: 'Card payouts via Stripe · verified by Stripe' }),
                         configured: Boolean(stripeConfig),
                       },
                     ].filter(Boolean) as Array<{
@@ -1522,7 +1523,7 @@ export default function PayoutsPageNew({
                           <span
                             className={`h-1.5 w-1.5 rounded-full ${p.configured ? 'bg-emerald-400' : 'bg-amber-400'}`}
                           />
-                          {p.configured ? 'Set up' : 'Needs setup'}
+                          {p.configured ? t('payouts_page.chip_set_up', { defaultValue: 'Set up' }) : t('payouts_page.chip_needs_setup', { defaultValue: 'Needs setup' })}
                         </span>
                       </div>
                       <p className="mt-0.5 text-xs text-white/50">{p.detail}</p>
@@ -1541,7 +1542,7 @@ export default function PayoutsPageNew({
                     }}
                     className="mt-3 text-xs font-medium text-white/50 underline underline-offset-2 hover:text-white/80"
                   >
-                    Show every payout method anyway
+                    {t('payouts_page.show_all_rails', { defaultValue: 'Show every payout method anyway' })}
                   </button>
                 ) : null}
               </div>
@@ -1551,28 +1552,28 @@ export default function PayoutsPageNew({
             <div className="order-3 bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden">
               <div className="p-6">
                 <div id="verify-payouts" />
-                <h2 className="text-lg font-semibold text-white">Verify payouts</h2>
+                <h2 className="text-lg font-semibold text-white">{t('payouts_page.verify_payouts', { defaultValue: 'Verify payouts' })}</h2>
                 <p className="text-sm text-white/60 mt-1 mb-4">
-                  After setting up your payout method, complete verification below.
+                  {t('payouts_page.verify_payouts_desc', { defaultValue: 'After setting up your payout method, complete verification below.' })}
                 </p>
 
                 <div className="space-y-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <div className="text-sm font-medium text-white">Organizer identity</div>
+                      <div className="text-sm font-medium text-white">{t('payouts_page.organizer_identity', { defaultValue: 'Organizer identity' })}</div>
                       <div className="text-sm text-white/60">
                         {organizerIdentityStatus === 'verified'
-                          ? 'Verified'
+                          ? t('payouts_page.status_verified', { defaultValue: 'Verified' })
                           : organizerIdentityStatus === 'failed'
-                            ? 'Needs attention'
-                            : 'Pending'}
+                            ? t('payouts_page.status_needs_attention', { defaultValue: 'Needs attention' })
+                            : t('payouts_page.status_pending', { defaultValue: 'Pending' })}
                       </div>
                     </div>
                     <Link
                       href="/organizer/verify"
                       className="text-sm font-medium text-brand-300 hover:text-brand-300"
                     >
-                      View
+                      {t('payouts_page.view', { defaultValue: 'View' })}
                     </Link>
                   </div>
 
@@ -1580,13 +1581,13 @@ export default function PayoutsPageNew({
                     <div className="pt-3 border-t border-white/10">
                       <div className="flex items-start justify-between gap-3 mb-3">
                         <div>
-                          <div className="text-sm font-medium text-white">Bank account</div>
+                          <div className="text-sm font-medium text-white">{t('payouts_page.bank_account', { defaultValue: 'Bank account' })}</div>
                           <div className="text-sm text-white/60">
                             {bankStatus === 'verified'
-                              ? 'Verified'
+                              ? t('payouts_page.status_verified', { defaultValue: 'Verified' })
                               : bankStatus === 'failed'
-                                ? 'Needs attention'
-                                : 'Pending'}
+                                ? t('payouts_page.status_needs_attention', { defaultValue: 'Needs attention' })
+                                : t('payouts_page.status_pending', { defaultValue: 'Pending' })}
                           </div>
                         </div>
                       </div>
@@ -1594,21 +1595,21 @@ export default function PayoutsPageNew({
                       <div className="space-y-3">
                         {isHaiti ? (
                           <div>
-                            <label className="block text-sm font-medium text-white/70 mb-1">Select bank account</label>
+                            <label className="block text-sm font-medium text-white/70 mb-1">{t('payouts_page.select_bank_account', { defaultValue: 'Select bank account' })}</label>
                             <select
-                              aria-label="Select bank account"
+                              aria-label={t('payouts_page.select_bank_account', { defaultValue: 'Select bank account' })}
                               value={selectedBankDestinationId}
                               onChange={(e) => setSelectedBankDestinationId(e.target.value)}
                               className="w-full px-3 py-2 border border-white/15 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                             >
                               {(bankDestinations || []).map((d) => (
                                 <option key={d.id} value={d.id}>
-                                  {d.bankName} • ****{d.accountNumberLast4}{d.isPrimary ? ' (Primary)' : ''} ({d.verificationStatus || 'not submitted'})
+                                  {d.bankName} • ****{d.accountNumberLast4}{d.isPrimary ? t('payouts_page.primary_suffix', { defaultValue: ' (Primary)' }) : ''} ({d.verificationStatus ? t(`payouts_page.dest_status_${d.verificationStatus}`, { defaultValue: d.verificationStatus }) : t('payouts_page.dest_status_not_submitted', { defaultValue: 'not submitted' })})
                                 </option>
                               ))}
                             </select>
                             {isLoadingBankDestinations ? (
-                              <div className="text-xs text-white/50 mt-1">Loading bank accounts…</div>
+                              <div className="text-xs text-white/50 mt-1">{t('payouts_page.loading_bank_accounts', { defaultValue: 'Loading bank accounts…' })}</div>
                             ) : null}
                             {bankDestinationsError ? (
                               <div className="text-xs text-red-300 mt-1">{bankDestinationsError}</div>
@@ -1627,7 +1628,7 @@ export default function PayoutsPageNew({
                           if (isHaiti && status === 'pending') {
                             return (
                               <div className="text-sm text-white/60">
-                                Verification submitted{selected?.verificationSubmittedAt ? ` on ${new Date(selected.verificationSubmittedAt).toLocaleDateString()}` : ''}. Awaiting review.
+                                {selected?.verificationSubmittedAt ? t('payouts_page.verification_submitted_on', { date: new Date(selected.verificationSubmittedAt).toLocaleDateString(), defaultValue: 'Verification submitted on {{date}}. Awaiting review.' }) : t('payouts_page.verification_submitted', { defaultValue: 'Verification submitted. Awaiting review.' })}
                               </div>
                             )
                           }
@@ -1644,30 +1645,30 @@ export default function PayoutsPageNew({
                             <>
                               {isHaiti && status === 'failed' ? (
                                 <div className="text-sm text-red-300">
-                                  Verification was rejected. Please upload a new document.
+                                  {t('payouts_page.verification_rejected', { defaultValue: 'Verification was rejected. Please upload a new document.' })}
                                 </div>
                               ) : null}
 
                               <div>
-                                <label className="block text-sm font-medium text-white/70 mb-1">Document type</label>
+                                <label className="block text-sm font-medium text-white/70 mb-1">{t('payouts_page.document_type', { defaultValue: 'Document type' })}</label>
                                 <select
-                                  aria-label="Document type"
+                                  aria-label={t('payouts_page.document_type', { defaultValue: 'Document type' })}
                                   value={bankVerificationType}
                                   onChange={(e) => setBankVerificationType(e.target.value as any)}
                                   className="w-full px-3 py-2 border border-white/15 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                                 >
-                                  <option value="bank_statement">Bank statement</option>
-                                  <option value="void_check">Void check</option>
-                                  <option value="utility_bill">Utility bill</option>
+                                  <option value="bank_statement">{t('payouts_page.doc_bank_statement', { defaultValue: 'Bank statement' })}</option>
+                                  <option value="void_check">{t('payouts_page.doc_void_check', { defaultValue: 'Void check' })}</option>
+                                  <option value="utility_bill">{t('payouts_page.doc_utility_bill', { defaultValue: 'Utility bill' })}</option>
                                 </select>
                               </div>
 
                               <div>
-                                <label className="block text-sm font-medium text-white/70 mb-1">Upload document</label>
+                                <label className="block text-sm font-medium text-white/70 mb-1">{t('payouts_page.upload_document', { defaultValue: 'Upload document' })}</label>
                                 <input
                                   type="file"
                                   accept="image/*,application/pdf"
-                                  aria-label="Upload document"
+                                  aria-label={t('payouts_page.upload_document', { defaultValue: 'Upload document' })}
                                   onChange={(e) => setBankVerificationFile(e.target.files?.[0] || null)}
                                   className="w-full text-sm"
                                 />
@@ -1679,7 +1680,7 @@ export default function PayoutsPageNew({
                                 disabled={isSubmittingBankVerification}
                                 className="w-full px-4 py-2 bg-[#0a0a0a] border border-white/15 text-white/70 rounded-lg font-medium hover:bg-white/[0.04] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                               >
-                                {isSubmittingBankVerification ? 'Submitting…' : 'Submit bank verification'}
+                                {isSubmittingBankVerification ? t('payouts_page.submitting', { defaultValue: 'Submitting…' }) : t('payouts_page.submit_bank_verification', { defaultValue: 'Submit bank verification' })}
                               </button>
 
                               {bankVerificationMessage && (
@@ -1692,13 +1693,13 @@ export default function PayoutsPageNew({
                         {isHaiti ? (
                           <div className="pt-3 border-t border-white/10">
                             <div className="flex items-center justify-between gap-3">
-                              <div className="text-sm font-medium text-white">Additional bank accounts</div>
+                              <div className="text-sm font-medium text-white">{t('payouts_page.additional_bank_accounts', { defaultValue: 'Additional bank accounts' })}</div>
                               <button
                                 type="button"
                                 onClick={() => setShowAddBankDestination((v) => !v)}
                                 className="text-sm font-medium text-brand-300 hover:text-brand-300"
                               >
-                                {showAddBankDestination ? 'Cancel' : 'Add bank account'}
+                                {showAddBankDestination ? t('payouts_page.cancel', { defaultValue: 'Cancel' }) : t('payouts_page.add_bank_account', { defaultValue: 'Add bank account' })}
                               </button>
                             </div>
 
@@ -1709,9 +1710,9 @@ export default function PayoutsPageNew({
                             {showAddBankDestination ? (
                               <div className="mt-3 space-y-3">
                                 <div>
-                                  <label className="block text-sm font-medium text-white/70 mb-1">Bank</label>
+                                  <label className="block text-sm font-medium text-white/70 mb-1">{t('payouts_page.bank', { defaultValue: 'Bank' })}</label>
                                   <select
-                                    aria-label="Bank"
+                                    aria-label={t('payouts_page.bank', { defaultValue: 'Bank' })}
                                     value={newBankDestination.bankName}
                                     onChange={(e) =>
                                       setNewBankDestination((p) => ({
@@ -1722,7 +1723,7 @@ export default function PayoutsPageNew({
                                     }
                                     className="w-full px-3 py-2 border border-white/15 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                                   >
-                                    <option value="">Select a bank</option>
+                                    <option value="">{t('payouts_page.select_a_bank', { defaultValue: 'Select a bank' })}</option>
                                     {banks.map((bank) => (
                                       <option key={bank.value} value={bank.value}>
                                         {bank.label}
@@ -1733,7 +1734,7 @@ export default function PayoutsPageNew({
 
                                 {newBankDestination.bankName === 'other' ? (
                                   <div>
-                                    <label className="block text-sm font-medium text-white/70 mb-1">Bank name</label>
+                                    <label className="block text-sm font-medium text-white/70 mb-1">{t('payouts_page.bank_name', { defaultValue: 'Bank name' })}</label>
                                     <input
                                       type="text"
                                       value={newBankDestination.customBankName}
@@ -1741,13 +1742,13 @@ export default function PayoutsPageNew({
                                         setNewBankDestination((p) => ({ ...p, customBankName: e.target.value }))
                                       }
                                       className="w-full px-3 py-2 border border-white/15 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                                      placeholder="Enter your bank name"
+                                      placeholder={t('payouts_page.bank_name_placeholder', { defaultValue: 'Enter your bank name' })}
                                     />
                                   </div>
                                 ) : null}
 
                                 <div>
-                                  <label className="block text-sm font-medium text-white/70 mb-1">Account number</label>
+                                  <label className="block text-sm font-medium text-white/70 mb-1">{t('payouts_page.account_number', { defaultValue: 'Account number' })}</label>
                                   <input
                                     type="text"
                                     value={newBankDestination.accountNumber}
@@ -1758,21 +1759,21 @@ export default function PayoutsPageNew({
                                 </div>
 
                                 <div>
-                                  <label className="block text-sm font-medium text-white/70 mb-1">Account holder name</label>
+                                  <label className="block text-sm font-medium text-white/70 mb-1">{t('payouts_page.account_holder_name', { defaultValue: 'Account holder name' })}</label>
                                   <input
                                     type="text"
                                     value={newBankDestination.accountHolder}
                                     onChange={(e) => setNewBankDestination((p) => ({ ...p, accountHolder: e.target.value }))}
                                     className="w-full px-3 py-2 border border-white/15 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                                    placeholder="Your legal name"
+                                    placeholder={t('payouts_page.account_holder_placeholder', { defaultValue: 'Your legal name' })}
                                   />
                                 </div>
 
                                 <div>
-                                  <label className="block text-sm font-medium text-white/70 mb-1">Routing number (optional)</label>
+                                  <label className="block text-sm font-medium text-white/70 mb-1">{t('payouts_page.routing_number_optional', { defaultValue: 'Routing number (optional)' })}</label>
                                   <input
                                     type="text"
-                                    aria-label="Routing number"
+                                    aria-label={t('payouts_page.routing_number', { defaultValue: 'Routing number' })}
                                     value={newBankDestination.routingNumber}
                                     onChange={(e) => setNewBankDestination((p) => ({ ...p, routingNumber: e.target.value }))}
                                     className="w-full px-3 py-2 border border-white/15 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
@@ -1781,10 +1782,10 @@ export default function PayoutsPageNew({
                                 </div>
 
                                 <div>
-                                  <label className="block text-sm font-medium text-white/70 mb-1">SWIFT code (optional)</label>
+                                  <label className="block text-sm font-medium text-white/70 mb-1">{t('payouts_page.swift_code_optional', { defaultValue: 'SWIFT code (optional)' })}</label>
                                   <input
                                     type="text"
-                                    aria-label="SWIFT code"
+                                    aria-label={t('payouts_page.swift_code', { defaultValue: 'SWIFT code' })}
                                     value={newBankDestination.swiftCode}
                                     onChange={(e) => setNewBankDestination((p) => ({ ...p, swiftCode: e.target.value }))}
                                     className="w-full px-3 py-2 border border-white/15 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
@@ -1798,11 +1799,11 @@ export default function PayoutsPageNew({
                                   disabled={isAddingBankDestination}
                                   className="w-full px-4 py-2 bg-[#0a0a0a] border border-white/15 text-white/70 rounded-lg font-medium hover:bg-white/[0.04] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                  {isAddingBankDestination ? 'Adding…' : 'Add bank account'}
+                                  {isAddingBankDestination ? t('payouts_page.adding', { defaultValue: 'Adding…' }) : t('payouts_page.add_bank_account', { defaultValue: 'Add bank account' })}
                                 </button>
 
                                 <p className="text-xs text-white/50">
-                                  You’ll need to submit a bank statement or void check for each bank account.
+                                  {t('payouts_page.bank_doc_note', { defaultValue: "You'll need to submit a bank statement or void check for each bank account." })}
                                 </p>
                               </div>
                             ) : null}
@@ -1816,13 +1817,13 @@ export default function PayoutsPageNew({
                     <div className="pt-3 border-t border-white/10">
                       <div className="flex items-start justify-between gap-3 mb-3">
                         <div>
-                          <div className="text-sm font-medium text-white">Phone number</div>
+                          <div className="text-sm font-medium text-white">{t('payouts_page.phone_number', { defaultValue: 'Phone number' })}</div>
                           <div className="text-sm text-white/60">
                             {phoneStatus === 'verified'
-                              ? 'Verified'
+                              ? t('payouts_page.status_verified', { defaultValue: 'Verified' })
                               : phoneStatus === 'failed'
-                                ? 'Needs attention'
-                                : 'Pending'}
+                                ? t('payouts_page.status_needs_attention', { defaultValue: 'Needs attention' })
+                                : t('payouts_page.status_pending', { defaultValue: 'Pending' })}
                           </div>
                         </div>
                       </div>
@@ -1835,11 +1836,11 @@ export default function PayoutsPageNew({
                             disabled={isSendingPhoneCode}
                             className="w-full px-4 py-2 bg-[#0a0a0a] border border-white/15 text-white/70 rounded-lg font-medium hover:bg-white/[0.04] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            {isSendingPhoneCode ? 'Sending…' : 'Send verification code'}
+                            {isSendingPhoneCode ? t('payouts_page.sending', { defaultValue: 'Sending…' }) : t('payouts_page.send_verification_code', { defaultValue: 'Send verification code' })}
                           </button>
 
                           <div>
-                            <label className="block text-sm font-medium text-white/70 mb-1">Enter 6-digit code</label>
+                            <label className="block text-sm font-medium text-white/70 mb-1">{t('payouts_page.enter_6_digit_code', { defaultValue: 'Enter 6-digit code' })}</label>
                             <input
                               type="text"
                               inputMode="numeric"
@@ -1856,7 +1857,7 @@ export default function PayoutsPageNew({
                             disabled={isSubmittingPhoneCode}
                             className="w-full px-4 py-2 bg-[#0a0a0a] border border-white/15 text-white/70 rounded-lg font-medium hover:bg-white/[0.04] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            {isSubmittingPhoneCode ? 'Verifying…' : 'Verify phone'}
+                            {isSubmittingPhoneCode ? t('payouts_page.verifying', { defaultValue: 'Verifying…' }) : t('payouts_page.verify_phone', { defaultValue: 'Verify phone' })}
                           </button>
 
                           {phoneVerificationMessage && (
@@ -1869,7 +1870,7 @@ export default function PayoutsPageNew({
                 </div>
 
                 <p className="text-xs text-white/50 mt-4">
-                  Verification is required to receive payouts and publish paid events.
+                  {t('payouts_page.verification_required_note', { defaultValue: 'Verification is required to receive payouts and publish paid events.' })}
                 </p>
               </div>
             </div>
@@ -1880,7 +1881,7 @@ export default function PayoutsPageNew({
             <div className="order-2 bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden">
               <div className="p-6">
                 <h2 className="text-lg font-semibold text-white mb-4">
-                  Payout setup
+                  {t('payouts_page.payout_setup', { defaultValue: 'Payout setup' })}
                 </h2>
 
                 {isStripeConnectSelection ? (
@@ -1889,7 +1890,7 @@ export default function PayoutsPageNew({
                       <div>
                         <p className="text-sm font-semibold text-white">Stripe Connect</p>
                         <p className="text-[12px] sm:text-sm text-white/60 mt-1">
-                          Connect your Stripe account to receive payouts to your bank.
+                          {t('payouts_page.stripe_connect_desc', { defaultValue: 'Connect your Stripe account to receive payouts to your bank.' })}
                         </p>
                       </div>
                       <StatusChip tone={getStripeBadge().tone}>{getStripeBadge().label}</StatusChip>
@@ -1906,7 +1907,7 @@ export default function PayoutsPageNew({
                           onClick={startStripeOnboarding}
                           className="px-3 py-2 bg-brand-700 text-white rounded-lg text-sm font-medium hover:bg-brand-800"
                         >
-                          Connect with Stripe
+                          {t('payouts_page.connect_with_stripe', { defaultValue: 'Connect with Stripe' })}
                         </button>
                       ) : (
                         <>
@@ -1915,20 +1916,20 @@ export default function PayoutsPageNew({
                             onClick={startStripeOnboarding}
                             className="px-3 py-2 bg-[#0a0a0a] border border-white/15 text-white/70 rounded-lg text-sm font-medium hover:bg-white/[0.04]"
                           >
-                            Continue onboarding
+                            {t('payouts_page.continue_onboarding', { defaultValue: 'Continue onboarding' })}
                           </button>
                           <button
                             type="button"
                             onClick={openStripeDashboard}
                             className="px-3 py-2 bg-[#0a0a0a] border border-white/15 text-white/70 rounded-lg text-sm font-medium hover:bg-white/[0.04]"
                           >
-                            Manage in Stripe
+                            {t('payouts_page.manage_in_stripe', { defaultValue: 'Manage in Stripe' })}
                           </button>
                         </>
                       )}
 
                       {isLoadingStripeStatus ? (
-                        <span className="text-sm text-white/50 self-center">Loading…</span>
+                        <span className="text-sm text-white/50 self-center">{t('payouts_page.loading', { defaultValue: 'Loading…' })}</span>
                       ) : null}
                     </div>
                   </div>
@@ -1938,9 +1939,9 @@ export default function PayoutsPageNew({
                 String(formData.method || '').toLowerCase() === 'mobile_money' &&
                 selectedProvider === 'moncash' ? (
                   <div className="mb-4  rounded-lg p-3 sm:p-4 bg-[#0a0a0a]">
-                    <p className="text-sm font-semibold text-white">Instant MonCash (prefunding)</p>
+                    <p className="text-sm font-semibold text-white">{t('payouts_page.instant_moncash_title', { defaultValue: 'Instant MonCash (prefunding)' })}</p>
                     <p className="text-[12px] sm:text-sm text-white/60 mt-1">
-                      Instant payouts depend on platform prefunding availability.
+                      {t('payouts_page.instant_moncash_desc', { defaultValue: 'Instant payouts depend on platform prefunding availability.' })}
                     </p>
 
                     {prefundingError ? (
@@ -1949,10 +1950,10 @@ export default function PayoutsPageNew({
 
                     {prefunding ? (
                       <div className="mt-2 text-[12px] sm:text-sm text-white/70">
-                        Status: {prefunding.enabled && prefunding.available ? 'Available' : prefunding.enabled ? 'Temporarily unavailable' : 'Disabled'}
+                        {t('payouts_page.prefunding_status', { status: prefunding.enabled && prefunding.available ? t('payouts_page.prefunding_available', { defaultValue: 'Available' }) : prefunding.enabled ? t('payouts_page.prefunding_unavailable', { defaultValue: 'Temporarily unavailable' }) : t('payouts_page.prefunding_disabled', { defaultValue: 'Disabled' }), defaultValue: 'Status: {{status}}' })}
                       </div>
                     ) : (
-                      <div className="mt-2 text-[12px] sm:text-sm text-white/50">Loading…</div>
+                      <div className="mt-2 text-[12px] sm:text-sm text-white/50">{t('payouts_page.loading', { defaultValue: 'Loading…' })}</div>
                     )}
 
                     <label className="mt-3 flex items-center gap-2 text-sm text-white">
@@ -1970,19 +1971,19 @@ export default function PayoutsPageNew({
                                   updates: { allowInstantMoncash: e.target.checked },
                                 })
                                 setPayoutChangeVerificationRequired(true)
-                                setPayoutChangeMessage('For your security, confirm this payout change with the code we email you.')
+                                setPayoutChangeMessage(t('payouts_page.stepup_msg_profile', { defaultValue: 'For your security, confirm this payout change with the code we email you.' }))
                                 return
                               }
-                              throw new Error(result?.error || 'Failed to update setting')
+                              throw new Error(result?.error || t('payouts_page.error_update_setting', { defaultValue: 'Failed to update setting' }))
                             }
                             router.refresh()
                           } catch {
-                            setError('Failed to update prefunding preference')
+                            setError(t('payouts_page.error_update_prefunding', { defaultValue: 'Failed to update prefunding preference' }))
                           }
                         }}
                         className="w-4 h-4 text-brand-300"
                       />
-                      Allow instant MonCash withdrawals when available
+                      {t('payouts_page.allow_instant_moncash', { defaultValue: 'Allow instant MonCash withdrawals when available' })}
                     </label>
                   </div>
                 ) : null}
@@ -1994,7 +1995,7 @@ export default function PayoutsPageNew({
                   // Summary View
                   <div className="space-y-4">
                     <div>
-                      <div className="text-sm font-medium text-white/50 mb-1">Location</div>
+                      <div className="text-sm font-medium text-white/50 mb-1">{t('payouts_page.location', { defaultValue: 'Location' })}</div>
                       <div className="text-base text-white">
                         {formatLocationLabel(
                           config?.accountLocation || 
@@ -2005,7 +2006,7 @@ export default function PayoutsPageNew({
                     </div>
 
                     <div>
-                      <div className="text-sm font-medium text-white/50 mb-1">Method</div>
+                      <div className="text-sm font-medium text-white/50 mb-1">{t('payouts_page.method', { defaultValue: 'Method' })}</div>
                       <div className="text-base text-white">
                         {isStripeConnectAccount ? (
                           <>Stripe Connect</>
@@ -2017,7 +2018,7 @@ export default function PayoutsPageNew({
                               if (primary) {
                                 return (
                                   <>
-                                    Bank transfer · {primary.bankName} · <span className="font-mono">****{primary.accountNumberLast4}</span>
+                                    {t('payouts_page.bank_transfer', { defaultValue: 'Bank transfer' })} · {primary.bankName} · <span className="font-mono">****{primary.accountNumberLast4}</span>
                                   </>
                                 )
                               }
@@ -2025,7 +2026,7 @@ export default function PayoutsPageNew({
 
                             return (
                               <>
-                                Bank transfer · {config?.bankDetails?.bankName || 'Bank'} ·{' '}
+                                {t('payouts_page.bank_transfer', { defaultValue: 'Bank transfer' })} · {config?.bankDetails?.bankName || t('payouts_page.bank', { defaultValue: 'Bank' })} ·{' '}
                                 <span className="font-mono">
                                   ****{config?.bankDetails?.accountNumberLast4 || config?.bankDetails?.accountNumber?.slice(-4) || '----'}
                                 </span>
@@ -2034,7 +2035,7 @@ export default function PayoutsPageNew({
                           })()
                         ) : (
                           <>
-                            Mobile money · {config?.mobileMoneyDetails?.provider || 'Provider'} ·{' '}
+                            {t('payouts_page.mobile_money', { defaultValue: 'Mobile money' })} · {config?.mobileMoneyDetails?.provider || t('payouts_page.provider', { defaultValue: 'Provider' })} ·{' '}
                             <span className="font-mono">
                               ****{config?.mobileMoneyDetails?.phoneNumberLast4 || config?.mobileMoneyDetails?.phoneNumber?.slice(-4) || '----'}
                             </span>
@@ -2045,8 +2046,8 @@ export default function PayoutsPageNew({
 
                     <p className="text-sm text-white/60 pt-2">
                       {isStripeConnectAccount
-                        ? 'Your payouts are handled through Stripe Connect.'
-                        : 'Your payouts will be sent to this account.'}
+                        ? t('payouts_page.payouts_via_stripe', { defaultValue: 'Your payouts are handled through Stripe Connect.' })
+                        : t('payouts_page.payouts_to_this_account', { defaultValue: 'Your payouts will be sent to this account.' })}
                     </p>
 
                     <button
@@ -2054,7 +2055,7 @@ export default function PayoutsPageNew({
                       onClick={() => setIsEditing(true)}
                       className="w-full px-4 py-2 bg-[#0a0a0a] border border-white/15 text-white/70 rounded-lg font-medium hover:bg-white/[0.04] transition-colors"
                     >
-                      Edit payout details
+                      {t('payouts_page.edit_payout_details', { defaultValue: 'Edit payout details' })}
                     </button>
                   </div>
                 ) : (
@@ -2063,10 +2064,10 @@ export default function PayoutsPageNew({
                     {/* Account Location */}
                     <div>
                       <label className="block text-sm font-medium text-white/70 mb-2">
-                        Account location <span className="text-red-500">*</span>
+                        {t('payouts_page.account_location', { defaultValue: 'Account location' })} <span className="text-red-500">*</span>
                       </label>
                       <select
-                        aria-label="Account location"
+                        aria-label={t('payouts_page.account_location', { defaultValue: 'Account location' })}
                         value={formData.accountLocation}
                         onChange={(e) => {
                           const nextLocation = e.target.value
@@ -2088,18 +2089,18 @@ export default function PayoutsPageNew({
                         className="w-full px-3 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       >
                         {activeProfile === 'haiti' ? (
-                          <option value="haiti">Haiti</option>
+                          <option value="haiti">{t('payouts_page.country_haiti', { defaultValue: 'Haiti' })}</option>
                         ) : (
                           <>
-                            <option value="united_states">United States</option>
-                            <option value="canada">Canada</option>
+                            <option value="united_states">{t('payouts_page.country_united_states', { defaultValue: 'United States' })}</option>
+                            <option value="canada">{t('payouts_page.country_canada', { defaultValue: 'Canada' })}</option>
                           </>
                         )}
                       </select>
 
                       {activeProfile === 'stripe_connect' ? (
                         <p className="mt-1 text-xs text-white/50">
-                          US/Canada payouts are handled via Stripe Connect (no bank details required here).
+                          {t('payouts_page.stripe_handles_us_ca_long', { defaultValue: 'US/Canada payouts are handled via Stripe Connect (no bank details required here).' })}
                         </p>
                       ) : null}
                     </div>
@@ -2108,7 +2109,7 @@ export default function PayoutsPageNew({
                     {activeProfile === 'haiti' ? (
                       <div>
                         <label className="block text-sm font-medium text-white/70 mb-2">
-                          Payout method <span className="text-red-500">*</span>
+                          {t('payouts_page.payout_method', { defaultValue: 'Payout method' })} <span className="text-red-500">*</span>
                         </label>
                         <div className="space-y-2">
                           <label className="flex items-center gap-3 p-3 border border-white/15 rounded-lg cursor-pointer hover:bg-white/[0.04]">
@@ -2120,7 +2121,7 @@ export default function PayoutsPageNew({
                               onChange={(e) => setFormData({ ...formData, method: e.target.value as any })}
                               className="w-4 h-4 text-brand-300"
                             />
-                            <span className="text-sm font-medium text-white">Bank transfer</span>
+                            <span className="text-sm font-medium text-white">{t('payouts_page.bank_transfer', { defaultValue: 'Bank transfer' })}</span>
                           </label>
                           <label className="flex items-center gap-3 p-3 border border-white/15 rounded-lg cursor-pointer hover:bg-white/[0.04]">
                             <input
@@ -2131,13 +2132,13 @@ export default function PayoutsPageNew({
                               onChange={(e) => setFormData({ ...formData, method: e.target.value as any })}
                               className="w-4 h-4 text-brand-300"
                             />
-                            <span className="text-sm font-medium text-white">Mobile money</span>
+                            <span className="text-sm font-medium text-white">{t('payouts_page.mobile_money', { defaultValue: 'Mobile money' })}</span>
                           </label>
                         </div>
                       </div>
                     ) : (
                       <div className="p-3 bg-[#0a0a0a]  rounded-lg text-sm text-white/70">
-                        Stripe Connect will collect your bank details securely. You don&apos;t need to enter any bank information on Tikèm.
+                        {t('payouts_page.stripe_collects_bank_long', { defaultValue: "Stripe Connect will collect your bank details securely. You don't need to enter any bank information on Tikèm." })}
                       </div>
                     )}
 
@@ -2145,29 +2146,29 @@ export default function PayoutsPageNew({
                     {activeProfile === 'haiti' && formData.method === 'bank_transfer' ? (
                       <div>
                         <label className="block text-sm font-medium text-white/70 mb-2">
-                          Bank account <span className="text-red-500">*</span>
+                          {t('payouts_page.bank_account', { defaultValue: 'Bank account' })} <span className="text-red-500">*</span>
                         </label>
 
                         {isLoadingBankDestinations ? (
-                          <div className="text-sm text-white/50">Loading saved bank accounts…</div>
+                          <div className="text-sm text-white/50">{t('payouts_page.loading_saved_banks', { defaultValue: 'Loading saved bank accounts…' })}</div>
                         ) : null}
 
                         {bankDestinations && bankDestinations.length ? (
                           <select
-                            aria-label="Select bank account"
+                            aria-label={t('payouts_page.select_bank_account', { defaultValue: 'Select bank account' })}
                             value={selectedBankDestinationId}
                             onChange={(e) => setSelectedBankDestinationId(e.target.value)}
                             className="w-full px-3 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                           >
                             {bankDestinations.map((d) => (
                               <option key={d.id} value={d.id}>
-                                {d.bankName} • ****{d.accountNumberLast4}{d.isPrimary ? ' (Primary)' : ''}
+                                {d.bankName} • ****{d.accountNumberLast4}{d.isPrimary ? t('payouts_page.primary_suffix', { defaultValue: ' (Primary)' }) : ''}
                               </option>
                             ))}
                           </select>
                         ) : (
                           <div className="text-sm text-white/60">
-                            No bank accounts saved yet. Add one in the verification section.
+                            {t('payouts_page.no_banks_verification_section', { defaultValue: 'No bank accounts saved yet. Add one in the verification section.' })}
                           </div>
                         )}
 
@@ -2183,7 +2184,7 @@ export default function PayoutsPageNew({
                           }}
                           className="mt-2 text-sm font-medium text-brand-300 hover:text-brand-300"
                         >
-                          Add / manage bank accounts
+                          {t('payouts_page.manage_bank_accounts', { defaultValue: 'Add / manage bank accounts' })}
                         </button>
                       </div>
                     ) : null}
@@ -2193,10 +2194,10 @@ export default function PayoutsPageNew({
                       <>
                         <div>
                           <label className="block text-sm font-medium text-white/70 mb-2">
-                            Provider
+                            {t('payouts_page.provider', { defaultValue: 'Provider' })}
                           </label>
                           <select
-                            aria-label="Provider"
+                            aria-label={t('payouts_page.provider', { defaultValue: 'Provider' })}
                             value={formData.provider}
                             onChange={(e) => setFormData({ ...formData, provider: e.target.value })}
                             className="w-full px-3 py-2 border border-white/15 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
@@ -2208,7 +2209,7 @@ export default function PayoutsPageNew({
 
                         {Boolean(config?.mobileMoneyDetails?.phoneNumberLast4) && !isChangingMobileNumber ? (
                           <div className=" rounded-lg p-3 bg-[#0a0a0a]">
-                            <div className="text-sm text-white font-medium">Saved phone number</div>
+                            <div className="text-sm text-white font-medium">{t('payouts_page.saved_phone_number', { defaultValue: 'Saved phone number' })}</div>
                             <div className="text-sm text-white/70 mt-1">
                               ****{config?.mobileMoneyDetails?.phoneNumberLast4}
                             </div>
@@ -2217,12 +2218,12 @@ export default function PayoutsPageNew({
                               onClick={() => setIsChangingMobileNumber(true)}
                               className="mt-2 text-sm font-medium text-brand-300 hover:text-brand-300"
                             >
-                              Change number
+                              {t('payouts_page.change_number', { defaultValue: 'Change number' })}
                             </button>
                           </div>
                         ) : (
                           <div>
-                            <label className="block text-sm font-medium text-white/70 mb-2">Phone number</label>
+                            <label className="block text-sm font-medium text-white/70 mb-2">{t('payouts_page.phone_number', { defaultValue: 'Phone number' })}</label>
                             <input
                               type="tel"
                               value={formData.phoneNumber}
@@ -2239,7 +2240,7 @@ export default function PayoutsPageNew({
                                 }}
                                 className="mt-2 text-sm font-medium text-white/60 hover:text-white/70"
                               >
-                                Use saved number instead
+                                {t('payouts_page.use_saved_number', { defaultValue: 'Use saved number instead' })}
                               </button>
                             ) : null}
                           </div>
@@ -2261,8 +2262,8 @@ export default function PayoutsPageNew({
                         className="flex-1 px-4 py-2 bg-brand-700 text-white rounded-lg font-medium hover:bg-brand-800 transition-colors disabled:bg-white/20 disabled:cursor-not-allowed"
                       >
                         {isSaving
-                          ? (activeProfile === 'stripe_connect' ? 'Opening Stripe…' : 'Saving…')
-                          : (activeProfile === 'stripe_connect' ? 'Continue to Stripe' : 'Save payout details')}
+                          ? (activeProfile === 'stripe_connect' ? t('payouts_page.opening_stripe', { defaultValue: 'Opening Stripe…' }) : t('payouts_page.saving', { defaultValue: 'Saving…' }))
+                          : (activeProfile === 'stripe_connect' ? t('payouts_page.continue_to_stripe', { defaultValue: 'Continue to Stripe' }) : t('payouts_page.save_payout_details', { defaultValue: 'Save payout details' }))}
                       </button>
                       {hasPayoutSetup && (
                         <button
@@ -2278,7 +2279,7 @@ export default function PayoutsPageNew({
                           disabled={isSaving}
                           className="px-4 py-2 bg-[#0a0a0a] border border-white/15 text-white/70 rounded-lg font-medium hover:bg-white/[0.04] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          Cancel
+                          {t('payouts_page.cancel', { defaultValue: 'Cancel' })}
                         </button>
                       )}
                     </div>
@@ -2301,17 +2302,17 @@ export default function PayoutsPageNew({
               <div className="p-6 border-b border-white/10">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-white">
-                    Earnings by event
+                    {t('payouts_page.earnings_by_event', { defaultValue: 'Earnings by event' })}
                   </h2>
                   <select
-                    aria-label="Earnings period"
+                    aria-label={t('payouts_page.earnings_period', { defaultValue: 'Earnings period' })}
                     value={period}
                     onChange={(e) => setPeriod(e.target.value as any)}
                     className="px-3 py-1.5 border border-white/15 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                   >
-                    <option value="this_month">This month</option>
-                    <option value="last_3_months">Last 3 months</option>
-                    <option value="all_time">All time</option>
+                    <option value="this_month">{t('payouts_page.period_this_month', { defaultValue: 'This month' })}</option>
+                    <option value="last_3_months">{t('payouts_page.period_last_3_months', { defaultValue: 'Last 3 months' })}</option>
+                    <option value="all_time">{t('payouts_page.all_time', { defaultValue: 'All time' })}</option>
                   </select>
                 </div>
               </div>
@@ -2322,25 +2323,25 @@ export default function PayoutsPageNew({
                   <thead className="bg-[#0a0a0a] border-b border-white/10">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase tracking-wider">
-                        Event
+                        {t('payouts_page.th_event', { defaultValue: 'Event' })}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase tracking-wider">
-                        Date
+                        {t('payouts_page.th_date', { defaultValue: 'Date' })}
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-white/50 uppercase tracking-wider">
-                        Tickets
+                        {t('payouts_page.th_tickets', { defaultValue: 'Tickets' })}
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-white/50 uppercase tracking-wider">
-                        Gross
+                        {t('payouts_page.th_gross', { defaultValue: 'Gross' })}
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-white/50 uppercase tracking-wider">
-                        Fees
+                        {t('payouts_page.th_fees', { defaultValue: 'Fees' })}
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-white/50 uppercase tracking-wider">
-                        Net
+                        {t('payouts_page.th_net', { defaultValue: 'Net' })}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-white/50 uppercase tracking-wider">
-                        Status
+                        {t('payouts_page.th_status', { defaultValue: 'Status' })}
                       </th>
                     </tr>
                   </thead>
@@ -2348,7 +2349,7 @@ export default function PayoutsPageNew({
                     {filteredEarnings.length === 0 ? (
                       <tr>
                         <td colSpan={7} className="px-6 py-12 text-center text-white/50">
-                          No events found for this period
+                          {t('payouts_page.no_events_period', { defaultValue: 'No events found for this period' })}
                         </td>
                       </tr>
                     ) : (
@@ -2391,7 +2392,7 @@ export default function PayoutsPageNew({
               <div className="md:hidden divide-y divide-white/10">
                 {filteredEarnings.length === 0 ? (
                   <div className="px-6 py-12 text-center text-white/50">
-                    No events found for this period
+                    {t('payouts_page.no_events_period', { defaultValue: 'No events found for this period' })}
                   </div>
                 ) : (
                   filteredEarnings.map((event) => (
@@ -2407,11 +2408,11 @@ export default function PayoutsPageNew({
                         {getStatusPill(event.payoutStatus)}
                       </div>
                       <div className="text-sm text-white/50 mb-3">
-                        {formatDate(event.date)} · {event.ticketsSold} tickets
+                        {t('payouts_page.event_meta', { date: formatDate(event.date), count: event.ticketsSold, defaultValue: '{{date}} · {{count}} tickets' })}
                       </div>
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="text-xs text-white/50">Net payout</div>
+                          <div className="text-xs text-white/50">{t('payouts_page.net_payout', { defaultValue: 'Net payout' })}</div>
                           <div className="text-lg font-semibold text-white">
                             {formatCurrency(event.netPayout, event.currency)}
                           </div>
@@ -2428,7 +2429,7 @@ export default function PayoutsPageNew({
             <div className="bg-[#0a0a0a] rounded-xl border border-white/10 overflow-hidden">
               <div className="p-6">
                 <h2 className="text-lg font-semibold text-white mb-4">
-                  Payouts
+                  {t('payouts_page.title', { defaultValue: 'Payouts' })}
                 </h2>
 
                 {upcomingPayout ? (
@@ -2437,10 +2438,12 @@ export default function PayoutsPageNew({
                       <Clock className="w-5 h-5 text-brand-300 flex-shrink-0" />
                       <div>
                         <div className="text-sm font-medium text-brand-300">
-                          Next payout: {formatCurrency(upcomingPayout.amount, upcomingPayout.currency)} · {formatDate(upcomingPayout.date)}
+                          {t('payouts_page.next_payout_line', { amount: formatCurrency(upcomingPayout.amount, upcomingPayout.currency), date: formatDate(upcomingPayout.date), defaultValue: 'Next payout: {{amount}} · {{date}}' })}
                         </div>
                         <div className="text-xs text-brand-300 mt-0.5">
-                          Includes {upcomingPayout.eventCount} {upcomingPayout.eventCount === 1 ? 'event' : 'events'}
+                          {upcomingPayout.eventCount === 1
+                            ? t('payouts_page.includes_event_one', { count: upcomingPayout.eventCount, defaultValue: 'Includes {{count}} event' })
+                            : t('payouts_page.includes_event_other', { count: upcomingPayout.eventCount, defaultValue: 'Includes {{count}} events' })}
                         </div>
                       </div>
                     </div>
@@ -2449,7 +2452,7 @@ export default function PayoutsPageNew({
                       href="/organizer/settings/payouts/history"
                       className="inline-flex items-center gap-2 text-sm font-medium text-brand-300 hover:text-brand-300"
                     >
-                      View payout history
+                      {t('payouts_page.view_payout_history', { defaultValue: 'View payout history' })}
                       <ChevronRight className="w-4 h-4" />
                     </Link>
                   </div>
@@ -2458,7 +2461,7 @@ export default function PayoutsPageNew({
                     <div className="flex items-center gap-3 p-4 bg-[#0a0a0a]  rounded-lg">
                       <AlertCircle className="w-5 h-5 text-white/40 flex-shrink-0" />
                       <div className="text-sm text-white/60">
-                        No upcoming payouts yet.
+                        {t('payouts_page.no_upcoming_payouts', { defaultValue: 'No upcoming payouts yet.' })}
                       </div>
                     </div>
 
@@ -2466,7 +2469,7 @@ export default function PayoutsPageNew({
                       href="/organizer/settings/payouts/history"
                       className="inline-flex items-center gap-2 text-sm font-medium text-brand-300 hover:text-brand-300"
                     >
-                      View payout history
+                      {t('payouts_page.view_payout_history', { defaultValue: 'View payout history' })}
                       <ChevronRight className="w-4 h-4" />
                     </Link>
                   </div>

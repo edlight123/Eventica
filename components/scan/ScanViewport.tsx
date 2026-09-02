@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Html5Qrcode } from 'html5-qrcode'
+import { useTranslation } from 'react-i18next'
 
 interface ScanViewportProps {
   onScan: (result: string) => void
@@ -9,6 +10,7 @@ interface ScanViewportProps {
 }
 
 export function ScanViewport({ onScan, isProcessing }: ScanViewportProps) {
+  const { t } = useTranslation('organizer')
   const scannerRef = useRef<Html5Qrcode | null>(null)
   const onScanRef = useRef(onScan)
   const isProcessingRef = useRef(isProcessing)
@@ -171,7 +173,7 @@ export function ScanViewport({ onScan, isProcessing }: ScanViewportProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
             </div>
-            <p className="text-white font-semibold mb-2">Camera Error</p>
+            <p className="text-white font-semibold mb-2">{t('door.camera_error', { defaultValue: 'Camera Error' })}</p>
             <p className="text-white/40 text-sm">{error}</p>
 
             {showOpenInApp ? (
