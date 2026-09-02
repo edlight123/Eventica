@@ -115,9 +115,9 @@ const COPY: Record<Lang, {
   },
 }
 
-function resolveLang(): Lang {
+async function resolveLang(): Promise<Lang> {
   const supported: Lang[] = ['en', 'fr', 'ht']
-  const fromCookie = cookies().get('i18nextLng')?.value?.slice(0, 2)
+  const fromCookie = (await cookies()).get('i18nextLng')?.value?.slice(0, 2)
   if (supported.includes(fromCookie as Lang)) return fromCookie as Lang
   return 'en'
 }
@@ -128,7 +128,7 @@ export default async function PromoterStatsPage({
   params: Promise<{ token: string }>
 }) {
   const { token } = await params
-  const lang = resolveLang()
+  const lang = await resolveLang()
   const copy = COPY[lang]
   const statsKey = verifyPromoterToken(decodeURIComponent(token))
   // A bad signature and a missing record are indistinguishable to the visitor.

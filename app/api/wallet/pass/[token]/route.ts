@@ -27,10 +27,10 @@ function fail(error: string, code: string, status: number) {
 
 export async function GET(
   _request: Request,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
   try {
-    const verified = verifyPassToken(String(params?.token ?? ''))
+    const verified = verifyPassToken(String((await params)?.token ?? ''))
     if (!verified.ok) {
       return verified.reason === 'expired'
         ? fail('This wallet link has expired', WALLET_ERROR_CODES.passLinkExpired, 410)

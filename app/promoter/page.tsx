@@ -104,9 +104,9 @@ const COPY: Record<Lang, {
   },
 }
 
-function resolveLang(): Lang {
+async function resolveLang(): Promise<Lang> {
   const supported: Lang[] = ['en', 'fr', 'ht']
-  const fromCookie = cookies().get('i18nextLng')?.value?.slice(0, 2)
+  const fromCookie = (await cookies()).get('i18nextLng')?.value?.slice(0, 2)
   if (supported.includes(fromCookie as Lang)) return fromCookie as Lang
   return 'en'
 }
@@ -115,7 +115,7 @@ export default async function PromoterPortalPage() {
   const { user, error } = await requireAuth()
   if (error || !user) redirect('/auth/login?redirect=/promoter')
 
-  const lang = resolveLang()
+  const lang = await resolveLang()
   const copy = COPY[lang]
 
   const snap = await adminDb

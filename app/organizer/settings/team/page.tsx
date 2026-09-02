@@ -43,8 +43,10 @@ async function getOrganizerEvents(organizerId: string): Promise<{ events: Organi
 export default async function TeamSettingsPage({
   searchParams,
 }: {
-  searchParams?: { eventId?: string }
+  // Next 15: searchParams is a Promise.
+  searchParams?: Promise<{ eventId?: string }>
 }) {
+  const resolvedSearchParams = await searchParams
   const user = await getCurrentUser()
 
   if (!user?.id) {
@@ -118,7 +120,7 @@ export default async function TeamSettingsPage({
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           <div className="xl:col-span-2">
-            <EventStaffHub events={events} initialEventId={searchParams?.eventId} />
+            <EventStaffHub events={events} initialEventId={resolvedSearchParams?.eventId} />
           </div>
 
           <div className="space-y-6">

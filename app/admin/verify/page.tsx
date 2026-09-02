@@ -34,9 +34,10 @@ function serializeFirestoreValue(value: any): any {
 export default async function AdminVerifyPage({
   searchParams,
 }: {
-  searchParams?: { status?: string }
+  // Next 15: searchParams is a Promise.
+  searchParams?: Promise<{ status?: string }>
 }) {
-  const requestedStatusRaw = (searchParams?.status || 'pending').toLowerCase()
+  const requestedStatusRaw = ((await searchParams)?.status || 'pending').toLowerCase()
 
   // Support both legacy and canonical statuses.
   const pendingStatuses = ['pending_review', 'in_review', 'in_progress', 'pending']

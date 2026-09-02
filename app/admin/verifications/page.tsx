@@ -6,15 +6,17 @@ export const metadata = {
 }
 
 
-export default function AdminVerificationsRedirect({
+export default async function AdminVerificationsRedirect({
   searchParams,
 }: {
-  searchParams?: Record<string, string | string[] | undefined>
+  // Next 15: searchParams is a Promise.
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
 }) {
   const params = new URLSearchParams()
+  const resolved = searchParams ? await searchParams : undefined
 
-  if (searchParams) {
-    for (const [key, value] of Object.entries(searchParams)) {
+  if (resolved) {
+    for (const [key, value] of Object.entries(resolved)) {
       if (value == null) continue
       if (Array.isArray(value)) {
         for (const v of value) params.append(key, v)

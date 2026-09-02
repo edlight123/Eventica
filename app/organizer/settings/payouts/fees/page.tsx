@@ -51,7 +51,7 @@ const htExamplePlatformFee = calculateCappedPlatformFee(
 export default async function PayoutFeesPage() {
   const payoutPath = '/organizer/settings/payouts/fees'
 
-  const lang = resolveServerLanguage()
+  const lang = await resolveServerLanguage()
   const t = (path: string, fallback: string) => tServer(lang, path, fallback)
 
   // Verify authentication

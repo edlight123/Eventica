@@ -2,13 +2,15 @@ import Link from 'next/link'
 import PurchasePopupBridge from '@/components/PurchasePopupBridge'
 import { resolveServerLanguage, tServer } from '@/lib/serverT'
 
-export default function PurchaseFailedPage({
+export default async function PurchaseFailedPage({
   searchParams,
 }: {
-  searchParams: { reason?: string }
+  // Next 15: searchParams is a Promise. A hand-written non-Promise type here
+  // still typechecks but silently yields undefined at runtime.
+  searchParams: Promise<{ reason?: string }>
 }) {
-  const reason = searchParams.reason || 'unknown'
-  const lang = resolveServerLanguage()
+  const reason = (await searchParams).reason || 'unknown'
+  const lang = await resolveServerLanguage()
   const t = (path: string, fallback: string) => tServer(lang, path, fallback)
 
   const messages: Record<string, { title: string; description: string }> = {

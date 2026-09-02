@@ -30,11 +30,11 @@ export const dynamic = 'force-dynamic'
 // code, falling back to Accept-Language then 'en') and pull strings from a
 // local dictionary whose shape mirrors the `platform.*` i18n keys.
 type Lng = 'en' | 'fr' | 'ht'
-function resolveLanguage(): Lng {
+async function resolveLanguage(): Promise<Lng> {
   const supported = ['en', 'fr', 'ht'] as const
-  const fromCookie = cookies().get('i18nextLng')?.value?.slice(0, 2)
+  const fromCookie = (await cookies()).get('i18nextLng')?.value?.slice(0, 2)
   if (supported.includes(fromCookie as any)) return fromCookie as Lng
-  const accept = headers().get('accept-language') || ''
+  const accept = (await headers()).get('accept-language') || ''
   for (const part of accept.split(',')) {
     const code = part.trim().slice(0, 2).toLowerCase()
     if (supported.includes(code as any)) return code as Lng
@@ -360,7 +360,7 @@ function Section({
 
 export default async function PlatformPage() {
   const user = await getCurrentUser()
-  const t = DICT[resolveLanguage()]
+  const t = DICT[await resolveLanguage()]
 
   // Real artwork for the film strip: recent posters already on the platform —
   // the strongest pitch to an organizer is other organizers' work, lit.
