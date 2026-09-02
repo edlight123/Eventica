@@ -113,7 +113,12 @@
     "reset": "Reset",
     "apply_filters": "Apply filters",
     "active": "active",
-    "search_placeholder": "Search events, venues, artists…"
+    "search_placeholder": "Search events, venues, artists…",
+    "any_price": "Any price",
+    "price_and_up": "{{price}} and up",
+    "free_only": "Free only",
+    "price_min": "Minimum price",
+    "price_max": "Maximum price"
   },
   "time": {
     "today": "Today",
@@ -320,7 +325,8 @@
     "event_ended_detail": "This event has ended. Tickets are no longer available.",
     "fees_included": "Fees included",
     "fees_included_detail": "Includes {{fee}} {{currency}} fee",
-    "no_account_needed": "No account needed — your ticket is emailed to you."
+    "no_account_needed": "No account needed — your ticket is emailed to you.",
+    "venue_map_open": "Open {{venue}} on Google Maps"
   },
   "favorites": {
     "title": "My Favorites",
@@ -1210,7 +1216,14 @@
       "publishedMsg": "Your event is now live.",
       "unpublishedMsg": "Your event is hidden from attendees.",
       "errUpdateTitle": "Could not update"
-    }
+    },
+    "spotifySearchPlaceholder": "Search a song on Spotify",
+    "spotifyResultsLabel": "Song results",
+    "spotifyNoResults": "No songs found.",
+    "spotifyChange": "Change",
+    "spotifyRemove": "Remove song",
+    "spotifyPastedLink": "Spotify link",
+    "spotifySearchUnavailable": "Song search needs setup — paste a Spotify link for now."
   },
   "promoter": {
     "portal_eyebrow": "Promoter portal",
@@ -1416,5 +1429,17 @@
     "refunds_b2_b": "as they were already paid to payment processors",
     "refunds_b3": "The refunded amount is deducted from your next payout",
     "back_to_payouts": "Back to Payouts"
+  },
+  "suggest": {
+    "aria_label": "Search suggestions",
+    "events": "Events",
+    "organizers": "Organizers",
+    "people": "People",
+    "cities": "Cities",
+    "role_organizer": "Organizer",
+    "role_friend": "Friend",
+    "role_person": "On Tikèm",
+    "city_filter_hint": "Filter events by city",
+    "searching": "Searching…"
   }
 }

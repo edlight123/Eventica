@@ -2,8 +2,76 @@
  * Utility functions for event filters
  */
 
-import { EventFilters, DEFAULT_FILTERS, DateFilter } from './types'
+import { EventFilters, DEFAULT_FILTERS, DateFilter, PriceFilter } from './types'
 import { PRICE_FILTERS } from './config'
+
+/** The legacy discrete price values, which URLs in the wild still carry. */
+const LEGACY_PRICE_VALUES = ['any', 'free', '<=500', '>500'] as const
+
+/** `range:MIN-MAX` / `range:MIN-max` — see PriceRangeFilter in ./types. */
+const PRICE_RANGE_PATTERN = /^range:(\d+(?:\.\d+)?)-(max|\d+(?:\.\d+)?)$/
+
+/**
+ * Parse a custom price range. Returns `null` for the legacy values and for
+ * anything malformed, so callers can fall through to the old behaviour.
+ * A `max` of `undefined` means the range is open at the top ("and up").
+ */
+export function parsePriceRange(
+  priceFilter: string | null | undefined
+): { min: number; max?: number } | null {
+  const match = PRICE_RANGE_PATTERN.exec(String(priceFilter ?? ''))
+  if (!match) return null
+
+  const min = Number(match[1])
+  if (!Number.isFinite(min)) return null
+  if (match[2] === 'max') return { min }
+
+  const max = Number(match[2])
+  if (!Number.isFinite(max)) return null
+  // A reversed range in a hand-edited URL reads as the range the user meant.
+  return max < min ? { min: max, max: min } : { min, max }
+}
+
+/**
+ * Build the filter value for a pair of slider thumbs. A range that constrains
+ * nothing (bottom on the floor, top parked on the ceiling) collapses to 'any'
+ * so it never counts as an active filter or lands in the URL.
+ */
+export function buildPriceRangeFilter(min: number, max: number, ceiling: number): PriceFilter {
+  const lo = Math.max(0, Math.min(min, max))
+  const hi = Math.max(min, max)
+  const openTop = hi >= ceiling
+
+  if (lo <= 0 && openTop) return 'any'
+  // Cast: TS widens a number in a template expression to `string`.
+  if (openTop) return `range:${lo}-max` as PriceFilter
+  return `range:${lo}-${hi}` as PriceFilter
+}
+
+/**
+ * Coerce an arbitrary `?price=` value to something meaningful. Legacy values
+ * pass through untouched; ranges are re-emitted in canonical form; junk becomes
+ * the default.
+ */
+export function normalizePriceFilter(raw: string | null | undefined): PriceFilter {
+  const value = String(raw ?? '')
+  if ((LEGACY_PRICE_VALUES as readonly string[]).includes(value)) return value as PriceFilter
+
+  const range = parsePriceRange(value)
+  if (!range) return DEFAULT_FILTERS.price
+  if (range.max === undefined) return buildPriceRangeFilter(range.min, Infinity, Infinity)
+  return buildPriceRangeFilter(range.min, range.max, Infinity)
+}
+
+/**
+ * Is this price value equivalent to "no price filter"? True for 'any' and for a
+ * range that constrains nothing (a hand-written `?price=range:0-max`).
+ */
+export function isDefaultPriceFilter(price: string): boolean {
+  if (price === DEFAULT_FILTERS.price) return true
+  const range = parsePriceRange(price)
+  return range !== null && range.min <= 0 && range.max === undefined
+}
 
 /**
  * Calculate date range for a date filter option
@@ -70,11 +138,18 @@ export function getPriceRange(priceFilter: string): { min?: number; max?: number
   if (priceFilter === 'any') {
     return {}
   }
-  
+
   if (priceFilter === 'free') {
     return { min: 0, max: 0 }
   }
-  
+
+  // Custom slider range. An open top ("and up") returns no `max` at all, so the
+  // ceiling never excludes the expensive events above it.
+  const custom = parsePriceRange(priceFilter)
+  if (custom) {
+    return custom.max === undefined ? { min: custom.min } : { min: custom.min, max: custom.max }
+  }
+
   const config = PRICE_FILTERS.find(p => p.value === priceFilter)
   
   if (!config) {
@@ -108,8 +183,8 @@ export function countActiveFilters(filters: EventFilters): number {
   // Categories
   if (filters.categories.length > 0) count++
   
-  // Price
-  if (filters.price !== DEFAULT_FILTERS.price) count++
+  // Price — a custom range counts as one filter unless it constrains nothing
+  if (!isDefaultPriceFilter(filters.price)) count++
   
   // Event type
   if (filters.eventType !== DEFAULT_FILTERS.eventType) count++
@@ -151,8 +226,8 @@ export function serializeFilters(filters: EventFilters): URLSearchParams {
     filters.categories.forEach(cat => params.append('category', cat))
   }
   
-  // Price
-  if (filters.price !== 'any') {
+  // Price — legacy values and `range:MIN-MAX` alike travel as one param
+  if (!isDefaultPriceFilter(filters.price)) {
     params.set('price', filters.price)
   }
   
@@ -186,7 +261,7 @@ export function parseFiltersFromURL(searchParams?: SearchParamsLike | null): Eve
     city: params.get('city') || '',
     commune: params.get('commune') || undefined,
     categories: params.getAll('category'),
-    price: params.get('price') || DEFAULT_FILTERS.price,
+    price: normalizePriceFilter(params.get('price')),
     eventType: params.get('eventType') || DEFAULT_FILTERS.eventType,
     sortBy: params.get('sort') || DEFAULT_FILTERS.sortBy,
   } as EventFilters

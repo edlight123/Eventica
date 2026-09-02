@@ -113,7 +113,12 @@
     "reset": "Réinitialiser",
     "apply_filters": "Appliquer les filtres",
     "active": "actifs",
-    "search_placeholder": "Rechercher événements, lieux, artistes…"
+    "search_placeholder": "Rechercher événements, lieux, artistes…",
+    "any_price": "N'importe quel prix",
+    "price_and_up": "{{price}} et plus",
+    "free_only": "Gratuit uniquement",
+    "price_min": "Prix minimum",
+    "price_max": "Prix maximum"
   },
   "time": {
     "today": "Aujourd'hui",
@@ -320,7 +325,8 @@
     "event_ended_detail": "Cet événement est terminé. Les billets ne sont plus disponibles.",
     "fees_included": "Frais inclus",
     "fees_included_detail": "Inclut des frais de {{fee}} {{currency}}",
-    "no_account_needed": "Aucun compte nécessaire — votre billet vous est envoyé par email."
+    "no_account_needed": "Aucun compte nécessaire — votre billet vous est envoyé par email.",
+    "venue_map_open": "Ouvrir {{venue}} dans Google Maps"
   },
   "favorites": {
     "title": "Mes favoris",
@@ -1210,7 +1216,14 @@
       "publishedMsg": "Votre événement est maintenant en ligne.",
       "unpublishedMsg": "Votre événement est masqué pour les participants.",
       "errUpdateTitle": "Impossible de mettre à jour"
-    }
+    },
+    "spotifySearchPlaceholder": "Rechercher une chanson sur Spotify",
+    "spotifyResultsLabel": "Résultats de chansons",
+    "spotifyNoResults": "Aucune chanson trouvée.",
+    "spotifyChange": "Changer",
+    "spotifyRemove": "Retirer la chanson",
+    "spotifyPastedLink": "Lien Spotify",
+    "spotifySearchUnavailable": "La recherche de chansons doit être configurée — collez un lien Spotify pour l’instant."
   },
   "promoter": {
     "portal_eyebrow": "Portail promoteur",
@@ -1416,5 +1429,17 @@
     "refunds_b2_b": "car ils ont déjà été versés aux prestataires de paiement",
     "refunds_b3": "Le montant remboursé est déduit de votre prochain paiement",
     "back_to_payouts": "Retour aux paiements"
+  },
+  "suggest": {
+    "aria_label": "Suggestions de recherche",
+    "events": "Événements",
+    "organizers": "Organisateurs",
+    "people": "Personnes",
+    "cities": "Villes",
+    "role_organizer": "Organisateur",
+    "role_friend": "Ami",
+    "role_person": "Sur Tikèm",
+    "city_filter_hint": "Filtrer les événements par ville",
+    "searching": "Recherche…"
   }
 }

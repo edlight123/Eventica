@@ -37,6 +37,7 @@ const nextConfig = {
     return `build-${Date.now()}`
   },
   
+  distDir: process.env.NEXT_DIST_DIR || '.next', // TEMP-VERIFY
   // Compression and performance
   compress: true,
   poweredByHeader: false,
@@ -68,7 +69,16 @@ const nextConfig = {
       "object-src 'none'",
       "frame-ancestors 'none'",
       "form-action 'self'",
-      "img-src 'self' data: blob: https://images.unsplash.com https://storage.googleapis.com https://firebasestorage.googleapis.com https://*.googleusercontent.com",
+      // maps.googleapis.com / api.mapbox.com serve the venue static-map TILE on
+      // the event page (components/events/VenueMap.tsx). It is a plain <img>
+      // from a third-party host, so without these two entries an enforcing CSP
+      // blocks it with no visible error — the tile just never appears. Images
+      // only: neither host is added to script-src, connect-src or frame-src,
+      // because a static tile needs none of them.
+      // i.scdn.co is Spotify's album-art CDN, used by the composer's song picker
+      // (components/organizer/SpotifySongPicker.tsx). Searching itself goes
+      // through our own /api/spotify/search, so no connect-src entry is needed.
+      "img-src 'self' data: blob: https://images.unsplash.com https://storage.googleapis.com https://firebasestorage.googleapis.com https://*.googleusercontent.com https://maps.googleapis.com https://api.mapbox.com https://i.scdn.co",
       "font-src 'self' data:",
       // Next.js injects inline styles; recharts sets inline SVG styles.
       "style-src 'self' 'unsafe-inline'",
@@ -187,6 +197,14 @@ const nextConfig = {
   },
   
   images: {
+    // NOTE: maps.googleapis.com / api.mapbox.com are deliberately NOT listed
+    // here. The venue static-map tile (components/events/VenueMap.tsx) is a
+    // plain <img>, not next/image: the provider already returns it at the exact
+    // size and compression we want, so routing it through the optimizer would
+    // re-encode it on our server for no gain — and would replace the clean
+    // onError the component relies on ("render nothing rather than a broken
+    // tile") with an /_next/image failure. It needs the CSP img-src entry
+    // above; it does not need a remotePattern.
     remotePatterns: [
       {
         protocol: 'https',

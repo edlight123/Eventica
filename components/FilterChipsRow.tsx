@@ -3,7 +3,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { EventFilters, DEFAULT_FILTERS } from '@/lib/filters/types'
-import { CATEGORIES, PRICE_FILTERS, CITY_CONFIG } from '@/lib/filters/config'
+import { CATEGORIES, PRICE_FILTERS, CITY_CONFIG, formatPriceForCountry } from '@/lib/filters/config'
+import { parsePriceRange } from '@/lib/filters/utils'
 import { FilterChip } from './FilterChip'
 import { format } from 'date-fns'
 
@@ -11,9 +12,11 @@ interface FilterChipsRowProps {
   filters: EventFilters
   onRemoveFilter: (key: keyof EventFilters, value?: string) => void
   onClearAll: () => void
+  /** Needed to render a price RANGE in the right currency. */
+  userCountry?: string
 }
 
-export function FilterChipsRow({ filters, onRemoveFilter, onClearAll }: FilterChipsRowProps) {
+export function FilterChipsRow({ filters, onRemoveFilter, onClearAll, userCountry = 'HT' }: FilterChipsRowProps) {
   const { t } = useTranslation('common')
   const chips: Array<{ key: keyof EventFilters; label: string; value?: string }> = []
 
@@ -50,11 +53,25 @@ export function FilterChipsRow({ filters, onRemoveFilter, onClearAll }: FilterCh
     chips.push({ key: 'categories', label: category, value: category })
   })
 
-  // Price filter
+  // Price filter. A custom slider range is not in PRICE_FILTERS, so without a
+  // range-aware label an applied range rendered NO chip at all — visible in the
+  // modal and the URL, but impossible to dismiss from here.
   if (filters.price !== DEFAULT_FILTERS.price) {
-    const priceConfig = PRICE_FILTERS.find(p => p.value === filters.price)
-    if (priceConfig) {
-      chips.push({ key: 'price', label: priceConfig.label })
+    const range = parsePriceRange(filters.price)
+    if (range) {
+      const from = formatPriceForCountry(range.min, userCountry)
+      chips.push({
+        key: 'price',
+        label:
+          range.max === undefined
+            ? t('filters.price_and_up', { price: from, defaultValue: `${from} and up` })
+            : `${from} – ${formatPriceForCountry(range.max, userCountry)}`,
+      })
+    } else {
+      const priceConfig = PRICE_FILTERS.find(p => p.value === filters.price)
+      if (priceConfig) {
+        chips.push({ key: 'price', label: priceConfig.label })
+      }
     }
   }
 

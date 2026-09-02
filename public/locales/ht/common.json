@@ -113,7 +113,12 @@
     "reset": "Remèt",
     "apply_filters": "Aplike filt",
     "active": "aktif",
-    "search_placeholder": "Chèche evènman, kote, atis…"
+    "search_placeholder": "Chèche evènman, kote, atis…",
+    "any_price": "Nenpòt pri",
+    "price_and_up": "{{price}} oswa plis",
+    "free_only": "Gratis sèlman",
+    "price_min": "Pri minimòm",
+    "price_max": "Pri maksimòm"
   },
   "time": {
     "today": "Jodi a",
@@ -320,7 +325,8 @@
     "event_ended_detail": "Evènman sa a fini. Tikè yo pa disponib ankò.",
     "fees_included": "Frè enkli",
     "fees_included_detail": "Gen yon frè {{fee}} {{currency}} ladan",
-    "no_account_needed": "Pa bezwen kont — nou voye tikè ou nan imel ou."
+    "no_account_needed": "Pa bezwen kont — nou voye tikè ou nan imel ou.",
+    "venue_map_open": "Louvri {{venue}} nan Google Maps"
   },
   "favorites": {
     "title": "Favori mwen",
@@ -1210,7 +1216,14 @@
       "publishedMsg": "Evènman ou anliy kounye a.",
       "unpublishedMsg": "Evènman ou kache pou patisipan yo.",
       "errUpdateTitle": "Nou pa t ka mete ajou"
-    }
+    },
+    "spotifySearchPlaceholder": "Chèche yon chante sou Spotify",
+    "spotifyResultsLabel": "Rezilta chante yo",
+    "spotifyNoResults": "Nou pa jwenn okenn chante.",
+    "spotifyChange": "Chanje",
+    "spotifyRemove": "Retire chante a",
+    "spotifyPastedLink": "Lyen Spotify",
+    "spotifySearchUnavailable": "Rechèch chante a poko konfigire — kole yon lyen Spotify pou kounye a."
   },
   "promoter": {
     "portal_eyebrow": "Pòtay pwomotè",
@@ -1416,5 +1429,17 @@
     "refunds_b2_b": "paske yo gentan peye bay pwosesè peman yo",
     "refunds_b3": "Montan yo ranbouse a dedwi nan pwochen peman ou",
     "back_to_payouts": "Retounen nan peman"
+  },
+  "suggest": {
+    "aria_label": "Sijesyon rechèch",
+    "events": "Evènman",
+    "organizers": "Òganizatè",
+    "people": "Moun",
+    "cities": "Vil yo",
+    "role_organizer": "Òganizatè",
+    "role_friend": "Zanmi",
+    "role_person": "Sou Tikèm",
+    "city_filter_hint": "Filtre evènman pa vil",
+    "searching": "N ap chèche…"
   }
 }

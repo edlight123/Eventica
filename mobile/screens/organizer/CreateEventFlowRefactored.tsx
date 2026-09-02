@@ -54,6 +54,7 @@ import {
   departmentForCity,
 } from '../../data/haitiGeo';
 import WhitePillCTA from '../../components/WhitePillCTA';
+import SpotifySongPicker from '../../components/SpotifySongPicker';
 import OverlayHeader, { useOverlayHeaderInset } from '../../components/OverlayHeader';
 import { font, radius, withAlpha } from '../../theme/tokens';
 import { POSTER_THEME_KEYS, resolvePosterTheme } from '../../lib/posterGradient';
@@ -125,6 +126,10 @@ export interface EventDraft {
   // Advanced settings (POSH secondary sections).
   show_on_explore: boolean;   // false = share-by-link only, hidden from Discover
   video_url: string;          // optional promo video link
+  // Spotify track URL (https://open.spotify.com/track/{id}) — rendered as the
+  // official embed on the event page. Picked via song search, or pasted when
+  // the search route has no credentials.
+  spotify_url: string;
   show_guestlist: boolean;    // whether attendees can see who's going
 
   // Poster-theme override. '' = Auto (deterministic pick from seed/category);
@@ -466,6 +471,7 @@ export default function CreateEventFlowRefactored() {
     capacity: '100',
     show_on_explore: true,
     video_url: '',
+    spotify_url: '',
     show_guestlist: true,
     theme_key: '',
     recurrence: 'none',
@@ -577,6 +583,7 @@ export default function CreateEventFlowRefactored() {
           // Advanced settings — default to visible/on when the field is absent.
           show_on_explore: (event as any).show_on_explore !== false,
           video_url: (event as any).video_url || '',
+          spotify_url: (event as any).spotify_url || '',
           show_guestlist: (event as any).show_guestlist !== false,
           // Poster-theme override; default '' (Auto) when the field is absent.
           theme_key: (event as any).theme_key || '',
@@ -2265,6 +2272,14 @@ export default function CreateEventFlowRefactored() {
                     onChangeText={(text) => updateDraft({ video_url: text })}
                     keyboardType="url"
                     autoCapitalize="none"
+                  />
+
+                  {/* Song — a real Spotify search; degrades to pasting a link
+                      when /api/spotify/search has no credentials. */}
+                  <SpotifySongPicker
+                    colors={colors}
+                    value={eventDraft.spotify_url}
+                    onChange={(url) => updateDraft({ spotify_url: url })}
                   />
 
                   {/* Guest list visibility */}

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { DiscoverTopBar } from './discover/DiscoverTopBar'
 import { DiscoverFilterChipsStrip } from './discover/DiscoverFilterChipsStrip'
@@ -8,6 +8,7 @@ import { FiltersModal } from './FiltersModal'
 import { FilterChipsRow } from './FilterChipsRow'
 import type { EventFilters, DEFAULT_FILTERS } from '@/lib/filters/types'
 import { parseFiltersFromURL, serializeFilters, resetFilters, countActiveFilters } from '@/lib/filters/utils'
+import { useHeaderCollapse } from '@/lib/hooks/useHeaderCollapse'
 
 interface DiscoverFilterManagerProps {
   userCountry?: string
@@ -23,6 +24,12 @@ export function DiscoverFilterManager({ userCountry = 'HT' }: DiscoverFilterMana
   )
   const [draftFilters, setDraftFilters] = useState<EventFilters>(appliedFilters)
   const [isModalOpen, setIsModalOpen] = useState(false)
+
+  // The sticky header sheds its SECONDARY controls as the reader moves down the
+  // feed and restores them the moment they scroll back up. Search and the
+  // filter button never leave — they are the primary actions on this page.
+  const headerRef = useRef<HTMLDivElement>(null)
+  const collapsed = useHeaderCollapse(headerRef)
   
   const handleOpenFilters = () => {
     setDraftFilters(appliedFilters)
@@ -100,16 +107,35 @@ export function DiscoverFilterManager({ userCountry = 'HT' }: DiscoverFilterMana
       {/* Same translucency as the navbar above (which renders `flush` on this
           page), so the two bars read as ONE header band with this single rule
           at its bottom edge. */}
-      <div className="sticky top-14 sm:top-16 z-40 bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-white/10">
+      <div
+        ref={headerRef}
+        data-collapsed={collapsed ? 'true' : 'false'}
+        className="sticky top-14 sm:top-16 z-40 border-b border-white/10 bg-[#0a0a0a]/80 backdrop-blur-xl"
+      >
         <DiscoverTopBar
           filters={appliedFilters}
           onOpenFilters={handleOpenFilters}
           userCountry={userCountry}
         />
-        <DiscoverFilterChipsStrip
-          currentDate={appliedFilters.date}
-          selectedCategories={appliedFilters.categories}
-        />
+        {/* The quick-filter strip is what collapses: it is the tallest
+            secondary element, so it reclaims the most feed. Grid-rows is the
+            animatable way to collapse to nothing without hard-coding a height
+            (the strip's own height varies with the chip set). */}
+        <div
+          className={`grid transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+            collapsed
+              ? 'pointer-events-none grid-rows-[0fr] opacity-0'
+              : 'grid-rows-[1fr] opacity-100'
+          }`}
+          aria-hidden={collapsed}
+        >
+          <div className="overflow-hidden">
+            <DiscoverFilterChipsStrip
+              currentDate={appliedFilters.date}
+              selectedCategories={appliedFilters.categories}
+            />
+          </div>
+        </div>
       </div>
       
       {hasActiveFilters && (
@@ -118,6 +144,7 @@ export function DiscoverFilterManager({ userCountry = 'HT' }: DiscoverFilterMana
             filters={appliedFilters}
             onRemoveFilter={handleRemoveFilter}
             onClearAll={handleClearAll}
+            userCountry={userCountry}
           />
         </div>
       )}

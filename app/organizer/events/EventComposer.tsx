@@ -12,6 +12,7 @@ import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { isDemoMode } from '@/lib/demo'
 import { useToast } from '@/components/ui/Toast'
 import ImageUpload from '@/components/ImageUpload'
+import SpotifySongPicker from '@/components/organizer/SpotifySongPicker'
 import { DatePicker, TimePicker } from '@/components/ui/DateTimePickers'
 import { normalizeEventCurrencyForCountry, getAllowedEventCurrencies, type EventCurrency } from '@/lib/currency-policy'
 import { incidenceForEvent, priceOrder } from '@/lib/checkout/buyer-pricing'
@@ -24,7 +25,6 @@ import {
   Info,
   Lock,
   MapPin,
-  Music2,
   Palette,
   Pencil,
   Plus,
@@ -1860,17 +1860,9 @@ export default function EventComposer({
               </p>
             )}
 
-            {/* Spotify */}
-            <div className="flex items-center gap-3 rounded-xl border border-white/10 px-4">
-              <Music2 className="h-[18px] w-[18px] shrink-0 text-white/50" />
-              <input
-                value={spotifyUrl}
-                onChange={(e) => setSpotifyUrl(e.target.value)}
-                placeholder={t('composer.spotifyPlaceholder', { defaultValue: 'Add song from Spotify' })}
-                aria-label="Spotify song link"
-                className="w-full bg-transparent py-3 text-sm text-white placeholder:text-white/40 focus:outline-none"
-              />
-            </div>
+            {/* Spotify — a real song search. Falls back to the old
+                paste-a-URL input when the search route has no credentials. */}
+            <SpotifySongPicker value={spotifyUrl} onChange={setSpotifyUrl} />
 
             {/* Font + accent */}
             <div className="space-y-3 rounded-xl border border-white/10 p-4">

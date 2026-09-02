@@ -3,10 +3,11 @@
 import React, { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
-import { Search, MapPin, ChevronDown, SlidersHorizontal } from 'lucide-react'
+import { MapPin, ChevronDown, SlidersHorizontal } from 'lucide-react'
 import { getCitiesForCountry, getSubdivisions, getLocationTypeLabel, hasSubdivisions } from '@/lib/filters/config'
 import { countActiveFilters } from '@/lib/filters/utils'
 import type { EventFilters } from '@/lib/filters/types'
+import { SearchSuggest } from '@/components/discover/SearchSuggest'
 
 interface DiscoverTopBarProps {
   filters: EventFilters
@@ -18,7 +19,6 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
   const { t } = useTranslation('common')
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '')
   const [showCityDropdown, setShowCityDropdown] = useState(false)
   const [showSubareaDropdown, setShowSubareaDropdown] = useState(false)
   
@@ -30,27 +30,24 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
   const locationLabel = filters.city ? getLocationTypeLabel(filters.city, userCountry) : ''
   const hasLocation = hasSubdivisions(filters.city, userCountry)
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
+  // Plain Enter with nothing highlighted in the suggestions — search all.
+  // Unchanged behaviour: `?search=` on /discover.
+  const handleSearchSubmit = (query: string) => {
     const params = new URLSearchParams(searchParams)
-    if (searchQuery.trim()) {
-      params.set('search', searchQuery.trim())
+    if (query.trim()) {
+      params.set('search', query.trim())
     } else {
       params.delete('search')
     }
     router.push(`/discover?${params.toString()}`, { scroll: false })
   }
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setSearchQuery(value)
-    
-    // Clear search if empty
-    if (!value.trim()) {
-      const params = new URLSearchParams(searchParams)
-      params.delete('search')
-      router.push(`/discover?${params.toString()}`, { scroll: false })
-    }
+  // Field emptied — drop the search param, as before.
+  const handleSearchCleared = () => {
+    const params = new URLSearchParams(searchParams)
+    if (!params.has('search')) return
+    params.delete('search')
+    router.push(`/discover?${params.toString()}`, { scroll: false })
   }
 
   const handleCitySelect = (city: string) => {
@@ -80,19 +77,14 @@ export function DiscoverTopBar({ filters, onOpenFilters, userCountry = 'HT' }: D
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-2">
       <div className="flex items-center gap-3">
-          {/* Search Input */}
-          <form onSubmit={handleSearch} className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={handleSearchChange}
-                placeholder={t('filters.search_placeholder')}
-                className="w-full pl-10 pr-4 py-2.5 border border-white/15 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm"
-              />
-            </div>
-          </form>
+          {/* Search field + autosuggest (events › organizers › people › cities) */}
+          <SearchSuggest
+            initialQuery={searchParams.get('search') || ''}
+            userCountry={userCountry}
+            onSubmit={handleSearchSubmit}
+            onClear={handleSearchCleared}
+            onCitySelect={handleCitySelect}
+          />
 
           {/* Location Pills */}
           <div className="hidden md:flex items-center gap-2">

@@ -7,10 +7,34 @@
   "all_caught_up": "Vous êtes à jour !",
   "empty": {
     "title": "Pas encore de notifications",
-    "description": "Quand vous recevrez des notifications, elles apparaîtront ici."
+    "description": "Quand vous recevrez des notifications, elles apparaîtront ici.",
+    "cta": "Découvrir des événements"
   },
   "view_details": "Voir les détails",
   "mark_read": "Marquer comme lu",
   "confirm_clear": "Êtes-vous sûr de vouloir effacer toutes les notifications ? Cette action est irréversible.",
-  "clear_failed": "Échec de la suppression des notifications. Veuillez réessayer."
+  "clear_failed": "Échec de la suppression des notifications. Veuillez réessayer.",
+  "eyebrow": "Votre boîte de réception",
+  "cancel": "Annuler",
+  "working": "En cours…",
+  "new_label": "Nouveau",
+  "groups": {
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "this_week": "Cette semaine",
+    "earlier": "Plus tôt"
+  },
+  "time": {
+    "just_now": "À l'instant",
+    "minutes_ago": "il y a {{value}} min",
+    "hours_ago": "il y a {{value}} h",
+    "yesterday": "hier"
+  },
+  "invite": {
+    "accept": "Accepter l'invitation",
+    "decline": "Refuser",
+    "missing_details": "Détails de l'invitation manquants. Veuillez ouvrir le lien d'invitation.",
+    "accept_failed": "Échec de l'acceptation de l'invitation",
+    "decline_failed": "Échec du refus de l'invitation"
+  }
 }

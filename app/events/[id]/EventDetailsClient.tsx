@@ -12,6 +12,7 @@ import MobileKeyFacts from './MobileKeyFacts'
 import MobileAccordions from './MobileAccordions'
 import WhosGoing from '@/components/events/WhosGoing'
 import SpotifyEmbed from '@/components/events/SpotifyEmbed'
+import VenueMap from '@/components/events/VenueMap'
 import { Shield } from 'lucide-react'
 import { format } from 'date-fns'
 import Image from 'next/image'
@@ -63,6 +64,12 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
   // shown (falls back to full_name, then a generic label).
   const organizerLabel = event.users?.organization_name || event.users?.full_name || 'Event Organizer'
   const organizerInitial = (event.users?.organization_name || event.users?.full_name || 'E')[0].toUpperCase()
+
+  // The venue map tile opens exactly what the "Google Maps" text link opens —
+  // same query, same destination — so a visitor never gets two different places
+  // depending on which one they clicked. The existing anchors keep their inline
+  // expressions untouched; this only feeds the new tile.
+  const googleMapsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address || `${event.venue_name}, ${event.commune}, ${event.city}`)}`
 
   // Buying no longer requires an account.
   //
@@ -295,6 +302,14 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
         organizerName={organizerLabel}
         organizerId={event.organizer_id}
         isVerified={event.users?.is_verified || false}
+        venueMap={
+          <VenueMap
+            event={event}
+            href={googleMapsHref}
+            venueName={event.venue_name}
+            className="mt-4"
+          />
+        }
         shareButton={
           <ShareButtonInline
             eventId={event.id}
@@ -343,6 +358,18 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                 {event.address || t('events.address_not_specified')}
               </p>
               <p className="text-[15px] text-white/60">{event.commune}, {event.city}</p>
+              {/* The venue, as a picture. Sits between the address and the two
+                  map links: the tile shows where, the links are the actions.
+                  Renders nothing at all until a static-maps key exists, which
+                  is why the section reads identically today. Capped in width
+                  because a 3:2 tile across the full two-column measure would be
+                  ~460px tall and push the date section off the fold. */}
+              <VenueMap
+                event={event}
+                href={googleMapsHref}
+                venueName={event.venue_name}
+                className="mt-5 max-w-md"
+              />
               <div className="mt-3 flex items-center gap-2 text-sm">
                 <a
                   href={`https://maps.apple.com/?q=${encodeURIComponent(event.address || `${event.venue_name}, ${event.commune}, ${event.city}`)}`}

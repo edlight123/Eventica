@@ -94,6 +94,12 @@ export interface CreateEventData {
   theme_key?: string;
   /** Optional promo video link. */
   video_url?: string;
+  /**
+   * Optional Spotify track URL (`https://open.spotify.com/track/{id}`), picked
+   * via song search in the composer. Rendered as the official Spotify embed on
+   * the event page; anything unparseable is simply ignored there.
+   */
+  spotify_url?: string;
   /** Whether attendees can see the guest list. */
   show_guestlist?: boolean;
   /**
@@ -390,6 +396,9 @@ export async function createEvent(
         // Advanced settings — default visible/on when the caller omits them.
         show_on_explore: eventData.show_on_explore !== false,
         video_url: eventData.video_url || '',
+        // Song. `null` (not '') when empty, matching the web composer and the
+        // lib/data/events.ts field whitelist.
+        spotify_url: eventData.spotify_url?.trim() || null,
         show_guestlist: eventData.show_guestlist !== false,
         // Organizer poster-theme override ('' = Auto). Resolvers fall back to the
         // deterministic pick when this is empty/invalid.
@@ -526,6 +535,8 @@ export async function updateEvent(
       // Advanced settings — default visible/on when the caller omits them.
       show_on_explore: eventData.show_on_explore !== false,
       video_url: eventData.video_url || '',
+      // Song — cleared to null when the organizer removes it (see createEvent).
+      spotify_url: eventData.spotify_url?.trim() || null,
       show_guestlist: eventData.show_guestlist !== false,
       // Organizer poster-theme override ('' = Auto); see createEvent.
       theme_key: eventData.theme_key || '',

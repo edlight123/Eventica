@@ -10,11 +10,34 @@ export type DateFilter =
   | 'this-weekend' 
   | 'pick-date'
 
-export type PriceFilter = 
-  | 'any' 
-  | 'free' 
-  | '<=500' 
+/**
+ * A custom price range drawn by the modal's dual-thumb slider, in the country's
+ * own currency (see `getPriceSliderConfig` in ./config).
+ *
+ *   range:0-2500     0 → 2,500 inclusive
+ *   range:2500-max   2,500 "and up" — the top thumb is parked at the slider's
+ *                    ceiling, so NO upper bound is imposed on the events. The
+ *                    literal `max` keeps the ceiling out of the URL, so a shared
+ *                    link means the same thing to a reader whose country (and
+ *                    therefore ceiling) differs.
+ */
+export type PriceRangeFilter =
+  | `range:${number}-${number}`
+  | `range:${number}-max`
+
+/**
+ * The four legacy values are kept verbatim so shared/bookmarked URLs
+ * (?price=free, ?price=<=500, ?price=>500) keep resolving exactly as they did.
+ * Their names are historical — '<=500' / '>500' really mean "at or below" and
+ * "above" the CURRENT country's budgetThreshold, resolved per event currency by
+ * lib/pricing.ts, not literally 500.
+ */
+export type PriceFilter =
+  | 'any'
+  | 'free'
+  | '<=500'
   | '>500'
+  | PriceRangeFilter
 
 export type EventTypeFilter = 'all' | 'in-person' | 'online'
 

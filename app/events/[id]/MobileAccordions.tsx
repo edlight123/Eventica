@@ -50,6 +50,14 @@ interface MobileAccordionsProps {
   organizerId: string
   isVerified: boolean
   shareButton: React.ReactNode
+  /**
+   * The venue map tile, passed in already-built — the same `shareButton`
+   * convention this component already uses for composed children. Kept as a
+   * node (rather than widening the props with the raw event doc) so this
+   * component stays a list of flat scalars, and so the tile's link is
+   * constructed once, next to the desktop one it must match.
+   */
+  venueMap?: React.ReactNode
 }
 
 export default function MobileAccordions({
@@ -64,7 +72,8 @@ export default function MobileAccordions({
   organizerName,
   organizerId,
   isVerified,
-  shareButton
+  shareButton,
+  venueMap
 }: MobileAccordionsProps) {
   const { t, i18n } = useTranslation('common')
   const dfLocale = dateLocaleFor(i18n.language)
@@ -100,6 +109,11 @@ export default function MobileAccordions({
         <p className="text-sm text-white/60">
           {[commune, city].filter(Boolean).join(', ')}
         </p>
+        {/* Same placement idea as desktop: address, then the tile, then the two
+            map links. Rendered bare (no wrapper div) because the tile returns
+            null with no provider key configured — a wrapper would leave its
+            margin behind as unexplained blank space inside the accordion. */}
+        {venueMap}
         <p className="mt-3 text-sm">
           <a
             href={`https://maps.apple.com/?q=${mapsQuery}`}

@@ -7,10 +7,34 @@
   "all_caught_up": "Ou ajou!",
   "empty": {
     "title": "Poko gen notifikasyon",
-    "description": "Lè w resevwa notifikasyon, y ap parèt la a."
+    "description": "Lè w resevwa notifikasyon, y ap parèt la a.",
+    "cta": "Jwenn evènman"
   },
   "view_details": "Gade detay",
   "mark_read": "Make kòm li",
   "confirm_clear": "Ou si ou vle efase tout notifikasyon yo? Sa pa ka defèt.",
-  "clear_failed": "Echwe efase notifikasyon yo. Tanpri eseye ankò."
+  "clear_failed": "Echwe efase notifikasyon yo. Tanpri eseye ankò.",
+  "eyebrow": "Bwat ou",
+  "cancel": "Anile",
+  "working": "N ap fè l…",
+  "new_label": "Nouvo",
+  "groups": {
+    "today": "Jodi a",
+    "yesterday": "Yè",
+    "this_week": "Semèn sa a",
+    "earlier": "Anvan"
+  },
+  "time": {
+    "just_now": "Kounye a",
+    "minutes_ago": "{{value}} min pase",
+    "hours_ago": "{{value}} è pase",
+    "yesterday": "yè"
+  },
+  "invite": {
+    "accept": "Aksepte envitasyon an",
+    "decline": "Refize",
+    "missing_details": "Detay envitasyon an manke. Tanpri louvri lyen envitasyon an.",
+    "accept_failed": "Nou pa t ka aksepte envitasyon an",
+    "decline_failed": "Nou pa t ka refize envitasyon an"
+  }
 }

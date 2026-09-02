@@ -3,7 +3,7 @@
  */
 
 import { EventFilters } from './types'
-import { getDateRange, getPriceRange } from './utils'
+import { getDateRange, getPriceRange, parsePriceRange } from './utils'
 import { normalizeEventCategory, getCityMatchGroup } from './config'
 import { isBudgetFriendlyTicketPrice, isOverBudgetTicketPrice } from '@/lib/pricing'
 
@@ -92,8 +92,25 @@ export function filterEvents(events: Event[], filters: EventFilters): Event[] {
   }
   
   // Price filter
+  //
+  // Every branch below reads `ticket_price`, which is the LOWEST tier price and
+  // is 0 whenever a free tier sits alongside paid ones (see lib/ticketPricing.ts).
+  // So the price filter has always been a "cheapest way in" test, and the slider
+  // keeps that meaning: a mixed free/paid event answers as 0 here, exactly as it
+  // does for the legacy chips.
   if (filters.price !== 'any') {
-    if (filters.price === '<=500') {
+    const customRange = parsePriceRange(filters.price)
+    if (customRange) {
+      // Custom slider range, inclusive of both ends. `max === undefined` is the
+      // top thumb parked on the ceiling — "and up", so no upper bound.
+      const { min, max } = customRange
+      filtered = filtered.filter((event) => {
+        const price = Number(event?.ticket_price) || 0
+        if (price < min) return false
+        if (max !== undefined && price > max) return false
+        return true
+      })
+    } else if (filters.price === '<=500') {
       filtered = filtered.filter((event) => isBudgetFriendlyTicketPrice(event?.ticket_price, event?.currency))
     } else if (filters.price === '>500') {
       filtered = filtered.filter((event) => isOverBudgetTicketPrice(event?.ticket_price, event?.currency))
