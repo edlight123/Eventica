@@ -22,12 +22,22 @@ export async function GET(request: Request) {
 
   try {
     const bucket = adminStorage.bucket()
-    const [files] = await bucket.getFiles({ prefix: 'guest-uploads/' })
+    // Bounded per run: a flood of junk uploads must not be able to starve the
+    // cron into timing out forever (it runs daily; a backlog drains over days).
+    const [files] = await bucket.getFiles({
+      prefix: 'guest-uploads/',
+      maxResults: 2000,
+      autoPaginate: false,
+    })
     const cutoff = Date.now() - TTL_DAYS * 24 * 3600 * 1000
+    const started = Date.now()
+    const MAX_DELETES = 500
+    const TIME_BUDGET_MS = 90_000
 
     let deleted = 0
     let kept = 0
     for (const file of files) {
+      if (deleted >= MAX_DELETES || Date.now() - started > TIME_BUDGET_MS) break
       const meta = file.metadata || {}
       const custom = (meta.metadata || {}) as Record<string, string>
       const uploadedAt = Date.parse(custom.uploaded_at || String(meta.timeCreated) || '')

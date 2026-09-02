@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState, FormEvent } from 'react'
+import { useState, useEffect, FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { auth, db } from '@/lib/firebase/client'
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
@@ -31,8 +31,16 @@ export default function SignupPage() {
     return target
   }
 
-  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null
-  const redirectTo = sanitizeRedirectTarget(searchParams?.get('redirect') || null)
+  // Resolve the redirect target AFTER mount (same treatment as the login page):
+  // reading window.location during render makes server ('/') and client markup
+  // diverge, and React 18 keeps the SERVER value on the "Sign in" link after the
+  // hydration mismatch — which silently dropped the redirect for anyone arriving
+  // from /create and choosing to log in instead of signing up.
+  const [redirectTo, setRedirectTo] = useState('/')
+  useEffect(() => {
+    const fromQuery = sanitizeRedirectTarget(new URLSearchParams(window.location.search).get('redirect'))
+    if (fromQuery && fromQuery !== '/') setRedirectTo(fromQuery)
+  }, [])
 
   async function handleSignup(e: FormEvent) {
     e.preventDefault()

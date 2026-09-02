@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { firebaseDb as supabase } from '@/lib/firebase-db/client'
 import Image from 'next/image'
 
@@ -29,6 +29,16 @@ export default function ImageUpload({
   const [preview, setPreview] = useState<string | null>(currentImage || null)
   const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // A parent can set currentImage AFTER mount (the composer's draft restore
+  // does) — without this sync the slot renders empty while the form actually
+  // holds a poster URL. Never clobber an in-flight local preview.
+  useEffect(() => {
+    if (!uploading && currentImage && currentImage !== preview) {
+      setPreview(currentImage)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentImage])
 
   async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]

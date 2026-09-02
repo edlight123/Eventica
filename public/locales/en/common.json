@@ -17,7 +17,8 @@
     "signIn": "Sign In",
     "signOut": "Sign Out",
     "resources": "Guides",
-    "createEvent": "Create event"
+    "createEvent": "Create event",
+    "promoterPortal": "Promoter portal"
   },
   "common": {
     "free": "FREE",

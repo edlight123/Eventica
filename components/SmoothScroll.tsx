@@ -19,6 +19,9 @@ const NATIVE_SCROLL_PREFIXES = [
   '/admin',
   '/organizer',
   '/checkout',
+  '/create',
+  '/purchase',
+  '/tickets',
   '/auth',
   '/scan',
   '/staff',
@@ -57,12 +60,29 @@ export default function SmoothScroll() {
     }
   }, [enabled])
 
+  // Back/forward must NOT snap to top — the browser restores the reader's old
+  // position on popstate, and forcing 0 there would lose their place.
+  const popRef = useRef(false)
+  useEffect(() => {
+    const onPop = () => {
+      popRef.current = true
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
+
   // New route: Next resets the window to the top, but the surviving Lenis
   // instance still holds the OLD position and would glide right back to it —
   // landing readers mid-page. Snap its internal state to the top as well.
   // (Query-only changes — e.g. /?city= filters — don't change the pathname,
-  // so in-page filtering keeps its scroll position.)
+  // so in-page filtering keeps its scroll position. On popstate, Lenis is
+  // resynced to wherever the browser restored the window instead.)
   useEffect(() => {
+    if (popRef.current) {
+      popRef.current = false
+      lenisRef.current?.scrollTo(window.scrollY, { immediate: true, force: true })
+      return
+    }
     lenisRef.current?.scrollTo(0, { immediate: true, force: true })
   }, [pathname])
 

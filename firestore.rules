@@ -163,7 +163,10 @@ service cloud.firestore {
       // - US => USD only
       // - HT => USD or HTG
       // - otherwise => USD only
+      // The creator can only mint events they own — without this, any signed-in
+      // account could publish content attributed to another organizer's page.
       allow create: if isSignedIn()
+        && request.resource.data.organizer_id == request.auth.uid
         && isCurrencyAllowedForCountry(request.resource.data.country, request.resource.data.currency);
 
       allow update: if isSignedIn() && (

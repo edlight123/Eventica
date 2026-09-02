@@ -17,9 +17,11 @@ const resend = new Resend(process.env.RESEND_API_KEY || '')
  */
 
 export async function GET(request: Request) {
-  // Verify request is from cron (optional security measure)
+  // Verify request is from cron. Fails CLOSED when CRON_SECRET is unset —
+  // without the null guard, "Bearer undefined" would authenticate.
   const authHeader = request.headers.get('authorization')
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const cronSecret = process.env.CRON_SECRET
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

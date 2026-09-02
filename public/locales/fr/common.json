@@ -17,7 +17,8 @@
     "signIn": "Se connecter",
     "signOut": "Se déconnecter",
     "resources": "Guides",
-    "createEvent": "Créer un événement"
+    "createEvent": "Créer un événement",
+    "promoterPortal": "Portail promoteur"
   },
   "common": {
     "free": "GRATUIT",
@@ -279,9 +280,9 @@
     "hero_pase_sub": "concerts, fêtes, festivals — en Haïti et dans la diaspora.",
     "rail_picks": "sélection tikèm",
     "rail_picks_desc": "nos événements préférés cette semaine",
-    "rail_worlds": "dekouvri monn ou",
+    "rail_worlds": "découvrez votre monde",
     "rail_worlds_desc": "découvrez votre monde — mizik, kilti, espò et plus",
-    "worlds_eyebrow": "Dekouvri",
+    "worlds_eyebrow": "Découvrir",
     "all_worlds": "tous les mondes",
     "rail_tonight": "ce soir",
     "rail_back_home": "au pays, en Haïti",

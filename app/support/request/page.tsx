@@ -2,7 +2,6 @@ import { getCurrentUser } from '@/lib/auth'
 import Navbar from '@/components/Navbar'
 import MobileNavWrapper from '@/components/MobileNavWrapper'
 import { isAdmin } from '@/lib/admin'
-import { I18nProvider } from '@/components/I18nProvider'
 import SupportRequestForm from './SupportRequestForm'
 
 export const metadata = {
@@ -17,7 +16,6 @@ export default async function SupportRequestPage() {
   const user = await getCurrentUser()
 
   return (
-    <I18nProvider>
       <div className="min-h-screen bg-[#0a0a0a] pb-mobile-nav">
         <Navbar user={user} isAdmin={isAdmin(user?.email)} />
         
@@ -25,6 +23,5 @@ export default async function SupportRequestPage() {
         
         <MobileNavWrapper user={user} isAdmin={isAdmin(user?.email)} />
       </div>
-    </I18nProvider>
   )
 }

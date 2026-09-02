@@ -219,6 +219,12 @@ export async function getEventById(eventId: string): Promise<Event | null> {
         tickets_sold: data?.tickets_sold || 0,
         tickets_available: data?.tickets_available,
         is_published: data?.is_published,
+        // The buy flow must know to prompt for the access code BEFORE checkout —
+        // the server routes enforce it either way, but without this flag the UI
+        // never asks and buyers dead-end on access_code_required.
+        is_password_protected: data?.is_password_protected ?? false,
+        // The event's song (rendered by SpotifyEmbed on the event page).
+        spotify_url: data?.spotify_url || null,
         tags: data?.tags && Array.isArray(data.tags) ? data.tags.filter((tag: any) => typeof tag === 'string') : undefined,
         created_at: data?.created_at?.toDate?.()?.toISOString() || data?.created_at,
         updated_at: data?.updated_at?.toDate?.()?.toISOString() || data?.updated_at,

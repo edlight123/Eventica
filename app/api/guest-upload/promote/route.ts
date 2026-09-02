@@ -42,7 +42,9 @@ export async function POST(request: Request) {
     await bucket.file(dest).setMetadata({
       metadata: { firebaseStorageDownloadTokens: token, promoted_by: user.id },
     })
-    await src.delete({ ignoreNotFound: true })
+    // The source is deliberately NOT deleted here: promote stays idempotent
+    // under retries/double-submits, and the cleanup cron removes the guest
+    // copy once nothing references it (after the TTL).
 
     const permanentUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(dest)}?alt=media&token=${token}`
     return NextResponse.json({ url: permanentUrl })

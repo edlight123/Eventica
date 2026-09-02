@@ -39,6 +39,13 @@ export async function GET(
     headers.set('Cache-Control', 'public, max-age=3600, s-maxage=86400')
     if (isPdf) {
       headers.set('Content-Disposition', `attachment; filename="Tikem-${file}"`)
+    } else {
+      // Contain the guide HTML: sandbox gives it a unique origin so a
+      // compromised or future user-supplied guide can't read tikem.co cookies
+      // or storage. allow-scripts keeps the scroll/reveal choreography;
+      // allow-popups lets outbound links open. The guides are self-contained
+      // (inline JS, data-URI assets), so nothing else is needed.
+      headers.set('Content-Security-Policy', 'sandbox allow-scripts allow-popups allow-popups-to-escape-sandbox')
     }
 
     return new Response(new Uint8Array(buffer), { status: 200, headers })

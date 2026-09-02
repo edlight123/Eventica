@@ -17,7 +17,8 @@
     "signIn": "Konekte",
     "signOut": "Dekonekte",
     "resources": "Gid",
-    "createEvent": "Kreye evènman"
+    "createEvent": "Kreye evènman",
+    "promoterPortal": "Pòtay pwomotè"
   },
   "common": {
     "free": "GRATIS",
@@ -205,7 +206,7 @@
     "no_ticket_required": "Pa bezwen tikè",
     "open_in_maps": "Louvri nan Maps",
     "venue_directions": "Kote ak direksyon",
-    "tags": "Tags",
+    "tags": "Etikèt",
     "event_reached_capacity": "Evènman sa a rive nan kapasite li",
     "create_account_to_purchase": "Kreye yon kont pou achte tikè",
     "similar_events": "Evènman Sanble",
@@ -657,7 +658,7 @@
       "publish": "Pibliye evènman an",
       "publish_note": "Li vivan sou Tikèm depi w tape.",
       "revenue_live": "Revni · an dirèk",
-      "sold": "vann",
+      "sold": "vandi",
       "of": "sou",
       "recent_orders": "Dènye kòmand yo",
       "team": "Ekip",

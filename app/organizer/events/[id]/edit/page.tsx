@@ -51,6 +51,13 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
       name: t.name ?? '',
       price: String(t.price ?? 0),
       qty: String(t.total_quantity ?? t.quantity ?? 0),
+      // Per-tier sale + entry windows MUST ride along: the composer rewrites
+      // the whole tier set on save, so omitting these here silently erased
+      // every configured window on any unrelated edit.
+      sales_start: t.sales_start ?? null,
+      sales_end: t.sales_end ?? null,
+      valid_from: t.valid_from ?? null,
+      valid_until: t.valid_until ?? null,
     }))
 
   const verification = await getOrganizerVerificationStatus(user.id)

@@ -372,6 +372,9 @@ export default function EventComposer({
   const [isPublished, setIsPublished] = useState(!!event?.is_published)
   const [publishing, setPublishing] = useState(false)
 
+  // A restored draft gets a visible escape hatch (see the Start fresh button).
+  const [draftRestored, setDraftRestored] = useState(false)
+
   // ── Guest draft: restore ──────────────────────────────────────────────
   // Create mode only. Runs in an effect (not initializers) so SSR and the
   // first client render agree, then the draft lands in one pass. The same
@@ -385,7 +388,15 @@ export default function EventComposer({
     } catch {
       /* unreadable draft — start clean */
     }
-    if (!d || typeof d !== 'object' || !d.title) return
+    if (!d || typeof d !== 'object' || (!d.title && !d.banner_image_url)) return
+    // Stale drafts expire (shared devices, abandoned tabs) — matches the
+    // guest-upload TTL, so a restored draft's poster is still alive.
+    if (typeof d.saved_at === 'number' && Date.now() - d.saved_at > 7 * 24 * 3600 * 1000) {
+      try {
+        localStorage.removeItem(DRAFT_KEY)
+      } catch {}
+      return
+    }
     const s0 = splitISO(d.start_datetime)
     const e0 = splitISO(d.end_datetime)
     if (d.ticket_name === 'RSVP') setSellMode('rsvp')
@@ -432,6 +443,10 @@ export default function EventComposer({
     }
     if (d.show_guestlist === false) setShowGuestlist(false)
     if (d.show_on_explore === false) setShowOnExplore(false)
+    // The access CODE is never persisted (secret) — restoring the flag makes
+    // accessCodeInvalid demand a fresh code before create, instead of silently
+    // creating a public event the guest believed was protected.
+    if (d.is_password_protected) setPasswordProtected(true)
     if (d.fee_incidence) setPassFeesToBuyer(d.fee_incidence === 'buyer')
     if (d.enable_waitlist) setEnableWaitlist(true)
     if (d.spotify_url) setSpotifyUrl(d.spotify_url)
@@ -439,6 +454,14 @@ export default function EventComposer({
     if (d.theme_key) setThemeKey(d.theme_key)
     if (d.title_font) setTitleFont(d.title_font)
     if (d.accent_color) setAccentColor(d.accent_color)
+    // The recurrence plan survives the round trip too (create-only controls).
+    if (d.recurrence && d.recurrence !== 'none') {
+      setRecurrence(d.recurrence)
+      if (d.recurrence_mode === 'until') setRecurrenceMode('until')
+      if (Number(d.recurrence_count) >= 2) setRecurrenceCount(Number(d.recurrence_count))
+      if (d.recurrence_end_date) setRecurrenceEndDate(d.recurrence_end_date)
+    }
+    setDraftRestored(true)
     if (!guest) {
       showToast({
         type: 'success',
@@ -640,17 +663,33 @@ export default function EventComposer({
     return { data, cleanTiers, isRsvp }
   }
 
+  // Everything the sign-up round trip must preserve: the event payload, the
+  // tier set, the recurrence plan, and a timestamp so stale drafts (a shared
+  // device, an abandoned tab) expire instead of ambushing the next person.
+  const snapshotDraft = () => {
+    const { data, cleanTiers } = buildEventData()
+    return {
+      ...data,
+      tiers: cleanTiers,
+      recurrence,
+      recurrence_mode: recurrenceMode,
+      recurrence_count: recurrenceCount,
+      recurrence_end_date: recurrenceEndDate,
+      saved_at: Date.now(),
+    }
+  }
+
   // ── Guest draft: autosave ─────────────────────────────────────────────
   // Debounced snapshot on every change while composing signed-out, so even a
-  // closed tab keeps the work. (organizer_id in the snapshot is '' and is
-  // ignored on restore.)
+  // closed tab keeps the work. A poster alone (no title yet) also counts —
+  // otherwise that upload would be orphaned. (organizer_id in the snapshot is
+  // '' and is ignored on restore.)
   useEffect(() => {
     if (!guest) return
     const id = setTimeout(() => {
       try {
-        if (!title.trim()) return
-        const { data, cleanTiers } = buildEventData()
-        localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...data, tiers: cleanTiers }))
+        if (!title.trim() && !bannerUrl) return
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(snapshotDraft()))
       } catch {
         /* storage unavailable — the save click still carries the draft */
       }
@@ -767,8 +806,7 @@ export default function EventComposer({
     // /organizer/events/new, whose restore effect picks the draft right up.
     if (guest) {
       try {
-        const { data, cleanTiers } = buildEventData()
-        localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...data, tiers: cleanTiers }))
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(snapshotDraft()))
       } catch {
         /* storage unavailable — they'll retype after sign-in, same as today */
       }
@@ -875,6 +913,9 @@ export default function EventComposer({
       const createData = { ...data, tags: [] as string[], is_published: false, rejected: false, reports_count: 0, status: 'draft' }
       if (isDemoMode()) {
         await new Promise((r) => setTimeout(r, 600))
+        try {
+          localStorage.removeItem(DRAFT_KEY)
+        } catch {}
         showToast({ type: 'success', title: 'Draft created', message: 'Demo mode — opening the editor.', duration: 3000 })
         router.push('/organizer/events')
         return
@@ -1795,11 +1836,37 @@ export default function EventComposer({
                 )}
               </>
             ) : guest ? (
-              <p className="text-center text-xs text-white/70">
-                Free to set up — your draft is saved on this device, nothing is lost at sign-in.
-              </p>
+              <>
+                <p className="text-center text-xs text-white/70">
+                  Free to set up — your draft is saved on this device, nothing is lost at sign-in.
+                </p>
+                {isPaid && (
+                  <p className="text-center text-xs text-amber-300/90">
+                    Paid tickets need a one-time identity verification before the event can go live — you can
+                    finish setting everything up first.
+                  </p>
+                )}
+              </>
             ) : (
               <p className="text-center text-xs text-white/70">Saved as a private draft — publish when you&rsquo;re ready.</p>
+            )}
+
+            {/* A restored draft always offers a way out — without this, an
+                abandoned draft (or a stranger's, on a shared device) re-fills
+                the form on every visit with no visible escape. */}
+            {draftRestored && !isEdit && (
+              <button
+                type="button"
+                onClick={() => {
+                  try {
+                    localStorage.removeItem(DRAFT_KEY)
+                  } catch {}
+                  window.location.reload()
+                }}
+                className="w-full text-center text-xs text-white/45 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white/80"
+              >
+                Not your draft? Start fresh
+              </button>
             )}
           </div>
         </div>
