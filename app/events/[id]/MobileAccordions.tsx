@@ -137,11 +137,13 @@ export default function MobileAccordions({
 
       {/* Date & Time */}
       <AccordionSection title={t('events.date_time')}>
-        <p className="text-sm text-white">
+        {/* The server renders in UTC and the browser in the reader's zone, so
+            a formatted time legitimately differs between the two passes. */}
+        <p className="text-sm text-white" suppressHydrationWarning>
           <span className="text-white/50">{t('events.start', { defaultValue: 'Starts' })}</span>{' '}
           {format(new Date(startDatetime), 'EEEE, MMMM d, yyyy · h:mm a', { locale: dfLocale })}
         </p>
-        <p className="mt-1.5 text-sm text-white">
+        <p className="mt-1.5 text-sm text-white" suppressHydrationWarning>
           <span className="text-white/50">{t('events.end', { defaultValue: 'Ends' })}</span>{' '}
           {format(new Date(endDatetime), 'EEEE, MMMM d, yyyy · h:mm a', { locale: dfLocale })}
         </p>

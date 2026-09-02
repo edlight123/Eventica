@@ -8,6 +8,7 @@
 // ("open_in_maps →") on the page organizers share the most.
 
 import { useTranslation } from 'react-i18next'
+import { dateLocaleFor } from '@/lib/dateLocale'
 import { format } from 'date-fns'
 
 interface MobileKeyFactsProps {
@@ -49,7 +50,8 @@ export default function MobileKeyFacts({
   remainingTickets,
   isSoldOut
 }: MobileKeyFactsProps) {
-  const { t } = useTranslation('common')
+  const { t, i18n } = useTranslation('common')
+  const dfLocale = dateLocaleFor(i18n.language)
 
   const handleOpenMaps = () => {
     const query = encodeURIComponent(address || `${venueName}, ${commune}, ${city}`)
@@ -66,8 +68,9 @@ export default function MobileKeyFacts({
 
   return (
     <div className="md:hidden border-b border-white/10 px-4 py-5">
-      <p className="text-[15px] font-medium text-white">
-        {format(new Date(startDate), 'EEE, MMM d, yyyy · h:mm a')}
+      {/* suppressHydrationWarning: server renders UTC, client renders local. */}
+      <p className="text-[15px] font-medium text-white" suppressHydrationWarning>
+        {format(new Date(startDate), 'EEE, MMM d, yyyy · h:mm a', { locale: dfLocale })}
       </p>
 
       <p className="mt-1.5 text-[14px] text-white/60">
