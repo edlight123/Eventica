@@ -91,7 +91,23 @@
     "filters": "Filtres",
     "analytics": "Analytique",
     "promo_codes": "Codes promo",
-    "scan_tickets": "Scanner les billets"
+    "scan_tickets": "Scanner les billets",
+    "all": "Tous",
+    "past": "Passés",
+    "eyebrow": "Organisateur",
+    "title": "Mes Événements",
+    "subtitle": "Créez, gérez et suivez tous vos événements.",
+    "list_view": "Vue liste",
+    "calendar_view": "Vue calendrier",
+    "empty_filtered_title": "Aucun événement ne correspond",
+    "empty_title": "Aucun événement pour l'instant",
+    "empty_filtered_desc": "Essayez d’ajuster votre recherche ou vos filtres pour trouver ce que vous cherchez.",
+    "empty_filtered_more_desc": "Aucune correspondance parmi les {{count}} événements chargés jusqu’ici. Chargez-en plus pour continuer la recherche, ou ajustez vos filtres.",
+    "empty_desc": "Créez votre premier événement pour commencer à vendre des billets et suivre vos ventes.",
+    "loading": "Chargement…",
+    "load_more": "Charger plus d'événements",
+    "clear_filters": "Effacer les filtres",
+    "search_scope_note": "La recherche couvre les {{count}} événements chargés jusqu’ici — chargez-en plus pour chercher davantage."
   },
   "event_card_detail": {
     "sold_out": "ÉPUISÉ",
@@ -279,8 +295,7 @@
       "view_status": "Voir le statut",
       "manage_settings": "Gérer les paramètres",
       "contact_support": "Contacter le support"
-    }
+    },
+    "eyebrow": "Organisateur"
   }
 }
-
-

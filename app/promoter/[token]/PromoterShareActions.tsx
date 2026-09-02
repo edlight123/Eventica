@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Check, Copy } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export default function PromoterShareActions({
   shareUrl,
@@ -10,6 +11,7 @@ export default function PromoterShareActions({
   shareUrl: string
   eventTitle: string
 }) {
+  const { t } = useTranslation('common')
   const [copied, setCopied] = useState(false)
 
   const copyLink = async () => {
@@ -31,7 +33,7 @@ export default function PromoterShareActions({
         onClick={copyLink}
         className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-white hover:bg-white/90 px-4 py-3 text-sm font-medium text-black transition-colors min-h-[44px]"
       >
-        {copied ? <><Check className="h-4 w-4" />Copied!</> : <><Copy className="h-4 w-4" />Copy my link</>}
+        {copied ? <><Check className="h-4 w-4" />{t('promoter.copied', 'Copied!')}</> : <><Copy className="h-4 w-4" />{t('promoter.copy_link', 'Copy my link')}</>}
       </button>
       <a
         href={whatsappHref}
@@ -39,7 +41,7 @@ export default function PromoterShareActions({
         rel="noopener noreferrer"
         className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white/80 hover:bg-white/10 transition-colors min-h-[44px]"
       >
-        Share on WhatsApp
+        {t('promoter.share_whatsapp', 'Share on WhatsApp')}
       </a>
     </div>
   )

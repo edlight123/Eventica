@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Share2, Copy, Check } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 interface ShareButtonInlineProps {
   eventId: string
@@ -11,6 +12,7 @@ interface ShareButtonInlineProps {
 }
 
 export default function ShareButtonInline({ eventId, eventTitle, eventDate, eventVenue }: ShareButtonInlineProps) {
+  const { t } = useTranslation('common')
   const [copied, setCopied] = useState(false)
 
   const eventUrl = typeof window !== 'undefined' ? `${window.location.origin}/events/${eventId}` : ''
@@ -19,7 +21,7 @@ export default function ShareButtonInline({ eventId, eventTitle, eventDate, even
     let text = `🎉 ${eventTitle}\n\n`
     if (eventDate) text += `📅 ${eventDate}\n`
     if (eventVenue) text += `📍 ${eventVenue}\n\n`
-    text += `Get your tickets now! 🎫`
+    text += t('checkout.get_your_tickets_now', { defaultValue: 'Get your tickets now! 🎫' })
     return text
   }
 
@@ -59,12 +61,12 @@ export default function ShareButtonInline({ eventId, eventTitle, eventDate, even
       {copied ? (
         <>
           <Check className="w-5 h-5" />
-          <span>Link Copied!</span>
+          <span>{t('events.link_copied')}</span>
         </>
       ) : (
         <>
           <Share2 className="w-5 h-5" />
-          <span>Share Event</span>
+          <span>{t('events.share_event')}</span>
         </>
       )}
     </button>

@@ -123,7 +123,8 @@ function TabBar() {
 }
 
 function FeedCard({ ev }: { ev: AppScrubEvent }) {
-  const price = getEventPriceLabel(ev as any)
+  const { t } = useTranslation('common')
+  const price = getEventPriceLabel(ev as any, t)
   return (
     <div>
       <div className="relative aspect-[4/5] overflow-hidden rounded">
@@ -199,7 +200,7 @@ export default function AppScrub({
   const c2 = still ? 0 : smooth(p, 0.54, 0.62) * (1 - smooth(p, 0.7, 0.78))
   const c3 = still ? 0 : smooth(p, 0.8, 0.88)
 
-  const priceLabel = getEventPriceLabel(star as any)
+  const priceLabel = getEventPriceLabel(star as any, t)
   const place = [star.venue_name, star.city].filter(Boolean).join(' · ')
   const code = `TKM-${String(star.id).replace(/[^a-zA-Z0-9]/g, '').slice(-6).toUpperCase() || 'OULADAN'}`
 

@@ -6,7 +6,7 @@
 // (lib/promoters.ts). Same discipline as guest ticket pages.
 
 import { notFound } from 'next/navigation'
-import { headers } from 'next/headers'
+import { headers, cookies } from 'next/headers'
 import { adminDb } from '@/lib/firebase/admin'
 import { getPromoterByStatsKey, verifyPromoterToken } from '@/lib/promoters'
 import Navbar from '@/components/Navbar'
@@ -33,11 +33,93 @@ function toIso(value: any): string | null {
   return String(value)
 }
 
-function formatDate(iso: string | null): string {
+// Server component — no useTranslation() hook, so the reader's language is
+// resolved from the i18nextLng cookie (see app/layout.tsx) and copy is
+// picked from a small inline map. Kreyòl has no dedicated Intl locale tag
+// that changes month-name output here, so 'ht' borrows the 'fr' tag — the
+// closest available date formatting.
+type Lang = 'en' | 'fr' | 'ht'
+
+const DATE_LOCALE: Record<Lang, string> = { en: 'en-US', fr: 'fr-FR', ht: 'fr-FR' }
+
+function formatDate(iso: string | null, lang: Lang): string {
   if (!iso) return ''
   const date = new Date(iso)
   if (Number.isNaN(date.getTime())) return ''
-  return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
+  return date.toLocaleDateString(DATE_LOCALE[lang], { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
+}
+
+const COPY: Record<Lang, {
+  eyebrow: (code: string) => string
+  youEarn: (commissionLabel: string) => string
+  commissionPercent: (value: number) => string
+  commissionFlat: (amount: string) => string
+  defaultEventTitle: string
+  yourLinkTitle: string
+  linkNote: string
+  statTicketsSold: string
+  statSalesDriven: string
+  statYourCommission: string
+  pausedNotice: string
+  footerNote: string
+}> = {
+  en: {
+    eyebrow: (code) => `Promoter · ${code}`,
+    youEarn: (commissionLabel) => `You earn ${commissionLabel}.`,
+    commissionPercent: (value) => `${value}% of sales`,
+    commissionFlat: (amount) => `${amount} per ticket`,
+    defaultEventTitle: 'Event',
+    yourLinkTitle: 'Your personal link',
+    linkNote:
+      'Every ticket bought through this link counts for you — even when the buyer pays later in the same visit.',
+    statTicketsSold: 'Tickets sold',
+    statSalesDriven: 'Sales you drove',
+    statYourCommission: 'Your commission',
+    pausedNotice:
+      'This link is currently paused by the organizer. Sales made through it are not being counted right now.',
+    footerNote:
+      "Your commission collects in a Tikèm wallet and unlocks when the event's funds release — add this page to a free account to withdraw it to MonCash. Keep this link: it is your personal page, and its numbers update with every sale.",
+  },
+  fr: {
+    eyebrow: (code) => `Promoteur · ${code}`,
+    youEarn: (commissionLabel) => `Vous gagnez ${commissionLabel}.`,
+    commissionPercent: (value) => `${value} % des ventes`,
+    commissionFlat: (amount) => `${amount} par billet`,
+    defaultEventTitle: 'Événement',
+    yourLinkTitle: 'Votre lien personnel',
+    linkNote:
+      'Chaque billet acheté via ce lien compte pour vous — même quand l’acheteur paie plus tard au cours de la même visite.',
+    statTicketsSold: 'Billets vendus',
+    statSalesDriven: 'Ventes générées',
+    statYourCommission: 'Votre commission',
+    pausedNotice:
+      'Ce lien est actuellement en pause par l’organisateur. Les ventes faites via ce lien ne sont pas comptabilisées en ce moment.',
+    footerNote:
+      "Votre commission se rassemble dans un portefeuille Tikèm et se débloque au versement des fonds de l’événement — ajoutez cette page à un compte gratuit pour la retirer vers MonCash. Gardez ce lien : c’est votre page personnelle, et ses chiffres se mettent à jour à chaque vente.",
+  },
+  ht: {
+    eyebrow: (code) => `Pwomotè · ${code}`,
+    youEarn: (commissionLabel) => `Ou fè ${commissionLabel}.`,
+    commissionPercent: (value) => `${value}% nan vant yo`,
+    commissionFlat: (amount) => `${amount} pou chak tikè`,
+    defaultEventTitle: 'Evènman',
+    yourLinkTitle: 'Lyen pèsonèl ou',
+    linkNote:
+      'Chak tikè ki achte atravè lyen sa a konte pou ou — menm lè achtè a peye pita nan menm vizit la.',
+    statTicketsSold: 'Tikè vann',
+    statSalesDriven: 'Vant ou fè rive',
+    statYourCommission: 'Komisyon ou',
+    pausedNotice: 'Òganizatè a sispann lyen sa a kounye a. Vant ki fèt atravè li pa konte kounye a.',
+    footerNote:
+      'Komisyon ou rasanble nan yon wolèt Tikèm epi li debloke lè lajan evènman an voye — ajoute paj sa a nan yon kont gratis pou retire l nan MonCash. Konsève lyen sa a: se paj pèsonèl ou, epi chif li yo mete ajou ak chak vant.',
+  },
+}
+
+function resolveLang(): Lang {
+  const supported: Lang[] = ['en', 'fr', 'ht']
+  const fromCookie = cookies().get('i18nextLng')?.value?.slice(0, 2)
+  if (supported.includes(fromCookie as Lang)) return fromCookie as Lang
+  return 'en'
 }
 
 export default async function PromoterStatsPage({
@@ -46,6 +128,8 @@ export default async function PromoterStatsPage({
   params: Promise<{ token: string }>
 }) {
   const { token } = await params
+  const lang = resolveLang()
+  const copy = COPY[lang]
   const statsKey = verifyPromoterToken(decodeURIComponent(token))
   // A bad signature and a missing record are indistinguishable to the visitor.
   if (!statsKey) notFound()
@@ -65,13 +149,13 @@ export default async function PromoterStatsPage({
   const currency = String(promoter.currency || event?.currency || 'HTG').toUpperCase()
   const commissionLabel =
     promoter.commission_type === 'flat_per_ticket'
-      ? `${fmtMoney(Number(promoter.commission_value) || 0, currency)} per ticket`
-      : `${Number(promoter.commission_value) || 0}% of sales`
+      ? copy.commissionFlat(fmtMoney(Number(promoter.commission_value) || 0, currency))
+      : copy.commissionPercent(Number(promoter.commission_value) || 0)
 
   const stats = [
-    { label: 'Tickets sold', value: String(Number(promoter.tickets_sold) || 0) },
-    { label: 'Sales you drove', value: fmtMoney(Number(promoter.gross_cents) || 0, currency) },
-    { label: 'Your commission', value: fmtMoney(Number(promoter.commission_cents) || 0, currency) },
+    { label: copy.statTicketsSold, value: String(Number(promoter.tickets_sold) || 0) },
+    { label: copy.statSalesDriven, value: fmtMoney(Number(promoter.gross_cents) || 0, currency) },
+    { label: copy.statYourCommission, value: fmtMoney(Number(promoter.commission_cents) || 0, currency) },
   ]
 
   return (
@@ -81,29 +165,26 @@ export default async function PromoterStatsPage({
       <main className="max-w-2xl mx-auto px-4 py-8 pb-mobile-nav md:pb-16">
         <header className="mb-8">
           <p className="label-mono text-[11px] uppercase tracking-widest text-brand-400 mb-2">
-            Promoter · {promoter.code}
+            {copy.eyebrow(promoter.code)}
           </p>
           <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight">
             {promoter.name}
           </h1>
           <p className="text-white/60 mt-2">
-            {event?.title || 'Event'}
-            {formatDate(toIso(event?.start_datetime)) ? ` — ${formatDate(toIso(event?.start_datetime))}` : ''}
+            {event?.title || copy.defaultEventTitle}
+            {formatDate(toIso(event?.start_datetime), lang) ? ` — ${formatDate(toIso(event?.start_datetime), lang)}` : ''}
           </p>
-          <p className="text-white/50 text-sm mt-1">You earn {commissionLabel}.</p>
+          <p className="text-white/50 text-sm mt-1">{copy.youEarn(commissionLabel)}</p>
         </header>
 
         {/* The link — the promoter's whole toolkit. */}
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-          <p className="text-white font-semibold">Your personal link</p>
+          <p className="text-white font-semibold">{copy.yourLinkTitle}</p>
           <p className="mt-2 truncate rounded-xl border border-white/10 px-4 py-3 text-sm text-white/70 font-mono">
             {shareUrl}
           </p>
-          <PromoterShareActions shareUrl={shareUrl} eventTitle={String(event?.title || 'Event')} />
-          <p className="mt-3 text-xs text-white/40 leading-relaxed">
-            Every ticket bought through this link counts for you — even when the buyer
-            pays later in the same visit.
-          </p>
+          <PromoterShareActions shareUrl={shareUrl} eventTitle={String(event?.title || copy.defaultEventTitle)} />
+          <p className="mt-3 text-xs text-white/40 leading-relaxed">{copy.linkNote}</p>
         </div>
 
         {/* Stats */}
@@ -118,10 +199,7 @@ export default async function PromoterStatsPage({
 
         {promoter.is_active === false && (
           <div className="mt-5 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-5 py-4">
-            <p className="text-amber-300 text-sm">
-              This link is currently paused by the organizer. Sales made through it are
-              not being counted right now.
-            </p>
+            <p className="text-amber-300 text-sm">{copy.pausedNotice}</p>
           </div>
         )}
 
@@ -130,12 +208,7 @@ export default async function PromoterStatsPage({
           alreadyClaimed={Boolean(promoter.claimed_by_uid)}
         />
 
-        <p className="mt-8 text-xs text-white/40 text-center leading-relaxed">
-          Your commission collects in a Tikèm wallet and unlocks when the event&apos;s
-          funds release — add this page to a free account to withdraw it to MonCash.
-          Keep this link: it is your personal page, and its numbers update with every
-          sale.
-        </p>
+        <p className="mt-8 text-xs text-white/40 text-center leading-relaxed">{copy.footerNote}</p>
       </main>
 
       <MobileNavWrapper />

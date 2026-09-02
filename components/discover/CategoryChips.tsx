@@ -134,7 +134,7 @@ export function CategoryChips({ selectedCategories }: CategoryChipsProps) {
                     onClick={clearAll}
                     className="flex-1 rounded-lg border border-white/10 px-4 py-2.5 text-sm font-semibold text-white/70 hover:bg-white/[0.04]"
                   >
-                    {t('filters.clear', { defaultValue: 'Clear' })}
+                    {t('filters.clear_all', { defaultValue: 'Clear all' })}
                   </button>
                 )}
                 <button

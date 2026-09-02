@@ -34,19 +34,21 @@ type Guide = {
   key: string
   icon: any
   codes: Array<'en' | 'fr' | 'ht'>
+  /** Languages that have a downloadable PDF. Defaults to `codes` when absent (HT guides have no PDF yet). */
+  pdfCodes?: string[]
   pdf: boolean
 }
 
 const ORGANIZER_GUIDES: Guide[] = [
   { slug: 'organizer-program', key: 'organizer_program', icon: Rocket, codes: ['en', 'fr', 'ht'], pdf: true },
-  { slug: 'create-event', key: 'create_event', icon: Ticket, codes: ['en', 'fr'], pdf: true },
+  { slug: 'create-event', key: 'create_event', icon: Ticket, codes: ['en', 'fr', 'ht'], pdfCodes: ['en', 'fr'], pdf: true },
   { slug: 'poster-guide', key: 'poster_guide', icon: Palette, codes: ['en', 'fr'], pdf: true },
   { slug: 'pricing-playbook', key: 'pricing_playbook', icon: Tag, codes: ['en', 'fr'], pdf: true },
   { slug: 'getting-paid', key: 'getting_paid', icon: Wallet, codes: ['en', 'fr'], pdf: true },
   { slug: 'team-door', key: 'team_door', icon: ScanLine, codes: ['en', 'fr'], pdf: true },
 ]
 const ATTENDEE_GUIDES: Guide[] = [
-  { slug: 'ticket-guide', key: 'ticket_guide', icon: QrCode, codes: ['en', 'fr'], pdf: true },
+  { slug: 'ticket-guide', key: 'ticket_guide', icon: QrCode, codes: ['en', 'fr', 'ht'], pdfCodes: ['en', 'fr'], pdf: true },
 ]
 const ABOUT_GUIDES: Guide[] = [
   { slug: 'one-pager', key: 'one_pager', icon: FileText, codes: ['en', 'fr'], pdf: false },
@@ -66,6 +68,7 @@ function GuideRow({ guide, index }: { guide: Guide; index: string }) {
   const { t, i18n } = useTranslation('common')
   const Icon = guide.icon
   const title = t(`resources.guides.${guide.key}.title`)
+  const pdfCodes = guide.pdfCodes ?? guide.codes
   return (
     <div className="group relative border-t border-white/10 transition-colors duration-300 hover:bg-white/[0.02]">
       <div className="grid grid-cols-1 gap-4 py-7 sm:grid-cols-[64px_1fr_auto] sm:items-baseline sm:gap-8 sm:py-9">
@@ -105,7 +108,7 @@ function GuideRow({ guide, index }: { guide: Guide; index: string }) {
               >
                 {c.toUpperCase()}
               </a>
-              {guide.pdf && (
+              {guide.pdf && pdfCodes.includes(c) && (
                 <a
                   href={`/guides/${guide.slug}-${c}.pdf`}
                   download

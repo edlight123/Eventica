@@ -119,20 +119,21 @@ function Field({ label, value, accent = false }: { label: string; value: string;
 /* The scene                                                           */
 /* ------------------------------------------------------------------ */
 
-// Caption copy and link labels come from i18n; the guide slug picks the
-// reader's language version when it exists (EN/FR), EN otherwise.
+// Caption copy and link labels come from i18n; each link resolves to the
+// reader's language version of that guide when it EXISTS — which varies per
+// guide (create-event now has Kreyòl; pricing and team-door are EN/FR) — and
+// falls back to English otherwise.
 const CAPTIONS = [
-  { key: 'cap1', linkKey: 'link1', slug: 'create-event' },
-  { key: 'cap2', linkKey: 'link2', slug: 'pricing-playbook' },
-  { key: 'cap3', linkKey: 'link3', slug: 'team-door' },
-  { key: 'cap4', linkKey: 'link4', slug: 'team-door' },
+  { key: 'cap1', linkKey: 'link1', slug: 'create-event', codes: ['en', 'fr', 'ht'] },
+  { key: 'cap2', linkKey: 'link2', slug: 'pricing-playbook', codes: ['en', 'fr'] },
+  { key: 'cap3', linkKey: 'link3', slug: 'team-door', codes: ['en', 'fr'] },
+  { key: 'cap4', linkKey: 'link4', slug: 'team-door', codes: ['en', 'fr'] },
 ] as const
 
 export default function OrganizerScrub() {
   const { t, i18n } = useTranslation('common')
-  const guideLang = ['en', 'fr'].includes((i18n.language || 'en').slice(0, 2))
-    ? (i18n.language || 'en').slice(0, 2)
-    : 'en'
+  const readerLang = (i18n.language || 'en').slice(0, 2)
+  const guideLangFor = (codes: readonly string[]) => (codes.includes(readerLang) ? readerLang : 'en')
   const wrapRef = useRef<HTMLDivElement>(null)
   const [progress, setProgress] = useState(0)
   const [still, setStill] = useState(false)
@@ -212,7 +213,7 @@ export default function OrganizerScrub() {
                     {t(`resources.scrub.${c.key}`)}
                   </p>
                   <a
-                    href={`/guides/${c.slug}-${guideLang}.html`}
+                    href={`/guides/${c.slug}-${guideLangFor(c.codes)}.html`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-4 inline-block text-[13px] font-medium text-white/50 underline decoration-white/25 underline-offset-4 transition-colors hover:text-white"

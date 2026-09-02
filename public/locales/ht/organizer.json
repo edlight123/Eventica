@@ -91,7 +91,23 @@
     "filters": "Filt",
     "analytics": "Analize",
     "promo_codes": "Kòd pwomosyon",
-    "scan_tickets": "Skane tikè"
+    "scan_tickets": "Skane tikè",
+    "all": "Tout",
+    "past": "Pase",
+    "eyebrow": "Òganizatè",
+    "title": "Evènman mwen yo",
+    "subtitle": "Kreye, jere, ak swiv tout evènman ou yo.",
+    "list_view": "Vi lis",
+    "calendar_view": "Vi kalandriye",
+    "empty_filtered_title": "Pa gen evènman ki koresponn",
+    "empty_title": "Poko gen evènman",
+    "empty_filtered_desc": "Eseye ajiste rechèch ou oswa filt ou yo pou jwenn sa w ap chèche a.",
+    "empty_filtered_more_desc": "Pa gen rezilta nan {{count}} evènman ki chaje jiskaprezan yo. Chaje plis pou kontinye chèche, oswa ajiste filt ou yo.",
+    "empty_desc": "Kreye premye evènman ou pou kòmanse vann tikè ak swiv vant ou yo.",
+    "loading": "Chajman…",
+    "load_more": "Chaje plis evènman",
+    "clear_filters": "Efase filt yo",
+    "search_scope_note": "Rechèch la kouvri {{count}} evènman ki chaje jiskaprezan — chaje plis pou chèche pi lwen."
   },
   "event_card_detail": {
     "sold_out": "VANN FINI",
@@ -279,8 +295,7 @@
       "view_status": "Gade estati",
       "manage_settings": "Jere paramèt",
       "contact_support": "Kontakte sipò"
-    }
+    },
+    "eyebrow": "Òganizatè"
   }
 }
-
-

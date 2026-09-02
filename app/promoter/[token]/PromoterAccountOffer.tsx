@@ -6,6 +6,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 
 export default function PromoterAccountOffer({
   token,
@@ -14,6 +15,7 @@ export default function PromoterAccountOffer({
   token: string
   alreadyClaimed: boolean
 }) {
+  const { t } = useTranslation('common')
   const router = useRouter()
   const [status, setStatus] = useState<'idle' | 'working' | 'done' | 'error'>('idle')
   const [message, setMessage] = useState<string | null>(null)
@@ -40,12 +42,12 @@ export default function PromoterAccountOffer({
       }
       if (!res.ok) {
         setStatus('error')
-        setMessage(data?.error || 'Could not add this to your account.')
+        setMessage(data?.error || t('promoter.claim_error_generic', 'Could not add this to your account.'))
         return
       }
 
       setStatus('done')
-      setMessage('This promoter page is now in your account.')
+      setMessage(t('promoter.claim_success', 'This promoter page is now in your account.'))
       try {
         // The navbar caches "has promoter records" per session — bust it so the
         // Promoter portal menu item appears right away.
@@ -54,19 +56,19 @@ export default function PromoterAccountOffer({
       router.refresh()
     } catch {
       setStatus('error')
-      setMessage('Could not reach Tikèm. Please try again.')
+      setMessage(t('promoter.claim_error_network', 'Could not reach Tikèm. Please try again.'))
     }
   }
 
   if (alreadyClaimed && status !== 'error') {
     return (
       <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-        <p className="text-white font-semibold">This page is in your Tikèm account.</p>
+        <p className="text-white font-semibold">{t('promoter.claimed_title', 'This page is in your Tikèm account.')}</p>
         <a
           href="/promoter"
           className="inline-block mt-3 text-sm font-semibold text-brand-400 hover:text-brand-300"
         >
-          Open your promoter portal →
+          {t('promoter.claimed_link', 'Open your promoter portal →')}
         </a>
       </div>
     )
@@ -74,10 +76,12 @@ export default function PromoterAccountOffer({
 
   return (
     <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-      <p className="text-white font-semibold">Withdraw your commission</p>
+      <p className="text-white font-semibold">{t('promoter.offer_title', 'Withdraw your commission')}</p>
       <p className="text-sm text-white/60 mt-1.5 leading-relaxed">
-        Add this to a free Tikèm account to withdraw your earnings to MonCash and see
-        every event you promote in one portal — this link keeps working either way.
+        {t(
+          'promoter.offer_desc',
+          'Add this to a free Tikèm account to withdraw your earnings to MonCash and see every event you promote in one portal — this link keeps working either way.'
+        )}
       </p>
 
       <div className="mt-4 flex flex-col sm:flex-row gap-3">
@@ -85,7 +89,7 @@ export default function PromoterAccountOffer({
           href={signupHref}
           className="flex-1 text-center bg-white hover:bg-white/90 text-black font-medium py-3 px-5 rounded-xl transition-colors min-h-[44px] flex items-center justify-center"
         >
-          Create an account
+          {t('promoter.create_account', 'Create an account')}
         </a>
         <button
           type="button"
@@ -93,7 +97,7 @@ export default function PromoterAccountOffer({
           disabled={status === 'working'}
           className="flex-1 border border-white/10 text-white/80 hover:bg-white/10 font-medium py-3 px-5 rounded-xl transition-colors disabled:opacity-50 min-h-[44px]"
         >
-          {status === 'working' ? 'Adding…' : 'I already have one'}
+          {status === 'working' ? t('promoter.adding', 'Adding…') : t('promoter.already_have_one', 'I already have one')}
         </button>
       </div>
 

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Bell, X } from 'lucide-react'
 import { requestNotificationPermission, canRequestNotificationPermission } from '@/lib/fcm'
 
@@ -17,6 +18,7 @@ export function EnableNotificationsPrompt({
   onSuccess,
   context = 'purchase'
 }: EnableNotificationsPromptProps) {
+  const { t } = useTranslation('common')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -28,13 +30,13 @@ export function EnableNotificationsPrompt({
   const getContextMessage = () => {
     switch (context) {
       case 'purchase':
-        return 'Get notified about your ticket, event updates, and reminders!'
+        return t('notifications_prompt.context_purchase', 'Get notified about your ticket, event updates, and reminders!')
       case 'favorite':
-        return 'Get notified when this event is updated or when tickets go on sale!'
+        return t('notifications_prompt.context_favorite', 'Get notified when this event is updated or when tickets go on sale!')
       case 'settings':
-        return 'Stay updated with event reminders and important notifications.'
+        return t('notifications_prompt.context_settings', 'Stay updated with event reminders and important notifications.')
       default:
-        return 'Get notified about your events and tickets!'
+        return t('notifications_prompt.context_default', 'Get notified about your events and tickets!')
     }
   }
 
@@ -69,7 +71,7 @@ export function EnableNotificationsPrompt({
         {/* Content */}
         <div className="flex-1 min-w-0">
           <h3 className="text-sm font-semibold text-white mb-1">
-            Enable Notifications
+            {t('notifications_prompt.title', 'Enable Notifications')}
           </h3>
           <p className="text-sm text-white/65 mb-3">
             {getContextMessage()}
@@ -88,14 +90,14 @@ export function EnableNotificationsPrompt({
               disabled={isLoading}
               className="px-4 py-2 bg-brand-600 text-white text-sm font-medium rounded-lg hover:bg-brand-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Enabling...' : 'Enable'}
+              {isLoading ? t('notifications_prompt.enabling', 'Enabling...') : t('notifications_prompt.enable', 'Enable')}
             </button>
             <button
               onClick={onClose}
               disabled={isLoading}
               className="px-4 py-2 border border-white/10 text-white/70 text-sm font-medium rounded-lg hover:bg-[#0a0a0a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Not Now
+              {t('notifications_prompt.not_now', 'Not Now')}
             </button>
           </div>
         </div>

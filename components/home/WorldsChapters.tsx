@@ -64,6 +64,7 @@ const POSTER_SLOTS: [string, string, number][] = [
 ]
 
 function Chapter({ world, flip }: { world: WorldChapterData; flip: boolean }) {
+  const { t } = useTranslation('common')
   return (
     <section
       data-chapter
@@ -117,13 +118,13 @@ function Chapter({ world, flip }: { world: WorldChapterData; flip: boolean }) {
           className="mt-4 max-w-md font-display lowercase italic !text-[clamp(17px,2.2vw,22px)] !leading-snug text-white/65"
           style={{ transform: 'translate3d(calc((0.5 - var(--p, 0.5)) * 3vw), 0, 0)' }}
         >
-          {world.sublabel}
+          {t(`worlds.${world.key}.sublabel`, { defaultValue: world.sublabel })}
         </p>
         <Link
           href={world.href}
           className="group mt-7 inline-flex w-fit items-center gap-1.5 text-[13px] font-medium text-brand-400 transition-colors hover:text-brand-300"
         >
-          explore {world.label}
+          {t('events.explore_world', { world: world.label, defaultValue: `explore ${world.label}` })}
           <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
         </Link>
       </div>

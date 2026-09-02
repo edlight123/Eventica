@@ -84,7 +84,9 @@ function CheckoutForm({ eventId, eventTitle, quantity, totalAmount, currency, co
       })
 
       if (submitError) {
-        setError(submitError.message || 'Payment failed')
+        setError(
+          submitError.message || t('checkout.payment_failed', { defaultValue: 'Payment failed' })
+        )
         setProcessing(false)
       } else {
         // Payment succeeded - create tickets immediately
@@ -112,8 +114,15 @@ function CheckoutForm({ eventId, eventTitle, quantity, totalAmount, currency, co
         // Show success message
         showToast({
           type: 'success',
-          title: 'Payment successful!',
-          message: `Your ${quantity > 1 ? 'tickets have' : 'ticket has'} been confirmed`,
+          title: t('checkout.payment_successful_title', { defaultValue: 'Payment successful!' }),
+          message:
+            quantity > 1
+              ? t('checkout.payment_successful_message_plural', {
+                  defaultValue: 'Your tickets have been confirmed',
+                })
+              : t('checkout.payment_successful_message', {
+                  defaultValue: 'Your ticket has been confirmed',
+                }),
           duration: 5000
         })
 
@@ -128,7 +137,9 @@ function CheckoutForm({ eventId, eventTitle, quantity, totalAmount, currency, co
         router.refresh()
       }
     } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred')
+      setError(
+        err.message || t('checkout.unexpected_error', { defaultValue: 'An unexpected error occurred' })
+      )
       setProcessing(false)
     }
   }
@@ -299,14 +310,19 @@ export default function EmbeddedStripePayment({
         const data = await response.json()
 
         if (!response.ok) {
-          throw new Error(data.error || 'Failed to initialize payment')
+          throw new Error(
+            data.error || t('checkout.initialize_payment_failed', { defaultValue: 'Failed to initialize payment' })
+          )
         }
 
         setClientSecret(data.clientSecret)
         setPricing(data.pricing || null)
         setGuestTicketUrl(data.guestTicketUrl || null)
       } catch (err: any) {
-        setError(err.message || 'Failed to initialize payment')
+        setError(
+          err.message ||
+            t('checkout.initialize_payment_failed', { defaultValue: 'Failed to initialize payment' })
+        )
       } finally {
         setLoading(false)
       }
@@ -347,7 +363,7 @@ export default function EmbeddedStripePayment({
             ref={closeButtonRef}
             onClick={onClose}
             className="p-2 hover:bg-white/[0.04] rounded-lg transition-colors"
-            aria-label="Close"
+            aria-label={t('common.close')}
           >
             <X className="w-5 h-5 text-white/50" />
           </button>

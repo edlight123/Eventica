@@ -34,7 +34,8 @@
     "language_en": "English",
     "language_fr": "Français",
     "language_ht": "Kreyòl",
-    "timezone": "Zòn orè"
+    "timezone": "Zòn orè",
+    "default_country": "Peyi"
   },
   "notifications": {
     "title": "Notifikasyon",
@@ -66,5 +67,18 @@
     "deleting": "Ap efase...",
     "sign_out_error": "Pa t kapab dekonekte",
     "delete_error": "Pa t kapab efase kont"
+  },
+  "organizer_profile": {
+    "verified": "Verifye",
+    "events": "Evènman",
+    "followers": "Moun k ap swiv",
+    "sold": "Vann",
+    "upcoming_events": "Evènman k ap vini",
+    "upcoming_count": "{{count}} evènman k ap vini",
+    "upcoming_count_plural": "{{count}} evènman k ap vini",
+    "no_upcoming_title": "Pa gen evènman k ap vini",
+    "no_upcoming_desc": "Òganizatè sa a pa gen okenn evènman k ap vini kounye a.",
+    "past_events": "Evènman ki pase",
+    "past_events_desc": "Evènman anvan yo òganize pa {{name}}"
   }
 }

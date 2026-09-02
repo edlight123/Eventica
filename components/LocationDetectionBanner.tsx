@@ -148,18 +148,21 @@ export function LocationDetectionBanner({
           <circle cx="12" cy="11" r="2" stroke="currentColor" strokeWidth="2" />
         </svg>
         <p className="flex-1 min-w-0 truncate text-[13px] text-white/70">
-          Events near <span className="font-semibold text-white">{location.displayName}</span>?
+          {t('location_banner.near_place', {
+            defaultValue: 'Events near {{place}}?',
+            place: location.displayName,
+          })}
         </p>
         <button
           onClick={handleAccept}
           disabled={isAccepting}
           className="shrink-0 rounded-full bg-white px-3 py-1.5 text-[13px] font-semibold text-black hover:opacity-90 disabled:opacity-60 transition-opacity"
         >
-          {isAccepting ? '…' : 'Use'}
+          {isAccepting ? '…' : t('location_banner.use', 'Use')}
         </button>
         <button
           onClick={handleDismiss}
-          aria-label="Not now"
+          aria-label={t('location_banner.not_now_aria', 'Not now')}
           className="shrink-0 flex h-7 w-7 items-center justify-center rounded-full text-white/50 hover:bg-white/[0.06] hover:text-white transition-colors"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>

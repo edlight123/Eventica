@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { ChevronDown } from 'lucide-react'
 import { format } from 'date-fns'
 import Badge from '@/components/ui/Badge'
+import { dateLocaleFor } from '@/lib/dateLocale'
 
 interface AccordionSectionProps {
   title: string
@@ -65,7 +66,8 @@ export default function MobileAccordions({
   isVerified,
   shareButton
 }: MobileAccordionsProps) {
-  const { t } = useTranslation('common')
+  const { t, i18n } = useTranslation('common')
+  const dfLocale = dateLocaleFor(i18n.language)
 
   const mapsQuery = encodeURIComponent(address || `${venueName}, ${commune}, ${city}`)
 
@@ -123,11 +125,11 @@ export default function MobileAccordions({
       <AccordionSection title={t('events.date_time')}>
         <p className="text-sm text-white">
           <span className="text-white/50">{t('events.start', { defaultValue: 'Starts' })}</span>{' '}
-          {format(new Date(startDatetime), 'EEEE, MMMM d, yyyy · h:mm a')}
+          {format(new Date(startDatetime), 'EEEE, MMMM d, yyyy · h:mm a', { locale: dfLocale })}
         </p>
         <p className="mt-1.5 text-sm text-white">
           <span className="text-white/50">{t('events.end', { defaultValue: 'Ends' })}</span>{' '}
-          {format(new Date(endDatetime), 'EEEE, MMMM d, yyyy · h:mm a')}
+          {format(new Date(endDatetime), 'EEEE, MMMM d, yyyy · h:mm a', { locale: dfLocale })}
         </p>
       </AccordionSection>
 

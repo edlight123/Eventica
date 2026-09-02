@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import Link from 'next/link'
 import { AlertCircle, RefreshCw, Home } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export default function EventDetailError({
   error,
@@ -11,6 +12,7 @@ export default function EventDetailError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  const { t } = useTranslation('common')
   useEffect(() => {
     console.error('Event detail page error:', error)
   }, [error])
@@ -25,37 +27,42 @@ export default function EventDetailError({
         </div>
         
         <h1 className="text-2xl font-bold text-white mb-2">
-          Oops! Something went wrong
+          {t('checkout.error_page_title', { defaultValue: 'Oops! Something went wrong' })}
         </h1>
-        
+
         <p className="text-white/65 mb-6">
-          We&apos;re having trouble loading this event. This might be due to a network issue or the event may no longer be available.
+          {t('checkout.error_page_detail', {
+            defaultValue:
+              "We're having trouble loading this event. This might be due to a network issue or the event may no longer be available.",
+          })}
         </p>
-        
+
         {error.message && (
           <div className="mb-6 p-4 bg-[#0a0a0a] rounded-lg text-left">
-            <p className="text-xs text-white/50 mb-1">Error details:</p>
+            <p className="text-xs text-white/50 mb-1">
+              {t('checkout.error_details_label', { defaultValue: 'Error details:' })}
+            </p>
             <p className="text-sm text-white/70 font-mono break-all">
               {error.message}
             </p>
           </div>
         )}
-        
+
         <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={reset}
             className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
-            Try Again
+            {t('checkout.try_again', { defaultValue: 'Try Again' })}
           </button>
-          
+
           <Link
             href="/"
             className="flex-1 flex items-center justify-center gap-2 px-6 py-3 border-2 border-white/10 text-white/70 rounded-lg hover:bg-[#0a0a0a] transition-colors"
           >
             <Home className="w-4 h-4" />
-            Go Home
+            {t('checkout.go_home', { defaultValue: 'Go Home' })}
           </Link>
         </div>
       </div>

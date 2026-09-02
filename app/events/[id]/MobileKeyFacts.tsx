@@ -61,8 +61,8 @@ export default function MobileKeyFacts({
   }
 
   const priceLine = isFree
-    ? t('free', { defaultValue: 'Free' })
-    : `${hasFreeOption ? `${t('free', { defaultValue: 'Free' })} – ` : ''}${ticketPrice.toLocaleString()} ${currency}`
+    ? t('common.free')
+    : `${hasFreeOption ? `${t('common.free')} – ` : ''}${ticketPrice.toLocaleString()} ${currency}`
 
   return (
     <div className="md:hidden border-b border-white/10 px-4 py-5">
@@ -74,7 +74,7 @@ export default function MobileKeyFacts({
         {venueName}
         <span className="text-white/25"> · </span>
         <button onClick={handleOpenMaps} className="text-brand-400 hover:text-brand-300">
-          {t('open_in_maps', { defaultValue: 'Open in maps' })} →
+          {t('events.open_in_maps')} →
         </button>
       </p>
 
@@ -84,7 +84,7 @@ export default function MobileKeyFacts({
           <span className="ml-1.5 text-[13px] font-normal text-white/45">
             {feesIncluded
               ? t('events.fees_included', { defaultValue: 'Fees included' })
-              : t('per_ticket', { defaultValue: 'per ticket' })}
+              : t('events.per_ticket', { defaultValue: 'per ticket' })}
           </span>
         )}
       </p>

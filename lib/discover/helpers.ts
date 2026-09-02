@@ -7,6 +7,7 @@ import type { Database } from '@/types/database'
 import { isBudgetFriendlyTicketPrice } from '@/lib/pricing'
 import { resolveEventPricing, type EventPricingLike } from '@/lib/ticketPricing'
 import { priceOrder } from '@/lib/checkout/buyer-pricing'
+import { dateLocaleFor } from '@/lib/dateLocale'
 
 type Event = Database['public']['Tables']['events']['Row']
 
@@ -30,22 +31,36 @@ export function coerceEventDate(v: any): Date | null {
   return Number.isNaN(d.getTime()) ? null : d
 }
 
-export function formatEventDate(datetime: string): string {
+/**
+ * A translator compatible with react-i18next's `t` — passed in by client
+ * components so these pure helpers can speak the reader's language without
+ * this module importing i18n (it is used from server components too).
+ * Omitting it keeps the original English output.
+ */
+export type Translate = (key: string, opts?: Record<string, any>) => string
+
+export function formatEventDate(datetime: string, t?: Translate, lng?: string): string {
   const date = parseISO(datetime)
-  
+  const locale = dateLocaleFor(lng)
+  const time = format(date, 'h:mm a', { locale })
+
   if (isToday(date)) {
-    return `Today at ${format(date, 'h:mm a')}`
+    return t ? t('events.card_today_at', { time, defaultValue: `Today at ${time}` }) : `Today at ${time}`
   }
-  
+
   if (isTomorrow(date)) {
-    return `Tomorrow at ${format(date, 'h:mm a')}`
+    return t
+      ? t('events.card_tomorrow_at', { time, defaultValue: `Tomorrow at ${time}` })
+      : `Tomorrow at ${time}`
   }
-  
+
   if (isThisWeek(date)) {
-    return format(date, 'EEEE \'at\' h:mm a')
+    const day = format(date, 'EEEE', { locale })
+    return t ? t('events.card_day_at', { day, time, defaultValue: `${day} at ${time}` }) : `${day} at ${time}`
   }
-  
-  return format(date, 'MMM d \'at\' h:mm a')
+
+  const day = format(date, 'MMM d', { locale })
+  return t ? t('events.card_date_at', { day, time, defaultValue: `${day} at ${time}` }) : `${day} at ${time}`
 }
 
 /**
@@ -107,21 +122,30 @@ export function getCardPriceDisplay(event: EventPricingLike | null | undefined):
     : { kind: 'from', price: advertised }
 }
 
-/** English price label for an event, honest about mixed free/paid tier sets. */
+/**
+ * Price label for an event, honest about mixed free/paid tier sets. Pass a
+ * translator (client components) to render it in the reader's language;
+ * without one it stays English.
+ */
 export function getEventPriceLabel(
-  event: (EventPricingLike & { currency?: string | null }) | null | undefined
+  event: (EventPricingLike & { currency?: string | null }) | null | undefined,
+  t?: Translate
 ): string {
   const curr = event?.currency || 'HTG'
   const display = getCardPriceDisplay(event)
   switch (display.kind) {
     case 'free':
-      return 'Free'
-    case 'from':
-      return `From ${display.price.toLocaleString()} ${curr}`
-    case 'range':
-      return `Free – ${display.price.toLocaleString()} ${curr}`
+      return t ? t('common.free_label', { defaultValue: 'Free' }) : 'Free'
+    case 'from': {
+      const price = `${display.price.toLocaleString()} ${curr}`
+      return t ? t('events.card_price_from', { price, defaultValue: `From ${price}` }) : `From ${price}`
+    }
+    case 'range': {
+      const price = `${display.price.toLocaleString()} ${curr}`
+      return t ? t('events.card_price_range', { price, defaultValue: `Free – ${price}` }) : `Free – ${price}`
+    }
     default:
-      return 'See tickets'
+      return t ? t('events.card_see_tickets', { defaultValue: 'See tickets' }) : 'See tickets'
   }
 }
 
@@ -148,17 +172,26 @@ export function isOnlineEvent(venueName: string): boolean {
 /**
  * Get event cue/badge (Popular, Few tickets left, etc.)
  */
-export function getEventCue(event: Event): { label: string; variant: 'popular' | 'warning' | 'verified' } | null {
+export function getEventCue(
+  event: Event,
+  t?: Translate
+): { label: string; variant: 'popular' | 'warning' | 'verified' } | null {
   // Popular: More than 50% tickets sold and at least 20 tickets
   if (event.tickets_sold && event.total_tickets) {
     const soldPercentage = (event.tickets_sold / event.total_tickets) * 100
-    
+
     if (soldPercentage >= 90) {
-      return { label: 'Few tickets left', variant: 'warning' }
+      return {
+        label: t ? t('events.cue_few_left', { defaultValue: 'Few tickets left' }) : 'Few tickets left',
+        variant: 'warning',
+      }
     }
-    
+
     if (event.tickets_sold >= 20 && soldPercentage >= 50) {
-      return { label: 'Popular', variant: 'popular' }
+      return {
+        label: t ? t('events.cue_popular', { defaultValue: 'Popular' }) : 'Popular',
+        variant: 'popular',
+      }
     }
   }
   

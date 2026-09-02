@@ -9,6 +9,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 
 export default function GuestAccountOffer({
   token,
@@ -19,6 +20,7 @@ export default function GuestAccountOffer({
   email: string
   alreadyClaimed: boolean
 }) {
+  const { t } = useTranslation('common')
   const router = useRouter()
   const [status, setStatus] = useState<'idle' | 'working' | 'done' | 'error'>('idle')
   const [message, setMessage] = useState<string | null>(null)
@@ -46,28 +48,33 @@ export default function GuestAccountOffer({
       }
       if (!res.ok) {
         setStatus('error')
-        setMessage(data?.error || 'Could not add these tickets to your account.')
+        setMessage(
+          data?.error ||
+            t('guest_tickets.claim_failed', { defaultValue: 'Could not add these tickets to your account.' })
+        )
         return
       }
 
       setStatus('done')
-      setMessage('Your tickets are now in your account.')
+      setMessage(t('guest_tickets.claim_success', { defaultValue: 'Your tickets are now in your account.' }))
       router.refresh()
     } catch {
       setStatus('error')
-      setMessage('Could not reach Tikèm. Please try again.')
+      setMessage(t('guest_tickets.claim_network_error', { defaultValue: 'Could not reach Tikèm. Please try again.' }))
     }
   }
 
   if (alreadyClaimed && status !== 'error') {
     return (
       <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-        <p className="text-white font-semibold">These tickets are in your Tikèm account.</p>
+        <p className="text-white font-semibold">
+          {t('guest_tickets.already_in_account', { defaultValue: 'These tickets are in your Tikèm account.' })}
+        </p>
         <a
           href="/tickets"
           className="inline-block mt-3 text-sm font-semibold text-brand-400 hover:text-brand-300"
         >
-          Open My Tickets →
+          {t('guest_tickets.open_my_tickets', { defaultValue: 'Open My Tickets →' })}
         </a>
       </div>
     )
@@ -75,10 +82,14 @@ export default function GuestAccountOffer({
 
   return (
     <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-      <p className="text-white font-semibold">Keep your tickets in the app</p>
+      <p className="text-white font-semibold">
+        {t('guest_tickets.keep_tickets_in_app', { defaultValue: 'Keep your tickets in the app' })}
+      </p>
       <p className="text-sm text-white/60 mt-1.5 leading-relaxed">
-        Optional. Create a free account and these tickets move into it, so you never
-        have to hunt for this link again.
+        {t('guest_tickets.keep_tickets_in_app_detail', {
+          defaultValue:
+            'Optional. Create a free account and these tickets move into it, so you never have to hunt for this link again.',
+        })}
       </p>
 
       <div className="mt-4 flex flex-col sm:flex-row gap-3">
@@ -86,7 +97,7 @@ export default function GuestAccountOffer({
           href={signupHref}
           className="flex-1 text-center bg-white hover:bg-white/90 text-black font-medium py-3 px-5 rounded-xl transition-colors min-h-[44px] flex items-center justify-center"
         >
-          Create an account
+          {t('guest_tickets.create_account', { defaultValue: 'Create an account' })}
         </a>
         <button
           type="button"
@@ -94,7 +105,9 @@ export default function GuestAccountOffer({
           disabled={status === 'working'}
           className="flex-1 border border-white/10 text-white/80 hover:bg-white/10 font-medium py-3 px-5 rounded-xl transition-colors disabled:opacity-50 min-h-[44px]"
         >
-          {status === 'working' ? 'Adding…' : 'I already have one'}
+          {status === 'working'
+            ? t('guest_tickets.adding', { defaultValue: 'Adding…' })
+            : t('guest_tickets.already_have_one', { defaultValue: 'I already have one' })}
         </button>
       </div>
 

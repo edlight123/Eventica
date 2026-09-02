@@ -18,6 +18,7 @@ import Image from 'next/image'
 import { getPosterTheme } from '@/lib/posterGradient'
 import { resolveEventPricing } from '@/lib/ticketPricing'
 import { priceOrder } from '@/lib/checkout/buyer-pricing'
+import { dateLocaleFor } from '@/lib/dateLocale'
 
 interface EventDetailsClientProps {
   event: any
@@ -28,7 +29,8 @@ interface EventDetailsClientProps {
 }
 
 export default function EventDetailsClient({ event, user, isFavorite, isFollowing, relatedEvents }: EventDetailsClientProps) {
-  const { t } = useTranslation('common')
+  const { t, i18n } = useTranslation('common')
+  const dfLocale = dateLocaleFor(i18n.language)
   const startDate = new Date(event.start_datetime)
   const isSoldOut = (event.total_tickets && event.tickets_sold >= event.total_tickets) || false
   const ticketsRemaining = event.total_tickets ? event.total_tickets - (event.tickets_sold || 0) : null
@@ -200,10 +202,10 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                 <div>
                   <p className="eyebrow mb-1.5 text-[10px] text-white/50">{t('events.date_time')}</p>
                   <p className="text-[15px] text-white" suppressHydrationWarning>
-                    {format(new Date(event.start_datetime), 'EEE, MMM d, yyyy')}
+                    {format(new Date(event.start_datetime), 'EEE, MMM d, yyyy', { locale: dfLocale })}
                   </p>
                   <p className="text-[13px] text-white/60" suppressHydrationWarning>
-                    {format(new Date(event.start_datetime), 'h:mm a')}
+                    {format(new Date(event.start_datetime), 'h:mm a', { locale: dfLocale })}
                   </p>
                 </div>
                 <div className="min-w-0 max-w-[260px]">
@@ -235,7 +237,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
           <div className="flex-1 min-w-0">
             {isPastEvent ? (
               <div className="block w-full text-center font-semibold py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white/70">
-                Event Ended
+                {t('events.event_ended', { defaultValue: 'Event ended' })}
               </div>
             ) : isSoldOut ? (
               <div className="block w-full text-center font-semibold py-3 rounded-xl bg-white/[0.03] border border-white/10 text-white/70">
@@ -297,7 +299,7 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
           <ShareButtonInline
             eventId={event.id}
             eventTitle={event.title}
-            eventDate={format(new Date(event.start_datetime), 'MMM d, yyyy')}
+            eventDate={format(new Date(event.start_datetime), 'MMM d, yyyy', { locale: dfLocale })}
             eventVenue={`${event.venue_name}, ${event.city}`}
           />
         }
@@ -371,20 +373,20 @@ export default function EventDetailsClient({ event, user, isFavorite, isFollowin
                 <div>
                   <p className="eyebrow mb-1.5 text-[10px] text-white/50">{t('events.start')}</p>
                   <p className="text-[15px] text-white" suppressHydrationWarning>
-                    {format(new Date(event.start_datetime), 'EEEE, MMMM d, yyyy')}
+                    {format(new Date(event.start_datetime), 'EEEE, MMMM d, yyyy', { locale: dfLocale })}
                   </p>
                   <p className="text-[13px] text-white/60" suppressHydrationWarning>
-                    {format(new Date(event.start_datetime), 'h:mm a')}
+                    {format(new Date(event.start_datetime), 'h:mm a', { locale: dfLocale })}
                   </p>
                 </div>
                 {event.end_datetime && (
                   <div>
                     <p className="eyebrow mb-1.5 text-[10px] text-white/50">{t('events.end')}</p>
                     <p className="text-[15px] text-white" suppressHydrationWarning>
-                      {format(new Date(event.end_datetime), 'EEEE, MMMM d, yyyy')}
+                      {format(new Date(event.end_datetime), 'EEEE, MMMM d, yyyy', { locale: dfLocale })}
                     </p>
                     <p className="text-[13px] text-white/60" suppressHydrationWarning>
-                      {format(new Date(event.end_datetime), 'h:mm a')}
+                      {format(new Date(event.end_datetime), 'h:mm a', { locale: dfLocale })}
                     </p>
                   </div>
                 )}

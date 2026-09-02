@@ -26,17 +26,17 @@ export function EventTabs({ eventId, ticketCount }: EventTabsProps) {
     },
     {
       id: 'analytics',
-      label: 'Analytics',
+      label: t('organizer.tab_analytics', { defaultValue: 'Analytics' }),
       href: `/organizer/events/${eventId}/analytics`,
     },
     {
       id: 'tickets',
-      label: 'Tickets',
+      label: t('organizer.tab_tickets', { defaultValue: 'Tickets' }),
       href: `/organizer/events/${eventId}/tickets`,
     },
     {
       id: 'orders',
-      label: 'Orders',
+      label: t('organizer.tab_orders', { defaultValue: 'Orders' }),
       href: `/organizer/events/${eventId}/orders`,
     },
     {
@@ -47,32 +47,32 @@ export function EventTabs({ eventId, ticketCount }: EventTabsProps) {
     },
     {
       id: 'messages',
-      label: 'Messages',
+      label: t('organizer.tab_messages', { defaultValue: 'Messages' }),
       href: `/organizer/events/${eventId}/messages`,
     },
     {
       id: 'marketing',
-      label: 'Marketing',
+      label: t('organizer.tab_marketing', { defaultValue: 'Marketing' }),
       href: `/organizer/events/${eventId}/marketing`,
     },
     {
       id: 'promoters',
-      label: 'Promoters',
+      label: t('organizer.tab_promoters', { defaultValue: 'Promoters' }),
       href: `/organizer/events/${eventId}/promoters`,
     },
     {
       id: 'guest-list',
-      label: 'Guest list',
+      label: t('organizer.tab_guest_list', { defaultValue: 'Guest list' }),
       href: `/organizer/events/${eventId}/guest-list`,
     },
     {
       id: 'comps',
-      label: 'Comps',
+      label: t('organizer.tab_comps', { defaultValue: 'Comps' }),
       href: `/organizer/events/${eventId}/comps`,
     },
     {
       id: 'tracking',
-      label: 'Tracking',
+      label: t('organizer.tab_tracking', { defaultValue: 'Tracking' }),
       href: `/organizer/events/${eventId}/tracking`,
     },
     {
@@ -87,7 +87,7 @@ export function EventTabs({ eventId, ticketCount }: EventTabsProps) {
     },
     {
       id: 'staff',
-      label: 'Staff',
+      label: t('organizer.tab_staff', { defaultValue: 'Staff' }),
       href: `/organizer/events/${eventId}/staff`,
     },
   ]
@@ -99,7 +99,7 @@ export function EventTabs({ eventId, ticketCount }: EventTabsProps) {
     <div className="sticky top-14 z-20 border-b border-white/10 bg-[#0a0a0a]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <nav
-          aria-label="Event sections"
+          aria-label={t('organizer.event_sections_aria', { defaultValue: 'Event sections' })}
           className="-mb-px flex gap-1 overflow-x-auto scrollbar-none"
         >
           {tabs.map((tab) => {

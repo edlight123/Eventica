@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { useTranslation } from 'react-i18next'
 import { Search } from 'lucide-react'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import { db } from '@/lib/firebase/client'
@@ -38,6 +39,7 @@ export function DiscoverPageContent({
   userCountry = 'HT',
   userId,
 }: DiscoverPageContentProps) {
+  const { t } = useTranslation('common')
   const countryName = LOCATION_CONFIG[userCountry]?.name || 'Haiti'
   const [tab, setTab] = useState<DiscoverTab>('forYou')
   const [savedEvents, setSavedEvents] = useState<any[] | null>(null)
@@ -78,8 +80,8 @@ export function DiscoverPageContent({
   const allEventIds = useMemo(() => feed.map((e) => e.id).filter(Boolean), [feed])
 
   const tabs: { key: DiscoverTab; label: string }[] = [
-    { key: 'forYou', label: 'For You' },
-    { key: 'saved', label: 'Saved' },
+    { key: 'forYou', label: t('discover.for_you', 'For You') },
+    { key: 'saved', label: t('discover.saved', 'Saved') },
   ]
 
   const renderFeed = (list: any[]) =>
@@ -131,19 +133,19 @@ export function DiscoverPageContent({
         (!userId ? (
           <div className="mx-auto max-w-2xl rounded-2xl border border-white/10 py-16 text-center text-white/70">
             <Link href="/auth/login?redirect=/discover" className="font-semibold text-brand-300 hover:text-brand-200">
-              Sign in
+              {t('discover.sign_in', 'Sign in')}
             </Link>{' '}
-            to see events you&rsquo;ve saved.
+            {t('discover.sign_in_desc', "to see events you've saved.")}
           </div>
         ) : savedEvents === null ? (
-          <div className="mx-auto max-w-2xl py-16 text-center text-white/70">Loading saved events…</div>
+          <div className="mx-auto max-w-2xl py-16 text-center text-white/70">{t('discover.loading_saved', 'Loading saved events…')}</div>
         ) : savedEvents.length > 0 ? (
           renderFeed(savedEvents)
         ) : (
           <div className="mx-auto max-w-2xl rounded-2xl border border-white/10 py-16 text-center">
             <Search className="mx-auto mb-3 h-8 w-8 text-white/30" />
-            <p className="text-white/70">No saved events yet</p>
-            <p className="mt-1 text-sm text-white/70">Tap the bookmark on any event to save it here.</p>
+            <p className="text-white/70">{t('discover.no_saved_title', 'No saved events yet')}</p>
+            <p className="mt-1 text-sm text-white/70">{t('discover.no_saved_desc', 'Tap the bookmark on any event to save it here.')}</p>
           </div>
         ))}
     </FriendsGoingProvider>

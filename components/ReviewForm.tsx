@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface ReviewFormProps {
   eventId: string
@@ -10,6 +11,7 @@ interface ReviewFormProps {
 }
 
 export default function ReviewForm({ eventId, ticketId, eventTitle, onSuccess }: ReviewFormProps) {
+  const { t } = useTranslation('common')
   const [rating, setRating] = useState(0)
   const [hoverRating, setHoverRating] = useState(0)
   const [comment, setComment] = useState('')
@@ -22,7 +24,7 @@ export default function ReviewForm({ eventId, ticketId, eventTitle, onSuccess }:
     e.preventDefault()
     
     if (rating === 0) {
-      setError('Please select a rating')
+      setError(t('review_form.rating_required_error', 'Please select a rating'))
       return
     }
 
@@ -60,13 +62,13 @@ export default function ReviewForm({ eventId, ticketId, eventTitle, onSuccess }:
   return (
     <form onSubmit={handleSubmit} className="bg-[#0a0a0a] rounded-xl shadow-sm border border-white/10 p-6">
       <h3 className="text-xl font-bold text-white mb-4">
-        Review: {eventTitle}
+        {t('review_form.heading', { defaultValue: 'Review: {{eventTitle}}', eventTitle })}
       </h3>
 
       {/* Event Rating */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-white/70 mb-2">
-          How was the event? *
+          {t('review_form.rating_label', 'How was the event? *')}
         </label>
         <div className="flex gap-2">
           {[1, 2, 3, 4, 5].map((star) => (
@@ -93,23 +95,25 @@ export default function ReviewForm({ eventId, ticketId, eventTitle, onSuccess }:
       {/* Comment */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-white/70 mb-2">
-          Your review (optional)
+          {t('review_form.comment_label', 'Your review (optional)')}
         </label>
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           rows={4}
           className="w-full px-4 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-          placeholder="Share your experience..."
+          placeholder={t('review_form.comment_placeholder', 'Share your experience...')}
           maxLength={500}
         />
-        <div className="text-xs text-white/50 mt-1">{comment.length}/500 characters</div>
+        <div className="text-xs text-white/50 mt-1">
+          {t('review_form.comment_counter', { defaultValue: '{{count}}/500 characters', count: comment.length })}
+        </div>
       </div>
 
       {/* Organizer Rating */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-white/70 mb-2">
-          How was the organizer? (optional)
+          {t('review_form.organizer_rating_label', 'How was the organizer? (optional)')}
         </label>
         <div className="flex gap-2">
           {[1, 2, 3, 4, 5].map((star) => (
@@ -130,7 +134,7 @@ export default function ReviewForm({ eventId, ticketId, eventTitle, onSuccess }:
       {/* Recommendation */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-white/70 mb-2">
-          Would you recommend this event?
+          {t('review_form.recommend_label', 'Would you recommend this event?')}
         </label>
         <div className="flex gap-4">
           <button
@@ -142,7 +146,7 @@ export default function ReviewForm({ eventId, ticketId, eventTitle, onSuccess }:
                 : 'border-white/10 text-white/70 hover:border-gray-400'
             }`}
           >
-            👍 Yes
+            {t('review_form.recommend_yes', '👍 Yes')}
           </button>
           <button
             type="button"
@@ -153,7 +157,7 @@ export default function ReviewForm({ eventId, ticketId, eventTitle, onSuccess }:
                 : 'border-white/10 text-white/70 hover:border-gray-400'
             }`}
           >
-            👎 No
+            {t('review_form.recommend_no', '👎 No')}
           </button>
         </div>
       </div>
@@ -169,7 +173,7 @@ export default function ReviewForm({ eventId, ticketId, eventTitle, onSuccess }:
         disabled={loading || rating === 0}
         className="w-full py-3 bg-teal-600 text-white font-semibold rounded-lg hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
-        {loading ? 'Submitting...' : 'Submit Review'}
+        {loading ? t('review_form.submitting', 'Submitting...') : t('review_form.submit', 'Submit Review')}
       </button>
     </form>
   )

@@ -10,6 +10,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Bookmark } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 /* ------------------------------------------------------------------ */
 /* Stage, frame, artwork                                               */
@@ -84,6 +85,7 @@ function MockPoster({
 /* ------------------------------------------------------------------ */
 
 export function EventPageVignette() {
+  const { t } = useTranslation('common')
   return (
     <VignetteStage glow="rgba(124,58,237,0.14)">
       <div className="relative isolate mx-auto w-fit">
@@ -99,7 +101,7 @@ export function EventPageVignette() {
           <div className="plt-ev-toast absolute inset-x-3 top-9 z-20 flex items-center gap-2 rounded-xl bg-[#1f1f1f]/95 px-3 py-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
             <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" />
             <span className="min-w-0 flex-1 truncate text-[10px] font-medium text-white">
-              Ticket sold — Nadège J.
+              {t('platform.vignettes.ticketSold', { defaultValue: 'Ticket sold — Nadège J.' })}
             </span>
             <span className="shrink-0 text-[10px] text-white/60">1,500 HTG</span>
           </div>
@@ -120,7 +122,7 @@ export function EventPageVignette() {
               Sat 12 Sep · Kay Atizan, Pétion-Ville
             </p>
             <p className="plt-ev-price mt-1 text-[11px] font-semibold text-brand-400">
-              From 1,500 HTG
+              {t('platform.vignettes.fromPrice', { defaultValue: 'From {{price}}', price: '1,500 HTG' })}
             </p>
             {/* the rest of the page, suggested */}
             <div className="plt-ev-lines mt-4 space-y-2">
@@ -129,7 +131,7 @@ export function EventPageVignette() {
               <div className="h-2 w-3/5 rounded-full bg-white/[0.07]" />
             </div>
             <div className="plt-ev-cta mt-auto rounded-xl bg-white py-2.5 text-center text-[12px] font-medium text-black">
-              Get tickets
+              {t('platform.vignettes.getTickets', { defaultValue: 'Get tickets' })}
             </div>
           </div>
         </PhoneFrame>
@@ -157,6 +159,7 @@ function FeedCard({
   going: string
   save?: boolean
 }) {
+  const { t } = useTranslation('common')
   return (
     <div>
       <div className="relative">
@@ -168,18 +171,21 @@ function FeedCard({
         )}
       </div>
       <p className="mt-1.5 truncate text-[10px] font-semibold text-white">{title}</p>
-      <p className="text-[9px] text-white/50">● {going} going</p>
+      <p className="text-[9px] text-white/50">
+        ● {t('platform.vignettes.going', { defaultValue: '{{n}} going', n: going })}
+      </p>
     </div>
   )
 }
 
 export function DiscoverVignette() {
+  const { t } = useTranslation('common')
   return (
     <VignetteStage glow="rgba(245,158,11,0.10)">
       <PhoneFrame>
         <div className="plt-feed-track px-4 pt-11">
           <p className="font-display lowercase italic text-[19px] leading-none text-white/90">
-            tonight
+            {t('platform.vignettes.tonight', { defaultValue: 'tonight' })}
           </p>
           <div className="mt-3 grid grid-cols-2 gap-2.5">
             <FeedCard from="#f59e0b" to="#7c2d12" glow="rgba(245,158,11,0.32)" title="Kanaval Kickoff" going="214" />
@@ -188,7 +194,7 @@ export function DiscoverVignette() {
             <FeedCard from="#10b981" to="#064e3b" glow="rgba(16,185,129,0.32)" title="Fèt Champèt" going="143" />
           </div>
           <p className="mt-5 font-display lowercase italic text-[19px] leading-none text-white/90">
-            this weekend
+            {t('platform.vignettes.thisWeekend', { defaultValue: 'this weekend' })}
           </p>
           <div className="mt-3 grid grid-cols-2 gap-2.5">
             <FeedCard from="#a855f7" to="#3b0764" glow="rgba(168,85,247,0.32)" title="Vibe Rooftop" going="181" save />
@@ -197,7 +203,7 @@ export function DiscoverVignette() {
             <FeedCard from="#6366f1" to="#1e1b4b" glow="rgba(99,102,241,0.32)" title="Jazz Pòtoprens" going="49" />
           </div>
           <p className="mt-5 font-display lowercase italic text-[19px] leading-none text-white/90">
-            in the diaspora
+            {t('platform.vignettes.inDiaspora', { defaultValue: 'in the diaspora' })}
           </p>
           <div className="mt-3 grid grid-cols-2 gap-2.5 pb-6">
             <FeedCard from="#ec4899" to="#500724" glow="rgba(236,72,153,0.32)" title="Miami Link Up" going="238" />
@@ -235,6 +241,7 @@ const ORDER_POOL: Omit<Order, 'id'>[] = [
 const BARS = [22, 34, 28, 46, 60, 52, 78, 92]
 
 export function DashboardVignette() {
+  const { t } = useTranslation('common')
   // Deterministic initial state (SSR-safe); the live ticks start client-side.
   const [orders, setOrders] = useState<Order[]>(
     ORDER_POOL.slice(0, 4).map((o, i) => ({ ...o, id: i }))
@@ -264,7 +271,7 @@ export function DashboardVignette() {
         <div className="h-full px-5 pt-11">
           <p className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-white/40">
             <span className="plt-live-dot h-1.5 w-1.5 rounded-full bg-brand-400" />
-            Live · tonight
+            {t('platform.vignettes.liveTonight', { defaultValue: 'Live · tonight' })}
           </p>
           <p className="mt-2.5 font-grotesk text-[30px] font-bold leading-none tracking-tight text-white">
             <span key={revenue} className="plt-tick">
@@ -273,7 +280,10 @@ export function DashboardVignette() {
             <span className="text-[15px] font-semibold text-white/55">HTG</span>
           </p>
           <p className="mt-1.5 text-[11px] text-white/55">
-            {sold.toLocaleString('en-US')} tickets sold
+            {t('platform.vignettes.ticketsSold', {
+              defaultValue: '{{n}} tickets sold',
+              n: sold.toLocaleString('en-US'),
+            })}
           </p>
           <div className="mt-4 flex h-[52px] items-end gap-1.5">
             {BARS.map((h, i) => (
@@ -288,7 +298,7 @@ export function DashboardVignette() {
           </div>
           <div className="mt-4 space-y-2.5 border-t border-white/10 pt-3.5">
             <p className="flex items-center justify-between text-[11px]">
-              <span className="text-white/55">Checked in</span>
+              <span className="text-white/55">{t('platform.vignettes.checkedIn', { defaultValue: 'Checked in' })}</span>
               <span className="font-semibold text-white">
                 <span key={checked} className="plt-tick">
                   {checked}
@@ -297,16 +307,16 @@ export function DashboardVignette() {
               </span>
             </p>
             <p className="flex items-center justify-between text-[11px]">
-              <span className="text-white/55">Payout</span>
+              <span className="text-white/55">{t('platform.vignettes.payout', { defaultValue: 'Payout' })}</span>
               <span className="flex items-center gap-1.5 font-medium text-white">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                Available after event
+                {t('platform.vignettes.availableAfterEvent', { defaultValue: 'Available after event' })}
               </span>
             </p>
           </div>
           {/* orders roll in live, newest first */}
           <p className="mt-5 text-[10px] font-medium uppercase tracking-[0.14em] text-white/40">
-            Recent orders
+            {t('platform.vignettes.recentOrders', { defaultValue: 'Recent orders' })}
           </p>
           <div className="mt-2.5 space-y-2.5">
             {orders.map((o, i) => (

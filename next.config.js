@@ -150,9 +150,12 @@ const nextConfig = {
             value: 'camera=(self), microphone=(), geolocation=(), browsing-topics=()',
           },
           {
-            // See the contentSecurityPolicy note above. Report-Only for now;
-            // rename to 'Content-Security-Policy' to enforce.
-            key: 'Content-Security-Policy-Report-Only',
+            // ENFORCING as of 2026-09-02, after a production-build sweep of the
+            // public pages, the composer, the guides and the auth screens found
+            // zero violations. Report-Only shipped no report endpoint, so the
+            // evidence is that sweep rather than field telemetry — if a rail
+            // ever breaks, the console names the directive to widen.
+            key: 'Content-Security-Policy',
             value: contentSecurityPolicy,
           },
         ],

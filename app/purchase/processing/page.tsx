@@ -3,12 +3,14 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 
 // How long to keep polling before showing a "we'll keep working on it" message.
 const MAX_POLL_MS = 45_000
 const POLL_INTERVAL_MS = 2_500
 
 export default function PurchaseProcessingPage() {
+  const { t } = useTranslation('common')
   const router = useRouter()
   const searchParams = useSearchParams()
   const orderId = searchParams.get('orderId') || ''
@@ -74,9 +76,14 @@ export default function PurchaseProcessingPage() {
               <div className="w-14 h-14 md:w-16 md:h-16 mx-auto mb-4 flex items-center justify-center">
                 <div className="w-10 h-10 border-4 border-teal-200 border-t-teal-700 rounded-full animate-spin" />
               </div>
-              <h1 className="text-xl md:text-2xl font-bold text-white mb-2">Confirming your payment…</h1>
+              <h1 className="text-xl md:text-2xl font-bold text-white mb-2">
+                {t('purchase.confirming_payment', { defaultValue: 'Confirming your payment…' })}
+              </h1>
               <p className="text-sm md:text-base text-white/65">
-                Please wait while we confirm your payment and issue your ticket. This usually takes a few seconds.
+                {t('purchase.confirming_payment_detail', {
+                  defaultValue:
+                    'Please wait while we confirm your payment and issue your ticket. This usually takes a few seconds.',
+                })}
               </p>
             </>
           ) : (
@@ -86,16 +93,23 @@ export default function PurchaseProcessingPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h1 className="text-xl md:text-2xl font-bold text-white mb-2">Still confirming your payment</h1>
+              <h1 className="text-xl md:text-2xl font-bold text-white mb-2">
+                {t('purchase.still_confirming_payment', { defaultValue: 'Still confirming your payment' })}
+              </h1>
               <p className="text-sm md:text-base text-white/65 mb-6">
-                Your payment is being processed. If it was successful, your ticket will appear under{' '}
-                <strong>My Tickets</strong> shortly — no need to pay again.
+                {t('purchase.still_confirming_payment_detail_pre', {
+                  defaultValue: 'Your payment is being processed. If it was successful, your ticket will appear under',
+                })}{' '}
+                <strong>{t('purchase.my_tickets_label', { defaultValue: 'My Tickets' })}</strong>{' '}
+                {t('purchase.still_confirming_payment_detail_post', {
+                  defaultValue: 'shortly — no need to pay again.',
+                })}
               </p>
               <Link
                 href="/tickets"
                 className="block w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold py-3 md:py-3.5 px-6 rounded-lg transition-colors text-base"
               >
-                View My Tickets
+                {t('purchase.view_my_tickets', { defaultValue: 'View My Tickets' })}
               </Link>
             </>
           )}

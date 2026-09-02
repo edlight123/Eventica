@@ -8,15 +8,17 @@ import { isDemoMode, DEMO_EVENTS } from '@/lib/demo'
 import type { Metadata } from 'next'
 import MobileNavWrapper from '@/components/MobileNavWrapper'
 import EventDetailsClient from './EventDetailsClient'
+import { cookies } from 'next/headers'
+import { intlLocaleFor } from '@/lib/dateLocale'
 
 export const runtime = 'nodejs'
 export const revalidate = 300 // Cache for 5 minutes
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
-  
+
   let event: any = null
-  
+
   if (isDemoMode()) {
     event = DEMO_EVENTS.find(e => e.id === id)
   } else {
@@ -29,7 +31,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     }
   }
 
-  const eventDate = new Date(event.start_datetime).toLocaleDateString('en-US', {
+  // The og:title/description language follows the visitor's cookie-set language,
+  // same signal app/layout.tsx uses to SSR the rest of the page in fr/ht.
+  const lang = cookies().get('i18nextLng')?.value?.slice(0, 2)
+  const eventDate = new Date(event.start_datetime).toLocaleDateString(intlLocaleFor(lang), {
     weekday: 'long',
     year: 'numeric',
     month: 'long',

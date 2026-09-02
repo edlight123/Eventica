@@ -13,6 +13,7 @@ import {
   toggleBookmark as toggleBookmarkHelper,
 } from '@/lib/discover/helpers'
 import { PosterCard } from '@/components/ui/PosterCard'
+import { useTranslation } from 'react-i18next'
 import { useFriendsGoingCount } from './FriendsGoingContext'
 
 type Event = Database['public']['Tables']['events']['Row']
@@ -34,11 +35,12 @@ export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
     setIsBookmarked(toggleBookmarkHelper(event.id))
   }
 
-  const cue = getEventCue(event)
+  const { t, i18n } = useTranslation('common')
+  const cue = getEventCue(event, t)
   const friendsGoing = useFriendsGoingCount(event.id)
   // Not `getPriceLabel(event.ticket_price, …)`: `ticket_price` is the lowest tier
   // price, so an event with a free tier next to paid ones would read "Free".
-  const priceLabel = getEventPriceLabel(event as any)
+  const priceLabel = getEventPriceLabel(event as any, t)
   // Venue-first: the venue name adds variety and is rarely redundant; fall back
   // to the city/commune summary only when there's no venue (e.g. online events).
   const venue = (event.venue_name || '').trim() || getLocationSummary(event.city, event.commune)
@@ -47,7 +49,7 @@ export function DiscoverEventCard({ event }: DiscoverEventCardProps) {
   // and date-fns `format` throws on that. Only format when the date is valid.
   const parsedDate = event.start_datetime ? parseISO(event.start_datetime) : null
   const dateLabel =
-    parsedDate && isValid(parsedDate) ? formatEventDate(event.start_datetime) : undefined
+    parsedDate && isValid(parsedDate) ? formatEventDate(event.start_datetime, t, i18n.language) : undefined
 
   // Poster overlay chips, stacked top-left: the status cue (Popular / Few tickets
   // left, else category) plus a friends-going social-proof chip when relevant.

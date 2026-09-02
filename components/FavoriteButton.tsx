@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 import { useToast } from '@/components/ui/Toast'
 
 interface FavoriteButtonProps {
@@ -11,6 +12,7 @@ interface FavoriteButtonProps {
 }
 
 export default function FavoriteButton({ eventId, userId, initialIsFavorite = false }: FavoriteButtonProps) {
+  const { t } = useTranslation('common')
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -39,18 +41,20 @@ export default function FavoriteButton({ eventId, userId, initialIsFavorite = fa
       
       showToast({
         type: 'success',
-        title: data.isFavorite ? 'Added to favorites!' : 'Removed from favorites',
-        message: data.isFavorite ? 'You can find this event in your favorites' : 'Event removed from your favorites',
+        title: data.isFavorite ? t('favorites.toast.added_title', 'Added to favorites!') : t('favorites.toast.removed_title', 'Removed from favorites'),
+        message: data.isFavorite
+          ? t('favorites.toast.added_message', 'You can find this event in your favorites')
+          : t('favorites.toast.removed_message', 'Event removed from your favorites'),
         duration: 3000
       })
-      
+
       router.refresh()
     } catch (error) {
       console.error('Error toggling favorite:', error)
       showToast({
         type: 'error',
-        title: 'Failed to update favorites',
-        message: 'Please try again later',
+        title: t('favorites.toast.error_title', 'Failed to update favorites'),
+        message: t('favorites.toast.error_message', 'Please try again later'),
         duration: 4000
       })
     } finally {
@@ -67,9 +71,9 @@ export default function FavoriteButton({ eventId, userId, initialIsFavorite = fa
           ? 'bg-red-500/15 text-red-400 border-red-500/30 hover:bg-red-500/25'
           : 'bg-white/[0.03] text-white/70 border-white/10 hover:text-red-400 hover:bg-white/10'
       } disabled:opacity-50 transform hover:scale-110`}
-      aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+      aria-label={isFavorite ? t('favorites.toast.aria_remove', 'Remove from favorites') : t('favorites.toast.aria_add', 'Add to favorites')}
       aria-pressed={isFavorite}
-      title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+      title={isFavorite ? t('favorites.toast.aria_remove', 'Remove from favorites') : t('favorites.toast.aria_add', 'Add to favorites')}
     >
       <svg
         className="w-6 h-6 transition-transform duration-300"

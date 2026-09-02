@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import { DiscoverEventCard } from '@/components/discover/DiscoverEventCard'
 import FollowButton from '@/components/FollowButton'
 import ConnectButton from '@/components/connections/ConnectButton'
@@ -48,6 +49,7 @@ export default function OrganizerProfileClient({
   friendshipState = 'none',
   isAuthenticated = false,
 }: OrganizerProfileClientProps) {
+  const { t } = useTranslation('profile')
   const socialEntries = SOCIAL_META.filter(({ key }) => (socialLinks?.[key] || '').trim())
   return (
     <>
@@ -69,7 +71,7 @@ export default function OrganizerProfileClient({
                 {organizer.is_verified && (
                   <div className="flex items-center gap-1 bg-[#0a0a0a] text-brand-300 px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[11px] md:text-sm font-semibold flex-shrink-0">
                     <Shield className="w-3 h-3 md:w-4 md:h-4" />
-                    <span className="hidden sm:inline">Verified</span>
+                    <span className="hidden sm:inline">{t('organizer_profile.verified', 'Verified')}</span>
                     <span className="sm:hidden">✓</span>
                   </div>
                 )}
@@ -80,17 +82,17 @@ export default function OrganizerProfileClient({
                 <div className="flex items-center gap-1.5 md:gap-2 whitespace-nowrap">
                   <Calendar className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
                   <span className="font-semibold text-sm md:text-base">{totalEvents || 0}</span>
-                  <span className="text-[13px] md:text-base">Events</span>
+                  <span className="text-[13px] md:text-base">{t('organizer_profile.events', 'Events')}</span>
                 </div>
                 <div className="flex items-center gap-1.5 md:gap-2 whitespace-nowrap">
                   <Users className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
                   <span className="font-semibold text-sm md:text-base">{followerCount || 0}</span>
-                  <span className="text-[13px] md:text-base">Followers</span>
+                  <span className="text-[13px] md:text-base">{t('organizer_profile.followers', 'Followers')}</span>
                 </div>
                 <div className="flex items-center gap-1.5 md:gap-2 whitespace-nowrap">
                   <Star className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
                   <span className="font-semibold text-sm md:text-base">{totalTicketsSold}</span>
-                  <span className="text-[13px] md:text-base">Sold</span>
+                  <span className="text-[13px] md:text-base">{t('organizer_profile.sold', 'Sold')}</span>
                 </div>
               </div>
 
@@ -142,9 +144,20 @@ export default function OrganizerProfileClient({
         <section className="mb-10 md:mb-16">
           <div className="flex items-center justify-between mb-4 md:mb-6">
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-white">Upcoming Events</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-white">{t('organizer_profile.upcoming_events', 'Upcoming Events')}</h2>
               <p className="text-[13px] md:text-base text-white/65 mt-1">
-                {upcomingEvents?.length || 0} event{(upcomingEvents?.length || 0) !== 1 ? 's' : ''} coming soon
+                {t(
+                  (upcomingEvents?.length || 0) === 1
+                    ? 'organizer_profile.upcoming_count'
+                    : 'organizer_profile.upcoming_count_plural',
+                  {
+                    count: upcomingEvents?.length || 0,
+                    defaultValue:
+                      (upcomingEvents?.length || 0) === 1
+                        ? '{{count}} event coming soon'
+                        : '{{count}} events coming soon',
+                  }
+                )}
               </p>
             </div>
           </div>
@@ -158,9 +171,9 @@ export default function OrganizerProfileClient({
           ) : (
             <div className="bg-[#0a0a0a] rounded-xl md:rounded-2xl shadow-soft border border-white/10 p-8 md:p-12 text-center">
               <Calendar className="w-12 h-12 md:w-16 md:h-16 text-white/40 mx-auto mb-3 md:mb-4" />
-              <h3 className="text-lg md:text-xl font-semibold text-white mb-2">No Upcoming Events</h3>
+              <h3 className="text-lg md:text-xl font-semibold text-white mb-2">{t('organizer_profile.no_upcoming_title', 'No Upcoming Events')}</h3>
               <p className="text-[13px] md:text-base text-white/65">
-                This organizer doesn&apos;t have any upcoming events at the moment.
+                {t('organizer_profile.no_upcoming_desc', "This organizer doesn't have any upcoming events at the moment.")}
               </p>
             </div>
           )}
@@ -171,9 +184,12 @@ export default function OrganizerProfileClient({
           <section>
             <div className="flex items-center justify-between mb-4 md:mb-6">
               <div>
-                <h2 className="text-2xl md:text-3xl font-bold text-white">Past Events</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-white">{t('organizer_profile.past_events', 'Past Events')}</h2>
                 <p className="text-[13px] md:text-base text-white/65 mt-1">
-                  Previous events organized by {organizer.full_name}
+                  {t('organizer_profile.past_events_desc', {
+                    defaultValue: 'Previous events organized by {{name}}',
+                    name: organizer.full_name,
+                  })}
                 </p>
               </div>
             </div>

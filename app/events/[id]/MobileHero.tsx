@@ -64,12 +64,12 @@ export default function MobileHero({
         <div className="absolute top-3 right-3 flex flex-col gap-2">
           {isSoldOut && (
             <Badge variant="error" size="sm">
-              {t('sold_out').toUpperCase()}
+              {t('ticket.sold_out').toUpperCase()}
             </Badge>
           )}
           {!isSoldOut && selloutSoon && (
             <Badge variant="warning" size="sm">
-              {t('almost_sold_out')}
+              {t('ticket.almost_sold_out')}
             </Badge>
           )}
           {isVIP && (
@@ -79,7 +79,7 @@ export default function MobileHero({
           )}
           {isTrending && (
             <Badge variant="trending" size="sm" icon={<TrendingUp className="w-3 h-3" />}>
-              {t('trending')}
+              {t('events.trending')}
             </Badge>
           )}
         </div>
@@ -112,7 +112,7 @@ export default function MobileHero({
             {isVerified && (
               <div className="flex items-center gap-1 text-brand-400 text-xs">
                 <Shield className="w-3 h-3" />
-                <span className="font-medium">Verified</span>
+                <span className="font-medium">{t('events.verified')}</span>
               </div>
             )}
           </div>

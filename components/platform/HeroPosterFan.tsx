@@ -62,11 +62,18 @@ function FanPoster({
   )
 }
 
-export default function HeroPosterFan({ events }: { events: FanEvent[] }) {
+export default function HeroPosterFan({
+  events,
+  fanAriaLabel = 'Posters from events on Tikèm',
+}: {
+  events: FanEvent[]
+  /** Localized aria-label, supplied by the (server) page's language dictionary. */
+  fanAriaLabel?: string
+}) {
   const [a, b, c] = events || []
   if (!a || !b || !c) return null
   return (
-    <div aria-label="Posters from events on Tikèm" className="relative isolate h-[440px]">
+    <div aria-label={fanAriaLabel} className="relative isolate h-[440px]">
       <FanPoster
         ev={b}
         wrapper="left-0 top-12 z-0 w-[190px] opacity-85"

@@ -194,12 +194,12 @@ export default function EventbriteStyleTicketSelector({
         setPromoValidation(data)
         setPromoError(null)
       } else {
-        setPromoError(data.error || 'Invalid promo code')
+        setPromoError(data.error || t('checkout.promo_invalid', { defaultValue: 'Invalid promo code' }))
         setPromoValidation(null)
       }
     } catch (error) {
       console.error('Error validating promo:', error)
-      setPromoError('Failed to validate promo code')
+      setPromoError(t('checkout.promo_validate_failed', { defaultValue: 'Failed to validate promo code' }))
     } finally {
       setValidatingPromo(false)
     }
@@ -362,7 +362,7 @@ export default function EventbriteStyleTicketSelector({
         {promoValidation?.valid && (
           <div className="mt-2 text-sm text-green-400 flex items-center gap-1">
             <span>✓</span>
-            <span>{promoValidation.promoCode?.description || 'Promo code applied'}</span>
+            <span>{promoValidation.promoCode?.description || t('events.promo_code_applied')}</span>
           </div>
         )}
       </div>
@@ -388,7 +388,7 @@ export default function EventbriteStyleTicketSelector({
             {promoValidation?.valid && promoValidation.promoCode && (
               <div className="flex justify-between text-sm text-green-400">
                 <span>
-                  {t('common.promo_discount')} ({promoValidation.promoCode.code})
+                  {t('events.promo_discount')} ({promoValidation.promoCode.code})
                 </span>
                 <span>
                   -{promoValidation.promoCode.discountType === 'percentage' 

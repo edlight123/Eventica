@@ -2,12 +2,14 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 import { auth } from '@/lib/firebase/client'
 import { onAuthStateChanged } from 'firebase/auth'
 
 type Status = 'loading' | 'ready' | 'success' | 'error'
 
 export default function InvitePage() {
+  const { t } = useTranslation('common')
   const router = useRouter()
   const searchParams = useSearchParams()
   const eventId = useMemo(() => searchParams.get('eventId') || '', [searchParams])
@@ -48,7 +50,7 @@ export default function InvitePage() {
 
     if (!eventId || !token) {
       setStatus('error')
-      setMessage('Invalid invite link.')
+      setMessage(t('invite.invalid_link', 'Invalid invite link.'))
       return
     }
 
@@ -86,14 +88,14 @@ export default function InvitePage() {
           const code = String(json?.code || '')
           const friendly =
             code === 'already-exists'
-              ? 'This invite was already claimed.'
+              ? t('invite.error_already_claimed', 'This invite was already claimed.')
               : code === 'deadline-exceeded'
-                ? 'This invite has expired.'
+                ? t('invite.error_expired', 'This invite has expired.')
                 : code === 'permission-denied'
-                  ? 'This invite is restricted to a different account.'
+                  ? t('invite.error_restricted', 'This invite is restricted to a different account.')
                   : code === 'not-found'
-                    ? 'Invite not found.'
-                    : String(json?.error || 'Failed to redeem invite.')
+                    ? t('invite.error_not_found', 'Invite not found.')
+                    : String(json?.error || t('invite.error_generic', 'Failed to redeem invite.'))
 
           setStatus('error')
           setMessage(friendly)
@@ -101,7 +103,7 @@ export default function InvitePage() {
         }
 
         setStatus('success')
-        setMessage('Invite accepted. Redirecting…')
+        setMessage(t('invite.success_message', 'Invite accepted. Redirecting…'))
         try {
           if (typeof window !== 'undefined') {
             window.localStorage.removeItem('eh:pendingRedirect')
@@ -113,7 +115,7 @@ export default function InvitePage() {
         router.replace(`/organizer/scan/${encodeURIComponent(eventId)}`)
       } catch (err: any) {
         setStatus('error')
-        setMessage(err?.message || 'Failed to redeem invite.')
+        setMessage(err?.message || t('invite.error_generic', 'Failed to redeem invite.'))
       }
     })
 
@@ -123,10 +125,10 @@ export default function InvitePage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] px-4">
       <div className="w-full max-w-md bg-[#0a0a0a] border border-white/10 rounded-xl p-6 shadow-sm">
-        <h1 className="text-xl font-bold text-white">Event Invite</h1>
+        <h1 className="text-xl font-bold text-white">{t('invite.title', 'Event Invite')}</h1>
         <p className="mt-2 text-sm text-white/65">
-          {status === 'loading' && 'Loading…'}
-          {status === 'ready' && 'Accepting invite…'}
+          {status === 'loading' && t('invite.loading', 'Loading…')}
+          {status === 'ready' && t('invite.accepting', 'Accepting invite…')}
           {status === 'success' && message}
           {status === 'error' && message}
         </p>
@@ -137,10 +139,10 @@ export default function InvitePage() {
               href={appInviteUrl}
               className="block w-full text-center px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg transition-colors"
             >
-              Open in app
+              {t('invite.open_in_app', 'Open in app')}
             </a>
             <p className="text-xs text-white/50">
-              If you don’t have the app installed, you can still accept on desktop.
+              {t('invite.install_note', "If you don't have the app installed, you can still accept on desktop.")}
             </p>
           </div>
         ) : null}

@@ -1,8 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export default function FindTicketsForm() {
+  const { t } = useTranslation('common')
   const [contact, setContact] = useState('')
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle')
 
@@ -33,10 +35,12 @@ export default function FindTicketsForm() {
   if (status === 'sent') {
     return (
       <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-6 text-center">
-        <p className="text-emerald-300 font-semibold">Check your messages</p>
+        <p className="text-emerald-300 font-semibold">{t('find_tickets.success_title', 'Check your messages')}</p>
         <p className="text-sm text-white/70 mt-2 leading-relaxed">
-          If we have tickets for that email or phone number, the link is on its way to
-          it now.
+          {t(
+            'find_tickets.success_desc',
+            'If we have tickets for that email or phone number, the link is on its way to it now.'
+          )}
         </p>
       </div>
     )
@@ -46,7 +50,7 @@ export default function FindTicketsForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label htmlFor="contact" className="block text-xs uppercase tracking-wider text-white/50 mb-1.5">
-          Email or phone
+          {t('find_tickets.label', 'Email or phone')}
         </label>
         <input
           id="contact"
@@ -54,7 +58,7 @@ export default function FindTicketsForm() {
           value={contact}
           onChange={(e) => setContact(e.target.value)}
           disabled={status === 'sending'}
-          placeholder="you@example.com"
+          placeholder={t('find_tickets.placeholder', 'you@example.com')}
           className="w-full rounded-lg bg-white/[0.03] border border-white/10 px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-brand-500 disabled:opacity-50"
         />
       </div>
@@ -64,7 +68,7 @@ export default function FindTicketsForm() {
         disabled={status === 'sending' || !contact.trim()}
         className="block w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 px-5 rounded-lg transition-colors disabled:opacity-50 min-h-[44px]"
       >
-        {status === 'sending' ? 'Sending…' : 'Send my ticket link'}
+        {status === 'sending' ? t('find_tickets.sending', 'Sending…') : t('find_tickets.submit', 'Send my ticket link')}
       </button>
     </form>
   )

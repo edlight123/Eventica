@@ -2,9 +2,11 @@
 
 import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 import { auth } from '@/lib/firebase/client'
 
 export default function MobileAuthCallback() {
+  const { t } = useTranslation('common')
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -47,8 +49,8 @@ export default function MobileAuthCallback() {
 
   return (
     <div style={{ textAlign: 'center', padding: '40px', fontFamily: 'system-ui' }}>
-      <h2>Completing sign-in...</h2>
-      <p>You will be redirected to the app shortly.</p>
+      <h2>{t('mobile_callback.completing', 'Completing sign-in...')}</h2>
+      <p>{t('mobile_callback.redirecting', 'You will be redirected to the app shortly.')}</p>
     </div>
   )
 }

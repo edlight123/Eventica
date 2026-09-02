@@ -64,9 +64,11 @@ export default function OrganizerDashboardClient({
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/10">
             <AlertTriangle className="h-6 w-6 text-amber-300" />
           </div>
-          <h1 className="font-display text-2xl text-white">We couldn&rsquo;t load your dashboard</h1>
+          <h1 className="font-display text-2xl text-white">{t('organizer.dashboard_error.title', { defaultValue: "We couldn't load your dashboard" })}</h1>
           <p className="mt-2 text-[15px] text-white/70">
-            Something went wrong fetching your events and sales. Your data is safe — please try again.
+            {t('organizer.dashboard_error.description', {
+              defaultValue: 'Something went wrong fetching your events and sales. Your data is safe — please try again.',
+            })}
           </p>
           <button
             type="button"
@@ -74,11 +76,11 @@ export default function OrganizerDashboardClient({
             className="mt-6 inline-flex items-center gap-2 rounded-lg bg-brand-700 px-5 py-2.5 font-semibold text-white transition-colors hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <RefreshCw className="h-4 w-4" />
-            Try again
+            {t('organizer.dashboard_error.retry', { defaultValue: 'Try again' })}
           </button>
           <p className="mt-4 text-sm text-white/70">
             <Link href="/organizer/events" className="text-brand-300 hover:text-brand-200">
-              Go to your events
+              {t('organizer.dashboard_error.go_to_events', { defaultValue: 'Go to your events' })}
             </Link>
           </p>
         </div>

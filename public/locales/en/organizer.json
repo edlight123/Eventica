@@ -91,7 +91,23 @@
     "filters": "Filters",
     "analytics": "Analytics",
     "promo_codes": "Promo Codes",
-    "scan_tickets": "Scan Tickets"
+    "scan_tickets": "Scan Tickets",
+    "all": "All",
+    "past": "Past",
+    "eyebrow": "Organizer",
+    "title": "My Events",
+    "subtitle": "Create, manage, and track all of your events.",
+    "list_view": "List view",
+    "calendar_view": "Calendar view",
+    "empty_filtered_title": "No events match",
+    "empty_title": "No events yet",
+    "empty_filtered_desc": "Try adjusting your search or filters to find what you're looking for.",
+    "empty_filtered_more_desc": "No matches in the {{count}} events loaded so far. Load more to keep searching, or adjust your filters.",
+    "empty_desc": "Create your first event to start selling tickets and tracking sales.",
+    "loading": "Loading…",
+    "load_more": "Load more events",
+    "clear_filters": "Clear filters",
+    "search_scope_note": "Search covers the {{count}} events loaded so far — load more to search further."
   },
   "event_card_detail": {
     "sold_out": "SOLD OUT",
@@ -279,8 +295,7 @@
       "view_status": "View Status",
       "manage_settings": "Manage Settings",
       "contact_support": "Contact Support"
-    }
+    },
+    "eyebrow": "Organizer"
   }
 }
-
-

@@ -34,7 +34,8 @@
     "language_en": "English",
     "language_fr": "Français",
     "language_ht": "Kreyòl",
-    "timezone": "Fuseau horaire"
+    "timezone": "Fuseau horaire",
+    "default_country": "Pays"
   },
   "notifications": {
     "title": "Notifications",
@@ -66,5 +67,18 @@
     "deleting": "Suppression...",
     "sign_out_error": "Échec de la déconnexion",
     "delete_error": "Échec de la suppression du compte"
+  },
+  "organizer_profile": {
+    "verified": "Vérifié",
+    "events": "Événements",
+    "followers": "Abonnés",
+    "sold": "Vendus",
+    "upcoming_events": "Événements à venir",
+    "upcoming_count": "{{count}} événement à venir",
+    "upcoming_count_plural": "{{count}} événements à venir",
+    "no_upcoming_title": "Aucun événement à venir",
+    "no_upcoming_desc": "Cet organisateur n'a aucun événement à venir pour le moment.",
+    "past_events": "Événements passés",
+    "past_events_desc": "Événements précédents organisés par {{name}}"
   }
 }

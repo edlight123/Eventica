@@ -235,7 +235,7 @@ export default function GuestCheckoutForm({
       <p className="text-center text-xs text-white/40">
         {t('checkout.guest_signin_hint', { defaultValue: 'Already have an account?' })}{' '}
         <a href="/auth/login" className="text-brand-400 underline underline-offset-2">
-          {t('common.sign_in', { defaultValue: 'Sign in' })}
+          {t('nav.signIn')}
         </a>
       </p>
     </form>

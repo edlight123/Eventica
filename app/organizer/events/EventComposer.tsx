@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 import { firebaseDb } from '@/lib/firebase-db/client'
 // Raw firebase SDK: the firebaseDb shim only handles top-level collections, so
 // the hashed access code is written straight to the events/{id}/private/access
@@ -254,6 +255,7 @@ export default function EventComposer({
 }: EventComposerProps) {
   const router = useRouter()
   const { showToast } = useToast()
+  const { t } = useTranslation('common')
 
   const isEdit = !!event
   const start0 = splitISO(event?.start_datetime)
@@ -465,8 +467,10 @@ export default function EventComposer({
     if (!guest) {
       showToast({
         type: 'success',
-        title: 'Welcome back',
-        message: 'We kept your event draft — review it and hit Create.',
+        title: t('composer.toasts.welcomeTitle', { defaultValue: 'Welcome back' }),
+        message: t('composer.toasts.welcomeMsg', {
+          defaultValue: 'We kept your event draft — review it and hit Create.',
+        }),
         duration: 4500,
       })
     }
@@ -593,10 +597,18 @@ export default function EventComposer({
     )
     const money = (amount: number) => `${amount.toLocaleString()} ${currency}`
     return passFeesToBuyer
-      ? `A ${money(price)} ticket: the buyer pays ${money(pricing.total)} and you receive ${money(price)}.`
-      : `A ${money(price)} ticket: the buyer pays ${money(price)} and you receive ${money(
-          fromCents(pricing.cents.organizerNet)
-        )}.`
+      ? t('composer.fee.example', {
+          defaultValue: 'A {{price}} ticket: the buyer pays {{total}} and you receive {{net}}.',
+          price: money(price),
+          total: money(pricing.total),
+          net: money(price),
+        })
+      : t('composer.fee.example', {
+          defaultValue: 'A {{price}} ticket: the buyer pays {{total}} and you receive {{net}}.',
+          price: money(price),
+          total: money(price),
+          net: money(fromCents(pricing.cents.organizerNet)),
+        })
   })()
   const paidPublishingBlocked = isPaid && !isVerified
 
@@ -738,8 +750,10 @@ export default function EventComposer({
     if (title.trim().length < 3 || !startDate) {
       showToast({
         type: 'error',
-        title: 'Almost there',
-        message: 'Add an event name and a start date to continue.',
+        title: t('composer.toasts.almostTitle', { defaultValue: 'Almost there' }),
+        message: t('composer.toasts.almostMsg', {
+          defaultValue: 'Add an event name and a start date to continue.',
+        }),
         duration: 4000,
       })
       return
@@ -747,8 +761,8 @@ export default function EventComposer({
     if (endBeforeStart) {
       showToast({
         type: 'error',
-        title: 'Check your dates',
-        message: 'The end time must be after the start time.',
+        title: t('composer.toasts.datesTitle', { defaultValue: 'Check your dates' }),
+        message: t('composer.endError', { defaultValue: 'The end time must be after the start time.' }),
         duration: 4000,
       })
       return
@@ -756,8 +770,10 @@ export default function EventComposer({
     if (needsLocation) {
       showToast({
         type: 'error',
-        title: 'Add a location',
-        message: 'In-person events need a venue, address, or city.',
+        title: t('composer.toasts.locationTitle', { defaultValue: 'Add a location' }),
+        message: t('composer.toasts.locationMsg', {
+          defaultValue: 'In-person events need a venue, address, or city.',
+        }),
         duration: 4000,
       })
       return
@@ -765,8 +781,10 @@ export default function EventComposer({
     if (anyTierPriceUnset) {
       showToast({
         type: 'error',
-        title: 'Set a price for every ticket type',
-        message: 'Enter 0 to make a ticket type free. A blank price is not the same as free.',
+        title: t('composer.toasts.priceTitle', { defaultValue: 'Set a price for every ticket type' }),
+        message: t('composer.toasts.priceMsg', {
+          defaultValue: 'Enter 0 to make a ticket type free. A blank price is not the same as free.',
+        }),
         duration: 5000,
       })
       return
@@ -774,8 +792,10 @@ export default function EventComposer({
     if (anySaleWindowInvalid) {
       showToast({
         type: 'error',
-        title: 'Check ticket sale windows',
-        message: 'A ticket’s sales end must be after its sales start.',
+        title: t('composer.toasts.saleWindowTitle', { defaultValue: 'Check ticket sale windows' }),
+        message: t('composer.toasts.saleWindowMsg', {
+          defaultValue: 'A ticket’s sales end must be after its sales start.',
+        }),
         duration: 4000,
       })
       return
@@ -783,8 +803,10 @@ export default function EventComposer({
     if (anyValidityWindowInvalid) {
       showToast({
         type: 'error',
-        title: 'Check ticket validity windows',
-        message: 'A ticket’s valid until must be after its valid from.',
+        title: t('composer.toasts.validityTitle', { defaultValue: 'Check ticket validity windows' }),
+        message: t('composer.toasts.validityMsg', {
+          defaultValue: 'A ticket’s valid until must be after its valid from.',
+        }),
         duration: 4000,
       })
       return
@@ -792,10 +814,12 @@ export default function EventComposer({
     if (accessCodeInvalid) {
       showToast({
         type: 'error',
-        title: 'Set an access code',
+        title: t('composer.toasts.accessTitle', { defaultValue: 'Set an access code' }),
         message: isEdit
-          ? 'Access codes must be at least 6 characters.'
-          : 'Protected events need an access code of at least 6 characters.',
+          ? t('composer.accessCodeError', { defaultValue: 'Access codes must be at least 6 characters.' })
+          : t('composer.toasts.accessMsgNew', {
+              defaultValue: 'Protected events need an access code of at least 6 characters.',
+            }),
         duration: 4000,
       })
       return
@@ -862,7 +886,12 @@ export default function EventComposer({
       if (isEdit) {
         if (isDemoMode()) {
           await new Promise((r) => setTimeout(r, 500))
-          showToast({ type: 'success', title: 'Changes saved', message: 'Demo mode.', duration: 3000 })
+          showToast({
+            type: 'success',
+            title: t('composer.toasts.savedTitle', { defaultValue: 'Changes saved' }),
+            message: t('composer.toasts.demoMode', { defaultValue: 'Demo mode.' }),
+            duration: 3000,
+          })
           return
         }
         const { error } = await firebaseDb.from('events').update(data).eq('id', event.id)
@@ -895,11 +924,18 @@ export default function EventComposer({
 
         showToast({
           type: 'success',
-          title: 'Changes saved',
+          title: t('composer.toasts.savedTitle', { defaultValue: 'Changes saved' }),
           message:
             seriesApplied > 0
-              ? `Your event and ${seriesApplied} other${seriesApplied === 1 ? '' : 's'} in the series were updated.`
-              : 'Your event has been updated.',
+              ? seriesApplied === 1
+                ? t('composer.toasts.seriesUpdatedOne', {
+                    defaultValue: 'Your event and 1 other in the series were updated.',
+                  })
+                : t('composer.toasts.seriesUpdatedMany', {
+                    defaultValue: 'Your event and {{n}} others in the series were updated.',
+                    n: seriesApplied,
+                  })
+              : t('composer.toasts.updatedMsg', { defaultValue: 'Your event has been updated.' }),
           duration: 3000,
         })
         router.refresh()
@@ -916,7 +952,12 @@ export default function EventComposer({
         try {
           localStorage.removeItem(DRAFT_KEY)
         } catch {}
-        showToast({ type: 'success', title: 'Draft created', message: 'Demo mode — opening the editor.', duration: 3000 })
+        showToast({
+          type: 'success',
+          title: t('composer.toasts.draftTitle', { defaultValue: 'Draft created' }),
+          message: t('composer.toasts.draftDemoMsg', { defaultValue: 'Demo mode — opening the editor.' }),
+          duration: 3000,
+        })
         router.push('/organizer/events')
         return
       }
@@ -978,8 +1019,11 @@ export default function EventComposer({
         } catch {}
         showToast({
           type: 'success',
-          title: 'Series created',
-          message: `${occurrenceCount} events created. Review the first, then Publish below.`,
+          title: t('composer.toasts.seriesTitle', { defaultValue: 'Series created' }),
+          message: t('composer.toasts.seriesMsg', {
+            defaultValue: '{{n}} events created. Review the first, then Publish below.',
+            n: occurrenceCount,
+          }),
           duration: 4000,
         })
         if (firstId) router.push(`/organizer/events/${firstId}/edit`)
@@ -997,14 +1041,21 @@ export default function EventComposer({
       try {
         localStorage.removeItem(DRAFT_KEY)
       } catch {}
-      showToast({ type: 'success', title: 'Draft created', message: 'Review the details, then Publish below.', duration: 4000 })
+      showToast({
+        type: 'success',
+        title: t('composer.toasts.draftTitle', { defaultValue: 'Draft created' }),
+        message: t('composer.toasts.draftMsg', { defaultValue: 'Review the details, then Publish below.' }),
+        duration: 4000,
+      })
       router.push(`/organizer/events/${created.id}/edit`)
       router.refresh()
     } catch (err: any) {
       showToast({
         type: 'error',
-        title: isEdit ? 'Could not save changes' : 'Could not create event',
-        message: err?.message || 'Please try again.',
+        title: isEdit
+          ? t('composer.toasts.errSaveTitle', { defaultValue: 'Could not save changes' })
+          : t('composer.toasts.errCreateTitle', { defaultValue: 'Could not create event' }),
+        message: err?.message || t('composer.toasts.tryAgain', { defaultValue: 'Please try again.' }),
         duration: 5000,
       })
     } finally {
@@ -1019,8 +1070,10 @@ export default function EventComposer({
     if (next && paidPublishingBlocked) {
       showToast({
         type: 'error',
-        title: 'Verification required',
-        message: 'Complete identity verification to publish paid events.',
+        title: t('composer.toasts.verifyTitle', { defaultValue: 'Verification required' }),
+        message: t('composer.verifyToPublish', {
+          defaultValue: 'Complete identity verification to publish paid events.',
+        }),
         duration: 5000,
       })
       return
@@ -1042,7 +1095,9 @@ export default function EventComposer({
         })
         const data = await res.json().catch(() => ({}))
         if (!res.ok) {
-          throw new Error(data?.error || 'Could not update publish status')
+          throw new Error(
+            data?.error || t('composer.toasts.publishStatusErr', { defaultValue: 'Could not update publish status' })
+          )
         }
         setIsPublished(next)
         router.refresh()
@@ -1056,7 +1111,7 @@ export default function EventComposer({
           if (!warning?.message) continue
           showToast({
             type: 'warning',
-            title: 'Heads up about your payout',
+            title: t('composer.toasts.payoutWarnTitle', { defaultValue: 'Heads up about your payout' }),
             message: warning.message,
             duration: 12000,
           })
@@ -1064,12 +1119,21 @@ export default function EventComposer({
       }
       showToast({
         type: 'success',
-        title: next ? 'Event published' : 'Moved to draft',
-        message: next ? 'Your event is now live.' : 'Your event is hidden from attendees.',
+        title: next
+          ? t('composer.toasts.publishedTitle', { defaultValue: 'Event published' })
+          : t('composer.toasts.unpublishedTitle', { defaultValue: 'Moved to draft' }),
+        message: next
+          ? t('composer.toasts.publishedMsg', { defaultValue: 'Your event is now live.' })
+          : t('composer.toasts.unpublishedMsg', { defaultValue: 'Your event is hidden from attendees.' }),
         duration: 3500,
       })
     } catch (err: any) {
-      showToast({ type: 'error', title: 'Could not update', message: err?.message || 'Please try again.', duration: 5000 })
+      showToast({
+        type: 'error',
+        title: t('composer.toasts.errUpdateTitle', { defaultValue: 'Could not update' }),
+        message: err?.message || t('composer.toasts.tryAgain', { defaultValue: 'Please try again.' }),
+        duration: 5000,
+      })
     } finally {
       setPublishing(false)
     }
@@ -1091,13 +1155,19 @@ export default function EventComposer({
               <Info className="mt-0.5 h-[18px] w-[18px] shrink-0 text-amber-300" />
               <p className="text-sm leading-relaxed text-white/80">
                 {payoutProfileGap === 'stripe_connect'
-                  ? 'Events in the US, Canada or France pay out through your Stripe profile — it isn’t set up yet, so paid tickets can’t publish. '
-                  : 'Events in Haiti pay out through your Haiti profile (MonCash or bank) — it isn’t set up yet, so paid tickets can’t publish. '}
+                  ? t('composer.payoutGap.stripe', {
+                      defaultValue:
+                        'Events in the US, Canada or France pay out through your Stripe profile — it isn’t set up yet, so paid tickets can’t publish. ',
+                    })
+                  : t('composer.payoutGap.haiti', {
+                      defaultValue:
+                        'Events in Haiti pay out through your Haiti profile (MonCash or bank) — it isn’t set up yet, so paid tickets can’t publish. ',
+                    })}
                 <a
                   href="/organizer/settings/payouts"
                   className="font-medium text-amber-300 underline underline-offset-2 hover:text-amber-200"
                 >
-                  Set up payouts
+                  {t('composer.payoutGap.cta', { defaultValue: 'Set up payouts' })}
                 </a>
               </p>
             </div>
@@ -1108,8 +1178,14 @@ export default function EventComposer({
             <div className="mb-6 flex items-start gap-3 rounded-xl border border-brand-500/30 bg-brand-500/10 px-4 py-3">
               <Info className="mt-0.5 h-[18px] w-[18px] shrink-0 text-brand-300" />
               <p className="text-sm text-white/80">
-                <span className="font-semibold text-white">Draft saved.</span> Add the finishing
-                touches, then <span className="font-semibold text-white">Publish</span> when you&rsquo;re ready.
+                <span className="font-semibold text-white">
+                  {t('composer.draftBanner.saved', { defaultValue: 'Draft saved.' })}
+                </span>{' '}
+                {t('composer.draftBanner.mid', { defaultValue: 'Add the finishing touches, then' })}{' '}
+                <span className="font-semibold text-white">
+                  {t('composer.draftBanner.publish', { defaultValue: 'Publish' })}
+                </span>{' '}
+                {t('composer.draftBanner.end', { defaultValue: 'when you’re ready.' })}
               </p>
             </div>
           )}
@@ -1126,7 +1202,9 @@ export default function EventComposer({
                   sellMode === m ? 'bg-white text-black' : 'text-white/70 hover:text-white'
                 }`}
               >
-                {m === 'tickets' ? 'Sell Tickets' : 'RSVP'}
+                {m === 'tickets'
+                  ? t('composer.sellTickets', { defaultValue: 'Sell Tickets' })
+                  : t('composer.rsvp', { defaultValue: 'RSVP' })}
               </button>
             ))}
           </div>
@@ -1135,12 +1213,16 @@ export default function EventComposer({
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="My event name"
+            placeholder={t('composer.titlePlaceholder', { defaultValue: 'My event name' })}
             aria-label="Event name (required)"
             aria-required="true"
             className="w-full bg-transparent font-display text-[clamp(34px,6vw,52px)] leading-[1.04] tracking-tight text-white placeholder:text-white/25 focus:outline-none"
           />
-          {titleInvalid && <p className="mt-1 text-sm text-red-300">Give your event a name (3+ characters).</p>}
+          {titleInvalid && (
+            <p className="mt-1 text-sm text-red-300">
+              {t('composer.titleError', { defaultValue: 'Give your event a name (3+ characters).' })}
+            </p>
+          )}
 
           {/* Short summary */}
           <div className="mt-4">
@@ -1148,7 +1230,7 @@ export default function EventComposer({
               <textarea
                 value={summary}
                 onChange={(e) => setSummary(e.target.value)}
-                placeholder="Add a short summary…"
+                placeholder={t('composer.summaryPlaceholder', { defaultValue: 'Add a short summary…' })}
                 aria-label="Short summary"
                 rows={2}
                 autoFocus={showSummary}
@@ -1160,43 +1242,61 @@ export default function EventComposer({
                 onClick={() => setShowSummary(true)}
                 className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-3.5 py-2 text-sm font-medium text-white/70 transition-colors hover:bg-white/[0.04] hover:text-white"
               >
-                <Plus className="h-4 w-4" /> Short Summary
+                <Plus className="h-4 w-4" /> {t('composer.shortSummary', { defaultValue: 'Short Summary' })}
               </button>
             )}
           </div>
 
           {/* Dates */}
           <div className="mt-8 border-t border-white/10 pt-6">
-            <SectionTitle icon={CalendarDays}>Dates</SectionTitle>
+            <SectionTitle icon={CalendarDays}>{t('composer.dates', { defaultValue: 'Dates' })}</SectionTitle>
             <div className="overflow-hidden rounded-xl border border-white/10">
               <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5">
                 <span className="text-[15px] font-medium text-white">
-                  Start <span className="text-red-300" aria-hidden="true">*</span>
+                  {t('composer.start', { defaultValue: 'Start' })} <span className="text-red-300" aria-hidden="true">*</span>
                 </span>
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="label-mono text-[10px] uppercase text-white/70">{tzLabel}</span>
-                  <DatePicker value={startDate} onChange={setStartDate} invalid={startInvalid} placeholder="Pick a date" />
-                  <TimePicker value={startTime} onChange={setStartTime} placeholder="Time" />
+                  <DatePicker
+                    value={startDate}
+                    onChange={setStartDate}
+                    invalid={startInvalid}
+                    placeholder={t('composer.pickDate', { defaultValue: 'Pick a date' })}
+                  />
+                  <TimePicker value={startTime} onChange={setStartTime} placeholder={t('composer.time', { defaultValue: 'Time' })} />
                 </div>
               </div>
               <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 px-4 py-3.5">
-                <span className="text-[15px] font-medium text-white">End</span>
+                <span className="text-[15px] font-medium text-white">{t('composer.end', { defaultValue: 'End' })}</span>
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="label-mono text-[10px] uppercase text-white/70">{tzLabel}</span>
-                  <DatePicker value={endDate} onChange={setEndDate} min={startDate || undefined} placeholder="Pick a date" />
-                  <TimePicker value={endTime} onChange={setEndTime} placeholder="Time" />
+                  <DatePicker
+                    value={endDate}
+                    onChange={setEndDate}
+                    min={startDate || undefined}
+                    placeholder={t('composer.pickDate', { defaultValue: 'Pick a date' })}
+                  />
+                  <TimePicker value={endTime} onChange={setEndTime} placeholder={t('composer.time', { defaultValue: 'Time' })} />
                 </div>
               </div>
             </div>
-            {startInvalid && <p className="mt-1.5 text-sm text-red-300">Pick when your event starts.</p>}
-            {endInvalid && <p className="mt-1.5 text-sm text-red-300">The end time must be after the start time.</p>}
+            {startInvalid && (
+              <p className="mt-1.5 text-sm text-red-300">
+                {t('composer.startError', { defaultValue: 'Pick when your event starts.' })}
+              </p>
+            )}
+            {endInvalid && (
+              <p className="mt-1.5 text-sm text-red-300">
+                {t('composer.endError', { defaultValue: 'The end time must be after the start time.' })}
+              </p>
+            )}
 
             {/* Repeats — create-only. Generates a series of independent events. */}
             {!isEdit && (
               <div className="mt-3 rounded-xl border border-white/10 px-4 py-3.5">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <span className="flex items-center gap-2 text-[15px] text-white/80">
-                    <Repeat className="h-4 w-4 text-white/50" /> Repeats
+                    <Repeat className="h-4 w-4 text-white/50" /> {t('composer.repeats', { defaultValue: 'Repeats' })}
                   </span>
                   <div className="flex flex-wrap gap-2" role="group" aria-label="Repeats">
                     {RECURRENCE_OPTIONS.map((opt) => (
@@ -1211,7 +1311,7 @@ export default function EventComposer({
                             : 'border-white/10 bg-white/[0.03] text-white/70 hover:border-white/20 hover:text-white'
                         }`}
                       >
-                        {opt.label}
+                        {t(`composer.recurrence.${opt.value}`, { defaultValue: opt.label })}
                       </button>
                     ))}
                   </div>
@@ -1220,11 +1320,11 @@ export default function EventComposer({
                   <div className="mt-3 space-y-3 border-t border-white/10 pt-3">
                     {/* Bound the series either by a count or by an end date. */}
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                      <span className="text-sm text-white/70">Ends</span>
+                      <span className="text-sm text-white/70">{t('composer.ends', { defaultValue: 'Ends' })}</span>
                       <div className="flex flex-wrap gap-2" role="group" aria-label="Series length">
                         {([
-                          ['count', 'For N dates'],
-                          ['until', 'Until a date'],
+                          ['count', t('composer.forNDates', { defaultValue: 'For N dates' })],
+                          ['until', t('composer.untilADate', { defaultValue: 'Until a date' })],
                         ] as const).map(([val, label]) => (
                           <button
                             key={val}
@@ -1244,7 +1344,9 @@ export default function EventComposer({
                     </div>
                     {recurrenceMode === 'count' ? (
                       <label className="flex items-center justify-between gap-3">
-                        <span className="text-sm text-white/70">Number of occurrences (2–52)</span>
+                        <span className="text-sm text-white/70">
+                          {t('composer.occurrences', { defaultValue: 'Number of occurrences (2–52)' })}
+                        </span>
                         <input
                           type="number"
                           min={2}
@@ -1254,19 +1356,21 @@ export default function EventComposer({
                             const n = Math.round(Number(e.target.value) || 2)
                             setRecurrenceCount(Math.max(2, Math.min(MAX_RECURRENCE_COUNT, n)))
                           }}
-                          aria-label="Number of occurrences"
+                          aria-label={t('composer.occurrencesAria', { defaultValue: 'Number of occurrences' })}
                           className="w-20 rounded-lg border border-white/10 bg-transparent px-2.5 py-1.5 text-right text-sm text-white [color-scheme:dark] focus:outline-none focus:border-brand-400"
                         />
                       </label>
                     ) : (
                       <label className="flex flex-wrap items-center justify-between gap-3">
-                        <span className="text-sm text-white/70">Repeat until (max 52 events)</span>
+                        <span className="text-sm text-white/70">
+                          {t('composer.repeatUntil', { defaultValue: 'Repeat until (max 52 events)' })}
+                        </span>
                         <input
                           type="date"
                           min={startDate || undefined}
                           value={recurrenceEndDate}
                           onChange={(e) => setRecurrenceEndDate(e.target.value)}
-                          aria-label="Repeat until date"
+                          aria-label={t('composer.repeatUntilAria', { defaultValue: 'Repeat until date' })}
                           className="rounded-lg border border-white/10 bg-transparent px-2.5 py-1.5 text-sm text-white [color-scheme:dark] focus:outline-none focus:border-brand-400"
                         />
                       </label>
@@ -1279,13 +1383,13 @@ export default function EventComposer({
 
           {/* Event Details */}
           <div className="mt-8 border-t border-white/10 pt-6">
-            <SectionTitle icon={Info}>Event Details</SectionTitle>
+            <SectionTitle icon={Info}>{t('composer.details', { defaultValue: 'Event Details' })}</SectionTitle>
             <div className="space-y-3">
               {showDescription || description ? (
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Tell people what to expect…"
+                  placeholder={t('composer.descPlaceholder', { defaultValue: 'Tell people what to expect…' })}
                   aria-label="Event description"
                   rows={4}
                   autoFocus={showDescription}
@@ -1293,14 +1397,14 @@ export default function EventComposer({
                 />
               ) : (
                 <button type="button" onClick={() => setShowDescription(true)} className={rowCls}>
-                  <Pencil className="h-[18px] w-[18px] text-white/50" /> Add Description
+                  <Pencil className="h-[18px] w-[18px] text-white/50" /> {t('composer.addDescription', { defaultValue: 'Add Description' })}
                 </button>
               )}
 
               {/* Online toggle (kept compact) */}
               <div className="flex items-center justify-between rounded-xl border border-white/10 px-4 py-3.5">
                 <span className="flex items-center gap-2 text-[15px] text-white/80">
-                  <Globe className="h-[18px] w-[18px] text-white/50" /> Online event
+                  <Globe className="h-[18px] w-[18px] text-white/50" /> {t('composer.onlineEvent', { defaultValue: 'Online event' })}
                 </span>
                 <Toggle on={isOnline} onChange={setIsOnline} label="Online event" />
               </div>
@@ -1309,17 +1413,39 @@ export default function EventComposer({
                 <>
                   <div className={`flex items-center gap-3 rounded-xl border px-4 ${locationInvalid ? 'border-red-400/60' : 'border-white/10'}`}>
                     <MapPin className="h-[18px] w-[18px] shrink-0 text-white/50" />
-                    <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Location / address" aria-label="Location or address" className="w-full bg-transparent py-3.5 text-[15px] text-white placeholder:text-white/40 focus:outline-none" />
+                    <input
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder={t('composer.locationPlaceholder', { defaultValue: 'Location / address' })}
+                      aria-label="Location or address"
+                      className="w-full bg-transparent py-3.5 text-[15px] text-white placeholder:text-white/40 focus:outline-none"
+                    />
                   </div>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div className="flex items-center gap-3 rounded-xl border border-white/10 px-4">
                       <Globe className="h-[18px] w-[18px] shrink-0 text-white/50" />
-                      <input value={venueName} onChange={(e) => setVenueName(e.target.value)} placeholder="Venue name" aria-label="Venue name" className="w-full bg-transparent py-3.5 text-[15px] text-white placeholder:text-white/40 focus:outline-none" />
+                      <input
+                        value={venueName}
+                        onChange={(e) => setVenueName(e.target.value)}
+                        placeholder={t('composer.venuePlaceholder', { defaultValue: 'Venue name' })}
+                        aria-label="Venue name"
+                        className="w-full bg-transparent py-3.5 text-[15px] text-white placeholder:text-white/40 focus:outline-none"
+                      />
                     </div>
-                    <input value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" aria-label="City" className={field} />
+                    <input
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      placeholder={t('composer.cityPlaceholder', { defaultValue: 'City' })}
+                      aria-label="City"
+                      className={field}
+                    />
                   </div>
                   {locationInvalid && (
-                    <p className="text-sm text-red-300">Add a venue, address, or city for in-person events.</p>
+                    <p className="text-sm text-red-300">
+                      {t('composer.locationError', {
+                        defaultValue: 'Add a venue, address, or city for in-person events.',
+                      })}
+                    </p>
                   )}
                 </>
               )}
@@ -1327,7 +1453,7 @@ export default function EventComposer({
               {/* Category as a Posh-style row of chips */}
               <div className="rounded-xl border border-white/10 px-4 py-3.5">
                 <div className="mb-2.5 flex items-center gap-2 text-[13px] font-medium text-white/50">
-                  <Star className="h-4 w-4" /> Category
+                  <Star className="h-4 w-4" /> {t('composer.category', { defaultValue: 'Category' })}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {CATEGORIES.map((cat) => (
@@ -1341,7 +1467,7 @@ export default function EventComposer({
                           : 'border-white/10 bg-white/[0.03] text-white/70 hover:border-white/20 hover:text-white'
                       }`}
                     >
-                      {cat}
+                      {t(`categories.${cat}`, { defaultValue: cat })}
                     </button>
                   ))}
                 </div>
@@ -1356,16 +1482,19 @@ export default function EventComposer({
                 icon={Ticket}
                 right={
                   <span className="flex items-center gap-2 text-sm text-white/70">
-                    Enable waitlist <Toggle on={enableWaitlist} onChange={setEnableWaitlist} label="Enable waitlist" />
+                    {t('composer.enableWaitlist', { defaultValue: 'Enable waitlist' })}{' '}
+                    <Toggle on={enableWaitlist} onChange={setEnableWaitlist} label="Enable waitlist" />
                   </span>
                 }
               >
-                Tickets
+                {t('composer.tickets', { defaultValue: 'Tickets' })}
               </SectionTitle>
 
               {/* Currency — HTG or USD (attendees see HTG by default) */}
               <div className="mb-3 flex items-center justify-between rounded-xl border border-white/10 px-4 py-3">
-                <span className="label-mono text-[11px] uppercase tracking-wide text-white/70">Currency</span>
+                <span className="label-mono text-[11px] uppercase tracking-wide text-white/70">
+                  {t('composer.currency', { defaultValue: 'Currency' })}
+                </span>
                 <div className="flex rounded-full border border-white/10 p-0.5" role="group" aria-label="Ticket currency">
                   {allowedCurrencies.map((c) => (
                     <button
@@ -1390,7 +1519,10 @@ export default function EventComposer({
                       <input
                         value={tier.name}
                         onChange={(e) => updateTier(tier.id, { name: e.target.value })}
-                        placeholder={`Ticket type ${i + 1} (e.g. General, VIP, Early Bird)`}
+                        placeholder={t('composer.tierPlaceholder', {
+                          defaultValue: 'Ticket type {{n}} (e.g. General, VIP, Early Bird)',
+                          n: i + 1,
+                        })}
                         aria-label={`Ticket type ${i + 1} name`}
                         className={field}
                       />
@@ -1399,7 +1531,7 @@ export default function EventComposer({
                           type="button"
                           onClick={() => removeTier(tier.id)}
                           className="shrink-0 rounded-lg  p-2.5 text-white/40 transition-colors hover:bg-white/[0.04] hover:text-red-300"
-                          aria-label="Remove ticket type"
+                          aria-label={t('composer.removeTier', { defaultValue: 'Remove ticket type' })}
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -1407,18 +1539,24 @@ export default function EventComposer({
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <label className="block">
-                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">Price ({currency})</span>
+                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">
+                          {t('composer.price', { defaultValue: 'Price ({{currency}})', currency })}
+                        </span>
                         <input type="number" min="0" value={tier.price} onChange={(e) => updateTier(tier.id, { price: e.target.value })} className={field} />
                       </label>
                       <label className="block">
-                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">Quantity</span>
+                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">
+                          {t('composer.quantity', { defaultValue: 'Quantity' })}
+                        </span>
                         <input type="number" min="0" value={tier.qty} onChange={(e) => updateTier(tier.id, { qty: e.target.value })} className={field} />
                       </label>
                     </div>
                     {/* Optional per-tier sale window. Leave blank for no bound. */}
                     <div className="grid grid-cols-2 gap-3">
                       <label className="block">
-                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">Sales start</span>
+                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">
+                          {t('composer.salesStart', { defaultValue: 'Sales start' })}
+                        </span>
                         <input
                           type="datetime-local"
                           value={tier.salesStart || ''}
@@ -1428,7 +1566,9 @@ export default function EventComposer({
                         />
                       </label>
                       <label className="block">
-                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">Sales end</span>
+                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">
+                          {t('composer.salesEnd', { defaultValue: 'Sales end' })}
+                        </span>
                         <input
                           type="datetime-local"
                           value={tier.salesEnd || ''}
@@ -1440,13 +1580,17 @@ export default function EventComposer({
                       </label>
                     </div>
                     {saleWindowInvalid(tier) && (
-                      <p className="text-sm text-red-300">Sales end must be after sales start.</p>
+                      <p className="text-sm text-red-300">
+                        {t('composer.saleWindowError', { defaultValue: 'Sales end must be after sales start.' })}
+                      </p>
                     )}
                     {/* Optional per-tier entry (validity) window — when the ticket
                         admits the holder. Leave blank to admit anytime. */}
                     <div className="grid grid-cols-2 gap-3">
                       <label className="block">
-                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">Valid from</span>
+                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">
+                          {t('composer.validFrom', { defaultValue: 'Valid from' })}
+                        </span>
                         <input
                           type="datetime-local"
                           value={tier.validFrom || ''}
@@ -1456,7 +1600,9 @@ export default function EventComposer({
                         />
                       </label>
                       <label className="block">
-                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">Valid until</span>
+                        <span className="label-mono mb-1 block text-[10px] uppercase text-white/70">
+                          {t('composer.validUntil', { defaultValue: 'Valid until' })}
+                        </span>
                         <input
                           type="datetime-local"
                           value={tier.validUntil || ''}
@@ -1468,7 +1614,9 @@ export default function EventComposer({
                       </label>
                     </div>
                     {validityWindowInvalid(tier) && (
-                      <p className="text-sm text-red-300">Valid until must be after valid from.</p>
+                      <p className="text-sm text-red-300">
+                        {t('composer.validityError', { defaultValue: 'Valid until must be after valid from.' })}
+                      </p>
                     )}
                   </div>
                 ))}
@@ -1478,7 +1626,7 @@ export default function EventComposer({
                   onClick={addTier}
                   className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/15 bg-transparent px-4 py-3 text-sm font-semibold text-white/70 transition-colors hover:border-white/30 hover:text-white"
                 >
-                  <Plus className="h-4 w-4" /> Add ticket type
+                  <Plus className="h-4 w-4" /> {t('composer.addTicketType', { defaultValue: 'Add ticket type' })}
                 </button>
               </div>
 
@@ -1487,11 +1635,19 @@ export default function EventComposer({
                 <div className="mt-3 rounded-xl border border-white/10 p-4">
                   <div className="flex items-center justify-between gap-4">
                     <div>
-                      <p className="text-[15px] text-white/80">Pass the service fee to buyers</p>
+                      <p className="text-[15px] text-white/80">
+                        {t('composer.fee.passTitle', { defaultValue: 'Pass the service fee to buyers' })}
+                      </p>
                       <p className="mt-1 text-xs text-white/50">
                         {passFeesToBuyer
-                          ? 'Buyers pay the fee on top of your ticket price. You receive the full price you set.'
-                          : 'The fee comes out of your ticket price. Buyers pay exactly what you set, and you receive less.'}
+                          ? t('composer.fee.onDesc', {
+                              defaultValue:
+                                'Buyers pay the fee on top of your ticket price. You receive the full price you set.',
+                            })
+                          : t('composer.fee.offDesc', {
+                              defaultValue:
+                                'The fee comes out of your ticket price. Buyers pay exactly what you set, and you receive less.',
+                            })}
                       </p>
                     </div>
                     <Toggle
@@ -1514,10 +1670,12 @@ export default function EventComposer({
               icon={Users}
               right={<Toggle on={showGuestlist} onChange={setShowGuestlist} label="Show guestlist" />}
             >
-              Guestlist
+              {t('composer.guestlist', { defaultValue: 'Guestlist' })}
             </SectionTitle>
             <p className="mb-3 text-sm text-white/50">
-              Add the artists, hosts, DJs and special guests performing or joining your event.
+              {t('composer.guestlistHint', {
+                defaultValue: 'Add the artists, hosts, DJs and special guests performing or joining your event.',
+              })}
             </p>
 
             <div className="space-y-3 rounded-xl border border-white/10 p-4">
@@ -1531,13 +1689,15 @@ export default function EventComposer({
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-[15px] font-semibold text-white">{g.name}</span>
-                        <span className="block text-xs text-white/50">{g.role}</span>
+                        <span className="block text-xs text-white/50">
+                          {t(`composer.roles.${g.role}`, { defaultValue: g.role })}
+                        </span>
                       </span>
                       <button
                         type="button"
                         onClick={() => removeGuest(g.id)}
                         className="shrink-0 rounded-lg p-1.5 text-white/40 transition-colors hover:bg-white/[0.04] hover:text-red-300"
-                        aria-label={`Remove ${g.name}`}
+                        aria-label={t('composer.removeGuest', { defaultValue: 'Remove {{name}}', name: g.name })}
                       >
                         <X className="h-4 w-4" />
                       </button>
@@ -1556,7 +1716,7 @@ export default function EventComposer({
                     addGuest()
                   }
                 }}
-                placeholder="Artist or guest name"
+                placeholder={t('composer.guestNamePlaceholder', { defaultValue: 'Artist or guest name' })}
                 aria-label="Artist or guest name"
                 className={field}
               />
@@ -1572,7 +1732,7 @@ export default function EventComposer({
                         : 'border-white/10 bg-white/[0.03] text-white/70 hover:border-white/20 hover:text-white'
                     }`}
                   >
-                    {role}
+                    {t(`composer.roles.${role}`, { defaultValue: role })}
                   </button>
                 ))}
               </div>
@@ -1582,21 +1742,25 @@ export default function EventComposer({
                 disabled={!guestName.trim()}
                 className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/15 px-4 py-3 text-sm font-semibold text-white/70 transition-colors hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
               >
-                <Plus className="h-4 w-4" /> Add to guestlist
+                <Plus className="h-4 w-4" /> {t('composer.addToGuestlist', { defaultValue: 'Add to guestlist' })}
               </button>
             </div>
           </div>
 
           {/* Event Features */}
           <div className="mt-8 border-t border-white/10 pt-6">
-            <SectionTitle icon={Star}>Event Features</SectionTitle>
+            <SectionTitle icon={Star}>{t('composer.features', { defaultValue: 'Event Features' })}</SectionTitle>
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 px-4 py-4">
-              <span className="text-sm text-white/70">Showcase your event&rsquo;s performers, sponsors and more.</span>
+              <span className="text-sm text-white/70">
+                {t('composer.featuresHint', { defaultValue: 'Showcase your event’s performers, sponsors and more.' })}
+              </span>
               <span className="inline-flex select-none items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-white/60">
-                Coming soon
+                {t('composer.comingSoon', { defaultValue: 'Coming soon' })}
               </span>
             </div>
-            <p className="mt-2 px-1 text-xs text-white/70">Available in the editor after you create the event.</p>
+            <p className="mt-2 px-1 text-xs text-white/70">
+              {t('composer.featuresNote', { defaultValue: 'Available in the editor after you create the event.' })}
+            </p>
           </div>
 
           {/* Media rows */}
@@ -1607,33 +1771,33 @@ export default function EventComposer({
               <input
                 value={videoUrl}
                 onChange={(e) => setVideoUrl(e.target.value)}
-                placeholder="Promo video link (YouTube, Vimeo…)"
+                placeholder={t('composer.promoVideoPlaceholder', { defaultValue: 'Promo video link (YouTube, Vimeo…)' })}
                 aria-label="Promo video link"
                 className="w-full bg-transparent py-3.5 text-[15px] text-white placeholder:text-white/40 focus:outline-none"
               />
             </div>
             <div className="flex items-center justify-between gap-3 text-[15px] text-white/70">
               <span className="flex items-center gap-3">
-                <ImageIcon className="h-[18px] w-[18px]" /> Image Gallery
+                <ImageIcon className="h-[18px] w-[18px]" /> {t('composer.imageGallery', { defaultValue: 'Image Gallery' })}
               </span>
               <span className="inline-flex select-none items-center rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-white/60">
-                Coming soon
+                {t('composer.comingSoon', { defaultValue: 'Coming soon' })}
               </span>
             </div>
           </div>
 
           {/* Page Settings */}
           <div className="mt-8 border-t border-white/10 pt-6">
-            <SectionTitle icon={Settings}>Page Settings</SectionTitle>
+            <SectionTitle icon={Settings}>{t('composer.pageSettings', { defaultValue: 'Page Settings' })}</SectionTitle>
             <div className="space-y-3">
               <div className="flex items-center justify-between rounded-xl border border-white/10 px-4 py-3.5">
-                <span className="text-[15px] text-white/80">Show on Explore</span>
+                <span className="text-[15px] text-white/80">{t('composer.showOnExplore', { defaultValue: 'Show on Explore' })}</span>
                 <Toggle on={showOnExplore} onChange={setShowOnExplore} label="Show on Explore" />
               </div>
               <div className="rounded-xl border border-white/10 px-4 py-3.5">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-[15px] text-white/80">
-                    <Lock className="h-4 w-4 text-white/50" /> Password Protected Event
+                    <Lock className="h-4 w-4 text-white/50" /> {t('composer.passwordProtected', { defaultValue: 'Password Protected Event' })}
                   </span>
                   <Toggle on={passwordProtected} onChange={setPasswordProtected} label="Password protected event" />
                 </div>
@@ -1643,16 +1807,29 @@ export default function EventComposer({
                       type="text"
                       value={accessCode}
                       onChange={(e) => setAccessCode(e.target.value)}
-                      placeholder={isEdit ? 'New access code (blank keeps current)' : 'Access code (min 6 characters)'}
+                      placeholder={
+                        isEdit
+                          ? t('composer.accessCodePlaceholderEdit', {
+                              defaultValue: 'New access code (blank keeps current)',
+                            })
+                          : t('composer.accessCodePlaceholderNew', {
+                              defaultValue: 'Access code (min 6 characters)',
+                            })
+                      }
                       aria-label="Access code"
                       autoComplete="off"
                       className={`${field} ${accessCodeInvalid ? 'border-red-400/60' : ''}`}
                     />
                     {accessCodeInvalid ? (
-                      <p className="mt-1.5 text-sm text-red-300">Access codes must be at least 6 characters.</p>
+                      <p className="mt-1.5 text-sm text-red-300">
+                        {t('composer.accessCodeError', { defaultValue: 'Access codes must be at least 6 characters.' })}
+                      </p>
                     ) : (
                       <p className="mt-1.5 text-xs text-white/50">
-                        Attendees must enter this code to view and buy. It&rsquo;s stored hashed — we never keep the plain code.
+                        {t('composer.accessCodeHint', {
+                          defaultValue:
+                            'Attendees must enter this code to view and buy. It’s stored hashed — we never keep the plain code.',
+                        })}
                       </p>
                     )}
                   </div>
@@ -1677,7 +1854,9 @@ export default function EventComposer({
             />
             {guest && (
               <p className="-mt-1 text-center text-[11px] text-white/40">
-                Your poster is kept for 7 days while you finish setting up.
+                {t('composer.posterKept', {
+                  defaultValue: 'Your poster is kept for 7 days while you finish setting up.',
+                })}
               </p>
             )}
 
@@ -1687,7 +1866,7 @@ export default function EventComposer({
               <input
                 value={spotifyUrl}
                 onChange={(e) => setSpotifyUrl(e.target.value)}
-                placeholder="Add song from Spotify"
+                placeholder={t('composer.spotifyPlaceholder', { defaultValue: 'Add song from Spotify' })}
                 aria-label="Spotify song link"
                 className="w-full bg-transparent py-3 text-sm text-white placeholder:text-white/40 focus:outline-none"
               />
@@ -1697,21 +1876,21 @@ export default function EventComposer({
             <div className="space-y-3 rounded-xl border border-white/10 p-4">
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2 text-sm text-white/80">
-                  <Type className="h-4 w-4 text-white/50" /> Title Font
+                  <Type className="h-4 w-4 text-white/50" /> {t('composer.titleFont', { defaultValue: 'Title Font' })}
                 </span>
                 <select
                   value={titleFont}
                   onChange={(e) => setTitleFont(e.target.value as any)}
                   className="rounded-lg border border-white/10 bg-transparent px-2.5 py-1.5 text-sm text-white [color-scheme:dark] focus:outline-none"
                 >
-                  <option>Default</option>
-                  <option>Serif</option>
-                  <option>Sans</option>
+                  <option value="Default">{t('composer.fonts.Default', { defaultValue: 'Default' })}</option>
+                  <option value="Serif">{t('composer.fonts.Serif', { defaultValue: 'Serif' })}</option>
+                  <option value="Sans">{t('composer.fonts.Sans', { defaultValue: 'Sans' })}</option>
                 </select>
               </div>
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2 text-sm text-white/80">
-                  <Palette className="h-4 w-4 text-white/50" /> Accent Color
+                  <Palette className="h-4 w-4 text-white/50" /> {t('composer.accentColor', { defaultValue: 'Accent Color' })}
                 </span>
                 <div className="flex items-center gap-1.5">
                   {ACCENTS.map(({ hex, name }) => (
@@ -1719,9 +1898,9 @@ export default function EventComposer({
                       key={hex}
                       type="button"
                       onClick={() => setAccentColor(hex)}
-                      aria-label={name}
+                      aria-label={t(`composer.colors.${name}`, { defaultValue: name })}
                       aria-pressed={accentColor === hex}
-                      title={name}
+                      title={t(`composer.colors.${name}`, { defaultValue: name })}
                       className={`h-5 w-5 rounded-full transition-transform ${accentColor === hex ? 'ring-2 ring-white ring-offset-2 ring-offset-[#0a0a0a]' : ''}`}
                       style={{ backgroundColor: hex }}
                     />
@@ -1733,21 +1912,21 @@ export default function EventComposer({
             {/* Poster theme — pins the poster gradient ('' = Auto). */}
             <div className="space-y-3 rounded-xl border border-white/10 p-4">
               <span className="flex items-center gap-2 text-sm text-white/80">
-                <Palette className="h-4 w-4 text-white/50" /> Poster Theme
+                <Palette className="h-4 w-4 text-white/50" /> {t('composer.posterTheme', { defaultValue: 'Poster Theme' })}
               </span>
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setThemeKey('')}
                   aria-pressed={themeKey === ''}
-                  title="Auto"
+                  title={t('composer.auto', { defaultValue: 'Auto' })}
                   className={`flex h-8 items-center rounded-full border px-3 text-xs font-semibold transition-all ${
                     themeKey === ''
                       ? 'border-white bg-white text-black'
                       : 'border-white/15 text-white/70 hover:text-white'
                   }`}
                 >
-                  Auto
+                  {t('composer.auto', { defaultValue: 'Auto' })}
                 </button>
                 {POSTER_THEME_SWATCHES.map(({ key, bg }) => (
                   <button
@@ -1778,10 +1957,13 @@ export default function EventComposer({
                 />
                 <span className="min-w-0">
                   <span className="flex items-center gap-2 text-sm font-semibold text-white">
-                    <Repeat className="h-4 w-4 text-white/50" /> Apply changes to all events in this series
+                    <Repeat className="h-4 w-4 text-white/50" />{' '}
+                    {t('composer.applySeries', { defaultValue: 'Apply changes to all events in this series' })}
                   </span>
                   <span className="mt-0.5 block text-xs text-white/60">
-                    Updates every event in the series. Each keeps its own date &amp; time.
+                    {t('composer.applySeriesHint', {
+                      defaultValue: 'Updates every event in the series. Each keeps its own date & time.',
+                    })}
                   </span>
                 </span>
               </label>
@@ -1796,15 +1978,15 @@ export default function EventComposer({
             >
               {guest
                 ? authed
-                  ? 'Continue — set up your organizer profile'
-                  : 'Continue — sign up to publish'
+                  ? t('composer.continueOrganizer', { defaultValue: 'Continue — set up your organizer profile' })
+                  : t('composer.continueSignup', { defaultValue: 'Continue — sign up to publish' })
                 : isEdit
                 ? saving
-                  ? 'Saving…'
-                  : 'Save changes'
+                  ? t('composer.saving', { defaultValue: 'Saving…' })
+                  : t('composer.saveChanges', { defaultValue: 'Save changes' })
                 : saving
-                ? 'Creating…'
-                : 'Create Event'}
+                ? t('composer.creating', { defaultValue: 'Creating…' })
+                : t('composer.createEvent', { defaultValue: 'Create Event' })}
             </button>
 
             {isEdit ? (
@@ -1820,35 +2002,47 @@ export default function EventComposer({
                   }`}
                 >
                   {publishing
-                    ? 'Updating…'
+                    ? t('composer.updating', { defaultValue: 'Updating…' })
                     : isPublished
-                    ? 'Unpublish (move to draft)'
-                    : 'Publish event'}
+                    ? t('composer.unpublish', { defaultValue: 'Unpublish (move to draft)' })
+                    : t('composer.publishEvent', { defaultValue: 'Publish event' })}
                 </button>
                 {!isPublished && paidPublishingBlocked ? (
                   <p className="text-center text-xs text-amber-300">
-                    Complete identity verification to publish paid events.
+                    {t('composer.verifyToPublish', {
+                      defaultValue: 'Complete identity verification to publish paid events.',
+                    })}
                   </p>
                 ) : (
                   <p className="text-center text-xs text-white/70">
-                    {isPublished ? 'Live — visible to attendees.' : 'Draft — only you can see this.'}
+                    {isPublished
+                      ? t('composer.liveNote', { defaultValue: 'Live — visible to attendees.' })
+                      : t('composer.draftNote', { defaultValue: 'Draft — only you can see this.' })}
                   </p>
                 )}
               </>
             ) : guest ? (
               <>
                 <p className="text-center text-xs text-white/70">
-                  Free to set up — your draft is saved on this device, nothing is lost at sign-in.
+                  {t('composer.guestFreeNote', {
+                    defaultValue: 'Free to set up — your draft is saved on this device, nothing is lost at sign-in.',
+                  })}
                 </p>
                 {isPaid && (
                   <p className="text-center text-xs text-amber-300/90">
-                    Paid tickets need a one-time identity verification before the event can go live — you can
-                    finish setting everything up first.
+                    {t('composer.guestPaidNote', {
+                      defaultValue:
+                        'Paid tickets need a one-time identity verification before the event can go live — you can finish setting everything up first.',
+                    })}
                   </p>
                 )}
               </>
             ) : (
-              <p className="text-center text-xs text-white/70">Saved as a private draft — publish when you&rsquo;re ready.</p>
+              <p className="text-center text-xs text-white/70">
+                {t('composer.savedPrivateNote', {
+                  defaultValue: 'Saved as a private draft — publish when you’re ready.',
+                })}
+              </p>
             )}
 
             {/* A restored draft always offers a way out — without this, an
@@ -1865,7 +2059,7 @@ export default function EventComposer({
                 }}
                 className="w-full text-center text-xs text-white/45 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white/80"
               >
-                Not your draft? Start fresh
+                {t('composer.startFresh', { defaultValue: 'Not your draft? Start fresh' })}
               </button>
             )}
           </div>

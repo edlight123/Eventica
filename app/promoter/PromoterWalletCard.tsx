@@ -6,6 +6,7 @@
 // partial-amount ceremony.
 
 import { useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface WalletData {
   availableByCurrency: Record<string, number>
@@ -38,6 +39,7 @@ function fmtBuckets(buckets: Record<string, number>): string {
 }
 
 export default function PromoterWalletCard() {
+  const { t } = useTranslation('common')
   const [wallet, setWallet] = useState<WalletData | null>(null)
   const [withdrawals, setWithdrawals] = useState<WithdrawalRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -80,20 +82,25 @@ export default function PromoterWalletCard() {
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        setMessage({ kind: 'error', text: data?.error || 'Withdrawal failed.' })
+        setMessage({ kind: 'error', text: data?.error || t('promoter.wallet_error_generic', 'Withdrawal failed.') })
         return
       }
       setMessage({
         kind: 'ok',
         text: data.instant
-          ? `Sent! ${fmtMoney(data.payoutHtgCents, 'HTG')} is on its way to your MonCash (after the ${Math.round(
-              (wallet.feePercent || 0.03) * 100
-            )}% instant fee).`
-          : `Requested. ${fmtMoney(data.payoutHtgCents, 'HTG')} will be sent to your MonCash shortly — no fee on this path.`,
+          ? t('promoter.wallet_success_instant', {
+              defaultValue: 'Sent! {{amount}} is on its way to your MonCash (after the {{fee}}% instant fee).',
+              amount: fmtMoney(data.payoutHtgCents, 'HTG'),
+              fee: Math.round((wallet.feePercent || 0.03) * 100),
+            })
+          : t('promoter.wallet_success_pending', {
+              defaultValue: 'Requested. {{amount}} will be sent to your MonCash shortly — no fee on this path.',
+              amount: fmtMoney(data.payoutHtgCents, 'HTG'),
+            }),
       })
       await load()
     } catch {
-      setMessage({ kind: 'error', text: 'Could not reach Tikèm. Nothing was sent.' })
+      setMessage({ kind: 'error', text: t('promoter.wallet_error_network', 'Could not reach Tikèm. Nothing was sent.') })
     } finally {
       setWorking(false)
     }
@@ -101,24 +108,26 @@ export default function PromoterWalletCard() {
 
   return (
     <div className="mb-8 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-      <p className="label-mono text-[11px] uppercase tracking-widest text-brand-400 mb-3">Your wallet</p>
+      <p className="label-mono text-[11px] uppercase tracking-widest text-brand-400 mb-3">{t('promoter.wallet_title', 'Your wallet')}</p>
 
       <div className="grid grid-cols-2 gap-3">
         <div>
           <p className="text-xl font-bold text-white">{fmtBuckets(wallet.availableByCurrency)}</p>
-          <p className="text-[11px] uppercase tracking-wider text-white/50 mt-1">Available now</p>
+          <p className="text-[11px] uppercase tracking-wider text-white/50 mt-1">{t('promoter.wallet_available', 'Available now')}</p>
         </div>
         <div>
           <p className="text-xl font-bold text-white/70">{fmtBuckets(wallet.pendingByCurrency)}</p>
-          <p className="text-[11px] uppercase tracking-wider text-white/50 mt-1">Pending release</p>
+          <p className="text-[11px] uppercase tracking-wider text-white/50 mt-1">{t('promoter.wallet_pending', 'Pending release')}</p>
         </div>
       </div>
 
       <p className="mt-3 text-xs text-white/40 leading-relaxed">
-        Commission unlocks when the event&apos;s funds release to the organizer — the same
-        schedule their own payout follows. Instant MonCash withdrawals carry a{' '}
-        {Math.round((wallet.feePercent || 0.03) * 100)}% fee; minimum{' '}
-        {fmtMoney(wallet.minWithdrawalHtgCents, 'HTG')}.
+        {t('promoter.wallet_note', {
+          defaultValue:
+            "Commission unlocks when the event's funds release to the organizer — the same schedule their own payout follows. Instant MonCash withdrawals carry a {{fee}}% fee; minimum {{min}}.",
+          fee: Math.round((wallet.feePercent || 0.03) * 100),
+          min: fmtMoney(wallet.minWithdrawalHtgCents, 'HTG'),
+        })}
       </p>
 
       {hasAvailable && (
@@ -127,7 +136,7 @@ export default function PromoterWalletCard() {
             type="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            placeholder="MonCash number (e.g. 509 XX XX XX XX)"
+            placeholder={t('promoter.wallet_phone_placeholder', 'MonCash number (e.g. 509 XX XX XX XX)')}
             className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           />
           <button
@@ -136,7 +145,7 @@ export default function PromoterWalletCard() {
             disabled={working || !phone.trim()}
             className="rounded-xl bg-white hover:bg-white/90 px-5 py-3 text-sm font-medium text-black transition-colors disabled:opacity-50 min-h-[44px]"
           >
-            {working ? 'Sending…' : 'Withdraw to MonCash'}
+            {working ? t('promoter.wallet_sending', 'Sending…') : t('promoter.wallet_withdraw_btn', 'Withdraw to MonCash')}
           </button>
         </div>
       )}
@@ -155,7 +164,7 @@ export default function PromoterWalletCard() {
                 {w.createdAt ? new Date(w.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}
                 {' · '}
                 {fmtMoney(w.payoutHtgCents, 'HTG')}
-                {w.instant ? ' · instant' : ''}
+                {w.instant ? ` · ${t('promoter.wallet_instant_label', 'instant')}` : ''}
               </span>
               <span className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-white/50">
                 <span

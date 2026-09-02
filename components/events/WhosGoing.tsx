@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useTranslation } from 'react-i18next'
 import { Users, Lock } from 'lucide-react'
 import type { PublicUserSummary } from '@/types/social'
 
@@ -36,6 +37,7 @@ function Avatar({ user, size = 40 }: { user: PublicUserSummary; size?: number })
 }
 
 export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
+  const { t } = useTranslation('common')
   const [data, setData] = useState<SocialData | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -83,10 +85,13 @@ export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
           <Users className="w-5 h-5 text-brand-400" />
-          Who&apos;s going
+          {t('whos_going.title', "Who's going")}
         </h2>
         <span className="text-sm font-semibold text-white/50">
-          {totalGoing} {totalGoing === 1 ? 'person' : 'people'}
+          {t(totalGoing === 1 ? 'whos_going.person' : 'whos_going.person_plural', {
+            count: totalGoing,
+            defaultValue: totalGoing === 1 ? '{{count}} person' : '{{count}} people',
+          })}
         </span>
       </div>
 
@@ -94,7 +99,10 @@ export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
       {friendsGoing.length > 0 && (
         <div className="mb-4">
           <p className="text-xs font-semibold text-brand-300 uppercase tracking-wide mb-2">
-            {friendsGoing.length} {friendsGoing.length === 1 ? 'friend' : 'friends'} going
+            {t(friendsGoing.length === 1 ? 'whos_going.friend_going' : 'whos_going.friend_going_plural', {
+              count: friendsGoing.length,
+              defaultValue: friendsGoing.length === 1 ? '{{count}} friend going' : '{{count}} friends going',
+            })}
           </p>
           <div className="flex flex-wrap gap-3">
             {friendsGoing.map((f) => (
@@ -118,9 +126,9 @@ export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
             {viewerIsGoing && (
               <div
                 className="rounded-full w-10 h-10 bg-brand-600 flex items-center justify-center text-white text-xs font-semibold ring-2 ring-[#0a0a0a]"
-                title="You're going"
+                title={t('whos_going.youre_going', "You're going")}
               >
-                You
+                {t('whos_going.you_badge', 'You')}
               </div>
             )}
             {pile.map((u) => (
@@ -133,7 +141,9 @@ export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
             )}
           </div>
           <p className="text-sm text-white/55">
-            {viewerIsGoing ? "You're going" : `${totalGoing} going`}
+            {viewerIsGoing
+              ? t('whos_going.youre_going', "You're going")
+              : t('whos_going.going_count', { count: totalGoing, defaultValue: '{{count}} going' })}
           </p>
         </div>
       )}
@@ -143,11 +153,16 @@ export default function WhosGoing({ eventId, currentUserId }: WhosGoingProps) {
         <div className="flex items-start gap-2 text-sm text-white/50">
           <Lock className="w-4 h-4 mt-0.5 flex-shrink-0" />
           <p>
-            {totalGoing} {totalGoing === 1 ? 'person is' : 'people are'} going. Attendees keep their
-            attendance private.{' '}
+            {t(totalGoing === 1 ? 'whos_going.privacy_note' : 'whos_going.privacy_note_plural', {
+              count: totalGoing,
+              defaultValue:
+                totalGoing === 1
+                  ? '{{count}} person is going. Attendees keep their attendance private.'
+                  : '{{count}} people are going. Attendees keep their attendance private.',
+            })}{' '}
             {currentUserId && (
               <Link href="/profile" className="text-brand-300 hover:underline font-medium">
-                Show that you&apos;re going
+                {t('whos_going.show_going_cta', "Show that you're going")}
               </Link>
             )}
           </p>

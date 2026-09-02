@@ -14,6 +14,8 @@ import { generateTicketQRCode } from '@/lib/qrcode'
 import Navbar from '@/components/Navbar'
 import MobileNavWrapper from '@/components/MobileNavWrapper'
 import GuestAccountOffer from './GuestAccountOffer'
+import { resolveServerLanguage, tServer } from '@/lib/serverT'
+import { intlLocaleFor } from '@/lib/dateLocale'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -30,11 +32,11 @@ function toIso(value: any): string | null {
   return String(value)
 }
 
-function formatDate(iso: string | null): string {
-  if (!iso) return 'Date to be announced'
+function formatDate(iso: string | null, locale: string, fallback: string): string {
+  if (!iso) return fallback
   const date = new Date(iso)
-  if (Number.isNaN(date.getTime())) return 'Date to be announced'
-  return date.toLocaleDateString('en-US', {
+  if (Number.isNaN(date.getTime())) return fallback
+  return date.toLocaleDateString(locale, {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
@@ -53,6 +55,9 @@ export default async function GuestTicketsPage({
 }) {
   const { token } = await params
   const { purchased } = await searchParams
+
+  const lang = resolveServerLanguage()
+  const t = (path: string, fallback: string) => tServer(lang, path, fallback)
 
   const order = await getGuestOrderByToken(decodeURIComponent(token))
   // A bad signature and a missing order are indistinguishable to the visitor —
@@ -85,6 +90,7 @@ export default async function GuestTicketsPage({
   )
 
   const startIso = toIso(event?.start_datetime)
+  const dateFallback = t('guest_tickets.date_tba', 'Date to be announced')
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
@@ -93,22 +99,32 @@ export default async function GuestTicketsPage({
       <main className="max-w-2xl mx-auto px-4 py-8 pb-mobile-nav md:pb-16">
         {purchased === '1' && (
           <div className="mb-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4">
-            <p className="text-emerald-300 font-semibold">Payment confirmed 🎉</p>
+            <p className="text-emerald-300 font-semibold">{t('guest_tickets.payment_confirmed', 'Payment confirmed 🎉')}</p>
             <p className="text-sm text-white/70 mt-1">
-              We also sent {order.email ? <strong className="text-white/90">{order.email}</strong> : 'you'} a
-              copy{order.phone ? ' and a text message' : ''}. Keep this link — it is your ticket.
+              {t('guest_tickets.also_sent_prefix', 'We also sent')}{' '}
+              {order.email ? (
+                <strong className="text-white/90">{order.email}</strong>
+              ) : (
+                t('guest_tickets.also_sent_you', 'you')
+              )}{' '}
+              {order.phone
+                ? t('guest_tickets.also_sent_copy_and_text', 'a copy and a text message.')
+                : t('guest_tickets.also_sent_copy', 'a copy.')}{' '}
+              {t('guest_tickets.keep_link', 'Keep this link — it is your ticket.')}
             </p>
           </div>
         )}
 
         <header className="mb-8">
           <p className="label-mono text-[11px] uppercase tracking-widest text-brand-400 mb-2">
-            {tickets.length > 1 ? `${tickets.length} tickets` : 'Your ticket'}
+            {tickets.length > 1
+              ? t('guest_tickets.tickets_count', '{{count}} tickets').replace('{{count}}', String(tickets.length))
+              : t('guest_tickets.your_ticket', 'Your ticket')}
           </p>
           <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight">
-            {event?.title || 'Your event'}
+            {event?.title || t('guest_tickets.your_event', 'Your event')}
           </h1>
-          <p className="text-white/60 mt-2">{formatDate(startIso)}</p>
+          <p className="text-white/60 mt-2">{formatDate(startIso, intlLocaleFor(lang), dateFallback)}</p>
           {(event?.venue_name || event?.city) && (
             <p className="text-white/60">
               {[event?.venue_name, event?.city].filter(Boolean).join(', ')}
@@ -118,9 +134,9 @@ export default async function GuestTicketsPage({
 
         {tickets.length === 0 ? (
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center">
-            <p className="text-white font-semibold">Your tickets are still being issued.</p>
+            <p className="text-white font-semibold">{t('guest_tickets.still_being_issued', 'Your tickets are still being issued.')}</p>
             <p className="text-sm text-white/60 mt-2">
-              This usually takes a few seconds. Refresh this page — the link stays valid.
+              {t('guest_tickets.still_being_issued_detail', 'This usually takes a few seconds. Refresh this page — the link stays valid.')}
             </p>
           </div>
         ) : (
@@ -133,12 +149,12 @@ export default async function GuestTicketsPage({
                 <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-white font-semibold truncate">
-                      {ticket.tier_name || ticket.ticket_type || 'General Admission'}
+                      {ticket.tier_name || ticket.ticket_type || t('guest_tickets.general_admission', 'General Admission')}
                     </p>
                     <p className="text-xs text-white/50 mt-0.5">{order.name}</p>
                   </div>
                   <span className="text-[11px] uppercase tracking-wider text-white/50 shrink-0">
-                    {ticket.checked_in ? 'Checked in' : 'Valid'}
+                    {ticket.checked_in ? t('guest_tickets.checked_in', 'Checked in') : t('guest_tickets.valid', 'Valid')}
                   </span>
                 </div>
 
@@ -148,7 +164,7 @@ export default async function GuestTicketsPage({
                       {/* Data URI, rendered unoptimized — there is no remote asset to optimize. */}
                       <Image
                         src={qrCodes[index] as string}
-                        alt="Ticket QR code"
+                        alt={t('guest_tickets.qr_alt', 'Ticket QR code')}
                         width={220}
                         height={220}
                         unoptimized
@@ -160,7 +176,7 @@ export default async function GuestTicketsPage({
                   <p className="mt-4 font-mono text-lg tracking-[0.2em] text-white">
                     {String(ticket.id).slice(0, 12).toUpperCase()}
                   </p>
-                  <p className="text-xs text-white/50 mt-1">Show this code if the QR won&apos;t scan</p>
+                  <p className="text-xs text-white/50 mt-1">{t('guest_tickets.show_code_fallback', "Show this code if the QR won't scan")}</p>
                 </div>
               </div>
             ))}
@@ -176,9 +192,13 @@ export default async function GuestTicketsPage({
         />
 
         <p className="mt-8 text-xs text-white/40 text-center leading-relaxed">
-          Lost this page? It is in your confirmation email
-          {order.phone ? ' and text message' : ''}. For help with a refund or a change,
-          contact support with the email or phone number you used at checkout.
+          {order.phone
+            ? t('guest_tickets.lost_page_email_and_text', 'Lost this page? It is in your confirmation email and text message.')
+            : t('guest_tickets.lost_page_email', 'Lost this page? It is in your confirmation email.')}{' '}
+          {t(
+            'guest_tickets.lost_page_support',
+            'For help with a refund or a change, contact support with the email or phone number you used at checkout.'
+          )}
         </p>
       </main>
 

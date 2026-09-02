@@ -540,8 +540,17 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
         await new Promise(resolve => setTimeout(resolve, 800))
         showToast({
           type: 'success',
-          title: 'Free ticket claimed!',
-          message: `${claimedQuantity} ticket${claimedQuantity !== 1 ? 's' : ''} added to your collection`,
+          title: t('checkout.free_ticket_claimed_title', { defaultValue: 'Free ticket claimed!' }),
+          message:
+            claimedQuantity === 1
+              ? t('checkout.tickets_added_collection', {
+                  count: claimedQuantity,
+                  defaultValue: '{{count}} ticket added to your collection',
+                })
+              : t('checkout.tickets_added_collection_plural', {
+                  count: claimedQuantity,
+                  defaultValue: '{{count}} tickets added to your collection',
+                }),
           duration: 4000
         })
         router.push('/tickets')
@@ -600,10 +609,26 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
       // Show success toast and redirect
       showToast({
         type: 'success',
-        title: 'Tickets claimed successfully!',
+        title: t('checkout.tickets_claimed_title', { defaultValue: 'Tickets claimed successfully!' }),
         message: data.guestTicketUrl
-          ? `${data.count} free ticket${data.count !== 1 ? 's' : ''} — check your email`
-          : `${data.count} free ticket${data.count !== 1 ? 's' : ''} added to your collection`,
+          ? (data.count === 1
+              ? t('checkout.tickets_claimed_email', {
+                  count: data.count,
+                  defaultValue: '{{count}} free ticket — check your email',
+                })
+              : t('checkout.tickets_claimed_email_plural', {
+                  count: data.count,
+                  defaultValue: '{{count}} free tickets — check your email',
+                }))
+          : (data.count === 1
+              ? t('checkout.tickets_added_collection', {
+                  count: data.count,
+                  defaultValue: '{{count}} ticket added to your collection',
+                })
+              : t('checkout.tickets_added_collection_plural', {
+                  count: data.count,
+                  defaultValue: '{{count}} tickets added to your collection',
+                })),
         duration: 4000
       })
 
@@ -650,8 +675,17 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
         setShowTieredModal(false)
         showToast({
           type: 'success',
-          title: 'Tickets purchased!',
-          message: `${quantity} ticket${quantity !== 1 ? 's' : ''} successfully purchased`,
+          title: t('checkout.tickets_purchased_title', { defaultValue: 'Tickets purchased!' }),
+          message:
+            quantity === 1
+              ? t('checkout.tickets_purchased_message', {
+                  count: quantity,
+                  defaultValue: '{{count}} ticket successfully purchased',
+                })
+              : t('checkout.tickets_purchased_message_plural', {
+                  count: quantity,
+                  defaultValue: '{{count}} tickets successfully purchased',
+                }),
           duration: 4000
         })
         router.refresh()
@@ -661,7 +695,11 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
 
       if (method === 'stripe') {
         if (isHaitiEvent) {
-          throw new Error('Card payments for Haiti events use Sogepay.')
+          throw new Error(
+            t('checkout.card_haiti_uses_sogepay', {
+              defaultValue: 'Card payments for Haiti events use Sogepay.',
+            })
+          )
         }
         // Use embedded payment instead of redirect
         setShowModal(false)
@@ -669,7 +707,9 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
         setLoading(false)
       } else if (method === 'sogepay') {
         if (!isHaitiEvent) {
-          throw new Error('Sogepay is only available for Haiti events.')
+          throw new Error(
+            t('checkout.sogepay_haiti_only', { defaultValue: 'Sogepay is only available for Haiti events.' })
+          )
         }
 
         setShowModal(false)
@@ -695,11 +735,16 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
 
         const data = await response.json()
         if (!response.ok) {
-          throw new Error(data.error || 'Failed to initiate Sogepay payment')
+          throw new Error(
+            data.error ||
+              t('checkout.sogepay_initiate_failed', { defaultValue: 'Failed to initiate Sogepay payment' })
+          )
         }
 
         if (!data.redirectUrl) {
-          throw new Error('Missing Sogepay redirect URL')
+          throw new Error(
+            t('checkout.sogepay_missing_redirect', { defaultValue: 'Missing Sogepay redirect URL' })
+          )
         }
 
         // IN-APP BROWSER: navigate in THIS tab, never a popup.
@@ -743,8 +788,10 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
 
         showToast({
           type: 'info',
-          title: 'Complete payment in the popup',
-          message: 'Keep this tab open. We’ll bring you back when payment completes.',
+          title: t('checkout.complete_payment_popup_title', { defaultValue: 'Complete payment in the popup' }),
+          message: t('checkout.complete_payment_popup_message', {
+            defaultValue: 'Keep this tab open. We’ll bring you back when payment completes.',
+          }),
           duration: 6000,
         })
 
@@ -752,7 +799,9 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
       } else {
         // MonCash Button checkout (hosted redirect)
         if (!isHaitiEvent) {
-          throw new Error('MonCash is only available for Haiti events.')
+          throw new Error(
+            t('checkout.moncash_haiti_only', { defaultValue: 'MonCash is only available for Haiti events.' })
+          )
         }
         setShowModal(false)
 
@@ -778,11 +827,18 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
 
         const data = await response.json()
         if (!response.ok) {
-          throw new Error(data.error || 'Failed to initiate MonCash Button payment')
+          throw new Error(
+            data.error ||
+              t('checkout.moncash_initiate_failed', {
+                defaultValue: 'Failed to initiate MonCash Button payment',
+              })
+          )
         }
 
         if (!data.redirectUrl) {
-          throw new Error('Missing MonCash redirect URL')
+          throw new Error(
+            t('checkout.moncash_missing_redirect', { defaultValue: 'Missing MonCash redirect URL' })
+          )
         }
 
         // IN-APP BROWSER: navigate in THIS tab, never a popup.
@@ -829,19 +885,24 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
 
         showToast({
           type: 'info',
-          title: 'Complete payment in the popup',
-          message: 'Keep this tab open. We’ll bring you back when payment completes.',
+          title: t('checkout.complete_payment_popup_title', { defaultValue: 'Complete payment in the popup' }),
+          message: t('checkout.complete_payment_popup_message', {
+            defaultValue: 'Keep this tab open. We’ll bring you back when payment completes.',
+          }),
           duration: 6000,
         })
 
         setLoading(false)
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to purchase ticket')
+      const message =
+        err.message || t('checkout.purchase_generic_failed', { defaultValue: 'Failed to purchase ticket' })
+      setError(message)
       showToast({
         type: 'error',
-        title: 'Purchase failed',
-        message: err.message || 'Please try again later',
+        title: t('checkout.purchase_failed_title', { defaultValue: 'Purchase failed' }),
+        message:
+          err.message || t('checkout.purchase_failed_generic', { defaultValue: 'Please try again later' }),
         duration: 4000
       })
       setLoading(false)
@@ -1022,7 +1083,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
         <div className="space-y-4">
           {/* Quantity Selector for Free Tickets */}
           <div className="flex items-center justify-between bg-white/[0.03] border border-white/10 rounded-lg p-4">
-            <span className="text-sm font-medium text-white/70">{t('quantity')}</span>
+            <span className="text-sm font-medium text-white/70">{t('events.quantity')}</span>
             <div className="flex items-center space-x-3">
               <button
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -1154,7 +1215,7 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
                   {selectedTiers.map((tier, index) => (
                     <div key={index} className="flex justify-between items-center text-sm">
                       <span className="text-white/65">
-                        {tier.quantity}x {tier.tierName || 'Ticket'}
+                        {tier.quantity}x {tier.tierName || t('ticket.ticket')}
                       </span>
                       <span className="font-medium text-white">
                         {(tier.price * tier.quantity).toLocaleString()} {currency}
@@ -1216,26 +1277,41 @@ export default function BuyTicketButton({ eventId, userId, isFree, ticketPrice, 
 
               {isHaitiEvent && String(currency || 'HTG').toUpperCase() === 'USD' && (
                 <div className="mt-3 text-sm text-white/65">
-                  {usdHtgQuoteLoading && <span>Estimating MonCash total in HTG…</span>}
+                  {usdHtgQuoteLoading && (
+                    <span>
+                      {t('checkout.estimating_moncash_total', {
+                        defaultValue: 'Estimating MonCash total in HTG…',
+                      })}
+                    </span>
+                  )}
                   {!usdHtgQuoteLoading && usdHtgQuote && (
                     <div className="space-y-1">
                       <div>
-                        Estimated MonCash charge: <span className="font-semibold text-white">{usdHtgQuote.amountHtg.toLocaleString()} HTG</span>
+                        {t('checkout.estimated_moncash_charge', { defaultValue: 'Estimated MonCash charge:' })}{' '}
+                        <span className="font-semibold text-white">{usdHtgQuote.amountHtg.toLocaleString()} HTG</span>
                       </div>
                       <div className="text-xs text-white/70">
-                        Rate: {usdHtgQuote.baseRate.toFixed(2)} HTG/USD + {(usdHtgQuote.spreadPercent * 100).toFixed(0)}% spread
+                        {t('checkout.moncash_rate_detail', {
+                          rate: usdHtgQuote.baseRate.toFixed(2),
+                          spread: (usdHtgQuote.spreadPercent * 100).toFixed(0),
+                          defaultValue: 'Rate: {{rate}} HTG/USD + {{spread}}% spread',
+                        })}
                       </div>
                     </div>
                   )}
                   {!usdHtgQuoteLoading && usdHtgQuoteError && (
-                    <span className="text-red-300">Unable to estimate HTG total right now.</span>
+                    <span className="text-red-300">
+                      {t('checkout.moncash_estimate_unavailable', {
+                        defaultValue: 'Unable to estimate HTG total right now.',
+                      })}
+                    </span>
                   )}
                 </div>
               )}
 
               {promoCode && (
                 <div className="mt-2 text-sm text-green-400">
-                  ✓ Promo code applied
+                  ✓ {t('events.promo_code_applied')}
                 </div>
               )}
             </div>

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import PurchasePopupBridge from '@/components/PurchasePopupBridge'
+import { resolveServerLanguage, tServer } from '@/lib/serverT'
 
 export default function PurchaseFailedPage({
   searchParams,
@@ -7,41 +8,76 @@ export default function PurchaseFailedPage({
   searchParams: { reason?: string }
 }) {
   const reason = searchParams.reason || 'unknown'
-  
+  const lang = resolveServerLanguage()
+  const t = (path: string, fallback: string) => tServer(lang, path, fallback)
+
   const messages: Record<string, { title: string; description: string }> = {
     missing_transaction: {
-      title: 'Transaction Not Found',
-      description: 'We couldn\'t find your payment transaction. Please try purchasing again.',
+      title: t('purchase.failed.missing_transaction.title', 'Transaction Not Found'),
+      description: t(
+        'purchase.failed.missing_transaction.description',
+        "We couldn't find your payment transaction. Please try purchasing again."
+      ),
     },
     transaction_not_found: {
-      title: 'Transaction Not Found',
-      description: 'This transaction ID was not found in our system.',
+      title: t('purchase.failed.transaction_not_found.title', 'Transaction Not Found'),
+      description: t(
+        'purchase.failed.transaction_not_found.description',
+        'This transaction ID was not found in our system.'
+      ),
     },
     payment_failed: {
-      title: 'Payment Failed',
-      description: 'Your payment was not successful. Please check your payment method and try again.',
+      title: t('purchase.failed.payment_failed.title', 'Payment Failed'),
+      description: t(
+        'purchase.failed.payment_failed.description',
+        'Your payment was not successful. Please check your payment method and try again.'
+      ),
     },
     sold_out: {
-      title: 'Sold Out',
-      description:
-        'This event sold out before your payment completed. If you were charged, you will be refunded automatically — no ticket was issued.',
+      title: t('purchase.failed.sold_out.title', 'Sold Out'),
+      description: t(
+        'purchase.failed.sold_out.description',
+        'This event sold out before your payment completed. If you were charged, you will be refunded automatically — no ticket was issued.'
+      ),
     },
     amount_mismatch: {
-      title: 'Payment Amount Mismatch',
-      description:
-        'The amount paid did not match the ticket price, so we could not complete your order. If you were charged, please contact support and we will help right away.',
+      title: t('purchase.failed.amount_mismatch.title', 'Payment Amount Mismatch'),
+      description: t(
+        'purchase.failed.amount_mismatch.description',
+        'The amount paid did not match the ticket price, so we could not complete your order. If you were charged, please contact support and we will help right away.'
+      ),
     },
     ticket_creation_failed: {
-      title: 'Ticket Creation Failed',
-      description: 'Payment was successful but we couldn\'t create your ticket. Please contact support.',
+      title: t('purchase.failed.ticket_creation_failed.title', 'Ticket Creation Failed'),
+      description: t(
+        'purchase.failed.ticket_creation_failed.description',
+        "Payment was successful but we couldn't create your ticket. Please contact support."
+      ),
     },
     processing_error: {
-      title: 'Processing Error',
-      description: 'An error occurred while processing your payment. Please try again.',
+      title: t('purchase.failed.processing_error.title', 'Processing Error'),
+      description: t(
+        'purchase.failed.processing_error.description',
+        'An error occurred while processing your payment. Please try again.'
+      ),
+    },
+    missing_order: {
+      title: t('purchase.failed.missing_order.title', 'Order Not Found'),
+      description: t(
+        'purchase.failed.missing_order.description',
+        "We couldn't find your order. Please try purchasing again."
+      ),
+    },
+    capacity_exceeded: {
+      title: t('purchase.failed.capacity_exceeded.title', 'Sold Out'),
+      description: t(
+        'purchase.failed.capacity_exceeded.description',
+        'This event sold out before your payment completed. If you were charged, you will be refunded automatically — no ticket was issued.'
+      ),
     },
     unknown: {
-      title: 'Purchase Failed',
-      description: 'Something went wrong with your purchase. Please try again.',
+      title: t('purchase.failed.unknown.title', 'Purchase Failed'),
+      description: t('purchase.failed.unknown.description', 'Something went wrong with your purchase. Please try again.'),
     },
   }
 
@@ -72,7 +108,7 @@ export default function PurchaseFailedPage({
           <h1 className="text-xl md:text-2xl font-bold text-white mb-2">
             {message.title}
           </h1>
-          
+
           <p className="text-sm md:text-base text-white/65 mb-6 md:mb-8">
             {message.description}
           </p>
@@ -82,25 +118,26 @@ export default function PurchaseFailedPage({
               href="/"
               className="block w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold py-3 md:py-3.5 px-6 rounded-lg transition-colors text-base"
             >
-              Browse Events
+              {t('purchase.browse_events', 'Browse Events')}
             </Link>
-            
+
             <Link
               href="/tickets"
               className="block w-full border border-white/10 hover:bg-[#0a0a0a] text-white/70 font-semibold py-3 md:py-3.5 px-6 rounded-lg transition-colors text-base"
             >
-              View My Tickets
+              {t('purchase.view_my_tickets', 'View My Tickets')}
             </Link>
           </div>
 
           {reason === 'ticket_creation_failed' && (
             <div className="mt-5 p-3.5 md:p-4 border border-amber-500/30 rounded-lg">
               <p className="text-[13px] md:text-sm text-amber-300">
-                <strong>Important:</strong> Your payment was processed. Please contact support at{' '}
+                <strong>{t('purchase.important_label', 'Important:')}</strong>{' '}
+                {t('purchase.ticket_creation_failed_contact', 'Your payment was processed. Please contact support at')}{' '}
                 <a href="mailto:support@tikem.co" className="underline font-semibold">
                   support@tikem.co
                 </a>{' '}
-                to resolve this issue.
+                {t('purchase.ticket_creation_failed_contact_suffix', 'to resolve this issue.')}
               </p>
             </div>
           )}
