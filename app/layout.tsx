@@ -15,11 +15,11 @@ import { cookies, headers } from 'next/headers'
 // by the client detector on every language change) wins; a first-time visitor
 // falls back to Accept-Language; anything else is English. This is what lets
 // SSR speak fr/ht from the first byte instead of flashing English.
-function resolveLanguage(): 'en' | 'fr' | 'ht' {
+async function resolveLanguage(): Promise<'en' | 'fr' | 'ht'> {
   const supported = ['en', 'fr', 'ht'] as const
-  const fromCookie = cookies().get('i18nextLng')?.value?.slice(0, 2)
+  const fromCookie = (await cookies()).get('i18nextLng')?.value?.slice(0, 2)
   if (supported.includes(fromCookie as any)) return fromCookie as any
-  const accept = headers().get('accept-language') || ''
+  const accept = (await headers()).get('accept-language') || ''
   for (const part of accept.split(',')) {
     const code = part.trim().slice(0, 2).toLowerCase()
     if (supported.includes(code as any)) return code as any
@@ -126,7 +126,7 @@ export default async function RootLayout({
   // A settings read must never take the whole site down, so a failure falls back
   // to the defaults — the same values the code shipped with.
   const feeConfig = await getPlatformFeeSettings()
-  const lng = resolveLanguage()
+  const lng = await resolveLanguage()
 
   return (
     <html lang={lng} className={`${inter.variable} ${instrumentSerif.variable} ${spaceGrotesk.variable} ${jetBrainsMono.variable}`}>

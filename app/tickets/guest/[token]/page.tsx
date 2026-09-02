@@ -56,7 +56,7 @@ export default async function GuestTicketsPage({
   const { token } = await params
   const { purchased } = await searchParams
 
-  const lang = resolveServerLanguage()
+  const lang = await resolveServerLanguage()
   const t = (path: string, fallback: string) => tServer(lang, path, fallback)
 
   const order = await getGuestOrderByToken(decodeURIComponent(token))

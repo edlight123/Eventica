@@ -216,14 +216,14 @@ async function getOrganizerDetails(organizerId: string) {
   }
 }
 
-export default async function OrganizerDetailPage({ params }: { params: { id: string } }) {
+export default async function OrganizerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { user, error } = await requireAdmin()
   
   if (error || !user) {
     redirect('/')
   }
 
-  const organizerDetails = await getOrganizerDetails(params.id)
+  const organizerDetails = await getOrganizerDetails((await params).id)
 
   if (!organizerDetails) {
     redirect('/admin/organizers')

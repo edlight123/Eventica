@@ -9,7 +9,7 @@ export default async function TermsOfServicePage() {
   // Locale: the language switcher's cookie wins (works for anonymous
   // visitors too), then the signed-in user's saved language, then English.
   const user = await getCurrentUser()
-  const cookieLng = cookies().get('i18nextLng')?.value?.slice(0, 2)
+  const cookieLng = (await cookies()).get('i18nextLng')?.value?.slice(0, 2)
   const locale = resolveLocale(cookieLng || (user as { language?: string } | null)?.language)
   const page = await getContentPage('terms', locale)
 

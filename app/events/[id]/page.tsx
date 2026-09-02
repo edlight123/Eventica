@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   // The og:title/description language follows the visitor's cookie-set language,
   // same signal app/layout.tsx uses to SSR the rest of the page in fr/ht.
-  const lang = cookies().get('i18nextLng')?.value?.slice(0, 2)
+  const lang = (await cookies()).get('i18nextLng')?.value?.slice(0, 2)
   const eventDate = new Date(event.start_datetime).toLocaleDateString(intlLocaleFor(lang), {
     weekday: 'long',
     year: 'numeric',

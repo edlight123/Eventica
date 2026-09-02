@@ -145,14 +145,14 @@ async function promoteToOrganizer(formData: FormData) {
   revalidatePath('/admin/organizers')
 }
 
-export default async function AdminUserDetailsPage({ params }: { params: { id: string } }) {
+export default async function AdminUserDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { user, error } = await requireAdmin()
 
   if (error || !user) {
     redirect('/')
   }
 
-  const userId = String(params?.id || '').trim()
+  const userId = String((await params)?.id || '').trim()
   if (!userId) redirect('/admin/users')
 
   const userDoc = await adminDb.collection('users').doc(userId).get()

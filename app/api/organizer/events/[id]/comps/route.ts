@@ -11,9 +11,9 @@ import { generateTicketQRCode } from '@/lib/qrcode'
  * status 'valid', carrying recipient info + the chosen tier_id. Mirrors the
  * free-claim issuance shape so comps behave like any other valid ticket at scan.
  */
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const eventId = String(params?.id || '')
+    const eventId = String((await params)?.id || '')
     if (!eventId) return NextResponse.json({ error: 'Event ID is required' }, { status: 400 })
 
     const user = await getCurrentUser()

@@ -14,11 +14,13 @@ export const revalidate = 0
 export default async function PayoutsSettingsPage({
   searchParams,
 }: {
-  searchParams?: { stripe?: string; view?: string; edit?: string }
+  // Next 15: searchParams is a Promise.
+  searchParams?: Promise<{ stripe?: string; view?: string; edit?: string }>
 }) {
-  const stripeParam = typeof searchParams?.stripe === 'string' ? searchParams.stripe : undefined
-  const viewParam = typeof searchParams?.view === 'string' ? searchParams.view : undefined
-  const editParam = typeof searchParams?.edit === 'string' ? searchParams.edit : undefined
+  const sp = await searchParams
+  const stripeParam = typeof sp?.stripe === 'string' ? sp.stripe : undefined
+  const viewParam = typeof sp?.view === 'string' ? sp.view : undefined
+  const editParam = typeof sp?.edit === 'string' ? sp.edit : undefined
   const payoutPath = `/organizer/settings/payouts${stripeParam ? `?stripe=${encodeURIComponent(stripeParam)}` : ''}`
 
   // Verify authentication

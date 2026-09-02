@@ -19,8 +19,9 @@ const DICTS: Record<ServerLang, any> = { en: commonEn, fr: commonFr, ht: commonH
 const SUPPORTED: readonly ServerLang[] = ['en', 'fr', 'ht']
 
 /** The visitor's language for this request, from the same cookie the client writes. */
-export function resolveServerLanguage(): ServerLang {
-  const fromCookie = cookies().get('i18nextLng')?.value?.slice(0, 2)
+export async function resolveServerLanguage(): Promise<ServerLang> {
+  // Next 15: cookies() is async.
+  const fromCookie = (await cookies()).get('i18nextLng')?.value?.slice(0, 2)
   return (SUPPORTED as readonly string[]).includes(fromCookie || '') ? (fromCookie as ServerLang) : 'en'
 }
 

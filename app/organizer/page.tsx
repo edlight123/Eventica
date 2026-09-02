@@ -28,7 +28,8 @@ function sanitizeRedirectTarget(target: string | undefined): string {
 export default async function OrganizerDashboard({
   searchParams
 }: {
-  searchParams?: { redirect?: string }
+  // Next 15: searchParams is a Promise.
+  searchParams?: Promise<{ redirect?: string }>
 }) {
   const user = await getCurrentUser()
 
@@ -37,7 +38,7 @@ export default async function OrganizerDashboard({
   }
 
   if (user.role !== 'organizer') {
-    const redirectTo = sanitizeRedirectTarget(searchParams?.redirect)
+    const redirectTo = sanitizeRedirectTarget((await searchParams)?.redirect)
 
     return <OrganizerUpgradePrompt redirectTo={redirectTo} />
   }
